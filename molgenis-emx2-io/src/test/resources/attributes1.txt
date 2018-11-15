@@ -1,0 +1,13 @@
+name,entity,dataType,nillable,refEntity,idAttribute,description
+cityName,cities,,FALSE,,TRUE,unique city name
+lat,cities,decimal,,,,latitude in degrees
+lng,cities,decimal,,,,longitude in degrees
+displayName,persons,,FALSE,,TRUE,unique name
+firstName,persons,,,,,first name
+lastName,persons,,,,,family name
+birthdate,patients,date,,,,day of birth
+birthplace,patients,xref,,cities,,place of birth
+children,patients,mref,,patients,,children of a patient
+disease,patients,,,,,disese description
+userName,users,,FALSE,,TRUE,unique login name
+active,users,bool,,,,whether user is active

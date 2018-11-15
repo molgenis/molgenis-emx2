@@ -1,0 +1,11 @@
+table, column, definition
+table A, column A, nillable ref(table B.column B)
+table B, column B,
+person,Display name,unique
+person,First name,
+person,Last name,
+person, birthDate, nillable date
+person, weight, nillable int
+person, birthPlace, ref(cities.name)
+cities, name, unique
+person,,unique(firstName,lastName)
