@@ -15,13 +15,13 @@ public interface SqlTable {
 
     SqlColumn addColumn(String name, SqlTable otherTable);
 
-    SqlUnique addUnique(String ... name);
+    SqlUnique addUnique(String ... name) throws SqlDatabaseException;
 
     //TODD: remove column, remove unique
 
-    void insert(SqlRow row) throws SqlException;
+    void insert(SqlRow row) throws SqlDatabaseException;
 
-    void insert(Collection<SqlRow> rows) throws SqlException;
+    void insert(Collection<SqlRow> rows) throws SqlDatabaseException;
 
     void delete(SqlRow row);
 

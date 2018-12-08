@@ -57,7 +57,7 @@ public class TestSql {
     }
 
     @Test
-    public void testTypes() throws SqlException, SqlQueryException {
+    public void testTypes() throws SqlDatabaseException, SqlQueryException {
 
         //generate TypeTest table, with columns for each type
         SqlTable t = db.createTable("TypeTest");
@@ -100,7 +100,7 @@ public class TestSql {
         try {
             t2.insert(row);
             fail(); // should not reach this one
-        } catch (SqlException e) {
+        } catch (SqlDatabaseException e) {
             System.out.println("as expected, caught exceptoin: "+ e.getMessage());
         }
 
@@ -115,7 +115,7 @@ public class TestSql {
 
 
     @Test
-    public void testCreate() throws SqlException {
+    public void testCreate() throws SqlDatabaseException {
 
         //create a fromTable
         SqlTable t = db.createTable("Person");
@@ -143,7 +143,7 @@ public class TestSql {
     }
 
     @Test
-    public void testQuery() throws SqlException, SqlQueryException {
+    public void testQuery() throws SqlDatabaseException, SqlQueryException {
 
         SqlTable product = db.createTable("Product");
         product.addColumn("name", STRING);

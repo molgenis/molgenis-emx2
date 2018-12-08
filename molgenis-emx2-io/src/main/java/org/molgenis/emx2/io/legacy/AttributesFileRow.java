@@ -187,7 +187,6 @@ public class AttributesFileRow {
         if (rangeMax != null) builder.append(" rangeMax=").append(rangeMax);
         if (visibleExpression != null) builder.append(" visibleExpression='").append(visibleExpression).append("'");
         if (description != null) builder.append(" description='").append(description).append("'");
-
         builder.append(")");
         return builder.toString();
     }

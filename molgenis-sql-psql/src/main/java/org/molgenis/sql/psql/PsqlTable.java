@@ -16,7 +16,7 @@ public class PsqlTable implements SqlTable {
     private String name;
     private DSLContext sql;
     private Map<String, PsqlColumn> columns = new LinkedHashMap<>();
-    private List<SqlUnique> uniques = new ArrayList<SqlUnique>();
+    private List<SqlUnique> uniques = new ArrayList<>();
 
     PsqlTable(PsqlDatabase db, String name) {
         this.db = db;
@@ -46,16 +46,16 @@ public class PsqlTable implements SqlTable {
         return c;
     }
 
-    public SqlUnique addUnique(String... names) {
-        List<SqlColumn> columns = new ArrayList<SqlColumn>();
+    public SqlUnique addUnique(String... keys) throws SqlDatabaseException {
+        List<SqlColumn> uniqueColumns = new ArrayList<>();
 
-        for (String name : names) {
-            SqlColumn col = getColumn(name);
-            if (col == null) throw new RuntimeException("addUnique failed: select '" + name + "' uknown");
-            columns.add(col);
+        for (String key : keys) {
+            SqlColumn col = getColumn(key);
+            if (col == null) throw new SqlDatabaseException("addUnique failed: select '" + key + "' uknown");
+            uniqueColumns.add(col);
         }
-        sql.alterTable(name).add(constraint().unique(names)).execute();
-        SqlUnique unique = new PsqlUnique(this, columns);
+        sql.alterTable(name).add(constraint().unique(keys)).execute();
+        SqlUnique unique = new PsqlUnique(this, uniqueColumns);
         uniques.add(unique);
 
         return unique;
@@ -67,34 +67,45 @@ public class PsqlTable implements SqlTable {
         uniques = new ArrayList<>();
         for (Table t : tables) {
             if (t.getName().equals(name)) {
-                for (Field f : t.fields()) {
-                    columns.put(f.getName(), new PsqlColumn(sql, this, f));
-                }
-                for (Object o3 : t.getReferences()) {
-                    ForeignKey fk = (ForeignKey) o3;
-                    for (Field f : (List<Field>) fk.getFields()) {
-                        PsqlColumn temp = columns.get(f.getName());
-                        PsqlColumn fkey = null;
-                        //check for cyclic dependency
-                        String refTableName = fk.getKey().getTable().getName();
-                        if (refTableName.equals(name)) {
-                            fkey = new PsqlColumn(sql, this, f.getName(), this);
-                        } else {
-                            fkey = new PsqlColumn(sql, this, f.getName(), db.getTable(refTableName));
-                        }
-                        fkey.setNullable(temp.isNullable());
-                        columns.put(f.getName(), fkey);
-                    }
-                }
-                for (Index i : (List<Index>) t.getIndexes()) {
-                    List<SqlColumn> cols = new ArrayList<>();
-                    for (Object o2 : i.getFields()) {
-                        SortField f = (SortField) o2;
-                        cols.add(getColumn(f.getName()));
-                    }
-                    uniques.add(new PsqlUnique(this, cols));
-                }
+                reloadColumns(t);
+                reloadReferences(t);
+                reloadIndexes(t);
             }
+        }
+    }
+
+    private void reloadColumns(Table t) {
+        for (Field f : t.fields()) {
+            columns.put(f.getName(), new PsqlColumn(sql, this, f));
+        }
+    }
+
+    private void reloadReferences(Table t) {
+        for (Object o3 : t.getReferences()) {
+            ForeignKey fk = (ForeignKey) o3;
+            for (Field f : (List<Field>) fk.getFields()) {
+                PsqlColumn temp = columns.get(f.getName());
+                PsqlColumn fkey = null;
+                //check for cyclic dependency
+                String refTableName = fk.getKey().getTable().getName();
+                if (refTableName.equals(name)) {
+                    fkey = new PsqlColumn(sql, this, f.getName(), this);
+                } else {
+                    fkey = new PsqlColumn(sql, this, f.getName(), db.getTable(refTableName));
+                }
+                fkey.setNullable(temp.isNullable());
+                columns.put(f.getName(), fkey);
+            }
+        }
+    }
+
+    private void reloadIndexes(Table t) {
+        for (Index i : (List<Index>) t.getIndexes()) {
+            List<SqlColumn> cols = new ArrayList<>();
+            for (SortField sf : i.getFields()) {
+                cols.add(getColumn(sf.getName()));
+            }
+            uniques.add(new PsqlUnique(this, cols));
         }
     }
 
@@ -134,7 +145,7 @@ public class PsqlTable implements SqlTable {
     }
 
     @Override
-    public void insert(SqlRow row) throws SqlException {
+    public void insert(SqlRow row) throws SqlDatabaseException {
         this.insert(Arrays.asList(row));
     }
 
@@ -144,7 +155,7 @@ public class PsqlTable implements SqlTable {
     }
 
     @Override
-    public void insert(Collection<SqlRow> rows) throws SqlException {
+    public void insert(Collection<SqlRow> rows) throws SqlDatabaseException {
         try {
             Table t = sql.meta().getTables(name).get(0);
             Field[] fields = t.fields();
@@ -158,7 +169,7 @@ public class PsqlTable implements SqlTable {
             }
             step.execute();
         } catch(DataAccessException e) {
-            throw new SqlException(e.getCause().getMessage());
+            throw new SqlDatabaseException(e.getCause().getMessage());
         }
     }
 

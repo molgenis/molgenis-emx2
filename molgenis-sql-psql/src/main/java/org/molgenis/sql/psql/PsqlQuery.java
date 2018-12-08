@@ -67,10 +67,12 @@ public class PsqlQuery implements SqlQuery {
         }
         tableSelect.fromTable = fromTable;
 
+        String cannotJoin = "Cannot join ('";
+
         //add joinTable reference
             From temp = this.select.get(toTable);
             if (temp == null) {
-                throw new SqlQueryException("Cannot join ('" + table + "','" + toTable + "','" + on + "'): to join fromTable '" + toTable + "' not in getQuery");
+                throw new SqlQueryException( cannotJoin + table + "','" + toTable + "','" + on + "'): to join fromTable '" + toTable + "' not in getQuery");
             }
         SqlTable joinTable = temp.fromTable;
         tableSelect.joinTable = toTable;
@@ -79,20 +81,20 @@ public class PsqlQuery implements SqlQuery {
         if(fromTable.getColumn(on) != null) {
             String refTable = fromTable.getColumn(on).getRefTable().getName();
             if(!refTable.equals(joinTable.getName())) {
-                throw new SqlQueryException("Cannot join ('"+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
+                throw new SqlQueryException(cannotJoin +table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
             }
             tableSelect.fromColumn = on;
             tableSelect.joinColumn = MOLGENISID;
         } else if(joinTable.getColumn(on) != null) {
             String refTable = joinTable.getColumn(on).getRefTable().getName();
             if(!refTable.equals(fromTable.getName())) {
-                throw new SqlQueryException("Cannot join ('"+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
+                throw new SqlQueryException(cannotJoin+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
             }
 
             tableSelect.fromColumn = MOLGENISID;
             tableSelect.joinColumn = on;
         } else {
-            throw new SqlQueryException("Cannot join ('" + table + "','" + toTable + "','" + on + "'): to join select '" + on + "' in neither tables");
+            throw new SqlQueryException(cannotJoin + table + "','" + toTable + "','" + on + "'): to join select '" + on + "' in neither tables");
         }
 
         this.select.put(table, tableSelect);
@@ -140,22 +142,20 @@ public class PsqlQuery implements SqlQuery {
         //get columns
         List<Field> columns = new ArrayList<>();
         Map<String, SqlType> colAliases = new LinkedHashMap<>();
-        for(String tableAlias: select.keySet()) {
-            for(String columnAlias: select.get(tableAlias).columns.keySet()) {
-                SqlColumn col = select.get(tableAlias).columns.get(columnAlias);
+        select.forEach((tableName, table) -> {
+            table.columns.forEach((colName, col) -> {
                 //todo, do we need to put column/field type here?
-                //DataType<LocalDate> dateType = SQLDataType.DATE.asConvertedDataType(new LocalDateConverter());
-                columns.add(field(name(tableAlias, col.getName())).as(columnAlias));
-                colAliases.put(columnAlias, col.getType());
-            }
-        }
+                //TODO DataType<LocalDate> dateType = SQLDataType.DATE.asConvertedDataType(new LocalDateConverter());
+                columns.add(field(name(tableName, col.getName())).as(colName));
+                colAliases.put(colName, col.getType());
+            });
+        });
 
         //create getQuery
         SelectSelectStep step = sql.select(columns);
         SelectJoinStep joinStep = null;
         for(String alias: select.keySet()) {
             From def = select.get(alias);
-
             if(def.joinTable == null) {
                 joinStep = step.from(table(name(def.fromTable.getName())).as(alias));
             }
@@ -163,6 +163,7 @@ public class PsqlQuery implements SqlQuery {
                 joinStep = joinStep.leftOuterJoin(table(name(def.fromTable.getName())).as(alias)).on(field(name(alias, def.fromColumn)).eq(field(name(def.joinTable, def.joinColumn))));
             }
         }
+
         if(joinStep == null) throw new SqlQueryException("no tables defined as part of this query");
         joinStep.where(conditions);
         System.out.println("retrieve: "+joinStep.getSQL());
