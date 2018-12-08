@@ -4,14 +4,13 @@ import org.jooq.DSLContext;
 import org.jooq.ForeignKey;
 import org.jooq.SQLDialect;
 import org.jooq.Table;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.molgenis.sql.*;
 import org.molgenis.sql.psql.PsqlDatabase;
 import org.molgenis.sql.psql.PsqlRow;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,15 +20,15 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.fail;
 import static org.molgenis.sql.SqlType.*;
-import static org.testng.Assert.fail;
 
 public class TestSql {
 
-    private SqlDatabase db = null;
+    static private SqlDatabase db = null;
 
     @BeforeClass
-    public void setUp() {
+    public static void setUp() {
         String userName = "postgres";
         String password = "paradoxa";
         String url = "jdbc:postgresql://localhost:5433/molgenis";
@@ -227,7 +226,7 @@ public class TestSql {
     }
 
     @AfterClass
-    public void close() {
+    public static void close() {
         db.close();
     }
 

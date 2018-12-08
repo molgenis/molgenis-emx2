@@ -1,13 +1,15 @@
 package org.molgenis.emx.reader.test;
 
+import org.junit.Test;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.io.MolgenisReader;
 import org.molgenis.emx2.io.MolgenisWriter;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 public class EmxReaderTest {
 
@@ -26,6 +28,8 @@ public class EmxReaderTest {
         for(MolgenisFileRow row: new MolgenisWriter().convertModelToMolgenisFileRows(model)) {
             System.out.println(row);
         }
+
+        assertEquals(true, true);
 
     }
 

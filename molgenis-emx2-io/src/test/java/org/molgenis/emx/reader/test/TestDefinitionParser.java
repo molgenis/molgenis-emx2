@@ -1,9 +1,9 @@
 package org.molgenis.emx.reader.test;
 
+import org.junit.Test;
 import org.molgenis.emx2.io.parsers.ColumnDefinitionParser;
 import org.molgenis.emx2.io.parsers.ColumnDefinition;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
-import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;

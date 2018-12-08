@@ -1,12 +1,12 @@
 package org.molgenis.emx.reader.test;
 
+import org.junit.Test;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
 import org.molgenis.emx2.io.MolgenisWriter;
 import org.molgenis.emx2.io.legacy.AttributesFileReader;
 import org.molgenis.emx2.io.legacy.AttributesFileRow;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
