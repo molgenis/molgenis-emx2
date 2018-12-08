@@ -1,7 +1,4 @@
 language: java
-env:
-  global:
-  - PGPORT=5433
 services:
   - postgresql
 before_script:
