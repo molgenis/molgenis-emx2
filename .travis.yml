@@ -2,9 +2,9 @@ language: java
 services:
   - postgresql
 before_script:
-  - psql -p $PGPORT -c 'create database molgenis;' -U postgres
-  - psql -p $PGPORT -c "CREATE USER molgenis WITH PASSWORD 'molgenis';" -U postgres
-  - psql -p $PGPORT -c "grant all privileges on database molgenis to molgenis;" -U postgres
+  - psql -c 'create database molgenis;' -U postgres
+  - psql -c "CREATE USER molgenis WITH PASSWORD 'molgenis';" -U postgres
+  - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
 addons:
   postgresql: "10"
   sonarcloud:
