@@ -8,6 +8,11 @@ import org.molgenis.sql.SqlType;
 import java.sql.Types;
 
 public class TypeUtils {
+
+    private TypeUtils() {
+        //to hide the public constructor
+    }
+
     public static DataType typeOf(SqlType sqlType) {
         switch (sqlType) {
             case UUID:

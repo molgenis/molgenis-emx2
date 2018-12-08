@@ -2,7 +2,6 @@ package org.molgenis.sql;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 

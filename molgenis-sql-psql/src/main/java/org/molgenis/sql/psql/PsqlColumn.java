@@ -6,8 +6,6 @@ import org.molgenis.sql.SqlColumn;
 import org.molgenis.sql.SqlTable;
 import org.molgenis.sql.SqlType;
 
-import java.sql.Types;
-
 public class PsqlColumn implements SqlColumn
 {
     private DSLContext sql;

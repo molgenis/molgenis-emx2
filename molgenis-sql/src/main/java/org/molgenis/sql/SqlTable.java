@@ -17,7 +17,7 @@ public interface SqlTable {
 
     SqlUnique addUnique(String ... name);
 
-    //TOD: remove column, remove unique;
+    //TODD: remove column, remove unique
 
     void insert(SqlRow row) throws SqlException;
 
