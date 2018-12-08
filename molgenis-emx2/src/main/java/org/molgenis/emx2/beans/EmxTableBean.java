@@ -7,6 +7,8 @@ import org.molgenis.emx2.EmxUnique;
 
 import java.util.*;
 
+import static org.molgenis.emx2.EmxConstants.MOLGENISID;
+
 public class EmxTableBean implements EmxTable {
     String name;
     EmxTableBean extend;

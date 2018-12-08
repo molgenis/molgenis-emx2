@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.molgenis.emx2.EmxTable.MOLGENISID;
+import static org.molgenis.emx2.EmxConstants.MOLGENISID;
 import static org.molgenis.emx2.io.parsers.ColumnDefinition.*;
 
 public class MolgenisWriter {
@@ -127,7 +127,7 @@ public class MolgenisWriter {
     }
 
     private MolgenisFileRow convertTableToRow(EmxTable table) {
-        return null;
+        return new MolgenisFileRow(table.getName(), "","");
     }
 
     private String join(Collection collection, String delimiter) {
