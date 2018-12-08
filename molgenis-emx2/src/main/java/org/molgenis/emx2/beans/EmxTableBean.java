@@ -28,8 +28,8 @@ public class EmxTableBean implements EmxTable {
     @Override
     public List<EmxColumn> getColumns() {
         List<EmxColumn> result = new ArrayList<>();
-        for(String key: columns.keySet()) {
-            result.add(columns.get(key));
+        for(Map.Entry<String,EmxColumnBean> entry: columns.entrySet()) {
+            result.add(entry.getValue());
         }
         return Collections.unmodifiableList(result);
     }
@@ -83,7 +83,7 @@ public class EmxTableBean implements EmxTable {
             }
             builder.append("\n]");
         }
-        if(uniques.size() > 0) {
+        if(!uniques.isEmpty()) {
             builder.append(", uniques=[");
             for (EmxUniqueBean u : uniques) {
                 builder.append("\n\t").append(u.toString());

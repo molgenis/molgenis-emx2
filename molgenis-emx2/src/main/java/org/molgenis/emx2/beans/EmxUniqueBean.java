@@ -9,7 +9,7 @@ import java.util.List;
 
 public class EmxUniqueBean implements EmxUnique {
     EmxTable table;
-    List<EmxColumn> columns = new ArrayList<EmxColumn>();
+    List<EmxColumn> columns = new ArrayList<>();
 
     public EmxUniqueBean(EmxTable forTable) {
         this.table = forTable;
