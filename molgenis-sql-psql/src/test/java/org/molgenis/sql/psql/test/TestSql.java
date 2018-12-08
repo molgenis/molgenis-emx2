@@ -57,7 +57,7 @@ public class TestSql {
     }
 
     @Test
-    public void testTypes() throws SqlException {
+    public void testTypes() throws SqlException, SqlQueryException {
 
         //generate TypeTest table, with columns for each type
         SqlTable t = db.createTable("TypeTest");
@@ -143,7 +143,7 @@ public class TestSql {
     }
 
     @Test
-    public void testQuery() throws SqlException {
+    public void testQuery() throws SqlException, SqlQueryException {
 
         SqlTable product = db.createTable("Product");
         product.addColumn("name", STRING);
