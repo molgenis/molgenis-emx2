@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.beans.EmxColumnBean;
-
 import java.util.List;
 
 public interface EmxTable {
