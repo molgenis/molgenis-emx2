@@ -29,8 +29,8 @@ public class TestSql {
 
     @BeforeClass
     public static void setUp() {
-        String userName = "postgres";
-        String password = "paradoxa";
+        String userName = "molgenis";
+        String password = "molgenis";
         String url = "jdbc:postgresql://localhost:5433/molgenis";
 
         try {
