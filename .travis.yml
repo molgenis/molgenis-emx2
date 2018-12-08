@@ -7,6 +7,6 @@ before_script:
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
 addons:
   sonarcloud:
-    organization: "mswertz-github"
+    organization: "mswertz_molgenis-emx2"
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
