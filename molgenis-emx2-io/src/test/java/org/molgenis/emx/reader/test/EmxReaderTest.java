@@ -28,9 +28,6 @@ public class EmxReaderTest {
         for(MolgenisFileRow row: new MolgenisWriter().convertModelToMolgenisFileRows(model)) {
             System.out.println(row);
         }
-
-        assertEquals(true, true);
-
     }
 
     private File getFile(String name) {
