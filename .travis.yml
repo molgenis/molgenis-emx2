@@ -6,6 +6,7 @@ before_script:
   - psql -p 5433 -c "CREATE USER molgenis WITH PASSWORD 'molgenis';" -U postgres
   - psql -p 5433 -c "grant all privileges on database molgenis to molgenis;" -U postgres
 addons:
+  postgresql: "10"
   sonarcloud:
     organization: "mswertz-github"
 script:
