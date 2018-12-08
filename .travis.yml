@@ -10,3 +10,6 @@ addons:
     organization: "mswertz-github"
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+env:
+  global:
+  - PGPORT=5433
