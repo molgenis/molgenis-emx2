@@ -1,0 +1,6 @@
+language: java
+addons:
+  sonarcloud:
+    organization: "mswertz-github"
+script:
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
