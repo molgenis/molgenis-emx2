@@ -1,6 +1,8 @@
 package org.molgenis.emx2.io;
 
-public class MolgenisReaderMessage {
+import java.io.Serializable;
+
+public class MolgenisReaderMessage implements Serializable {
     private Integer lineNumber;
     private String message;
 

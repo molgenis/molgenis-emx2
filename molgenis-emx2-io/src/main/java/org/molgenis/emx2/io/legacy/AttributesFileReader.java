@@ -39,68 +39,59 @@ public class AttributesFileReader {
         Map<Integer,EmxColumnBean> refColumns = new LinkedHashMap<>();
         for(AttributesFileRow row: rows) {
             lineNumber++;
-
-            //get or create table
-            EmxTableBean table = model.getTable(row.getEntity());
-            if(table == null) table = model.addTable(row.getEntity());
-
-            //check if attribute exists
-            if(table.getColumn(row.getName()) != null) {
-                messages.add(new MolgenisReaderMessage(lineNumber, "attribute "+row.getName()+" is defined twice"));
-            }
-            else {
-                EmxType type = STRING;
-                if(row.getDataType() != null) {
-                    try {
-                        type = convertAttributeTypeToEmxType(row.getDataType());
-                    } catch (Exception e) {
-                        messages.add(new MolgenisReaderMessage(lineNumber, e.getMessage()));
-                    }
-                }
-                EmxColumnBean column = table.addColumn(row.getName(), type);
-
-                column.setNillable(row.getNillable());
-                column.setDescription(row.getDescription());
-                column.setReadonly(row.getReadonly());
-                column.setValidation(row.getValidationExepression());
-
-                if(column.getType().equals(SELECT) || column.getType().equals(MSELECT) || column.getType().equals(RADIO) || column.getType().equals(CHECKBOX)) {
-                    refEntities.put(lineNumber, row.getRefEntity());
-                    refColumns.put(lineNumber, column);
-                }
-
-
-//                row.setRefEntity(get(record,REFENTITY));
-//                row.setIdAttribute(bool(get(record,IDATTRIBUTE)));
-//                row.setRangeMin(integer(get(record,RANGEMIN)));
-//                row.setRangeMax(integer(get(record,RANGEMAX)));
-//                row.setLabel(get(record,LABEL));
-//                row.setAggregateable(bool(get(record,AGGREGATEABLE)));
-//                row.setLabelAttribute(bool(get(record,LABELATTRIBUTE)));
-//                row.setValidationExepression(get(record,VALIDATIONEXPRESSION));
-//                //row.setTags(TAGS);
-//                row.setVisibleExpression(get(record,VISIBLE));
-//                row.setDefaultValue(get(record,DEFAULTVALUE));
-//                row.setPartOfAttribute(get(record,PARTOFATTRIBUTE));
-//                row.setExpression(get(record,EXPRESSION));
-            }
+            convertAttributeLine(model, lineNumber, messages, refEntities, refColumns, row);
         }
         //check and set refEntities
-        for(Integer line: refEntities.keySet()) {
-            String refEntity = refEntities.get(line);
-            EmxTable table = model.getTable(refEntity);
-            if(table == null) messages.add(new MolgenisReaderMessage(line,"refEntity '"+refEntity+"' is not known"));
-            else refColumns.get(line).setRef(table.getIdColumn());
+        for(Map.Entry<Integer, String> ref: refEntities.entrySet()) {
+            EmxTable table = model.getTable(ref.getValue());
+            if(table == null) messages.add(new MolgenisReaderMessage(ref.getKey(),"refEntity '"+ref.getValue()+"' is not known"));
+            else refColumns.get(ref.getKey()).setRef(table.getIdColumn());
 
         }
-        if(messages.size() > 0) throw new MolgenisReaderException(messages);
+        if(!messages.isEmpty()) throw new MolgenisReaderException(messages);
         return model;
+    }
+
+    private void convertAttributeLine(EmxModelBean model, int lineNumber, List<MolgenisReaderMessage> messages, Map<Integer, String> refEntities, Map<Integer, EmxColumnBean> refColumns, AttributesFileRow row) {
+        //get or create table
+        EmxTableBean table = model.getTable(row.getEntity());
+        if(table == null) table = model.addTable(row.getEntity());
+
+        //check if attribute exists
+        if(table.getColumn(row.getName()) != null) {
+            messages.add(new MolgenisReaderMessage(lineNumber, "attribute "+row.getName()+" is defined twice"));
+        }
+        else {
+            EmxType type = getEmxType(lineNumber, messages, row);
+            EmxColumnBean column = table.addColumn(row.getName(), type);
+
+            column.setNillable(row.getNillable());
+            column.setDescription(row.getDescription());
+            column.setReadonly(row.getReadonly());
+            column.setValidation(row.getValidationExepression());
+
+            if(column.getType().equals(SELECT) || column.getType().equals(MSELECT) || column.getType().equals(RADIO) || column.getType().equals(CHECKBOX)) {
+                refEntities.put(lineNumber, row.getRefEntity());
+                refColumns.put(lineNumber, column);
+            }
+        }
+    }
+
+    private EmxType getEmxType(int lineNumber, List<MolgenisReaderMessage> messages, AttributesFileRow row) {
+        EmxType type = STRING;
+        if(row.getDataType() != null) {
+            try {
+                type = convertAttributeTypeToEmxType(row.getDataType());
+            } catch (Exception e) {
+                messages.add(new MolgenisReaderMessage(lineNumber, e.getMessage()));
+            }
+        }
+        return type;
     }
 
     private EmxType convertAttributeTypeToEmxType(String dataType) throws MolgenisReaderException {
         try {
             AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
-            EmxType type = null;
             switch (oldType) {
                 case STRING:
                     return STRING;
@@ -168,7 +159,7 @@ public class AttributesFileReader {
                 row.setLabelAttribute(bool(get(record,LABELATTRIBUTE)));
                 row.setReadonly(bool(get(record,READONLY)));
                 row.setValidationExepression(get(record,VALIDATIONEXPRESSION));
-                //row.setTags(TAGS);
+                //TODO row.setTags(TAGS);
                 row.setVisibleExpression(get(record,VISIBLE));
                 row.setDefaultValue(get(record,DEFAULTVALUE));
                 row.setPartOfAttribute(get(record,PARTOFATTRIBUTE));

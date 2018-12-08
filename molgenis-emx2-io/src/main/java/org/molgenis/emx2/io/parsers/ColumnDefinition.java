@@ -31,6 +31,7 @@ public enum ColumnDefinition implements AbstractDefinition {
         return this;
     }
 
+    @Override
     public String toString() {
         if(hasParameter) {
             return this.name().toLowerCase() + "(" + parameterValue + ")";

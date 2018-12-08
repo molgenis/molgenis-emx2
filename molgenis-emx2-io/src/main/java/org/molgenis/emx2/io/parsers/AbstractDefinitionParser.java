@@ -15,28 +15,29 @@ public abstract class AbstractDefinitionParser<T extends AbstractDefinition> {
         List<T> tags = new ArrayList<>();
 
         Matcher matcher = pattern.matcher(definition);
+        String messagePrefix = "tag '"+matcher.group(1)+"' ";
         while(matcher.find()) {
             try {
                 T tag = getTag(matcher.group(1).toUpperCase());
+
                 String parameter = matcher.group(3);
                 if(tag.hasParameter()) {
                     if(parameter== null) {
-                        messages.add(new MolgenisReaderMessage(line, "tag '"+matcher.group(1)+"' expects parameter"));
+                        messages.add(new MolgenisReaderMessage(line, messagePrefix+"' expects parameter"));
                     } else {
                         tag.setParameterValue(parameter);
                     }
                 } else {
                     if(parameter != null) {
-                        messages.add(new MolgenisReaderMessage(line, "tag '"+matcher.group(1)+"' does not expect parameter"));
+                        messages.add(new MolgenisReaderMessage(line, messagePrefix+" does not expect parameter"));
                     }
                 }
 
                 tags.add(tag);
             } catch(IllegalArgumentException e) {
-                messages.add(new MolgenisReaderMessage(line, "tag '"+matcher.group(1)+"' is unknown"));
+                messages.add(new MolgenisReaderMessage(line, messagePrefix +"' is unknown"));
             }
         }
-        //return result;
         return tags;
     }
 
