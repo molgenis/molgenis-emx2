@@ -31,7 +31,7 @@ public class TestSql {
     public static void setUp() {
         String userName = "molgenis";
         String password = "molgenis";
-        String url = "jdbc:postgresql://localhost:5433/molgenis";
+        String url = "jdbc:postgresql:molgenis";
 
         try {
             Connection conn = DriverManager.getConnection(url, userName, password);
