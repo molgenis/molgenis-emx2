@@ -40,11 +40,11 @@ public class PsqlQuery implements SqlQuery {
     }
 
     @Override
-    public SqlQuery from(String table) {
-        if(lastFrom != null) throw new RuntimeException("You can call from() only once");
+    public SqlQuery from(String table) throws SqlQueryException {
+        if(lastFrom != null) throw new SqlQueryException("You can call from() only once");
 
         SqlTable t = db.getTable(table);
-        if(t == null) throw new RuntimeException("fromTable "+table+" does not exist");
+        if(t == null) throw new SqlQueryException("fromTable "+table+" does not exist");
         From f = new From();
         f.fromTable = t;
 
@@ -55,22 +55,22 @@ public class PsqlQuery implements SqlQuery {
     }
 
     @Override
-    public SqlQuery join(String table, String toTable, String on) {
-        if(lastFrom == null) throw new RuntimeException("You can call join() only after first calling a from()");
+    public SqlQuery join(String table, String toTable, String on) throws SqlQueryException {
+        if(lastFrom == null) throw new SqlQueryException("You can call join() only after first calling a from()");
 
         From tableSelect = new From();
 
         //add fromTable
         SqlTable fromTable = db.getTable(table);
         if (fromTable == null) {
-            throw new RuntimeException("fromTable " + table + " does not exist");
+            throw new SqlQueryException("fromTable " + table + " does not exist");
         }
         tableSelect.fromTable = fromTable;
 
         //add joinTable reference
             From temp = this.select.get(toTable);
             if (temp == null) {
-                throw new RuntimeException("Cannot join ('" + table + "','" + toTable + "','" + on + "'): to join fromTable '" + toTable + "' not in getQuery");
+                throw new SqlQueryException("Cannot join ('" + table + "','" + toTable + "','" + on + "'): to join fromTable '" + toTable + "' not in getQuery");
             }
         SqlTable joinTable = temp.fromTable;
         tableSelect.joinTable = toTable;
@@ -79,20 +79,20 @@ public class PsqlQuery implements SqlQuery {
         if(fromTable.getColumn(on) != null) {
             String refTable = fromTable.getColumn(on).getRefTable().getName();
             if(!refTable.equals(joinTable.getName())) {
-                throw new RuntimeException("Cannot join ('"+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
+                throw new SqlQueryException("Cannot join ('"+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
             }
             tableSelect.fromColumn = on;
             tableSelect.joinColumn = MOLGENISID;
         } else if(joinTable.getColumn(on) != null) {
             String refTable = joinTable.getColumn(on).getRefTable().getName();
             if(!refTable.equals(fromTable.getName())) {
-                throw new RuntimeException("Cannot join ('"+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
+                throw new SqlQueryException("Cannot join ('"+table+"','"+ toTable +"','"+on+"'): select '"+on+"' references wrong from '"+refTable+"'");
             }
 
             tableSelect.fromColumn = MOLGENISID;
             tableSelect.joinColumn = on;
         } else {
-            throw new RuntimeException("Cannot join ('" + table + "','" + toTable + "','" + on + "'): to join select '" + on + "' in neither tables");
+            throw new SqlQueryException("Cannot join ('" + table + "','" + toTable + "','" + on + "'): to join select '" + on + "' in neither tables");
         }
 
         this.select.put(table, tableSelect);
@@ -102,10 +102,10 @@ public class PsqlQuery implements SqlQuery {
     }
 
     @Override
-    public SqlQuery select(String column) {
+    public SqlQuery select(String column) throws SqlQueryException {
         From f = select.get(lastFrom);
         SqlColumn c = f.fromTable.getColumn(column);
-        if(c == null) throw new RuntimeException("select "+column+" does not exist in select fromTable "+lastFrom);
+        if(c == null) throw new SqlQueryException("select "+column+" does not exist in select fromTable "+lastFrom);
         f.columns.put(column, c);
         state = State.SELECT;
         lastSelect = column;
@@ -113,7 +113,7 @@ public class PsqlQuery implements SqlQuery {
     }
 
     @Override
-    public SqlQuery as(String alias) {
+    public SqlQuery as(String alias) throws SqlQueryException {
         switch (state) {
             case FROM:
                 select.put(alias, select.remove(lastFrom));
@@ -124,7 +124,7 @@ public class PsqlQuery implements SqlQuery {
                 lastSelect = alias;
                 break;
             default:
-                throw new RuntimeException("cannot call as(" + alias + ") at this point");
+                throw new SqlQueryException("cannot call as(" + alias + ") at this point");
         }
 
         state = State.NONE;
@@ -133,7 +133,7 @@ public class PsqlQuery implements SqlQuery {
 
     //TODO, make streaming?
     @Override
-    public List<SqlRow> retrieve() {
+    public List<SqlRow> retrieve() throws SqlQueryException {
 
         List<SqlRow> rows = new ArrayList<>();
 
@@ -159,10 +159,11 @@ public class PsqlQuery implements SqlQuery {
             if(def.joinTable == null) {
                 joinStep = step.from(table(name(def.fromTable.getName())).as(alias));
             }
-            else {
+            else if(joinStep != null){
                 joinStep = joinStep.leftOuterJoin(table(name(def.fromTable.getName())).as(alias)).on(field(name(alias, def.fromColumn)).eq(field(name(def.joinTable, def.joinColumn))));
             }
         }
+        if(joinStep == null) throw new SqlQueryException("no tables defined as part of this query");
         joinStep.where(conditions);
         System.out.println("retrieve: "+joinStep.getSQL());
 
@@ -173,10 +174,10 @@ public class PsqlQuery implements SqlQuery {
         return rows;
     }
 
-    private void validate(String table, String column, SqlType type) {
-        if(this.select.get(table) == null) throw new RuntimeException("table/alias '"+table+"' not known. Choose one of "+this.select.keySet());
-        if(this.select.get(table).fromTable.getColumn(column) == null) throw new RuntimeException("select '"+column+"' not known in table/alias '"+table+"'");
-        if(!type.equals(this.select.get(table).fromTable.getColumn(column).getType())) throw new RuntimeException("select '"+column+"' not of expected type '"+type+"'");
+    private void validate(String table, String column, SqlType type) throws SqlQueryException {
+        if(this.select.get(table) == null) throw new SqlQueryException("table/alias '"+table+"' not known. Choose one of "+this.select.keySet());
+        if(this.select.get(table).fromTable.getColumn(column) == null) throw new SqlQueryException("select '"+column+"' not known in table/alias '"+table+"'");
+        if(!type.equals(this.select.get(table).fromTable.getColumn(column).getType())) throw new SqlQueryException("select '"+column+"' not of expected type '"+type+"'");
     }
 
     private SqlQuery eqHelper(String table, String column, Object ... value) {
@@ -192,19 +193,19 @@ public class PsqlQuery implements SqlQuery {
     }
 
     @Override
-    public SqlQuery eq(String table, String column, UUID ... value) {
+    public SqlQuery eq(String table, String column, UUID ... value) throws SqlQueryException {
         validate(table,column, SqlType.UUID);
         return eqHelper(table, column, value);
     }
 
     @Override
-    public SqlQuery eq(String table, String column, String ... value) {
+    public SqlQuery eq(String table, String column, String ... value) throws SqlQueryException {
         validate(table,column, SqlType.STRING);
         return eqHelper(table, column, value);
     }
 
     @Override
-    public SqlQuery eq(String table, String column, Integer... value) {
+    public SqlQuery eq(String table, String column, Integer... value) throws SqlQueryException {
         validate(table,column, SqlType.INT);
         return eqHelper(table, column, value);
     }
