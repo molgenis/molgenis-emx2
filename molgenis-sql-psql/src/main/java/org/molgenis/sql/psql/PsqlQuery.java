@@ -145,7 +145,7 @@ public class PsqlQuery implements SqlQuery {
         select.forEach((tableName, table) -> {
             table.columns.forEach((colName, col) -> {
                 //todo, do we need to put column/field type here?
-                //TODO DataType<LocalDate> dateType = SQLDataType.DATE.asConvertedDataType(new LocalDateConverter());
+                //TODO convertor for dates
                 columns.add(field(name(tableName, col.getName())).as(colName));
                 colAliases.put(colName, col.getType());
             });
@@ -154,8 +154,9 @@ public class PsqlQuery implements SqlQuery {
         //create getQuery
         SelectSelectStep step = sql.select(columns);
         SelectJoinStep joinStep = null;
-        for(String alias: select.keySet()) {
-            From def = select.get(alias);
+        for(Map.Entry<String,From> selectEntry: select.entrySet()) {
+            String alias = selectEntry.getKey();
+            From def = selectEntry.getValue();
             if(def.joinTable == null) {
                 joinStep = step.from(table(name(def.fromTable.getName())).as(alias));
             }
@@ -214,17 +215,18 @@ public class PsqlQuery implements SqlQuery {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("QUERY(");
-        for(String s: select.keySet()) {
-            for(String c: select.get(s).columns.keySet()) {
-                SqlColumn col = select.get(s).columns.get(c);
-                builder.append("\n\tSELECT(").append(s).append(".").append(col.getName()).append(")");
+        for(Map.Entry<String, From> selectEntry: select.entrySet()) {
+            for(String c: selectEntry.getValue().columns.keySet()) {
+                SqlColumn col = selectEntry.getValue().columns.get(c);
+                builder.append("\n\tSELECT(").append(selectEntry.getKey()).append(".").append(col.getName()).append(")");
                 if (!c.equals(col.getName())) {
                     builder.append(" AS '").append(c).append("'");
                 }
             }
         }
-        for(String f: select.keySet()) {
-            From table = select.get(f);
+        for(Map.Entry<String,From> entry: select.entrySet()) {
+            String f = entry.getKey();
+            From table = entry.getValue();
             String name = table.fromTable.getName();
             builder.append("\n\tFROM(").append(name).append(")");
             if(select.get(f).joinTable != null) {
