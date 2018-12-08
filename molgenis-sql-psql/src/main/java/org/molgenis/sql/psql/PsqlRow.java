@@ -162,8 +162,8 @@ public class PsqlRow implements SqlRow {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("ROW(");
-        for(String name: values.keySet()) {
-            builder.append(name).append("='").append(values.get(name)).append("' ");
+        for(Map.Entry<String,Object> col: values.entrySet()) {
+            builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
         }
         builder.append(")");
         return builder.toString();
