@@ -6,11 +6,9 @@ import org.molgenis.emx2.EmxColumn;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.EmxTable;
 import org.molgenis.emx2.EmxType;
-import org.molgenis.emx2.io.format.MolgenisFileHeader;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 import org.molgenis.emx2.io.parsers.ColumnDefinition;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ public class MolgenisWriter {
         List<MolgenisFileRow> rows = new ArrayList<>();
 
         for (EmxTable table : model.getTables()) {
-            if (table.getExtend() != null || table.getUniques().size() > 0) {
+            if (table.getExtend() != null || table.getUniques().isEmpty()) {
                 rows.add(convertTableToRow(table));
             }
             for (EmxColumn column : table.getColumns()) {
@@ -58,6 +56,22 @@ public class MolgenisWriter {
         if (!EmxType.STRING.equals(col.getType())) {
             ColumnDefinition d = ColumnDefinition.valueOf(col.getType());
             switch (d) {
+                case STRING:
+                    break;
+                case INT:
+                    break;
+                case LONG:
+                    break;
+                case BOOL:
+                    break;
+                case DECIMAL:
+                    break;
+                case TEXT:
+                    break;
+                case DATE:
+                    break;
+                case DATETIME:
+                    break;
                 case SELECT:
                 case MSELECT:
                 case RADIO:
@@ -65,6 +79,30 @@ public class MolgenisWriter {
                     String colName = "." + escapeRef(col.getRef().getName());
                     if (MOLGENISID.equals(col.getRef().getName())) colName = "";
                     d.setParameterValue(escapeRef(col.getRef().getTable().getName()) + colName);
+                    break;
+                case NILLABLE:
+                    break;
+                case DEFAULT:
+                    break;
+                case UNIQUE:
+                    break;
+                case READONLY:
+                    break;
+                case VISIBLE:
+                    break;
+                case VALIDATION:
+                    break;
+                case UUID:
+                    break;
+                case HYPERLINK:
+                    break;
+                case EMAIL:
+                    break;
+                case HTML:
+                    break;
+                case FILE:
+                    break;
+                case ENUM:
                     break;
             }
 
@@ -76,8 +114,6 @@ public class MolgenisWriter {
         if (col.getValidation() != null) def.add(VALIDATION.setParameterValue(escapeScript(col.getValidation())));
         if (col.getUnique()) def.add(UNIQUE);
         if (col.getVisible() != null) def.add(VISIBLE.setParameterValue(escapeScript(col.getVisible())));
-
-//              ENUM(true);
 
         return join(def, " ");
     }
