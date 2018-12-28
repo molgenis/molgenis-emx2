@@ -24,7 +24,7 @@ public class PsqlColumn implements SqlColumn
 
 
     PsqlColumn(DSLContext sql, SqlTable table, String name, SqlType type) {
-        if(SqlType.REF.equals(type)) throw new IllegalArgumentException("type cannot be REF in constructor PsqlColumn(sql, table, name, type)");
+        if(SqlType.REF.equals(type)) throw new IllegalArgumentException("type cannot be REF in constructor PsqlColumn(sql, table, name, type). Use other constructor.");
         this.sql = sql;
         this.table = table;
         this.name = name;
@@ -35,7 +35,7 @@ public class PsqlColumn implements SqlColumn
         this.sql = sql;
         this.table = table;
         this.name = f.getName();
-        this.type = TypeUtils.getSqlType(f);
+        this.type = PsqlTypeUtils.getSqlType(f);
         this.nullable = f.getDataType().nullable();
     }
 

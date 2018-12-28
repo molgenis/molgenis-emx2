@@ -5,29 +5,31 @@ import java.util.Collection;
 public interface SqlTable {
     String getName();
 
-    SqlColumn getColumn(String name);
-
     Collection<SqlColumn> getColumns();
 
-    Collection<SqlUnique> getUniques();
+    SqlColumn getColumn(String name);
 
     SqlColumn addColumn(String name, SqlType type);
 
     SqlColumn addColumn(String name, SqlTable otherTable);
 
+    void removeColumn(String name) throws SqlDatabaseException;
+
+    Collection<SqlUnique> getUniques();
+
     SqlUnique addUnique(String ... name) throws SqlDatabaseException;
 
-    //TODD: remove column, remove unique
-
-    void insert(SqlRow row) throws SqlDatabaseException;
+    void removeUnique(String ... name) throws SqlDatabaseException;
 
     void insert(Collection<SqlRow> rows) throws SqlDatabaseException;
 
-    void delete(SqlRow row);
+    void update(Collection<SqlRow> rows) throws SqlDatabaseException;
 
     void delete(Collection<SqlRow> rows);
 
-    //TODO: update
+    void insert(SqlRow rows) throws SqlDatabaseException;
 
-    void validate(SqlRow row);
+    void update(SqlRow rows) throws SqlDatabaseException;
+
+    void delete(SqlRow rows);
 }

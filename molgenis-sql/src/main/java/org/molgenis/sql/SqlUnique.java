@@ -7,4 +7,6 @@ public interface SqlUnique {
     SqlTable getTable();
 
     Collection<SqlColumn> getColumns();
+
+    Collection<String> getColumnNames();
 }

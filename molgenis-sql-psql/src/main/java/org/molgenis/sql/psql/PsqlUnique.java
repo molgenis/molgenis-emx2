@@ -4,6 +4,7 @@ import org.molgenis.sql.SqlColumn;
 import org.molgenis.sql.SqlTable;
 import org.molgenis.sql.SqlUnique;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,15 @@ public class PsqlUnique implements SqlUnique {
     @Override
     public Collection<SqlColumn> getColumns() {
         return Collections.unmodifiableList(columns);
+    }
+
+    @Override
+    public Collection<String> getColumnNames() {
+        List<String> names = new ArrayList<>();
+        for(SqlColumn col: columns) {
+            names.add(col.getName());
+        }
+        return Collections.unmodifiableList(names);
     }
 
     public String toString() {

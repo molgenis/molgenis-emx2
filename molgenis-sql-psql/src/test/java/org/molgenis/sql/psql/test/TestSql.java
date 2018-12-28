@@ -57,6 +57,31 @@ public class TestSql {
     }
 
     @Test
+    public void testBatch() throws SqlDatabaseException, SqlQueryException {
+        SqlTable t = db.createTable("TestBatch");
+        t.addColumn("test", STRING);
+        t.addColumn("testint", INT);
+
+        List<SqlRow> rows = new ArrayList<>();
+        for(int i = 0; i<200000; i++) {
+            SqlRow r = new PsqlRow();
+            r.setString("test","test"+i);
+            r.setInt("testint", i);
+            rows.add(r);
+        }
+        t.insert(rows);
+        for(SqlRow r: rows) {
+            r.setString("test", r.getString("test")+"_updated)");
+        }
+        t.update(rows);
+
+        System.out.println("and retrieving");
+        for(SqlRow r: db.getQuery().from("TestBatch").retrieve()) {
+            System.out.println(r);
+        }
+    }
+
+    @Test
     public void testTypes() throws SqlDatabaseException, SqlQueryException {
 
         //generate TypeTest table, with columns for each type

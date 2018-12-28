@@ -8,31 +8,31 @@ import static org.jooq.impl.DSL.constraint;
 
 public class PsqlDatabase implements SqlDatabase {
 
-    DSLContext sql;
+    private DSLContext sql;
     public static final String MOLGENISID = "molgenisid";
 
     public PsqlDatabase(DSLContext context) {
         this.sql = context;
     }
 
+    @Override
     public SqlTable createTable(String name) {
         sql.createTable(name).column(MOLGENISID, SQLDataType.UUID)
                 .constraints(constraint("PK_"+name).primaryKey(MOLGENISID)).execute();
-        PsqlTable table = new PsqlTable(this, name);
-        table.reloadMetaData();
-        return table;
+        return new PsqlTable(this, sql, name);
     }
 
+    @Override
     public SqlTable getTable(String name) {
-        PsqlTable table = new PsqlTable(this, name);
-        table.reloadMetaData(); //todo: cache these results?
-        return table;
+        return new PsqlTable(this, sql, name);
     }
 
+    @Override
     public void dropTable(String tableId) {
         sql.dropTable(tableId).execute();
     }
 
+    @Override
     public void close() {
         sql.close();
     }
@@ -40,9 +40,5 @@ public class PsqlDatabase implements SqlDatabase {
     @Override
     public SqlQuery getQuery() {
         return new PsqlQuery(this, sql);
-    }
-
-    DSLContext getDslContext() {
-        return sql;
     }
 }

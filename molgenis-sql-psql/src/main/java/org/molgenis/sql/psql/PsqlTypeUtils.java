@@ -7,9 +7,9 @@ import org.molgenis.sql.SqlType;
 
 import java.sql.Types;
 
-public class TypeUtils {
+public class PsqlTypeUtils {
 
-    private TypeUtils() {
+    private PsqlTypeUtils() {
         //to hide the public constructor
     }
 
@@ -34,6 +34,7 @@ public class TypeUtils {
             case REF:
                 return SQLDataType.UUID;
             default:
+                //should never happen
                 throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + sqlType);
         }
     }
