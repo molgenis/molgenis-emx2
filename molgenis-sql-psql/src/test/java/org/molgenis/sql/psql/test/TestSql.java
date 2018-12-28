@@ -63,7 +63,7 @@ public class TestSql {
         t.addColumn("testint", INT);
 
         List<SqlRow> rows = new ArrayList<>();
-        for(int i = 0; i<200000; i++) {
+        for(int i = 0; i<20; i++) {
             SqlRow r = new PsqlRow();
             r.setString("test","test"+i);
             r.setInt("testint", i);
@@ -129,11 +129,20 @@ public class TestSql {
             System.out.println("as expected, caught exceptoin: "+ e.getMessage());
         }
 
-        //check query
+        //check query and test getters
         List<SqlRow> result = db.getQuery().from("TypeTest").retrieve();
         for(SqlRow res: result) {
             System.out.println(res);
             res.setRowID(java.util.UUID.randomUUID());
+            assert(res.getDate("Test_date") instanceof LocalDate);
+            assert(res.getDateTime("Test_datetime") instanceof OffsetDateTime);
+            assert(res.getString("Test_string") instanceof String);
+            assert(res.getInt("Test_int") instanceof Integer);
+            assert(res.getDecimal("Test_decimal") instanceof Double);
+            assert(res.getText("Test_text") instanceof String);
+            assert(res.getBool("Test_bool") instanceof Boolean);
+            assert(res.getUuid("Test_uuid") instanceof java.util.UUID);
+
             t2.insert(res);
         }
     }
