@@ -142,14 +142,12 @@ public class PsqlQuery implements SqlQuery {
         //get columns
         List<Field> columns = new ArrayList<>();
         Map<String, SqlType> colAliases = new LinkedHashMap<>();
-        select.forEach((tableName, table) -> {
-            table.columns.forEach((colName, col) -> {
+        select.forEach((tableName, table) -> table.columns.forEach((colName, col) -> {
                 //todo, do we need to put column/field type here?
                 //TODO convertor for dates
                 columns.add(field(name(tableName, col.getName())).as(colName));
                 colAliases.put(colName, col.getType());
-            });
-        });
+            }));
 
         //create getQuery
         SelectSelectStep step = sql.select(columns);
