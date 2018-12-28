@@ -1,9 +1,14 @@
 package org.molgenis.emx2.io.parsers;
 
+import java.util.List;
+
 public interface AbstractDefinition<T extends AbstractDefinition> {
+
     boolean hasParameter();
 
     String getParameterValue();
 
-    T setParameterValue(String parameterValue);
+    List<String> getParameterList();
+
+    AbstractDefinition setParameterValue(String parameterValue);
 }

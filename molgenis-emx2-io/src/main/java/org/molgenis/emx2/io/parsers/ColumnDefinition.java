@@ -2,12 +2,15 @@ package org.molgenis.emx2.io.parsers;
 
 import org.molgenis.emx2.EmxType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum ColumnDefinition implements AbstractDefinition {
     STRING(false), INT(false), LONG(false),SELECT(true),RADIO(true),BOOL(false),DECIMAL(false),TEXT(false), DATE(false),
     DATETIME(false), MSELECT(true),CHECKBOX(true),NILLABLE(false),DEFAULT(true),UNIQUE(false),READONLY(false),VISIBLE(true), VALIDATION(true),
     UUID(false),HYPERLINK(false),EMAIL(false), HTML(false), FILE(false), ENUM(true);
 
-     //TODO: FILE, CASCADE, OM, CHECK
+    //TODO: FILE, CASCADE, OM, CHECK
     private boolean hasParameter;
     private String parameterValue;
 
@@ -23,6 +26,15 @@ public enum ColumnDefinition implements AbstractDefinition {
     @Override
     public String getParameterValue() {
         return parameterValue;
+    }
+
+    @Override
+    public List<String> getParameterList() {
+        List<String> result = new ArrayList();
+        for(String el: getParameterValue().split(",")) {
+            result.add(el.trim());
+        }
+        return result;
     }
 
     @Override

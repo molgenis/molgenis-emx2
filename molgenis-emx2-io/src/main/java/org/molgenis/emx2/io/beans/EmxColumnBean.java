@@ -26,10 +26,6 @@ public class EmxColumnBean implements EmxColumn {
         this.type = type;
     }
 
-    protected void setTable(EmxTable table) {
-        this.table = table;
-    }
-
     @Override
     public EmxTable getTable() {
         return table;
@@ -38,10 +34,6 @@ public class EmxColumnBean implements EmxColumn {
     @Override
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package org.molgenis.emx2.io.beans;
 
-import org.molgenis.emx2.EmxColumn;
-import org.molgenis.emx2.EmxTable;
-import org.molgenis.emx2.EmxType;
-import org.molgenis.emx2.EmxUnique;
+import org.molgenis.emx2.*;
 
 import java.util.*;
 
@@ -61,6 +58,18 @@ public class EmxTableBean implements EmxTable {
         return getColumn(MOLGENISID);
     }
 
+    @Override
+    public void addUnique(List<String> columnNames) throws EmxModelException {
+        EmxUniqueBean unique = new EmxUniqueBean(this);
+        for(String colName: columnNames)
+        {
+            //TODO: solve this elsewhere colName = colName.trim();
+            if(this.getColumn(colName) == null) throw new EmxModelException("column '"+colName+"' is unknown in table '"+getName()+"'");
+            unique.addColumn(getColumn(colName));
+        }
+        uniques.add(unique);
+    }
+
     public EmxTable setExtend(EmxTableBean extend) {
         this.extend = extend;
         return this;
@@ -81,10 +90,8 @@ public class EmxTableBean implements EmxTable {
             for (EmxColumnBean c : columns.values()) {
                 builder.append("\n\t").append(c.toString());
             }
-            builder.append("\n]");
         }
-        if(!uniques.isEmpty()) {
-            builder.append(", uniques=[");
+        if(uniques.size() > 0) {
             for (EmxUniqueBean u : uniques) {
                 builder.append("\n\t").append(u.toString());
             }

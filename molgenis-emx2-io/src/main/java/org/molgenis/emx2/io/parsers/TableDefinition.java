@@ -1,5 +1,8 @@
 package org.molgenis.emx2.io.parsers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum TableDefinition implements AbstractDefinition {
     ABSTRACT(false), LABEL(true), UNIQUE(true), EXTENDS(true);
 
@@ -19,6 +22,15 @@ public enum TableDefinition implements AbstractDefinition {
     @Override
     public String getParameterValue() {
         return parameterValue;
+    }
+
+    @Override
+    public List<String> getParameterList() {
+        List<String> result = new ArrayList();
+        for(String el: getParameterValue().split(",")) {
+            result.add(el.trim());
+        }
+        return result;
     }
 
     @Override

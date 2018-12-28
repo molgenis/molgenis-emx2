@@ -36,4 +36,15 @@ public class EmxUniqueBean implements EmxUnique {
     public void setColumns(List<EmxColumn> columns) {
         this.columns = columns;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("EmxUnique(");
+        for(EmxColumn c: columns) {
+            builder.append("\n\t\t").append(c.toString());
+        }
+        builder.append(")");
+        return builder.toString();
+    }
 }

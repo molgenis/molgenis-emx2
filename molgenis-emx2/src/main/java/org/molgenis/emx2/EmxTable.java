@@ -15,4 +15,6 @@ public interface EmxTable {
     EmxTable getExtend();
 
     EmxColumn getIdColumn();
+
+    void addUnique(List<String> strings) throws EmxModelException;
 }

@@ -10,12 +10,11 @@ import org.molgenis.emx2.EmxType;
 import org.molgenis.emx2.io.beans.EmxModelBean;
 import org.molgenis.emx2.io.beans.EmxTableBean;
 import org.molgenis.emx2.io.parsers.ColumnDefinitionParser;
+import org.molgenis.emx2.io.parsers.TableDefinition;
+import org.molgenis.emx2.io.parsers.TableDefinitionParser;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MolgenisReader {
 
@@ -47,18 +46,18 @@ public class MolgenisReader {
 
     public EmxModel convertRowsToModel(List<MolgenisFileRow> rows) throws MolgenisReaderException {
 
-        int line = 0;
-
         Map<String,EmxTableBean> tables = new LinkedHashMap<>();
         List<MolgenisReaderMessage> messages = new ArrayList<>();
 
+        //first parse attributes
+        int line = 0;
         for(MolgenisFileRow row: rows) {
             line++;
 
             String tableName = row.getTable();
             String columnName = row.getColumn();
 
-            if(tableName != null)
+            if(!"".equals(tableName) && !"".equals(columnName))
             {
                 tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
                 EmxTableBean table = tables.get(tableName);
@@ -71,6 +70,29 @@ public class MolgenisReader {
                     }
                     List<ColumnDefinition> terms = new ColumnDefinitionParser().parse(line, messages, row.getDefinition());
                     table.addColumn(columnName, getType(terms));
+                }
+            }
+        }
+        //then parse table
+        line = 0;
+        for(MolgenisFileRow row: rows) {
+            line++;
+
+            String tableName = row.getTable();
+            String columnName = row.getColumn();
+            if(!"".equals(tableName) && "".equals(columnName)) {
+                tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
+                EmxTableBean table = tables.get(tableName);
+                List<TableDefinition> terms = new TableDefinitionParser().parse(line, messages, row.getDefinition());
+                for (TableDefinition term : terms) {
+                    switch (term) {
+                        case UNIQUE:
+                            try {
+                                table.addUnique(Arrays.asList(term.getParameterValue().split(",")));
+                            } catch(Exception e) {
+                                throw new MolgenisReaderException("error on line "+line+": unique parsing failed. "+e.getMessage());
+                            }
+                    }
                 }
             }
         }
