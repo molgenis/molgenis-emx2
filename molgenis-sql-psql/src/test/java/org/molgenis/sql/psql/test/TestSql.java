@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.sql.SqlType.*;
 
@@ -172,6 +173,10 @@ public class TestSql {
 
         System.out.println("Refreshed fromTable: \n" + t2.toString());
 
+        assertEquals(2, t.getUniques().size());
+        t.removeUnique("Last Name", "First Name");
+        assertEquals(1, t.getUniques().size());
+
         //drop a fromTable
         //db.dropTable(t.getName());
     }
@@ -243,6 +248,54 @@ public class TestSql {
 //
 //        System.out.println(q1);
 
+        try {
+            db.getQuery().from("pietje");
+            fail("exception handling from(pietje) failed");
+        } catch (Exception e)
+        {
+            //good stuff
+        }
+
+        try {
+            db.getQuery().from("Product").from("Product");
+            fail("shouldn't be able to say 'from' 2x");
+        } catch (Exception e)
+        {
+            //good stuff
+        }
+
+
+        try {
+            db.getQuery().from("Product").as("p").join("ProductComponent", "p2", "product");
+            fail("should fail because faulty toTabel");
+        } catch (Exception e)
+        {
+            //good stuff
+        }
+
+        try {
+            db.getQuery().join("Component", "pc", "component").from("Product");
+            fail("shouldn't be able to join before from");
+
+        } catch (Exception e)
+        {
+            //good stuff
+        }
+
+        try {
+            db.getQuery().from("Product").as("p").join("ProductComponent", "p", "component");
+            fail("should fail because faulty 'on'");
+        } catch (Exception e)
+        {
+            //good stuff
+        }
+        try {
+            db.getQuery().from("Product").as("p").select("wrongname").as("productName");
+            fail("should fail because faulty 'select'");
+        } catch (Exception e)
+        {
+            //good stuff
+        }
 
         SqlQuery q2 = db.getQuery();
         q2.from("Product").as("p").select("name").as("productName");

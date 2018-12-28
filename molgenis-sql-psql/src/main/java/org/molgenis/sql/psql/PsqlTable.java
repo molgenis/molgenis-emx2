@@ -137,7 +137,7 @@ public class PsqlTable implements SqlTable {
 
     @Override
     public void removeUnique(String ... keys) throws SqlDatabaseException {
-        sql.alterTable(this.name).dropConstraint(getUniqueName(keys));
+        sql.alterTable(this.name).dropConstraint(name(getUniqueName(keys))).execute();
         reloadUniques();
     }
 
