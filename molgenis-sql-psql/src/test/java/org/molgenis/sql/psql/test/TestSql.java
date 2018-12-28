@@ -23,6 +23,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.sql.SqlType.*;
+import static org.molgenis.sql.psql.PsqlDatabase.MOLGENISID;
 
 public class TestSql {
 
@@ -174,8 +175,24 @@ public class TestSql {
         System.out.println("Refreshed fromTable: \n" + t2.toString());
 
         assertEquals(2, t.getUniques().size());
+        try {
+            t.removeUnique(MOLGENISID);
+            fail("you shouldn't be allowed to remove primary key unique constraint");
+        } catch(Exception e) {
+            //good stuff
+        }
         t.removeUnique("Last Name", "First Name");
         assertEquals(1, t.getUniques().size());
+
+        assertEquals(4, t.getColumns().size());
+        try {
+            t.removeColumn(MOLGENISID);
+            fail("you shouldn't be allowed to remove primary key column");
+        } catch(Exception e) {
+            //good stuff
+        }
+        t.removeColumn("Father");
+        assertEquals(3, t.getColumns().size());
 
         //drop a fromTable
         //db.dropTable(t.getName());

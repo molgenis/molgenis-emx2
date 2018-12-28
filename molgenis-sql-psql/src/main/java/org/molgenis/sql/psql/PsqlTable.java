@@ -5,6 +5,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.sql.*;
 
+import javax.swing.*;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
@@ -91,7 +92,8 @@ public class PsqlTable implements SqlTable {
 
     @Override
     public void removeColumn(String name) throws SqlDatabaseException {
-        sql.alterTable(this.name).renameColumn(name);
+        if(MOLGENISID.equals(name)) throw new SqlDatabaseException("You are not allowed to remove primary key column "+MOLGENISID);
+        sql.alterTable(this.name).dropColumn(name).execute();
         reloadColumns();
     }
 
@@ -137,6 +139,7 @@ public class PsqlTable implements SqlTable {
 
     @Override
     public void removeUnique(String ... keys) throws SqlDatabaseException {
+        if(keys.length == 1 && MOLGENISID.equals(keys[0])) throw new SqlDatabaseException("You are not allowed to remove unique constraint on primary key column "+MOLGENISID);
         sql.alterTable(this.name).dropConstraint(name(getUniqueName(keys))).execute();
         reloadUniques();
     }
