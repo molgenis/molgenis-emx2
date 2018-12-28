@@ -7,8 +7,8 @@ import org.molgenis.emx2.io.format.MolgenisFileRow;
 import org.molgenis.emx2.io.parsers.ColumnDefinition;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.EmxType;
-import org.molgenis.emx2.beans.EmxModelBean;
-import org.molgenis.emx2.beans.EmxTableBean;
+import org.molgenis.emx2.io.beans.EmxModelBean;
+import org.molgenis.emx2.io.beans.EmxTableBean;
 import org.molgenis.emx2.io.parsers.ColumnDefinitionParser;
 
 import java.io.*;
@@ -64,13 +64,12 @@ public class MolgenisReader {
                 EmxTableBean table = tables.get(tableName);
 
                 //if table != null and column== null, this definition is for a table
-                //if table!= null and column != null, this definition if for a column
+                //if table != null and column != null, this definition if for a column
                 if(columnName != null) {
                     if(table.getColumn(columnName) != null) {
                         throw new MolgenisReaderException("error on line "+line+": duplicate column definition table='"+tableName+"', column='"+columnName+"'");
                     }
                     List<ColumnDefinition> terms = new ColumnDefinitionParser().parse(line, messages, row.getDefinition());
-
                     table.addColumn(columnName, getType(terms));
                 }
             }

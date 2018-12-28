@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.legacy;
+package org.molgenis.emx2.io.legacyformat;
 
 public class AttributesFileRow {
 

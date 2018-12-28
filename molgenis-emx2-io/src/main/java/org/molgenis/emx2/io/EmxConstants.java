@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.io;
 
 public final class EmxConstants {
     private EmxConstants() {

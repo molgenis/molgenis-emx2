@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beans;
+package org.molgenis.emx2.io.beans;
 
 import org.molgenis.emx2.EmxColumn;
 import org.molgenis.emx2.EmxTable;

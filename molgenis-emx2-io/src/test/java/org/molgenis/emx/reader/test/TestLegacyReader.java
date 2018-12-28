@@ -5,8 +5,8 @@ import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
 import org.molgenis.emx2.io.MolgenisWriter;
-import org.molgenis.emx2.io.legacy.AttributesFileReader;
-import org.molgenis.emx2.io.legacy.AttributesFileRow;
+import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
+import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 
 import java.io.File;
 import java.io.FileNotFoundException;

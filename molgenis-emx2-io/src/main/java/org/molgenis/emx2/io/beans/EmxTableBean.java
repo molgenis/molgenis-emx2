@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beans;
+package org.molgenis.emx2.io.beans;
 
 import org.molgenis.emx2.EmxColumn;
 import org.molgenis.emx2.EmxTable;
@@ -7,7 +7,7 @@ import org.molgenis.emx2.EmxUnique;
 
 import java.util.*;
 
-import static org.molgenis.emx2.EmxConstants.MOLGENISID;
+import static org.molgenis.emx2.io.EmxConstants.MOLGENISID;
 
 public class EmxTableBean implements EmxTable {
     String name;

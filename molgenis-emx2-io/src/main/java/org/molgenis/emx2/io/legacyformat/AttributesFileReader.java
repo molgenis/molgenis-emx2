@@ -1,13 +1,13 @@
-package org.molgenis.emx2.io.legacy;
+package org.molgenis.emx2.io.legacyformat;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.EmxTable;
 import org.molgenis.emx2.EmxType;
-import org.molgenis.emx2.beans.EmxColumnBean;
-import org.molgenis.emx2.beans.EmxModelBean;
-import org.molgenis.emx2.beans.EmxTableBean;
+import org.molgenis.emx2.io.beans.EmxColumnBean;
+import org.molgenis.emx2.io.beans.EmxModelBean;
+import org.molgenis.emx2.io.beans.EmxTableBean;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
 
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.EmxType.*;
-import static org.molgenis.emx2.io.legacy.AttributesFileHeader.*;
+import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
 

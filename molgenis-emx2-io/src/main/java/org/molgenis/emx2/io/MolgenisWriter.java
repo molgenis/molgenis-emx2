@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.molgenis.emx2.EmxConstants.MOLGENISID;
+import static org.molgenis.emx2.io.EmxConstants.MOLGENISID;
 import static org.molgenis.emx2.io.parsers.ColumnDefinition.*;
 
 public class MolgenisWriter {
