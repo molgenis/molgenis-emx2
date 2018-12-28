@@ -8,6 +8,7 @@ import org.molgenis.sql.*;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.sql.SqlType.REF;
 import static org.molgenis.sql.psql.PsqlDatabase.MOLGENISID;
 
 public class PsqlTable implements SqlTable {
@@ -46,12 +47,11 @@ public class PsqlTable implements SqlTable {
             for (Field f : (List<Field>) fk.getFields()) {
                 PsqlColumn temp = columnMap.get(f.getName());
                 PsqlColumn fkey = null;
-                //TODO: check for cyclic dependency
                 String refTableName = fk.getKey().getTable().getName();
                 if (refTableName.equals(name)) {
-                    fkey = new PsqlColumn(sql, this, f.getName(), this);
+                    fkey = new PsqlColumn(sql, this, f.getName(), REF, this);
                 } else {
-                    fkey = new PsqlColumn(sql, this, f.getName(), db.getTable(refTableName));
+                    fkey = new PsqlColumn(sql, this, f.getName(), REF, db.getTable(refTableName));
                 }
                 fkey.setNullable(temp.isNullable());
                 columnMap.put(f.getName(), fkey);

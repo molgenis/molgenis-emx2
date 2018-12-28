@@ -15,20 +15,13 @@ public class PsqlColumn implements SqlColumn
     private SqlTable refTable = null;
     private boolean nullable = false;
 
-    PsqlColumn(DSLContext sql, SqlTable table, String name, SqlTable otherTable) {
-        this.sql = sql;
-        this.table = table;
-        this.name = name;
-        this.refTable = otherTable;
-    }
-
-
-    PsqlColumn(DSLContext sql, SqlTable table, String name, SqlType type) {
-        if(SqlType.REF.equals(type)) throw new IllegalArgumentException("type cannot be REF in constructor PsqlColumn(sql, table, name, type). Use other constructor.");
+    PsqlColumn(DSLContext sql, SqlTable table, String name, SqlType type, SqlTable otherTable) {
         this.sql = sql;
         this.table = table;
         this.name = name;
         this.type = type;
+        this.refTable = otherTable;
+        if(SqlType.REF.equals(type) && otherTable == null) throw new IllegalArgumentException("type cannot be REF in constructor PsqlColumn(sql, table, name, type). Use other constructor.");
     }
 
     PsqlColumn(DSLContext sql, SqlTable table, Field f) {
