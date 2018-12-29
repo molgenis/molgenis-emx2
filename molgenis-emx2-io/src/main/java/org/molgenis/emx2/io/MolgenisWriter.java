@@ -21,7 +21,7 @@ import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
 
 public class MolgenisWriter {
 
-  public void writeCsv(EmxModel model, Writer writer) throws IOException {
+  public void writeCsv(EmxModel model, Writer writer) throws IOException, MolgenisWriterException {
     CSVPrinter csvPrinter =
         new CSVPrinter(
             writer, CSVFormat.DEFAULT.withHeader("table", "column", "definition", "description"));
@@ -32,7 +32,8 @@ public class MolgenisWriter {
     csvPrinter.close();
   }
 
-  public List<MolgenisFileRow> convertModelToMolgenisFileRows(EmxModel model) {
+  public List<MolgenisFileRow> convertModelToMolgenisFileRows(EmxModel model)
+      throws MolgenisWriterException {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
     for (EmxTable table : model.getTables()) {
@@ -49,12 +50,13 @@ public class MolgenisWriter {
     return rows;
   }
 
-  private MolgenisFileRow convertColumnToRow(EmxTable table, EmxColumn column) {
+  private MolgenisFileRow convertColumnToRow(EmxTable table, EmxColumn column)
+      throws MolgenisWriterException {
     return new MolgenisFileRow(
         table.getName(), column.getName(), getDefinitionString(column), column.getDescription());
   }
 
-  private String getDefinitionString(EmxColumn col) {
+  private String getDefinitionString(EmxColumn col) throws MolgenisWriterException {
     List<EmxDefinitionTerm> def = new ArrayList<>();
 
     if (!EmxType.STRING.equals(col.getType())) {
@@ -109,7 +111,7 @@ public class MolgenisWriter {
         case ENUM:
           break;
         default:
-          throw new RuntimeException("unknown type, this is a coding error!");
+          throw new MolgenisWriterException("unknown type, this is a coding error!");
       }
 
       def.add(d);
