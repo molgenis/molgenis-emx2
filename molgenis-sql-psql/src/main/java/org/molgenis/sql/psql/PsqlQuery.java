@@ -175,7 +175,6 @@ public class PsqlQuery implements SqlQuery {
     return this;
   }
 
-  // TODO, make streaming?
   @Override
   public List<SqlRow> retrieve() throws SqlQueryException {
 
@@ -212,8 +211,6 @@ public class PsqlQuery implements SqlQuery {
 
     if (joinStep == null) throw new SqlQueryException("no tables defined as part of this query");
     joinStep.where(conditions);
-    System.out.println("retrieve: " + joinStep.getSQL());
-
     Result<Record> result = joinStep.fetch();
     for (Record r : result) {
       rows.add(new PsqlRow(r));
