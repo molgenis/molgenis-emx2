@@ -5,6 +5,7 @@ import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
 import org.molgenis.emx2.io.MolgenisWriter;
+import org.molgenis.emx2.io.MolgenisWriterException;
 import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
 import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 
@@ -16,7 +17,7 @@ import java.io.StringWriter;
 public class TestLegacyReader {
 
   @Test
-  public void test() {
+  public void test() throws MolgenisWriterException {
     try {
       for (AttributesFileRow row :
           new AttributesFileReader().readRowsFromCsv(getFile("attributes_typetest.csv"))) {
