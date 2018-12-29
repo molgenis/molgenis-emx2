@@ -1,16 +1,19 @@
 package org.molgenis.emx2.io.beans;
 
+import org.javers.core.metamodel.annotation.Id;
+import org.javers.core.metamodel.annotation.TypeName;
 import org.molgenis.emx2.*;
 
 import java.util.*;
 
 import static org.molgenis.emx2.io.EmxConstants.MOLGENISID;
 
+@TypeName("table")
 public class EmxTableBean implements EmxTable {
-  String name;
-  EmxTableBean extend;
-  Map<String, EmxColumnBean> columns = new LinkedHashMap<>();
-  List<EmxUniqueBean> uniques = new ArrayList<>();
+  @Id private String name;
+  private EmxTableBean extend;
+  private Map<String, EmxColumnBean> columns = new LinkedHashMap<>();
+  private List<EmxUniqueBean> uniques = new ArrayList<>();
 
   public EmxTableBean(String name) {
     this.name = name;
@@ -82,17 +85,21 @@ public class EmxTableBean implements EmxTable {
   }
 
   public String toString() {
+    return getName();
+  }
+
+  public String print() {
     StringBuilder builder = new StringBuilder();
     builder.append("EmxTable(name=").append(name);
     if (extend != null) builder.append(", extend=").append(extend.getName());
     if (!columns.isEmpty()) {
       for (EmxColumnBean c : columns.values()) {
-        builder.append("\n\t").append(c.toString());
+        builder.append("\n\t").append(c.print());
       }
     }
     if (!uniques.isEmpty()) {
       for (EmxUniqueBean u : uniques) {
-        builder.append("\n\t").append(u.toString());
+        builder.append("\n\t").append(u.print());
       }
     }
     builder.append(")");

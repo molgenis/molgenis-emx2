@@ -1,12 +1,15 @@
 package org.molgenis.emx2.io.beans;
 
+import org.javers.core.metamodel.annotation.Id;
+import org.javers.core.metamodel.annotation.TypeName;
 import org.molgenis.emx2.EmxColumn;
 import org.molgenis.emx2.EmxTable;
 import org.molgenis.emx2.EmxType;
 
+@TypeName("column")
 public class EmxColumnBean implements EmxColumn {
   private EmxTable table;
-  private String name;
+  @Id private String name;
   private EmxType type = EmxType.STRING;
   private Boolean nillable = false;
   private Boolean readonly = false;
@@ -131,6 +134,10 @@ public class EmxColumnBean implements EmxColumn {
   }
 
   public String toString() {
+    return getName();
+  }
+
+  public String print() {
     StringBuilder sb = new StringBuilder();
     sb.append("EmxColumn(table='").append(table.getName()).append("'");
     sb.append(" name='").append(name).append("'");

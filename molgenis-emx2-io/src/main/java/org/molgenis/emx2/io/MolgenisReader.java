@@ -23,20 +23,20 @@ import java.util.Map;
 
 public class MolgenisReader {
 
-  public EmxModel readModelFromCsv(File f) throws IOException {
-    return readModelFromCsv(new FileReader(f));
+  public EmxModel readModelFromCsvFile(File f) throws IOException {
+    return readModelFromCsvReader(new FileReader(f));
   }
 
-  public EmxModel readModelFromCsv(Reader in) throws IOException {
-    List<MolgenisFileRow> rows = readRowsFromCsv(in);
+  public EmxModel readModelFromCsvReader(Reader in) throws IOException {
+    List<MolgenisFileRow> rows = readRowsFromCsvReader(in);
     return convertRowsToModel(rows);
   }
 
-  public List<MolgenisFileRow> readRowsFromCsv(File f) throws IOException {
-    return readRowsFromCsv(new FileReader(f));
+  public List<MolgenisFileRow> readRowsFromCsvFile(File f) throws IOException {
+    return readRowsFromCsvReader(new FileReader(f));
   }
 
-  public List<MolgenisFileRow> readRowsFromCsv(Reader in) throws MolgenisReaderException {
+  public List<MolgenisFileRow> readRowsFromCsvReader(Reader in) throws MolgenisReaderException {
     try {
       Iterable<CSVRecord> records =
           CSVFormat.DEFAULT

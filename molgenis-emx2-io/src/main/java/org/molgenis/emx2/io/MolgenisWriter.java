@@ -2,10 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.molgenis.emx2.EmxColumn;
-import org.molgenis.emx2.EmxModel;
-import org.molgenis.emx2.EmxTable;
-import org.molgenis.emx2.EmxType;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 
@@ -37,7 +34,7 @@ public class MolgenisWriter {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
     for (EmxTable table : model.getTables()) {
-      if (table.getExtend() != null || table.getUniques().isEmpty()) {
+      if (table.getExtend() != null || !table.getUniques().isEmpty()) {
         rows.add(convertTableToRow(table));
       }
       for (EmxColumn column : table.getColumns()) {
@@ -121,7 +118,7 @@ public class MolgenisWriter {
     if (col.getDefaultValue() != null) def.add(DEFAULT.setParameterValue(col.getDefaultValue()));
     if (col.getValidation() != null)
       def.add(VALIDATION.setParameterValue(escapeScript(col.getValidation())));
-    if (col.getUnique()) def.add(UNIQUE);
+    if (col.getUnique()) def.add(UNIQUE.setParameterValue(null));
     if (col.getVisible() != null)
       def.add(VISIBLE.setParameterValue(escapeScript(col.getVisible())));
 
@@ -137,7 +134,12 @@ public class MolgenisWriter {
   }
 
   private MolgenisFileRow convertTableToRow(EmxTable table) {
-    return new MolgenisFileRow(table.getName(), "", "");
+    List<EmxDefinitionTerm> def = new ArrayList<>();
+    for (EmxUnique u : table.getUniques()) {
+      def.add(UNIQUE.setParameterList(u.getColumnNames()));
+    }
+
+    return new MolgenisFileRow(table.getName(), "", join(def, " "));
   }
 
   private String join(Collection collection, String delimiter) {

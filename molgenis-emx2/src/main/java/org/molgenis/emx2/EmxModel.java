@@ -8,4 +8,6 @@ public interface EmxModel {
   EmxTable getTable(String name);
 
   Collection<EmxTable> getTables();
+
+  String print();
 }

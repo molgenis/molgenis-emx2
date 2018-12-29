@@ -4,6 +4,7 @@ import org.molgenis.emx2.EmxType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public enum EmxDefinitionTerm {
   // for columns and tables
@@ -71,7 +72,7 @@ public enum EmxDefinitionTerm {
 
   @Override
   public String toString() {
-    if (hasParameter) {
+    if (hasParameter && getParameterValue() != null) {
       return this.name().toLowerCase() + "(" + parameterValue + ")";
     } else {
       return this.name().toLowerCase();
@@ -80,5 +81,11 @@ public enum EmxDefinitionTerm {
 
   public static EmxDefinitionTerm valueOf(EmxType type) {
     return valueOf(type.toString());
+  }
+
+  public EmxDefinitionTerm setParameterList(List<String> columnNames) {
+    this.parameterValue =
+        columnNames.stream().map(Object::toString).collect(Collectors.joining(","));
+    return this;
   }
 }

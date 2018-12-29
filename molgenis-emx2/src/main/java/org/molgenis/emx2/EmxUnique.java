@@ -4,4 +4,6 @@ import java.util.List;
 
 public interface EmxUnique {
   List<EmxColumn> getColumns();
+
+  List<String> getColumnNames();
 }
