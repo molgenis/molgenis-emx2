@@ -133,60 +133,58 @@ public class MolgenisReader {
       line++;
       String tableName = row.getTable();
       String columnName = row.getColumn();
-      if (!"".equals(tableName)) {
+      if (!"".equals(tableName) && !"".equals(columnName)) {
         tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
-        if (!"".equals(columnName)) {
-          EmxTableBean table = tables.get(tableName);
-          if (table.getColumn(columnName) != null) {
-            throw new MolgenisReaderException(
-                "error on line "
-                    + line
-                    + ": duplicate column definition table='"
-                    + tableName
-                    + "', column='"
-                    + columnName
-                    + "'");
-          }
-          List<EmxDefinitionTerm> terms =
-              new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-          EmxColumnBean column = table.addColumn(columnName, getType(terms));
-          for (EmxDefinitionTerm term : terms) {
-            switch (term) {
-              case STRING:
-              case INT:
-              case LONG:
-              case SELECT:
-              case RADIO:
-              case BOOL:
-              case DECIMAL:
-              case TEXT:
-              case DATE:
-              case DATETIME:
-              case MSELECT:
-              case CHECKBOX:
-              case UUID:
-              case HYPERLINK:
-              case EMAIL:
-              case HTML:
-              case FILE:
-              case ENUM:
-                break;
-              case NILLABLE:
-                column.setNillable(true);
-                break;
-              case READONLY:
-                column.setReadonly(true);
-                break;
-              case DEFAULT:
-                column.setDefaultValue(term.getParameterValue());
-                break;
-              case UNIQUE:
-                column.setUnique(true);
-                break;
-              default:
-                throw new MolgenisReaderException(
-                    "error on line" + line + ": unknown definition term " + term);
-            }
+        EmxTableBean table = tables.get(tableName);
+        if (table.getColumn(columnName) != null) {
+          throw new MolgenisReaderException(
+              "error on line "
+                  + line
+                  + ": duplicate column definition table='"
+                  + tableName
+                  + "', column='"
+                  + columnName
+                  + "'");
+        }
+        List<EmxDefinitionTerm> terms =
+            new EmxDefinitionParser().parse(line, messages, row.getDefinition());
+        EmxColumnBean column = table.addColumn(columnName, getType(terms));
+        for (EmxDefinitionTerm term : terms) {
+          switch (term) {
+            case STRING:
+            case INT:
+            case LONG:
+            case SELECT:
+            case RADIO:
+            case BOOL:
+            case DECIMAL:
+            case TEXT:
+            case DATE:
+            case DATETIME:
+            case MSELECT:
+            case CHECKBOX:
+            case UUID:
+            case HYPERLINK:
+            case EMAIL:
+            case HTML:
+            case FILE:
+            case ENUM:
+              break;
+            case NILLABLE:
+              column.setNillable(true);
+              break;
+            case READONLY:
+              column.setReadonly(true);
+              break;
+            case DEFAULT:
+              column.setDefaultValue(term.getParameterValue());
+              break;
+            case UNIQUE:
+              column.setUnique(true);
+              break;
+            default:
+              throw new MolgenisReaderException(
+                  "error on line" + line + ": unknown definition term " + term);
           }
         }
       }
