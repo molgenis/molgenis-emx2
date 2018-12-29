@@ -33,7 +33,6 @@ public enum EmxDefinitionTerm {
   READONLY(false),
   VISIBLE(true),
   VALIDATION(true),
-
   // for tables
   ABSTRACT(false),
   LABEL(true),
