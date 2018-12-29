@@ -82,23 +82,29 @@ public class MolgenisReader {
       if (!"".equals(tableName) && "".equals(columnName)) {
         tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
         EmxTableBean table = tables.get(tableName);
-        List<EmxDefinitionTerm> terms =
-            new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-        for (EmxDefinitionTerm term : terms) {
-          switch (term) {
-            case UNIQUE:
-              try {
-                table.addUnique(Arrays.asList(term.getParameterValue().split(",")));
-              } catch (Exception e) {
-                throw new MolgenisReaderException(
-                    "error on line " + line + ": unique parsing failed. " + row.getDefinition());
-              }
-              break;
-            default:
-              throw new MolgenisReaderException(
-                  "error on line" + line + ": unknown definition term " + term);
+        extractTableDefinition(messages, line, row, table);
+      }
+    }
+  }
+
+  private void extractTableDefinition(
+      List<MolgenisReaderMessage> messages, int line, MolgenisFileRow row, EmxTableBean table)
+      throws MolgenisReaderException {
+    List<EmxDefinitionTerm> terms =
+        new EmxDefinitionParser().parse(line, messages, row.getDefinition());
+    for (EmxDefinitionTerm term : terms) {
+      switch (term) {
+        case UNIQUE:
+          try {
+            table.addUnique(Arrays.asList(term.getParameterValue().split(",")));
+          } catch (Exception e) {
+            throw new MolgenisReaderException(
+                "error on line " + line + ": unique parsing failed. " + row.getDefinition());
           }
-        }
+          break;
+        default:
+          throw new MolgenisReaderException(
+              "error on line" + line + ": unknown definition term " + term);
       }
     }
   }
