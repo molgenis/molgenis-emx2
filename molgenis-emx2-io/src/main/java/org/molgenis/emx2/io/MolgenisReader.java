@@ -73,7 +73,7 @@ public class MolgenisReader {
       Map<String, EmxTableBean> tables,
       List<MolgenisReaderMessage> messages)
       throws MolgenisReaderException {
-    int line = 0;
+    int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
 
@@ -91,7 +91,7 @@ public class MolgenisReader {
                 table.addUnique(Arrays.asList(term.getParameterValue().split(",")));
               } catch (Exception e) {
                 throw new MolgenisReaderException(
-                    "error on line " + line + ": unique parsing failed. " + e.getMessage());
+                    "error on line " + line + ": unique parsing failed. " + row.getDefinition());
               }
           }
         }
@@ -104,7 +104,7 @@ public class MolgenisReader {
       Map<String, EmxTableBean> tables,
       List<MolgenisReaderMessage> messages)
       throws MolgenisReaderException {
-    int line = 0;
+    int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
 
@@ -160,6 +160,9 @@ public class MolgenisReader {
                 break;
               case DEFAULT:
                 column.setDefaultValue(term.getParameterValue());
+                break;
+              case UNIQUE:
+                column.setUnique(true);
                 break;
               default:
                 throw new MolgenisReaderException(

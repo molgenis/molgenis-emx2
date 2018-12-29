@@ -7,7 +7,7 @@ import java.util.List;
 
 public enum EmxDefinitionTerm {
   // for columns and tables
-  UNIQUE(false),
+  UNIQUE(true),
   // for column types
   STRING(false),
   INT(false),
