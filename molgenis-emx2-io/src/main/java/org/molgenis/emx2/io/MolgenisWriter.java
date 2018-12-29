@@ -108,6 +108,8 @@ public class MolgenisWriter {
           break;
         case ENUM:
           break;
+        default:
+          throw new RuntimeException("unknown type, this is a coding error!");
       }
 
       def.add(d);

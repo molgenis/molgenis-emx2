@@ -16,7 +16,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MolgenisReader {
 
@@ -64,7 +67,6 @@ public class MolgenisReader {
     List<MolgenisReaderMessage> messages = new ArrayList<>();
     convertRowsToColumns(rows, tables, messages);
     convertRowsToTables(rows, tables, messages);
-
     return new EmxModelBean(tables);
   }
 
@@ -82,13 +84,17 @@ public class MolgenisReader {
       if (!"".equals(tableName) && "".equals(columnName)) {
         tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
         EmxTableBean table = tables.get(tableName);
-        extractTableDefinition(messages, line, row, table);
+        extractTableDefinition(messages, line, row, table, tables);
       }
     }
   }
 
   private void extractTableDefinition(
-      List<MolgenisReaderMessage> messages, int line, MolgenisFileRow row, EmxTableBean table)
+      List<MolgenisReaderMessage> messages,
+      int line,
+      MolgenisFileRow row,
+      EmxTableBean table,
+      Map<String, EmxTableBean> tables)
       throws MolgenisReaderException {
     List<EmxDefinitionTerm> terms =
         new EmxDefinitionParser().parse(line, messages, row.getDefinition());
@@ -96,11 +102,19 @@ public class MolgenisReader {
       switch (term) {
         case UNIQUE:
           try {
-            table.addUnique(Arrays.asList(term.getParameterValue().split(",")));
+            table.addUnique(term.getParameterList());
           } catch (Exception e) {
             throw new MolgenisReaderException(
-                "error on line " + line + ": unique parsing failed. " + row.getDefinition());
+                "error on line "
+                    + line
+                    + ": unique parsing in definition '"
+                    + row.getDefinition()
+                    + "' failed. "
+                    + e.getMessage());
           }
+          break;
+        case EXTENDS:
+          table.setExtend(tables.get(term.getParameterValue()));
           break;
         default:
           throw new MolgenisReaderException(
@@ -119,59 +133,60 @@ public class MolgenisReader {
       line++;
       String tableName = row.getTable();
       String columnName = row.getColumn();
-
-      if (!"".equals(tableName) && !"".equals(columnName)) {
+      if (!"".equals(tableName)) {
         tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
-        EmxTableBean table = tables.get(tableName);
-        if (table.getColumn(columnName) != null) {
-          throw new MolgenisReaderException(
-              "error on line "
-                  + line
-                  + ": duplicate column definition table='"
-                  + tableName
-                  + "', column='"
-                  + columnName
-                  + "'");
-        }
-        List<EmxDefinitionTerm> terms =
-            new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-        EmxColumnBean column = table.addColumn(columnName, getType(terms));
-        for (EmxDefinitionTerm term : terms) {
-          switch (term) {
-            case STRING:
-            case INT:
-            case LONG:
-            case SELECT:
-            case RADIO:
-            case BOOL:
-            case DECIMAL:
-            case TEXT:
-            case DATE:
-            case DATETIME:
-            case MSELECT:
-            case CHECKBOX:
-            case UUID:
-            case HYPERLINK:
-            case EMAIL:
-            case HTML:
-            case FILE:
-            case ENUM:
-              break;
-            case NILLABLE:
-              column.setNillable(true);
-              break;
-            case READONLY:
-              column.setReadonly(true);
-              break;
-            case DEFAULT:
-              column.setDefaultValue(term.getParameterValue());
-              break;
-            case UNIQUE:
-              column.setUnique(true);
-              break;
-            default:
-              throw new MolgenisReaderException(
-                  "error on line" + line + ": unknown definition term " + term);
+        if (!"".equals(columnName)) {
+          EmxTableBean table = tables.get(tableName);
+          if (table.getColumn(columnName) != null) {
+            throw new MolgenisReaderException(
+                "error on line "
+                    + line
+                    + ": duplicate column definition table='"
+                    + tableName
+                    + "', column='"
+                    + columnName
+                    + "'");
+          }
+          List<EmxDefinitionTerm> terms =
+              new EmxDefinitionParser().parse(line, messages, row.getDefinition());
+          EmxColumnBean column = table.addColumn(columnName, getType(terms));
+          for (EmxDefinitionTerm term : terms) {
+            switch (term) {
+              case STRING:
+              case INT:
+              case LONG:
+              case SELECT:
+              case RADIO:
+              case BOOL:
+              case DECIMAL:
+              case TEXT:
+              case DATE:
+              case DATETIME:
+              case MSELECT:
+              case CHECKBOX:
+              case UUID:
+              case HYPERLINK:
+              case EMAIL:
+              case HTML:
+              case FILE:
+              case ENUM:
+                break;
+              case NILLABLE:
+                column.setNillable(true);
+                break;
+              case READONLY:
+                column.setReadonly(true);
+                break;
+              case DEFAULT:
+                column.setDefaultValue(term.getParameterValue());
+                break;
+              case UNIQUE:
+                column.setUnique(true);
+                break;
+              default:
+                throw new MolgenisReaderException(
+                    "error on line" + line + ": unknown definition term " + term);
+            }
           }
         }
       }

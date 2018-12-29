@@ -184,7 +184,6 @@ public class AttributesFileReader {
         row.setLabelAttribute(bool(get(record, LABELATTRIBUTE)));
         row.setReadonly(bool(get(record, READONLY)));
         row.setValidationExepression(get(record, VALIDATIONEXPRESSION));
-        // TODO row.setTags(TAGS);
         row.setVisibleExpression(get(record, VISIBLE));
         row.setDefaultValue(get(record, DEFAULTVALUE));
         row.setPartOfAttribute(get(record, PARTOFATTRIBUTE));

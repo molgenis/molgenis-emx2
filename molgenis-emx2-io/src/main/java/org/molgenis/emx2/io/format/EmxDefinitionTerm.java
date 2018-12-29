@@ -56,8 +56,10 @@ public enum EmxDefinitionTerm {
 
   public List<String> getParameterList() {
     List<String> result = new ArrayList();
-    for (String el : getParameterValue().split(",")) {
-      result.add(el.trim());
+    if (getParameterValue() != null) {
+      for (String el : getParameterValue().split(",")) {
+        result.add(el.trim());
+      }
     }
     return result;
   }
@@ -67,6 +69,7 @@ public enum EmxDefinitionTerm {
     return this;
   }
 
+  @Override
   public String toString() {
     if (hasParameter) {
       return this.name().toLowerCase() + "(" + parameterValue + ")";

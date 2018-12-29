@@ -62,7 +62,6 @@ public class EmxTableBean implements EmxTable {
   public void addUnique(List<String> columnNames) throws EmxModelException {
     EmxUniqueBean unique = new EmxUniqueBean(this);
     for (String colName : columnNames) {
-      // TODO: solve this elsewhere colName = colName.trim();
       if (this.getColumn(colName) == null)
         throw new EmxModelException(
             "column '" + colName + "' is unknown in table '" + getName() + "'");
@@ -86,13 +85,12 @@ public class EmxTableBean implements EmxTable {
     StringBuilder builder = new StringBuilder();
     builder.append("EmxTable(name=").append(name);
     if (extend != null) builder.append(", extend=").append(extend.getName());
-    if (columns.size() > 0) {
-      builder.append(")");
+    if (!columns.isEmpty()) {
       for (EmxColumnBean c : columns.values()) {
         builder.append("\n\t").append(c.toString());
       }
     }
-    if (uniques.size() > 0) {
+    if (!uniques.isEmpty()) {
       for (EmxUniqueBean u : uniques) {
         builder.append("\n\t").append(u.toString());
       }
