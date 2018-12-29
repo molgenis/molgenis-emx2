@@ -2,15 +2,15 @@ package org.molgenis.sql;
 
 public interface SqlColumn {
 
-    SqlTable getTable();
+  SqlTable getTable();
 
-    String getName();
+  String getName();
 
-    SqlType getType();
+  SqlType getType();
 
-    Boolean isNullable();
+  Boolean isNullable();
 
-    SqlColumn setNullable(boolean nillable);
+  SqlColumn setNullable(boolean nillable);
 
-    SqlTable getRefTable();
+  SqlTable getRefTable();
 }

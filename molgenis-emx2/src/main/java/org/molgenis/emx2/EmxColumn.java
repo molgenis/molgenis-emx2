@@ -1,29 +1,29 @@
 package org.molgenis.emx2;
 
 public interface EmxColumn {
-    EmxTable getTable();
+  EmxTable getTable();
 
-    String getName();
+  String getName();
 
-    EmxType getType();
+  EmxType getType();
 
-    Boolean getNillable();
+  Boolean getNillable();
 
-    Boolean getReadonly();
+  Boolean getReadonly();
 
-    String getDefaultValue();
+  String getDefaultValue();
 
-    EmxColumn getRef();
+  EmxColumn getRef();
 
-    EmxTable getJoinTable();
+  EmxTable getJoinTable();
 
-    EmxColumn getJoinColumn();
+  EmxColumn getJoinColumn();
 
-    Boolean getUnique();
+  Boolean getUnique();
 
-    String getValidation();
+  String getValidation();
 
-    String getVisible();
+  String getVisible();
 
-    String getDescription();
+  String getDescription();
 }

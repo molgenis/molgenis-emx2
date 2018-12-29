@@ -4,9 +4,9 @@ import java.util.Collection;
 
 public interface SqlUnique {
 
-    SqlTable getTable();
+  SqlTable getTable();
 
-    Collection<SqlColumn> getColumns();
+  Collection<SqlColumn> getColumns();
 
-    Collection<String> getColumnNames();
+  Collection<String> getColumnNames();
 }

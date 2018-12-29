@@ -2,12 +2,12 @@
 <log4j:configuration>
     <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m%n" />
+            <param name="ConversionPattern" value="%m%n"/>
         </layout>
     </appender>
 
     <root>
-        <priority value="debug" />
-        <appender-ref ref="stdout" />
+        <priority value="debug"/>
+        <appender-ref ref="stdout"/>
     </root>
 </log4j:configuration>

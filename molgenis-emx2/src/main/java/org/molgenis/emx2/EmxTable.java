@@ -4,17 +4,17 @@ import java.util.List;
 
 public interface EmxTable {
 
-    String getName();
+  String getName();
 
-    EmxColumn getColumn(String name);
+  EmxColumn getColumn(String name);
 
-    List<EmxColumn> getColumns();
+  List<EmxColumn> getColumns();
 
-    List<EmxUnique> getUniques();
+  List<EmxUnique> getUniques();
 
-    EmxTable getExtend();
+  EmxTable getExtend();
 
-    EmxColumn getIdColumn();
+  EmxColumn getIdColumn();
 
-    void addUnique(List<String> strings) throws EmxModelException;
+  void addUnique(List<String> strings) throws EmxModelException;
 }

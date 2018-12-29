@@ -1,144 +1,145 @@
 package org.molgenis.emx2.io.beans;
 
-
 import org.molgenis.emx2.EmxColumn;
 import org.molgenis.emx2.EmxTable;
 import org.molgenis.emx2.EmxType;
 
 public class EmxColumnBean implements EmxColumn {
-    private EmxTable table;
-    private String name;
-    private EmxType type = EmxType.STRING;
-    private Boolean nillable = false;
-    private Boolean readonly = false;
-    private String defaultValue;
-    private EmxColumn ref;
-    private EmxTable joinTable;
-    private EmxColumn joinColumn;
-    private Boolean unique = false;
-    private String description;
-    private String validation;
-    private String visible;
+  private EmxTable table;
+  private String name;
+  private EmxType type = EmxType.STRING;
+  private Boolean nillable = false;
+  private Boolean readonly = false;
+  private String defaultValue;
+  private EmxColumn ref;
+  private EmxTable joinTable;
+  private EmxColumn joinColumn;
+  private Boolean unique = false;
+  private String description;
+  private String validation;
+  private String visible;
 
-    public EmxColumnBean(EmxTable table, String name, EmxType type) {
-        this.table = table;
-        this.name = name;
-        this.type = type;
-    }
+  public EmxColumnBean(EmxTable table, String name, EmxType type) {
+    this.table = table;
+    this.name = name;
+    this.type = type;
+  }
 
-    @Override
-    public EmxTable getTable() {
-        return table;
-    }
+  @Override
+  public EmxTable getTable() {
+    return table;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public EmxType getType() {
-        return type;
-    }
+  @Override
+  public EmxType getType() {
+    return type;
+  }
 
-    @Override
-    public Boolean getNillable() {
-        return nillable;
-    }
+  @Override
+  public Boolean getNillable() {
+    return nillable;
+  }
 
-    public void setNillable(Boolean nillable) {
-        this.nillable = nillable;
-    }
+  public void setNillable(Boolean nillable) {
+    this.nillable = nillable;
+  }
 
-    @Override
-    public Boolean getReadonly() {
-        return readonly;
-    }
+  @Override
+  public Boolean getReadonly() {
+    return readonly;
+  }
 
-    public void setReadonly(Boolean readonly) {
-        this.readonly = readonly;
-    }
+  public void setReadonly(Boolean readonly) {
+    this.readonly = readonly;
+  }
 
-    @Override
-    public String getDefaultValue() {
-        return defaultValue;
-    }
+  @Override
+  public String getDefaultValue() {
+    return defaultValue;
+  }
 
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
 
-    @Override
-    public Boolean getUnique() {
-        return unique;
-    }
+  @Override
+  public Boolean getUnique() {
+    return unique;
+  }
 
-    public void setUnique(Boolean unique) {
-        this.unique = unique;
-    }
+  public void setUnique(Boolean unique) {
+    this.unique = unique;
+  }
 
-    @Override
-    public EmxColumn getRef() {
-        return ref;
-    }
+  @Override
+  public EmxColumn getRef() {
+    return ref;
+  }
 
-    public void setRef(EmxColumn ref) {
-        this.ref = ref;
-    }
+  public void setRef(EmxColumn ref) {
+    this.ref = ref;
+  }
 
-    @Override
-    public EmxTable getJoinTable() {
-        return joinTable;
-    }
+  @Override
+  public EmxTable getJoinTable() {
+    return joinTable;
+  }
 
-    public void setJoinTable(EmxTable joinTable) {
-        this.joinTable = joinTable;
-    }
+  public void setJoinTable(EmxTable joinTable) {
+    this.joinTable = joinTable;
+  }
 
-    @Override
-    public EmxColumn getJoinColumn() {
-        return joinColumn;
-    }
+  @Override
+  public EmxColumn getJoinColumn() {
+    return joinColumn;
+  }
 
-    public void setJoinColumn(EmxColumn joinColumn) {
-        this.joinColumn = joinColumn;
-    }
+  public void setJoinColumn(EmxColumn joinColumn) {
+    this.joinColumn = joinColumn;
+  }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+  @Override
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    @Override
-    public String getValidation() {
-        return validation;
-    }
+  @Override
+  public String getValidation() {
+    return validation;
+  }
 
-    public void setValidation(String validation) {
-        this.validation = validation;
-    }
+  public void setValidation(String validation) {
+    this.validation = validation;
+  }
 
-    @Override
-    public String getVisible() {
-        return visible;
-    }
+  @Override
+  public String getVisible() {
+    return visible;
+  }
 
-    public void setVisible(String visible) {
-        this.visible = visible;
-    }
+  public void setVisible(String visible) {
+    this.visible = visible;
+  }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("EmxColumn(table='").append(table.getName()).append("'");
-        sb.append(" name='").append(name).append("'");
-        if (!EmxType.STRING.equals(this.getType())) sb.append(" ").append(type.toString().toLowerCase());
-        if (this.getNillable()) sb.append(" nillable");
-        if (this.getUnique()) sb.append(" unique");
-        sb.append(")");
-        return sb.toString();
-    }
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("EmxColumn(table='").append(table.getName()).append("'");
+    sb.append(" name='").append(name).append("'");
+    if (!EmxType.STRING.equals(this.getType()))
+      sb.append(" ").append(type.toString().toLowerCase());
+    if (this.getNillable()) sb.append(" nillable");
+    if (this.getReadonly()) sb.append(" readonly");
+    if (this.getUnique()) sb.append(" unique");
+    sb.append(")");
+    return sb.toString();
+  }
 }

@@ -1,4 +1,32 @@
 table, column, definition
+typeTest, someString,
+typeTest, someInt, int
+typeTest, someDecimal, decimal
+typeTest, someBool, bool
+typeTest, someText, text
+typeTest, someDate, date
+typeTest, someDateTime, datatime
+typeTest, nillableString, nillable
+typeTest, nillableInt, nillable int
+typeTest, nillableDecimal, nillable decimal
+typeTest, nillableBool, nillable bool
+typeTest, nillableText, nillable text
+typeTest, nillableDate, nillable date
+typeTest, nillableDateTime, nillable datatime
+typeTest, readonlyString, readonly
+typeTest, readonlyInt, readonly int
+typeTest, readonlyDecimal, readonly decimal
+typeTest, readonlyBool, readonly bool
+typeTest, readonlyText, readonly text
+typeTest, readonlyDate, readonly date
+typeTest, readonlyDateTime, readonly datatime
+typeTest, defaultString, default("hello world")
+typeTest, defaultInt, int default(1)
+typeTest, defaultDecimal, decimal default(1.1)
+typeTest, defaultBool, bool default(true)
+typeTest, defaultText, text default("hello world")
+typeTest, defaultDate, date default(01-01-2018)
+typeTest, defaultDateTime, datatime default(01-01-2018 13:03:03)
 table A, ,"unique(column A,column B)"
 table A, column A, nillable ref(table B.column B)
 table A, column B,
@@ -10,3 +38,4 @@ person, weight, nillable int
 person, birthPlace, ref(cities.name)
 cities, name, unique
 person,,"unique(First name,Last name)"
+

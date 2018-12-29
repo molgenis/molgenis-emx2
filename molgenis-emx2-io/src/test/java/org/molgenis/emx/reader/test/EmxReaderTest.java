@@ -9,29 +9,26 @@ import org.molgenis.emx2.io.format.MolgenisFileRow;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-
 public class EmxReaderTest {
 
+  @Test
+  public void test1() throws IOException {
 
-    @Test
-    public void test1() throws IOException {
-
-        for(MolgenisFileRow row: new MolgenisReader().readRowsFromCsv(getFile("test1.txt")) ) {
-            System.out.println(row);
-        }
-
-        EmxModel model = new MolgenisReader().readModelFromCsv(getFile("test1.txt"));
-        System.out.println(model);
-
-        System.out.println("now back to rows:");
-        for(MolgenisFileRow row: new MolgenisWriter().convertModelToMolgenisFileRows(model)) {
-            System.out.println(row);
-        }
+    for (MolgenisFileRow row : new MolgenisReader().readRowsFromCsv(getFile("test1.txt"))) {
+      System.out.println(row);
     }
 
-    private File getFile(String name) {
-        String file = ClassLoader.getSystemResource(name).getFile();
-        return new File(file);
+    EmxModel model = new MolgenisReader().readModelFromCsv(getFile("test1.txt"));
+    System.out.println(model);
+
+    System.out.println("now back to rows:");
+    for (MolgenisFileRow row : new MolgenisWriter().convertModelToMolgenisFileRows(model)) {
+      System.out.println(row);
     }
+  }
+
+  private File getFile(String name) {
+    String file = ClassLoader.getSystemResource(name).getFile();
+    return new File(file);
+  }
 }

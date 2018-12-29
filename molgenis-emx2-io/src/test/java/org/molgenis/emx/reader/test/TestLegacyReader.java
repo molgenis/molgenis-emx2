@@ -15,38 +15,38 @@ import java.io.StringWriter;
 
 public class TestLegacyReader {
 
-    @Test
-    public void test() {
-        try {
-            for(AttributesFileRow row: new AttributesFileReader().readRowsFromCsv(getFile("attributes_typetest.csv")) ) {
-                System.out.println(row);
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            EmxModel model = new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
-
-            StringWriter writer = new StringWriter();
-            new MolgenisWriter().writeCsv(model, writer);
-            System.out.println(writer);
-
-
-        } catch(MolgenisReaderException e) {
-            for(MolgenisReaderMessage m: e.getMessages()) {
-                System.out.println(m);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+  @Test
+  public void test() {
+    try {
+      for (AttributesFileRow row :
+          new AttributesFileReader().readRowsFromCsv(getFile("attributes_typetest.csv"))) {
+        System.out.println(row);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
 
-    private File getFile(String name) {
-        String file = ClassLoader.getSystemResource(name).getFile();
-        return new File(file);
+    try {
+      EmxModel model =
+          new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
+
+      StringWriter writer = new StringWriter();
+      new MolgenisWriter().writeCsv(model, writer);
+      System.out.println(writer);
+
+    } catch (MolgenisReaderException e) {
+      for (MolgenisReaderMessage m : e.getMessages()) {
+        System.out.println(m);
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+  }
+
+  private File getFile(String name) {
+    String file = ClassLoader.getSystemResource(name).getFile();
+    return new File(file);
+  }
 }

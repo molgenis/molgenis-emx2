@@ -2,15 +2,13 @@ package org.molgenis.sql;
 
 public interface SqlDatabase {
 
-    SqlTable createTable(String name);
+  SqlTable createTable(String name);
 
-    SqlTable getTable(String name);
+  SqlTable getTable(String name);
 
-    void dropTable(String name);
+  void dropTable(String name);
 
-    SqlQuery getQuery();
+  SqlQuery getQuery();
 
-    void close();
-
-
+  void close();
 }
