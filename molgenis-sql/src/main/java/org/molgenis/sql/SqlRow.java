@@ -2,51 +2,129 @@ package org.molgenis.sql;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public interface SqlRow {
-  List values(String... columns);
+public class SqlRow {
+  public static final String MOLGENISID = "molgenisid";
+  protected Map<String, Object> values = new LinkedHashMap<>();
 
-  UUID getRowID();
+  public UUID getRowID() {
+    return (UUID) values.get(MOLGENISID);
+  }
 
-  SqlRow setRowID(UUID id);
+  public SqlRow setRowID(UUID id) {
+    this.setRef(MOLGENISID, id);
+    return this;
+  }
 
-  UUID getUuid(String columnId);
+  public UUID getUuid(String columnId) {
+    return (UUID) this.values.get(columnId);
+  }
 
-  String getString(String columnId);
+  public String getString(String name) {
+    return (String) values.get(name);
+  }
 
-  Integer getInt(String columnId);
+  public Integer getInt(String name) {
+    return (Integer) values.get(name);
+  }
 
-  Boolean getBool(String columnId);
+  public Boolean getBool(String name) {
+    return (Boolean) values.get(name);
+  }
 
-  Double getDecimal(String columnId);
+  public Double getDecimal(String name) {
+    return (Double) values.get(name);
+  }
 
-  String getText(String columnId);
+  public String getText(String name) {
+    return (String) values.get(name);
+  }
 
-  LocalDate getDate(String columnId);
+  public LocalDate getDate(String name) {
+    if (values.get(name) == null) return null;
+    if (values.get(name) instanceof Date) {
+      return LocalDate.parse(values.get(name).toString());
+    } else if (values.get(name) instanceof OffsetDateTime) {
+      return ((OffsetDateTime) values.get(name)).toLocalDate();
+    } else {
+      return (LocalDate) values.get(name);
+    }
+  }
 
-  OffsetDateTime getDateTime(String columnId);
+  public OffsetDateTime getDateTime(String name) {
+    return (OffsetDateTime) values.get(name);
+  }
 
-  UUID getRef(String columnId);
+  public UUID getRef(String name) {
+    return (UUID) values.get(name);
+  }
 
-  SqlRow setString(String columnId, String value);
+  public SqlRow setString(String name, String value) {
+    values.put(name, value);
+    return this;
+  }
 
-  SqlRow setInt(String columnId, Integer value);
+  public SqlRow setInt(String name, Integer value) {
+    values.put(name, value);
+    return this;
+  }
 
-  SqlRow setRef(String columnId, SqlRow ref);
+  public SqlRow setRef(String name, SqlRow value) {
+    values.put(name, value.getRowID());
+    return this;
+  }
 
-  SqlRow setRef(String columnId, UUID ref);
+  public SqlRow setRef(String name, UUID value) {
+    values.put(name, value);
+    return this;
+  }
 
-  SqlRow setDecimal(String columnId, Double value);
+  public SqlRow setDecimal(String columnId, Double value) {
+    values.put(columnId, value);
+    return this;
+  }
 
-  SqlRow setBool(String columnId, Boolean value);
+  public SqlRow setBool(String columnId, Boolean value) {
+    values.put(columnId, value);
+    return this;
+  }
 
-  SqlRow setDate(String columnId, LocalDate value);
+  public SqlRow setDate(String columnId, LocalDate value) {
+    values.put(columnId, value);
+    return this;
+  }
 
-  SqlRow setDateTime(String columnId, OffsetDateTime value);
+  public SqlRow setDateTime(String columnId, OffsetDateTime value) {
+    values.put(columnId, value);
+    return this;
+  }
 
-  SqlRow setText(String columnId, String value);
+  public SqlRow setText(String columnId, String value) {
+    values.put(columnId, value);
+    return this;
+  }
 
-  SqlRow setUuid(String columnId, UUID value);
+  public SqlRow setUuid(String columnId, UUID value) {
+    values.put(columnId, value);
+    return this;
+  }
+
+  public List values(String... columns) {
+    List<Object> result = new ArrayList<>();
+    for (String name : columns) {
+      result.add(values.get(name));
+    }
+    return Collections.unmodifiableList(result);
+  }
+
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("ROW(");
+    for (Map.Entry<String, Object> col : values.entrySet()) {
+      builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
+    }
+    builder.append(")");
+    return builder.toString();
+  }
 }

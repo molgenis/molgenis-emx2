@@ -2,11 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.molgenis.emx2.EmxModel;
-import org.molgenis.emx2.EmxType;
-import org.molgenis.emx2.io.beans.EmxColumnBean;
-import org.molgenis.emx2.io.beans.EmxModelBean;
-import org.molgenis.emx2.io.beans.EmxTableBean;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.format.EmxDefinitionParser;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileHeader;
@@ -17,17 +13,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MolgenisReader {
 
-  public EmxModel readModelFromCsvFile(File f) throws IOException {
+  public EmxModel readModelFromCsvFile(File f) throws IOException, EmxException {
     return readModelFromCsvReader(new FileReader(f));
   }
 
-  public EmxModel readModelFromCsvReader(Reader in) throws IOException {
+  public EmxModel readModelFromCsvReader(Reader in) throws IOException, EmxException {
     List<MolgenisFileRow> rows = readRowsFromCsvReader(in);
     return convertRowsToModel(rows);
   }
@@ -61,30 +55,30 @@ public class MolgenisReader {
     }
   }
 
-  public EmxModel convertRowsToModel(List<MolgenisFileRow> rows) throws MolgenisReaderException {
-
-    Map<String, EmxTableBean> tables = new LinkedHashMap<>();
+  public EmxModel convertRowsToModel(List<MolgenisFileRow> rows)
+      throws MolgenisReaderException, EmxException {
+    EmxModel model = new EmxModel();
     List<MolgenisReaderMessage> messages = new ArrayList<>();
-    convertRowsToColumns(rows, tables, messages);
-    convertRowsToTables(rows, tables, messages);
-    return new EmxModelBean(tables);
+    convertRowsToColumns(rows, model, messages);
+    convertRowsToTables(rows, model, messages);
+    return model;
   }
 
   private void convertRowsToTables(
-      List<MolgenisFileRow> rows,
-      Map<String, EmxTableBean> tables,
-      List<MolgenisReaderMessage> messages)
-      throws MolgenisReaderException {
+      List<MolgenisFileRow> rows, EmxModel model, List<MolgenisReaderMessage> messages)
+      throws MolgenisReaderException, EmxException {
     int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
-
       String tableName = row.getTable();
       String columnName = row.getColumn();
       if (!"".equals(tableName) && "".equals(columnName)) {
-        tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
-        EmxTableBean table = tables.get(tableName);
-        extractTableDefinition(messages, line, row, table, tables);
+        if (model.getTable(tableName) == null) {
+          model.addTable(tableName);
+        }
+
+        EmxTable table = model.getTable(tableName);
+        extractTableDefinition(messages, line, row, table, model);
       }
     }
   }
@@ -93,8 +87,8 @@ public class MolgenisReader {
       List<MolgenisReaderMessage> messages,
       int line,
       MolgenisFileRow row,
-      EmxTableBean table,
-      Map<String, EmxTableBean> tables)
+      EmxTable table,
+      EmxModel model)
       throws MolgenisReaderException {
     List<EmxDefinitionTerm> terms =
         new EmxDefinitionParser().parse(line, messages, row.getDefinition());
@@ -114,7 +108,7 @@ public class MolgenisReader {
           }
           break;
         case EXTENDS:
-          table.setExtend(tables.get(term.getParameterValue()));
+          table.setExtend(model.getTable(term.getParameterValue()));
           break;
         default:
           throw new MolgenisReaderException(
@@ -124,18 +118,18 @@ public class MolgenisReader {
   }
 
   private void convertRowsToColumns(
-      List<MolgenisFileRow> rows,
-      Map<String, EmxTableBean> tables,
-      List<MolgenisReaderMessage> messages)
-      throws MolgenisReaderException {
+      List<MolgenisFileRow> rows, EmxModel model, List<MolgenisReaderMessage> messages)
+      throws MolgenisReaderException, EmxException {
     int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
       String tableName = row.getTable();
       String columnName = row.getColumn();
       if (!"".equals(tableName) && !"".equals(columnName)) {
-        tables.computeIfAbsent(tableName, k -> new EmxTableBean(tableName));
-        EmxTableBean table = tables.get(tableName);
+        if (model.getTable(tableName) == null) {
+          model.addTable(tableName);
+        }
+        EmxTable table = model.getTable(tableName);
         if (table.getColumn(columnName) != null) {
           throw new MolgenisReaderException(
               "error on line "
@@ -148,7 +142,7 @@ public class MolgenisReader {
         }
         List<EmxDefinitionTerm> terms =
             new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-        EmxColumnBean column = table.addColumn(columnName, getType(terms));
+        EmxColumn column = table.addColumn(columnName, getType(terms));
         for (EmxDefinitionTerm term : terms) {
           switch (term) {
             case STRING:

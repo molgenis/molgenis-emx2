@@ -1,6 +1,7 @@
 package org.molgenis.emx.reader.test;
 
 import org.junit.Test;
+import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
@@ -42,6 +43,8 @@ public class TestLegacyReader {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     } catch (IOException e) {
+      e.printStackTrace();
+    } catch (EmxException e) {
       e.printStackTrace();
     }
   }

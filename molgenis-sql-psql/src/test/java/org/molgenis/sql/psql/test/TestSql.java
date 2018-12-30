@@ -22,8 +22,8 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
+import static org.molgenis.sql.SqlRow.MOLGENISID;
 import static org.molgenis.sql.SqlType.*;
-import static org.molgenis.sql.psql.PsqlDatabase.MOLGENISID;
 
 public class TestSql {
 

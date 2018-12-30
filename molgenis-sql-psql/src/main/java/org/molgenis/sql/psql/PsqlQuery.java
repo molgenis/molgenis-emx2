@@ -6,7 +6,7 @@ import org.molgenis.sql.*;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.sql.psql.PsqlDatabase.MOLGENISID;
+import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 public class PsqlQuery implements SqlQuery {
 

@@ -2,14 +2,9 @@ package org.molgenis.emx2.io.legacyformat;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.molgenis.emx2.EmxModel;
-import org.molgenis.emx2.EmxTable;
-import org.molgenis.emx2.EmxType;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
-import org.molgenis.emx2.io.beans.EmxColumnBean;
-import org.molgenis.emx2.io.beans.EmxModelBean;
-import org.molgenis.emx2.io.beans.EmxTableBean;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -22,22 +17,23 @@ import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
 
-  public EmxModel readModelFromCsv(File f) throws MolgenisReaderException, FileNotFoundException {
+  public EmxModel readModelFromCsv(File f)
+      throws MolgenisReaderException, FileNotFoundException, EmxException {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
 
-  public EmxModel readModelFromCsv(Reader in) throws MolgenisReaderException {
+  public EmxModel readModelFromCsv(Reader in) throws MolgenisReaderException, EmxException {
     return convertAttributesToModel(readRowsFromCsv(in));
   }
 
   public EmxModel convertAttributesToModel(List<AttributesFileRow> rows)
-      throws MolgenisReaderException {
-    EmxModelBean model = new EmxModelBean();
+      throws MolgenisReaderException, EmxException {
+    EmxModel model = new EmxModel();
 
     int lineNumber = 0;
     List<MolgenisReaderMessage> messages = new ArrayList<>();
     Map<Integer, String> refEntities = new LinkedHashMap<>();
-    Map<Integer, EmxColumnBean> refColumns = new LinkedHashMap<>();
+    Map<Integer, EmxColumn> refColumns = new LinkedHashMap<>();
     for (AttributesFileRow row : rows) {
       lineNumber++;
       convertAttributeLine(model, lineNumber, messages, refEntities, refColumns, row);
@@ -56,14 +52,15 @@ public class AttributesFileReader {
   }
 
   private void convertAttributeLine(
-      EmxModelBean model,
+      EmxModel model,
       int lineNumber,
       List<MolgenisReaderMessage> messages,
       Map<Integer, String> refEntities,
-      Map<Integer, EmxColumnBean> refColumns,
-      AttributesFileRow row) {
+      Map<Integer, EmxColumn> refColumns,
+      AttributesFileRow row)
+      throws EmxException {
     // get or create table
-    EmxTableBean table = model.getTable(row.getEntity());
+    EmxTable table = model.getTable(row.getEntity());
     if (table == null) table = model.addTable(row.getEntity());
 
     // check if attribute exists
@@ -73,7 +70,7 @@ public class AttributesFileReader {
               lineNumber, "attribute " + row.getName() + " is defined twice"));
     } else {
       EmxType type = getEmxType(lineNumber, messages, row);
-      EmxColumnBean column = table.addColumn(row.getName(), type);
+      EmxColumn column = table.addColumn(row.getName(), type);
 
       column.setNillable(row.getNillable());
       column.setDescription(row.getDescription());

@@ -8,8 +8,8 @@ import org.molgenis.sql.*;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.sql.SqlRow.MOLGENISID;
 import static org.molgenis.sql.SqlType.REF;
-import static org.molgenis.sql.psql.PsqlDatabase.MOLGENISID;
 
 public class PsqlTable implements SqlTable {
 
@@ -72,15 +72,18 @@ public class PsqlTable implements SqlTable {
   }
 
   @Override
-  public SqlColumn addColumn(String name, SqlType sqlType) {
+  public SqlColumn addColumn(String name, SqlType sqlType) throws SqlDatabaseException {
+
     DataType type = PsqlTypeUtils.typeOf(sqlType);
     sql.alterTable(name(this.name)).addColumn(name, type.nullable(false)).execute();
     reloadColumns();
+
     return getColumn(name);
   }
 
   @Override
   public SqlColumn addColumn(String name, SqlTable otherTable) {
+
     sql.alterTable(name(this.name))
         .addColumn(name(name), SQLDataType.UUID.nullable(false))
         .execute();
@@ -91,6 +94,7 @@ public class PsqlTable implements SqlTable {
                 .references(name(otherTable.getName()), name(MOLGENISID)))
         .execute();
     reloadColumns();
+
     return getColumn(name);
   }
 

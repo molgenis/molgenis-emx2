@@ -11,4 +11,12 @@
 
     <artifactId>molgenis-emx2</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.javers</groupId>
+            <artifactId>javers-core</artifactId>
+            <version>5.0.3</version>
+        </dependency>
+    </dependencies>
+
 </project>

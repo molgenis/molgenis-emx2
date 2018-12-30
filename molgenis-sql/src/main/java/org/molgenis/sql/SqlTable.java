@@ -9,9 +9,9 @@ public interface SqlTable {
 
   SqlColumn getColumn(String name);
 
-  SqlColumn addColumn(String name, SqlType type);
+  SqlColumn addColumn(String name, SqlType type) throws SqlDatabaseException;
 
-  SqlColumn addColumn(String name, SqlTable otherTable);
+  SqlColumn addColumn(String name, SqlTable otherTable) throws SqlDatabaseException;
 
   void removeColumn(String name) throws SqlDatabaseException;
 

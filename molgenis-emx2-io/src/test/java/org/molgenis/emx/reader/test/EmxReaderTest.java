@@ -4,6 +4,7 @@ import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.junit.Test;
+import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.io.MolgenisReader;
 import org.molgenis.emx2.io.MolgenisWriter;
@@ -20,7 +21,7 @@ import static junit.framework.TestCase.fail;
 public class EmxReaderTest {
 
   @Test
-  public void test1() throws IOException, MolgenisWriterException {
+  public void test1() throws IOException, MolgenisWriterException, EmxException {
 
     System.out.println("lines parsed from test1.txt:");
     for (MolgenisFileRow row : new MolgenisReader().readRowsFromCsvFile(getFile("test1.txt"))) {
