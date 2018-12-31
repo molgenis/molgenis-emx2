@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.molgenis.sql.*;
 import org.molgenis.sql.psql.PsqlDatabase;
 import org.molgenis.sql.psql.PsqlRow;
+import org.postgresql.ds.PGSimpleDataSource;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -36,7 +36,14 @@ public class TestSql {
     String url = "jdbc:postgresql:molgenis";
 
     try {
-      Connection conn = DriverManager.getConnection(url, userName, password);
+      PGSimpleDataSource source = new PGSimpleDataSource();
+      source.setURL(url);
+      source.setUser(userName);
+      source.setPassword(password);
+
+      Connection conn = source.getConnection();
+
+      // internal magic
       DSLContext context = DSL.using(conn, SQLDialect.POSTGRES_10);
 
       // delete all foreign key constaints
@@ -49,7 +56,10 @@ public class TestSql {
       for (Table t : context.meta().getTables()) {
         context.dropTable(t).execute();
       }
-      db = new PsqlDatabase(context);
+
+      conn.close();
+
+      db = new PsqlDatabase(source);
     }
 
     // For the sake of this test, let's keep exception handling simple
@@ -59,7 +69,7 @@ public class TestSql {
   }
 
   @Test
-  public void testBatch() throws SqlDatabaseException, SqlQueryException {
+  public void testBatch() throws SqlDatabaseException {
     SqlTable t = db.createTable("TestBatch");
     t.addColumn("test", STRING);
     t.addColumn("testint", INT);
@@ -84,7 +94,7 @@ public class TestSql {
   }
 
   @Test
-  public void testTypes() throws SqlDatabaseException, SqlQueryException {
+  public void testTypes() throws SqlDatabaseException {
 
     // generate TypeTest table, with columns for each type
     SqlTable t = db.createTable("TypeTest");
@@ -199,7 +209,7 @@ public class TestSql {
   }
 
   @Test
-  public void testQuery() throws SqlDatabaseException, SqlQueryException {
+  public void testQuery() throws SqlDatabaseException {
 
     SqlTable product = db.createTable("Product");
     product.addColumn("name", STRING);

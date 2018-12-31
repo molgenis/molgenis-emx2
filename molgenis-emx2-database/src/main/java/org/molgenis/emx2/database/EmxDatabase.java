@@ -2,84 +2,66 @@ package org.molgenis.emx2.database;
 
 import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxModel;
-import org.molgenis.emx2.EmxTable;
-import org.molgenis.sql.*;
+import org.molgenis.emx2.EmxRow;
+import org.molgenis.emx2.database.internal.EmxDatabaseModel;
+import org.molgenis.sql.SqlDatabase;
+import org.molgenis.sql.SqlDatabaseException;
+import org.molgenis.sql.SqlRow;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
-public class EmxDatabase extends EmxModel {
+public class EmxDatabase {
   SqlDatabase backend;
+  EmxModel model;
 
   public EmxDatabase(SqlDatabase backend) throws EmxException {
     this.backend = backend;
-    init();
+    this.model = new EmxDatabaseModel(backend);
   }
 
-  @Override
-  public EmxTable addTable(String name) throws EmxException {
+  public EmxModel model() {
+    return model;
+  }
+
+  public Stream<EmxRow> find(String tableName, EmxFilter... filters) {
+    return null;
+  }
+
+  public EmxRow findById(String tableName, UUID id) {
+    return null;
+  }
+
+  public void save(String tableName, EmxRow row) throws EmxException {
+    this.save(tableName, Arrays.asList(row));
+  }
+
+  public int save(String tableName, Collection<EmxRow> rows) throws EmxException {
     try {
-      backend.createTable(name);
-      save(getTable(name));
-      reload();
-      return getTable(name);
-    } catch (Exception e) {
+      // TODO, deal with mref/one-to-many relationships
+      List<SqlRow> sqlRows = new ArrayList<>();
+      rows.forEach(row -> sqlRows.add(new SqlRow(row.toMap())));
+      return backend.getTable(tableName).update(sqlRows);
+    } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
   }
 
-  private void save(EmxTable table) throws SqlDatabaseException {
-    SqlRow tableMetadata = new SqlRow();
-    tableMetadata.setString("name", table.getName());
-    backend.getTable(table.getName()).update(tableMetadata);
-  }
+  private void executeSave(String tableName, List<EmxRow> batch) throws SqlDatabaseException {}
 
-  private void init() throws EmxException {
-    verifyTableMetadataStructure();
-    verifyColumnMetadataStructure();
-    reload();
-  }
-
-  private void verifyColumnMetadataStructure() {}
-
-  private void verifyTableMetadataStructure() {}
-
-  private void reload() throws EmxException {
+  public int delete(String tableName, Collection<EmxRow> rows) throws EmxException {
+    int count = 0;
     try {
-      Map<String, SqlRow> tableMetadata = retrieveTableMetadata();
-      Map<String, List<SqlRow>> columnMetadata = retrieveColumnMetadata();
-
-      for (SqlTable st : backend.getTables()) {
-        String name = st.getName();
-        if (getTable(name) == null) {
-          this.addTable(st.getName());
-        } else {
-          ((EmxTableImpl) getTable(name)).reload(tableMetadata.get(name), columnMetadata.get(name));
-        }
-      }
-    } catch (Exception e) {
+      // TODO, deal with mref/one-to-many relationships
+      List<SqlRow> ids = new ArrayList<>(rows.size());
+      rows.forEach(row -> ids.add(new SqlRow(row.getId())));
+      return backend.getTable(tableName).delete(ids);
+    } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
   }
 
-  private Map<String, List<SqlRow>> retrieveColumnMetadata() throws SqlQueryException {
-    Map<String, List<SqlRow>> result = new LinkedHashMap<>();
-    for (SqlRow columnMetadata : backend.getQuery().from("MOLGENIS_COLUMN_METADATA").retrieve()) {
-      String table = columnMetadata.getString("table");
-      if (result.get(table) == null) result.put(table, new ArrayList<SqlRow>());
-      result.get(table).add(columnMetadata);
-    }
-    return result;
-  }
-
-  public Map<String, SqlRow> retrieveTableMetadata() throws SqlQueryException {
-    Map<String, SqlRow> result = new LinkedHashMap<>();
-    for (SqlRow tableMetadata : backend.getQuery().from("MOLGENIS_TABLE_METADATA").retrieve()) {
-      String name = tableMetadata.getString("name");
-      result.put(name, tableMetadata);
-    }
-    return result;
+  public void delete(String tableName, EmxRow row) throws EmxException {
+    this.delete(tableName, Arrays.asList(row));
   }
 }

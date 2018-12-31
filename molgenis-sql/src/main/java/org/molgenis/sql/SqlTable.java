@@ -23,9 +23,9 @@ public interface SqlTable {
 
   void insert(Collection<SqlRow> rows) throws SqlDatabaseException;
 
-  void update(Collection<SqlRow> rows) throws SqlDatabaseException;
+  int update(Collection<SqlRow> rows) throws SqlDatabaseException;
 
-  void delete(Collection<SqlRow> rows);
+  int delete(Collection<SqlRow> rows) throws SqlDatabaseException;
 
   void insert(SqlRow rows) throws SqlDatabaseException;
 

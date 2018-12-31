@@ -12,7 +12,7 @@ import static org.molgenis.sql.SqlRow.MOLGENISID;
 import static org.molgenis.sql.SqlType.REF;
 
 public class PsqlTable implements SqlTable {
-
+  private final int batchSize = 2; // very small for testing purposes
   private DSLContext sql;
   private PsqlDatabase db;
   private String name;
@@ -189,30 +189,42 @@ public class PsqlTable implements SqlTable {
     this.insert(Arrays.asList(row));
   }
 
-  @Override
-  public void update(Collection<SqlRow> rows) throws SqlDatabaseException {
-    try {
-      Table t = getTable();
-      Field[] fields = t.fields();
-      String[] fieldNames = new String[fields.length];
-      for (int i = 0; i < fields.length; i++) fieldNames[i] = fields[i].getName();
-      // create multi-value insert
-      InsertValuesStepN step = sql.insertInto(t, fields);
-      for (SqlRow row : rows) {
-        step.values(row.values(fieldNames));
+  public int update(Collection<SqlRow> rows) throws SqlDatabaseException {
+    // get metadata
+    Table t = getTable();
+    Field[] fields = t.fields();
+    String[] fieldNames = new String[fields.length];
+    for (int i = 0; i < fields.length; i++) fieldNames[i] = fields[i].getName();
+    // execute in batches
+    int count = 0;
+    List<SqlRow> batch = new ArrayList<>();
+    for (SqlRow row : rows) {
+      batch.add(row);
+      count++;
+      if (count % batchSize == 0) {
+        updateBatch(batch, t, fields, fieldNames);
+        batch.clear();
       }
-      // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep step2 = step.onConflict(t.field(MOLGENISID)).doUpdate();
-      for (int i = 0; i < fieldNames.length; i++) {
-        if (!MOLGENISID.equals(fieldNames[i])) {
-          step2.set(
-              field(fieldNames[i]), (Object) field(unquotedName("\"excluded\"." + fieldNames[i])));
-        }
-      }
-      step.execute();
-    } catch (DataAccessException e) {
-      throw new SqlDatabaseException(e.getCause().getMessage());
     }
+    updateBatch(batch, t, fields, fieldNames);
+    return count;
+  }
+
+  private void updateBatch(Collection<SqlRow> rows, Table t, Field[] fields, String[] fieldNames) {
+    // create multi-value insert
+    InsertValuesStepN step = sql.insertInto(t, fields);
+    for (SqlRow row : rows) {
+      step.values(row.values(fieldNames));
+    }
+    // on duplicate key update using same record via "excluded" keyword in postgres
+    InsertOnDuplicateSetStep step2 = step.onConflict(t.field(MOLGENISID)).doUpdate();
+    for (int i = 0; i < fieldNames.length; i++) {
+      if (!MOLGENISID.equals(fieldNames[i])) {
+        step2.set(
+            field(fieldNames[i]), (Object) field(unquotedName("\"excluded\"." + fieldNames[i])));
+      }
+    }
+    step.execute();
   }
 
   @Override
@@ -221,8 +233,24 @@ public class PsqlTable implements SqlTable {
   }
 
   @Override
-  public void delete(Collection<SqlRow> rows) {
+  public int delete(Collection<SqlRow> rows) {
     Table t = sql.meta().getTables(name).get(0);
+    // execute in batches
+    int count = 0;
+    List<SqlRow> batch = new ArrayList<>();
+    for (SqlRow row : rows) {
+      batch.add(row);
+      count++;
+      if (count % batchSize == 0) {
+        deleteBatch(batch, t);
+        batch.clear();
+      }
+    }
+    deleteBatch(batch, t);
+    return count;
+  }
+
+  private void deleteBatch(Collection<SqlRow> rows, Table t) {
     BatchBindStep step =
         sql.batch(deleteFrom(t).where(field(MOLGENISID, SQLDataType.UUID).eq((UUID) null)));
     for (SqlRow row : rows) {

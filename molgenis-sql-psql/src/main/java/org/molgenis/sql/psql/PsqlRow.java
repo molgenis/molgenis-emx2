@@ -19,8 +19,6 @@ public class PsqlRow extends SqlRow {
   }
 
   public PsqlRow(UUID molgenisid) {
-    if (molgenisid != null) {
-      this.values.put(MOLGENISID, molgenisid);
-    }
+    super(molgenisid);
   }
 }

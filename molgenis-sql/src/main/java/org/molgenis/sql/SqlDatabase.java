@@ -10,7 +10,7 @@ public interface SqlDatabase {
 
   SqlTable getTable(String name);
 
-  void dropTable(String name);
+  void dropTable(String name) throws SqlDatabaseException;
 
   SqlQuery getQuery();
 

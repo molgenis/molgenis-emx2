@@ -10,7 +10,7 @@ import java.util.Map;
 @TypeName("model")
 public class EmxModel {
 
-  private Map<String, EmxTable> tables = new LinkedHashMap<>();
+  protected Map<String, EmxTable> tables = new LinkedHashMap<>();
 
   public EmxModel() {}
 
@@ -33,7 +33,12 @@ public class EmxModel {
   public EmxTable addTable(String name) throws EmxException {
     EmxTable table = new EmxTable(this, name);
     tables.put(name, table);
+    this.onTableChange(table);
     return table;
+  }
+
+  public void removeTable(String name) throws EmxException {
+    tables.remove(name);
   }
 
   public String print() {
@@ -48,4 +53,10 @@ public class EmxModel {
 
     return builder.toString();
   }
+
+  protected void onTableChange(EmxTable table) throws EmxException {}
+
+  protected void onColumnChange(EmxColumn column) throws EmxException {}
+
+  protected void onColumnRemove(EmxColumn column) throws EmxException {}
 }

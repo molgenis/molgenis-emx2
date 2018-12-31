@@ -15,7 +15,7 @@ public class EmxTable {
   private Map<String, EmxColumn> columns = new LinkedHashMap<>();
   private List<EmxUnique> uniques = new ArrayList<>();
 
-  public EmxTable(EmxModel model, String name) {
+  public EmxTable(EmxModel model, String name) throws EmxException {
     this.model = model;
     this.name = name;
     this.addColumn(MOLGENISID, EmxType.UUID);
@@ -41,11 +41,12 @@ public class EmxTable {
     return Collections.unmodifiableList(uniques);
   }
 
-  public void setUniques(List<EmxUnique> uniques) {
+  public void setUniques(List<EmxUnique> uniques) throws EmxException {
     for (EmxUnique u : uniques) {
       u.setTable(this);
       uniques.add(u);
     }
+    model.onTableChange(this);
   }
 
   public EmxTable getExtend() {
@@ -64,16 +65,19 @@ public class EmxTable {
       unique.addColumn(getColumn(colName));
     }
     uniques.add(unique);
+    model.onTableChange(this);
   }
 
-  public EmxTable setExtend(EmxTable extend) {
+  public EmxTable setExtend(EmxTable extend) throws EmxException {
     this.extend = extend;
+    model.onTableChange(this);
     return this;
   }
 
-  public EmxColumn addColumn(String name, EmxType type) {
-    EmxColumn c = new EmxColumn(this, name, type);
+  public EmxColumn addColumn(String name, EmxType type) throws EmxException {
+    EmxColumn c = new EmxColumn(model, this, name, type);
     columns.put(name, c);
+    model.onColumnChange(c);
     return c;
   }
 

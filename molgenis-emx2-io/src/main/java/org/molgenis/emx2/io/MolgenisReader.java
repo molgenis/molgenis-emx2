@@ -89,7 +89,7 @@ public class MolgenisReader {
       MolgenisFileRow row,
       EmxTable table,
       EmxModel model)
-      throws MolgenisReaderException {
+      throws MolgenisReaderException, EmxException {
     List<EmxDefinitionTerm> terms =
         new EmxDefinitionParser().parse(line, messages, row.getDefinition());
     for (EmxDefinitionTerm term : terms) {

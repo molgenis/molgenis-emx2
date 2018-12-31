@@ -8,6 +8,16 @@ public class SqlRow {
   public static final String MOLGENISID = "molgenisid";
   protected Map<String, Object> values = new LinkedHashMap<>();
 
+  public SqlRow(Map<String, Object> values) {
+    this.values.putAll(values);
+  }
+
+  public SqlRow() {}
+
+  public SqlRow(UUID id) {
+    setRowID(id);
+  }
+
   public UUID getRowID() {
     return (UUID) values.get(MOLGENISID);
   }

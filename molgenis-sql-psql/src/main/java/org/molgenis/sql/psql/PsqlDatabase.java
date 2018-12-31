@@ -1,12 +1,15 @@
 package org.molgenis.sql.psql;
 
 import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
 import org.jooq.Table;
+import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.sql.SqlDatabase;
 import org.molgenis.sql.SqlQuery;
 import org.molgenis.sql.SqlTable;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +20,8 @@ public class PsqlDatabase implements SqlDatabase {
 
   private DSLContext sql;
 
-  public PsqlDatabase(DSLContext context) {
+  public PsqlDatabase(DataSource source) {
+    DSLContext context = DSL.using(source, SQLDialect.POSTGRES_10);
     this.sql = context;
   }
 

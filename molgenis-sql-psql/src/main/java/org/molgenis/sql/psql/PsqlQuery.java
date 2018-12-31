@@ -39,11 +39,11 @@ public class PsqlQuery implements SqlQuery {
   }
 
   @Override
-  public SqlQuery from(String table) throws SqlQueryException {
-    if (lastFrom != null) throw new SqlQueryException("You can call from() only once");
+  public SqlQuery from(String table) throws SqlDatabaseException {
+    if (lastFrom != null) throw new SqlDatabaseException("You can call from() only once");
 
     SqlTable t = db.getTable(table);
-    if (t == null) throw new SqlQueryException("fromTable " + table + " does not exist");
+    if (t == null) throw new SqlDatabaseException("fromTable " + table + " does not exist");
     From f = new From();
     f.fromTable = t;
 
@@ -54,16 +54,16 @@ public class PsqlQuery implements SqlQuery {
   }
 
   @Override
-  public SqlQuery join(String table, String toTable, String on) throws SqlQueryException {
+  public SqlQuery join(String table, String toTable, String on) throws SqlDatabaseException {
     if (lastFrom == null)
-      throw new SqlQueryException("You can call join() only after first calling a from()");
+      throw new SqlDatabaseException("You can call join() only after first calling a from()");
 
     From tableSelect = new From();
 
     // add fromTable
     SqlTable fromTable = db.getTable(table);
     if (fromTable == null) {
-      throw new SqlQueryException("fromTable " + table + " does not exist");
+      throw new SqlDatabaseException("fromTable " + table + " does not exist");
     }
     tableSelect.fromTable = fromTable;
 
@@ -72,7 +72,7 @@ public class PsqlQuery implements SqlQuery {
     // add joinTable reference
     From temp = this.select.get(toTable);
     if (temp == null) {
-      throw new SqlQueryException(
+      throw new SqlDatabaseException(
           cannotJoin
               + table
               + "','"
@@ -90,7 +90,7 @@ public class PsqlQuery implements SqlQuery {
     if (fromTable.getColumn(on) != null) {
       String refTable = fromTable.getColumn(on).getRefTable().getName();
       if (!refTable.equals(joinTable.getName())) {
-        throw new SqlQueryException(
+        throw new SqlDatabaseException(
             cannotJoin
                 + table
                 + "','"
@@ -108,7 +108,7 @@ public class PsqlQuery implements SqlQuery {
     } else if (joinTable.getColumn(on) != null) {
       String refTable = joinTable.getColumn(on).getRefTable().getName();
       if (!refTable.equals(fromTable.getName())) {
-        throw new SqlQueryException(
+        throw new SqlDatabaseException(
             cannotJoin
                 + table
                 + "','"
@@ -125,7 +125,7 @@ public class PsqlQuery implements SqlQuery {
       tableSelect.fromColumn = MOLGENISID;
       tableSelect.joinColumn = on;
     } else {
-      throw new SqlQueryException(
+      throw new SqlDatabaseException(
           cannotJoin
               + table
               + "','"
@@ -144,11 +144,11 @@ public class PsqlQuery implements SqlQuery {
   }
 
   @Override
-  public SqlQuery select(String column) throws SqlQueryException {
+  public SqlQuery select(String column) throws SqlDatabaseException {
     From f = select.get(lastFrom);
     SqlColumn c = f.fromTable.getColumn(column);
     if (c == null)
-      throw new SqlQueryException(
+      throw new SqlDatabaseException(
           "select " + column + " does not exist in select fromTable " + lastFrom);
     f.columns.put(column, c);
     state = State.SELECT;
@@ -157,7 +157,7 @@ public class PsqlQuery implements SqlQuery {
   }
 
   @Override
-  public SqlQuery as(String alias) throws SqlQueryException {
+  public SqlQuery as(String alias) throws SqlDatabaseException {
     switch (state) {
       case FROM:
         select.put(alias, select.remove(lastFrom));
@@ -168,7 +168,7 @@ public class PsqlQuery implements SqlQuery {
         lastSelect = alias;
         break;
       default:
-        throw new SqlQueryException("cannot call as(" + alias + ") at this point");
+        throw new SqlDatabaseException("cannot call as(" + alias + ") at this point");
     }
 
     state = State.NONE;
@@ -176,7 +176,7 @@ public class PsqlQuery implements SqlQuery {
   }
 
   @Override
-  public List<SqlRow> retrieve() throws SqlQueryException {
+  public List<SqlRow> retrieve() throws SqlDatabaseException {
 
     List<SqlRow> rows = new ArrayList<>();
 
@@ -209,7 +209,7 @@ public class PsqlQuery implements SqlQuery {
       }
     }
 
-    if (joinStep == null) throw new SqlQueryException("no tables defined as part of this query");
+    if (joinStep == null) throw new SqlDatabaseException("no tables defined as part of this query");
     joinStep.where(conditions);
     Result<Record> result = joinStep.fetch();
     for (Record r : result) {
@@ -218,15 +218,15 @@ public class PsqlQuery implements SqlQuery {
     return rows;
   }
 
-  private void validate(String table, String column, SqlType type) throws SqlQueryException {
+  private void validate(String table, String column, SqlType type) throws SqlDatabaseException {
     if (this.select.get(table) == null)
-      throw new SqlQueryException(
+      throw new SqlDatabaseException(
           "table/alias '" + table + "' not known. Choose one of " + this.select.keySet());
     if (this.select.get(table).fromTable.getColumn(column) == null)
-      throw new SqlQueryException(
+      throw new SqlDatabaseException(
           "select '" + column + "' not known in table/alias '" + table + "'");
     if (!type.equals(this.select.get(table).fromTable.getColumn(column).getType()))
-      throw new SqlQueryException("select '" + column + "' not of expected type '" + type + "'");
+      throw new SqlDatabaseException("select '" + column + "' not of expected type '" + type + "'");
   }
 
   private SqlQuery eqHelper(String table, String column, Object... value) {
@@ -242,19 +242,19 @@ public class PsqlQuery implements SqlQuery {
   }
 
   @Override
-  public SqlQuery eq(String table, String column, UUID... value) throws SqlQueryException {
+  public SqlQuery eq(String table, String column, UUID... value) throws SqlDatabaseException {
     validate(table, column, SqlType.UUID);
     return eqHelper(table, column, value);
   }
 
   @Override
-  public SqlQuery eq(String table, String column, String... value) throws SqlQueryException {
+  public SqlQuery eq(String table, String column, String... value) throws SqlDatabaseException {
     validate(table, column, SqlType.STRING);
     return eqHelper(table, column, value);
   }
 
   @Override
-  public SqlQuery eq(String table, String column, Integer... value) throws SqlQueryException {
+  public SqlQuery eq(String table, String column, Integer... value) throws SqlDatabaseException {
     validate(table, column, SqlType.INT);
     return eqHelper(table, column, value);
   }
