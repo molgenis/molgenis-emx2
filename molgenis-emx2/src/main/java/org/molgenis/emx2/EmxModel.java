@@ -1,5 +1,8 @@
 package org.molgenis.emx2;
 
+import org.javers.core.Javers;
+import org.javers.core.JaversBuilder;
+import org.javers.core.diff.Diff;
 import org.javers.core.metamodel.annotation.TypeName;
 
 import java.util.Collection;
@@ -52,6 +55,12 @@ public class EmxModel {
     builder.append("\n);");
 
     return builder.toString();
+  }
+
+  public String diff(EmxModel otherModel) {
+    Javers javers = JaversBuilder.javers().build();
+    Diff diff = javers.compare(this, otherModel);
+    return (diff.toString());
   }
 
   protected void onTableChange(EmxTable table) throws EmxException {}
