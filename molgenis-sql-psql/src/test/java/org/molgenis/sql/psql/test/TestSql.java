@@ -1,5 +1,8 @@
 package org.molgenis.sql.psql.test;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.DSLContext;
 import org.jooq.ForeignKey;
 import org.jooq.SQLDialect;
@@ -11,7 +14,7 @@ import org.junit.Test;
 import org.molgenis.sql.*;
 import org.molgenis.sql.psql.PsqlDatabase;
 import org.molgenis.sql.psql.PsqlRow;
-import org.postgresql.ds.PGSimpleDataSource;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -31,14 +34,17 @@ public class TestSql {
 
   @BeforeClass
   public static void setUp() {
+    Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+    rootLogger.setLevel(Level.INFO);
+
     String userName = "molgenis";
     String password = "molgenis";
     String url = "jdbc:postgresql:molgenis";
 
     try {
-      PGSimpleDataSource source = new PGSimpleDataSource();
-      source.setURL(url);
-      source.setUser(userName);
+      HikariDataSource source = new HikariDataSource();
+      source.setJdbcUrl(url);
+      source.setUsername(userName);
       source.setPassword(password);
 
       Connection conn = source.getConnection();
@@ -74,6 +80,8 @@ public class TestSql {
     t.addColumn("test", STRING);
     t.addColumn("testint", INT);
 
+    long startTime = System.currentTimeMillis();
+
     List<SqlRow> rows = new ArrayList<>();
     for (int i = 0; i < 20; i++) {
       SqlRow r = new PsqlRow();
@@ -81,16 +89,33 @@ public class TestSql {
       r.setInt("testint", i);
       rows.add(r);
     }
-    t.insert(rows);
+    long endTime = System.currentTimeMillis();
+    System.out.println("Generated test data " + (endTime - startTime) + " milliseconds");
+
+    startTime = System.currentTimeMillis();
+    t.insert(rows.subList(0, 10));
+    endTime = System.currentTimeMillis();
+    System.out.println("Batch insert " + (endTime - startTime) + " milliseconds");
+
+    startTime = System.currentTimeMillis();
+    t.insert(rows.subList(10, 20));
+    endTime = System.currentTimeMillis();
+    System.out.println("Batch insert " + (endTime - startTime) + " milliseconds");
+
+    startTime = System.currentTimeMillis();
     for (SqlRow r : rows) {
-      r.setString("test", r.getString("test") + "_updated)");
+      r.setString("test", r.getString("test") + "_updated");
     }
     t.update(rows);
+    endTime = System.currentTimeMillis();
+    System.out.println("Batch update " + (endTime - startTime) + " milliseconds");
 
-    System.out.println("and retrieving");
+    startTime = System.currentTimeMillis();
     for (SqlRow r : db.getQuery().from("TestBatch").retrieve()) {
       System.out.println(r);
     }
+    endTime = System.currentTimeMillis();
+    System.out.println("Retrieve " + (endTime - startTime) + " milliseconds");
   }
 
   @Test
@@ -163,26 +188,58 @@ public class TestSql {
   @Test
   public void testCreate() throws SqlDatabaseException {
 
+    long startTime = System.currentTimeMillis();
+
     // create a fromTable
     SqlTable t = db.createTable("Person");
     t.addColumn("First Name", STRING);
     t.addColumn("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
     t.addUnique("First Name", "Last Name");
+    long endTime = System.currentTimeMillis();
 
-    System.out.println("Created fromTable: \n" + t.toString());
+    System.out.println(
+        "Created fromTable: \n" + t.toString() + " in " + (endTime - startTime) + " milliseconds");
 
-    // inspect a table (reloads metadata on every call, is that what we want?)
+    // insert
+    startTime = System.currentTimeMillis();
     SqlTable t2 = db.getTable("Person");
-
     List<SqlRow> rows = new ArrayList<>();
-    for (int i = 0; i < 1000; i++) {
+    int count = 10;
+    for (int i = 0; i < count; i++) {
       rows.add(new PsqlRow().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
     t.insert(rows);
-    t.delete(rows);
+    endTime = System.currentTimeMillis();
+    long total = (endTime - startTime);
+    System.out.println(
+        "Insert of "
+            + count
+            + " records took "
+            + total
+            + " milliseconds (that is "
+            + (1000 * count / total)
+            + " rows/sec)");
 
-    System.out.println("Refreshed fromTable: \n" + t2.toString());
+    // query
+    startTime = System.currentTimeMillis();
+    SqlQuery q = db.getQuery().from("Person");
+    for (SqlRow row : q.retrieve()) {
+      // System.out.println("Query result: " + row);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
+    System.out.println("Query contents " + q);
+
+    // delete
+    startTime = System.currentTimeMillis();
+    t.delete(rows);
+    endTime = System.currentTimeMillis();
+    total = (endTime - startTime);
+    System.out.println(
+        "Delete took " + total + " milliseconds (that is " + (1000 * count / total) + " rows/sec)");
+
+    assertEquals(0, db.getQuery().from("Person").retrieve().size());
 
     assertEquals(2, t.getUniques().size());
     try {
@@ -210,6 +267,8 @@ public class TestSql {
 
   @Test
   public void testQuery() throws SqlDatabaseException {
+
+    long startTime = System.currentTimeMillis();
 
     SqlTable product = db.createTable("Product");
     product.addColumn("name", STRING);
@@ -259,6 +318,9 @@ public class TestSql {
     SqlRow componentPart2 = new PsqlRow().setRef("component", component1).setRef("part", part2);
     componentPart.insert(componentPart1);
     componentPart.insert(componentPart2);
+
+    long endTime = System.currentTimeMillis();
+    System.out.println("Creation took " + (endTime - startTime) + " milliseconds");
 
     // now getQuery to show product.name and parts.name linked by path Assembly.product,part
 
@@ -319,6 +381,7 @@ public class TestSql {
       // good stuff
     }
 
+    startTime = System.currentTimeMillis();
     SqlQuery q2 = db.getQuery();
     q2.from("Product").as("p").select("name").as("productName");
     q2.join("ProductComponent", "p", "product").as("pc");
@@ -326,12 +389,12 @@ public class TestSql {
     q2.join("ComponentPart", "c", "component").as("cp");
     q2.join("Part", "cp", "part").as("p2").select("name").as("partName").select("weight");
     q2.eq("p2", "weight", 50).eq("c", "name", "explorer", "navigator");
-
     for (SqlRow row : q2.retrieve()) {
       System.out.println(row);
     }
-
-    System.out.println(q2);
+    endTime = System.currentTimeMillis();
+    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
+    System.out.println("Query contents: " + q2);
   }
 
   @AfterClass

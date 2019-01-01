@@ -6,37 +6,30 @@ import org.molgenis.sql.SqlColumn;
 import org.molgenis.sql.SqlTable;
 import org.molgenis.sql.SqlType;
 
+import static org.jooq.impl.DSL.name;
+
 public class PsqlColumn implements SqlColumn {
   private DSLContext sql;
   private SqlTable table;
-  private String name;
-  private SqlType type = SqlType.STRING;
+  // effectively this class wraps Jooq Field
+  private Field field;
   private SqlTable refTable = null;
-  private boolean nullable = false;
 
-  PsqlColumn(DSLContext sql, SqlTable table, String name, SqlType type, SqlTable otherTable) {
+  PsqlColumn(DSLContext sql, SqlTable table, Field field, SqlTable otherTable) {
     this.sql = sql;
     this.table = table;
-    this.name = name;
-    this.type = type;
+    this.field = field;
     this.refTable = otherTable;
-    if (SqlType.REF.equals(type) && otherTable == null)
-      throw new IllegalArgumentException(
-          "type cannot be REF in constructor PsqlColumn(sql, table, name, type). Use other constructor.");
-  }
-
-  PsqlColumn(DSLContext sql, SqlTable table, Field f) {
-    this.sql = sql;
-    this.table = table;
-    this.name = f.getName();
-    this.type = PsqlTypeUtils.getSqlType(f);
-    this.nullable = f.getDataType().nullable();
   }
 
   public SqlColumn setNullable(boolean nillable) {
-    if (nillable) sql.alterTable(table.getName()).alter(name).dropNotNull().execute();
-    else sql.alterTable(table.getName()).alter(name).setNotNull().execute();
-    this.nullable = nillable;
+    if (nillable) {
+      sql.alterTable(name(table.getName())).alter(field).dropNotNull().execute();
+    } else {
+      sql.alterTable(table.getName()).alter(field).setNotNull().execute();
+    }
+    // update state
+    this.field.getDataType().nullable(nillable);
     return this;
   }
 
@@ -47,17 +40,20 @@ public class PsqlColumn implements SqlColumn {
 
   @Override
   public String getName() {
-    return this.name;
+    return field.getName();
   }
 
   @Override
   public SqlType getType() {
-    return this.type;
+    if (refTable != null) {
+      return SqlType.REF;
+    }
+    return PsqlTypeUtils.getSqlType(field);
   }
 
   @Override
   public Boolean isNullable() {
-    return this.nullable;
+    return field.getDataType().nullable();
   }
 
   @Override
@@ -67,11 +63,15 @@ public class PsqlColumn implements SqlColumn {
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append(name).append(" ");
+    builder.append(getName()).append(" ");
     if (SqlType.REF.equals(getType()))
       builder.append("ref(").append(refTable.getName()).append(")");
-    else builder.append(type.toString().toLowerCase());
+    else builder.append(getType().toString().toLowerCase());
     if (isNullable()) builder.append(" nullable");
     return builder.toString();
+  }
+
+  public Field getJooqField() {
+    return field;
   }
 }

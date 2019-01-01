@@ -9,10 +9,8 @@ import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
-import static org.molgenis.sql.SqlType.REF;
 
 public class PsqlTable implements SqlTable {
-  private final int batchSize = 2; // very small for testing purposes
   private DSLContext sql;
   private PsqlDatabase db;
   private String name;
@@ -27,34 +25,33 @@ public class PsqlTable implements SqlTable {
   }
 
   private void reloadMetaData() {
-    reloadColumns();
-    reloadUniques();
+    Table t = sql.meta().getTables(name).get(0);
+    reloadColumns(t);
+    reloadUniques(t);
+    reloadReferences(t);
   }
 
-  private void reloadColumns() {
+  private void reloadColumns(Table t) {
     columnMap = new LinkedHashMap<>();
-    Table t = getTable();
-    for (Field f : t.fields()) {
-      columnMap.put(f.getName(), new PsqlColumn(sql, this, f));
+    for (Field field : t.fields()) {
+      columnMap.put(field.getName(), new PsqlColumn(sql, this, field, null));
     }
-    reloadReferences();
   }
 
-  private void reloadReferences() {
-    Table t = getTable();
+  private void reloadReferences(Table t) {
     for (Object o3 : t.getReferences()) {
       ForeignKey fk = (ForeignKey) o3;
-      for (Field f : (List<Field>) fk.getFields()) {
-        PsqlColumn temp = columnMap.get(f.getName());
+      for (Field field : (List<Field>) fk.getFields()) {
+        PsqlColumn temp = columnMap.get(field.getName());
         PsqlColumn fkey = null;
         String refTableName = fk.getKey().getTable().getName();
         if (refTableName.equals(name)) {
-          fkey = new PsqlColumn(sql, this, f.getName(), REF, this);
+          fkey = new PsqlColumn(sql, this, field, this);
         } else {
-          fkey = new PsqlColumn(sql, this, f.getName(), REF, db.getTable(refTableName));
+          fkey = new PsqlColumn(sql, this, field, db.getTable(refTableName));
         }
         fkey.setNullable(temp.isNullable());
-        columnMap.put(f.getName(), fkey);
+        columnMap.put(field.getName(), fkey);
       }
     }
   }
@@ -73,28 +70,32 @@ public class PsqlTable implements SqlTable {
 
   @Override
   public SqlColumn addColumn(String name, SqlType sqlType) throws SqlDatabaseException {
-
+    if (SqlType.REF.equals(sqlType)) {
+      throw new SqlDatabaseException(
+          "addColumn(name,REF) not allowed. Use addColumn(name, otherTable) to add foreign key fields");
+    }
     DataType type = PsqlTypeUtils.typeOf(sqlType);
-    sql.alterTable(name(this.name)).addColumn(name, type.nullable(false)).execute();
-    reloadColumns();
-
+    Field field = field(name(name), type.nullable(false));
+    sql.alterTable(name(this.name)).addColumn(field).execute();
+    columnMap.put(name, new PsqlColumn(sql, this, field, null));
     return getColumn(name);
   }
 
   @Override
   public SqlColumn addColumn(String name, SqlTable otherTable) {
+    Field field = field(name(name), SQLDataType.UUID.nullable(false));
 
-    sql.alterTable(name(this.name))
-        .addColumn(name(name), SQLDataType.UUID.nullable(false))
-        .execute();
+    sql.alterTable(name(this.name)).addColumn(field).execute();
     sql.alterTable(name(this.name))
         .add(
-            constraint()
+            constraint(name(this.name) + "_" + name(name) + "_FK")
                 .foreignKey(name(name))
                 .references(name(otherTable.getName()), name(MOLGENISID)))
         .execute();
-    reloadColumns();
-
+    sql.createIndex(name(this.name) + "_" + name(name) + "_FKINDEX")
+        .on(table(name(this.name)), field)
+        .execute();
+    columnMap.put(name, new PsqlColumn(sql, this, field, otherTable));
     return getColumn(name);
   }
 
@@ -103,19 +104,21 @@ public class PsqlTable implements SqlTable {
     if (MOLGENISID.equals(name))
       throw new SqlDatabaseException(
           "You are not allowed to remove primary key column " + MOLGENISID);
-    sql.alterTable(this.name).dropColumn(name).execute();
-    reloadColumns();
+    sql.alterTable(name(this.name)).dropColumn(field(name(name))).execute();
+    columnMap.remove(name);
   }
 
-  private void reloadUniques() {
+  private void reloadUniques(Table t) {
     uniquesMap = new LinkedHashMap<>();
-    Table t = getTable();
     for (Index i : (List<Index>) t.getIndexes()) {
-      List<SqlColumn> cols = new ArrayList<>();
-      for (SortField sf : i.getFields()) {
-        cols.add(getColumn(sf.getName()));
+      // skip non-unique indexes
+      if (i.getUnique()) {
+        List<SqlColumn> cols = new ArrayList<>();
+        for (SortField sf : i.getFields()) {
+          cols.add(getColumn(sf.getName()));
+        }
+        uniquesMap.put(i.getName(), new PsqlUnique(this, cols));
       }
-      uniquesMap.put(i.getName(), new PsqlUnique(this, cols));
     }
   }
 
@@ -145,8 +148,9 @@ public class PsqlTable implements SqlTable {
             "addUnique(" + keys + ") failed: column '" + key + "' unknown in table " + this.name);
       uniqueColumns.add(col);
     }
-    sql.alterTable(name).add(constraint().unique(keys)).execute();
-    reloadUniques();
+    String uniqueName = name + "_" + String.join("_", keys) + "_UNIQUE";
+    sql.alterTable(name(name)).add(constraint(name(uniqueName)).unique(keys)).execute();
+    uniquesMap.put(uniqueName, new PsqlUnique(this, uniqueColumns));
     return this.uniquesMap.get(getUniqueName(keys));
   }
 
@@ -155,12 +159,9 @@ public class PsqlTable implements SqlTable {
     if (keys.length == 1 && MOLGENISID.equals(keys[0]))
       throw new SqlDatabaseException(
           "You are not allowed to remove unique constraint on primary key column " + MOLGENISID);
-    sql.alterTable(this.name).dropConstraint(name(getUniqueName(keys))).execute();
-    reloadUniques();
-  }
-
-  private Table<?> getTable() {
-    return sql.meta().getTables(this.name).get(0);
+    String uniqueName = getUniqueName(keys);
+    sql.alterTable(name(this.name)).dropConstraint(name(uniqueName)).execute();
+    uniquesMap.remove(uniqueName);
   }
 
   public String getName() {
@@ -170,11 +171,16 @@ public class PsqlTable implements SqlTable {
   @Override
   public void insert(Collection<SqlRow> rows) throws SqlDatabaseException {
     try {
-      Table t = getTable();
-      Field[] fields = t.fields();
-      String[] fieldNames = new String[fields.length];
-      for (int i = 0; i < fields.length; i++) fieldNames[i] = fields[i].getName();
-      InsertValuesStepN step = sql.insertInto(t, fields);
+      // get metadata
+      Field[] fields = new Field[columnMap.size()];
+      String[] fieldNames = new String[columnMap.size()];
+      int i = 0;
+      for (PsqlColumn c : columnMap.values()) {
+        fieldNames[i] = c.getName();
+        fields[i] = c.getJooqField();
+        i++;
+      }
+      InsertValuesStepN step = sql.insertInto(table(name(name)), fields);
       for (SqlRow row : rows) {
         step.values(row.values(fieldNames));
       }
@@ -190,11 +196,18 @@ public class PsqlTable implements SqlTable {
   }
 
   public int update(Collection<SqlRow> rows) throws SqlDatabaseException {
+    // keep batchsize smaller to limit memory footprint
+    int batchSize = 1000;
+
     // get metadata
-    Table t = getTable();
-    Field[] fields = t.fields();
-    String[] fieldNames = new String[fields.length];
-    for (int i = 0; i < fields.length; i++) fieldNames[i] = fields[i].getName();
+    Field[] fields = new Field[columnMap.size()];
+    String[] fieldNames = new String[columnMap.size()];
+    int i = 0;
+    for (PsqlColumn c : columnMap.values()) {
+      fieldNames[i] = c.getName();
+      fields[i] = c.getJooqField();
+      i++;
+    }
     // execute in batches
     int count = 0;
     List<SqlRow> batch = new ArrayList<>();
@@ -202,29 +215,31 @@ public class PsqlTable implements SqlTable {
       batch.add(row);
       count++;
       if (count % batchSize == 0) {
-        updateBatch(batch, t, fields, fieldNames);
+        updateBatch(batch, table(name(name)), fields, fieldNames);
         batch.clear();
       }
     }
-    updateBatch(batch, t, fields, fieldNames);
+    updateBatch(batch, table(name(name)), fields, fieldNames);
     return count;
   }
 
   private void updateBatch(Collection<SqlRow> rows, Table t, Field[] fields, String[] fieldNames) {
-    // create multi-value insert
-    InsertValuesStepN step = sql.insertInto(t, fields);
-    for (SqlRow row : rows) {
-      step.values(row.values(fieldNames));
-    }
-    // on duplicate key update using same record via "excluded" keyword in postgres
-    InsertOnDuplicateSetStep step2 = step.onConflict(t.field(MOLGENISID)).doUpdate();
-    for (int i = 0; i < fieldNames.length; i++) {
-      if (!MOLGENISID.equals(fieldNames[i])) {
-        step2.set(
-            field(fieldNames[i]), (Object) field(unquotedName("\"excluded\"." + fieldNames[i])));
+    if (rows.size() > 0) {
+      // create multi-value insert
+      InsertValuesStepN step = sql.insertInto(t, fields);
+      for (SqlRow row : rows) {
+        step.values(row.values(fieldNames));
       }
+      // on duplicate key update using same record via "excluded" keyword in postgres
+      InsertOnDuplicateSetStep step2 = step.onConflict(field(MOLGENISID)).doUpdate();
+      for (int i = 0; i < fieldNames.length; i++) {
+        if (!MOLGENISID.equals(fieldNames[i])) {
+          step2.set(
+              field(fieldNames[i]), (Object) field(unquotedName("\"excluded\"." + fieldNames[i])));
+        }
+      }
+      step.execute();
     }
-    step.execute();
   }
 
   @Override
@@ -234,8 +249,10 @@ public class PsqlTable implements SqlTable {
 
   @Override
   public int delete(Collection<SqlRow> rows) {
-    Table t = sql.meta().getTables(name).get(0);
-    // execute in batches
+    // because of expensive table scanning and smaller query string size this batch should be larger
+    // than insert/update
+    int batchSize = 100000;
+    Table t = table(name(name));
     int count = 0;
     List<SqlRow> batch = new ArrayList<>();
     for (SqlRow row : rows) {
@@ -251,12 +268,12 @@ public class PsqlTable implements SqlTable {
   }
 
   private void deleteBatch(Collection<SqlRow> rows, Table t) {
-    BatchBindStep step =
-        sql.batch(deleteFrom(t).where(field(MOLGENISID, SQLDataType.UUID).eq((UUID) null)));
-    for (SqlRow row : rows) {
-      step.bind(row.getRowID());
+    if (rows.size() > 0) {
+      Field field = field(name(MOLGENISID), SQLDataType.UUID);
+      List<UUID> idList = new ArrayList<>();
+      rows.forEach(row -> idList.add(row.getRowID()));
+      sql.deleteFrom(t).where(field.in(idList)).execute();
     }
-    step.execute();
   }
 
   @Override

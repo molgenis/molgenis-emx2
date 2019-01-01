@@ -226,7 +226,13 @@ public class PsqlQuery implements SqlQuery {
       throw new SqlDatabaseException(
           "select '" + column + "' not known in table/alias '" + table + "'");
     if (!type.equals(this.select.get(table).fromTable.getColumn(column).getType()))
-      throw new SqlDatabaseException("select '" + column + "' not of expected type '" + type + "'");
+      throw new SqlDatabaseException(
+          "select '"
+              + column
+              + "' not of expected type '"
+              + type
+              + "', instead found "
+              + this.select.get(table).fromTable.getColumn(column).getType());
   }
 
   private SqlQuery eqHelper(String table, String column, Object... value) {

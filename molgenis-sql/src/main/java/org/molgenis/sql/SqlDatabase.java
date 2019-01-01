@@ -1,12 +1,12 @@
 package org.molgenis.sql;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface SqlDatabase {
 
   SqlTable createTable(String name);
 
-  List<SqlTable> getTables();
+  Collection<SqlTable> getTables();
 
   SqlTable getTable(String name);
 

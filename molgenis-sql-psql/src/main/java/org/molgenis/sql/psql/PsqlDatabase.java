@@ -10,8 +10,10 @@ import org.molgenis.sql.SqlQuery;
 import org.molgenis.sql.SqlTable;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
@@ -19,10 +21,15 @@ import static org.molgenis.sql.SqlRow.MOLGENISID;
 public class PsqlDatabase implements SqlDatabase {
 
   private DSLContext sql;
+  private Map<String, PsqlTable> tables = new LinkedHashMap<String, PsqlTable>();
 
   public PsqlDatabase(DataSource source) {
     DSLContext context = DSL.using(source, SQLDialect.POSTGRES_10);
     this.sql = context;
+    for (Table t : sql.meta().getTables()) {
+      tables.put(t.getName(), new PsqlTable(this, sql, t.getName()));
+    }
+    // todo, create a reload that reloads table and field metadata
   }
 
   @Override
@@ -31,26 +38,24 @@ public class PsqlDatabase implements SqlDatabase {
         .column(MOLGENISID, SQLDataType.UUID)
         .constraints(constraint("PK_" + name).primaryKey(MOLGENISID))
         .execute();
-    return new PsqlTable(this, sql, name);
+    tables.put(name, new PsqlTable(this, sql, name));
+    return getTable(name);
   }
 
   @Override
-  public List<SqlTable> getTables() {
-    List<SqlTable> tables = new ArrayList<>();
-    for (Table t : sql.meta().getTables()) {
-      tables.add(new PsqlTable(this, sql, t.getName()));
-    }
-    return tables;
+  public Collection<SqlTable> getTables() {
+    return Collections.unmodifiableCollection(tables.values());
   }
 
   @Override
   public SqlTable getTable(String name) {
-    return new PsqlTable(this, sql, name);
+    return tables.get(name);
   }
 
   @Override
   public void dropTable(String tableId) {
     sql.dropTable(tableId).execute();
+    tables.remove(tableId);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package org.molgenis.sql.psql;
 
+import com.fasterxml.uuid.Generators;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.molgenis.sql.SqlRow;
@@ -9,7 +10,8 @@ import java.util.UUID;
 public class PsqlRow extends SqlRow {
 
   public PsqlRow() {
-    this(UUID.randomUUID());
+    // to ensure we have nicely sorted record we have time based uuid
+    this(Generators.timeBasedGenerator().generate());
   }
 
   public PsqlRow(Record record) {
