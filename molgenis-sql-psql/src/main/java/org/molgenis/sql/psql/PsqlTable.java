@@ -235,7 +235,8 @@ public class PsqlTable implements SqlTable {
       for (int i = 0; i < fieldNames.length; i++) {
         if (!MOLGENISID.equals(fieldNames[i])) {
           step2.set(
-              field(fieldNames[i]), (Object) field(unquotedName("\"excluded\"." + fieldNames[i])));
+              field(name(fieldNames[i])),
+              (Object) field(unquotedName("\"excluded\"." + name(fieldNames[i]))));
         }
       }
       step.execute();

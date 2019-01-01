@@ -1,5 +1,7 @@
 package org.molgenis.sql;
 
+import com.fasterxml.uuid.Generators;
+
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -12,7 +14,9 @@ public class SqlRow {
     this.values.putAll(values);
   }
 
-  public SqlRow() {}
+  public SqlRow() { // to ensure we have nicely sorted record we have time based uuid
+    this(Generators.timeBasedGenerator().generate());
+  }
 
   public SqlRow(UUID id) {
     setRowID(id);

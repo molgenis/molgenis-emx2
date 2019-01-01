@@ -5,7 +5,7 @@ import org.molgenis.sql.*;
 
 import java.util.List;
 
-class ColumnMetadataTable {
+public class ColumnMetadataTable {
   final String COLUMN_METADATA_TABLE = "MOLGENIS_COLUMN_METADATA";
   final String COLUMN_TABLE = "table";
   final String COLUMN_NAME = "name";
@@ -20,6 +20,7 @@ class ColumnMetadataTable {
 
   private void verifyBackend() throws SqlDatabaseException {
     SqlTable columnTable = backend.getTable(COLUMN_METADATA_TABLE);
+    if (columnTable == null) columnTable = backend.createTable(COLUMN_METADATA_TABLE);
     if (columnTable.getColumn(COLUMN_TABLE) == null) {
       columnTable.addColumn(COLUMN_TABLE, SqlType.STRING);
     }
@@ -42,7 +43,9 @@ class ColumnMetadataTable {
   public void save(EmxColumn column) throws SqlDatabaseException, SqlDatabaseException {
     SqlRow tableMetadata = find(column);
     if (tableMetadata == null) tableMetadata = new SqlRow();
-    tableMetadata.setString(COLUMN_METADATA_TABLE, column.getName());
+    tableMetadata.setString(COLUMN_TABLE, column.getTable().getName());
+    tableMetadata.setString(COLUMN_NAME, column.getName());
+    tableMetadata.setString(COLUMN_TYPE, column.getType().toString());
     backend.getTable(COLUMN_METADATA_TABLE).update(tableMetadata);
   }
 

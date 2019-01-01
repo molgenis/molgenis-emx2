@@ -7,10 +7,10 @@ import org.molgenis.sql.*;
 
 import java.util.List;
 
-class TableMetadataTable {
+public class TableMetadataTable {
   final String TABLE_METADATA = "MOLGENIS_TABLE_METADATA";
-  final String TABLE_NAME = "TABLE_NAME";
-  final String TABLE_EXTENDS = "TABLE_EXTENDS";
+  final String TABLE_NAME = "name";
+  final String TABLE_EXTENDS = "extends";
 
   private SqlDatabase backend;
 
@@ -21,8 +21,12 @@ class TableMetadataTable {
 
   private void verifyBackend() throws SqlDatabaseException {
     SqlTable columnTable = backend.getTable(TABLE_METADATA);
+    if (columnTable == null) columnTable = backend.createTable(TABLE_METADATA);
     if (columnTable.getColumn(TABLE_NAME) == null) {
       columnTable.addColumn(TABLE_NAME, SqlType.STRING);
+    }
+    if (columnTable.getColumn(TABLE_EXTENDS) == null) {
+      columnTable.addColumn(TABLE_EXTENDS, SqlType.STRING).setNullable(true);
     }
     columnTable.addUnique(TABLE_NAME);
   }
@@ -39,8 +43,11 @@ class TableMetadataTable {
 
   public void saveTable(EmxTable table) throws SqlDatabaseException {
     SqlRow tableMetadata = new SqlRow();
-    tableMetadata.setString(TABLE_METADATA, table.getName());
-    backend.getTable(table.getName()).update(tableMetadata);
+    tableMetadata.setString(TABLE_NAME, table.getName());
+    if (table.getExtend() != null) {
+      tableMetadata.setString(TABLE_EXTENDS, table.getExtend().getName());
+    }
+    backend.getTable(TABLE_METADATA).update(tableMetadata);
   }
 
   public void deleteTable(String tableName) throws SqlDatabaseException {

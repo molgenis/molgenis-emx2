@@ -3,13 +3,18 @@ package org.molgenis.emx2.database.test;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxTable;
-import org.molgenis.emx2.database.EmxDatabase;
+import org.molgenis.emx2.database.EmxDatabaseImpl;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+
+import static org.molgenis.emx2.EmxType.STRING;
 
 public class EmxDatabaseTest {
 
-  private static EmxDatabase db = null;
+  private static EmxDatabaseImpl db = null;
 
   @BeforeClass
   public static void setUp() {
@@ -27,7 +32,19 @@ public class EmxDatabaseTest {
       source.setUsername(userName);
       source.setPassword(password);
 
-      db = new EmxDatabase(source);
+      // delete all tables first
+      Connection conn = source.getConnection();
+      conn.prepareCall(
+              "DO $$ DECLARE\n"
+                  + "    r RECORD;\n"
+                  + "BEGIN\n"
+                  + "    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP\n"
+                  + "        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';\n"
+                  + "    END LOOP;\n"
+                  + "END $$;")
+          .execute();
+      conn.close();
+      db = new EmxDatabaseImpl(source);
     }
 
     // For the sake of this test, let's keep exception handling simple
@@ -37,8 +54,10 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void test1() {
-
-    EmxTable t = db.addTable();
+  public void test1() throws EmxException {
+    EmxTable t = db.addTable("Person");
+    t.addColumn("First name", STRING);
+    t.addColumn("Last name", STRING);
+    t.addColumn("Display Name", STRING).setUnique(true);
   }
 }

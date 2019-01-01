@@ -18,7 +18,6 @@ public class EmxTable {
   public EmxTable(EmxModel model, String name) throws EmxException {
     this.model = model;
     this.name = name;
-    this.addColumn(MOLGENISID, EmxType.UUID);
   }
 
   public String getName() {

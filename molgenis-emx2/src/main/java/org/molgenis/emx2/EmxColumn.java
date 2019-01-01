@@ -64,7 +64,7 @@ public class EmxColumn {
     model.onColumnChange(this);
   }
 
-  public void setUnique(Boolean b) throws EmxException {
+  public void setUnique(Boolean unique) throws EmxException {
     this.unique = unique;
     model.onColumnChange(this);
   }

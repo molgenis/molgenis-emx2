@@ -1,17 +1,75 @@
-package org.molgenis.emx2.database.internal;
+package org.molgenis.emx2.database;
 
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.database.internal.ColumnMetadataTable;
+import org.molgenis.emx2.database.internal.TableMetadataTable;
 import org.molgenis.sql.*;
+import org.molgenis.sql.psql.PsqlDatabase;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class EmxDatabaseModel extends EmxModel {
+import javax.sql.DataSource;
+import java.util.*;
+import java.util.stream.Stream;
+
+public class EmxDatabaseImpl extends EmxModel implements org.molgenis.emx2.EmxDatabase {
   SqlDatabase backend;
   TableMetadataTable tableMetadata;
   ColumnMetadataTable columnMetadata;
   boolean isReloading = false;
 
-  public EmxDatabaseModel(SqlDatabase backend) throws EmxException {
-    this.backend = backend;
-    reload();
+  public EmxDatabaseImpl(DataSource ds) throws EmxException {
+    this.backend = new PsqlDatabase(ds);
+    try {
+      this.tableMetadata = new TableMetadataTable(this.backend);
+      this.columnMetadata = new ColumnMetadataTable(this.backend);
+    } catch (SqlDatabaseException e) {
+      throw new EmxException(e);
+    }
+  }
+
+  @Override
+  public Stream<EmxRow> find(String tableName, EmxFilter... filters) {
+    return null;
+  }
+
+  @Override
+  public EmxRow findById(String tableName, UUID id) {
+    return null;
+  }
+
+  @Override
+  public void save(String tableName, EmxRow row) throws EmxException {
+    this.save(tableName, Arrays.asList(row));
+  }
+
+  @Override
+  public int save(String tableName, Collection<EmxRow> rows) throws EmxException {
+    try {
+      // TODO, deal with mref/one-to-many relationships
+      List<SqlRow> sqlRows = new ArrayList<>();
+      rows.forEach(row -> sqlRows.add(new SqlRow(row.toMap())));
+      return backend.getTable(tableName).update(sqlRows);
+    } catch (SqlDatabaseException e) {
+      throw new EmxException(e);
+    }
+  }
+
+  @Override
+  public int delete(String tableName, Collection<EmxRow> rows) throws EmxException {
+    int count = 0;
+    try {
+      // TODO, deal with mref/one-to-many relationships
+      List<SqlRow> ids = new ArrayList<>(rows.size());
+      rows.forEach(row -> ids.add(new SqlRow(row.getId())));
+      return backend.getTable(tableName).delete(ids);
+    } catch (SqlDatabaseException e) {
+      throw new EmxException(e);
+    }
+  }
+
+  @Override
+  public void delete(String tableName, EmxRow row) throws EmxException {
+    this.delete(tableName, Arrays.asList(row));
   }
 
   @Override
@@ -87,7 +145,12 @@ public class EmxDatabaseModel extends EmxModel {
   }
 
   private SqlType convert(EmxType type) {
-    return SqlType.STRING;
+    switch (type) {
+      case STRING:
+        return SqlType.STRING;
+      default:
+        throw new NotImplementedException();
+    }
   }
 
   private void reload() throws EmxException {
