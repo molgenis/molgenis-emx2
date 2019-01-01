@@ -7,7 +7,9 @@ import org.molgenis.emx2.database.internal.EmxDatabaseModel;
 import org.molgenis.sql.SqlDatabase;
 import org.molgenis.sql.SqlDatabaseException;
 import org.molgenis.sql.SqlRow;
+import org.molgenis.sql.psql.PsqlDatabase;
 
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -15,8 +17,8 @@ public class EmxDatabase {
   SqlDatabase backend;
   EmxModel model;
 
-  public EmxDatabase(SqlDatabase backend) throws EmxException {
-    this.backend = backend;
+  public EmxDatabase(DataSource ds) throws EmxException {
+    this.backend = new PsqlDatabase(ds);
     this.model = new EmxDatabaseModel(backend);
   }
 

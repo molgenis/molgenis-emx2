@@ -143,44 +143,49 @@ public class MolgenisReader {
         List<EmxDefinitionTerm> terms =
             new EmxDefinitionParser().parse(line, messages, row.getDefinition());
         EmxColumn column = table.addColumn(columnName, getType(terms));
-        for (EmxDefinitionTerm term : terms) {
-          switch (term) {
-            case STRING:
-            case INT:
-            case LONG:
-            case SELECT:
-            case RADIO:
-            case BOOL:
-            case DECIMAL:
-            case TEXT:
-            case DATE:
-            case DATETIME:
-            case MSELECT:
-            case CHECKBOX:
-            case UUID:
-            case HYPERLINK:
-            case EMAIL:
-            case HTML:
-            case FILE:
-            case ENUM:
-              break;
-            case NILLABLE:
-              column.setNillable(true);
-              break;
-            case READONLY:
-              column.setReadonly(true);
-              break;
-            case DEFAULT:
-              column.setDefaultValue(term.getParameterValue());
-              break;
-            case UNIQUE:
-              column.setUnique(true);
-              break;
-            default:
-              throw new MolgenisReaderException(
-                  "error on line" + line + ": unknown definition term " + term);
-          }
-        }
+        applyDefintionsToColumn(line, terms, column);
+      }
+    }
+  }
+
+  private void applyDefintionsToColumn(int line, List<EmxDefinitionTerm> terms, EmxColumn column)
+      throws EmxException, MolgenisReaderException {
+    for (EmxDefinitionTerm term : terms) {
+      switch (term) {
+        case STRING:
+        case INT:
+        case LONG:
+        case SELECT:
+        case RADIO:
+        case BOOL:
+        case DECIMAL:
+        case TEXT:
+        case DATE:
+        case DATETIME:
+        case MSELECT:
+        case CHECKBOX:
+        case UUID:
+        case HYPERLINK:
+        case EMAIL:
+        case HTML:
+        case FILE:
+        case ENUM:
+          break;
+        case NILLABLE:
+          column.setNillable(true);
+          break;
+        case READONLY:
+          column.setReadonly(true);
+          break;
+        case DEFAULT:
+          column.setDefaultValue(term.getParameterValue());
+          break;
+        case UNIQUE:
+          column.setUnique(true);
+          break;
+        default:
+          throw new MolgenisReaderException(
+              "error on line" + line + ": unknown definition term " + term);
       }
     }
   }
