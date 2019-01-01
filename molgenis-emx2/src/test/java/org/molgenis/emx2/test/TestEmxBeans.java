@@ -1,3 +1,5 @@
+package org.molgenis.emx2.test;
+
 import org.junit.Test;
 import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxModel;

@@ -63,9 +63,15 @@ public class EmxModel {
     return (diff.toString());
   }
 
-  protected void onTableChange(EmxTable table) throws EmxException {}
+  protected void onTableChange(EmxTable table) throws EmxException {
+    // empty on purpose to allow subclass to add handler
+  }
 
-  protected void onColumnChange(EmxColumn column) throws EmxException {}
+  protected void onColumnChange(EmxColumn column) throws EmxException {
+    // empty on purpose to allow subclass to add handler
+  }
 
-  protected void onColumnRemove(EmxColumn column) throws EmxException {}
+  protected void onColumnRemove(EmxColumn column) throws EmxException {
+    // empty on purpose to allow subclass to add handler
+  }
 }

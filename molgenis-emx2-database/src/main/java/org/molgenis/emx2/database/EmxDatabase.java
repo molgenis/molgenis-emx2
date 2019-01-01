@@ -47,8 +47,6 @@ public class EmxDatabase {
     }
   }
 
-  private void executeSave(String tableName, List<EmxRow> batch) throws SqlDatabaseException {}
-
   public int delete(String tableName, Collection<EmxRow> rows) throws EmxException {
     int count = 0;
     try {
