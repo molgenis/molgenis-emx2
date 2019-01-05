@@ -51,7 +51,7 @@ public class TableMetadataTable {
   }
 
   public void deleteTable(String tableName) throws SqlDatabaseException {
-    backend.getTable(TABLE_METADATA).update(find(tableName));
+    backend.getTable(TABLE_METADATA).delete(find(tableName));
   }
 
   private SqlRow find(String tableName) throws SqlDatabaseException {
@@ -61,7 +61,6 @@ public class TableMetadataTable {
             .from(TABLE_METADATA)
             .eq(TABLE_METADATA, TABLE_NAME, tableName)
             .retrieve();
-    backend.getTable(TABLE_METADATA).delete(rows);
     if (rows.isEmpty()) return null;
     return rows.get(0);
   }

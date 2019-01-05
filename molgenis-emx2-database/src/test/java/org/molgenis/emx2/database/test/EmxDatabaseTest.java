@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxTable;
 import org.molgenis.emx2.database.EmxDatabaseImpl;
+import org.molgenis.sql.SqlRow;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
@@ -59,5 +60,16 @@ public class EmxDatabaseTest {
     t.addColumn("First name", STRING);
     t.addColumn("Last name", STRING);
     t.addColumn("Display Name", STRING).setUnique(true);
+
+    SqlRow r =
+        new SqlRow()
+            .setString("First name", "Donald")
+            .setString("Last name", "Duck")
+            .setString("Display Name", "Donald Duck");
+    db.save("Person", r);
+
+    db.delete("Person", r);
+
+    db.removeTable(t.getName());
   }
 }

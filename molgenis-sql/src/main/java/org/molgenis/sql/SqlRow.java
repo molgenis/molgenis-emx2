@@ -11,6 +11,7 @@ public class SqlRow {
   protected Map<String, Object> values = new LinkedHashMap<>();
 
   public SqlRow(Map<String, Object> values) {
+    this();
     this.values.putAll(values);
   }
 

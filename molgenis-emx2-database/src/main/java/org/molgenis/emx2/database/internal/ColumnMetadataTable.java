@@ -53,7 +53,16 @@ public class ColumnMetadataTable {
     backend.getTable(COLUMN_METADATA_TABLE).delete(find(column));
   }
 
-  public void deleteColumnsForTable(String tableName) {}
+  public void deleteColumnsForTable(String tableName) throws SqlDatabaseException {
+    backend
+        .getTable(COLUMN_METADATA_TABLE)
+        .delete(
+            backend
+                .getQuery()
+                .from(COLUMN_METADATA_TABLE)
+                .eq(COLUMN_METADATA_TABLE, COLUMN_TABLE, tableName)
+                .retrieve());
+  }
 
   private SqlRow find(EmxColumn column) throws SqlDatabaseException {
     List<SqlRow> rows =

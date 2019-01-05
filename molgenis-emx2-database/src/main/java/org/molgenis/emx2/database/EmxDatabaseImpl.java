@@ -8,10 +8,12 @@ import org.molgenis.sql.psql.PsqlDatabase;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Stream;
 
-public class EmxDatabaseImpl extends EmxModel implements org.molgenis.emx2.EmxDatabase {
+public class EmxDatabaseImpl extends EmxModel implements EmxDatabase {
   SqlDatabase backend;
   TableMetadataTable tableMetadata;
   ColumnMetadataTable columnMetadata;
@@ -38,37 +40,33 @@ public class EmxDatabaseImpl extends EmxModel implements org.molgenis.emx2.EmxDa
   }
 
   @Override
-  public void save(String tableName, EmxRow row) throws EmxException {
+  public void save(String tableName, SqlRow row) throws EmxException {
     this.save(tableName, Arrays.asList(row));
   }
 
   @Override
-  public int save(String tableName, Collection<EmxRow> rows) throws EmxException {
+  public int save(String tableName, Collection<SqlRow> rows) throws EmxException {
     try {
       // TODO, deal with mref/one-to-many relationships
-      List<SqlRow> sqlRows = new ArrayList<>();
-      rows.forEach(row -> sqlRows.add(new SqlRow(row.toMap())));
-      return backend.getTable(tableName).update(sqlRows);
+      return backend.getTable(tableName).update(rows);
     } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
   }
 
   @Override
-  public int delete(String tableName, Collection<EmxRow> rows) throws EmxException {
+  public int delete(String tableName, Collection<SqlRow> rows) throws EmxException {
     int count = 0;
     try {
       // TODO, deal with mref/one-to-many relationships
-      List<SqlRow> ids = new ArrayList<>(rows.size());
-      rows.forEach(row -> ids.add(new SqlRow(row.getId())));
-      return backend.getTable(tableName).delete(ids);
+      return backend.getTable(tableName).delete(rows);
     } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
   }
 
   @Override
-  public void delete(String tableName, EmxRow row) throws EmxException {
+  public void delete(String tableName, SqlRow row) throws EmxException {
     this.delete(tableName, Arrays.asList(row));
   }
 
