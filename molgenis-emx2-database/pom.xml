@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.molgenis</groupId>
-            <artifactId>molgenis-sql-psql</artifactId>
+            <artifactId>molgenis-sql</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -5,7 +5,6 @@ import org.molgenis.emx2.database.internal.ColumnMetadataTable;
 import org.molgenis.emx2.database.internal.TableMetadataTable;
 import org.molgenis.sql.*;
 import org.molgenis.sql.psql.PsqlDatabase;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -147,7 +146,7 @@ public class EmxDatabaseImpl extends EmxModel implements EmxDatabase {
       case STRING:
         return SqlType.STRING;
       default:
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
   }
 

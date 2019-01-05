@@ -12,7 +12,6 @@
         <module>molgenis-emx2</module>
         <module>molgenis-emx2-io</module>
         <module>molgenis-sql</module>
-        <module>molgenis-sql-psql</module>
         <module>molgenis-emx2-database</module>
     </modules>
 
