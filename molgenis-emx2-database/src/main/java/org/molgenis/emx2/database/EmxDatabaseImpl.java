@@ -4,7 +4,6 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.database.internal.ColumnMetadataTable;
 import org.molgenis.emx2.database.internal.TableMetadataTable;
 import org.molgenis.sql.*;
-import org.molgenis.sql.psql.PsqlDatabase;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -19,7 +18,7 @@ public class EmxDatabaseImpl extends EmxModel implements EmxDatabase {
   boolean isReloading = false;
 
   public EmxDatabaseImpl(DataSource ds) throws EmxException {
-    this.backend = new PsqlDatabase(ds);
+    this.backend = new SqlDatabase(ds);
     try {
       this.tableMetadata = new TableMetadataTable(this.backend);
       this.columnMetadata = new ColumnMetadataTable(this.backend);

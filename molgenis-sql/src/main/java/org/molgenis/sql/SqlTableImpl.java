@@ -1,23 +1,22 @@
-package org.molgenis.sql.psql;
+package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.sql.*;
 
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
 
-public class PsqlTable implements SqlTable {
+class SqlTableImpl implements SqlTable {
   private DSLContext sql;
-  private PsqlDatabase db;
+  private SqlDatabase db;
   private String name;
-  private Map<String, PsqlColumn> columnMap = new LinkedHashMap<>();
+  private Map<String, SqlColumnImpl> columnMap = new LinkedHashMap<>();
   private Map<String, SqlUnique> uniquesMap = new LinkedHashMap<>();
 
-  PsqlTable(PsqlDatabase db, DSLContext sql, String name) {
+  SqlTableImpl(SqlDatabase db, DSLContext sql, String name) {
     this.db = db;
     this.sql = sql;
     this.name = name;
@@ -34,7 +33,7 @@ public class PsqlTable implements SqlTable {
   private void reloadColumns(Table t) {
     columnMap = new LinkedHashMap<>();
     for (Field field : t.fields()) {
-      columnMap.put(field.getName(), new PsqlColumn(sql, this, field, null));
+      columnMap.put(field.getName(), new SqlColumnImpl(sql, this, field, null));
     }
   }
 
@@ -42,13 +41,13 @@ public class PsqlTable implements SqlTable {
     for (Object o3 : t.getReferences()) {
       ForeignKey fk = (ForeignKey) o3;
       for (Field field : (List<Field>) fk.getFields()) {
-        PsqlColumn temp = columnMap.get(field.getName());
-        PsqlColumn fkey = null;
+        SqlColumnImpl temp = columnMap.get(field.getName());
+        SqlColumnImpl fkey = null;
         String refTableName = fk.getKey().getTable().getName();
         if (refTableName.equals(name)) {
-          fkey = new PsqlColumn(sql, this, field, this);
+          fkey = new SqlColumnImpl(sql, this, field, this);
         } else {
-          fkey = new PsqlColumn(sql, this, field, db.getTable(refTableName));
+          fkey = new SqlColumnImpl(sql, this, field, db.getTable(refTableName));
         }
         fkey.setNullable(temp.isNullable());
         columnMap.put(field.getName(), fkey);
@@ -74,10 +73,10 @@ public class PsqlTable implements SqlTable {
       throw new SqlDatabaseException(
           "addColumn(name,REF) not allowed. Use addColumn(name, otherTable) to add foreign key fields");
     }
-    DataType type = PsqlTypeUtils.typeOf(sqlType);
+    DataType type = SqlTypeUtils.typeOf(sqlType);
     Field field = field(name(name), type.nullable(false));
     sql.alterTable(name(this.name)).addColumn(field).execute();
-    columnMap.put(name, new PsqlColumn(sql, this, field, null));
+    columnMap.put(name, new SqlColumnImpl(sql, this, field, null));
     return getColumn(name);
   }
 
@@ -95,7 +94,7 @@ public class PsqlTable implements SqlTable {
     sql.createIndex(name(this.name) + "_" + name(name) + "_FKINDEX")
         .on(table(name(this.name)), field)
         .execute();
-    columnMap.put(name, new PsqlColumn(sql, this, field, otherTable));
+    columnMap.put(name, new SqlColumnImpl(sql, this, field, otherTable));
     return getColumn(name);
   }
 
@@ -117,7 +116,7 @@ public class PsqlTable implements SqlTable {
         for (SortField sf : i.getFields()) {
           cols.add(getColumn(sf.getName()));
         }
-        uniquesMap.put(i.getName(), new PsqlUnique(this, cols));
+        uniquesMap.put(i.getName(), new SqlUniqueImpl(this, cols));
       }
     }
   }
@@ -150,7 +149,7 @@ public class PsqlTable implements SqlTable {
     }
     String uniqueName = name + "_" + String.join("_", keys) + "_UNIQUE";
     sql.alterTable(name(name)).add(constraint(name(uniqueName)).unique(keys)).execute();
-    uniquesMap.put(uniqueName, new PsqlUnique(this, uniqueColumns));
+    uniquesMap.put(uniqueName, new SqlUniqueImpl(this, uniqueColumns));
     return this.uniquesMap.get(getUniqueName(keys));
   }
 
@@ -175,7 +174,7 @@ public class PsqlTable implements SqlTable {
       Field[] fields = new Field[columnMap.size()];
       String[] fieldNames = new String[columnMap.size()];
       int i = 0;
-      for (PsqlColumn c : columnMap.values()) {
+      for (SqlColumnImpl c : columnMap.values()) {
         fieldNames[i] = c.getName();
         fields[i] = c.getJooqField();
         i++;
@@ -203,7 +202,7 @@ public class PsqlTable implements SqlTable {
     Field[] fields = new Field[columnMap.size()];
     String[] fieldNames = new String[columnMap.size()];
     int i = 0;
-    for (PsqlColumn c : columnMap.values()) {
+    for (SqlColumnImpl c : columnMap.values()) {
       fieldNames[i] = c.getName();
       fields[i] = c.getJooqField();
       i++;

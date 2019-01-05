@@ -1,14 +1,13 @@
-package org.molgenis.sql.psql;
+package org.molgenis.sql;
 
 import org.jooq.*;
-import org.molgenis.sql.*;
 
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
 
-public class PsqlQuery implements SqlQuery {
+class SqlQueryImpl implements SqlQuery {
 
   enum State {
     FROM,
@@ -33,7 +32,7 @@ public class PsqlQuery implements SqlQuery {
   Map<String, From> select = new LinkedHashMap<>();
   Condition conditions = null;
 
-  public PsqlQuery(SqlDatabase db, DSLContext sql) {
+  public SqlQueryImpl(SqlDatabase db, DSLContext sql) {
     this.db = db;
     this.sql = sql;
   }
@@ -213,7 +212,7 @@ public class PsqlQuery implements SqlQuery {
     joinStep.where(conditions);
     Result<Record> result = joinStep.fetch();
     for (Record r : result) {
-      rows.add(new PsqlRow(r));
+      rows.add(new SqlRowImpl(r));
     }
     return rows;
   }

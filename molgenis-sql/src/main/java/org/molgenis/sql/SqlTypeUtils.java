@@ -1,15 +1,14 @@
-package org.molgenis.sql.psql;
+package org.molgenis.sql;
 
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.sql.SqlType;
 
 import java.sql.Types;
 
-public class PsqlTypeUtils {
+class SqlTypeUtils {
 
-  private PsqlTypeUtils() {
+  private SqlTypeUtils() {
     // to hide the public constructor
   }
 

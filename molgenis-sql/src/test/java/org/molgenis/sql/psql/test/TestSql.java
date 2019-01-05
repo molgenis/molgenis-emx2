@@ -12,8 +12,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.sql.*;
-import org.molgenis.sql.psql.PsqlDatabase;
-import org.molgenis.sql.psql.PsqlRow;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
@@ -65,7 +63,7 @@ public class TestSql {
 
       conn.close();
 
-      db = new PsqlDatabase(source);
+      db = new SqlDatabase(source);
     }
 
     // For the sake of this test, let's keep exception handling simple
@@ -84,7 +82,7 @@ public class TestSql {
 
     List<SqlRow> rows = new ArrayList<>();
     for (int i = 0; i < 20; i++) {
-      SqlRow r = new PsqlRow();
+      SqlRow r = new SqlRow();
       r.setString("test", "test" + i);
       r.setInt("testint", i);
       rows.add(r);
@@ -138,7 +136,7 @@ public class TestSql {
     System.out.println(t2);
 
     // check nullable ok
-    SqlRow row = new PsqlRow();
+    SqlRow row = new SqlRow();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
     row.setBool("Test_bool", true);
@@ -150,7 +148,7 @@ public class TestSql {
     t2.insert(row);
 
     // check not null expects exception
-    row = new PsqlRow();
+    row = new SqlRow();
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
     row.setBool("Test_bool_nillable", true);
@@ -207,7 +205,7 @@ public class TestSql {
     List<SqlRow> rows = new ArrayList<>();
     int count = 10;
     for (int i = 0; i < count; i++) {
-      rows.add(new PsqlRow().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
+      rows.add(new SqlRow().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
     t.insert(rows);
     endTime = System.currentTimeMillis();
@@ -274,15 +272,15 @@ public class TestSql {
     product.addColumn("name", STRING);
     product.addUnique("name");
 
-    SqlRow product1 = new PsqlRow().setString("name", "molgenis");
+    SqlRow product1 = new SqlRow().setString("name", "molgenis");
     product.insert(product1);
 
     SqlTable component = db.createTable("Component");
     component.addColumn("name", STRING);
     component.addUnique("name");
 
-    SqlRow component1 = new PsqlRow().setString("name", "explorer");
-    SqlRow component2 = new PsqlRow().setString("name", "navigator");
+    SqlRow component1 = new SqlRow().setString("name", "explorer");
+    SqlRow component2 = new SqlRow().setString("name", "navigator");
 
     component.insert(component1);
     component.insert(component2);
@@ -293,9 +291,9 @@ public class TestSql {
     productComponent.addUnique("product", "component");
 
     SqlRow productComponent1 =
-        new PsqlRow().setRef("component", component1).setRef("product", product1);
+        new SqlRow().setRef("component", component1).setRef("product", product1);
     SqlRow productComponent2 =
-        new PsqlRow().setRef("component", component2).setRef("product", product1);
+        new SqlRow().setRef("component", component2).setRef("product", product1);
     productComponent.insert(productComponent1);
     productComponent.insert(productComponent2);
 
@@ -304,8 +302,8 @@ public class TestSql {
     part.addColumn("weight", INT);
     part.addUnique("name");
 
-    SqlRow part1 = new PsqlRow().setString("name", "forms").setInt("weight", 100);
-    SqlRow part2 = new PsqlRow().setString("name", "login").setInt("weight", 50);
+    SqlRow part1 = new SqlRow().setString("name", "forms").setInt("weight", 100);
+    SqlRow part2 = new SqlRow().setString("name", "login").setInt("weight", 50);
     part.insert(part1);
     part.insert(part2);
 
@@ -314,8 +312,8 @@ public class TestSql {
     componentPart.addColumn("part", part);
     componentPart.addUnique("component", "part");
 
-    SqlRow componentPart1 = new PsqlRow().setRef("component", component1).setRef("part", part1);
-    SqlRow componentPart2 = new PsqlRow().setRef("component", component1).setRef("part", part2);
+    SqlRow componentPart1 = new SqlRow().setRef("component", component1).setRef("part", part1);
+    SqlRow componentPart2 = new SqlRow().setRef("component", component1).setRef("part", part2);
     componentPart.insert(componentPart1);
     componentPart.insert(componentPart2);
 
@@ -331,7 +329,7 @@ public class TestSql {
     // sortby clauses
     // later: group by.
 
-    //        PsqlQuery q1 = new PsqlQueryBack(db);
+    //        SqlQueryImpl q1 = new PsqlQueryBack(db);
     // db        q1.select("Product").columns("name").as("productName");
     //        q1.mref("ProductComponent").columns("name").as("componentName");
     //        q1.mref("ComponentPart").columns("name").as("partName");

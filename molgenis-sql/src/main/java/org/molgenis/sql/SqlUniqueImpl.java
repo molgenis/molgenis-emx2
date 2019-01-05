@@ -1,19 +1,15 @@
-package org.molgenis.sql.psql;
-
-import org.molgenis.sql.SqlColumn;
-import org.molgenis.sql.SqlTable;
-import org.molgenis.sql.SqlUnique;
+package org.molgenis.sql;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class PsqlUnique implements SqlUnique {
+class SqlUniqueImpl implements SqlUnique {
   private SqlTable table;
   private List<SqlColumn> columns;
 
-  PsqlUnique(SqlTable table, List<SqlColumn> columns) {
+  SqlUniqueImpl(SqlTable table, List<SqlColumn> columns) {
     this.table = table;
     this.columns = columns;
   }

@@ -1,21 +1,18 @@
-package org.molgenis.sql.psql;
+package org.molgenis.sql;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.molgenis.sql.SqlColumn;
-import org.molgenis.sql.SqlTable;
-import org.molgenis.sql.SqlType;
 
 import static org.jooq.impl.DSL.name;
 
-public class PsqlColumn implements SqlColumn {
+class SqlColumnImpl implements SqlColumn {
   private DSLContext sql;
   private SqlTable table;
   // effectively this class wraps Jooq Field
   private Field field;
   private SqlTable refTable = null;
 
-  PsqlColumn(DSLContext sql, SqlTable table, Field field, SqlTable otherTable) {
+  SqlColumnImpl(DSLContext sql, SqlTable table, Field field, SqlTable otherTable) {
     this.sql = sql;
     this.table = table;
     this.field = field;
@@ -48,7 +45,7 @@ public class PsqlColumn implements SqlColumn {
     if (refTable != null) {
       return SqlType.REF;
     }
-    return PsqlTypeUtils.getSqlType(field);
+    return SqlTypeUtils.getSqlType(field);
   }
 
   @Override

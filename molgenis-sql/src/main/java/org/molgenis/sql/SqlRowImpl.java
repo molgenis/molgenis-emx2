@@ -1,25 +1,24 @@
-package org.molgenis.sql.psql;
+package org.molgenis.sql;
 
 import org.jooq.Field;
 import org.jooq.Record;
-import org.molgenis.sql.SqlRow;
 
 import java.util.UUID;
 
-public class PsqlRow extends SqlRow {
+class SqlRowImpl extends SqlRow {
 
-  public PsqlRow() {
+  public SqlRowImpl() {
     super();
   }
 
-  public PsqlRow(Record record) {
+  public SqlRowImpl(Record record) {
     super();
     for (Field f : record.fields()) {
       values.put(f.getName(), record.get(f));
     }
   }
 
-  public PsqlRow(UUID molgenisid) {
+  public SqlRowImpl(UUID molgenisid) {
     super(molgenisid);
   }
 }
