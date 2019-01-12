@@ -56,7 +56,7 @@ public class EmxDatabaseTest {
 
   @Test
   public void test1() throws EmxException {
-    EmxTable t = db.addTable("Person");
+    EmxTable t = db.getModel().addTable("Person");
     t.addColumn("First name", STRING);
     t.addColumn("Last name", STRING);
     t.addColumn("Display Name", STRING).setUnique(true);
@@ -68,8 +68,12 @@ public class EmxDatabaseTest {
             .setString("Display Name", "Donald Duck");
     db.save("Person", r);
 
+    // todo test query
+
     db.delete("Person", r);
 
-    db.removeTable(t.getName());
+    System.out.println(db.getModel());
+
+    db.getModel().removeTable(t.getName());
   }
 }

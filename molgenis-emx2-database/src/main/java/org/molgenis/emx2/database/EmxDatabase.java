@@ -2,6 +2,7 @@ package org.molgenis.emx2.database;
 
 import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxFilter;
+import org.molgenis.emx2.EmxModel;
 import org.molgenis.sql.SqlRow;
 
 import java.util.Collection;
@@ -9,7 +10,9 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public interface EmxDatabase {
-  Stream<EmxRow> find(String tableName, EmxFilter... filters);
+  EmxModel getModel();
+
+  EmxQuery query(String tableName);
 
   EmxRow findById(String tableName, UUID id);
 
