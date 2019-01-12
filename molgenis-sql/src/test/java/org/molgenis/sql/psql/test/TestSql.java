@@ -29,6 +29,7 @@ import static org.molgenis.sql.SqlType.*;
 public class TestSql {
 
   private static SqlDatabase db = null;
+  private static HikariDataSource dataSource = null;
 
   @BeforeClass
   public static void setUp() {
@@ -40,12 +41,12 @@ public class TestSql {
     String url = "jdbc:postgresql:molgenis";
 
     try {
-      HikariDataSource source = new HikariDataSource();
-      source.setJdbcUrl(url);
-      source.setUsername(userName);
-      source.setPassword(password);
+      dataSource = new HikariDataSource();
+      dataSource.setJdbcUrl(url);
+      dataSource.setUsername(userName);
+      dataSource.setPassword(password);
 
-      Connection conn = source.getConnection();
+      Connection conn = dataSource.getConnection();
 
       // internal magic
       DSLContext context = DSL.using(conn, SQLDialect.POSTGRES_10);
@@ -63,7 +64,7 @@ public class TestSql {
 
       conn.close();
 
-      db = new SqlDatabase(source);
+      db = new SqlDatabase(dataSource);
     }
 
     // For the sake of this test, let's keep exception handling simple
@@ -199,6 +200,10 @@ public class TestSql {
     System.out.println(
         "Created fromTable: \n" + t.toString() + " in " + (endTime - startTime) + " milliseconds");
 
+    // reinitialise database to see if it can recreate from background
+    db = new SqlDatabase(dataSource);
+    assertEquals(8, db.getTables().size());
+
     // insert
     startTime = System.currentTimeMillis();
     SqlTable t2 = db.getTable("Person");
@@ -260,7 +265,13 @@ public class TestSql {
     assertEquals(3, t.getColumns().size());
 
     // drop a fromTable
-    // db.dropTable(t.getName());
+    db.dropTable(t.getName());
+    assertEquals(null, db.getTable("Person"));
+    assertEquals(7, db.getTables().size());
+    // make sure nothing was left behind in backend
+    db = new SqlDatabase(dataSource);
+    assertEquals(null, db.getTable("Person"));
+    assertEquals(7, db.getTables().size());
   }
 
   @Test
