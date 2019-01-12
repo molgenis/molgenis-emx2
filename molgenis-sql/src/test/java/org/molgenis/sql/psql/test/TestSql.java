@@ -182,6 +182,11 @@ public class TestSql {
 
       t2.insert(res);
     }
+
+    System.out.println("testing TypeTest query");
+    for (SqlRow r : db.getQuery().from("TypeTest").retrieve()) {
+      System.out.println(r);
+    }
   }
 
   @Test
