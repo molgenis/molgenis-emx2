@@ -1,17 +1,16 @@
-package org.molgenis.emx2.database.internal;
+package org.molgenis.emx2.database;
 
 import org.molgenis.emx2.*;
 import org.molgenis.sql.*;
 
 import java.util.List;
 
-public class ColumnMetadataTable {
-  final String COLUMN_METADATA_TABLE = "MOLGENIS_COLUMN_METADATA";
-  final String COLUMN_TABLE = "table";
-  final String COLUMN_NAME = "name";
-  final String COLUMN_TYPE = "type";
-
-  SqlDatabase backend;
+class ColumnMetadataTable {
+  private static final String COLUMN_METADATA_TABLE = "MOLGENIS_COLUMN_METADATA";
+  private static final String COLUMN_TABLE = "table";
+  private static final String COLUMN_NAME = "name";
+  private static final String COLUMN_TYPE = "type";
+  private SqlDatabase backend;
 
   public ColumnMetadataTable(SqlDatabase backend) throws SqlDatabaseException {
     this.backend = backend;
@@ -35,12 +34,12 @@ public class ColumnMetadataTable {
       EmxTable t = model.getTable(row.getString(COLUMN_TABLE));
       String name = row.getString(COLUMN_NAME);
       EmxColumn c = t.getColumn(name);
-      if (c == null) c = t.addColumn(name, EmxType.valueOf(row.getString(COLUMN_TYPE)));
+      if (c == null) t.addColumn(name, EmxType.valueOf(row.getString(COLUMN_TYPE)));
       // TODO other attributes
     }
   }
 
-  public void save(EmxColumn column) throws SqlDatabaseException, SqlDatabaseException {
+  public void save(EmxColumn column) throws SqlDatabaseException {
     SqlRow tableMetadata = find(column);
     if (tableMetadata == null) tableMetadata = new SqlRow();
     tableMetadata.setString(COLUMN_TABLE, column.getTable().getName());

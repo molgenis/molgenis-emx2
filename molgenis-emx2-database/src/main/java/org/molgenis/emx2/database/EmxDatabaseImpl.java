@@ -1,8 +1,6 @@
 package org.molgenis.emx2.database;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.database.internal.ColumnMetadataTable;
-import org.molgenis.emx2.database.internal.TableMetadataTable;
 import org.molgenis.sql.*;
 
 import javax.sql.DataSource;
@@ -12,10 +10,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public class EmxDatabaseImpl extends EmxModel implements EmxDatabase {
-  SqlDatabase backend;
-  TableMetadataTable tableMetadata;
-  ColumnMetadataTable columnMetadata;
-  boolean isReloading = false;
+  private SqlDatabase backend;
+  private TableMetadataTable tableMetadata;
+  private ColumnMetadataTable columnMetadata;
+  private boolean isReloading = false;
 
   public EmxDatabaseImpl(DataSource ds) throws EmxException {
     this.backend = new SqlDatabase(ds);
@@ -54,7 +52,6 @@ public class EmxDatabaseImpl extends EmxModel implements EmxDatabase {
 
   @Override
   public int delete(String tableName, Collection<SqlRow> rows) throws EmxException {
-    int count = 0;
     try {
       // TODO, deal with mref/one-to-many relationships
       return backend.getTable(tableName).delete(rows);
@@ -144,6 +141,8 @@ public class EmxDatabaseImpl extends EmxModel implements EmxDatabase {
     switch (type) {
       case STRING:
         return SqlType.STRING;
+      case INT:
+        return SqlType.INT;
       default:
         throw new UnsupportedOperationException();
     }

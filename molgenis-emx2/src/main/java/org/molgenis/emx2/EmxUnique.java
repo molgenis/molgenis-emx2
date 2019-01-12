@@ -8,8 +8,8 @@ import java.util.List;
 
 @TypeName("unique")
 public class EmxUnique {
-  EmxTable table;
-  List<EmxColumn> columns = new ArrayList<>();
+  private EmxTable table;
+  private List<EmxColumn> columns = new ArrayList<>();
 
   public EmxUnique(EmxTable forTable) {
     this.table = forTable;

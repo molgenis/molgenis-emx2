@@ -7,10 +7,6 @@ import java.util.UUID;
 
 public class EmxRow extends SqlRow {
 
-  public EmxRow() {
-    super();
-  }
-
   public UUID getId() {
     return (UUID) values.get(MOLGENISID);
   }

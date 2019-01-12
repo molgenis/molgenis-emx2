@@ -9,6 +9,14 @@ import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 class SqlQueryImpl implements SqlQuery {
 
+  private SqlDatabase db;
+  private DSLContext sql;
+  private State state = null;
+  private String lastFrom = null;
+  private String lastSelect = null;
+  private Map<String, From> select = new LinkedHashMap<>();
+  private Condition conditions = null;
+
   enum State {
     FROM,
     SELECT,
@@ -22,15 +30,6 @@ class SqlQueryImpl implements SqlQuery {
     String joinTable;
     String joinColumn;
   }
-
-  SqlDatabase db;
-  DSLContext sql;
-  State state = null;
-  String lastFrom = null;
-  String lastSelect = null;
-
-  Map<String, From> select = new LinkedHashMap<>();
-  Condition conditions = null;
 
   public SqlQueryImpl(SqlDatabase db, DSLContext sql) {
     this.db = db;

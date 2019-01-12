@@ -1,4 +1,4 @@
-package org.molgenis.emx2.database.internal;
+package org.molgenis.emx2.database;
 
 import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxModel;
@@ -7,10 +7,10 @@ import org.molgenis.sql.*;
 
 import java.util.List;
 
-public class TableMetadataTable {
-  final String TABLE_METADATA = "MOLGENIS_TABLE_METADATA";
-  final String TABLE_NAME = "name";
-  final String TABLE_EXTENDS = "extends";
+class TableMetadataTable {
+  private static final String TABLE_METADATA = "MOLGENIS_TABLE_METADATA";
+  private static final String TABLE_NAME = "name";
+  private static final String TABLE_EXTENDS = "extends";
 
   private SqlDatabase backend;
 

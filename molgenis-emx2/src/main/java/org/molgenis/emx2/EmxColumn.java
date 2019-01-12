@@ -3,8 +3,8 @@ package org.molgenis.emx2;
 import org.javers.core.metamodel.annotation.Id;
 
 public class EmxColumn {
-  EmxModel model;
   @Id private String name;
+  private EmxModel model;
   private EmxTable table;
   private EmxType type = EmxType.STRING;
   private Boolean nillable = false;

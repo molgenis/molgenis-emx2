@@ -11,7 +11,7 @@ public interface SqlQuery {
 
   SqlQuery select(String column) throws SqlDatabaseException;
 
-  SqlQuery as(String alias) throws SqlDatabaseException, SqlDatabaseException;
+  SqlQuery as(String alias) throws SqlDatabaseException;
 
   SqlQuery eq(String table, String column, UUID... value) throws SqlDatabaseException;
 

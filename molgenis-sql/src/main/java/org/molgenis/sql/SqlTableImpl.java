@@ -223,7 +223,7 @@ class SqlTableImpl implements SqlTable {
   }
 
   private void updateBatch(Collection<SqlRow> rows, Table t, Field[] fields, String[] fieldNames) {
-    if (rows.size() > 0) {
+    if (!rows.isEmpty()) {
       // create multi-value insert
       InsertValuesStepN step = sql.insertInto(t, fields);
       for (SqlRow row : rows) {
@@ -268,7 +268,7 @@ class SqlTableImpl implements SqlTable {
   }
 
   private void deleteBatch(Collection<SqlRow> rows, Table t) {
-    if (rows.size() > 0) {
+    if (!rows.isEmpty()) {
       Field field = field(name(MOLGENISID), SQLDataType.UUID);
       List<UUID> idList = new ArrayList<>();
       rows.forEach(row -> idList.add(row.getRowID()));

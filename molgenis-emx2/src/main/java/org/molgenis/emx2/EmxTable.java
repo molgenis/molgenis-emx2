@@ -15,7 +15,7 @@ public class EmxTable {
   private Map<String, EmxColumn> columns = new LinkedHashMap<>();
   private List<EmxUnique> uniques = new ArrayList<>();
 
-  public EmxTable(EmxModel model, String name) throws EmxException {
+  public EmxTable(EmxModel model, String name) {
     this.model = model;
     this.name = name;
     this.columns.put(MOLGENISID, new EmxColumn(model, this, MOLGENISID, EmxType.UUID));
