@@ -28,7 +28,7 @@ import static org.molgenis.sql.SqlType.*;
 
 public class TestSql {
 
-  private static SqlDatabase db = null;
+  private static SqlDatabaseImpl db = null;
   private static HikariDataSource dataSource = null;
 
   @BeforeClass
@@ -64,7 +64,7 @@ public class TestSql {
 
       conn.close();
 
-      db = new SqlDatabase(dataSource);
+      db = new SqlDatabaseImpl(dataSource);
     }
 
     // For the sake of this test, let's keep exception handling simple
@@ -206,7 +206,7 @@ public class TestSql {
         "Created fromTable: \n" + t.toString() + " in " + (endTime - startTime) + " milliseconds");
 
     // reinitialise database to see if it can recreate from background
-    db = new SqlDatabase(dataSource);
+    db = new SqlDatabaseImpl(dataSource);
     assertEquals(8, db.getTables().size());
 
     // insert
@@ -274,7 +274,7 @@ public class TestSql {
     assertEquals(null, db.getTable("Person"));
     assertEquals(7, db.getTables().size());
     // make sure nothing was left behind in backend
-    db = new SqlDatabase(dataSource);
+    db = new SqlDatabaseImpl(dataSource);
     assertEquals(null, db.getTable("Person"));
     assertEquals(7, db.getTables().size());
   }

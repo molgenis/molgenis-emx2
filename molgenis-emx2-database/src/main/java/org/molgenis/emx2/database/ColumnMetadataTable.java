@@ -10,9 +10,9 @@ class ColumnMetadataTable {
   private static final String COLUMN_TABLE = "table";
   private static final String COLUMN_NAME = "name";
   private static final String COLUMN_TYPE = "type";
-  private SqlDatabase backend;
+  private SqlDatabaseImpl backend;
 
-  public ColumnMetadataTable(SqlDatabase backend) throws SqlDatabaseException {
+  public ColumnMetadataTable(SqlDatabaseImpl backend) throws SqlDatabaseException {
     this.backend = backend;
     this.verifyBackend();
   }

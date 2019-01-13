@@ -10,6 +10,8 @@ public enum EmxType {
   DATE,
   DATETIME,
   UUID,
+  REF,
+  MREF,
   // advanced types
   SELECT,
   RADIO,

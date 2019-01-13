@@ -4,12 +4,12 @@ import org.molgenis.emx2.*;
 import org.molgenis.sql.*;
 
 public class EmxDatabaseModel extends EmxModel {
-  private SqlDatabase backend;
+  private SqlDatabaseImpl backend;
   private TableMetadataTable tableMetadata;
   private ColumnMetadataTable columnMetadata;
   private boolean isReloading = false;
 
-  public EmxDatabaseModel(SqlDatabase backend) throws SqlDatabaseException {
+  public EmxDatabaseModel(SqlDatabaseImpl backend) throws SqlDatabaseException {
     this.backend = backend;
     this.tableMetadata = new TableMetadataTable(backend);
     this.columnMetadata = new ColumnMetadataTable(backend);

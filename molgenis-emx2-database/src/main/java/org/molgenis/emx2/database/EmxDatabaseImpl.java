@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class EmxDatabaseImpl implements EmxDatabase {
-  private SqlDatabase backend;
+  private SqlDatabaseImpl backend;
   private EmxDatabaseModel model;
 
   public EmxDatabaseImpl(DataSource ds) throws EmxException {
-    this.backend = new SqlDatabase(ds);
+    this.backend = new SqlDatabaseImpl(ds);
     try {
       this.model = new EmxDatabaseModel(backend);
     } catch (SqlDatabaseException e) {

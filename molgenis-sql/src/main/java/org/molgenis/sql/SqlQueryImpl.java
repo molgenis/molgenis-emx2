@@ -31,7 +31,7 @@ class SqlQueryImpl implements SqlQuery {
     String joinColumn;
   }
 
-  public SqlQueryImpl(SqlDatabase db, DSLContext sql, String tableName)
+  public SqlQueryImpl(SqlDatabaseImpl db, DSLContext sql, String tableName)
       throws SqlDatabaseException {
     this.db = db;
     this.sql = sql;
@@ -39,13 +39,10 @@ class SqlQueryImpl implements SqlQuery {
   }
 
   private SqlQuery from(String table) throws SqlDatabaseException {
-    if (lastFrom != null) throw new SqlDatabaseException("You can call from() only once");
-
     SqlTable t = db.getTable(table);
-    if (t == null) throw new SqlDatabaseException("fromTable " + table + " does not exist");
+    if (t == null) throw new SqlDatabaseException("table  " + table + " does not exist");
     From f = new From();
     f.fromTable = t;
-
     select.put(table, f);
     state = State.FROM;
     lastFrom = table;
@@ -54,15 +51,12 @@ class SqlQueryImpl implements SqlQuery {
 
   @Override
   public SqlQuery join(String table, String toTable, String on) throws SqlDatabaseException {
-    if (lastFrom == null)
-      throw new SqlDatabaseException("You can call join() only after first calling a from()");
-
     From tableSelect = new From();
 
     // add fromTable
     SqlTable fromTable = db.getTable(table);
     if (fromTable == null) {
-      throw new SqlDatabaseException("fromTable " + table + " does not exist");
+      throw new SqlDatabaseException("table " + table + " does not exist");
     }
     tableSelect.fromTable = fromTable;
 
@@ -80,7 +74,7 @@ class SqlQueryImpl implements SqlQuery {
               + on
               + "'): to join fromTable '"
               + toTable
-              + "' not in getQuery");
+              + "' not in query");
     }
     SqlTable joinTable = temp.fromTable;
     tableSelect.joinTable = toTable;

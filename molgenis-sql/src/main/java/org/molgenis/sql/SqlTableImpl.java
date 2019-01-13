@@ -11,12 +11,12 @@ import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 class SqlTableImpl implements SqlTable {
   private DSLContext sql;
-  private SqlDatabase db;
+  private SqlDatabaseImpl db;
   private String name;
   private Map<String, SqlColumnImpl> columnMap = new LinkedHashMap<>();
   private Map<String, SqlUnique> uniquesMap = new LinkedHashMap<>();
 
-  SqlTableImpl(SqlDatabase db, DSLContext sql, String name) {
+  SqlTableImpl(SqlDatabaseImpl db, DSLContext sql, String name) {
     this.db = db;
     this.sql = sql;
     this.name = name;

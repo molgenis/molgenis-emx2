@@ -12,9 +12,9 @@ class TableMetadataTable {
   private static final String TABLE_NAME = "name";
   private static final String TABLE_EXTENDS = "extends";
 
-  private SqlDatabase backend;
+  private SqlDatabaseImpl backend;
 
-  public TableMetadataTable(SqlDatabase backend) throws SqlDatabaseException {
+  public TableMetadataTable(SqlDatabaseImpl backend) throws SqlDatabaseException {
     this.backend = backend;
     this.verifyBackend();
   }
