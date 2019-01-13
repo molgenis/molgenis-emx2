@@ -90,9 +90,7 @@ public class EmxDatabaseModel extends EmxModel {
       if ((table = backend.getTable(column.getTable().getName())) == null) {
         throw new EmxException("Metadata model inconsistent with backend");
       }
-      if (MREF.equals(column.getType())) {
-        // don't need to do anything because link table already created by nowe
-      } else {
+      if (!MREF.equals(column.getType())) {
         handleSimpleColumnChange(column, table);
       }
       columnMetadata.save(column);

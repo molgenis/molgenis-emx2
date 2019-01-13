@@ -17,7 +17,9 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertEquals;
@@ -71,17 +73,36 @@ public class EmxDatabaseTest {
 
     // create model
     EmxModel m = db.getModel();
-    EmxTable products = m.addTable("Product");
+
+    EmxTable parts = m.addTable("Parts");
+    parts.addColumn("PartName", STRING);
+
+    EmxTable products = m.addTable("Products");
     assertEquals(0, products.getColumns().size()); // molgenisid is hidden
     products.addColumn("ProductName", STRING);
     assertEquals(1, products.getColumns().size());
     assertNotNull(products.getColumn("ProductName"));
 
-    EmxTable parts = m.addTable("Parts");
-    products.addColumn("PartName", STRING);
     products.addMref("Parts", parts, "ProductParts");
 
     // create data
+
+    List<SqlRow> partsList = new ArrayList<>();
+    partsList.add(new EmxRow().setString("PartName", "part1"));
+    partsList.add(new EmxRow().setString("PartName", "part2"));
+    db.save("Parts", partsList);
+
+    SqlRow prod1 = new EmxRow();
+    prod1.setString("ProductName", "prod1").setMref("Parts", partsList);
+    db.save("Products", prod1);
+
+    List<SqlRow> partsList2 = new ArrayList<>();
+    partsList2.add(new EmxRow().setString("PartName", "part3"));
+    partsList2.add(new EmxRow().setString("PartName", "part4"));
+    db.save("Parts", partsList2);
+
+    prod1.setMref("Parts", partsList2);
+    db.save("Products", prod1); // updated
   }
 
   @Test

@@ -58,7 +58,7 @@ class ColumnMetadataTable {
         EmxTable joinTable = model.getTable(row.getString(COLUMN_JOINTABLE));
         t.addMref(row.getString(COLUMN_NAME), refTable, joinTable.getName());
       } else {
-        EmxColumn c = t.addColumn(row.getString(COLUMN_NAME), type);
+        t.addColumn(row.getString(COLUMN_NAME), type);
         if (t.getColumn(name) == null) {
           throw new EmxException(
               "column metadata table out of sync for column "

@@ -67,6 +67,10 @@ public class SqlRow {
     }
   }
 
+  public List<SqlRow> getMref(String name) {
+    return (List<SqlRow>) values.get(name);
+  }
+
   public OffsetDateTime getDateTime(String name) {
     return (OffsetDateTime) values.get(name);
   }
@@ -141,5 +145,10 @@ public class SqlRow {
     }
     builder.append(")");
     return builder.toString();
+  }
+
+  public SqlRow setMref(String columnName, List<SqlRow> mrefList) {
+    values.put(columnName, mrefList);
+    return this;
   }
 }

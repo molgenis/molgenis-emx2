@@ -4,9 +4,9 @@ import org.molgenis.emx2.*;
 import org.molgenis.sql.*;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
+
+import static org.molgenis.emx2.EmxType.MREF;
 
 public class EmxDatabaseImpl implements EmxDatabase {
   private SqlDatabaseImpl backend;
@@ -44,8 +44,35 @@ public class EmxDatabaseImpl implements EmxDatabase {
   @Override
   public int save(String tableName, Collection<SqlRow> rows) throws EmxException {
     try {
-      // TODO, deal with mref/one-to-many relationships
-      return backend.getTable(tableName).update(rows);
+      int count = backend.getTable(tableName).update(rows);
+      // deal with mref
+      for (EmxColumn c : model.getTable(tableName).getColumns()) {
+        if (MREF.equals(c.getType())) {
+          String colName = c.getName();
+          String otherTable = c.getRef().getName();
+          String joinTable = c.getJoinTable().getName();
+
+          // we delete old, add new
+          List<SqlRow> newMrefs = new ArrayList<>();
+          List<UUID> oldMrefIds = new ArrayList<>();
+
+          for (SqlRow r : rows) {
+            oldMrefIds.add(r.getRowID());
+            for (SqlRow ref : r.getMref(colName)) {
+              SqlRow join = new SqlRow().setRef(tableName, r).setRef(otherTable, ref);
+              newMrefs.add(join);
+            }
+          }
+          List<SqlRow> oldMrefs =
+              backend
+                  .query(joinTable)
+                  .eq(joinTable, tableName, oldMrefIds.toArray(new UUID[oldMrefIds.size()]))
+                  .retrieve();
+          backend.getTable(joinTable).delete(oldMrefs);
+          backend.getTable(joinTable).insert(newMrefs);
+        }
+      }
+      return count;
     } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
