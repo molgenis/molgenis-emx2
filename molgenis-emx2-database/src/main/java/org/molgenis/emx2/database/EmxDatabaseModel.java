@@ -86,28 +86,6 @@ public class EmxDatabaseModel extends EmxModel {
     }
   }
 
-  private void reload() throws EmxException {
-    try {
-      isReloading = true;
-
-      // reload core metadata from backend
-      for (SqlTable st : backend.getTables()) {
-        String name = st.getName();
-        if (getTable(name) == null) {
-          this.addTable(st.getName());
-        }
-      }
-      // reload extended metadata from metadata tables
-      tableMetadata.reload(this);
-      columnMetadata.reload(this);
-
-    } catch (Exception e) {
-      throw new EmxException(e);
-    } finally {
-      isReloading = false;
-    }
-  }
-
   private SqlType convert(EmxType type) {
     switch (type) {
       case STRING:

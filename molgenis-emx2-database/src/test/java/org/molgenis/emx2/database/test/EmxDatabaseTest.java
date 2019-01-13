@@ -17,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.EmxType.*;
 
 public class EmxDatabaseTest {
@@ -86,6 +87,7 @@ public class EmxDatabaseTest {
   @Test
   public void test2() throws EmxException {
     EmxTable t = db.getModel().addTable("TypeTest");
+    t.addColumn("myid", STRING).setUnique(true);
     for (EmxType type : Arrays.asList(UUID, STRING, INT, BOOL, DECIMAL, TEXT, DATE, DATETIME)) {
       t.addColumn("test_" + type.toString().toLowerCase(), type);
       t.addColumn("test_" + type.toString().toLowerCase() + "_nillable", type).setNillable(true);
@@ -94,6 +96,7 @@ public class EmxDatabaseTest {
     // TODO would like type safety via db.new("TypeTest").....save(); which then checks for
     // non-existing fields to be set.
     EmxRow row = new EmxRow();
+    row.setString("myid", "hello world");
     row.setUuid("test_uuid", java.util.UUID.randomUUID());
     row.setString("test_string", "test");
     row.setBool("test_bool", true);
@@ -104,5 +107,9 @@ public class EmxDatabaseTest {
     row.setDateTime("test_datetime", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
 
     db.save("TypeTest", row);
+
+    int count = t.getColumns().size();
+    t.removeColumn("myid");
+    assertEquals(count - 1, t.getColumns().size());
   }
 }

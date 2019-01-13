@@ -81,6 +81,11 @@ public class EmxTable {
     return c;
   }
 
+  public void removeColumn(String name) throws EmxException {
+    model.onColumnRemove(getColumn(name));
+    columns.remove(name);
+  }
+
   public String toString() {
     return getName();
   }
