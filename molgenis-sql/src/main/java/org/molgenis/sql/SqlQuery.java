@@ -5,8 +5,6 @@ import java.util.UUID;
 
 public interface SqlQuery {
 
-  SqlQuery from(String table) throws SqlDatabaseException;
-
   SqlQuery join(String table, String toTable, String on) throws SqlDatabaseException;
 
   SqlQuery select(String column) throws SqlDatabaseException;

@@ -110,7 +110,7 @@ public class TestSql {
     System.out.println("Batch update " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    for (SqlRow r : db.getQuery().from("TestBatch").retrieve()) {
+    for (SqlRow r : db.query("TestBatch").retrieve()) {
       System.out.println(r);
     }
     endTime = System.currentTimeMillis();
@@ -167,7 +167,7 @@ public class TestSql {
     }
 
     // check query and test getters
-    List<SqlRow> result = db.getQuery().from("TypeTest").retrieve();
+    List<SqlRow> result = db.query("TypeTest").retrieve();
     for (SqlRow res : result) {
       System.out.println(res);
       res.setRowID(java.util.UUID.randomUUID());
@@ -184,7 +184,7 @@ public class TestSql {
     }
 
     System.out.println("testing TypeTest query");
-    for (SqlRow r : db.getQuery().from("TypeTest").retrieve()) {
+    for (SqlRow r : db.query("TypeTest").retrieve()) {
       System.out.println(r);
     }
   }
@@ -231,7 +231,7 @@ public class TestSql {
 
     // query
     startTime = System.currentTimeMillis();
-    SqlQuery q = db.getQuery().from("Person");
+    SqlQuery q = db.query("Person");
     for (SqlRow row : q.retrieve()) {
       // System.out.println("Query result: " + row);
     }
@@ -247,7 +247,7 @@ public class TestSql {
     System.out.println(
         "Delete took " + total + " milliseconds (that is " + (1000 * count / total) + " rows/sec)");
 
-    assertEquals(0, db.getQuery().from("Person").retrieve().size());
+    assertEquals(0, db.query("Person").retrieve().size());
 
     assertEquals(2, t.getUniques().size());
     try {
@@ -354,50 +354,34 @@ public class TestSql {
     //        System.out.println(q1);
 
     try {
-      db.getQuery().from("pietje");
+      db.query("pietje");
       fail("exception handling from(pietje) failed");
     } catch (Exception e) {
       // good stuff
     }
 
     try {
-      db.getQuery().from("Product").from("Product");
-      fail("shouldn't be able to say 'from' 2x");
-    } catch (Exception e) {
-      // good stuff
-    }
-
-    try {
-      db.getQuery().from("Product").as("p").join("ProductComponent", "p2", "product");
+      db.query("Product").as("p").join("ProductComponent", "p2", "product");
       fail("should fail because faulty toTabel");
     } catch (Exception e) {
       // good stuff
     }
 
     try {
-      db.getQuery().join("Component", "pc", "component").from("Product");
-      fail("shouldn't be able to join before from");
-
-    } catch (Exception e) {
-      // good stuff
-    }
-
-    try {
-      db.getQuery().from("Product").as("p").join("ProductComponent", "p", "component");
+      db.query("Product").as("p").join("ProductComponent", "p", "component");
       fail("should fail because faulty 'on'");
     } catch (Exception e) {
       // good stuff
     }
     try {
-      db.getQuery().from("Product").as("p").select("wrongname").as("productName");
+      db.query("Product").as("p").select("wrongname").as("productName");
       fail("should fail because faulty 'select'");
     } catch (Exception e) {
       // good stuff
     }
 
     startTime = System.currentTimeMillis();
-    SqlQuery q2 = db.getQuery();
-    q2.from("Product").as("p").select("name").as("productName");
+    SqlQuery q2 = db.query("Product").as("p").select("name").as("productName");
     q2.join("ProductComponent", "p", "product").as("pc");
     q2.join("Component", "pc", "component").as("c").select("name").as("componentName");
     q2.join("ComponentPart", "c", "component").as("cp");

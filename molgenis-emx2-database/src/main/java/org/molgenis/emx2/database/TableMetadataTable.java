@@ -32,7 +32,7 @@ class TableMetadataTable {
   }
 
   public void reload(EmxModel model) throws SqlDatabaseException, EmxException {
-    for (SqlRow tm : backend.getQuery().from(TABLE_METADATA).retrieve()) {
+    for (SqlRow tm : backend.query(TABLE_METADATA).retrieve()) {
       EmxTable t = model.getTable(tm.getString(TABLE_NAME));
       if (tm.getString(TABLE_EXTENDS) != null) {
         t.setExtend(model.getTable(tm.getString(TABLE_EXTENDS)));
@@ -56,11 +56,7 @@ class TableMetadataTable {
 
   private SqlRow find(String tableName) throws SqlDatabaseException {
     List<SqlRow> rows =
-        backend
-            .getQuery()
-            .from(TABLE_METADATA)
-            .eq(TABLE_METADATA, TABLE_NAME, tableName)
-            .retrieve();
+        backend.query(TABLE_METADATA).eq(TABLE_METADATA, TABLE_NAME, tableName).retrieve();
     if (rows.isEmpty()) return null;
     return rows.get(0);
   }

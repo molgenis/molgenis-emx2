@@ -55,7 +55,7 @@ public class SqlDatabase {
     sql.close();
   }
 
-  public SqlQuery getQuery() {
-    return new SqlQueryImpl(this, sql);
+  public SqlQuery query(String name) throws SqlDatabaseException {
+    return new SqlQueryImpl(this, sql, name);
   }
 }

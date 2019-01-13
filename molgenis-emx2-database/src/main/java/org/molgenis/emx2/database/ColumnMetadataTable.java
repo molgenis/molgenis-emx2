@@ -33,7 +33,7 @@ class ColumnMetadataTable {
   }
 
   public void reload(EmxModel model) throws SqlDatabaseException, EmxException {
-    for (SqlRow row : backend.getQuery().from(COLUMN_METADATA_TABLE).retrieve()) {
+    for (SqlRow row : backend.query(COLUMN_METADATA_TABLE).retrieve()) {
       EmxTable t = model.getTable(row.getString(COLUMN_TABLE));
       String name = row.getString(COLUMN_NAME);
       EmxColumn c = t.getColumn(name);
@@ -60,8 +60,7 @@ class ColumnMetadataTable {
         .getTable(COLUMN_METADATA_TABLE)
         .delete(
             backend
-                .getQuery()
-                .from(COLUMN_METADATA_TABLE)
+                .query(COLUMN_METADATA_TABLE)
                 .eq(COLUMN_METADATA_TABLE, COLUMN_TABLE, tableName)
                 .retrieve());
   }
@@ -69,8 +68,7 @@ class ColumnMetadataTable {
   private SqlRow find(EmxColumn column) throws SqlDatabaseException {
     List<SqlRow> rows =
         backend
-            .getQuery()
-            .from(COLUMN_METADATA_TABLE)
+            .query(COLUMN_METADATA_TABLE)
             .eq(COLUMN_METADATA_TABLE, COLUMN_NAME, column.getName())
             .eq(COLUMN_METADATA_TABLE, COLUMN_TABLE, column.getTable().getName())
             .retrieve();

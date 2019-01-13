@@ -7,10 +7,6 @@ import java.util.UUID;
 
 class SqlRowImpl extends SqlRow {
 
-  public SqlRowImpl() {
-    super();
-  }
-
   public SqlRowImpl(Record record) {
     super();
     for (Field f : record.fields()) {

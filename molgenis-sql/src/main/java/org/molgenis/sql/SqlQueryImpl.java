@@ -31,13 +31,14 @@ class SqlQueryImpl implements SqlQuery {
     String joinColumn;
   }
 
-  public SqlQueryImpl(SqlDatabase db, DSLContext sql) {
+  public SqlQueryImpl(SqlDatabase db, DSLContext sql, String tableName)
+      throws SqlDatabaseException {
     this.db = db;
     this.sql = sql;
+    this.from(tableName);
   }
 
-  @Override
-  public SqlQuery from(String table) throws SqlDatabaseException {
+  private SqlQuery from(String table) throws SqlDatabaseException {
     if (lastFrom != null) throw new SqlDatabaseException("You can call from() only once");
 
     SqlTable t = db.getTable(table);
