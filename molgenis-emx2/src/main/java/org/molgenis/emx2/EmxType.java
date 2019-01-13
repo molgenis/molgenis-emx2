@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 public enum EmxType {
+  // basic types
   STRING,
   INT,
   BOOL,
@@ -8,5 +9,16 @@ public enum EmxType {
   TEXT,
   DATE,
   DATETIME,
-  UUID
+  UUID,
+  // advanced types
+  SELECT,
+  RADIO,
+  MSELECT,
+  CHECKBOX,
+  HYPERLINK,
+  LONG,
+  EMAIL,
+  HTML,
+  FILE,
+  ENUM;
 }

@@ -15,8 +15,9 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 
-import static org.molgenis.emx2.EmxType.STRING;
+import static org.molgenis.emx2.EmxType.*;
 
 public class EmxDatabaseTest {
 
@@ -85,12 +86,13 @@ public class EmxDatabaseTest {
   @Test
   public void test2() throws EmxException {
     EmxTable t = db.getModel().addTable("TypeTest");
-    for (EmxType type : EmxType.values()) {
+    for (EmxType type : Arrays.asList(UUID, STRING, INT, BOOL, DECIMAL, TEXT, DATE, DATETIME)) {
       t.addColumn("test_" + type.toString().toLowerCase(), type);
       t.addColumn("test_" + type.toString().toLowerCase() + "_nillable", type).setNillable(true);
     }
 
-    //TODO would like type safety via db.new("TypeTest").....save();
+    // TODO would like type safety via db.new("TypeTest").....save(); which then checks for
+    // non-existing fields to be set.
     EmxRow row = new EmxRow();
     row.setUuid("test_uuid", java.util.UUID.randomUUID());
     row.setString("test_string", "test");
