@@ -68,10 +68,20 @@ public class EmxDatabaseTest {
 
   @Test
   public void mrefTypeTest() throws EmxException {
+
+    // create model
     EmxModel m = db.getModel();
     EmxTable products = m.addTable("Product");
     assertEquals(0, products.getColumns().size()); // molgenisid is hidden
+    products.addColumn("ProductName", STRING);
+    assertEquals(1, products.getColumns().size());
+    assertNotNull(products.getColumn("ProductName"));
+
     EmxTable parts = m.addTable("Parts");
+    products.addColumn("PartName", STRING);
+    products.addMref("Parts", parts, "ProductParts");
+
+    // create data
   }
 
   @Test

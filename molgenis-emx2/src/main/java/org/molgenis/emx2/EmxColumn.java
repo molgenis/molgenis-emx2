@@ -10,7 +10,7 @@ public class EmxColumn {
   private Boolean nillable = false;
   private Boolean readonly = false;
   private String defaultValue;
-  private EmxColumn ref;
+  private EmxTable ref;
   private EmxTable joinTable;
   private EmxColumn joinColumn;
   private Boolean unique = false;
@@ -73,11 +73,11 @@ public class EmxColumn {
     return unique;
   }
 
-  public EmxColumn getRef() {
+  public EmxTable getRef() {
     return ref;
   }
 
-  public void setRef(EmxColumn ref) throws EmxException {
+  public void setRef(EmxTable ref) throws EmxException {
     this.ref = ref;
     model.onColumnChange(this);
   }
@@ -86,8 +86,8 @@ public class EmxColumn {
     return joinTable;
   }
 
-  public void setJoinTable(EmxTable joinTable) throws EmxException {
-    this.joinTable = joinTable;
+  public void setJoinTable(String tableName) throws EmxException {
+    this.joinTable = model.getTable(tableName);
     model.onColumnChange(this);
   }
 

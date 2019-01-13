@@ -45,7 +45,7 @@ public class AttributesFileReader {
         messages.add(
             new MolgenisReaderMessage(
                 ref.getKey(), "refEntity '" + ref.getValue() + "' is not known"));
-      else refColumns.get(ref.getKey()).setRef(table.getIdColumn());
+      else refColumns.get(ref.getKey()).setRef(table);
     }
     if (!messages.isEmpty()) throw new MolgenisReaderException(messages);
     return model;

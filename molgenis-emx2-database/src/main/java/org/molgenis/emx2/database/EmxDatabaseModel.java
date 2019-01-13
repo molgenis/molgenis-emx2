@@ -3,6 +3,8 @@ package org.molgenis.emx2.database;
 import org.molgenis.emx2.*;
 import org.molgenis.sql.*;
 
+import static org.molgenis.emx2.EmxType.MREF;
+import static org.molgenis.emx2.EmxType.REF;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 public class EmxDatabaseModel extends EmxModel {
@@ -82,34 +84,42 @@ public class EmxDatabaseModel extends EmxModel {
   @Override
   protected void onColumnChange(EmxColumn column) throws EmxException {
     if (isReloading) return;
-
     try {
       // ensure backend metadata in backend
       SqlTable table;
       if ((table = backend.getTable(column.getTable().getName())) == null) {
         throw new EmxException("Metadata model inconsistent with backend");
       }
-      // TODO check if MREF column because those don't need to be in backend
-      SqlColumn sqlColumn;
-      if ((sqlColumn = table.getColumn(column.getName())) != null) {
-        if (!sqlColumn.getType().equals(convert(column.getType()))) {
-          throw new EmxException("Column definition inconsistent with backend");
-        }
+      if (MREF.equals(column.getType())) {
+        // don't need to do anything because link table already created by nowe
       } else {
-        SqlType sqlType = convert(column.getType());
-        if (SqlType.REF.equals(sqlType)) {
-          sqlColumn =
-              table.addColumn(column.getName(), backend.getTable(column.getTable().getName()));
-        } else {
-          sqlColumn = table.addColumn(column.getName(), sqlType);
-        }
+        handleSimpleColumnChange(column, table);
       }
-      sqlColumn.setNullable(column.getNillable());
-      // store business logic metadata in metadata table
       columnMetadata.save(column);
+
     } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
+  }
+
+  private void handleSimpleColumnChange(EmxColumn column, SqlTable table)
+      throws EmxException, SqlDatabaseException {
+    SqlColumn sqlColumn;
+    if ((sqlColumn = table.getColumn(column.getName())) != null) {
+      if (!sqlColumn.getType().equals(convert(column.getType()))) {
+        throw new EmxException("Column metadata inconsistent with backend");
+      }
+    } else {
+      SqlType sqlType = convert(column.getType());
+      if (SqlType.REF.equals(sqlType)) {
+        sqlColumn =
+            table.addColumn(column.getName(), backend.getTable(column.getTable().getName()));
+      } else {
+        sqlColumn = table.addColumn(column.getName(), sqlType);
+      }
+    }
+    sqlColumn.setNullable(column.getNillable());
+    // store business logic metadata in metadata table
   }
 
   private SqlType convert(EmxType type) {
@@ -129,6 +139,7 @@ public class EmxDatabaseModel extends EmxModel {
       case DATETIME:
         return SqlType.DATETIME;
       case UUID:
+      case REF:
         return SqlType.UUID;
       default:
         throw new UnsupportedOperationException();

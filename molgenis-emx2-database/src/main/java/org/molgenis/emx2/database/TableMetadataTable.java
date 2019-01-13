@@ -46,8 +46,14 @@ class TableMetadataTable {
   }
 
   public void saveTable(EmxTable table) throws SqlDatabaseException {
-    SqlRow tableMetadata = new SqlRow();
-    tableMetadata.setString(TABLE_NAME, table.getName());
+    List<SqlRow> rows =
+        backend.query(TABLE_METADATA).eq(TABLE_METADATA, TABLE_NAME, table.getName()).retrieve();
+    SqlRow tableMetadata = null;
+    if (rows.isEmpty()) {
+      tableMetadata = new SqlRow().setString(TABLE_NAME, table.getName());
+    } else {
+      tableMetadata = rows.get(0);
+    }
     if (table.getExtend() != null) {
       tableMetadata.setString(TABLE_EXTENDS, table.getExtend().getName());
     }

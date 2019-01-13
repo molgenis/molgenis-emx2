@@ -6,6 +6,8 @@ import org.javers.core.metamodel.annotation.TypeName;
 import java.util.*;
 
 import static org.molgenis.emx2.EmxConstants.MOLGENISID;
+import static org.molgenis.emx2.EmxType.MREF;
+import static org.molgenis.emx2.EmxType.REF;
 
 @TypeName("table")
 public class EmxTable {
@@ -74,8 +76,34 @@ public class EmxTable {
   }
 
   public EmxColumn addColumn(String name, EmxType type) throws EmxException {
+    if (MREF.equals(type))
+      throw new EmxException("addColumn(MREF) not allowed, use addMref() instead");
     EmxColumn c = new EmxColumn(model, this, name, type);
     columns.put(name, c);
+    model.onColumnChange(c);
+    return c;
+  }
+
+  public EmxColumn addRef(String name, EmxTable otherTable) throws EmxException {
+    EmxColumn c = new EmxColumn(model, this, name, REF);
+    c.setRef(otherTable);
+    columns.put(name, c);
+    model.onColumnChange(c);
+    return c;
+  }
+
+  public EmxColumn addMref(String columnName, EmxTable otherTable, String joinTableName)
+      throws EmxException {
+    // check if joinTable exists and is of right type
+    EmxTable joinTable = model.addTable(joinTableName);
+    joinTable.addRef(this.getName(), this);
+    joinTable.addRef(otherTable.getName(), otherTable);
+    joinTable.addUnique(Arrays.asList(this.getName(), otherTable.getName()));
+    // create column with the joinTable behind it
+    EmxColumn c = new EmxColumn(model, this, columnName, MREF);
+    c.setRef(otherTable);
+    c.setJoinTable(joinTable.getName());
+    columns.put(columnName, c);
     model.onColumnChange(c);
     return c;
   }

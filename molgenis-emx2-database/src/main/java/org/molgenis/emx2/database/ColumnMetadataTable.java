@@ -5,11 +5,16 @@ import org.molgenis.sql.*;
 
 import java.util.List;
 
+import static org.molgenis.emx2.EmxType.MREF;
+
 class ColumnMetadataTable {
   private static final String COLUMN_METADATA_TABLE = "MOLGENIS_COLUMN_METADATA";
   private static final String COLUMN_TABLE = "table";
   private static final String COLUMN_NAME = "name";
   private static final String COLUMN_TYPE = "type";
+  private static final String COLUMN_REF = "ref";
+  private static final String COLUMN_JOINTABLE = "jointable";
+
   private SqlDatabaseImpl backend;
 
   public ColumnMetadataTable(SqlDatabaseImpl backend) throws SqlDatabaseException {
@@ -29,6 +34,12 @@ class ColumnMetadataTable {
     if (columnTable.getColumn(COLUMN_TYPE) == null) {
       columnTable.addColumn(COLUMN_TYPE, SqlType.STRING);
     }
+    if (columnTable.getColumn(COLUMN_REF) == null) {
+      columnTable.addColumn(COLUMN_REF, SqlType.STRING).setNullable(true);
+    }
+    if (columnTable.getColumn(COLUMN_JOINTABLE) == null) {
+      columnTable.addColumn(COLUMN_JOINTABLE, SqlType.STRING).setNullable(true);
+    }
     if (!columnTable.isUnique(COLUMN_TABLE, COLUMN_NAME)) {
       columnTable.addUnique(COLUMN_TABLE, COLUMN_NAME);
     }
@@ -41,14 +52,22 @@ class ColumnMetadataTable {
         throw new EmxException(
             "column metadata table out of sync for table " + row.getString(COLUMN_TABLE));
       String name = row.getString(COLUMN_NAME);
-      EmxColumn c = t.getColumn(name);
-      if (c == null)
-        throw new EmxException(
-            "metadata table out of sync for column "
-                + row.getString(COLUMN_TABLE)
-                + "."
-                + row.getString(COLUMN_NAME));
-      // TODO other attributes
+      EmxType type = EmxType.valueOf(row.getString(COLUMN_TYPE));
+      if (MREF.equals(type)) {
+        EmxTable refTable = model.getTable(row.getString(COLUMN_REF));
+        EmxTable joinTable = model.getTable(row.getString(COLUMN_JOINTABLE));
+        t.addMref(row.getString(COLUMN_NAME), refTable, joinTable.getName());
+      } else {
+        EmxColumn c = t.addColumn(row.getString(COLUMN_NAME), type);
+        if (t.getColumn(name) == null) {
+          throw new EmxException(
+              "column metadata table out of sync for column "
+                  + row.getString(COLUMN_TABLE)
+                  + "."
+                  + row.getString(COLUMN_NAME));
+          // TODO other attributes
+        }
+      }
     }
   }
 
@@ -58,6 +77,12 @@ class ColumnMetadataTable {
     tableMetadata.setString(COLUMN_TABLE, column.getTable().getName());
     tableMetadata.setString(COLUMN_NAME, column.getName());
     tableMetadata.setString(COLUMN_TYPE, column.getType().toString());
+    if (column.getRef() != null) {
+      tableMetadata.setString(COLUMN_REF, column.getTable().getName());
+    }
+    if (column.getJoinTable() != null) {
+      tableMetadata.setString(COLUMN_JOINTABLE, column.getJoinTable().getName());
+    }
     backend.getTable(COLUMN_METADATA_TABLE).update(tableMetadata);
   }
 
