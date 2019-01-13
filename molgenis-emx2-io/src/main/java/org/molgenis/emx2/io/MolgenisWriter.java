@@ -79,9 +79,6 @@ public class MolgenisWriter {
         case MSELECT:
         case RADIO:
         case CHECKBOX:
-          String colName = "." + escapeRef(col.getRef().getName());
-          if (MOLGENISID.equals(col.getRef().getName())) colName = "";
-          d.setParameterValue(escapeRef(col.getRef().getTable().getName()) + colName);
           break;
         case NILLABLE:
           break;

@@ -29,15 +29,25 @@ class ColumnMetadataTable {
     if (columnTable.getColumn(COLUMN_TYPE) == null) {
       columnTable.addColumn(COLUMN_TYPE, SqlType.STRING);
     }
-    columnTable.addUnique(COLUMN_TABLE, COLUMN_NAME);
+    if (!columnTable.isUnique(COLUMN_TABLE, COLUMN_NAME)) {
+      columnTable.addUnique(COLUMN_TABLE, COLUMN_NAME);
+    }
   }
 
   public void reload(EmxModel model) throws SqlDatabaseException, EmxException {
     for (SqlRow row : backend.query(COLUMN_METADATA_TABLE).retrieve()) {
       EmxTable t = model.getTable(row.getString(COLUMN_TABLE));
+      if (t == null)
+        throw new EmxException(
+            "column metadata table out of sync for table " + row.getString(COLUMN_TABLE));
       String name = row.getString(COLUMN_NAME);
       EmxColumn c = t.getColumn(name);
-      if (c == null) t.addColumn(name, EmxType.valueOf(row.getString(COLUMN_TYPE)));
+      if (c == null)
+        throw new EmxException(
+            "metadata table out of sync for column "
+                + row.getString(COLUMN_TABLE)
+                + "."
+                + row.getString(COLUMN_NAME));
       // TODO other attributes
     }
   }

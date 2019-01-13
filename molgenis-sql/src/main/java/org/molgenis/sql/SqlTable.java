@@ -19,6 +19,8 @@ public interface SqlTable {
 
   SqlUnique addUnique(String... name) throws SqlDatabaseException;
 
+  boolean isUnique(String... tableName);
+
   void removeUnique(String... name) throws SqlDatabaseException;
 
   void insert(Collection<SqlRow> rows) throws SqlDatabaseException;

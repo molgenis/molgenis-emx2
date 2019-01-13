@@ -18,7 +18,6 @@ public class EmxTable {
   public EmxTable(EmxModel model, String name) {
     this.model = model;
     this.name = name;
-    this.columns.put(MOLGENISID, new EmxColumn(model, this, MOLGENISID, EmxType.UUID));
   }
 
   public String getName() {
@@ -57,7 +56,7 @@ public class EmxTable {
     return getColumn(MOLGENISID);
   }
 
-  public void addUnique(List<String> columnNames) throws EmxException {
+  public void addUnique(Collection<String> columnNames) throws EmxException {
     EmxUnique unique = new EmxUnique(this);
     for (String colName : columnNames) {
       if (this.getColumn(colName) == null)

@@ -3,16 +3,42 @@ package org.molgenis.emx2.database;
 import org.molgenis.emx2.*;
 import org.molgenis.sql.*;
 
+import static org.molgenis.sql.SqlRow.MOLGENISID;
+
 public class EmxDatabaseModel extends EmxModel {
   private SqlDatabaseImpl backend;
   private TableMetadataTable tableMetadata;
   private ColumnMetadataTable columnMetadata;
   private boolean isReloading = false;
 
-  public EmxDatabaseModel(SqlDatabaseImpl backend) throws SqlDatabaseException {
+  public EmxDatabaseModel(SqlDatabaseImpl backend) throws SqlDatabaseException, EmxException {
     this.backend = backend;
     this.tableMetadata = new TableMetadataTable(backend);
     this.columnMetadata = new ColumnMetadataTable(backend);
+    this.reload();
+  }
+
+  private void reload() throws SqlDatabaseException, EmxException {
+    isReloading = true;
+    // first load from backend
+    for (SqlTable t : backend.getTables()) {
+      EmxTable table = addTable(t.getName());
+      for (SqlColumn c : t.getColumns()) {
+        if (!MOLGENISID.equals(c.getName())) {
+          EmxColumn col = table.addColumn(c.getName(), convert(c.getType()));
+          col.setNillable(c.isNullable());
+        }
+      }
+      for (SqlUnique u : t.getUniques()) {
+        if (!u.getColumnNames().contains(MOLGENISID)) {
+          table.addUnique(u.getColumnNames());
+        }
+      }
+    }
+    // then annotate from the metadata tables
+    this.tableMetadata.reload(this);
+    this.columnMetadata.reload(this);
+    isReloading = false;
   }
 
   @Override
@@ -28,11 +54,11 @@ public class EmxDatabaseModel extends EmxModel {
 
   @Override
   public void removeTable(String tableName) throws EmxException {
-    if (isReloading) return;
     try {
       backend.dropTable(tableName);
       columnMetadata.deleteColumnsForTable(tableName);
       tableMetadata.deleteTable(tableName);
+      super.removeTable(tableName);
     } catch (SqlDatabaseException e) {
       throw new EmxException(e);
     }
@@ -104,6 +130,29 @@ public class EmxDatabaseModel extends EmxModel {
         return SqlType.DATETIME;
       case UUID:
         return SqlType.UUID;
+      default:
+        throw new UnsupportedOperationException();
+    }
+  }
+
+  private EmxType convert(SqlType type) {
+    switch (type) {
+      case STRING:
+        return EmxType.STRING;
+      case INT:
+        return EmxType.INT;
+      case BOOL:
+        return EmxType.BOOL;
+      case DECIMAL:
+        return EmxType.DECIMAL;
+      case TEXT:
+        return EmxType.TEXT;
+      case DATE:
+        return EmxType.DATE;
+      case DATETIME:
+        return EmxType.DATETIME;
+      case UUID:
+        return EmxType.UUID;
       default:
         throw new UnsupportedOperationException();
     }

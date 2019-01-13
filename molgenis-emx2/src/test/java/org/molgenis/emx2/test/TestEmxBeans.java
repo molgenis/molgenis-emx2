@@ -29,7 +29,7 @@ public class TestEmxBeans {
     System.out.println("model print: " + m.print());
     EmxTable t = m.getTable("TypeTest");
     assertEquals("TypeTest", t.getName());
-    assertEquals(3 * EmxType.values().length + 1, t.getColumns().size());
+    assertEquals(3 * EmxType.values().length, t.getColumns().size());
     assertEquals(EmxType.BOOL, t.getColumn("testBOOL").getType());
 
     System.out.println("table print " + t.toString() + "\n: " + t.print());

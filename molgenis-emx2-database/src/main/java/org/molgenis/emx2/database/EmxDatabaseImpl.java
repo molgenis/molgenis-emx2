@@ -13,8 +13,8 @@ public class EmxDatabaseImpl implements EmxDatabase {
   private EmxDatabaseModel model;
 
   public EmxDatabaseImpl(DataSource ds) throws EmxException {
-    this.backend = new SqlDatabaseImpl(ds);
     try {
+      this.backend = new SqlDatabaseImpl(ds);
       this.model = new EmxDatabaseModel(backend);
     } catch (SqlDatabaseException e) {
       throw new EmxException(e);

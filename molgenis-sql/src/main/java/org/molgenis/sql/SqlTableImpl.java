@@ -154,6 +154,16 @@ class SqlTableImpl implements SqlTable {
   }
 
   @Override
+  public boolean isUnique(String... keys) {
+    try {
+      getUniqueName(keys);
+      return true;
+    } catch (SqlDatabaseException e) {
+      return false;
+    }
+  }
+
+  @Override
   public void removeUnique(String... keys) throws SqlDatabaseException {
     if (keys.length == 1 && MOLGENISID.equals(keys[0]))
       throw new SqlDatabaseException(

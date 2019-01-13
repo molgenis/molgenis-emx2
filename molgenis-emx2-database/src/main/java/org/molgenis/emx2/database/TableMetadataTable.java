@@ -28,12 +28,16 @@ class TableMetadataTable {
     if (columnTable.getColumn(TABLE_EXTENDS) == null) {
       columnTable.addColumn(TABLE_EXTENDS, SqlType.STRING).setNullable(true);
     }
-    columnTable.addUnique(TABLE_NAME);
+    if (!columnTable.isUnique(TABLE_NAME)) {
+      columnTable.addUnique(TABLE_NAME);
+    }
   }
 
   public void reload(EmxModel model) throws SqlDatabaseException, EmxException {
     for (SqlRow tm : backend.query(TABLE_METADATA).retrieve()) {
       EmxTable t = model.getTable(tm.getString(TABLE_NAME));
+      if (t == null)
+        throw new EmxException("metadata table out of sync for table " + tm.getString(TABLE_NAME));
       if (tm.getString(TABLE_EXTENDS) != null) {
         t.setExtend(model.getTable(tm.getString(TABLE_EXTENDS)));
       }

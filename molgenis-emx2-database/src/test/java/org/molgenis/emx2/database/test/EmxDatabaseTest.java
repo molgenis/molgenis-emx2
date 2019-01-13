@@ -4,8 +4,10 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.EmxException;
+import org.molgenis.emx2.EmxModel;
 import org.molgenis.emx2.EmxTable;
 import org.molgenis.emx2.EmxType;
+import org.molgenis.emx2.database.EmxDatabase;
 import org.molgenis.emx2.database.EmxDatabaseImpl;
 import org.molgenis.emx2.database.EmxRow;
 import org.molgenis.sql.SqlRow;
@@ -17,12 +19,15 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static org.molgenis.emx2.EmxType.*;
 
 public class EmxDatabaseTest {
 
-  private static EmxDatabaseImpl db = null;
+  private static EmxDatabase db = null;
+  private static HikariDataSource ds = null;
 
   @BeforeClass
   public static void setUp() {
@@ -35,13 +40,13 @@ public class EmxDatabaseTest {
     String url = "jdbc:postgresql:molgenis";
 
     try {
-      HikariDataSource source = new HikariDataSource();
-      source.setJdbcUrl(url);
-      source.setUsername(userName);
-      source.setPassword(password);
+      ds = new HikariDataSource();
+      ds.setJdbcUrl(url);
+      ds.setUsername(userName);
+      ds.setPassword(password);
 
       // delete all tables first
-      Connection conn = source.getConnection();
+      Connection conn = ds.getConnection();
       conn.prepareCall(
               "DO $$ DECLARE\n"
                   + "    r RECORD;\n"
@@ -52,13 +57,21 @@ public class EmxDatabaseTest {
                   + "END $$;")
           .execute();
       conn.close();
-      db = new EmxDatabaseImpl(source);
+      db = new EmxDatabaseImpl(ds);
     }
 
     // For the sake of this test, let's keep exception handling simple
     catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  @Test
+  public void mrefTypeTest() throws EmxException {
+    EmxModel m = db.getModel();
+    EmxTable products = m.addTable("Product");
+    assertEquals(0, products.getColumns().size()); // molgenisid is hidden
+    EmxTable parts = m.addTable("Parts");
   }
 
   @Test
@@ -75,17 +88,22 @@ public class EmxDatabaseTest {
             .setString("Display Name", "Donald Duck");
     db.save("Person", r);
 
+    // create new database instance and see if Person is there
+    EmxDatabase db2 = new EmxDatabaseImpl(ds);
+    // db.getModel().diff(db2.getModel()); // should give no difference
+    assertNotNull(db2.getModel().getTable("Person"));
+    assertNotNull(db2.getModel().getTable("Person").getColumn("First name"));
+
     // todo test query
 
     db.delete("Person", r);
-
     System.out.println(db.getModel());
-
     db.getModel().removeTable(t.getName());
+    assertNull(db.getModel().getTable("Person"));
   }
 
   @Test
-  public void test2() throws EmxException {
+  public void simpleTypeTest() throws EmxException {
     EmxTable t = db.getModel().addTable("TypeTest");
     t.addColumn("myid", STRING).setUnique(true);
     for (EmxType type : Arrays.asList(UUID, STRING, INT, BOOL, DECIMAL, TEXT, DATE, DATETIME)) {
@@ -111,5 +129,7 @@ public class EmxDatabaseTest {
     int count = t.getColumns().size();
     t.removeColumn("myid");
     assertEquals(count - 1, t.getColumns().size());
+
+    db.getModel().removeTable(t.getName());
   }
 }
