@@ -2,9 +2,12 @@ package org.molgenis.sql;
 
 import org.jooq.DataType;
 import org.jooq.Field;
+import org.jooq.SQL;
 import org.jooq.impl.SQLDataType;
 
 import java.sql.Types;
+
+import static org.jooq.impl.SQLDataType.*;
 
 class SqlTypeUtils {
 
@@ -15,23 +18,23 @@ class SqlTypeUtils {
   public static DataType typeOf(SqlType sqlType) {
     switch (sqlType) {
       case UUID:
-        return SQLDataType.UUID;
+        return UUID;
       case STRING:
-        return SQLDataType.VARCHAR(255);
+        return VARCHAR(255);
       case INT:
-        return SQLDataType.INTEGER;
+        return INTEGER;
       case BOOL:
-        return SQLDataType.BOOLEAN;
+        return BOOLEAN;
       case DECIMAL:
-        return SQLDataType.DOUBLE;
+        return DOUBLE;
       case TEXT:
-        return SQLDataType.LONGVARCHAR;
+        return LONGVARCHAR;
       case DATE:
-        return SQLDataType.DATE;
+        return DATE;
       case DATETIME:
-        return SQLDataType.TIMESTAMPWITHTIMEZONE;
+        return TIMESTAMPWITHTIMEZONE;
       case REF:
-        return SQLDataType.UUID;
+        return UUID;
       default:
         // should never happen
         throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + sqlType);
@@ -39,27 +42,16 @@ class SqlTypeUtils {
   }
 
   public static SqlType getSqlType(Field f) {
-    switch (f.getDataType().getSQLType()) {
-      case 1111:
-        // here we cannot see if it is a REF or UUID key so that needs correcting elsewhere
-        return SqlType.UUID;
-      case Types.VARCHAR:
-        return SqlType.STRING;
-      case Types.BOOLEAN:
-        return SqlType.BOOL;
-      case Types.INTEGER:
-        return SqlType.INT;
-      case Types.DOUBLE:
-        return SqlType.DECIMAL;
-      case Types.LONGVARCHAR:
-        return SqlType.TEXT;
-      case Types.DATE:
-        return SqlType.DATE;
-      case Types.TIMESTAMP_WITH_TIMEZONE:
-        return SqlType.DATETIME;
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported SQL type found:" + f.getDataType().getSQLType());
-    }
+    DataType type = f.getDataType().getSQLDataType();
+    if (SQLDataType.UUID.equals(type)) return SqlType.UUID;
+    if (SQLDataType.VARCHAR.equals(type)) return SqlType.STRING;
+    if (SQLDataType.BOOLEAN.equals(type)) return SqlType.BOOL;
+    if (SQLDataType.INTEGER.equals(type)) return SqlType.INT;
+    if (SQLDataType.DOUBLE.equals(type)) return SqlType.DECIMAL;
+    if (SQLDataType.LONGVARCHAR.equals(type)) return SqlType.TEXT;
+    if (SQLDataType.DATE.equals(type)) return SqlType.DATE;
+    if (SQLDataType.TIMESTAMPWITHTIMEZONE.equals(type)) return SqlType.DATETIME;
+    throw new UnsupportedOperationException(
+        "Unsupported SQL type found:" + f.getDataType().getSQLType());
   }
 }

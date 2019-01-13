@@ -114,6 +114,18 @@ public class EmxDatabaseModel extends EmxModel {
         return SqlType.STRING;
       case INT:
         return SqlType.INT;
+      case BOOL:
+        return SqlType.BOOL;
+      case DECIMAL:
+        return SqlType.DECIMAL;
+      case TEXT:
+        return SqlType.TEXT;
+      case DATE:
+        return SqlType.DATE;
+      case DATETIME:
+        return SqlType.DATETIME;
+      case UUID:
+        return SqlType.UUID;
       default:
         throw new UnsupportedOperationException();
     }

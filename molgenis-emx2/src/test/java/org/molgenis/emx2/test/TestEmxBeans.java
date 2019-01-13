@@ -46,11 +46,7 @@ public class TestEmxBeans {
     EmxTable t = m.addTable("TypeTest");
     for (EmxType type : EmxType.values()) {
       t.addColumn("test" + type, type);
-    }
-    for (EmxType type : EmxType.values()) {
       t.addColumn("test" + type + "_nullable", type).setNillable(true);
-    }
-    for (EmxType type : EmxType.values()) {
       t.addColumn("test" + type + "+readonly", type).setReadonly(true);
     }
   }

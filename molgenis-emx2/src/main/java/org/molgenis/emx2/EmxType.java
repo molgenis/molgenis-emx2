@@ -8,15 +8,5 @@ public enum EmxType {
   TEXT,
   DATE,
   DATETIME,
-  SELECT,
-  RADIO,
-  MSELECT,
-  CHECKBOX,
-  UUID,
-  HYPERLINK,
-  LONG,
-  EMAIL,
-  HTML,
-  FILE,
-  ENUM;
+  UUID
 }

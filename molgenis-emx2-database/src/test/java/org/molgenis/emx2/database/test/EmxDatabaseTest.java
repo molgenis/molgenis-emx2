@@ -5,11 +5,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.EmxException;
 import org.molgenis.emx2.EmxTable;
+import org.molgenis.emx2.EmxType;
 import org.molgenis.emx2.database.EmxDatabaseImpl;
+import org.molgenis.emx2.database.EmxRow;
 import org.molgenis.sql.SqlRow;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.molgenis.emx2.EmxType.STRING;
 
@@ -75,5 +80,27 @@ public class EmxDatabaseTest {
     System.out.println(db.getModel());
 
     db.getModel().removeTable(t.getName());
+  }
+
+  @Test
+  public void test2() throws EmxException {
+    EmxTable t = db.getModel().addTable("TypeTest");
+    for (EmxType type : EmxType.values()) {
+      t.addColumn("test_" + type.toString().toLowerCase(), type);
+      t.addColumn("test_" + type.toString().toLowerCase() + "_nillable", type).setNillable(true);
+    }
+
+    //TODO would like type safety via db.new("TypeTest").....save();
+    EmxRow row = new EmxRow();
+    row.setUuid("test_uuid", java.util.UUID.randomUUID());
+    row.setString("test_string", "test");
+    row.setBool("test_bool", true);
+    row.setInt("test_int", 1);
+    row.setDecimal("test_decimal", 1.1);
+    row.setText("test_text", "testtext");
+    row.setDate("test_date", LocalDate.of(2018, 12, 13));
+    row.setDateTime("test_datetime", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
+
+    db.save("TypeTest", row);
   }
 }

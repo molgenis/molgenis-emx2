@@ -26,6 +26,9 @@ class ColumnMetadataTable {
     if (columnTable.getColumn(COLUMN_NAME) == null) {
       columnTable.addColumn(COLUMN_NAME, SqlType.STRING);
     }
+    if (columnTable.getColumn(COLUMN_TYPE) == null) {
+      columnTable.addColumn(COLUMN_TYPE, SqlType.STRING);
+    }
     columnTable.addUnique(COLUMN_TABLE, COLUMN_NAME);
   }
 
