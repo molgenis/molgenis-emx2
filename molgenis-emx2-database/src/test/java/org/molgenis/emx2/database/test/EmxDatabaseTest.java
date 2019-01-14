@@ -103,6 +103,10 @@ public class EmxDatabaseTest {
 
     prod1.setMref("Parts", partsList2);
     db.save("Products", prod1); // updated
+
+    // todo test that state is correct
+
+    db.delete("Products", prod1);
   }
 
   @Test
