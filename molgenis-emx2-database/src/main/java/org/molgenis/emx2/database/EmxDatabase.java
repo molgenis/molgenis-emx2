@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public interface EmxDatabase {
   EmxModel getModel();
 
-  EmxQuery query(String tableName);
+  EmxQuery query(String tableName) throws EmxException;
 
   EmxRow findById(String tableName, UUID id);
 

@@ -10,6 +10,7 @@ import org.molgenis.emx2.EmxType;
 import org.molgenis.emx2.database.EmxDatabase;
 import org.molgenis.emx2.database.EmxDatabaseImpl;
 import org.molgenis.emx2.database.EmxRow;
+import org.molgenis.sql.SqlDatabaseException;
 import org.molgenis.sql.SqlRow;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void mrefTypeTest() throws EmxException {
+  public void mrefTypeTest() throws EmxException, SqlDatabaseException {
 
     // create model
     EmxModel m = db.getModel();
@@ -105,6 +106,7 @@ public class EmxDatabaseTest {
     db.save("Products", prod1); // updated
 
     // todo test that state is correct
+    assertEquals(2, db.query("ProductParts").fetch().size());
 
     db.delete("Products", prod1);
   }

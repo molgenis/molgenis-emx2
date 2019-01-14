@@ -27,8 +27,8 @@ public class EmxDatabaseImpl implements EmxDatabase {
   }
 
   @Override
-  public EmxQuery query(String tableName) {
-    return null;
+  public EmxQuery query(String tableName) throws EmxException {
+    return new QueryImpl(this.backend, tableName);
   }
 
   @Override
