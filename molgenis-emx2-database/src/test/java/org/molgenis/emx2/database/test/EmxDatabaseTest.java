@@ -107,8 +107,12 @@ public class EmxDatabaseTest {
 
     // todo test that state is correct
     assertEquals(2, db.query("ProductParts").fetch().size());
-
     db.delete("Products", prod1);
+    assertEquals(0, db.query("ProductParts").fetch().size());
+
+    db.getModel().removeTable("Products"); // should also remove mref table
+    db.getModel().removeTable("Parts");
+    assertNull(db.getModel().getTable("ProductParts"));
   }
 
   @Test
@@ -169,4 +173,7 @@ public class EmxDatabaseTest {
 
     db.getModel().removeTable(t.getName());
   }
+
+  @Test
+  public void testQuery() {}
 }

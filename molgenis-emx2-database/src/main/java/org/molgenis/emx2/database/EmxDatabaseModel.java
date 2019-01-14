@@ -4,7 +4,6 @@ import org.molgenis.emx2.*;
 import org.molgenis.sql.*;
 
 import static org.molgenis.emx2.EmxType.MREF;
-import static org.molgenis.emx2.EmxType.REF;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 public class EmxDatabaseModel extends EmxModel {
@@ -57,6 +56,11 @@ public class EmxDatabaseModel extends EmxModel {
   @Override
   public void removeTable(String tableName) throws EmxException {
     try {
+      for (EmxColumn column : getTable(tableName).getColumns()) {
+        if (MREF.equals(column.getType())) {
+          this.removeTable(column.getJoinTable().getName());
+        }
+      }
       backend.dropTable(tableName);
       columnMetadata.deleteColumnsForTable(tableName);
       tableMetadata.deleteTable(tableName);
