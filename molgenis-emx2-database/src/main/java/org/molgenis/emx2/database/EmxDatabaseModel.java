@@ -23,7 +23,7 @@ public class EmxDatabaseModel extends EmxModel {
     isReloading = true;
     // first load from backend
     for (SqlTable t : backend.getTables()) {
-      EmxTable table = addTable(t.getName());
+      EmxTable table = createTable(t.getName());
       for (SqlColumn c : t.getColumns()) {
         if (!MOLGENISID.equals(c.getName())) {
           EmxColumn col = table.addColumn(c.getName(), convert(c.getType()));

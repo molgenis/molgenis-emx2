@@ -33,7 +33,7 @@ public class EmxModel {
     return Collections.unmodifiableCollection(tables.values());
   }
 
-  public EmxTable addTable(String name) throws EmxException {
+  public EmxTable createTable(String name) throws EmxException {
     EmxTable table = new EmxTable(this, name);
     tables.put(name, table);
     this.onTableChange(table);

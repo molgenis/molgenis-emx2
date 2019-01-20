@@ -95,7 +95,7 @@ public class EmxTable {
   public EmxColumn addMref(String columnName, EmxTable otherTable, String joinTableName)
       throws EmxException {
     // check if joinTable exists and is of right type
-    EmxTable joinTable = model.addTable(joinTableName);
+    EmxTable joinTable = model.createTable(joinTableName);
     joinTable.addRef(this.getName(), this);
     joinTable.addRef(otherTable.getName(), otherTable);
     joinTable.addUnique(Arrays.asList(this.getName(), otherTable.getName()));
@@ -133,5 +133,9 @@ public class EmxTable {
     }
     builder.append(")");
     return builder.toString();
+  }
+
+  public void addUnique(String... keys) throws EmxException {
+    if (keys.length > 0) this.addUnique(Arrays.asList(keys));
   }
 }

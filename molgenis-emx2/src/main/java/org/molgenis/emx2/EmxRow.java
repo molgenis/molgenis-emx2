@@ -1,25 +1,26 @@
-package org.molgenis.sql;
-
-import com.fasterxml.uuid.Generators;
+package org.molgenis.emx2;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
+import com.fasterxml.uuid.Generators;
 
-public class SqlRow {
+public class EmxRow {
+  private Map<String, Object> valueMap;
+
+  public EmxRow() {
+    this(Generators.timeBasedGenerator().generate());
+  }
+
   public static final String MOLGENISID = "molgenisid";
   protected Map<String, Object> values = new LinkedHashMap<>();
 
-  public SqlRow(Map<String, Object> values) {
+  public EmxRow(Map<String, Object> values) {
     this();
     this.values.putAll(values);
   }
 
-  public SqlRow() { // to ensure we have nicely sorted record we have time based uuid
-    this(Generators.timeBasedGenerator().generate());
-  }
-
-  public SqlRow(UUID id) {
+  public EmxRow(UUID id) {
     setRowID(id);
   }
 
@@ -27,7 +28,7 @@ public class SqlRow {
     return (UUID) values.get(MOLGENISID);
   }
 
-  public SqlRow setRowID(UUID id) {
+  public EmxRow setRowID(UUID id) {
     this.setRef(MOLGENISID, id);
     return this;
   }
@@ -67,6 +68,10 @@ public class SqlRow {
     }
   }
 
+  public List<EmxRow> getMref(String name) {
+    return (List<EmxRow>) values.get(name);
+  }
+
   public OffsetDateTime getDateTime(String name) {
     return (OffsetDateTime) values.get(name);
   }
@@ -75,52 +80,52 @@ public class SqlRow {
     return (UUID) values.get(name);
   }
 
-  public SqlRow setString(String name, String value) {
+  public EmxRow setString(String name, String value) {
     values.put(name, value);
     return this;
   }
 
-  public SqlRow setInt(String name, Integer value) {
+  public EmxRow setInt(String name, Integer value) {
     values.put(name, value);
     return this;
   }
 
-  public SqlRow setRef(String name, SqlRow value) {
+  public EmxRow setRef(String name, EmxRow value) {
     values.put(name, value.getRowID());
     return this;
   }
 
-  public SqlRow setRef(String name, UUID value) {
+  public EmxRow setRef(String name, UUID value) {
     values.put(name, value);
     return this;
   }
 
-  public SqlRow setDecimal(String columnId, Double value) {
+  public EmxRow setDecimal(String columnId, Double value) {
     values.put(columnId, value);
     return this;
   }
 
-  public SqlRow setBool(String columnId, Boolean value) {
+  public EmxRow setBool(String columnId, Boolean value) {
     values.put(columnId, value);
     return this;
   }
 
-  public SqlRow setDate(String columnId, LocalDate value) {
+  public EmxRow setDate(String columnId, LocalDate value) {
     values.put(columnId, value);
     return this;
   }
 
-  public SqlRow setDateTime(String columnId, OffsetDateTime value) {
+  public EmxRow setDateTime(String columnId, OffsetDateTime value) {
     values.put(columnId, value);
     return this;
   }
 
-  public SqlRow setText(String columnId, String value) {
+  public EmxRow setText(String columnId, String value) {
     values.put(columnId, value);
     return this;
   }
 
-  public SqlRow setUuid(String columnId, UUID value) {
+  public EmxRow setUuid(String columnId, UUID value) {
     values.put(columnId, value);
     return this;
   }
@@ -143,7 +148,20 @@ public class SqlRow {
     return builder.toString();
   }
 
+  public EmxRow setMref(String columnName, List<EmxRow> mrefList) {
+    values.put(columnName, mrefList);
+    return this;
+  }
+
   public Map<String, Object> getValueMap() {
     return values;
+  }
+
+  public EmxRow setMref(String columnName, EmxRow... mrefs) {
+    return this.setMref(columnName, Arrays.asList(mrefs));
+  }
+
+  public Collection<String> getColumns() {
+    return values.keySet();
   }
 }

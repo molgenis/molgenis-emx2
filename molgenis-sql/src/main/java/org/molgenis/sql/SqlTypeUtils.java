@@ -2,10 +2,7 @@ package org.molgenis.sql;
 
 import org.jooq.DataType;
 import org.jooq.Field;
-import org.jooq.SQL;
 import org.jooq.impl.SQLDataType;
-
-import java.sql.Types;
 
 import static org.jooq.impl.SQLDataType.*;
 

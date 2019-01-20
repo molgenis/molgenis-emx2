@@ -74,7 +74,7 @@ public class MolgenisReader {
       String columnName = row.getColumn();
       if (!"".equals(tableName) && "".equals(columnName)) {
         if (model.getTable(tableName) == null) {
-          model.addTable(tableName);
+          model.createTable(tableName);
         }
 
         EmxTable table = model.getTable(tableName);
@@ -127,7 +127,7 @@ public class MolgenisReader {
       String columnName = row.getColumn();
       if (!"".equals(tableName) && !"".equals(columnName)) {
         if (model.getTable(tableName) == null) {
-          model.addTable(tableName);
+          model.createTable(tableName);
         }
         EmxTable table = model.getTable(tableName);
         if (table.getColumn(columnName) != null) {

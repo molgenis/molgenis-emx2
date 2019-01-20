@@ -61,7 +61,7 @@ public class AttributesFileReader {
       throws EmxException {
     // get or create table
     EmxTable table = model.getTable(row.getEntity());
-    if (table == null) table = model.addTable(row.getEntity());
+    if (table == null) table = model.createTable(row.getEntity());
 
     // check if attribute exists
     if (table.getColumn(row.getName()) != null) {

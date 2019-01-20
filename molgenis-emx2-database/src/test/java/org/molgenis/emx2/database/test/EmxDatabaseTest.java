@@ -3,15 +3,9 @@ package org.molgenis.emx2.database.test;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.EmxException;
-import org.molgenis.emx2.EmxModel;
-import org.molgenis.emx2.EmxTable;
-import org.molgenis.emx2.EmxType;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.database.EmxDatabase;
 import org.molgenis.emx2.database.EmxDatabaseImpl;
-import org.molgenis.emx2.database.EmxRow;
-import org.molgenis.sql.SqlDatabaseException;
-import org.molgenis.sql.SqlRow;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
@@ -22,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.EmxType.*;
 
 public class EmxDatabaseTest {
@@ -70,15 +62,15 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void mrefTypeTest() throws EmxException, SqlDatabaseException {
+  public void mrefTypeTest() throws EmxException {
 
     // create model
     EmxModel m = db.getModel();
 
-    EmxTable parts = m.addTable("Parts");
+    EmxTable parts = m.createTable("Parts");
     parts.addColumn("PartName", STRING);
 
-    EmxTable products = m.addTable("Products");
+    EmxTable products = m.createTable("Products");
     assertEquals(0, products.getColumns().size()); // molgenisid is hidden
     products.addColumn("ProductName", STRING);
     assertEquals(1, products.getColumns().size());
@@ -88,16 +80,16 @@ public class EmxDatabaseTest {
 
     // create data
 
-    List<SqlRow> partsList = new ArrayList<>();
+    List<EmxRow> partsList = new ArrayList<>();
     partsList.add(new EmxRow().setString("PartName", "part1"));
     partsList.add(new EmxRow().setString("PartName", "part2"));
     db.save("Parts", partsList);
 
-    SqlRow prod1 = new EmxRow();
+    EmxRow prod1 = new EmxRow();
     prod1.setString("ProductName", "prod1").setMref("Parts", partsList);
     db.save("Products", prod1);
 
-    List<SqlRow> partsList2 = new ArrayList<>();
+    List<EmxRow> partsList2 = new ArrayList<>();
     partsList2.add(new EmxRow().setString("PartName", "part3"));
     partsList2.add(new EmxRow().setString("PartName", "part4"));
     db.save("Parts", partsList2);
@@ -117,13 +109,13 @@ public class EmxDatabaseTest {
 
   @Test
   public void test1() throws EmxException {
-    EmxTable t = db.getModel().addTable("Person");
+    EmxTable t = db.getModel().createTable("Person");
     t.addColumn("First name", STRING);
     t.addColumn("Last name", STRING);
     t.addColumn("Display Name", STRING).setUnique(true);
 
-    SqlRow r =
-        new SqlRow()
+    EmxRow r =
+        new EmxRow()
             .setString("First name", "Donald")
             .setString("Last name", "Duck")
             .setString("Display Name", "Donald Duck");
@@ -145,7 +137,7 @@ public class EmxDatabaseTest {
 
   @Test
   public void simpleTypeTest() throws EmxException {
-    EmxTable t = db.getModel().addTable("TypeTest");
+    EmxTable t = db.getModel().createTable("TypeTest");
     t.addColumn("myid", STRING).setUnique(true);
     for (EmxType type : Arrays.asList(UUID, STRING, INT, BOOL, DECIMAL, TEXT, DATE, DATETIME)) {
       t.addColumn("test_" + type.toString().toLowerCase(), type);
@@ -175,5 +167,97 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void testQuery() {}
+  public void testQuery() throws EmxException {
+    long startTime = System.currentTimeMillis();
+
+    EmxTable part = db.getModel().createTable("Part");
+    part.addColumn("name", STRING);
+    part.addColumn("weight", INT);
+    part.addUnique("name");
+
+    EmxRow part1 = new EmxRow().setString("name", "forms").setInt("weight", 100);
+    EmxRow part2 = new EmxRow().setString("name", "login").setInt("weight", 50);
+    db.save("Part", part1);
+    db.save("Part", part2);
+
+    EmxTable component = db.getModel().createTable("Component");
+    component.addColumn("name", STRING);
+    component.addMref("parts", part, "ComponentParts");
+    component.addUnique("name");
+
+    EmxRow component1 = new EmxRow().setString("name", "explorer").setMref("parts", part1, part2);
+    EmxRow component2 = new EmxRow().setString("name", "navigator").setMref("parts", part2);
+    db.save("Component", component1);
+    db.save("Component", component2);
+
+    EmxTable product = db.getModel().createTable("Product");
+    product.addColumn("name", STRING);
+    product.addMref("components", component, "ProductComponents");
+    product.addUnique("name");
+
+    EmxRow product1 =
+        new EmxRow().setString("name", "molgenis").setMref("components", component1, component2);
+    db.save("Product", product1);
+
+    long endTime = System.currentTimeMillis();
+    System.out.println("Creation took " + (endTime - startTime) + " milliseconds");
+
+    // now getQuery to show product.name and parts.name linked by path Assembly.product,part
+
+    // needed:
+    // join+columns paths, potentially multiple paths. We only support outer join over relationships
+    // if names are not unique, require explicit select naming
+    // complex nested where clauses
+    // sortby clauses
+    // later: group by.
+
+    //        SqlQueryImpl q1 = new PsqlQueryBack(db);
+    // db        q1.select("Product").columns("name").as("productName");
+    //        q1.mref("ProductComponent").columns("name").as("componentName");
+    //        q1.mref("ComponentPart").columns("name").as("partName");
+    //        //q1.where("productName").eq("molgenis");
+    //
+    //        System.out.println(q1);
+
+    //    try {
+    //      db.query("pietje");
+    //      fail("exception handling from(pietje) failed");
+    //    } catch (Exception e) {
+    //      // good stuff
+    //    }
+    //
+    //    try {
+    //      db.query("Product").as("p").join("ProductComponent", "p2", "product");
+    //      fail("should fail because faulty toTabel");
+    //    } catch (Exception e) {
+    //      // good stuff
+    //    }
+    //
+    //    try {
+    //      db.query("Product").as("p").join("ProductComponent", "p", "component");
+    //      fail("should fail because faulty 'on'");
+    //    } catch (Exception e) {
+    //      // good stuff
+    //    }
+    //    try {
+    //      db.query("Product").as("p").select("wrongname").as("productName");
+    //      fail("should fail because faulty 'select'");
+    //    } catch (Exception e) {
+    //      // good stuff
+    //    }
+    //
+    //    startTime = System.currentTimeMillis();
+    //    SqlQuery q2 = db.query("Product").as("p").select("name").as("productName");
+    //    q2.join("ProductComponent", "p", "product").as("pc");
+    //    q2.join("Component", "pc", "component").as("c").select("name").as("componentName");
+    //    q2.join("ComponentPart", "c", "component").as("cp");
+    //    q2.join("Part", "cp", "part").as("p2").select("name").as("partName").select("weight");
+    //    q2.eq("p2", "weight", 50).eq("c", "name", "explorer", "navigator");
+    //    for (SqlRow row : q2.retrieve()) {
+    //      System.out.println(row);
+    //    }
+    //    endTime = System.currentTimeMillis();
+    //    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
+    //    System.out.println("Query contents: " + q2);
+  }
 }

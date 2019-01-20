@@ -39,7 +39,7 @@ public class TestEmxBeans {
 
     System.out.println("table print " + t.toString() + "\n: " + t.print());
 
-    m2.addTable("OtherTable");
+    m2.createTable("OtherTable");
     System.out.println("Now we expect diff: " + m.diff(m2));
 
     m.removeTable("TypeTest");
@@ -48,7 +48,7 @@ public class TestEmxBeans {
   }
 
   private void addContents(EmxModel m, List<EmxType> types) throws EmxException {
-    EmxTable t = m.addTable("TypeTest");
+    EmxTable t = m.createTable("TypeTest");
     for (EmxType type : types) {
       t.addColumn("test" + type, type);
       t.addColumn("test" + type + "_nullable", type).setNillable(true);

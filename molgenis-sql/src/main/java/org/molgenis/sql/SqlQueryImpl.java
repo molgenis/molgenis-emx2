@@ -1,6 +1,7 @@
 package org.molgenis.sql;
 
 import org.jooq.*;
+import org.jooq.impl.SQLDataType;
 
 import java.util.*;
 
@@ -197,8 +198,8 @@ class SqlQueryImpl implements SqlQuery {
             joinStep
                 .leftOuterJoin(table(name(def.fromTable.getName())).as(alias))
                 .on(
-                    field(name(alias, def.fromColumn))
-                        .eq(field(name(def.joinTable, def.joinColumn))));
+                    field(name(alias, def.fromColumn), SQLDataType.UUID)
+                        .eq(field(name(def.joinTable, def.joinColumn), SQLDataType.UUID)));
       }
     }
 
@@ -229,13 +230,15 @@ class SqlQueryImpl implements SqlQuery {
   }
 
   private SqlQuery eqHelper(String table, String column, Object... value) {
+    SqlColumn c = db.getTable(table).getColumn(column);
+    DataType type = SqlTypeUtils.typeOf(c.getType());
     if (value.length > 1) {
-      if (conditions == null) conditions = field(name(table, column)).in(value);
-      else conditions = conditions.and(field(name(table, column)).in(value));
+      if (conditions == null) conditions = field(name(table, column), type).in(value);
+      else conditions = conditions.and(field(name(table, column), type).in(value));
     }
     if (value.length == 1) {
-      if (conditions == null) conditions = field(name(table, column)).eq(value[0]);
-      else conditions = conditions.and(field(name(table, column)).eq(value[0]));
+      if (conditions == null) conditions = field(name(table, column), type).eq(value[0]);
+      else conditions = conditions.and(field(name(table, column), type).eq(value[0]));
     }
     return this;
   }
