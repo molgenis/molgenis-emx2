@@ -13,8 +13,4 @@ class SqlRowImpl extends SqlRow {
       values.put(f.getName(), record.get(f));
     }
   }
-
-  public SqlRowImpl(UUID molgenisid) {
-    super(molgenisid);
-  }
 }

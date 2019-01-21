@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.database.EmxDatabase;
 import org.molgenis.emx2.database.EmxDatabaseImpl;
+import org.molgenis.sql.SqlDatabaseException;
+import org.molgenis.sql.SqlRow;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
@@ -62,7 +64,7 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void mrefTypeTest() throws EmxException {
+  public void mrefTypeTest() throws EmxException, SqlDatabaseException {
 
     // create model
     EmxModel m = db.getModel();
@@ -80,27 +82,27 @@ public class EmxDatabaseTest {
 
     // create data
 
-    List<EmxRow> partsList = new ArrayList<>();
-    partsList.add(new EmxRow().setString("PartName", "part1"));
-    partsList.add(new EmxRow().setString("PartName", "part2"));
+    List<SqlRow> partsList = new ArrayList<>();
+    partsList.add(new SqlRow().setString("PartName", "part1"));
+    partsList.add(new SqlRow().setString("PartName", "part2"));
     db.save("Parts", partsList);
 
-    EmxRow prod1 = new EmxRow();
+    SqlRow prod1 = new SqlRow();
     prod1.setString("ProductName", "prod1").setMref("Parts", partsList);
     db.save("Products", prod1);
 
-    List<EmxRow> partsList2 = new ArrayList<>();
-    partsList2.add(new EmxRow().setString("PartName", "part3"));
-    partsList2.add(new EmxRow().setString("PartName", "part4"));
+    List<SqlRow> partsList2 = new ArrayList<>();
+    partsList2.add(new SqlRow().setString("PartName", "part3"));
+    partsList2.add(new SqlRow().setString("PartName", "part4"));
     db.save("Parts", partsList2);
 
     prod1.setMref("Parts", partsList2);
     db.save("Products", prod1); // updated
 
     // todo test that state is correct
-    assertEquals(2, db.query("ProductParts").fetch().size());
+    assertEquals(2, db.query("ProductParts").retrieve().size());
     db.delete("Products", prod1);
-    assertEquals(0, db.query("ProductParts").fetch().size());
+    assertEquals(0, db.query("ProductParts").retrieve().size());
 
     db.getModel().removeTable("Products"); // should also remove mref table
     db.getModel().removeTable("Parts");
@@ -108,14 +110,14 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void test1() throws EmxException {
+  public void test1() throws EmxException, SqlDatabaseException {
     EmxTable t = db.getModel().createTable("Person");
     t.addColumn("First name", STRING);
     t.addColumn("Last name", STRING);
     t.addColumn("Display Name", STRING).setUnique(true);
 
-    EmxRow r =
-        new EmxRow()
+    SqlRow r =
+        new SqlRow()
             .setString("First name", "Donald")
             .setString("Last name", "Duck")
             .setString("Display Name", "Donald Duck");
@@ -136,7 +138,7 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void simpleTypeTest() throws EmxException {
+  public void simpleTypeTest() throws EmxException, SqlDatabaseException {
     EmxTable t = db.getModel().createTable("TypeTest");
     t.addColumn("myid", STRING).setUnique(true);
     for (EmxType type : Arrays.asList(UUID, STRING, INT, BOOL, DECIMAL, TEXT, DATE, DATETIME)) {
@@ -146,7 +148,7 @@ public class EmxDatabaseTest {
 
     // TODO would like type safety via db.new("TypeTest").....save(); which then checks for
     // non-existing fields to be set.
-    EmxRow row = new EmxRow();
+    SqlRow row = new SqlRow();
     row.setString("myid", "hello world");
     row.setUuid("test_uuid", java.util.UUID.randomUUID());
     row.setString("test_string", "test");
@@ -167,7 +169,7 @@ public class EmxDatabaseTest {
   }
 
   @Test
-  public void testQuery() throws EmxException {
+  public void testQuery() throws EmxException, SqlDatabaseException {
     long startTime = System.currentTimeMillis();
 
     EmxTable part = db.getModel().createTable("Part");
@@ -175,8 +177,8 @@ public class EmxDatabaseTest {
     part.addColumn("weight", INT);
     part.addUnique("name");
 
-    EmxRow part1 = new EmxRow().setString("name", "forms").setInt("weight", 100);
-    EmxRow part2 = new EmxRow().setString("name", "login").setInt("weight", 50);
+    SqlRow part1 = new SqlRow().setString("name", "forms").setInt("weight", 100);
+    SqlRow part2 = new SqlRow().setString("name", "login").setInt("weight", 50);
     db.save("Part", part1);
     db.save("Part", part2);
 
@@ -185,8 +187,8 @@ public class EmxDatabaseTest {
     component.addMref("parts", part, "ComponentParts");
     component.addUnique("name");
 
-    EmxRow component1 = new EmxRow().setString("name", "explorer").setMref("parts", part1, part2);
-    EmxRow component2 = new EmxRow().setString("name", "navigator").setMref("parts", part2);
+    SqlRow component1 = new SqlRow().setString("name", "explorer").setMref("parts", part1, part2);
+    SqlRow component2 = new SqlRow().setString("name", "navigator").setMref("parts", part2);
     db.save("Component", component1);
     db.save("Component", component2);
 
@@ -195,8 +197,8 @@ public class EmxDatabaseTest {
     product.addMref("components", component, "ProductComponents");
     product.addUnique("name");
 
-    EmxRow product1 =
-        new EmxRow().setString("name", "molgenis").setMref("components", component1, component2);
+    SqlRow product1 =
+        new SqlRow().setString("name", "molgenis").setMref("components", component1, component2);
     db.save("Product", product1);
 
     long endTime = System.currentTimeMillis();

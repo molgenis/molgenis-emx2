@@ -91,8 +91,10 @@ public class SqlRow {
     return this;
   }
 
-  public SqlRow setMref(String name, UUID... values) {
-    mrefs.put(name, Arrays.asList(values));
+  public SqlRow setMref(String name, List<SqlRow> values) {
+    List<UUID> uuids = new ArrayList<>();
+    for (SqlRow r : values) uuids.add(r.getRowID());
+    mrefs.put(name, uuids);
     return this;
   }
 

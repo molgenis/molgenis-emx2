@@ -71,7 +71,8 @@ class SqlQueryImpl implements SqlQuery {
     From temp = this.select.get(toTable);
     if (temp == null) {
       throw new SqlDatabaseException(
-          String.format("Cannot join to previous selected table '%s': table not selected", toTable));
+          String.format(
+              "Cannot join to previous selected table '%s': table not selected", toTable));
     }
     SqlTable joinTable = temp.fromTable;
 
@@ -112,9 +113,7 @@ class SqlQueryImpl implements SqlQuery {
       throw new SqlDatabaseException(
           String.format(
               "Cannot join on column '%s': column not known in table '%s' and '%s'",
-              on,
-              toTable,
-              table));
+              on, toTable, table));
     }
     state = State.FROM;
     lastFrom = table;
