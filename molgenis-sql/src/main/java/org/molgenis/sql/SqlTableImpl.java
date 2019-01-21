@@ -354,7 +354,7 @@ class SqlTableImpl implements SqlTable {
         db.query(joinTable.getName())
             .eq(
                 joinTable.getName(),
-                column.getName(),
+                column.getMrefBack(),
                 oldMrefIds.toArray(new UUID[oldMrefIds.size()]))
             .retrieve();
     joinTable.delete(oldMrefs);
