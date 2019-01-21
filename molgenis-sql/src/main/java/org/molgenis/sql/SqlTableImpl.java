@@ -311,16 +311,16 @@ class SqlTableImpl implements SqlTable {
 
   private void deleteBatch(Collection<SqlRow> rows, Table t) throws SqlDatabaseException {
     if (!rows.isEmpty()) {
-      Field field = field(name(MOLGENISID), SQLDataType.UUID);
-      List<UUID> idList = new ArrayList<>();
-      rows.forEach(row -> idList.add(row.getRowID()));
-      sql.deleteFrom(t).where(field.in(idList)).execute();
-      // save the mrefs
+      // remove the mrefs first
       for (SqlColumnImpl c : columnMap.values()) {
         if (MREF.equals(c.getType())) {
           this.deleteOldMrefs(rows, c);
         }
       }
+      Field field = field(name(MOLGENISID), SQLDataType.UUID);
+      List<UUID> idList = new ArrayList<>();
+      rows.forEach(row -> idList.add(row.getRowID()));
+      sql.deleteFrom(t).where(field.in(idList)).execute();
     }
   }
 

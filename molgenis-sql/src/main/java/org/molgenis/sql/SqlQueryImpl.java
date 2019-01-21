@@ -190,6 +190,7 @@ class SqlQueryImpl implements SqlQuery {
     }
 
     // define the 'where' clause
+    if (joinStep == null) throw new SqlDatabaseException("This should never happen");
     joinStep.where(conditions);
 
     List<SqlRow> rows = new ArrayList<>();
