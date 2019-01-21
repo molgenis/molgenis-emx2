@@ -32,6 +32,7 @@ class SqlTypeUtils {
         return TIMESTAMPWITHTIMEZONE;
       case REF:
         return UUID;
+      case MREF:
       default:
         // should never happen
         throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + sqlType);

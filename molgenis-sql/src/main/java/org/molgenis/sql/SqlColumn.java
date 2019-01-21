@@ -10,7 +10,11 @@ public interface SqlColumn {
 
   Boolean isNullable();
 
-  SqlColumn setNullable(boolean nillable);
+  SqlColumn setNullable(boolean nillable) throws SqlDatabaseException;
 
   SqlTable getRefTable();
+
+  SqlTable getMrefTable();
+
+  String getMrefBack();
 }

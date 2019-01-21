@@ -124,8 +124,9 @@ public class TestSql {
     SqlTable t = db.createTable("TypeTest");
     for (SqlType type : SqlType.values()) {
       if (REF.equals(type)) {
-        t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
-
+        t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
+      } else if (MREF.equals(type)) {
+        // cannot set nullable
       } else {
         t.addColumn("Test_" + type.toString().toLowerCase(), type);
         t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type).setNullable(true);
@@ -197,7 +198,7 @@ public class TestSql {
     // create a fromTable
     SqlTable t = db.createTable("Person");
     t.addColumn("First Name", STRING);
-    t.addColumn("Father", t).setNullable(true);
+    t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
     t.addUnique("First Name", "Last Name");
     long endTime = System.currentTimeMillis();
@@ -207,7 +208,7 @@ public class TestSql {
 
     // reinitialise database to see if it can recreate from background
     db = new SqlDatabaseImpl(dataSource);
-    assertEquals(8, db.getTables().size());
+    assertEquals(10, db.getTables().size());
 
     // insert
     startTime = System.currentTimeMillis();
@@ -272,46 +273,15 @@ public class TestSql {
     // drop a fromTable
     db.dropTable(t.getName());
     assertEquals(null, db.getTable("Person"));
-    assertEquals(7, db.getTables().size());
     // make sure nothing was left behind in backend
     db = new SqlDatabaseImpl(dataSource);
     assertEquals(null, db.getTable("Person"));
-    assertEquals(7, db.getTables().size());
   }
 
   @Test
   public void testQuery() throws SqlDatabaseException {
 
     long startTime = System.currentTimeMillis();
-
-    SqlTable product = db.createTable("Product");
-    product.addColumn("name", STRING);
-    product.addUnique("name");
-
-    SqlRow product1 = new SqlRow().setString("name", "molgenis");
-    product.insert(product1);
-
-    SqlTable component = db.createTable("Component");
-    component.addColumn("name", STRING);
-    component.addUnique("name");
-
-    SqlRow component1 = new SqlRow().setString("name", "explorer");
-    SqlRow component2 = new SqlRow().setString("name", "navigator");
-
-    component.insert(component1);
-    component.insert(component2);
-
-    SqlTable productComponent = db.createTable("ProductComponent");
-    productComponent.addColumn("product", product);
-    productComponent.addColumn("component", component);
-    productComponent.addUnique("product", "component");
-
-    SqlRow productComponent1 =
-        new SqlRow().setRef("component", component1).setRef("product", product1);
-    SqlRow productComponent2 =
-        new SqlRow().setRef("component", component2).setRef("product", product1);
-    productComponent.insert(productComponent1);
-    productComponent.insert(productComponent2);
 
     SqlTable part = db.createTable("Part");
     part.addColumn("name", STRING);
@@ -323,15 +293,24 @@ public class TestSql {
     part.insert(part1);
     part.insert(part2);
 
-    SqlTable componentPart = db.createTable("ComponentPart");
-    componentPart.addColumn("component", component);
-    componentPart.addColumn("part", part);
-    componentPart.addUnique("component", "part");
+    SqlTable component = db.createTable("Component");
+    component.addColumn("name", STRING);
+    component.addUnique("name");
+    component.addMref("parts", part, "partOfComponent");
 
-    SqlRow componentPart1 = new SqlRow().setRef("component", component1).setRef("part", part1);
-    SqlRow componentPart2 = new SqlRow().setRef("component", component1).setRef("part", part2);
-    componentPart.insert(componentPart1);
-    componentPart.insert(componentPart2);
+    SqlRow component1 = new SqlRow().setString("name", "explorer").setMref("parts", part1, part2);
+    SqlRow component2 = new SqlRow().setString("name", "navigator").setMref("parts", part2);
+    component.insert(component1);
+    component.insert(component2);
+
+    SqlTable product = db.createTable("Product");
+    product.addColumn("name", STRING);
+    product.addUnique("name");
+    product.addMref("components", component, "partOfProduct");
+
+    SqlRow product1 =
+        new SqlRow().setString("name", "molgenis").setMref("components", component1, component2);
+    product.insert(product1);
 
     long endTime = System.currentTimeMillis();
     System.out.println("Creation took " + (endTime - startTime) + " milliseconds");
@@ -382,11 +361,9 @@ public class TestSql {
 
     startTime = System.currentTimeMillis();
     SqlQuery q2 = db.query("Product").as("p").select("name").as("productName");
-    q2.join("ProductComponent", "p", "product").as("pc");
-    q2.join("Component", "pc", "component").as("c").select("name").as("componentName");
-    q2.join("ComponentPart", "c", "component").as("cp");
-    q2.join("Part", "cp", "part").as("p2").select("name").as("partName").select("weight");
-    q2.eq("p2", "weight", 50).eq("c", "name", "explorer", "navigator");
+    q2.join("Component", "p", "components").as("c").select("name").as("componentName");
+    q2.join("Part", "c", "parts").as("pt").select("name").as("partName").select("weight");
+    q2.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
     for (SqlRow row : q2.retrieve()) {
       System.out.println(row);
     }

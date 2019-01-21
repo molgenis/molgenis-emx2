@@ -114,8 +114,7 @@ public class EmxDatabaseModel extends EmxModel {
     } else {
       SqlType sqlType = convert(column.getType());
       if (SqlType.REF.equals(sqlType)) {
-        sqlColumn =
-            table.addColumn(column.getName(), backend.getTable(column.getTable().getName()));
+        sqlColumn = table.addRef(column.getName(), backend.getTable(column.getTable().getName()));
       } else {
         sqlColumn = table.addColumn(column.getName(), sqlType);
       }

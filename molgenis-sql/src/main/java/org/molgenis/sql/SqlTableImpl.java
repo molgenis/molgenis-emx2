@@ -8,6 +8,7 @@ import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
+import static org.molgenis.sql.SqlType.MREF;
 
 class SqlTableImpl implements SqlTable {
   private DSLContext sql;
@@ -16,14 +17,14 @@ class SqlTableImpl implements SqlTable {
   private Map<String, SqlColumnImpl> columnMap = new LinkedHashMap<>();
   private Map<String, SqlUnique> uniquesMap = new LinkedHashMap<>();
 
-  SqlTableImpl(SqlDatabaseImpl db, DSLContext sql, String name) {
+  SqlTableImpl(SqlDatabaseImpl db, DSLContext sql, String name) throws SqlDatabaseException {
     this.db = db;
     this.sql = sql;
     this.name = name;
     reloadMetaData();
   }
 
-  private void reloadMetaData() {
+  private void reloadMetaData() throws SqlDatabaseException {
     Table t = sql.meta().getTables(name).get(0);
     reloadColumns(t);
     reloadUniques(t);
@@ -32,12 +33,12 @@ class SqlTableImpl implements SqlTable {
 
   private void reloadColumns(Table t) {
     columnMap = new LinkedHashMap<>();
-    for (Field field : t.fields()) {
-      columnMap.put(field.getName(), new SqlColumnImpl(sql, this, field, null));
+    for (Field field : t.fields()) { //
+      columnMap.put(field.getName(), new SqlColumnImpl(sql, this, field));
     }
   }
 
-  private void reloadReferences(Table t) {
+  private void reloadReferences(Table t) throws SqlDatabaseException {
     for (Object o3 : t.getReferences()) {
       ForeignKey fk = (ForeignKey) o3;
       for (Field field : (List<Field>) fk.getFields()) {
@@ -53,6 +54,10 @@ class SqlTableImpl implements SqlTable {
         columnMap.put(field.getName(), fkey);
       }
     }
+  }
+
+  private void reloadMrefs(Table t) {
+    // TODO mrefs
   }
 
   @Override
@@ -81,7 +86,7 @@ class SqlTableImpl implements SqlTable {
   }
 
   @Override
-  public SqlColumn addColumn(String name, SqlTable otherTable) {
+  public SqlColumn addRef(String name, SqlTable otherTable) {
     Field field = field(name(name), SQLDataType.UUID.nullable(false));
 
     sql.alterTable(name(this.name)).addColumn(field).execute();
@@ -95,6 +100,24 @@ class SqlTableImpl implements SqlTable {
         .on(table(name(this.name)), field)
         .execute();
     columnMap.put(name, new SqlColumnImpl(sql, this, field, otherTable));
+    return getColumn(name);
+  }
+
+  @Override
+  public SqlColumn addMref(String name, SqlTable otherTable, String otherColumn)
+      throws SqlDatabaseException {
+    SqlColumn check = columnMap.get(name);
+    if (check != null && MREF.equals(check.getType()) && otherTable.equals(check.getRefTable())) {
+      // todo check
+    } else {
+      String joinTable = this.getName() + name + "MREF" + otherTable.getName() + otherColumn;
+      SqlTable jTable = db.createTable(joinTable);
+      jTable.addRef(otherColumn, this);
+      jTable.addRef(name, otherTable);
+      columnMap.put(name, new SqlColumnImpl(sql, this, name, otherTable, jTable, otherColumn));
+      // add reverse link
+      otherTable.addMref(otherColumn, this, name);
+    }
     return getColumn(name);
   }
 
@@ -181,19 +204,28 @@ class SqlTableImpl implements SqlTable {
   public void insert(Collection<SqlRow> rows) throws SqlDatabaseException {
     try {
       // get metadata
-      Field[] fields = new Field[columnMap.size()];
-      String[] fieldNames = new String[columnMap.size()];
+      List<Field> fields = new ArrayList<>();
+      List<String> fieldNames = new ArrayList<>();
       int i = 0;
       for (SqlColumnImpl c : columnMap.values()) {
-        fieldNames[i] = c.getName();
-        fields[i] = c.getJooqField();
+        if (!MREF.equals(c.getType())) {
+          fieldNames.add(c.getName());
+          fields.add(c.getJooqField());
+        }
         i++;
       }
-      InsertValuesStepN step = sql.insertInto(table(name(name)), fields);
+      InsertValuesStepN step =
+          sql.insertInto(table(name(name)), fields.toArray(new Field[fields.size()]));
       for (SqlRow row : rows) {
-        step.values(row.values(fieldNames));
+        step.values(row.values(fieldNames.toArray(new String[fieldNames.size()])));
       }
       step.execute();
+      // save the mrefs
+      for (SqlColumnImpl c : columnMap.values()) {
+        if (MREF.equals(c.getType())) {
+          saveUpdatedMrefs(rows, c);
+        }
+      }
     } catch (DataAccessException e) {
       throw new SqlDatabaseException(e.getCause().getMessage());
     }
@@ -303,5 +335,39 @@ class SqlTableImpl implements SqlTable {
     }
     builder.append("\n}");
     return builder.toString();
+  }
+
+  private void deleteOldMrefs(Collection<SqlRow> rows, SqlColumn column)
+      throws SqlDatabaseException {
+    SqlTable joinTable = column.getMrefTable();
+    List<UUID> oldMrefIds = new ArrayList<>();
+    for (SqlRow r : rows) {
+      oldMrefIds.add(r.getRowID());
+    }
+    List<SqlRow> oldMrefs =
+        db.query(joinTable.getName())
+            .eq(
+                joinTable.getName(),
+                column.getName(),
+                oldMrefIds.toArray(new UUID[oldMrefIds.size()]))
+            .retrieve();
+    joinTable.delete(oldMrefs);
+  }
+
+  private void saveUpdatedMrefs(Collection<SqlRow> rows, SqlColumn column)
+      throws SqlDatabaseException {
+    String colName = column.getName();
+    String joinTable = column.getMrefTable().getName();
+    String otherColname = column.getMrefBack();
+
+    List<SqlRow> newMrefs = new ArrayList<>();
+    for (SqlRow r : rows) {
+      for (UUID uuid : r.getMref(colName)) {
+        SqlRow join =
+            new SqlRow().setRef(column.getName(), uuid).setRef(otherColname, r.getRowID());
+        newMrefs.add(join);
+      }
+    }
+    db.getTable(joinTable).update(newMrefs);
   }
 }

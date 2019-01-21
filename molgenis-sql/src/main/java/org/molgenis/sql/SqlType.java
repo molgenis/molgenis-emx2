@@ -9,5 +9,6 @@ public enum SqlType {
   TEXT,
   DATE,
   DATETIME,
-  REF;
+  REF,
+  MREF;
 }

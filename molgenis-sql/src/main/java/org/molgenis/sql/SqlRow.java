@@ -9,6 +9,7 @@ import java.util.*;
 public class SqlRow {
   public static final String MOLGENISID = "molgenisid";
   protected Map<String, Object> values = new LinkedHashMap<>();
+  protected Map<String, List<UUID>> mrefs = new LinkedHashMap<>();
 
   public SqlRow(Map<String, Object> values) {
     this();
@@ -90,6 +91,11 @@ public class SqlRow {
     return this;
   }
 
+  public SqlRow setMref(String name, UUID... values) {
+    mrefs.put(name, Arrays.asList(values));
+    return this;
+  }
+
   public SqlRow setRef(String name, UUID value) {
     values.put(name, value);
     return this;
@@ -139,11 +145,27 @@ public class SqlRow {
     for (Map.Entry<String, Object> col : values.entrySet()) {
       builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
     }
+    for (Map.Entry<String, List<UUID>> col : mrefs.entrySet()) {
+      builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
+    }
     builder.append(")");
     return builder.toString();
   }
 
   public Map<String, Object> getValueMap() {
     return values;
+  }
+
+  public SqlRow setMref(String colName, SqlRow... values) {
+    List<UUID> ids = new ArrayList<>();
+    for (SqlRow r : values) {
+      ids.add(r.getRowID());
+    }
+    this.mrefs.put(colName, ids);
+    return this;
+  }
+
+  public List<UUID> getMref(String colName) {
+    return this.mrefs.get(colName);
   }
 }

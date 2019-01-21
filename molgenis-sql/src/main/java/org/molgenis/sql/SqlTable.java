@@ -11,7 +11,9 @@ public interface SqlTable {
 
   SqlColumn addColumn(String name, SqlType type) throws SqlDatabaseException;
 
-  SqlColumn addColumn(String name, SqlTable otherTable) throws SqlDatabaseException;
+  SqlColumn addRef(String name, SqlTable otherTable) throws SqlDatabaseException;
+
+  SqlColumn addMref(String name, SqlTable otherTable, String joinTable) throws SqlDatabaseException;
 
   void removeColumn(String name) throws SqlDatabaseException;
 

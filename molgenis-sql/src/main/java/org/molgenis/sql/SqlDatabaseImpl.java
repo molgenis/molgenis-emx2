@@ -20,7 +20,7 @@ public class SqlDatabaseImpl implements SqlDatabase {
   private DSLContext sql;
   private Map<String, SqlTableImpl> tables = new LinkedHashMap<>();
 
-  public SqlDatabaseImpl(DataSource source) {
+  public SqlDatabaseImpl(DataSource source) throws SqlDatabaseException {
     DSLContext context = DSL.using(source, SQLDialect.POSTGRES_10);
     this.sql = context;
     for (Table t : sql.meta().getTables()) {
@@ -30,7 +30,7 @@ public class SqlDatabaseImpl implements SqlDatabase {
   }
 
   @Override
-  public SqlTable createTable(String name) {
+  public SqlTable createTable(String name) throws SqlDatabaseException {
     sql.createTableIfNotExists(name)
         .column(MOLGENISID, SQLDataType.UUID)
         .constraints(constraint("PK_" + name).primaryKey(MOLGENISID))
