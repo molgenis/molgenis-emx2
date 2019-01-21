@@ -65,13 +65,13 @@ class SqlQueryImpl implements SqlQuery {
     SqlTable fromTable = db.getTable(table);
     if (fromTable == null) {
       throw new SqlDatabaseException(
-          String.format("Cannot join table '?': table unknown in database.", table));
+          String.format("Cannot join table '%s': table unknown in database.", table));
     }
     // check toTable
     From temp = this.select.get(toTable);
     if (temp == null) {
       throw new SqlDatabaseException(
-          String.format("Cannot join to previous selected table '?': table not selected", toTable));
+          String.format("Cannot join to previous selected table '%s': table not selected", toTable));
     }
     SqlTable joinTable = temp.fromTable;
 
@@ -80,7 +80,7 @@ class SqlQueryImpl implements SqlQuery {
       String otherTable = fromTable.getColumn(on).getRefTable().getName();
       if (!otherTable.equals(joinTable.getName())) {
         throw new SqlDatabaseException(
-            String.format("Column '?' does not link '?' to '?'", on, table, toTable));
+            String.format("Column '%s' does not link '%s' to '%s'", on, table, toTable));
       }
       if (MREF.equals(fromTable.getColumn(on).getType())) {
         SqlColumn col = fromTable.getColumn(on);
@@ -97,7 +97,7 @@ class SqlQueryImpl implements SqlQuery {
       String refTable = joinTable.getColumn(on).getRefTable().getName();
       if (!refTable.equals(fromTable.getName())) {
         throw new SqlDatabaseException(
-            String.format("Column '?' does not link '?' to '?'", on, toTable, table));
+            String.format("Column '%s' does not link '%s' to '%s'", on, toTable, table));
       }
       if (MREF.equals(joinTable.getColumn(on).getType())) {
         SqlColumn col = joinTable.getColumn(on);
@@ -111,7 +111,7 @@ class SqlQueryImpl implements SqlQuery {
     } else {
       throw new SqlDatabaseException(
           String.format(
-              "Cannot join on column '?': column not known in table '?' and '?'",
+              "Cannot join on column '%s': column not known in table '%s' and '%s'",
               on,
               toTable,
               table));
