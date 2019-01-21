@@ -336,27 +336,42 @@ public class TestSql {
       db.query("pietje");
       fail("exception handling from(pietje) failed");
     } catch (Exception e) {
-      // good stuff
+      System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").join("ProductComponent", "p2", "product");
+      db.query("Product").as("p").join("Comp", "p", "components");
+      fail("should fail because faulty table");
+    } catch (Exception e) {
+      System.out.println("Succesfully caught exception: " + e);
+    }
+
+    try {
+      db.query("Product").as("p").join("Component", "p2", "components");
       fail("should fail because faulty toTabel");
     } catch (Exception e) {
-      // good stuff
+      System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").join("ProductComponent", "p", "component");
-      fail("should fail because faulty 'on'");
+      db.query("Product").as("p").join("Component", "p2", "components");
+      fail("should fail because faulty on although it is an mref");
     } catch (Exception e) {
-      // good stuff
+      System.out.println("Succesfully caught exception: " + e);
     }
+
+    try {
+      db.query("Product").as("p").join("Component", "p", "comps");
+      fail("should fail because faulty on");
+    } catch (Exception e) {
+      System.out.println("Succesfully caught exception: " + e);
+    }
+
     try {
       db.query("Product").as("p").select("wrongname").as("productName");
       fail("should fail because faulty 'select'");
     } catch (Exception e) {
-      // good stuff
+      System.out.println("Succesfully caught exception: " + e);
     }
 
     startTime = System.currentTimeMillis();
@@ -370,6 +385,15 @@ public class TestSql {
     endTime = System.currentTimeMillis();
     System.out.println("Query took " + (endTime - startTime) + " milliseconds");
     System.out.println("Query contents: " + q2);
+
+    // again reversing the 'on' columns
+    SqlQuery q3 = db.query("Product").as("p").select("name").as("productName");
+    q3.join("Component", "p", "partOfProduct").as("c").select("name").as("componentName");
+    q3.join("Part", "c", "partOfComponent").as("pt").select("name").as("partName").select("weight");
+    q3.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
+    for (SqlRow row : q3.retrieve()) {
+      System.out.println(row);
+    }
   }
 
   @AfterClass
