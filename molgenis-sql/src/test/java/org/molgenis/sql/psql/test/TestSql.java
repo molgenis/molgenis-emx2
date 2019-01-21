@@ -394,6 +394,10 @@ public class TestSql {
     for (SqlRow row : q3.retrieve()) {
       System.out.println(row);
     }
+
+    // test delete
+    product.delete(product1);
+    assertEquals(0, db.query("Product").retrieve().size());
   }
 
   @AfterClass

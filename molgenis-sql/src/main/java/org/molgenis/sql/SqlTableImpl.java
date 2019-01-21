@@ -290,7 +290,7 @@ class SqlTableImpl implements SqlTable {
   }
 
   @Override
-  public int delete(Collection<SqlRow> rows) {
+  public int delete(Collection<SqlRow> rows) throws SqlDatabaseException {
     // because of expensive table scanning and smaller query string size this batch should be larger
     // than insert/update
     int batchSize = 100000;
@@ -309,17 +309,23 @@ class SqlTableImpl implements SqlTable {
     return count;
   }
 
-  private void deleteBatch(Collection<SqlRow> rows, Table t) {
+  private void deleteBatch(Collection<SqlRow> rows, Table t) throws SqlDatabaseException {
     if (!rows.isEmpty()) {
       Field field = field(name(MOLGENISID), SQLDataType.UUID);
       List<UUID> idList = new ArrayList<>();
       rows.forEach(row -> idList.add(row.getRowID()));
       sql.deleteFrom(t).where(field.in(idList)).execute();
+      // save the mrefs
+      for (SqlColumnImpl c : columnMap.values()) {
+        if (MREF.equals(c.getType())) {
+          this.deleteOldMrefs(rows, c);
+        }
+      }
     }
   }
 
   @Override
-  public void delete(SqlRow row) {
+  public void delete(SqlRow row) throws SqlDatabaseException {
     this.delete(Arrays.asList(row));
   }
 

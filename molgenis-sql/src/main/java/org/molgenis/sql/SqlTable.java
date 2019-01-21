@@ -35,5 +35,5 @@ public interface SqlTable {
 
   void update(SqlRow rows) throws SqlDatabaseException;
 
-  void delete(SqlRow rows);
+  void delete(SqlRow rows) throws SqlDatabaseException;
 }
