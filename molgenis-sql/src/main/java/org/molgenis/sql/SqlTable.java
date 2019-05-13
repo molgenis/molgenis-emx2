@@ -31,9 +31,9 @@ public interface SqlTable {
 
   int delete(Collection<SqlRow> rows) throws SqlDatabaseException;
 
-  void insert(SqlRow rows) throws SqlDatabaseException;
+  void insert(SqlRow row) throws SqlDatabaseException;
 
-  void update(SqlRow rows) throws SqlDatabaseException;
+  void update(SqlRow row) throws SqlDatabaseException;
 
-  void delete(SqlRow rows) throws SqlDatabaseException;
+  void delete(SqlRow row) throws SqlDatabaseException;
 }

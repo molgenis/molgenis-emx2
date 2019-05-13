@@ -98,7 +98,17 @@ public class SqlRow {
     return this;
   }
 
-  public SqlRow setRef(String name, UUID value) {
+    public SqlRow setMref(String colName, SqlRow... values) {
+        List<UUID> ids = new ArrayList<>();
+        for (SqlRow r : values) {
+            ids.add(r.getRowID());
+        }
+        this.mrefs.put(colName, ids);
+        return this;
+    }
+
+
+    public SqlRow setRef(String name, UUID value) {
     values.put(name, value);
     return this;
   }
@@ -156,15 +166,6 @@ public class SqlRow {
 
   public Map<String, Object> getValueMap() {
     return values;
-  }
-
-  public SqlRow setMref(String colName, SqlRow... values) {
-    List<UUID> ids = new ArrayList<>();
-    for (SqlRow r : values) {
-      ids.add(r.getRowID());
-    }
-    this.mrefs.put(colName, ids);
-    return this;
   }
 
   public List<UUID> getMref(String colName) {

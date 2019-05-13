@@ -81,25 +81,33 @@ public class TestSql {
 
     long startTime = System.currentTimeMillis();
 
+    int size = 1000;
+
     List<SqlRow> rows = new ArrayList<>();
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < size; i++) {
       SqlRow r = new SqlRow();
       r.setString("test", "test" + i);
       r.setInt("testint", i);
       rows.add(r);
     }
     long endTime = System.currentTimeMillis();
-    System.out.println("Generated test data " + (endTime - startTime) + " milliseconds");
+    System.out.println(
+        "Generated " + size + " test record in " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    t.insert(rows.subList(0, 10));
+    t.insert(rows.subList(0, 100));
     endTime = System.currentTimeMillis();
-    System.out.println("Batch insert " + (endTime - startTime) + " milliseconds");
+    System.out.println("First batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    t.insert(rows.subList(10, 20));
+    t.insert(rows.subList(100, 200));
     endTime = System.currentTimeMillis();
-    System.out.println("Batch insert " + (endTime - startTime) + " milliseconds");
+    System.out.println("Second batch insert " + (endTime - startTime) + " milliseconds");
+
+    startTime = System.currentTimeMillis();
+    t.insert(rows.subList(200, 300));
+    endTime = System.currentTimeMillis();
+    System.out.println("Third batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
     for (SqlRow r : rows) {
@@ -214,7 +222,7 @@ public class TestSql {
     startTime = System.currentTimeMillis();
     SqlTable t2 = db.getTable("Person");
     List<SqlRow> rows = new ArrayList<>();
-    int count = 10;
+    int count = 1000;
     for (int i = 0; i < count; i++) {
       rows.add(new SqlRow().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }

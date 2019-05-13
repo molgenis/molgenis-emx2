@@ -5,11 +5,11 @@ import java.util.Collection;
 public interface SqlDatabase {
   SqlTable createTable(String name) throws SqlDatabaseException;
 
+  void dropTable(String tableId);
+
   Collection<SqlTable> getTables();
 
   SqlTable getTable(String name);
-
-  void dropTable(String tableId);
 
   void close();
 
