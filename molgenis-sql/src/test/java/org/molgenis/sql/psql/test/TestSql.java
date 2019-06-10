@@ -140,7 +140,17 @@ public class TestSql {
         Column c =
             t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
         checkColumnExists(c);
-      } else if (MREF.equals(type)) {
+      } else if (ENUM.equals(type)
+          || RADIO.equals(type)
+          || LONG.equals(type)
+          || HTML.equals(type)
+          || HYPERLINK.equals(type)
+          || FILE.equals(type)
+          || EMAIL.equals(type)
+          || SELECT.equals(type)
+          || MREF.equals(type)
+          || MSELECT.equals(type)
+          || CHECKBOX.equals(type)) {
         // cannot set nullable
       } else {
         Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);

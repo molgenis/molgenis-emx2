@@ -44,6 +44,7 @@ public class SqlTypeUtils {
       case MREF:
       case CHECKBOX:
       case MSELECT:
+        return UUID;
       default:
         // should never happen
         throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + sqlType);
