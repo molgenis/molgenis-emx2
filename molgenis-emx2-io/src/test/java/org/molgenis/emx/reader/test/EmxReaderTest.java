@@ -4,8 +4,8 @@ import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.junit.Test;
-import org.molgenis.emx2.EmxException;
-import org.molgenis.emx2.EmxModel;
+import org.molgenis.DatabaseException;
+import org.molgenis.Schema;
 import org.molgenis.emx2.io.MolgenisReader;
 import org.molgenis.emx2.io.MolgenisWriter;
 import org.molgenis.emx2.io.MolgenisWriterException;
@@ -21,7 +21,7 @@ import static junit.framework.TestCase.fail;
 public class EmxReaderTest {
 
   @Test
-  public void test1() throws IOException, MolgenisWriterException, EmxException {
+  public void test1() throws IOException, MolgenisWriterException, DatabaseException {
 
     System.out.println("lines parsed from test1.txt:");
     for (MolgenisFileRow row : new MolgenisReader().readRowsFromCsvFile(getFile("test1.txt"))) {
@@ -29,8 +29,8 @@ public class EmxReaderTest {
     }
 
     System.out.println("\nmodel read from test1.txt:");
-    EmxModel model1 = new MolgenisReader().readModelFromCsvFile(getFile("test1.txt"));
-    System.out.println(model1.print());
+    Schema model1 = new MolgenisReader().readModelFromCsvFile(getFile("test1.txt"));
+    // System.out.println(model1.print());
 
     System.out.println("\nmodel converted back to lines:");
     for (MolgenisFileRow row : new MolgenisWriter().convertModelToMolgenisFileRows(model1)) {
@@ -44,8 +44,8 @@ public class EmxReaderTest {
     System.out.println(csv);
 
     System.out.println("\nroundtrip read model from this csv");
-    EmxModel model2 = new MolgenisReader().readModelFromCsvReader(new StringReader(csv));
-    System.out.println(model1.print());
+    Schema model2 = new MolgenisReader().readModelFromCsvReader(new StringReader(csv));
+    // System.out.println(model1.print());
 
     // compare
     Javers javers = JaversBuilder.javers().build();

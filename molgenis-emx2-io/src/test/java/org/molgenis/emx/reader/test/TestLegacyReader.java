@@ -1,8 +1,8 @@
 package org.molgenis.emx.reader.test;
 
 import org.junit.Test;
-import org.molgenis.emx2.EmxException;
-import org.molgenis.emx2.EmxModel;
+import org.molgenis.DatabaseException;
+import org.molgenis.Schema;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
 import org.molgenis.emx2.io.MolgenisWriter;
@@ -29,7 +29,7 @@ public class TestLegacyReader {
     }
 
     try {
-      EmxModel model =
+      Schema model =
           new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
 
       StringWriter writer = new StringWriter();
@@ -44,7 +44,7 @@ public class TestLegacyReader {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
-    } catch (EmxException e) {
+    } catch (DatabaseException e) {
       e.printStackTrace();
     }
   }

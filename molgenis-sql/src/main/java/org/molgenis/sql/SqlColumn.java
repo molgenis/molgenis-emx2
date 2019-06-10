@@ -1,20 +1,34 @@
 package org.molgenis.sql;
 
-public interface SqlColumn {
+import org.jooq.DSLContext;
+import org.molgenis.DatabaseException;
+import org.molgenis.Table;
+import org.molgenis.bean.ColumnBean;
 
-  SqlTable getTable();
+public class SqlColumn extends ColumnBean {
+  private DSLContext sql;
 
-  String getName();
+  public SqlColumn(DSLContext sql, Table table, String name, Type type) {
+    super(table, name, type);
+    this.sql = sql;
+  }
 
-  SqlType getType();
+  public SqlColumn(DSLContext sql, Table table, String name, Table otherTable) {
+    super(table, name, otherTable);
+    this.sql = sql;
+  }
 
-  Boolean isNullable();
+  public SqlColumn(DSLContext sql, Table table, String name, Table otherTable, String joinTable) {
+    super(table, name, otherTable, joinTable);
+    this.sql = sql;
+  }
 
-  SqlColumn setNullable(boolean nillable) throws SqlDatabaseException;
-
-  SqlTable getRefTable();
-
-  SqlTable getMrefTable();
-
-  String getMrefBack();
+  @Override
+  public SqlColumn setNullable(boolean nillable) throws DatabaseException {
+    if (nillable)
+      sql.alterTable(getTable().getName()).alterColumn(getName()).dropNotNull().execute();
+    else sql.alterTable(getTable().getName()).alterColumn(getName()).setNotNull().execute();
+    super.setNullable(isNullable());
+    return this;
+  }
 }

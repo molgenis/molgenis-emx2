@@ -1,8 +1,9 @@
 package org.molgenis.emx2.io.format;
 
-import org.molgenis.emx2.EmxType;
+import org.molgenis.Column;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,11 +80,11 @@ public enum EmxDefinitionTerm {
     }
   }
 
-  public static EmxDefinitionTerm valueOf(EmxType type) {
+  public static EmxDefinitionTerm valueOf(Column.Type type) {
     return valueOf(type.toString());
   }
 
-  public EmxDefinitionTerm setParameterList(List<String> columnNames) {
+  public EmxDefinitionTerm setParameterList(Collection<String> columnNames) {
     this.parameterValue =
         columnNames.stream().map(Object::toString).collect(Collectors.joining(","));
     return this;

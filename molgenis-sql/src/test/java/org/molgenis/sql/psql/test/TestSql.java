@@ -4,13 +4,15 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.SQLDialect;
-import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.*;
+import org.molgenis.bean.RowBean;
 import org.molgenis.sql.*;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +25,15 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
-import static org.molgenis.sql.SqlRow.MOLGENISID;
-import static org.molgenis.sql.SqlType.*;
+import static org.jooq.impl.DSL.field;
+import static org.molgenis.sql.RowImpl.MOLGENISID;
+import static org.molgenis.Column.Type.*;
 
 public class TestSql {
 
-  private static SqlDatabaseImpl db = null;
+  private static SqlDatabase db = null;
   private static HikariDataSource dataSource = null;
+  private static DSLContext jooq = null;
 
   @BeforeClass
   public static void setUp() {
@@ -49,22 +53,22 @@ public class TestSql {
       Connection conn = dataSource.getConnection();
 
       // internal magic
-      DSLContext context = DSL.using(conn, SQLDialect.POSTGRES_10);
+      jooq = DSL.using(conn, SQLDialect.POSTGRES_10);
 
       // delete all foreign key constaints
-      for (Table t : context.meta().getTables()) {
+      for (org.jooq.Table t : jooq.meta().getTables()) {
         for (ForeignKey k : (List<ForeignKey>) t.getReferences()) {
-          context.alterTable(t).dropConstraint(k.getName()).execute();
+          jooq.alterTable(t).dropConstraint(k.getName()).execute();
         }
       }
       // delete all tables
-      for (Table t : context.meta().getTables()) {
-        context.dropTable(t).execute();
+      for (org.jooq.Table t : jooq.meta().getTables()) {
+        jooq.dropTable(t).execute();
       }
 
-      conn.close();
+      // conn.close();
 
-      db = new SqlDatabaseImpl(dataSource);
+      db = new SqlDatabase(dataSource);
     }
 
     // For the sake of this test, let's keep exception handling simple
@@ -74,8 +78,9 @@ public class TestSql {
   }
 
   @Test
-  public void testBatch() throws SqlDatabaseException {
-    SqlTable t = db.createTable("TestBatch");
+  public void testBatch() throws DatabaseException {
+    String TEST_BATCH = "TestBatch";
+    Table t = db.getSchema().createTable(TEST_BATCH);
     t.addColumn("test", STRING);
     t.addColumn("testint", INT);
 
@@ -83,9 +88,9 @@ public class TestSql {
 
     int size = 1000;
 
-    List<SqlRow> rows = new ArrayList<>();
+    List<Row> rows = new ArrayList<>();
     for (int i = 0; i < size; i++) {
-      SqlRow r = new SqlRow();
+      Row r = new RowBean();
       r.setString("test", "test" + i);
       r.setInt("testint", i);
       rows.add(r);
@@ -95,30 +100,30 @@ public class TestSql {
         "Generated " + size + " test record in " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    t.insert(rows.subList(0, 100));
+    db.insert(TEST_BATCH, rows.subList(0, 100));
     endTime = System.currentTimeMillis();
     System.out.println("First batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    t.insert(rows.subList(100, 200));
+    db.insert(TEST_BATCH, rows.subList(100, 200));
     endTime = System.currentTimeMillis();
     System.out.println("Second batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    t.insert(rows.subList(200, 300));
+    db.insert(TEST_BATCH, rows.subList(200, 300));
     endTime = System.currentTimeMillis();
     System.out.println("Third batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    for (SqlRow r : rows) {
+    for (Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }
-    t.update(rows);
+    db.update(TEST_BATCH, rows);
     endTime = System.currentTimeMillis();
     System.out.println("Batch update " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    for (SqlRow r : db.query("TestBatch").retrieve()) {
+    for (Row r : db.query("TestBatch").retrieve()) {
       System.out.println(r);
     }
     endTime = System.currentTimeMillis();
@@ -126,27 +131,34 @@ public class TestSql {
   }
 
   @Test
-  public void testTypes() throws SqlDatabaseException {
+  public void testTypes() throws DatabaseException {
 
     // generate TypeTest table, with columns for each type
-    SqlTable t = db.createTable("TypeTest");
-    for (SqlType type : SqlType.values()) {
+    Table t = db.getSchema().createTable("TypeTest");
+    for (Column.Type type : Column.Type.values()) {
       if (REF.equals(type)) {
-        t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
+        Column c =
+            t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
+        checkColumnExists(c);
       } else if (MREF.equals(type)) {
         // cannot set nullable
       } else {
-        t.addColumn("Test_" + type.toString().toLowerCase(), type);
-        t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type).setNullable(true);
+        Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);
+        Column c2 =
+            t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
+                .setNullable(true);
+        checkColumnExists(c);
+        checkColumnExists(c2);
       }
     }
 
     // retrieve this table from metadataa
-    SqlTable t2 = db.getTable("TypeTest");
+    String TYPE_TEST = "TypeTest";
+    Table t2 = db.getSchema().getTable("TypeTest");
     System.out.println(t2);
 
     // check nullable ok
-    SqlRow row = new SqlRow();
+    Row row = new RowBean();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
     row.setBool("Test_bool", true);
@@ -155,10 +167,10 @@ public class TestSql {
     row.setText("Test_text", "testtext");
     row.setDate("Test_date", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test_datetime", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
-    t2.insert(row);
+    db.insert(TYPE_TEST, row);
 
     // check not null expects exception
-    row = new SqlRow();
+    row = new RowBean();
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
     row.setBool("Test_bool_nillable", true);
@@ -169,15 +181,15 @@ public class TestSql {
     row.setDateTime(
         "Test_datetime_nillable", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
     try {
-      t2.insert(row);
+      db.insert(TYPE_TEST, row);
       fail(); // should not reach this one
-    } catch (SqlDatabaseException e) {
+    } catch (DatabaseException e) {
       System.out.println("as expected, caught exceptoin: " + e.getMessage());
     }
 
     // check query and test getters
-    List<SqlRow> result = db.query("TypeTest").retrieve();
-    for (SqlRow res : result) {
+    List<Row> result = db.query("TypeTest").retrieve();
+    for (Row res : result) {
       System.out.println(res);
       res.setRowID(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
@@ -189,22 +201,23 @@ public class TestSql {
       assert (res.getBool("Test_bool") instanceof Boolean);
       assert (res.getUuid("Test_uuid") instanceof java.util.UUID);
 
-      t2.insert(res);
+      db.insert(TYPE_TEST, res);
     }
 
     System.out.println("testing TypeTest query");
-    for (SqlRow r : db.query("TypeTest").retrieve()) {
+    for (Row r : db.query("TypeTest").retrieve()) {
       System.out.println(r);
     }
   }
 
   @Test
-  public void testCreate() throws SqlDatabaseException {
+  public void testCreate() throws DatabaseException {
 
     long startTime = System.currentTimeMillis();
 
     // create a fromTable
-    SqlTable t = db.createTable("Person");
+    String PERSON = "Person";
+    Table t = db.getSchema().createTable(PERSON);
     t.addColumn("First Name", STRING);
     t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
@@ -215,18 +228,18 @@ public class TestSql {
         "Created fromTable: \n" + t.toString() + " in " + (endTime - startTime) + " milliseconds");
 
     // reinitialise database to see if it can recreate from background
-    db = new SqlDatabaseImpl(dataSource);
-    assertEquals(10, db.getTables().size());
+    db = new SqlDatabase(dataSource);
+    assertEquals(4, db.getSchema().getTables().size());
 
     // insert
     startTime = System.currentTimeMillis();
-    SqlTable t2 = db.getTable("Person");
-    List<SqlRow> rows = new ArrayList<>();
+    Table t2 = db.getSchema().getTable(PERSON);
+    List<Row> rows = new ArrayList<>();
     int count = 1000;
     for (int i = 0; i < count; i++) {
-      rows.add(new SqlRow().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
+      rows.add(new RowBean().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
-    t.insert(rows);
+    db.insert(PERSON, rows);
     endTime = System.currentTimeMillis();
     long total = (endTime - startTime);
     System.out.println(
@@ -240,8 +253,8 @@ public class TestSql {
 
     // query
     startTime = System.currentTimeMillis();
-    SqlQuery q = db.query("Person");
-    for (SqlRow row : q.retrieve()) {
+    Query q = db.query(PERSON);
+    for (Row row : q.retrieve()) {
       // System.out.println("Query result: " + row);
     }
     endTime = System.currentTimeMillis();
@@ -250,7 +263,7 @@ public class TestSql {
 
     // delete
     startTime = System.currentTimeMillis();
-    t.delete(rows);
+    db.delete(PERSON, rows);
     endTime = System.currentTimeMillis();
     total = (endTime - startTime);
     System.out.println(
@@ -279,46 +292,49 @@ public class TestSql {
     assertEquals(3, t.getColumns().size());
 
     // drop a fromTable
-    db.dropTable(t.getName());
-    assertEquals(null, db.getTable("Person"));
+    db.getSchema().dropTable(t.getName());
+    assertEquals(null, db.getSchema().getTable("Person"));
     // make sure nothing was left behind in backend
-    db = new SqlDatabaseImpl(dataSource);
-    assertEquals(null, db.getTable("Person"));
+    db = new SqlDatabase(dataSource);
+    assertEquals(null, db.getSchema().getTable("Person"));
   }
 
   @Test
-  public void testQuery() throws SqlDatabaseException {
+  public void testQuery() throws DatabaseException {
 
     long startTime = System.currentTimeMillis();
 
-    SqlTable part = db.createTable("Part");
+    String PART = "Part";
+    Table part = db.getSchema().createTable(PART);
     part.addColumn("name", STRING);
     part.addColumn("weight", INT);
     part.addUnique("name");
 
-    SqlRow part1 = new SqlRow().setString("name", "forms").setInt("weight", 100);
-    SqlRow part2 = new SqlRow().setString("name", "login").setInt("weight", 50);
-    part.insert(part1);
-    part.insert(part2);
+    Row part1 = new RowBean().setString("name", "forms").setInt("weight", 100);
+    Row part2 = new RowBean().setString("name", "login").setInt("weight", 50);
+    db.insert(PART, part1);
+    db.insert(PART, part2);
 
-    SqlTable component = db.createTable("Component");
+    /*
+    Table component = db.createTable("Component");
     component.addColumn("name", STRING);
     component.addUnique("name");
     component.addMref("parts", part, "partOfComponent");
 
-    SqlRow component1 = new SqlRow().setString("name", "explorer").setMref("parts", part1, part2);
-    SqlRow component2 = new SqlRow().setString("name", "navigator").setMref("parts", part2);
+    Row component1 = new RowBean().setString("name", "explorer").setMref("parts", part1, part2);
+    Row component2 = new RowBean().setString("name", "navigator").setMref("parts", part2);
     component.insert(component1);
     component.insert(component2);
 
-    SqlTable product = db.createTable("Product");
+    Table product = db.createTable("Product");
     product.addColumn("name", STRING);
     product.addUnique("name");
     product.addMref("components", component, "partOfProduct");
 
-    SqlRow product1 =
-        new SqlRow().setString("name", "molgenis").setMref("components", component1, component2);
+    Row product1 =
+        new RowBean().setString("name", "molgenis").setMref("components", component1, component2);
     product.insert(product1);
+
 
     long endTime = System.currentTimeMillis();
     System.out.println("Creation took " + (endTime - startTime) + " milliseconds");
@@ -332,7 +348,7 @@ public class TestSql {
     // sortby clauses
     // later: group by.
 
-    //        SqlQueryImpl q1 = new PsqlQueryBack(db);
+    //        QueryImpl q1 = new PsqlQueryBack(db);
     // db        q1.select("Product").columns("name").as("productName");
     //        q1.mref("ProductComponent").columns("name").as("componentName");
     //        q1.mref("ComponentPart").columns("name").as("partName");
@@ -383,11 +399,11 @@ public class TestSql {
     }
 
     startTime = System.currentTimeMillis();
-    SqlQuery q2 = db.query("Product").as("p").select("name").as("productName");
+    Query q2 = db.query("Product").as("p").select("name").as("productName");
     q2.join("Component", "p", "components").as("c").select("name").as("componentName");
     q2.join("Part", "c", "parts").as("pt").select("name").as("partName").select("weight");
     q2.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
-    for (SqlRow row : q2.retrieve()) {
+    for (Row row : q2.retrieve()) {
       System.out.println(row);
     }
     endTime = System.currentTimeMillis();
@@ -395,17 +411,28 @@ public class TestSql {
     System.out.println("Query contents: " + q2);
 
     // again reversing the 'on' columns
-    SqlQuery q3 = db.query("Product").as("p").select("name").as("productName");
+    Query q3 = db.query("Product").as("p").select("name").as("productName");
     q3.join("Component", "p", "partOfProduct").as("c").select("name").as("componentName");
     q3.join("Part", "c", "partOfComponent").as("pt").select("name").as("partName").select("weight");
     q3.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
-    for (SqlRow row : q3.retrieve()) {
+    for (Row row : q3.retrieve()) {
       System.out.println(row);
     }
 
     // test delete
     product.delete(product1);
     assertEquals(0, db.query("Product").retrieve().size());
+    */
+  }
+
+  private void checkColumnExists(Column c) {
+    List<org.jooq.Table<?>> tables = jooq.meta().getTables(c.getTable().getName());
+    if (tables.size() == 0)
+      throw new RuntimeException("Table '" + c.getTable().getName() + "' does not exist");
+    org.jooq.Table<?> table = tables.get(0);
+    Field f = table.field(c.getName());
+    if (f == null)
+      throw new RuntimeException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
   }
 
   @AfterClass

@@ -2,6 +2,10 @@ package org.molgenis.emx2.io;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.molgenis.Column;
+import org.molgenis.Schema;
+import org.molgenis.Table;
+import org.molgenis.Unique;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
@@ -13,12 +17,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.molgenis.emx2.io.EmxConstants.MOLGENISID;
+import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
 
 public class MolgenisWriter {
 
-  public void writeCsv(EmxModel model, Writer writer) throws IOException, MolgenisWriterException {
+  public void writeCsv(Schema model, Writer writer) throws IOException, MolgenisWriterException {
     CSVPrinter csvPrinter =
         new CSVPrinter(
             writer, CSVFormat.DEFAULT.withHeader("table", "column", "definition", "description"));
@@ -29,15 +33,16 @@ public class MolgenisWriter {
     csvPrinter.close();
   }
 
-  public List<MolgenisFileRow> convertModelToMolgenisFileRows(EmxModel model)
+  public List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
       throws MolgenisWriterException {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
-    for (EmxTable table : model.getTables()) {
+    for (String tableName : model.getTables()) {
+      Table table = model.getTable(tableName);
       if (table.getExtend() != null || !table.getUniques().isEmpty()) {
         rows.add(convertTableToRow(table));
       }
-      for (EmxColumn column : table.getColumns()) {
+      for (Column column : table.getColumns()) {
         // ignore internal ID
         if (!MOLGENISID.equals(column.getName())) {
           rows.add(convertColumnToRow(table, column));
@@ -47,16 +52,16 @@ public class MolgenisWriter {
     return rows;
   }
 
-  private MolgenisFileRow convertColumnToRow(EmxTable table, EmxColumn column)
+  private MolgenisFileRow convertColumnToRow(Table table, Column column)
       throws MolgenisWriterException {
     return new MolgenisFileRow(
         table.getName(), column.getName(), getDefinitionString(column), column.getDescription());
   }
 
-  private String getDefinitionString(EmxColumn col) throws MolgenisWriterException {
+  private String getDefinitionString(Column col) throws MolgenisWriterException {
     List<EmxDefinitionTerm> def = new ArrayList<>();
 
-    if (!EmxType.STRING.equals(col.getType())) {
+    if (!Column.Type.STRING.equals(col.getType())) {
       EmxDefinitionTerm d = EmxDefinitionTerm.valueOf(col.getType());
       switch (d) {
         case STRING:
@@ -110,12 +115,12 @@ public class MolgenisWriter {
 
       def.add(d);
     }
-    if (col.getNillable()) def.add(NILLABLE);
-    if (col.getReadonly()) def.add(READONLY);
+    if (col.isNullable()) def.add(NILLABLE);
+    if (col.isReadonly()) def.add(READONLY);
     if (col.getDefaultValue() != null) def.add(DEFAULT.setParameterValue(col.getDefaultValue()));
     if (col.getValidation() != null)
       def.add(VALIDATION.setParameterValue(escapeScript(col.getValidation())));
-    if (col.getUnique()) def.add(UNIQUE.setParameterValue(null));
+    if (col.isUnique()) def.add(UNIQUE.setParameterValue(null));
     if (col.getVisible() != null)
       def.add(VISIBLE.setParameterValue(escapeScript(col.getVisible())));
 
@@ -130,9 +135,9 @@ public class MolgenisWriter {
     return value.replace(".", "\\.").replace("(", "\\(").replace(")", "\\)");
   }
 
-  private MolgenisFileRow convertTableToRow(EmxTable table) {
+  private MolgenisFileRow convertTableToRow(Table table) {
     List<EmxDefinitionTerm> def = new ArrayList<>();
-    for (EmxUnique u : table.getUniques()) {
+    for (Unique u : table.getUniques()) {
       def.add(UNIQUE.setParameterList(u.getColumnNames()));
     }
 

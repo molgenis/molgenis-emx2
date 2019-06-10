@@ -2,7 +2,11 @@ package org.molgenis.emx2.io;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.molgenis.emx2.*;
+import org.molgenis.Column;
+import org.molgenis.DatabaseException;
+import org.molgenis.Schema;
+import org.molgenis.Table;
+import org.molgenis.bean.SchemaBean;
 import org.molgenis.emx2.io.format.EmxDefinitionParser;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileHeader;
@@ -17,11 +21,11 @@ import java.util.List;
 
 public class MolgenisReader {
 
-  public EmxModel readModelFromCsvFile(File f) throws IOException, EmxException {
+  public Schema readModelFromCsvFile(File f) throws IOException, DatabaseException {
     return readModelFromCsvReader(new FileReader(f));
   }
 
-  public EmxModel readModelFromCsvReader(Reader in) throws IOException, EmxException {
+  public Schema readModelFromCsvReader(Reader in) throws IOException, DatabaseException {
     List<MolgenisFileRow> rows = readRowsFromCsvReader(in);
     return convertRowsToModel(rows);
   }
@@ -55,9 +59,9 @@ public class MolgenisReader {
     }
   }
 
-  public EmxModel convertRowsToModel(List<MolgenisFileRow> rows)
-      throws MolgenisReaderException, EmxException {
-    EmxModel model = new EmxModel();
+  public Schema convertRowsToModel(List<MolgenisFileRow> rows)
+      throws MolgenisReaderException, DatabaseException {
+    Schema model = new SchemaBean();
     List<MolgenisReaderMessage> messages = new ArrayList<>();
     convertRowsToColumns(rows, model, messages);
     convertRowsToTables(rows, model, messages);
@@ -65,8 +69,8 @@ public class MolgenisReader {
   }
 
   private void convertRowsToTables(
-      List<MolgenisFileRow> rows, EmxModel model, List<MolgenisReaderMessage> messages)
-      throws MolgenisReaderException, EmxException {
+      List<MolgenisFileRow> rows, Schema model, List<MolgenisReaderMessage> messages)
+      throws MolgenisReaderException, DatabaseException {
     int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
@@ -77,7 +81,7 @@ public class MolgenisReader {
           model.createTable(tableName);
         }
 
-        EmxTable table = model.getTable(tableName);
+        Table table = model.getTable(tableName);
         extractTableDefinition(messages, line, row, table, model);
       }
     }
@@ -87,16 +91,17 @@ public class MolgenisReader {
       List<MolgenisReaderMessage> messages,
       int line,
       MolgenisFileRow row,
-      EmxTable table,
-      EmxModel model)
-      throws MolgenisReaderException, EmxException {
+      Table table,
+      Schema model)
+      throws MolgenisReaderException {
     List<EmxDefinitionTerm> terms =
         new EmxDefinitionParser().parse(line, messages, row.getDefinition());
     for (EmxDefinitionTerm term : terms) {
       switch (term) {
         case UNIQUE:
           try {
-            table.addUnique(term.getParameterList());
+            List<String> uniques = term.getParameterList();
+            table.addUnique(uniques.toArray(new String[uniques.size()]));
           } catch (Exception e) {
             throw new MolgenisReaderException(
                 "error on line "
@@ -108,7 +113,8 @@ public class MolgenisReader {
           }
           break;
         case EXTENDS:
-          table.setExtend(model.getTable(term.getParameterValue()));
+          // TODO
+          // table.setExtend(model.getTable(term.getParameterValue()));
           break;
         default:
           throw new MolgenisReaderException(
@@ -118,8 +124,8 @@ public class MolgenisReader {
   }
 
   private void convertRowsToColumns(
-      List<MolgenisFileRow> rows, EmxModel model, List<MolgenisReaderMessage> messages)
-      throws MolgenisReaderException, EmxException {
+      List<MolgenisFileRow> rows, Schema model, List<MolgenisReaderMessage> messages)
+      throws MolgenisReaderException, DatabaseException {
     int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
@@ -129,7 +135,7 @@ public class MolgenisReader {
         if (model.getTable(tableName) == null) {
           model.createTable(tableName);
         }
-        EmxTable table = model.getTable(tableName);
+        Table table = model.getTable(tableName);
         if (table.getColumn(columnName) != null) {
           throw new MolgenisReaderException(
               "error on line "
@@ -142,14 +148,14 @@ public class MolgenisReader {
         }
         List<EmxDefinitionTerm> terms =
             new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-        EmxColumn column = table.addColumn(columnName, getType(terms));
+        Column column = table.addColumn(columnName, getType(terms));
         applyDefintionsToColumn(line, terms, column);
       }
     }
   }
 
-  private void applyDefintionsToColumn(int line, List<EmxDefinitionTerm> terms, EmxColumn column)
-      throws EmxException, MolgenisReaderException {
+  private void applyDefintionsToColumn(int line, List<EmxDefinitionTerm> terms, Column column)
+      throws MolgenisReaderException, DatabaseException {
     for (EmxDefinitionTerm term : terms) {
       switch (term) {
         case STRING:
@@ -172,16 +178,16 @@ public class MolgenisReader {
         case ENUM:
           break;
         case NILLABLE:
-          column.setNillable(true);
+          column.setNullable(true);
           break;
         case READONLY:
-          column.setReadonly(true);
+          // column.setReadonly(true);
           break;
         case DEFAULT:
-          column.setDefaultValue(term.getParameterValue());
+          // column.setDefaultValue(term.getParameterValue());
           break;
         case UNIQUE:
-          column.setUnique(true);
+          column.getTable().addUnique(column.getName());
           break;
         default:
           throw new MolgenisReaderException(
@@ -190,12 +196,12 @@ public class MolgenisReader {
     }
   }
 
-  private EmxType getType(List<EmxDefinitionTerm> terms) {
+  private Column.Type getType(List<EmxDefinitionTerm> terms) {
     // get type
-    EmxType type = EmxType.STRING;
+    Column.Type type = Column.Type.STRING;
     for (EmxDefinitionTerm term : terms) {
       try {
-        type = EmxType.valueOf(term.name());
+        type = Column.Type.valueOf(term.name());
       } catch (Exception e) {
         // no problem,irrelevant term.
       }

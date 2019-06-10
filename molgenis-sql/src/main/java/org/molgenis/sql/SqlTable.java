@@ -1,39 +1,169 @@
 package org.molgenis.sql;
 
-import java.util.Collection;
+import org.jooq.*;
+import org.jooq.impl.SQLDataType;
+import org.molgenis.Column;
+import org.molgenis.DatabaseException;
+import org.molgenis.Schema;
+import org.molgenis.Unique;
+import org.molgenis.bean.TableBean;
 
-public interface SqlTable {
-  String getName();
+import java.util.*;
 
-  Collection<SqlColumn> getColumns();
+import static org.jooq.impl.DSL.*;
 
-  SqlColumn getColumn(String name);
+import static org.molgenis.sql.RowImpl.MOLGENISID;
+import static org.molgenis.Column.Type.MREF;
 
-  SqlColumn addColumn(String name, SqlType type) throws SqlDatabaseException;
+class SqlTable extends TableBean {
+  private DSLContext sql;
+  private Schema schema;
+  private boolean isLoading = false;
 
-  SqlColumn addRef(String name, SqlTable otherTable) throws SqlDatabaseException;
+  SqlTable(Schema schema, DSLContext sql, String name) throws DatabaseException {
+    super(name);
+    this.schema = schema;
+    this.sql = sql;
+    loadMetadata();
+  }
 
-  SqlColumn addMref(String name, SqlTable otherTable, String joinTable) throws SqlDatabaseException;
+  private void loadMetadata() throws DatabaseException {
+    isLoading = true;
+    org.jooq.Table t = sql.meta().getTables(getName()).get(0);
+    loadColumns(t);
+    loadUniques(t);
+    isLoading = false;
+  }
 
-  void removeColumn(String name) throws SqlDatabaseException;
+  private void loadColumns(org.jooq.Table t) throws DatabaseException {
+    // get all foreign keys
+    Map<String, org.molgenis.Table> refs = new LinkedHashMap<>();
+    for (Object o3 : t.getReferences()) {
+      ForeignKey fk = (ForeignKey) o3;
+      for (Field field : (List<Field>) fk.getFields()) {
+        Column temp = getColumn(field.getName());
+        String refTableName = fk.getKey().getTable().getName();
+        if (refTableName.equals(getName())) {
+          refs.put(field.getName(), this);
+        } else {
+          refs.put(field.getName(), schema.getTable(refTableName));
+        }
+      }
+    }
 
-  Collection<SqlUnique> getUniques();
+    // get
+    for (Field field : t.fields()) {
+      String name = field.getName();
+      org.molgenis.Table ref = refs.get(name);
+      if (ref != null) addRef(name, refs.get(field.getName()));
+      else addColumn(name, SqlTypeUtils.getSqlType(field));
+    }
+    // TODO: null constraints
+    // TODO: settings that are not in schema
+  }
 
-  SqlUnique addUnique(String... name) throws SqlDatabaseException;
+  private void loadUniques(org.jooq.Table t) throws DatabaseException {
+    for (Index i : (List<Index>) t.getIndexes()) {
+      if (i.getUnique()) {
+        List<String> cols = new ArrayList<>();
+        for (SortField sf : i.getFields()) {
+          cols.add(sf.getName());
+        }
+        addUnique(cols.toArray(new String[cols.size()]));
+      }
+    }
+  }
 
-  boolean isUnique(String... tableName);
+  private void reloadMrefs(org.jooq.Table t) {
+    // TODO mrefs
+  }
 
-  void removeUnique(String... name) throws SqlDatabaseException;
+  @Override
+  public SqlColumn addColumn(String name, SqlColumn.Type type) throws DatabaseException {
+    if (!isLoading) {
+      DataType jooqType = SqlTypeUtils.typeOf(type);
+      Field field = field(name(name), jooqType.nullable(false));
+      sql.alterTable(name(getName())).addColumn(field).execute();
+    }
+    SqlColumn c = new SqlColumn(sql, this, name, type);
+    columns.put(name, c);
+    return c;
+  }
 
-  void insert(Collection<SqlRow> rows) throws SqlDatabaseException;
+  @Override
+  public SqlColumn addRef(String name, org.molgenis.Table otherTable) throws DatabaseException {
+    if (!isLoading) {
+      Field field = field(name(name), SQLDataType.UUID.nullable(false));
+      sql.alterTable(name(getName())).addColumn(field).execute();
+      sql.alterTable(name(getName()))
+          .add(
+              constraint(name(getName()) + "_" + name(name) + "_FK")
+                  .foreignKey(name(name))
+                  .references(name(otherTable.getName()), name(MOLGENISID)))
+          .execute();
+      sql.createIndex(name(getName()) + "_" + name(name) + "_FKINDEX")
+          .on(table(name(getName())), field)
+          .execute();
+    }
+    SqlColumn c = new SqlColumn(sql, this, name, otherTable);
+    columns.put(name, c);
+    return c;
+  }
 
-  int update(Collection<SqlRow> rows) throws SqlDatabaseException;
+  @Override
+  public SqlColumn addMref(String name, org.molgenis.Table otherTable, String otherColumn)
+      throws DatabaseException {
+    if (!isLoading) {
+      Column check = getColumn(name);
+      if (check != null && MREF.equals(check.getType()) && otherTable.equals(check.getRefTable())) {
+        // todo check
+      } else {
+        String joinTable = this.getName() + name + "MREF" + otherTable.getName() + otherColumn;
+        org.molgenis.Table jTable = schema.createTable(joinTable);
+        jTable.addRef(otherColumn, this);
+        jTable.addRef(name, otherTable);
+        // add reverse link
+        // otherTable.addMref(otherColumn, this, name);
+      }
+    }
+    SqlColumn c = new SqlColumn(sql, this, name, otherTable, otherColumn);
+    columns.put(name, c);
+    return c;
+  }
 
-  int delete(Collection<SqlRow> rows) throws SqlDatabaseException;
+  @Override
+  public void removeColumn(String name) throws DatabaseException {
+    if (MOLGENISID.equals(name))
+      throw new DatabaseException("You are not allowed to remove primary key column " + MOLGENISID);
+    sql.alterTable(name(getName())).dropColumn(field(name(name))).execute();
+    super.removeColumn(name);
+  }
 
-  void insert(SqlRow row) throws SqlDatabaseException;
+  public Unique addUnique(String... keys) throws DatabaseException {
+    if (!isLoading) {
+      String uniqueName = getName() + "_" + String.join("_", keys) + "_UNIQUE";
+      sql.alterTable(name(getName())).add(constraint(name(uniqueName)).unique(keys)).execute();
+    }
+    return super.addUnique(keys);
+  }
 
-  void update(SqlRow row) throws SqlDatabaseException;
+  @Override
+  public boolean isUnique(String... keys) {
+    try {
+      getUniqueName(keys);
+      return true;
+    } catch (DatabaseException e) {
+      return false;
+    }
+  }
 
-  void delete(SqlRow row) throws SqlDatabaseException;
+  @Override
+  public void removeUnique(String... keys) throws DatabaseException {
+    if (keys.length == 1 && MOLGENISID.equals(keys[0]))
+      throw new DatabaseException(
+          "You are not allowed to remove unique constraint on primary key column " + MOLGENISID);
+    String uniqueName = getUniqueName(keys);
+    sql.alterTable(name(getName())).dropConstraint(name(uniqueName)).execute();
+    super.removeUnique(keys);
+  }
 }

@@ -13,6 +13,7 @@
         <module>molgenis-emx2-io</module>
         <module>molgenis-emx2-database</module>
         <module>molgenis-sql</module>
+        <module>molgenis-emx2-webservice</module>
     </modules>
 
     <properties>
