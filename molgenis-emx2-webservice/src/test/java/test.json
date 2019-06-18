@@ -14,10 +14,9 @@
     {
       "father/firstName": "Donald"
     }
-  ]
-},
-"sort": {
-"FirstName": "asc",
-"LastName": "desc"
-}
+  ],
+  "sort": {
+    "FirstName": "asc",
+    "LastName": "desc"
+  }
 }
