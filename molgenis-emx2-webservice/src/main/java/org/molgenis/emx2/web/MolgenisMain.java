@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.web;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;

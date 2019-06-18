@@ -3,23 +3,24 @@
     "select": [
       "firstName",
       "lastName",
-      {
-        "father": [
-          "firstName"
-        ]
-      }
+      "father/firstName"
     ],
     "filter": {
       "lastName": {
-        "eq": [
-          "Duck"
-        ]
+        "eq": "Duck"
+      },
+      "Age": {
+        "eq": 50
       }
       "father": {
         "firstName": {
           "eq": "Donald"
         }
       }
+    },
+    "sort": {
+      "FirstName": "asc",
+      "LastName": "desc"
     }
   }
 }

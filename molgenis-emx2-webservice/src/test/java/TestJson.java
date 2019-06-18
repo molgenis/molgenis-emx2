@@ -1,13 +1,18 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
-import org.junit.Assert;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
+import org.molgenis.Query;
 import org.molgenis.Row;
 import org.molgenis.Table;
+import org.molgenis.beans.QueryBean;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
-import org.molgenis.emx2.org.molgenis.emx2.json.JsonMapper;
+import org.molgenis.emx2.web.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,5 +69,14 @@ public class TestJson {
     rows.add(new RowBean().setString("FirstName", "Donald"));
 
     System.out.println(JsonMapper.map(rows));
+  }
+
+  @Test
+  public void testQuery() {
+    Query q = new QueryBean();
+
+    q.select("FirstName").select("LastName").where("Age").eq(50);
+
+    System.out.println(JsonMapper.map(q));
   }
 }

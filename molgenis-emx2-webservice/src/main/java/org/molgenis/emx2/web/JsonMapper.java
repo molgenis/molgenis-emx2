@@ -1,12 +1,9 @@
-package org.molgenis.emx2.org.molgenis.emx2.json;
+package org.molgenis.emx2.web;
 
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
-import org.molgenis.Column;
-import org.molgenis.MolgenisException;
-import org.molgenis.Row;
-import org.molgenis.Table;
+import org.molgenis.*;
 import org.molgenis.beans.RowBean;
 
 import java.util.List;
@@ -67,5 +64,9 @@ public class JsonMapper {
       values[i++] = r.getValueMap();
     }
     return JsonStream.serialize(values);
+  }
+
+  public static String map(Query q) {
+    return JsonStream.serialize(q);
   }
 }

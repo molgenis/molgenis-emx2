@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class WhereBean implements Where {
 
-  private QueryBean query;
+  private transient QueryBean query;
   private String[] path;
   private Operator op;
   private Object[] values;

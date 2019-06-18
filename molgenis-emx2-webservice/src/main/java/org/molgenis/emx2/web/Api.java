@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.web;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
@@ -6,7 +6,6 @@ import org.molgenis.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.Row;
 import org.molgenis.Table;
-import org.molgenis.emx2.org.molgenis.emx2.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;

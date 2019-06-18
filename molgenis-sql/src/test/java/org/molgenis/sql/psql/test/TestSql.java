@@ -428,14 +428,14 @@ public class TestSql {
     */
   }
 
-  private void checkColumnExists(Column c) {
+  private void checkColumnExists(Column c) throws MolgenisException {
     List<org.jooq.Table<?>> tables = jooq.meta().getTables(c.getTable().getName());
     if (tables.size() == 0)
-      throw new RuntimeException("Table '" + c.getTable().getName() + "' does not exist");
+      throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
     org.jooq.Table<?> table = tables.get(0);
     Field f = table.field(c.getName());
     if (f == null)
-      throw new RuntimeException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
+      throw new MolgenisException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
   }
 
   @AfterClass
