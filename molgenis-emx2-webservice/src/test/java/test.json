@@ -1,26 +1,23 @@
 {
-  "query": {
-    "select": [
-      "firstName",
-      "lastName",
-      "father/firstName"
-    ],
-    "filter": {
-      "lastName": {
-        "eq": "Duck"
-      },
+  "select": [
+    "firstName",
+    "lastName",
+    "father/firstName"
+  ]
+  "filter": [
+    {
+      "lastName": "Duck",
       "Age": {
-        "eq": 50
-      }
-      "father": {
-        "firstName": {
-          "eq": "Donald"
-        }
+        "gt": 50
       }
     },
-    "sort": {
-      "FirstName": "asc",
-      "LastName": "desc"
+    {
+      "father/firstName": "Donald"
     }
-  }
+  ]
+},
+"sort": {
+"FirstName": "asc",
+"LastName": "desc"
+}
 }
