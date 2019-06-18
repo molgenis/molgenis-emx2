@@ -212,4 +212,9 @@ public class RowBean implements Row {
   public List<UUID> getMref(String colName) {
     return this.mrefs.get(colName);
   }
+
+  @Override
+  public Collection<String> getColumns() {
+    return values.keySet();
+  }
 }

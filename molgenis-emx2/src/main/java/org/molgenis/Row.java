@@ -2,6 +2,7 @@ package org.molgenis;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -67,4 +68,6 @@ public interface Row extends Identifiable {
   Map<String, Object> getValueMap();
 
   List<UUID> getMref(String colName);
+
+  Collection<String> getColumns();
 }

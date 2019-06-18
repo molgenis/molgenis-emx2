@@ -4,7 +4,11 @@ import org.molgenis.annotations.ColumnMetadata;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,11 +42,15 @@ public class Mapper {
     try {
       E e = klazz.newInstance();
       Map<String, Object> values = row.getValueMap();
-      for (Field f : klazz.getDeclaredFields()) {
-        f.setAccessible(true);
-        f.set(e, values.get(f.getName())); // type exceptions???
+      for (String name : row.getColumns()) {
+        Object value = values.get(name);
+        if (value != null) {
+          Method m =
+              klazz.getMethod(
+                  "set" + name.substring(0, 1).toUpperCase() + name.substring(1), value.getClass());
+          m.invoke(e, values.get(name));
+        }
       }
-
       return e;
     } catch (Exception e) {
       throw new MolgenisException(e);
@@ -54,24 +62,21 @@ public class Mapper {
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
       try {
-        // skip $jacocoData which we use in test
         if (!f.getName().contains("jacocoData")) {
+          Column col = t.addColumn(f.getName(), typeOf(f.getType()));
+          if (f.isAnnotationPresent(ColumnMetadata.class)) {
+            ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
+            col.setNullable(cm.nullable());
+            col.setDescription(cm.description());
+          }
+          if (REF.equals(col.getType())) {
+            // big todo, fake table. Need singleton or lazyload before whole world is loaded in
+            // one go
+            col.setRefTable(new TableBean(f.getType().getSimpleName()));
+          }
+          if (ENUM.equals(col.getType())) {
+            // big todo: get the enum values from the enum
 
-          {
-            Column col = t.addColumn(f.getName(), typeOf(f.getType()));
-            if (f.isAnnotationPresent(ColumnMetadata.class)) {
-              ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
-              col.setNullable(cm.nullable());
-              col.setDescription(cm.description());
-            }
-            if (REF.equals(col.getType())) {
-              // big todo, fake table. Need singleton or lazyload before whole world is loaded in
-              // one go
-              col.setRefTable(new TableBean(f.getType().getSimpleName()));
-            }
-            if (ENUM.equals(col.getType())) {
-              // big todo: get the enum values from the enum
-            }
           }
         }
       } catch (Exception e) {
