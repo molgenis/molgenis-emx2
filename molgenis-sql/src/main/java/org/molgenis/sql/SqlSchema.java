@@ -2,8 +2,8 @@ package org.molgenis.sql;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.DatabaseException;
-import org.molgenis.bean.SchemaBean;
+import org.molgenis.MolgenisException;
+import org.molgenis.beans.SchemaBean;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.molgenis.Row.MOLGENISID;
@@ -11,7 +11,7 @@ import static org.molgenis.Row.MOLGENISID;
 public class SqlSchema extends SchemaBean {
   private DSLContext sql;
 
-  public SqlSchema(DSLContext sql) throws DatabaseException {
+  public SqlSchema(DSLContext sql) throws MolgenisException {
     this.sql = sql;
     for (org.jooq.Table t : sql.meta().getTables()) {
       tables.put(t.getName(), new SqlTable(this, sql, t.getName()));
@@ -19,7 +19,7 @@ public class SqlSchema extends SchemaBean {
   }
 
   @Override
-  public SqlTable createTable(String name) throws DatabaseException {
+  public SqlTable createTable(String name) throws MolgenisException {
     sql.createTableIfNotExists(name)
         .column(MOLGENISID, SQLDataType.UUID)
         .constraints(constraint("PK_" + name).primaryKey(MOLGENISID))

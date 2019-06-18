@@ -1,4 +1,4 @@
-package org.molgenis.bean;
+package org.molgenis.beans;
 
 import com.fasterxml.uuid.Generators;
 import org.molgenis.Row;
@@ -20,16 +20,16 @@ public class RowBean implements Row {
   }
 
   public RowBean(UUID id) {
-    setRowID(id);
+    setMolgenisid(id);
   }
 
   @Override
-  public UUID getRowID() {
+  public UUID getMolgenisid() {
     return (UUID) values.get(MOLGENISID);
   }
 
   @Override
-  public Row setRowID(UUID id) {
+  public Row setMolgenisid(UUID id) {
     this.setRef(MOLGENISID, id);
     return this;
   }
@@ -37,6 +37,11 @@ public class RowBean implements Row {
   @Override
   public UUID getUuid(String columnId) {
     return (UUID) this.values.get(columnId);
+  }
+
+  @Override
+  public String getEnum(String name) {
+    return (String) values.get(name);
   }
 
   @Override
@@ -98,6 +103,12 @@ public class RowBean implements Row {
   }
 
   @Override
+  public Row setEnum(String name, String value) {
+    values.put(name, value);
+    return this;
+  }
+
+  @Override
   public Row setInt(String name, Integer value) {
     values.put(name, value);
     return this;
@@ -105,14 +116,14 @@ public class RowBean implements Row {
 
   @Override
   public Row setRef(String name, Row value) {
-    values.put(name, value.getRowID());
+    values.put(name, value.getMolgenisid());
     return this;
   }
 
   @Override
   public Row setMref(String name, List<Row> values) {
     List<UUID> uuids = new ArrayList<>();
-    for (Row r : values) uuids.add(r.getRowID());
+    for (Row r : values) uuids.add(r.getMolgenisid());
     mrefs.put(name, uuids);
     return this;
   }
@@ -121,7 +132,7 @@ public class RowBean implements Row {
   public Row setMref(String colName, Row... values) {
     List<UUID> ids = new ArrayList<>();
     for (Row r : values) {
-      ids.add(r.getRowID());
+      ids.add(r.getMolgenisid());
     }
     mrefs.put(colName, ids);
     return this;

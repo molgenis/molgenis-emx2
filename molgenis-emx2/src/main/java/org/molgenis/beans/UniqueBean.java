@@ -1,4 +1,4 @@
-package org.molgenis.bean;
+package org.molgenis.beans;
 
 import org.molgenis.Column;
 import org.molgenis.Table;

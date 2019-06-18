@@ -3,10 +3,10 @@ package org.molgenis.emx2.io.legacyformat;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.molgenis.Column;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.bean.SchemaBean;
+import org.molgenis.beans.SchemaBean;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
 
@@ -22,16 +22,16 @@ import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 public class AttributesFileReader {
 
   public Schema readModelFromCsv(File f)
-      throws MolgenisReaderException, FileNotFoundException, DatabaseException {
+      throws MolgenisReaderException, FileNotFoundException, MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
 
-  public Schema readModelFromCsv(Reader in) throws MolgenisReaderException, DatabaseException {
+  public Schema readModelFromCsv(Reader in) throws MolgenisReaderException, MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(in));
   }
 
   public Schema convertAttributesToModel(List<AttributesFileRow> rows)
-      throws MolgenisReaderException, DatabaseException {
+      throws MolgenisReaderException, MolgenisException {
     Schema model = new SchemaBean();
 
     int lineNumber = 0;
@@ -62,7 +62,7 @@ public class AttributesFileReader {
       Map<Integer, String> refEntities,
       Map<Integer, Column> refColumns,
       AttributesFileRow row)
-      throws DatabaseException {
+      throws MolgenisException {
     // get or create table
     Table table = model.getTable(row.getEntity());
     if (table == null) table = model.createTable(row.getEntity());
@@ -81,13 +81,13 @@ public class AttributesFileReader {
       column.setReadonly(row.getReadonly());
       column.setValidation(row.getValidationExepression());
 
-      if (column.getType().equals(SELECT)
-          || column.getType().equals(MSELECT)
-          || column.getType().equals(RADIO)
-          || column.getType().equals(CHECKBOX)) {
-        refEntities.put(lineNumber, row.getRefEntity());
-        refColumns.put(lineNumber, column);
-      }
+      //      if (column.getType().equals(SELECT)
+      //          || column.getType().equals(MSELECT)
+      //          || column.getType().equals(RADIO)
+      //          || column.getType().equals(CHECKBOX)) {
+      //        refEntities.put(lineNumber, row.getRefEntity());
+      //        refColumns.put(lineNumber, column);
+      //      }
     }
   }
 
@@ -117,8 +117,8 @@ public class AttributesFileReader {
           return DECIMAL;
         case TEXT:
           return TEXT;
-        case LONG:
-          return LONG;
+          //        case LONG:
+          //          return LONG;
         case BOOL:
           return BOOL;
         case DATE:
@@ -126,25 +126,25 @@ public class AttributesFileReader {
         case DATETIME:
           return DATETIME;
         case XREF:
-          return SELECT;
+          return REF;
         case MREF:
-          return MSELECT;
-        case CATEGORICAL:
-          return RADIO;
-        case CATEGORICAL_MREF:
-          return CHECKBOX;
+          return MREF;
+          //        case CATEGORICAL:
+          //          return RADIO;
+          //        case CATEGORICAL_MREF:
+          //          return CHECKBOX;
         case COMPOUND:
           throw new MolgenisReaderException("new format doesn't support 'compound' data type");
-        case FILE:
-          return FILE;
-        case EMAIL:
-          return EMAIL;
-        case ENUM:
-          return ENUM;
-        case HYPERLINK:
-          return HYPERLINK;
-        case HTML:
-          return HTML;
+          //        case FILE:
+          //          return FILE;
+          //        case EMAIL:
+          //          return EMAIL;
+          //        case ENUM:
+          //          return ENUM;
+          //        case HYPERLINK:
+          //          return HYPERLINK;
+          //        case HTML:
+          //          return HTML;
         case ONE_TO_MANY:
           throw new MolgenisReaderException(
               "new format doesn't yet support 'ONE_TO_MANY' data type");

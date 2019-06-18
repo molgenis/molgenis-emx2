@@ -3,17 +3,17 @@ package org.molgenis.emx2.graphql;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaPrinter;
 import org.junit.Test;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.bean.SchemaBean;
+import org.molgenis.beans.SchemaBean;
 
 import static org.molgenis.Column.Type.STRING;
 
 public class EmxToGraphQLSchemaTest {
 
   @Test
-  public void test1() throws DatabaseException {
+  public void test1() throws MolgenisException {
     Schema m = new SchemaBean();
 
     Table t2 = m.createTable("Family");

@@ -2,9 +2,7 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.Column;
-import org.molgenis.Database;
-import org.molgenis.DatabaseException;
+import org.molgenis.*;
 import org.molgenis.Row;
 
 import java.util.*;
@@ -14,7 +12,7 @@ import static org.molgenis.sql.RowImpl.MOLGENISID;
 import static org.molgenis.Column.Type.MREF;
 import static org.molgenis.Column.Type.REF;
 
-class QueryImpl implements org.molgenis.Query {
+class QueryImpl implements QueryOld {
 
   private Database db;
   private DSLContext sql;
@@ -46,15 +44,15 @@ class QueryImpl implements org.molgenis.Query {
     }
   }
 
-  public QueryImpl(Database db, DSLContext sql, String tableName) throws DatabaseException {
+  public QueryImpl(Database db, DSLContext sql, String tableName) throws MolgenisException {
     this.db = db;
     this.sql = sql;
     this.from(tableName);
   }
 
-  private org.molgenis.Query from(String table) throws DatabaseException {
+  private QueryOld from(String table) throws MolgenisException {
     org.molgenis.Table t = db.getSchema().getTable(table);
-    if (t == null) throw new DatabaseException("table  " + table + " does not exist");
+    if (t == null) throw new MolgenisException("table  " + table + " does not exist");
     select.put(table, new From(t, null, null, null));
     state = State.FROM;
     lastFrom = table;
@@ -62,18 +60,18 @@ class QueryImpl implements org.molgenis.Query {
   }
 
   @Override
-  public org.molgenis.Query join(String table, String toTable, String on) throws DatabaseException {
+  public QueryOld join(String table, String toTable, String on) throws MolgenisException {
 
     // check fromTable
     org.molgenis.Table fromTable = db.getSchema().getTable(table);
     if (fromTable == null) {
-      throw new DatabaseException(
+      throw new MolgenisException(
           String.format("Cannot join table '%s': table unknown in database.", table));
     }
     // check toTable
     From temp = this.select.get(toTable);
     if (temp == null) {
-      throw new DatabaseException(
+      throw new MolgenisException(
           String.format(
               "Cannot join to previous selected table '%s': table not selected", toTable));
     }
@@ -83,7 +81,7 @@ class QueryImpl implements org.molgenis.Query {
     if (fromTable.getColumn(on) != null) {
       String otherTable = fromTable.getColumn(on).getRefTable().getName();
       if (!otherTable.equals(joinTable.getName())) {
-        throw new DatabaseException(
+        throw new MolgenisException(
             String.format("Column '%s' does not link '%s' to '%s'", on, table, toTable));
       }
       if (MREF.equals(fromTable.getColumn(on).getType())) {
@@ -100,7 +98,7 @@ class QueryImpl implements org.molgenis.Query {
     } else if (joinTable.getColumn(on) != null) {
       String refTable = joinTable.getColumn(on).getRefTable().getName();
       if (!refTable.equals(fromTable.getName())) {
-        throw new DatabaseException(
+        throw new MolgenisException(
             String.format("Column '%s' does not link '%s' to '%s'", on, toTable, table));
       }
       if (MREF.equals(joinTable.getColumn(on).getType())) {
@@ -113,7 +111,7 @@ class QueryImpl implements org.molgenis.Query {
         this.select.put(table, new From(fromTable, MOLGENISID, toTable, on));
       }
     } else {
-      throw new DatabaseException(
+      throw new MolgenisException(
           String.format(
               "Cannot join on column '%s': column not known in table '%s' and '%s'",
               on, toTable, table));
@@ -124,11 +122,11 @@ class QueryImpl implements org.molgenis.Query {
   }
 
   @Override
-  public org.molgenis.Query select(String column) throws DatabaseException {
+  public QueryOld select(String column) throws MolgenisException {
     From f = select.get(lastFrom);
     Column c = f.fromTable.getColumn(column);
     if (c == null)
-      throw new DatabaseException(
+      throw new MolgenisException(
           String.format(
               "select '%s' does not exist in table '%s' as '%s'",
               column, f.fromTable.getName(), lastFrom));
@@ -139,7 +137,7 @@ class QueryImpl implements org.molgenis.Query {
   }
 
   @Override
-  public org.molgenis.Query as(String alias) throws DatabaseException {
+  public QueryOld as(String alias) throws MolgenisException {
     switch (state) {
       case FROM:
         select.put(alias, select.remove(lastFrom));
@@ -150,7 +148,7 @@ class QueryImpl implements org.molgenis.Query {
         lastSelect = alias;
         break;
       default:
-        throw new DatabaseException("cannot call as(" + alias + ") at this point");
+        throw new MolgenisException("cannot call as(" + alias + ") at this point");
     }
 
     state = State.NONE;
@@ -158,7 +156,7 @@ class QueryImpl implements org.molgenis.Query {
   }
 
   @Override
-  public List<org.molgenis.Row> retrieve() throws DatabaseException {
+  public List<org.molgenis.Row> retrieve() throws MolgenisException {
 
     // define the 'select' clause in terms of fields to be queried
     List<Field> columns = new ArrayList<>();
@@ -192,7 +190,7 @@ class QueryImpl implements org.molgenis.Query {
     }
 
     // define the 'where' clause
-    if (joinStep == null) throw new DatabaseException("This should never happen");
+    if (joinStep == null) throw new MolgenisException("This should never happen");
     joinStep.where(conditions);
 
     List<Row> rows = new ArrayList<>();
@@ -206,16 +204,16 @@ class QueryImpl implements org.molgenis.Query {
     return rows;
   }
 
-  private void validate(String table, String column, Column.Type type) throws DatabaseException {
+  private void validate(String table, String column, Column.Type type) throws MolgenisException {
     if (this.select.get(table) == null)
-      throw new DatabaseException(
+      throw new MolgenisException(
           "table/alias '" + table + "' not known. Choose one of " + this.select.keySet());
     if (this.select.get(table).fromTable.getColumn(column) == null)
-      throw new DatabaseException(
+      throw new MolgenisException(
           "select '" + column + "' not known in table/alias '" + table + "'");
     Column.Type foundType = this.select.get(table).fromTable.getColumn(column).getType();
     if (!type.equals(foundType) && !(REF.equals(foundType) && Column.Type.UUID.equals(type))) {
-      throw new DatabaseException(
+      throw new MolgenisException(
           "select '"
               + column
               + "' not of expected type '"
@@ -225,7 +223,7 @@ class QueryImpl implements org.molgenis.Query {
     }
   }
 
-  private org.molgenis.Query eqHelper(String table, String column, Object... value) {
+  private QueryOld eqHelper(String table, String column, Object... value) {
     if (value.length > 1) {
       if (conditions == null) conditions = field(name(table, column)).in(value);
       else conditions = conditions.and(field(name(table, column)).in(value));
@@ -238,22 +236,19 @@ class QueryImpl implements org.molgenis.Query {
   }
 
   @Override
-  public org.molgenis.Query eq(String table, String column, UUID... value)
-      throws DatabaseException {
+  public QueryOld eq(String table, String column, UUID... value) throws MolgenisException {
     validate(table, column, Column.Type.UUID);
     return eqHelper(table, column, value);
   }
 
   @Override
-  public org.molgenis.Query eq(String table, String column, String... value)
-      throws DatabaseException {
+  public QueryOld eq(String table, String column, String... value) throws MolgenisException {
     validate(table, column, Column.Type.STRING);
     return eqHelper(table, column, value);
   }
 
   @Override
-  public org.molgenis.Query eq(String table, String column, Integer... value)
-      throws DatabaseException {
+  public QueryOld eq(String table, String column, Integer... value) throws MolgenisException {
     validate(table, column, Column.Type.INT);
     return eqHelper(table, column, value);
   }

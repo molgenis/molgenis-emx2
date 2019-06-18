@@ -12,7 +12,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.bean.RowBean;
+import org.molgenis.beans.RowBean;
 import org.molgenis.sql.*;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class TestSql {
   }
 
   @Test
-  public void testBatch() throws DatabaseException {
+  public void testBatch() throws MolgenisException {
     String TEST_BATCH = "TestBatch";
     Table t = db.getSchema().createTable(TEST_BATCH);
     t.addColumn("test", STRING);
@@ -131,7 +131,7 @@ public class TestSql {
   }
 
   @Test
-  public void testTypes() throws DatabaseException {
+  public void testTypes() throws MolgenisException {
 
     // generate TypeTest table, with columns for each type
     Table t = db.getSchema().createTable("TypeTest");
@@ -140,17 +140,7 @@ public class TestSql {
         Column c =
             t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
         checkColumnExists(c);
-      } else if (ENUM.equals(type)
-          || RADIO.equals(type)
-          || LONG.equals(type)
-          || HTML.equals(type)
-          || HYPERLINK.equals(type)
-          || FILE.equals(type)
-          || EMAIL.equals(type)
-          || SELECT.equals(type)
-          || MREF.equals(type)
-          || MSELECT.equals(type)
-          || CHECKBOX.equals(type)) {
+      } else if (MREF.equals(type)) {
         // cannot set nullable
       } else {
         Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);
@@ -171,6 +161,7 @@ public class TestSql {
     Row row = new RowBean();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
+    row.setEnum("Test_enum", "test");
     row.setBool("Test_bool", true);
     row.setInt("Test_int", 1);
     row.setDecimal("Test_decimal", 1.1);
@@ -183,6 +174,8 @@ public class TestSql {
     row = new RowBean();
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
+    row.setEnum("Test_enum_nillable", "test");
+
     row.setBool("Test_bool_nillable", true);
     row.setInt("Test_int_nillable", 1);
     row.setDecimal("Test_decimal_nillable", 1.1);
@@ -193,7 +186,7 @@ public class TestSql {
     try {
       db.insert(TYPE_TEST, row);
       fail(); // should not reach this one
-    } catch (DatabaseException e) {
+    } catch (MolgenisException e) {
       System.out.println("as expected, caught exceptoin: " + e.getMessage());
     }
 
@@ -201,7 +194,7 @@ public class TestSql {
     List<Row> result = db.query("TypeTest").retrieve();
     for (Row res : result) {
       System.out.println(res);
-      res.setRowID(java.util.UUID.randomUUID());
+      res.setMolgenisid(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof OffsetDateTime);
       assert (res.getString("Test_string") instanceof String);
@@ -221,7 +214,7 @@ public class TestSql {
   }
 
   @Test
-  public void testCreate() throws DatabaseException {
+  public void testCreate() throws MolgenisException {
 
     long startTime = System.currentTimeMillis();
 
@@ -263,13 +256,13 @@ public class TestSql {
 
     // query
     startTime = System.currentTimeMillis();
-    Query q = db.query(PERSON);
+    QueryOld q = db.query(PERSON);
     for (Row row : q.retrieve()) {
-      // System.out.println("Query result: " + row);
+      // System.out.println("QueryOld result: " + row);
     }
     endTime = System.currentTimeMillis();
-    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
-    System.out.println("Query contents " + q);
+    System.out.println("QueryOld took " + (endTime - startTime) + " milliseconds");
+    System.out.println("QueryOld contents " + q);
 
     // delete
     startTime = System.currentTimeMillis();
@@ -310,7 +303,7 @@ public class TestSql {
   }
 
   @Test
-  public void testQuery() throws DatabaseException {
+  public void testQuery() throws MolgenisException {
 
     long startTime = System.currentTimeMillis();
 
@@ -409,7 +402,7 @@ public class TestSql {
     }
 
     startTime = System.currentTimeMillis();
-    Query q2 = db.query("Product").as("p").select("name").as("productName");
+    QueryOld q2 = db.query("Product").as("p").select("name").as("productName");
     q2.join("Component", "p", "components").as("c").select("name").as("componentName");
     q2.join("Part", "c", "parts").as("pt").select("name").as("partName").select("weight");
     q2.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
@@ -417,11 +410,11 @@ public class TestSql {
       System.out.println(row);
     }
     endTime = System.currentTimeMillis();
-    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
-    System.out.println("Query contents: " + q2);
+    System.out.println("QueryOld took " + (endTime - startTime) + " milliseconds");
+    System.out.println("QueryOld contents: " + q2);
 
     // again reversing the 'on' columns
-    Query q3 = db.query("Product").as("p").select("name").as("productName");
+    QueryOld q3 = db.query("Product").as("p").select("name").as("productName");
     q3.join("Component", "p", "partOfProduct").as("c").select("name").as("componentName");
     q3.join("Part", "c", "partOfComponent").as("pt").select("name").as("partName").select("weight");
     q3.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");

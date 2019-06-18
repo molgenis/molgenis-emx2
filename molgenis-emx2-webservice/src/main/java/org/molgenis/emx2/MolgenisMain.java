@@ -18,7 +18,7 @@ public class MolgenisMain {
     get("/api", (req, res) -> listGroups());
     get("/api/:group", (req, res) -> listTablesForGroup(req.params("group")));
     get("/api/:group/:table", (req, res) -> "first " + req.params(("table")));
-    patch("/:group/:table", (req, res) -> parse(req.body()));
+    patch("/api/:group", (req, res) -> parse(req.body()));
 
     // handling of exceptions
     exception(

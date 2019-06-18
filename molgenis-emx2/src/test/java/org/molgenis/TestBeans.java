@@ -1,11 +1,7 @@
-package org.molgenis.emx2.test;
+package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.Column;
-import org.molgenis.DatabaseException;
-import org.molgenis.Schema;
-import org.molgenis.Table;
-import org.molgenis.bean.SchemaBean;
+import org.molgenis.beans.SchemaBean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +14,7 @@ import static org.molgenis.Column.Type.*;
 public class TestBeans {
 
   @Test
-  public void test1() throws DatabaseException {
+  public void test1() throws MolgenisException {
     List<Column.Type> types = Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
     Schema m = new SchemaBean();
@@ -48,7 +44,7 @@ public class TestBeans {
     assertEquals(0, m.getTables().size());
   }
 
-  private void addContents(Schema m, List<Column.Type> types) throws DatabaseException {
+  private void addContents(Schema m, List<Column.Type> types) throws MolgenisException {
     Table t = m.createTable("TypeTest");
     for (Column.Type type : types) {
       t.addColumn("test" + type, type);

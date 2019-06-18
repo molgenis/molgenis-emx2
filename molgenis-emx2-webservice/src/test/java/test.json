@@ -1,0 +1,25 @@
+{
+  "query": {
+    "select": [
+      "firstName",
+      "lastName",
+      {
+        "father": [
+          "firstName"
+        ]
+      }
+    ],
+    "filter": {
+      "lastName": {
+        "eq": [
+          "Duck"
+        ]
+      }
+      "father": {
+        "firstName": {
+          "eq": "Donald"
+        }
+      }
+    }
+  }
+}

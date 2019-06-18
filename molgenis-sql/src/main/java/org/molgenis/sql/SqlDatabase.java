@@ -5,10 +5,10 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
-import org.molgenis.Query;
+import org.molgenis.QueryOld;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.bean.RowBean;
+import org.molgenis.beans.RowBean;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -23,14 +23,14 @@ public class SqlDatabase implements Database {
   private DSLContext sql;
   private SqlSchema schema;
 
-  public SqlDatabase(DataSource source) throws DatabaseException {
+  public SqlDatabase(DataSource source) throws MolgenisException {
     DSLContext context = DSL.using(source, SQLDialect.POSTGRES_10);
     this.sql = context;
     this.schema = new SqlSchema(sql);
     // todo, create a reload that reloads table and field metadata
   }
 
-  public Schema getSchema() throws DatabaseException {
+  public Schema getSchema() throws MolgenisException {
     return schema;
   }
 
@@ -39,12 +39,12 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public Query query(String name) throws DatabaseException {
+  public QueryOld query(String name) throws MolgenisException {
     return new QueryImpl(this, sql, name);
   }
 
   @Override
-  public void insert(String table, Collection<org.molgenis.Row> rows) throws DatabaseException {
+  public void insert(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
     try {
       Table t = getSchema().getTable(table);
       // get metadata
@@ -71,17 +71,17 @@ public class SqlDatabase implements Database {
       //        }
       //      }
     } catch (DataAccessException e) {
-      throw new DatabaseException(e);
+      throw new MolgenisException(e);
     }
   }
 
   @Override
-  public void insert(String table, org.molgenis.Row row) throws DatabaseException {
+  public void insert(String table, org.molgenis.Row row) throws MolgenisException {
     this.insert(table, Arrays.asList(row));
   }
 
   @Override
-  public int update(String table, Collection<org.molgenis.Row> rows) throws DatabaseException {
+  public int update(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
     Table t = getSchema().getTable(table);
 
     // keep batchsize smaller to limit memory footprint
@@ -139,12 +139,12 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void update(String table, org.molgenis.Row row) throws DatabaseException {
+  public void update(String table, org.molgenis.Row row) throws MolgenisException {
     this.update(table, Arrays.asList(row));
   }
 
   @Override
-  public int delete(String table, Collection<org.molgenis.Row> rows) throws DatabaseException {
+  public int delete(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
     Table t = getSchema().getTable(table);
 
     // because of expensive table scanning and smaller query string size this batch should be larger
@@ -165,7 +165,7 @@ public class SqlDatabase implements Database {
   }
 
   private void deleteBatch(Table table, Collection<org.molgenis.Row> rows)
-      throws DatabaseException {
+      throws MolgenisException {
     if (!rows.isEmpty()) {
       // remove the mrefs first
       for (Column c : table.getColumns()) {
@@ -175,22 +175,22 @@ public class SqlDatabase implements Database {
       }
       Field field = field(name(MOLGENISID), SQLDataType.UUID);
       List<UUID> idList = new ArrayList<>();
-      rows.forEach(row -> idList.add(row.getRowID()));
+      rows.forEach(row -> idList.add(row.getMolgenisid()));
       sql.deleteFrom(table(name(table.getName()))).where(field.in(idList)).execute();
     }
   }
 
   @Override
-  public void delete(String table, org.molgenis.Row row) throws DatabaseException {
+  public void delete(String table, org.molgenis.Row row) throws MolgenisException {
     this.delete(table, Arrays.asList(row));
   }
 
   private void deleteOldMrefs(Collection<org.molgenis.Row> rows, Column column)
-      throws DatabaseException {
+      throws MolgenisException {
     org.molgenis.Table joinTable = column.getMrefTable();
     List<UUID> oldMrefIds = new ArrayList<>();
     for (org.molgenis.Row r : rows) {
-      oldMrefIds.add(r.getRowID());
+      oldMrefIds.add(r.getMolgenisid());
     }
     List<org.molgenis.Row> oldMrefs =
         query(joinTable.getName())
@@ -203,7 +203,7 @@ public class SqlDatabase implements Database {
   }
 
   private void saveUpdatedMrefs(Collection<org.molgenis.Row> rows, Column column)
-      throws DatabaseException {
+      throws MolgenisException {
     String colName = column.getName();
     String joinTable = column.getMrefTable().getName();
     String otherColname = column.getMrefBack();
@@ -212,7 +212,7 @@ public class SqlDatabase implements Database {
     for (org.molgenis.Row r : rows) {
       for (UUID uuid : r.getMref(colName)) {
         org.molgenis.Row join =
-            new RowBean().setRef(column.getName(), uuid).setRef(otherColname, r.getRowID());
+            new RowBean().setRef(column.getName(), uuid).setRef(otherColname, r.getMolgenisid());
         newMrefs.add(join);
       }
     }

@@ -6,7 +6,7 @@ import org.jooq.Record;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class RowImpl extends org.molgenis.bean.RowBean {
+public class RowImpl extends org.molgenis.beans.RowBean {
 
   public RowImpl(Record record) {
     Map<String, Object> values = new LinkedHashMap<>();

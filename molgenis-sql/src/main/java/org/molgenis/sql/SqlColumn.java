@@ -1,9 +1,9 @@
 package org.molgenis.sql;
 
 import org.jooq.DSLContext;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Table;
-import org.molgenis.bean.ColumnBean;
+import org.molgenis.beans.ColumnBean;
 
 public class SqlColumn extends ColumnBean {
   private DSLContext sql;
@@ -24,7 +24,7 @@ public class SqlColumn extends ColumnBean {
   }
 
   @Override
-  public SqlColumn setNullable(boolean nillable) throws DatabaseException {
+  public SqlColumn setNullable(boolean nillable) throws MolgenisException {
     if (nillable)
       sql.alterTable(getTable().getName()).alterColumn(getName()).dropNotNull().execute();
     else sql.alterTable(getTable().getName()).alterColumn(getName()).setNotNull().execute();

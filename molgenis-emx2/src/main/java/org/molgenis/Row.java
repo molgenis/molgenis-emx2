@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public interface Row {
+public interface Row extends Identifiable {
+
   static final String MOLGENISID = "molgenisid";
 
-  UUID getRowID();
-
-  Row setRowID(UUID id);
+  Row setMolgenisid(UUID id);
 
   UUID getUuid(String columnId);
 
@@ -24,6 +23,8 @@ public interface Row {
   Double getDecimal(String name);
 
   String getText(String name);
+
+  String getEnum(String name);
 
   LocalDate getDate(String name);
 
@@ -54,6 +55,8 @@ public interface Row {
   Row setDateTime(String columnId, OffsetDateTime value);
 
   Row setText(String columnId, String value);
+
+  Row setEnum(String columnId, String value);
 
   Row setUuid(String columnId, UUID value);
 

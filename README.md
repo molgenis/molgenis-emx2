@@ -5,3 +5,16 @@
 
 # molgenis-emx2
 POC for EMX2
+
+Feature list
+
+* same metadata model everywhere
+* composite (foreign) keys
+* table or join inheritance
+* separate sql from ui data types
+* simple pojo to database mapping
+* thin layer on sql
+* lightweight web service
+* mref tables are real tables
+* support for multiple schemas
+* table unique in schema (not per folder)

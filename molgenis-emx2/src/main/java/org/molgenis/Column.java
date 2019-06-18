@@ -29,7 +29,7 @@ public interface Column {
 
   String getMrefBack();
 
-  Column setNullable(boolean nillable) throws DatabaseException;
+  Column setNullable(boolean nillable) throws MolgenisException;
 
   boolean isReadonly();
 
@@ -62,18 +62,19 @@ public interface Column {
     TEXT,
     DATE,
     DATETIME,
+    ENUM,
     REF,
-    MREF,
+    MREF;
     // advanced types
-    SELECT,
-    RADIO,
-    MSELECT,
-    CHECKBOX,
-    HYPERLINK,
-    LONG,
-    EMAIL,
-    HTML,
-    FILE,
-    ENUM;
+    //    SELECT,
+    //    RADIO,
+    //    MSELECT,
+    //    CHECKBOX,
+    //    HYPERLINK,
+    //    LONG,
+    //    EMAIL,
+    //    HTML,
+    //    FILE,
+    //    ENUM;
   }
 }

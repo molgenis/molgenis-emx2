@@ -1,7 +1,7 @@
-package org.molgenis.bean;
+package org.molgenis.beans;
 
 import org.molgenis.Column;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Table;
 
 public class ColumnBean implements Column {
@@ -100,7 +100,7 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public Column setNullable(boolean nillable) throws DatabaseException {
+  public Column setNullable(boolean nillable) throws MolgenisException {
     this.nullable = nillable;
     return this;
   }

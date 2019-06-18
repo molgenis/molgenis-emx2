@@ -18,7 +18,7 @@ public class GrahpqlEndpoint {
     boolean first = true;
     GraphQLSchema.Builder schema = newSchema();
 
-    GraphQLObjectType.Builder query = newObject().name("Query");
+    GraphQLObjectType.Builder query = newObject().name("QueryOld");
     for (String name : model.getTables()) {
       Table table = model.getTable(name);
       GraphQLObjectType.Builder type = newObject().name(table.getName());
@@ -29,7 +29,7 @@ public class GrahpqlEndpoint {
           GraphQLFieldDefinition.newFieldDefinition()
               .name(table.getName())
               .type(GraphQLList.list(type.build()))
-              .argument(newArgument().name("filter").type(GraphQLString).build())
+              .argument(newArgument().name("where").type(GraphQLString).build())
               .argument(newArgument().name("limit").type(GraphQLInt).build())
               .argument(newArgument().name("offset").type(GraphQLInt).build())
               .build());

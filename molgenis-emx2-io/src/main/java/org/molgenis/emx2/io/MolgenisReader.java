@@ -3,10 +3,10 @@ package org.molgenis.emx2.io;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.molgenis.Column;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.bean.SchemaBean;
+import org.molgenis.beans.SchemaBean;
 import org.molgenis.emx2.io.format.EmxDefinitionParser;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileHeader;
@@ -21,11 +21,11 @@ import java.util.List;
 
 public class MolgenisReader {
 
-  public Schema readModelFromCsvFile(File f) throws IOException, DatabaseException {
+  public Schema readModelFromCsvFile(File f) throws IOException, MolgenisException {
     return readModelFromCsvReader(new FileReader(f));
   }
 
-  public Schema readModelFromCsvReader(Reader in) throws IOException, DatabaseException {
+  public Schema readModelFromCsvReader(Reader in) throws IOException, MolgenisException {
     List<MolgenisFileRow> rows = readRowsFromCsvReader(in);
     return convertRowsToModel(rows);
   }
@@ -60,7 +60,7 @@ public class MolgenisReader {
   }
 
   public Schema convertRowsToModel(List<MolgenisFileRow> rows)
-      throws MolgenisReaderException, DatabaseException {
+      throws MolgenisReaderException, MolgenisException {
     Schema model = new SchemaBean();
     List<MolgenisReaderMessage> messages = new ArrayList<>();
     convertRowsToColumns(rows, model, messages);
@@ -70,7 +70,7 @@ public class MolgenisReader {
 
   private void convertRowsToTables(
       List<MolgenisFileRow> rows, Schema model, List<MolgenisReaderMessage> messages)
-      throws MolgenisReaderException, DatabaseException {
+      throws MolgenisReaderException, MolgenisException {
     int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
@@ -125,7 +125,7 @@ public class MolgenisReader {
 
   private void convertRowsToColumns(
       List<MolgenisFileRow> rows, Schema model, List<MolgenisReaderMessage> messages)
-      throws MolgenisReaderException, DatabaseException {
+      throws MolgenisReaderException, MolgenisException {
     int line = 1;
     for (MolgenisFileRow row : rows) {
       line++;
@@ -155,7 +155,7 @@ public class MolgenisReader {
   }
 
   private void applyDefintionsToColumn(int line, List<EmxDefinitionTerm> terms, Column column)
-      throws MolgenisReaderException, DatabaseException {
+      throws MolgenisReaderException, MolgenisException {
     for (EmxDefinitionTerm term : terms) {
       switch (term) {
         case STRING:

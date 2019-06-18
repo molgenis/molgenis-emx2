@@ -1,7 +1,7 @@
 package org.molgenis.emx.reader.test;
 
 import org.junit.Test;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.emx2.io.MolgenisReaderException;
 import org.molgenis.emx2.io.MolgenisReaderMessage;
@@ -44,7 +44,7 @@ public class TestLegacyReader {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
-    } catch (DatabaseException e) {
+    } catch (MolgenisException e) {
       e.printStackTrace();
     }
   }

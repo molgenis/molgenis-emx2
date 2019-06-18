@@ -18,14 +18,14 @@ public class SqlTypeUtils {
       case UUID:
         return UUID;
       case STRING:
-      case HYPERLINK:
-      case EMAIL:
-      case HTML:
-      case FILE:
-      case ENUM:
+        //      case HYPERLINK:
+        //      case EMAIL:
+        //      case HTML:
+        //      case FILE:
+        //      case ENUM:
         return VARCHAR(255);
       case INT:
-      case LONG:
+        //      case LONG:
         return INTEGER;
       case BOOL:
         return BOOLEAN;
@@ -37,13 +37,17 @@ public class SqlTypeUtils {
         return DATE;
       case DATETIME:
         return TIMESTAMPWITHTIMEZONE;
+      case ENUM:
+        return VARCHAR(255);
+        // TODO discuss if we want to use proper PG types for this
+        // https://www.postgresql.org/docs/9.1/datatype-enum.html
       case REF:
-      case SELECT:
-      case RADIO:
+        //      case SELECT:
+        //      case RADIO:
         return UUID;
       case MREF:
-      case CHECKBOX:
-      case MSELECT:
+        //      case CHECKBOX:
+        //      case MSELECT:
         return UUID;
       default:
         // should never happen

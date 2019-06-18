@@ -1,23 +1,21 @@
 package org.molgenis;
 
-import java.util.List;
-import java.util.UUID;
-
 public interface Query {
+  Select select(String... path);
 
-  Query join(String table, String toTable, String on) throws DatabaseException;
+  Select expand(String column);
 
-  Query select(String column) throws DatabaseException;
+  Query avg(String... path);
 
-  Query as(String alias) throws DatabaseException;
+  Query sum(String... path);
 
-  Query eq(String table, String column, UUID... value) throws DatabaseException;
+  Where where(String... path);
 
-  Query eq(String table, String column, String... value) throws DatabaseException;
+  Where and(String... path);
 
-  Query eq(String table, String column, Integer... value) throws DatabaseException;
+  Where or(String... path);
 
-  // TODO: other operators and type safe overloaded methods
+  Query asc(String... column);
 
-  List<Row> retrieve() throws DatabaseException;
+  Query desc(String... column);
 }

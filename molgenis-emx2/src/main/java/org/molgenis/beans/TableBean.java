@@ -1,7 +1,7 @@
-package org.molgenis.bean;
+package org.molgenis.beans;
 
 import org.molgenis.Column;
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Table;
 import org.molgenis.Unique;
 
@@ -9,13 +9,14 @@ import static org.molgenis.Row.MOLGENISID;
 
 import java.util.*;
 
-public class TableBean implements Table {
+public class TableBean extends IdentifiableBean implements Table {
   private String name;
   private String extend;
   protected Map<String, Column> columns = new LinkedHashMap<>();
   private Map<String, Unique> uniques = new LinkedHashMap<>();
 
   public TableBean(String name) {
+    super();
     this.name = name;
   }
 
@@ -35,28 +36,28 @@ public class TableBean implements Table {
   }
 
   @Override
-  public Column addColumn(String name, Column.Type type) throws DatabaseException {
+  public Column addColumn(String name, Column.Type type) throws MolgenisException {
     Column c = new ColumnBean(this, name, type);
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public Column addRef(String name, Table otherTable) throws DatabaseException {
+  public Column addRef(String name, Table otherTable) throws MolgenisException {
     Column c = new ColumnBean(this, name, otherTable);
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public Column addMref(String name, Table otherTable, String joinTable) throws DatabaseException {
+  public Column addMref(String name, Table otherTable, String joinTable) throws MolgenisException {
     Column c = new ColumnBean(this, name, otherTable, joinTable);
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public void removeColumn(String name) throws DatabaseException {
+  public void removeColumn(String name) throws MolgenisException {
     columns.remove(name);
   }
 
@@ -66,11 +67,11 @@ public class TableBean implements Table {
   }
 
   @Override
-  public Unique addUnique(String... names) throws DatabaseException {
+  public Unique addUnique(String... names) throws MolgenisException {
     List<Column> cols = new ArrayList<>();
     for (String name : names) {
       Column c = getColumn(name);
-      if (c == null) throw new DatabaseException("Unique unknown: " + names);
+      if (c == null) throw new MolgenisException("Unique unknown: " + names);
       cols.add(c);
     }
     String uniqueName = name + "_" + String.join("_", names) + "_UNIQUE";
@@ -84,12 +85,12 @@ public class TableBean implements Table {
     try {
       getUniqueName(names);
       return true;
-    } catch (DatabaseException e) {
+    } catch (MolgenisException e) {
       return false;
     }
   }
 
-  public String getUniqueName(String... keys) throws DatabaseException {
+  public String getUniqueName(String... keys) throws MolgenisException {
     List<String> keyList = Arrays.asList(keys);
     for (Map.Entry<String, Unique> el : this.uniques.entrySet()) {
       if (el.getValue().getColumns().size() == keyList.size()
@@ -97,15 +98,15 @@ public class TableBean implements Table {
         return el.getKey();
       }
     }
-    throw new DatabaseException(
+    throw new MolgenisException(
         "getUniqueName(" + keyList + ") failed: constraint unknown in table " + this.name);
   }
 
   @Override
-  public void removeUnique(String... keys) throws DatabaseException {
+  public void removeUnique(String... keys) throws MolgenisException {
     if (keys.length == 1 && MOLGENISID.equals(keys[0]))
-      throw new DatabaseException(
-          "You are not allowed to remove unique constraint on primary key column " + MOLGENISID);
+      throw new MolgenisException(
+          "You are not allowed to remove unique constraint on primary key path " + MOLGENISID);
     String uniqueName = getUniqueName(keys);
     uniques.remove(uniqueName);
   }

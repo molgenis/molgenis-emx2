@@ -1,6 +1,6 @@
-package org.molgenis.bean;
+package org.molgenis.beans;
 
-import org.molgenis.DatabaseException;
+import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 
@@ -18,7 +18,7 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public Table createTable(String name) throws DatabaseException {
+  public Table createTable(String name) throws MolgenisException {
 
     tables.put(name, new TableBean(name));
     return getTable(name);
