@@ -15,7 +15,6 @@ import static graphql.schema.GraphQLSchema.newSchema;
 public class GrahpqlEndpoint {
 
   GraphQLSchema getSchema(Schema model) {
-    boolean first = true;
     GraphQLSchema.Builder schema = newSchema();
 
     GraphQLObjectType.Builder query = newObject().name("QueryOld");
@@ -37,9 +36,5 @@ public class GrahpqlEndpoint {
 
     schema.query(query.build());
     return schema.build();
-  }
-
-  GraphQLScalarType map(Column.Type type) {
-    return GraphQLString;
   }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Api {
-  Database db;
+  private Database db;
 
   public Api(Database db) {
     this.db = db;

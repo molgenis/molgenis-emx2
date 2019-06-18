@@ -8,9 +8,9 @@ import org.molgenis.Where;
 import java.util.*;
 
 public class QueryBean implements Query {
-  List<SelectBean> selects = new ArrayList<>();
-  List<WhereBean> wheres = new ArrayList<>();
-  List<SortBean> sorts = new ArrayList<>();
+  private List<SelectBean> selects = new ArrayList<>();
+  private List<WhereBean> wheres = new ArrayList<>();
+  private List<SortBean> sorts = new ArrayList<>();
 
   @Override
   public Select select(String... path) {

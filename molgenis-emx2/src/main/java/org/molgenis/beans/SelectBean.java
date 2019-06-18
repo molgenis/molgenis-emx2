@@ -8,11 +8,11 @@ import java.util.Arrays;
 public class SelectBean implements Select {
 
   // root of this selectionQueryBean query;
-  Query query;
+  private Query query;
   // currently selected path
-  String[] path;
+  private String[] path;
   // operation
-  Aggregation op = Aggregation.HIDDEN;
+  private Aggregation op = Aggregation.HIDDEN;
 
   public SelectBean(Query query, String... column) {
     this.query = query;
