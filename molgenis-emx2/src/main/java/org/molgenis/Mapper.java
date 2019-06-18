@@ -18,22 +18,24 @@ import static org.molgenis.Column.Type.*;
 
 public class Mapper {
 
-  public static Row[] map(Object... beans) {
+  public static Row[] map(Object... beans) throws MolgenisException {
     ArrayList<Row> rows = new ArrayList<>();
     try {
-      Class c = beans[0].getClass();
-      Field[] fields = c.getDeclaredFields();
-
       for (Object b : beans) {
+        Class c = b.getClass();
+        Method[] methods = c.getDeclaredMethods();
         Map<String, Object> values = new LinkedHashMap<>();
-        for (Field f : fields) {
-          f.setAccessible(true);
-          values.put(f.getName(), f.get(b));
+
+        for (Method m : methods) {
+          if (m.getName().startsWith("get") && m.getParameterCount() == 0) {
+            values.put(m.getName().substring(3), m.invoke(b));
+          }
         }
+
         rows.add(new RowBean(values));
       }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException("this should never happen");
+    } catch (Exception e) {
+      throw new MolgenisException(e);
     }
     return rows.toArray(new Row[rows.size()]);
   }
@@ -59,10 +61,18 @@ public class Mapper {
 
   public static Table map(Class klazz) throws MolgenisException {
     Table t = new TableBean(klazz.getSimpleName());
+
+    //    Method[] methods = klazz.getDeclaredMethods();
+    //    for(Method m: methods) {
+    //        if(m.getName().startsWith("get") && m.getParameterCount() == 0) {
+    //            Column col = t.addColumn(m.getName(), typeOf(m.getReturnType()));
+    //        }
+    //
+    //    }
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
       try {
-        if (!f.getName().contains("jacocoData")) {
+        if (!f.getName().contains("jacoco")) {
           Column col = t.addColumn(f.getName(), typeOf(f.getType()));
           if (f.isAnnotationPresent(ColumnMetadata.class)) {
             ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);

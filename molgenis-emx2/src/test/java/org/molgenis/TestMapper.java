@@ -20,10 +20,12 @@ public class TestMapper {
     assertEquals(1, rows.length);
 
     Row r = rows[0];
-    assertEquals(r.getString("firstName"), b.getFirstName());
-    assertEquals(r.getString("lastName"), b.getLastName());
+    assertEquals(r.getString("FirstName"), b.getFirstName());
+    assertEquals(r.getString("LastName"), b.getLastName());
+    System.out.println(r);
 
     PersonBean b2 = Mapper.map(PersonBean.class, r);
+    System.out.println(b2);
 
     assertEquals(b.getFirstName(), b2.getFirstName());
     assertEquals(b.getLastName(), b2.getLastName());
