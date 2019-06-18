@@ -53,35 +53,40 @@ public class Mapper {
     Table t = new TableBean(klazz.getSimpleName());
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
-      Column col = t.addColumn(f.getName(), typeOf(f.getType()));
-      if (f.isAnnotationPresent(ColumnMetadata.class)) {
-        ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
-        col.setNullable(cm.nullable());
-        col.setDescription(cm.description());
-      }
-      if (REF.equals(col.getType())) {
-        // big todo, fake table. Need singleton or lazyload before whole world is loaded in one go
-        col.setRefTable(new TableBean(f.getType().getSimpleName()));
-      }
-      if (ENUM.equals(col.getType())) {
-        // big todo: get the enum values from the enum
+      try {
+        // skip $jacocoData which we use in test
+        if (!f.getName().contains("jacocoData")) {
+
+          {
+            Column col = t.addColumn(f.getName(), typeOf(f.getType()));
+            if (f.isAnnotationPresent(ColumnMetadata.class)) {
+              ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
+              col.setNullable(cm.nullable());
+              col.setDescription(cm.description());
+            }
+            if (REF.equals(col.getType())) {
+              // big todo, fake table. Need singleton or lazyload before whole world is loaded in
+              // one go
+              col.setRefTable(new TableBean(f.getType().getSimpleName()));
+            }
+            if (ENUM.equals(col.getType())) {
+              // big todo: get the enum values from the enum
+            }
+          }
+        }
+      } catch (Exception e) {
+        throw new MolgenisException("Failed to map field " + f.getName(), e);
       }
     }
     return t;
   }
 
   private static Column.Type typeOf(Class<?> type) throws MolgenisException {
-    try {
-      if (type.isEnum()) return ENUM;
-      if (type.equals(String.class)) return STRING;
-      if (type.equals(UUID.class)) return UUID;
-      if (type.equals(Boolean.class) || type.equals(boolean.class)) return BOOL;
-      if (Identifiable.class.isAssignableFrom(type)) return REF;
-
-    } catch (Exception e) {
-      throw new MolgenisException(e);
-    }
-
-    throw new MolgenisException("implementation missing for type: " + type);
+    if (type.isEnum()) return ENUM;
+    if (type.equals(String.class)) return STRING;
+    if (type.equals(UUID.class)) return UUID;
+    if (type.equals(Boolean.class) || type.equals(boolean.class)) return BOOL;
+    if (Identifiable.class.isAssignableFrom(type)) return REF;
+    throw new MolgenisException("Failed to map type " + type.getSimpleName());
   }
 }
