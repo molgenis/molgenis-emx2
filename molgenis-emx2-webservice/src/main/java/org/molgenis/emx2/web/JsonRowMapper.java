@@ -1,27 +1,40 @@
 package org.molgenis.emx2.web;
 
+import com.jsoniter.JsonIterator;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
+import com.jsoniter.spi.TypeLiteral;
 import org.molgenis.*;
 import org.molgenis.beans.RowBean;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class JsonMapper {
+public class JsonRowMapper {
 
-  public static Row[] map(Table t, Map<String, Any> json) throws MolgenisException {
+  public static Row[] jsonToRows(Table t, Map<String, Any> json) throws MolgenisException {
     Row[] rows = new Row[json.size()];
     int i = 0;
     for (Any a : json.values()) {
-      rows[i++] = map(t, a);
+      rows[i++] = jsonToRow(t, a);
     }
     return rows;
   }
 
-  public static Row map(Table t, Any json) throws MolgenisException {
+  public static List<Row> jsonToRows(String json) {
+    ArrayList<Row> rows = new ArrayList<>();
+
+    List<Map<String, Object>> data =
+        JsonIterator.deserialize(json, new TypeLiteral<ArrayList<Map<String, Object>>>() {});
+
+    for (Map<String, Object> values : data) {
+      rows.add(new RowBean(values));
+    }
+
+    return rows;
+  }
+
+  public static Row jsonToRow(Table t, Any json) throws MolgenisException {
     Row r = new RowBean();
     for (Column c : t.getColumns()) {
       try {
@@ -53,7 +66,7 @@ public class JsonMapper {
     return r;
   }
 
-  public static String map(List<Row> rows) {
+  public static String rowsToJson(List<Row> rows) {
     Map<String, Object>[] values = new Map[rows.size()];
     int i = 0;
     for (Row r : rows) {
@@ -64,9 +77,5 @@ public class JsonMapper {
       values[i++] = r.getValueMap();
     }
     return JsonStream.serialize(values);
-  }
-
-  public static String map(Query q) {
-    return JsonStream.serialize(q);
   }
 }

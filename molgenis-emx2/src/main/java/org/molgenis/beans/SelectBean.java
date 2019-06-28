@@ -71,14 +71,15 @@ public class SelectBean implements Select {
     return query.desc(path);
   }
 
-  public String toString() {
-    return toString("");
+  @Override
+  public String[] getPath() {
+    return path;
   }
 
-  public String toString(String tabs) {
+  public String toString() {
     StringBuilder sb = new StringBuilder();
-    if (!Aggregation.HIDDEN.equals(op)) sb.append("\n" + tabs + op + Arrays.toString(path));
-    else sb.append("\n" + tabs + Arrays.toString(path));
+    if (!Aggregation.HIDDEN.equals(op)) sb.append(op + Arrays.toString(path));
+    else sb.append(Arrays.toString(path));
     return sb.toString();
   }
 

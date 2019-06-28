@@ -8,7 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EmxDefinitionParser {
-  private static final Pattern pattern = Pattern.compile("([a-z]+)(\\((.*?(?<!\\\\))\\))?"); //NOSONAR
+  private static final Pattern pattern =
+      Pattern.compile("([a-z]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
 
   public List<EmxDefinitionTerm> parse(
       Integer line, List<MolgenisReaderMessage> messages, String definition) {

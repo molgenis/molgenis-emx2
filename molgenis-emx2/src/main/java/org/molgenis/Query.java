@@ -1,6 +1,13 @@
 package org.molgenis;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface Query {
+  List<Select> getSelectList();
+
+  List<Where> getWhereLists();
+
   Select select(String... path);
 
   Select expand(String column);
@@ -18,4 +25,6 @@ public interface Query {
   Query asc(String... column);
 
   Query desc(String... column);
+
+  Collection<Sort> getSortList();
 }

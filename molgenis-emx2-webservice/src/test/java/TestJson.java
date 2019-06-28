@@ -1,7 +1,3 @@
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import org.junit.Test;
@@ -12,14 +8,20 @@ import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
-import org.molgenis.emx2.web.JsonMapper;
+import org.molgenis.emx2.web.JsonRowMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.Column.Type.DECIMAL;
 import static org.molgenis.Column.Type.INT;
 import static org.molgenis.Column.Type.STRING;
+import static org.molgenis.emx2.web.JsonQueryMapper.jsonToQuery;
+import static org.molgenis.emx2.web.JsonQueryMapper.queryToJson;
+import static org.molgenis.emx2.web.JsonRowMapper.jsonToRow;
+import static org.molgenis.emx2.web.JsonRowMapper.jsonToRows;
+import static org.molgenis.emx2.web.JsonRowMapper.rowsToJson;
 
 public class TestJson {
 
@@ -33,12 +35,12 @@ public class TestJson {
 
     String json = "{\"FirstName\":\"Donald\", \"Age\":50, \"Weight\":15.4}";
     Any any = JsonIterator.deserialize(json);
-    Row r = JsonMapper.map(t, any);
+    Row r = jsonToRow(t, any);
 
     try {
       String malformed = "{\"FirstName\":\"Donald\", \"Age\":\"blaat\"}";
       any = JsonIterator.deserialize(malformed);
-      r = JsonMapper.map(t, any);
+      r = jsonToRow(t, any);
     } catch (Exception e) {
       System.out.println(e);
     }
@@ -46,7 +48,7 @@ public class TestJson {
     try {
       String malformed = "{\"FirstName\":[\"Donald\",\"Duck\"], \"Age\":50}";
       any = JsonIterator.deserialize(malformed);
-      r = JsonMapper.map(t, any);
+      r = jsonToRow(t, any);
     } catch (Exception e) {
       System.out.println(e);
     }
@@ -54,29 +56,55 @@ public class TestJson {
     try {
       String malformed = "{\"FirstName\":\"Donald\", \"Age\":50, \"Weight\":\"blaat\"}";
       any = JsonIterator.deserialize(malformed);
-      r = JsonMapper.map(t, any);
+      r = jsonToRow(t, any);
     } catch (Exception e) {
       System.out.println(e);
     }
-
-    System.out.println(r);
   }
 
   @Test
   public void testRowsToJson() {
     List<Row> rows = new ArrayList<>();
-
     rows.add(new RowBean().setString("FirstName", "Donald"));
 
-    System.out.println(JsonMapper.map(rows));
+    String json = rowsToJson(rows);
+    System.out.println(json);
+    List<Row> rows2 = jsonToRows(json);
+    String json2 = rowsToJson(rows2);
+    System.out.println(json2);
+
+    assertEquals(json, json2);
   }
 
   @Test
   public void testQuery() {
     Query q = new QueryBean();
 
-    q.select("FirstName").select("LastName").where("Age").eq(50);
+    q.select("FirstName")
+        .select("LastName")
+        .expand("Father")
+        .include("FirstName")
+        .where("Age")
+        .eq(50)
+        .or("Age")
+        .eq(60)
+        .and("Father", "LastName")
+        .eq("Blaat")
+        .asc("LastName")
+        .asc("FirstName");
 
-    System.out.println(JsonMapper.map(q));
+    String json1 = queryToJson(q);
+
+    System.out.println(q);
+
+    System.out.println(json1);
+
+    Query q2 = jsonToQuery(json1, new QueryBean());
+    String json2 = queryToJson(q2);
+
+    System.out.println(q2);
+    System.out.println(json2);
+
+    assertEquals(json1, json2);
   }
 }

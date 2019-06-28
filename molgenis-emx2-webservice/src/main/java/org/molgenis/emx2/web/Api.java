@@ -27,7 +27,7 @@ public class Api {
     Map<String, Any> tables = any.asMap();
     for (String table : tables.keySet()) {
       Map<String, Any> updates = tables.get(table).asMap();
-      // Row rows = JsonMapper.map(t, any);
+      // Row rows = JsonRowMapper.rowsToJson(t, any);
     }
   }
 
@@ -41,6 +41,6 @@ public class Api {
 
   public String list(Table t) throws MolgenisException {
     List<Row> result = db.query(t.getName()).retrieve();
-    return JsonMapper.map(result);
+    return JsonRowMapper.rowsToJson(result);
   }
 }

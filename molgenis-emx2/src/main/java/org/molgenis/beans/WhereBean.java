@@ -1,5 +1,6 @@
 package org.molgenis.beans;
 
+import org.molgenis.Operator;
 import org.molgenis.Where;
 
 import java.util.Arrays;
@@ -32,6 +33,28 @@ public class WhereBean implements Where {
     this.values = values;
     this.op = Operator.EQ;
     return this.query;
+  }
+
+  @Override
+  public QueryBean eq(Double... values) {
+    this.values = values;
+    this.op = Operator.EQ;
+    return this.query;
+  }
+
+  @Override
+  public Operator getOperator() {
+    return this.op;
+  }
+
+  @Override
+  public String[] getPath() {
+    return this.path;
+  }
+
+  @Override
+  public Object[] getValues() {
+    return this.values;
   }
 
   public String toString() {

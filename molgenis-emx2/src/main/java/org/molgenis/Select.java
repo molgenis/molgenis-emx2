@@ -19,6 +19,8 @@ public interface Select {
 
   Where where(String... path);
 
+  String[] getPath();
+
   public enum Aggregation {
     HIDDEN,
     EXPAND,

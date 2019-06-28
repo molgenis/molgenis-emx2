@@ -1,5 +1,6 @@
 package org.molgenis.beans;
 
+import org.molgenis.Order;
 import org.molgenis.Sort;
 
 import java.util.Arrays;
