@@ -12,15 +12,6 @@ import java.util.*;
 
 public class JsonRowMapper {
 
-  public static Row[] jsonToRows(Table t, Map<String, Any> json) throws MolgenisException {
-    Row[] rows = new Row[json.size()];
-    int i = 0;
-    for (Any a : json.values()) {
-      rows[i++] = jsonToRow(t, a);
-    }
-    return rows;
-  }
-
   public static List<Row> jsonToRows(String json) {
     ArrayList<Row> rows = new ArrayList<>();
 

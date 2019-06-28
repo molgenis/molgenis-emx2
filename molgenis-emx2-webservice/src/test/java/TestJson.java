@@ -8,7 +8,6 @@ import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
-import org.molgenis.emx2.web.JsonRowMapper;
 
 import java.util.ArrayList;
 import java.util.List;
