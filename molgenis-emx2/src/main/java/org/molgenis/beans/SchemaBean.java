@@ -33,4 +33,12 @@ public class SchemaBean implements Schema {
   public void dropTable(String tableId) {
     tables.remove(tableId);
   }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    for (Table t : tables.values()) {
+      sb.append(t);
+    }
+    return sb.toString();
+  }
 }

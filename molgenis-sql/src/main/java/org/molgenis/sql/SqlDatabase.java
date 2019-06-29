@@ -105,8 +105,12 @@ public class SqlDatabase implements Database {
       // create the from & joins
 
       return result;
-    } catch (Exception e) {
-      throw new MolgenisException("Query failed:" + e.getCause().getMessage(), e);
+    } catch (MolgenisException e) {
+      throw e;
+    } catch (Exception e2) {
+      if (e2.getCause() != null)
+        throw new MolgenisException("Query failed:" + e2.getCause().getMessage(), e2);
+      else throw new MolgenisException(e2);
     }
   }
 

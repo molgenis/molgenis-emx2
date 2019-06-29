@@ -48,6 +48,10 @@ public class SqlTestHelper {
     return db;
   }
 
+  public static Database reload() throws MolgenisException {
+    return new SqlDatabase(dataSource);
+  }
+
   public static void emptyDatabase() {
     deleteAll();
   }

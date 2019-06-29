@@ -9,6 +9,7 @@ import org.molgenis.beans.RowBean;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.Column.Type.INT;
 import static org.molgenis.Column.Type.STRING;
 
@@ -122,7 +123,32 @@ public class TestSqlQuery {
         .include("name");
     // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
 
-    for (Row r : q.retrieve()) {
+    List<Row> rows = q.retrieve();
+    assertEquals(rows.size(), 3);
+    for (Row r : rows) {
+      System.out.println(r);
+    }
+
+    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
+
+    // restart database and see if it is still there
+    db = SqlTestHelper.reload();
+
+    System.out.println(db.getSchema());
+
+    startTime = System.currentTimeMillis();
+
+    Query q2 = db.query("Product");
+    q2.select("name")
+        .expand("components")
+        .include("name")
+        .expand("components", "parts")
+        .include("name");
+    // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
+
+    List<Row> rows2 = q2.retrieve();
+    assertEquals(rows2.size(), 3);
+    for (Row r : rows2) {
       System.out.println(r);
     }
 

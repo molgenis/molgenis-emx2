@@ -6,6 +6,7 @@ import org.molgenis.Column;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Unique;
+import org.molgenis.Table;
 import org.molgenis.beans.TableBean;
 
 import java.util.*;
@@ -23,30 +24,19 @@ class SqlTable extends TableBean {
     super(name);
     this.schema = schema;
     this.sql = sql;
-    loadMetadata();
   }
 
-  private void loadMetadata() throws MolgenisException {
+  protected void loadColumns() throws MolgenisException {
     isLoading = true;
     org.jooq.Table t = sql.meta().getTables(getName()).get(0);
-    loadColumns(t);
-    loadUniques(t);
-    isLoading = false;
-  }
 
-  private void loadColumns(org.jooq.Table t) throws MolgenisException {
     // get all foreign keys
     Map<String, org.molgenis.Table> refs = new LinkedHashMap<>();
-    for (Object o3 : t.getReferences()) {
-      ForeignKey fk = (ForeignKey) o3;
+    for (Object ref : t.getReferences()) {
+      ForeignKey fk = (ForeignKey) ref;
       for (Field field : (List<Field>) fk.getFields()) {
-        Column temp = getColumn(field.getName());
         String refTableName = fk.getKey().getTable().getName();
-        if (refTableName.equals(getName())) {
-          refs.put(field.getName(), this);
-        } else {
-          refs.put(field.getName(), schema.getTable(refTableName));
-        }
+        refs.put(field.getName(), schema.getTable(refTableName));
       }
     }
 
@@ -59,9 +49,12 @@ class SqlTable extends TableBean {
     }
     // TODO: null constraints
     // TODO: settings that are not in schema
+    isLoading = false;
   }
 
-  private void loadUniques(org.jooq.Table t) throws MolgenisException {
+  protected void loadUniques() throws MolgenisException {
+    isLoading = true;
+    org.jooq.Table t = sql.meta().getTables(getName()).get(0);
     for (Index i : (List<Index>) t.getIndexes()) {
       if (i.getUnique()) {
         List<String> cols = new ArrayList<>();
@@ -71,10 +64,35 @@ class SqlTable extends TableBean {
         addUnique(cols.toArray(new String[cols.size()]));
       }
     }
+    isLoading = false;
   }
 
-  private void reloadMrefs(org.jooq.Table t) {
-    // retrieve all relationships to 'me'
+  /** will be called from SqlSchema */
+  protected void loadMrefs() throws MolgenisException {
+    this.isLoading = true;
+    // check all tables for mref tables, probably expensive.
+    for (String t : schema.getTables()) {
+      // test if it is 'our' mref table]
+      boolean valid = true;
+      Column self = null;
+      Column other = null;
+      Table mrefTable = schema.getTable(t);
+      for (Column c : mrefTable.getColumns()) {
+        if (c.getRefTable() != null) {
+          if (c.getRefTable().getName().equals(this.getName())) {
+            if (self != null) valid = false;
+            else self = c;
+          } else {
+            if (other != null) valid = false;
+            else other = c;
+          }
+        }
+      }
+      if (valid && self != null && other != null) {
+        this.addMref(other.getName(), other.getRefTable(), mrefTable.getName(), self.getName());
+      }
+    }
+    this.isLoading = false;
   }
 
   @Override

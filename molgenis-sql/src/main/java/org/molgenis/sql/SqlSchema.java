@@ -3,6 +3,7 @@ package org.molgenis.sql;
 import org.jooq.DSLContext;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.MolgenisException;
+import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
 
 import static org.jooq.impl.DSL.constraint;
@@ -16,6 +17,21 @@ public class SqlSchema extends SchemaBean {
     for (org.jooq.Table t : sql.meta().getTables()) {
       tables.put(t.getName(), new SqlTable(this, sql, t.getName()));
     }
+
+    // load columns
+    for (Table t : tables.values()) {
+      ((SqlTable) t).loadColumns();
+    }
+
+    // load uniques
+    for (Table t : tables.values()) {
+      ((SqlTable) t).loadUniques();
+    }
+
+    // load mrefs
+    for (Table t : tables.values()) {
+      ((SqlTable) t).loadMrefs();
+    }
   }
 
   @Override
@@ -25,6 +41,8 @@ public class SqlSchema extends SchemaBean {
         .constraints(constraint("PK_" + name).primaryKey(MOLGENISID))
         .execute();
     SqlTable t = new SqlTable(this, sql, name);
+    t.loadColumns();
+    t.loadUniques();
     tables.put(name, t);
     return t;
   }
