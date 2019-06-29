@@ -18,8 +18,14 @@ public class SqlColumn extends ColumnBean {
     this.sql = sql;
   }
 
-  public SqlColumn(DSLContext sql, Table table, String name, Table otherTable, String joinTable) {
-    super(table, name, otherTable, joinTable);
+  public SqlColumn(
+      DSLContext sql,
+      Table table,
+      String name,
+      Table otherTable,
+      String mrefTable,
+      String mrefBack) {
+    super(table, name, otherTable, mrefTable, mrefBack);
     this.sql = sql;
   }
 

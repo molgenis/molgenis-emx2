@@ -41,8 +41,8 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public Select expand(String column) {
-    SelectBean s = new SelectBean(this, Select.Aggregation.EXPAND, column);
+  public Select expand(String... path) {
+    SelectBean s = new SelectBean(this, Select.Aggregation.EXPAND, path);
     return s;
   }
 

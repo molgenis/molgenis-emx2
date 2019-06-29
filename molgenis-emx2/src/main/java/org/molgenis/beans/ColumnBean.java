@@ -50,12 +50,13 @@ public class ColumnBean implements Column {
     this.refTable = otherTable;
   }
 
-  public ColumnBean(Table table, String name, Table otherTable, String joinTable) {
+  public ColumnBean(Table table, String name, Table otherTable, String mrefTable, String mrefBack) {
     this.table = table;
     this.name = name;
     this.type = Type.MREF;
     this.refTable = otherTable;
-    this.mrefTable = joinTable;
+    this.mrefTable = mrefTable;
+    this.mrefBack = mrefBack;
   }
 
   @Override
@@ -90,8 +91,8 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public Table getMrefTable() {
-    return table;
+  public String getMrefTable() {
+    return this.mrefTable;
   }
 
   @Override

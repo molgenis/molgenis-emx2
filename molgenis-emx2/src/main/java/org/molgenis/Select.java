@@ -5,7 +5,7 @@ public interface Select {
 
   Select avg(String column);
 
-  Select expand(String column);
+  Select expand(String... path);
 
   Select select(String column);
 

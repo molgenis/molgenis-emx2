@@ -13,7 +13,7 @@ public interface Query {
 
   Select select(String... path);
 
-  Select expand(String column);
+  Select expand(String... column);
 
   Query avg(String... path);
 

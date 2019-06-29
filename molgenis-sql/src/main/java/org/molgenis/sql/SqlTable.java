@@ -13,7 +13,6 @@ import java.util.*;
 import static org.jooq.impl.DSL.*;
 
 import static org.molgenis.sql.SqlRow.MOLGENISID;
-import static org.molgenis.Column.Type.MREF;
 
 class SqlTable extends TableBean {
   private DSLContext sql;
@@ -75,7 +74,7 @@ class SqlTable extends TableBean {
   }
 
   private void reloadMrefs(org.jooq.Table t) {
-    // TODO mrefs
+    // retrieve all relationships to 'me'
   }
 
   @Override
@@ -111,22 +110,22 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public SqlColumn addMref(String name, org.molgenis.Table otherTable, String otherColumn)
+  public SqlColumn addMref(
+      String name, org.molgenis.Table otherTable, String mrefTable, String mrefBack)
       throws MolgenisException {
     if (!isLoading) {
-      Column check = getColumn(name);
-      if (check != null && MREF.equals(check.getType()) && otherTable.equals(check.getRefTable())) {
-        // todo check
+      // check if jointable already exists from the other end of mref
+      org.molgenis.Table jTable = schema.getTable(mrefTable);
+      if (jTable != null) {
+        // done
       } else {
-        String joinTable = this.getName() + name + "MREF" + otherTable.getName() + otherColumn;
-        org.molgenis.Table jTable = schema.createTable(joinTable);
-        jTable.addRef(otherColumn, this);
+        // otherwise create the table
+        jTable = schema.createTable(mrefTable);
+        jTable.addRef(mrefBack, this); // default name of jointable itself
         jTable.addRef(name, otherTable);
-        // add reverse link
-        // otherTable.addMref(otherColumn, this, name);
       }
     }
-    SqlColumn c = new SqlColumn(sql, this, name, otherTable, otherColumn);
+    SqlColumn c = new SqlColumn(sql, this, name, otherTable, mrefTable, mrefBack);
     columns.put(name, c);
     return c;
   }

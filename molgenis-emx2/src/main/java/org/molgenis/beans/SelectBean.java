@@ -37,7 +37,7 @@ public class SelectBean implements Select {
   }
 
   @Override
-  public Select expand(String column) {
+  public Select expand(String... column) {
     return query.expand(column);
   }
 

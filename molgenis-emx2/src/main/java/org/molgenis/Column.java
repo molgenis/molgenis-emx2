@@ -25,7 +25,7 @@ public interface Column {
 
   Column setRefTable(Table table);
 
-  Table getMrefTable();
+  String getMrefTable();
 
   String getMrefBack();
 
