@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.List;
 
 public interface Query {
+
   List<Select> getSelectList();
 
   List<Where> getWhereLists();
+
+  List<Sort> getSortList();
 
   Select select(String... path);
 
@@ -26,5 +29,5 @@ public interface Query {
 
   Query desc(String... column);
 
-  Collection<Sort> getSortList();
+  List<Row> retrieve() throws MolgenisException;
 }

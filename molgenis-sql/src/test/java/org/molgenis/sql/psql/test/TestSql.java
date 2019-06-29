@@ -1,22 +1,13 @@
 package org.molgenis.sql.psql.test;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import com.zaxxer.hikari.HikariDataSource;
-import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.ForeignKey;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.beans.RowBean;
 import org.molgenis.sql.*;
-import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -25,56 +16,15 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
-import static org.jooq.impl.DSL.field;
-import static org.molgenis.sql.RowImpl.MOLGENISID;
+import static org.molgenis.sql.SqlRow.MOLGENISID;
 import static org.molgenis.Column.Type.*;
 
 public class TestSql {
-
-  private static SqlDatabase db = null;
-  private static HikariDataSource dataSource = null;
-  private static DSLContext jooq = null;
+  private static Database db;
 
   @BeforeClass
-  public static void setUp() {
-    Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-    rootLogger.setLevel(Level.INFO);
-
-    String userName = "molgenis";
-    String password = "molgenis";
-    String url = "jdbc:postgresql:molgenis";
-
-    try {
-      dataSource = new HikariDataSource();
-      dataSource.setJdbcUrl(url);
-      dataSource.setUsername(userName);
-      dataSource.setPassword(password);
-
-      Connection conn = dataSource.getConnection();
-
-      // internal magic
-      jooq = DSL.using(conn, SQLDialect.POSTGRES_10);
-
-      // delete all foreign key constaints
-      for (org.jooq.Table t : jooq.meta().getTables()) {
-        for (ForeignKey k : (List<ForeignKey>) t.getReferences()) {
-          jooq.alterTable(t).dropConstraint(k.getName()).execute();
-        }
-      }
-      // delete all tables
-      for (org.jooq.Table t : jooq.meta().getTables()) {
-        jooq.dropTable(t).execute();
-      }
-
-      // conn.close();
-
-      db = new SqlDatabase(dataSource);
-    }
-
-    // For the sake of this test, let's keep exception handling simple
-    catch (Exception e) {
-      e.printStackTrace();
-    }
+  public static void setUp() throws MolgenisException, SQLException {
+    db = SqlTestHelper.getEmptyDatabase();
   }
 
   @Test
@@ -190,7 +140,7 @@ public class TestSql {
       System.out.println("as expected, caught exceptoin: " + e.getMessage());
     }
 
-    // check query and test getters
+    // check queryOld and test getters
     List<Row> result = db.query("TypeTest").retrieve();
     for (Row res : result) {
       System.out.println(res);
@@ -207,7 +157,7 @@ public class TestSql {
       db.insert(TYPE_TEST, res);
     }
 
-    System.out.println("testing TypeTest query");
+    System.out.println("testing TypeTest queryOld");
     for (Row r : db.query("TypeTest").retrieve()) {
       System.out.println(r);
     }
@@ -217,6 +167,8 @@ public class TestSql {
   public void testCreate() throws MolgenisException {
 
     long startTime = System.currentTimeMillis();
+
+    SqlTestHelper.emptyDatabase();
 
     // create a fromTable
     String PERSON = "Person";
@@ -231,8 +183,8 @@ public class TestSql {
         "Created fromTable: \n" + t.toString() + " in " + (endTime - startTime) + " milliseconds");
 
     // reinitialise database to see if it can recreate from background
-    db = new SqlDatabase(dataSource);
-    assertEquals(4, db.getSchema().getTables().size());
+    db = new SqlDatabase(SqlTestHelper.getDataSource());
+    assertEquals(1, db.getSchema().getTables().size());
 
     // insert
     startTime = System.currentTimeMillis();
@@ -254,11 +206,11 @@ public class TestSql {
             + (1000 * count / total)
             + " rows/sec)");
 
-    // query
+    // queryOld
     startTime = System.currentTimeMillis();
-    QueryOld q = db.query(PERSON);
+    Query q = db.query(PERSON);
     for (Row row : q.retrieve()) {
-      // System.out.println("QueryOld result: " + row);
+      System.out.println("QueryOld result: " + row);
     }
     endTime = System.currentTimeMillis();
     System.out.println("QueryOld took " + (endTime - startTime) + " milliseconds");
@@ -298,7 +250,7 @@ public class TestSql {
     db.getSchema().dropTable(t.getName());
     assertEquals(null, db.getSchema().getTable("Person"));
     // make sure nothing was left behind in backend
-    db = new SqlDatabase(dataSource);
+    db = new SqlDatabase(SqlTestHelper.getDataSource());
     assertEquals(null, db.getSchema().getTable("Person"));
   }
 
@@ -351,7 +303,7 @@ public class TestSql {
     // sortby clauses
     // later: group by.
 
-    //        QueryImpl q1 = new PsqlQueryBack(db);
+    //        QueryOldImpl q1 = new PsqlQueryBack(db);
     // db        q1.select("Product").columns("name").as("productName");
     //        q1.mref("ProductComponent").columns("name").as("componentName");
     //        q1.mref("ComponentPart").columns("name").as("partName");
@@ -360,49 +312,49 @@ public class TestSql {
     //        System.out.println(q1);
 
     try {
-      db.query("pietje");
+      db.queryOld("pietje");
       fail("exception handling from(pietje) failed");
     } catch (Exception e) {
       System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").join("Comp", "p", "components");
+      db.queryOld("Product").as("p").join("Comp", "p", "components");
       fail("should fail because faulty table");
     } catch (Exception e) {
       System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").join("Component", "p2", "components");
+      db.queryOld("Product").as("p").join("Component", "p2", "components");
       fail("should fail because faulty toTabel");
     } catch (Exception e) {
       System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").join("Component", "p2", "components");
+      db.queryOld("Product").as("p").join("Component", "p2", "components");
       fail("should fail because faulty on although it is an mref");
     } catch (Exception e) {
       System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").join("Component", "p", "comps");
+      db.queryOld("Product").as("p").join("Component", "p", "comps");
       fail("should fail because faulty on");
     } catch (Exception e) {
       System.out.println("Succesfully caught exception: " + e);
     }
 
     try {
-      db.query("Product").as("p").select("wrongname").as("productName");
+      db.queryOld("Product").as("p").select("wrongname").as("productName");
       fail("should fail because faulty 'select'");
     } catch (Exception e) {
       System.out.println("Succesfully caught exception: " + e);
     }
 
     startTime = System.currentTimeMillis();
-    QueryOld q2 = db.query("Product").as("p").select("name").as("productName");
+    QueryOldImpl q2 = db.queryOld("Product").as("p").select("name").as("productName");
     q2.join("Component", "p", "components").as("c").select("name").as("componentName");
     q2.join("Part", "c", "parts").as("pt").select("name").as("partName").select("weight");
     q2.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
@@ -410,11 +362,11 @@ public class TestSql {
       System.out.println(row);
     }
     endTime = System.currentTimeMillis();
-    System.out.println("QueryOld took " + (endTime - startTime) + " milliseconds");
-    System.out.println("QueryOld contents: " + q2);
+    System.out.println("QueryOldImpl took " + (endTime - startTime) + " milliseconds");
+    System.out.println("QueryOldImpl contents: " + q2);
 
     // again reversing the 'on' columns
-    QueryOld q3 = db.query("Product").as("p").select("name").as("productName");
+    QueryOldImpl q3 = db.queryOld("Product").as("p").select("name").as("productName");
     q3.join("Component", "p", "partOfProduct").as("c").select("name").as("componentName");
     q3.join("Part", "c", "partOfComponent").as("pt").select("name").as("partName").select("weight");
     q3.eq("pt", "weight", 50).eq("c", "name", "explorer", "navigator");
@@ -424,22 +376,18 @@ public class TestSql {
 
     // test delete
     product.delete(product1);
-    assertEquals(0, db.query("Product").retrieve().size());
+    assertEquals(0, db.queryOld("Product").retrieve().size());
     */
   }
 
   private void checkColumnExists(Column c) throws MolgenisException {
-    List<org.jooq.Table<?>> tables = jooq.meta().getTables(c.getTable().getName());
+    List<org.jooq.Table<?>> tables =
+        SqlTestHelper.getJooq().meta().getTables(c.getTable().getName());
     if (tables.size() == 0)
       throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
     org.jooq.Table<?> table = tables.get(0);
     Field f = table.field(c.getName());
     if (f == null)
       throw new MolgenisException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
-  }
-
-  @AfterClass
-  public static void close() {
-    db.close();
   }
 }

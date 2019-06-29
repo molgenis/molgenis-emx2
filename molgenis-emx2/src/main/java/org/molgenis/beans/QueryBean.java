@@ -5,9 +5,18 @@ import org.molgenis.*;
 import java.util.*;
 
 public class QueryBean implements Query {
+  private Database db;
+  private String table;
   private List<Select> selects = new ArrayList<>();
   private List<Where> wheres = new ArrayList<>();
   private List<Sort> sorts = new ArrayList<>();
+
+  public QueryBean() {}
+
+  public QueryBean(Database db, String table) {
+    this.db = db;
+    this.table = table;
+  }
 
   @Override
   public List<Select> getSelectList() {
@@ -107,5 +116,10 @@ public class QueryBean implements Query {
     }
 
     return sb.toString();
+  }
+
+  @Override
+  public List<Row> retrieve() throws MolgenisException {
+    return db.retrieve(table, this);
   }
 }

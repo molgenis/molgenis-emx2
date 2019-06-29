@@ -1,12 +1,13 @@
 package org.molgenis;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface Database {
 
   Schema getSchema() throws MolgenisException;
 
-  QueryOld query(String name) throws MolgenisException;
+  List<Row> retrieve(String name, Query q) throws MolgenisException;
 
   void insert(String table, Collection<Row> rows) throws MolgenisException;
 
@@ -19,4 +20,6 @@ public interface Database {
   int delete(String table, Collection<Row> rows) throws MolgenisException;
 
   void delete(String table, Row row) throws MolgenisException;
+
+  Query query(String name) throws MolgenisException;
 }

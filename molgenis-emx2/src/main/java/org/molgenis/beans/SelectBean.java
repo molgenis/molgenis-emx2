@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class SelectBean implements Select {
 
-  // root of this selectionQueryBean query;
+  // root of this selectionQueryBean queryOld;
   private transient Query query;
   // currently selected path
   private String[] path;

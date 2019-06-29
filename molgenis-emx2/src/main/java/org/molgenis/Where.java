@@ -3,13 +3,16 @@ package org.molgenis;
 import org.molgenis.beans.QueryBean;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface Where {
-  QueryBean eq(String... values);
+  Query eq(String... values);
 
-  QueryBean eq(Integer... values);
+  Query eq(Integer... values);
 
-  QueryBean eq(Double... values);
+  Query eq(Double... values);
+
+  Query eq(UUID... values);
 
   Operator getOperator();
 

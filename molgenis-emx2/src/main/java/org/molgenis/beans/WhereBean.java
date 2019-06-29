@@ -1,9 +1,11 @@
 package org.molgenis.beans;
 
 import org.molgenis.Operator;
+import org.molgenis.Query;
 import org.molgenis.Where;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public class WhereBean implements Where {
 
@@ -37,6 +39,13 @@ public class WhereBean implements Where {
 
   @Override
   public QueryBean eq(Double... values) {
+    this.values = values;
+    this.op = Operator.EQ;
+    return this.query;
+  }
+
+  @Override
+  public Query eq(UUID... values) {
     this.values = values;
     this.op = Operator.EQ;
     return this.query;
