@@ -8,7 +8,6 @@ import org.molgenis.*;
 import org.molgenis.Query;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.beans.QueryBean;
 import org.molgenis.beans.RowBean;
 
 import javax.sql.DataSource;

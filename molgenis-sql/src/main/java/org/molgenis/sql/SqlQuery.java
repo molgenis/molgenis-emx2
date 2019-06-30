@@ -1,9 +1,7 @@
 package org.molgenis.sql;
 
 import org.jooq.*;
-import org.jooq.impl.DSL;
 import org.molgenis.*;
-import org.molgenis.Query;
 import org.molgenis.Row;
 import org.molgenis.Select;
 import org.molgenis.Table;
@@ -22,12 +20,12 @@ import static org.molgenis.Row.MOLGENISID;
 
 public class SqlQuery extends QueryBean {
 
-  private String name;
+  private String from;
   private Database db;
   private DSLContext sql;
 
-  public SqlQuery(String name, SqlDatabase db, DSLContext sql) {
-    this.name = name;
+  public SqlQuery(String from, SqlDatabase db, DSLContext sql) {
+    this.from = from;
     this.db = db;
     this.sql = sql;
   }
@@ -37,25 +35,25 @@ public class SqlQuery extends QueryBean {
 
     try {
       List<Row> result = new ArrayList<>();
-      Table table = db.getSchema().getTable(name);
+      Table table = db.getSchema().getTable(from);
 
       // create the select
-      SelectSelectStep select = sql.select(getFields(name));
+      SelectSelectStep selectStep = sql.select(getFields(from));
 
       // create the from
-      SelectJoinStep from = select.from(name(name));
+      SelectJoinStep fromStep = selectStep.from(name(from));
 
       // create the joins
-      from = createJoins(name, table, from);
+      fromStep = createJoins(from, table, fromStep);
 
       // create the where
-      from.where(createConditions(name));
+      fromStep.where(createConditions(from));
 
       // create the sort
 
       // retrieve
-      System.out.println(from.getSQL());
-      Result<Record> fetch = from.fetch();
+      System.out.println(fromStep.getSQL());
+      Result<Record> fetch = fromStep.fetch();
       for (Record r : fetch) {
         result.add(new SqlRow(r));
       }
@@ -105,7 +103,7 @@ public class SqlQuery extends QueryBean {
     return c;
   }
 
-  private SelectJoinStep createJoins(String name, Table table, SelectJoinStep from)
+  private SelectJoinStep createJoins(String name, Table table, SelectJoinStep fromStep)
       throws MolgenisException {
     List<String> duplicatePaths = new ArrayList<>();
     for (Select s : this.getSelectList()) {
@@ -130,8 +128,9 @@ public class SqlQuery extends QueryBean {
           duplicatePaths.add(rightAlias);
 
           if (REF.equals(c.getType())) {
-            from =
-                from.leftJoin(table(name(rightTable)).as(name(rightAlias)))
+            fromStep =
+                fromStep
+                    .leftJoin(table(name(rightTable)).as(name(rightAlias)))
                     .on(
                         field(name(rightAlias, rightColumn))
                             .eq(field(name(leftAlias, leftColumn))));
@@ -141,19 +140,21 @@ public class SqlQuery extends QueryBean {
             rightColumn = c.getMrefBack();
 
             // to link table
-            from =
-                from.leftJoin(table(name(mrefTable)).as(name(mrefTable)))
+            fromStep =
+                fromStep
+                    .leftJoin(table(name(mrefTable)).as(name(mrefTable)))
                     .on(field(name(mrefTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
 
             // to other end of the mref
-            from =
-                from.leftJoin(table(name(rightTable)).as(name(rightAlias)))
+            fromStep =
+                fromStep
+                    .leftJoin(table(name(rightTable)).as(name(rightAlias)))
                     .on(field(name(mrefTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
           }
         }
       }
     }
-    return from;
+    return fromStep;
   }
 
   private Column getColumn(Table t, String[] path) throws MolgenisException {

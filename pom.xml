@@ -28,6 +28,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.groovy.binaries>target/classes</sonar.groovy.binaries>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     </properties>
 
     <dependencies>
@@ -55,6 +56,7 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <append>true</append>
+                    <destFile>${sonar.jacoco.reportPath}</destFile>
                 </configuration>
                 <executions>
                     <execution>
