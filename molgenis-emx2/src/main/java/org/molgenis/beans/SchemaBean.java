@@ -13,8 +13,8 @@ public class SchemaBean implements Schema {
   protected Map<String, Table> tables = new LinkedHashMap<>();
 
   @Override
-  public Collection<String> getTables() {
-    return Collections.unmodifiableSet(tables.keySet());
+  public Collection<Table> getTables() {
+    return Collections.unmodifiableCollection(tables.values());
   }
 
   @Override

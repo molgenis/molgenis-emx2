@@ -4,9 +4,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.molgenis.Column;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.sql.SqlDatabase;
@@ -75,5 +77,16 @@ public class SqlTestHelper {
 
   public static DSLContext getJooq() {
     return jooq;
+  }
+
+  public static void checkColumnExists(Column c) throws MolgenisException {
+    List<org.jooq.Table<?>> tables =
+        SqlTestHelper.getJooq().meta().getTables(c.getTable().getName());
+    if (tables.size() == 0)
+      throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
+    org.jooq.Table<?> table = tables.get(0);
+    Field f = table.field(c.getName());
+    if (f == null)
+      throw new MolgenisException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
   }
 }

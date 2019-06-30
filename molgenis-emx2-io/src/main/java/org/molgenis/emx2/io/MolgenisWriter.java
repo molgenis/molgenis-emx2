@@ -37,8 +37,7 @@ public class MolgenisWriter {
       throws MolgenisWriterException {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
-    for (String tableName : model.getTables()) {
-      Table table = model.getTable(tableName);
+    for (Table table : model.getTables()) {
       if (table.getExtend() != null || !table.getUniques().isEmpty()) {
         rows.add(convertTableToRow(table));
       }

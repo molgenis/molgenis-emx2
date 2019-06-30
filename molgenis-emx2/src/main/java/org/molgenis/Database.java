@@ -7,8 +7,6 @@ public interface Database {
 
   Schema getSchema() throws MolgenisException;
 
-  List<Row> retrieve(String name, Query q) throws MolgenisException;
-
   void insert(String table, Collection<Row> rows) throws MolgenisException;
 
   void insert(String table, Row row) throws MolgenisException;

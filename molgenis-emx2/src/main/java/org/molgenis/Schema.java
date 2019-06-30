@@ -7,7 +7,7 @@ public interface Schema {
 
   void dropTable(String tableId);
 
-  Collection<String> getTables();
+  Collection<Table> getTables();
 
   Table getTable(String name);
 }

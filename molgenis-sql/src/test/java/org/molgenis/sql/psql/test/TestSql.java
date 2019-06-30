@@ -81,89 +81,6 @@ public class TestSql {
   }
 
   @Test
-  public void testTypes() throws MolgenisException {
-
-    // generate TypeTest table, with columns for each type
-    Table t = db.getSchema().createTable("TypeTest");
-    for (Column.Type type : Column.Type.values()) {
-      if (REF.equals(type)) {
-        Column c =
-            t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
-        checkColumnExists(c);
-      } else if (MREF.equals(type)) {
-        // cannot set nullable
-      } else {
-        Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);
-        Column c2 =
-            t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
-                .setNullable(true);
-        checkColumnExists(c);
-        checkColumnExists(c2);
-      }
-    }
-
-    // retrieve this table from metadataa
-    String TYPE_TEST = "TypeTest";
-    Table t2 = db.getSchema().getTable("TypeTest");
-    System.out.println(t2);
-
-    // check nullable ok
-    Row row = new RowBean();
-    row.setUuid("Test_uuid", java.util.UUID.randomUUID());
-    row.setString("Test_string", "test");
-    row.setEnum("Test_enum", "test");
-    row.setBool("Test_bool", true);
-    row.setInt("Test_int", 1);
-    row.setDecimal("Test_decimal", 1.1);
-    row.setText("Test_text", "testtext");
-    row.setDate("Test_date", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test_datetime", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
-    db.insert(TYPE_TEST, row);
-
-    // check not null expects exception
-    row = new RowBean();
-    row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
-    row.setString("Test_string_nillable", "test");
-    row.setEnum("Test_enum_nillable", "test");
-
-    row.setBool("Test_bool_nillable", true);
-    row.setInt("Test_int_nillable", 1);
-    row.setDecimal("Test_decimal_nillable", 1.1);
-    row.setText("Test_text_nillable", "testtext");
-    row.setDate("Test_date_nillable", LocalDate.of(2018, 12, 13));
-    row.setDateTime(
-        "Test_datetime_nillable", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
-    try {
-      db.insert(TYPE_TEST, row);
-      fail(); // should not reach this one
-    } catch (MolgenisException e) {
-      System.out.println("as expected, caught exceptoin: " + e.getMessage());
-    }
-
-    // check queryOld and test getters
-    List<Row> result = db.query("TypeTest").retrieve();
-    for (Row res : result) {
-      System.out.println(res);
-      res.setMolgenisid(java.util.UUID.randomUUID());
-      assert (res.getDate("Test_date") instanceof LocalDate);
-      assert (res.getDateTime("Test_datetime") instanceof OffsetDateTime);
-      assert (res.getString("Test_string") instanceof String);
-      assert (res.getInt("Test_int") instanceof Integer);
-      assert (res.getDecimal("Test_decimal") instanceof Double);
-      assert (res.getText("Test_text") instanceof String);
-      assert (res.getBool("Test_bool") instanceof Boolean);
-      assert (res.getUuid("Test_uuid") instanceof java.util.UUID);
-
-      db.insert(TYPE_TEST, res);
-    }
-
-    System.out.println("testing TypeTest queryOld");
-    for (Row r : db.query("TypeTest").retrieve()) {
-      System.out.println(r);
-    }
-  }
-
-  @Test
   public void testCreate() throws MolgenisException {
 
     long startTime = System.currentTimeMillis();
@@ -173,7 +90,7 @@ public class TestSql {
     // create a fromTable
     String PERSON = "Person";
     Table t = db.getSchema().createTable(PERSON);
-    t.addColumn("First Name", STRING);
+    t.addColumn("First Name", STRING).setNullable(false); // default nullable=false but for testing
     t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
     t.addUnique("First Name", "Last Name");
@@ -252,16 +169,5 @@ public class TestSql {
     // make sure nothing was left behind in backend
     db = new SqlDatabase(SqlTestHelper.getDataSource());
     assertEquals(null, db.getSchema().getTable("Person"));
-  }
-
-  private void checkColumnExists(Column c) throws MolgenisException {
-    List<org.jooq.Table<?>> tables =
-        SqlTestHelper.getJooq().meta().getTables(c.getTable().getName());
-    if (tables.size() == 0)
-      throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
-    org.jooq.Table<?> table = tables.get(0);
-    Field f = table.field(c.getName());
-    if (f == null)
-      throw new MolgenisException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
   }
 }

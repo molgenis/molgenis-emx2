@@ -8,16 +8,19 @@ import org.molgenis.beans.ColumnBean;
 public class SqlColumn extends ColumnBean {
   private DSLContext sql;
 
+  /** constructor for primitive types */
   public SqlColumn(DSLContext sql, Table table, String name, Type type) {
     super(table, name, type);
     this.sql = sql;
   }
 
+  /** constructor for REF */
   public SqlColumn(DSLContext sql, Table table, String name, Table otherTable) {
     super(table, name, otherTable);
     this.sql = sql;
   }
 
+  /** constructor for MREF */
   public SqlColumn(
       DSLContext sql,
       Table table,

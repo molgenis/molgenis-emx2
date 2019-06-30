@@ -71,12 +71,11 @@ class SqlTable extends TableBean {
   protected void loadMrefs() throws MolgenisException {
     this.isLoading = true;
     // check all tables for mref tables, probably expensive.
-    for (String t : schema.getTables()) {
+    for (Table mrefTable : schema.getTables()) {
       // test if it is 'our' mref table]
       boolean valid = true;
       Column self = null;
       Column other = null;
-      Table mrefTable = schema.getTable(t);
       for (Column c : mrefTable.getColumns()) {
         if (c.getRefTable() != null) {
           if (c.getRefTable().getName().equals(this.getName())) {

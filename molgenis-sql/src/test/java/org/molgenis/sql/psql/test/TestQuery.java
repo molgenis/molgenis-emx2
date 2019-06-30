@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.Column.Type.INT;
 import static org.molgenis.Column.Type.STRING;
 
-public class TestSqlQuery {
+public class TestQuery {
 
   public static Database db = null;
 
