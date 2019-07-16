@@ -8,6 +8,7 @@ import org.molgenis.*;
 import org.molgenis.Query;
 import org.molgenis.Schema;
 import org.molgenis.Table;
+import org.molgenis.Transaction;
 import org.molgenis.beans.RowBean;
 
 import javax.sql.DataSource;
@@ -29,6 +30,11 @@ public class SqlDatabase implements Database {
     this.schema = new SqlSchema(sql);
   }
 
+  private SqlDatabase(Configuration configuration) throws MolgenisException {
+    this.sql = DSL.using(configuration);
+    this.schema = new SqlSchema(sql);
+  }
+
   public Query query(String table) {
     return new SqlQuery(table, this, sql);
   }
@@ -37,10 +43,26 @@ public class SqlDatabase implements Database {
     return schema;
   }
 
+  public void transaction(Transaction transaction) throws MolgenisException {
+    // create independent copy of database with transaction connection
+    try {
+      sql.transaction(
+          config -> {
+            Database db = new SqlDatabase(config);
+            transaction.run(db);
+          });
+    } catch (org.jooq.exception.DataAccessException e) {
+      throw new MolgenisException(e);
+    } catch (Exception e3) {
+      throw new MolgenisException(e3);
+    }
+  }
+
   @Override
   public void insert(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
     try {
       Table t = getSchema().getTable(table);
+      if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
       // get metadata
       List<Field> fields = new ArrayList<>();
       List<String> fieldNames = new ArrayList<>();
@@ -77,6 +99,7 @@ public class SqlDatabase implements Database {
   @Override
   public int update(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
     Table t = getSchema().getTable(table);
+    if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
 
     // keep batchsize smaller to limit memory footprint
     int batchSize = 1000;
@@ -140,6 +163,7 @@ public class SqlDatabase implements Database {
   @Override
   public int delete(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
     Table t = getSchema().getTable(table);
+    if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
 
     // because of expensive table scanning and smaller queryOld string size this batch should be
     // larger
