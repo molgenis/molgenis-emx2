@@ -6,6 +6,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 import org.molgenis.Query;
+import org.molgenis.Row;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.Transaction;
@@ -59,7 +60,12 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void insert(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
+  public int insert(String table, Collection<Row> rows) throws MolgenisException {
+    return insert(table, rows.toArray(new Row[rows.size()]));
+  }
+
+  @Override
+  public int insert(String table, Row... rows) throws MolgenisException {
     try {
       Table t = getSchema().getTable(table);
       if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
@@ -83,21 +89,17 @@ public class SqlDatabase implements Database {
       // save the mrefs
       for (Column c : t.getColumns()) {
         if (MREF.equals(c.getType())) {
-          saveUpdatedMrefs(rows, c);
+          saveUpdatedMrefs(c, rows);
         }
       }
+      return i;
     } catch (DataAccessException e) {
       throw new MolgenisException(e);
     }
   }
 
   @Override
-  public void insert(String table, org.molgenis.Row row) throws MolgenisException {
-    this.insert(table, Arrays.asList(row));
-  }
-
-  @Override
-  public int update(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
+  public int update(String table, Row... rows) throws MolgenisException {
     Table t = getSchema().getTable(table);
     if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
 
@@ -132,6 +134,11 @@ public class SqlDatabase implements Database {
     return count;
   }
 
+  @Override
+  public int update(String table, Collection<Row> rows) throws MolgenisException {
+    return update(table, rows.toArray(new Row[rows.size()]));
+  }
+
   private void updateBatch(
       Collection<org.molgenis.Row> rows,
       org.jooq.Table t,
@@ -156,12 +163,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void update(String table, org.molgenis.Row row) throws MolgenisException {
-    this.update(table, Arrays.asList(row));
-  }
-
-  @Override
-  public int delete(String table, Collection<org.molgenis.Row> rows) throws MolgenisException {
+  public int delete(String table, Row... rows) throws MolgenisException {
     Table t = getSchema().getTable(table);
     if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
 
@@ -183,6 +185,11 @@ public class SqlDatabase implements Database {
     return count;
   }
 
+  @Override
+  public int delete(String table, Collection<Row> rows) throws MolgenisException {
+    return delete(table, rows.toArray(new Row[rows.size()]));
+  }
+
   private void deleteBatch(Table table, Collection<org.molgenis.Row> rows)
       throws MolgenisException {
     if (!rows.isEmpty()) {
@@ -199,11 +206,6 @@ public class SqlDatabase implements Database {
     }
   }
 
-  @Override
-  public void delete(String table, org.molgenis.Row row) throws MolgenisException {
-    this.delete(table, Arrays.asList(row));
-  }
-
   private void deleteOldMrefs(Collection<org.molgenis.Row> rows, Column column)
       throws MolgenisException {
     String joinTable = column.getMrefTable();
@@ -216,11 +218,10 @@ public class SqlDatabase implements Database {
             .where(column.getMrefBack())
             .eq(oldMrefIds.toArray(new UUID[oldMrefIds.size()]))
             .retrieve();
-    delete(joinTable, oldMrefs);
+    delete(joinTable, oldMrefs.toArray(new Row[oldMrefs.size()]));
   }
 
-  private void saveUpdatedMrefs(Collection<org.molgenis.Row> rows, Column column)
-      throws MolgenisException {
+  private void saveUpdatedMrefs(Column column, Row... rows) throws MolgenisException {
     String joinTable = column.getMrefTable();
     String colName = column.getName();
     String otherColname = column.getMrefBack();
@@ -233,7 +234,7 @@ public class SqlDatabase implements Database {
         newMrefs.add(join);
       }
     }
-    update(joinTable, newMrefs);
+    update(joinTable, newMrefs.toArray(new Row[newMrefs.size()]));
   }
 
   private Field getJooqField(Column c) {

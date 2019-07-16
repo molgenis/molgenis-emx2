@@ -8,8 +8,6 @@ public interface Table extends Identifiable {
 
   // TODO description
 
-  // TODO identifier
-
   Collection<Column> getColumns();
 
   Column getColumn(String name);

@@ -1,7 +1,6 @@
 package org.molgenis;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface Database {
 
@@ -9,17 +8,17 @@ public interface Database {
 
   void transaction(Transaction transaction) throws MolgenisException;
 
-  void insert(String table, Collection<Row> rows) throws MolgenisException;
+  int insert(String table, Collection<Row> rows) throws MolgenisException;
 
-  void insert(String table, Row row) throws MolgenisException;
+  int insert(String table, Row... row) throws MolgenisException;
+
+  int update(String table, Row... row) throws MolgenisException;
 
   int update(String table, Collection<Row> rows) throws MolgenisException;
 
-  void update(String table, Row row) throws MolgenisException;
+  int delete(String table, Row... row) throws MolgenisException;
 
   int delete(String table, Collection<Row> rows) throws MolgenisException;
-
-  void delete(String table, Row row) throws MolgenisException;
 
   Query query(String name) throws MolgenisException;
 }

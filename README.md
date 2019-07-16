@@ -7,14 +7,18 @@
 POC for EMX2
 
 Feature list
-
+* can query multiple tables
+* composite keys
 * same metadata model everywhere
+* simple pojo to database mapping
+* thin layer on sql
+* mref tables are real tables
+* composite keys
+
+TODO
+* support for multiple schemas
+* table unique in schema 
 * composite (foreign) keys
 * table or join inheritance
 * separate sql from ui data types
-* simple pojo to database mapping
-* thin layer on sql
 * lightweight web service
-* mref tables are real tables
-* support for multiple schemas
-* table unique in schema (not per folder)
