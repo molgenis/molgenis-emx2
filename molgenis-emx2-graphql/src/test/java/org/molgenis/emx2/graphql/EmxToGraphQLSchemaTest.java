@@ -14,7 +14,7 @@ public class EmxToGraphQLSchemaTest {
 
   @Test
   public void test1() throws MolgenisException {
-    Schema m = new SchemaBean();
+    Schema m = new SchemaBean("test");
 
     Table t2 = m.createTable("Family");
     t2.addColumn("Name", STRING);

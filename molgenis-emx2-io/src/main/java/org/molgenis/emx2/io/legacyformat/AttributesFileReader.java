@@ -32,7 +32,7 @@ public class AttributesFileReader {
 
   public Schema convertAttributesToModel(List<AttributesFileRow> rows)
       throws MolgenisReaderException, MolgenisException {
-    Schema model = new SchemaBean();
+    Schema model = new SchemaBean("test");
 
     int lineNumber = 0;
     List<MolgenisReaderMessage> messages = new ArrayList<>();

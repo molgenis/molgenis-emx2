@@ -61,7 +61,7 @@ public class MolgenisReader {
 
   public Schema convertRowsToModel(List<MolgenisFileRow> rows)
       throws MolgenisReaderException, MolgenisException {
-    Schema model = new SchemaBean();
+    Schema model = new SchemaBean("test");
     List<MolgenisReaderMessage> messages = new ArrayList<>();
     convertRowsToColumns(rows, model, messages);
     convertRowsToTables(rows, model, messages);

@@ -27,7 +27,7 @@ public class TestJson {
   @Test
   public void testJsonToRow() throws MolgenisException {
 
-    Table t = new TableBean("Person");
+    Table t = new TableBean(null, "Person");
     t.addColumn("FirstName", STRING);
     t.addColumn("Age", INT);
     t.addColumn("Weight", DECIMAL);
