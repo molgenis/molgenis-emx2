@@ -25,7 +25,11 @@ public class SqlDatabase extends DatabaseBean {
 
   @Override
   public Schema createSchema(String name) throws MolgenisException {
-    sql.createSchema(name).execute();
+    try (CreateSchemaFinalStep step = sql.createSchema(name)) {
+      step.execute();
+    } catch (Exception e) {
+      throw new MolgenisException(e);
+    }
     super.addSchema(new SqlSchema(this, sql, name));
     return getSchema(name);
   }
