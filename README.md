@@ -14,10 +14,10 @@ Feature list
 * thin layer on sql
 * mref tables are real tables
 * composite keys
-
-TODO
 * support for multiple schemas
 * table unique in schema 
+
+TODO
 * composite (foreign) keys
 * table or join inheritance
 * separate sql from ui data types
