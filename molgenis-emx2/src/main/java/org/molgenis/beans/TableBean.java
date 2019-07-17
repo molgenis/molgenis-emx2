@@ -1,9 +1,6 @@
 package org.molgenis.beans;
 
-import org.molgenis.Column;
-import org.molgenis.MolgenisException;
-import org.molgenis.Table;
-import org.molgenis.Unique;
+import org.molgenis.*;
 
 import static org.molgenis.Row.MOLGENISID;
 
@@ -11,18 +8,25 @@ import java.util.*;
 
 public class TableBean extends IdentifiableBean implements Table {
   private String name;
+  private Schema schema;
   private String extend;
   protected Map<String, Column> columns = new LinkedHashMap<>();
-  private Map<String, Unique> uniques = new LinkedHashMap<>();
+  protected Map<String, Unique> uniques = new LinkedHashMap<>();
 
-  public TableBean(String name) {
+  public TableBean(Schema schema, String name) {
     super();
+    this.schema = schema;
     this.name = name;
   }
 
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  public Schema getSchema() {
+    return schema;
   }
 
   @Override
@@ -134,5 +138,35 @@ public class TableBean extends IdentifiableBean implements Table {
   @Override
   public void setExtend(String extend) {
     this.extend = extend;
+  }
+
+  @Override
+  public int insert(Collection<Row> rows) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int insert(Row... row) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int update(Row... row) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int update(Collection<Row> rows) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int delete(Row... row) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int delete(Collection<Row> rows) throws MolgenisException {
+    throw new UnsupportedOperationException();
   }
 }

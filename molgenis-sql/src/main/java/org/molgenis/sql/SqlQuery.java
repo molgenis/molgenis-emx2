@@ -3,6 +3,7 @@ package org.molgenis.sql;
 import org.jooq.*;
 import org.molgenis.*;
 import org.molgenis.Row;
+import org.molgenis.Schema;
 import org.molgenis.Select;
 import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
@@ -21,12 +22,12 @@ import static org.molgenis.Row.MOLGENISID;
 public class SqlQuery extends QueryBean {
 
   private String from;
-  private Database db;
+  private Schema schema;
   private DSLContext sql;
 
-  public SqlQuery(String from, SqlDatabase db, DSLContext sql) {
+  public SqlQuery(String from, Schema schema, DSLContext sql) {
     this.from = from;
-    this.db = db;
+    this.schema = schema;
     this.sql = sql;
   }
 
@@ -35,13 +36,13 @@ public class SqlQuery extends QueryBean {
 
     try {
       List<Row> result = new ArrayList<>();
-      Table table = db.getSchema().getTable(from);
+      Table table = schema.getTable(from);
 
       // create the select
       SelectSelectStep selectStep = sql.select(getFields(from));
 
       // create the from
-      SelectJoinStep fromStep = selectStep.from(name(from));
+      SelectJoinStep fromStep = selectStep.from(table(name(schema.getName(), from)).as(from));
 
       // create the joins
       fromStep = createJoins(from, table, fromStep);
@@ -130,7 +131,7 @@ public class SqlQuery extends QueryBean {
           if (REF.equals(c.getType())) {
             fromStep =
                 fromStep
-                    .leftJoin(table(name(rightTable)).as(name(rightAlias)))
+                    .leftJoin(table(name(schema.getName(), rightTable)).as(name(rightAlias)))
                     .on(
                         field(name(rightAlias, rightColumn))
                             .eq(field(name(leftAlias, leftColumn))));
@@ -142,13 +143,13 @@ public class SqlQuery extends QueryBean {
             // to link table
             fromStep =
                 fromStep
-                    .leftJoin(table(name(mrefTable)).as(name(mrefTable)))
+                    .leftJoin(table(name(schema.getName(), mrefTable)).as(name(mrefTable)))
                     .on(field(name(mrefTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
 
             // to other end of the mref
             fromStep =
                 fromStep
-                    .leftJoin(table(name(rightTable)).as(name(rightAlias)))
+                    .leftJoin(table(name(schema.getName(), rightTable)).as(name(rightAlias)))
                     .on(field(name(mrefTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
           }
         }

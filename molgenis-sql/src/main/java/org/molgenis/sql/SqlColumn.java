@@ -5,6 +5,8 @@ import org.molgenis.MolgenisException;
 import org.molgenis.Table;
 import org.molgenis.beans.ColumnBean;
 
+import static org.jooq.impl.DSL.name;
+
 public class SqlColumn extends ColumnBean {
   private DSLContext sql;
 
@@ -35,8 +37,15 @@ public class SqlColumn extends ColumnBean {
   @Override
   public SqlColumn setNullable(boolean nillable) throws MolgenisException {
     if (nillable)
-      sql.alterTable(getTable().getName()).alterColumn(getName()).dropNotNull().execute();
-    else sql.alterTable(getTable().getName()).alterColumn(getName()).setNotNull().execute();
+      sql.alterTable(name(getTable().getSchema().getName(), getTable().getName()))
+          .alterColumn(getName())
+          .dropNotNull()
+          .execute();
+    else
+      sql.alterTable(name(getTable().getSchema().getName(), getTable().getName()))
+          .alterColumn(getName())
+          .setNotNull()
+          .execute();
     super.setNullable(isNullable());
     return this;
   }

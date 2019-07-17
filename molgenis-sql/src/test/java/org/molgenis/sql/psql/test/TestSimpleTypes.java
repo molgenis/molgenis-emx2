@@ -25,9 +25,10 @@ public class TestSimpleTypes {
 
   @Test
   public void testTypes() throws MolgenisException {
+    Schema s = db.createSchema("testTypes");
 
     // generate TypeTest table, with columns for each type
-    Table t = db.getSchema().createTable("TypeTest");
+    Table t = s.createTable("TypeTest");
     Column.Type[] types =
         new Column.Type[] {UUID, STRING, ENUM, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (Column.Type type : types) {
@@ -47,7 +48,7 @@ public class TestSimpleTypes {
 
     // retrieve this table from metadataa
     String TYPE_TEST = "TypeTest";
-    Table t2 = db.getSchema().getTable("TypeTest");
+    Table t2 = s.getTable("TypeTest");
     System.out.println(t2);
 
     // check nullable ok
@@ -61,7 +62,7 @@ public class TestSimpleTypes {
     row.setText("Test_text", "testtext");
     row.setDate("Test_date", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test_datetime", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
-    db.insert(TYPE_TEST, row);
+    t2.insert(row);
 
     // check not null expects exception
     row = new RowBean();
@@ -77,14 +78,14 @@ public class TestSimpleTypes {
     row.setDateTime(
         "Test_datetime_nillable", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
     try {
-      db.insert(TYPE_TEST, row);
+      t2.insert(row);
       fail(); // should not reach this one
     } catch (MolgenisException e) {
       System.out.println("as expected, caught exceptoin: " + e.getMessage());
     }
 
     // check queryOld and test getters
-    List<Row> result = db.query("TypeTest").retrieve();
+    List<Row> result = s.query("TypeTest").retrieve();
     for (Row res : result) {
       System.out.println(res);
       res.setMolgenisid(java.util.UUID.randomUUID());
@@ -97,11 +98,11 @@ public class TestSimpleTypes {
       assert (res.getBool("Test_bool") instanceof Boolean);
       assert (res.getUuid("Test_uuid") instanceof java.util.UUID);
 
-      db.insert(TYPE_TEST, res);
+      t2.insert(res);
     }
 
     System.out.println("testing TypeTest queryOld");
-    for (Row r : db.query("TypeTest").retrieve()) {
+    for (Row r : s.query("TypeTest").retrieve()) {
       System.out.println(r);
     }
   }

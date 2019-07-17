@@ -2,10 +2,7 @@ package org.molgenis.sql.psql.test;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.Database;
-import org.molgenis.MolgenisException;
-import org.molgenis.Row;
-import org.molgenis.Table;
+import org.molgenis.*;
 import org.molgenis.beans.RowBean;
 
 import java.sql.SQLException;
@@ -24,18 +21,17 @@ public class TestTransaction {
   @Test
   public void testCommit() throws MolgenisException {
 
+    db.createSchema("testCommit"); // not transactional in jooq :-(
+
     db.transaction(
         db -> {
-          Table t = db.getSchema().createTable("TxTestCommit");
+          Schema s = db.getSchema("testCommit");
+          Table t = s.createTable("testCommit");
           t.addColumn("ColA", STRING);
           t.addUnique("ColA");
-
-          Row r = new RowBean().setString("ColA", "test");
-          Row r2 = new RowBean().setString("ColA", "test2");
-
-          db.insert("TxTestCommit", r);
-          db.insert("TxTestCommit", r2);
-          assertEquals(2, db.query("TxTestCommit").retrieve().size());
+          t.insert(new RowBean().setString("ColA", "test"));
+          t.insert(new RowBean().setString("ColA", "test2"));
+          assertEquals(2, s.query("testCommit").retrieve().size());
         });
   }
 
@@ -43,13 +39,14 @@ public class TestTransaction {
   public void testRollBack() throws MolgenisException {
     db.transaction(
         db -> {
-          Table t = db.getSchema().createTable("TxTestRollback");
+          Schema s = db.createSchema("testRollBack");
+          Table t = s.createTable("testRollBack");
           t.addColumn("ColA", STRING);
           t.addUnique("ColA");
 
           Row r = new RowBean().setString("ColA", "test");
-          db.insert("TxTest", r);
-          db.insert("TxTest", r);
+          t.insert(r);
+          t.insert(r);
         });
   }
 }

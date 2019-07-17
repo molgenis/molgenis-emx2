@@ -16,14 +16,16 @@ import static org.molgenis.Column.Type.STRING;
 public class TestQuery {
 
   public static Database db = null;
+  public static Schema s = null;
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
     db = SqlTestHelper.getEmptyDatabase();
 
     // create a table to test with
+    s = db.createSchema("TestQuery");
     String PERSON = "Person";
-    Table person = db.getSchema().createTable(PERSON);
+    Table person = s.createTable(PERSON);
     person.addColumn("First Name", STRING);
     person.addRef("Father", person).setNullable(true);
     person.addColumn("Last Name", STRING);
@@ -36,13 +38,13 @@ public class TestQuery {
             .setString("Last Name", "Duck")
             .setRef("Father", father);
 
-    db.insert("Person", father);
-    db.insert("Person", child);
+    person.insert(father);
+    person.insert(child);
   }
 
   @Test
   public void test1() throws MolgenisException {
-    Query q = db.query("Person");
+    Query q = s.query("Person");
     q.select("First Name")
         .select("Last Name")
         .expand("Father")
@@ -62,36 +64,37 @@ public class TestQuery {
     long startTime = System.currentTimeMillis();
 
     String PART = "Part";
-    Table part = db.getSchema().createTable(PART);
+    Table part = s.createTable(PART);
     part.addColumn("name", STRING);
     part.addColumn("weight", INT);
     part.addUnique("name");
 
     Row part1 = new RowBean().setString("name", "forms").setInt("weight", 100);
     Row part2 = new RowBean().setString("name", "login").setInt("weight", 50);
-    db.insert(PART, part1);
-    db.insert(PART, part2);
+    part.insert(part1);
+    part.insert(part2);
 
     String COMPONENT = "Component";
-    Table component = db.getSchema().createTable(COMPONENT);
+    Table component = s.createTable(COMPONENT);
     component.addColumn("name", STRING);
     component.addUnique("name");
     component.addMref("parts", part, "ComponentPart", "components");
 
     Row component1 = new RowBean().setString("name", "explorer").setMref("parts", part1, part2);
     Row component2 = new RowBean().setString("name", "navigator").setMref("parts", part2);
-    db.insert(COMPONENT, component1);
-    db.insert(COMPONENT, component2);
+    component.insert(component1);
+    component.insert(component2);
 
     String PRODUCT = "Product";
-    Table product = db.getSchema().createTable(PRODUCT);
+    Table product = s.createTable(PRODUCT);
     product.addColumn("name", STRING);
     product.addUnique("name");
     product.addMref("components", component, "ProductComponent", "products");
 
     Row product1 =
         new RowBean().setString("name", "molgenis").setMref("components", component1, component2);
-    db.insert(PRODUCT, product1);
+
+    product.insert(product1);
 
     long endTime = System.currentTimeMillis();
     System.out.println("Creation took " + (endTime - startTime) + " milliseconds");
@@ -115,7 +118,7 @@ public class TestQuery {
 
     startTime = System.currentTimeMillis();
 
-    Query q = db.query("Product");
+    Query q = s.query("Product");
     q.select("name")
         .expand("components")
         .include("name")
@@ -134,11 +137,11 @@ public class TestQuery {
     // restart database and see if it is still there
     db = SqlTestHelper.reload();
 
-    System.out.println(db.getSchema());
+    System.out.println(db.getSchema("TestQuery"));
 
     startTime = System.currentTimeMillis();
 
-    Query q2 = db.query("Product");
+    Query q2 = s.query("Product");
     q2.select("name")
         .expand("components")
         .include("name")

@@ -1,47 +1,45 @@
 package org.molgenis.sql;
 
 import org.jooq.*;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
-import org.molgenis.Query;
-import org.molgenis.Row;
 import org.molgenis.Schema;
-import org.molgenis.Table;
 import org.molgenis.Transaction;
-import org.molgenis.beans.RowBean;
+import org.molgenis.beans.DatabaseBean;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.List;
 
-import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.unquotedName;
-import static org.molgenis.Column.Type.MREF;
-import static org.molgenis.sql.SqlRow.MOLGENISID;
-
-public class SqlDatabase implements Database {
+public class SqlDatabase extends DatabaseBean {
   private DSLContext sql;
-  private SqlSchema schema;
 
   public SqlDatabase(DataSource source) throws MolgenisException {
     DSLContext context = DSL.using(source, SQLDialect.POSTGRES_10);
     this.sql = context;
-    this.schema = new SqlSchema(sql);
   }
 
+  /** private constructor for in transaction */
   private SqlDatabase(Configuration configuration) throws MolgenisException {
     this.sql = DSL.using(configuration);
-    this.schema = new SqlSchema(sql);
   }
 
-  public Query query(String table) {
-    return new SqlQuery(table, this, sql);
+  @Override
+  public Schema createSchema(String name) throws MolgenisException {
+    sql.createSchema(name).execute();
+    super.addSchema(new SqlSchema(this, sql, name));
+    return getSchema(name);
   }
 
-  public Schema getSchema() throws MolgenisException {
-    return schema;
+  @Override
+  public Schema getSchema(String name) throws MolgenisException {
+    // get cached if available
+    Schema s = super.getSchema(name);
+    if (s != null) return s;
+
+    // else try to load from metadata
+    List<org.jooq.Schema> schemas = sql.meta().getSchemas(name);
+    if (schemas.size() == 0) throw new MolgenisException("Schema '" + name + "' unknown");
+    return new SqlSchema(this, sql, name);
   }
 
   public void transaction(Transaction transaction) throws MolgenisException {
@@ -57,187 +55,5 @@ public class SqlDatabase implements Database {
     } catch (Exception e3) {
       throw new MolgenisException(e3);
     }
-  }
-
-  @Override
-  public int insert(String table, Collection<Row> rows) throws MolgenisException {
-    return insert(table, rows.toArray(new Row[rows.size()]));
-  }
-
-  @Override
-  public int insert(String table, Row... rows) throws MolgenisException {
-    try {
-      Table t = getSchema().getTable(table);
-      if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
-      // get metadata
-      List<Field> fields = new ArrayList<>();
-      List<String> fieldNames = new ArrayList<>();
-      int i = 0;
-      for (Column c : t.getColumns()) {
-        if (!MREF.equals(c.getType())) {
-          fieldNames.add(c.getName());
-          fields.add(getJooqField(c));
-        }
-        i++;
-      }
-      InsertValuesStepN step =
-          sql.insertInto(table(name(t.getName())), fields.toArray(new Field[fields.size()]));
-      for (org.molgenis.Row row : rows) {
-        step.values(row.values(fieldNames.toArray(new String[fieldNames.size()])));
-      }
-      step.execute();
-      // save the mrefs
-      for (Column c : t.getColumns()) {
-        if (MREF.equals(c.getType())) {
-          saveUpdatedMrefs(c, rows);
-        }
-      }
-      return i;
-    } catch (DataAccessException e) {
-      throw new MolgenisException(e);
-    }
-  }
-
-  @Override
-  public int update(String table, Row... rows) throws MolgenisException {
-    Table t = getSchema().getTable(table);
-    if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
-
-    // keep batchsize smaller to limit memory footprint
-    int batchSize = 1000;
-
-    // get metadata
-    ArrayList<Field> fields = new ArrayList<>();
-    ArrayList<String> fieldNames = new ArrayList<>();
-    int i = 0;
-    for (Column c : t.getColumns()) {
-      if (!MREF.equals(c.getType())) {
-        fieldNames.add(c.getName());
-        fields.add(getJooqField(c));
-        i++;
-      }
-    }
-    // TODO update mref values
-
-    // execute in batches
-    int count = 0;
-    List<org.molgenis.Row> batch = new ArrayList<>();
-    for (org.molgenis.Row row : rows) {
-      batch.add(row);
-      count++;
-      if (count % batchSize == 0) {
-        updateBatch(batch, table(name(t.getName())), fields, fieldNames);
-        batch.clear();
-      }
-    }
-    updateBatch(batch, table(name(t.getName())), fields, fieldNames);
-    return count;
-  }
-
-  @Override
-  public int update(String table, Collection<Row> rows) throws MolgenisException {
-    return update(table, rows.toArray(new Row[rows.size()]));
-  }
-
-  private void updateBatch(
-      Collection<org.molgenis.Row> rows,
-      org.jooq.Table t,
-      List<Field> fields,
-      List<String> fieldNames) {
-    if (!rows.isEmpty()) {
-      // create multi-value insert
-      InsertValuesStepN step = sql.insertInto(t, fields.toArray(new Field[fields.size()]));
-      for (org.molgenis.Row row : rows) {
-        step.values(row.values(fieldNames.toArray(new String[fieldNames.size()])));
-      }
-      // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep step2 = step.onConflict(field(MOLGENISID)).doUpdate();
-      for (String name : fieldNames) {
-        if (!MOLGENISID.equals(name)) {
-          step2.set(
-              field(name(name)), (Object) field(unquotedName("\"excluded\".\"" + name + "\"")));
-        }
-      }
-      step.execute();
-    }
-  }
-
-  @Override
-  public int delete(String table, Row... rows) throws MolgenisException {
-    Table t = getSchema().getTable(table);
-    if (t == null) throw new MolgenisException("Table '" + table + "' unknown");
-
-    // because of expensive table scanning and smaller queryOld string size this batch should be
-    // larger
-    // than insert/update
-    int batchSize = 100000;
-    int count = 0;
-    List<org.molgenis.Row> batch = new ArrayList<>();
-    for (org.molgenis.Row row : rows) {
-      batch.add(row);
-      count++;
-      if (count % batchSize == 0) {
-        deleteBatch(t, batch);
-        batch.clear();
-      }
-    }
-    deleteBatch(t, batch);
-    return count;
-  }
-
-  @Override
-  public int delete(String table, Collection<Row> rows) throws MolgenisException {
-    return delete(table, rows.toArray(new Row[rows.size()]));
-  }
-
-  private void deleteBatch(Table table, Collection<org.molgenis.Row> rows)
-      throws MolgenisException {
-    if (!rows.isEmpty()) {
-      // remove the mrefs first
-      for (Column c : table.getColumns()) {
-        if (MREF.equals(c.getType())) {
-          this.deleteOldMrefs(rows, c);
-        }
-      }
-      Field field = field(name(MOLGENISID), SQLDataType.UUID);
-      List<UUID> idList = new ArrayList<>();
-      rows.forEach(row -> idList.add(row.getMolgenisid()));
-      sql.deleteFrom(table(name(table.getName()))).where(field.in(idList)).execute();
-    }
-  }
-
-  private void deleteOldMrefs(Collection<org.molgenis.Row> rows, Column column)
-      throws MolgenisException {
-    String joinTable = column.getMrefTable();
-    List<UUID> oldMrefIds = new ArrayList<>();
-    for (org.molgenis.Row r : rows) {
-      oldMrefIds.add(r.getMolgenisid());
-    }
-    List<org.molgenis.Row> oldMrefs =
-        query(joinTable)
-            .where(column.getMrefBack())
-            .eq(oldMrefIds.toArray(new UUID[oldMrefIds.size()]))
-            .retrieve();
-    delete(joinTable, oldMrefs.toArray(new Row[oldMrefs.size()]));
-  }
-
-  private void saveUpdatedMrefs(Column column, Row... rows) throws MolgenisException {
-    String joinTable = column.getMrefTable();
-    String colName = column.getName();
-    String otherColname = column.getMrefBack();
-
-    List<org.molgenis.Row> newMrefs = new ArrayList<>();
-    for (org.molgenis.Row r : rows) {
-      for (UUID uuid : r.getMref(colName)) {
-        org.molgenis.Row join =
-            new RowBean().setRef(colName, uuid).setRef(otherColname, r.getMolgenisid());
-        newMrefs.add(join);
-      }
-    }
-    update(joinTable, newMrefs.toArray(new Row[newMrefs.size()]));
-  }
-
-  private Field getJooqField(Column c) {
-    return field(name(c.getName()), SqlTypeUtils.typeOf(c.getType()));
   }
 }

@@ -60,7 +60,7 @@ public class Mapper {
   }
 
   public static Table map(Class klazz) throws MolgenisException {
-    Table t = new TableBean(klazz.getSimpleName());
+    Table t = new TableBean(null, klazz.getSimpleName());
 
     //    Method[] methods = klazz.getDeclaredMethods();
     //    for(Method m: methods) {
@@ -82,7 +82,7 @@ public class Mapper {
           if (REF.equals(col.getType())) {
             // big todo, fake table. Need singleton or lazyload before whole world is loaded in
             // one go
-            col.setRefTable(new TableBean(f.getType().getSimpleName()));
+            col.setRefTable(new TableBean(null, f.getType().getSimpleName()));
           }
           if (ENUM.equals(col.getType())) {
             // big todo: get the enum values from the enum

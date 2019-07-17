@@ -60,15 +60,28 @@ public class SqlTestHelper {
 
   public static void deleteAll() {
     // delete all foreign key constaints
-    for (org.jooq.Table t : jooq.meta().getTables()) {
-      for (ForeignKey k : (List<ForeignKey>) t.getReferences()) {
-        jooq.alterTable(t).dropConstraint(k.getName()).execute();
+    for (org.jooq.Schema s : jooq.meta().getSchemas()) {
+      String name = s.getName();
+      if (!name.startsWith("pg_") && !"information_schema".equals(name) && !"public".equals(name)) {
+        for (org.jooq.Table t : s.getTables()) {
+          for (ForeignKey k : (List<ForeignKey>) t.getReferences()) {
+            jooq.alterTable(t).dropConstraint(k.getName()).execute();
+          }
+        }
       }
     }
-    // delete all tables
-    for (org.jooq.Table t : jooq.meta().getTables()) {
-      jooq.dropTable(t).execute();
+
+    for (org.jooq.Schema s : jooq.meta().getSchemas()) {
+      String name = s.getName();
+
+      if (!name.startsWith("pg_") && !"information_schema".equals(name) && !"public".equals(name)) {
+        jooq.dropSchema(s.getName()).cascade().execute();
+      }
     }
+    //    // delete all tables
+    //    for (org.jooq.Table t : jooq.meta().getTables()) {
+    //      jooq.dropTable(t).execute();
+    //    }
   }
 
   public static HikariDataSource getDataSource() {

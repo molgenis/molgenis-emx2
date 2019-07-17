@@ -17,10 +17,10 @@ public class TestBeans {
   public void test1() throws MolgenisException {
     List<Column.Type> types = Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
-    Schema m = new SchemaBean();
+    Schema m = new SchemaBean("test1");
     addContents(m, types);
 
-    Schema m2 = new SchemaBean();
+    Schema m2 = new SchemaBean("test1");
     addContents(m2, types);
 
     // System.out.println("No diff: " + m.diff(m2));

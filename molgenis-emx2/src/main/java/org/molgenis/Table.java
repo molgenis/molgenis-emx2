@@ -6,6 +6,8 @@ public interface Table extends Identifiable {
 
   String getName();
 
+  Schema getSchema();
+
   // TODO description
 
   Collection<Column> getColumns();
@@ -32,4 +34,16 @@ public interface Table extends Identifiable {
   String getExtend();
 
   void setExtend(String extend);
+
+  int insert(Collection<Row> rows) throws MolgenisException;
+
+  int insert(Row... row) throws MolgenisException;
+
+  int update(Row... row) throws MolgenisException;
+
+  int update(Collection<Row> rows) throws MolgenisException;
+
+  int delete(Row... row) throws MolgenisException;
+
+  int delete(Collection<Row> rows) throws MolgenisException;
 }

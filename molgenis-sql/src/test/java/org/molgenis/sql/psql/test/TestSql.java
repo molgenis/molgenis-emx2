@@ -25,14 +25,15 @@ public class TestSql {
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
     db = SqlTestHelper.getEmptyDatabase();
+    db.createSchema("TestSql");
   }
 
   @Test
   public void testBatch() throws MolgenisException {
-    String TEST_BATCH = "TestBatch";
-    Table t = db.getSchema().createTable(TEST_BATCH);
-    t.addColumn("test", STRING);
-    t.addColumn("testint", INT);
+    Schema s = db.getSchema("TestSql");
+    Table test_batch = s.createTable("TestBatch");
+    test_batch.addColumn("test", STRING);
+    test_batch.addColumn("testint", INT);
 
     long startTime = System.currentTimeMillis();
 
@@ -50,17 +51,17 @@ public class TestSql {
         "Generated " + size + " test record in " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    db.insert(TEST_BATCH, rows.subList(0, 100));
+    test_batch.insert(rows.subList(0, 100));
     endTime = System.currentTimeMillis();
     System.out.println("First batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    db.insert(TEST_BATCH, rows.subList(100, 200));
+    test_batch.insert(rows.subList(100, 200));
     endTime = System.currentTimeMillis();
     System.out.println("Second batch insert " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    db.insert(TEST_BATCH, rows.subList(200, 300));
+    test_batch.insert(rows.subList(200, 300));
     endTime = System.currentTimeMillis();
     System.out.println("Third batch insert " + (endTime - startTime) + " milliseconds");
 
@@ -68,12 +69,12 @@ public class TestSql {
     for (Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }
-    db.update(TEST_BATCH, rows);
+    test_batch.update(rows);
     endTime = System.currentTimeMillis();
     System.out.println("Batch update " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    for (Row r : db.query("TestBatch").retrieve()) {
+    for (Row r : s.query("TestBatch").retrieve()) {
       System.out.println(r);
     }
     endTime = System.currentTimeMillis();
@@ -86,10 +87,11 @@ public class TestSql {
     long startTime = System.currentTimeMillis();
 
     SqlTestHelper.emptyDatabase();
+    Schema s = db.createSchema("TestSql");
 
     // create a fromTable
     String PERSON = "Person";
-    Table t = db.getSchema().createTable(PERSON);
+    Table t = s.createTable(PERSON);
     t.addColumn("First Name", STRING).setNullable(false); // default nullable=false but for testing
     t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
@@ -101,17 +103,18 @@ public class TestSql {
 
     // reinitialise database to see if it can recreate from background
     db = new SqlDatabase(SqlTestHelper.getDataSource());
-    assertEquals(1, db.getSchema().getTables().size());
+    s = db.getSchema("TestSql");
+    assertEquals(1, s.getTables().size());
 
     // insert
     startTime = System.currentTimeMillis();
-    Table t2 = db.getSchema().getTable(PERSON);
+    Table t2 = s.getTable(PERSON);
     List<Row> rows = new ArrayList<>();
     int count = 1000;
     for (int i = 0; i < count; i++) {
       rows.add(new RowBean().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
-    db.insert(PERSON, rows);
+    t2.insert(rows);
     endTime = System.currentTimeMillis();
     long total = (endTime - startTime);
     System.out.println(
@@ -125,7 +128,7 @@ public class TestSql {
 
     // queryOld
     startTime = System.currentTimeMillis();
-    Query q = db.query(PERSON);
+    Query q = s.query(PERSON);
     for (Row row : q.retrieve()) {
       System.out.println("QueryOld result: " + row);
     }
@@ -135,13 +138,13 @@ public class TestSql {
 
     // delete
     startTime = System.currentTimeMillis();
-    db.delete(PERSON, rows);
+    t2.delete(rows);
     endTime = System.currentTimeMillis();
     total = (endTime - startTime);
     System.out.println(
         "Delete took " + total + " milliseconds (that is " + (1000 * count / total) + " rows/sec)");
 
-    assertEquals(0, db.query("Person").retrieve().size());
+    assertEquals(0, s.query("Person").retrieve().size());
 
     assertEquals(2, t.getUniques().size());
     try {
@@ -164,10 +167,10 @@ public class TestSql {
     assertEquals(3, t.getColumns().size());
 
     // drop a fromTable
-    db.getSchema().dropTable(t.getName());
-    assertEquals(null, db.getSchema().getTable("Person"));
+    db.getSchema("TestSql").dropTable(t.getName());
+    assertEquals(null, db.getSchema("TestSql").getTable("Person"));
     // make sure nothing was left behind in backend
     db = new SqlDatabase(SqlTestHelper.getDataSource());
-    assertEquals(null, db.getSchema().getTable("Person"));
+    assertEquals(null, db.getSchema("TestSql").getTable("Person"));
   }
 }
