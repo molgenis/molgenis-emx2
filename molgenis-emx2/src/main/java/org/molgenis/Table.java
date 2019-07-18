@@ -1,6 +1,7 @@
 package org.molgenis;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface Table extends Identifiable {
 
@@ -46,4 +47,10 @@ public interface Table extends Identifiable {
   int delete(Row... row) throws MolgenisException;
 
   int delete(Collection<Row> rows) throws MolgenisException;
+
+  void enableRowLevelSecurity();
+
+  Query query();
+
+  List<Row> retrieve() throws MolgenisException;
 }

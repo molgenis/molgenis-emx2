@@ -3,10 +3,7 @@ package org.molgenis.sql.psql.test;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.zaxxer.hikari.HikariDataSource;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.ForeignKey;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.Column;
 import org.molgenis.Database;
@@ -14,9 +11,12 @@ import org.molgenis.MolgenisException;
 import org.molgenis.sql.SqlDatabase;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.Database.Prefix.MGROLE_;
+import static org.molgenis.Database.Roles.*;
 
 public class SqlTestHelper {
 
@@ -70,14 +70,20 @@ public class SqlTestHelper {
     }
 
     for (org.jooq.Schema s : jooq.meta().getSchemas()) {
-      String name = s.getName();
+      String schemaName = s.getName();
 
-      if (!name.startsWith("pg_") && !"information_schema".equals(name) && !"public".equals(name)) {
+      if (!schemaName.startsWith("pg_")
+          && !"information_schema".equals(schemaName)
+          && !"public".equals(schemaName)) {
         jooq.dropSchema(s.getName()).cascade().execute();
-        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_VIEW\"");
-        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_EDIT\"");
-        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_MANAGE\"");
-        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_ADMIN\"");
+        Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
+        Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
+        Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
+        Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
+        jooq.execute("DROP ROLE IF EXISTS {0}", viewer);
+        jooq.execute("DROP ROLE IF EXISTS {0}", editor);
+        jooq.execute("DROP ROLE IF EXISTS {0}", manager);
+        jooq.execute("DROP ROLE IF EXISTS {0}", admin);
       }
     }
     //    // delete all tables

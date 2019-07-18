@@ -85,7 +85,7 @@ public class TestSimpleTypes {
     }
 
     // check queryOld and test getters
-    List<Row> result = s.query("TypeTest").retrieve();
+    List<Row> result = s.getTable("TypeTest").retrieve();
     for (Row res : result) {
       System.out.println(res);
       res.setMolgenisid(java.util.UUID.randomUUID());
@@ -102,7 +102,7 @@ public class TestSimpleTypes {
     }
 
     System.out.println("testing TypeTest queryOld");
-    for (Row r : s.query("TypeTest").retrieve()) {
+    for (Row r : s.getTable("TypeTest").retrieve()) {
       System.out.println(r);
     }
   }

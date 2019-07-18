@@ -70,11 +70,6 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public Query query(String name) throws MolgenisException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void dropTable(String tableId) {
     tables.remove(tableId);
   }

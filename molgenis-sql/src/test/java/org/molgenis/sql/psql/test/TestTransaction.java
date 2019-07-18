@@ -31,7 +31,7 @@ public class TestTransaction {
           t.addUnique("ColA");
           t.insert(new RowBean().setString("ColA", "test"));
           t.insert(new RowBean().setString("ColA", "test2"));
-          assertEquals(2, s.query("testCommit").retrieve().size());
+          assertEquals(2, s.getTable("testCommit").retrieve().size());
         });
   }
 

@@ -3,6 +3,17 @@ package org.molgenis;
 import java.util.Collection;
 
 public interface Database {
+  enum Prefix {
+    MGUSER_,
+    MGROLE_
+  }
+
+  enum Roles {
+    _VIEWER,
+    _EDITOR,
+    _MANAGER,
+    _ADMIN
+  }
 
   String getName();
 
@@ -18,5 +29,5 @@ public interface Database {
 
   void transaction(Transaction transaction) throws MolgenisException;
 
-  void transaction(Transaction transaction, String role) throws MolgenisException;
+  void transaction(String role, Transaction transaction) throws MolgenisException;
 }

@@ -50,7 +50,7 @@ public abstract class DatabaseBean implements Database {
   }
 
   @Override
-  public void transaction(Transaction transaction, String role) throws MolgenisException {
+  public void transaction(String role, Transaction transaction) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 }

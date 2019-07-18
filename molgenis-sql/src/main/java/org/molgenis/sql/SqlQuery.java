@@ -21,13 +21,11 @@ import static org.molgenis.Row.MOLGENISID;
 
 public class SqlQuery extends QueryBean {
 
-  private String from;
-  private Schema schema;
+  private Table from;
   private DSLContext sql;
 
-  public SqlQuery(String from, Schema schema, DSLContext sql) {
+  public SqlQuery(Table from, DSLContext sql) {
     this.from = from;
-    this.schema = schema;
     this.sql = sql;
   }
 
@@ -36,19 +34,20 @@ public class SqlQuery extends QueryBean {
 
     try {
       List<Row> result = new ArrayList<>();
-      Table table = schema.getTable(from);
 
       // create the select
       SelectSelectStep selectStep = sql.select(getFields(from));
 
       // create the from
-      SelectJoinStep fromStep = selectStep.from(table(name(schema.getName(), from)).as(from));
+      SelectJoinStep fromStep =
+          selectStep.from(
+              table(name(from.getSchema().getName(), from.getName())).as(from.getName()));
 
       // create the joins
-      fromStep = createJoins(from, table, fromStep);
+      fromStep = createJoins(from.getName(), from, fromStep);
 
       // create the where
-      fromStep.where(createConditions(from));
+      fromStep.where(createConditions(from.getName()));
 
       // create the sort
 
@@ -71,17 +70,17 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private List<Field> getFields(String name) {
+  private List<Field> getFields(Table from) {
     List<Field> fields = new ArrayList<>();
     for (Select select : this.getSelectList()) {
       String[] path = select.getPath();
       if (path.length == 1) {
-        fields.add(field(name(name, path[0])).as(name(path[0])));
+        fields.add(field(name(from.getName(), path[0])).as(name(path[0])));
       } else {
         String[] tablePath = Arrays.copyOfRange(path, 0, path.length - 1);
         String[] fieldPath = Arrays.copyOfRange(path, 0, path.length);
 
-        String tableAlias = name + "/" + String.join("/", tablePath);
+        String tableAlias = from.getName() + "/" + String.join("/", tablePath);
         fields.add(
             field(name(tableAlias, path[path.length - 1])).as(name(String.join("/", fieldPath))));
       }
@@ -131,7 +130,8 @@ public class SqlQuery extends QueryBean {
           if (REF.equals(c.getType())) {
             fromStep =
                 fromStep
-                    .leftJoin(table(name(schema.getName(), rightTable)).as(name(rightAlias)))
+                    .leftJoin(
+                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
                     .on(
                         field(name(rightAlias, rightColumn))
                             .eq(field(name(leftAlias, leftColumn))));
@@ -143,13 +143,15 @@ public class SqlQuery extends QueryBean {
             // to link table
             fromStep =
                 fromStep
-                    .leftJoin(table(name(schema.getName(), mrefTable)).as(name(mrefTable)))
+                    .leftJoin(
+                        table(name(from.getSchema().getName(), mrefTable)).as(name(mrefTable)))
                     .on(field(name(mrefTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
 
             // to other end of the mref
             fromStep =
                 fromStep
-                    .leftJoin(table(name(schema.getName(), rightTable)).as(name(rightAlias)))
+                    .leftJoin(
+                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
                     .on(field(name(mrefTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
           }
         }

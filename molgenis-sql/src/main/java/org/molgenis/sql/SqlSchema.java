@@ -1,6 +1,7 @@
 package org.molgenis.sql;
 
 import org.jooq.DSLContext;
+import org.jooq.Name;
 import org.jooq.Schema;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.Database;
@@ -13,6 +14,8 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.Database.Prefix.MGROLE_;
+import static org.molgenis.Database.Roles.*;
 import static org.molgenis.Row.MOLGENISID;
 
 public class SqlSchema extends SchemaBean {
@@ -49,10 +52,15 @@ public class SqlSchema extends SchemaBean {
 
   @Override
   public SqlTable createTable(String name) throws MolgenisException {
-    sql.createTableIfNotExists(name(getName(), name))
+    Name tableName = name(getName(), name);
+    sql.createTableIfNotExists(tableName)
         .column(MOLGENISID, SQLDataType.UUID)
         .constraints(constraint("PK_" + name).primaryKey(MOLGENISID))
         .execute();
+    // immediately make the 'admin' owner
+    sql.execute(
+        "ALTER TABLE {0} OWNER TO {1}",
+        tableName, name(MGROLE_ + getName().toUpperCase() + _ADMIN));
     SqlTable t = new SqlTable(this, sql, name);
     super.addTable(t);
     return t;
@@ -61,27 +69,23 @@ public class SqlSchema extends SchemaBean {
   @Override
   public void grantAdmin(String user) {
     sql.execute(
-        "GRANT {0} TO {1} WITH ADMIN OPTION", name(getName().toUpperCase() + "_ADMIN"), name(user));
+        "GRANT {0} TO {1} WITH ADMIN OPTION",
+        name(MGROLE_ + getName().toUpperCase() + _ADMIN), name(user));
   }
 
   @Override
   public void grantManage(String user) {
-    sql.execute("GRANT {0} TO {1}", name(getName().toUpperCase() + "_MANAGE"), name(user));
+    sql.execute("GRANT {0} TO {1}", name(MGROLE_ + getName().toUpperCase() + _MANAGER), name(user));
   }
 
   @Override
   public void grantEdit(String user) {
-    sql.execute("GRANT {0} TO {1}", name(getName().toUpperCase() + "_EDIT"), name(user));
+    sql.execute("GRANT {0} TO {1}", name(MGROLE_ + getName().toUpperCase() + _EDITOR), name(user));
   }
 
   @Override
   public void grantView(String user) {
-    sql.execute("GRANT {0} TO {1}", name(getName().toUpperCase() + "_VIEW"), name(user));
-  }
-
-  @Override
-  public Query query(String table) {
-    return new SqlQuery(table, this, sql);
+    sql.execute("GRANT {0} TO {1}", name(MGROLE_ + getName().toUpperCase() + _VIEWER), name(user));
   }
 
   @Override

@@ -44,7 +44,7 @@ public class TestQuery {
 
   @Test
   public void test1() throws MolgenisException {
-    Query q = s.query("Person");
+    Query q = s.getTable("Person").query();
     q.select("First Name")
         .select("Last Name")
         .expand("Father")
@@ -118,7 +118,7 @@ public class TestQuery {
 
     startTime = System.currentTimeMillis();
 
-    Query q = s.query("Product");
+    Query q = s.getTable("Product").query();
     q.select("name")
         .expand("components")
         .include("name")
@@ -141,7 +141,7 @@ public class TestQuery {
 
     startTime = System.currentTimeMillis();
 
-    Query q2 = s.query("Product");
+    Query q2 = s.getTable("Product").query();
     q2.select("name")
         .expand("components")
         .include("name")

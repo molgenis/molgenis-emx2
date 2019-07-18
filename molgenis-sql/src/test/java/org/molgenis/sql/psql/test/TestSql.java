@@ -74,7 +74,7 @@ public class TestSql {
     System.out.println("Batch update " + (endTime - startTime) + " milliseconds");
 
     startTime = System.currentTimeMillis();
-    for (Row r : s.query("TestBatch").retrieve()) {
+    for (Row r : s.getTable("TestBatch").retrieve()) {
       System.out.println(r);
     }
     endTime = System.currentTimeMillis();
@@ -101,7 +101,8 @@ public class TestSql {
     System.out.println("Created tables in " + (endTime - startTime) + " milliseconds");
 
     // create a fromTable
-    for (int i = 0; i < 50; i++) {
+    // TODO need to optimize the reloading to be more lazy
+    for (int i = 0; i < 10; i++) {
       Table t2 = s.createTable(PERSON + i);
       t2.addColumn("First Name", STRING)
           .setNullable(false); // default nullable=false but for testing
@@ -115,7 +116,7 @@ public class TestSql {
     startTime = System.currentTimeMillis();
     db = new SqlDatabase(SqlTestHelper.getDataSource());
     s = db.getSchema("TestSql");
-    assertEquals(51, s.getTables().size());
+    assertEquals(11, s.getTables().size());
     endTime = System.currentTimeMillis();
 
     System.out.println("\nReloaded SqDatabase in " + (endTime - startTime) + " milliseconds");
@@ -142,7 +143,7 @@ public class TestSql {
 
     // queryOld
     startTime = System.currentTimeMillis();
-    Query q = s.query(PERSON);
+    Query q = s.getTable(PERSON).query();
     for (Row row : q.retrieve()) {
       System.out.println("QueryOld result: " + row);
     }
@@ -158,7 +159,7 @@ public class TestSql {
     System.out.println(
         "Delete took " + total + " milliseconds (that is " + (1000 * count / total) + " rows/sec)");
 
-    assertEquals(0, s.query("Person").retrieve().size());
+    assertEquals(0, s.getTable("Person").retrieve().size());
 
     assertEquals(2, t.getUniques().size());
     try {

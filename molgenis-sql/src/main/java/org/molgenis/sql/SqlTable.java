@@ -2,8 +2,11 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
+import org.molgenis.Query;
+import org.molgenis.Row;
 import org.molgenis.Schema;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
@@ -103,6 +106,15 @@ class SqlTable extends TableBean {
 
   protected void addColumn(SqlColumn c) {
     this.columns.put(c.getName(), c);
+  }
+
+  @Override
+  public void enableRowLevelSecurity() {
+    // todo: add columns to manage the RLS underneath
+
+    // set RLS on the table
+    sql.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
+    // add policy for 'viewer' and 'editor'.
   }
 
   @Override
@@ -345,7 +357,8 @@ class SqlTable extends TableBean {
     }
     List<org.molgenis.Row> oldMrefs =
         getSchema()
-            .query(joinTable)
+            .getTable(joinTable)
+            .query()
             .where(column.getMrefBack())
             .eq(oldMrefIds.toArray(new UUID[oldMrefIds.size()]))
             .retrieve();
@@ -366,6 +379,16 @@ class SqlTable extends TableBean {
       }
     }
     getSchema().getTable(joinTable).update(newMrefs.toArray(new org.molgenis.Row[newMrefs.size()]));
+  }
+
+  @Override
+  public Query query() {
+    return new SqlQuery(this, sql);
+  }
+
+  @Override
+  public List<Row> retrieve() throws MolgenisException {
+    return this.query().retrieve();
   }
 
   private org.jooq.Table getJooqTable() {

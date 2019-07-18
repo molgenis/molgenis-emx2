@@ -169,4 +169,19 @@ public class TableBean extends IdentifiableBean implements Table {
   public int delete(Collection<Row> rows) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void enableRowLevelSecurity() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Query query() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Row> retrieve() throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
 }

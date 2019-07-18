@@ -12,6 +12,8 @@ import javax.sql.DataSource;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.Database.Prefix.MGROLE_;
+import static org.molgenis.Database.Roles.*;
 
 public class SqlDatabase extends DatabaseBean implements Database {
   private DSLContext sql;
@@ -30,10 +32,10 @@ public class SqlDatabase extends DatabaseBean implements Database {
   public Schema createSchema(String schemaName) throws MolgenisException {
     try (CreateSchemaFinalStep step = sql.createSchema(schemaName)) {
       step.execute();
-      Name viewer = name(schemaName.toUpperCase() + "_VIEW");
-      Name editor = name(schemaName.toUpperCase() + "_EDIT");
-      Name manager = name(schemaName.toUpperCase() + "_MANAGE");
-      Name admin = name(schemaName.toUpperCase() + "_ADMIN");
+      Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
+      Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
+      Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
+      Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
 
       sql.execute("CREATE ROLE {0}", viewer);
       sql.execute("CREATE ROLE {0}", editor);
@@ -109,7 +111,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   }
 
   @Override
-  public void transaction(Transaction transaction, String role) throws MolgenisException {
+  public void transaction(String role, Transaction transaction) throws MolgenisException {
     // create independent copy of database with transaction connection
     sql.execute("SET ROLE {0}", name(role));
     try {
