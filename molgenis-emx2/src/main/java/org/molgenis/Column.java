@@ -1,6 +1,8 @@
 package org.molgenis;
 
 public interface Column {
+  Column addColumn(String name, Type type) throws MolgenisException;
+
   Table getTable();
 
   String getName();

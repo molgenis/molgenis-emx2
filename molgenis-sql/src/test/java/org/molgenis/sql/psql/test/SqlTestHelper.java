@@ -39,10 +39,8 @@ public class SqlTestHelper {
       dataSource.setUsername(userName);
       dataSource.setPassword(password);
 
-      Connection conn = dataSource.getConnection();
-
       // setup Jooq
-      jooq = DSL.using(conn, SQLDialect.POSTGRES_10);
+      jooq = DSL.using(dataSource, SQLDialect.POSTGRES_10);
       emptyDatabase();
       // create database to test against
       db = new SqlDatabase(dataSource);
@@ -76,12 +74,17 @@ public class SqlTestHelper {
 
       if (!name.startsWith("pg_") && !"information_schema".equals(name) && !"public".equals(name)) {
         jooq.dropSchema(s.getName()).cascade().execute();
+        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_VIEW\"");
+        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_EDIT\"");
+        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_MANAGE\"");
+        jooq.execute("DROP ROLE IF EXISTS \"" + name.toUpperCase() + "_ADMIN\"");
       }
     }
     //    // delete all tables
     //    for (org.jooq.Table t : jooq.meta().getTables()) {
     //      jooq.dropTable(t).execute();
     //    }
+
   }
 
   public static HikariDataSource getDataSource() {

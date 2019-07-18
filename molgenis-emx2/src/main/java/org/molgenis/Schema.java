@@ -13,5 +13,13 @@ public interface Schema {
 
   Table getTable(String name) throws MolgenisException;
 
+  void grantAdmin(String user);
+
+  void grantManage(String user);
+
+  void grantEdit(String user);
+
+  void grantView(String user);
+
   Query query(String name) throws MolgenisException;
 }

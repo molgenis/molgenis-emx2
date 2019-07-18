@@ -50,6 +50,26 @@ public class SchemaBean implements Schema {
   }
 
   @Override
+  public void grantAdmin(String user) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void grantManage(String user) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void grantEdit(String user) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void grantView(String user) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Query query(String name) throws MolgenisException {
     throw new UnsupportedOperationException();
   }

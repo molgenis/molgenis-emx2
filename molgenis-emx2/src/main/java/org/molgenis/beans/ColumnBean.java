@@ -60,6 +60,11 @@ public class ColumnBean implements Column {
   }
 
   @Override
+  public Column addColumn(String name, Type type) throws MolgenisException {
+    return this.getTable().addColumn(name, type);
+  }
+
+  @Override
   public Table getTable() {
     return table;
   }

@@ -5,7 +5,7 @@ import org.molgenis.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DatabaseBean implements Database {
+public abstract class DatabaseBean implements Database {
   private String name;
   protected Map<String, Schema> schemas = new LinkedHashMap<>();
 
@@ -30,12 +30,27 @@ public class DatabaseBean implements Database {
   }
 
   @Override
+  public void createUser(String name) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Schema getSchema(String name) throws MolgenisException {
     return this.schemas.get(name);
   }
 
   @Override
-  public void transaction(Transaction transaction) throws MolgenisException {
+  public void grantRoleToUser(String role, String user) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void transaction(Transaction transactionb) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void transaction(Transaction transaction, String role) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 }

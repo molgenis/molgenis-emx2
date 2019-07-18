@@ -89,22 +89,36 @@ public class TestSql {
     SqlTestHelper.emptyDatabase();
     Schema s = db.createSchema("TestSql");
 
-    // create a fromTable
     String PERSON = "Person";
     Table t = s.createTable(PERSON);
     t.addColumn("First Name", STRING).setNullable(false); // default nullable=false but for testing
     t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
     t.addUnique("First Name", "Last Name");
+
     long endTime = System.currentTimeMillis();
 
-    System.out.println(
-        "Created fromTable: \n" + t.toString() + " in " + (endTime - startTime) + " milliseconds");
+    System.out.println("Created tables in " + (endTime - startTime) + " milliseconds");
+
+    // create a fromTable
+    for (int i = 0; i < 50; i++) {
+      Table t2 = s.createTable(PERSON + i);
+      t2.addColumn("First Name", STRING)
+          .setNullable(false); // default nullable=false but for testing
+      t2.addRef("Father", t2).setNullable(true);
+      t2.addColumn("Last Name", STRING);
+      t2.addUnique("First Name", "Last Name");
+    }
 
     // reinitialise database to see if it can recreate from background
+
+    startTime = System.currentTimeMillis();
     db = new SqlDatabase(SqlTestHelper.getDataSource());
     s = db.getSchema("TestSql");
-    assertEquals(1, s.getTables().size());
+    assertEquals(51, s.getTables().size());
+    endTime = System.currentTimeMillis();
+
+    System.out.println("\nReloaded SqDatabase in " + (endTime - startTime) + " milliseconds");
 
     // insert
     startTime = System.currentTimeMillis();

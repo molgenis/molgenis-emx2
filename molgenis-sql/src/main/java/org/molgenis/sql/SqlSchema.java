@@ -59,6 +59,27 @@ public class SqlSchema extends SchemaBean {
   }
 
   @Override
+  public void grantAdmin(String user) {
+    sql.execute(
+        "GRANT {0} TO {1} WITH ADMIN OPTION", name(getName().toUpperCase() + "_ADMIN"), name(user));
+  }
+
+  @Override
+  public void grantManage(String user) {
+    sql.execute("GRANT {0} TO {1}", name(getName().toUpperCase() + "_MANAGE"), name(user));
+  }
+
+  @Override
+  public void grantEdit(String user) {
+    sql.execute("GRANT {0} TO {1}", name(getName().toUpperCase() + "_EDIT"), name(user));
+  }
+
+  @Override
+  public void grantView(String user) {
+    sql.execute("GRANT {0} TO {1}", name(getName().toUpperCase() + "_VIEW"), name(user));
+  }
+
+  @Override
   public Query query(String table) {
     return new SqlQuery(table, this, sql);
   }
