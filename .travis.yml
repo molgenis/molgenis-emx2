@@ -3,7 +3,7 @@ services:
   - postgresql
 before_script:
   - psql -c 'create database molgenis;' -U postgres
-  - psql -c "CREATE USER molgenis WITH CREATEROLE, PASSWORD 'molgenis';" -U postgres
+  - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
 addons:
   postgresql: "9.6"
