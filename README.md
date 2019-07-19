@@ -21,3 +21,4 @@ TODO
 * separate sql from ui data types
 * lightweight web service
 * openapi support
+* ADD LOCAL TRANSACTIONS FOR MULTI_COMMAND OPERATIONS

@@ -3,6 +3,10 @@ package org.molgenis;
 import java.util.Collection;
 
 public interface Database {
+  enum RowLevelSecurity {
+    MG_EDIT_ROLE
+  }
+
   enum Prefix {
     MGUSER_,
     MGROLE_

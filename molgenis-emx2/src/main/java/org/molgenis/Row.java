@@ -70,4 +70,6 @@ public interface Row extends Identifiable {
   List<UUID> getMref(String colName);
 
   Collection<String> getColumns();
+
+  Row setRowEditRole(String testrls_has_rls_view);
 }

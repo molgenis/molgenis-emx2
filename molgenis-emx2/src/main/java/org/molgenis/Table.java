@@ -48,7 +48,7 @@ public interface Table extends Identifiable {
 
   int delete(Collection<Row> rows) throws MolgenisException;
 
-  void enableRowLevelSecurity();
+  void enableRowLevelSecurity() throws MolgenisException;
 
   Query query();
 

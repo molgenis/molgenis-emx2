@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
+
 public class RowBean implements Row {
   private Map<String, Object> values = new LinkedHashMap<>();
   private Map<String, List<UUID>> mrefs = new LinkedHashMap<>();
@@ -216,5 +218,10 @@ public class RowBean implements Row {
   @Override
   public Collection<String> getColumns() {
     return values.keySet();
+  }
+
+  @Override
+  public Row setRowEditRole(String role) {
+    return this.setString(MG_EDIT_ROLE.toString(), role);
   }
 }

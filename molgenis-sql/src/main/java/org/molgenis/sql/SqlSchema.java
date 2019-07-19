@@ -60,7 +60,12 @@ public class SqlSchema extends SchemaBean {
     // immediately make the 'admin' owner
     sql.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        tableName, name(MGROLE_ + getName().toUpperCase() + _ADMIN));
+        tableName, name(MGROLE_ + getName().toUpperCase() + _MANAGER));
+    sql.execute(
+        "GRANT SELECT ON {0} TO {1}", tableName, name(MGROLE_ + getName().toUpperCase() + _VIEWER));
+    sql.execute(
+        "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
+        tableName, name(MGROLE_ + getName().toUpperCase() + _EDITOR));
     SqlTable t = new SqlTable(this, sql, name);
     super.addTable(t);
     return t;

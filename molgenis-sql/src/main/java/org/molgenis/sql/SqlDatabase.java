@@ -46,12 +46,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
       sql.execute("GRANT {0},{1} TO {2}", viewer, editor, manager);
       sql.execute("GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION", viewer, editor, manager, admin);
 
-      sql.execute(
-          "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT SELECT ON TABLES TO {1}",
-          name(schemaName), viewer);
-      sql.execute(
-          "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT INSERT, UPDATE, DELETE, TRUNCATE ON TABLES TO {1}",
-          name(schemaName), editor);
+      sql.execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), viewer);
       sql.execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), manager);
     } catch (Exception e) {
       throw new MolgenisException(e);
@@ -111,20 +106,19 @@ public class SqlDatabase extends DatabaseBean implements Database {
   }
 
   @Override
-  public void transaction(String role, Transaction transaction) throws MolgenisException {
+  public void transaction(String user, Transaction transaction) throws MolgenisException {
     // create independent copy of database with transaction connection
-    sql.execute("SET ROLE {0}", name(role));
+    sql.execute("SET SESSION AUTHORIZATION {0}", name(user));
     try {
       sql.transaction(
           config -> {
             Database db = new SqlDatabase(config);
             transaction.run(db);
           });
-    } catch (org.jooq.exception.DataAccessException e) {
+    } catch (Exception e) {
       throw new MolgenisException(e);
-    } catch (Exception e3) {
-      throw new MolgenisException(e3);
+    } finally {
+      sql.execute("RESET SESSION AUTHORIZATION");
     }
-    sql.execute("RESET ROLE");
   }
 }

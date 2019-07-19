@@ -2,7 +2,6 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 import org.molgenis.Query;
@@ -10,13 +9,14 @@ import org.molgenis.Row;
 import org.molgenis.Schema;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
-import org.molgenis.beans.UniqueBean;
 
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 
 import static org.molgenis.Column.Type.MREF;
+import static org.molgenis.Column.Type.STRING;
+import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 class SqlTable extends TableBean {
@@ -109,11 +109,16 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public void enableRowLevelSecurity() {
-    // todo: add columns to manage the RLS underneath
-
-    // set RLS on the table
+  public void enableRowLevelSecurity() throws MolgenisException {
+    this.addColumn(MG_EDIT_ROLE.toString(), STRING);
+    // TODO add index to this column?
     sql.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
+    sql.execute(
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
+        name("RLS/" + getSchema().getName() + "/" + getName()),
+        getJooqTable(),
+        name(MG_EDIT_ROLE.toString()));
+    // set RLS on the table
     // add policy for 'viewer' and 'editor'.
   }
 

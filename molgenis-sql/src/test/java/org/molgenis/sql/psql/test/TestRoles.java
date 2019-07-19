@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
-import org.molgenis.Table;
 import org.molgenis.beans.RowBean;
 
 import java.sql.SQLException;
@@ -20,6 +19,67 @@ public class TestRoles {
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
     db = SqlTestHelper.getEmptyDatabase();
+  }
+
+  @Test
+  public void testRolePermissions() throws MolgenisException {
+    Schema s = db.createSchema("TestRolePermissions");
+
+    // create test users
+    db.createUser("testRolePermissions_viewer");
+    db.createUser("testRolePermissions_editor");
+    db.createUser("testRolePermissions_manager");
+
+    // grant proper roles
+    s.grantView("testRolePermissions_viewer");
+    s.grantEdit("testRolePermissions_editor");
+    s.grantManage("testRolePermissions_manager");
+
+    // test that viewer and editor cannot create, and manager can
+    try {
+      db.transaction(
+          "testRolePermissions_viewer",
+          db -> {
+            db.getSchema("TestRolePermissions").createTable("Test");
+            fail("role(viewers) should not be able to create tables"); // should not happen
+          });
+    } catch (Exception e) {
+    }
+    try {
+      db.transaction(
+          "testRolePermissions_editor",
+          db -> {
+            db.getSchema("TestRolePermissions").createTable("Test");
+            fail("role(editors) should not be able to create tables"); // should not happen
+          });
+    } catch (Exception e) {
+    }
+    try {
+      db.transaction(
+          "testRolePermissions_manager",
+          db -> {
+            try {
+              db.getSchema("TestRolePermissions").createTable("Test");
+            } catch (Exception e) {
+              e.printStackTrace();
+              throw e;
+            }
+          });
+    } catch (Exception e) {
+      fail("role(manager) should be able to create tables"); // should not happen
+      throw e;
+    }
+    // test that all can query
+    try {
+      db.transaction(
+          "testRolePermissions_viewer",
+          db -> {
+            db.getSchema("TestRolePermissions").getTable("Test").retrieve();
+          });
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("role(viewers) should  be able to query "); // should not happen
+    }
   }
 
   @Test
@@ -65,9 +125,12 @@ public class TestRoles {
     // create two users
     db.createUser("testrls1");
     db.createUser("testrls2");
-    // grant both admin on TestRLS
+    db.createUser("testrlsnopermission");
+    db.createUser("testrls_has_rls_view");
+    // grant both admin on TestRLS schema so can add row level security
     s.grantAdmin("testrls1");
     s.grantAdmin("testrls2");
+    s.grantView("testrls_has_rls_view"); // can view table but only rows with right RLS
 
     // let one user create the table
     db.transaction(
@@ -89,12 +152,25 @@ public class TestRoles {
         db -> {
           db.getSchema("TestRLS")
               .getTable("TestRLS")
-              .insert(new RowBean().setString("col1", "Hello World"));
+              .insert(
+                  new RowBean()
+                      .setString("col1", "Hello World")
+                      .setRowEditRole("testrls_has_rls_view"),
+                  new RowBean()
+                      .setString("col1", "Hello World2")
+                      .setRowEditRole("testrlsnopermission"));
         });
 
-    // let the second see it
+    // let the second admin see it
     db.transaction(
         "testrls2",
+        db -> {
+          assertEquals(2, db.getSchema("TestRLS").getTable("TestRLS").retrieve().size());
+        });
+
+    // have RLS user query and see one row
+    db.transaction(
+        "testrls_has_rls_view",
         db -> {
           assertEquals(1, db.getSchema("TestRLS").getTable("TestRLS").retrieve().size());
         });
