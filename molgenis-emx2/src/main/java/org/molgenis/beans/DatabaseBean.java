@@ -5,7 +5,7 @@ import org.molgenis.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class DatabaseBean implements Database {
+public class DatabaseBean implements Database {
   private String name;
   protected Map<String, Schema> schemas = new LinkedHashMap<>();
 
@@ -52,5 +52,10 @@ public abstract class DatabaseBean implements Database {
   @Override
   public void transaction(String role, Transaction transaction) throws MolgenisException {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearCache() {
+    this.schemas.clear();
   }
 }

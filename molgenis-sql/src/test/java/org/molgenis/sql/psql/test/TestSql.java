@@ -1,6 +1,5 @@
 package org.molgenis.sql.psql.test;
 
-import org.jooq.Field;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
@@ -8,9 +7,6 @@ import org.molgenis.beans.RowBean;
 import org.molgenis.sql.*;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +20,13 @@ public class TestSql {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = SqlTestHelper.getEmptyDatabase();
-    db.createSchema("TestSql");
+    db = DatabaseFactory.getDatabase();
   }
 
   @Test
   public void testBatch() throws MolgenisException {
-    Schema s = db.getSchema("TestSql");
+
+    Schema s = db.createSchema("testBatch");
     Table test_batch = s.createTable("TestBatch");
     test_batch.addColumn("test", STRING);
     test_batch.addColumn("testint", INT);
@@ -84,10 +80,9 @@ public class TestSql {
   @Test
   public void testCreate() throws MolgenisException {
 
-    long startTime = System.currentTimeMillis();
+    StopWatch.start("");
 
-    SqlTestHelper.emptyDatabase();
-    Schema s = db.createSchema("TestSql");
+    Schema s = db.createSchema("testCreate");
 
     String PERSON = "Person";
     Table t = s.createTable(PERSON);
@@ -95,10 +90,6 @@ public class TestSql {
     t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
     t.addUnique("First Name", "Last Name");
-
-    long endTime = System.currentTimeMillis();
-
-    System.out.println("Created tables in " + (endTime - startTime) + " milliseconds");
 
     // create a fromTable
     // TODO need to optimize the reloading to be more lazy
@@ -110,19 +101,17 @@ public class TestSql {
       t2.addColumn("Last Name", STRING);
       t2.addUnique("First Name", "Last Name");
     }
+    StopWatch.print("Created tables");
 
     // reinitialise database to see if it can recreate from background
+    StopWatch.print("reloading database from disk");
+    db.clearCache();
 
-    startTime = System.currentTimeMillis();
-    db = new SqlDatabase(SqlTestHelper.getDataSource());
-    s = db.getSchema("TestSql");
+    s = db.getSchema("testCreate");
     assertEquals(11, s.getTables().size());
-    endTime = System.currentTimeMillis();
-
-    System.out.println("\nReloaded SqDatabase in " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("reloading complete");
 
     // insert
-    startTime = System.currentTimeMillis();
     Table t2 = s.getTable(PERSON);
     List<Row> rows = new ArrayList<>();
     int count = 1000;
@@ -130,34 +119,16 @@ public class TestSql {
       rows.add(new RowBean().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
     t2.insert(rows);
-    endTime = System.currentTimeMillis();
-    long total = (endTime - startTime);
-    System.out.println(
-        "Insert of "
-            + count
-            + " records took "
-            + total
-            + " milliseconds (that is "
-            + (1000 * count / total)
-            + " rows/sec)");
+
+    StopWatch.print("insert", count);
 
     // queryOld
-    startTime = System.currentTimeMillis();
     Query q = s.getTable(PERSON).query();
-    for (Row row : q.retrieve()) {
-      System.out.println("QueryOld result: " + row);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println("QueryOld took " + (endTime - startTime) + " milliseconds");
-    System.out.println("QueryOld contents " + q);
+    StopWatch.print("QueryOld ", q.retrieve().size());
 
     // delete
-    startTime = System.currentTimeMillis();
     t2.delete(rows);
-    endTime = System.currentTimeMillis();
-    total = (endTime - startTime);
-    System.out.println(
-        "Delete took " + total + " milliseconds (that is " + (1000 * count / total) + " rows/sec)");
+    StopWatch.print("Delete", count);
 
     assertEquals(0, s.getTable("Person").retrieve().size());
 
@@ -182,10 +153,19 @@ public class TestSql {
     assertEquals(3, t.getColumns().size());
 
     // drop a fromTable
-    db.getSchema("TestSql").dropTable(t.getName());
-    assertEquals(null, db.getSchema("TestSql").getTable("Person"));
+    db.getSchema("testCreate").dropTable(t.getName());
+    try {
+      db.getSchema("testCreate").getTable("Person");
+      fail("should have been dropped");
+    } catch (Exception e) { // expected
+    }
+
     // make sure nothing was left behind in backend
-    db = new SqlDatabase(SqlTestHelper.getDataSource());
-    assertEquals(null, db.getSchema("TestSql").getTable("Person"));
+    db.clearCache();
+    try {
+      assertEquals(null, db.getSchema("testCreate").getTable("Person"));
+      fail("should have been dropped");
+    } catch (Exception e) { // expected
+    }
   }
 }

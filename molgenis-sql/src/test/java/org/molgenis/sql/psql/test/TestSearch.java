@@ -14,7 +14,7 @@ public class TestSearch {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = SqlTestHelper.getEmptyDatabase();
+    db = DatabaseFactory.getDatabase();
   }
 
   @Test

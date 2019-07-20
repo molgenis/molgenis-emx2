@@ -37,7 +37,11 @@ public class SqlQuery extends QueryBean implements Query {
       List<Row> result = new ArrayList<>();
 
       // create the select
-      SelectSelectStep selectStep = sql.select(getFields(from));
+
+      SelectSelectStep selectStep;
+      List<Field> fields = getFields(from);
+      if (fields.size() > 0) selectStep = sql.select(fields);
+      else selectStep = sql.select();
 
       // create the from
       SelectJoinStep fromStep =
@@ -73,7 +77,8 @@ public class SqlQuery extends QueryBean implements Query {
 
   private List<Field> getFields(Table from) {
     List<Field> fields = new ArrayList<>();
-    for (Select select : this.getSelectList()) {
+    List<Select> selectList = this.getSelectList();
+    for (Select select : selectList) {
       String[] path = select.getPath();
       if (path.length == 1) {
         fields.add(field(name(from.getName(), path[0])).as(name(path[0])));

@@ -4,6 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.beans.RowBean;
+import org.molgenis.sql.StopWatch;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -20,11 +21,14 @@ public class TestSimpleTypes {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = SqlTestHelper.getEmptyDatabase();
+    db = DatabaseFactory.getDatabase();
   }
 
   @Test
   public void testTypes() throws MolgenisException {
+
+    StopWatch.print("testTypes started");
+
     Schema s = db.createSchema("testTypes");
 
     // generate TypeTest table, with columns for each type
@@ -35,21 +39,20 @@ public class TestSimpleTypes {
       if (REF.equals(type)) {
         Column c =
             t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
-        SqlTestHelper.checkColumnExists(c);
+        // DatabaseFactory.checkColumnExists(c);
       } else {
         Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);
         Column c2 =
             t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
                 .setNullable(true);
-        SqlTestHelper.checkColumnExists(c);
-        SqlTestHelper.checkColumnExists(c2);
       }
     }
 
     // retrieve this table from metadataa
     String TYPE_TEST = "TypeTest";
     Table t2 = s.getTable("TypeTest");
-    System.out.println(t2);
+
+    StopWatch.print("created TypeTest table");
 
     // check nullable ok
     Row row = new RowBean();
@@ -81,13 +84,14 @@ public class TestSimpleTypes {
       t2.insert(row);
       fail(); // should not reach this one
     } catch (MolgenisException e) {
-      System.out.println("as expected, caught exceptoin: " + e.getMessage());
+
     }
+
+    StopWatch.print("inserted rows");
 
     // check queryOld and test getters
     List<Row> result = s.getTable("TypeTest").retrieve();
     for (Row res : result) {
-      System.out.println(res);
       res.setMolgenisid(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof OffsetDateTime);
@@ -101,9 +105,8 @@ public class TestSimpleTypes {
       t2.insert(res);
     }
 
-    System.out.println("testing TypeTest queryOld");
-    for (Row r : s.getTable("TypeTest").retrieve()) {
-      System.out.println(r);
-    }
+    StopWatch.print("checked getters");
+
+    StopWatch.print("complete", s.getTable("TypeTest").retrieve().size());
   }
 }

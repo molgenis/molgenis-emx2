@@ -34,4 +34,6 @@ public interface Database {
   void transaction(Transaction transaction) throws MolgenisException;
 
   void transaction(String role, Transaction transaction) throws MolgenisException;
+
+  void clearCache();
 }

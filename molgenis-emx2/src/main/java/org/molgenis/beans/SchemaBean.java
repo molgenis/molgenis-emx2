@@ -33,8 +33,8 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public Collection<Table> getTables() {
-    return Collections.unmodifiableCollection(tables.values());
+  public Collection<String> getTables() throws MolgenisException {
+    return Collections.unmodifiableCollection(tables.keySet());
   }
 
   @Override

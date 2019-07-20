@@ -3,8 +3,8 @@ package org.molgenis.sql.psql.test;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.QueryBean;
 import org.molgenis.beans.RowBean;
+import org.molgenis.sql.StopWatch;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -14,16 +14,14 @@ import static org.molgenis.Column.Type.INT;
 import static org.molgenis.Column.Type.STRING;
 
 public class TestQuery {
-
-  public static Database db = null;
-  public static Schema s = null;
-
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = SqlTestHelper.getEmptyDatabase();
+    Database db = DatabaseFactory.getDatabase();
 
-    // create a table to test with
-    s = db.createSchema("TestQuery");
+    // create a schema to test with
+    Schema s = db.createSchema("TestQuery");
+
+    // create some tables with contents
     String PERSON = "Person";
     Table person = s.createTable(PERSON);
     person.addColumn("First Name", STRING);
@@ -44,6 +42,9 @@ public class TestQuery {
 
   @Test
   public void test1() throws MolgenisException {
+    Database db = DatabaseFactory.getDatabase();
+    Schema s = db.getSchema("TestQuery");
+
     Query q = s.getTable("Person").query();
     q.select("First Name")
         .select("Last Name")
@@ -60,8 +61,10 @@ public class TestQuery {
 
   @Test
   public void test2() throws MolgenisException {
+    Database db = DatabaseFactory.getDatabase();
+    Schema s = db.getSchema("TestQuery");
 
-    long startTime = System.currentTimeMillis();
+    StopWatch.start("test2");
 
     String PART = "Part";
     Table part = s.createTable(PART);
@@ -96,8 +99,7 @@ public class TestQuery {
 
     product.insert(product1);
 
-    long endTime = System.currentTimeMillis();
-    System.out.println("Creation took " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("tables created");
 
     // now getQuery to show product.name and parts.name linked by path Assembly.product,part
 
@@ -116,8 +118,6 @@ public class TestQuery {
     //
     //        System.out.println(q1);
 
-    startTime = System.currentTimeMillis();
-
     Query q = s.getTable("Product").query();
     q.select("name")
         .expand("components")
@@ -132,14 +132,13 @@ public class TestQuery {
       System.out.println(r);
     }
 
-    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("query completed");
 
     // restart database and see if it is still there
-    db = SqlTestHelper.reload();
+    db.clearCache();
+    s = db.getSchema("TestQuery");
 
-    System.out.println(db.getSchema("TestQuery"));
-
-    startTime = System.currentTimeMillis();
+    StopWatch.print("cleared cache");
 
     Query q2 = s.getTable("Product").query();
     q2.select("name")
@@ -155,7 +154,7 @@ public class TestQuery {
       System.out.println(r);
     }
 
-    System.out.println("Query took " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("queried again");
 
     //      try {
     //          db.query("pietje");

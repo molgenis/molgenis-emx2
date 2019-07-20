@@ -35,11 +35,8 @@ class SqlTable extends TableBean {
     isLoading = false;
   }
 
-  protected void loadColumns() throws MolgenisException {
+  protected void loadColumns(org.jooq.Table jTable) throws MolgenisException {
     isLoading = true;
-
-    org.jooq.Table jTable =
-        sql.meta().getCatalog("molgenis").getSchema(getSchema().getName()).getTable(getName());
 
     // get all foreign keys
     Map<String, org.molgenis.Table> refs = new LinkedHashMap<>();
@@ -51,7 +48,7 @@ class SqlTable extends TableBean {
       }
     }
 
-    // get
+    // get all fields, using references in ref fields
     for (Field field : jTable.fields()) {
       String name = field.getName();
       org.molgenis.Table ref = refs.get(name);
@@ -63,10 +60,8 @@ class SqlTable extends TableBean {
     isLoading = false;
   }
 
-  protected void loadUniques() throws MolgenisException {
+  protected void loadUniques(org.jooq.Table jTable) throws MolgenisException {
     isLoading = true;
-    org.jooq.Table jTable =
-        sql.meta().getCatalog("molgenis").getSchema(getSchema().getName()).getTable(getName());
 
     for (Index i : (List<Index>) jTable.getIndexes()) {
       if (i.getUnique()) {
@@ -81,10 +76,14 @@ class SqlTable extends TableBean {
   }
 
   /** will be called from SqlSchema */
-  protected void loadMrefs() throws MolgenisException {
+  protected void loadMrefs(org.jooq.Table jTable) throws MolgenisException {
+
     this.isLoading = true;
-    // check all tables for mref tables, probably expensive.
-    for (org.molgenis.Table mrefTable : getSchema().getTables()) {
+
+    // check all tables for mref tables, probably expensive
+    for (String mrefTableName : getSchema().getTables()) {
+      org.molgenis.Table mrefTable = getSchema().getTable(mrefTableName);
+
       // test if it is 'our' mref jTable]
       boolean valid = true;
       Column self = null;
@@ -214,10 +213,10 @@ class SqlTable extends TableBean {
       throws MolgenisException {
     if (!isLoading) {
       // check if jointable already exists from the other end of mref
-      org.molgenis.Table jTable = getSchema().getTable(mrefTable);
-      if (jTable != null) {
-        // done
-      } else {
+      org.molgenis.Table jTable;
+      try {
+        jTable = getSchema().getTable(mrefTable);
+      } catch (Exception e) {
         // otherwise create the jTable
         jTable = getSchema().createTable(mrefTable);
         jTable.addRef(mrefBack, this); // default name of jointable itself

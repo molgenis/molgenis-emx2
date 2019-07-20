@@ -9,7 +9,7 @@ public interface Schema {
 
   void dropTable(String tableId);
 
-  Collection<Table> getTables();
+  Collection<String> getTables() throws MolgenisException;
 
   Table getTable(String name) throws MolgenisException;
 

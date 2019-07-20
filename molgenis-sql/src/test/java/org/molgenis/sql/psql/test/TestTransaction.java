@@ -15,13 +15,13 @@ public class TestTransaction {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = SqlTestHelper.getEmptyDatabase();
+    db = DatabaseFactory.getDatabase();
   }
 
   @Test
   public void testCommit() throws MolgenisException {
 
-    db.createSchema("testCommit"); // not transactional in jooq :-(
+    Schema schema = db.createSchema("testCommit"); // not transactional in jooq :-(
 
     db.transaction(
         db -> {
@@ -31,8 +31,8 @@ public class TestTransaction {
           t.addUnique("ColA");
           t.insert(new RowBean().setString("ColA", "test"));
           t.insert(new RowBean().setString("ColA", "test2"));
-          assertEquals(2, s.getTable("testCommit").retrieve().size());
         });
+    assertEquals(2, schema.getTable("testCommit").retrieve().size());
   }
 
   @Test(expected = MolgenisException.class)

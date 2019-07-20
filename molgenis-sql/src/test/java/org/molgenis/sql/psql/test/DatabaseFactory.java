@@ -11,20 +11,19 @@ import org.molgenis.MolgenisException;
 import org.molgenis.sql.SqlDatabase;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.Database.Prefix.MGROLE_;
 import static org.molgenis.Database.Roles.*;
 
-public class SqlTestHelper {
+public class DatabaseFactory {
 
   private static HikariDataSource dataSource = null;
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
 
-  public static Database getEmptyDatabase() throws MolgenisException, SQLException {
+  public static Database getDatabase() throws MolgenisException {
     if (db == null) {
       Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
       rootLogger.setLevel(Level.INFO);
@@ -41,19 +40,11 @@ public class SqlTestHelper {
 
       // setup Jooq
       jooq = DSL.using(dataSource, SQLDialect.POSTGRES_10);
-      emptyDatabase();
+      deleteAll();
       // create database to test against
       db = new SqlDatabase(dataSource);
     }
     return db;
-  }
-
-  public static Database reload() throws MolgenisException {
-    return new SqlDatabase(dataSource);
-  }
-
-  public static void emptyDatabase() {
-    deleteAll();
   }
 
   public static void deleteAll() {
@@ -93,17 +84,13 @@ public class SqlTestHelper {
 
   }
 
-  public static HikariDataSource getDataSource() {
-    return dataSource;
-  }
-
   public static DSLContext getJooq() {
     return jooq;
   }
 
   public static void checkColumnExists(Column c) throws MolgenisException {
     List<org.jooq.Table<?>> tables =
-        SqlTestHelper.getJooq().meta().getTables(c.getTable().getName());
+        DatabaseFactory.getJooq().meta().getTables(c.getTable().getName());
     if (tables.size() == 0)
       throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
     org.jooq.Table<?> table = tables.get(0);

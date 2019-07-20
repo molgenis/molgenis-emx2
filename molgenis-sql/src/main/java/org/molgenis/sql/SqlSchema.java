@@ -6,10 +6,11 @@ import org.jooq.Schema;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
-import org.molgenis.Query;
 import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.jooq.impl.DSL.constraint;
@@ -21,33 +22,38 @@ import static org.molgenis.Row.MOLGENISID;
 public class SqlSchema extends SchemaBean {
   private Database db;
   private DSLContext sql;
+  private org.jooq.Schema schema;
 
   public SqlSchema(Database db, DSLContext sql, String name) throws MolgenisException {
     super(name);
     this.sql = sql;
     this.db = db;
-    List<Schema> schemas = sql.meta().getSchemas(name);
-    if (schemas.size() == 1) { // otherwise in transaction (probably)
+    schema = sql.meta().getCatalog("molgenis").getSchema(getName());
+  }
 
-      for (org.jooq.Table t : schemas.get(0).getTables()) {
-        addTable(new SqlTable(this, sql, t.getName()));
-      }
-
-      // load columns
-      for (Table t : getTables()) {
-        ((SqlTable) t).loadColumns();
-      }
-
-      // load uniques
-      for (Table t : getTables()) {
-        ((SqlTable) t).loadUniques();
-      }
-
-      // load mrefs
-      for (Table t : getTables()) {
-        ((SqlTable) t).loadMrefs();
-      }
+  @Override
+  public Collection<String> getTables() throws MolgenisException {
+    List<String> tables = new ArrayList<>();
+    for (org.jooq.Table jTable :
+        sql.meta().getCatalog("molgenis").getSchema(getName()).getTables()) {
+      tables.add(jTable.getName());
     }
+    return tables;
+  }
+
+  @Override
+  public Table getTable(String name) throws MolgenisException {
+    Table t = super.getTable(name);
+    if (t != null) return t;
+    // else
+    SqlTable result = new SqlTable(this, sql, name);
+    org.jooq.Table jTable = sql.meta().getCatalog("molgenis").getSchema(getName()).getTable(name);
+    if (jTable == null) throw new MolgenisException(String.format("Table '%s' unknown", name));
+    super.addTable(result);
+    result.loadColumns(jTable);
+    result.loadUniques(jTable);
+    result.loadMrefs(jTable);
+    return result;
   }
 
   @Override

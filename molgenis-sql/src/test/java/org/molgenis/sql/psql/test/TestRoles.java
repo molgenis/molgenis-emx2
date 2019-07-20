@@ -5,7 +5,9 @@ import org.junit.Test;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
+import org.molgenis.Table;
 import org.molgenis.beans.RowBean;
+import org.molgenis.sql.StopWatch;
 
 import java.sql.SQLException;
 
@@ -18,48 +20,59 @@ public class TestRoles {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = SqlTestHelper.getEmptyDatabase();
+    db = DatabaseFactory.getDatabase();
   }
 
   @Test
   public void testRolePermissions() throws MolgenisException {
-    Schema s = db.createSchema("TestRolePermissions");
+
+    StopWatch.start("start: testRolePermissions()");
+
+    // create some schema to test with
+    Schema s = db.createSchema("testRolePermissions");
 
     // create test users
-    db.createUser("testRolePermissions_viewer");
-    db.createUser("testRolePermissions_editor");
-    db.createUser("testRolePermissions_manager");
+    db.createUser("user_testRolePermissions_viewer");
+    db.createUser("user_testRolePermissions_editor");
+    db.createUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    s.grantView("testRolePermissions_viewer");
-    s.grantEdit("testRolePermissions_editor");
-    s.grantManage("testRolePermissions_manager");
+    s.grantView("user_testRolePermissions_viewer");
+    s.grantEdit("user_testRolePermissions_editor");
+    s.grantManage("user_testRolePermissions_manager");
+
+    StopWatch.print("testRolePermissions schema created");
 
     // test that viewer and editor cannot create, and manager can
     try {
       db.transaction(
-          "testRolePermissions_viewer",
+          "user_testRolePermissions_viewer",
           db -> {
-            db.getSchema("TestRolePermissions").createTable("Test");
+            db.getSchema("testRolePermissions").createTable("Test");
             fail("role(viewers) should not be able to create tables"); // should not happen
           });
     } catch (Exception e) {
     }
+
+    StopWatch.print("test viewer permission");
+
     try {
       db.transaction(
-          "testRolePermissions_editor",
+          "user_testRolePermissions_editor",
           db -> {
-            db.getSchema("TestRolePermissions").createTable("Test");
+            db.getSchema("testRolePermissions").createTable("Test");
             fail("role(editors) should not be able to create tables"); // should not happen
           });
     } catch (Exception e) {
     }
+    StopWatch.print("test editor permission");
+
     try {
       db.transaction(
-          "testRolePermissions_manager",
+          "user_testRolePermissions_manager",
           db -> {
             try {
-              db.getSchema("TestRolePermissions").createTable("Test");
+              db.getSchema("testRolePermissions").createTable("Test");
             } catch (Exception e) {
               e.printStackTrace();
               throw e;
@@ -69,24 +82,31 @@ public class TestRoles {
       fail("role(manager) should be able to create tables"); // should not happen
       throw e;
     }
+    StopWatch.print("test manager permission -> created a table");
+
     // test that all can query
     try {
       db.transaction(
-          "testRolePermissions_viewer",
+          "user_testRolePermissions_viewer",
           db -> {
-            db.getSchema("TestRolePermissions").getTable("Test").retrieve();
+            StopWatch.print("getting Table");
+            Table t = db.getSchema("testRolePermissions").getTable("Test");
+            StopWatch.print("got table");
+            t.retrieve();
+            StopWatch.print("completed query");
           });
     } catch (Exception e) {
       e.printStackTrace();
       fail("role(viewers) should  be able to query "); // should not happen
     }
+    StopWatch.print("test viewer query");
   }
 
   @Test
   public void testRole() throws MolgenisException {
+    Schema s = db.createSchema("testRole");
     db.createUser("testadmin");
     db.createUser("testuser");
-    Schema s = db.createSchema("testRole");
     s.grantAdmin("testadmin");
     s.createTable("Person").addColumn("FirstName", STRING).addColumn("LastName", STRING);
 
