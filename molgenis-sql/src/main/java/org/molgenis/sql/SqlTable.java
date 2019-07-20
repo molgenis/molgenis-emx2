@@ -27,6 +27,8 @@ class SqlTable extends TableBean {
   SqlTable(Schema schema, DSLContext sql, String name) throws MolgenisException {
     super(schema, name);
     this.sql = sql;
+
+    // load default columns and uniques
     isLoading = true;
     this.addColumn(MOLGENISID, Column.Type.UUID);
     this.addUnique(MOLGENISID);
@@ -109,34 +111,46 @@ class SqlTable extends TableBean {
   public void enableSearch() {
 
     // add tsvector column with index
-    sql.execute("ALTER TABLE {0} ADD COLUMN mg_search_vector tsvector", getJooqTable());
+    sql.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", getJooqTable(), name(MG_SEARCH_VECTOR));
     // for future performance enhancement consider studying 'gin (t gin_trgm_ops) to enable more
     // search power
-    sql.execute(
-        "CREATE INDEX mg_search_vector_idx ON {0} USING GIN(" + MG_SEARCH_VECTOR + ")",
-        getJooqTable());
 
-    // create the trigger function
-    String functionName = getSchema().getName() + "_" + getName() + "_search_vector_trigger()";
-    String fields = "new.subject || ' ' || new.body || ' ' || new.year "; // todo
+    // create index on that column to speed up search
+    sql.execute(
+        "CREATE INDEX mg_search_vector_idx ON {0} USING GIN( {1} )",
+        getJooqTable(), name(MG_SEARCH_VECTOR));
+
+    // create the trigger function to automatically update the MG_SEARCH_VECTOR
+    String functionName =
+        "\"" + getSchema().getName() + "\"." + getName() + "_search_vector_trigger()";
+    String fields = "to_tsvector('english', ' '";
+    for (Column c : getColumns()) {
+      fields += String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName());
+    }
+    fields += ")";
     //     to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''));
 
-    sql.execute(
+    String functionBody =
         "CREATE OR REPLACE FUNCTION "
             + functionName
             + " RETURNS trigger AS $$\n"
             + "begin\n"
-            + "\tnew.mg_search_vector:=to_tsvector("
+            + "\tnew.mg_search_vector:="
             + fields
-            + " );\n"
+            + " ;\n"
             + "\treturn new;\n"
             + "end\n"
-            + "$$ LANGUAGE plpgsql;");
+            + "$$ LANGUAGE plpgsql;";
+
+    System.out.println(functionBody);
+
+    sql.execute(functionBody);
 
     // add trigger to update the tsvector on each change
     sql.execute(
-        "CREATE TRIGGER mg_search_vector_update BEFORE INSERT OR UPDATE ON {0} FOR EACH ROW EXECUTE FUNCTION "
+        "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
             + functionName,
+        name(MG_SEARCH_VECTOR),
         getJooqTable());
     // retrospectively fill the tsv column
 
