@@ -14,16 +14,19 @@ public class WhereBean implements Where {
   private Operator op;
   private Object[] values;
 
-  public WhereBean(Operator op) {
+  public WhereBean(QueryBean parent, Operator op) {
+    this.query = parent;
     this.op = op;
   }
 
   public WhereBean(QueryBean parent, String... path) {
     this.query = parent;
     this.path = path;
+    this.op = Operator.EQ;
   }
 
-  public WhereBean(Operator op, String... terms) {
+  public WhereBean(QueryBean parent, Operator op, String... terms) {
+    this.query = parent;
     this.op = op;
     this.values = terms;
   }
@@ -53,6 +56,13 @@ public class WhereBean implements Where {
   public Query eq(UUID... values) {
     this.values = values;
     this.op = Operator.EQ;
+    return this.query;
+  }
+
+  @Override
+  public Query search(String terms) {
+    this.op = Operator.SEARCH;
+    this.values = new String[] {terms};
     return this.query;
   }
 

@@ -1,6 +1,5 @@
 package org.molgenis;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface Query {
@@ -24,6 +23,8 @@ public interface Query {
   Where where(String... path);
 
   Where and(String... path);
+
+  Query or();
 
   Where or(String... path);
 

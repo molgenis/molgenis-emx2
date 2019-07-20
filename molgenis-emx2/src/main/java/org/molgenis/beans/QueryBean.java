@@ -60,7 +60,7 @@ public class QueryBean implements Query {
 
   @Override
   public Query search(String terms) {
-    this.wheres.add(new WhereBean(Operator.SEARCH, terms));
+    this.wheres.add(new WhereBean(this, Operator.SEARCH, terms));
     return this;
   }
 
@@ -70,8 +70,14 @@ public class QueryBean implements Query {
   }
 
   @Override
+  public QueryBean or() {
+    this.wheres.add(new WhereBean(this, Operator.OR));
+    return this;
+  }
+
+  @Override
   public WhereBean or(String... path) {
-    if (wheres.size() > 0) this.wheres.add(new WhereBean(Operator.OR));
+    if (wheres.size() > 0) this.wheres.add(new WhereBean(this, Operator.OR));
     return this.where(path);
   }
 

@@ -15,6 +15,7 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.Column.Type.MREF;
 import static org.molgenis.Column.Type.REF;
+import static org.molgenis.Operator.OR;
 import static org.molgenis.Operator.SEARCH;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.sql.SqlTable.MG_SEARCH_VECTOR;
@@ -90,21 +91,25 @@ public class SqlQuery extends QueryBean implements Query {
 
   private Condition createConditions(String name) throws MolgenisException {
     Condition conditions = null;
+    boolean or = false;
     for (Where w : this.getWhereLists()) {
-      Condition newCondition;
+      Condition newCondition = null;
       if (SEARCH.equals(w.getOperator())) {
         // in case of search
         String search = "";
         for (Object s : w.getValues()) search += s + ":* ";
         newCondition = condition(MG_SEARCH_VECTOR + " @@ to_tsquery('" + search + "' )");
+      } else if (OR.equals(w.getOperator())) {
+        or = true;
       } else {
         // in case of field operator
         String[] path = w.getPath();
         String tableAlias = name;
+
         if (path.length > 1) {
           tableAlias += "/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
         }
-        Name selector = name(tableAlias, path[path.length - 1]);
+        Name selector = selector = name(tableAlias, path[path.length - 1]);
         switch (w.getOperator()) {
           case EQ:
             newCondition = field(selector).in(w.getValues());
@@ -115,8 +120,15 @@ public class SqlQuery extends QueryBean implements Query {
             throw new MolgenisException("Where clause not supported: " + w.toString());
         }
       }
-      if (conditions == null) conditions = newCondition;
-      else conditions = conditions.and(newCondition);
+      if (newCondition != null) {
+        if (conditions == null) conditions = newCondition;
+        else if (or) {
+          conditions = conditions.or(newCondition);
+          or = false;
+        } else {
+          conditions = conditions.and(newCondition);
+        }
+      }
     }
     return conditions;
   }

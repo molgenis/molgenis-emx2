@@ -46,6 +46,8 @@ public class TestSearch {
     // search in one table
     assertEquals(1, t.query().search("test").retrieve().size());
 
+    assertEquals(2, t.query().search("test").or().search("another").retrieve().size());
+
     // search accross join of xref
   }
 }
