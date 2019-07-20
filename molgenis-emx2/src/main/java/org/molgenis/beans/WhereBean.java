@@ -23,6 +23,11 @@ public class WhereBean implements Where {
     this.path = path;
   }
 
+  public WhereBean(Operator op, String... terms) {
+    this.op = op;
+    this.values = terms;
+  }
+
   @Override
   public QueryBean eq(String... values) {
     this.values = values;

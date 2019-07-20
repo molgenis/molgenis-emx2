@@ -2,8 +2,8 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.molgenis.*;
+import org.molgenis.Query;
 import org.molgenis.Row;
-import org.molgenis.Schema;
 import org.molgenis.Select;
 import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 import static org.molgenis.Column.Type.MREF;
 import static org.molgenis.Column.Type.REF;
+import static org.molgenis.Operator.SEARCH;
 import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.sql.SqlTable.MG_SEARCH_VECTOR;
 
-public class SqlQuery extends QueryBean {
+public class SqlQuery extends QueryBean implements Query {
 
   private Table from;
   private DSLContext sql;
@@ -88,19 +88,37 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private Condition createConditions(String name) {
-    Condition c = null;
+  private Condition createConditions(String name) throws MolgenisException {
+    Condition conditions = null;
     for (Where w : this.getWhereLists()) {
-      String[] path = w.getPath();
-      String tableAlias = name;
-      if (path.length > 1) {
-        tableAlias += "/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
+      Condition newCondition;
+      if (SEARCH.equals(w.getOperator())) {
+        // in case of search
+        String search = "";
+        for (Object s : w.getValues()) search += s + ":* ";
+        newCondition = condition(MG_SEARCH_VECTOR + " @@ to_tsquery('" + search + "' )");
+      } else {
+        // in case of field operator
+        String[] path = w.getPath();
+        String tableAlias = name;
+        if (path.length > 1) {
+          tableAlias += "/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
+        }
+        Name selector = name(tableAlias, path[path.length - 1]);
+        switch (w.getOperator()) {
+          case EQ:
+            newCondition = field(selector).in(w.getValues());
+            break;
+          case SEARCH:
+
+          default:
+            throw new MolgenisException("Where clause not supported: " + w.toString());
+        }
       }
-      String fieldName = path[path.length - 1];
-      if (c == null) c = field(name(tableAlias, fieldName)).in(w.getValues());
-      else c = c.and(field(name(tableAlias, fieldName)).in(w.getValues()));
+      if (conditions == null) conditions = newCondition;
+      else conditions = conditions.and(newCondition);
     }
-    return c;
+    return conditions;
   }
 
   private SelectJoinStep createJoins(String name, Table table, SelectJoinStep fromStep)

@@ -15,6 +15,8 @@ public interface Query {
 
   Select expand(String... column);
 
+  Query search(String terms);
+
   Query avg(String... path);
 
   Query sum(String... path);

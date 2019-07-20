@@ -171,6 +171,11 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
+  public void enableSearch() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void enableRowLevelSecurity() throws MolgenisException {
     throw new UnsupportedOperationException();
   }

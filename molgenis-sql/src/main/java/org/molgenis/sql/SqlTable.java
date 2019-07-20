@@ -20,6 +20,7 @@ import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 import static org.molgenis.sql.SqlRow.MOLGENISID;
 
 class SqlTable extends TableBean {
+  public static final String MG_SEARCH_VECTOR = "mg_search_vector";
   private DSLContext sql;
   private boolean isLoading = false;
 
@@ -102,6 +103,43 @@ class SqlTable extends TableBean {
       }
     }
     this.isLoading = false;
+  }
+
+  @Override
+  public void enableSearch() {
+
+    // add tsvector column with index
+    sql.execute("ALTER TABLE {0} ADD COLUMN mg_search_vector tsvector", getJooqTable());
+    // for future performance enhancement consider studying 'gin (t gin_trgm_ops) to enable more
+    // search power
+    sql.execute(
+        "CREATE INDEX mg_search_vector_idx ON {0} USING GIN(" + MG_SEARCH_VECTOR + ")",
+        getJooqTable());
+
+    // create the trigger function
+    String functionName = getSchema().getName() + "_" + getName() + "_search_vector_trigger()";
+    String fields = "new.subject || ' ' || new.body || ' ' || new.year "; // todo
+    //     to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''));
+
+    sql.execute(
+        "CREATE OR REPLACE FUNCTION "
+            + functionName
+            + " RETURNS trigger AS $$\n"
+            + "begin\n"
+            + "\tnew.mg_search_vector:=to_tsvector("
+            + fields
+            + " );\n"
+            + "\treturn new;\n"
+            + "end\n"
+            + "$$ LANGUAGE plpgsql;");
+
+    // add trigger to update the tsvector on each change
+    sql.execute(
+        "CREATE TRIGGER mg_search_vector_update BEFORE INSERT OR UPDATE ON {0} FOR EACH ROW EXECUTE FUNCTION "
+            + functionName,
+        getJooqTable());
+    // retrospectively fill the tsv column
+
   }
 
   protected void addColumn(SqlColumn c) {

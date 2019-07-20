@@ -59,6 +59,12 @@ public class QueryBean implements Query {
   }
 
   @Override
+  public Query search(String terms) {
+    this.wheres.add(new WhereBean(Operator.SEARCH, terms));
+    return this;
+  }
+
+  @Override
   public WhereBean and(String... path) {
     return this.where(path);
   }
