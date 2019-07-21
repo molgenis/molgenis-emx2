@@ -148,6 +148,8 @@ public class TestQuery {
         .include("name");
     // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
 
+    StopWatch.print("created query (needed to get metadata from disk)");
+
     List<Row> rows2 = q2.retrieve();
     assertEquals(rows2.size(), 3);
     for (Row r : rows2) {

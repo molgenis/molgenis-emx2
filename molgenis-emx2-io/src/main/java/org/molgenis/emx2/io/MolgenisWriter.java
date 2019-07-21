@@ -2,10 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.molgenis.Column;
-import org.molgenis.Schema;
-import org.molgenis.Table;
-import org.molgenis.Unique;
+import org.molgenis.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
@@ -22,7 +19,8 @@ import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
 
 public class MolgenisWriter {
 
-  public void writeCsv(Schema model, Writer writer) throws IOException, MolgenisWriterException {
+  public void writeCsv(Schema model, Writer writer)
+      throws IOException, MolgenisWriterException, MolgenisException {
     CSVPrinter csvPrinter =
         new CSVPrinter(
             writer, CSVFormat.DEFAULT.withHeader("table", "column", "definition", "description"));
@@ -34,10 +32,11 @@ public class MolgenisWriter {
   }
 
   public List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
-      throws MolgenisWriterException {
+      throws MolgenisWriterException, MolgenisException {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
-    for (Table table : model.getTables()) {
+    for (String tableName : model.getTables()) {
+      Table table = model.getTable(tableName);
       if (table.getExtend() != null || !table.getUniques().isEmpty()) {
         rows.add(convertTableToRow(table));
       }

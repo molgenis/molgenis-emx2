@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
 import org.molgenis.Column;
+import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 
@@ -14,11 +15,12 @@ import static graphql.schema.GraphQLSchema.newSchema;
 
 public class GrahpqlEndpoint {
 
-  GraphQLSchema getSchema(Schema model) {
+  GraphQLSchema getSchema(Schema model) throws MolgenisException {
     GraphQLSchema.Builder schema = newSchema();
 
     GraphQLObjectType.Builder query = newObject().name("QueryOld");
-    for (Table table : model.getTables()) {
+    for (String tableName : model.getTables()) {
+      Table table = model.getTable(tableName);
       GraphQLObjectType.Builder type = newObject().name(table.getName());
       for (Column col : table.getColumns()) {
         type.field(newFieldDefinition().name(col.getName()).type(GraphQLString));
