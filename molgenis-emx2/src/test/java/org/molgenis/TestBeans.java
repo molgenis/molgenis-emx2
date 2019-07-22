@@ -9,6 +9,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.molgenis.Column.Type.*;
 
 public class TestBeans {
@@ -25,8 +26,8 @@ public class TestBeans {
 
     // System.out.println("No diff: " + m.diff(m2));
 
-    assertNotNull(m.getTables().contains("TypeTest"));
-    assertEquals(1, m.getTables().size());
+    assertNotNull(m.getTableNames().contains("TypeTest"));
+    assertEquals(1, m.getTableNames().size());
 
     // System.out.println("model print: " + m.print());
     Table t = m.getTable("TypeTest");
@@ -40,8 +41,13 @@ public class TestBeans {
     // System.out.println("Now we expect diff: " + m.diff(m2));
 
     m.dropTable("TypeTest");
-    assertNull(m.getTable("TypeTest"));
-    assertEquals(0, m.getTables().size());
+    try {
+      m.getTable("TypeTest");
+      fail("Table should have been dropped");
+    } catch (Exception e) {
+      // this is expected
+    }
+    assertEquals(0, m.getTableNames().size());
   }
 
   private void addContents(Schema m, List<Column.Type> types) throws MolgenisException {

@@ -48,14 +48,14 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
-  public Column addRef(String name, Table otherTable) throws MolgenisException {
+  public Column addRef(String name, String otherTable) throws MolgenisException {
     Column c = new ColumnBean(this, name, otherTable);
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public Column addMref(String name, Table otherTable, String mrefTable, String mrefBack)
+  public Column addMref(String name, String otherTable, String mrefTable, String mrefBack)
       throws MolgenisException {
     Column c = new ColumnBean(this, name, otherTable, mrefTable, mrefBack);
     columns.put(name, c);

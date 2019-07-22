@@ -78,7 +78,7 @@ public class DatabaseFactory {
       }
     }
     //    // delete all tables
-    //    for (org.jooq.Table t : jooq.meta().getTables()) {
+    //    for (org.jooq.Table t : jooq.meta().getTableNames()) {
     //      jooq.dropTable(t).execute();
     //    }
 

@@ -9,7 +9,6 @@ import org.molgenis.Transaction;
 import org.molgenis.beans.DatabaseBean;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.Database.Prefix.MGROLE_;

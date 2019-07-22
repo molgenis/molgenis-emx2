@@ -132,11 +132,14 @@ public class MolgenisReader {
       String tableName = row.getTable();
       String columnName = row.getColumn();
       if (!"".equals(tableName) && !"".equals(columnName)) {
-        if (model.getTable(tableName) == null) {
+        try {
+          model.getTable(tableName);
+        } catch (Exception e) {
           model.createTable(tableName);
         }
         Table table = model.getTable(tableName);
-        if (table.getColumn(columnName) != null) {
+        try {
+          table.getColumn(columnName);
           throw new MolgenisReaderException(
               "error on line "
                   + line
@@ -145,11 +148,12 @@ public class MolgenisReader {
                   + "', column='"
                   + columnName
                   + "'");
+        } catch (Exception e) {
+          List<EmxDefinitionTerm> terms =
+              new EmxDefinitionParser().parse(line, messages, row.getDefinition());
+          Column column = table.addColumn(columnName, getType(terms));
+          applyDefintionsToColumn(line, terms, column);
         }
-        List<EmxDefinitionTerm> terms =
-            new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-        Column column = table.addColumn(columnName, getType(terms));
-        applyDefintionsToColumn(line, terms, column);
       }
     }
   }

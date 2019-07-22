@@ -1,5 +1,6 @@
 package org.molgenis.sql.psql.test;
 
+import javafx.scene.paint.Stop;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
@@ -26,14 +27,15 @@ public class TestSql {
   @Test
   public void testBatch() throws MolgenisException {
 
+    StopWatch.start("testBatch started");
+
     Schema s = db.createSchema("testBatch");
     Table test_batch = s.createTable("TestBatch");
     test_batch.addColumn("test", STRING);
     test_batch.addColumn("testint", INT);
 
-    long startTime = System.currentTimeMillis();
-
     int size = 1000;
+    StopWatch.print("Schema created");
 
     List<Row> rows = new ArrayList<>();
     for (int i = 0; i < size; i++) {
@@ -42,39 +44,27 @@ public class TestSql {
       r.setInt("testint", i);
       rows.add(r);
     }
-    long endTime = System.currentTimeMillis();
-    System.out.println(
-        "Generated " + size + " test record in " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("Generated " + size + " test records", size);
 
-    startTime = System.currentTimeMillis();
     test_batch.insert(rows.subList(0, 100));
-    endTime = System.currentTimeMillis();
-    System.out.println("First batch insert " + (endTime - startTime) + " milliseconds");
 
-    startTime = System.currentTimeMillis();
+    StopWatch.print("Inserted first batch", 100);
+
     test_batch.insert(rows.subList(100, 200));
-    endTime = System.currentTimeMillis();
-    System.out.println("Second batch insert " + (endTime - startTime) + " milliseconds");
 
-    startTime = System.currentTimeMillis();
+    StopWatch.print("Inserted second batch", 100);
+
     test_batch.insert(rows.subList(200, 300));
-    endTime = System.currentTimeMillis();
-    System.out.println("Third batch insert " + (endTime - startTime) + " milliseconds");
 
-    startTime = System.currentTimeMillis();
+    StopWatch.print("Inserted third batch", 100);
+
     for (Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }
     test_batch.update(rows);
-    endTime = System.currentTimeMillis();
-    System.out.println("Batch update " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("Batch update ", rows.size());
 
-    startTime = System.currentTimeMillis();
-    for (Row r : s.getTable("TestBatch").retrieve()) {
-      System.out.println(r);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println("Retrieve " + (endTime - startTime) + " milliseconds");
+    StopWatch.print("Retrieved", s.getTable("TestBatch").retrieve().size());
   }
 
   @Test
@@ -88,7 +78,7 @@ public class TestSql {
     Table t = s.createTable(PERSON);
     t.addColumn("First Name", STRING).setNullable(false); // default nullable=false but for testing
     t.addColumn("Last Name", STRING);
-    t.addRef("Father", t).setNullable(true);
+    t.addRef("Father", t.getName()).setNullable(true);
     t.addUnique("First Name", "Last Name");
 
     // create a fromTable
@@ -98,7 +88,7 @@ public class TestSql {
       t2.addColumn("First Name", STRING)
           .setNullable(false); // default nullable=false but for testing
       t2.addColumn("Last Name", STRING);
-      t2.addRef("Father", t2).setNullable(true);
+      t2.addRef("Father", t2.getName()).setNullable(true);
       t2.addUnique("First Name", "Last Name");
     }
     StopWatch.print("Created tables");
@@ -108,7 +98,7 @@ public class TestSql {
 
     db.clearCache();
     s = db.getSchema("testCreate");
-    assertEquals(11, s.getTables().size());
+    assertEquals(11, s.getTableNames().size());
     StopWatch.print("reloading complete");
 
     // insert

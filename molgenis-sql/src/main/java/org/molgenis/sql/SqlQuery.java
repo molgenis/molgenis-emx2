@@ -34,34 +34,48 @@ public class SqlQuery extends QueryBean implements Query {
   public List<Row> retrieve() throws MolgenisException {
 
     try {
+      StopWatch.print("start SqlQuery.retrieve");
+
       List<Row> result = new ArrayList<>();
 
       // create the select
 
       SelectSelectStep selectStep;
       List<Field> fields = getFields(from);
+      StopWatch.print("getFields complete");
+
       if (fields.size() > 0) selectStep = sql.select(fields);
       else selectStep = sql.select();
+      StopWatch.print("selectStep complete");
 
       // create the from
       SelectJoinStep fromStep =
           selectStep.from(
               table(name(from.getSchema().getName(), from.getName())).as(from.getName()));
 
+      StopWatch.print("fromStep complete");
+
       // create the joins
       fromStep = createJoins(from.getName(), from, fromStep);
+      StopWatch.print("createJoins complete");
 
       // create the where
       fromStep.where(createConditions(from.getName()));
+
+      StopWatch.print("createWhere complete");
 
       // create the sort
 
       // retrieve
       System.out.println(fromStep.getSQL());
+      StopWatch.print("print query complete");
+
+      StopWatch.print("begin execute retrieve");
       Result<Record> fetch = fromStep.fetch();
       for (Record r : fetch) {
         result.add(new SqlRow(r));
       }
+      StopWatch.print("execute retrieve complete");
 
       // create the from & joins
 
@@ -155,7 +169,7 @@ public class SqlQuery extends QueryBean implements Query {
         if (path.length > 2) leftAlias = name + "/" + String.join("/", leftPath);
         else leftAlias = name;
 
-        String rightTable = c.getRefTable().getName();
+        String rightTable = c.getRefTable();
         String rightAlias = name + "/" + String.join("/", rightPath);
         String rightColumn = MOLGENISID;
 
@@ -201,7 +215,8 @@ public class SqlQuery extends QueryBean implements Query {
     if (path.length == 1) {
       return c;
     } else {
-      return getColumn(c.getRefTable(), Arrays.copyOfRange(path, 1, path.length));
+      return getColumn(
+          t.getSchema().getTable(c.getRefTable()), Arrays.copyOfRange(path, 1, path.length));
     }
   }
 }

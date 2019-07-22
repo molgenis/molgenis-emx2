@@ -10,7 +10,6 @@ import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
-import org.molgenis.beans.UniqueBean;
 
 import java.util.*;
 
@@ -93,7 +92,8 @@ class SqlTable extends TableBean {
     this.isLoading = true;
 
     // check all tables for mref tables, probably expensive
-    for (Table mrefTable : getSchema().getTables()) {
+    for (String mrefTableName : getSchema().getTableNames()) {
+      Table mrefTable = getSchema().getTable(mrefTableName);
 
       // test if it is 'our' mref jTable]
       boolean valid = true;
@@ -101,7 +101,7 @@ class SqlTable extends TableBean {
       Column other = null;
       for (Column c : mrefTable.getColumns()) {
         if (c.getRefTable() != null) {
-          if (c.getRefTable().getName().equals(this.getName())) {
+          if (c.getRefTable().equals(this.getName())) {
             if (self != null) valid = false;
             else self = c;
           } else {
@@ -114,8 +114,6 @@ class SqlTable extends TableBean {
         this.addMref(other.getName(), other.getRefTable(), mrefTable.getName(), self.getName());
       }
     }
-
-    StopWatch.print("Load mrefs complete for " + this.getName());
 
     this.isLoading = false;
   }
@@ -204,7 +202,7 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public SqlColumn addRef(String name, org.molgenis.Table otherTable) throws MolgenisException {
+  public SqlColumn addRef(String name, String otherTable) throws MolgenisException {
     if (!isLoading) {
       // org.jooq.Table jOtherTable =
       // sql.meta().getSchemas(getSchema().getName()).get(0).getTable(otherTable.getName());
@@ -214,7 +212,7 @@ class SqlTable extends TableBean {
           .add(
               constraint(name(getName()) + "_" + name(name) + "_FK")
                   .foreignKey(name(name))
-                  .references(name(getSchema().getName(), otherTable.getName()), name(MOLGENISID)))
+                  .references(name(getSchema().getName(), otherTable), name(MOLGENISID)))
           .execute();
       sql.createIndex(name(getName()) + "_" + name(name) + "_FKINDEX")
           .on(getJooqTable(), field)
@@ -226,8 +224,7 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public SqlColumn addMref(
-      String name, org.molgenis.Table otherTable, String mrefTable, String mrefBack)
+  public SqlColumn addMref(String name, String otherTable, String mrefTable, String mrefBack)
       throws MolgenisException {
     if (!isLoading) {
       // check if jointable already exists from the other end of mref
@@ -237,7 +234,7 @@ class SqlTable extends TableBean {
       } catch (Exception e) {
         // otherwise create the jTable
         jTable = getSchema().createTable(mrefTable);
-        jTable.addRef(mrefBack, this); // default name of jointable itself
+        jTable.addRef(mrefBack, this.getName()); // default name of jointable itself
         jTable.addRef(name, otherTable);
       }
     }

@@ -9,7 +9,7 @@ public class ColumnBean implements Column {
   private String name;
   private Type type;
   private boolean nullable;
-  private Table refTable;
+  private String refTable;
   private String mrefTable;
   private String mrefBack;
   private boolean readonly;
@@ -43,14 +43,15 @@ public class ColumnBean implements Column {
     this.type = type;
   }
 
-  public ColumnBean(Table table, String name, Table otherTable) {
+  public ColumnBean(Table table, String name, String otherTable) {
     this.table = table;
     this.name = name;
     this.type = Type.REF;
     this.refTable = otherTable;
   }
 
-  public ColumnBean(Table table, String name, Table otherTable, String mrefTable, String mrefBack) {
+  public ColumnBean(
+      Table table, String name, String otherTable, String mrefTable, String mrefBack) {
     this.table = table;
     this.name = name;
     this.type = Type.MREF;
@@ -85,12 +86,12 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public Table getRefTable() {
+  public String getRefTable() {
     return refTable;
   }
 
   @Override
-  public Column setRefTable(Table table) {
+  public Column setRefTable(String table) {
     this.refTable = table;
     return this;
   }
@@ -114,7 +115,7 @@ public class ColumnBean implements Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
-    if (Type.REF.equals(getType())) builder.append("ref(").append(refTable.getName()).append(")");
+    if (Type.REF.equals(getType())) builder.append("ref(").append(refTable).append(")");
     else builder.append(getType().toString().toLowerCase());
     if (isNullable()) builder.append(" nullable");
     return builder.toString();

@@ -25,7 +25,7 @@ public class TestQuery {
     String PERSON = "Person";
     Table person = s.createTable(PERSON);
     person.addColumn("First Name", STRING);
-    person.addRef("Father", person).setNullable(true);
+    person.addRef("Father", PERSON).setNullable(true);
     person.addColumn("Last Name", STRING);
     person.addUnique("First Name", "Last Name");
 
@@ -42,8 +42,13 @@ public class TestQuery {
 
   @Test
   public void test1() throws MolgenisException {
+
+    StopWatch.start("test1");
+
     Database db = DatabaseFactory.getDatabase();
     Schema s = db.getSchema("TestQuery");
+
+    StopWatch.print("got schema");
 
     Query q = s.getTable("Person").query();
     q.select("First Name")
@@ -53,10 +58,26 @@ public class TestQuery {
         .include("Last Name");
     q.where("Last Name").eq("Duck").and("Father", "Last Name").eq("Duck");
 
+    StopWatch.print("created query");
+
     List<Row> rows = q.retrieve();
     for (Row r : rows) {
       System.out.println(r);
     }
+
+    StopWatch.print("query complete");
+
+    q = s.getTable("Person").query();
+    q.select("First Name")
+        .select("Last Name")
+        .expand("Father")
+        .include("Last Name")
+        .include("First Name");
+    q.where("Last Name").eq("Duck").and("Father", "Last Name").eq("Duck");
+
+    rows = q.retrieve();
+
+    StopWatch.print("second time");
   }
 
   @Test
@@ -81,7 +102,7 @@ public class TestQuery {
     Table component = s.createTable(COMPONENT);
     component.addColumn("name", STRING);
     component.addUnique("name");
-    component.addMref("parts", part, "ComponentPart", "components");
+    component.addMref("parts", PART, "ComponentPart", "components");
 
     Row component1 = new RowBean().setString("name", "explorer").setMref("parts", part1, part2);
     Row component2 = new RowBean().setString("name", "navigator").setMref("parts", part2);
@@ -92,7 +113,7 @@ public class TestQuery {
     Table product = s.createTable(PRODUCT);
     product.addColumn("name", STRING);
     product.addUnique("name");
-    product.addMref("components", component, "ProductComponent", "products");
+    product.addMref("components", COMPONENT, "ProductComponent", "products");
 
     Row product1 =
         new RowBean().setString("name", "molgenis").setMref("components", component1, component2);
@@ -156,7 +177,7 @@ public class TestQuery {
       System.out.println(r);
     }
 
-    StopWatch.print("queried again");
+    StopWatch.print("queried again, cached so for free");
 
     //      try {
     //          db.query("pietje");

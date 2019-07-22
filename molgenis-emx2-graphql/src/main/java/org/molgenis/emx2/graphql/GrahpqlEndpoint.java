@@ -19,7 +19,7 @@ public class GrahpqlEndpoint {
     GraphQLSchema.Builder schema = newSchema();
 
     GraphQLObjectType.Builder query = newObject().name("QueryOld");
-    for (String tableName : model.getTables()) {
+    for (String tableName : model.getTableNames()) {
       Table table = model.getTable(tableName);
       GraphQLObjectType.Builder type = newObject().name(table.getName());
       for (Column col : table.getColumns()) {

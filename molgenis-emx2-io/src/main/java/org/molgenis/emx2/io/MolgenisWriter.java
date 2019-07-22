@@ -3,7 +3,6 @@ package org.molgenis.emx2.io;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.molgenis.*;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 
@@ -35,7 +34,7 @@ public class MolgenisWriter {
       throws MolgenisWriterException, MolgenisException {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
-    for (String tableName : model.getTables()) {
+    for (String tableName : model.getTableNames()) {
       Table table = model.getTable(tableName);
       if (table.getExtend() != null || !table.getUniques().isEmpty()) {
         rows.add(convertTableToRow(table));

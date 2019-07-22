@@ -17,9 +17,9 @@ public interface Table extends Identifiable {
 
   Column addColumn(String name, Column.Type type) throws MolgenisException;
 
-  Column addRef(String name, Table otherTable) throws MolgenisException;
+  Column addRef(String name, String otherTable) throws MolgenisException;
 
-  Column addMref(String name, Table otherTable, String mrefTable, String mrefBack)
+  Column addMref(String name, String otherTable, String mrefTable, String mrefBack)
       throws MolgenisException;
 
   void removeColumn(String name) throws MolgenisException;

@@ -38,7 +38,8 @@ public class TestSimpleTypes {
     for (Column.Type type : types) {
       if (REF.equals(type)) {
         Column c =
-            t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t).setNullable(true);
+            t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t.getName())
+                .setNullable(true);
         // DatabaseFactory.checkColumnExists(c);
       } else {
         Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);

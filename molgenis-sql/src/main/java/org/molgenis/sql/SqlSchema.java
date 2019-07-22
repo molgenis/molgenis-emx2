@@ -23,15 +23,14 @@ public class SqlSchema extends SchemaBean {
 
   public SqlSchema(Database db, DSLContext sql, String name) throws MolgenisException {
     super(name);
+
+    StopWatch.print("reloading schema " + name);
     this.sql = sql;
     this.db = db;
 
-    StopWatch.print("reloading schema");
-
     // alas, muuuuch faster than using jooq metadata features
     Map<String, Map<String, Set<String>>> uniques = new LinkedHashMap<>();
-    for (Record record :
-        // sorting by ordinal position ensures all tables are created before xrefs are added
+    List<Record> records =
         sql.fetch(
             "SELECT t.table_name, c.column_name, c.data_type, c.is_nullable, kcu.constraint_name, ccu.table_name as ref_table "
                 + "FROM information_schema.tables t "
@@ -40,7 +39,11 @@ public class SqlSchema extends SchemaBean {
                 + "LEFT JOIN information_schema.table_constraints fkey ON kcu.constraint_name = fkey.constraint_name AND fkey.constraint_type = 'FOREIGN KEY' "
                 + "LEFT JOIN information_schema.constraint_column_usage ccu ON fkey.constraint_name = ccu.constraint_name "
                 + "WHERE t.table_schema = {0} ORDER BY c.ordinal_position, t.table_name",
-            getName())) {
+            getName());
+    // sorting by ordinal position ensures all tables are created before xrefs are added
+    StopWatch.print("retrieved schema " + name + " from sql, now start processing");
+
+    for (Record record : records) {
 
       // System.out.println(record);
 
@@ -69,13 +72,14 @@ public class SqlSchema extends SchemaBean {
       }
       if (refTableName != null) {
         Table refTable = getTable(refTableName);
-        t.loadColumn(new SqlColumn(sql, t, columnName, refTable, isNullable));
+        t.loadColumn(new SqlColumn(sql, t, columnName, refTableName, isNullable));
       } else {
         t.loadColumn(
             new SqlColumn(sql, t, columnName, getTypeFormPsqlString(dataType), isNullable));
       }
     }
-    for (Table t : getTables()) {
+    for (String tableName : getTableNames()) {
+      Table t = getTable(tableName);
       ((SqlTable) t).loadMrefs();
       if (uniques.containsKey(t.getName())) {
         for (Set<String> keys : uniques.get(t.getName()).values()) {
@@ -83,7 +87,7 @@ public class SqlSchema extends SchemaBean {
         }
       }
     }
-    StopWatch.print("reloading schema complete");
+    StopWatch.print("reloading schema " + name + " complete");
     // System.out.println(this.toString());
   }
 

@@ -19,7 +19,7 @@ public class SqlColumn extends ColumnBean {
   }
 
   /** constructor for REF */
-  public SqlColumn(DSLContext sql, Table table, String name, Table otherTable, Boolean isNullable)
+  public SqlColumn(DSLContext sql, Table table, String name, String otherTable, Boolean isNullable)
       throws MolgenisException {
     super(table, name, otherTable);
     super.setNullable(isNullable);
@@ -31,7 +31,7 @@ public class SqlColumn extends ColumnBean {
       DSLContext sql,
       Table table,
       String name,
-      Table otherTable,
+      String otherTable,
       String mrefTable,
       String mrefBack) {
     super(table, name, otherTable, mrefTable, mrefBack);

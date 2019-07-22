@@ -82,7 +82,7 @@ public class Mapper {
           if (REF.equals(col.getType())) {
             // big todo, fake table. Need singleton or lazyload before whole world is loaded in
             // one go
-            col.setRefTable(new TableBean(null, f.getType().getSimpleName()));
+            col.setRefTable(f.getType().getSimpleName());
           }
           if (ENUM.equals(col.getType())) {
             // big todo: get the enum values from the enum
