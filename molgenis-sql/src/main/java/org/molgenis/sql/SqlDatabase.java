@@ -62,9 +62,10 @@ public class SqlDatabase extends DatabaseBean implements Database {
     if (s != null) return s;
 
     // else try to load from metadata
-    List<org.jooq.Schema> schemas = sql.meta().getSchemas(name);
-    if (schemas.size() == 0) throw new MolgenisException("Schema '" + name + "' unknown");
-    return new SqlSchema(this, sql, name);
+    s = new SqlSchema(this, sql, name);
+    this.schemas.put(name, s);
+
+    return s;
   }
 
   @Override

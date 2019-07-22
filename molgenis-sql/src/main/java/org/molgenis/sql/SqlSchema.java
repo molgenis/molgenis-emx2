@@ -1,20 +1,18 @@
 package org.molgenis.sql;
 
-import org.jooq.DSLContext;
-import org.jooq.Name;
-import org.jooq.Schema;
+import org.jooq.*;
 import org.jooq.impl.SQLDataType;
+import org.molgenis.Column;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.Column.Type.*;
 import static org.molgenis.Database.Prefix.MGROLE_;
 import static org.molgenis.Database.Roles.*;
 import static org.molgenis.Row.MOLGENISID;
@@ -22,38 +20,96 @@ import static org.molgenis.Row.MOLGENISID;
 public class SqlSchema extends SchemaBean {
   private Database db;
   private DSLContext sql;
-  private org.jooq.Schema schema;
 
   public SqlSchema(Database db, DSLContext sql, String name) throws MolgenisException {
     super(name);
     this.sql = sql;
     this.db = db;
-    schema = sql.meta().getCatalog("molgenis").getSchema(getName());
-  }
 
-  @Override
-  public Collection<String> getTables() throws MolgenisException {
-    List<String> tables = new ArrayList<>();
-    for (org.jooq.Table jTable :
-        sql.meta().getCatalog("molgenis").getSchema(getName()).getTables()) {
-      tables.add(jTable.getName());
+    StopWatch.print("reloading schema");
+
+    // alas, muuuuch faster than using jooq metadata features
+    Map<String, Map<String, Set<String>>> uniques = new LinkedHashMap<>();
+    for (Record record :
+        // sorting by ordinal position ensures all tables are created before xrefs are added
+        sql.fetch(
+            "SELECT t.table_name, c.column_name, c.data_type, c.is_nullable, kcu.constraint_name, ccu.table_name as ref_table "
+                + "FROM information_schema.tables t "
+                + "NATURAL JOIN information_schema.columns c "
+                + "LEFT JOIN information_schema.key_column_usage kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name "
+                + "LEFT JOIN information_schema.table_constraints fkey ON kcu.constraint_name = fkey.constraint_name AND fkey.constraint_type = 'FOREIGN KEY' "
+                + "LEFT JOIN information_schema.constraint_column_usage ccu ON fkey.constraint_name = ccu.constraint_name "
+                + "WHERE t.table_schema = {0} ORDER BY c.ordinal_position, t.table_name",
+            getName())) {
+
+      // System.out.println(record);
+
+      String tableName = record.get("table_name", String.class);
+      String columnName = record.get("column_name", String.class);
+      String dataType = record.get("data_type", String.class);
+      String refTableName = record.get("ref_table", String.class);
+      String constraintName = record.get("constraint_name", String.class);
+      boolean isNullable = record.get("is_nullable", String.class).equals("YES") ? true : false;
+
+      // get unique metadata
+      if (constraintName != null
+          && (constraintName.endsWith("UNIQUE") || constraintName.startsWith("PK"))) {
+        uniques.putIfAbsent(tableName, new LinkedHashMap<>());
+        uniques.get(tableName).putIfAbsent(constraintName, new HashSet<>());
+        uniques.get(tableName).get(constraintName).add(columnName);
+      }
+
+      // get table and column
+      SqlTable t;
+      try {
+        t = (SqlTable) getTable(tableName);
+      } catch (Exception e) {
+        t = new SqlTable(this, sql, tableName);
+        this.loadTable(t);
+      }
+      if (refTableName != null) {
+        Table refTable = getTable(refTableName);
+        t.loadColumn(new SqlColumn(sql, t, columnName, refTable, isNullable));
+      } else {
+        t.loadColumn(
+            new SqlColumn(sql, t, columnName, getTypeFormPsqlString(dataType), isNullable));
+      }
     }
-    return tables;
+    for (Table t : getTables()) {
+      ((SqlTable) t).loadMrefs();
+      if (uniques.containsKey(t.getName())) {
+        for (Set<String> keys : uniques.get(t.getName()).values()) {
+          ((SqlTable) t).loadUnique(new ArrayList<>(keys));
+        }
+      }
+    }
+    StopWatch.print("reloading schema complete");
+    // System.out.println(this.toString());
   }
 
-  @Override
-  public Table getTable(String name) throws MolgenisException {
-    Table t = super.getTable(name);
-    if (t != null) return t;
-    // else
-    SqlTable result = new SqlTable(this, sql, name);
-    org.jooq.Table jTable = sql.meta().getCatalog("molgenis").getSchema(getName()).getTable(name);
-    if (jTable == null) throw new MolgenisException(String.format("Table '%s' unknown", name));
-    super.addTable(result);
-    result.loadColumns(jTable);
-    result.loadUniques(jTable);
-    result.loadMrefs(jTable);
-    return result;
+  private Column.Type getTypeFormPsqlString(String dataType) {
+    switch (dataType) {
+      case "character varying":
+        return STRING;
+      case "uuid":
+        return UUID;
+      case "bool":
+        return BOOL;
+      case "integer":
+        return INT;
+      case "decimal":
+        return DECIMAL;
+      case "text":
+        return TEXT;
+      case "date":
+        return DATE;
+      case "datatime":
+        return DATETIME;
+      case "enum":
+        return ENUM;
+      default:
+        throw new RuntimeException("data type unknown " + dataType);
+    }
   }
 
   @Override
@@ -73,7 +129,7 @@ public class SqlSchema extends SchemaBean {
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
         tableName, name(MGROLE_ + getName().toUpperCase() + _EDITOR));
     SqlTable t = new SqlTable(this, sql, name);
-    super.addTable(t);
+    super.loadTable(t);
     return t;
   }
 

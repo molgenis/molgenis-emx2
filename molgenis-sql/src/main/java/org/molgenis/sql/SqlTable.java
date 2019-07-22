@@ -7,8 +7,10 @@ import org.molgenis.*;
 import org.molgenis.Query;
 import org.molgenis.Row;
 import org.molgenis.Schema;
+import org.molgenis.Table;
 import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
+import org.molgenis.beans.UniqueBean;
 
 import java.util.*;
 
@@ -27,7 +29,6 @@ class SqlTable extends TableBean {
   SqlTable(Schema schema, DSLContext sql, String name) throws MolgenisException {
     super(schema, name);
     this.sql = sql;
-
     // load default columns and uniques
     isLoading = true;
     this.addColumn(MOLGENISID, Column.Type.UUID);
@@ -35,54 +36,64 @@ class SqlTable extends TableBean {
     isLoading = false;
   }
 
-  protected void loadColumns(org.jooq.Table jTable) throws MolgenisException {
-    isLoading = true;
-
-    // get all foreign keys
-    Map<String, org.molgenis.Table> refs = new LinkedHashMap<>();
-    for (Object ref : jTable.getReferences()) {
-      ForeignKey fk = (ForeignKey) ref;
-      for (Field field : (List<Field>) fk.getFields()) {
-        String refTableName = fk.getKey().getTable().getName();
-        refs.put(field.getName(), getSchema().getTable(refTableName));
-      }
-    }
-
-    // get all fields, using references in ref fields
-    for (Field field : jTable.fields()) {
-      String name = field.getName();
-      org.molgenis.Table ref = refs.get(name);
-      if (ref != null) addRef(name, refs.get(field.getName()));
-      else addColumn(name, SqlTypeUtils.getSqlType(field));
-    }
-    // TODO: null constraints
-    // TODO: settings that are not in schema
-    isLoading = false;
-  }
-
-  protected void loadUniques(org.jooq.Table jTable) throws MolgenisException {
-    isLoading = true;
-
-    for (Index i : (List<Index>) jTable.getIndexes()) {
-      if (i.getUnique()) {
-        List<String> cols = new ArrayList<>();
-        for (SortField sf : i.getFields()) {
-          cols.add(sf.getName());
-        }
-        addUnique(cols.toArray(new String[cols.size()]));
-      }
-    }
-    isLoading = false;
-  }
-
+  //  protected void loadColumns(org.jooq.Table jTable) throws MolgenisException {
+  //    isLoading = true;
+  //
+  //    StopWatch.print("Load columns started for " + jTable.getName());
+  //
+  //    // get all foreign keys
+  //    Map<String, org.molgenis.Table> refs = new LinkedHashMap<>();
+  //    for (Object ref : jTable.getReferences()) {
+  //      ForeignKey fk = (ForeignKey) ref;
+  //      for (Field field : (List<Field>) fk.getFields()) {
+  //        String refTableName = fk.getKey().getTable().getName();
+  //        refs.put(field.getName(), getSchema().getTable(refTableName));
+  //      }
+  //    }
+  //
+  //    StopWatch.print("Got foreign keys " + jTable.getName());
+  //
+  //    // get all fields, using references in ref fields
+  //    for (Field field : jTable.fields()) {
+  //
+  //      String name = field.getName();
+  //      org.molgenis.Table ref = refs.get(name);
+  //      if (ref != null) addRef(name, refs.get(field.getName()));
+  //      else addColumn(name, SqlTypeUtils.getSqlType(field));
+  //    }
+  //    // TODO: null constraints
+  //    // TODO: settings that are not in schema
+  //
+  //    StopWatch.print("Got fields " + jTable.getName());
+  //
+  //    isLoading = false;
+  //  }
+  //
+  //  protected void loadUniques(org.jooq.Table jTable) throws MolgenisException {
+  //    isLoading = true;
+  //
+  //    StopWatch.print("Load uniques started for " + jTable.getName());
+  //
+  //    for (UniqueKey i : (List<UniqueKey>) jTable.getKeys()) {
+  //      List<String> cols = new ArrayList<>();
+  //      for (Field sf : (List<Field>) i.getFields()) {
+  //        cols.add(sf.getName());
+  //      }
+  //      addUnique(cols.toArray(new String[cols.size()]));
+  //    }
+  //
+  //    StopWatch.print("Load uniques complete for " + jTable.getName());
+  //
+  //    isLoading = false;
+  //  }
+  //
   /** will be called from SqlSchema */
-  protected void loadMrefs(org.jooq.Table jTable) throws MolgenisException {
+  protected void loadMrefs() throws MolgenisException {
 
     this.isLoading = true;
 
     // check all tables for mref tables, probably expensive
-    for (String mrefTableName : getSchema().getTables()) {
-      org.molgenis.Table mrefTable = getSchema().getTable(mrefTableName);
+    for (Table mrefTable : getSchema().getTables()) {
 
       // test if it is 'our' mref jTable]
       boolean valid = true;
@@ -103,6 +114,9 @@ class SqlTable extends TableBean {
         this.addMref(other.getName(), other.getRefTable(), mrefTable.getName(), self.getName());
       }
     }
+
+    StopWatch.print("Load mrefs complete for " + this.getName());
+
     this.isLoading = false;
   }
 
@@ -155,8 +169,12 @@ class SqlTable extends TableBean {
 
   }
 
-  protected void addColumn(SqlColumn c) {
+  protected void loadColumn(SqlColumn c) {
     this.columns.put(c.getName(), c);
+  }
+
+  protected void loadUnique(List<String> columns) throws MolgenisException {
+    super.addUnique(columns.toArray(new String[columns.size()]));
   }
 
   @Override
@@ -180,7 +198,7 @@ class SqlTable extends TableBean {
       Field field = field(name(name), jooqType.nullable(false));
       sql.alterTable(getJooqTable()).addColumn(field).execute();
     }
-    SqlColumn c = new SqlColumn(sql, this, name, type);
+    SqlColumn c = new SqlColumn(sql, this, name, type, false);
     columns.put(name, c);
     return c;
   }
@@ -202,7 +220,7 @@ class SqlTable extends TableBean {
           .on(getJooqTable(), field)
           .execute();
     }
-    SqlColumn c = new SqlColumn(sql, this, name, otherTable);
+    SqlColumn c = new SqlColumn(sql, this, name, otherTable, false);
     columns.put(name, c);
     return c;
   }

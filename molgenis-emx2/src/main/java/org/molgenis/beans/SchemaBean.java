@@ -19,7 +19,7 @@ public class SchemaBean implements Schema {
   }
 
   /** for subclass to add table privately */
-  public void addTable(Table t) {
+  public void loadTable(Table t) {
     tables.put(t.getName(), t);
   }
 
@@ -33,8 +33,8 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public Collection<String> getTables() throws MolgenisException {
-    return Collections.unmodifiableCollection(tables.keySet());
+  public Collection<Table> getTables() throws MolgenisException {
+    return Collections.unmodifiableCollection(tables.values());
   }
 
   @Override
@@ -46,7 +46,8 @@ public class SchemaBean implements Schema {
 
   @Override
   public Table getTable(String name) throws MolgenisException {
-    return tables.get(name);
+    if (tables.containsKey(name)) return tables.get(name);
+    throw new MolgenisException(String.format("Table '%s' unknown", name));
   }
 
   @Override

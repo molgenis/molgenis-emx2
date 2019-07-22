@@ -13,7 +13,7 @@ public interface Table extends Identifiable {
 
   Collection<Column> getColumns();
 
-  Column getColumn(String name);
+  Column getColumn(String name) throws MolgenisException;
 
   Column addColumn(String name, Column.Type type) throws MolgenisException;
 

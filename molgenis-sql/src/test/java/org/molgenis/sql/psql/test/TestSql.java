@@ -87,8 +87,8 @@ public class TestSql {
     String PERSON = "Person";
     Table t = s.createTable(PERSON);
     t.addColumn("First Name", STRING).setNullable(false); // default nullable=false but for testing
-    t.addRef("Father", t).setNullable(true);
     t.addColumn("Last Name", STRING);
+    t.addRef("Father", t).setNullable(true);
     t.addUnique("First Name", "Last Name");
 
     // create a fromTable
@@ -97,16 +97,16 @@ public class TestSql {
       Table t2 = s.createTable(PERSON + i);
       t2.addColumn("First Name", STRING)
           .setNullable(false); // default nullable=false but for testing
-      t2.addRef("Father", t2).setNullable(true);
       t2.addColumn("Last Name", STRING);
+      t2.addRef("Father", t2).setNullable(true);
       t2.addUnique("First Name", "Last Name");
     }
     StopWatch.print("Created tables");
 
     // reinitialise database to see if it can recreate from background
     StopWatch.print("reloading database from disk");
-    db.clearCache();
 
+    db.clearCache();
     s = db.getSchema("testCreate");
     assertEquals(11, s.getTables().size());
     StopWatch.print("reloading complete");
@@ -118,6 +118,7 @@ public class TestSql {
     for (int i = 0; i < count; i++) {
       rows.add(new RowBean().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
+    System.out.println("Metadata" + t2);
     t2.insert(rows);
 
     StopWatch.print("insert", count);
@@ -131,7 +132,6 @@ public class TestSql {
     StopWatch.print("Delete", count);
 
     assertEquals(0, s.getTable("Person").retrieve().size());
-
     assertEquals(2, t.getUniques().size());
     try {
       t.removeUnique(MOLGENISID);
@@ -155,7 +155,7 @@ public class TestSql {
     // drop a fromTable
     db.getSchema("testCreate").dropTable(t.getName());
     try {
-      db.getSchema("testCreate").getTable("Person");
+      db.getSchema("testCreate").getTable(t.getName());
       fail("should have been dropped");
     } catch (Exception e) { // expected
     }
@@ -163,7 +163,7 @@ public class TestSql {
     // make sure nothing was left behind in backend
     db.clearCache();
     try {
-      assertEquals(null, db.getSchema("testCreate").getTable("Person"));
+      assertEquals(null, db.getSchema("testCreate").getTable(t.getName()));
       fail("should have been dropped");
     } catch (Exception e) { // expected
     }

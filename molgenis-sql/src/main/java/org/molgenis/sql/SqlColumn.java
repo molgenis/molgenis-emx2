@@ -11,14 +11,18 @@ public class SqlColumn extends ColumnBean {
   private DSLContext sql;
 
   /** constructor for primitive types */
-  public SqlColumn(DSLContext sql, Table table, String name, Type type) {
+  public SqlColumn(DSLContext sql, Table table, String name, Type type, Boolean isNullable)
+      throws MolgenisException {
     super(table, name, type);
+    super.setNullable(isNullable);
     this.sql = sql;
   }
 
   /** constructor for REF */
-  public SqlColumn(DSLContext sql, Table table, String name, Table otherTable) {
+  public SqlColumn(DSLContext sql, Table table, String name, Table otherTable, Boolean isNullable)
+      throws MolgenisException {
     super(table, name, otherTable);
+    super.setNullable(isNullable);
     this.sql = sql;
   }
 

@@ -32,7 +32,8 @@ public class TestTransaction {
           t.insert(new RowBean().setString("ColA", "test"));
           t.insert(new RowBean().setString("ColA", "test2"));
         });
-    assertEquals(2, schema.getTable("testCommit").retrieve().size());
+    db.clearCache();
+    assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieve().size());
   }
 
   @Test(expected = MolgenisException.class)

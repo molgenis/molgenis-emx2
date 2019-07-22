@@ -35,8 +35,9 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
-  public Column getColumn(String name) {
-    return columns.get(name);
+  public Column getColumn(String name) throws MolgenisException {
+    if (columns.containsKey(name)) return columns.get(name);
+    throw new MolgenisException(String.format("Column '%s' unknown", name));
   }
 
   @Override
