@@ -35,10 +35,31 @@ public class MolgenisMetadataFileReader {
 
   public static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
+    // TODO: first get all tables in place, so xrefs will work
+    loadTablesFirst(rows, schema, messages);
     convertRowsToColumns(rows, schema, messages);
     convertRowsToTables(rows, schema, messages);
     if (messages.size() > 0) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
+    }
+  }
+
+  private static void loadTablesFirst(
+      List<MolgenisFileRow> rows, Schema schema, List<MolgenisExceptionMessage> messages)
+      throws MolgenisException {
+    for (MolgenisFileRow row : rows) {
+      String tableName = row.getTable();
+
+      if (tableName != null) {
+        tableName = tableName.trim();
+
+        try {
+          schema.getTable(tableName);
+
+        } catch (Exception e) {
+          schema.createTable(tableName);
+        }
+      }
     }
   }
 

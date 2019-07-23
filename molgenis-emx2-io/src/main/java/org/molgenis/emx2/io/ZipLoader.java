@@ -8,12 +8,12 @@ import java.io.IOException;
 
 public class ZipLoader {
 
-  public static void load(Schema s, File file) throws IOException, MolgenisException {
+  public static void load(Schema schema, File file) throws IOException, MolgenisException {
 
     // get metadata from ZIP or DIRECTORY
     if (file.isDirectory()) {
       File molgenisFile = new File(file, "molgenis.csv");
-      MolgenisMetadataFileReader.load(s, molgenisFile);
+      MolgenisMetadataFileReader.load(schema, molgenisFile);
     }
 
     // get the molgenis.csv file with the data model, and load that first

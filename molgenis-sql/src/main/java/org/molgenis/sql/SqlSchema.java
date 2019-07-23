@@ -5,7 +5,6 @@ import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
-import org.molgenis.utils.StopWatch;
 
 import java.util.*;
 
@@ -22,8 +21,6 @@ public class SqlSchema extends SchemaBean {
 
   public SqlSchema(Database db, DSLContext sql, String name) throws MolgenisException {
     super(name);
-
-    StopWatch.print("reloading schema " + name);
     this.sql = sql;
     this.db = db;
 
@@ -40,8 +37,6 @@ public class SqlSchema extends SchemaBean {
                 + "WHERE t.table_schema = {0} ORDER BY c.ordinal_position, t.table_name",
             getName());
     // sorting by ordinal position ensures all tables are created before xrefs are added
-    StopWatch.print("retrieved schema " + name + " from sql, now start processing");
-
     for (Record record : records) {
 
       // System.out.println(record);
@@ -86,8 +81,6 @@ public class SqlSchema extends SchemaBean {
         }
       }
     }
-    StopWatch.print("reloading schema " + name + " complete");
-    // System.out.println(this.toString());
   }
 
   private Column.Type getTypeFormPsqlString(String dataType) {

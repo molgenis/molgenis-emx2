@@ -153,16 +153,14 @@ class SqlTable extends TableBean {
   @Override
   public SqlColumn addRef(String name, String otherTable) throws MolgenisException {
     if (!isLoading) {
-      // org.jooq.Table jOtherTable =
-      // sql.meta().getSchemas(getSchema().getName()).get(0).getTable(otherTable.getName());
+      org.jooq.Table table = getJooqTable();
       Field field = field(name(name), SQLDataType.UUID.nullable(false));
-      sql.alterTable(getJooqTable()).addColumn(field).execute();
-      sql.alterTable(getJooqTable())
-          .add(
-              constraint(name(getName()) + "_" + name(name) + "_FK")
-                  .foreignKey(name(name))
-                  .references(name(getSchema().getName(), otherTable), name(MOLGENISID)))
-          .execute();
+      Name fkeyName = name(getName() + "_" + name + "_FK");
+      Name other = name(getSchema().getName(), otherTable);
+      // sql.alterTable(table).addColumn(field).execute();
+      sql.execute(
+          "ALTER TABLE {0} ADD COLUMN {1} UUID CONSTRAINT {2} REFERENCES {3} DEFERRABLE INITIALLY DEFERRED",
+          table, field, fkeyName, other);
       sql.createIndex(name(getName()) + "_" + name(name) + "_FKINDEX")
           .on(getJooqTable(), field)
           .execute();
