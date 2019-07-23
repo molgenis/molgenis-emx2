@@ -131,7 +131,7 @@ public class MolgenisMetadataFileReader {
           Column.Type type = getType(terms);
           Column column = table.addColumn(columnName, type);
           for (EmxDefinitionTerm t : terms) {
-            if (REF.equals(t)) column.setRefTable(t.getParameterValue());
+            if (EmxDefinitionTerm.REF.equals(t)) column.setRefTable(t.getParameterValue());
           }
           applyDefinitionsToColumn(line, terms, column);
         }
