@@ -1,6 +1,11 @@
 package org.molgenis;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class MolgenisException extends Exception {
+  private final List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
   public MolgenisException(Exception e) {
     super(e);
@@ -12,5 +17,20 @@ public class MolgenisException extends Exception {
 
   public MolgenisException(String message, Exception e) {
     super(message, e);
+  }
+
+  public MolgenisException(String message, List<MolgenisExceptionMessage> messages) {
+    super(message + "\nSee getMessages() for list of error messages");
+    this.messages.addAll(messages);
+  }
+
+  public List<MolgenisExceptionMessage> getMessages() {
+    return Collections.unmodifiableList(this.messages);
+  }
+
+  public void printMessages() {
+    for (MolgenisExceptionMessage m : messages) {
+      System.out.println(m);
+    }
   }
 }

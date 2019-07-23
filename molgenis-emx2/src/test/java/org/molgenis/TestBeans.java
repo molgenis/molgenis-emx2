@@ -1,15 +1,17 @@
 package org.molgenis;
 
 import org.junit.Test;
+import org.molgenis.beans.RowBean;
 import org.molgenis.beans.SchemaBean;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.molgenis.Column.Type.*;
 
 public class TestBeans {
@@ -48,6 +50,87 @@ public class TestBeans {
       // this is expected
     }
     assertEquals(0, m.getTableNames().size());
+  }
+
+  @Test
+  public void testTypes() {
+    Row r = new RowBean();
+
+    // int
+    r.setString("test", "1");
+    assertEquals(1, (int) r.getInt("test"));
+    assertNull(r.getInt("testnull"));
+    try {
+      r.setString("test", "a");
+      assertEquals(1, (int) r.getInt("test"));
+      fail("shouldn't be able to get 'a' to int ");
+    } catch (Exception e) {
+    }
+
+    // decimal
+    r.setString("test", "1.0");
+    assertEquals(1.0, (double) r.getDecimal("test"));
+    assertNull(r.getDecimal("testnull"));
+    try {
+      r.setString("test", "a");
+      r.getDecimal("test");
+      fail("shouldn't be able to get 'a' to decimal ");
+    } catch (Exception e) {
+    }
+
+    // bool
+    r.setString("test", "true");
+    assertTrue(r.getBool("test"));
+    assertNull(r.getBool("testnull"));
+    try {
+      r.setString("test", "a");
+      r.getBool("test");
+      fail("shouldn't be able to get 'a' to boolean ");
+    } catch (Exception e) {
+    }
+
+    // uuid
+    java.util.UUID uuid = java.util.UUID.randomUUID();
+    r.setString("test", uuid.toString());
+    assertEquals(uuid, r.getUuid("test"));
+    assertNull(r.getUuid("testnull"));
+    try {
+      r.setString("test", "a");
+      r.getUuid("test");
+      fail("shouldn't be able to get 'a' to uuid ");
+    } catch (Exception e) {
+    }
+
+    // date
+    String dateString = "2012-10-03";
+    r.setString("test", dateString);
+    LocalDate date = LocalDate.parse(dateString);
+    assertEquals(date, r.getDate("test"));
+    assertNull(r.getDate("testnull"));
+    try {
+      r.setString("test", "a");
+      r.getDate("test");
+      fail("shouldn't be able to get 'a' to date ");
+    } catch (Exception e) {
+    }
+
+    // datetime
+    String dateTimeString = "2012-10-03T18:00";
+    r.setString("test", dateTimeString);
+    LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
+    assertEquals(dateTime, r.getDateTime("test"));
+    assertNull(r.getDate("testnull"));
+    try {
+      r.setString("test", "a");
+      r.getDateTime("test");
+      fail("shouldn't be able to get 'a' to datetime ");
+    } catch (Exception e) {
+    }
+
+    // string if not a string
+    r.setInt("test", 1);
+    assertEquals("1", r.getString("test"));
+    assertNull(r.getString("testnull"));
   }
 
   private void addContents(Schema m, List<Column.Type> types) throws MolgenisException {

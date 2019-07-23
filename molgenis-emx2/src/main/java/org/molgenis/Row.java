@@ -1,6 +1,7 @@
 package org.molgenis;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +30,7 @@ public interface Row extends Identifiable {
 
   LocalDate getDate(String name);
 
-  OffsetDateTime getDateTime(String name);
+  LocalDateTime getDateTime(String name);
 
   UUID getRef(String name);
 
@@ -53,7 +54,7 @@ public interface Row extends Identifiable {
 
   Row setDate(String columnId, LocalDate value);
 
-  Row setDateTime(String columnId, OffsetDateTime value);
+  Row setDateTime(String columnId, LocalDateTime value);
 
   Row setText(String columnId, String value);
 

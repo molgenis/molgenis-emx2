@@ -7,11 +7,11 @@ public interface Schema {
 
   Table createTable(String name) throws MolgenisException;
 
+  Table getTable(String name) throws MolgenisException;
+
   void dropTable(String tableId);
 
   Collection<String> getTableNames() throws MolgenisException;
-
-  Table getTable(String name) throws MolgenisException;
 
   void grantAdmin(String user);
 

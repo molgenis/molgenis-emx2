@@ -4,6 +4,7 @@ import com.fasterxml.uuid.Generators;
 import org.molgenis.Row;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -17,7 +18,7 @@ public class RowBean implements Row {
     this(Generators.timeBasedGenerator().generate());
   }
 
-  public RowBean(Map<String, Object> values) {
+  public RowBean(Map<String, ?> values) {
     this.values.putAll(values);
   }
 
@@ -37,60 +38,107 @@ public class RowBean implements Row {
   }
 
   @Override
-  public UUID getUuid(String columnId) {
-    return (UUID) this.values.get(columnId);
-  }
-
-  @Override
-  public String getEnum(String name) {
-    return (String) values.get(name);
-  }
-
-  @Override
-  public String getString(String name) {
-    return (String) values.get(name);
-  }
-
-  @Override
-  public Integer getInt(String name) {
-    return (Integer) values.get(name);
-  }
-
-  @Override
-  public Boolean getBool(String name) {
-    return (Boolean) values.get(name);
-  }
-
-  @Override
-  public Double getDecimal(String name) {
-    return (Double) values.get(name);
-  }
-
-  @Override
-  public String getText(String name) {
-    return (String) values.get(name);
-  }
-
-  @Override
-  public LocalDate getDate(String name) {
-    if (values.get(name) == null) return null;
-    if (values.get(name) instanceof Date) {
-      return LocalDate.parse(values.get(name).toString());
-    } else if (values.get(name) instanceof OffsetDateTime) {
-      return ((OffsetDateTime) values.get(name)).toLocalDate();
-    } else {
-      return (LocalDate) values.get(name);
+  public UUID getUuid(String name) {
+    Object v = values.get(name);
+    try {
+      if (v instanceof String) return UUID.fromString((String) v);
+      return (UUID) v;
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Row.getUuid(\"" + name + "\") failed: value is '" + v + "'");
     }
   }
 
   @Override
-  public OffsetDateTime getDateTime(String name) {
-    return (OffsetDateTime) values.get(name);
+  public String getEnum(String name) {
+    return getString(name);
+  }
+
+  @Override
+  public String getString(String name) {
+    Object v = values.get(name);
+    if (v == null) return null;
+    if (v instanceof String) return (String) v;
+    return v.toString();
+  }
+
+  @Override
+  public Integer getInt(String name) {
+    Object v = values.get(name);
+    try {
+      if (v instanceof String) return Integer.parseInt((String) v);
+      return (Integer) v;
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Row.getInt(\"" + name + "\") failed: value is '" + v + "'");
+    }
+  }
+
+  @Override
+  public Boolean getBool(String name) {
+    Object v = values.get(name);
+    try {
+      if (v instanceof String) {
+        if ("true".equalsIgnoreCase((String) v)) return true;
+        if ("false".equalsIgnoreCase((String) v)) return false;
+      }
+      return (Boolean) v;
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Row.getBool(\"" + name + "\") failed: value is '" + v + "'");
+    }
+  }
+
+  @Override
+  public Double getDecimal(String name) {
+    Object v = values.get(name);
+    try {
+      if (v instanceof String) return Double.parseDouble((String) v);
+      return (Double) v;
+    } catch (Exception e) {
+      throw new NumberFormatException(
+          "Row.getDecimal(\"" + name + "\") failed: value is '" + v + "'");
+    }
+  }
+
+  @Override
+  public String getText(String name) {
+    return getString(name);
+  }
+
+  @Override
+  public LocalDate getDate(String name) {
+    Object v = values.get(name);
+    try {
+      if (v == null) return null;
+      if (v instanceof LocalDate) return (LocalDate) v;
+      if (v instanceof OffsetDateTime) {
+        return ((OffsetDateTime) v).toLocalDate();
+      } else {
+
+        return LocalDate.parse(v.toString());
+      }
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Row.getDate(\"" + name + "\") failed: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public LocalDateTime getDateTime(String name) {
+    try {
+      Object v = values.get(name);
+      if (v == null) return null;
+      if (v instanceof LocalDateTime) return (LocalDateTime) v;
+      return LocalDateTime.parse(v.toString());
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Row.getDateTime(\"" + name + "\") failed: " + e.getMessage());
+    }
   }
 
   @Override
   public UUID getRef(String name) {
-    return (UUID) values.get(name);
+    return getUuid(name);
   }
 
   @Override
@@ -165,7 +213,7 @@ public class RowBean implements Row {
   }
 
   @Override
-  public Row setDateTime(String columnId, OffsetDateTime value) {
+  public Row setDateTime(String columnId, LocalDateTime value) {
     values.put(columnId, value);
     return this;
   }

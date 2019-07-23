@@ -7,8 +7,7 @@ import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
-import org.molgenis.emx2.io.MolgenisReaderException;
-import org.molgenis.emx2.io.MolgenisReaderMessage;
+import org.molgenis.MolgenisExceptionMessage;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -21,21 +20,19 @@ import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
 
-  public Schema readModelFromCsv(File f)
-      throws MolgenisReaderException, FileNotFoundException, MolgenisException {
+  public Schema readModelFromCsv(File f) throws FileNotFoundException, MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
 
-  public Schema readModelFromCsv(Reader in) throws MolgenisReaderException, MolgenisException {
+  public Schema readModelFromCsv(Reader in) throws MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(in));
   }
 
-  public Schema convertAttributesToModel(List<AttributesFileRow> rows)
-      throws MolgenisReaderException, MolgenisException {
+  public Schema convertAttributesToModel(List<AttributesFileRow> rows) throws MolgenisException {
     Schema model = new SchemaBean("test");
 
     int lineNumber = 0;
-    List<MolgenisReaderMessage> messages = new ArrayList<>();
+    List<MolgenisExceptionMessage> messages = new ArrayList<>();
     Map<Integer, String> refEntities = new LinkedHashMap<>();
     Map<Integer, Column> refColumns = new LinkedHashMap<>();
     for (AttributesFileRow row : rows) {
@@ -47,18 +44,19 @@ public class AttributesFileReader {
       Table table = model.getTable(ref.getValue());
       if (table == null)
         messages.add(
-            new MolgenisReaderMessage(
+            new MolgenisExceptionMessage(
                 ref.getKey(), "refEntity '" + ref.getValue() + "' is not known"));
       else refColumns.get(ref.getKey()).setRefTable(table.getName());
     }
-    if (!messages.isEmpty()) throw new MolgenisReaderException(messages);
+    if (!messages.isEmpty())
+      throw new MolgenisException("Attributes file reading failed", messages);
     return model;
   }
 
   private void convertAttributeLine(
       Schema model,
       int lineNumber,
-      List<MolgenisReaderMessage> messages,
+      List<MolgenisExceptionMessage> messages,
       Map<Integer, String> refEntities,
       Map<Integer, Column> refColumns,
       AttributesFileRow row)
@@ -70,7 +68,7 @@ public class AttributesFileReader {
     // check if attribute exists
     if (table.getColumn(row.getName()) != null) {
       messages.add(
-          new MolgenisReaderMessage(
+          new MolgenisExceptionMessage(
               lineNumber, "attribute " + row.getName() + " is defined twice"));
     } else {
       Column.Type type = getEmxType(lineNumber, messages, row);
@@ -92,20 +90,19 @@ public class AttributesFileReader {
   }
 
   private Column.Type getEmxType(
-      int lineNumber, List<MolgenisReaderMessage> messages, AttributesFileRow row) {
+      int lineNumber, List<MolgenisExceptionMessage> messages, AttributesFileRow row) {
     Column.Type type = STRING;
     if (row.getDataType() != null) {
       try {
         type = convertAttributeTypeToEmxType(row.getDataType());
       } catch (Exception e) {
-        messages.add(new MolgenisReaderMessage(lineNumber, e.getMessage()));
+        messages.add(new MolgenisExceptionMessage(lineNumber, e.getMessage()));
       }
     }
     return type;
   }
 
-  private Column.Type convertAttributeTypeToEmxType(String dataType)
-      throws MolgenisReaderException {
+  private Column.Type convertAttributeTypeToEmxType(String dataType) throws MolgenisException {
     try {
       AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
       switch (oldType) {
@@ -134,7 +131,7 @@ public class AttributesFileReader {
           //        case CATEGORICAL_MREF:
           //          return CHECKBOX;
         case COMPOUND:
-          throw new MolgenisReaderException("new format doesn't support 'compound' data type");
+          throw new MolgenisException("new format doesn't support 'compound' data type");
           //        case FILE:
           //          return FILE;
           //        case EMAIL:
@@ -146,18 +143,16 @@ public class AttributesFileReader {
           //        case HTML:
           //          return HTML;
         case ONE_TO_MANY:
-          throw new MolgenisReaderException(
-              "new format doesn't yet support 'ONE_TO_MANY' data type");
+          throw new MolgenisException("new format doesn't yet support 'ONE_TO_MANY' data type");
         default:
-          throw new MolgenisReaderException(
-              "new format doesn't yet support " + oldType + " data type");
+          throw new MolgenisException("new format doesn't yet support " + oldType + " data type");
       }
     } catch (IllegalArgumentException e) {
-      throw new MolgenisReaderException("attributes type '" + dataType + "' not known");
+      throw new MolgenisException("attributes type '" + dataType + "' not known");
     }
   }
 
-  public List<AttributesFileRow> readRowsFromCsv(Reader in) throws MolgenisReaderException {
+  public List<AttributesFileRow> readRowsFromCsv(Reader in) throws MolgenisException {
     try {
       Iterable<CSVRecord> records =
           CSVFormat.DEFAULT
@@ -194,7 +189,7 @@ public class AttributesFileReader {
       }
       return rows;
     } catch (IOException e) {
-      throw new MolgenisReaderException(e.getMessage());
+      throw new MolgenisException(e.getMessage());
     }
   }
 
@@ -217,11 +212,11 @@ public class AttributesFileReader {
     return "TRUE".equalsIgnoreCase(value);
   }
 
-  public List<AttributesFileRow> readRowsFromCsv(File f) throws MolgenisReaderException {
+  public List<AttributesFileRow> readRowsFromCsv(File f) throws MolgenisException {
     try {
       return readRowsFromCsv(new FileReader(f));
     } catch (IOException e) {
-      throw new MolgenisReaderException(e);
+      throw new MolgenisException(e);
     }
   }
 }

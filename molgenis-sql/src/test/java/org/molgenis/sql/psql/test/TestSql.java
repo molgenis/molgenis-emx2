@@ -1,11 +1,10 @@
 package org.molgenis.sql.psql.test;
 
-import javafx.scene.paint.Stop;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.beans.RowBean;
-import org.molgenis.sql.*;
+import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

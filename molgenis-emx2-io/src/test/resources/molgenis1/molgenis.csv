@@ -1,0 +1,4 @@
+table,column,definition
+subject,name
+sample,name,
+sample,subject,ref(subject.name)

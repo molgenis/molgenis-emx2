@@ -2,11 +2,10 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.Column;
-import org.molgenis.Database;
-import org.molgenis.MolgenisException;
+import org.molgenis.*;
 import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
+import org.molgenis.utils.StopWatch;
 
 import java.util.*;
 

@@ -13,32 +13,36 @@ public enum EmxDefinitionTerm {
   // for column types
   STRING(false),
   INT(false),
-  LONG(false),
-  SELECT(true),
-  RADIO(true),
   BOOL(false),
   DECIMAL(false),
   TEXT(false),
   DATE(false),
   DATETIME(false),
-  MSELECT(true),
-  CHECKBOX(true),
+  REF(true),
+  MREF(true),
   UUID(false),
-  HYPERLINK(false),
-  EMAIL(false),
-  HTML(false),
-  FILE(false),
-  ENUM(true),
-  // for column settings
   NILLABLE(false),
-  DEFAULT(true),
   READONLY(false),
-  VISIBLE(true),
-  VALIDATION(true),
+  DEFAULT(true);
+  // MSELECT(true),
+  // CHECKBOX(true),
+  // LONG(false),
+  // SELECT(true),
+  // RADIO(true),
+  // HYPERLINK(false),
+  // EMAIL(false),
+  // HTML(false),
+  // FILE(false),
+  // ENUM(true),
+  // for column settings
+  // DEFAULT(true),
+  // READONLY(false),
+  // VISIBLE(true),
+  // VALIDATION(true),
   // for tables
-  ABSTRACT(false),
-  LABEL(true),
-  EXTENDS(true);
+  // ABSTRACT(false),
+  // LABEL(true),
+  // EXTENDS(true);
 
   // TODO: FILE, CASCADE, OM, CHECK
   private boolean hasParameter;

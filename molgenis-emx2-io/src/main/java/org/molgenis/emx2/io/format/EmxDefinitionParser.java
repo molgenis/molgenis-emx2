@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.format;
 
-import org.molgenis.emx2.io.MolgenisReaderMessage;
+import org.molgenis.MolgenisExceptionMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +12,9 @@ public class EmxDefinitionParser {
       Pattern.compile("([a-z]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
 
   public List<EmxDefinitionTerm> parse(
-      Integer line, List<MolgenisReaderMessage> messages, String definition) {
+      Integer line, List<MolgenisExceptionMessage> messages, String definition) {
     List<EmxDefinitionTerm> tags = new ArrayList<>();
+    if (definition == null) return tags;
 
     Matcher matcher = pattern.matcher(definition);
     while (matcher.find()) {
@@ -24,20 +25,22 @@ public class EmxDefinitionParser {
         String parameter = matcher.group(3);
         if (tag.hasParameter()) {
           if (parameter == null) {
-            messages.add(new MolgenisReaderMessage(line, messagePrefix + "' expects parameter"));
+            // silently accept? messages.add(new MolgenisExceptionMessage(line, messagePrefix + "'
+            // expects parameter"));
           } else {
             tag.setParameterValue(parameter);
           }
         } else {
           if (parameter != null) {
             messages.add(
-                new MolgenisReaderMessage(line, messagePrefix + " does not expect parameter"));
+                new MolgenisExceptionMessage(line, messagePrefix + " does not expect parameter"));
           }
         }
 
         tags.add(tag);
       } catch (IllegalArgumentException e) {
-        messages.add(new MolgenisReaderMessage(line, "tag '" + matcher.group(1) + "' is unknown"));
+        messages.add(
+            new MolgenisExceptionMessage(line, "tag '" + matcher.group(1) + "' is unknown"));
       }
     }
     return tags;

@@ -7,7 +7,7 @@ import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.beans.RowBean;
-import org.molgenis.sql.StopWatch;
+import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 

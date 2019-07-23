@@ -1,12 +1,9 @@
-package org.molgenis.emx.reader.test;
+package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
-import org.molgenis.emx2.io.MolgenisReaderException;
-import org.molgenis.emx2.io.MolgenisReaderMessage;
-import org.molgenis.emx2.io.MolgenisWriter;
-import org.molgenis.emx2.io.MolgenisWriterException;
+import org.molgenis.MolgenisExceptionMessage;
 import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
 import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 
@@ -18,7 +15,7 @@ import java.io.StringWriter;
 public class TestLegacyReader {
 
   @Test
-  public void test() throws MolgenisWriterException {
+  public void test() throws MolgenisException {
     try {
       for (AttributesFileRow row :
           new AttributesFileReader().readRowsFromCsv(getFile("attributes_typetest.csv"))) {
@@ -33,18 +30,16 @@ public class TestLegacyReader {
           new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
 
       StringWriter writer = new StringWriter();
-      new MolgenisWriter().writeCsv(model, writer);
+      new MolgenisMetadataFileWriter().writeCsv(model, writer);
       System.out.println(writer);
 
-    } catch (MolgenisReaderException e) {
-      for (MolgenisReaderMessage m : e.getMessages()) {
+    } catch (MolgenisException e) {
+      for (MolgenisExceptionMessage m : e.getMessages()) {
         System.out.println(m);
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     } catch (IOException e) {
-      e.printStackTrace();
-    } catch (MolgenisException e) {
       e.printStackTrace();
     }
   }

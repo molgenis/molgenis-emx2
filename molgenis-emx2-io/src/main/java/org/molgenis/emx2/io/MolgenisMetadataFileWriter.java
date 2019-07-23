@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
 
-public class MolgenisWriter {
+public class MolgenisMetadataFileWriter {
 
-  public void writeCsv(Schema model, Writer writer)
-      throws IOException, MolgenisWriterException, MolgenisException {
+  public static void writeCsv(Schema model, Writer writer) throws IOException, MolgenisException {
     CSVPrinter csvPrinter =
         new CSVPrinter(
             writer, CSVFormat.DEFAULT.withHeader("table", "column", "definition", "description"));
@@ -30,8 +29,8 @@ public class MolgenisWriter {
     csvPrinter.close();
   }
 
-  public List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
-      throws MolgenisWriterException, MolgenisException {
+  public static List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
+      throws MolgenisException {
     List<MolgenisFileRow> rows = new ArrayList<>();
 
     for (String tableName : model.getTableNames()) {
@@ -49,13 +48,13 @@ public class MolgenisWriter {
     return rows;
   }
 
-  private MolgenisFileRow convertColumnToRow(Table table, Column column)
-      throws MolgenisWriterException {
+  private static MolgenisFileRow convertColumnToRow(Table table, Column column)
+      throws MolgenisException {
     return new MolgenisFileRow(
         table.getName(), column.getName(), getDefinitionString(column), column.getDescription());
   }
 
-  private String getDefinitionString(Column col) throws MolgenisWriterException {
+  private static String getDefinitionString(Column col) throws MolgenisException {
     List<EmxDefinitionTerm> def = new ArrayList<>();
 
     if (!Column.Type.STRING.equals(col.getType())) {
@@ -64,8 +63,6 @@ public class MolgenisWriter {
         case STRING:
           break;
         case INT:
-          break;
-        case LONG:
           break;
         case BOOL:
           break;
@@ -77,37 +74,18 @@ public class MolgenisWriter {
           break;
         case DATETIME:
           break;
-        case SELECT:
-        case MSELECT:
-        case RADIO:
-        case CHECKBOX:
-          break;
         case NILLABLE:
-          break;
-        case DEFAULT:
           break;
         case UNIQUE:
           break;
-        case READONLY:
-          break;
-        case VISIBLE:
-          break;
-        case VALIDATION:
-          break;
         case UUID:
           break;
-        case HYPERLINK:
+        case REF:
           break;
-        case EMAIL:
-          break;
-        case HTML:
-          break;
-        case FILE:
-          break;
-        case ENUM:
+        case MREF:
           break;
         default:
-          throw new MolgenisWriterException("unknown type, this is a coding error!");
+          throw new MolgenisException("unknown type " + d + " this is a coding error!");
       }
 
       def.add(d);
@@ -115,33 +93,32 @@ public class MolgenisWriter {
     if (col.isNullable()) def.add(NILLABLE);
     if (col.isReadonly()) def.add(READONLY);
     if (col.getDefaultValue() != null) def.add(DEFAULT.setParameterValue(col.getDefaultValue()));
-    if (col.getValidation() != null)
-      def.add(VALIDATION.setParameterValue(escapeScript(col.getValidation())));
+    // if (col.getValidation() != null)
+    //  def.add(VALIDATION.setParameterValue(escapeScript(col.getValidation())));
     if (col.isUnique()) def.add(UNIQUE.setParameterValue(null));
-    if (col.getVisible() != null)
-      def.add(VISIBLE.setParameterValue(escapeScript(col.getVisible())));
+    // if (col.getVisible() != null)
+    //  def.add(VISIBLE.setParameterValue(escapeScript(col.getVisible())));
 
     return join(def, " ");
   }
 
-  private String escapeScript(String value) {
+  private static String escapeScript(String value) {
     return value.replace("(", "\\(").replace(")", "\\)");
   }
 
-  private String escapeRef(String value) {
+  private static String escapeRef(String value) {
     return value.replace(".", "\\.").replace("(", "\\(").replace(")", "\\)");
   }
 
-  private MolgenisFileRow convertTableToRow(Table table) {
+  private static MolgenisFileRow convertTableToRow(Table table) {
     List<EmxDefinitionTerm> def = new ArrayList<>();
     for (Unique u : table.getUniques()) {
       def.add(UNIQUE.setParameterList(u.getColumnNames()));
     }
-
     return new MolgenisFileRow(table.getName(), "", join(def, " "));
   }
 
-  private String join(Collection collection, String delimiter) {
+  private static String join(Collection collection, String delimiter) {
     return (String)
         collection.stream().map(Object::toString).collect(Collectors.joining(delimiter));
   }

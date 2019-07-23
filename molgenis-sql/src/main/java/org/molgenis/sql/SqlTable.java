@@ -35,57 +35,6 @@ class SqlTable extends TableBean {
     isLoading = false;
   }
 
-  //  protected void loadColumns(org.jooq.Table jTable) throws MolgenisException {
-  //    isLoading = true;
-  //
-  //    StopWatch.print("Load columns started for " + jTable.getName());
-  //
-  //    // get all foreign keys
-  //    Map<String, org.molgenis.Table> refs = new LinkedHashMap<>();
-  //    for (Object ref : jTable.getReferences()) {
-  //      ForeignKey fk = (ForeignKey) ref;
-  //      for (Field field : (List<Field>) fk.getFields()) {
-  //        String refTableName = fk.getKey().getTable().getName();
-  //        refs.put(field.getName(), getSchema().getTable(refTableName));
-  //      }
-  //    }
-  //
-  //    StopWatch.print("Got foreign keys " + jTable.getName());
-  //
-  //    // get all fields, using references in ref fields
-  //    for (Field field : jTable.fields()) {
-  //
-  //      String name = field.getName();
-  //      org.molgenis.Table ref = refs.get(name);
-  //      if (ref != null) addRef(name, refs.get(field.getName()));
-  //      else addColumn(name, SqlTypeUtils.getSqlType(field));
-  //    }
-  //    // TODO: null constraints
-  //    // TODO: settings that are not in schema
-  //
-  //    StopWatch.print("Got fields " + jTable.getName());
-  //
-  //    isLoading = false;
-  //  }
-  //
-  //  protected void loadUniques(org.jooq.Table jTable) throws MolgenisException {
-  //    isLoading = true;
-  //
-  //    StopWatch.print("Load uniques started for " + jTable.getName());
-  //
-  //    for (UniqueKey i : (List<UniqueKey>) jTable.getKeys()) {
-  //      List<String> cols = new ArrayList<>();
-  //      for (Field sf : (List<Field>) i.getFields()) {
-  //        cols.add(sf.getName());
-  //      }
-  //      addUnique(cols.toArray(new String[cols.size()]));
-  //    }
-  //
-  //    StopWatch.print("Load uniques complete for " + jTable.getName());
-  //
-  //    isLoading = false;
-  //  }
-  //
   /** will be called from SqlSchema */
   protected void loadMrefs() throws MolgenisException {
 

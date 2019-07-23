@@ -1,12 +1,12 @@
-package org.molgenis.emx2.io;
+package org.molgenis;
 
 import java.io.Serializable;
 
-public class MolgenisReaderMessage implements Serializable {
+public class MolgenisExceptionMessage implements Serializable {
   private Integer lineNumber;
   private String message;
 
-  public MolgenisReaderMessage(Integer lineNumber, String message) {
+  public MolgenisExceptionMessage(Integer lineNumber, String message) {
     this.lineNumber = lineNumber;
     this.message = message;
   }

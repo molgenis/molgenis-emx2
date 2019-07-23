@@ -1,4 +1,4 @@
-package org.molgenis.sql;
+package org.molgenis.utils;
 
 public class StopWatch {
 
@@ -19,7 +19,15 @@ public class StopWatch {
     long endTime = System.currentTimeMillis();
     long total = (endTime - time);
     if (total == 0) total = 1;
-    System.out.println(total + "ms: " + message + " (" + 1000 * count / total + " per second)");
+    System.out.println(
+        total
+            + "ms: "
+            + message
+            + " (count="
+            + count
+            + " with "
+            + 1000 * count / total
+            + " per second)");
     time = System.currentTimeMillis();
   }
 }

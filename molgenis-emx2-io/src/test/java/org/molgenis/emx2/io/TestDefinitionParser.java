@@ -1,7 +1,7 @@
-package org.molgenis.emx.reader.test;
+package org.molgenis.emx2.io;
 
 import org.junit.Test;
-import org.molgenis.emx2.io.MolgenisReaderMessage;
+import org.molgenis.MolgenisExceptionMessage;
 import org.molgenis.emx2.io.format.EmxDefinitionParser;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 
@@ -26,12 +26,12 @@ public class TestDefinitionParser {
     int line = 1;
     for (String t : tests) {
       System.out.println("testing definition string: '" + t + "'");
-      List<MolgenisReaderMessage> messages = new ArrayList<>();
+      List<MolgenisExceptionMessage> messages = new ArrayList<>();
       for (EmxDefinitionTerm tag : new EmxDefinitionParser().parse(line++, messages, t)) {
         System.out.println(tag);
       }
       System.out.println("messages:");
-      for (MolgenisReaderMessage message : messages) {
+      for (MolgenisExceptionMessage message : messages) {
         System.out.println(message);
       }
       System.out.println("\n");

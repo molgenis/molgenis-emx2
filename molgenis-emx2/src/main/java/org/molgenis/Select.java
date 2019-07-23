@@ -1,6 +1,7 @@
 package org.molgenis;
 
 public interface Select {
+
   Select include(String column);
 
   Select avg(String column);
