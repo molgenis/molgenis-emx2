@@ -8,8 +8,7 @@ import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
@@ -65,7 +64,7 @@ public class TestSimpleTypes {
     row.setDecimal("Test_decimal", 1.1);
     row.setText("Test_text", "testtext");
     row.setDate("Test_date", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test_datetime", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
+    row.setDateTime("Test_datetime", LocalDateTime.of(2018, 12, 13, 12, 40));
     t2.insert(row);
 
     // check not null expects exception
@@ -79,8 +78,7 @@ public class TestSimpleTypes {
     row.setDecimal("Test_decimal_nillable", 1.1);
     row.setText("Test_text_nillable", "testtext");
     row.setDate("Test_date_nillable", LocalDate.of(2018, 12, 13));
-    row.setDateTime(
-        "Test_datetime_nillable", OffsetDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneOffset.UTC));
+    row.setDateTime("Test_datetime_nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
     try {
       t2.insert(row);
       fail(); // should not reach this one
@@ -95,7 +93,7 @@ public class TestSimpleTypes {
     for (Row res : result) {
       res.setMolgenisid(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
-      assert (res.getDateTime("Test_datetime") instanceof OffsetDateTime);
+      assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);
       assert (res.getString("Test_string") instanceof String);
       assert (res.getInt("Test_int") instanceof Integer);
       assert (res.getDecimal("Test_decimal") instanceof Double);

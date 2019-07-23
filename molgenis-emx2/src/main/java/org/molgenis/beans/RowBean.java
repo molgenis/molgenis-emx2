@@ -1,6 +1,7 @@
 package org.molgenis.beans;
 
 import com.fasterxml.uuid.Generators;
+import com.sun.scenario.effect.Offset;
 import org.molgenis.Row;
 
 import java.time.LocalDate;
@@ -125,10 +126,11 @@ public class RowBean implements Row {
 
   @Override
   public LocalDateTime getDateTime(String name) {
+    Object v = values.get(name);
     try {
-      Object v = values.get(name);
       if (v == null) return null;
       if (v instanceof LocalDateTime) return (LocalDateTime) v;
+      if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
       return LocalDateTime.parse(v.toString());
     } catch (Exception e) {
       throw new IllegalArgumentException(
