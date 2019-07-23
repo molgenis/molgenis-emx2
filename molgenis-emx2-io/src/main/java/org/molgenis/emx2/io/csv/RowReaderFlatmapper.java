@@ -23,6 +23,7 @@ public class RowReaderFlatmapper {
   public static Iterable<Row> read(Reader in) throws IOException {
 
     Iterator<Map> iterator = CsvParser.mapTo(Map.class).iterator(in);
+
     return new Iterable<Row>() {
       // ... some reference to data
       public Iterator<Row> iterator() {

@@ -130,9 +130,6 @@ public class MolgenisMetadataFileReader {
               new EmxDefinitionParser().parse(line, messages, row.getDefinition());
           Column.Type type = getType(terms);
           Column column = table.addColumn(columnName, type);
-          for (EmxDefinitionTerm t : terms) {
-            if (EmxDefinitionTerm.REF.equals(t)) column.setRefTable(t.getParameterValue());
-          }
           applyDefinitionsToColumn(line, terms, column);
         }
       }
@@ -153,6 +150,8 @@ public class MolgenisMetadataFileReader {
         case DATETIME:
         case UUID:
         case REF:
+          column.setRefTable(term.getParameterValue());
+          break;
         case MREF:
           break;
         case NILLABLE:
