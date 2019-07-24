@@ -7,8 +7,12 @@ import org.molgenis.*;
 import org.molgenis.Schema;
 import org.molgenis.Transaction;
 import org.molgenis.beans.DatabaseBean;
+import org.postgresql.util.PSQLException;
 
 import javax.sql.DataSource;
+
+import java.sql.SQLException;
+import java.util.Iterator;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.Database.Prefix.MGROLE_;
@@ -119,6 +123,15 @@ public class SqlDatabase extends DatabaseBean implements Database {
       throw new MolgenisException(e);
     } finally {
       sql.execute("RESET SESSION AUTHORIZATION");
+    }
+  }
+
+  @Override
+  public void setDeferChecks(boolean shouldDefer) {
+    if (shouldDefer) {
+      sql.execute("SET CONSTRAINTS ALL DEFERRED");
+    } else {
+      sql.execute("SET CONSTRAINTS ALL IMMEDIATE");
     }
   }
 }

@@ -159,7 +159,7 @@ class SqlTable extends TableBean {
       Name other = name(getSchema().getName(), otherTable);
       // sql.alterTable(table).addColumn(field).execute();
       sql.execute(
-          "ALTER TABLE {0} ADD COLUMN {1} UUID CONSTRAINT {2} REFERENCES {3} DEFERRABLE INITIALLY DEFERRED",
+          "ALTER TABLE {0} ADD COLUMN {1} UUID CONSTRAINT {2} REFERENCES {3} DEFERRABLE INITIALLY IMMEDIATE",
           table, field, fkeyName, other);
       sql.createIndex(name(getName()) + "_" + name(name) + "_FKINDEX")
           .on(getJooqTable(), field)

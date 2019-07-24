@@ -3,6 +3,8 @@ package org.molgenis;
 import java.util.Collection;
 
 public interface Database {
+  void setDeferChecks(boolean shouldDefer);
+
   enum RowLevelSecurity {
     MG_EDIT_ROLE
   }
