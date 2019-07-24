@@ -3,10 +3,9 @@ import com.jsoniter.any.Any;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Query;
-import org.molgenis.Row;
 import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 import org.molgenis.beans.TableBean;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class TestJson {
 
     String json = "{\"FirstName\":\"Donald\", \"Age\":50, \"Weight\":15.4}";
     Any any = JsonIterator.deserialize(json);
-    Row r = jsonToRow(t, any);
+    org.molgenis.Row r = jsonToRow(t, any);
 
     try {
       String malformed = "{\"FirstName\":\"Donald\", \"Age\":\"blaat\"}";
@@ -63,12 +62,12 @@ public class TestJson {
 
   @Test
   public void testRowsToJson() {
-    List<Row> rows = new ArrayList<>();
-    rows.add(new RowBean().setString("FirstName", "Donald"));
+    List<org.molgenis.Row> rows = new ArrayList<>();
+    rows.add(new Row().setString("FirstName", "Donald"));
 
     String json = rowsToJson(rows);
     System.out.println(json);
-    List<Row> rows2 = jsonToRows(json);
+    List<org.molgenis.Row> rows2 = jsonToRows(json);
     String json2 = rowsToJson(rows2);
     System.out.println(json2);
 

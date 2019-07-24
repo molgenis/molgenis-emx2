@@ -6,27 +6,27 @@ import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.TypeLiteral;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 
 import java.util.*;
 
 public class JsonRowMapper {
 
-  public static List<Row> jsonToRows(String json) {
-    ArrayList<Row> rows = new ArrayList<>();
+  public static List<org.molgenis.Row> jsonToRows(String json) {
+    ArrayList<org.molgenis.Row> rows = new ArrayList<>();
 
     List<Map<String, Object>> data =
         JsonIterator.deserialize(json, new TypeLiteral<ArrayList<Map<String, Object>>>() {});
 
     for (Map<String, Object> values : data) {
-      rows.add(new RowBean(values));
+      rows.add(new Row(values));
     }
 
     return rows;
   }
 
-  public static Row jsonToRow(Table t, Any json) throws MolgenisException {
-    Row r = new RowBean();
+  public static org.molgenis.Row jsonToRow(Table t, Any json) throws MolgenisException {
+    org.molgenis.Row r = new Row();
     for (Column c : t.getColumns()) {
       try {
         switch (c.getType()) {
@@ -57,10 +57,10 @@ public class JsonRowMapper {
     return r;
   }
 
-  public static String rowsToJson(List<Row> rows) {
+  public static String rowsToJson(List<org.molgenis.Row> rows) {
     Map<String, Object>[] values = new Map[rows.size()];
     int i = 0;
-    for (Row r : rows) {
+    for (org.molgenis.Row r : rows) {
       Map<String, Object> map = r.getValueMap();
       for (String name : map.keySet()) {
         if (map.get(name) instanceof UUID) map.put(name, ((UUID) map.get(name)).toString());

@@ -1,12 +1,10 @@
 package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.beans.RowBean;
 import org.molgenis.beans.SchemaBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,7 +52,7 @@ public class TestBeans {
 
   @Test
   public void testTypes() {
-    Row r = new RowBean();
+    org.molgenis.Row r = new Row();
 
     // int
     r.setString("test", "1");

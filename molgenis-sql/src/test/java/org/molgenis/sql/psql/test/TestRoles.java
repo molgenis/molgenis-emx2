@@ -6,7 +6,7 @@ import org.molgenis.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -173,10 +173,8 @@ public class TestRoles {
           db.getSchema("TestRLS")
               .getTable("TestRLS")
               .insert(
-                  new RowBean()
-                      .setString("col1", "Hello World")
-                      .setRowEditRole("testrls_has_rls_view"),
-                  new RowBean()
+                  new Row().setString("col1", "Hello World").setRowEditRole("testrls_has_rls_view"),
+                  new Row()
                       .setString("col1", "Hello World2")
                       .setRowEditRole("testrlsnopermission"));
         });

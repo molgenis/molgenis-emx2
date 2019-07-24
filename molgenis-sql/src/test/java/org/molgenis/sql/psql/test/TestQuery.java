@@ -3,7 +3,7 @@ package org.molgenis.sql.psql.test;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -29,9 +29,10 @@ public class TestQuery {
     person.addColumn("Last Name", STRING);
     person.addUnique("First Name", "Last Name");
 
-    Row father = new RowBean().setString("First Name", "Donald").setString("Last Name", "Duck");
-    Row child =
-        new RowBean()
+    org.molgenis.Row father =
+        new Row().setString("First Name", "Donald").setString("Last Name", "Duck");
+    org.molgenis.Row child =
+        new Row()
             .setString("First Name", "Kwik")
             .setString("Last Name", "Duck")
             .setRef("Father", father);
@@ -60,8 +61,8 @@ public class TestQuery {
 
     StopWatch.print("created query");
 
-    List<Row> rows = q.retrieve();
-    for (Row r : rows) {
+    List<org.molgenis.Row> rows = q.retrieve();
+    for (org.molgenis.Row r : rows) {
       System.out.println(r);
     }
 
@@ -93,8 +94,8 @@ public class TestQuery {
     part.addColumn("weight", INT);
     part.addUnique("name");
 
-    Row part1 = new RowBean().setString("name", "forms").setInt("weight", 100);
-    Row part2 = new RowBean().setString("name", "login").setInt("weight", 50);
+    org.molgenis.Row part1 = new Row().setString("name", "forms").setInt("weight", 100);
+    org.molgenis.Row part2 = new Row().setString("name", "login").setInt("weight", 50);
     part.insert(part1);
     part.insert(part2);
 
@@ -104,8 +105,9 @@ public class TestQuery {
     component.addUnique("name");
     component.addMref("parts", PART, "ComponentPart", "components");
 
-    Row component1 = new RowBean().setString("name", "explorer").setMref("parts", part1, part2);
-    Row component2 = new RowBean().setString("name", "navigator").setMref("parts", part2);
+    org.molgenis.Row component1 =
+        new Row().setString("name", "explorer").setMref("parts", part1, part2);
+    org.molgenis.Row component2 = new Row().setString("name", "navigator").setMref("parts", part2);
     component.insert(component1);
     component.insert(component2);
 
@@ -115,8 +117,8 @@ public class TestQuery {
     product.addUnique("name");
     product.addMref("components", COMPONENT, "ProductComponent", "products");
 
-    Row product1 =
-        new RowBean().setString("name", "molgenis").setMref("components", component1, component2);
+    org.molgenis.Row product1 =
+        new Row().setString("name", "molgenis").setMref("components", component1, component2);
 
     product.insert(product1);
 
@@ -147,9 +149,9 @@ public class TestQuery {
         .include("name");
     // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
 
-    List<Row> rows = q.retrieve();
+    List<org.molgenis.Row> rows = q.retrieve();
     assertEquals(rows.size(), 3);
-    for (Row r : rows) {
+    for (org.molgenis.Row r : rows) {
       System.out.println(r);
     }
 
@@ -171,9 +173,9 @@ public class TestQuery {
 
     StopWatch.print("created query (needed to get metadata from disk)");
 
-    List<Row> rows2 = q2.retrieve();
+    List<org.molgenis.Row> rows2 = q2.retrieve();
     assertEquals(rows2.size(), 3);
-    for (Row r : rows2) {
+    for (org.molgenis.Row r : rows2) {
       System.out.println(r);
     }
 

@@ -3,7 +3,6 @@ package org.molgenis.sql.psql.test;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -55,7 +54,7 @@ public class TestSimpleTypes {
     StopWatch.print("created TypeTest table");
 
     // check nullable ok
-    Row row = new RowBean();
+    org.molgenis.Row row = new Row();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
     row.setEnum("Test_enum", "test");
@@ -68,7 +67,7 @@ public class TestSimpleTypes {
     t2.insert(row);
 
     // check not null expects exception
-    row = new RowBean();
+    row = new Row();
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
     row.setEnum("Test_enum_nillable", "test");
@@ -89,8 +88,8 @@ public class TestSimpleTypes {
     StopWatch.print("inserted rows");
 
     // check queryOld and test getters
-    List<Row> result = s.getTable("TypeTest").retrieve();
-    for (Row res : result) {
+    List<org.molgenis.Row> result = s.getTable("TypeTest").retrieve();
+    for (org.molgenis.Row res : result) {
       res.setMolgenisid(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);

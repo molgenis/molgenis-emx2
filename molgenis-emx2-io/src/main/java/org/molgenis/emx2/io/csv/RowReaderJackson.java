@@ -8,7 +8,7 @@
 // import com.univocity.parsers.csv.CsvParser;
 // import com.univocity.parsers.csv.CsvParserSettings;
 // import org.molgenis.Row;
-// import org.molgenis.beans.RowBean;
+// import org.molgenis.beans.Row;
 //
 // import java.io.*;
 // import java.util.Iterator;
@@ -44,7 +44,7 @@
 //          }
 //
 //          public Row next() {
-//            return new RowBean(it.next());
+//            return new Row(it.next());
 //          }
 //
 //          public void remove() {

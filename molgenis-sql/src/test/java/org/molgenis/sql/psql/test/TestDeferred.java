@@ -1,9 +1,8 @@
 package org.molgenis.sql.psql.test;
 
-import javafx.scene.paint.Stop;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 import org.molgenis.utils.StopWatch;
 
 import java.util.UUID;
@@ -41,8 +40,8 @@ public class TestDeferred {
 
           StopWatch.print("schema created");
 
-          Row sub1 = new RowBean();
-          Row sam1 = new RowBean().setUuid("subject", sub1.getMolgenisid());
+          org.molgenis.Row sub1 = new Row();
+          org.molgenis.Row sam1 = new Row().setUuid("subject", sub1.getMolgenisid());
 
           sample.insert(sam1);
           subject.insert(sub1);
@@ -64,8 +63,8 @@ public class TestDeferred {
       Table sample = s.createTable("Sample");
       sample.addRef("subject", "Subject");
 
-      Row sub1 = new RowBean();
-      Row sam1 = new RowBean().setUuid("subject", sub1.getMolgenisid());
+      org.molgenis.Row sub1 = new Row();
+      org.molgenis.Row sam1 = new Row().setUuid("subject", sub1.getMolgenisid());
 
       sample.insert(sam1);
       subject.insert(sub1);
@@ -91,9 +90,9 @@ public class TestDeferred {
 
             StopWatch.print("schema created");
 
-            Row sub1 = new RowBean();
-            Row sam1 = new RowBean().setUuid("subject", UUID.randomUUID());
-            Row sam2 = new RowBean().setUuid("subject", UUID.randomUUID());
+            org.molgenis.Row sub1 = new Row();
+            org.molgenis.Row sam1 = new Row().setUuid("subject", UUID.randomUUID());
+            org.molgenis.Row sam2 = new Row().setUuid("subject", UUID.randomUUID());
 
             sample.insert(sam1, sam2);
             subject.insert(sub1);

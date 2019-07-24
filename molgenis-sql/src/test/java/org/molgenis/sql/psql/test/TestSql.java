@@ -3,7 +3,6 @@ package org.molgenis.sql.psql.test;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -12,7 +11,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
-import static org.molgenis.sql.SqlRow.MOLGENISID;
+import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Column.Type.*;
 
 public class TestSql {
@@ -36,9 +35,9 @@ public class TestSql {
     int size = 1000;
     StopWatch.print("Schema created");
 
-    List<Row> rows = new ArrayList<>();
+    List<org.molgenis.Row> rows = new ArrayList<>();
     for (int i = 0; i < size; i++) {
-      Row r = new RowBean();
+      org.molgenis.Row r = new Row();
       r.setString("test", "test" + i);
       r.setInt("testint", i);
       rows.add(r);
@@ -57,7 +56,7 @@ public class TestSql {
 
     StopWatch.print("Inserted third batch", 100);
 
-    for (Row r : rows) {
+    for (org.molgenis.Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }
     test_batch.update(rows);
@@ -102,10 +101,10 @@ public class TestSql {
 
     // insert
     Table t2 = s.getTable(PERSON);
-    List<Row> rows = new ArrayList<>();
+    List<org.molgenis.Row> rows = new ArrayList<>();
     int count = 1000;
     for (int i = 0; i < count; i++) {
-      rows.add(new RowBean().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
+      rows.add(new Row().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
     System.out.println("Metadata" + t2);
     t2.insert(rows);

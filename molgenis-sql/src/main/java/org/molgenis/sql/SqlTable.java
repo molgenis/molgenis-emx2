@@ -8,7 +8,6 @@ import org.molgenis.Query;
 import org.molgenis.Row;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
 
 import java.util.*;
@@ -18,7 +17,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.Column.Type.MREF;
 import static org.molgenis.Column.Type.STRING;
 import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
-import static org.molgenis.sql.SqlRow.MOLGENISID;
+import static org.molgenis.Row.MOLGENISID;
 
 class SqlTable extends TableBean {
   public static final String MG_SEARCH_VECTOR = "mg_search_vector";
@@ -392,7 +391,7 @@ class SqlTable extends TableBean {
     for (org.molgenis.Row r : rows) {
       for (UUID uuid : r.getMref(colName)) {
         org.molgenis.Row join =
-            new RowBean().setRef(colName, uuid).setRef(otherColname, r.getMolgenisid());
+            new Row().setRef(colName, uuid).setRef(otherColname, r.getMolgenisid());
         newMrefs.add(join);
       }
     }
@@ -405,7 +404,7 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public List<Row> retrieve() throws MolgenisException {
+  public List<org.molgenis.Row> retrieve() throws MolgenisException {
     return this.query().retrieve();
   }
 

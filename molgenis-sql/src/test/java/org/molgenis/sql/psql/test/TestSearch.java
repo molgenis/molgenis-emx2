@@ -3,7 +3,7 @@ package org.molgenis.sql.psql.test;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 
 import java.sql.SQLException;
 
@@ -29,16 +29,16 @@ public class TestSearch {
     t.enableSearch();
 
     t.insert(
-        new RowBean()
+        new Row()
             .setString("sub", "test subject")
             .setString("body", "test body")
             .setInt("year", 1976),
-        new RowBean()
+        new Row()
             .setString("sub", "another subject")
             .setString("body", "another body")
             .setInt("year", 1977),
-        new RowBean().setString("sub", "hgvs").setString("body", "c.19239T>G").setInt("year", 1977),
-        new RowBean()
+        new Row().setString("sub", "hgvs").setString("body", "c.19239T>G").setInt("year", 1977),
+        new Row()
             .setString("sub", "some disease")
             .setString("body", "neoplasm cancer")
             .setInt("year", 1977));

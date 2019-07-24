@@ -3,7 +3,7 @@
 // import org.apache.commons.csv.CSVFormat;
 // import org.apache.commons.csv.CSVRecord;
 // import org.molgenis.Row;
-// import org.molgenis.beans.RowBean;
+// import org.molgenis.beans.Row;
 //
 // import java.io.*;
 // import java.util.Iterator;
@@ -41,7 +41,7 @@
 //          }
 //
 //          public Row next() {
-//            return new RowBean(it.next().toMap());
+//            return new Row(it.next().toMap());
 //          }
 //
 //          public void remove() {

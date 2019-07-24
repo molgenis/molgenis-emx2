@@ -3,7 +3,7 @@ package org.molgenis.sql.psql.test;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.RowBean;
+import org.molgenis.Row;
 
 import java.sql.SQLException;
 
@@ -29,8 +29,8 @@ public class TestTransaction {
           Table t = s.createTable("testCommit");
           t.addColumn("ColA", STRING);
           t.addUnique("ColA");
-          t.insert(new RowBean().setString("ColA", "test"));
-          t.insert(new RowBean().setString("ColA", "test2"));
+          t.insert(new Row().setString("ColA", "test"));
+          t.insert(new Row().setString("ColA", "test2"));
         });
     db.clearCache();
     assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieve().size());
@@ -45,7 +45,7 @@ public class TestTransaction {
           t.addColumn("ColA", STRING);
           t.addUnique("ColA");
 
-          Row r = new RowBean().setString("ColA", "test");
+          org.molgenis.Row r = new Row().setString("ColA", "test");
           t.insert(r);
           t.insert(r);
         });

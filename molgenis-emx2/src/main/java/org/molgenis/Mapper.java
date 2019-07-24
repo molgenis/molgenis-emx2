@@ -1,13 +1,9 @@
 package org.molgenis;
 
 import org.molgenis.annotations.ColumnMetadata;
-import org.molgenis.beans.RowBean;
 import org.molgenis.beans.TableBean;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,8 +14,8 @@ import static org.molgenis.Column.Type.*;
 
 public class Mapper {
 
-  public static Row[] map(Object... beans) throws MolgenisException {
-    ArrayList<Row> rows = new ArrayList<>();
+  public static org.molgenis.Row[] map(Object... beans) throws MolgenisException {
+    ArrayList<org.molgenis.Row> rows = new ArrayList<>();
     try {
       for (Object b : beans) {
         Class c = b.getClass();
@@ -32,15 +28,15 @@ public class Mapper {
           }
         }
 
-        rows.add(new RowBean(values));
+        rows.add(new Row(values));
       }
     } catch (Exception e) {
       throw new MolgenisException(e);
     }
-    return rows.toArray(new Row[rows.size()]);
+    return rows.toArray(new org.molgenis.Row[rows.size()]);
   }
 
-  public static <E> E map(Class<E> klazz, Row row) throws MolgenisException {
+  public static <E> E map(Class<E> klazz, org.molgenis.Row row) throws MolgenisException {
     try {
       E e = klazz.newInstance();
       Map<String, Object> values = row.getValueMap();
