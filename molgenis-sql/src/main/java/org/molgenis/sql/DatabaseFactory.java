@@ -1,4 +1,4 @@
-package org.molgenis.sql.psql.test;
+package org.molgenis.sql;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -8,7 +8,6 @@ import org.jooq.impl.DSL;
 import org.molgenis.Column;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
-import org.molgenis.sql.SqlDatabase;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;

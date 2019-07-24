@@ -1,4 +1,4 @@
-package org.molgenis.sql.psql.test;
+package org.molgenis.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -7,6 +7,7 @@ import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.Row;
+import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;

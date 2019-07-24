@@ -1,9 +1,10 @@
-package org.molgenis.sql.psql.test;
+package org.molgenis.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
+import org.molgenis.sql.DatabaseFactory;
 
 import java.sql.SQLException;
 

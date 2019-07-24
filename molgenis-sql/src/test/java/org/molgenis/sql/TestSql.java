@@ -1,8 +1,9 @@
-package org.molgenis.sql.psql.test;
+package org.molgenis.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;

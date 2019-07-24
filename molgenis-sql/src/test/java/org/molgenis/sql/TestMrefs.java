@@ -1,4 +1,4 @@
-package org.molgenis.sql.psql.test;
+package org.molgenis.sql;
 
 public class TestMrefs {
 
