@@ -9,6 +9,7 @@ import org.molgenis.utils.StopWatch;
 import java.util.UUID;
 
 import static junit.framework.TestCase.fail;
+import static org.molgenis.Row.MOLGENISID;
 
 public class TestDeferred {
 

@@ -19,9 +19,15 @@ public class SqlColumn extends ColumnBean {
   }
 
   /** constructor for REF */
-  public SqlColumn(DSLContext sql, Table table, String name, String otherTable, Boolean isNullable)
+  public SqlColumn(
+      DSLContext sql,
+      Table table,
+      String name,
+      String otherTable,
+      String otherColumn,
+      Boolean isNullable)
       throws MolgenisException {
-    super(table, name, otherTable);
+    super(table, name, otherTable, otherColumn);
     super.setNullable(isNullable);
     this.sql = sql;
   }

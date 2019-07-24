@@ -23,9 +23,15 @@ public interface Column {
 
   // TODO private String visible;
 
+  Column setRef(String table, String column);
+
   String getRefTable();
 
   Column setRefTable(String table);
+
+  String getRefColumn();
+
+  Column setRefColumn(String column);
 
   String getMrefTable();
 

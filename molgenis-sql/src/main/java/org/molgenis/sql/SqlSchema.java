@@ -28,7 +28,7 @@ public class SqlSchema extends SchemaBean {
     Map<String, Map<String, Set<String>>> uniques = new LinkedHashMap<>();
     List<Record> records =
         sql.fetch(
-            "SELECT t.table_name, c.column_name, c.data_type, c.is_nullable, kcu.constraint_name, ccu.table_name as ref_table "
+            "SELECT t.table_name, c.column_name, c.data_type, c.is_nullable, kcu.constraint_name, ccu.table_name as ref_table, ccu.column_name as ref_column "
                 + "FROM information_schema.tables t "
                 + "NATURAL JOIN information_schema.columns c "
                 + "LEFT JOIN information_schema.key_column_usage kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name "
@@ -46,6 +46,7 @@ public class SqlSchema extends SchemaBean {
       String dataType = record.get("data_type", String.class);
       String refTableName = record.get("ref_table", String.class);
       String constraintName = record.get("constraint_name", String.class);
+      String refColumnName = record.get("ref_column", String.class);
       boolean isNullable = record.get("is_nullable", String.class).equals("YES") ? true : false;
 
       // get unique metadata
@@ -66,7 +67,7 @@ public class SqlSchema extends SchemaBean {
       }
       if (refTableName != null) {
         Table refTable = getTable(refTableName);
-        t.loadColumn(new SqlColumn(sql, t, columnName, refTableName, isNullable));
+        t.loadColumn(new SqlColumn(sql, t, columnName, refTableName, refColumnName, isNullable));
       } else {
         t.loadColumn(
             new SqlColumn(sql, t, columnName, getTypeFormPsqlString(dataType), isNullable));

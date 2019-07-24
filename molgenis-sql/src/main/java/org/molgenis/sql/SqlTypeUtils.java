@@ -1,7 +1,10 @@
 package org.molgenis.sql;
 
+import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.Column;
 
@@ -13,42 +16,51 @@ public class SqlTypeUtils {
     // to hide the public constructor
   }
 
-  public static DataType typeOf(Column.Type sqlType) {
+  public static DataType typeOf(DSLContext jooq, Column.Type sqlType) {
+
     switch (sqlType) {
       case UUID:
-        return UUID;
+        return UUID.getDataType(jooq.configuration());
       case STRING:
         //      case HYPERLINK:
         //      case EMAIL:
         //      case HTML:
         //      case FILE:
         //      case ENUM:
-        return VARCHAR(255);
+        return VARCHAR(255).getDataType(jooq.configuration());
       case INT:
         //      case LONG:
-        return INTEGER;
+        return INTEGER.getDataType(jooq.configuration());
+
       case BOOL:
-        return BOOLEAN;
+        return BOOLEAN.getDataType(jooq.configuration());
+
       case DECIMAL:
-        return DOUBLE;
+        return DOUBLE.getDataType(jooq.configuration());
+
       case TEXT:
-        return LONGVARCHAR;
+        return LONGVARCHAR.getDataType(jooq.configuration());
+
       case DATE:
-        return DATE;
+        return DATE.getDataType(jooq.configuration());
+
       case DATETIME:
-        return TIMESTAMPWITHTIMEZONE;
+        return TIMESTAMPWITHTIMEZONE.getDataType(jooq.configuration());
+
       case ENUM:
-        return VARCHAR(255);
+        return VARCHAR(255).getDataType(jooq.configuration());
         // TODO discuss if we want to use proper PG types for this
         // https://www.postgresql.org/docs/9.1/datatype-enum.html
       case REF:
         //      case SELECT:
         //      case RADIO:
-        return UUID;
+        return UUID.getDataType(jooq.configuration());
+
       case MREF:
         //      case CHECKBOX:
         //      case MSELECT:
-        return UUID;
+        return UUID.getDataType(jooq.configuration());
+
       default:
         // should never happen
         throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + sqlType);

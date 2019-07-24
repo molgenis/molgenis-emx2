@@ -140,7 +140,7 @@ class SqlTable extends TableBean {
   @Override
   public SqlColumn addColumn(String name, SqlColumn.Type type) throws MolgenisException {
     if (!isLoading) {
-      DataType jooqType = SqlTypeUtils.typeOf(type);
+      DataType jooqType = SqlTypeUtils.typeOf(sql, type);
       Field field = field(name(name), jooqType.nullable(false));
       sql.alterTable(getJooqTable()).addColumn(field).execute();
     }
@@ -150,21 +150,29 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public SqlColumn addRef(String name, String otherTable) throws MolgenisException {
+  public SqlColumn addRef(String name, String otherTable, String otherColumn)
+      throws MolgenisException {
     if (!isLoading) {
       org.jooq.Table table = getJooqTable();
-      Field field = field(name(name), SQLDataType.UUID.nullable(false));
+      DataType type =
+          SqlTypeUtils.typeOf(
+              sql, getSchema().getTable(otherTable).getColumn(otherColumn).getType());
+      Field field = field(name(name), type);
       Name fkeyName = name(getName() + "_" + name + "_FK");
-      Name other = name(getSchema().getName(), otherTable);
-      // sql.alterTable(table).addColumn(field).execute();
+      Name fkeyTable = name(getSchema().getName(), otherTable);
+      Name fkeyField = name(otherColumn);
+      sql.alterTable(table).addColumn(field).execute();
+      sql.alterTable(table)
+          .add(constraint(fkeyName).foreignKey(field).references(fkeyTable, fkeyField))
+          .execute();
       sql.execute(
-          "ALTER TABLE {0} ADD COLUMN {1} UUID CONSTRAINT {2} REFERENCES {3} DEFERRABLE INITIALLY IMMEDIATE",
-          table, field, fkeyName, other);
+          "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE", table, fkeyName);
+      ;
       sql.createIndex(name(getName()) + "_" + name(name) + "_FKINDEX")
           .on(getJooqTable(), field)
           .execute();
     }
-    SqlColumn c = new SqlColumn(sql, this, name, otherTable, false);
+    SqlColumn c = new SqlColumn(sql, this, name, otherTable, otherColumn, false);
     columns.put(name, c);
     return c;
   }
@@ -180,8 +188,8 @@ class SqlTable extends TableBean {
       } catch (Exception e) {
         // otherwise create the jTable
         jTable = getSchema().createTable(mrefTable);
-        jTable.addRef(mrefBack, this.getName()); // default name of jointable itself
-        jTable.addRef(name, otherTable);
+        jTable.addRef(mrefBack, this.getName(), MOLGENISID); // default name of jointable itself
+        jTable.addRef(name, otherTable, MOLGENISID);
       }
     }
     SqlColumn c = new SqlColumn(sql, this, name, otherTable, mrefTable, mrefBack);
@@ -413,6 +421,6 @@ class SqlTable extends TableBean {
   }
 
   private Field getJooqField(Column c) {
-    return field(name(c.getName()), SqlTypeUtils.typeOf(c.getType()));
+    return field(name(c.getName()), SqlTypeUtils.typeOf(sql, c.getType()));
   }
 }

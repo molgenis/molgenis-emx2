@@ -10,6 +10,7 @@ public class ColumnBean implements Column {
   private Type type;
   private boolean nullable;
   private String refTable;
+  private String refColumn;
   private String mrefTable;
   private String mrefBack;
   private boolean readonly;
@@ -43,11 +44,12 @@ public class ColumnBean implements Column {
     this.type = type;
   }
 
-  public ColumnBean(Table table, String name, String otherTable) {
+  public ColumnBean(Table table, String name, String otherTable, String otherColumn) {
     this.table = table;
     this.name = name;
     this.type = Type.REF;
     this.refTable = otherTable;
+    this.refColumn = otherColumn;
   }
 
   public ColumnBean(
@@ -93,6 +95,24 @@ public class ColumnBean implements Column {
   @Override
   public Column setRefTable(String table) {
     this.refTable = table;
+    return this;
+  }
+
+  @Override
+  public String getRefColumn() {
+    return refColumn;
+  }
+
+  @Override
+  public Column setRefColumn(String columnName) {
+    this.refColumn = columnName;
+    return this;
+  }
+
+  @Override
+  public Column setRef(String tableName, String columnName) {
+    this.setRefTable(tableName);
+    this.setRefColumn(columnName);
     return this;
   }
 
