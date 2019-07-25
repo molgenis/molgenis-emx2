@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
-import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -15,9 +14,11 @@ import static org.molgenis.Column.Type.INT;
 import static org.molgenis.Column.Type.STRING;
 
 public class TestQuery {
+  static Database db;
+
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    Database db = DatabaseFactory.getDatabase();
+    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
 
     // create a schema to test with
     Schema s = db.createSchema("TestQuery");
@@ -47,7 +48,6 @@ public class TestQuery {
 
     StopWatch.start("test1");
 
-    Database db = DatabaseFactory.getDatabase();
     Schema s = db.getSchema("TestQuery");
 
     StopWatch.print("got schema");
@@ -84,7 +84,6 @@ public class TestQuery {
 
   @Test
   public void test2() throws MolgenisException {
-    Database db = DatabaseFactory.getDatabase();
     Schema s = db.getSchema("TestQuery");
 
     StopWatch.start("test2");

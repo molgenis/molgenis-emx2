@@ -19,11 +19,9 @@ public class DatabaseFactory {
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
 
-  public static Database getDatabase() throws MolgenisException {
+  public static Database getDatabase(String userName, String password) throws MolgenisException {
     if (db == null) {
 
-      String userName = "molgenis";
-      String password = "molgenis";
       String url = "jdbc:postgresql:molgenis";
 
       // create data source

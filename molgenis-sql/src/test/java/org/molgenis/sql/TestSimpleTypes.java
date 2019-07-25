@@ -20,7 +20,7 @@ public class TestSimpleTypes {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = DatabaseFactory.getDatabase();
+    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
   }
 
   @Test

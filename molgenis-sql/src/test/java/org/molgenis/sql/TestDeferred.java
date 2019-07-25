@@ -3,15 +3,16 @@ package org.molgenis.sql;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
-import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.util.UUID;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Row.MOLGENISID;
 
 public class TestDeferred {
+  Database database = DatabaseFactory.getDatabase("molgenis", "molgenis");
+
+  public TestDeferred() throws MolgenisException {}
 
   @Test(expected = MolgenisException.class)
   public void test1_nondeferred() throws MolgenisException {
@@ -26,9 +27,6 @@ public class TestDeferred {
   public void test1(boolean deferred) throws MolgenisException {
 
     StopWatch.start("test1");
-
-    Database database = DatabaseFactory.getDatabase();
-    StopWatch.print("database created");
 
     database.transaction(
         db -> {
@@ -55,7 +53,6 @@ public class TestDeferred {
 
   @Test(expected = MolgenisException.class)
   public void test2() throws MolgenisException {
-    Database database = DatabaseFactory.getDatabase();
     // without transaction
     {
       Schema s = database.createSchema("TestDeffered2");
@@ -76,9 +73,6 @@ public class TestDeferred {
   @Test
   public void test3() throws MolgenisException {
     StopWatch.start("test1");
-
-    Database database = DatabaseFactory.getDatabase();
-    StopWatch.print("database created");
 
     try {
       database.transaction(

@@ -162,7 +162,11 @@ class SqlTable extends TableBean {
       Name fkeyField = name(otherColumn);
       sql.alterTable(table).addColumn(field).execute();
       sql.alterTable(table)
-          .add(constraint(fkeyName).foreignKey(field).references(fkeyTable, fkeyField))
+          .add(
+              constraint(fkeyName)
+                  .foreignKey(field)
+                  .references(fkeyTable, fkeyField)
+                  .onUpdateCascade())
           .execute();
       sql.execute(
           "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE", table, fkeyName);
@@ -315,12 +319,13 @@ class SqlTable extends TableBean {
       Collection<org.molgenis.Row> rows,
       org.jooq.Table t,
       List<Field> fields,
-      List<String> fieldNames) {
+      List<String> fieldNames)
+      throws MolgenisException {
     if (!rows.isEmpty()) {
       // create multi-value insert
       InsertValuesStepN step = sql.insertInto(t, fields.toArray(new Field[fields.size()]));
       for (org.molgenis.Row row : rows) {
-        step.values(row.values(fieldNames.toArray(new String[fieldNames.size()])));
+        step.values(SqlTypeUtils.getValuesAsCollection(row, this));
       }
       // on duplicate key update using same record via "excluded" keyword in postgres
       InsertOnDuplicateSetStep step2 = step.onConflict(field(MOLGENISID)).doUpdate();
