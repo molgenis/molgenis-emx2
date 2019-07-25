@@ -2,6 +2,7 @@ package org.molgenis.beans;
 
 import org.molgenis.Column;
 import org.molgenis.MolgenisException;
+import org.molgenis.Row;
 import org.molgenis.Table;
 
 public class ColumnBean implements Column {
@@ -101,6 +102,11 @@ public class ColumnBean implements Column {
   @Override
   public String getRefColumn() {
     return refColumn;
+  }
+
+  @Override
+  public Type getRefType() throws MolgenisException {
+    return getTable().getSchema().getTable(getRefTable()).getColumn(getRefColumn()).getType();
   }
 
   @Override

@@ -33,7 +33,7 @@ public class TestSimpleTypes {
     // generate TypeTest table, with columns for each type
     Table t = s.createTable("TypeTest");
     Column.Type[] types =
-        new Column.Type[] {UUID, STRING, ENUM, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
+        new Column.Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (Column.Type type : types) {
       if (REF.equals(type)) {
         Column c =
@@ -58,7 +58,7 @@ public class TestSimpleTypes {
     org.molgenis.Row row = new Row();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
-    row.setEnum("Test_enum", "test");
+    // row.setEnum("Test_enum", "test");
     row.setBool("Test_bool", true);
     row.setInt("Test_int", 1);
     row.setDecimal("Test_decimal", 1.1);
@@ -71,7 +71,7 @@ public class TestSimpleTypes {
     row = new Row();
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
-    row.setEnum("Test_enum_nillable", "test");
+    // row.setEnum("Test_enum_nillable", "test");
 
     row.setBool("Test_bool_nillable", true);
     row.setInt("Test_int_nillable", 1);

@@ -31,6 +31,8 @@ public interface Column {
 
   String getRefColumn();
 
+  Type getRefType() throws MolgenisException;
+
   Column setRefColumn(String column);
 
   String getMrefTable();

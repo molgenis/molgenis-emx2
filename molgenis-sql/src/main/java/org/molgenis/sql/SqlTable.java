@@ -139,12 +139,12 @@ class SqlTable extends TableBean {
 
   @Override
   public SqlColumn addColumn(String name, SqlColumn.Type type) throws MolgenisException {
+    SqlColumn c = new SqlColumn(sql, this, name, type, false);
     if (!isLoading) {
-      DataType jooqType = SqlTypeUtils.typeOf(sql, type);
+      DataType jooqType = SqlTypeUtils.typeOf(c);
       Field field = field(name(name), jooqType.nullable(false));
       sql.alterTable(getJooqTable()).addColumn(field).execute();
     }
-    SqlColumn c = new SqlColumn(sql, this, name, type, false);
     columns.put(name, c);
     return c;
   }
@@ -152,11 +152,10 @@ class SqlTable extends TableBean {
   @Override
   public SqlColumn addRef(String name, String otherTable, String otherColumn)
       throws MolgenisException {
+    SqlColumn c = new SqlColumn(sql, this, name, otherTable, otherColumn, false);
     if (!isLoading) {
       org.jooq.Table table = getJooqTable();
-      DataType type =
-          SqlTypeUtils.typeOf(
-              sql, getSchema().getTable(otherTable).getColumn(otherColumn).getType());
+      DataType type = SqlTypeUtils.typeOf(c);
       Field field = field(name(name), type);
       Name fkeyName = name(getName() + "_" + name + "_FK");
       Name fkeyTable = name(getSchema().getName(), otherTable);
@@ -172,7 +171,6 @@ class SqlTable extends TableBean {
           .on(getJooqTable(), field)
           .execute();
     }
-    SqlColumn c = new SqlColumn(sql, this, name, otherTable, otherColumn, false);
     columns.put(name, c);
     return c;
   }
@@ -240,6 +238,7 @@ class SqlTable extends TableBean {
 
   @Override
   public int insert(org.molgenis.Row... rows) throws MolgenisException {
+    Row currentRow = null;
     try {
       // get metadata
       List<Field> fields = new ArrayList<>();
@@ -254,8 +253,9 @@ class SqlTable extends TableBean {
       }
       InsertValuesStepN step =
           sql.insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
-      for (org.molgenis.Row row : rows) {
-        step.values(row.values(fieldNames.toArray(new String[fieldNames.size()])));
+      for (Row row : rows) {
+        currentRow = row;
+        step.values(SqlTypeUtils.getValuesAsCollection(row, this));
       }
       step.execute();
       // save the mrefs
@@ -266,7 +266,9 @@ class SqlTable extends TableBean {
       }
       return i;
     } catch (DataAccessException e) {
-      throw new MolgenisException(e);
+      if (currentRow != null)
+        throw new MolgenisException("Insert row " + currentRow + " failed ", e);
+      else throw new MolgenisException(e);
     }
   }
 
@@ -420,7 +422,7 @@ class SqlTable extends TableBean {
     return table(name(getSchema().getName(), getName()));
   }
 
-  private Field getJooqField(Column c) {
-    return field(name(c.getName()), SqlTypeUtils.typeOf(sql, c.getType()));
+  private Field getJooqField(Column c) throws MolgenisException {
+    return field(name(c.getName()), SqlTypeUtils.typeOf(c));
   }
 }

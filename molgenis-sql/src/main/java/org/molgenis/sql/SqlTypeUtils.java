@@ -1,14 +1,19 @@
 package org.molgenis.sql;
 
-import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.Column;
+import org.molgenis.MolgenisException;
+import org.molgenis.Row;
+import org.molgenis.Table;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.jooq.impl.SQLDataType.*;
+import static org.molgenis.Column.Type.MREF;
+import static org.molgenis.Column.Type.REF;
 
 public class SqlTypeUtils {
 
@@ -16,50 +21,55 @@ public class SqlTypeUtils {
     // to hide the public constructor
   }
 
-  public static DataType typeOf(DSLContext jooq, Column.Type sqlType) {
+  public static DataType typeOf(Column column) throws MolgenisException {
 
+    Column.Type sqlType = column.getType();
     switch (sqlType) {
       case UUID:
-        return UUID.getDataType(jooq.configuration());
+        return UUID;
       case STRING:
         //      case HYPERLINK:
         //      case EMAIL:
         //      case HTML:
         //      case FILE:
         //      case ENUM:
-        return VARCHAR(255).getDataType(jooq.configuration());
+        return VARCHAR(255);
       case INT:
         //      case LONG:
-        return INTEGER.getDataType(jooq.configuration());
+        return INTEGER;
 
       case BOOL:
-        return BOOLEAN.getDataType(jooq.configuration());
+        return BOOLEAN;
 
       case DECIMAL:
-        return DOUBLE.getDataType(jooq.configuration());
+        return DOUBLE;
 
       case TEXT:
-        return LONGVARCHAR.getDataType(jooq.configuration());
+        return LONGVARCHAR;
 
       case DATE:
-        return DATE.getDataType(jooq.configuration());
+        return DATE;
 
       case DATETIME:
-        return TIMESTAMPWITHTIMEZONE.getDataType(jooq.configuration());
-
+        return TIMESTAMP;
       case ENUM:
-        return VARCHAR(255).getDataType(jooq.configuration());
+        return VARCHAR(255);
         // TODO discuss if we want to use proper PG types for this
         // https://www.postgresql.org/docs/9.1/datatype-enum.html
       case REF:
         //      case SELECT:
         //      case RADIO:
-        return UUID.getDataType(jooq.configuration());
+        return typeOf(
+            column
+                .getTable()
+                .getSchema()
+                .getTable(column.getRefTable())
+                .getColumn(column.getRefColumn()));
 
       case MREF:
         //      case CHECKBOX:
         //      case MSELECT:
-        return UUID.getDataType(jooq.configuration());
+        return UUID;
 
       default:
         // should never happen
@@ -80,5 +90,42 @@ public class SqlTypeUtils {
     if (SQLDataType.TIMESTAMPWITHTIMEZONE.equals(type)) return Column.Type.DATETIME;
     throw new UnsupportedOperationException(
         "Unsupported SQL type found:" + f.getDataType().getSQLType() + " " + f.getDataType());
+  }
+
+  public static Collection<Object> getValuesAsCollection(Row row, Table table)
+      throws MolgenisException {
+    Collection<Object> values = new ArrayList<>();
+    for (Column c : table.getColumns()) {
+      // TODO: fix MREF
+      if (!MREF.equals(c.getType())) values.add(getTypedValue(row, c));
+    }
+    return values;
+  }
+
+  public static Object getTypedValue(Row row, Column column) throws MolgenisException {
+    Column.Type type = column.getType();
+    if (REF.equals(type)) {
+      type = column.getRefType();
+    }
+    switch (type) {
+      case STRING:
+        return row.getString(column.getName());
+      case UUID:
+        return row.getUuid(column.getName());
+      case BOOL:
+        return row.getBool(column.getName());
+      case INT:
+        return row.getInt(column.getName());
+      case DECIMAL:
+        return row.getDecimal(column.getName());
+      case TEXT:
+        return row.getText(column.getName());
+      case DATE:
+        return row.getDate(column.getName());
+      case DATETIME:
+        return row.getDateTime(column.getName());
+      default:
+        throw new UnsupportedOperationException("Unsupported type found:" + column.getType());
+    }
   }
 }

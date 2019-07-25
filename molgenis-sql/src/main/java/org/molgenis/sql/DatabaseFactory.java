@@ -1,14 +1,11 @@
 package org.molgenis.sql;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.Column;
 import org.molgenis.Database;
 import org.molgenis.MolgenisException;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -24,8 +21,6 @@ public class DatabaseFactory {
 
   public static Database getDatabase() throws MolgenisException {
     if (db == null) {
-      Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-      root.setLevel(Level.INFO);
 
       String userName = "molgenis";
       String password = "molgenis";

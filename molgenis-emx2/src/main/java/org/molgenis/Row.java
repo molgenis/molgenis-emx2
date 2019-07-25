@@ -2,6 +2,7 @@ package org.molgenis;
 
 import com.fasterxml.uuid.Generators;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -120,10 +121,16 @@ public class Row implements Identifiable {
       if (v == null) return null;
       if (v instanceof LocalDateTime) return (LocalDateTime) v;
       if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
+      if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
       return LocalDateTime.parse(v.toString());
     } catch (Exception e) {
       throw new IllegalArgumentException(
-          "Row.getDateTime(\"" + name + "\") failed: " + e.getMessage());
+          "Row.getDateTime(\""
+              + name
+              + "\") failed. Type was "
+              + v.getClass()
+              + ". Error:"
+              + e.getMessage());
     }
   }
 
@@ -133,6 +140,11 @@ public class Row implements Identifiable {
 
   public void set(Map<String, Object> values) {
     this.values.putAll(values);
+  }
+
+  public Row set(String name, Object value) {
+    this.values.put(name, value);
+    return this;
   }
 
   public org.molgenis.Row setString(String name, String value) {
