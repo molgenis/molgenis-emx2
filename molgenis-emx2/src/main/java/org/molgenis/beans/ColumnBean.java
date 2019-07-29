@@ -1,9 +1,6 @@
 package org.molgenis.beans;
 
-import org.molgenis.Column;
-import org.molgenis.MolgenisException;
-import org.molgenis.Row;
-import org.molgenis.Table;
+import org.molgenis.*;
 
 public class ColumnBean implements Column {
   private Table table;
@@ -12,8 +9,6 @@ public class ColumnBean implements Column {
   private boolean nullable;
   private String refTable;
   private String refColumn;
-  private String mrefTable;
-  private String mrefBack;
   private boolean readonly;
   private String visible;
   private String description;
@@ -45,22 +40,12 @@ public class ColumnBean implements Column {
     this.type = type;
   }
 
-  public ColumnBean(Table table, String name, String otherTable, String otherColumn) {
+  public ColumnBean(Table table, String name, Type type, String otherTable, String otherColumn) {
     this.table = table;
     this.name = name;
-    this.type = Type.REF;
+    this.type = type;
     this.refTable = otherTable;
     this.refColumn = otherColumn;
-  }
-
-  public ColumnBean(
-      Table table, String name, String otherTable, String mrefTable, String mrefBack) {
-    this.table = table;
-    this.name = name;
-    this.type = Type.MREF;
-    this.refTable = otherTable;
-    this.mrefTable = mrefTable;
-    this.mrefBack = mrefBack;
   }
 
   @Override
@@ -93,43 +78,15 @@ public class ColumnBean implements Column {
     return refTable;
   }
 
-  @Override
-  public Column setRefTable(String table) {
-    this.refTable = table;
-    return this;
-  }
+  //  @Override
+  //  public Column setRefTable(String table) {
+  //    this.refTable = table;
+  //    return this;
+  //  }
 
   @Override
   public String getRefColumn() {
     return refColumn;
-  }
-
-  @Override
-  public Type getRefType() throws MolgenisException {
-    return getTable().getSchema().getTable(getRefTable()).getColumn(getRefColumn()).getType();
-  }
-
-  @Override
-  public Column setRefColumn(String columnName) {
-    this.refColumn = columnName;
-    return this;
-  }
-
-  @Override
-  public Column setRef(String tableName, String columnName) {
-    this.setRefTable(tableName);
-    this.setRefColumn(columnName);
-    return this;
-  }
-
-  @Override
-  public String getMrefTable() {
-    return this.mrefTable;
-  }
-
-  @Override
-  public String getMrefBack() {
-    return mrefBack;
   }
 
   @Override
@@ -148,7 +105,7 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public boolean isReadonly() {
+  public Boolean isReadonly() {
     return readonly;
   }
 
@@ -167,28 +124,24 @@ public class ColumnBean implements Column {
     this.description = description;
   }
 
-  @Override
   public String getVisible() {
     return visible;
   }
 
-  @Override
   public void setVisible(String visible) {
     this.visible = visible;
   }
 
-  @Override
   public String getValidation() {
     return validation;
   }
 
-  @Override
   public void setValidation(String validation) {
     this.validation = validation;
   }
 
   @Override
-  public boolean isUnique() {
+  public Boolean isUnique() {
     return getTable().isUnique(getName());
   }
 

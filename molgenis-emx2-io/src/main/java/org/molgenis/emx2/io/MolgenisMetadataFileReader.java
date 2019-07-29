@@ -13,7 +13,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Type.*;
 
 public class MolgenisMetadataFileReader {
 
@@ -149,8 +149,17 @@ public class MolgenisMetadataFileReader {
         } catch (Exception e) {
           List<EmxDefinitionTerm> terms =
               new EmxDefinitionParser().parse(line, messages, row.getDefinition());
-          Column.Type type = getType(terms);
-          Column column = table.addColumn(columnName, type);
+          Type type = getType(terms);
+          Column column = null;
+          String refTable = "";
+          String refColumn = "";
+          if (REF.equals(type)) {
+            column = table.addRef(columnName, refTable, refColumn);
+          } else if (REF_ARRAY.equals(type)) {
+            column = table.addRefArray(columnName, refTable, refColumn);
+          } else {
+            column = table.addColumn(columnName, type);
+          }
           applyDefinitionsToColumn(line, terms, column);
         }
       }
@@ -171,8 +180,6 @@ public class MolgenisMetadataFileReader {
         case DATETIME:
         case UUID:
         case REF:
-          column.setRefTable(term.getParameterValue());
-          break;
         case MREF:
           break;
         case NILLABLE:
@@ -193,7 +200,7 @@ public class MolgenisMetadataFileReader {
     }
   }
 
-  private static Column.Type getType(List<EmxDefinitionTerm> terms) {
+  private static Type getType(List<EmxDefinitionTerm> terms) {
     for (EmxDefinitionTerm term : terms) {
       switch (term) {
         case STRING:

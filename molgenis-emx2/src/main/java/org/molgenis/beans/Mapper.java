@@ -1,5 +1,6 @@
-package org.molgenis;
+package org.molgenis.beans;
 
+import org.molgenis.*;
 import org.molgenis.annotations.ColumnMetadata;
 import org.molgenis.beans.TableBean;
 
@@ -10,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Type.*;
 
 public class Mapper {
 
@@ -78,11 +79,7 @@ public class Mapper {
           if (REF.equals(col.getType())) {
             // big todo, fake table. Need singleton or lazyload before whole world is loaded in
             // one go
-            col.setRefTable(f.getType().getSimpleName());
-          }
-          if (ENUM.equals(col.getType())) {
-            // big todo: get the enum values from the enum
-
+            // col.setRefTable(f.getType().getSimpleName());
           }
         }
       } catch (Exception e) {
@@ -92,12 +89,11 @@ public class Mapper {
     return t;
   }
 
-  private static Column.Type typeOf(Class<?> type) throws MolgenisException {
-    if (type.isEnum()) return ENUM;
+  private static Type typeOf(Class<?> type) throws MolgenisException {
     if (type.equals(String.class)) return STRING;
     if (type.equals(UUID.class)) return UUID;
     if (type.equals(Boolean.class) || type.equals(boolean.class)) return BOOL;
     if (Identifiable.class.isAssignableFrom(type)) return REF;
-    throw new MolgenisException("Failed to map type " + type.getSimpleName());
+    throw new MolgenisException("Failed to map type " + type);
   }
 }

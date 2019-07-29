@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 
@@ -32,7 +33,7 @@ public class Row implements Identifiable {
     return (UUID) values.get(MOLGENISID);
   }
 
-  public org.molgenis.Row setMolgenisid(UUID id) {
+  public Row setMolgenisid(UUID id) {
     this.setRef(MOLGENISID, id);
     return this;
   }
@@ -40,12 +41,26 @@ public class Row implements Identifiable {
   public UUID getUuid(String name) {
     Object v = values.get(name);
     try {
+      if (v == null) return null;
       if (v instanceof String) return UUID.fromString((String) v);
       return (UUID) v;
     } catch (Exception e) {
       throw new IllegalArgumentException(
           "Row.getUuid(\"" + name + "\") failed: value is '" + v + "'");
     }
+  }
+
+  public UUID[] getUuidArray(String name) {
+    Object v = values.get(name);
+    if (v == null) return null;
+    if (v instanceof UUID[]) return (UUID[]) v;
+    throw new UnsupportedOperationException("getUuidArray failed for value: " + v);
+  }
+
+  public String[] getStringArray(String name) {
+    Object v = values.get(name);
+    if (v instanceof String[]) return (String[]) v;
+    throw new UnsupportedOperationException("getStringArray failed");
   }
 
   public String getEnum(String name) {
@@ -70,6 +85,13 @@ public class Row implements Identifiable {
     }
   }
 
+  public Integer[] getIntArray(String name) {
+    Object v = values.get(name);
+    if (v == null) return null;
+    if (v instanceof Integer[]) return (Integer[]) v;
+    throw new UnsupportedOperationException("getIntArray failed for value: " + v);
+  }
+
   public Boolean getBool(String name) {
     Object v = values.get(name);
     try {
@@ -84,6 +106,12 @@ public class Row implements Identifiable {
     }
   }
 
+  public Boolean[] getBoolArray(String name) {
+    Object v = values.get(name);
+    if (v instanceof Boolean[]) return (Boolean[]) v;
+    throw new UnsupportedOperationException("getBoolArray failed");
+  }
+
   public Double getDecimal(String name) {
     Object v = values.get(name);
     try {
@@ -95,23 +123,61 @@ public class Row implements Identifiable {
     }
   }
 
+  public Double[] getDecimalArray(String name) {
+    Object v = values.get(name);
+    if (v instanceof Double[]) return (Double[]) v;
+    throw new UnsupportedOperationException("getStringArray failed");
+  }
+
   public String getText(String name) {
     return getString(name);
+  }
+
+  public String[] getTextArray(String name) {
+    return getStringArray(name);
   }
 
   public LocalDate getDate(String name) {
     Object v = values.get(name);
     try {
       if (v == null) return null;
-      if (v instanceof LocalDate) return (LocalDate) v;
-      if (v instanceof OffsetDateTime) {
+      else if (v instanceof LocalDate) return (LocalDate) v;
+      else if (v instanceof OffsetDateTime) {
         return ((OffsetDateTime) v).toLocalDate();
       } else {
-
         return LocalDate.parse(v.toString());
       }
     } catch (Exception e) {
       throw new IllegalArgumentException("Row.getDate(\"" + name + "\") failed: " + e.getMessage());
+    }
+  }
+
+  public LocalDate[] getDateArray(String name) {
+    Object v = values.get(name);
+    try {
+      if (v == null) return null;
+      else if (v instanceof LocalDate[]) return (LocalDate[]) v;
+      else if (v instanceof OffsetDateTime[])
+        return Stream.of((OffsetDateTime) v)
+            .filter(Objects::nonNull)
+            .map(OffsetDateTime::toLocalDate)
+            .toArray(LocalDate[]::new);
+      else if (v instanceof String[]) {
+        return Stream.of((String[]) v)
+            .filter(Objects::nonNull)
+            .map(LocalDate::parse)
+            .toArray(LocalDate[]::new);
+      } else {
+        return (LocalDate[]) v;
+      }
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Row.getDateTimeArray(\""
+              + name
+              + "\") failed. Type was "
+              + v.getClass()
+              + ". Error:"
+              + e.getMessage());
     }
   }
 
@@ -134,8 +200,37 @@ public class Row implements Identifiable {
     }
   }
 
-  public UUID getRef(String name) {
-    return getUuid(name);
+  public LocalDateTime[] getDateTimeArray(String name) {
+    Object v = values.get(name);
+    try {
+      if (v == null) return null;
+      if (v instanceof LocalDateTime[]) return (LocalDateTime[]) v;
+      if (v instanceof OffsetDateTime[])
+        return Stream.of((OffsetDateTime) v)
+            .filter(Objects::nonNull)
+            .map(OffsetDateTime::toLocalDateTime)
+            .toArray(LocalDateTime[]::new);
+      if (v instanceof Timestamp[])
+        return Stream.of((Timestamp) v)
+            .filter(Objects::nonNull)
+            .map(Timestamp::toLocalDateTime)
+            .toArray(LocalDateTime[]::new);
+      if (v instanceof String[]) {
+        return Stream.of((String[]) v)
+            .filter(Objects::nonNull)
+            .map(LocalDateTime::parse)
+            .toArray(LocalDateTime[]::new);
+      }
+      return (LocalDateTime[]) v;
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Row.getDateTimeArray(\""
+              + name
+              + "\") failed. Type was "
+              + v.getClass()
+              + ". Error:"
+              + e.getMessage());
+    }
   }
 
   public void set(Map<String, Object> values) {
@@ -147,73 +242,83 @@ public class Row implements Identifiable {
     return this;
   }
 
-  public org.molgenis.Row setString(String name, String value) {
+  public Row setString(String name, String value) {
     values.put(name, value);
     return this;
   }
 
-  public org.molgenis.Row setEnum(String name, String value) {
+  public Row setStringArray(String name, String[] value) {
     values.put(name, value);
     return this;
   }
 
-  public org.molgenis.Row setInt(String name, Integer value) {
+  public Row setEnum(String name, String value) {
     values.put(name, value);
     return this;
   }
 
-  public org.molgenis.Row setRef(String name, org.molgenis.Row value) {
+  public Row setInt(String name, Integer value) {
+    values.put(name, value);
+    return this;
+  }
+
+  public Row setRef(String name, Row value) {
     values.put(name, value.getMolgenisid());
     return this;
   }
 
-  public org.molgenis.Row setMref(String name, List<org.molgenis.Row> values) {
+  public Row setMref(String name, List<Row> values) {
     List<UUID> uuids = new ArrayList<>();
-    for (org.molgenis.Row r : values) uuids.add(r.getMolgenisid());
+    for (Row r : values) uuids.add(r.getMolgenisid());
     mrefs.put(name, uuids);
     return this;
   }
 
-  public org.molgenis.Row setMref(String colName, org.molgenis.Row... values) {
+  public Row setMref(String colName, Row... values) {
     List<UUID> ids = new ArrayList<>();
-    for (org.molgenis.Row r : values) {
+    for (Row r : values) {
       ids.add(r.getMolgenisid());
     }
     mrefs.put(colName, ids);
     return this;
   }
 
-  public org.molgenis.Row setRef(String name, UUID value) {
+  public Row setRef(String name, UUID value) {
     values.put(name, value);
     return this;
   }
 
-  public org.molgenis.Row setDecimal(String columnId, Double value) {
+  public Row setDecimal(String columnId, Double value) {
     values.put(columnId, value);
     return this;
   }
 
-  public org.molgenis.Row setBool(String columnId, Boolean value) {
+  public Row setBool(String columnId, Boolean value) {
     values.put(columnId, value);
     return this;
   }
 
-  public org.molgenis.Row setDate(String columnId, LocalDate value) {
+  public Row setDate(String columnId, LocalDate value) {
     values.put(columnId, value);
     return this;
   }
 
-  public org.molgenis.Row setDateTime(String columnId, LocalDateTime value) {
+  public Row setDateTime(String columnId, LocalDateTime value) {
     values.put(columnId, value);
     return this;
   }
 
-  public org.molgenis.Row setText(String columnId, String value) {
+  public Row setText(String columnId, String value) {
     values.put(columnId, value);
     return this;
   }
 
-  public org.molgenis.Row setUuid(String columnId, UUID value) {
+  public Row setUuid(String columnId, UUID value) {
+    values.put(columnId, value);
+    return this;
+  }
+
+  public Row setUuidArray(String columnId, UUID[] value) {
     values.put(columnId, value);
     return this;
   }
@@ -251,7 +356,7 @@ public class Row implements Identifiable {
     return values.keySet();
   }
 
-  public org.molgenis.Row setRowEditRole(String role) {
+  public Row setRowEditRole(String role) {
     return this.setString(MG_EDIT_ROLE.toString(), role);
   }
 }

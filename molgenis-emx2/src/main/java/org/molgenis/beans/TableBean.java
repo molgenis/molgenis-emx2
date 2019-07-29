@@ -2,7 +2,10 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 
+import static org.molgenis.Type.MREF;
+import static org.molgenis.Type.REF;
 import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.REF_ARRAY;
 
 import java.util.*;
 
@@ -41,29 +44,36 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
-  public Column addColumn(String name, Column.Type type) throws MolgenisException {
+  public Column addColumn(String name, Type type) throws MolgenisException {
     Column c = new ColumnBean(this, name, type);
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public Column addRef(String name, String otherTable) throws MolgenisException {
-    return this.addRef(name, otherTable, MOLGENISID);
+  public Column addRef(String name, String refTable) throws MolgenisException {
+    return this.addRef(name, refTable, MOLGENISID);
   }
 
   @Override
   public Column addRef(String name, String otherTable, String otherColumn)
       throws MolgenisException {
-    Column c = new ColumnBean(this, name, otherTable, otherColumn);
+    Column c = new ColumnBean(this, name, REF, otherTable, otherColumn);
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public Column addMref(String name, String otherTable, String mrefTable, String mrefBack)
+  public Column addRefArray(String name, String otherTable, String otherColumn)
       throws MolgenisException {
-    Column c = new ColumnBean(this, name, otherTable, mrefTable, mrefBack);
+    Column c = new ColumnBean(this, name, REF_ARRAY, otherTable, otherColumn);
+    columns.put(name, c);
+    return c;
+  }
+
+  @Override
+  public Column addMref(String name, String refTable, String refColumn) throws MolgenisException {
+    Column c = new ColumnBean(this, name, MREF, refTable, refColumn);
     columns.put(name, c);
     return c;
   }

@@ -1,7 +1,5 @@
 package org.molgenis;
 
-import java.util.Collection;
-
 public interface Database {
   void setDeferChecks(boolean shouldDefer);
 

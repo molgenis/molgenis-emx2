@@ -19,7 +19,7 @@ public class SchemaBean implements Schema {
   }
 
   /** for subclass to add table privately */
-  public void loadTable(Table t) {
+  protected void loadTable(Table t) {
     tables.put(t.getName(), t);
   }
 

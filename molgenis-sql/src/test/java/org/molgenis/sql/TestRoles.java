@@ -7,14 +7,13 @@ import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.Row;
-import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Column.Type.STRING;
+import static org.molgenis.Type.STRING;
 
 public class TestRoles {
   private static Database db;
@@ -29,10 +28,10 @@ public class TestRoles {
 
     StopWatch.start("start: testRolePermissions()");
 
-    // create some schema to test with
+    // createColumn some schema to test with
     Schema s = db.createSchema("testRolePermissions");
 
-    // create test users
+    // createColumn test users
     db.createUser("user_testRolePermissions_viewer");
     db.createUser("user_testRolePermissions_editor");
     db.createUser("user_testRolePermissions_manager");
@@ -44,13 +43,13 @@ public class TestRoles {
 
     StopWatch.print("testRolePermissions schema created");
 
-    // test that viewer and editor cannot create, and manager can
+    // test that viewer and editor cannot createColumn, and manager can
     try {
       db.transaction(
           "user_testRolePermissions_viewer",
           db -> {
             db.getSchema("testRolePermissions").createTable("Test");
-            fail("role(viewers) should not be able to create tables"); // should not happen
+            fail("role(viewers) should not be able to createColumn tables"); // should not happen
           });
     } catch (Exception e) {
     }
@@ -62,7 +61,7 @@ public class TestRoles {
           "user_testRolePermissions_editor",
           db -> {
             db.getSchema("testRolePermissions").createTable("Test");
-            fail("role(editors) should not be able to create tables"); // should not happen
+            fail("role(editors) should not be able to createColumn tables"); // should not happen
           });
     } catch (Exception e) {
     }
@@ -80,7 +79,7 @@ public class TestRoles {
             }
           });
     } catch (Exception e) {
-      fail("role(manager) should be able to create tables"); // should not happen
+      fail("role(manager) should be able to createColumn tables"); // should not happen
       throw e;
     }
     StopWatch.print("test manager permission -> created a table");
@@ -141,9 +140,9 @@ public class TestRoles {
 
   @Test
   public void testRls() throws MolgenisException {
-    // create schema
+    // createColumn schema
     Schema s = db.createSchema("TestRLS");
-    // create two users
+    // createColumn two users
     db.createUser("testrls1");
     db.createUser("testrls2");
     db.createUser("testrlsnopermission");
@@ -153,7 +152,7 @@ public class TestRoles {
     s.grantAdmin("testrls2");
     s.grantView("testrls_has_rls_view"); // can view table but only rows with right RLS
 
-    // let one user create the table
+    // let one user createColumn the table
     db.transaction(
         "testrls1",
         db -> {

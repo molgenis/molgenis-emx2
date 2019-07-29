@@ -1,0 +1,23 @@
+package org.molgenis;
+
+public enum Type {
+  UUID,
+  UUID_ARRAY,
+  STRING,
+  STRING_ARRAY,
+  BOOL,
+  BOOL_ARRAY,
+  INT,
+  INT_ARRAY,
+  DECIMAL,
+  DECIMAL_ARRAY,
+  TEXT,
+  TEXT_ARRAY,
+  DATE,
+  DATE_ARRAY,
+  DATETIME,
+  DATETIME_ARRAY,
+  REF,
+  REF_ARRAY,
+  MREF;
+}

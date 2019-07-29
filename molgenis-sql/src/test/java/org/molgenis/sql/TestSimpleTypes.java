@@ -3,7 +3,6 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestSimpleTypes {
 
@@ -32,9 +31,8 @@ public class TestSimpleTypes {
 
     // generate TypeTest table, with columns for each type
     Table t = s.createTable("TypeTest");
-    Column.Type[] types =
-        new Column.Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
-    for (Column.Type type : types) {
+    Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
+    for (Type type : types) {
       if (REF.equals(type)) {
         Column c =
             t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t.getName())

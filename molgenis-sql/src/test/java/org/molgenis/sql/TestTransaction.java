@@ -4,12 +4,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
-import org.molgenis.sql.DatabaseFactory;
 
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Column.Type.STRING;
+import static org.molgenis.Type.STRING;
 
 public class TestTransaction {
   private static Database db;

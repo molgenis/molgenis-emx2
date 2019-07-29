@@ -95,7 +95,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
 
   @Override
   public void transaction(Transaction transaction) throws MolgenisException {
-    // create independent copy of database with transaction connection
+    // createColumn independent copy of database with transaction connection
     try {
       sql.transaction(
           config -> {
@@ -111,7 +111,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
 
   @Override
   public void transaction(String user, Transaction transaction) throws MolgenisException {
-    // create independent copy of database with transaction connection
+    // createColumn independent copy of database with transaction connection
     sql.execute("SET SESSION AUTHORIZATION {0}", name(user));
     try {
       sql.transaction(

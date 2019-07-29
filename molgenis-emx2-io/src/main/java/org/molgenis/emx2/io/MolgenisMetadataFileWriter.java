@@ -57,7 +57,7 @@ public class MolgenisMetadataFileWriter {
   private static String getDefinitionString(Column col) throws MolgenisException {
     List<EmxDefinitionTerm> def = new ArrayList<>();
 
-    if (!Column.Type.STRING.equals(col.getType())) {
+    if (!Type.STRING.equals(col.getType())) {
       EmxDefinitionTerm d = EmxDefinitionTerm.valueOf(col.getType());
       switch (d) {
         case STRING:

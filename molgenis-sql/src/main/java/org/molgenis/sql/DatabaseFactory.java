@@ -24,7 +24,7 @@ public class DatabaseFactory {
 
       String url = "jdbc:postgresql:molgenis";
 
-      // create data source
+      // createColumn data source
       dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
       dataSource.setUsername(userName);
@@ -33,7 +33,7 @@ public class DatabaseFactory {
       // setup Jooq
       jooq = DSL.using(dataSource, SQLDialect.POSTGRES_10);
       deleteAll();
-      // create database to test against
+      // createColumn database to test against
       db = new SqlDatabase(dataSource);
     }
     return db;

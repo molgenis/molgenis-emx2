@@ -2,6 +2,7 @@ package org.molgenis;
 
 import org.junit.Test;
 import org.molgenis.beans.ColumnBean;
+import org.molgenis.beans.Mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -42,18 +43,12 @@ public class TestMapper {
     assertEquals(firstName.getName(), "firstName");
     assertEquals(lastName.getName(), "lastName");
 
-    assertEquals(molgenisid.getType(), Column.Type.UUID);
-    assertEquals(firstName.getType(), Column.Type.STRING);
+    assertEquals(molgenisid.getType(), Type.UUID);
+    assertEquals(firstName.getType(), Type.STRING);
 
     assertTrue(firstName.isNullable());
     assertFalse(lastName.isNullable());
 
     assertEquals(firstName.getDescription(), "This is optional first name");
-  }
-
-  @Test
-  public void testColumnBeanToRow() throws MolgenisException {
-    Table t = Mapper.map(ColumnBean.class);
-    System.out.println(t);
   }
 }

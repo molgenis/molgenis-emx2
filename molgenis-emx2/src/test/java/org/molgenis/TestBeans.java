@@ -10,13 +10,13 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestBeans {
 
   @Test
   public void test1() throws MolgenisException {
-    List<Column.Type> types = Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
+    List<Type> types = Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
     Schema m = new SchemaBean("test1");
     addContents(m, types);
@@ -131,9 +131,9 @@ public class TestBeans {
     assertNull(r.getString("testnull"));
   }
 
-  private void addContents(Schema m, List<Column.Type> types) throws MolgenisException {
+  private void addContents(Schema m, List<Type> types) throws MolgenisException {
     Table t = m.createTable("TypeTest");
-    for (Column.Type type : types) {
+    for (Type type : types) {
       t.addColumn("test" + type, type);
       t.addColumn("test" + type + "_nullable", type).setNullable(true);
       t.addColumn("test" + type + "+readonly", type).setReadonly(true);

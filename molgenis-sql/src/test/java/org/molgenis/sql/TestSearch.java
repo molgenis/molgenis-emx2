@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
-import org.molgenis.sql.DatabaseFactory;
 
 import java.sql.SQLException;
 
@@ -24,9 +23,9 @@ public class TestSearch {
     // setup
     Schema s = db.createSchema("TestSearch");
     Table t = s.createTable("TestSearch");
-    t.addColumn("sub", Column.Type.STRING);
-    t.addColumn("body", Column.Type.TEXT);
-    t.addColumn("year", Column.Type.INT);
+    t.addColumn("sub", Type.STRING);
+    t.addColumn("body", Type.TEXT);
+    t.addColumn("year", Type.INT);
     t.enableSearch();
 
     t.insert(

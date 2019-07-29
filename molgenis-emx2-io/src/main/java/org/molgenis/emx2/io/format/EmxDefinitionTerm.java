@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.format;
 
-import org.molgenis.Column;
+import org.molgenis.Type;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,7 +84,7 @@ public enum EmxDefinitionTerm {
     }
   }
 
-  public static EmxDefinitionTerm valueOf(Column.Type type) {
+  public static EmxDefinitionTerm valueOf(Type type) {
     return valueOf(type.toString());
   }
 

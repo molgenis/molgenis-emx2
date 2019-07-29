@@ -10,7 +10,7 @@ import java.util.*;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Type.*;
 import static org.molgenis.Database.Prefix.MGROLE_;
 import static org.molgenis.Database.Roles.*;
 import static org.molgenis.Row.MOLGENISID;
@@ -67,10 +67,10 @@ public class SqlSchema extends SchemaBean {
       }
       if (refTableName != null) {
         Table refTable = getTable(refTableName);
-        t.loadColumn(new SqlColumn(sql, t, columnName, refTableName, refColumnName, isNullable));
+        t.loadColumn(new SimpleSqlColumn(sql, t, columnName, REF, refTableName, refColumnName));
       } else {
         t.loadColumn(
-            new SqlColumn(sql, t, columnName, getTypeFormPsqlString(dataType), isNullable));
+            new SimpleSqlColumn(sql, t, columnName, SqlTypeUtils.pslqToMolgenisType(dataType)));
       }
     }
     for (String tableName : getTableNames()) {
@@ -84,31 +84,6 @@ public class SqlSchema extends SchemaBean {
     }
   }
 
-  private Column.Type getTypeFormPsqlString(String dataType) {
-    switch (dataType) {
-      case "character varying":
-        return STRING;
-      case "uuid":
-        return UUID;
-      case "bool":
-        return BOOL;
-      case "integer":
-        return INT;
-      case "decimal":
-        return DECIMAL;
-      case "text":
-        return TEXT;
-      case "date":
-        return DATE;
-      case "datatime":
-        return DATETIME;
-      case "enum":
-        return ENUM;
-      default:
-        throw new RuntimeException("data type unknown " + dataType);
-    }
-  }
-
   @Override
   public SqlTable createTable(String name) throws MolgenisException {
     Name tableName = name(getName(), name);
@@ -116,7 +91,6 @@ public class SqlSchema extends SchemaBean {
         .column(MOLGENISID, SQLDataType.UUID)
         .constraints(constraint("PK_" + name).primaryKey(MOLGENISID))
         .execute();
-    // immediately make the 'admin' owner
     sql.execute(
         "ALTER TABLE {0} OWNER TO {1}",
         tableName, name(MGROLE_ + getName().toUpperCase() + _MANAGER));

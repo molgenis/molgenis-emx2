@@ -2,13 +2,12 @@ package org.molgenis.emx2.graphql;
 
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaPrinter;
-import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
 import org.molgenis.beans.SchemaBean;
 
-import static org.molgenis.Column.Type.STRING;
+import static org.molgenis.Type.STRING;
 
 public class EmxToGraphQLSchemaTest {
 

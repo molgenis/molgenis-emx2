@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.Column.Type.MREF;
-import static org.molgenis.Column.Type.REF;
+import static org.molgenis.Type.MREF;
+import static org.molgenis.Type.REF;
 import static org.molgenis.Operator.OR;
 import static org.molgenis.Operator.SEARCH;
 import static org.molgenis.Row.MOLGENISID;
@@ -39,7 +39,7 @@ public class SqlQuery extends QueryBean implements Query {
 
       List<Row> result = new ArrayList<>();
 
-      // create the select
+      // createColumn the select
 
       SelectSelectStep selectStep;
       List<Field> fields = getFields(from);
@@ -49,23 +49,23 @@ public class SqlQuery extends QueryBean implements Query {
       else selectStep = sql.select();
       StopWatch.print("selectStep complete");
 
-      // create the from
+      // createColumn the from
       SelectJoinStep fromStep =
           selectStep.from(
               table(name(from.getSchema().getName(), from.getName())).as(from.getName()));
 
       StopWatch.print("fromStep complete");
 
-      // create the joins
+      // createColumn the joins
       fromStep = createJoins(from.getName(), from, fromStep);
       StopWatch.print("createJoins complete");
 
-      // create the where
+      // createColumn the where
       fromStep.where(createConditions(from.getName()));
 
       StopWatch.print("createWhere complete");
 
-      // create the sort
+      // createColumn the sort
 
       // retrieve
       System.out.println(fromStep.getSQL());
@@ -78,7 +78,7 @@ public class SqlQuery extends QueryBean implements Query {
       }
       StopWatch.print("execute retrieve complete");
 
-      // create the from & joins
+      // createColumn the from & joins
 
       return result;
     } catch (MolgenisException e) {
@@ -187,8 +187,8 @@ public class SqlQuery extends QueryBean implements Query {
                             .eq(field(name(leftAlias, leftColumn))));
           }
           if (MREF.equals(c.getType())) {
-            String mrefTable = c.getMrefTable();
-            rightColumn = c.getMrefBack();
+            String mrefTable = "TODO"; // c.getMrefTableName();
+            rightColumn = "TODO"; // c.getRefColumnBack();
 
             // to link table
             fromStep =

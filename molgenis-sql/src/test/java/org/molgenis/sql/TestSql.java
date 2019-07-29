@@ -3,7 +3,6 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.sql.DatabaseFactory;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -13,7 +12,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestSql {
   private static Database db;
@@ -80,7 +79,7 @@ public class TestSql {
     t.addRef("Father", t.getName()).setNullable(true);
     t.addUnique("First Name", "Last Name");
 
-    // create a fromTable
+    // createColumn a fromTable
     // TODO need to optimize the reloading to be more lazy
     for (int i = 0; i < 10; i++) {
       Table t2 = s.createTable(PERSON + i);

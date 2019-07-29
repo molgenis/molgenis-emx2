@@ -2,6 +2,12 @@ package org.molgenis;
 
 public enum Operator {
   EQ,
-  OR,
-  SEARCH
+  GT,
+  GTE,
+  LT,
+  LTE,
+  LIKE,
+  ANY,
+  SEARCH,
+  OR
 }

@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Column.Type.DECIMAL;
-import static org.molgenis.Column.Type.INT;
-import static org.molgenis.Column.Type.STRING;
+import static org.molgenis.Type.DECIMAL;
+import static org.molgenis.Type.INT;
+import static org.molgenis.Type.STRING;
 import static org.molgenis.emx2.web.JsonQueryMapper.jsonToQuery;
 import static org.molgenis.emx2.web.JsonQueryMapper.queryToJson;
 import static org.molgenis.emx2.web.JsonRowMapper.jsonToRow;

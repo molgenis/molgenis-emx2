@@ -2,12 +2,8 @@ package org.molgenis.emx2.io.legacyformat;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.molgenis.Column;
-import org.molgenis.MolgenisException;
-import org.molgenis.Schema;
-import org.molgenis.Table;
+import org.molgenis.*;
 import org.molgenis.beans.SchemaBean;
-import org.molgenis.MolgenisExceptionMessage;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -15,7 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.molgenis.Column.Type.*;
+import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.*;
 import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
@@ -33,20 +30,9 @@ public class AttributesFileReader {
 
     int lineNumber = 0;
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
-    Map<Integer, String> refEntities = new LinkedHashMap<>();
-    Map<Integer, Column> refColumns = new LinkedHashMap<>();
     for (AttributesFileRow row : rows) {
       lineNumber++;
-      convertAttributeLine(model, lineNumber, messages, refEntities, refColumns, row);
-    }
-    // check and set refEntities
-    for (Map.Entry<Integer, String> ref : refEntities.entrySet()) {
-      Table table = model.getTable(ref.getValue());
-      if (table == null)
-        messages.add(
-            new MolgenisExceptionMessage(
-                ref.getKey(), "refEntity '" + ref.getValue() + "' is not known"));
-      else refColumns.get(ref.getKey()).setRefTable(table.getName());
+      convertAttributeLine(model, lineNumber, messages, row);
     }
     if (!messages.isEmpty())
       throw new MolgenisException("Attributes file reading failed", messages);
@@ -54,12 +40,7 @@ public class AttributesFileReader {
   }
 
   private void convertAttributeLine(
-      Schema model,
-      int lineNumber,
-      List<MolgenisExceptionMessage> messages,
-      Map<Integer, String> refEntities,
-      Map<Integer, Column> refColumns,
-      AttributesFileRow row)
+      Schema model, int lineNumber, List<MolgenisExceptionMessage> messages, AttributesFileRow row)
       throws MolgenisException {
     // get or create table
     Table table = model.getTable(row.getEntity());
@@ -71,13 +52,18 @@ public class AttributesFileReader {
           new MolgenisExceptionMessage(
               lineNumber, "attribute " + row.getName() + " is defined twice"));
     } else {
-      Column.Type type = getEmxType(lineNumber, messages, row);
-      Column column = table.addColumn(row.getName(), type);
+      Type type = getEmxType(lineNumber, messages, row);
+      Column column;
+      if (REF.equals(type)) {
+        column = table.addRef(row.getName(), row.getRefEntity(), MOLGENISID);
+      } else {
+        column = table.addColumn(row.getName(), type);
+      }
 
       column.setNullable(row.getNillable());
       column.setDescription(row.getDescription());
       column.setReadonly(row.getReadonly());
-      column.setValidation(row.getValidationExepression());
+      // column.setValidation(row.getValidationExepression());
 
       //      if (column.getType().equals(SELECT)
       //          || column.getType().equals(MSELECT)
@@ -89,9 +75,9 @@ public class AttributesFileReader {
     }
   }
 
-  private Column.Type getEmxType(
+  private Type getEmxType(
       int lineNumber, List<MolgenisExceptionMessage> messages, AttributesFileRow row) {
-    Column.Type type = STRING;
+    Type type = STRING;
     if (row.getDataType() != null) {
       try {
         type = convertAttributeTypeToEmxType(row.getDataType());
@@ -102,7 +88,7 @@ public class AttributesFileReader {
     return type;
   }
 
-  private Column.Type convertAttributeTypeToEmxType(String dataType) throws MolgenisException {
+  private Type convertAttributeTypeToEmxType(String dataType) throws MolgenisException {
     try {
       AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
       switch (oldType) {
