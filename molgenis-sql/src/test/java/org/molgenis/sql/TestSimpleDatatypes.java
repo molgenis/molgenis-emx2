@@ -10,7 +10,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.*;
 
-public class TestSimpleDatatypes2 {
+public class TestSimpleDatatypes {
 
   static Database db;
 

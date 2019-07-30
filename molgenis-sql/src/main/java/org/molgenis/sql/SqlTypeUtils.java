@@ -171,7 +171,7 @@ public class SqlTypeUtils {
       type = getRefType(column);
     }
     if (REF_ARRAY.equals(type)) {
-      type = getArrayType(column.getType());
+      type = getArrayType(getRefType(column));
     }
     switch (type) {
       case UUID:

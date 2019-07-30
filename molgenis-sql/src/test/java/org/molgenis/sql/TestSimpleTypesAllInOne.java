@@ -13,7 +13,7 @@ import java.util.List;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.Type.*;
 
-public class TestSimpleTypes {
+public class TestSimpleTypesAllInOne {
 
   private static Database db;
 
