@@ -60,6 +60,13 @@ public class WhereBean implements Where {
   }
 
   @Override
+  public Query any(Object... values) {
+    this.values = values;
+    this.op = Operator.ANY;
+    return this.query;
+  }
+
+  @Override
   public Query search(String terms) {
     this.op = Operator.SEARCH;
     this.values = new String[] {terms};

@@ -115,7 +115,6 @@ public class SqlQuery extends QueryBean implements Query {
     for (Where w : this.getWhereLists()) {
       Condition newCondition = null;
       if (SEARCH.equals(w.getOperator())) {
-        // in case of search
         String search = "";
         for (Object s : w.getValues()) search += s + ":* ";
         newCondition = condition(MG_SEARCH_VECTOR + " @@ to_tsquery('" + search + "' )");
@@ -133,6 +132,13 @@ public class SqlQuery extends QueryBean implements Query {
         switch (w.getOperator()) {
           case EQ:
             newCondition = field(selector).in(w.getValues());
+            break;
+          case ANY:
+            newCondition =
+                condition(
+                    "{0} && {1}",
+                    SqlTypeUtils.getTypedValue(w.getValues(), getColumn(from, path)),
+                    field(selector));
             break;
           case SEARCH:
 

@@ -5,7 +5,9 @@ import org.junit.Test;
 import org.molgenis.*;
 
 import java.util.Arrays;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.*;
 
 public class TestArrayDatatypes {
@@ -79,6 +81,13 @@ public class TestArrayDatatypes {
     // and update
     aRow.set(aFieldName, Arrays.copyOfRange(values, 0, 2));
     a.update(aRow);
+
+    // cehck query
+    List<Row> result = a.query().where(aFieldName).any(values[0]).retrieve();
+    assertEquals(1, result.size());
+    for (Row r : result) {
+      System.out.println(r);
+    }
 
     // delete of referenced A should fail
     a.delete(aRow);

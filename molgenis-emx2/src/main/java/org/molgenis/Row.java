@@ -2,12 +2,9 @@ package org.molgenis;
 
 import com.fasterxml.uuid.Generators;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 
@@ -39,94 +36,43 @@ public class Row implements Identifiable {
   }
 
   public UUID getUuid(String name) {
-    Object v = values.get(name);
-    try {
-      if (v == null) return null;
-      if (v instanceof String) return UUID.fromString((String) v);
-      return (UUID) v;
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Row.getUuid(\"" + name + "\") failed: value is '" + v + "'");
-    }
+    return TypeUtils.toUuid(values.get(name));
   }
 
   public UUID[] getUuidArray(String name) {
-    Object v = values.get(name);
-    if (v == null) return null;
-    if (v instanceof UUID[]) return (UUID[]) v;
-    throw new UnsupportedOperationException("getUuidArray failed for value: " + v);
-  }
-
-  public String[] getStringArray(String name) {
-    Object v = values.get(name);
-    if (v instanceof String[]) return (String[]) v;
-    throw new UnsupportedOperationException("getStringArray failed");
-  }
-
-  public String getEnum(String name) {
-    return getString(name);
+    return TypeUtils.toUuidArray(values.get(name));
   }
 
   public String getString(String name) {
-    Object v = values.get(name);
-    if (v == null) return null;
-    if (v instanceof String) return (String) v;
-    return v.toString();
+    return TypeUtils.toString(values.get(name));
+  }
+
+  public String[] getStringArray(String name) {
+    return TypeUtils.toStringArray(values.get(name));
   }
 
   public Integer getInt(String name) {
-    Object v = values.get(name);
-    try {
-      if (v instanceof String) return Integer.parseInt((String) v);
-      return (Integer) v;
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Row.getInt(\"" + name + "\") failed: value is '" + v + "'");
-    }
+    return TypeUtils.toInt(values.get(name));
   }
 
   public Integer[] getIntArray(String name) {
-    Object v = values.get(name);
-    if (v == null) return null;
-    if (v instanceof Integer[]) return (Integer[]) v;
-    throw new UnsupportedOperationException("getIntArray failed for value: " + v);
+    return TypeUtils.toIntArray(values.get(name));
   }
 
   public Boolean getBool(String name) {
-    Object v = values.get(name);
-    try {
-      if (v instanceof String) {
-        if ("true".equalsIgnoreCase((String) v)) return true;
-        if ("false".equalsIgnoreCase((String) v)) return false;
-      }
-      return (Boolean) v;
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Row.getBool(\"" + name + "\") failed: value is '" + v + "'");
-    }
+    return TypeUtils.toBool(values.get(name));
   }
 
   public Boolean[] getBoolArray(String name) {
-    Object v = values.get(name);
-    if (v instanceof Boolean[]) return (Boolean[]) v;
-    throw new UnsupportedOperationException("getBoolArray failed");
+    return TypeUtils.toBoolArray(values.get(name));
   }
 
   public Double getDecimal(String name) {
-    Object v = values.get(name);
-    try {
-      if (v instanceof String) return Double.parseDouble((String) v);
-      return (Double) v;
-    } catch (Exception e) {
-      throw new NumberFormatException(
-          "Row.getDecimal(\"" + name + "\") failed: value is '" + v + "'");
-    }
+    return TypeUtils.toDecimal(values.get(name));
   }
 
   public Double[] getDecimalArray(String name) {
-    Object v = values.get(name);
-    if (v instanceof Double[]) return (Double[]) v;
-    throw new UnsupportedOperationException("getStringArray failed");
+    return TypeUtils.toDecimalArray(values.get(name));
   }
 
   public String getText(String name) {
@@ -138,99 +84,19 @@ public class Row implements Identifiable {
   }
 
   public LocalDate getDate(String name) {
-    Object v = values.get(name);
-    try {
-      if (v == null) return null;
-      else if (v instanceof LocalDate) return (LocalDate) v;
-      else if (v instanceof OffsetDateTime) {
-        return ((OffsetDateTime) v).toLocalDate();
-      } else {
-        return LocalDate.parse(v.toString());
-      }
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Row.getDate(\"" + name + "\") failed: " + e.getMessage());
-    }
+    return TypeUtils.toDate(values.get(name));
   }
 
   public LocalDate[] getDateArray(String name) {
-    Object v = values.get(name);
-    try {
-      if (v == null) return null;
-      else if (v instanceof LocalDate[]) return (LocalDate[]) v;
-      else if (v instanceof OffsetDateTime[])
-        return Stream.of((OffsetDateTime) v)
-            .filter(Objects::nonNull)
-            .map(OffsetDateTime::toLocalDate)
-            .toArray(LocalDate[]::new);
-      else if (v instanceof String[]) {
-        return Stream.of((String[]) v)
-            .filter(Objects::nonNull)
-            .map(LocalDate::parse)
-            .toArray(LocalDate[]::new);
-      } else {
-        return (LocalDate[]) v;
-      }
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Row.getDateTimeArray(\""
-              + name
-              + "\") failed. Type was "
-              + v.getClass()
-              + ". Error:"
-              + e.getMessage());
-    }
+    return TypeUtils.toDateArrray(values.get(name));
   }
 
   public LocalDateTime getDateTime(String name) {
-    Object v = values.get(name);
-    try {
-      if (v == null) return null;
-      if (v instanceof LocalDateTime) return (LocalDateTime) v;
-      if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
-      if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
-      return LocalDateTime.parse(v.toString());
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Row.getDateTime(\""
-              + name
-              + "\") failed. Type was "
-              + v.getClass()
-              + ". Error:"
-              + e.getMessage());
-    }
+    return TypeUtils.toDateTime(values.get(name));
   }
 
   public LocalDateTime[] getDateTimeArray(String name) {
-    Object v = values.get(name);
-    try {
-      if (v == null) return null;
-      if (v instanceof LocalDateTime[]) return (LocalDateTime[]) v;
-      if (v instanceof OffsetDateTime[])
-        return Stream.of((OffsetDateTime) v)
-            .filter(Objects::nonNull)
-            .map(OffsetDateTime::toLocalDateTime)
-            .toArray(LocalDateTime[]::new);
-      if (v instanceof Timestamp[])
-        return Stream.of((Timestamp) v)
-            .filter(Objects::nonNull)
-            .map(Timestamp::toLocalDateTime)
-            .toArray(LocalDateTime[]::new);
-      if (v instanceof String[]) {
-        return Stream.of((String[]) v)
-            .filter(Objects::nonNull)
-            .map(LocalDateTime::parse)
-            .toArray(LocalDateTime[]::new);
-      }
-      return (LocalDateTime[]) v;
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Row.getDateTimeArray(\""
-              + name
-              + "\") failed. Type was "
-              + v.getClass()
-              + ". Error:"
-              + e.getMessage());
-    }
+    return TypeUtils.toDateTimeArray(values.get(name));
   }
 
   public void set(Map<String, Object> values) {

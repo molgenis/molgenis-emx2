@@ -1,17 +1,17 @@
-//package org.molgenis.sql;
+// package org.molgenis.sql;
 //
-//import org.junit.BeforeClass;
-//import org.junit.Test;
-//import org.molgenis.*;
+// import org.junit.BeforeClass;
+// import org.junit.Test;
+// import org.molgenis.*;
 //
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.List;
+// import java.util.ArrayList;
+// import java.util.Arrays;
+// import java.util.List;
 //
-//import static junit.framework.TestCase.fail;
-//import static org.molgenis.Type.*;
+// import static junit.framework.TestCase.fail;
+// import static org.molgenis.Type.*;
 //
-//public class TestMrefs {
+// public class TestMrefs {
 //
 //  static Database db;
 //
@@ -103,4 +103,4 @@
 //      a.delete(aRow);
 //    }
 //  }
-//}
+// }

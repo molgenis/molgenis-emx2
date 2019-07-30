@@ -2,14 +2,13 @@ package org.molgenis.sql;
 
 import org.jooq.DataType;
 import org.jooq.Field;
-import org.jooq.SQLDialect;
-import org.jooq.Support;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.molgenis.Type.REF_ARRAY;
 import static org.molgenis.Type.UUID_ARRAY;
 
 public class SqlTypeUtils {
@@ -117,55 +116,89 @@ public class SqlTypeUtils {
     return values;
   }
 
+  public static Object getTypedValue(Object v, Column column) throws MolgenisException {
+    Type type = column.getType();
+    if (Type.REF.equals(type)) {
+      type = getRefType(column);
+    }
+    switch (type) {
+      case UUID:
+        return TypeUtils.toUuid(v);
+      case UUID_ARRAY:
+        return TypeUtils.toUuidArray(v);
+      case STRING:
+        return TypeUtils.toString(v);
+      case STRING_ARRAY:
+        return TypeUtils.toStringArray(v);
+      case BOOL:
+        return TypeUtils.toBool(v);
+      case BOOL_ARRAY:
+        return TypeUtils.toBoolArray(v);
+      case INT:
+        return TypeUtils.toInt(v);
+      case INT_ARRAY:
+        return TypeUtils.toIntArray(v);
+      case DECIMAL:
+        return TypeUtils.toDecimal(v);
+      case DECIMAL_ARRAY:
+        return TypeUtils.toDecimalArray(v);
+      case TEXT:
+        return TypeUtils.toText(v);
+      case TEXT_ARRAY:
+        return TypeUtils.toTextArray(v);
+      case DATE:
+        return TypeUtils.toDate(v);
+      case DATE_ARRAY:
+        return TypeUtils.toDateArrray(v);
+      case DATETIME:
+        return TypeUtils.toDateTime(v);
+      case DATETIME_ARRAY:
+        return TypeUtils.toDateTimeArray(v);
+      default:
+        throw new UnsupportedOperationException("Unsupported type type found:" + type);
+    }
+  }
+
+  public static Type getRefType(Column column) throws MolgenisException {
+    return column
+        .getTable()
+        .getSchema()
+        .getTable(column.getRefTable())
+        .getColumn(column.getRefColumn())
+        .getType();
+  }
+
+  public static Type getRefArrayType(Column column) throws MolgenisException {
+    Type type = getRefType(column);
+    switch (type) {
+      case UUID:
+        return Type.UUID_ARRAY;
+      case STRING:
+        return Type.STRING_ARRAY;
+      case BOOL:
+        return Type.BOOL_ARRAY;
+      case INT:
+        return Type.INT_ARRAY;
+      case DECIMAL:
+        return Type.DECIMAL_ARRAY;
+      case TEXT:
+        return Type.TEXT_ARRAY;
+      case DATE:
+        return Type.DATE_ARRAY;
+      case DATETIME:
+        return Type.DATETIME_ARRAY;
+      default:
+        throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
+    }
+  }
+
   public static Object getTypedValue(Row row, Column column) throws MolgenisException {
     Type type = column.getType();
     if (Type.REF.equals(type)) {
-      type =
-          column
-              .getTable()
-              .getSchema()
-              .getTable(column.getRefTable())
-              .getColumn(column.getRefColumn())
-              .getType();
-      ;
+      type = getRefType(column);
     }
-    if (Type.REF_ARRAY.equals(type)) {
-      type =
-          column
-              .getTable()
-              .getSchema()
-              .getTable(column.getRefTable())
-              .getColumn(column.getRefColumn())
-              .getType();
-      ;;
-      switch (type) {
-        case UUID:
-          type = Type.UUID_ARRAY;
-          break;
-        case STRING:
-          type = Type.STRING_ARRAY;
-          break;
-        case BOOL:
-          type = Type.BOOL_ARRAY;
-          break;
-        case INT:
-          type = Type.INT_ARRAY;
-          break;
-        case DECIMAL:
-          type = Type.DECIMAL_ARRAY;
-          break;
-        case TEXT:
-          type = Type.TEXT_ARRAY;
-          break;
-        case DATE:
-          type = Type.DATE_ARRAY;
-          break;
-        case DATETIME:
-          type = Type.DATETIME_ARRAY;
-          break;
-        default:
-          throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
-      }
+    if (REF_ARRAY.equals(type)) {
+      type = getRefArrayType(column);
     }
     switch (type) {
       case UUID:

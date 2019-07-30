@@ -14,6 +14,8 @@ public interface Where {
 
   Query eq(UUID... values);
 
+  Query any(Object... values);
+
   Query search(String terms);
 
   Operator getOperator();
