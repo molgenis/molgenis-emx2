@@ -12,6 +12,7 @@ import org.molgenis.utils.StopWatch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.Type.MREF;
@@ -131,7 +132,11 @@ public class SqlQuery extends QueryBean implements Query {
         Name selector = selector = name(tableAlias, path[path.length - 1]);
         switch (w.getOperator()) {
           case EQ:
-            newCondition = field(selector).in(w.getValues());
+            // type check
+            Object[] values = w.getValues();
+            for (int i = 0; i < values.length; i++)
+              values[i] = SqlTypeUtils.getTypedValue(values[i], getColumn(from, path));
+            newCondition = field(selector).in(values);
             break;
           case ANY:
             newCondition =

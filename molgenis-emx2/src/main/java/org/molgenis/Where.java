@@ -6,13 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface Where {
-  Query eq(String... values);
-
-  Query eq(Integer... values);
-
-  Query eq(Double... values);
-
-  Query eq(UUID... values);
+  Query eq(Object... values);
 
   Query any(Object... values);
 

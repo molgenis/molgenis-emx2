@@ -81,32 +81,6 @@ public class SqlTypeUtils {
     }
   }
 
-  public static Type getSqlType(Field f) {
-    DataType type = f.getDataType().getSQLDataType();
-
-    if (SQLDataType.UUID.equals(type)) return Type.UUID;
-    if (SQLDataType.VARCHAR.equals(type)) return Type.STRING;
-    if (SQLDataType.BOOLEAN.equals(type)) return Type.BOOL;
-    if (SQLDataType.INTEGER.equals(type)) return Type.INT;
-    if (SQLDataType.DOUBLE.equals(type)) return Type.DECIMAL;
-    if (SQLDataType.FLOAT.equals(type)) return Type.DECIMAL;
-    if (SQLDataType.LONGVARCHAR.equals(type)) return Type.TEXT;
-    if (SQLDataType.DATE.equals(type)) return Type.DATE;
-    if (SQLDataType.TIMESTAMPWITHTIMEZONE.equals(type)) return Type.DATETIME;
-    if (SQLDataType.UUID.getArrayDataType().equals(type)) return UUID_ARRAY;
-    if (SQLDataType.VARCHAR.getArrayDataType().equals(type)) return Type.STRING;
-    if (SQLDataType.BOOLEAN.getArrayDataType().equals(type)) return Type.BOOL;
-    if (SQLDataType.INTEGER.getArrayDataType().equals(type)) return Type.INT;
-    if (SQLDataType.DOUBLE.getArrayDataType().equals(type)) return Type.DECIMAL;
-    if (SQLDataType.FLOAT.getArrayDataType().equals(type)) return Type.DECIMAL;
-    if (SQLDataType.LONGVARCHAR.getArrayDataType().equals(type)) return Type.TEXT;
-    if (SQLDataType.DATE.getArrayDataType().equals(type)) return Type.DATE;
-    if (SQLDataType.TIMESTAMPWITHTIMEZONE.getArrayDataType().equals(type)) return Type.DATETIME;
-
-    throw new UnsupportedOperationException(
-        "Unsupported SQL type found:" + f.getDataType().getSQLType() + " " + f.getDataType());
-  }
-
   public static Collection<Object> getValuesAsCollection(Row row, Table table)
       throws MolgenisException {
     Collection<Object> values = new ArrayList<>();
@@ -168,8 +142,7 @@ public class SqlTypeUtils {
         .getType();
   }
 
-  public static Type getRefArrayType(Column column) throws MolgenisException {
-    Type type = getRefType(column);
+  public static Type getArrayType(Type type) throws MolgenisException {
     switch (type) {
       case UUID:
         return Type.UUID_ARRAY;
@@ -198,7 +171,7 @@ public class SqlTypeUtils {
       type = getRefType(column);
     }
     if (REF_ARRAY.equals(type)) {
-      type = getRefArrayType(column);
+      type = getArrayType(column.getType());
     }
     switch (type) {
       case UUID:
