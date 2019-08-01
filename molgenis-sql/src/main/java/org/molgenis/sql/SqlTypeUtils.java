@@ -211,46 +211,7 @@ public class SqlTypeUtils {
     }
   }
 
-  public static Type getMolgenisTypeFromPsqlUDT(String dataType) {
-    switch (dataType) {
-      case "varchar":
-        return Type.STRING;
-      case "_varchar":
-        return Type.STRING_ARRAY;
-      case "uuid":
-        return Type.UUID;
-      case "_uuid":
-        return Type.UUID_ARRAY;
-      case "bool":
-        return Type.BOOL;
-      case "_bool":
-        return Type.BOOL_ARRAY;
-      case "int4":
-        return Type.INT;
-      case "_int4":
-        return Type.INT_ARRAY;
-      case "float8":
-        return Type.DECIMAL;
-      case "_float8":
-        return Type.DECIMAL_ARRAY;
-      case "text":
-        return Type.TEXT;
-      case "_text":
-        return Type.TEXT_ARRAY;
-      case "date":
-        return Type.DATE;
-      case "_date":
-        return Type.DATE_ARRAY;
-      case "timestamp":
-        return Type.DATETIME;
-      case "_timestamp":
-        return Type.DATETIME_ARRAY;
-      default:
-        throw new RuntimeException("data type unknown " + dataType);
-    }
-  }
-
-  public static String getPsqlType(Column column) {
+  public static String getPsqlType(Column column) throws MolgenisException {
     switch (column.getDataType()) {
       case STRING:
         return "character varying";
@@ -269,7 +230,8 @@ public class SqlTypeUtils {
       case DATETIME:
         return "timestamp without time zone";
       default:
-        throw new RuntimeException("data cannot be mapped to psqlType " + column.getDataType());
+        throw new MolgenisException(
+            "Internal: data cannot be mapped to psqlType " + column.getDataType());
     }
   }
 }

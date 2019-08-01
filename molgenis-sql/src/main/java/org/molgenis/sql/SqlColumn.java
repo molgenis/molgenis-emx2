@@ -60,9 +60,14 @@ public class SqlColumn extends ColumnBean {
   }
 
   public SqlColumn setIndexed(boolean indexed) {
-    jooq.createIndexIfNotExists(name("INDEX_" + getName()))
-        .on(asJooqTable(), field(name(getName())))
-        .execute();
+    String indexName = "INDEX_" + getTable().getName() + '_' + getName();
+    if (indexed) {
+      jooq.createIndexIfNotExists(name(indexName))
+          .on(asJooqTable(), field(name(getName())))
+          .execute();
+    } else {
+      jooq.dropIndexIfExists(name(getTable().getSchemaName(), indexName));
+    }
     return this;
   }
 

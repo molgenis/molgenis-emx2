@@ -46,7 +46,7 @@ public class SqlQuery extends QueryBean implements Query {
       List<Field> fields = getFields(from);
       StopWatch.print("getFields complete");
 
-      if (fields.size() > 0) selectStep = sql.select(fields);
+      if (fields.isEmpty()) selectStep = sql.select(fields);
       else selectStep = sql.select();
       StopWatch.print("selectStep complete");
 
@@ -69,7 +69,6 @@ public class SqlQuery extends QueryBean implements Query {
       // createColumn the sort
 
       // retrieve
-      System.out.println(fromStep.getSQL());
       StopWatch.print("print query complete");
 
       StopWatch.print("begin execute retrieve");
@@ -116,20 +115,20 @@ public class SqlQuery extends QueryBean implements Query {
     for (Where w : this.getWhereLists()) {
       Condition newCondition = null;
       if (SEARCH.equals(w.getOperator())) {
-        String search = "";
-        for (Object s : w.getValues()) search += s + ":* ";
+        StringBuilder search = new StringBuilder();
+        for (Object s : w.getValues()) search.append(s + ":* ");
         newCondition = condition(MG_SEARCH_VECTOR + " @@ to_tsquery('" + search + "' )");
       } else if (OR.equals(w.getOperator())) {
         or = true;
       } else {
         // in case of field operator
         String[] path = w.getPath();
-        String tableAlias = name;
+        StringBuilder tableAlias = new StringBuilder(name);
 
         if (path.length > 1) {
-          tableAlias += "/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
+          tableAlias.append("/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1)));
         }
-        Name selector = selector = name(tableAlias, path[path.length - 1]);
+        Name selector = selector = name(tableAlias.toString(), path[path.length - 1]);
         switch (w.getOperator()) {
           case EQ:
             // type check

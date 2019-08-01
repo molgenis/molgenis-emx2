@@ -4,7 +4,6 @@ import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.*;
-import org.molgenis.Schema;
 import org.molgenis.Transaction;
 import org.molgenis.beans.DatabaseBean;
 
@@ -53,7 +52,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   @Override
   public Collection<String> getSchemaNames() throws MolgenisException {
     Collection<String> result = super.getSchemaNames();
-    if (result.size() == 0) {
+    if (result.isEmpty()) {
       result = loadSchemaNames(this);
       for (String r : result) {
         this.schemas.put(r, null);
@@ -95,8 +94,6 @@ public class SqlDatabase extends DatabaseBean implements Database {
           });
     } catch (org.jooq.exception.DataAccessException e) {
       throw new MolgenisException(e);
-    } catch (Exception e3) {
-      throw new MolgenisException(e3);
     }
   }
 

@@ -12,8 +12,7 @@ public class RefSqlColumn extends SqlColumn {
   private DSLContext jooq;
 
   public RefSqlColumn(
-      SqlTable table, String columnName, String toTable, String toColumn, Boolean isNullable)
-      throws MolgenisException {
+      SqlTable table, String columnName, String toTable, String toColumn, Boolean isNullable) {
     super(table, columnName, REF, toTable, toColumn, isNullable);
     this.jooq = table.getJooq();
   }
@@ -38,6 +37,7 @@ public class RefSqlColumn extends SqlColumn {
 
     // execute alter table add column
     jooq.alterTable(thisTable).addColumn(thisColumn).execute();
+
     jooq.alterTable(thisTable)
         .add(
             constraint(fkeyConstraintName)
@@ -45,10 +45,11 @@ public class RefSqlColumn extends SqlColumn {
                 .references(fkeyTable, fkeyField)
                 .onUpdateCascade())
         .execute();
+
     jooq.execute(
         "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE",
         thisTable, fkeyConstraintName);
-    ;
+
     jooq.createIndex(name(getTable().getName()) + "_" + name(getName()) + "_FKINDEX")
         .on(thisTable, thisColumn)
         .execute();

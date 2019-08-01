@@ -5,16 +5,12 @@ import org.jooq.Record;
 import org.molgenis.*;
 import org.molgenis.utils.StopWatch;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.BOOLEAN;
 import static org.jooq.impl.SQLDataType.VARCHAR;
-import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
-import static org.molgenis.Type.STRING;
 
 public class MetadataUtils {
 
@@ -40,7 +36,11 @@ public class MetadataUtils {
   private static final org.jooq.Field UNIQUE_COLUMNS =
       field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
 
-  static void createMetadataSchemaIfNotExists(DSLContext jooq) throws MolgenisException {
+  private MetadataUtils() {
+    // to hide the public constructor
+  }
+
+  static void createMetadataSchemaIfNotExists(DSLContext jooq) {
 
     jooq.createSchemaIfNotExists("MOLGENIS").execute();
     jooq.createTableIfNotExists(SCHEMA_METADATA)
@@ -58,13 +58,6 @@ public class MetadataUtils {
                 .onUpdateCascade()
                 .onDeleteCascade())
         .execute();
-    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", TABLE_METADATA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
-        name("TABLE_RLS_MANAGER"), TABLE_METADATA, TABLE_SCHEMA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
-        name("TABLE_RLS_VIEWER"), TABLE_METADATA, TABLE_SCHEMA);
 
     jooq.createTableIfNotExists(COLUMN_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, REF_TABLE, REF_COLUMN)
@@ -102,6 +95,19 @@ public class MetadataUtils {
 
     jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
     jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
+    createRowLevelPermissions(jooq, TABLE_METADATA);
+    createRowLevelPermissions(jooq, COLUMN_METADATA);
+    createRowLevelPermissions(jooq, UNIQUE_METADATA);
+  }
+
+  private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
+    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
+    jooq.execute(
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
+        name("TABLE_RLS_MANAGER"), table, TABLE_SCHEMA);
+    jooq.execute(
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
+        name("TABLE_RLS_VIEWER"), table, TABLE_SCHEMA);
   }
 
   static void saveSchemaMetadata(DSLContext sql, Schema schema) {
@@ -222,23 +228,22 @@ public class MetadataUtils {
             .fetch();
 
     for (Record col : columnRecords) {
-      String column_name = col.get(COLUMN_NAME, String.class);
-      Type column_type = Type.valueOf(col.get(DATA_TYPE, String.class));
+      String columnName = col.get(COLUMN_NAME, String.class);
+      Type columnType = Type.valueOf(col.get(DATA_TYPE, String.class));
       Boolean nullable = col.get(NULLABLE, Boolean.class);
-      String ref_table = col.get(REF_TABLE, String.class);
-      String ref_column = col.get(REF_COLUMN, String.class);
-      switch (column_type) {
+      String toTable = col.get(REF_TABLE, String.class);
+      String toColumn = col.get(REF_COLUMN, String.class);
+      switch (columnType) {
         case REF:
           columnMap.put(
-              column_name, new RefSqlColumn(table, column_name, ref_table, ref_column, nullable));
+              columnName, new RefSqlColumn(table, columnName, toTable, toColumn, nullable));
           break;
         case REF_ARRAY:
           columnMap.put(
-              column_name,
-              new RefArraySqlColumn(table, column_name, ref_table, ref_column, nullable));
+              columnName, new RefArraySqlColumn(table, columnName, toTable, toColumn, nullable));
           break;
         default:
-          columnMap.put(column_name, new SqlColumn(table, column_name, column_type, nullable));
+          columnMap.put(columnName, new SqlColumn(table, columnName, columnType, nullable));
       }
     }
     StopWatch.print("load column metadata complete");

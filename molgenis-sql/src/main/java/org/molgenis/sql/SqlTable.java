@@ -80,13 +80,12 @@ class SqlTable extends TableBean {
     String triggerfunction =
         String.format("\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getName());
 
-    String mg_search_vector = "to_tsvector('english', ' '";
+    String mgSearchVector = "to_tsvector('english', ' '";
     for (Column c : getColumns()) {
       if (!c.getName().startsWith("MG_"))
-        mg_search_vector += String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName());
+        mgSearchVector += String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName());
     }
-    mg_search_vector += ")";
-    //     to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''));
+    mgSearchVector += ")";
 
     String functionBody =
         String.format(
@@ -96,9 +95,7 @@ class SqlTable extends TableBean {
                 + "\treturn new;\n"
                 + "end\n"
                 + "$$ LANGUAGE plpgsql;",
-            triggerfunction, mg_search_vector);
-
-    System.out.println(functionBody);
+            triggerfunction, mgSearchVector);
 
     jooq.execute(functionBody);
 
@@ -108,8 +105,6 @@ class SqlTable extends TableBean {
             + triggerfunction,
         name(MG_SEARCH_VECTOR),
         getJooqTable());
-    // TODO: retrospectively fill the tsv column
-
   }
 
   @Override
@@ -170,6 +165,7 @@ class SqlTable extends TableBean {
     super.removeColumn(name);
   }
 
+  @Override
   public Unique addUnique(String... keys) throws MolgenisException {
 
     String uniqueName = getName() + "_" + String.join("_", keys) + "_UNIQUE";
@@ -204,25 +200,20 @@ class SqlTable extends TableBean {
 
   @Override
   public int insert(org.molgenis.Row... rows) throws MolgenisException {
-    Row currentRow = null;
     try {
       // get metadata
       List<Field> fields = new ArrayList<>();
       List<String> fieldNames = new ArrayList<>();
-      int i = 0;
       for (Column c : getColumns()) {
         fieldNames.add(c.getName());
         fields.add(getJooqField(c));
-        i++;
       }
       InsertValuesStepN step =
           jooq.insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
       for (Row row : rows) {
-        currentRow = row;
         step.values(SqlTypeUtils.getValuesAsCollection(row, this));
       }
-      step.execute();
-      return i;
+      return step.execute();
     } catch (DataAccessException e) {
       throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
     }
@@ -351,7 +342,7 @@ class SqlTable extends TableBean {
   }
 
   public boolean exists() {
-    return getColumns().size() > 0;
+    return !getColumns().isEmpty();
   }
 
   public void dropTable() {

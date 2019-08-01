@@ -15,9 +15,12 @@ import static org.molgenis.Database.Roles.*;
 
 public class DatabaseFactory {
 
-  private static HikariDataSource dataSource = null;
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
+
+  private DatabaseFactory() {
+    // to hide the public constructor
+  }
 
   public static Database getDatabase(String userName, String password) throws MolgenisException {
     if (db == null) {
@@ -25,7 +28,7 @@ public class DatabaseFactory {
       String url = "jdbc:postgresql:molgenis";
 
       // createColumn data source
-      dataSource = new HikariDataSource();
+      HikariDataSource dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
       dataSource.setUsername(userName);
       dataSource.setPassword(password);
@@ -69,11 +72,6 @@ public class DatabaseFactory {
         jooq.execute("DROP ROLE IF EXISTS {0}", admin);
       }
     }
-    //    // delete all tables
-    //    for (org.jooq.Table t : jooq.meta().getTableNames()) {
-    //      jooq.dropTable(t).execute();
-    //    }
-
   }
 
   public static DSLContext getJooq() {
@@ -83,7 +81,7 @@ public class DatabaseFactory {
   public static void checkColumnExists(Column c) throws MolgenisException {
     List<org.jooq.Table<?>> tables =
         DatabaseFactory.getJooq().meta().getTables(c.getTable().getName());
-    if (tables.size() == 0)
+    if (tables.isEmpty())
       throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
     org.jooq.Table<?> table = tables.get(0);
     Field f = table.field(c.getName());

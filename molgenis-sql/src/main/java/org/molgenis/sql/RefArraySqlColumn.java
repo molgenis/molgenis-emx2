@@ -11,12 +11,12 @@ public class RefArraySqlColumn extends SqlColumn {
   private DSLContext jooq;
 
   public RefArraySqlColumn(
-      SqlTable table, String columnName, String toTable, String toColumn, Boolean isNullable)
-      throws MolgenisException {
+      SqlTable table, String columnName, String toTable, String toColumn, Boolean isNullable) {
     super(table, columnName, REF_ARRAY, toTable, toColumn, isNullable);
     this.jooq = table.getJooq();
   }
 
+  @Override
   public RefArraySqlColumn createColumn() throws MolgenisException {
     super.createColumn();
     this.createReferenceExistsTrigger();
@@ -32,7 +32,6 @@ public class RefArraySqlColumn extends SqlColumn {
     Name thisColumn = name(getName());
     Name toColumn = name(getRefColumn());
 
-    // todo think of good name
     Name functionName =
         name(
             getTable().getSchema().getName(),
@@ -82,7 +81,6 @@ public class RefArraySqlColumn extends SqlColumn {
     Name toTable = name(getTable().getSchema().getName(), getRefTable());
     Name toColumn = name(getRefColumn());
 
-    // todo think of good name
     Name functionName =
         name(
             getTable().getSchema().getName(),

@@ -15,7 +15,7 @@ public class SqlSchema extends SchemaBean {
   private SqlDatabase db;
   DSLContext jooq;
 
-  public SqlSchema(SqlDatabase db, String name) throws MolgenisException {
+  public SqlSchema(SqlDatabase db, String name) {
     super(name);
     this.db = db;
     this.jooq = db.getJooq();
@@ -40,7 +40,6 @@ public class SqlSchema extends SchemaBean {
   }
 
   void createSchema() throws MolgenisException {
-    DSLContext jooq = db.getJooq();
     String schemaName = getName();
 
     try {
@@ -79,7 +78,7 @@ public class SqlSchema extends SchemaBean {
   @Override
   public Collection<String> getTableNames() throws MolgenisException {
     Collection<String> result = super.getTableNames();
-    if (result.size() == 0) {
+    if (result.isEmpty()) {
       result = loadTableNames(this);
       for (String r : result) {
         this.tables.put(r, null);
