@@ -78,6 +78,7 @@ public class TestQuerWithRefArrays {
     q.where("Last Name").eq("Duck").and("Father", "Last Name").eq("Duck");
 
     rows = q.retrieve();
+    assertEquals(1, rows.size());
 
     StopWatch.print("second time");
   }
@@ -151,7 +152,7 @@ public class TestQuerWithRefArrays {
     // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
 
     List<org.molgenis.Row> rows = q.retrieve();
-    assertEquals(rows.size(), 3);
+    assertEquals(3, rows.size());
     for (org.molgenis.Row r : rows) {
       System.out.println(r);
     }
@@ -176,7 +177,7 @@ public class TestQuerWithRefArrays {
     StopWatch.print("created query (needed to get metadata from disk)");
 
     List<org.molgenis.Row> rows2 = q2.retrieve();
-    assertEquals(rows2.size(), 3);
+    assertEquals(3, rows2.size());
     for (org.molgenis.Row r : rows2) {
       System.out.println(r);
     }

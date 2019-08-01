@@ -52,10 +52,12 @@ public class TestSql {
 
     StopWatch.print("Inserted second batch", 100);
 
-    test_batch.insert(rows.subList(200, 300));
+    test_batch.insert(rows.subList(200, 1000));
 
-    StopWatch.print("Inserted third batch", 100);
+    StopWatch.print("Inserted third batch", 800);
 
+    rows = test_batch.retrieve();
+    assertEquals(1000, rows.size());
     for (org.molgenis.Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }
