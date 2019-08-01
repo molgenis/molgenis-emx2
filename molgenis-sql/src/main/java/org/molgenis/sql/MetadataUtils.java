@@ -15,11 +15,13 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 
 public class MetadataUtils {
 
+  private static final String MOLGENIS = "MOLGENIS";
+
   // tables
-  private static final org.jooq.Table SCHEMA_METADATA = table(name("MOLGENIS", "schema_metadata"));
-  private static final org.jooq.Table TABLE_METADATA = table(name("MOLGENIS", "table_metadata"));
-  private static final org.jooq.Table COLUMN_METADATA = table(name("MOLGENIS", "column_metadata"));
-  private static final org.jooq.Table UNIQUE_METADATA = table(name("MOLGENIS", "unique_metadata"));
+  private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
+  private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
+  private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
+  private static final org.jooq.Table UNIQUE_METADATA = table(name(MOLGENIS, "unique_metadata"));
 
   // fields
   private static final org.jooq.Field TABLE_SCHEMA =
@@ -43,7 +45,7 @@ public class MetadataUtils {
 
   static void createMetadataSchemaIfNotExists(DSLContext jooq) throws MolgenisException {
 
-    try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists("MOLGENIS")) {
+    try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
       step.execute();
       jooq.createTableIfNotExists(SCHEMA_METADATA)
           .columns(TABLE_SCHEMA)
@@ -71,13 +73,6 @@ public class MetadataUtils {
                   .onUpdateCascade()
                   .onDeleteCascade())
           .execute();
-      jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", COLUMN_METADATA);
-      jooq.execute(
-          "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
-          name("COLUMN_RLS_MANAGER"), COLUMN_METADATA, TABLE_SCHEMA);
-      jooq.execute(
-          "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
-          name("COLUMN_RLS_VIEWER"), COLUMN_METADATA, TABLE_SCHEMA);
 
       jooq.createTableIfNotExists(UNIQUE_METADATA)
           .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
@@ -88,16 +83,9 @@ public class MetadataUtils {
                   .onUpdateCascade()
                   .onDeleteCascade())
           .execute();
-      jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", UNIQUE_METADATA);
-      jooq.execute(
-          "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
-          name("UNIQUE_RLS_MANAGER"), UNIQUE_METADATA, TABLE_SCHEMA);
-      jooq.execute(
-          "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
-          name("UNIQUE_RLS_VIEWER"), UNIQUE_METADATA, TABLE_SCHEMA);
 
-      jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
-      jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
+      jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+      jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
       createRowLevelPermissions(jooq, TABLE_METADATA);
       createRowLevelPermissions(jooq, COLUMN_METADATA);
       createRowLevelPermissions(jooq, UNIQUE_METADATA);

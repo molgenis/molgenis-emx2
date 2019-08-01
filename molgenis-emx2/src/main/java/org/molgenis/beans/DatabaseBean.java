@@ -49,7 +49,7 @@ public class DatabaseBean implements Database {
   }
 
   @Override
-  public void grantRoleToUser(String role, String user) throws MolgenisException {
+  public void grantRole(String role, String user) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 

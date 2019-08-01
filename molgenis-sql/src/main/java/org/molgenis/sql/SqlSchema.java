@@ -50,10 +50,10 @@ public class SqlSchema extends SchemaBean {
       Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
       Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
 
-      jooq.execute("CREATE ROLE {0}", viewer);
-      jooq.execute("CREATE ROLE {0}", editor);
-      jooq.execute("CREATE ROLE {0}", manager);
-      jooq.execute("CREATE ROLE {0}", admin);
+      db.createRole(viewer);
+      db.createRole(editor);
+      db.createRole(manager);
+      db.createRole(admin);
 
       jooq.execute("GRANT {0} TO {1}", viewer, editor);
       jooq.execute("GRANT {0},{1} TO {2}", viewer, editor, manager);
@@ -95,19 +95,18 @@ public class SqlSchema extends SchemaBean {
   }
 
   @Override
-  public void grantManage(String user) {
-    jooq.execute(
-        "GRANT {0} TO {1}", name(MGROLE_ + getName().toUpperCase() + _MANAGER), name(user));
+  public void grantManage(String user) throws MolgenisException {
+    db.grantRole(MGROLE_ + getName().toUpperCase() + _MANAGER, user);
   }
 
   @Override
-  public void grantEdit(String user) {
-    jooq.execute("GRANT {0} TO {1}", name(MGROLE_ + getName().toUpperCase() + _EDITOR), name(user));
+  public void grantEdit(String user) throws MolgenisException {
+    db.grantRole(MGROLE_ + getName().toUpperCase() + _EDITOR, user);
   }
 
   @Override
-  public void grantView(String user) {
-    jooq.execute("GRANT {0} TO {1}", name(MGROLE_ + getName().toUpperCase() + _VIEWER), name(user));
+  public void grantView(String user) throws MolgenisException {
+    db.grantRole(MGROLE_ + getName().toUpperCase() + _VIEWER, user);
   }
 
   @Override
@@ -117,6 +116,6 @@ public class SqlSchema extends SchemaBean {
   }
 
   DSLContext getJooq() {
-    return jooq;
+    return db.getJooq();
   }
 }

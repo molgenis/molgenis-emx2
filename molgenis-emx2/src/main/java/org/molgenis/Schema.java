@@ -15,9 +15,9 @@ public interface Schema {
 
   void grantAdmin(String user);
 
-  void grantManage(String user);
+  void grantManage(String user) throws MolgenisException;
 
-  void grantEdit(String user);
+  void grantEdit(String user) throws MolgenisException;
 
-  void grantView(String user);
+  void grantView(String user) throws MolgenisException;
 }

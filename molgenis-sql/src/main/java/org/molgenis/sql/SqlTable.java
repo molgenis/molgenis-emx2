@@ -80,12 +80,13 @@ class SqlTable extends TableBean {
     String triggerfunction =
         String.format("\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getName());
 
-    String mgSearchVector = "to_tsvector('english', ' '";
+    StringBuilder mgSearchVector = new StringBuilder("to_tsvector('english', ' '");
     for (Column c : getColumns()) {
       if (!c.getName().startsWith("MG_"))
-        mgSearchVector += String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName());
+        mgSearchVector.append(
+            String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName()));
     }
-    mgSearchVector += ")";
+    mgSearchVector.append(")");
 
     String functionBody =
         String.format(
@@ -228,13 +229,10 @@ class SqlTable extends TableBean {
     // get metadata
     ArrayList<Field> fields = new ArrayList<>();
     ArrayList<String> fieldNames = new ArrayList<>();
-    int i = 0;
     for (Column c : getColumns()) {
       fieldNames.add(c.getName());
       fields.add(getJooqField(c));
-      i++;
     }
-    // TODO update mref values
 
     // execute in batches
     int count = 0;

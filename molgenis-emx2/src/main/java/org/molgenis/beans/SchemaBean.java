@@ -61,17 +61,17 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public void grantManage(String user) {
+  public void grantManage(String user) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void grantEdit(String user) {
+  public void grantEdit(String user) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void grantView(String user) {
+  public void grantView(String user) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 

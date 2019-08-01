@@ -128,7 +128,7 @@ public class SqlQuery extends QueryBean implements Query {
         if (path.length > 1) {
           tableAlias.append("/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1)));
         }
-        Name selector = selector = name(tableAlias.toString(), path[path.length - 1]);
+        Name selector = name(tableAlias.toString(), path[path.length - 1]);
         switch (w.getOperator()) {
           case EQ:
             // type check
@@ -204,8 +204,8 @@ public class SqlQuery extends QueryBean implements Query {
                         "{0} = ANY ({1})",
                         field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
           } else if (MREF.equals(c.getDataType())) {
-            String mrefTable = "TODO"; // c.getMrefTableName();
-            rightColumn = "TODO"; // c.getRefColumnBack();
+            String mrefTable = "TODO";
+            rightColumn = "TODO";
 
             // to link table
             fromStep =

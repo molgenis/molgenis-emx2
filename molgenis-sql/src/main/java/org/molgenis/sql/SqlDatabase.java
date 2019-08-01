@@ -24,7 +24,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   }
 
   /** private constructor for in transaction */
-  private SqlDatabase(Configuration configuration) throws MolgenisException {
+  private SqlDatabase(Configuration configuration) {
     this.jooq = DSL.using(configuration);
   }
 
@@ -75,7 +75,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   }
 
   @Override
-  public void grantRoleToUser(String role, String user) throws MolgenisException {
+  public void grantRole(String role, String user) throws MolgenisException {
     try {
       jooq.execute("GRANT {0} TO {1}", name(role), name(user));
     } catch (DataAccessException dae) {
@@ -125,5 +125,9 @@ public class SqlDatabase extends DatabaseBean implements Database {
 
   DSLContext getJooq() {
     return jooq;
+  }
+
+  public void createRole(Name viewer) {
+    jooq.execute("CREATE ROLE {0}", viewer);
   }
 }

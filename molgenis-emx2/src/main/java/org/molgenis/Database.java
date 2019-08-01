@@ -33,7 +33,7 @@ public interface Database {
 
   void createUser(String name) throws MolgenisException;
 
-  void grantRoleToUser(String role, String user) throws MolgenisException;
+  void grantRole(String role, String user) throws MolgenisException;
 
   void transaction(Transaction transaction) throws MolgenisException;
 

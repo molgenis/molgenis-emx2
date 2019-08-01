@@ -66,10 +66,12 @@ public class DatabaseFactory {
         Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
         Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
         Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
-        jooq.execute("DROP ROLE IF EXISTS {0}", viewer);
-        jooq.execute("DROP ROLE IF EXISTS {0}", editor);
-        jooq.execute("DROP ROLE IF EXISTS {0}", manager);
-        jooq.execute("DROP ROLE IF EXISTS {0}", admin);
+
+        final String DROP_ROLE_SQL = "DROP ROLE IF EXISTS {0}";
+        jooq.execute(DROP_ROLE_SQL, viewer);
+        jooq.execute(DROP_ROLE_SQL, editor);
+        jooq.execute(DROP_ROLE_SQL, manager);
+        jooq.execute(DROP_ROLE_SQL, admin);
       }
     }
   }

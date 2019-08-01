@@ -142,7 +142,7 @@ public class SqlTypeUtils {
         .getDataType();
   }
 
-  public static Type getArrayType(Type type) throws MolgenisException {
+  public static Type getArrayType(Type type) {
     switch (type) {
       case UUID:
         return Type.UUID_ARRAY;
