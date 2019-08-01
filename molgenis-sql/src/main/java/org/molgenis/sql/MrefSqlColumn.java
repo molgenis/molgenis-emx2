@@ -4,16 +4,18 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.molgenis.MolgenisException;
 import org.molgenis.Table;
-import org.molgenis.Type;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.Type.MREF;
 
-public class MrefSqlColumn extends SimpleSqlColumn {
+public class MrefSqlColumn extends SqlColumn {
+  private DSLContext jooq;
 
   public MrefSqlColumn(
-      DSLContext sql, SqlTable sqlTable, String name, Type mref, String toTable, String toColumn) {
-    super(sql, sqlTable, name, mref, toTable, toColumn);
+      SqlTable sqlTable, String name, String toTable, String toColumn, Boolean isNullable) {
+    super(sqlTable, name, MREF, toTable, toColumn, isNullable);
+    this.jooq = sqlTable.getJooq();
   }
 
   @Override
@@ -21,8 +23,8 @@ public class MrefSqlColumn extends SimpleSqlColumn {
     // createColumn the array column (we use for trigger)
     org.jooq.Table thisTable = asJooqTable();
     Field thisColumn = field(name(getName()), SqlTypeUtils.jooqTypeOf(this));
-    sql.alterTable(thisTable).addColumn(thisColumn).execute();
-    sql.alterTable(thisTable).alterColumn(thisColumn).setNotNull().execute();
+    jooq.alterTable(thisTable).addColumn(thisColumn).execute();
+    jooq.alterTable(thisTable).alterColumn(thisColumn).setNotNull().execute();
 
     // createColumn the mref table
     try {

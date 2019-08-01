@@ -12,7 +12,6 @@ import org.molgenis.utils.StopWatch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.Type.MREF;
@@ -20,6 +19,7 @@ import static org.molgenis.Type.REF;
 import static org.molgenis.Operator.OR;
 import static org.molgenis.Operator.SEARCH;
 import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.REF_ARRAY;
 import static org.molgenis.sql.SqlTable.MG_SEARCH_VECTOR;
 
 public class SqlQuery extends QueryBean implements Query {
@@ -183,12 +183,12 @@ public class SqlQuery extends QueryBean implements Query {
 
         String rightTable = c.getRefTable();
         String rightAlias = name + "/" + String.join("/", rightPath);
-        String rightColumn = MOLGENISID;
+        String rightColumn = c.getRefColumn();
 
         if (!duplicatePaths.contains(rightAlias)) {
           duplicatePaths.add(rightAlias);
 
-          if (REF.equals(c.getType())) {
+          if (REF.equals(c.getDataType())) {
             fromStep =
                 fromStep
                     .leftJoin(
@@ -196,8 +196,15 @@ public class SqlQuery extends QueryBean implements Query {
                     .on(
                         field(name(rightAlias, rightColumn))
                             .eq(field(name(leftAlias, leftColumn))));
-          }
-          if (MREF.equals(c.getType())) {
+          } else if (REF_ARRAY.equals(c.getDataType())) {
+            fromStep =
+                fromStep
+                    .leftJoin(
+                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
+                    .on(
+                        "{0} = ANY ({1})",
+                        field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
+          } else if (MREF.equals(c.getDataType())) {
             String mrefTable = "TODO"; // c.getMrefTableName();
             rightColumn = "TODO"; // c.getRefColumnBack();
 

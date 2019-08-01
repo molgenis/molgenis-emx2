@@ -33,7 +33,7 @@ public class TestBeans {
     Table t = m.getTable("TypeTest");
     assertEquals("TypeTest", t.getName());
     assertEquals(3 * types.size(), t.getColumns().size());
-    assertEquals(BOOL, t.getColumn("testBOOL").getType());
+    assertEquals(BOOL, t.getColumn("testBOOL").getDataType());
 
     // System.out.println("table print " + t.toString() + "\n: " + t.print());
 

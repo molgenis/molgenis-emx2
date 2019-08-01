@@ -7,74 +7,65 @@ import org.molgenis.*;
 import org.molgenis.Schema;
 import org.molgenis.Transaction;
 import org.molgenis.beans.DatabaseBean;
-import org.postgresql.util.PSQLException;
 
 import javax.sql.DataSource;
 
-import java.sql.SQLException;
-import java.util.Iterator;
+import java.util.Collection;
 
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.Database.Prefix.MGROLE_;
-import static org.molgenis.Database.Roles.*;
+import static org.jooq.impl.DSL.*;
+import static org.molgenis.sql.MetadataUtils.loadSchemaNames;
 
 public class SqlDatabase extends DatabaseBean implements Database {
-  private DSLContext sql;
+
+  private DSLContext jooq;
 
   public SqlDatabase(DataSource source) throws MolgenisException {
-    DSLContext context = DSL.using(source, SQLDialect.POSTGRES_10);
-    this.sql = context;
+    this.jooq = DSL.using(source, SQLDialect.POSTGRES_10);
+    MetadataUtils.createMetadataSchemaIfNotExists(jooq);
   }
 
   /** private constructor for in transaction */
   private SqlDatabase(Configuration configuration) throws MolgenisException {
-    this.sql = DSL.using(configuration);
+    this.jooq = DSL.using(configuration);
   }
 
   @Override
-  public Schema createSchema(String schemaName) throws MolgenisException {
-    try (CreateSchemaFinalStep step = sql.createSchema(schemaName)) {
-      step.execute();
-      Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
-      Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
-      Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
-      Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
+  public SqlSchema createSchema(String schemaName) throws MolgenisException {
+    SqlSchema schema = new SqlSchema(this, schemaName);
+    schema.createSchema();
+    super.schemas.put(schemaName, schema);
+    return schema;
+  }
 
-      sql.execute("CREATE ROLE {0}", viewer);
-      sql.execute("CREATE ROLE {0}", editor);
-      sql.execute("CREATE ROLE {0}", manager);
-      sql.execute("CREATE ROLE {0}", admin);
-
-      sql.execute("GRANT {0} TO {1}", viewer, editor);
-      sql.execute("GRANT {0},{1} TO {2}", viewer, editor, manager);
-      sql.execute("GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION", viewer, editor, manager, admin);
-
-      sql.execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), viewer);
-      sql.execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), manager);
+  @Override
+  public SqlSchema getSchema(String name) throws MolgenisException {
+    try {
+      return (SqlSchema) super.getSchema(name);
     } catch (Exception e) {
-      throw new MolgenisException(e);
+      SqlSchema schema = new SqlSchema(this, name);
+      if (schema.exists()) {
+        schemas.put(name, schema);
+        return schema;
+      } else throw new MolgenisException("Schema '" + name + " doesn't exist");
     }
-    super.addSchema(new SqlSchema(this, sql, schemaName));
-    return getSchema(schemaName);
   }
 
   @Override
-  public Schema getSchema(String name) throws MolgenisException {
-    // get cached if available
-    Schema s = super.getSchema(name);
-    if (s != null) return s;
-
-    // else try to load from metadata
-    s = new SqlSchema(this, sql, name);
-    this.schemas.put(name, s);
-
-    return s;
+  public Collection<String> getSchemaNames() throws MolgenisException {
+    Collection<String> result = super.getSchemaNames();
+    if (result.size() == 0) {
+      result = loadSchemaNames(this);
+      for (String r : result) {
+        this.schemas.put(r, null);
+      }
+    }
+    return result;
   }
 
   @Override
   public void createUser(String name) throws MolgenisException {
     try {
-      sql.execute("CREATE ROLE {0} WITH NOLOGIN", name(name));
+      jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(name));
     } catch (DataAccessException dae) {
       if (dae.getMessage().contains("already exists")) {
         // do nothing, idempotent
@@ -87,7 +78,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   @Override
   public void grantRoleToUser(String role, String user) throws MolgenisException {
     try {
-      sql.execute("GRANT {0} TO {1}", name(role), name(user));
+      jooq.execute("GRANT {0} TO {1}", name(role), name(user));
     } catch (DataAccessException dae) {
       throw new MolgenisException(dae);
     }
@@ -97,7 +88,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   public void transaction(Transaction transaction) throws MolgenisException {
     // createColumn independent copy of database with transaction connection
     try {
-      sql.transaction(
+      jooq.transaction(
           config -> {
             Database db = new SqlDatabase(config);
             transaction.run(db);
@@ -112,9 +103,9 @@ public class SqlDatabase extends DatabaseBean implements Database {
   @Override
   public void transaction(String user, Transaction transaction) throws MolgenisException {
     // createColumn independent copy of database with transaction connection
-    sql.execute("SET SESSION AUTHORIZATION {0}", name(user));
+    jooq.execute("SET SESSION AUTHORIZATION {0}", name(user));
     try {
-      sql.transaction(
+      jooq.transaction(
           config -> {
             Database db = new SqlDatabase(config);
             transaction.run(db);
@@ -122,16 +113,20 @@ public class SqlDatabase extends DatabaseBean implements Database {
     } catch (Exception e) {
       throw new MolgenisException(e);
     } finally {
-      sql.execute("RESET SESSION AUTHORIZATION");
+      jooq.execute("RESET SESSION AUTHORIZATION");
     }
   }
 
   @Override
   public void setDeferChecks(boolean shouldDefer) {
     if (shouldDefer) {
-      sql.execute("SET CONSTRAINTS ALL DEFERRED");
+      jooq.execute("SET CONSTRAINTS ALL DEFERRED");
     } else {
-      sql.execute("SET CONSTRAINTS ALL IMMEDIATE");
+      jooq.execute("SET CONSTRAINTS ALL IMMEDIATE");
     }
+  }
+
+  DSLContext getJooq() {
+    return jooq;
   }
 }

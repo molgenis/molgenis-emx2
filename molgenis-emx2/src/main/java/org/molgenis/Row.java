@@ -109,27 +109,22 @@ public class Row implements Identifiable {
   }
 
   public Row setString(String name, String value) {
-    values.put(name, value);
+    this.values.put(name, value);
     return this;
   }
 
   public Row setStringArray(String name, String[] value) {
-    values.put(name, value);
-    return this;
-  }
-
-  public Row setEnum(String name, String value) {
-    values.put(name, value);
+    this.values.put(name, value);
     return this;
   }
 
   public Row setInt(String name, Integer value) {
-    values.put(name, value);
+    this.values.put(name, value);
     return this;
   }
 
   public Row setRef(String name, Row value) {
-    values.put(name, value.getMolgenisid());
+    this.values.put(name, value.getMolgenisid());
     return this;
   }
 
@@ -150,42 +145,42 @@ public class Row implements Identifiable {
   }
 
   public Row setRef(String name, UUID value) {
-    values.put(name, value);
+    this.values.put(name, value);
     return this;
   }
 
   public Row setDecimal(String columnId, Double value) {
-    values.put(columnId, value);
+    this.values.put(columnId, value);
     return this;
   }
 
   public Row setBool(String columnId, Boolean value) {
-    values.put(columnId, value);
+    this.values.put(columnId, value);
     return this;
   }
 
   public Row setDate(String columnId, LocalDate value) {
-    values.put(columnId, value);
+    this.values.put(columnId, value);
     return this;
   }
 
   public Row setDateTime(String columnId, LocalDateTime value) {
-    values.put(columnId, value);
+    this.values.put(columnId, value);
     return this;
   }
 
   public Row setText(String columnId, String value) {
-    values.put(columnId, value);
+    this.values.put(columnId, value);
     return this;
   }
 
   public Row setUuid(String columnId, UUID value) {
-    values.put(columnId, value);
+    this.values.put(columnId, value);
     return this;
   }
 
-  public Row setUuidArray(String columnId, UUID[] value) {
-    values.put(columnId, value);
+  public Row setRefArray(String column, Object... values) {
+    this.values.put(column, values);
     return this;
   }
 
@@ -211,7 +206,7 @@ public class Row implements Identifiable {
   }
 
   public Map<String, Object> getValueMap() {
-    return values;
+    return this.values;
   }
 
   public List<UUID> getMref(String colName) {
@@ -219,7 +214,7 @@ public class Row implements Identifiable {
   }
 
   public Collection<String> getColumns() {
-    return values.keySet();
+    return this.values.keySet();
   }
 
   public Row setRowEditRole(String role) {

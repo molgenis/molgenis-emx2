@@ -1,13 +1,11 @@
 package org.molgenis.beans;
 
+import org.javers.common.collections.Lists;
 import org.molgenis.Column;
 import org.molgenis.Table;
 import org.molgenis.Unique;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class UniqueBean implements Unique {
   private Table table;
@@ -24,17 +22,22 @@ public class UniqueBean implements Unique {
   }
 
   @Override
-  public Collection<Column> getColumns() {
-    return Collections.unmodifiableList(columns);
-  }
-
-  @Override
   public Collection<String> getColumnNames() {
     List<String> names = new ArrayList<>();
     for (Column col : columns) {
       names.add(col.getName());
     }
     return Collections.unmodifiableList(names);
+  }
+
+  @Override
+  public String getSchemaName() {
+    return getTable().getSchemaName();
+  }
+
+  @Override
+  public String getTableName() {
+    return getTable().getName();
   }
 
   public String toString() {

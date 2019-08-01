@@ -45,7 +45,7 @@ public class TableBean extends IdentifiableBean implements Table {
 
   @Override
   public Column addColumn(String name, Type type) throws MolgenisException {
-    Column c = new ColumnBean(this, name, type);
+    Column c = new ColumnBean(this, name, type, false);
     columns.put(name, c);
     return c;
   }
@@ -58,7 +58,7 @@ public class TableBean extends IdentifiableBean implements Table {
   @Override
   public Column addRef(String name, String otherTable, String otherColumn)
       throws MolgenisException {
-    Column c = new ColumnBean(this, name, REF, otherTable, otherColumn);
+    Column c = new ColumnBean(this, name, REF, otherTable, otherColumn, false);
     columns.put(name, c);
     return c;
   }
@@ -66,14 +66,14 @@ public class TableBean extends IdentifiableBean implements Table {
   @Override
   public Column addRefArray(String name, String otherTable, String otherColumn)
       throws MolgenisException {
-    Column c = new ColumnBean(this, name, REF_ARRAY, otherTable, otherColumn);
+    Column c = new ColumnBean(this, name, REF_ARRAY, otherTable, otherColumn, false);
     columns.put(name, c);
     return c;
   }
 
   @Override
   public Column addMref(String name, String refTable, String refColumn) throws MolgenisException {
-    Column c = new ColumnBean(this, name, MREF, refTable, refColumn);
+    Column c = new ColumnBean(this, name, MREF, refTable, refColumn, false);
     columns.put(name, c);
     return c;
   }
@@ -115,7 +115,7 @@ public class TableBean extends IdentifiableBean implements Table {
   public String getUniqueName(String... keys) throws MolgenisException {
     List<String> keyList = Arrays.asList(keys);
     for (Map.Entry<String, Unique> el : this.uniques.entrySet()) {
-      if (el.getValue().getColumns().size() == keyList.size()
+      if (el.getValue().getColumnNames().size() == keyList.size()
           && el.getValue().getColumnNames().containsAll(keyList)) {
         return el.getKey();
       }
@@ -205,5 +205,10 @@ public class TableBean extends IdentifiableBean implements Table {
   @Override
   public List<Row> retrieve() throws MolgenisException {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getSchemaName() {
+    return getSchema().getName();
   }
 }

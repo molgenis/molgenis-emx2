@@ -3,26 +3,25 @@ package org.molgenis.sql;
 import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.MolgenisException;
-import org.molgenis.Table;
 
-import static org.jooq.impl.DSL.keyword;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.*;
 import static org.molgenis.Type.REF_ARRAY;
 
-public class RefArraySqlColumn extends SimpleSqlColumn {
-  private DSLContext sql;
+public class RefArraySqlColumn extends SqlColumn {
+  private DSLContext jooq;
 
   public RefArraySqlColumn(
-      DSLContext sql, Table table, String name, String refTable, String refColumn)
+      SqlTable table, String columnName, String toTable, String toColumn, Boolean isNullable)
       throws MolgenisException {
-    super(sql, table, name, REF_ARRAY, refTable, refColumn);
-    this.sql = sql;
+    super(table, columnName, REF_ARRAY, toTable, toColumn, isNullable);
+    this.jooq = table.getJooq();
   }
 
   public RefArraySqlColumn createColumn() throws MolgenisException {
     super.createColumn();
     this.createReferenceExistsTrigger();
     this.createIsReferencedByTrigger();
+
     return this;
   }
 
@@ -40,7 +39,7 @@ public class RefArraySqlColumn extends SimpleSqlColumn {
             getTable().getName() + "_" + getName() + "_REF_ARRAY_TRIGGER2");
 
     // create the function
-    sql.execute(
+    jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
             + "\n\tBEGIN"
@@ -67,7 +66,7 @@ public class RefArraySqlColumn extends SimpleSqlColumn {
         thisColumn);
 
     // create the trigger
-    sql.execute(
+    jooq.execute(
         "CREATE CONSTRAINT TRIGGER {0} "
             + "\n\tAFTER UPDATE OR DELETE ON {1} "
             + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
@@ -90,7 +89,7 @@ public class RefArraySqlColumn extends SimpleSqlColumn {
             getTable().getName() + "_" + getName() + "_REF_ARRAY_TRIGGER");
 
     // create the function
-    sql.execute(
+    jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
             + "\nDECLARE"
@@ -123,12 +122,12 @@ public class RefArraySqlColumn extends SimpleSqlColumn {
         toTable);
 
     // add the trigger
-    sql.execute(
+    jooq.execute(
         "CREATE CONSTRAINT TRIGGER {0} "
-            + "\n\tAFTER INSERT OR UPDATE ON {1} "
+            + "\n\tAFTER INSERT OR UPDATE OF {1} ON {2} FROM {3}"
             + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
-            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-        triggerName, thisTable, functionName);
+            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {4}()",
+        triggerName, thisColumn, thisTable, toTable, functionName);
   }
 
   private Name getTriggerName() {

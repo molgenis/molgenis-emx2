@@ -65,10 +65,10 @@ public class AttributesFileReader {
       column.setReadonly(row.getReadonly());
       // column.setValidation(row.getValidationExepression());
 
-      //      if (column.getType().equals(SELECT)
-      //          || column.getType().equals(MSELECT)
-      //          || column.getType().equals(RADIO)
-      //          || column.getType().equals(CHECKBOX)) {
+      //      if (column.getDataType().equals(SELECT)
+      //          || column.getDataType().equals(MSELECT)
+      //          || column.getDataType().equals(RADIO)
+      //          || column.getDataType().equals(CHECKBOX)) {
       //        refEntities.put(lineNumber, row.getRefEntity());
       //        refColumns.put(lineNumber, column);
       //      }

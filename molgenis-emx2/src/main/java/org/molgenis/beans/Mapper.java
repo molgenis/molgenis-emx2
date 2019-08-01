@@ -2,7 +2,6 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 import org.molgenis.annotations.ColumnMetadata;
-import org.molgenis.beans.TableBean;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -76,10 +75,10 @@ public class Mapper {
             col.setNullable(cm.nullable());
             col.setDescription(cm.description());
           }
-          if (REF.equals(col.getType())) {
+          if (REF.equals(col.getDataType())) {
             // big todo, fake table. Need singleton or lazyload before whole world is loaded in
             // one go
-            // col.setRefTable(f.getType().getSimpleName());
+            // col.setRefTable(f.getDataType().getSimpleName());
           }
         }
       } catch (Exception e) {

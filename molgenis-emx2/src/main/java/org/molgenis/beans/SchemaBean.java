@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class SchemaBean implements Schema {
   private String name;
-  private Map<String, Table> tables = new LinkedHashMap<>();
+  protected Map<String, Table> tables = new LinkedHashMap<>();
 
   public SchemaBean(String name) {
     this.name = name;
@@ -46,8 +46,13 @@ public class SchemaBean implements Schema {
 
   @Override
   public Table getTable(String name) throws MolgenisException {
-    if (tables.containsKey(name)) return tables.get(name);
-    throw new MolgenisException(String.format("Table '%s' unknown", name));
+    Table table = tables.get(name);
+    if (table == null) throw new MolgenisException(String.format("Table '%s' unknown", name));
+    return table;
+  }
+
+  public Boolean tableIsCached(String name) {
+    return tables.containsKey(name);
   }
 
   @Override
@@ -71,7 +76,7 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public void dropTable(String tableId) {
+  public void dropTable(String tableId) throws MolgenisException {
     tables.remove(tableId);
   }
 

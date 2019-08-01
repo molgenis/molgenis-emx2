@@ -6,8 +6,6 @@ import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 import org.molgenis.Query;
 import org.molgenis.Row;
-import org.molgenis.Schema;
-import org.molgenis.Table;
 import org.molgenis.beans.TableBean;
 import org.postgresql.util.PSQLException;
 
@@ -15,66 +13,66 @@ import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 
+import static org.molgenis.Database.Prefix.MGROLE_;
+import static org.molgenis.Database.Roles._EDITOR;
+import static org.molgenis.Database.Roles._MANAGER;
+import static org.molgenis.Database.Roles._VIEWER;
 import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
+import static org.molgenis.sql.MetadataUtils.*;
 
 class SqlTable extends TableBean {
   public static final String MG_SEARCH_VECTOR = "mg_search_vector";
-  private DSLContext sql;
-  private boolean isLoading = false;
+  private DSLContext jooq;
 
-  SqlTable(Schema schema, DSLContext sql, String name) throws MolgenisException {
+  SqlTable(SqlSchema schema, String name) throws MolgenisException {
     super(schema, name);
-    this.sql = sql;
-    // load default columns and uniques
-    isLoading = true;
-    this.addColumn(MOLGENISID, Type.UUID);
-    this.addUnique(MOLGENISID);
-    isLoading = false;
+    this.jooq = schema.jooq;
+    loadColumnMetadata(this, columns);
+    loadUniqueMetadata(this, uniques);
   }
 
-  /** will be called from SqlSchema */
-  protected void loadMrefs() throws MolgenisException {
+  void createTable() throws MolgenisException {
+    Name tableName = name(getSchemaName(), getName());
+    String uniqueName = "PK_" + getName();
 
-    this.isLoading = true;
+    // createTable the table
+    jooq.createTableIfNotExists(tableName)
+        .column(MOLGENISID, SQLDataType.UUID)
+        .constraints(constraint(uniqueName).primaryKey(MOLGENISID))
+        .execute();
 
-    // check all tables for mref tables, probably expensive
-    for (String mrefTableName : getSchema().getTableNames()) {
-      Table mrefTable = getSchema().getTable(mrefTableName);
+    // grant rights to schema manager, editor and viewer roles
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + _VIEWER));
+    jooq.execute(
+        "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
+        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + _EDITOR));
+    jooq.execute(
+        "ALTER TABLE {0} OWNER TO {1}",
+        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + _MANAGER));
 
-      // test if it is 'our' mref jTable]
-      boolean valid = true;
-      Column self = null;
-      Column other = null;
-      for (Column c : mrefTable.getColumns()) {
-        if (c.getRefTable() != null) {
-          if (c.getRefTable().equals(this.getName())) {
-            if (self != null) valid = false;
-            else self = c;
-          } else {
-            if (other != null) valid = false;
-            else other = c;
-          }
-        }
-      }
-      if (valid && self != null && other != null) {
-        this.addMref(other.getName(), other.getRefTable(), other.getName());
-      }
-    }
+    // save the metdata
+    saveTableMetadata(this);
 
-    this.isLoading = false;
+    SqlColumn c = new SqlColumn(this, MOLGENISID, UUID, true);
+    columns.put(MOLGENISID, c);
+    saveColumn(c);
+
+    super.addUnique(MOLGENISID);
   }
 
   @Override
   public void enableSearch() {
 
     // 1. add tsvector column with index
-    sql.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", getJooqTable(), name(MG_SEARCH_VECTOR));
+    jooq.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", getJooqTable(), name(MG_SEARCH_VECTOR));
     // for future performance enhancement consider studying 'gin (t gin_trgm_ops)
 
     // 2. createColumn index on that column to speed up search
-    sql.execute(
+    jooq.execute(
         "CREATE INDEX mg_search_vector_idx ON {0} USING GIN( {1} )",
         getJooqTable(), name(MG_SEARCH_VECTOR));
 
@@ -102,10 +100,10 @@ class SqlTable extends TableBean {
 
     System.out.println(functionBody);
 
-    sql.execute(functionBody);
+    jooq.execute(functionBody);
 
     // 4. add trigger to update the tsvector on each insert or update
-    sql.execute(
+    jooq.execute(
         "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
             + triggerfunction,
         name(MG_SEARCH_VECTOR),
@@ -114,21 +112,13 @@ class SqlTable extends TableBean {
 
   }
 
-  protected void loadColumn(SimpleSqlColumn c) {
-    this.columns.put(c.getName(), c);
-  }
-
-  protected void loadUnique(List<String> columns) throws MolgenisException {
-    super.addUnique(columns.toArray(new String[columns.size()]));
-  }
-
   @Override
   public void enableRowLevelSecurity() throws MolgenisException {
-    SimpleSqlColumn c = this.addColumn(MG_EDIT_ROLE.toString(), STRING);
+    SqlColumn c = this.addColumn(MG_EDIT_ROLE.toString(), STRING);
     c.setIndexed(true);
 
-    sql.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
-    sql.execute(
+    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
+    jooq.execute(
         "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
         name("RLS/" + getSchema().getName() + "/" + getName()),
         getJooqTable(),
@@ -138,11 +128,9 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public SimpleSqlColumn addColumn(String name, Type type) throws MolgenisException {
-    SimpleSqlColumn c = new SimpleSqlColumn(sql, this, name, type);
-    if (!isLoading) {
-      c.createColumn();
-    }
+  public SqlColumn addColumn(String name, Type type) throws MolgenisException {
+    SqlColumn c = new SqlColumn(this, name, type, false);
+    c.createColumn();
     columns.put(name, c);
     return c;
   }
@@ -150,10 +138,8 @@ class SqlTable extends TableBean {
   @Override
   public RefSqlColumn addRef(String name, String otherTable, String otherColumn)
       throws MolgenisException {
-    RefSqlColumn c = new RefSqlColumn(sql, this, name, otherTable, otherColumn);
-    if (!isLoading) {
-      c.createColumn();
-    }
+    RefSqlColumn c = new RefSqlColumn(this, name, otherTable, otherColumn, false);
+    c.createColumn();
     columns.put(name, c);
     return c;
   }
@@ -161,10 +147,8 @@ class SqlTable extends TableBean {
   @Override
   public RefArraySqlColumn addRefArray(String name, String otherTable, String otherColumn)
       throws MolgenisException {
-    RefArraySqlColumn c = new RefArraySqlColumn(sql, this, name, otherTable, otherColumn);
-    if (!isLoading) {
-      c.createColumn();
-    }
+    RefArraySqlColumn c = new RefArraySqlColumn(this, name, otherTable, otherColumn, false);
+    c.createColumn();
     columns.put(name, c);
     return c;
   }
@@ -172,10 +156,8 @@ class SqlTable extends TableBean {
   @Override
   public MrefSqlColumn addMref(String name, String toTable, String toColumn)
       throws MolgenisException {
-    MrefSqlColumn c = new MrefSqlColumn(sql, this, name, MREF, toTable, toColumn);
-    if (!isLoading) {
-      c.createColumn();
-    }
+    MrefSqlColumn c = new MrefSqlColumn(this, name, toTable, toColumn, false);
+    c.createColumn();
     columns.put(name, c);
     return c;
   }
@@ -184,15 +166,14 @@ class SqlTable extends TableBean {
   public void removeColumn(String name) throws MolgenisException {
     if (MOLGENISID.equals(name))
       throw new MolgenisException("You are not allowed to remove primary key column " + MOLGENISID);
-    sql.alterTable(getJooqTable()).dropColumn(field(name(name))).execute();
+    jooq.alterTable(getJooqTable()).dropColumn(field(name(name))).execute();
     super.removeColumn(name);
   }
 
   public Unique addUnique(String... keys) throws MolgenisException {
-    if (!isLoading) {
-      String uniqueName = getName() + "_" + String.join("_", keys) + "_UNIQUE";
-      sql.alterTable(getJooqTable()).add(constraint(name(uniqueName)).unique(keys)).execute();
-    }
+
+    String uniqueName = getName() + "_" + String.join("_", keys) + "_UNIQUE";
+    jooq.alterTable(getJooqTable()).add(constraint(name(uniqueName)).unique(keys)).execute();
     return super.addUnique(keys);
   }
 
@@ -212,7 +193,7 @@ class SqlTable extends TableBean {
       throw new MolgenisException(
           "You are not allowed to remove unique constraint on primary key column " + MOLGENISID);
     String uniqueName = getUniqueName(keys);
-    sql.alterTable(getJooqTable()).dropConstraint(name(uniqueName)).execute();
+    jooq.alterTable(getJooqTable()).dropConstraint(name(uniqueName)).execute();
     super.removeUnique(keys);
   }
 
@@ -235,7 +216,7 @@ class SqlTable extends TableBean {
         i++;
       }
       InsertValuesStepN step =
-          sql.insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+          jooq.insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
       for (Row row : rows) {
         currentRow = row;
         step.values(SqlTypeUtils.getValuesAsCollection(row, this));
@@ -292,7 +273,7 @@ class SqlTable extends TableBean {
       throws MolgenisException {
     if (!rows.isEmpty()) {
       // createColumn multi-value insert
-      InsertValuesStepN step = sql.insertInto(t, fields.toArray(new Field[fields.size()]));
+      InsertValuesStepN step = jooq.insertInto(t, fields.toArray(new Field[fields.size()]));
       for (org.molgenis.Row row : rows) {
         step.values(SqlTypeUtils.getValuesAsCollection(row, this));
       }
@@ -340,7 +321,7 @@ class SqlTable extends TableBean {
         Field field = field(name(MOLGENISID), SQLDataType.UUID);
         List<UUID> idList = new ArrayList<>();
         rows.forEach(row -> idList.add(row.getMolgenisid()));
-        sql.deleteFrom(getJooqTable()).where(field.in(idList)).execute();
+        jooq.deleteFrom(getJooqTable()).where(field.in(idList)).execute();
       }
     } catch (DataAccessException e) {
       throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
@@ -349,7 +330,7 @@ class SqlTable extends TableBean {
 
   @Override
   public Query query() {
-    return new SqlQuery(this, sql);
+    return new SqlQuery(this, jooq);
   }
 
   @Override
@@ -363,5 +344,18 @@ class SqlTable extends TableBean {
 
   private Field getJooqField(Column c) throws MolgenisException {
     return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
+  }
+
+  public DSLContext getJooq() {
+    return jooq;
+  }
+
+  public boolean exists() {
+    return getColumns().size() > 0;
+  }
+
+  public void dropTable() {
+    jooq.dropTable(name(getSchemaName(), getName())).execute();
+    deleteTable(this);
   }
 }

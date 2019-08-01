@@ -6,7 +6,9 @@ public interface Unique {
 
   Table getTable();
 
-  Collection<Column> getColumns();
-
   Collection<String> getColumnNames();
+
+  String getSchemaName();
+
+  String getTableName();
 }

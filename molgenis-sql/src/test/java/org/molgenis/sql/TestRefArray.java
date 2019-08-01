@@ -80,7 +80,7 @@ public class TestRefArray {
     a.insert(aRow, aRow2);
 
     Table b = s.createTable("B");
-    String refName = type + "Ref";
+    String refName = type + "RefArray";
     b.addRefArray(refName, "A", fieldName);
 
     // error on insert of faulty fkey

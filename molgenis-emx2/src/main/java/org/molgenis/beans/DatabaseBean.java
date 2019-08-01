@@ -2,10 +2,12 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-public abstract class DatabaseBean implements Database {
+public class DatabaseBean implements Database {
   private String name;
   protected Map<String, Schema> schemas = new LinkedHashMap<>();
 
@@ -36,7 +38,14 @@ public abstract class DatabaseBean implements Database {
 
   @Override
   public Schema getSchema(String name) throws MolgenisException {
-    return this.schemas.get(name);
+    Schema result = this.schemas.get(name);
+    if (result == null) throw new MolgenisException("Schema '" + name + " doesn't exist");
+    return result;
+  }
+
+  @Override
+  public Collection<String> getSchemaNames() throws MolgenisException {
+    return this.schemas.keySet();
   }
 
   @Override

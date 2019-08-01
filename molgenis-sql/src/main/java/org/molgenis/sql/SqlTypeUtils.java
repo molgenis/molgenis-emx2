@@ -1,15 +1,15 @@
 package org.molgenis.sql;
 
 import org.jooq.DataType;
-import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.jooq.impl.DSL.cast;
+import static org.jooq.impl.DSL.value;
 import static org.molgenis.Type.REF_ARRAY;
-import static org.molgenis.Type.UUID_ARRAY;
 
 public class SqlTypeUtils {
 
@@ -18,7 +18,7 @@ public class SqlTypeUtils {
   }
 
   public static DataType jooqTypeOf(Column column) throws MolgenisException {
-    Type sqlType = column.getType();
+    Type sqlType = column.getDataType();
     switch (sqlType) {
       case UUID:
         return SQLDataType.UUID;
@@ -41,9 +41,9 @@ public class SqlTypeUtils {
       case DECIMAL_ARRAY:
         return SQLDataType.DOUBLE.getArrayDataType();
       case TEXT:
-        return SQLDataType.LONGVARCHAR;
+        return SQLDataType.CLOB;
       case TEXT_ARRAY:
-        return SQLDataType.LONGVARCHAR.getArrayDataType();
+        return SQLDataType.CLOB.getArrayDataType();
       case DATE:
         return SQLDataType.DATE;
       case DATE_ARRAY:
@@ -91,7 +91,7 @@ public class SqlTypeUtils {
   }
 
   public static Object getTypedValue(Object v, Column column) throws MolgenisException {
-    Type type = column.getType();
+    Type type = column.getDataType();
     if (Type.REF.equals(type)) {
       type = getRefType(column);
     }
@@ -117,9 +117,9 @@ public class SqlTypeUtils {
       case DECIMAL_ARRAY:
         return TypeUtils.toDecimalArray(v);
       case TEXT:
-        return TypeUtils.toText(v);
+        return cast(TypeUtils.toText(v), SQLDataType.CLOB);
       case TEXT_ARRAY:
-        return TypeUtils.toTextArray(v);
+        return cast(TypeUtils.toTextArray(v), SQLDataType.CLOB.getArrayDataType());
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
@@ -139,7 +139,7 @@ public class SqlTypeUtils {
         .getSchema()
         .getTable(column.getRefTable())
         .getColumn(column.getRefColumn())
-        .getType();
+        .getDataType();
   }
 
   public static Type getArrayType(Type type) throws MolgenisException {
@@ -166,7 +166,7 @@ public class SqlTypeUtils {
   }
 
   public static Object getTypedValue(Row row, Column column) throws MolgenisException {
-    Type type = column.getType();
+    Type type = column.getDataType();
     if (Type.REF.equals(type)) {
       type = getRefType(column);
     }
@@ -207,35 +207,51 @@ public class SqlTypeUtils {
       case DATETIME_ARRAY:
         return row.getDateTimeArray(column.getName());
       default:
-        throw new UnsupportedOperationException("Unsupported type found:" + column.getType());
+        throw new UnsupportedOperationException("Unsupported type found:" + column.getDataType());
     }
   }
 
-  public static Type pslqToMolgenisType(String dataType) {
+  public static Type getMolgenisTypeFromPsqlUDT(String dataType) {
     switch (dataType) {
-      case "character varying":
+      case "varchar":
         return Type.STRING;
+      case "_varchar":
+        return Type.STRING_ARRAY;
       case "uuid":
         return Type.UUID;
+      case "_uuid":
+        return Type.UUID_ARRAY;
       case "bool":
         return Type.BOOL;
-      case "integer":
+      case "_bool":
+        return Type.BOOL_ARRAY;
+      case "int4":
         return Type.INT;
-      case "decimal":
+      case "_int4":
+        return Type.INT_ARRAY;
+      case "float8":
         return Type.DECIMAL;
+      case "_float8":
+        return Type.DECIMAL_ARRAY;
       case "text":
         return Type.TEXT;
+      case "_text":
+        return Type.TEXT_ARRAY;
       case "date":
         return Type.DATE;
-      case "timestamp without time zone":
+      case "_date":
+        return Type.DATE_ARRAY;
+      case "timestamp":
         return Type.DATETIME;
+      case "_timestamp":
+        return Type.DATETIME_ARRAY;
       default:
         throw new RuntimeException("data type unknown " + dataType);
     }
   }
 
   public static String getPsqlType(Column column) {
-    switch (column.getType()) {
+    switch (column.getDataType()) {
       case STRING:
         return "character varying";
       case UUID:
@@ -253,7 +269,7 @@ public class SqlTypeUtils {
       case DATETIME:
         return "timestamp without time zone";
       default:
-        throw new RuntimeException("data cannot be mapped to psqlType " + column.getType());
+        throw new RuntimeException("data cannot be mapped to psqlType " + column.getDataType());
     }
   }
 }

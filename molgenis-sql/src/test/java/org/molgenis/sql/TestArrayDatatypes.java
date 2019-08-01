@@ -66,6 +66,11 @@ public class TestArrayDatatypes {
         });
   }
 
+  //  @Test
+  //  public void testBool() throws MolgenisException {
+  //    executeTest(BOOL_ARRAY, new Boolean[] {null, true, false});
+  //  }
+
   private void executeTest(Type type, Object[] values) throws MolgenisException {
 
     Schema s = db.createSchema("TestArrayDatatypes" + type.toString().toUpperCase());

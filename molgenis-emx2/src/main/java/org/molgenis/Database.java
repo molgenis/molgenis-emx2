@@ -1,5 +1,7 @@
 package org.molgenis;
 
+import java.util.Collection;
+
 public interface Database {
   void setDeferChecks(boolean shouldDefer);
 
@@ -26,6 +28,8 @@ public interface Database {
   Schema createSchema(String name) throws MolgenisException;
 
   Schema getSchema(String name) throws MolgenisException;
+
+  Collection<String> getSchemaNames() throws MolgenisException;
 
   void createUser(String name) throws MolgenisException;
 

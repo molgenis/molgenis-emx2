@@ -34,18 +34,26 @@ public class ColumnBean implements Column {
     this.type = Type.STRING;
   }
 
-  public ColumnBean(Table table, String name, Type type) {
+  public ColumnBean(Table table, String name, Type type, Boolean isNullable) {
     this.table = table;
     this.name = name;
     this.type = type;
+    this.nullable = isNullable;
   }
 
-  public ColumnBean(Table table, String name, Type type, String otherTable, String otherColumn) {
+  public ColumnBean(
+      Table table,
+      String name,
+      Type type,
+      String otherTable,
+      String otherColumn,
+      Boolean isNullable) {
     this.table = table;
     this.name = name;
     this.type = type;
     this.refTable = otherTable;
     this.refColumn = otherColumn;
+    this.nullable = isNullable;
   }
 
   @Override
@@ -64,7 +72,7 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public Type getType() {
+  public Type getDataType() {
     return type;
   }
 
@@ -98,8 +106,8 @@ public class ColumnBean implements Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
-    if (Type.REF.equals(getType())) builder.append("ref(").append(refTable).append(")");
-    else builder.append(getType().toString().toLowerCase());
+    if (Type.REF.equals(getDataType())) builder.append("ref(").append(refTable).append(")");
+    else builder.append(getDataType().toString().toLowerCase());
     if (isNullable()) builder.append(" nullable");
     return builder.toString();
   }

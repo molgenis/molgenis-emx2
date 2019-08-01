@@ -6,7 +6,7 @@
 // import org.molgenis.Row;
 // import org.molgenis.utils.StopWatch;
 //
-// import java.sql.SQLException;
+// import java.jooq.SQLException;
 // import java.util.List;
 //
 // import static org.junit.Assert.assertEquals;

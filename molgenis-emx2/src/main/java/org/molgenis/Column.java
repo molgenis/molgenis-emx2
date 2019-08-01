@@ -7,7 +7,7 @@ public interface Column {
 
   String getName();
 
-  Type getType();
+  Type getDataType();
 
   Boolean isNullable();
 

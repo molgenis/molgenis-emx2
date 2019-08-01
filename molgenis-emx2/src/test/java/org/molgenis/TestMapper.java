@@ -1,7 +1,6 @@
 package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.beans.ColumnBean;
 import org.molgenis.beans.Mapper;
 
 import static org.junit.Assert.assertEquals;
@@ -43,8 +42,8 @@ public class TestMapper {
     assertEquals(firstName.getName(), "firstName");
     assertEquals(lastName.getName(), "lastName");
 
-    assertEquals(molgenisid.getType(), Type.UUID);
-    assertEquals(firstName.getType(), Type.STRING);
+    assertEquals(molgenisid.getDataType(), Type.UUID);
+    assertEquals(firstName.getDataType(), Type.STRING);
 
     assertTrue(firstName.isNullable());
     assertFalse(lastName.isNullable());
