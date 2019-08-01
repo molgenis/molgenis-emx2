@@ -42,8 +42,8 @@ public class SqlSchema extends SchemaBean {
   void createSchema() throws MolgenisException {
     String schemaName = getName();
 
-    try {
-      jooq.createSchema(schemaName).execute();
+    try (CreateSchemaFinalStep step = jooq.createSchema(schemaName)) {
+      step.execute();
 
       Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
       Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);

@@ -1,5 +1,6 @@
 package org.molgenis.sql;
 
+import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.molgenis.*;
@@ -40,64 +41,69 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
-  static void createMetadataSchemaIfNotExists(DSLContext jooq) {
+  static void createMetadataSchemaIfNotExists(DSLContext jooq) throws MolgenisException {
 
-    jooq.createSchemaIfNotExists("MOLGENIS").execute();
-    jooq.createTableIfNotExists(SCHEMA_METADATA)
-        .columns(TABLE_SCHEMA)
-        .constraint(primaryKey(TABLE_SCHEMA))
-        .execute();
-    // public access
+    try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists("MOLGENIS")) {
+      step.execute();
+      jooq.createTableIfNotExists(SCHEMA_METADATA)
+          .columns(TABLE_SCHEMA)
+          .constraint(primaryKey(TABLE_SCHEMA))
+          .execute();
+      // public access
 
-    jooq.createTableIfNotExists(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME)
-        .constraints(
-            primaryKey(TABLE_SCHEMA, TABLE_NAME),
-            foreignKey(TABLE_SCHEMA)
-                .references(SCHEMA_METADATA)
-                .onUpdateCascade()
-                .onDeleteCascade())
-        .execute();
+      jooq.createTableIfNotExists(TABLE_METADATA)
+          .columns(TABLE_SCHEMA, TABLE_NAME)
+          .constraints(
+              primaryKey(TABLE_SCHEMA, TABLE_NAME),
+              foreignKey(TABLE_SCHEMA)
+                  .references(SCHEMA_METADATA)
+                  .onUpdateCascade()
+                  .onDeleteCascade())
+          .execute();
 
-    jooq.createTableIfNotExists(COLUMN_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, REF_TABLE, REF_COLUMN)
-        .constraints(
-            primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-            foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                .onUpdateCascade()
-                .onDeleteCascade())
-        .execute();
-    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", COLUMN_METADATA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
-        name("COLUMN_RLS_MANAGER"), COLUMN_METADATA, TABLE_SCHEMA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
-        name("COLUMN_RLS_VIEWER"), COLUMN_METADATA, TABLE_SCHEMA);
+      jooq.createTableIfNotExists(COLUMN_METADATA)
+          .columns(
+              TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, REF_TABLE, REF_COLUMN)
+          .constraints(
+              primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
+              foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                  .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                  .onUpdateCascade()
+                  .onDeleteCascade())
+          .execute();
+      jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", COLUMN_METADATA);
+      jooq.execute(
+          "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
+          name("COLUMN_RLS_MANAGER"), COLUMN_METADATA, TABLE_SCHEMA);
+      jooq.execute(
+          "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
+          name("COLUMN_RLS_VIEWER"), COLUMN_METADATA, TABLE_SCHEMA);
 
-    jooq.createTableIfNotExists(UNIQUE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-        .constraints(
-            primaryKey(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS),
-            foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                .onUpdateCascade()
-                .onDeleteCascade())
-        .execute();
-    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", UNIQUE_METADATA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
-        name("UNIQUE_RLS_MANAGER"), UNIQUE_METADATA, TABLE_SCHEMA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
-        name("UNIQUE_RLS_VIEWER"), UNIQUE_METADATA, TABLE_SCHEMA);
+      jooq.createTableIfNotExists(UNIQUE_METADATA)
+          .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
+          .constraints(
+              primaryKey(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS),
+              foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                  .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                  .onUpdateCascade()
+                  .onDeleteCascade())
+          .execute();
+      jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", UNIQUE_METADATA);
+      jooq.execute(
+          "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
+          name("UNIQUE_RLS_MANAGER"), UNIQUE_METADATA, TABLE_SCHEMA);
+      jooq.execute(
+          "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
+          name("UNIQUE_RLS_VIEWER"), UNIQUE_METADATA, TABLE_SCHEMA);
 
-    jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
-    jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
-    createRowLevelPermissions(jooq, TABLE_METADATA);
-    createRowLevelPermissions(jooq, COLUMN_METADATA);
-    createRowLevelPermissions(jooq, UNIQUE_METADATA);
+      jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
+      jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name("MOLGENIS"));
+      createRowLevelPermissions(jooq, TABLE_METADATA);
+      createRowLevelPermissions(jooq, COLUMN_METADATA);
+      createRowLevelPermissions(jooq, UNIQUE_METADATA);
+    } catch (Exception e) {
+      throw new MolgenisException(e);
+    }
   }
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
