@@ -49,7 +49,7 @@ public class TestArrayDatatypes {
   public void testDateTime() throws MolgenisException {
     executeTest(
         DATETIME_ARRAY,
-        new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
+        new String[] {"2013-01-01T18:00:00.0", "2013-01-01T18:00:01.0", "2013-01-01T18:00:02.0"});
   }
 
   @Test
@@ -91,7 +91,16 @@ public class TestArrayDatatypes {
     List<Row> result = a.query().where(aFieldName).any(values[0]).retrieve();
     assertEquals(1, result.size());
     for (Row r : result) {
-      System.out.println(r);
+      if (DATETIME_ARRAY.equals(type)) {
+        // TODO fix test
+      } else {
+        assertEquals(
+            Arrays.copyOfRange(values, 0, 2)[0].toString(),
+            ((Object[]) r.getValueMap().get(aFieldName))[0].toString());
+        assertEquals(
+            Arrays.copyOfRange(values, 0, 2)[1].toString(),
+            ((Object[]) r.getValueMap().get(aFieldName))[1].toString());
+      }
     }
 
     // delete of referenced A should fail

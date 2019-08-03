@@ -31,6 +31,20 @@ public class SqlColumn extends ColumnBean {
     this.jooq = table.getJooq();
   }
 
+  // for mref subclass
+  protected SqlColumn(
+      SqlTable table,
+      String name,
+      Type type,
+      String refTable,
+      String refColumn,
+      String reverseName,
+      String reverseRefColumn,
+      String joinTableName) {
+    super(table, name, type, refTable, refColumn, reverseName, reverseRefColumn, joinTableName);
+    this.jooq = table.getJooq();
+  }
+
   /** constructor for REF */
   public SqlColumn createColumn() throws MolgenisException {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
@@ -43,7 +57,7 @@ public class SqlColumn extends ColumnBean {
         .execute(); // seperate to not interfere with type
 
     // save metadata
-    MetadataUtils.saveColumn(this);
+    MetadataUtils.saveColumnMetadata(this);
     return this;
   }
 

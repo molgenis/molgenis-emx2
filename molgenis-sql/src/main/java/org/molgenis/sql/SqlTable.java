@@ -2,6 +2,7 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 import org.molgenis.Query;
@@ -10,6 +11,7 @@ import org.molgenis.beans.TableBean;
 import org.postgresql.util.PSQLException;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jooq.impl.DSL.*;
 
@@ -29,6 +31,9 @@ class SqlTable extends TableBean {
   SqlTable(SqlSchema schema, String name) throws MolgenisException {
     super(schema, name);
     this.jooq = schema.jooq;
+  }
+
+  void load() throws MolgenisException {
     loadColumnMetadata(this, columns);
     loadUniqueMetadata(this, uniques);
   }
@@ -59,7 +64,7 @@ class SqlTable extends TableBean {
 
     SqlColumn c = new SqlColumn(this, MOLGENISID, UUID, true);
     columns.put(MOLGENISID, c);
-    saveColumn(c);
+    saveColumnMetadata(c);
 
     super.addUnique(MOLGENISID);
   }
@@ -150,12 +155,24 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public MrefSqlColumn addMref(String name, String toTable, String toColumn)
+  public MrefSqlColumn addMref(
+      String name,
+      String refTable,
+      String refColumn,
+      String reverseName,
+      String reverseRefColumn,
+      String joinTable)
       throws MolgenisException {
-    MrefSqlColumn c = new MrefSqlColumn(this, name, toTable, toColumn, false);
+    MrefSqlColumn c =
+        new MrefSqlColumn(
+            this, name, refTable, refColumn, reverseName, reverseRefColumn, joinTable);
     c.createColumn();
     columns.put(name, c);
     return c;
+  }
+
+  void addMrefReverse(MrefSqlColumn reverse) {
+    columns.put(reverse.getName(), reverse);
   }
 
   @Override
@@ -201,52 +218,67 @@ class SqlTable extends TableBean {
 
   @Override
   public int insert(org.molgenis.Row... rows) throws MolgenisException {
+    AtomicInteger count = new AtomicInteger(0);
     try {
-      // get metadata
-      List<Field> fields = new ArrayList<>();
-      List<String> fieldNames = new ArrayList<>();
-      for (Column c : getColumns()) {
-        fieldNames.add(c.getName());
-        fields.add(getJooqField(c));
-      }
-      InsertValuesStepN step =
-          jooq.insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
-      for (Row row : rows) {
-        step.values(SqlTypeUtils.getValuesAsCollection(row, this));
-      }
-      return step.execute();
+      jooq.transaction(
+          config -> {
+            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+            // get metadata
+            List<Field> fields = new ArrayList<>();
+            List<String> fieldNames = new ArrayList<>();
+            for (Column c : getColumns()) {
+              fieldNames.add(c.getName());
+              fields.add(getJooqField(c));
+            }
+            InsertValuesStepN step =
+                DSL.using(config)
+                    .insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+            for (Row row : rows) {
+              step.values(SqlTypeUtils.getValuesAsCollection(row, this));
+            }
+            count.set(step.execute());
+          });
     } catch (DataAccessException e) {
       throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
     }
+    return count.get();
   }
 
   @Override
   public int update(org.molgenis.Row... rows) throws MolgenisException {
+    AtomicInteger count = new AtomicInteger(0);
+    try {
+      jooq.transaction(
+          config -> {
+            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
 
-    // keep batchsize smaller to limit memory footprint
-    int batchSize = 1000;
+            // keep batchsize smaller to limit memory footprint
+            int batchSize = 1000;
 
-    // get metadata
-    ArrayList<Field> fields = new ArrayList<>();
-    ArrayList<String> fieldNames = new ArrayList<>();
-    for (Column c : getColumns()) {
-      fieldNames.add(c.getName());
-      fields.add(getJooqField(c));
+            // get metadata
+            ArrayList<Field> fields = new ArrayList<>();
+            ArrayList<String> fieldNames = new ArrayList<>();
+            for (Column c : getColumns()) {
+              fieldNames.add(c.getName());
+              fields.add(getJooqField(c));
+            }
+
+            // execute in batches
+            List<org.molgenis.Row> batch = new ArrayList<>();
+            for (org.molgenis.Row row : rows) {
+              batch.add(row);
+              count.set(count.get() + 1);
+              if (count.get() % batchSize == 0) {
+                updateBatch(batch, getJooqTable(), fields, fieldNames);
+                batch.clear();
+              }
+            }
+            updateBatch(batch, getJooqTable(), fields, fieldNames);
+          });
+    } catch (DataAccessException e) {
+      throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
     }
-
-    // execute in batches
-    int count = 0;
-    List<org.molgenis.Row> batch = new ArrayList<>();
-    for (org.molgenis.Row row : rows) {
-      batch.add(row);
-      count++;
-      if (count % batchSize == 0) {
-        updateBatch(batch, getJooqTable(), fields, fieldNames);
-        batch.clear();
-      }
-    }
-    updateBatch(batch, getJooqTable(), fields, fieldNames);
-    return count;
+    return count.get();
   }
 
   @Override
@@ -270,8 +302,9 @@ class SqlTable extends TableBean {
       InsertOnDuplicateSetStep step2 = step.onConflict(field(MOLGENISID)).doUpdate();
       for (String name : fieldNames) {
         if (!MOLGENISID.equals(name)) {
-          step2.set(
-              field(name(name)), (Object) field(unquotedName("\"excluded\".\"" + name + "\"")));
+          step2 =
+              step2.set(
+                  field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
         }
       }
       step.execute();
@@ -286,22 +319,32 @@ class SqlTable extends TableBean {
   @Override
   public int delete(org.molgenis.Row... rows) throws MolgenisException {
 
-    // because of expensive jTable scanning and smaller queryOld string size this batch should be
-    // larger
-    // than insert/update
-    int batchSize = 100000;
-    int count = 0;
-    List<org.molgenis.Row> batch = new ArrayList<>();
-    for (org.molgenis.Row row : rows) {
-      batch.add(row);
-      count++;
-      if (count % batchSize == 0) {
-        deleteBatch(batch);
-        batch.clear();
-      }
+    AtomicInteger count = new AtomicInteger(0);
+    try {
+      jooq.transaction(
+          config -> {
+            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+
+            // because of expensive jTable scanning and smaller queryOld string size this batch
+            // should be
+            // larger
+            // than insert/update
+            int batchSize = 100000;
+            List<org.molgenis.Row> batch = new ArrayList<>();
+            for (org.molgenis.Row row : rows) {
+              batch.add(row);
+              count.set(count.get() + 1);
+              if (count.get() % batchSize == 0) {
+                deleteBatch(batch);
+                batch.clear();
+              }
+            }
+            deleteBatch(batch);
+          });
+    } catch (DataAccessException e) {
+      throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
     }
-    deleteBatch(batch);
-    return count;
+    return count.get();
   }
 
   private void deleteBatch(Collection<org.molgenis.Row> rows) throws MolgenisException {

@@ -75,10 +75,10 @@ public class Mapper {
             col.setNullable(cm.nullable());
             col.setDescription(cm.description());
           }
-          if (REF.equals(col.getDataType())) {
+          if (REF.equals(col.getType())) {
             // big todo, fake table. Need singleton or lazyload before whole world is loaded in
             // one go
-            // col.setRefTable(f.getDataType().getSimpleName());
+            // col.setRefTable(f.getType().getSimpleName());
           }
         }
       } catch (Exception e) {

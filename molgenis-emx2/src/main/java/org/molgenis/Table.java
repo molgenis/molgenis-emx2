@@ -23,7 +23,14 @@ public interface Table extends Identifiable {
 
   Column addRefArray(String name, String otherTable, String otherColumn) throws MolgenisException;
 
-  Column addMref(String name, String toTable, String toColumn) throws MolgenisException;
+  Column addMref(
+      String name,
+      String refTable,
+      String refColumn,
+      String reverseName,
+      String reversRefColumn,
+      String joinTableName)
+      throws MolgenisException;
 
   void removeColumn(String name) throws MolgenisException;
 

@@ -32,6 +32,7 @@ public class SqlSchema extends SchemaBean {
     } catch (Exception e) {
       // else retrieve from metadata
       SqlTable table = new SqlTable(this, name);
+      table.load();
       if (table.exists()) {
         this.tables.put(name, table);
         return table;
@@ -45,22 +46,24 @@ public class SqlSchema extends SchemaBean {
     try (CreateSchemaFinalStep step = jooq.createSchema(schemaName)) {
       step.execute();
 
-      Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
-      Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
-      Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
-      Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
+      String viewer = MGROLE_ + schemaName.toUpperCase() + _VIEWER;
+      String editor = MGROLE_ + schemaName.toUpperCase() + _EDITOR;
+      String manager = MGROLE_ + schemaName.toUpperCase() + _MANAGER;
+      String admin = MGROLE_ + schemaName.toUpperCase() + _ADMIN;
 
       db.createRole(viewer);
       db.createRole(editor);
       db.createRole(manager);
       db.createRole(admin);
 
-      jooq.execute("GRANT {0} TO {1}", viewer, editor);
-      jooq.execute("GRANT {0},{1} TO {2}", viewer, editor, manager);
-      jooq.execute("GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION", viewer, editor, manager, admin);
+      jooq.execute("GRANT {0} TO {1}", name(viewer), name(editor));
+      jooq.execute("GRANT {0},{1} TO {2}", name(viewer), name(editor), name(manager));
+      jooq.execute(
+          "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
+          name(viewer), name(editor), name(manager), name(admin));
 
-      jooq.execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), viewer);
-      jooq.execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), manager);
+      jooq.execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(viewer));
+      jooq.execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
     } catch (Exception e) {
       throw new MolgenisException(e);
     }

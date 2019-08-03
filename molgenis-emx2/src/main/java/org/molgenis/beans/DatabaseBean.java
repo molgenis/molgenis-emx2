@@ -67,9 +67,4 @@ public class DatabaseBean implements Database {
   public void clearCache() {
     this.schemas.clear();
   }
-
-  @Override
-  public void setDeferChecks(boolean shouldDefer) {
-    throw new UnsupportedOperationException();
-  };
 }

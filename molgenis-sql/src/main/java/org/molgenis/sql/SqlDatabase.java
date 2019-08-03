@@ -89,6 +89,8 @@ public class SqlDatabase extends DatabaseBean implements Database {
     try {
       jooq.transaction(
           config -> {
+            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+
             Database db = new SqlDatabase(config);
             transaction.run(db);
           });
@@ -104,6 +106,8 @@ public class SqlDatabase extends DatabaseBean implements Database {
     try {
       jooq.transaction(
           config -> {
+            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+
             Database db = new SqlDatabase(config);
             transaction.run(db);
           });
@@ -114,20 +118,19 @@ public class SqlDatabase extends DatabaseBean implements Database {
     }
   }
 
-  @Override
-  public void setDeferChecks(boolean shouldDefer) {
-    if (shouldDefer) {
-      jooq.execute("SET CONSTRAINTS ALL DEFERRED");
-    } else {
-      jooq.execute("SET CONSTRAINTS ALL IMMEDIATE");
-    }
-  }
-
   DSLContext getJooq() {
     return jooq;
   }
 
-  public void createRole(Name viewer) {
-    jooq.execute("CREATE ROLE {0}", viewer);
+  public void createRole(String role) {
+    jooq.execute(
+        "DO $$\n"
+            + "BEGIN\n"
+            + "    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = {0}) THEN\n"
+            + "        CREATE ROLE {1};\n"
+            + "    END IF;\n"
+            + "END\n"
+            + "$$;\n",
+        inline(role), name(role));
   }
 }

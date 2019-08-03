@@ -43,6 +43,7 @@ public class DatabaseFactory {
   }
 
   public static void deleteAll() {
+
     // delete all foreign key constaints
     for (org.jooq.Schema s : jooq.meta().getSchemas()) {
       String name = s.getName();
@@ -55,13 +56,17 @@ public class DatabaseFactory {
       }
     }
 
+    // first drop MOLGENIS schema
+    jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
+
     for (org.jooq.Schema s : jooq.meta().getSchemas()) {
       String schemaName = s.getName();
 
       if (!schemaName.startsWith("pg_")
           && !"information_schema".equals(schemaName)
           && !"public".equals(schemaName)) {
-        jooq.dropSchema(s.getName()).cascade().execute();
+        jooq.dropSchema(name(s.getName())).cascade().execute();
+
         Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
         Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
         Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);

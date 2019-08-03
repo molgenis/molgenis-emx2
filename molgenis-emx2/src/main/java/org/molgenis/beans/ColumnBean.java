@@ -9,6 +9,9 @@ public class ColumnBean implements Column {
   private boolean nullable;
   private String refTable;
   private String refColumn;
+  private String reverseName;
+  private String reverseRefColumn;
+  private String joinTable;
   private boolean readonly;
   private String visible;
   private String description;
@@ -48,12 +51,24 @@ public class ColumnBean implements Column {
       String otherTable,
       String otherColumn,
       Boolean isNullable) {
-    this.table = table;
-    this.name = name;
-    this.type = type;
+    this(table, name, type, isNullable);
     this.refTable = otherTable;
     this.refColumn = otherColumn;
-    this.nullable = isNullable;
+  }
+
+  public ColumnBean(
+      Table table,
+      String name,
+      Type type,
+      String refTable,
+      String refColumn,
+      String reverseName,
+      String reverseRefColumn,
+      String joinTableName) {
+    this(table, name, type, refTable, refColumn, true);
+    this.reverseName = reverseName;
+    this.reverseRefColumn = reverseRefColumn;
+    this.joinTable = joinTableName;
   }
 
   @Override
@@ -72,7 +87,7 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public Type getDataType() {
+  public Type getType() {
     return type;
   }
 
@@ -98,6 +113,16 @@ public class ColumnBean implements Column {
   }
 
   @Override
+  public String getReverseName() {
+    return this.reverseName;
+  }
+
+  @Override
+  public String getReverseRefColumn() {
+    return this.reverseRefColumn;
+  }
+
+  @Override
   public Column setNullable(boolean nillable) throws MolgenisException {
     this.nullable = nillable;
     return this;
@@ -106,8 +131,8 @@ public class ColumnBean implements Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
-    if (Type.REF.equals(getDataType())) builder.append("ref(").append(refTable).append(")");
-    else builder.append(getDataType().toString().toLowerCase());
+    if (Type.REF.equals(getType())) builder.append("ref(").append(refTable).append(")");
+    else builder.append(getType().toString().toLowerCase());
     if (isNullable()) builder.append(" nullable");
     return builder.toString();
   }
@@ -161,5 +186,10 @@ public class ColumnBean implements Column {
   @Override
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
+  }
+
+  @Override
+  public String getJoinTable() {
+    return joinTable;
   }
 }

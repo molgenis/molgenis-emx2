@@ -187,7 +187,7 @@ public class SqlQuery extends QueryBean implements Query {
         if (!duplicatePaths.contains(rightAlias)) {
           duplicatePaths.add(rightAlias);
 
-          if (REF.equals(c.getDataType())) {
+          if (REF.equals(c.getType())) {
             fromStep =
                 fromStep
                     .leftJoin(
@@ -195,7 +195,7 @@ public class SqlQuery extends QueryBean implements Query {
                     .on(
                         field(name(rightAlias, rightColumn))
                             .eq(field(name(leftAlias, leftColumn))));
-          } else if (REF_ARRAY.equals(c.getDataType())) {
+          } else if (REF_ARRAY.equals(c.getType())) {
             fromStep =
                 fromStep
                     .leftJoin(
@@ -203,7 +203,7 @@ public class SqlQuery extends QueryBean implements Query {
                     .on(
                         "{0} = ANY ({1})",
                         field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
-          } else if (MREF.equals(c.getDataType())) {
+          } else if (MREF.equals(c.getType())) {
             String mrefTable = "TODO";
             rightColumn = "TODO";
 

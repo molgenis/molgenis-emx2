@@ -29,7 +29,7 @@ public class JsonRowMapper {
     org.molgenis.Row r = new Row();
     for (Column c : t.getColumns()) {
       try {
-        switch (c.getDataType()) {
+        switch (c.getType()) {
           case INT:
             r.setInt(c.getName(), json.get(c.getName()).toInt());
             break;
@@ -43,14 +43,14 @@ public class JsonRowMapper {
             } else throw new IllegalArgumentException();
           default:
             throw new UnsupportedOperationException(
-                "data type " + c.getDataType() + " not yet implemented");
+                "data type " + c.getType() + " not yet implemented");
         }
 
       } catch (Exception e) {
         throw new MolgenisException(
             String.format(
                 "Malformed json: expected '%s' to be of type '%s' but found '%s'. Total object: %s",
-                c.getName(), c.getDataType(), json.get(c.getName()).valueType(), json),
+                c.getName(), c.getType(), json.get(c.getName()).valueType(), json),
             e);
       }
     }

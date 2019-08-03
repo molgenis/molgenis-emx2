@@ -149,7 +149,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void saveColumn(SqlColumn column) {
+  static void saveColumnMetadata(SqlColumn column) {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)
@@ -158,13 +158,13 @@ public class MetadataUtils {
             column.getTable().getSchema().getName(),
             column.getTable().getName(),
             column.getName(),
-            column.getDataType(),
+            column.getType(),
             column.isNullable(),
             column.getRefTable(),
             column.getRefColumn())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
-        .set(DATA_TYPE, column.getDataType())
+        .set(DATA_TYPE, column.getType())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTable())
         .set(REF_COLUMN, column.getRefColumn())

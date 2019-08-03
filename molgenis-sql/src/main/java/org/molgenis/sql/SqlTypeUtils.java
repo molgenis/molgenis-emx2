@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import static org.jooq.impl.DSL.cast;
 import static org.jooq.impl.DSL.value;
+import static org.molgenis.Type.MREF;
 import static org.molgenis.Type.REF_ARRAY;
 
 public class SqlTypeUtils {
@@ -18,7 +19,7 @@ public class SqlTypeUtils {
   }
 
   public static DataType jooqTypeOf(Column column) throws MolgenisException {
-    Type sqlType = column.getDataType();
+    Type sqlType = column.getType();
     switch (sqlType) {
       case UUID:
         return SQLDataType.UUID;
@@ -91,7 +92,7 @@ public class SqlTypeUtils {
   }
 
   public static Object getTypedValue(Object v, Column column) throws MolgenisException {
-    Type type = column.getDataType();
+    Type type = column.getType();
     if (Type.REF.equals(type)) {
       type = getRefType(column);
     }
@@ -139,7 +140,7 @@ public class SqlTypeUtils {
         .getSchema()
         .getTable(column.getRefTable())
         .getColumn(column.getRefColumn())
-        .getDataType();
+        .getType();
   }
 
   public static Type getArrayType(Type type) {
@@ -166,11 +167,11 @@ public class SqlTypeUtils {
   }
 
   public static Object getTypedValue(Row row, Column column) throws MolgenisException {
-    Type type = column.getDataType();
+    Type type = column.getType();
     if (Type.REF.equals(type)) {
       type = getRefType(column);
     }
-    if (REF_ARRAY.equals(type)) {
+    if (REF_ARRAY.equals(type) || MREF.equals(type)) {
       type = getArrayType(getRefType(column));
     }
     switch (type) {
@@ -207,12 +208,12 @@ public class SqlTypeUtils {
       case DATETIME_ARRAY:
         return row.getDateTimeArray(column.getName());
       default:
-        throw new UnsupportedOperationException("Unsupported type found:" + column.getDataType());
+        throw new UnsupportedOperationException("Unsupported type found:" + column.getType());
     }
   }
 
   public static String getPsqlType(Column column) throws MolgenisException {
-    switch (column.getDataType()) {
+    switch (column.getType()) {
       case STRING:
         return "character varying";
       case UUID:
@@ -231,7 +232,7 @@ public class SqlTypeUtils {
         return "timestamp without time zone";
       default:
         throw new MolgenisException(
-            "Internal: data cannot be mapped to psqlType " + column.getDataType());
+            "Internal: data cannot be mapped to psqlType " + column.getType());
     }
   }
 }

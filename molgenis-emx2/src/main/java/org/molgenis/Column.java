@@ -7,7 +7,7 @@ public interface Column {
 
   String getName();
 
-  Type getDataType();
+  Type getType();
 
   Boolean isNullable();
 
@@ -20,6 +20,12 @@ public interface Column {
   String getRefTable();
 
   String getRefColumn();
+
+  String getReverseName();
+
+  String getReverseRefColumn();
+
+  String getJoinTable();
 
   String getDescription();
 

@@ -42,8 +42,8 @@ public class TestMapper {
     assertEquals(firstName.getName(), "firstName");
     assertEquals(lastName.getName(), "lastName");
 
-    assertEquals(molgenisid.getDataType(), Type.UUID);
-    assertEquals(firstName.getDataType(), Type.STRING);
+    assertEquals(molgenisid.getType(), Type.UUID);
+    assertEquals(firstName.getType(), Type.STRING);
 
     assertTrue(firstName.isNullable());
     assertFalse(lastName.isNullable());

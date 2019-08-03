@@ -14,24 +14,14 @@ public class TestDeferred {
 
   public TestDeferred() throws MolgenisException {}
 
-  @Test(expected = MolgenisException.class)
-  public void test1_nondeferred() throws MolgenisException {
-    test1(false);
-  }
-
   @Test
-  public void test1_defered() throws MolgenisException {
-    test1(true);
-  }
-
-  public void test1(boolean deferred) throws MolgenisException {
+  public void test1() throws MolgenisException {
 
     StopWatch.start("test1");
 
     database.transaction(
         db -> {
           Schema s = db.createSchema("TestDeffered");
-          db.setDeferChecks(deferred);
 
           Table subject = s.createTable("Subject");
 
