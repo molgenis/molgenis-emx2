@@ -64,6 +64,8 @@ public interface Table extends Identifiable {
 
   Query query();
 
+  Select select(String... path);
+
   List<Row> retrieve() throws MolgenisException;
 
   String getSchemaName();

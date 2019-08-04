@@ -23,7 +23,7 @@ public class TestRefs {
 
   @Test
   public void testString() throws MolgenisException {
-    executeTest(STRING, "test", "test2");
+    executeTest(STRING, "test", "DependencyOrderOutsideTransactionFails");
   }
 
   @Test

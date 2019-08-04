@@ -15,26 +15,13 @@ public class TestDeferred {
   public TestDeferred() throws MolgenisException {}
 
   @Test
-  public void test1() throws MolgenisException {
+  public void DependencyOrderNotNeededInTransaction() throws MolgenisException {
 
-    StopWatch.start("test1");
+    StopWatch.start("DependencyOrderNotNeededInTransaction");
 
     database.transaction(
         db -> {
-          Schema s = db.createSchema("TestDeffered");
-
-          Table subject = s.createTable("Subject");
-
-          Table sample = s.createTable("Sample");
-          sample.addRef("subject", "Subject");
-
-          StopWatch.print("schema created");
-
-          org.molgenis.Row sub1 = new Row();
-          org.molgenis.Row sam1 = new Row().setUuid("subject", sub1.getMolgenisid());
-
-          sample.insert(sam1);
-          subject.insert(sub1);
+          runTestCase(db);
 
           StopWatch.print("data added (in wrong dependency order, how cool is that??)");
         });
@@ -42,46 +29,49 @@ public class TestDeferred {
   }
 
   @Test(expected = MolgenisException.class)
-  public void test2() throws MolgenisException {
-    // without transaction
-    {
-      Schema s = database.createSchema("TestDeffered2");
+  public void DependencyOrderOutsideTransactionFails() throws MolgenisException {
+    runTestCase(database);
+  }
 
-      Table subject = s.createTable("Subject");
+  public void runTestCase(Database db) throws MolgenisException {
+    Schema schema = db.createSchema("TestDeffered");
 
-      Table sample = s.createTable("Sample");
-      sample.addRef("subject", "Subject");
+    Table subjectTable = schema.createTable("Subject");
 
-      org.molgenis.Row sub1 = new Row();
-      org.molgenis.Row sam1 = new Row().setUuid("subject", sub1.getMolgenisid());
+    Table sampleTable = schema.createTable("Sample");
+    sampleTable.addRef("subject", "Subject");
 
-      sample.insert(sam1);
-      subject.insert(sub1);
-    }
+    StopWatch.print("schema created");
+
+    org.molgenis.Row aSubjectRow = new Row();
+    org.molgenis.Row aSampleRow = new Row().setUuid("subject", aSubjectRow.getMolgenisid());
+
+    sampleTable.insert(aSampleRow);
+    subjectTable.insert(aSubjectRow);
   }
 
   @Test
-  public void test3() throws MolgenisException {
-    StopWatch.start("test1");
+  public void foreignKeysInTransactionsAraProtected() throws MolgenisException {
+    StopWatch.start("foreignKeysInTransactionsAraProtected");
 
     try {
       database.transaction(
           db -> {
-            Schema s = db.createSchema("TestDeffered3");
+            Schema schema = db.createSchema("TestDeffered3");
 
-            Table subject = s.createTable("Subject");
+            Table subjectTable = schema.createTable("Subject");
 
-            Table sample = s.createTable("Sample");
-            sample.addRef("subject", "Subject");
+            Table sampleTable = schema.createTable("Sample");
+            sampleTable.addRef("subject", "Subject");
 
             StopWatch.print("schema created");
 
-            org.molgenis.Row sub1 = new Row();
-            org.molgenis.Row sam1 = new Row().setUuid("subject", UUID.randomUUID());
-            org.molgenis.Row sam2 = new Row().setUuid("subject", UUID.randomUUID());
+            org.molgenis.Row subject1 = new Row();
+            org.molgenis.Row sample1 = new Row().setUuid("subject", UUID.randomUUID());
+            org.molgenis.Row sample2 = new Row().setUuid("subject", UUID.randomUUID());
 
-            sample.insert(sam1, sam2);
-            subject.insert(sub1);
+            sampleTable.insert(sample1, sample2);
+            subjectTable.insert(subject1);
 
             StopWatch.print("data added");
           });

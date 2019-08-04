@@ -21,7 +21,7 @@ public interface Column {
 
   String getRefColumn();
 
-  String getReverseName();
+  String getReverseColumnName();
 
   String getReverseRefColumn();
 

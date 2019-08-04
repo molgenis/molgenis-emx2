@@ -15,14 +15,14 @@
 // import static org.molgenis.Row.MOLGENISID;
 //
 // public class TestQuery {
-//  static Database db;
+//  static Database database;
 //
 //  @BeforeClass
 //  public static void setUp() throws MolgenisException, SQLException {
-//    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+//    database = DatabaseFactory.getDatabase("molgenis", "molgenis");
 //
 //    // createColumn a schema to test with
-//    Schema s = db.createSchema("TestQuery");
+//    Schema s = database.createSchema("TestQuery");
 //
 //    // createColumn some tables with contents
 //    String PERSON = "Person";
@@ -45,11 +45,11 @@
 //  }
 //
 //  @Test
-//  public void test1() throws MolgenisException {
+//  public void DependencyOrderNotNeededInTransaction() throws MolgenisException {
 //
-//    StopWatch.start("test1");
+//    StopWatch.start("DependencyOrderNotNeededInTransaction");
 //
-//    Schema s = db.getSchema("TestQuery");
+//    Schema s = database.getSchema("TestQuery");
 //
 //    StopWatch.print("got schema");
 //
@@ -84,10 +84,10 @@
 //  }
 //
 //  @Test
-//  public void test2() throws MolgenisException {
-//    Schema s = db.getSchema("TestQuery");
+//  public void DependencyOrderOutsideTransactionFails() throws MolgenisException {
+//    Schema s = database.getSchema("TestQuery");
 //
-//    StopWatch.start("test2");
+//    StopWatch.start("DependencyOrderOutsideTransactionFails");
 //
 //    String PART = "Part";
 //    Table part = s.createTable(PART);
@@ -136,8 +136,8 @@
 //    // sortby clauses
 //    // later: group by.
 //
-//    //        QueryOldImpl q1 = new PsqlQueryBack(db);
-//    // db        q1.select("Product").columns("name").as("productName");
+//    //        QueryOldImpl q1 = new PsqlQueryBack(database);
+//    // database        q1.select("Product").columns("name").as("productName");
 //    //        q1.mref("ProductComponent").columns("name").as("componentName");
 //    //        q1.mref("ComponentPart").columns("name").as("partName");
 //    //        //q1.where("productName").eq("molgenis");
@@ -161,8 +161,8 @@
 //    StopWatch.print("query completed");
 //
 //    // restart database and see if it is still there
-//    db.clearCache();
-//    s = db.getSchema("TestQuery");
+//    database.clearCache();
+//    s = database.getSchema("TestQuery");
 //
 //    StopWatch.print("cleared cache");
 //
@@ -185,42 +185,42 @@
 //    StopWatch.print("queried again, cached so for free");
 //
 //    //      try {
-//    //          db.query("pietje");
+//    //          database.query("pietje");
 //    //          fail("exception handling from(pietje) failed");
 //    //      } catch (Exception e) {
 //    //          System.out.println("Succesfully caught exception: " + e);
 //    //      }
 //
 //    //      try {
-//    //          db.query("Product").as("p").join("Comp", "p", "components");
+//    //          database.query("Product").as("p").join("Comp", "p", "components");
 //    //          fail("should fail because faulty table");
 //    //      } catch (Exception e) {
 //    //          System.out.println("Succesfully caught exception: " + e);
 //    //      }
 //    //
 //    //      try {
-//    //          db.query("Product").as("p").join("Component", "p2", "components");
+//    //          database.query("Product").as("p").join("Component", "p2", "components");
 //    //          fail("should fail because faulty toTabel");
 //    //      } catch (Exception e) {
 //    //          System.out.println("Succesfully caught exception: " + e);
 //    //      }
 //    //
 //    //      try {
-//    //          db.queryOld("Product").as("p").join("Component", "p2", "components");
+//    //          database.queryOld("Product").as("p").join("Component", "p2", "components");
 //    //          fail("should fail because faulty on although it is an mref");
 //    //      } catch (Exception e) {
 //    //          System.out.println("Succesfully caught exception: " + e);
 //    //      }
 //    //
 //    //      try {
-//    //          db.queryOld("Product").as("p").join("Component", "p", "comps");
+//    //          database.queryOld("Product").as("p").join("Component", "p", "comps");
 //    //          fail("should fail because faulty on");
 //    //      } catch (Exception e) {
 //    //          System.out.println("Succesfully caught exception: " + e);
 //    //      }
 //    //
 //    //      try {
-//    //          db.queryOld("Product").as("p").select("wrongname").as("productName");
+//    //          database.queryOld("Product").as("p").select("wrongname").as("productName");
 //    //          fail("should fail because faulty 'select'");
 //    //      } catch (Exception e) {
 //    //          System.out.println("Succesfully caught exception: " + e);

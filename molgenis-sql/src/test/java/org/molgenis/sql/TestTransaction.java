@@ -30,7 +30,7 @@ public class TestTransaction {
           t.addColumn("ColA", STRING);
           t.addUnique("ColA");
           t.insert(new Row().setString("ColA", "test"));
-          t.insert(new Row().setString("ColA", "test2"));
+          t.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });
     db.clearCache();
     assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieve().size());

@@ -22,7 +22,7 @@ public class TestMrefs {
   }
 
   @Test
-  public void testUUID() throws MolgenisException {
+  public void testUUID_MREF() throws MolgenisException {
     executeTest(
         UUID,
         new java.util.UUID[] {
@@ -33,34 +33,34 @@ public class TestMrefs {
   }
 
   @Test
-  public void testString() throws MolgenisException {
+  public void testString_MREF() throws MolgenisException {
     executeTest(STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
-  public void testInt() throws MolgenisException {
+  public void testInt_MREF() throws MolgenisException {
     executeTest(INT, new Integer[] {5, 6, 7});
   }
 
   @Test
-  public void testDate() throws MolgenisException {
+  public void testDate_MREF() throws MolgenisException {
     executeTest(DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
-  public void testDateTime() throws MolgenisException {
+  public void testDateTime_MREF() throws MolgenisException {
     executeTest(
         DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
-  public void testDecimal() throws MolgenisException {
+  public void testDecimal_MREF() throws MolgenisException {
     executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
-  public void testText() throws MolgenisException {
+  public void testText_MREF() throws MolgenisException {
     executeTest(
         TEXT,
         new String[] {
@@ -68,57 +68,58 @@ public class TestMrefs {
         });
   }
 
-  private void executeTest(Type type, Object[] values) throws MolgenisException {
+  private void executeTest(Type type, Object[] testValues) throws MolgenisException {
     StopWatch.start("executeTest");
 
-    Schema s = db.createSchema("TestMrefs" + type.toString().toUpperCase());
+    Schema aSchema = db.createSchema("TestMrefs" + type.toString().toUpperCase());
 
-    Table a = s.createTable("A");
+    Table aTable = aSchema.createTable("A");
     String keyOfA = "AKey";
-    a.addColumn(keyOfA, type);
-    a.addUnique(keyOfA);
+    aTable.addColumn(keyOfA, type);
+    aTable.addUnique(keyOfA);
 
-    Table b = s.createTable("B");
+    Table bTable = aSchema.createTable("B");
     String keyOfB = "BKey";
-    b.addColumn(keyOfB, STRING);
-    b.addUnique(keyOfB);
+    bTable.addColumn(keyOfB, STRING);
+    bTable.addUnique(keyOfB);
 
     StopWatch.print("schema created");
 
-    List<Row> aRows = new ArrayList<>();
-    for (Object value : values) {
+    List<Row> aRowList = new ArrayList<>();
+    for (Object value : testValues) {
       Row aRow = new Row().set(keyOfA, value);
-      a.insert(aRow);
-      aRows.add(aRow);
+      aTable.insert(aRow);
+      aRowList.add(aRow);
     }
 
     // add two sided many-to-many
     String refName = type + "refToA";
     String refReverseName = type + "refToB";
     String joinTableName = "AB";
-    b.addMref(refName, "A", keyOfA, refReverseName, keyOfB, joinTableName);
+    bTable.addMref(refName, "A", keyOfA, refReverseName, keyOfB, joinTableName);
 
-    Row bRow = new Row().set(keyOfB, keyOfB + "1").set(refName, Arrays.copyOfRange(values, 1, 3));
-    b.insert(bRow);
+    Row bRow =
+        new Row().set(keyOfB, keyOfB + "1").set(refName, Arrays.copyOfRange(testValues, 1, 3));
+    bTable.insert(bRow);
 
     StopWatch.print("data inserted");
 
     // test query
-    List<Row> bRowsRetrieved = b.retrieve();
+    List<Row> bRowsRetrieved = bTable.retrieve();
     Type arrayType = TypeUtils.getArrayType(type);
     assertArrayEquals(
         (Object[]) bRow.get(arrayType, refName),
         (Object[]) bRowsRetrieved.get(0).get(arrayType, refName));
 
     // and update
-    bRow.set(refName, Arrays.copyOfRange(values, 0, 2));
-    b.update(bRow);
+    bRow.set(refName, Arrays.copyOfRange(testValues, 0, 2));
+    bTable.update(bRow);
 
     StopWatch.print("data updated");
 
-    b.delete(bRow);
-    for (Row aRow : aRows) {
-      a.delete(aRow);
+    bTable.delete(bRow);
+    for (Row aRow : aRowList) {
+      aTable.delete(aRow);
     }
 
     StopWatch.print("data deleted");

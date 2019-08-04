@@ -39,7 +39,7 @@ public class WhereBean implements Where {
   }
 
   @Override
-  public Query any(Object... values) {
+  public Query contains(Object... values) {
     this.values = values;
     this.op = Operator.ANY;
     return this.query;

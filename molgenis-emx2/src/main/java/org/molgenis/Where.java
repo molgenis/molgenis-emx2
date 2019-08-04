@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface Where {
   Query eq(Object... values);
 
-  Query any(Object... values);
+  Query contains(Object... values);
 
   Query search(String terms);
 

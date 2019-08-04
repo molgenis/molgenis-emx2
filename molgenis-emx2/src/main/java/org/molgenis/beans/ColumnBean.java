@@ -113,7 +113,7 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public String getReverseName() {
+  public String getReverseColumnName() {
     return this.reverseName;
   }
 

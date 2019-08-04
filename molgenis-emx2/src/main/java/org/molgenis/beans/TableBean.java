@@ -212,6 +212,11 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
+  public Select select(String... path) {
+    return query().select(path);
+  }
+
+  @Override
   public List<Row> retrieve() throws MolgenisException {
     throw new UnsupportedOperationException();
   }

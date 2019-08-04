@@ -66,57 +66,57 @@ public class TestRefArray {
         });
   }
 
-  private void executeTest(Type type, Object[] values) throws MolgenisException {
+  private void executeTest(Type type, Object[] testValues) throws MolgenisException {
 
-    Schema s = db.createSchema("TestRefArray" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestRefArray" + type.toString().toUpperCase());
 
-    Table a = s.createTable("A");
-    String fieldName = type + "Col";
-    a.addColumn(fieldName, type);
-    a.addUnique(fieldName);
+    Table aTable = schema.createTable("A");
+    String aColumnName = type + "Col";
+    aTable.addColumn(aColumnName, type);
+    aTable.addUnique(aColumnName);
 
-    Row aRow = new Row().set(fieldName, values[0]);
-    Row aRow2 = new Row().set(fieldName, values[1]);
-    a.insert(aRow, aRow2);
+    Row aRow = new Row().set(aColumnName, testValues[0]);
+    Row aRow2 = new Row().set(aColumnName, testValues[1]);
+    aTable.insert(aRow, aRow2);
 
-    Table b = s.createTable("B");
-    String refName = type + "RefArray";
-    b.addRefArray(refName, "A", fieldName);
+    Table bTable = schema.createTable("B");
+    String refToA = type + "RefToA";
+    bTable.addRefArray(refToA, "A", aColumnName);
 
     // error on insert of faulty fkey
-    Row bErrorRow = new Row().set(refName, Arrays.copyOfRange(values, 1, 3));
+    Row bErrorRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 1, 3));
     try {
-      b.insert(bErrorRow);
+      bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
     } catch (Exception e) {
       System.out.println("insert exception correct: \n" + e.getMessage());
     }
 
     // okay
-    Row bRow = new Row().set(refName, Arrays.copyOfRange(values, 0, 2));
-    b.insert(bRow);
+    Row bRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 0, 2));
+    bTable.insert(bRow);
 
     // delete of A should fail
     try {
-      a.delete(aRow);
+      aTable.delete(aRow);
       fail("delete should fail");
     } catch (Exception e) {
       System.out.println("delete exception correct: \n" + e.getMessage());
     }
 
     // should be okay
-    b.delete(bRow);
-    a.delete(aRow);
+    bTable.delete(bRow);
+    aTable.delete(aRow);
   }
 
   @Test
   public void test1() throws MolgenisException {
 
-    Schema s = db.createSchema("TestRefArray");
+    Schema schema = db.createSchema("TestRefArray");
 
-    Table aTable = s.createTable("A");
+    Table aTable = schema.createTable("A");
 
-    Table bTable = s.createTable("B");
+    Table bTable = schema.createTable("B");
     bTable.addRefArray("refToA", "A", MOLGENISID);
 
     Row aRow = new Row();

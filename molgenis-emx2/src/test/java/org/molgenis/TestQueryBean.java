@@ -17,10 +17,14 @@ public class TestQueryBean {
     q.select("FirstName");
     q.select("LastName");
     q.expand("Father").include("FirstName").include("LastName");
-    q.where("FirstName").eq("Donald");
-    q.and("LastName").eq("Duck");
-    q.and("Age").eq(56);
-    q.or("Father", "LastName").eq("Mouse");
+    q.where("FirstName")
+        .eq("Donald")
+        .and("LastName")
+        .eq("Duck")
+        .and("Age")
+        .eq(56)
+        .or("Father", "LastName")
+        .eq("Mouse");
     q.asc("FirstName").desc("LastName");
     System.out.println(q);
 

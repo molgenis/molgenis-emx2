@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.INT;
 import static org.molgenis.Type.STRING;
 
-public class TestQuerWithRefArrays {
+public class TestQueryWithRefArrays {
   static Database db;
 
   @BeforeClass
@@ -21,15 +21,15 @@ public class TestQuerWithRefArrays {
     db = DatabaseFactory.getDatabase("molgenis", "molgenis");
 
     // createColumn a schema to test with
-    Schema s = db.createSchema("TestQueryWithRefArray");
+    Schema schema = db.createSchema("TestQueryWithRefArray");
 
     // createColumn some tables with contents
     String PERSON = "Person";
-    Table person = s.createTable(PERSON);
-    person.addColumn("First Name", STRING);
-    person.addRef("Father", PERSON).setNullable(true);
-    person.addColumn("Last Name", STRING);
-    person.addUnique("First Name", "Last Name");
+    Table personTable = schema.createTable(PERSON);
+    personTable.addColumn("First Name", STRING);
+    personTable.addRef("Father", PERSON).setNullable(true);
+    personTable.addColumn("Last Name", STRING);
+    personTable.addUnique("First Name", "Last Name");
 
     org.molgenis.Row father =
         new Row().setString("First Name", "Donald").setString("Last Name", "Duck");
@@ -39,8 +39,8 @@ public class TestQuerWithRefArrays {
             .setString("Last Name", "Duck")
             .setRef("Father", father);
 
-    person.insert(father);
-    person.insert(child);
+    personTable.insert(father);
+    personTable.insert(child);
   }
 
   @Test
@@ -48,36 +48,46 @@ public class TestQuerWithRefArrays {
 
     StopWatch.start("test1");
 
-    Schema s = db.getSchema("TestQueryWithRefArray");
+    Schema schema = db.getSchema("TestQueryWithRefArray");
 
     StopWatch.print("got schema");
 
-    Query q = s.getTable("Person").query();
-    q.select("First Name")
-        .select("Last Name")
-        .expand("Father")
-        .include("First Name")
-        .include("Last Name");
-    q.where("Last Name").eq("Duck").and("Father", "Last Name").eq("Duck");
+    Query query1 =
+        schema
+            .query("Person")
+            .select("First Name")
+            .select("Last Name")
+            .expand("Father")
+            .include("First Name")
+            .include("Last Name")
+            .where("Last Name")
+            .eq("Duck")
+            .and("Father", "Last Name")
+            .eq("Duck");
 
     StopWatch.print("created query");
 
-    List<org.molgenis.Row> rows = q.retrieve();
+    List<org.molgenis.Row> rows = query1.retrieve();
     for (org.molgenis.Row r : rows) {
       System.out.println(r);
     }
 
     StopWatch.print("query complete");
 
-    q = s.getTable("Person").query();
-    q.select("First Name")
-        .select("Last Name")
-        .expand("Father")
-        .include("Last Name")
-        .include("First Name");
-    q.where("Last Name").eq("Duck").and("Father", "Last Name").eq("Duck");
+    query1 =
+        schema
+            .query("Person")
+            .select("First Name")
+            .select("Last Name")
+            .expand("Father")
+            .include("Last Name")
+            .include("First Name")
+            .where("Last Name")
+            .eq("Duck")
+            .and("Father", "Last Name")
+            .eq("Duck");
 
-    rows = q.retrieve();
+    rows = query1.retrieve();
     assertEquals(1, rows.size());
 
     StopWatch.print("second time");
@@ -85,44 +95,44 @@ public class TestQuerWithRefArrays {
 
   @Test
   public void test2() throws MolgenisException {
-    Schema s = db.getSchema("TestQueryWithRefArray");
+    Schema schema = db.getSchema("TestQueryWithRefArray");
 
-    StopWatch.start("test2");
+    StopWatch.start("DependencyOrderOutsideTransactionFails");
 
     String PART = "Part";
-    Table part = s.createTable(PART);
-    part.addColumn("name", STRING);
-    part.addColumn("weight", INT);
-    part.addUnique("name");
+    Table partTable = schema.createTable(PART);
+    partTable.addColumn("name", STRING);
+    partTable.addColumn("weight", INT);
+    partTable.addUnique("name");
 
     org.molgenis.Row part1 = new Row().setString("name", "forms").setInt("weight", 100);
     org.molgenis.Row part2 = new Row().setString("name", "login").setInt("weight", 50);
-    part.insert(part1);
-    part.insert(part2);
+    partTable.insert(part1);
+    partTable.insert(part2);
 
     String COMPONENT = "Component";
-    Table component = s.createTable(COMPONENT);
-    component.addColumn("name", STRING);
-    component.addUnique("name");
-    component.addRefArray("parts", "Part", "name");
+    Table componentTable = schema.createTable(COMPONENT);
+    componentTable.addColumn("name", STRING);
+    componentTable.addUnique("name");
+    componentTable.addRefArray("parts", "Part", "name");
 
     org.molgenis.Row component1 =
         new Row().setString("name", "explorer").setRefArray("parts", "forms", "login");
     org.molgenis.Row component2 =
         new Row().setString("name", "navigator").setRefArray("parts", "login");
-    component.insert(component1);
-    component.insert(component2);
+    componentTable.insert(component1);
+    componentTable.insert(component2);
 
     String PRODUCT = "Product";
-    Table product = s.createTable(PRODUCT);
-    product.addColumn("name", STRING);
-    product.addUnique("name");
-    product.addRefArray("components", "Component", "name");
+    Table productTable = schema.createTable(PRODUCT);
+    productTable.addColumn("name", STRING);
+    productTable.addUnique("name");
+    productTable.addRefArray("components", "Component", "name");
 
     org.molgenis.Row product1 =
         new Row().setString("name", "molgenis").setRefArray("components", "explorer", "navigator");
 
-    product.insert(product1);
+    productTable.insert(product1);
 
     StopWatch.print("tables created");
 
@@ -135,21 +145,24 @@ public class TestQuerWithRefArrays {
     // sortby clauses
     // later: group by.
 
-    //        QueryOldImpl q1 = new PsqlQueryBack(db);
-    // db        q1.select("Product").columns("name").as("productName");
+    //        QueryOldImpl q1 = new PsqlQueryBack(database);
+    // database        q1.select("Product").columns("name").as("productName");
     //        q1.mref("ProductComponent").columns("name").as("componentName");
     //        q1.mref("ComponentPart").columns("name").as("partName");
     //        //q1.where("productName").eq("molgenis");
     //
     //        System.out.println(q1);
 
-    Query q = s.getTable("Product").query();
+    Query q = schema.query("Product");
     q.select("name")
         .expand("components")
         .include("name")
         .expand("components", "parts")
         .include("name");
-    // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
+    //            .where("components", "parts", "weight")
+    //            .eq(50)
+    //            .and("name")
+    //            .eq("explorer", "navigator");
 
     List<org.molgenis.Row> rows = q.retrieve();
     assertEquals(3, rows.size());
@@ -162,11 +175,11 @@ public class TestQuerWithRefArrays {
     // restart database and see if it is still there
 
     db.clearCache();
-    s = db.getSchema("TestQueryWithRefArray");
+    schema = db.getSchema("TestQueryWithRefArray");
 
     StopWatch.print("cleared cache");
 
-    Query q2 = s.getTable("Product").query();
+    Query q2 = schema.query("Product");
     q2.select("name")
         .expand("components")
         .include("name")
@@ -185,42 +198,42 @@ public class TestQuerWithRefArrays {
     StopWatch.print("queried again, cached so for free");
 
     //      try {
-    //          db.query("pietje");
+    //          database.query("pietje");
     //          fail("exception handling from(pietje) failed");
     //      } catch (Exception e) {
     //          System.out.println("Succesfully caught exception: " + e);
     //      }
 
     //      try {
-    //          db.query("Product").as("p").join("Comp", "p", "components");
+    //          database.query("Product").as("p").join("Comp", "p", "components");
     //          fail("should fail because faulty table");
     //      } catch (Exception e) {
     //          System.out.println("Succesfully caught exception: " + e);
     //      }
     //
     //      try {
-    //          db.query("Product").as("p").join("Component", "p2", "components");
+    //          database.query("Product").as("p").join("Component", "p2", "components");
     //          fail("should fail because faulty toTabel");
     //      } catch (Exception e) {
     //          System.out.println("Succesfully caught exception: " + e);
     //      }
     //
     //      try {
-    //          db.queryOld("Product").as("p").join("Component", "p2", "components");
+    //          database.queryOld("Product").as("p").join("Component", "p2", "components");
     //          fail("should fail because faulty on although it is an mref");
     //      } catch (Exception e) {
     //          System.out.println("Succesfully caught exception: " + e);
     //      }
     //
     //      try {
-    //          db.queryOld("Product").as("p").join("Component", "p", "comps");
+    //          database.queryOld("Product").as("p").join("Component", "p", "comps");
     //          fail("should fail because faulty on");
     //      } catch (Exception e) {
     //          System.out.println("Succesfully caught exception: " + e);
     //      }
     //
     //      try {
-    //          db.queryOld("Product").as("p").select("wrongname").as("productName");
+    //          database.queryOld("Product").as("p").select("wrongname").as("productName");
     //          fail("should fail because faulty 'select'");
     //      } catch (Exception e) {
     //          System.out.println("Succesfully caught exception: " + e);

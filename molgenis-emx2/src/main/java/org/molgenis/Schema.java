@@ -20,4 +20,6 @@ public interface Schema {
   void grantEdit(String user) throws MolgenisException;
 
   void grantView(String user) throws MolgenisException;
+
+  Query query(String tableName) throws MolgenisException;
 }

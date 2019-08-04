@@ -80,6 +80,11 @@ public class SchemaBean implements Schema {
     tables.remove(tableId);
   }
 
+  @Override
+  public Query query(String tableName) throws MolgenisException {
+    return getTable(tableName).query();
+  }
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for (Table t : tables.values()) {

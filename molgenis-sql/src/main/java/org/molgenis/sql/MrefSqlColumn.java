@@ -47,7 +47,10 @@ public class MrefSqlColumn extends SqlColumn {
         .add(field(name(getName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
     jooq.alterTable(name(getTable().getSchemaName(), otherTable.getName()))
-        .add(field(name(getReverseName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
+        .add(
+            field(
+                name(getReverseColumnName()),
+                SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
 
     // create the joinTable
@@ -59,7 +62,7 @@ public class MrefSqlColumn extends SqlColumn {
     MrefSqlColumn reverseColumn =
         new MrefSqlColumn(
             otherTable,
-            getReverseName(),
+            getReverseColumnName(),
             getTable().getName(),
             getReverseRefColumn(),
             getName(),
