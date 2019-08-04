@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertArrayEquals;
 import static org.molgenis.Type.*;
 
 public class TestMrefs {
@@ -39,7 +39,7 @@ public class TestMrefs {
 
   @Test
   public void testInt() throws MolgenisException {
-    executeTest(INT, new Integer[] {5, 6});
+    executeTest(INT, new Integer[] {5, 6, 7});
   }
 
   @Test
@@ -102,6 +102,13 @@ public class TestMrefs {
     b.insert(bRow);
 
     StopWatch.print("data inserted");
+
+    // test query
+    List<Row> bRowsRetrieved = b.retrieve();
+    Type arrayType = TypeUtils.getArrayType(type);
+    assertArrayEquals(
+        (Object[]) bRow.get(arrayType, refName),
+        (Object[]) bRowsRetrieved.get(0).get(arrayType, refName));
 
     // and update
     bRow.set(refName, Arrays.copyOfRange(values, 0, 2));

@@ -140,4 +140,38 @@ public class TypeUtils {
   public static String[] toTextArray(Object v) {
     return toStringArray(v);
   }
+
+  public static Object castToType(Type type, Object value) throws MolgenisException {
+    switch (type) {
+      case DATETIME_ARRAY:
+        return toDateTimeArray(value);
+      case INT_ARRAY:
+        return toIntArray(value);
+      default:
+        throw new MolgenisException("Type " + type + " not implement into method TypeUtils.equal");
+    }
+  }
+
+  public static Type getArrayType(Type type) {
+    switch (type) {
+      case UUID:
+        return Type.UUID_ARRAY;
+      case STRING:
+        return Type.STRING_ARRAY;
+      case BOOL:
+        return Type.BOOL_ARRAY;
+      case INT:
+        return Type.INT_ARRAY;
+      case DECIMAL:
+        return Type.DECIMAL_ARRAY;
+      case TEXT:
+        return Type.TEXT_ARRAY;
+      case DATE:
+        return Type.DATE_ARRAY;
+      case DATETIME:
+        return Type.DATETIME_ARRAY;
+      default:
+        throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
+    }
+  }
 }

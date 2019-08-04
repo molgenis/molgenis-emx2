@@ -12,7 +12,7 @@ import static org.jooq.impl.DSL.value;
 import static org.molgenis.Type.MREF;
 import static org.molgenis.Type.REF_ARRAY;
 
-public class SqlTypeUtils {
+public class SqlTypeUtils extends TypeUtils {
 
   private SqlTypeUtils() {
     // to hide the public constructor
@@ -143,29 +143,6 @@ public class SqlTypeUtils {
         .getType();
   }
 
-  public static Type getArrayType(Type type) {
-    switch (type) {
-      case UUID:
-        return Type.UUID_ARRAY;
-      case STRING:
-        return Type.STRING_ARRAY;
-      case BOOL:
-        return Type.BOOL_ARRAY;
-      case INT:
-        return Type.INT_ARRAY;
-      case DECIMAL:
-        return Type.DECIMAL_ARRAY;
-      case TEXT:
-        return Type.TEXT_ARRAY;
-      case DATE:
-        return Type.DATE_ARRAY;
-      case DATETIME:
-        return Type.DATETIME_ARRAY;
-      default:
-        throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
-    }
-  }
-
   public static Object getTypedValue(Row row, Column column) throws MolgenisException {
     Type type = column.getType();
     if (Type.REF.equals(type)) {
@@ -184,13 +161,13 @@ public class SqlTypeUtils {
       case STRING_ARRAY:
         return row.getStringArray(column.getName());
       case BOOL:
-        return row.getBool(column.getName());
+        return row.getBoolean(column.getName());
       case BOOL_ARRAY:
-        return row.getBoolArray(column.getName());
+        return row.getBooleanArray(column.getName());
       case INT:
-        return row.getInt(column.getName());
+        return row.getInteger(column.getName());
       case INT_ARRAY:
-        return row.getIntArray(column.getName());
+        return row.getIntegerArray(column.getName());
       case DECIMAL:
         return row.getDecimal(column.getName());
       case DECIMAL_ARRAY:

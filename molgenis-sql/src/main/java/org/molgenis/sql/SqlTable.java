@@ -25,7 +25,7 @@ import static org.molgenis.Type.*;
 import static org.molgenis.sql.MetadataUtils.*;
 
 class SqlTable extends TableBean {
-  public static final String MG_SEARCH_VECTOR = "mg_search_vector";
+  public static final String MG_SEARCH_INDEX = "mg_search_vector";
   private DSLContext jooq;
 
   SqlTable(SqlSchema schema, String name) throws MolgenisException {
@@ -73,15 +73,15 @@ class SqlTable extends TableBean {
   public void enableSearch() {
 
     // 1. add tsvector column with index
-    jooq.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", getJooqTable(), name(MG_SEARCH_VECTOR));
+    jooq.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", getJooqTable(), name(MG_SEARCH_INDEX));
     // for future performance enhancement consider studying 'gin (t gin_trgm_ops)
 
     // 2. createColumn index on that column to speed up search
     jooq.execute(
         "CREATE INDEX mg_search_vector_idx ON {0} USING GIN( {1} )",
-        getJooqTable(), name(MG_SEARCH_VECTOR));
+        getJooqTable(), name(MG_SEARCH_INDEX));
 
-    // 3. createColumn the trigger function to automatically update the MG_SEARCH_VECTOR
+    // 3. createColumn the trigger function to automatically update the MG_SEARCH_INDEX
     String triggerfunction =
         String.format("\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getName());
 
@@ -109,7 +109,7 @@ class SqlTable extends TableBean {
     jooq.execute(
         "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
             + triggerfunction,
-        name(MG_SEARCH_VECTOR),
+        name(MG_SEARCH_INDEX),
         getJooqTable());
   }
 

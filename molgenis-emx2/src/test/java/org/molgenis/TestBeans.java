@@ -56,11 +56,11 @@ public class TestBeans {
 
     // int
     r.setString("test", "1");
-    assertEquals(1, (int) r.getInt("test"));
-    assertNull(r.getInt("testnull"));
+    assertEquals(1, (int) r.getInteger("test"));
+    assertNull(r.getInteger("testnull"));
     try {
       r.setString("test", "a");
-      assertEquals(1, (int) r.getInt("test"));
+      assertEquals(1, (int) r.getInteger("test"));
       fail("shouldn't be able to get 'a' to int ");
     } catch (Exception e) {
     }
@@ -78,11 +78,11 @@ public class TestBeans {
 
     // bool
     r.setString("test", "true");
-    assertTrue(r.getBool("test"));
-    assertNull(r.getBool("testnull"));
+    assertTrue(r.getBoolean("test"));
+    assertNull(r.getBoolean("testnull"));
     try {
       r.setString("test", "a");
-      r.getBool("test");
+      r.getBoolean("test");
       fail("shouldn't be able to get 'a' to boolean ");
     } catch (Exception e) {
     }

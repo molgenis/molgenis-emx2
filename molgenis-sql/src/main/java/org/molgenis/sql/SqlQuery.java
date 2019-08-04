@@ -1,6 +1,7 @@
 package org.molgenis.sql;
 
 import org.jooq.*;
+import org.jooq.impl.DSL;
 import org.molgenis.*;
 import org.molgenis.Query;
 import org.molgenis.Row;
@@ -20,7 +21,7 @@ import static org.molgenis.Operator.OR;
 import static org.molgenis.Operator.SEARCH;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.REF_ARRAY;
-import static org.molgenis.sql.SqlTable.MG_SEARCH_VECTOR;
+import static org.molgenis.sql.SqlTable.MG_SEARCH_INDEX;
 
 public class SqlQuery extends QueryBean implements Query {
 
@@ -51,9 +52,7 @@ public class SqlQuery extends QueryBean implements Query {
       StopWatch.print("selectStep complete");
 
       // createColumn the from
-      SelectJoinStep fromStep =
-          selectStep.from(
-              table(name(from.getSchema().getName(), from.getName())).as(from.getName()));
+      SelectJoinStep fromStep = selectStep.from(getJooqTable(from));
 
       StopWatch.print("fromStep complete");
 
@@ -69,8 +68,7 @@ public class SqlQuery extends QueryBean implements Query {
       // createColumn the sort
 
       // retrieve
-      StopWatch.print("print query complete");
-
+      System.out.println(fromStep.getSQL());
       StopWatch.print("begin execute retrieve");
       Result<Record> fetch = fromStep.fetch();
       for (Record r : fetch) {
@@ -90,9 +88,66 @@ public class SqlQuery extends QueryBean implements Query {
     }
   }
 
+  private org.jooq.Table getJooqTable(Table table) throws MolgenisException {
+
+    // create all columns
+    List<Field> fields = new ArrayList<>();
+    for (Column column : table.getColumns()) {
+      if (!MREF.equals(column.getType())) {
+        fields.add(
+            field(name(column.getJoinTable(), column.getName()), SqlTypeUtils.jooqTypeOf(column)));
+      } else {
+        fields.add(field(name(table.getName(), column.getName()), SqlTypeUtils.jooqTypeOf(column)));
+      }
+    }
+
+    // check if search term is given then add search field too
+    boolean search = false;
+    for (Where w : getWhereLists()) {
+      if (w.getOperator().equals(SEARCH)) search = true;
+    }
+    if (search) fields.add(field(MG_SEARCH_INDEX));
+
+    org.jooq.Table jooqTable =
+        DSL.select(fields)
+            .from(name(table.getSchemaName(), table.getName()))
+            .asTable(table.getName());
+
+    // for mrefs join
+    boolean mrefs = false;
+    for (Column column : table.getColumns()) {
+      if (MREF.equals(column.getType())) {
+        mrefs = true;
+        jooqTable =
+            jooqTable
+                .leftJoin(
+                    DSL.select(
+                            field("array_agg({0})", name(column.getRefColumn()))
+                                .as(column.getName()),
+                            field(name(column.getReverseRefColumn())))
+                        .from(table(name(table.getSchemaName(), column.getJoinTable())))
+                        .groupBy(field(name(column.getReverseRefColumn())))
+                        .asTable(column.getJoinTable()))
+                .on(
+                    field(name(column.getJoinTable(), column.getReverseRefColumn()))
+                        .eq((field(name(table.getName(), column.getReverseRefColumn())))));
+      }
+    }
+    return jooqTable;
+  }
+
   private List<Field> getFields(Table from) {
     List<Field> fields = new ArrayList<>();
     List<Select> selectList = this.getSelectList();
+
+    // in case of * select then add items explicitly
+    // TODO decide if we shouldn't force users to selectAll()
+    if (selectList.isEmpty()) {
+      for (Column c : from.getColumns()) {
+        this.select(c.getName());
+      }
+    }
+
     for (Select select : selectList) {
       String[] path = select.getPath();
       if (path.length == 1) {
@@ -117,7 +172,8 @@ public class SqlQuery extends QueryBean implements Query {
       if (SEARCH.equals(w.getOperator())) {
         StringBuilder search = new StringBuilder();
         for (Object s : w.getValues()) search.append(s + ":* ");
-        newCondition = condition(MG_SEARCH_VECTOR + " @@ to_tsquery('" + search + "' )");
+        newCondition =
+            condition(name(from.getName(), MG_SEARCH_INDEX) + " @@ to_tsquery('" + search + "' )");
       } else if (OR.equals(w.getOperator())) {
         or = true;
       } else {
@@ -204,26 +260,26 @@ public class SqlQuery extends QueryBean implements Query {
                         "{0} = ANY ({1})",
                         field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
           } else if (MREF.equals(c.getType())) {
-            String mrefTable = "TODO";
-            rightColumn = "TODO";
+            String joinTable = c.getJoinTable();
 
             // to link table
             fromStep =
                 fromStep
                     .leftJoin(
-                        table(name(from.getSchema().getName(), mrefTable)).as(name(mrefTable)))
-                    .on(field(name(mrefTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
+                        table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
+                    .on(field(name(joinTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
 
             // to other end of the mref
             fromStep =
                 fromStep
                     .leftJoin(
                         table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(field(name(mrefTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
+                    .on(field(name(joinTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
           }
         }
       }
     }
+    System.out.println(fromStep.toString());
     return fromStep;
   }
 

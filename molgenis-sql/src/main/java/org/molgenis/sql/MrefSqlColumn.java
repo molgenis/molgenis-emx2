@@ -52,8 +52,8 @@ public class MrefSqlColumn extends SqlColumn {
 
     // create the joinTable
     Table table = getTable().getSchema().createTable(getJoinTable());
-    table.addRef(getName(), getRefTable(), getRefColumn());
-    table.addRef(getReverseName(), getTable().getName(), getReverseRefColumn());
+    table.addRef(getRefColumn(), getRefTable(), getRefColumn());
+    table.addRef(getReverseRefColumn(), getTable().getName(), getReverseRefColumn());
 
     // add the reverse column to the other table
     MrefSqlColumn reverseColumn =
@@ -88,41 +88,40 @@ public class MrefSqlColumn extends SqlColumn {
     Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumn());
 
     // insert and update trigger:
-    // first delete references to previous instance of this
-    // and then update with current set
+    // first delete references to previous instance of 'self'
+    // and then update with current set of refColumn, reverseRefColumn pairs
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
             + "\nDECLARE"
             + "\n\t item {1};"
             + "\nBEGIN"
-            // DELETE FROM jointable WHERE getReverseRefColumn = reverseRefColumn
-            + "\n\tDELETE FROM {2} WHERE {3} = OLD.{4};"
+            // DELETE FROM jointable WHERE reverseRefColumn = reverseRefColumn
+            + "\n\tDELETE FROM {2} WHERE {3} = OLD.{3};"
             // foreach new.refColumn
-            + "\n\tFOREACH item IN ARRAY NEW.{5}"
+            + "\n\tFOREACH item IN ARRAY NEW.{4}"
             + "\n\tLOOP"
-            // INSERT INTO jointable(column,getReverseRefColumn) VALUES (item, NEW.reverseRefColumn)
-            + "\n\t\tINSERT INTO {2} ({6},{3},{5}) VALUES (md5(random()::text || clock_timestamp()::text)::uuid, NEW.{4},item);"
+            // INSERT INTO jointable(refColumn,getReverseRefColumn) VALUES (item, NEW.refColumn)
+            + "\n\t\tINSERT INTO {2} ({5},{3},{6}) VALUES (md5(random()::text || clock_timestamp()::text)::uuid, NEW.{3},item);"
             + "\n\tEND LOOP;"
             // NEW.column = NULL
-            + "\n\tNEW.{5} = NULL;"
+            + "\n\tNEW.{4} = NULL;"
             + "\n\tRETURN NEW;"
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(column.getTable().getSchemaName(), insertOrUpdateTrigger),
         keyword(SqlTypeUtils.getPsqlType(targetColumn)),
         table(name(joinTable.getSchema().getName(), joinTable.getName())),
-        field(name(reverseColumn.getName())),
         field(name(reverseColumn.getRefColumn())),
         field(name(column.getName())),
-        name(MOLGENISID));
+        name(MOLGENISID),
+        field(name(column.getRefColumn())));
 
     jooq.execute(
         "CREATE TRIGGER {0} "
-            + "\n\tAFTER INSERT OR UPDATE OF {1} ON {2}"
-            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+            + "\n\tBEFORE INSERT ON {1}"
+            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(insertOrUpdateTrigger),
-        name(column.getName()),
         name(column.getTable().getSchemaName(), column.getTable().getName()),
         name(column.getTable().getSchemaName(), insertOrUpdateTrigger));
 
@@ -133,18 +132,13 @@ public class MrefSqlColumn extends SqlColumn {
             + "\n$BODY$"
             + "\nBEGIN"
             // DELETE FROM jointable WHERE getReverseRefColumn = reverseRefColumn
-            + "\n\tDELETE FROM {2} WHERE {3} = OLD.{4};"
+            + "\n\tDELETE FROM {1} WHERE {2} = OLD.{2};"
             + "\n\tRETURN OLD;"
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(column.getTable().getSchemaName(), deleteTrigger),
-        keyword(SqlTypeUtils.getPsqlType(targetColumn)),
         table(name(joinTable.getSchema().getName(), joinTable.getName())),
-        field(name(reverseColumn.getName())),
-        field(name(reverseColumn.getRefColumn())),
-        field(name(column.getName())),
-        name(MOLGENISID));
-
+        field(name(reverseColumn.getRefColumn())));
     jooq.execute(
         "CREATE TRIGGER {0} "
             + "\n\tAFTER DELETE ON {1}"
@@ -152,7 +146,5 @@ public class MrefSqlColumn extends SqlColumn {
         name(deleteTrigger),
         name(column.getTable().getSchemaName(), column.getTable().getName()),
         name(column.getTable().getSchemaName(), deleteTrigger));
-
-    // TODO: delete trigger
   }
 }

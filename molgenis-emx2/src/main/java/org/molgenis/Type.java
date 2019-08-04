@@ -1,23 +1,36 @@
 package org.molgenis;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 public enum Type {
-  UUID,
-  UUID_ARRAY,
-  STRING,
-  STRING_ARRAY,
-  BOOL,
-  BOOL_ARRAY,
-  INT,
-  INT_ARRAY,
-  DECIMAL,
-  DECIMAL_ARRAY,
-  TEXT,
-  TEXT_ARRAY,
-  DATE,
-  DATE_ARRAY,
-  DATETIME,
-  DATETIME_ARRAY,
-  REF,
-  REF_ARRAY,
-  MREF;
+  UUID(java.util.UUID.class),
+  UUID_ARRAY(java.util.UUID[].class),
+  STRING(String.class),
+  STRING_ARRAY(String[].class),
+  BOOL(Boolean.class),
+  BOOL_ARRAY(Boolean[].class),
+  INT(Integer.class),
+  INT_ARRAY(Integer[].class),
+  DECIMAL(Double[].class),
+  DECIMAL_ARRAY(Double[].class),
+  TEXT(String.class),
+  TEXT_ARRAY(String[].class),
+  DATE(LocalDate.class),
+  DATE_ARRAY(LocalDate[].class),
+  DATETIME(LocalDateTime.class),
+  DATETIME_ARRAY(LocalDateTime[].class),
+  REF(Object.class),
+  REF_ARRAY(Object[].class),
+  MREF(Object[].class);
+
+  private Class javaType;
+
+  Type(Class javaType) {
+    this.javaType = javaType;
+  }
+
+  Class getType() {
+    return this.javaType;
+  }
 }

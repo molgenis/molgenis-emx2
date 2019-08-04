@@ -12,7 +12,6 @@ public class Row implements Identifiable {
 
   public static final String MOLGENISID = "molgenisid";
   private Map<String, Object> values = new LinkedHashMap<>();
-  private Map<String, List<UUID>> mrefs = new LinkedHashMap<>();
 
   public Row() { // to ensure we have nicely sorted record we have time based uuid
     this(Generators.timeBasedGenerator().generate());
@@ -51,19 +50,19 @@ public class Row implements Identifiable {
     return TypeUtils.toStringArray(values.get(name));
   }
 
-  public Integer getInt(String name) {
+  public Integer getInteger(String name) {
     return TypeUtils.toInt(values.get(name));
   }
 
-  public Integer[] getIntArray(String name) {
+  public Integer[] getIntegerArray(String name) {
     return TypeUtils.toIntArray(values.get(name));
   }
 
-  public Boolean getBool(String name) {
+  public Boolean getBoolean(String name) {
     return TypeUtils.toBool(values.get(name));
   }
 
-  public Boolean[] getBoolArray(String name) {
+  public Boolean[] getBooleanArray(String name) {
     return TypeUtils.toBoolArray(values.get(name));
   }
 
@@ -128,22 +127,6 @@ public class Row implements Identifiable {
     return this;
   }
 
-  public Row setMref(String name, List<Row> values) {
-    List<UUID> uuids = new ArrayList<>();
-    for (Row r : values) uuids.add(r.getMolgenisid());
-    mrefs.put(name, uuids);
-    return this;
-  }
-
-  public Row setMref(String colName, Row... values) {
-    List<UUID> ids = new ArrayList<>();
-    for (Row r : values) {
-      ids.add(r.getMolgenisid());
-    }
-    mrefs.put(colName, ids);
-    return this;
-  }
-
   public Row setRef(String name, UUID value) {
     this.values.put(name, value);
     return this;
@@ -196,10 +179,16 @@ public class Row implements Identifiable {
     StringBuilder builder = new StringBuilder();
     builder.append("ROW(");
     for (Map.Entry<String, Object> col : values.entrySet()) {
-      builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
-    }
-    for (Map.Entry<String, List<UUID>> col : mrefs.entrySet()) {
-      builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
+      if (col.getValue() instanceof Object[]) {
+        builder
+            .append(col.getKey())
+            .append("='")
+            .append(Arrays.toString((Object[]) col.getValue()))
+            .append("' ");
+
+      } else {
+        builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
+      }
     }
     builder.append(")");
     return builder.toString();
@@ -209,15 +198,53 @@ public class Row implements Identifiable {
     return this.values;
   }
 
-  public List<UUID> getMref(String colName) {
-    return this.mrefs.get(colName);
-  }
-
   public Collection<String> getColumns() {
     return this.values.keySet();
   }
 
   public Row setRowEditRole(String role) {
     return this.setString(MG_EDIT_ROLE.toString(), role);
+  }
+
+  public Object get(Type type, String name) throws MolgenisException {
+    return get(type.getType(), name);
+  }
+
+  public <T> T get(Class<T> type, String name) throws MolgenisException {
+    if (type == null) return null;
+
+    switch (type.getSimpleName()) {
+      case "String":
+        return (T) getString(name);
+      case "String[]":
+        return (T) getStringArray(name);
+      case "Integer":
+        return (T) getInteger(name);
+      case "Integer[]":
+        return (T) getIntegerArray(name);
+      case "Boolean":
+        return (T) getBoolean(name);
+      case "Boolean[]":
+        return (T) getBooleanArray(name);
+      case "Double":
+        return (T) getDecimal(name);
+      case "Double[]":
+        return (T) getDecimalArray(name);
+      case "LocalDate":
+        return (T) getDate(name);
+      case "LocalDate[]":
+        return (T) getDateArray(name);
+      case "LocalDateTime":
+        return (T) getDateTime(name);
+      case "LocalDateTime[]":
+        return (T) getDateTimeArray(name);
+      case "UUID":
+        return (T) getUuid(name);
+      case "UUID[]":
+        return (T) getUuidArray(name);
+      default:
+        throw new MolgenisException(
+            "Row.get(Class,name) not implemented for Class = " + type.getSimpleName());
+    }
   }
 }

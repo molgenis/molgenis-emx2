@@ -93,10 +93,10 @@ public class TestSimpleTypesAllInOne {
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);
       assert (res.getString("Test_string") instanceof String);
-      assert (res.getInt("Test_int") instanceof Integer);
+      assert (res.getInteger("Test_int") instanceof Integer);
       assert (res.getDecimal("Test_decimal") instanceof Double);
       assert (res.getText("Test_text") instanceof String);
-      assert (res.getBool("Test_bool") instanceof Boolean);
+      assert (res.getBoolean("Test_bool") instanceof Boolean);
       assert (res.getUuid("Test_uuid") instanceof java.util.UUID);
 
       t2.insert(res);
