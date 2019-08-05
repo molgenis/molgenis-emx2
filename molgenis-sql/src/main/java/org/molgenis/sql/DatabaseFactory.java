@@ -10,8 +10,6 @@ import org.molgenis.MolgenisException;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.Role.*;
-import static org.molgenis.sql.SqlTable.MG_ROLE;
 
 public class DatabaseFactory {
 
@@ -35,14 +33,17 @@ public class DatabaseFactory {
 
       // setup Jooq
       jooq = DSL.using(dataSource, SQLDialect.POSTGRES_10);
+
+      // delete all
       deleteAll();
-      // createColumn database to test against
+
+      // get fresh database
       db = new SqlDatabase(dataSource);
     }
     return db;
   }
 
-  public static void deleteAll() {
+  private static void deleteAll() {
 
     // delete all foreign key constaints
     for (org.jooq.Schema s : jooq.meta().getSchemas()) {
@@ -59,6 +60,7 @@ public class DatabaseFactory {
     // first drop MOLGENIS schema
     jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
 
+    // the all other schemas
     for (org.jooq.Schema s : jooq.meta().getSchemas()) {
       String schemaName = s.getName();
 
@@ -66,19 +68,15 @@ public class DatabaseFactory {
           && !"information_schema".equals(schemaName)
           && !"public".equals(schemaName)) {
         jooq.dropSchema(name(s.getName())).cascade().execute();
-
-        Name viewer = name(MG_ROLE + schemaName.toUpperCase() + VIEWER);
-        Name editor = name(MG_ROLE + schemaName.toUpperCase() + EDITOR);
-        Name manager = name(MG_ROLE + schemaName.toUpperCase() + MANAGER);
-        Name admin = name(MG_ROLE + schemaName.toUpperCase() + ADMIN);
-
-        final String DROP_ROLE_SQL = "DROP ROLE IF EXISTS {0}";
-        jooq.execute(DROP_ROLE_SQL, viewer);
-        jooq.execute(DROP_ROLE_SQL, editor);
-        jooq.execute(DROP_ROLE_SQL, manager);
-        jooq.execute(DROP_ROLE_SQL, admin);
       }
     }
+    // delete mg roles
+    for (String roleName : jooq.selectFrom(name("pg_roles")).fetchSet("rolname", String.class)) {
+      if (roleName.startsWith("testRole")) {
+        jooq.execute("DROP ROLE {0}", name(roleName));
+      }
+    }
+    ;
   }
 
   public static DSLContext getJooq() {

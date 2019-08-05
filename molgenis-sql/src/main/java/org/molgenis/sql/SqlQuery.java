@@ -21,7 +21,7 @@ import static org.molgenis.Operator.OR;
 import static org.molgenis.Operator.SEARCH;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.REF_ARRAY;
-import static org.molgenis.sql.SqlTable.MG_SEARCH_INDEX;
+import static org.molgenis.sql.SqlTable.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
 
@@ -106,7 +106,7 @@ public class SqlQuery extends QueryBean implements Query {
     for (Where w : getWhereLists()) {
       if (w.getOperator().equals(SEARCH)) search = true;
     }
-    if (search) fields.add(field(MG_SEARCH_INDEX));
+    if (search) fields.add(field(name(MG_SEARCH_INDEX_COLUMN_NAME)));
 
     org.jooq.Table jooqTable =
         DSL.select(fields)
@@ -171,7 +171,11 @@ public class SqlQuery extends QueryBean implements Query {
         StringBuilder search = new StringBuilder();
         for (Object s : w.getValues()) search.append(s + ":* ");
         newCondition =
-            condition(name(from.getName(), MG_SEARCH_INDEX) + " @@ to_tsquery('" + search + "' )");
+            condition(
+                name(from.getName(), MG_SEARCH_INDEX_COLUMN_NAME)
+                    + " @@ to_tsquery('"
+                    + search
+                    + "' )");
       } else if (OR.equals(w.getOperator())) {
         or = true;
       } else {

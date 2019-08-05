@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.STRING;
+import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class TestRoles {
   private static Database database;
@@ -115,7 +116,7 @@ public class TestRoles {
 
     try {
       database.transaction(
-          "MGROLE_TESTROLE_VIEW",
+          MG_ROLE_PREFIX + "TESTROLE_VIEW",
           db -> {
             db.getSchema("testRole").createTableIfNotExists("Test");
           });

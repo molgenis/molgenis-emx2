@@ -24,8 +24,8 @@ import static org.molgenis.sql.MetadataUtils.*;
 
 class SqlTable extends TableBean {
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
-  public static final String MG_SEARCH_INDEX = "mg_search_vector";
-  public static final String MG_ROLE = "MG_ROLE_";
+  public static final String MG_SEARCH_INDEX_COLUMN_NAME = "MG_SEARCH_VECTOR";
+  public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER = "MG_USER_";
   public static final String DEFER_SQL = "SET CONSTRAINTS ALL DEFERRED";
   private DSLContext jooq;
@@ -53,13 +53,13 @@ class SqlTable extends TableBean {
     // grant rights to schema manager, editor and viewer roles
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
-        tableName, name(MG_ROLE + getSchemaName().toUpperCase() + VIEWER));
+        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + VIEWER));
     jooq.execute(
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        tableName, name(MG_ROLE + getSchemaName().toUpperCase() + EDITOR));
+        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + EDITOR));
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        tableName, name(MG_ROLE + getSchemaName().toUpperCase() + MANAGER));
+        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + MANAGER));
 
     // save the metdata
     saveTableMetadata(this);
@@ -75,15 +75,17 @@ class SqlTable extends TableBean {
   public void enableSearch() {
 
     // 1. add tsvector column with index
-    jooq.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", getJooqTable(), name(MG_SEARCH_INDEX));
+    jooq.execute(
+        "ALTER TABLE {0} ADD COLUMN {1} tsvector",
+        getJooqTable(), name(MG_SEARCH_INDEX_COLUMN_NAME));
     // for future performance enhancement consider studying 'gin (t gin_trgm_ops)
 
     // 2. createColumn index on that column to speed up search
     jooq.execute(
         "CREATE INDEX mg_search_vector_idx ON {0} USING GIN( {1} )",
-        getJooqTable(), name(MG_SEARCH_INDEX));
+        getJooqTable(), name(MG_SEARCH_INDEX_COLUMN_NAME));
 
-    // 3. createColumn the trigger function to automatically update the MG_SEARCH_INDEX
+    // 3. createColumn the trigger function to automatically update the MG_SEARCH_INDEX_COLUMN_NAME
     String triggerfunction =
         String.format("\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getName());
 
@@ -99,11 +101,11 @@ class SqlTable extends TableBean {
         String.format(
             "CREATE OR REPLACE FUNCTION %s RETURNS trigger AS $$\n"
                 + "begin\n"
-                + "\tnew.mg_search_vector:=%s ;\n"
+                + "\tnew.%s:=%s ;\n"
                 + "\treturn new;\n"
                 + "end\n"
                 + "$$ LANGUAGE plpgsql;",
-            triggerfunction, mgSearchVector);
+            triggerfunction, name(MG_SEARCH_INDEX_COLUMN_NAME), mgSearchVector);
 
     jooq.execute(functionBody);
 
@@ -111,7 +113,7 @@ class SqlTable extends TableBean {
     jooq.execute(
         "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
             + triggerfunction,
-        name(MG_SEARCH_INDEX),
+        name(MG_SEARCH_INDEX_COLUMN_NAME),
         getJooqTable());
   }
 

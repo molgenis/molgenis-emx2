@@ -12,6 +12,7 @@ import java.util.Map;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.BOOLEAN;
 import static org.jooq.impl.SQLDataType.VARCHAR;
+import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class MetadataUtils {
 
@@ -97,11 +98,11 @@ public class MetadataUtils {
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || 'MANAGER', 'member'))",
-        name("TABLE_RLS_MANAGER"), table, TABLE_SCHEMA);
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || 'MANAGER', 'member'))",
+        name("TABLE_RLS_MANAGER"), table, MG_ROLE_PREFIX, TABLE_SCHEMA);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || 'VIEWER', 'member'))",
-        name("TABLE_RLS_VIEWER"), table, TABLE_SCHEMA);
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || 'VIEWER', 'member'))",
+        name("TABLE_RLS_VIEWER"), table, MG_ROLE_PREFIX, TABLE_SCHEMA);
   }
 
   static void saveSchemaMetadata(DSLContext sql, Schema schema) {
