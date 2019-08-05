@@ -12,13 +12,6 @@ public interface Database {
     MGROLE_
   }
 
-  enum Roles {
-    _VIEWER,
-    _EDITOR,
-    _MANAGER,
-    _ADMIN
-  }
-
   String getName();
 
   void setName(String name);

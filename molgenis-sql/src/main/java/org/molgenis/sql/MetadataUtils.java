@@ -97,10 +97,10 @@ public class MetadataUtils {
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_MANAGER', 'member'))",
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || 'MANAGER', 'member'))",
         name("TABLE_RLS_MANAGER"), table, TABLE_SCHEMA);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || '_VIEWER', 'member'))",
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, 'MGROLE_' || upper({2}) || 'VIEWER', 'member'))",
         name("TABLE_RLS_VIEWER"), table, TABLE_SCHEMA);
   }
 

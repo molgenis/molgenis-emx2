@@ -8,7 +8,7 @@ import java.util.Collection;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.Database.Prefix.MGROLE_;
-import static org.molgenis.Database.Roles.*;
+import static org.molgenis.Role.*;
 import static org.molgenis.sql.MetadataUtils.*;
 
 public class SqlSchema extends SchemaBean {
@@ -46,10 +46,10 @@ public class SqlSchema extends SchemaBean {
     try (CreateSchemaFinalStep step = jooq.createSchema(schemaName)) {
       step.execute();
 
-      String viewer = MGROLE_ + schemaName.toUpperCase() + _VIEWER;
-      String editor = MGROLE_ + schemaName.toUpperCase() + _EDITOR;
-      String manager = MGROLE_ + schemaName.toUpperCase() + _MANAGER;
-      String admin = MGROLE_ + schemaName.toUpperCase() + _ADMIN;
+      String viewer = MGROLE_ + schemaName.toUpperCase() + VIEWER;
+      String editor = MGROLE_ + schemaName.toUpperCase() + EDITOR;
+      String manager = MGROLE_ + schemaName.toUpperCase() + MANAGER;
+      String admin = MGROLE_ + schemaName.toUpperCase() + ADMIN;
 
       db.createRole(viewer);
       db.createRole(editor);
@@ -94,22 +94,22 @@ public class SqlSchema extends SchemaBean {
   public void grantAdmin(String user) {
     jooq.execute(
         "GRANT {0} TO {1} WITH ADMIN OPTION",
-        name(MGROLE_ + getName().toUpperCase() + _ADMIN), name(user));
+        name(MGROLE_ + getName().toUpperCase() + ADMIN), name(user));
   }
 
   @Override
   public void grantManage(String user) throws MolgenisException {
-    db.grantRole(MGROLE_ + getName().toUpperCase() + _MANAGER, user);
+    db.grantRole(MGROLE_ + getName().toUpperCase() + MANAGER, user);
   }
 
   @Override
   public void grantEdit(String user) throws MolgenisException {
-    db.grantRole(MGROLE_ + getName().toUpperCase() + _EDITOR, user);
+    db.grantRole(MGROLE_ + getName().toUpperCase() + EDITOR, user);
   }
 
   @Override
   public void grantView(String user) throws MolgenisException {
-    db.grantRole(MGROLE_ + getName().toUpperCase() + _VIEWER, user);
+    db.grantRole(MGROLE_ + getName().toUpperCase() + VIEWER, user);
   }
 
   @Override

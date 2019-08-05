@@ -98,14 +98,14 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
-  public Unique addUnique(String... names) throws MolgenisException {
+  public Unique addUnique(String... columnNames) throws MolgenisException {
     List<Column> cols = new ArrayList<>();
-    for (String name : names) {
-      Column c = getColumn(name);
-      if (c == null) throw new MolgenisException("Unique unknown: " + names);
+    for (String columnName : columnNames) {
+      Column c = getColumn(columnName);
+      if (c == null) throw new MolgenisException("Unique unknown: " + columnNames);
       cols.add(c);
     }
-    String uniqueName = name + "_" + String.join("_", names) + "_UNIQUE";
+    String uniqueName = name + "_" + String.join("_", columnNames) + "_UNIQUE";
     Unique u = new UniqueBean(this, cols);
     uniques.put(uniqueName, u);
     return u;

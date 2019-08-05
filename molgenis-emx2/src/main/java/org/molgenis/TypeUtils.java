@@ -9,6 +9,10 @@ import java.util.stream.Stream;
 
 public class TypeUtils {
 
+  private TypeUtils() {
+    // hide public constructor
+  }
+
   public static UUID toUuid(Object v) {
     try {
       if (v == null) return null;
@@ -20,7 +24,7 @@ public class TypeUtils {
   }
 
   public static UUID[] toUuidArray(Object v) {
-    if (v == null) return null;
+    if (v == null) return new UUID[0];
     if (v instanceof UUID[]) return (UUID[]) v;
     if (v instanceof Object[]) {
       return Stream.of((Object[]) v).map(TypeUtils::toUuid).toArray(UUID[]::new);
@@ -51,7 +55,7 @@ public class TypeUtils {
   }
 
   public static Integer[] toIntArray(Object v) {
-    if (v == null) return null;
+    if (v == null) return new Integer[0];
     if (v instanceof Integer[]) return (Integer[]) v;
     else if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toInt).toArray(Integer[]::new);
@@ -71,6 +75,7 @@ public class TypeUtils {
   }
 
   public static Boolean[] toBoolArray(Object v) {
+    if (v == null) return new Boolean[0];
     if (v instanceof Boolean[]) return (Boolean[]) v;
     else if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toBool).toArray(Boolean[]::new);
@@ -87,6 +92,7 @@ public class TypeUtils {
   }
 
   public static Double[] toDecimalArray(Object v) {
+    if (v == null) return new Double[0];
     if (v instanceof Double[]) return (Double[]) v;
     else if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toDecimal).toArray(Double[]::new);
@@ -109,7 +115,7 @@ public class TypeUtils {
 
   public static LocalDate[] toDateArrray(Object v) {
 
-    if (v == null) return null;
+    if (v == null) return new LocalDate[0];
     else if (v instanceof LocalDate[]) return (LocalDate[]) v;
     else if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toDate).toArray(LocalDate[]::new);
@@ -125,7 +131,7 @@ public class TypeUtils {
   }
 
   public static LocalDateTime[] toDateTimeArray(Object v) {
-    if (v == null) return null;
+    if (v == null) return new LocalDateTime[0];
     if (v instanceof LocalDateTime[]) return (LocalDateTime[]) v;
     if (v instanceof Object[]) {
       return Stream.of((Object[]) v).map(TypeUtils::toDateTime).toArray(LocalDateTime[]::new);

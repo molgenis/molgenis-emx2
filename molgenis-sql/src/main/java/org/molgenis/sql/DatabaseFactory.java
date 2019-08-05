@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.Database.Prefix.MGROLE_;
-import static org.molgenis.Database.Roles.*;
+import static org.molgenis.Role.*;
 
 public class DatabaseFactory {
 
@@ -67,10 +67,10 @@ public class DatabaseFactory {
           && !"public".equals(schemaName)) {
         jooq.dropSchema(name(s.getName())).cascade().execute();
 
-        Name viewer = name(MGROLE_ + schemaName.toUpperCase() + _VIEWER);
-        Name editor = name(MGROLE_ + schemaName.toUpperCase() + _EDITOR);
-        Name manager = name(MGROLE_ + schemaName.toUpperCase() + _MANAGER);
-        Name admin = name(MGROLE_ + schemaName.toUpperCase() + _ADMIN);
+        Name viewer = name(MGROLE_ + schemaName.toUpperCase() + VIEWER);
+        Name editor = name(MGROLE_ + schemaName.toUpperCase() + EDITOR);
+        Name manager = name(MGROLE_ + schemaName.toUpperCase() + MANAGER);
+        Name admin = name(MGROLE_ + schemaName.toUpperCase() + ADMIN);
 
         final String DROP_ROLE_SQL = "DROP ROLE IF EXISTS {0}";
         jooq.execute(DROP_ROLE_SQL, viewer);

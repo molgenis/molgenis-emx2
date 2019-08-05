@@ -16,9 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.jooq.impl.DSL.*;
 
 import static org.molgenis.Database.Prefix.MGROLE_;
-import static org.molgenis.Database.Roles._EDITOR;
-import static org.molgenis.Database.Roles._MANAGER;
-import static org.molgenis.Database.Roles._VIEWER;
+import static org.molgenis.Role.EDITOR;
+import static org.molgenis.Role.MANAGER;
+import static org.molgenis.Role.VIEWER;
 import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
@@ -51,13 +51,13 @@ class SqlTable extends TableBean {
     // grant rights to schema manager, editor and viewer roles
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
-        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + _VIEWER));
+        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + VIEWER));
     jooq.execute(
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + _EDITOR));
+        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + EDITOR));
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + _MANAGER));
+        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + MANAGER));
 
     // save the metdata
     saveTableMetadata(this);
@@ -184,11 +184,11 @@ class SqlTable extends TableBean {
   }
 
   @Override
-  public Unique addUnique(String... keys) throws MolgenisException {
+  public Unique addUnique(String... columnNames) throws MolgenisException {
 
-    String uniqueName = getName() + "_" + String.join("_", keys) + "_UNIQUE";
-    jooq.alterTable(getJooqTable()).add(constraint(name(uniqueName)).unique(keys)).execute();
-    return super.addUnique(keys);
+    String uniqueName = getName() + "_" + String.join("_", columnNames) + "_UNIQUE";
+    jooq.alterTable(getJooqTable()).add(constraint(name(uniqueName)).unique(columnNames)).execute();
+    return super.addUnique(columnNames);
   }
 
   @Override

@@ -9,7 +9,15 @@ import java.util.Map;
 
 public class RowReaderFlatmapper {
 
-  /** Don't use because slower than unbuffered */
+  private RowReaderFlatmapper() {
+    // hide constructor
+  }
+
+  /**
+   * Don't use because slower than unbuffered
+   *
+   * @deprecated
+   */
   @Deprecated
   public static Iterable<org.molgenis.Row> readBuffered(File f) throws IOException {
     return read(new BufferedReader(new FileReader(f)));
@@ -23,9 +31,9 @@ public class RowReaderFlatmapper {
 
     Iterator<Map> iterator = CsvParser.mapTo(Map.class).iterator(in);
 
-    return new Iterable<org.molgenis.Row>() {
-      // ... some reference to data
-      public Iterator<org.molgenis.Row> iterator() {
+    return new Iterable<Row>() {
+      @Override
+      public Iterator<Row> iterator() {
         return new Iterator<org.molgenis.Row>() {
           final Iterator<Map> it = iterator;
 
@@ -37,6 +45,7 @@ public class RowReaderFlatmapper {
             return new Row(it.next());
           }
 
+          @Override
           public void remove() {
             throw new UnsupportedOperationException();
           }

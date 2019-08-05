@@ -82,7 +82,7 @@ public class SelectBean implements Select, Serializable {
     return sb.toString();
   }
 
-  private String[] mergePath(String path[], String column) {
+  private String[] mergePath(String[] path, String column) {
     String[] newpath = Arrays.copyOf(path, path.length + 1);
     newpath[path.length] = column;
     return newpath;

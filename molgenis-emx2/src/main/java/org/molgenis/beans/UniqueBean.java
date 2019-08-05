@@ -1,6 +1,5 @@
 package org.molgenis.beans;
 
-import org.javers.common.collections.Lists;
 import org.molgenis.Column;
 import org.molgenis.Table;
 import org.molgenis.Unique;

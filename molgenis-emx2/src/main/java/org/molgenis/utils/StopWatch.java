@@ -2,16 +2,19 @@ package org.molgenis.utils;
 
 public class StopWatch {
 
+  private StopWatch() { // hides public constructor
+  }
+
   private static long time = System.currentTimeMillis();
 
   public static void print(String message) {
     long endTime = System.currentTimeMillis();
-    System.out.println((endTime - time) + "ms: " + message);
+    System.out.println((endTime - time) + "ms: " + message); // nosonar
     time = System.currentTimeMillis();
   }
 
   public static void start(String message) {
-    System.out.println("start: " + message);
+    System.out.println("start: " + message); // nosonar
     time = System.currentTimeMillis();
   }
 
@@ -27,7 +30,7 @@ public class StopWatch {
             + count
             + " with "
             + 1000 * count / total
-            + " per second)");
+            + " per second)"); // nosonar
     time = System.currentTimeMillis();
   }
 }

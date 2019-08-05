@@ -9,8 +9,6 @@ public interface Table extends Identifiable {
 
   Schema getSchema();
 
-  // TODO description
-
   Collection<Column> getColumns();
 
   Column getColumn(String name) throws MolgenisException;
