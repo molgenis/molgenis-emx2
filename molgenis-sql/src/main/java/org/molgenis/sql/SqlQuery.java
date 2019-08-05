@@ -68,7 +68,6 @@ public class SqlQuery extends QueryBean implements Query {
       // createColumn the sort
 
       // retrieve
-      System.out.println(fromStep.getSQL());
       StopWatch.print("begin execute retrieve");
       Result<Record> fetch = fromStep.fetch();
       for (Record r : fetch) {
@@ -162,51 +161,17 @@ public class SqlQuery extends QueryBean implements Query {
     return fields;
   }
 
-  private Condition createConditions(String name) throws MolgenisException {
+  private Condition createConditions(String tableName) throws MolgenisException {
     Condition conditions = null;
     boolean or = false;
     for (Where w : this.getWhereLists()) {
       Condition newCondition = null;
       if (SEARCH.equals(w.getOperator())) {
-        StringBuilder search = new StringBuilder();
-        for (Object s : w.getValues()) search.append(s + ":* ");
-        newCondition =
-            condition(
-                name(from.getName(), MG_SEARCH_INDEX_COLUMN_NAME)
-                    + " @@ to_tsquery('"
-                    + search
-                    + "' )");
+        newCondition = createSearchCondition(w);
       } else if (OR.equals(w.getOperator())) {
         or = true;
       } else {
-        // in case of field operator
-        String[] path = w.getPath();
-        StringBuilder tableAlias = new StringBuilder(name);
-
-        if (path.length > 1) {
-          tableAlias.append("/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1)));
-        }
-        Name selector = name(tableAlias.toString(), path[path.length - 1]);
-        switch (w.getOperator()) {
-          case EQ:
-            // type check
-            Object[] values = w.getValues();
-            for (int i = 0; i < values.length; i++)
-              values[i] = SqlTypeUtils.getTypedValue(values[i], getColumn(from, path));
-            newCondition = field(selector).in(values);
-            break;
-          case ANY:
-            newCondition =
-                condition(
-                    "{0} && {1}",
-                    SqlTypeUtils.getTypedValue(w.getValues(), getColumn(from, path)),
-                    field(selector));
-            break;
-          case SEARCH:
-
-          default:
-            throw new MolgenisException("Where clause not supported: " + w.toString());
-        }
+        newCondition = createFilterCondition(w, tableName);
       }
       if (newCondition != null) {
         if (conditions == null) conditions = newCondition;
@@ -219,6 +184,38 @@ public class SqlQuery extends QueryBean implements Query {
       }
     }
     return conditions;
+  }
+
+  private Condition createFilterCondition(Where w, String tableName) throws MolgenisException {
+    // in case of field operator
+    String[] path = w.getPath();
+    StringBuilder tableAlias = new StringBuilder(tableName);
+
+    if (path.length > 1) {
+      tableAlias.append("/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1)));
+    }
+    Name selector = name(tableAlias.toString(), path[path.length - 1]);
+    switch (w.getOperator()) {
+      case EQ:
+        // type check
+        Object[] values = w.getValues();
+        for (int i = 0; i < values.length; i++)
+          values[i] = SqlTypeUtils.getTypedValue(values[i], getColumn(from, path));
+        return field(selector).in(values);
+      case ANY:
+        return condition(
+            "{0} && {1}",
+            SqlTypeUtils.getTypedValue(w.getValues(), getColumn(from, path)), field(selector));
+      default:
+        throw new MolgenisException("Where clause not supported: " + w.toString());
+    }
+  }
+
+  private Condition createSearchCondition(Where w) {
+    StringBuilder search = new StringBuilder();
+    for (Object s : w.getValues()) search.append(s + ":* ");
+    return condition(
+        name(from.getName(), MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + search + "' )");
   }
 
   private SelectJoinStep createJoins(String name, Table table, SelectJoinStep fromStep)

@@ -127,7 +127,7 @@ class SqlTable extends TableBean {
         "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
         name("RLS/" + getSchema().getName() + "/" + getName()),
         getJooqTable(),
-        name(MG_EDIT_ROLE.toString()));
+        name(MG_EDIT_ROLE));
     // set RLS on the table
     // add policy for 'viewer' and 'editor'.
   }
