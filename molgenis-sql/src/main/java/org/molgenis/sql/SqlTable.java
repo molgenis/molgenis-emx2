@@ -15,20 +15,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jooq.impl.DSL.*;
 
-import static org.molgenis.Database.Prefix.MGROLE_;
 import static org.molgenis.Role.EDITOR;
 import static org.molgenis.Role.MANAGER;
 import static org.molgenis.Role.VIEWER;
-import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
 import static org.molgenis.sql.MetadataUtils.*;
 
 class SqlTable extends TableBean {
+  public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
   public static final String MG_SEARCH_INDEX = "mg_search_vector";
+  public static final String MG_ROLE = "MG_ROLE_";
+  public static final String MG_USER = "MG_USER_";
+  public static final String DEFER_SQL = "SET CONSTRAINTS ALL DEFERRED";
   private DSLContext jooq;
 
-  SqlTable(SqlSchema schema, String name) throws MolgenisException {
+  SqlTable(SqlSchema schema, String name) {
     super(schema, name);
     this.jooq = schema.jooq;
   }
@@ -51,13 +53,13 @@ class SqlTable extends TableBean {
     // grant rights to schema manager, editor and viewer roles
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
-        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + VIEWER));
+        tableName, name(MG_ROLE + getSchemaName().toUpperCase() + VIEWER));
     jooq.execute(
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + EDITOR));
+        tableName, name(MG_ROLE + getSchemaName().toUpperCase() + EDITOR));
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        tableName, name(MGROLE_ + getSchemaName().toUpperCase() + MANAGER));
+        tableName, name(MG_ROLE + getSchemaName().toUpperCase() + MANAGER));
 
     // save the metdata
     saveTableMetadata(this);
@@ -115,7 +117,7 @@ class SqlTable extends TableBean {
 
   @Override
   public void enableRowLevelSecurity() throws MolgenisException {
-    SqlColumn c = this.addColumn(MG_EDIT_ROLE.toString(), STRING);
+    SqlColumn c = this.addColumn(MG_EDIT_ROLE, STRING);
     c.setIndexed(true);
 
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
@@ -222,7 +224,7 @@ class SqlTable extends TableBean {
     try {
       jooq.transaction(
           config -> {
-            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+            DSL.using(config).execute(DEFER_SQL);
             // get metadata
             List<Field> fields = new ArrayList<>();
             List<String> fieldNames = new ArrayList<>();
@@ -250,7 +252,7 @@ class SqlTable extends TableBean {
     try {
       jooq.transaction(
           config -> {
-            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+            DSL.using(config).execute(DEFER_SQL);
 
             // keep batchsize smaller to limit memory footprint
             int batchSize = 1000;
@@ -323,7 +325,7 @@ class SqlTable extends TableBean {
     try {
       jooq.transaction(
           config -> {
-            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+            DSL.using(config).execute(DEFER_SQL);
 
             // because of expensive jTable scanning and smaller queryOld string size this batch
             // should be

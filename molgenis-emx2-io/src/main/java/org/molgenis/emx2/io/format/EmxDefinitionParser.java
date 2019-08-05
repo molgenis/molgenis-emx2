@@ -25,8 +25,6 @@ public class EmxDefinitionParser {
         String parameter = matcher.group(3);
         if (tag.hasParameter()) {
           if (parameter == null) {
-            // silently accept? messages.add(new MolgenisExceptionMessage(line, messagePrefix + "'
-            // expects parameter"));
           } else {
             tag.setParameterValue(parameter);
           }

@@ -1,5 +1,6 @@
 package org.molgenis.sql;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
@@ -14,17 +15,18 @@ public class TestDeferred {
 
   public TestDeferred() throws MolgenisException {}
 
-  @Test
   public void DependencyOrderNotNeededInTransaction() throws MolgenisException {
 
     StopWatch.start("DependencyOrderNotNeededInTransaction");
+try {                  database.transaction(
+                          db -> {
+                              runTestCase(db);
 
-    database.transaction(
-        db -> {
-          runTestCase(db);
-
-          StopWatch.print("data added (in wrong dependency order, how cool is that??)");
-        });
+                              StopWatch.print("data added (in wrong dependency order, how cool is that??)");
+                          });
+              } catch(Exception e) {
+    fail("should not fail, dependency order should be deferred");
+              }
     StopWatch.print("transaction committed)");
   }
 

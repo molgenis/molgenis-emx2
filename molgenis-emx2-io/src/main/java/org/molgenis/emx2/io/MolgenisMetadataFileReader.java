@@ -100,13 +100,14 @@ public class MolgenisMetadataFileReader {
 
         List<String> uniques = term.getParameterList();
         table.addUnique(uniques.toArray(new String[uniques.size()]));
-      } else
+      } else {
         throw new MolgenisException(
             "error on line "
                 + line
                 + ": unique parsing in definition '"
                 + row.getDefinition()
                 + "' failed. ");
+      }
     }
   }
 
@@ -214,6 +215,8 @@ public class MolgenisMetadataFileReader {
           return REF_ARRAY;
         case MREF:
           return MREF;
+        default:
+          // ignore
       }
     }
     return STRING;

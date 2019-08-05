@@ -114,10 +114,8 @@ public class SqlQuery extends QueryBean implements Query {
             .asTable(table.getName());
 
     // for mrefs join
-    boolean mrefs = false;
     for (Column column : table.getColumns()) {
       if (MREF.equals(column.getType())) {
-        mrefs = true;
         jooqTable =
             jooqTable
                 .leftJoin(
@@ -279,7 +277,6 @@ public class SqlQuery extends QueryBean implements Query {
         }
       }
     }
-    System.out.println(fromStep.toString());
     return fromStep;
   }
 

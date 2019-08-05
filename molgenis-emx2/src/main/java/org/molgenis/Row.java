@@ -6,8 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.molgenis.Database.RowLevelSecurity.MG_EDIT_ROLE;
-
 public class Row implements Identifiable {
 
   public static final String MOLGENISID = "molgenisid";
@@ -200,10 +198,6 @@ public class Row implements Identifiable {
 
   public Collection<String> getColumns() {
     return this.values.keySet();
-  }
-
-  public Row setRowEditRole(String role) {
-    return this.setString(MG_EDIT_ROLE.toString(), role);
   }
 
   public Object get(Type type, String name) throws MolgenisException {

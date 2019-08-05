@@ -15,7 +15,6 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.sql.MetadataUtils.loadSchemaNames;
 
 public class SqlDatabase extends DatabaseBean implements Database {
-
   private DSLContext jooq;
 
   public SqlDatabase(DataSource source) throws MolgenisException {

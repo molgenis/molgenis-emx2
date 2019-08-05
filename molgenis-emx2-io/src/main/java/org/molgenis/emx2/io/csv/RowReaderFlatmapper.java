@@ -31,17 +31,15 @@ public class RowReaderFlatmapper {
 
     Iterator<Map> iterator = CsvParser.mapTo(Map.class).iterator(in);
 
-    return new Iterable<Row>() {
-      @Override
-      public Iterator<Row> iterator() {
-        return new Iterator<org.molgenis.Row>() {
+    return () ->
+        new Iterator<Row>() {
           final Iterator<Map> it = iterator;
 
           public boolean hasNext() {
             return it.hasNext();
           }
 
-          public org.molgenis.Row next() {
+          public Row next() {
             return new Row(it.next());
           }
 
@@ -50,7 +48,5 @@ public class RowReaderFlatmapper {
             throw new UnsupportedOperationException();
           }
         };
-      }
-    };
   }
 }

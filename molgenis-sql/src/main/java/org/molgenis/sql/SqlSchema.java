@@ -7,9 +7,9 @@ import org.molgenis.beans.SchemaBean;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.Database.Prefix.MGROLE_;
 import static org.molgenis.Role.*;
 import static org.molgenis.sql.MetadataUtils.*;
+import static org.molgenis.sql.SqlTable.MG_ROLE;
 
 public class SqlSchema extends SchemaBean {
   private SqlDatabase db;
@@ -46,10 +46,10 @@ public class SqlSchema extends SchemaBean {
     try (CreateSchemaFinalStep step = jooq.createSchema(schemaName)) {
       step.execute();
 
-      String viewer = MGROLE_ + schemaName.toUpperCase() + VIEWER;
-      String editor = MGROLE_ + schemaName.toUpperCase() + EDITOR;
-      String manager = MGROLE_ + schemaName.toUpperCase() + MANAGER;
-      String admin = MGROLE_ + schemaName.toUpperCase() + ADMIN;
+      String viewer = MG_ROLE + schemaName.toUpperCase() + VIEWER;
+      String editor = MG_ROLE + schemaName.toUpperCase() + EDITOR;
+      String manager = MG_ROLE + schemaName.toUpperCase() + MANAGER;
+      String admin = MG_ROLE + schemaName.toUpperCase() + ADMIN;
 
       db.createRole(viewer);
       db.createRole(editor);
@@ -94,22 +94,22 @@ public class SqlSchema extends SchemaBean {
   public void grantAdmin(String user) {
     jooq.execute(
         "GRANT {0} TO {1} WITH ADMIN OPTION",
-        name(MGROLE_ + getName().toUpperCase() + ADMIN), name(user));
+        name(MG_ROLE + getName().toUpperCase() + ADMIN), name(user));
   }
 
   @Override
   public void grantManage(String user) throws MolgenisException {
-    db.grantRole(MGROLE_ + getName().toUpperCase() + MANAGER, user);
+    db.grantRole(MG_ROLE + getName().toUpperCase() + MANAGER, user);
   }
 
   @Override
   public void grantEdit(String user) throws MolgenisException {
-    db.grantRole(MGROLE_ + getName().toUpperCase() + EDITOR, user);
+    db.grantRole(MG_ROLE + getName().toUpperCase() + EDITOR, user);
   }
 
   @Override
   public void grantView(String user) throws MolgenisException {
-    db.grantRole(MGROLE_ + getName().toUpperCase() + VIEWER, user);
+    db.grantRole(MG_ROLE + getName().toUpperCase() + VIEWER, user);
   }
 
   @Override

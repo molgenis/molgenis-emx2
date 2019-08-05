@@ -1,3 +1,1 @@
-public class TestOpenApi {
-
-}
+public class TestOpenApi {}

@@ -5,7 +5,6 @@ import org.molgenis.Query;
 import org.molgenis.Where;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public class WhereBean implements Where {
 

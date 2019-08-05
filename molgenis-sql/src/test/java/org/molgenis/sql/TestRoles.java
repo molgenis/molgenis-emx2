@@ -176,10 +176,12 @@ public class TestRoles {
           db.getSchema("TestRLS")
               .getTable("TestRLS")
               .insert(
-                  new Row().setString("col1", "Hello World").setRowEditRole("testrls_has_rls_view"),
+                  new Row()
+                      .setString("col1", "Hello World")
+                      .set(SqlTable.MG_EDIT_ROLE, "testrls_has_rls_view"),
                   new Row()
                       .setString("col1", "Hello World2")
-                      .setRowEditRole("testrlsnopermission"));
+                      .set(SqlTable.MG_EDIT_ROLE, "testrlsnopermission"));
         });
 
     // let the second admin see it

@@ -9,6 +9,8 @@ import org.molgenis.utils.StopWatch;
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+
 public class LoaderTest {
 
   @Test
@@ -17,6 +19,7 @@ public class LoaderTest {
     Schema s = new SchemaBean("test");
     try {
       ZipLoader.load(s, new File(ClassLoader.getSystemResource("molgenis1").getFile()));
+      assertEquals(2, s.getTableNames().size());
     } catch (MolgenisException me) {
       me.printMessages();
     } catch (IOException e) {

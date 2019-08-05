@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.molgenis.sql.SqlDatabase.RowLevelSecurity.MG_EDIT_ROLE;
+
 public class SqlRow extends Row {
 
   public SqlRow(Record record) throws SQLException {

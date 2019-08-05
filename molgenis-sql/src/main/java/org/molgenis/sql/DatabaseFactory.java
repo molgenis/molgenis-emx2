@@ -10,8 +10,8 @@ import org.molgenis.MolgenisException;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.Database.Prefix.MGROLE_;
 import static org.molgenis.Role.*;
+import static org.molgenis.sql.SqlTable.MG_ROLE;
 
 public class DatabaseFactory {
 
@@ -67,10 +67,10 @@ public class DatabaseFactory {
           && !"public".equals(schemaName)) {
         jooq.dropSchema(name(s.getName())).cascade().execute();
 
-        Name viewer = name(MGROLE_ + schemaName.toUpperCase() + VIEWER);
-        Name editor = name(MGROLE_ + schemaName.toUpperCase() + EDITOR);
-        Name manager = name(MGROLE_ + schemaName.toUpperCase() + MANAGER);
-        Name admin = name(MGROLE_ + schemaName.toUpperCase() + ADMIN);
+        Name viewer = name(MG_ROLE + schemaName.toUpperCase() + VIEWER);
+        Name editor = name(MG_ROLE + schemaName.toUpperCase() + EDITOR);
+        Name manager = name(MG_ROLE + schemaName.toUpperCase() + MANAGER);
+        Name admin = name(MG_ROLE + schemaName.toUpperCase() + ADMIN);
 
         final String DROP_ROLE_SQL = "DROP ROLE IF EXISTS {0}";
         jooq.execute(DROP_ROLE_SQL, viewer);

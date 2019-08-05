@@ -8,6 +8,10 @@ import java.io.IOException;
 
 public class ZipLoader {
 
+  private ZipLoader() {
+    // hide constructor
+  }
+
   public static void load(Schema schema, File file) throws IOException, MolgenisException {
 
     // get metadata from ZIP or DIRECTORY
