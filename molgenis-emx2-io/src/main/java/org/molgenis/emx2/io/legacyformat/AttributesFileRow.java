@@ -170,26 +170,92 @@ public class AttributesFileRow {
     builder.append("AttributesFileRow(");
     builder.append("entity='").append(entity).append("'");
     builder.append(" name='").append(name).append("'");
-    if (dataType != null) builder.append(" type='").append(dataType).append("'");
-    if (label != null) builder.append(" label='").append(label).append("'");
-    if (nillable) builder.append(" nillable");
-    if (idAttribute) builder.append(" idAttribute");
-    if (aggregateable) builder.append(" aggregateable");
-    if (labelAttribute) builder.append(" labelAttribute");
-    if (readonly) builder.append(" readonly");
-    if (validationExepression != null)
-      builder.append(" validationExpression='").append(validationExepression).append("'");
-    if (defaultValue != null) builder.append(" defaultValue='").append(defaultValue).append("'");
-    if (partOfAttribute != null)
-      builder.append(" partOfAttribute='").append(partOfAttribute).append("'");
-    if (refEntity != null) builder.append(" refEntity='").append(refEntity).append("'");
-    if (expression != null) builder.append(" expression='").append(expression).append("'");
-    if (rangeMin != null) builder.append(" rangeMin=").append(rangeMin);
-    if (rangeMax != null) builder.append(" rangeMax=").append(rangeMax);
-    if (visibleExpression != null)
-      builder.append(" visibleExpression='").append(visibleExpression).append("'");
-    if (description != null) builder.append(" description='").append(description).append("'");
+    writeType(builder);
+    writeLabel(builder);
+    writeNillable(builder);
+    writeIdAttribute(builder);
+    writeAggregateable(builder);
+    writeLabelAttribute(builder);
+    writeReadonly(builder);
+    writeValidationExpression(builder);
+    writeDefaultValue(builder);
+    writePartOfAttribute(builder);
+    writeRefEntity(builder);
+    writeExpression(builder);
+    writeRangeMin(builder);
+    writeMax(builder);
+    writeVisbleExpression(builder);
+    writeDescription(builder);
     builder.append(")");
     return builder.toString();
+  }
+
+  public void writeDescription(StringBuilder builder) {
+    if (description != null) {
+      builder.append(" description='").append(description).append("'");
+    }
+  }
+
+  public void writeVisbleExpression(StringBuilder builder) {
+    if (visibleExpression != null)
+      builder.append(" visibleExpression='").append(visibleExpression).append("'");
+  }
+
+  public void writeMax(StringBuilder builder) {
+    if (rangeMax != null) builder.append(" rangeMax=").append(rangeMax);
+  }
+
+  public void writeRangeMin(StringBuilder builder) {
+    if (rangeMin != null) builder.append(" rangeMin=").append(rangeMin);
+  }
+
+  public void writeExpression(StringBuilder builder) {
+    if (expression != null) builder.append(" expression='").append(expression).append("'");
+  }
+
+  public void writeRefEntity(StringBuilder builder) {
+    if (refEntity != null) builder.append(" refEntity='").append(refEntity).append("'");
+  }
+
+  public void writePartOfAttribute(StringBuilder builder) {
+    if (partOfAttribute != null)
+      builder.append(" partOfAttribute='").append(partOfAttribute).append("'");
+  }
+
+  public void writeDefaultValue(StringBuilder builder) {
+    if (defaultValue != null) builder.append(" defaultValue='").append(defaultValue).append("'");
+  }
+
+  public void writeValidationExpression(StringBuilder builder) {
+    if (validationExepression != null)
+      builder.append(" validationExpression='").append(validationExepression).append("'");
+  }
+
+  public void writeReadonly(StringBuilder builder) {
+    if (readonly) builder.append(" readonly");
+  }
+
+  public void writeLabelAttribute(StringBuilder builder) {
+    if (labelAttribute) builder.append(" labelAttribute");
+  }
+
+  public void writeAggregateable(StringBuilder builder) {
+    if (aggregateable) builder.append(" aggregateable");
+  }
+
+  public void writeIdAttribute(StringBuilder builder) {
+    if (idAttribute) builder.append(" idAttribute");
+  }
+
+  public void writeNillable(StringBuilder builder) {
+    if (nillable) builder.append(" nillable");
+  }
+
+  public void writeLabel(StringBuilder builder) {
+    if (label != null) builder.append(" label='").append(label).append("'");
+  }
+
+  public void writeType(StringBuilder builder) {
+    if (dataType != null) builder.append(" type='").append(dataType).append("'");
   }
 }
