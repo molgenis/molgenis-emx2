@@ -18,7 +18,7 @@ import static org.molgenis.emx2.io.format.EmxDefinitionTerm.UNIQUE;
 
 public class MolgenisMetadataFileReader {
 
-  private MolgenisMetadataFileReader() {
+  protected MolgenisMetadataFileReader() {
     // hides constructor
   }
 

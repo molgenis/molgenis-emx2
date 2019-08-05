@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class TypeUtils {
 
-  private TypeUtils() {
+  protected TypeUtils() {
     // hide public constructor
   }
 

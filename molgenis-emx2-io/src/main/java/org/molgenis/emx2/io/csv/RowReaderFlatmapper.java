@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class RowReaderFlatmapper {
 
-  private RowReaderFlatmapper() {
+  protected RowReaderFlatmapper() {
     // hide constructor
   }
 
