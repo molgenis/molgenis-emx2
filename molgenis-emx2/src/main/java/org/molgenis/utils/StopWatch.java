@@ -9,12 +9,12 @@ public class StopWatch {
 
   public static void print(String message) {
     long endTime = System.currentTimeMillis();
-    System.out.println((endTime - time) + "ms: " + message); // nosonar
+    System.out.println((endTime - time) + "ms: " + message); // NOSONAR
     time = System.currentTimeMillis();
   }
 
   public static void start(String message) {
-    System.out.println("start: " + message); // nosonar
+    System.out.println("start: " + message); // NOSONAR
     time = System.currentTimeMillis();
   }
 
@@ -30,7 +30,7 @@ public class StopWatch {
             + count
             + " with "
             + 1000 * count / total
-            + " per second)"); // nosonar
+            + " per second)"); // NOSONAR
     time = System.currentTimeMillis();
   }
 }

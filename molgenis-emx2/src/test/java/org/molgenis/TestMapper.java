@@ -48,6 +48,6 @@ public class TestMapper {
     assertTrue(firstName.isNullable());
     assertFalse(lastName.isNullable());
 
-    assertEquals(firstName.getDescription(), "This is optional first name");
+    assertEquals("This is optional first name", firstName.getDescription());
   }
 }

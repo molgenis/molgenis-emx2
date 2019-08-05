@@ -10,6 +10,11 @@ import java.util.*;
 import static org.molgenis.Order.ASC;
 
 public class JsonQueryMapper {
+
+  private JsonQueryMapper() {
+    // hide constructor
+  }
+
   private static class JsonQuery {
     List<String> select = new ArrayList<>();
     List<Map<String, Object[]>> filters = new ArrayList<>();
@@ -19,10 +24,26 @@ public class JsonQueryMapper {
   public static Query jsonToQuery(String json, Query q) {
     JsoniterSpi.registerTypeImplementation(Map.class, LinkedHashMap.class);
     JsonQuery jq = JsonIterator.deserialize(json, JsonQuery.class);
+    selectToQuery(q, jq);
+    filtersToQuery(q, jq);
+    sortToQuery(q, jq);
+    return q;
+  }
+
+  public static void selectToQuery(Query q, JsonQuery jq) {
     for (String path : jq.select) {
       q.select(path.split("/"));
     }
+  }
 
+  private static void sortToQuery(Query q, JsonQuery jq) {
+    for (Map.Entry<String, Order> s : jq.sort.entrySet()) {
+      if (ASC.equals(s.getValue())) q.asc(s.getKey());
+      else q.desc(s.getKey());
+    }
+  }
+
+  public static void filtersToQuery(Query q, JsonQuery jq) {
     for (Map<String, Object[]> or : jq.filters) {
       boolean first = true;
       for (Map.Entry<String, Object[]> f : or.entrySet()) {
@@ -35,22 +56,9 @@ public class JsonQueryMapper {
         } else {
           where = q.and(path.split("/"));
         }
-        if (value[0] instanceof String) {
-          where.eq(Arrays.copyOf(value, value.length, String[].class));
-        }
-        if (value[0] instanceof Double) {
-          where.eq(Arrays.copyOf(value, value.length, Double[].class));
-        }
-        if (value[0] instanceof Integer) {
-          where.eq(Arrays.copyOf(value, value.length, Integer[].class));
-        }
+        where.eq(Arrays.copyOf(value, value.length, Object[].class));
       }
     }
-    for (Map.Entry<String, Order> s : jq.sort.entrySet()) {
-      if (ASC.equals(s.getValue())) q.asc(s.getKey());
-      else q.desc(s.getKey());
-    }
-    return q;
   }
 
   public static String queryToJson(Query q) {

@@ -11,6 +11,7 @@ import org.molgenis.beans.TableBean;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.DECIMAL;
 import static org.molgenis.Type.INT;
@@ -34,29 +35,33 @@ public class TestJson {
     String json = "{\"FirstName\":\"Donald\", \"Age\":50, \"Weight\":15.4}";
     Any any = JsonIterator.deserialize(json);
     org.molgenis.Row r = jsonToRow(t, any);
+    assertEquals(new Integer(50), r.getInteger("Age"));
 
     try {
       String malformed = "{\"FirstName\":\"Donald\", \"Age\":\"blaat\"}";
       any = JsonIterator.deserialize(malformed);
       r = jsonToRow(t, any);
+      fail("Should error on Age being String instead of a Integer");
     } catch (Exception e) {
-      System.out.println(e);
+      System.out.println("Error correctely: " + e);
     }
 
     try {
       String malformed = "{\"FirstName\":[\"Donald\",\"Duck\"], \"Age\":50}";
       any = JsonIterator.deserialize(malformed);
       r = jsonToRow(t, any);
+      fail("Should error on 'FirstName' begin as String[] instead of a String");
     } catch (Exception e) {
-      System.out.println(e);
+      System.out.println("Error correctly: " + e);
     }
 
     try {
       String malformed = "{\"FirstName\":\"Donald\", \"Age\":50, \"Weight\":\"blaat\"}";
       any = JsonIterator.deserialize(malformed);
       r = jsonToRow(t, any);
+      fail("Should error on 'Weight' as String[] instead of a Double");
     } catch (Exception e) {
-      System.out.println(e);
+      System.out.println("Error correctly:" + e);
     }
   }
 

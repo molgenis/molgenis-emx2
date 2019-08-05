@@ -4,9 +4,10 @@ import org.molgenis.Operator;
 import org.molgenis.Query;
 import org.molgenis.Where;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class WhereBean implements Where {
+public class WhereBean implements Where, Serializable {
 
   private transient QueryBean query;
   private String[] path;

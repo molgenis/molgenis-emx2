@@ -12,6 +12,10 @@ import java.util.*;
 
 public class JsonRowMapper {
 
+  private JsonRowMapper() {
+    // hide constructor
+  }
+
   public static List<org.molgenis.Row> jsonToRows(String json) {
     ArrayList<org.molgenis.Row> rows = new ArrayList<>();
 
@@ -62,8 +66,9 @@ public class JsonRowMapper {
     int i = 0;
     for (org.molgenis.Row r : rows) {
       Map<String, Object> map = r.getValueMap();
-      for (String name : map.keySet()) {
-        if (map.get(name) instanceof UUID) map.put(name, ((UUID) map.get(name)).toString());
+      for (Map.Entry<String, Object> entry : map.entrySet()) {
+        if (entry.getValue() instanceof UUID)
+          map.put(entry.getKey(), ((UUID) entry.getValue()).toString());
       }
       values[i++] = r.getValueMap();
     }
