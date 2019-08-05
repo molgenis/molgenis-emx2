@@ -14,7 +14,7 @@ import static junit.framework.TestCase.fail;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
 
-public class TestSql {
+public class TestBatch {
   private static Database db;
 
   @BeforeClass
@@ -27,10 +27,10 @@ public class TestSql {
 
     StopWatch.start("testBatch started");
 
-    Schema s = db.createSchema("testBatch");
-    Table test_batch = s.createTable("TestBatch");
-    test_batch.addColumn("test", STRING);
-    test_batch.addColumn("testint", INT);
+    Schema schema = db.createSchema("testBatch");
+    Table testBatchTable = schema.createTable("TestBatch");
+    testBatchTable.addColumn("test", STRING);
+    testBatchTable.addColumn("testint", INT);
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -44,27 +44,27 @@ public class TestSql {
     }
     StopWatch.print("Generated " + size + " test records", size);
 
-    test_batch.insert(rows.subList(0, 100));
+    testBatchTable.insert(rows.subList(0, 100));
 
     StopWatch.print("Inserted first batch", 100);
 
-    test_batch.insert(rows.subList(100, 200));
+    testBatchTable.insert(rows.subList(100, 200));
 
     StopWatch.print("Inserted second batch", 100);
 
-    test_batch.insert(rows.subList(200, 1000));
+    testBatchTable.insert(rows.subList(200, 1000));
 
     StopWatch.print("Inserted third batch", 800);
 
-    rows = test_batch.retrieve();
+    rows = testBatchTable.retrieve();
     assertEquals(1000, rows.size());
     for (org.molgenis.Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }
-    test_batch.update(rows);
+    testBatchTable.update(rows);
     StopWatch.print("Batch update ", rows.size());
 
-    StopWatch.print("Retrieved", s.getTable("TestBatch").retrieve().size());
+    StopWatch.print("Retrieved", schema.getTable("TestBatch").retrieve().size());
   }
 
   @Test
@@ -72,24 +72,27 @@ public class TestSql {
 
     StopWatch.start("");
 
-    Schema s = db.createSchema("testCreate");
+    Schema schema = db.createSchema("testCreate");
 
     String PERSON = "Person";
-    Table t = s.createTable(PERSON);
-    t.addColumn("First Name", STRING).setNullable(false); // default nullable=false but for testing
-    t.addColumn("Last Name", STRING);
-    t.addRef("Father", t.getName()).setNullable(true);
-    t.addUnique("First Name", "Last Name");
+    Table personTable = schema.createTable(PERSON);
+    personTable
+        .addColumn("First Name", STRING)
+        .setNullable(false); // default nullable=false but for testing
+    personTable.addColumn("Last Name", STRING);
+    personTable.addRef("Father", personTable.getName()).setNullable(true);
+    personTable.addUnique("First Name", "Last Name");
 
     // createColumn a fromTable
     // TODO need to optimize the reloading to be more lazy
     for (int i = 0; i < 10; i++) {
-      Table t2 = s.createTable(PERSON + i);
-      t2.addColumn("First Name", STRING)
+      Table personTable2 = schema.createTable(PERSON + i);
+      personTable2
+          .addColumn("First Name", STRING)
           .setNullable(false); // default nullable=false but for testing
-      t2.addColumn("Last Name", STRING);
-      t2.addRef("Father", t2.getName()).setNullable(true);
-      t2.addUnique("First Name", "Last Name");
+      personTable2.addColumn("Last Name", STRING);
+      personTable2.addRef("Father", personTable2.getName()).setNullable(true);
+      personTable2.addUnique("First Name", "Last Name");
     }
     StopWatch.print("Created tables");
 
@@ -97,55 +100,55 @@ public class TestSql {
     StopWatch.print("reloading database from disk");
 
     db.clearCache();
-    s = db.getSchema("testCreate");
-    assertEquals(11, s.getTableNames().size());
+    schema = db.getSchema("testCreate");
+    assertEquals(11, schema.getTableNames().size());
     StopWatch.print("reloading complete");
 
     // insert
-    Table t2 = s.getTable(PERSON);
+    Table personTableReloaded = schema.getTable(PERSON);
     List<org.molgenis.Row> rows = new ArrayList<>();
     int count = 1000;
     for (int i = 0; i < count; i++) {
       rows.add(new Row().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
     }
-    System.out.println("Metadata" + t2);
-    t2.insert(rows);
+    System.out.println("Metadata" + personTableReloaded);
+    personTableReloaded.insert(rows);
 
     StopWatch.print("insert", count);
 
     // queryOld
-    Query q = s.getTable(PERSON).query();
+    Query q = schema.getTable(PERSON).query();
     StopWatch.print("QueryOld ", q.retrieve().size());
 
     // delete
-    t2.delete(rows);
+    personTableReloaded.delete(rows);
     StopWatch.print("Delete", count);
 
-    assertEquals(0, s.getTable("Person").retrieve().size());
-    assertEquals(2, t.getUniques().size());
+    assertEquals(0, schema.getTable("Person").retrieve().size());
+    assertEquals(2, personTable.getUniques().size());
     try {
-      t.removeUnique(MOLGENISID);
+      personTable.removeUnique(MOLGENISID);
       fail("you shouldn't be allowed to remove primary key unique constraint");
     } catch (Exception e) {
       // good stuff
     }
-    t.removeUnique("Last Name", "First Name");
-    assertEquals(1, t.getUniques().size());
+    personTable.removeUnique("Last Name", "First Name");
+    assertEquals(1, personTable.getUniques().size());
 
-    assertEquals(4, t.getColumns().size());
+    assertEquals(4, personTable.getColumns().size());
     try {
-      t.removeColumn(MOLGENISID);
+      personTable.removeColumn(MOLGENISID);
       fail("you shouldn't be allowed to remove primary key column");
     } catch (Exception e) {
       // good stuff
     }
-    t.removeColumn("Father");
-    assertEquals(3, t.getColumns().size());
+    personTable.removeColumn("Father");
+    assertEquals(3, personTable.getColumns().size());
 
     // drop a fromTable
-    db.getSchema("testCreate").dropTable(t.getName());
+    db.getSchema("testCreate").dropTable(personTable.getName());
     try {
-      db.getSchema("testCreate").getTable(t.getName());
+      db.getSchema("testCreate").getTable(personTable.getName());
       fail("should have been dropped");
     } catch (Exception e) { // expected
     }
@@ -153,7 +156,7 @@ public class TestSql {
     // make sure nothing was left behind in backend
     db.clearCache();
     try {
-      assertEquals(null, db.getSchema("testCreate").getTable(t.getName()));
+      assertEquals(null, db.getSchema("testCreate").getTable(personTable.getName()));
       fail("should have been dropped");
     } catch (Exception e) { // expected
     }

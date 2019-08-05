@@ -21,14 +21,14 @@ public class TestSearch {
   public void testSearch() throws MolgenisException {
 
     // setup
-    Schema s = db.createSchema("TestSearch");
-    Table t = s.createTable("TestSearch");
-    t.addColumn("sub", Type.STRING);
-    t.addColumn("body", Type.TEXT);
-    t.addColumn("year", Type.INT);
-    t.enableSearch();
+    Schema schema = db.createSchema("TestSearch");
+    Table aTable = schema.createTable("TestSearch");
+    aTable.addColumn("sub", Type.STRING);
+    aTable.addColumn("body", Type.TEXT);
+    aTable.addColumn("year", Type.INT);
+    aTable.enableSearch();
 
-    t.insert(
+    aTable.insert(
         new Row()
             .setString("sub", "test subject")
             .setString("body", "test body")
@@ -44,9 +44,9 @@ public class TestSearch {
             .setInt("year", 1977));
 
     // search in one table
-    assertEquals(1, t.query().search("test").retrieve().size());
+    assertEquals(1, aTable.query().search("test").retrieve().size());
 
-    assertEquals(2, t.query().search("test").or().search("another").retrieve().size());
+    assertEquals(2, aTable.query().search("test").or().search("another").retrieve().size());
 
     // search accross join of xref
   }

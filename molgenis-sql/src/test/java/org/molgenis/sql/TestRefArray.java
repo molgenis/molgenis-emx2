@@ -31,34 +31,34 @@ public class TestRefArray {
   }
 
   @Test
-  public void testString() throws MolgenisException {
+  public void testStringRef() throws MolgenisException {
     executeTest(STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
-  public void testInt() throws MolgenisException {
+  public void testIntRef() throws MolgenisException {
     executeTest(INT, new Integer[] {5, 6});
   }
 
   @Test
-  public void testDate() throws MolgenisException {
+  public void testDateRef() throws MolgenisException {
     executeTest(DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
-  public void testDateTime() throws MolgenisException {
+  public void testDateTimeRef() throws MolgenisException {
     executeTest(
         DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
-  public void testDecimal() throws MolgenisException {
+  public void testDecimalRef() throws MolgenisException {
     executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
-  public void testText() throws MolgenisException {
+  public void testTextRef() throws MolgenisException {
     executeTest(
         TEXT,
         new String[] {
@@ -71,17 +71,17 @@ public class TestRefArray {
     Schema schema = db.createSchema("TestRefArray" + type.toString().toUpperCase());
 
     Table aTable = schema.createTable("A");
-    String aColumnName = type + "Col";
-    aTable.addColumn(aColumnName, type);
-    aTable.addUnique(aColumnName);
+    String aKey = "A" + type + "Key";
+    aTable.addColumn(aKey, type);
+    aTable.addUnique(aKey);
 
-    Row aRow = new Row().set(aColumnName, testValues[0]);
-    Row aRow2 = new Row().set(aColumnName, testValues[1]);
+    Row aRow = new Row().set(aKey, testValues[0]);
+    Row aRow2 = new Row().set(aKey, testValues[1]);
     aTable.insert(aRow, aRow2);
 
     Table bTable = schema.createTable("B");
     String refToA = type + "RefToA";
-    bTable.addRefArray(refToA, "A", aColumnName);
+    bTable.addRefArray(refToA, "A", aKey);
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 1, 3));
@@ -115,14 +115,13 @@ public class TestRefArray {
     Schema schema = db.createSchema("TestRefArray");
 
     Table aTable = schema.createTable("A");
-
-    Table bTable = schema.createTable("B");
-    bTable.addRefArray("refToA", "A", MOLGENISID);
-
     Row aRow = new Row();
     Row aRow2 = new Row();
     Row aRow3 = new Row();
     aTable.insert(aRow, aRow2, aRow3);
+
+    Table bTable = schema.createTable("B");
+    bTable.addRefArray("refToA", "A", MOLGENISID);
 
     // okay
     Row bRow = new Row().set("refToA", new UUID[] {aRow.getMolgenisid(), aRow3.getMolgenisid()});

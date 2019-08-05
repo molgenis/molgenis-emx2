@@ -55,42 +55,42 @@ public class TestRefs {
   private void executeTest(Type type, Object insertValue, Object updateValue)
       throws MolgenisException {
 
-    Schema s = db.createSchema("TestRefs" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestRefs" + type.toString().toUpperCase());
 
-    Table a = s.createTable("A");
-    String fieldName = type + "Col";
-    a.addColumn(fieldName, type);
-    a.addUnique(fieldName);
+    Table aTable = schema.createTable("A");
+    String fieldName = "AKeyOf" + type;
+    aTable.addColumn(fieldName, type);
+    aTable.addUnique(fieldName);
     Row aRow = new Row().set(fieldName, insertValue);
-    a.insert(aRow);
+    aTable.insert(aRow);
 
-    Table b = s.createTable("B");
-    String refName = type + "Ref";
-    b.addRef(refName, "A", fieldName);
-    Row bRow = new Row().set(refName, insertValue);
-    b.insert(bRow);
+    Table bTable = schema.createTable("B");
+    String refFromBToA = "RefToAKeyOf" + type;
+    bTable.addRef(refFromBToA, "A", fieldName);
+    Row bRow = new Row().set(refFromBToA, insertValue);
+    bTable.insert(bRow);
 
     // insert to non-existing value should fail
-    Row bErrorRow = new Row().set(refName, updateValue);
+    Row bErrorRow = new Row().set(refFromBToA, updateValue);
     try {
-      b.insert(bErrorRow);
+      bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
     } catch (Exception e) {
       System.out.println("delete exception correct: \n" + e.getMessage());
     }
 
     // and update, should be cascading :-)
-    a.update(aRow.set(fieldName, updateValue));
+    aTable.update(aRow.set(fieldName, updateValue));
 
     // delete of A should fail
     try {
-      a.delete(aRow);
+      aTable.delete(aRow);
       fail("delete should fail");
     } catch (Exception e) {
       System.out.println("insert exception correct: \n" + e.getMessage());
     }
 
-    b.delete(bRow);
-    a.delete(aRow);
+    bTable.delete(bRow);
+    aTable.delete(aRow);
   }
 }

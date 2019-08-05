@@ -27,28 +27,27 @@ public class TestSimpleTypesAllInOne {
 
     StopWatch.print("testTypes started");
 
-    Schema s = db.createSchema("testTypes");
+    String SCHEMA_NAME = "testTypes";
+    Schema schema = db.createSchema(SCHEMA_NAME);
 
     // generate TypeTest table, with columns for each type
-    Table t = s.createTable("TypeTest");
+    String TYPE_TEST = "TypeTest";
+    Table typeTestTable = schema.createTable(TYPE_TEST);
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (Type type : types) {
-      if (REF.equals(type)) {
-        Column c =
-            t.addRef("Test_" + type.toString().toLowerCase() + "_nillable", t.getName())
-                .setNullable(true);
-        // DatabaseFactory.checkColumnExists(c);
-      } else {
-        Column c = t.addColumn("Test_" + type.toString().toLowerCase(), type);
-        Column c2 =
-            t.addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
-                .setNullable(true);
-      }
+
+      Column c = typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
+      Column c2 =
+          typeTestTable
+              .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
+              .setNullable(true);
     }
 
     // retrieve this table from metadataa
-    String TYPE_TEST = "TypeTest";
-    Table t2 = s.getTable("TypeTest");
+
+    db.clearCache();
+
+    Table t2 = db.getSchema(SCHEMA_NAME).getTable(TYPE_TEST);
 
     StopWatch.print("created TypeTest table");
 
@@ -56,7 +55,6 @@ public class TestSimpleTypesAllInOne {
     org.molgenis.Row row = new Row();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
-    // row.setEnum("Test_enum", "test");
     row.setBool("Test_bool", true);
     row.setInt("Test_int", 1);
     row.setDecimal("Test_decimal", 1.1);
@@ -87,7 +85,7 @@ public class TestSimpleTypesAllInOne {
     StopWatch.print("inserted rows");
 
     // check queryOld and test getters
-    List<org.molgenis.Row> result = s.getTable("TypeTest").retrieve();
+    List<org.molgenis.Row> result = schema.getTable("TypeTest").retrieve();
     for (org.molgenis.Row res : result) {
       res.setMolgenisid(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
@@ -104,6 +102,6 @@ public class TestSimpleTypesAllInOne {
 
     StopWatch.print("checked getters");
 
-    StopWatch.print("complete", s.getTable("TypeTest").retrieve().size());
+    StopWatch.print("complete", schema.getTable("TypeTest").retrieve().size());
   }
 }

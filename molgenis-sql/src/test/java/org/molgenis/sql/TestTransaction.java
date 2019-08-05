@@ -21,16 +21,14 @@ public class TestTransaction {
   @Test
   public void testCommit() throws MolgenisException {
 
-    Schema schema = db.createSchema("testCommit"); // not transactional in jooq :-(
-
     db.transaction(
         db -> {
-          Schema s = db.getSchema("testCommit");
-          Table t = s.createTable("testCommit");
-          t.addColumn("ColA", STRING);
-          t.addUnique("ColA");
-          t.insert(new Row().setString("ColA", "test"));
-          t.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
+          Schema schema = db.createSchema("testCommit");
+          Table testTable = schema.createTable("testCommit");
+          testTable.addColumn("ColA", STRING);
+          testTable.addUnique("ColA");
+          testTable.insert(new Row().setString("ColA", "test"));
+          testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });
     db.clearCache();
     assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieve().size());
@@ -40,14 +38,14 @@ public class TestTransaction {
   public void testRollBack() throws MolgenisException {
     db.transaction(
         db -> {
-          Schema s = db.createSchema("testRollBack");
-          Table t = s.createTable("testRollBack");
-          t.addColumn("ColA", STRING);
-          t.addUnique("ColA");
+          Schema schema = db.createSchema("testRollBack");
+          Table testTable = schema.createTable("testRollBack");
+          testTable.addColumn("ColA", STRING);
+          testTable.addUnique("ColA");
 
           org.molgenis.Row r = new Row().setString("ColA", "test");
-          t.insert(r);
-          t.insert(r);
+          testTable.insert(r);
+          testTable.insert(r);
         });
   }
 }

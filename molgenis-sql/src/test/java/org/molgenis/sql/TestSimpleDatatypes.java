@@ -68,32 +68,32 @@ public class TestSimpleDatatypes {
 
   private void executeTest(Type type, Object[] values) throws MolgenisException {
 
-    Schema s = db.createSchema("TestSimpleDatatypes" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestSimpleDatatypes" + type.toString().toUpperCase());
 
-    Table a = s.createTable("A");
-    String aFieldName = type + "Col";
-    a.addColumn(aFieldName, type);
+    Table aTable = schema.createTable("A");
+    String aColumn = type + "Col";
+    aTable.addColumn(aColumn, type);
 
-    Row aRow = new Row().set(aFieldName, values[0]);
-    Row bRow = new Row().set(aFieldName, values[1]);
-    a.insert(aRow, bRow);
+    Row aRow = new Row().set(aColumn, values[0]);
+    Row bRow = new Row().set(aColumn, values[1]);
+    aTable.insert(aRow, bRow);
 
     // and update
-    aRow.set(aFieldName, values[2]);
-    a.update(aRow);
+    aRow.set(aColumn, values[2]);
+    aTable.update(aRow);
 
     // check query
-    List<Row> result = a.query().where(aFieldName).eq(values[0]).retrieve();
+    List<Row> result = aTable.query().where(aColumn).eq(values[0]).retrieve();
     assertEquals(0, result.size());
 
-    result = a.query().where(aFieldName).eq(values[2]).retrieve();
+    result = aTable.query().where(aColumn).eq(values[2]).retrieve();
     assertEquals(1, result.size());
     for (Row r : result) {
       System.out.println(r);
     }
 
     // deletel
-    a.delete(aRow, bRow);
-    assertEquals(0, a.retrieve().size());
+    aTable.delete(aRow, bRow);
+    assertEquals(0, aTable.retrieve().size());
   }
 }

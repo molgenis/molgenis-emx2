@@ -16,11 +16,11 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.STRING;
 
 public class TestRoles {
-  private static Database db;
+  private static Database database;
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getDatabase("molgenis", "molgenis");
   }
 
   @Test
@@ -29,23 +29,23 @@ public class TestRoles {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
-    Schema s = db.createSchema("testRolePermissions");
+    Schema schema = database.createSchema("testRolePermissions");
 
     // createColumn test users
-    db.createUser("user_testRolePermissions_viewer");
-    db.createUser("user_testRolePermissions_editor");
-    db.createUser("user_testRolePermissions_manager");
+    database.createUser("user_testRolePermissions_viewer");
+    database.createUser("user_testRolePermissions_editor");
+    database.createUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    s.grantView("user_testRolePermissions_viewer");
-    s.grantEdit("user_testRolePermissions_editor");
-    s.grantManage("user_testRolePermissions_manager");
+    schema.grantView("user_testRolePermissions_viewer");
+    schema.grantEdit("user_testRolePermissions_editor");
+    schema.grantManage("user_testRolePermissions_manager");
 
     StopWatch.print("testRolePermissions schema created");
 
     // test that viewer and editor cannot createColumn, and manager can
     try {
-      db.transaction(
+      database.transaction(
           "user_testRolePermissions_viewer",
           db -> {
             db.getSchema("testRolePermissions").createTable("Test");
@@ -57,7 +57,7 @@ public class TestRoles {
     StopWatch.print("test viewer permission");
 
     try {
-      db.transaction(
+      database.transaction(
           "user_testRolePermissions_editor",
           db -> {
             db.getSchema("testRolePermissions").createTable("Test");
@@ -68,7 +68,7 @@ public class TestRoles {
     StopWatch.print("test editor permission");
 
     try {
-      db.transaction(
+      database.transaction(
           "user_testRolePermissions_manager",
           db -> {
             try {
@@ -86,7 +86,7 @@ public class TestRoles {
 
     // test that all can query
     try {
-      db.transaction(
+      database.transaction(
           "user_testRolePermissions_viewer",
           db -> {
             StopWatch.print("getting Table");
@@ -104,14 +104,14 @@ public class TestRoles {
 
   @Test
   public void testRole() throws MolgenisException {
-    Schema s = db.createSchema("testRole");
-    db.createUser("testadmin");
-    db.createUser("testuser");
-    s.grantAdmin("testadmin");
-    s.createTable("Person").addColumn("FirstName", STRING).addColumn("LastName", STRING);
+    Schema schema = database.createSchema("testRole");
+    database.createUser("testadmin");
+    database.createUser("testuser");
+    schema.grantAdmin("testadmin");
+    schema.createTable("Person").addColumn("FirstName", STRING).addColumn("LastName", STRING);
 
     try {
-      db.transaction(
+      database.transaction(
           "MGROLE_TESTROLE_VIEW",
           db -> {
             db.getSchema("testRole").createTable("Test");
@@ -123,7 +123,7 @@ public class TestRoles {
     }
 
     try {
-      db.transaction(
+      database.transaction(
           "testadmin",
           db -> {
             db.getSchema("testRole").createTable("Test");
@@ -141,33 +141,33 @@ public class TestRoles {
   @Test
   public void testRls() throws MolgenisException {
     // createColumn schema
-    Schema s = db.createSchema("TestRLS");
+    Schema s = database.createSchema("TestRLS");
     // createColumn two users
-    db.createUser("testrls1");
-    db.createUser("testrls2");
-    db.createUser("testrlsnopermission");
-    db.createUser("testrls_has_rls_view");
+    database.createUser("testrls1");
+    database.createUser("testrls2");
+    database.createUser("testrlsnopermission");
+    database.createUser("testrls_has_rls_view");
     // grant both admin on TestRLS schema so can add row level security
     s.grantAdmin("testrls1");
     s.grantAdmin("testrls2");
     s.grantView("testrls_has_rls_view"); // can view table but only rows with right RLS
 
     // let one user createColumn the table
-    db.transaction(
+    database.transaction(
         "testrls1",
         db -> {
           db.getSchema("TestRLS").createTable("TestRLS").addColumn("col1", STRING);
         });
 
     // let the other add RLS
-    db.transaction(
+    database.transaction(
         "testrls2",
         db -> {
           db.getSchema("TestRLS").getTable("TestRLS").enableRowLevelSecurity();
         });
 
     // let the first add a row (checks if admin permissions are setup correctly)
-    db.transaction(
+    database.transaction(
         "testrls1",
         db -> {
           db.getSchema("TestRLS")
@@ -180,14 +180,14 @@ public class TestRoles {
         });
 
     // let the second admin see it
-    db.transaction(
+    database.transaction(
         "testrls2",
         db -> {
           assertEquals(2, db.getSchema("TestRLS").getTable("TestRLS").retrieve().size());
         });
 
     // have RLS user query and see one row
-    db.transaction(
+    database.transaction(
         "testrls_has_rls_view",
         db -> {
           assertEquals(1, db.getSchema("TestRLS").getTable("TestRLS").retrieve().size());
