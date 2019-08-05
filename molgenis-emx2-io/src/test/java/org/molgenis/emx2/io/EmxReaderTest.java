@@ -16,6 +16,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import static junit.framework.TestCase.fail;
+import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.convertModelToMolgenisFileRows;
+import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.writeCsv;
 
 public class EmxReaderTest {
 
@@ -28,14 +30,13 @@ public class EmxReaderTest {
       // System.out.println(model1.toString());
 
       StopWatch.print("\nmodel converted back to lines:");
-      for (MolgenisFileRow row :
-          new MolgenisMetadataFileWriter().convertModelToMolgenisFileRows(model1)) {
+      for (MolgenisFileRow row : convertModelToMolgenisFileRows(model1)) {
         // System.out.println(row);
       }
 
       StopWatch.print("\nmodel printed back to csv");
       StringWriter writer = new StringWriter();
-      new MolgenisMetadataFileWriter().writeCsv(model1, writer);
+      writeCsv(model1, writer);
       String csv = writer.toString();
       // System.out.println(csv);
 

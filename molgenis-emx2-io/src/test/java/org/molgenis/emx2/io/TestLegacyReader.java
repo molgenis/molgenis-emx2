@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.writeCsv;
+
 public class TestLegacyReader {
 
   @Test
@@ -30,7 +32,7 @@ public class TestLegacyReader {
           new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
 
       StringWriter writer = new StringWriter();
-      new MolgenisMetadataFileWriter().writeCsv(model, writer);
+      writeCsv(model, writer);
       System.out.println(writer);
 
     } catch (MolgenisException e) {
