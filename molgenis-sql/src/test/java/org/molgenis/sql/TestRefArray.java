@@ -5,10 +5,8 @@ import org.junit.Test;
 import org.molgenis.*;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
 
 public class TestRefArray {
@@ -70,7 +68,7 @@ public class TestRefArray {
 
     Schema schema = db.createSchema("TestRefArray" + type.toString().toUpperCase());
 
-    Table aTable = schema.createTable("A");
+    Table aTable = schema.createTableIfNotExists("A");
     String aKey = "A" + type + "Key";
     aTable.addColumn(aKey, type);
     aTable.addUnique(aKey);
@@ -79,7 +77,7 @@ public class TestRefArray {
     Row aRow2 = new Row().set(aKey, testValues[1]);
     aTable.insert(aRow, aRow2);
 
-    Table bTable = schema.createTable("B");
+    Table bTable = schema.createTableIfNotExists("B");
     String refToA = type + "RefToA";
     bTable.addRefArray(refToA, "A", aKey);
 
@@ -107,46 +105,5 @@ public class TestRefArray {
     // should be okay
     bTable.delete(bRow);
     aTable.delete(aRow);
-  }
-
-  @Test
-  public void test1() throws MolgenisException {
-
-    Schema schema = db.createSchema("TestRefArray");
-
-    Table aTable = schema.createTable("A");
-    Row aRow = new Row();
-    Row aRow2 = new Row();
-    Row aRow3 = new Row();
-    aTable.insert(aRow, aRow2, aRow3);
-
-    Table bTable = schema.createTable("B");
-    bTable.addRefArray("refToA", "A", MOLGENISID);
-
-    // okay
-    Row bRow = new Row().set("refToA", new UUID[] {aRow.getMolgenisid(), aRow3.getMolgenisid()});
-    bTable.insert(bRow);
-
-    // should fail
-    try {
-      Row notInA = new Row();
-      Row bRow2 =
-          new Row()
-              .set(
-                  "refToA",
-                  new UUID[] {aRow.getMolgenisid(), aRow3.getMolgenisid(), notInA.getMolgenisid()});
-      bTable.insert(bRow2);
-      fail("should fail because of missing foreign key");
-    } catch (Exception e) {
-      System.out.println("error correctly with message:\n " + e.getMessage());
-    }
-
-    // should fail
-    try {
-      aTable.delete(aRow);
-      fail("should fail because aRow still has foreign key references to it");
-    } catch (Exception e) {
-      System.out.println("error correctly with message:\n " + e.getMessage());
-    }
   }
 }

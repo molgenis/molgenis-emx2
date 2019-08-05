@@ -7,9 +7,7 @@ import org.molgenis.beans.SchemaBean;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
@@ -44,7 +42,7 @@ public class AttributesFileReader {
       throws MolgenisException {
     // get or create table
     Table table = model.getTable(row.getEntity());
-    if (table == null) table = model.createTable(row.getEntity());
+    if (table == null) table = model.createTableIfNotExists(row.getEntity());
 
     // check if attribute exists
     if (table.getColumn(row.getName()) != null) {

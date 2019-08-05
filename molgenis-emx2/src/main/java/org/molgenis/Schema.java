@@ -5,7 +5,7 @@ import java.util.Collection;
 public interface Schema {
   String getName();
 
-  Table createTable(String name) throws MolgenisException;
+  Table createTableIfNotExists(String name) throws MolgenisException;
 
   Table getTable(String name) throws MolgenisException;
 

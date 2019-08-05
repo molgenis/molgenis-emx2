@@ -19,6 +19,7 @@ public enum EmxDefinitionTerm {
   DATE(false),
   DATETIME(false),
   REF(true),
+  REF_ARRAY(true),
   MREF(true),
   UUID(false),
   NILLABLE(false),

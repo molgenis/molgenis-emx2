@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -70,7 +69,7 @@ public class TestSimpleDatatypes {
 
     Schema schema = db.createSchema("TestSimpleDatatypes" + type.toString().toUpperCase());
 
-    Table aTable = schema.createTable("A");
+    Table aTable = schema.createTableIfNotExists("A");
     String aColumn = type + "Col";
     aTable.addColumn(aColumn, type);
 

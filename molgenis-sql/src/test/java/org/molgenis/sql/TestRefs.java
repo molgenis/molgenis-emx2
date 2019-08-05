@@ -57,14 +57,14 @@ public class TestRefs {
 
     Schema schema = db.createSchema("TestRefs" + type.toString().toUpperCase());
 
-    Table aTable = schema.createTable("A");
+    Table aTable = schema.createTableIfNotExists("A");
     String fieldName = "AKeyOf" + type;
     aTable.addColumn(fieldName, type);
     aTable.addUnique(fieldName);
     Row aRow = new Row().set(fieldName, insertValue);
     aTable.insert(aRow);
 
-    Table bTable = schema.createTable("B");
+    Table bTable = schema.createTableIfNotExists("B");
     String refFromBToA = "RefToAKeyOf" + type;
     bTable.addRef(refFromBToA, "A", fieldName);
     Row bRow = new Row().set(refFromBToA, insertValue);

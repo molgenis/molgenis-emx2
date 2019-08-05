@@ -28,7 +28,7 @@ public class TestBatch {
     StopWatch.start("testBatch started");
 
     Schema schema = db.createSchema("testBatch");
-    Table testBatchTable = schema.createTable("TestBatch");
+    Table testBatchTable = schema.createTableIfNotExists("TestBatch");
     testBatchTable.addColumn("test", STRING);
     testBatchTable.addColumn("testint", INT);
 
@@ -75,7 +75,7 @@ public class TestBatch {
     Schema schema = db.createSchema("testCreate");
 
     String PERSON = "Person";
-    Table personTable = schema.createTable(PERSON);
+    Table personTable = schema.createTableIfNotExists(PERSON);
     personTable
         .addColumn("First Name", STRING)
         .setNullable(false); // default nullable=false but for testing
@@ -86,7 +86,7 @@ public class TestBatch {
     // createColumn a fromTable
     // TODO need to optimize the reloading to be more lazy
     for (int i = 0; i < 10; i++) {
-      Table personTable2 = schema.createTable(PERSON + i);
+      Table personTable2 = schema.createTableIfNotExists(PERSON + i);
       personTable2
           .addColumn("First Name", STRING)
           .setNullable(false); // default nullable=false but for testing

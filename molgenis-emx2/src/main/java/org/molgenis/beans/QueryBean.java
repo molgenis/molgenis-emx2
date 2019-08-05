@@ -9,8 +9,6 @@ public class QueryBean implements Query {
   private List<Where> wheres = new ArrayList<>();
   private List<Sort> sorts = new ArrayList<>();
 
-  public QueryBean() {}
-
   @Override
   public List<Select> getSelectList() {
     return this.selects;
@@ -35,8 +33,7 @@ public class QueryBean implements Query {
 
   @Override
   public Select expand(String... path) {
-    SelectBean s = new SelectBean(this, Select.Aggregation.EXPAND, path);
-    return s;
+    return new SelectBean(this, Select.Aggregation.EXPAND, path);
   }
 
   @Override
@@ -77,7 +74,7 @@ public class QueryBean implements Query {
 
   @Override
   public WhereBean or(String... path) {
-    if (wheres.size() > 0) this.wheres.add(new WhereBean(this, Operator.OR));
+    if (!wheres.isEmpty()) this.wheres.add(new WhereBean(this, Operator.OR));
     return this.where(path);
   }
 
@@ -96,7 +93,7 @@ public class QueryBean implements Query {
   public String toString() {
     StringBuilder sb = new StringBuilder();
 
-    if (selects.size() > 0) {
+    if (!selects.isEmpty()) {
       sb.append("\nselect {");
       for (Select select : selects) {
         sb.append("\n\t" + select.toString());
@@ -104,7 +101,7 @@ public class QueryBean implements Query {
       sb.append("\n}");
     }
 
-    if (wheres.size() > 0) {
+    if (!wheres.isEmpty()) {
       sb.append("\nwhere {");
       for (Where f : wheres) {
         sb.append("\n\t" + f.toString());
@@ -112,7 +109,7 @@ public class QueryBean implements Query {
       sb.append("\n}");
     }
 
-    if (sorts.size() > 0) {
+    if (!sorts.isEmpty()) {
       sb.append("\nsort {");
       for (Sort srt : sorts) {
         sb.append("\n\t" + srt.toString());

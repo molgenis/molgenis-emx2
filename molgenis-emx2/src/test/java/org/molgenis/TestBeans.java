@@ -37,7 +37,7 @@ public class TestBeans {
 
     // System.out.println("table print " + t.toString() + "\n: " + t.print());
 
-    m2.createTable("OtherTable");
+    m2.createTableIfNotExists("OtherTable");
     // System.out.println("Now we expect diff: " + m.diff(m2));
 
     m.dropTable("TypeTest");
@@ -132,7 +132,7 @@ public class TestBeans {
   }
 
   private void addContents(Schema m, List<Type> types) throws MolgenisException {
-    Table t = m.createTable("TypeTest");
+    Table t = m.createTableIfNotExists("TypeTest");
     for (Type type : types) {
       t.addColumn("test" + type, type);
       t.addColumn("test" + type + "_nullable", type).setNullable(true);

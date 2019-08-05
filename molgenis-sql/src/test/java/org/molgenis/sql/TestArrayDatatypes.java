@@ -75,7 +75,7 @@ public class TestArrayDatatypes {
 
     Schema schema = database.createSchema("TestArrayDatatypes" + type.toString().toUpperCase());
 
-    Table tableA = schema.createTable("A");
+    Table tableA = schema.createTableIfNotExists("A");
     String aFieldName = type + "Col";
     tableA.addColumn(aFieldName, type);
     tableA.addUnique(aFieldName);

@@ -14,8 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.molgenis.Type.*;
+import static org.molgenis.emx2.io.format.EmxDefinitionTerm.UNIQUE;
 
 public class MolgenisMetadataFileReader {
+
+  private MolgenisMetadataFileReader() {
+    // hides constructor
+  }
 
   public static void load(Schema schema, File file) throws IOException, MolgenisException {
     load(schema, new FileReader(file));
@@ -39,7 +44,7 @@ public class MolgenisMetadataFileReader {
     loadTablesFirst(rows, schema, messages);
     convertRowsToColumns(rows, schema, messages);
     convertRowsToTables(rows, schema, messages);
-    if (messages.size() > 0) {
+    if (!messages.isEmpty()) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
     }
   }
@@ -57,7 +62,7 @@ public class MolgenisMetadataFileReader {
           schema.getTable(tableName);
 
         } catch (Exception e) {
-          schema.createTable(tableName);
+          schema.createTableIfNotExists(tableName);
         }
       }
     }
@@ -76,43 +81,32 @@ public class MolgenisMetadataFileReader {
           && (columnName == null || "".equals(columnName.trim()))) {
         tableName = tableName.trim();
         if (model.getTable(tableName) == null) {
-          model.createTable(tableName);
+          model.createTableIfNotExists(tableName);
         }
 
         Table table = model.getTable(tableName);
-        extractTableDefinition(messages, line, row, table, model);
+        extractTableDefinition(messages, line, row, table);
       }
     }
   }
 
   private static void extractTableDefinition(
-      List<MolgenisExceptionMessage> messages,
-      int line,
-      MolgenisFileRow row,
-      Table table,
-      Schema model)
+      List<MolgenisExceptionMessage> messages, int line, MolgenisFileRow row, Table table)
       throws MolgenisException {
     List<EmxDefinitionTerm> terms =
         new EmxDefinitionParser().parse(line, messages, row.getDefinition());
     for (EmxDefinitionTerm term : terms) {
-      switch (term) {
-        case UNIQUE:
-          try {
-            List<String> uniques = term.getParameterList();
-            table.addUnique(uniques.toArray(new String[uniques.size()]));
-          } catch (Exception e) {
-            throw new MolgenisException(
-                "error on line "
-                    + line
-                    + ": unique parsing in definition '"
-                    + row.getDefinition()
-                    + "' failed. "
-                    + e.getMessage());
-          }
-          break;
-        default:
-          throw new MolgenisException("error on line" + line + ": unknown definition term " + term);
-      }
+      if (UNIQUE.equals(term)) {
+
+        List<String> uniques = term.getParameterList();
+        table.addUnique(uniques.toArray(new String[uniques.size()]));
+      } else
+        throw new MolgenisException(
+            "error on line "
+                + line
+                + ": unique parsing in definition '"
+                + row.getDefinition()
+                + "' failed. ");
     }
   }
 
@@ -130,12 +124,7 @@ public class MolgenisMetadataFileReader {
           && !"".equals(columnName.trim())) {
         tableName = tableName.trim();
         columnName = columnName.trim();
-        try {
-          model.getTable(tableName);
-        } catch (Exception e) {
-          model.createTable(tableName);
-        }
-        Table table = model.getTable(tableName);
+        Table table = model.createTableIfNotExists(tableName);
         try {
           table.getColumn(columnName);
           throw new MolgenisException(
@@ -221,6 +210,8 @@ public class MolgenisMetadataFileReader {
           return UUID;
         case REF:
           return REF;
+        case REF_ARRAY:
+          return REF_ARRAY;
         case MREF:
           return MREF;
       }

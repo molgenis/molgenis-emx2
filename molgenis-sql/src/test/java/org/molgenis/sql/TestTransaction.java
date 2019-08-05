@@ -24,7 +24,7 @@ public class TestTransaction {
     db.transaction(
         db -> {
           Schema schema = db.createSchema("testCommit");
-          Table testTable = schema.createTable("testCommit");
+          Table testTable = schema.createTableIfNotExists("testCommit");
           testTable.addColumn("ColA", STRING);
           testTable.addUnique("ColA");
           testTable.insert(new Row().setString("ColA", "test"));
@@ -39,7 +39,7 @@ public class TestTransaction {
     db.transaction(
         db -> {
           Schema schema = db.createSchema("testRollBack");
-          Table testTable = schema.createTable("testRollBack");
+          Table testTable = schema.createTableIfNotExists("testRollBack");
           testTable.addColumn("ColA", STRING);
           testTable.addUnique("ColA");
 

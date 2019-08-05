@@ -4,7 +4,6 @@ import org.molgenis.*;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DatabaseBean implements Database {

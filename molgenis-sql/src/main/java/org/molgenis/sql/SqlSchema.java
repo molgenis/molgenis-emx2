@@ -71,7 +71,7 @@ public class SqlSchema extends SchemaBean {
   }
 
   @Override
-  public SqlTable createTable(String name) throws MolgenisException {
+  public SqlTable createTableIfNotExists(String name) throws MolgenisException {
     SqlTable table = new SqlTable(this, name);
     table.createTable();
     super.tables.put(name, table);

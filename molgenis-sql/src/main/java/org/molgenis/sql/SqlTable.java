@@ -42,7 +42,7 @@ class SqlTable extends TableBean {
     Name tableName = name(getSchemaName(), getName());
     String uniqueName = "PK_" + getName();
 
-    // createTable the table
+    // createTableIfNotExists the table
     jooq.createTableIfNotExists(tableName)
         .column(MOLGENISID, SQLDataType.UUID)
         .constraints(constraint(uniqueName).primaryKey(MOLGENISID))

@@ -26,7 +26,7 @@
 //
 //    // createColumn some tables with contents
 //    String PERSON = "Person";
-//    Table person = s.createTable(PERSON);
+//    Table person = s.createTableIfNotExists(PERSON);
 //    person.addColumn("First Name", STRING);
 //    person.addRef("Father", PERSON).setNullable(true);
 //    person.addColumn("Last Name", STRING);
@@ -90,7 +90,7 @@
 //    StopWatch.start("DependencyOrderOutsideTransactionFails");
 //
 //    String PART = "Part";
-//    Table part = s.createTable(PART);
+//    Table part = s.createTableIfNotExists(PART);
 //    part.addColumn("name", STRING);
 //    part.addColumn("weight", INT);
 //    part.addUnique("name");
@@ -101,7 +101,7 @@
 //    part.insert(part2);
 //
 //    String COMPONENT = "Component";
-//    Table component = s.createTable(COMPONENT);
+//    Table component = s.createTableIfNotExists(COMPONENT);
 //    component.addColumn("name", STRING);
 //    component.addUnique("name");
 //    component.addMref("parts", PART, MOLGENISID, "components", "ComponentPart");
@@ -114,7 +114,7 @@
 //    component.insert(component2);
 //
 //    String PRODUCT = "Product";
-//    Table product = s.createTable(PRODUCT);
+//    Table product = s.createTableIfNotExists(PRODUCT);
 //    product.addColumn("name", STRING);
 //    product.addUnique("name");
 //    product.addMref("components", COMPONENT, MOLGENISID, "ProductComponent", "products");

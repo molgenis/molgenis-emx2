@@ -36,9 +36,9 @@ public class TestDeferred {
   public void runTestCase(Database db) throws MolgenisException {
     Schema schema = db.createSchema("TestDeffered");
 
-    Table subjectTable = schema.createTable("Subject");
+    Table subjectTable = schema.createTableIfNotExists("Subject");
 
-    Table sampleTable = schema.createTable("Sample");
+    Table sampleTable = schema.createTableIfNotExists("Sample");
     sampleTable.addRef("subject", "Subject");
 
     StopWatch.print("schema created");
@@ -59,9 +59,9 @@ public class TestDeferred {
           db -> {
             Schema schema = db.createSchema("TestDeffered3");
 
-            Table subjectTable = schema.createTable("Subject");
+            Table subjectTable = schema.createTableIfNotExists("Subject");
 
-            Table sampleTable = schema.createTable("Sample");
+            Table sampleTable = schema.createTableIfNotExists("Sample");
             sampleTable.addRef("subject", "Subject");
 
             StopWatch.print("schema created");

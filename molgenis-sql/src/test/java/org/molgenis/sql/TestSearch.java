@@ -22,7 +22,7 @@ public class TestSearch {
 
     // setup
     Schema schema = db.createSchema("TestSearch");
-    Table aTable = schema.createTable("TestSearch");
+    Table aTable = schema.createTableIfNotExists("TestSearch");
     aTable.addColumn("sub", Type.STRING);
     aTable.addColumn("body", Type.TEXT);
     aTable.addColumn("year", Type.INT);

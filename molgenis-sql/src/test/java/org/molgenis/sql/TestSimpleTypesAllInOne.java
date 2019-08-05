@@ -32,7 +32,7 @@ public class TestSimpleTypesAllInOne {
 
     // generate TypeTest table, with columns for each type
     String TYPE_TEST = "TypeTest";
-    Table typeTestTable = schema.createTable(TYPE_TEST);
+    Table typeTestTable = schema.createTableIfNotExists(TYPE_TEST);
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (Type type : types) {
 

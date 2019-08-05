@@ -39,11 +39,11 @@ public class TestMapper {
     Column firstName = t.getColumn("firstName");
     Column lastName = t.getColumn("lastName");
 
-    assertEquals(firstName.getName(), "firstName");
-    assertEquals(lastName.getName(), "lastName");
+    assertEquals("firstName", firstName.getName());
+    assertEquals("lastName", lastName.getName());
 
-    assertEquals(molgenisid.getType(), Type.UUID);
-    assertEquals(firstName.getType(), Type.STRING);
+    assertEquals(Type.UUID, molgenisid.getType());
+    assertEquals(Type.STRING, firstName.getType());
 
     assertTrue(firstName.isNullable());
     assertFalse(lastName.isNullable());

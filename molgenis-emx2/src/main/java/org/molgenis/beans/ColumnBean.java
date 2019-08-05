@@ -101,12 +101,6 @@ public class ColumnBean implements Column {
     return refTable;
   }
 
-  //  @Override
-  //  public Column setRefTable(String table) {
-  //    this.refTable = table;
-  //    return this;
-  //  }
-
   @Override
   public String getRefColumn() {
     return refColumn;

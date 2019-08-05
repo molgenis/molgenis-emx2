@@ -3,25 +3,24 @@ package org.molgenis.beans;
 import org.molgenis.Query;
 import org.molgenis.Select;
 import org.molgenis.Where;
+
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class SelectBean implements Select {
+public class SelectBean implements Select, Serializable {
 
-  // root of this selectionQueryBean queryOld;
   private transient Query query;
-  // currently selected path
   private String[] path;
-  // operation
-  private Aggregation op = Aggregation.HIDDEN;
+  private Aggregation operation = Aggregation.HIDDEN;
 
   public SelectBean(Query query, String... column) {
     this.query = query;
     this.path = column;
   }
 
-  public SelectBean(Query query, Aggregation op, String... path) {
+  public SelectBean(Query query, Aggregation operation, String... path) {
     this(query, path);
-    this.op = op;
+    this.operation = operation;
   }
 
   @Override
@@ -78,7 +77,7 @@ public class SelectBean implements Select {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    if (!Aggregation.HIDDEN.equals(op)) sb.append(op + Arrays.toString(path));
+    if (!Aggregation.HIDDEN.equals(operation)) sb.append(operation + Arrays.toString(path));
     else sb.append(Arrays.toString(path));
     return sb.toString();
   }

@@ -18,6 +18,10 @@ import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
 
 public class MolgenisMetadataFileWriter {
 
+  private MolgenisMetadataFileWriter() {
+    // to prevent instantiation of this static method class
+  }
+
   public static void writeCsv(Schema model, Writer writer) throws IOException, MolgenisException {
     CSVPrinter csvPrinter =
         new CSVPrinter(

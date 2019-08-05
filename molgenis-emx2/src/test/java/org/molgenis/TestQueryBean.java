@@ -3,6 +3,8 @@ package org.molgenis;
 import org.junit.Test;
 import org.molgenis.beans.QueryBean;
 
+import static org.junit.Assert.assertEquals;
+
 public class TestQueryBean {
 
   @Test
@@ -26,6 +28,9 @@ public class TestQueryBean {
         .or("Father", "LastName")
         .eq("Mouse");
     q.asc("FirstName").desc("LastName");
+
+    assertEquals(4, q.getSelectList().size());
+    assertEquals(5, q.getWhereLists().size());
     System.out.println(q);
 
     // or in a builder pattern

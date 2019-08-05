@@ -38,10 +38,13 @@ public class SchemaBean implements Schema {
   }
 
   @Override
-  public Table createTable(String name) throws MolgenisException {
-
-    tables.put(name, new TableBean(this, name));
-    return getTable(name);
+  public Table createTableIfNotExists(String name) throws MolgenisException {
+    try {
+      return getTable(name);
+    } catch (Exception e) {
+      tables.put(name, new TableBean(this, name));
+      return getTable(name);
+    }
   }
 
   @Override

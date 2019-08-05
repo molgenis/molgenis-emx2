@@ -25,7 +25,7 @@ public class TestQueryWithRefArrays {
 
     // createColumn some tables with contents
     String PERSON = "Person";
-    Table personTable = schema.createTable(PERSON);
+    Table personTable = schema.createTableIfNotExists(PERSON);
     personTable.addColumn("First Name", STRING);
     personTable.addRef("Father", PERSON).setNullable(true);
     personTable.addColumn("Last Name", STRING);
@@ -100,7 +100,7 @@ public class TestQueryWithRefArrays {
     StopWatch.start("DependencyOrderOutsideTransactionFails");
 
     String PART = "Part";
-    Table partTable = schema.createTable(PART);
+    Table partTable = schema.createTableIfNotExists(PART);
     partTable.addColumn("name", STRING);
     partTable.addColumn("weight", INT);
     partTable.addUnique("name");
@@ -111,7 +111,7 @@ public class TestQueryWithRefArrays {
     partTable.insert(part2);
 
     String COMPONENT = "Component";
-    Table componentTable = schema.createTable(COMPONENT);
+    Table componentTable = schema.createTableIfNotExists(COMPONENT);
     componentTable.addColumn("name", STRING);
     componentTable.addUnique("name");
     componentTable.addRefArray("parts", "Part", "name");
@@ -124,7 +124,7 @@ public class TestQueryWithRefArrays {
     componentTable.insert(component2);
 
     String PRODUCT = "Product";
-    Table productTable = schema.createTable(PRODUCT);
+    Table productTable = schema.createTableIfNotExists(PRODUCT);
     productTable.addColumn("name", STRING);
     productTable.addUnique("name");
     productTable.addRefArray("components", "Component", "name");

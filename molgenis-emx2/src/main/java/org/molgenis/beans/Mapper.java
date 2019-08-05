@@ -14,6 +14,10 @@ import static org.molgenis.Type.*;
 
 public class Mapper {
 
+  private Mapper() {
+    // hides public constructor
+  }
+
   public static org.molgenis.Row[] map(Object... beans) throws MolgenisException {
     ArrayList<org.molgenis.Row> rows = new ArrayList<>();
     try {
@@ -38,7 +42,7 @@ public class Mapper {
 
   public static <E> E map(Class<E> klazz, org.molgenis.Row row) throws MolgenisException {
     try {
-      E e = klazz.newInstance();
+      E e = klazz.getConstructor().newInstance();
       Map<String, Object> values = row.getValueMap();
       for (String name : row.getColumns()) {
         Object value = values.get(name);
@@ -58,13 +62,6 @@ public class Mapper {
   public static Table map(Class klazz) throws MolgenisException {
     Table t = new TableBean(null, klazz.getSimpleName());
 
-    //    Method[] methods = klazz.getDeclaredMethods();
-    //    for(Method m: methods) {
-    //        if(m.getName().startsWith("get") && m.getParameterCount() == 0) {
-    //            Column col = t.addColumn(m.getName(), typeOf(m.getReturnType()));
-    //        }
-    //
-    //    }
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
       try {
@@ -74,11 +71,6 @@ public class Mapper {
             ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
             col.setNullable(cm.nullable());
             col.setDescription(cm.description());
-          }
-          if (REF.equals(col.getType())) {
-            // big todo, fake table. Need singleton or lazyload before whole world is loaded in
-            // one go
-            // col.setRefTable(f.getType().getSimpleName());
           }
         }
       } catch (Exception e) {

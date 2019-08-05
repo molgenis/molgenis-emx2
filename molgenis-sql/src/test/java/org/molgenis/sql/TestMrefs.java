@@ -73,12 +73,12 @@ public class TestMrefs {
 
     Schema aSchema = db.createSchema("TestMrefs" + type.toString().toUpperCase());
 
-    Table aTable = aSchema.createTable("A");
+    Table aTable = aSchema.createTableIfNotExists("A");
     String keyOfA = "AKey";
     aTable.addColumn(keyOfA, type);
     aTable.addUnique(keyOfA);
 
-    Table bTable = aSchema.createTable("B");
+    Table bTable = aSchema.createTableIfNotExists("B");
     String keyOfB = "BKey";
     bTable.addColumn(keyOfB, STRING);
     bTable.addUnique(keyOfB);

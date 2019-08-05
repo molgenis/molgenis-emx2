@@ -48,7 +48,7 @@ public class TestRoles {
       database.transaction(
           "user_testRolePermissions_viewer",
           db -> {
-            db.getSchema("testRolePermissions").createTable("Test");
+            db.getSchema("testRolePermissions").createTableIfNotExists("Test");
             fail("role(viewers) should not be able to createColumn tables"); // should not happen
           });
     } catch (Exception e) {
@@ -60,7 +60,7 @@ public class TestRoles {
       database.transaction(
           "user_testRolePermissions_editor",
           db -> {
-            db.getSchema("testRolePermissions").createTable("Test");
+            db.getSchema("testRolePermissions").createTableIfNotExists("Test");
             fail("role(editors) should not be able to createColumn tables"); // should not happen
           });
     } catch (Exception e) {
@@ -72,7 +72,7 @@ public class TestRoles {
           "user_testRolePermissions_manager",
           db -> {
             try {
-              db.getSchema("testRolePermissions").createTable("Test");
+              db.getSchema("testRolePermissions").createTableIfNotExists("Test");
             } catch (Exception e) {
               e.printStackTrace();
               throw e;
@@ -108,13 +108,16 @@ public class TestRoles {
     database.createUser("testadmin");
     database.createUser("testuser");
     schema.grantAdmin("testadmin");
-    schema.createTable("Person").addColumn("FirstName", STRING).addColumn("LastName", STRING);
+    schema
+        .createTableIfNotExists("Person")
+        .addColumn("FirstName", STRING)
+        .addColumn("LastName", STRING);
 
     try {
       database.transaction(
           "MGROLE_TESTROLE_VIEW",
           db -> {
-            db.getSchema("testRole").createTable("Test");
+            db.getSchema("testRole").createTableIfNotExists("Test");
           });
       // should throw exception, otherwise fail
       fail();
@@ -126,7 +129,7 @@ public class TestRoles {
       database.transaction(
           "testadmin",
           db -> {
-            db.getSchema("testRole").createTable("Test");
+            db.getSchema("testRole").createTableIfNotExists("Test");
             // this is soo cooool
             db.getSchema("testRole").grantView("testuser");
           });
@@ -156,7 +159,7 @@ public class TestRoles {
     database.transaction(
         "testrls1",
         db -> {
-          db.getSchema("TestRLS").createTable("TestRLS").addColumn("col1", STRING);
+          db.getSchema("TestRLS").createTableIfNotExists("TestRLS").addColumn("col1", STRING);
         });
 
     // let the other add RLS
