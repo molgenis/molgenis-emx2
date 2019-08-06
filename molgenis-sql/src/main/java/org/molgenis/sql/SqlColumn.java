@@ -62,10 +62,10 @@ public class SqlColumn extends ColumnBean {
   }
 
   @Override
-  public SqlColumn setNullable(boolean nillable) throws MolgenisException {
+  public SqlColumn nullable(boolean nillable) throws MolgenisException {
     if (nillable) jooq.alterTable(asJooqTable()).alterColumn(getName()).dropNotNull().execute();
     else jooq.alterTable(asJooqTable()).alterColumn(getName()).setNotNull().execute();
-    super.setNullable(isNullable());
+    super.nullable(isNullable());
     return this;
   }
 

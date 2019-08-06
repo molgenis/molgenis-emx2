@@ -19,7 +19,7 @@ public class TestBatch {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
@@ -78,9 +78,9 @@ public class TestBatch {
     Table personTable = schema.createTableIfNotExists(PERSON);
     personTable
         .addColumn("First Name", STRING)
-        .setNullable(false); // default nullable=false but for testing
+        .nullable(false); // default nullable=false but for testing
     personTable.addColumn("Last Name", STRING);
-    personTable.addRef("Father", personTable.getName()).setNullable(true);
+    personTable.addRef("Father", personTable.getName()).nullable(true);
     personTable.addUnique("First Name", "Last Name");
 
     // createColumn a fromTable
@@ -89,9 +89,9 @@ public class TestBatch {
       Table personTable2 = schema.createTableIfNotExists(PERSON + i);
       personTable2
           .addColumn("First Name", STRING)
-          .setNullable(false); // default nullable=false but for testing
+          .nullable(false); // default nullable=false but for testing
       personTable2.addColumn("Last Name", STRING);
-      personTable2.addRef("Father", personTable2.getName()).setNullable(true);
+      personTable2.addRef("Father", personTable2.getName()).nullable(true);
       personTable2.addUnique("First Name", "Last Name");
     }
     StopWatch.print("Created tables");

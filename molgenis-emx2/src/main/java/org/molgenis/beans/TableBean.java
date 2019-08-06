@@ -2,10 +2,8 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 
-import static org.molgenis.Type.MREF;
-import static org.molgenis.Type.REF;
 import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Type.REF_ARRAY;
+import static org.molgenis.Type.*;
 
 import java.util.*;
 
@@ -44,6 +42,11 @@ public class TableBean extends IdentifiableBean implements Table {
   }
 
   @Override
+  public Column addColumn(String name) throws MolgenisException {
+    return this.addColumn(name, STRING);
+  }
+
+  @Override
   public Column addColumn(String name, Type type) throws MolgenisException {
     Column c = new ColumnBean(this, name, type, false);
     columns.put(name, c);
@@ -61,6 +64,11 @@ public class TableBean extends IdentifiableBean implements Table {
     Column c = new ColumnBean(this, name, REF, otherTable, otherColumn, false);
     columns.put(name, c);
     return c;
+  }
+
+  @Override
+  public Column addRefArray(String name, String otherTable) throws MolgenisException {
+    return this.addRefArray(name, otherTable, null);
   }
 
   @Override

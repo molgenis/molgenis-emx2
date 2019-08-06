@@ -1,6 +1,8 @@
 package org.molgenis;
 
 public interface Column {
+  Column addColumn(String name) throws MolgenisException;
+
   Column addColumn(String name, Type type) throws MolgenisException;
 
   Table getTable();
@@ -19,7 +21,7 @@ public interface Column {
 
   String getRefTable();
 
-  String getRefColumn();
+  String getRefColumn() throws MolgenisException;
 
   String getReverseColumnName();
 
@@ -29,11 +31,13 @@ public interface Column {
 
   String getDescription();
 
-  Column setNullable(boolean nillable) throws MolgenisException;
+  Column nullable(boolean nillable) throws MolgenisException;
 
   void setReadonly(boolean readonly);
 
   void setDescription(String description);
 
   void setDefaultValue(String defaultValue);
+
+  Column unique() throws MolgenisException;
 }

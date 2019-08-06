@@ -16,6 +16,16 @@ public class JsonRowMapper {
     // hide constructor
   }
 
+  public static String rowToJson(Row row) {
+
+    Map<String, Object> map = row.getValueMap();
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
+      if (entry.getValue() instanceof UUID)
+        map.put(entry.getKey(), ((UUID) entry.getValue()).toString());
+    }
+    return JsonStream.serialize(map);
+  }
+
   public static List<org.molgenis.Row> jsonToRows(String json) {
     ArrayList<org.molgenis.Row> rows = new ArrayList<>();
 
@@ -27,6 +37,12 @@ public class JsonRowMapper {
     }
 
     return rows;
+  }
+
+  public static org.molgenis.Row jsonToRow(String json) {
+    Map<String, Object> map =
+        JsonIterator.deserialize(json, new TypeLiteral<Map<String, Object>>() {});
+    return new Row(map);
   }
 
   public static org.molgenis.Row jsonToRow(Table t, Any json) throws MolgenisException {

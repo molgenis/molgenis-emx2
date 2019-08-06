@@ -21,7 +21,7 @@ public class TestRoles {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    database = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test

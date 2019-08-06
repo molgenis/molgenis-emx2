@@ -16,7 +16,7 @@ public class TestArrayDatatypes {
 
   @BeforeClass
   public static void setup() throws MolgenisException {
-    database = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test

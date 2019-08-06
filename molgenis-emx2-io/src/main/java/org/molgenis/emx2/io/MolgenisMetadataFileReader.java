@@ -173,7 +173,7 @@ public class MolgenisMetadataFileReader {
         case MREF:
           break;
         case NILLABLE:
-          column.setNullable(true);
+          column.nullable(true);
           break;
         case UNIQUE:
           column.getTable().addUnique(column.getName());

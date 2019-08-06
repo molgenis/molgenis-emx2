@@ -19,7 +19,7 @@ public class TestSimpleTypesAllInOne {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
@@ -40,7 +40,7 @@ public class TestSimpleTypesAllInOne {
       Column c2 =
           typeTestTable
               .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
-              .setNullable(true);
+              .nullable(true);
     }
 
     // retrieve this table from metadataa

@@ -20,7 +20,8 @@ public class DatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getDatabase(String userName, String password) throws MolgenisException {
+  public static Database getTestDatabase(String userName, String password)
+      throws MolgenisException {
     if (db == null) {
 
       String url = "jdbc:postgresql:molgenis";

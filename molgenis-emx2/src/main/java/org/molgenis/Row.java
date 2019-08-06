@@ -16,6 +16,7 @@ public class Row implements Identifiable {
   }
 
   public Row(Map<String, ?> values) {
+    this();
     this.values.putAll(values);
   }
 

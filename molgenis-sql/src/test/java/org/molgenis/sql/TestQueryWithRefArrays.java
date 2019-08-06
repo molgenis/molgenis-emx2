@@ -18,7 +18,7 @@ public class TestQueryWithRefArrays {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
     // createColumn a schema to test with
     Schema schema = db.createSchema("TestQueryWithRefArray");
@@ -27,7 +27,7 @@ public class TestQueryWithRefArrays {
     String PERSON = "Person";
     Table personTable = schema.createTableIfNotExists(PERSON);
     personTable.addColumn("First Name", STRING);
-    personTable.addRef("Father", PERSON).setNullable(true);
+    personTable.addRef("Father", PERSON).nullable(true);
     personTable.addColumn("Last Name", STRING);
     personTable.addUnique("First Name", "Last Name");
 

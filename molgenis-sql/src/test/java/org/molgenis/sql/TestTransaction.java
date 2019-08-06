@@ -15,7 +15,7 @@ public class TestTransaction {
 
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
-    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test

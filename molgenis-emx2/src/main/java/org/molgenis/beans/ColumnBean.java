@@ -2,6 +2,8 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 
+import static org.molgenis.Type.STRING;
+
 public class ColumnBean implements Column {
   private Table table;
   private String name;
@@ -34,7 +36,7 @@ public class ColumnBean implements Column {
 
   public ColumnBean(String name) {
     this.name = name;
-    this.type = Type.STRING;
+    this.type = STRING;
   }
 
   public ColumnBean(Table table, String name, Type type, Boolean isNullable) {
@@ -72,6 +74,11 @@ public class ColumnBean implements Column {
   }
 
   @Override
+  public Column addColumn(String name) throws MolgenisException {
+    return this.getTable().addColumn(name, STRING);
+  }
+
+  @Override
   public Column addColumn(String name, Type type) throws MolgenisException {
     return this.getTable().addColumn(name, type);
   }
@@ -102,8 +109,15 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public String getRefColumn() {
-    return refColumn;
+  public String getRefColumn() throws MolgenisException {
+    if (this.refColumn != null) {
+      return refColumn;
+    } else {
+      for (Unique u : getTable().getUniques()) {
+        if (u.getColumnNames().size() == 1) return (String) u.getColumnNames().toArray()[0];
+      }
+    }
+    return null;
   }
 
   @Override
@@ -117,7 +131,7 @@ public class ColumnBean implements Column {
   }
 
   @Override
-  public Column setNullable(boolean nillable) throws MolgenisException {
+  public Column nullable(boolean nillable) throws MolgenisException {
     this.nullable = nillable;
     return this;
   }
@@ -180,6 +194,12 @@ public class ColumnBean implements Column {
   @Override
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
+  }
+
+  @Override
+  public Column unique() throws MolgenisException {
+    getTable().addUnique(this.getName());
+    return this;
   }
 
   @Override

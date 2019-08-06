@@ -25,7 +25,7 @@ public class RefArraySqlColumn extends SqlColumn {
     return this;
   }
 
-  private void createIsReferencedByTrigger() {
+  private void createIsReferencedByTrigger() throws MolgenisException {
     Name triggerName = getTriggerName();
     Name toTable = name(getTable().getSchema().getName(), getRefTable());
     Name thisTable = name(getTable().getSchema().getName(), getTable().getName());
@@ -128,7 +128,7 @@ public class RefArraySqlColumn extends SqlColumn {
         triggerName, thisColumn, thisTable, toTable, functionName);
   }
 
-  private Name getTriggerName() {
+  private Name getTriggerName() throws MolgenisException {
     return name(
         getTable().getName()
             + "."

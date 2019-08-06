@@ -19,7 +19,7 @@
 //
 //  @BeforeClass
 //  public static void setUp() throws MolgenisException, SQLException {
-//    database = DatabaseFactory.getDatabase("molgenis", "molgenis");
+//    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 //
 //    // createColumn a schema to test with
 //    Schema s = database.createSchema("TestQuery");
@@ -28,7 +28,7 @@
 //    String PERSON = "Person";
 //    Table person = s.createTableIfNotExists(PERSON);
 //    person.addColumn("First Name", STRING);
-//    person.addRef("Father", PERSON).setNullable(true);
+//    person.addRef("Father", PERSON).nullable(true);
 //    person.addColumn("Last Name", STRING);
 //    person.addUnique("First Name", "Last Name");
 //

@@ -1,6 +1,5 @@
 package org.molgenis.sql;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.molgenis.*;
 import org.molgenis.Row;
@@ -11,7 +10,7 @@ import java.util.UUID;
 import static junit.framework.TestCase.fail;
 
 public class TestDeferred {
-  Database database = DatabaseFactory.getDatabase("molgenis", "molgenis");
+  Database database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
   public TestDeferred() throws MolgenisException {}
 

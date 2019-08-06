@@ -13,11 +13,15 @@ public interface Table extends Identifiable {
 
   Column getColumn(String name) throws MolgenisException;
 
+  Column addColumn(String name) throws MolgenisException;
+
   Column addColumn(String name, Type type) throws MolgenisException;
 
   Column addRef(String name, String otherTable) throws MolgenisException;
 
   Column addRef(String name, String otherTable, String otherField) throws MolgenisException;
+
+  Column addRefArray(String tags, String tag) throws MolgenisException;
 
   Column addRefArray(String name, String otherTable, String otherColumn) throws MolgenisException;
 

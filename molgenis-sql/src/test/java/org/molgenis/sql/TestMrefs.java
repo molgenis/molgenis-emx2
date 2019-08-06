@@ -18,7 +18,7 @@ public class TestMrefs {
 
   @BeforeClass
   public static void setup() throws MolgenisException {
-    db = DatabaseFactory.getDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test

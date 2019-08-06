@@ -150,7 +150,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void saveColumnMetadata(SqlColumn column) {
+  static void saveColumnMetadata(SqlColumn column) throws MolgenisException {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)
