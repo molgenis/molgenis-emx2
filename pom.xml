@@ -15,8 +15,6 @@
         <module>molgenis-emx2-webservice</module>
         <module>molgenis-emx2-graphql</module>
         <module>molgenis-integrationtest</module>
-        <module>molgenis-openapi</module>
-
     </modules>
 
     <properties>
