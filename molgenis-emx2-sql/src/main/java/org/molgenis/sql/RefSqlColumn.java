@@ -7,6 +7,7 @@ import org.molgenis.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.Type.REF;
+import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 
 public class RefSqlColumn extends SqlColumn {
   private DSLContext jooq;
@@ -53,6 +54,8 @@ public class RefSqlColumn extends SqlColumn {
     jooq.createIndex(name(getTable().getName()) + "_" + name(getName()) + "_FKINDEX")
         .on(thisTable, thisColumn)
         .execute();
+
+    saveColumnMetadata(this);
 
     return this;
   }

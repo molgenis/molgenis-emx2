@@ -14,6 +14,7 @@ import java.util.Arrays;
 import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.constraint;
+import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 
 public class SqlReferenceMultiple extends ReferenceMultipleBean implements ReferenceMultiple {
   public SqlReferenceMultiple(SqlTable table, Type type, String[] nameArray) {
@@ -35,6 +36,7 @@ public class SqlReferenceMultiple extends ReferenceMultipleBean implements Refer
 
       Field thisColumn = field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));
       table.getJooq().alterTable(table.getJooqTable()).addColumn(thisColumn).execute();
+      saveColumnMetadata(c);
     }
     this.createCompositeForeignKey(toTable, toColumns);
     return getTable();

@@ -7,6 +7,7 @@ import org.molgenis.MolgenisException;
 import static org.jooq.impl.DSL.keyword;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.Type.REF_ARRAY;
+import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 
 public class RefArraySqlColumn extends SqlColumn {
   private DSLContext jooq;
@@ -22,7 +23,7 @@ public class RefArraySqlColumn extends SqlColumn {
     super.createColumn();
     this.createReferenceExistsTrigger();
     this.createIsReferencedByTrigger();
-
+    saveColumnMetadata(this);
     return this;
   }
 

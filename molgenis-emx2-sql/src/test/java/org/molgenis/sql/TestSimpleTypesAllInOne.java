@@ -3,6 +3,7 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Type.*;
+import static org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample.TYPE_TEST;
 
 public class TestSimpleTypesAllInOne {
 
@@ -31,17 +32,8 @@ public class TestSimpleTypesAllInOne {
     Schema schema = db.createSchema(SCHEMA_NAME);
 
     // generate TypeTest table, with columns for each type
-    String TYPE_TEST = "TypeTest";
-    Table typeTestTable = schema.createTableIfNotExists(TYPE_TEST);
-    Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
-    for (Type type : types) {
 
-      Column c = typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
-      Column c2 =
-          typeTestTable
-              .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
-              .nullable(true);
-    }
+    SimpleTypeTestExample.createSimpleTypeTest(schema);
 
     // retrieve this table from metadataa
 

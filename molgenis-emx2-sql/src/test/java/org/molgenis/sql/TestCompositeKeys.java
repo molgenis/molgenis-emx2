@@ -68,9 +68,9 @@ public class TestCompositeKeys {
     Schema schema = database.createSchema("TestCompositeKeys" + type.toString());
 
     Table aTable = schema.createTableIfNotExists("CompositeKeyTable");
-    aTable.addColumn("col1");
-    aTable.addColumn("col2");
-    aTable.addColumn("col3");
+    aTable.addColumn("col1", type);
+    aTable.addColumn("col2", type);
+    aTable.addColumn("col3", type);
     aTable.setPrimaryKey("col1", "col2");
 
     Row aRow = new Row().set("col1", data[0]).set("col2", data[0]).set("col3", data[0]);
