@@ -2,7 +2,6 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 
-import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.Type.*;
 
 import java.util.*;
@@ -188,72 +187,73 @@ public class TableMetadata implements Table {
 
   @Override
   public int insert(Row... row) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int insert(Collection<Row> rows) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int update(Row... row) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int update(Collection<Row> rows) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int delete(Row... row) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int delete(Collection<Row> rows) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void deleteByPrimaryKey(Object... name) {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Select select(String... path) {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Where where(String... path) {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Query query() {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public List<Row> retrieve() throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public <E> List<E> retrieve(String columnName, Class<E> klazz) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void enableSearch() {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void enableRowLevelSecurity() throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override

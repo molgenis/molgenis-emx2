@@ -62,27 +62,27 @@ public class SchemaMetadata implements Schema {
 
   @Override
   public void grantAdmin(String user) {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void grantManage(String user) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void grantEdit(String user) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void grantView(String user) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Query query(String tableName) throws MolgenisException {
-    throw new UnsupportedOperationException("Cannot in metadata mode");
+    throw new UnsupportedOperationException();
   }
 
   public String toString() {
