@@ -19,6 +19,10 @@ import static org.molgenis.Row.MOLGENISID;
 
 public class OpenApiFactory {
 
+  private OpenApiFactory() {
+    // hide public constructor
+  }
+
   public static OpenAPI create(org.molgenis.Schema schema) throws MolgenisException {
 
     OpenAPI api = new OpenAPI();
@@ -56,16 +60,6 @@ public class OpenApiFactory {
                       .addMediaType(
                           "application/json",
                           new MediaType().schema(new Schema().$ref(tableName)))));
-      //      components.addRequestBodies(tableName, new RequestBody().setContent(new Content()
-      //              .addMediaType("application/json", new MediaType().schema(new
-      // Schema().$ref(tableName))));
-      //      components.addParameters(
-      //          tableName,
-      //          new Parameter()
-      //              .name("body")
-      //              .in("body")
-      //              .description("A row in " + tableName)
-      //              .schema(new Schema().$ref(tableName)));
 
       // input/output
       Parameter molgenisid =
@@ -128,7 +122,7 @@ public class OpenApiFactory {
     return api;
   }
 
-  private static Schema columnSchema(Column column) throws RuntimeException, MolgenisException {
+  private static Schema columnSchema(Column column) throws MolgenisException {
     switch (column.getType()) {
       case UUID:
         return new StringSchema().format("uuid");

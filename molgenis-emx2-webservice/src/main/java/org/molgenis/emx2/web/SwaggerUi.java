@@ -2,6 +2,10 @@ package org.molgenis.emx2.web;
 
 public class SwaggerUi {
 
+  private SwaggerUi() {
+    // hide constructor
+  }
+
   public static String createSwaggerUI(String schemaName) {
     String version =
         "3.19.5"; // newer versions give errors on my Mac: i can not type in RequestBody field
