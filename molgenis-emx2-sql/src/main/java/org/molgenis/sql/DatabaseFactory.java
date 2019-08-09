@@ -84,7 +84,7 @@ public class DatabaseFactory {
     }
   }
 
-  public static DSLContext getJooq() {
+  protected static DSLContext getJooq() {
     return jooq;
   }
 

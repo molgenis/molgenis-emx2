@@ -58,7 +58,7 @@ public class SqlColumn extends ColumnMetadata {
     return this;
   }
 
-  DSLContext getJooq() {
+  protected DSLContext getJooq() {
     return jooq;
   }
 

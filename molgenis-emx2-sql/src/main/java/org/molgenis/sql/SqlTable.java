@@ -195,7 +195,7 @@ class SqlTable extends TableMetadata implements Table {
     return c;
   }
 
-  void addMrefReverse(MrefSqlColumn reverse) {
+  protected void addMrefReverse(MrefSqlColumn reverse) {
     columns.put(reverse.getName(), reverse);
   }
 
@@ -422,7 +422,7 @@ class SqlTable extends TableMetadata implements Table {
     return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
   }
 
-  public DSLContext getJooq() {
+  protected DSLContext getJooq() {
     return jooq;
   }
 

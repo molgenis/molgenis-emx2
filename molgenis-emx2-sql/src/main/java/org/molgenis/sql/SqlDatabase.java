@@ -120,7 +120,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
     }
   }
 
-  DSLContext getJooq() {
+  protected DSLContext getJooq() {
     return jooq;
   }
 

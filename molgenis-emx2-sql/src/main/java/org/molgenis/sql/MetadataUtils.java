@@ -49,7 +49,7 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
-  static void createMetadataSchemaIfNotExists(DSLContext jooq) throws MolgenisException {
+  protected static void createMetadataSchemaIfNotExists(DSLContext jooq) throws MolgenisException {
 
     try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
       step.execute();
@@ -111,7 +111,7 @@ public class MetadataUtils {
         name("TABLE_RLS_VIEWER"), table, MG_ROLE_PREFIX, TABLE_SCHEMA);
   }
 
-  static void saveSchemaMetadata(DSLContext sql, Schema schema) {
+  protected static void saveSchemaMetadata(DSLContext sql, Schema schema) {
     sql.insertInto(SCHEMA_METADATA)
         .columns(TABLE_SCHEMA)
         .values(schema.getName())
@@ -120,15 +120,15 @@ public class MetadataUtils {
         .execute();
   }
 
-  static Collection<String> loadSchemaNames(SqlDatabase db) {
+  protected static Collection<String> loadSchemaNames(SqlDatabase db) {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
   }
 
-  static void deleteSchema(DSLContext sql, Schema schema) {
+  protected static void deleteSchema(DSLContext sql, Schema schema) {
     sql.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
   }
 
-  static Collection<String> loadTableNames(SqlSchema sqlSchema) {
+  protected static Collection<String> loadTableNames(SqlSchema sqlSchema) {
     return sqlSchema
         .getJooq()
         .selectFrom(TABLE_METADATA)
@@ -137,7 +137,7 @@ public class MetadataUtils {
         .getValues(TABLE_NAME, String.class);
   }
 
-  static void saveTableMetadata(SqlTable table) {
+  protected static void saveTableMetadata(SqlTable table) {
     table
         .getJooq()
         .insertInto(TABLE_METADATA)
@@ -149,7 +149,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void loadTableMetadata(SqlTable table) throws MolgenisException {
+  protected static void loadTableMetadata(SqlTable table) throws MolgenisException {
     // load tables metadata
     //   Collection<Record> columnRecords =
     Record tableRecord =
@@ -162,7 +162,7 @@ public class MetadataUtils {
     if (pkey.length > 0) table.loadPrimaryKey(pkey);
   }
 
-  static void deleteTable(SqlTable table) {
+  protected static void deleteTable(SqlTable table) {
     table
         .getJooq()
         .deleteFrom(TABLE_METADATA)
@@ -170,7 +170,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void saveColumnMetadata(SqlColumn column) throws MolgenisException {
+  protected static void saveColumnMetadata(SqlColumn column) throws MolgenisException {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)
@@ -192,7 +192,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void deleteColumn(DSLContext sql, Column column) {
+  protected static void deleteColumn(DSLContext sql, Column column) {
     sql.deleteFrom(COLUMN_METADATA)
         .where(
             TABLE_SCHEMA.eq(column.getTable().getSchema()),
@@ -201,7 +201,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void saveUnique(DSLContext sql, Unique unique) {
+  protected static void saveUnique(DSLContext sql, Unique unique) {
     sql.insertInto(UNIQUE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
         .values(unique.getSchemaName(), unique.getTableName(), unique.getColumnNames())
@@ -210,7 +210,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static void deleteUnique(DSLContext sql, Unique unique) {
+  protected static void deleteUnique(DSLContext sql, Unique unique) {
     sql.deleteFrom(UNIQUE_METADATA)
         .where(
             TABLE_SCHEMA.eq(unique.getSchemaName()),
@@ -219,7 +219,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  static boolean schemaExists(SqlSchema schema) {
+  protected static boolean schemaExists(SqlSchema schema) {
     return schema
         .getJooq()
         .selectFrom(SCHEMA_METADATA)
@@ -228,7 +228,7 @@ public class MetadataUtils {
         .isNotEmpty();
   }
 
-  static void loadUniqueMetadata(SqlTable table) throws MolgenisException {
+  protected static void loadUniqueMetadata(SqlTable table) throws MolgenisException {
     List<Record> uniqueRecordList =
         table
             .getJooq()
@@ -241,7 +241,7 @@ public class MetadataUtils {
     }
   }
 
-  static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
+  protected static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
       throws MolgenisException {
     StopWatch.print("begin load column metadata");
 

@@ -3,11 +3,13 @@
     "firstName",
     "lastName",
     "father/firstName"
-  ]
+  ],
   "filter": [
     {
       "lastName:=": "Duck",
-      "Age": {"GT":50}
+      "Age": {
+        "GT": 50
+      }
     },
     {
       "father/firstName": "Donald"
@@ -18,11 +20,16 @@
     "LastName": "desc"
   }
 
-  select=firstName,lastName,father/firstName&lastName:==Duck&Agy:<=50
+  select=firstName,
+  lastName,
+  father/firstName
+  &
+  lastName: ==Duck
+  &
+  Agy: <=50
   ]
   "filter": [
     {
-
       "Age:<": 50
     },
     {

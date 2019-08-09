@@ -126,7 +126,7 @@ public class SqlSchema extends SchemaMetadata implements Schema {
     return getTable(tableName).query();
   }
 
-  DSLContext getJooq() {
+  protected DSLContext getJooq() {
     return db.getJooq();
   }
 }
