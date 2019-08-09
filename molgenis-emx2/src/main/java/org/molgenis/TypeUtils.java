@@ -33,6 +33,7 @@ public class TypeUtils {
   }
 
   public static String[] toStringArray(Object v) {
+    if (v == null) return new String[0];
     if (v instanceof String[]) return (String[]) v;
     else if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toString).toArray(String[]::new);
@@ -145,17 +146,6 @@ public class TypeUtils {
 
   public static String[] toTextArray(Object v) {
     return toStringArray(v);
-  }
-
-  public static Object castToType(Type type, Object value) throws MolgenisException {
-    switch (type) {
-      case DATETIME_ARRAY:
-        return toDateTimeArray(value);
-      case INT_ARRAY:
-        return toIntArray(value);
-      default:
-        throw new MolgenisException("Type " + type + " not implement into method TypeUtils.equal");
-    }
   }
 
   public static Type getArrayType(Type type) {

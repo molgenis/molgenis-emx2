@@ -1,18 +1,22 @@
 package org.molgenis;
 
+import com.sun.scenario.effect.Offset;
 import org.junit.Test;
 import org.molgenis.beans.SchemaMetadata;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
 import static org.molgenis.Type.*;
 
-public class TestBeans {
+public class TestRows {
 
   @Test
   public void test1() throws MolgenisException {
@@ -51,7 +55,7 @@ public class TestBeans {
   }
 
   @Test
-  public void testTypes() {
+  public void testSimpleTypes() {
     org.molgenis.Row r = new Row();
 
     // int
@@ -77,9 +81,15 @@ public class TestBeans {
     }
 
     // bool
+    r.setBool("test", true);
+    assertTrue(r.getBoolean("test"));
+
+    r.setBool("testnull", null);
+    assertNull(r.getBoolean("testnull"));
+
     r.setString("test", "true");
     assertTrue(r.getBoolean("test"));
-    assertNull(r.getBoolean("testnull"));
+
     try {
       r.setString("test", "a");
       r.getBoolean("test");
@@ -129,6 +139,56 @@ public class TestBeans {
     r.setInt("test", 1);
     assertEquals("1", r.getString("test"));
     assertNull(r.getString("testnull"));
+  }
+
+  @Test
+  public void testArrayTypes() {
+    Row r = new Row();
+
+    // null should return in empty array
+    assertTrue(r.getUuidArray("test") instanceof UUID[]);
+    assertTrue(r.getStringArray("test") instanceof String[]);
+    assertTrue(r.getIntegerArray("test") instanceof Integer[]);
+    assertTrue(r.getBooleanArray("test") instanceof Boolean[]);
+    assertTrue(r.getDecimalArray("test") instanceof Double[]);
+    assertTrue(r.getDateArray("test") instanceof LocalDate[]);
+    assertTrue(r.getDateTimeArray("test") instanceof LocalDateTime[]);
+    assertTrue(r.getTextArray("test") instanceof String[]);
+
+    // cast UUID[1] from some Object
+    r.setString("test", "cfb11a12-dad6-4b98-a48b-9a32f60a742f");
+    assertEquals(
+        new java.util.UUID[] {java.util.UUID.fromString("cfb11a12-dad6-4b98-a48b-9a32f60a742f")}
+            [0].toString(),
+        r.getUuidArray("test")[0].toString());
+
+    // cast String[] from some object
+    r.setInt("test", 9);
+    assertEquals("9", r.getStringArray("test")[0]);
+
+    // cast int from some object
+    r.setDecimal("test", 9.3);
+    try {
+      assertEquals(9, r.getIntegerArray("test"));
+      fail("cannot convert, should fail");
+    } catch (Exception e) {
+    }
+
+    r.set("test", new Boolean[] {true, false});
+    assertArrayEquals(new Boolean[] {true, false}, r.getBooleanArray("test"));
+
+    r.set("test", new String[] {"true", "false"});
+    assertArrayEquals(new Boolean[] {true, false}, r.getBooleanArray("test"));
+
+    r.set("test", "true");
+    assertArrayEquals(new Boolean[] {true}, r.getBooleanArray("test"));
+
+    r.setString("test", "9.3");
+    assertArrayEquals(new Double[] {9.3}, r.getDecimalArray("test"));
+
+    OffsetDateTime odt = OffsetDateTime.of(2018, 12, 12, 12, 12, 12, 12, ZoneOffset.UTC);
+    r.set("test", odt);
+    assertArrayEquals(new LocalDateTime[] {odt.toLocalDateTime()}, r.getDateTimeArray("test"));
   }
 
   private void addContents(SchemaMetadata m, List<Type> types) throws MolgenisException {
