@@ -2,6 +2,7 @@ package org.molgenis.sql;
 
 import org.jooq.Field;
 import org.jooq.Name;
+import org.jooq.impl.DSL;
 import org.molgenis.MolgenisException;
 import org.molgenis.ReferenceMultiple;
 import org.molgenis.Table;
@@ -9,8 +10,6 @@ import org.molgenis.Type;
 import org.molgenis.beans.ReferenceMultipleBean;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.field;
@@ -43,8 +42,8 @@ public class SqlReferenceMultiple extends ReferenceMultipleBean implements Refer
 
   private void createCompositeForeignKey(String toTable, String... toColumn) {
     SqlTable table = (SqlTable) getTable();
-    Name[] fields = Arrays.stream(getNameArray()).map(s -> name(s)).toArray(Name[]::new);
-    Name[] toFields = Arrays.stream(toColumn).map(s -> name(s)).toArray(Name[]::new);
+    Name[] fields = Arrays.stream(getNameArray()).map(DSL::name).toArray(Name[]::new);
+    Name[] toFields = Arrays.stream(toColumn).map(DSL::name).toArray(Name[]::new);
     table
         .getJooq()
         .alterTable(table.getJooqTable())

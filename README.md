@@ -26,7 +26,12 @@ Instead EMX allows you to precisely manipulate the database backend.
 * openapi support
 * Improve relationships config, with defaults to primary key etc
 
-# TODO
+# TODO urgent
+
+* test roundtrip of metadata loading via MetadataUtils
+* including delete/drop behavior 
+
+# TODO later
 * refactor query to have 'WhereList' for each 'OR' clause and introduce a 'Filter' concept as items in the Where
 * decide if we keep molgenisid column (arg for: never chnages) or let users define the key
 * TEST QUERY A LOT!!!!
