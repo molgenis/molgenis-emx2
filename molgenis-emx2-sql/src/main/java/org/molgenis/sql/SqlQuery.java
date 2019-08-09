@@ -236,10 +236,13 @@ public class SqlQuery extends QueryBean implements Query {
         String rightAlias = name + "/" + String.join("/", rightPath);
         String rightColumn = c.getRefColumn();
 
-        if (!duplicatePaths.contains(rightAlias)) {
-          duplicatePaths.add(rightAlias);
+        if (duplicatePaths.contains(rightAlias)) break; // only once needed
 
-          if (REF.equals(c.getType())) {
+        // else
+        duplicatePaths.add(rightAlias);
+
+        switch (c.getType()) {
+          case REF:
             fromStep =
                 fromStep
                     .leftJoin(
@@ -247,7 +250,8 @@ public class SqlQuery extends QueryBean implements Query {
                     .on(
                         field(name(rightAlias, rightColumn))
                             .eq(field(name(leftAlias, leftColumn))));
-          } else if (REF_ARRAY.equals(c.getType())) {
+            break;
+          case REF_ARRAY:
             fromStep =
                 fromStep
                     .leftJoin(
@@ -255,7 +259,8 @@ public class SqlQuery extends QueryBean implements Query {
                     .on(
                         "{0} = ANY ({1})",
                         field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
-          } else if (MREF.equals(c.getType())) {
+            break;
+          case MREF:
             String joinTable = c.getJoinTable();
 
             // to link table
@@ -272,7 +277,6 @@ public class SqlQuery extends QueryBean implements Query {
                         table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
                     .on(field(name(joinTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
             return fromStep;
-          }
         }
       }
     }
