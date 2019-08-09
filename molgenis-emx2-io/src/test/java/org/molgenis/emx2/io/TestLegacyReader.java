@@ -1,17 +1,18 @@
 package org.molgenis.emx2.io;
 
+import org.javers.core.diff.Diff;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.MolgenisExceptionMessage;
+import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
 import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
+import java.util.Collection;
 
+import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.writeCsv;
 
 public class TestLegacyReader {
@@ -28,12 +29,19 @@ public class TestLegacyReader {
     }
 
     try {
-      Schema model =
+      Schema schema =
           new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
 
       StringWriter writer = new StringWriter();
-      writeCsv(model, writer);
+      writeCsv(schema, writer);
       System.out.println(writer);
+
+      // load it again
+      Schema schema2 =
+          new AttributesFileReader().readModelFromCsv(new StringReader(writer.toString()));
+
+      // compare
+      CompareTools.compare(schema, schema2);
 
     } catch (MolgenisException e) {
       for (MolgenisExceptionMessage m : e.getMessages()) {
