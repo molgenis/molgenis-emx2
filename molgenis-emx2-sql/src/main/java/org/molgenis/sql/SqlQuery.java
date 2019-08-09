@@ -242,40 +242,71 @@ public class SqlQuery extends QueryBean implements Query {
 
           if (REF.equals(c.getType())) {
             fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(
-                        field(name(rightAlias, rightColumn))
-                            .eq(field(name(leftAlias, leftColumn))));
+                getRefJoin(fromStep, leftColumn, leftAlias, rightTable, rightAlias, rightColumn);
           } else if (REF_ARRAY.equals(c.getType())) {
             fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(
-                        "{0} = ANY ({1})",
-                        field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
+                getRefArrayJoin(
+                    fromStep, leftColumn, leftAlias, rightTable, rightAlias, rightColumn);
           } else if (MREF.equals(c.getType())) {
-            String joinTable = c.getJoinTable();
-
-            // to link table
             fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
-                    .on(field(name(joinTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
-
-            // to other end of the mref
-            fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(field(name(joinTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
+                getMrefJoin(
+                    fromStep, c, leftColumn, leftAlias, rightTable, rightAlias, rightColumn);
           }
         }
       }
     }
+    return fromStep;
+  }
+
+  private SelectJoinStep getMrefJoin(
+      SelectJoinStep fromStep,
+      Column c,
+      String leftColumn,
+      String leftAlias,
+      String rightTable,
+      String rightAlias,
+      String rightColumn) {
+    String joinTable = c.getJoinTable();
+
+    // to link table
+    fromStep =
+        fromStep
+            .leftJoin(table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
+            .on(field(name(joinTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
+
+    // to other end of the mref
+    fromStep =
+        fromStep
+            .leftJoin(table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
+            .on(field(name(joinTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
+    return fromStep;
+  }
+
+  private SelectOnConditionStep getRefArrayJoin(
+      SelectJoinStep fromStep,
+      String leftColumn,
+      String leftAlias,
+      String rightTable,
+      String rightAlias,
+      String rightColumn) {
+    return fromStep
+        .leftJoin(table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
+        .on(
+            "{0} = ANY ({1})",
+            field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
+  }
+
+  private SelectJoinStep getRefJoin(
+      SelectJoinStep fromStep,
+      String leftColumn,
+      String leftAlias,
+      String rightTable,
+      String rightAlias,
+      String rightColumn) {
+    fromStep =
+        fromStep
+            .leftJoin(table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
+            .on(field(name(rightAlias, rightColumn)).eq(field(name(leftAlias, leftColumn))));
     return fromStep;
   }
 
