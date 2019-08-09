@@ -31,7 +31,7 @@ class SqlTable extends TableMetadata implements Table {
 
   SqlTable(SqlSchema schema, String name) {
     super(schema, name);
-    this.jooq = schema.jooq;
+    this.jooq = schema.getJooq();
   }
 
   void load() throws MolgenisException {

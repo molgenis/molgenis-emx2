@@ -137,7 +137,7 @@ public class MetadataUtils {
         .getValues(TABLE_NAME, String.class);
   }
 
-  static void saveTableMetadata(SqlTable table) throws MolgenisException {
+  static void saveTableMetadata(SqlTable table) {
     table
         .getJooq()
         .insertInto(TABLE_METADATA)
@@ -257,17 +257,23 @@ public class MetadataUtils {
       String columnName = col.get(COLUMN_NAME, String.class);
       Type columnType = Type.valueOf(col.get(DATA_TYPE, String.class));
       Boolean nullable = col.get(NULLABLE, Boolean.class);
+
       String toTable = col.get(REF_TABLE, String.class);
       String toColumn = col.get(REF_COLUMN, String.class);
       switch (columnType) {
         case REF:
-          columnMap.put(columnName, new RefSqlColumn(table, columnName, toTable, toColumn));
+          columnMap.put(
+              columnName,
+              new RefSqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         case REF_ARRAY:
-          columnMap.put(columnName, new RefArraySqlColumn(table, columnName, toTable, toColumn));
+          columnMap.put(
+              columnName,
+              new RefArraySqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         default:
-          columnMap.put(columnName, new SqlColumn(table, columnName, columnType));
+          columnMap.put(
+              columnName, new SqlColumn(table, columnName, columnType).loadNullable(nullable));
       }
     }
     StopWatch.print("load column metadata complete");

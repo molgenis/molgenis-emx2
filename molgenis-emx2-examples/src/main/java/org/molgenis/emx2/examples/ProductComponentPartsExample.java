@@ -10,9 +10,16 @@ import static org.molgenis.Type.STRING;
 
 public class ProductComponentPartsExample {
 
+  private ProductComponentPartsExample() {
+    // hide constructor
+  }
+
+  public static final String PART = "Part";
+  public static final String COMPONENT = "Component";
+  public static final String PRODUCT = "Product";
+
   public static void create(Schema schema) throws MolgenisException {
 
-    String PART = "Part";
     Table partTable = schema.createTableIfNotExists(PART);
     partTable.addColumn("name", STRING);
     partTable.addColumn("weight", INT);
@@ -23,7 +30,6 @@ public class ProductComponentPartsExample {
     partTable.insert(part1);
     partTable.insert(part2);
 
-    String COMPONENT = "Component";
     Table componentTable = schema.createTableIfNotExists(COMPONENT);
     componentTable.addColumn("name", STRING);
     componentTable.addUnique("name");
@@ -34,7 +40,6 @@ public class ProductComponentPartsExample {
     componentTable.insert(component1);
     componentTable.insert(component2);
 
-    String PRODUCT = "Product";
     Table productTable = schema.createTableIfNotExists(PRODUCT);
     productTable.addColumn("name", STRING);
     productTable.addUnique("name");

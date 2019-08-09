@@ -16,7 +16,7 @@ import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class SqlSchema extends SchemaMetadata implements Schema {
   private SqlDatabase db;
-  DSLContext jooq;
+  private DSLContext jooq;
 
   public SqlSchema(SqlDatabase db, String name) {
     super(name);

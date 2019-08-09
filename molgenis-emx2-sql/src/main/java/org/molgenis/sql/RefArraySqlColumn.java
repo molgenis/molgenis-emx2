@@ -9,7 +9,7 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.Type.REF_ARRAY;
 
 public class RefArraySqlColumn extends SqlColumn {
-  private transient DSLContext jooq;
+  private DSLContext jooq;
 
   public RefArraySqlColumn(SqlTable table, String columnName, String toTable, String toColumn) {
     super(table, columnName, REF_ARRAY);

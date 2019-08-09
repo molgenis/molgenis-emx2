@@ -3,6 +3,7 @@ package org.molgenis.sql;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
+import org.molgenis.Column;
 import org.molgenis.MolgenisException;
 import org.molgenis.Type;
 import org.molgenis.beans.ColumnMetadata;
@@ -10,7 +11,7 @@ import org.molgenis.beans.ColumnMetadata;
 import static org.jooq.impl.DSL.*;
 
 public class SqlColumn extends ColumnMetadata {
-  private transient DSLContext jooq;
+  private DSLContext jooq;
 
   public SqlColumn(SqlTable table, String columnName, Type columnType) {
     super(table, columnName, columnType);
@@ -59,5 +60,10 @@ public class SqlColumn extends ColumnMetadata {
 
   DSLContext getJooq() {
     return jooq;
+  }
+
+  protected Column loadNullable(Boolean nullable) throws MolgenisException {
+    super.nullable(nullable);
+    return this;
   }
 }
