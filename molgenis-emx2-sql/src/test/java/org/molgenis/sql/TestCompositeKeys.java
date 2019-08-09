@@ -4,6 +4,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 
+import java.io.Serializable;
+
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.*;
 
@@ -62,7 +64,7 @@ public class TestCompositeKeys {
         });
   }
 
-  public void executeTest(Type type, Object[] data) throws MolgenisException {
+  public void executeTest(Type type, Serializable[] data) throws MolgenisException {
     Schema schema = database.createSchema("TestCompositeKeys" + type.toString());
 
     Table aTable = schema.createTableIfNotExists("CompositeKeyTable");

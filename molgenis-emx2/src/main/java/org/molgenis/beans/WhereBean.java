@@ -12,7 +12,7 @@ public class WhereBean implements Where, Serializable {
   private transient QueryBean query;
   private String[] path;
   private Operator op;
-  private Object[] values;
+  private Serializable[] values;
 
   public WhereBean(QueryBean parent, Operator op) {
     this.query = parent;
@@ -32,14 +32,14 @@ public class WhereBean implements Where, Serializable {
   }
 
   @Override
-  public QueryBean eq(Object... values) {
+  public QueryBean eq(Serializable... values) {
     this.values = values;
     this.op = Operator.EQ;
     return this.query;
   }
 
   @Override
-  public Query contains(Object... values) {
+  public Query contains(Serializable... values) {
     this.values = values;
     this.op = Operator.ANY;
     return this.query;
@@ -63,7 +63,7 @@ public class WhereBean implements Where, Serializable {
   }
 
   @Override
-  public Object[] getValues() {
+  public Serializable[] getValues() {
     return this.values;
   }
 

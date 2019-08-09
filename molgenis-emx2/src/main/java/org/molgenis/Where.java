@@ -1,15 +1,17 @@
 package org.molgenis;
 
-public interface Where {
-  Query eq(Object... values);
+import java.io.Serializable;
 
-  Query contains(Object... values);
+public interface Where {
+  Query eq(Serializable... values);
+
+  Query contains(Serializable... values);
 
   Query search(String terms);
 
   Operator getOperator();
 
-  Object[] getValues();
+  Serializable[] getValues();
 
   String[] getPath();
 }

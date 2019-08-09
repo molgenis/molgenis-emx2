@@ -4,6 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class TestArrayDatatypes {
   //    executeTest(BOOL_ARRAY, new Boolean[] {null, true, false});
   //  }
 
-  private void executeTest(Type type, Object[] values) throws MolgenisException {
+  private void executeTest(Type type, Serializable[] values) throws MolgenisException {
 
     Schema schema = database.createSchema("TestArrayDatatypes" + type.toString().toUpperCase());
 

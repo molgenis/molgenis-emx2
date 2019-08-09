@@ -135,8 +135,6 @@ public class SqlQuery extends QueryBean implements Query {
     List<Field> fields = new ArrayList<>();
     List<Select> selectList = this.getSelectList();
 
-    // in case of * select then add items explicitly
-    // TODO decide if we shouldn't force users to selectAll()
     if (selectList.isEmpty()) {
       for (Column c : from.getColumns()) {
         this.select(c.getName());

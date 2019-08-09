@@ -2,8 +2,6 @@ package org.molgenis.beans;
 
 import org.molgenis.*;
 
-import java.util.List;
-
 public class ReferenceMultipleBean implements ReferenceMultiple {
   Table table;
   Type type;

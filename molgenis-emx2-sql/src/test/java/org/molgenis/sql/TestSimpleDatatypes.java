@@ -4,6 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +66,7 @@ public class TestSimpleDatatypes {
         });
   }
 
-  private void executeTest(Type type, Object[] values) throws MolgenisException {
+  private void executeTest(Type type, Serializable[] values) throws MolgenisException {
 
     Schema schema = db.createSchema("TestSimpleDatatypes" + type.toString().toUpperCase());
 
