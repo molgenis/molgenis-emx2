@@ -66,7 +66,7 @@ public class Mapper {
     for (Field f : fields) {
       try {
         if (!f.getName().contains("jacoco")) {
-          Column col = t.addColumn(f.getName(), typeOf(f.getType()));
+          Column col = t.addColumn(f.getName(), TypeUtils.typeOf(f.getType()));
           if (f.isAnnotationPresent(ColumnMetadata.class)) {
             ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
             col.nullable(cm.nullable());
@@ -78,13 +78,5 @@ public class Mapper {
       }
     }
     return t;
-  }
-
-  private static Type typeOf(Class<?> type) throws MolgenisException {
-    if (type.equals(String.class)) return STRING;
-    if (type.equals(UUID.class)) return UUID;
-    if (type.equals(Boolean.class) || type.equals(boolean.class)) return BOOL;
-    if (Identifiable.class.isAssignableFrom(type)) return REF;
-    throw new MolgenisException("Failed to map type " + type);
   }
 }

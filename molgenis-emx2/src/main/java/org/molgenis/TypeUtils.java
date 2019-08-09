@@ -148,6 +148,13 @@ public class TypeUtils {
     return toStringArray(v);
   }
 
+  public static Type typeOf(Class klazz) throws MolgenisException {
+    for (Type t : Type.values()) {
+      if (t.getType().equals(klazz)) return t;
+    }
+    throw new MolgenisException("Cannot determine type of " + klazz);
+  }
+
   public static Type getArrayType(Type type) {
     switch (type) {
       case UUID:
