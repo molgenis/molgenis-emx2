@@ -144,9 +144,9 @@ public class MolgenisMetadataFileReader {
           String refTable = "";
           String refColumn = "";
           if (REF.equals(type)) {
-            column = table.addRef(columnName, refTable, refColumn);
+            column = table.addRef(columnName).to(refTable, refColumn);
           } else if (REF_ARRAY.equals(type)) {
-            column = table.addRefArray(columnName, refTable, refColumn);
+            column = table.addRefArray(columnName).to(refTable, refColumn);
           } else {
             column = table.addColumn(columnName, type);
           }

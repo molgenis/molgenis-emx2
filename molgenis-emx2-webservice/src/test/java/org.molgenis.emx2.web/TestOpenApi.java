@@ -4,7 +4,7 @@ import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.*;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.SchemaBean;
+import org.molgenis.beans.SchemaMetadata;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -16,7 +16,7 @@ public class TestOpenApi {
 
   @Test
   public void constructApi() throws MolgenisException, IOException, URISyntaxException {
-    org.molgenis.Schema schema = new SchemaBean("test");
+    org.molgenis.Schema schema = new SchemaMetadata("test");
 
     Table table = schema.createTableIfNotExists("TypeTest");
     for (Type type : Type.values()) {

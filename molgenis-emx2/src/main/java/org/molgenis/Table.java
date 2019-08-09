@@ -3,13 +3,21 @@ package org.molgenis;
 import java.util.Collection;
 import java.util.List;
 
-public interface Table extends Identifiable {
+public interface Table {
+
+  String MOLGENISID = "molgenisid";
 
   String getName();
 
   Schema getSchema();
 
-  Collection<Column> getColumns();
+  String getSchemaName();
+
+  Table setPrimaryKey(String... columnNames) throws MolgenisException;
+
+  List<String> getPrimaryKey();
+
+  List<Column> getColumns();
 
   Column getColumn(String name) throws MolgenisException;
 
@@ -17,13 +25,19 @@ public interface Table extends Identifiable {
 
   Column addColumn(String name, Type type) throws MolgenisException;
 
-  Column addRef(String name, String otherTable) throws MolgenisException;
+  Column addColumn(Column column) throws MolgenisException;
 
-  Column addRef(String name, String otherTable, String otherField) throws MolgenisException;
+  Column addRef(String name, String toTable) throws MolgenisException;
 
-  Column addRefArray(String tags, String tag) throws MolgenisException;
+  Column addRef(String name, String toTable, String toColumn) throws MolgenisException;
 
-  Column addRefArray(String name, String otherTable, String otherColumn) throws MolgenisException;
+  ReferenceMultiple addRefMultiple(String... name) throws MolgenisException;
+
+  Column addRefArray(String name, String toTable) throws MolgenisException;
+
+  Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException;
+
+  ReferenceMultiple addRefArrayMultiple(String... name) throws MolgenisException;
 
   Column addMref(
       String name,
@@ -40,17 +54,13 @@ public interface Table extends Identifiable {
 
   Unique addUnique(String... name) throws MolgenisException;
 
-  boolean isUnique(String... tableName);
+  boolean unique(String... tableName);
 
   void removeUnique(String... name) throws MolgenisException;
 
-  String getExtend();
-
-  void setExtend(String extend);
+  int insert(Row... row) throws MolgenisException;
 
   int insert(Collection<Row> rows) throws MolgenisException;
-
-  int insert(Row... row) throws MolgenisException;
 
   int update(Row... row) throws MolgenisException;
 
@@ -60,15 +70,19 @@ public interface Table extends Identifiable {
 
   int delete(Collection<Row> rows) throws MolgenisException;
 
-  void enableSearch();
-
-  void enableRowLevelSecurity() throws MolgenisException;
-
-  Query query();
+  void deleteByPrimaryKey(Object... name);
 
   Select select(String... path);
 
+  Where where(String... path);
+
+  Query query();
+
   List<Row> retrieve() throws MolgenisException;
 
-  String getSchemaName();
+  <E> List<E> retrieve(String columnName, Class<E> klazz) throws MolgenisException;
+
+  void enableSearch();
+
+  void enableRowLevelSecurity() throws MolgenisException;
 }

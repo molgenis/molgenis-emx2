@@ -1,9 +1,6 @@
 package org.molgenis;
 
 public interface Column {
-  Column addColumn(String name) throws MolgenisException;
-
-  Column addColumn(String name, Type type) throws MolgenisException;
 
   Table getTable();
 
@@ -40,4 +37,19 @@ public interface Column {
   void setDefaultValue(String defaultValue);
 
   Column unique() throws MolgenisException;
+
+  // for fluent api in Table
+  Column addColumn(String name) throws MolgenisException;
+
+  Column addColumn(String name, Type type) throws MolgenisException;
+
+  Column addRef(String name, String toTable) throws MolgenisException;
+
+  Column addRef(String name, String toTable, String toColumn) throws MolgenisException;
+
+  Column addRefArray(String name, String toTable) throws MolgenisException;
+
+  Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException;
+
+  void primaryKey() throws MolgenisException;
 }

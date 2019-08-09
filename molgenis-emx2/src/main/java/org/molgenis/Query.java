@@ -4,12 +4,6 @@ import java.util.List;
 
 public interface Query {
 
-  List<Select> getSelectList();
-
-  List<Where> getWhereLists();
-
-  List<Sort> getSortList();
-
   Select select(String... path);
 
   Select expand(String... column);
@@ -32,5 +26,13 @@ public interface Query {
 
   Query desc(String... column);
 
+  List<Select> getSelectList();
+
+  List<Where> getWhereLists();
+
+  List<Sort> getSortList();
+
   List<Row> retrieve() throws MolgenisException;
+
+  <E> List<E> retrieve(String columnName, Class<E> asClass);
 }

@@ -20,10 +20,10 @@ public class TestWebApi {
 
     Table petTable = schema.createTableIfNotExists("Pet");
     petTable.addColumn("name").unique();
-    petTable.addRef("category", "Category").nullable(true);
+    petTable.addRef("category").to("Category").nullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
-    petTable.addRefArray("tags", "Tag");
+    petTable.addRefArray("tags").to("Tag");
 
     Table userTable = schema.createTableIfNotExists("User");
     userTable.addColumn("username").unique();
@@ -35,7 +35,7 @@ public class TestWebApi {
     userTable.addColumn("userStatus", INT);
 
     Table orderTable = schema.createTableIfNotExists("Order");
-    orderTable.addRef("petId", "Pet", "name");
+    orderTable.addRef("petId").to("Pet", "name");
     orderTable.addColumn("quantity", INT); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered

@@ -116,6 +116,10 @@ public class Row implements Identifiable {
     return this;
   }
 
+  public Row setStringArray(String name, Collection<String> value) {
+    return this.setStringArray(name, value.toArray(new String[value.size()]));
+  }
+
   public Row setInt(String name, Integer value) {
     this.values.put(name, value);
     return this;
@@ -202,10 +206,10 @@ public class Row implements Identifiable {
   }
 
   public Object get(Type type, String name) throws MolgenisException {
-    return get(type.getType(), name);
+    return get(name, type.getType());
   }
 
-  public <T> T get(Class<T> type, String name) throws MolgenisException {
+  public <T> T get(String name, Class<T> type) throws MolgenisException {
     if (type == null) return null;
 
     switch (type.getSimpleName()) {

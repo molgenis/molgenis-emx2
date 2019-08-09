@@ -37,13 +37,13 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public QueryBean avg(String... path) {
+  public Query avg(String... path) {
     this.selects.add(new SelectBean(this, Select.Aggregation.AVG, path));
     return this;
   }
 
   @Override
-  public QueryBean sum(String... path) {
+  public Query sum(String... path) {
     this.selects.add(new SelectBean(this, Select.Aggregation.SUM, path));
     return this;
   }
@@ -67,7 +67,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public QueryBean or() {
+  public Query or() {
     this.wheres.add(new WhereBean(this, Operator.OR));
     return this;
   }
@@ -79,15 +79,25 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public QueryBean asc(String... column) {
+  public Query asc(String... column) {
     this.sorts.add(new SortBean(Order.ASC, column));
     return this;
   }
 
   @Override
-  public QueryBean desc(String... column) {
+  public Query desc(String... column) {
     this.sorts.add(new SortBean(Order.DESC, column));
     return this;
+  }
+
+  @Override
+  public List<Row> retrieve() throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <E> List<E> retrieve(String columnName, Class<E> asClass) {
+    throw new UnsupportedOperationException();
   }
 
   public String toString() {
@@ -118,10 +128,5 @@ public class QueryBean implements Query {
     }
 
     return sb.toString();
-  }
-
-  @Override
-  public List<Row> retrieve() throws MolgenisException {
-    throw new UnsupportedOperationException();
   }
 }

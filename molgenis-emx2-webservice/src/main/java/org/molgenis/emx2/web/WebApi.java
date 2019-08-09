@@ -37,6 +37,7 @@ public class WebApi {
     get("/data/:schema", WebApi::listTables);
     get("/data/:schema/openapi.yaml", WebApi::getOpenApiYaml);
     get("/data/:schema/:table/:molgenisid", WebApi::getRow);
+    put("/data/:schema/:table", ACCEPT_JSON, WebApi::putRow);
     post("/data/:schema/:table", ACCEPT_JSON, WebApi::postRow);
 
     // handling of exceptions
@@ -53,6 +54,10 @@ public class WebApi {
           res.status(400);
           res.body(e.getMessage()); // todo make nice format
         });
+  }
+
+  private static String putRow(Request request, Response response) {
+    return "todo";
   }
 
   public static String getRow(Request request, Response response) throws MolgenisException {

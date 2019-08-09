@@ -3,15 +3,16 @@ package org.molgenis;
 import java.util.Collection;
 
 public interface Schema {
+
   String getName();
 
-  Table createTableIfNotExists(String name) throws MolgenisException;
+  Collection<String> getTableNames() throws MolgenisException;
 
   Table getTable(String name) throws MolgenisException;
 
-  void dropTable(String tableId) throws MolgenisException;
+  Table createTableIfNotExists(String name) throws MolgenisException;
 
-  Collection<String> getTableNames() throws MolgenisException;
+  void dropTable(String tableId) throws MolgenisException;
 
   void grantAdmin(String user);
 

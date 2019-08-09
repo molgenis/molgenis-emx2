@@ -41,17 +41,13 @@ public class OpenApiFactory {
       PathItem tablePath = new PathItem();
       PathItem pathWithMolgenisid = new PathItem();
 
-      Map<String, Schema> propertiesWithId = new LinkedHashMap<>();
+      Map<String, Schema> properties = new LinkedHashMap<>();
       for (Column column : table.getColumns()) {
-        propertiesWithId.put(column.getName(), columnSchema(column));
+        properties.put(column.getName(), columnSchema(column));
       }
-      Map<String, Schema> propertiesWithoutId = new LinkedHashMap<>(propertiesWithId);
-      propertiesWithoutId.remove("molgenisid");
 
       // components
-      components.addSchemas(tableName, new Schema().type("object").properties(propertiesWithoutId));
-      components.addSchemas(
-          tableName + "WithId", new Schema().type("object").properties(propertiesWithId));
+      components.addSchemas(tableName, new Schema().type("object").properties(properties));
       components.addResponses(
           tableName,
           new ApiResponse()
@@ -59,7 +55,7 @@ public class OpenApiFactory {
                   new Content()
                       .addMediaType(
                           "application/json",
-                          new MediaType().schema(new Schema().$ref(tableName + "withId")))));
+                          new MediaType().schema(new Schema().$ref(tableName)))));
       //      components.addRequestBodies(tableName, new RequestBody().setContent(new Content()
       //              .addMediaType("application/json", new MediaType().schema(new
       // Schema().$ref(tableName))));
@@ -91,22 +87,29 @@ public class OpenApiFactory {
               .addApiResponse("400", new ApiResponse().description("Bad request"));
 
       // operations
+      tablePath.post(
+          new Operation()
+              .addTagsItem(tableName)
+              .summary("Insert row into " + tableName)
+              .requestBody(body)
+              .responses(responses));
+      tablePath.put(
+          new Operation()
+              .addTagsItem(tableName)
+              .summary("Update row in " + tableName)
+              .requestBody(body)
+              .responses(responses));
+
       pathWithMolgenisid.get(
           new Operation()
-              .summary("retrieve")
+              .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
               .addTagsItem(tableName)
               .addParametersItem(molgenisid)
-              .responses(responses));
-      tablePath.post(new Operation().addTagsItem(tableName).requestBody(body).responses(responses));
-      pathWithMolgenisid.put(
-          new Operation()
-              .addTagsItem(tableName)
-              .addParametersItem(molgenisid)
-              .requestBody(body)
               .responses(responses));
       pathWithMolgenisid.delete(
           new Operation()
               .addTagsItem(tableName)
+              .summary("Delete one row from " + tableName)
               .addParametersItem(molgenisid)
               .responses(
                   new ApiResponses()

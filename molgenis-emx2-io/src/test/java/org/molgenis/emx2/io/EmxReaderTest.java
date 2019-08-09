@@ -6,7 +6,7 @@ import org.javers.core.diff.Diff;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
-import org.molgenis.beans.SchemaBean;
+import org.molgenis.beans.SchemaMetadata;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 import org.molgenis.utils.StopWatch;
 
@@ -25,7 +25,7 @@ public class EmxReaderTest {
   public void test1() throws IOException, MolgenisException {
     try {
       StopWatch.start("\nmodel read from test1.txt:");
-      Schema model1 = new SchemaBean("model1");
+      Schema model1 = new SchemaMetadata("model1");
       MolgenisMetadataFileReader.load(model1, getFile("test1.txt"));
       // System.out.println(model1.toString());
 
@@ -41,7 +41,7 @@ public class EmxReaderTest {
       // System.out.println(csv);
 
       StopWatch.print("\nroundtrip readBuffered model from this csv");
-      Schema model2 = new SchemaBean("model1");
+      Schema model2 = new SchemaMetadata("model1");
       MolgenisMetadataFileReader.load(model2, new StringReader(csv));
       // System.out.println(model1.print());
 

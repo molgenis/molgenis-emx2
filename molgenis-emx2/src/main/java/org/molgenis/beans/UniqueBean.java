@@ -10,7 +10,7 @@ public class UniqueBean implements Unique {
   private Table table;
   private List<? extends Column> columns;
 
-  public UniqueBean(Table table, List<Column> columns) {
+  public UniqueBean(TableMetadata table, List<Column> columns) {
     this.table = table;
     this.columns = columns;
   }

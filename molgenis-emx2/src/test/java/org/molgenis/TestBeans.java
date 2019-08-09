@@ -1,7 +1,7 @@
 package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.beans.SchemaBean;
+import org.molgenis.beans.SchemaMetadata;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,10 +18,10 @@ public class TestBeans {
   public void test1() throws MolgenisException {
     List<Type> types = Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
-    Schema m = new SchemaBean("test1");
+    SchemaMetadata m = new SchemaMetadata("test1");
     addContents(m, types);
 
-    Schema m2 = new SchemaBean("test1");
+    SchemaMetadata m2 = new SchemaMetadata("test1");
     addContents(m2, types);
 
     // System.out.println("No diff: " + m.diff(m2));
@@ -131,7 +131,7 @@ public class TestBeans {
     assertNull(r.getString("testnull"));
   }
 
-  private void addContents(Schema m, List<Type> types) throws MolgenisException {
+  private void addContents(SchemaMetadata m, List<Type> types) throws MolgenisException {
     Table t = m.createTableIfNotExists("TypeTest");
     for (Type type : types) {
       t.addColumn("test" + type, type);

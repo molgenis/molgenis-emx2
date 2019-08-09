@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.Table;
-import org.molgenis.beans.SchemaBean;
+import org.molgenis.beans.SchemaMetadata;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.STRING;
@@ -15,7 +15,7 @@ public class EmxToGraphQLSchemaTest {
 
   @Test
   public void test1() throws MolgenisException {
-    Schema m = new SchemaBean("test");
+    Schema m = new SchemaMetadata("test");
 
     Table t2 = m.createTableIfNotExists("Family");
     t2.addColumn("Name", STRING);
@@ -23,7 +23,7 @@ public class EmxToGraphQLSchemaTest {
     Table t = m.createTableIfNotExists("Person");
     t.addColumn("FirstName", STRING);
     t.addColumn("LastName", STRING);
-    t.addRef("family", t2.getName());
+    t.addRef("family").to(t2.getName());
 
     GraphQLSchema s = new GrahpqlEndpoint().getSchema(m);
     assertEquals(1, s.getType("Family").getChildren().size());

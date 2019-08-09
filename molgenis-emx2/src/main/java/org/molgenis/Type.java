@@ -12,7 +12,7 @@ public enum Type {
   BOOL_ARRAY(Boolean[].class),
   INT(Integer.class),
   INT_ARRAY(Integer[].class),
-  DECIMAL(Double[].class),
+  DECIMAL(Double.class),
   DECIMAL_ARRAY(Double[].class),
   TEXT(String.class),
   TEXT_ARRAY(String[].class),

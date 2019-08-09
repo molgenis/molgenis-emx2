@@ -1,0 +1,202 @@
+package org.molgenis.sql;
+
+import org.jooq.DSLContext;
+import org.molgenis.*;
+import org.molgenis.utils.StopWatch;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static org.molgenis.Type.STRING_ARRAY;
+
+public class MetadataUtils2 {
+
+  private static Database db;
+
+  private static final String MOLGENIS = "MOLGENIS";
+
+  // tables
+  private static final String SCHEMA_TABLE = "schema_metadata";
+  private static final String TABLE_TABLE = "table_metadata";
+  private static final String COLUMN_TABLE = "column_metadata";
+  private static final String UNIQUE_TABLE = "unique_metadata";
+
+  // fields (we use same names as information_schema
+  private static final String TABLE_SCHEMA = "table_schema";
+  private static final String TABLE_NAME = "table_name";
+  private static final String COLUMN_NAME = "column_name";
+
+  private static final String DATA_TYPE = "data_type";
+  private static final String NULLABLE = "nullable";
+  private static final String REF_TABLE = "ref_table";
+  private static final String REF_COLUMN = "ref_column";
+  private static final String UNIQUE_COLUMNS = "unique_columns";
+
+  private MetadataUtils2() {
+    // to hide the public constructor
+  }
+
+  static void createMetadataSchemaIfNotExists(Database database) throws MolgenisException {
+
+    database.transaction(
+        db -> {
+          Schema schema = db.createSchema(MOLGENIS);
+
+          Table schemaTable = schema.createTableIfNotExists(SCHEMA_TABLE);
+          schemaTable.addColumn(TABLE_SCHEMA).unique();
+          schemaTable.setPrimaryKey(TABLE_SCHEMA);
+
+          Table tableTable = schema.createTableIfNotExists(TABLE_TABLE);
+          tableTable.addRef(TABLE_SCHEMA, SCHEMA_TABLE, TABLE_SCHEMA).addColumn(TABLE_NAME);
+          tableTable.setPrimaryKey(TABLE_SCHEMA, TABLE_NAME);
+
+          Table columnTable = schema.createTableIfNotExists(COLUMN_TABLE);
+          columnTable.addRefMultiple(TABLE_SCHEMA, TABLE_NAME).to(TABLE_TABLE);
+          columnTable
+              .addColumn(COLUMN_NAME)
+              .addColumn(DATA_TYPE)
+              .addColumn(NULLABLE)
+              .addColumn(REF_TABLE)
+              .addColumn(REF_COLUMN);
+          columnTable.setPrimaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME);
+
+          Table uniqueTable = schema.createTableIfNotExists(UNIQUE_TABLE);
+          uniqueTable.addRefMultiple(TABLE_SCHEMA, TABLE_NAME).to(TABLE_TABLE);
+          uniqueTable.addColumn(UNIQUE_COLUMNS, STRING_ARRAY);
+          // todo: implement composite foreign key, with one array and others non array.
+
+          schemaTable.enableRowLevelSecurity();
+          tableTable.enableRowLevelSecurity();
+          columnTable.enableRowLevelSecurity();
+          uniqueTable.enableRowLevelSecurity();
+
+          schema.grantView("PUBLIC");
+        });
+  }
+
+  static void saveSchemaMetadata(Database db, Schema schema) throws MolgenisException {
+    schemas().update(new Row().setString(TABLE_SCHEMA, schema.getName()));
+  }
+
+  private static Table schemas() throws MolgenisException {
+    return db.getSchema(MOLGENIS).getTable(SCHEMA_TABLE);
+  }
+
+  public static Collection<String> loadSchemaNames(Database db) throws MolgenisException {
+    return schemas().retrieve(TABLE_SCHEMA, String.class);
+  }
+
+  static void deleteSchema(Database db, Schema schema) throws MolgenisException {
+    schemas().deleteByPrimaryKey(schema.getName());
+  }
+
+  static Collection<String> loadTableNames(Database db, Schema schema) throws MolgenisException {
+    return tables().where(TABLE_SCHEMA).eq(schema.getName()).retrieve(TABLE_NAME, String.class);
+  }
+
+  static Table tables() throws MolgenisException {
+    return db.getSchema(MOLGENIS).getTable(TABLE_TABLE);
+  }
+
+  static void saveTableMetadata(Database db, SqlTable table) throws MolgenisException {
+    tables()
+        .update(
+            new Row()
+                .setString(TABLE_SCHEMA, table.getSchemaName())
+                .setString(TABLE_NAME, table.getName()));
+  }
+
+  static void deleteTable(SqlTable table) throws MolgenisException {
+    tables().deleteByPrimaryKey(table.getSchemaName(), table.getName());
+  }
+
+  static Table columns() throws MolgenisException {
+    return db.getSchema(MOLGENIS).getTable(COLUMN_TABLE);
+  }
+
+  static void saveColumnMetadata(SqlColumn column) throws MolgenisException {
+    columns()
+        .update(
+            new Row()
+                .setString(TABLE_SCHEMA, column.getTable().getSchema().getName())
+                .setString(TABLE_NAME, column.getTable().getName())
+                .setString(COLUMN_NAME, column.getName())
+                .setString(DATA_TYPE, column.getType().toString())
+                .setBool(NULLABLE, column.isNullable())
+                .setString(REF_TABLE, column.getRefTable())
+                .setString(REF_COLUMN, column.getRefColumn()));
+  }
+
+  static void deleteColumn(Column column) throws MolgenisException {
+    tables()
+        .deleteByPrimaryKey(
+            column.getTable().getSchemaName(), column.getTable().getName(), column.getName());
+  }
+
+  static Table uniques() throws MolgenisException {
+    return db.getSchema(MOLGENIS).getTable(UNIQUE_TABLE);
+  }
+
+  static void saveUnique(DSLContext sql, Unique unique) throws MolgenisException {
+    uniques()
+        .update(
+            new Row()
+                .setString(TABLE_SCHEMA, unique.getSchemaName())
+                .setString(TABLE_NAME, unique.getTableName())
+                .setStringArray(UNIQUE_COLUMNS, unique.getColumnNames()));
+  }
+
+  static void deleteUnique(DSLContext sql, Unique unique) throws MolgenisException {
+    uniques()
+        .deleteByPrimaryKey(unique.getSchemaName(), unique.getTableName(), unique.getColumnNames());
+  }
+
+  static boolean schemaExists(SqlSchema schema) throws MolgenisException {
+
+    return schemas()
+            .where(SCHEMA_TABLE)
+            .eq(schema.getName())
+            .retrieve(SCHEMA_TABLE, String.class)
+            .size()
+        == 1; // todo, implement count
+  }
+
+  static void loadUniqueMetadata(SqlTable table, Map<String, Unique> uniqueMap) {}
+
+  static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
+      throws MolgenisException {
+    StopWatch.print("begin load column metadata");
+
+    // load tables and columns
+    List<Row> columnRows =
+        columns()
+            .where(TABLE_SCHEMA)
+            .eq(table.getSchemaName())
+            .and(TABLE_NAME)
+            .eq(table.getName())
+            .retrieve();
+
+    for (Row col : columnRows) {
+      String columnName = col.get(COLUMN_NAME, String.class);
+      Type columnType = Type.valueOf(col.get(DATA_TYPE, String.class));
+      Boolean nullable = col.get(NULLABLE, Boolean.class);
+      String toTable = col.get(REF_TABLE, String.class);
+      String toColumn = col.get(REF_COLUMN, String.class);
+      switch (columnType) {
+        case REF:
+          columnMap.put(
+              columnName, new RefSqlColumn(table, columnName, toTable, toColumn, nullable));
+          break;
+        case REF_ARRAY:
+          columnMap.put(
+              columnName, new RefArraySqlColumn(table, columnName, toTable, toColumn, nullable));
+          break;
+        default:
+          columnMap.put(columnName, new SqlColumn(table, columnName, columnType, nullable));
+      }
+    }
+
+    StopWatch.print("load column metadata complete");
+  }
+}

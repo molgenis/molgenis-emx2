@@ -8,7 +8,7 @@ import org.molgenis.Query;
 import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
 import org.molgenis.Row;
-import org.molgenis.beans.TableBean;
+import org.molgenis.beans.TableMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class TestJson {
   @Test
   public void testJsonToRow() throws MolgenisException {
 
-    Table t = new TableBean(null, "Person");
+    Table t = new TableMetadata(null, "Person");
     t.addColumn("FirstName", STRING);
     t.addColumn("Age", INT);
     t.addColumn("Weight", DECIMAL);

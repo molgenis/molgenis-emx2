@@ -39,9 +39,9 @@ public class MolgenisMetadataFileWriter {
 
     for (String tableName : model.getTableNames()) {
       Table table = model.getTable(tableName);
-      if (table.getExtend() != null || !table.getUniques().isEmpty()) {
-        rows.add(convertTableToRow(table));
-      }
+      //      if (table.getExtend() != null || !table.getUniques().isEmpty()) {
+      //        rows.add(convertTableToRow(table));
+      //      }
       for (Column column : table.getColumns()) {
         // ignore internal ID
         if (!MOLGENISID.equals(column.getName())) {

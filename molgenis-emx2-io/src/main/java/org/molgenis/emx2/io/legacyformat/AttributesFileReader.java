@@ -3,7 +3,7 @@ package org.molgenis.emx2.io.legacyformat;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.molgenis.*;
-import org.molgenis.beans.SchemaBean;
+import org.molgenis.beans.SchemaMetadata;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class AttributesFileReader {
   }
 
   public Schema convertAttributesToModel(List<AttributesFileRow> rows) throws MolgenisException {
-    Schema model = new SchemaBean("test");
+    Schema model = new SchemaMetadata("test");
 
     int lineNumber = 0;
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
@@ -53,7 +53,7 @@ public class AttributesFileReader {
       Type type = getEmxType(lineNumber, messages, row);
       Column column;
       if (REF.equals(type)) {
-        column = table.addRef(row.getName(), row.getRefEntity(), MOLGENISID);
+        column = table.addRef(row.getName()).to(row.getRefEntity(), MOLGENISID);
       } else {
         column = table.addColumn(row.getName(), type);
       }

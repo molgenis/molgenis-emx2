@@ -60,7 +60,7 @@ public class Mapper {
   }
 
   public static Table map(Class klazz) throws MolgenisException {
-    Table t = new TableBean(null, klazz.getSimpleName());
+    Table t = new TableMetadata(null, klazz.getSimpleName());
 
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
