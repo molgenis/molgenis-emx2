@@ -6,6 +6,9 @@ import static org.molgenis.Type.*;
 import static org.molgenis.Type.DATETIME;
 
 public class RefArrayTestExample {
+  private RefArrayTestExample() {
+    // hide constructor
+  }
 
   public static void createRefArrayTestExample(Schema schema) throws MolgenisException {
 

@@ -8,17 +8,20 @@ import static org.molgenis.Type.DATETIME;
 public class SimpleTypeTestExample {
   public static final String TYPE_TEST = "TypeTest";
 
+  private SimpleTypeTestExample() {
+    // hide constructor
+  }
+
   public static void createSimpleTypeTest(Schema schema) throws MolgenisException {
 
     Table typeTestTable = schema.createTableIfNotExists(TYPE_TEST);
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (Type type : types) {
 
-      Column c = typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
-      Column c2 =
-          typeTestTable
-              .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
-              .nullable(true);
+      typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
+      typeTestTable
+          .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
+          .nullable(true);
     }
   }
 }

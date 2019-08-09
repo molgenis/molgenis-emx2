@@ -9,6 +9,10 @@ import static org.molgenis.Type.*;
 
 public class RefTestExample {
 
+  private RefTestExample() {
+    // hide constructor
+  }
+
   public static void createRefTestExmple(Schema schema) throws MolgenisException {
 
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};

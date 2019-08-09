@@ -5,7 +5,10 @@ import org.molgenis.*;
 import static org.molgenis.Type.*;
 
 public class CompositeRefExample {
-  public static final String ARRAY_TYPE_TEST = "ArrayTypeTest";
+
+  private CompositeRefExample() {
+    // hide constructor
+  }
 
   public static void createCompositeRefExample(Schema schema) throws MolgenisException {
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};

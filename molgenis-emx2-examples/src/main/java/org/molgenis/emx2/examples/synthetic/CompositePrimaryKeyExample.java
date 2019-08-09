@@ -9,6 +9,10 @@ import static org.molgenis.Type.*;
 
 public class CompositePrimaryKeyExample {
 
+  private CompositePrimaryKeyExample() {
+    // hide constructor
+  }
+
   public static void createCompositePrimaryExample(Schema schema) throws MolgenisException {
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 

@@ -6,6 +6,10 @@ import static org.molgenis.Type.*;
 
 public class ArrayTypeTestExample {
 
+  private ArrayTypeTestExample() {
+    // hide constructor
+  }
+
   public static void createSimpleTypeTest(Schema schema) throws MolgenisException {
 
     Table typeTestTable = schema.createTableIfNotExists("ArrayTypeTest");
@@ -22,11 +26,10 @@ public class ArrayTypeTestExample {
         };
     for (Type type : types) {
 
-      Column c = typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
-      Column c2 =
-          typeTestTable
-              .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
-              .nullable(true);
+      typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
+      typeTestTable
+          .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
+          .nullable(true);
     }
   }
 }
