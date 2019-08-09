@@ -8,6 +8,7 @@ import org.molgenis.Schema;
 import org.molgenis.emx2.examples.*;
 import org.molgenis.emx2.examples.synthetic.*;
 
+import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.examples.CompareTools.reloadAndCompare;
 
 public class TestRoundTripMetadataDatabase {
@@ -25,41 +26,65 @@ public class TestRoundTripMetadataDatabase {
   public void testProductComponentsPartsModel() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "1");
     ProductComponentPartsExample.create(schema);
-    reloadAndCompare(database, schema);
+    try {
+      reloadAndCompare(database, schema);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testSimpleTypesTest() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "2");
     SimpleTypeTestExample.createSimpleTypeTest(schema);
-    reloadAndCompare(database, schema);
+    try {
+      reloadAndCompare(database, schema);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testArrayTypesTest() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "3");
     ArrayTypeTestExample.createSimpleTypeTest(schema);
-    reloadAndCompare(database, schema);
+    try {
+      reloadAndCompare(database, schema);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testRefAndRefArrayTypesTest() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema);
-    reloadAndCompare(database, schema);
+    try {
+      reloadAndCompare(database, schema);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testCompsiteRefs() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "5");
     CompositeRefExample.createCompositeRefExample(schema);
-    reloadAndCompare(database, schema);
+    try {
+      reloadAndCompare(database, schema);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testCompsitePrimaryKeys() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "6");
     CompositePrimaryKeyExample.createCompositePrimaryExample(schema);
-    reloadAndCompare(database, schema);
+    try {
+      reloadAndCompare(database, schema);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 }

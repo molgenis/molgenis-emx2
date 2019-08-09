@@ -29,14 +29,14 @@ public class CompareTools {
     Collection<String> tableNames2 = schema2.getTableNames();
 
     if (!tableNames1.equals(tableNames2))
-      throw new RuntimeException(
+      throw new MolgenisException(
           "Schema's have different tables: " + tableNames1 + " versus " + tableNames2);
 
     for (String tableName : tableNames1) {
       Diff diff = javers.compare(schema1.getTable(tableName), schema2.getTable(tableName));
 
       if (diff.hasChanges()) {
-        fail("Roundtrip test failed: changes, " + diff.toString());
+        throw new MolgenisException("Roundtrip test failed: changes, " + diff.toString());
       }
     }
   }
@@ -57,7 +57,7 @@ public class CompareTools {
           javers.compare(schema.getTable(tableName), schemaLoadedFromDisk.getTable(tableName));
 
       if (diff.hasChanges()) {
-        fail("Roundtrip test failed: changes, " + diff.toString());
+        throw new MolgenisException("Roundtrip test failed: changes, " + diff.toString());
       }
     }
   }

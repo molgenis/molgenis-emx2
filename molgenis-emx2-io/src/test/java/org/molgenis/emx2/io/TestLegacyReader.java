@@ -41,7 +41,11 @@ public class TestLegacyReader {
           new AttributesFileReader().readModelFromCsv(new StringReader(writer.toString()));
 
       // compare
-      CompareTools.compare(schema, schema2);
+      try {
+        CompareTools.compare(schema, schema2);
+      } catch (Exception e) {
+        fail(e.getMessage());
+      }
 
     } catch (MolgenisException e) {
       for (MolgenisExceptionMessage m : e.getMessages()) {
