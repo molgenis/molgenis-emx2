@@ -24,8 +24,7 @@ public interface Column {
 
   String getReverseRefColumn();
 
-  String getJoinTable(;
-  String getJoinTable(;
+  String getJoinTable();
 
   String getDescription();
 
