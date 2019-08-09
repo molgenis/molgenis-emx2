@@ -22,7 +22,7 @@ public class StopWatch {
     long endTime = System.currentTimeMillis();
     long total = (endTime - time);
     if (total == 0) total = 1;
-    System.out.println(
+    System.out.println( // NOSONAR
         total
             + "ms: "
             + message
@@ -30,7 +30,7 @@ public class StopWatch {
             + count
             + " with "
             + 1000 * count / total
-            + " per second)"); // NOSONAR
+            + " per second)");
     time = System.currentTimeMillis();
   }
 }

@@ -5,8 +5,6 @@ import java.util.List;
 
 public interface Table {
 
-  String MOLGENISID = "molgenisid";
-
   String getName();
 
   Schema getSchema();

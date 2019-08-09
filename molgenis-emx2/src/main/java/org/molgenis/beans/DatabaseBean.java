@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DatabaseBean implements Database {
-  private String name;
   protected Map<String, Schema> schemas = new LinkedHashMap<>();
 
   @Override

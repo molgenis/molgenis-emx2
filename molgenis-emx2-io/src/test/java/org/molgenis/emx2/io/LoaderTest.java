@@ -14,17 +14,11 @@ import static org.junit.Assert.assertEquals;
 public class LoaderTest {
 
   @Test
-  public void loadTest1() {
+  public void loadTest1() throws IOException, MolgenisException {
     StopWatch.start("loadTest1");
     Schema s = new SchemaMetadata("test");
-    try {
-      ZipLoader.load(s, new File(ClassLoader.getSystemResource("molgenis1").getFile()));
-      assertEquals(2, s.getTableNames().size());
-    } catch (MolgenisException me) {
-      me.printMessages();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    ZipLoader.load(s, new File(ClassLoader.getSystemResource("molgenis1").getFile()));
+    assertEquals(2, s.getTableNames().size());
     StopWatch.print("schema loaded");
     System.out.println(s);
   }

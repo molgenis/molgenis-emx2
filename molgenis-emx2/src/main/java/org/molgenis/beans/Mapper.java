@@ -8,9 +8,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
-
-import static org.molgenis.Type.*;
 
 public class Mapper {
 

@@ -24,6 +24,8 @@ public enum Type {
   REF_ARRAY(Object[].class),
   MREF(Object[].class);
 
+  public static final String MOLGENISID = "molgenisid";
+
   private Class javaType;
 
   Type(Class javaType) {

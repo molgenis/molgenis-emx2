@@ -54,7 +54,6 @@ public class EmxReaderTest {
       StopWatch.print("comparison returned 'equal'");
 
     } catch (MolgenisException e) {
-      e.printMessages();
       throw new RuntimeException(e);
     }
   }

@@ -27,10 +27,4 @@ public class MolgenisException extends Exception {
   public List<MolgenisExceptionMessage> getMessages() {
     return Collections.unmodifiableList(this.messages);
   }
-
-  public void printMessages() {
-    for (MolgenisExceptionMessage m : messages) {
-      System.out.println(m);
-    }
-  }
 }

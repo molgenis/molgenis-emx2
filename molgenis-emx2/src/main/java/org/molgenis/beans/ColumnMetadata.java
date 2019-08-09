@@ -20,25 +20,6 @@ public class ColumnMetadata implements Column {
   private String validation;
   private String defaultValue;
 
-  //    @Id private String name;
-  //    private EmxTable table;
-  //    private EmxType type = EmxType.STRING;
-  //    private Boolean nillable = false;
-  //    private Boolean readonly = false;
-  //    private Boolean unique = false;
-  //    private String defaultValue;
-  //    private String description;
-  //    private String validation;
-  //    private String visible;
-  //    private EmxTable ref;
-  //    private EmxTable joinTable;
-  //    private EmxColumn joinColumn;
-
-  public ColumnMetadata(String name) {
-    this.name = name;
-    this.type = STRING;
-  }
-
   public ColumnMetadata(Table table, String name, Type type, Boolean isNullable) {
     this.table = table;
     this.name = name;
