@@ -27,7 +27,7 @@ public class EmxReaderTest {
       StopWatch.start("\nmodel read from test1.txt:");
       Schema model1 = new SchemaMetadata("model1");
       MolgenisMetadataFileReader.load(model1, getFile("test1.txt"));
-      // System.out.println(model1.toString());
+      System.out.println(model1.toString());
 
       StopWatch.print("\nmodel converted back to lines:");
       for (MolgenisFileRow row : convertModelToMolgenisFileRows(model1)) {
@@ -38,7 +38,7 @@ public class EmxReaderTest {
       StringWriter writer = new StringWriter();
       writeCsv(model1, writer);
       String csv = writer.toString();
-      // System.out.println(csv);
+      System.out.println(csv);
 
       StopWatch.print("\nroundtrip readBuffered model from this csv");
       Schema model2 = new SchemaMetadata("model1");

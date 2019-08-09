@@ -19,11 +19,12 @@ public class EmxToGraphQLSchemaTest {
 
     Table t2 = m.createTableIfNotExists("Family");
     t2.addColumn("Name", STRING);
+    t2.addUnique("Name");
 
     Table t = m.createTableIfNotExists("Person");
     t.addColumn("FirstName", STRING);
     t.addColumn("LastName", STRING);
-    t.addRef("family").to(t2.getName());
+    t.addRef("family", t2.getName(), "Name");
 
     GraphQLSchema s = new GrahpqlEndpoint().getSchema(m);
     assertEquals(1, s.getType("Family").getChildren().size());

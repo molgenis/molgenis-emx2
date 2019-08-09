@@ -53,7 +53,7 @@ public class AttributesFileReader {
       Type type = getEmxType(lineNumber, messages, row);
       Column column;
       if (REF.equals(type)) {
-        column = table.addRef(row.getName()).to(row.getRefEntity(), MOLGENISID);
+        column = table.addRef(row.getName(), row.getRefEntity(), MOLGENISID);
       } else {
         column = table.addColumn(row.getName(), type);
       }
@@ -61,15 +61,6 @@ public class AttributesFileReader {
       column.nullable(row.getNillable());
       column.setDescription(row.getDescription());
       column.setReadonly(row.getReadonly());
-      // column.setValidation(row.getValidationExepression());
-
-      //      if (column.getType().equals(SELECT)
-      //          || column.getType().equals(MSELECT)
-      //          || column.getType().equals(RADIO)
-      //          || column.getType().equals(CHECKBOX)) {
-      //        refEntities.put(lineNumber, row.getRefEntity());
-      //        refColumns.put(lineNumber, column);
-      //      }
     }
   }
 
@@ -98,8 +89,6 @@ public class AttributesFileReader {
           return DECIMAL;
         case TEXT:
           return TEXT;
-          //        case LONG:
-          //          return LONG;
         case BOOL:
           return BOOL;
         case DATE:
@@ -110,22 +99,8 @@ public class AttributesFileReader {
           return REF;
         case MREF:
           return MREF;
-          //        case CATEGORICAL:
-          //          return RADIO;
-          //        case CATEGORICAL_MREF:
-          //          return CHECKBOX;
         case COMPOUND:
           throw new MolgenisException("new format doesn't support 'compound' data type");
-          //        case FILE:
-          //          return FILE;
-          //        case EMAIL:
-          //          return EMAIL;
-          //        case ENUM:
-          //          return ENUM;
-          //        case HYPERLINK:
-          //          return HYPERLINK;
-          //        case HTML:
-          //          return HTML;
         case ONE_TO_MANY:
           throw new MolgenisException("new format doesn't yet support 'ONE_TO_MANY' data type");
         default:
