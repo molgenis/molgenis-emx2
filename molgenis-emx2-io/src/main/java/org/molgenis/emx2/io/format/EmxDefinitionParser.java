@@ -24,8 +24,7 @@ public class EmxDefinitionParser {
 
         String parameter = matcher.group(3);
         if (tag.hasParameter()) {
-          if (parameter == null) {
-          } else {
+          if (parameter != null) {
             tag.setParameterValue(parameter);
           }
         } else {

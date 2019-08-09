@@ -25,27 +25,7 @@ public enum EmxDefinitionTerm {
   NILLABLE(false),
   READONLY(false),
   DEFAULT(true);
-  // MSELECT(true),
-  // CHECKBOX(true),
-  // LONG(false),
-  // SELECT(true),
-  // RADIO(true),
-  // HYPERLINK(false),
-  // EMAIL(false),
-  // HTML(false),
-  // FILE(false),
-  // ENUM(true),
-  // for column settings
-  // DEFAULT(true),
-  // READONLY(false),
-  // VISIBLE(true),
-  // VALIDATION(true),
-  // for tables
-  // ABSTRACT(false),
-  // LABEL(true),
-  // EXTENDS(true);
 
-  // TODO: FILE, CASCADE, OM, CHECK
   private boolean hasParameter;
   private String parameterValue;
 

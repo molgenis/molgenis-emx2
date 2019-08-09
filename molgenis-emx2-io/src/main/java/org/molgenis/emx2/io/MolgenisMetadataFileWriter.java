@@ -98,21 +98,9 @@ public class MolgenisMetadataFileWriter {
     if (col.isNullable()) def.add(NILLABLE);
     if (col.isReadonly()) def.add(READONLY);
     if (col.getDefaultValue() != null) def.add(DEFAULT.setParameterValue(col.getDefaultValue()));
-    // if (col.getValidation() != null)
-    //  def.add(VALIDATION.setParameterValue(escapeScript(col.getValidation())));
     if (col.isUnique()) def.add(UNIQUE.setParameterValue(null));
-    // if (col.getVisible() != null)
-    //  def.add(VISIBLE.setParameterValue(escapeScript(col.getVisible())));
 
     return join(def, " ");
-  }
-
-  private static String escapeScript(String value) {
-    return value.replace("(", "\\(").replace(")", "\\)");
-  }
-
-  private static String escapeRef(String value) {
-    return value.replace(".", "\\.").replace("(", "\\(").replace(")", "\\)");
   }
 
   private static MolgenisFileRow convertTableToRow(Table table) {

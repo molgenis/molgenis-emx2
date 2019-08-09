@@ -13,22 +13,12 @@ public class RowReaderFlatmapper {
     // hide constructor
   }
 
-  /**
-   * Don't use because slower than unbuffered
-   *
-   * @deprecated
-   */
-  @Deprecated
-  public static Iterable<org.molgenis.Row> readBuffered(File f) throws IOException {
-    return read(new BufferedReader(new FileReader(f)));
-  }
-
   public static Iterable<org.molgenis.Row> read(File f) throws IOException {
     return read(new FileReader(f));
   }
 
   public static Iterable<org.molgenis.Row> read(Reader in) throws IOException {
-
+    // don't used buffered, it is slower
     Iterator<Map> iterator = CsvParser.mapTo(Map.class).iterator(in);
 
     return () ->

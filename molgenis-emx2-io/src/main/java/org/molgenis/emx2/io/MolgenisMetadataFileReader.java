@@ -40,8 +40,8 @@ public class MolgenisMetadataFileReader {
 
   public static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
-    // TODO: first get all tables in place, so xrefs will work
-    loadTablesFirst(rows, schema, messages);
+
+    loadTablesFirst(rows, schema);
     convertRowsToColumns(rows, schema, messages);
     convertRowsToTables(rows, schema, messages);
     if (!messages.isEmpty()) {
@@ -49,8 +49,7 @@ public class MolgenisMetadataFileReader {
     }
   }
 
-  private static void loadTablesFirst(
-      List<MolgenisFileRow> rows, Schema schema, List<MolgenisExceptionMessage> messages)
+  private static void loadTablesFirst(List<MolgenisFileRow> rows, Schema schema)
       throws MolgenisException {
     for (MolgenisFileRow row : rows) {
       String tableName = row.getTable();
