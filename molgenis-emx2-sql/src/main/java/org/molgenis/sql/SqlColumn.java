@@ -10,7 +10,7 @@ import org.molgenis.beans.ColumnMetadata;
 import static org.jooq.impl.DSL.*;
 
 public class SqlColumn extends ColumnMetadata {
-  private DSLContext jooq;
+  private transient DSLContext jooq;
 
   public SqlColumn(SqlTable table, String columnName, Type columnType) {
     super(table, columnName, columnType);

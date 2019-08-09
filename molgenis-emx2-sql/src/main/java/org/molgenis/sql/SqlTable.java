@@ -36,12 +36,14 @@ class SqlTable extends TableMetadata implements Table {
 
   void load() throws MolgenisException {
     loadColumnMetadata(this, columns);
-    loadUniqueMetadata(this, uniques);
+    loadTableMetadata(this);
+    loadUniqueMetadata(this);
   }
 
   void createTable() throws MolgenisException {
     Name tableName = name(getSchemaName(), getName());
     jooq.createTable(tableName).columns().execute();
+    saveTableMetadata(this);
 
     // grant rights to schema manager, editor and viewer roles
     jooq.execute(
@@ -53,9 +55,6 @@ class SqlTable extends TableMetadata implements Table {
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
         tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + MANAGER));
-
-    // save the metdata
-    saveTableMetadata(this);
 
     // add default molgenisid primary key column
     this.addColumn(MOLGENISID).primaryKey();
@@ -73,6 +72,7 @@ class SqlTable extends TableMetadata implements Table {
 
     jooq.alterTable(getJooqTable()).add(constraint().primaryKey(keyNames)).execute();
     super.setPrimaryKey(columnNames);
+    saveTableMetadata(this);
     return this;
   }
 
@@ -81,7 +81,6 @@ class SqlTable extends TableMetadata implements Table {
     for (String key : getPrimaryKey()) {
       keyFields.add(getJooqField(getColumn(key)));
     }
-    if (keyFields.isEmpty()) throw new MolgenisException("No primary key defined");
     return keyFields;
   }
 
@@ -211,7 +210,10 @@ class SqlTable extends TableMetadata implements Table {
 
     String uniqueName = getName() + "_" + String.join("_", columnNames) + "_UNIQUE";
     jooq.alterTable(getJooqTable()).add(constraint(name(uniqueName)).unique(columnNames)).execute();
-    return super.addUnique(columnNames);
+
+    Unique unique = super.addUnique(columnNames);
+    saveUnique(jooq, unique);
+    return unique;
   }
 
   @Override
@@ -374,7 +376,7 @@ class SqlTable extends TableMetadata implements Table {
 
   private void deleteBatch(Collection<Row> rows) throws MolgenisException {
     if (!rows.isEmpty()) {
-      List<String> keyNames = getPrimaryKey();
+      String[] keyNames = getPrimaryKey();
 
       Condition whereCondition = null;
       for (Row r : rows) {
@@ -432,5 +434,13 @@ class SqlTable extends TableMetadata implements Table {
   public void dropTable() {
     jooq.dropTable(name(getSchemaName(), getName())).execute();
     deleteTable(this);
+  }
+
+  protected void loadPrimaryKey(String[] pkey) throws MolgenisException {
+    super.setPrimaryKey(pkey);
+  }
+
+  protected void loadUnique(String[] columns) throws MolgenisException {
+    super.addUnique(columns);
   }
 }

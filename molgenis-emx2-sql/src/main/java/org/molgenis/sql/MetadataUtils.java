@@ -3,10 +3,12 @@ package org.molgenis.sql;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
 import org.molgenis.utils.StopWatch;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static org.jooq.impl.DSL.*;
@@ -29,6 +31,9 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
+  private static final org.jooq.Field TABLE_PRIMARYKEY =
+      field(name(MOLGENIS, "table_primary_key"), SQLDataType.VARCHAR(255).getArrayDataType());
+
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
 
@@ -48,6 +53,7 @@ public class MetadataUtils {
 
     try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
       step.execute();
+
       jooq.createTableIfNotExists(SCHEMA_METADATA)
           .columns(TABLE_SCHEMA)
           .constraint(primaryKey(TABLE_SCHEMA))
@@ -55,7 +61,7 @@ public class MetadataUtils {
       // public access
 
       jooq.createTableIfNotExists(TABLE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME)
+          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME),
               foreignKey(TABLE_SCHEMA)
@@ -131,15 +137,29 @@ public class MetadataUtils {
         .getValues(TABLE_NAME, String.class);
   }
 
-  static void saveTableMetadata(SqlTable table) {
+  static void saveTableMetadata(SqlTable table) throws MolgenisException {
     table
         .getJooq()
         .insertInto(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME)
-        .values(table.getSchemaName(), table.getName())
+        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY)
+        .values(table.getSchemaName(), table.getName(), table.getPrimaryKey())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
-        .doNothing()
+        .doUpdate()
+        .set(TABLE_PRIMARYKEY, table.getPrimaryKey())
         .execute();
+  }
+
+  static void loadTableMetadata(SqlTable table) throws MolgenisException {
+    // load tables metadata
+    //   Collection<Record> columnRecords =
+    Record tableRecord =
+        table
+            .getJooq()
+            .selectFrom(TABLE_METADATA)
+            .where(TABLE_SCHEMA.eq(table.getSchemaName()), (TABLE_NAME).eq(table.getName()))
+            .fetchOne();
+    String[] pkey = tableRecord.get(TABLE_PRIMARYKEY, String[].class);
+    if (pkey.length > 0) table.loadPrimaryKey(pkey);
   }
 
   static void deleteTable(SqlTable table) {
@@ -185,8 +205,8 @@ public class MetadataUtils {
     sql.insertInto(UNIQUE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
         .values(unique.getSchemaName(), unique.getTableName(), unique.getColumnNames())
-        .onDuplicateKeyUpdate()
-        .set(UNIQUE_COLUMNS, unique.getColumnNames())
+        .onConflict(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
+        .doNothing()
         .execute();
   }
 
@@ -208,8 +228,17 @@ public class MetadataUtils {
         .isNotEmpty();
   }
 
-  static void loadUniqueMetadata(SqlTable table, Map<String, Unique> uniqueMap) {
-    // todo implement
+  static void loadUniqueMetadata(SqlTable table) throws MolgenisException {
+    List<Record> uniqueRecordList =
+        table
+            .getJooq()
+            .selectFrom(UNIQUE_METADATA)
+            .where(TABLE_SCHEMA.eq(table.getSchemaName()), (TABLE_NAME).eq(table.getName()))
+            .fetch();
+
+    for (Record uniqueRecord : uniqueRecordList) {
+      table.loadUnique(uniqueRecord.get(UNIQUE_COLUMNS, String[].class));
+    }
   }
 
   static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)

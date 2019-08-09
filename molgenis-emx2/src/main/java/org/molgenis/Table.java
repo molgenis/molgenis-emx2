@@ -13,7 +13,7 @@ public interface Table {
 
   Table setPrimaryKey(String... columnNames) throws MolgenisException;
 
-  List<String> getPrimaryKey();
+  String[] getPrimaryKey();
 
   List<Column> getColumns();
 

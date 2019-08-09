@@ -30,8 +30,8 @@ public class ReferenceMultipleBean implements ReferenceMultiple {
 
   @Override
   public Table to(String toTable) throws MolgenisException {
-    List<String> keys = table.getPrimaryKey();
-    return to(toTable, keys.toArray(new String[keys.size()]));
+    String[] keys = table.getPrimaryKey();
+    return to(toTable, keys);
   }
 
   public Type getType() {

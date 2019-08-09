@@ -14,7 +14,7 @@
         <module>molgenis-emx2-sql</module>
         <module>molgenis-emx2-webservice</module>
         <module>molgenis-emx2-graphql</module>
-        <module>molgenis-exm2-examples</module>
+        <module>molgenis-emx2-examples</module>
     </modules>
 
     <properties>

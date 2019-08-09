@@ -11,7 +11,7 @@ public class TableMetadata implements Table {
   private Schema schema;
   protected Map<String, Column> columns = new LinkedHashMap<>();
   protected Map<String, Unique> uniques = new LinkedHashMap<>();
-  protected List<String> primaryKey = new ArrayList<>();
+  protected String[] primaryKey = new String[0];
 
   public TableMetadata(Schema schema, String name) {
     super();
@@ -31,13 +31,12 @@ public class TableMetadata implements Table {
 
   @Override
   public Table setPrimaryKey(String... columnNames) throws MolgenisException {
-    this.primaryKey.clear();
-    this.primaryKey.addAll(Arrays.asList(columnNames));
+    this.primaryKey = columnNames;
     return this;
   }
 
   @Override
-  public List<String> getPrimaryKey() {
+  public String[] getPrimaryKey() {
     return this.primaryKey;
   }
 
@@ -74,11 +73,11 @@ public class TableMetadata implements Table {
 
   @Override
   public Column addRef(String name, String toTable) throws MolgenisException {
-    List<String> primaryKeys = getPrimaryKey();
-    if (primaryKeys.size() != 1)
+    String[] primaryKeys = getPrimaryKey();
+    if (primaryKeys.length != 1)
       throw new MolgenisException(
           "Adding of reference '" + name + "' failed: no suitable primary key defined");
-    return this.addRef(name, toTable, primaryKeys.get(0));
+    return this.addRef(name, toTable, primaryKeys[0]);
   }
 
   @Override
@@ -97,11 +96,11 @@ public class TableMetadata implements Table {
 
   @Override
   public Column addRefArray(String name, String toTable) throws MolgenisException {
-    List<String> primaryKeys = getPrimaryKey();
-    if (primaryKeys.size() != 1)
+    String[] primaryKeys = getPrimaryKey();
+    if (primaryKeys.length != 1)
       throw new MolgenisException(
           "Adding of reference '" + name + "' failed: no suitable primary key defined");
-    return this.addRefArray(name, toTable, primaryKeys.get(0));
+    return this.addRefArray(name, toTable, primaryKeys[0]);
   }
 
   @Override

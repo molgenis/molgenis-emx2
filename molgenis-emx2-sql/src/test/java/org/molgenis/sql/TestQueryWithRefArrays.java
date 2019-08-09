@@ -3,13 +3,13 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.INT;
 import static org.molgenis.Type.STRING;
 
 public class TestQueryWithRefArrays {
@@ -97,57 +97,9 @@ public class TestQueryWithRefArrays {
 
     StopWatch.start("DependencyOrderOutsideTransactionFails");
 
-    String PART = "Part";
-    Table partTable = schema.createTableIfNotExists(PART);
-    partTable.addColumn("name", STRING);
-    partTable.addColumn("weight", INT);
-    partTable.addUnique("name");
-
-    Row part1 = new Row().setString("name", "forms").setInt("weight", 100);
-    Row part2 = new Row().setString("name", "login").setInt("weight", 50);
-    partTable.insert(part1);
-    partTable.insert(part2);
-
-    String COMPONENT = "Component";
-    Table componentTable = schema.createTableIfNotExists(COMPONENT);
-    componentTable.addColumn("name", STRING);
-    componentTable.addUnique("name");
-    componentTable.addRefArray("parts", "Part", "name");
-
-    Row component1 = new Row().setString("name", "explorer").setRefArray("parts", "forms", "login");
-    Row component2 = new Row().setString("name", "navigator").setRefArray("parts", "login");
-    componentTable.insert(component1);
-    componentTable.insert(component2);
-
-    String PRODUCT = "Product";
-    Table productTable = schema.createTableIfNotExists(PRODUCT);
-    productTable.addColumn("name", STRING);
-    productTable.addUnique("name");
-    productTable.addRefArray("components", "Component", "name");
-
-    Row product1 =
-        new Row().setString("name", "molgenis").setRefArray("components", "explorer", "navigator");
-
-    productTable.insert(product1);
+    ProductComponentPartsExample.create(schema);
 
     StopWatch.print("tables created");
-
-    // now getQuery to show product.name and parts.name linked by path Assembly.product,part
-
-    // needed:
-    // join+columns paths, potentially multiple paths. We only support outer join over relationships
-    // if names are not unique, require explicit select naming
-    // complex nested where clauses
-    // sortby clauses
-    // later: group by.
-
-    //        QueryOldImpl q1 = new PsqlQueryBack(database);
-    // database        q1.select("Product").columns("name").as("productName");
-    //        q1.mref("ProductComponent").columns("name").as("componentName");
-    //        q1.mref("ComponentPart").columns("name").as("partName");
-    //        //q1.where("productName").eq("molgenis");
-    //
-    //        System.out.println(q1);
 
     Query q = schema.query("Product");
     q.select("name")
@@ -155,10 +107,6 @@ public class TestQueryWithRefArrays {
         .include("name")
         .expand("components", "parts")
         .include("name");
-    //            .where("components", "parts", "weight")
-    //            .eq(50)
-    //            .and("name")
-    //            .eq("explorer", "navigator");
 
     List<Row> rows = q.retrieve();
     assertEquals(3, rows.size());
@@ -181,7 +129,9 @@ public class TestQueryWithRefArrays {
         .include("name")
         .expand("components", "parts")
         .include("name");
-    // q.where("components", "parts", "weight").eq(50).and("name").eq("explorer", "navigator");
+
+    // todo query expansion! q2.where("components", "parts",
+    // "weight").eq(50).and("name").eq("explorer", "navigator");
 
     StopWatch.print("created query (needed to get metadata from disk)");
 
@@ -192,47 +142,5 @@ public class TestQueryWithRefArrays {
     }
 
     StopWatch.print("queried again, cached so for free");
-
-    //      try {
-    //          database.query("pietje");
-    //          fail("exception handling from(pietje) failed");
-    //      } catch (Exception e) {
-    //          System.out.println("Succesfully caught exception: " + e);
-    //      }
-
-    //      try {
-    //          database.query("Product").as("p").join("Comp", "p", "components");
-    //          fail("should fail because faulty table");
-    //      } catch (Exception e) {
-    //          System.out.println("Succesfully caught exception: " + e);
-    //      }
-    //
-    //      try {
-    //          database.query("Product").as("p").join("Component", "p2", "components");
-    //          fail("should fail because faulty toTabel");
-    //      } catch (Exception e) {
-    //          System.out.println("Succesfully caught exception: " + e);
-    //      }
-    //
-    //      try {
-    //          database.queryOld("Product").as("p").join("Component", "p2", "components");
-    //          fail("should fail because faulty on although it is an mref");
-    //      } catch (Exception e) {
-    //          System.out.println("Succesfully caught exception: " + e);
-    //      }
-    //
-    //      try {
-    //          database.queryOld("Product").as("p").join("Component", "p", "comps");
-    //          fail("should fail because faulty on");
-    //      } catch (Exception e) {
-    //          System.out.println("Succesfully caught exception: " + e);
-    //      }
-    //
-    //      try {
-    //          database.queryOld("Product").as("p").select("wrongname").as("productName");
-    //          fail("should fail because faulty 'select'");
-    //      } catch (Exception e) {
-    //          System.out.println("Succesfully caught exception: " + e);
-    //      }
   }
 }

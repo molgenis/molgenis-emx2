@@ -18,7 +18,7 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.sql.MetadataUtils.loadSchemaNames;
 
 public class SqlDatabase extends DatabaseBean implements Database {
-  private DSLContext jooq;
+  private transient DSLContext jooq;
 
   public SqlDatabase(DataSource source) throws MolgenisException {
     this.jooq = DSL.using(source, SQLDialect.POSTGRES_10);
