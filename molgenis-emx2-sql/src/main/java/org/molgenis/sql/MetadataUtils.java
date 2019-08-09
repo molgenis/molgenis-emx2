@@ -208,7 +208,9 @@ public class MetadataUtils {
         .isNotEmpty();
   }
 
-  static void loadUniqueMetadata(SqlTable table, Map<String, Unique> uniqueMap) {}
+  static void loadUniqueMetadata(SqlTable table, Map<String, Unique> uniqueMap) {
+    // todo implement
+  }
 
   static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
       throws MolgenisException {
