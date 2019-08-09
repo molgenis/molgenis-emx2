@@ -40,6 +40,6 @@ public class TestWebApi {
     orderTable.addColumn("complete", BOOL); // todo: default false
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered
 
-    new WebApi(db);
+    WebApiFactory.createWebApi(db);
   }
 }

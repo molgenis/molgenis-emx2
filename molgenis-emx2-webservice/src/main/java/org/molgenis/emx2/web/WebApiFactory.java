@@ -16,27 +16,31 @@ import java.util.Map;
 
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.emx2.web.JsonRowMapper.rowToJson;
-import static org.molgenis.emx2.web.OpenApiFactory.*;
+import static org.molgenis.emx2.web.OpenApiFactory.createOpenApi;
 import static org.molgenis.emx2.web.SwaggerUi.createSwaggerUI;
 import static spark.Spark.*;
 
-public class WebApi {
-  static Database database;
-  static final String APPLICATION_JSON = "application/json";
-  static final String SCHEMA = "schema";
-  static final String TABLE = "table";
+public class WebApiFactory {
+  private static Database database;
+  private static final String APPLICATION_JSON = "application/json";
+  private static final String SCHEMA = "schema";
+  private static final String TABLE = "table";
 
-  public WebApi(Database db) {
+  private WebApiFactory() {
+    // hide constructor
+  }
+
+  public static void createWebApi(Database db) {
     database = db;
 
     port(8080);
     get("/", (request, response) -> "Welcome. Data api available under /data");
-    get("/data", WebApi::listSchemas);
-    get("/data/:schema", WebApi::listTables);
-    get("/data/:schema/openapi.yaml", WebApi::getOpenApiYaml);
-    get("/data/:schema/:table/:molgenisid", WebApi::getRow);
-    put("/data/:schema/:table", APPLICATION_JSON, WebApi::putRow);
-    post("/data/:schema/:table", APPLICATION_JSON, WebApi::postRow);
+    get("/data", WebApiFactory::listSchemas);
+    get("/data/:schema", WebApiFactory::listTables);
+    get("/data/:schema/openapi.yaml", WebApiFactory::getOpenApiYaml);
+    get("/data/:schema/:table/:molgenisid", WebApiFactory::getRow);
+    put("/data/:schema/:table", APPLICATION_JSON, WebApiFactory::putRow);
+    post("/data/:schema/:table", APPLICATION_JSON, WebApiFactory::postRow);
 
     // handling of exceptions
     exception(
@@ -82,7 +86,7 @@ public class WebApi {
   private static String getOpenApiYaml(Request request, Response response)
       throws MolgenisException, IOException {
     Schema schema = database.getSchema(request.params(SCHEMA));
-    OpenAPI api = create(schema);
+    OpenAPI api = createOpenApi(schema);
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);
     response.status(200);

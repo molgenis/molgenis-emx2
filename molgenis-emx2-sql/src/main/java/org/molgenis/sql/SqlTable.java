@@ -65,7 +65,7 @@ class SqlTable extends TableMetadata implements Table {
   public SqlTable setPrimaryKey(String... columnNames) throws MolgenisException {
     if (columnNames.length == 0)
       throw new MolgenisException("Primary key requires 1 or more columns");
-    Name[] keyNames = Stream.of(columnNames).map(k -> name(k)).toArray(Name[]::new);
+    Name[] keyNames = Stream.of(columnNames).map(DSL::name).toArray(Name[]::new);
 
     // drop primary
     jooq.execute(
@@ -74,6 +74,15 @@ class SqlTable extends TableMetadata implements Table {
     jooq.alterTable(getJooqTable()).add(constraint().primaryKey(keyNames)).execute();
     super.setPrimaryKey(columnNames);
     return this;
+  }
+
+  public List<Field> getPrimaryKeyFields() throws MolgenisException {
+    ArrayList<Field> keyFields = new ArrayList<>();
+    for (String key : getPrimaryKey()) {
+      keyFields.add(getJooqField(getColumn(key)));
+    }
+    if (keyFields.isEmpty()) throw new MolgenisException("No primary key defined");
+    return keyFields;
   }
 
   @Override
@@ -274,7 +283,7 @@ class SqlTable extends TableMetadata implements Table {
               fields.add(getJooqField(c));
             }
 
-            ArrayList<Field> keyFields = getPrimaryKeyFields();
+            List<Field> keyFields = getPrimaryKeyFields();
 
             // execute in batches
             List<Row> batch = new ArrayList<>();
@@ -292,15 +301,6 @@ class SqlTable extends TableMetadata implements Table {
       throw new MolgenisException(e);
     }
     return count.get();
-  }
-
-  public ArrayList<Field> getPrimaryKeyFields() throws MolgenisException {
-    ArrayList<Field> keyFields = new ArrayList<>();
-    for (String key : getPrimaryKey()) {
-      keyFields.add(getJooqField(getColumn(key)));
-    }
-    if (keyFields.isEmpty()) throw new MolgenisException("No primary key defined");
-    return keyFields;
   }
 
   @Override
@@ -373,32 +373,28 @@ class SqlTable extends TableMetadata implements Table {
   }
 
   private void deleteBatch(Collection<Row> rows) throws MolgenisException {
-    try {
-      if (!rows.isEmpty()) {
-        List<String> keyNames = getPrimaryKey();
+    if (!rows.isEmpty()) {
+      List<String> keyNames = getPrimaryKey();
 
-        Condition whereCondition = null;
-        for (Row r : rows) {
-          Condition rowCondition = null;
-          for (String keyName : keyNames) {
-            Column key = getColumn(keyName);
-            if (rowCondition == null) {
-              rowCondition = getJooqField(key).eq(r.get(key.getType(), keyName));
-            } else {
-              rowCondition = rowCondition.and(getJooqField(key).eq(r.get(key.getType(), keyName)));
-            }
-          }
-          if (whereCondition == null) {
-            whereCondition = rowCondition;
+      Condition whereCondition = null;
+      for (Row r : rows) {
+        Condition rowCondition = null;
+        for (String keyName : keyNames) {
+          Column key = getColumn(keyName);
+          if (rowCondition == null) {
+            rowCondition = getJooqField(key).eq(r.get(key.getType(), keyName));
           } else {
-            whereCondition = whereCondition.or(rowCondition);
+            rowCondition = rowCondition.and(getJooqField(key).eq(r.get(key.getType(), keyName)));
           }
         }
-        System.out.println(jooq.deleteFrom(getJooqTable()).where(whereCondition).getSQL());
-        jooq.deleteFrom(getJooqTable()).where(whereCondition).execute();
+        if (whereCondition == null) {
+          whereCondition = rowCondition;
+        } else {
+          whereCondition = whereCondition.or(rowCondition);
+        }
       }
-    } catch (DataAccessException e) {
-      throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
+      // System.out.println(jooq.deleteFrom(getJooqTable()).where(whereCondition).getSQL());
+      jooq.deleteFrom(getJooqTable()).where(whereCondition).execute();
     }
   }
 

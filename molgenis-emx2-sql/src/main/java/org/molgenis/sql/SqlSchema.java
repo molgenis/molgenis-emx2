@@ -82,11 +82,6 @@ public class SqlSchema extends SchemaMetadata implements Schema {
   }
 
   @Override
-  public String getName() {
-    return super.getName();
-  }
-
-  @Override
   public Collection<String> getTableNames() throws MolgenisException {
     Collection<String> result = super.getTableNames();
     if (result.isEmpty()) {

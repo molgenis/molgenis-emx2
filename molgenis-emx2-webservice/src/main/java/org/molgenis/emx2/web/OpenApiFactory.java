@@ -23,7 +23,7 @@ public class OpenApiFactory {
     // hide public constructor
   }
 
-  public static OpenAPI create(org.molgenis.Schema schema) throws MolgenisException {
+  public static OpenAPI createOpenApi(org.molgenis.Schema schema) throws MolgenisException {
 
     OpenAPI api = new OpenAPI();
     api.info(

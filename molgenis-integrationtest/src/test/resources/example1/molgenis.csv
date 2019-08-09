@@ -1,7 +1,0 @@
-table,column,definition
-authors,first name,
-authors,last name,
-authors,,unique(first name, last name)
-books,title,
-books,author,xref(authors)
-books,year,int
