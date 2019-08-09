@@ -54,29 +54,22 @@ public class TestRoundTripMetadataDatabase {
   }
 
   @Test
-  public void testRefArrayTypesTest() throws MolgenisException {
+  public void testRefAndRefArrayTypesTest() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "4");
-    RefArrayTestExample.createRefArrayTestExample(schema);
-    reloadAndCompare(schema);
-  }
-
-  @Test
-  public void testRefTypesTest() throws MolgenisException {
-    Schema schema = database.createSchema(SCHEMA_NAME + "5");
-    RefTestExample.createRefTestExmple(schema);
+    RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema);
     reloadAndCompare(schema);
   }
 
   @Test
   public void testCompsiteRefs() throws MolgenisException {
-    Schema schema = database.createSchema(SCHEMA_NAME + "6");
+    Schema schema = database.createSchema(SCHEMA_NAME + "5");
     CompositeRefExample.createCompositeRefExample(schema);
     reloadAndCompare(schema);
   }
 
   @Test
   public void testCompsitePrimaryKeys() throws MolgenisException {
-    Schema schema = database.createSchema(SCHEMA_NAME + "7");
+    Schema schema = database.createSchema(SCHEMA_NAME + "6");
     CompositePrimaryKeyExample.createCompositePrimaryExample(schema);
     reloadAndCompare(schema);
   }

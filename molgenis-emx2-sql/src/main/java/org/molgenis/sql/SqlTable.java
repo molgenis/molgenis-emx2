@@ -395,7 +395,6 @@ class SqlTable extends TableMetadata implements Table {
           whereCondition = whereCondition.or(rowCondition);
         }
       }
-      // System.out.println(jooq.deleteFrom(getJooqTable()).where(whereCondition).getSQL());
       jooq.deleteFrom(getJooqTable()).where(whereCondition).execute();
     }
   }
