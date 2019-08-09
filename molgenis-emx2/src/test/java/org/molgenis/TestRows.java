@@ -1,6 +1,5 @@
 package org.molgenis;
 
-import com.sun.scenario.effect.Offset;
 import org.junit.Test;
 import org.molgenis.beans.SchemaMetadata;
 

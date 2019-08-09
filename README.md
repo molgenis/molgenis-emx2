@@ -39,4 +39,5 @@ Instead EMX allows you to precisely manipulate the database backend.
 * enable search on joined tables in query
 * Default values
 * legacy reader
+* implement unqiue and primary key annotations for class->table mapping
 
