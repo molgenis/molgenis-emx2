@@ -147,7 +147,7 @@ class SqlTable extends TableMetadata implements Table {
 
   @Override
   public SqlColumn addColumn(String name, Type type) throws MolgenisException {
-    SqlColumn c = new SqlColumn(this, name, type, false);
+    SqlColumn c = new SqlColumn(this, name, type);
     c.createColumn();
     columns.put(name, c);
     return c;
@@ -155,7 +155,7 @@ class SqlTable extends TableMetadata implements Table {
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
-    RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn, false);
+    RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     this.addColumn(c);
     return c;
@@ -163,7 +163,7 @@ class SqlTable extends TableMetadata implements Table {
 
   @Override
   public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
-    RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn, false);
+    RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     this.addColumn(c);
     return c;

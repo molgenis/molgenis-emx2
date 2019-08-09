@@ -22,7 +22,7 @@ public class ReferenceMultipleBean implements ReferenceMultiple {
 
     for (int i = 0; i < nameArray.length; i++) {
       table.addColumn(
-          new ColumnMetadata(table, nameArray[i], type, false).setReference(toTable, toColumn[i]));
+          new ColumnMetadata(table, nameArray[i], type).setReference(toTable, toColumn[i]));
     }
 
     return table;

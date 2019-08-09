@@ -232,15 +232,13 @@ public class MetadataUtils {
       String toColumn = col.get(REF_COLUMN, String.class);
       switch (columnType) {
         case REF:
-          columnMap.put(
-              columnName, new RefSqlColumn(table, columnName, toTable, toColumn, nullable));
+          columnMap.put(columnName, new RefSqlColumn(table, columnName, toTable, toColumn));
           break;
         case REF_ARRAY:
-          columnMap.put(
-              columnName, new RefArraySqlColumn(table, columnName, toTable, toColumn, nullable));
+          columnMap.put(columnName, new RefArraySqlColumn(table, columnName, toTable, toColumn));
           break;
         default:
-          columnMap.put(columnName, new SqlColumn(table, columnName, columnType, nullable));
+          columnMap.put(columnName, new SqlColumn(table, columnName, columnType));
       }
     }
     StopWatch.print("load column metadata complete");

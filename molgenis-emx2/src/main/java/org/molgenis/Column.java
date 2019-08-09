@@ -52,4 +52,10 @@ public interface Column {
   Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException;
 
   void primaryKey() throws MolgenisException;
+
+  Column setReference(String refTable, String refColumn);
+
+  Column setReverseReference(String reverseName, String reverseRefColumn);
+
+  Column setJoinTable(String joinTableName);
 }

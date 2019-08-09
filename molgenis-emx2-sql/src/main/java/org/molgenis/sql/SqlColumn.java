@@ -12,34 +12,8 @@ import static org.jooq.impl.DSL.*;
 public class SqlColumn extends ColumnMetadata {
   private DSLContext jooq;
 
-  public SqlColumn(SqlTable table, String columnName, Type columnType, Boolean isNullable) {
-    super(table, columnName, columnType, isNullable);
-    this.jooq = table.getJooq();
-  }
-
-  // for ref subclass
-  protected SqlColumn(
-      SqlTable table,
-      String name,
-      Type type,
-      String refTable,
-      String refColumn,
-      Boolean isNullable) {
-    super(table, name, type, refTable, refColumn, isNullable);
-    this.jooq = table.getJooq();
-  }
-
-  // for mref subclass
-  protected SqlColumn(
-      SqlTable table,
-      String name,
-      Type type,
-      String refTable,
-      String refColumn,
-      String reverseName,
-      String reverseRefColumn,
-      String joinTableName) {
-    super(table, name, type, refTable, refColumn, reverseName, reverseRefColumn, joinTableName);
+  public SqlColumn(SqlTable table, String columnName, Type columnType) {
+    super(table, columnName, columnType);
     this.jooq = table.getJooq();
   }
 

@@ -8,7 +8,7 @@ public class ColumnMetadata implements Column {
   private Table table;
   private String name;
   private Type type;
-  private boolean nullable;
+  private boolean nullable = false;
   private String refTable;
   private String refColumn;
   private String reverseName;
@@ -20,38 +20,10 @@ public class ColumnMetadata implements Column {
   private String validation;
   private String defaultValue;
 
-  public ColumnMetadata(Table table, String name, Type type, Boolean isNullable) {
+  public ColumnMetadata(Table table, String name, Type type) {
     this.table = table;
     this.name = name;
     this.type = type;
-    this.nullable = isNullable;
-  }
-
-  public ColumnMetadata(
-      Table table,
-      String name,
-      Type type,
-      String otherTable,
-      String otherColumn,
-      Boolean isNullable) {
-    this(table, name, type, isNullable);
-    this.refTable = otherTable;
-    this.refColumn = otherColumn;
-  }
-
-  public ColumnMetadata(
-      Table table,
-      String name,
-      Type type,
-      String refTable,
-      String refColumn,
-      String reverseName,
-      String reverseRefColumn,
-      String joinTableName) {
-    this(table, name, type, refTable, refColumn, true);
-    this.reverseName = reverseName;
-    this.reverseRefColumn = reverseRefColumn;
-    this.joinTable = joinTableName;
   }
 
   @Override
@@ -206,9 +178,23 @@ public class ColumnMetadata implements Column {
     return joinTable;
   }
 
-  protected Column setReference(String refTable, String refColumn) {
+  @Override
+  public Column setReference(String refTable, String refColumn) {
     this.refTable = refTable;
     this.refColumn = refColumn;
+    return this;
+  }
+
+  @Override
+  public Column setReverseReference(String reverseName, String reverseRefColumn) {
+    this.reverseName = reverseName;
+    this.reverseRefColumn = reverseRefColumn;
+    return this;
+  }
+
+  @Override
+  public Column setJoinTable(String joinTableName) {
+    this.joinTable = joinTableName;
     return this;
   }
 }

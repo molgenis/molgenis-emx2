@@ -30,7 +30,7 @@ public class SqlReferenceMultiple extends ReferenceMultipleBean implements Refer
 
     for (int i = 0; i < nameArray.length; i++) {
       RefSqlColumn c =
-          new RefSqlColumn((SqlTable) this.getTable(), nameArray[i], toTable, toColumns[i], false);
+          new RefSqlColumn((SqlTable) this.getTable(), nameArray[i], toTable, toColumns[i]);
       getTable().addColumn(c);
 
       Field thisColumn = field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));

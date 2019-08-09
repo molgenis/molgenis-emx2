@@ -276,7 +276,9 @@ public class SqlQuery extends QueryBean implements Query {
                     .leftJoin(
                         table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
                     .on(field(name(joinTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
-            return fromStep;
+            break;
+          default:
+            break;
         }
       }
     }

@@ -24,7 +24,7 @@ import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 public class MrefSqlColumn extends SqlColumn {
   private DSLContext jooq;
 
-  public MrefSqlColumn(
+  protected MrefSqlColumn(
       SqlTable sqlTable,
       String name,
       String refTable,
@@ -32,7 +32,10 @@ public class MrefSqlColumn extends SqlColumn {
       String reverseName,
       String reverseRefColumn,
       String joinTableName) {
-    super(sqlTable, name, MREF, refTable, refColumn, reverseName, reverseRefColumn, joinTableName);
+    super(sqlTable, name, MREF);
+    this.setReference(refTable, refColumn);
+    this.setReverseReference(reverseName, reverseRefColumn);
+    this.setJoinTable(joinTableName);
     this.jooq = sqlTable.getJooq();
   }
 

@@ -11,9 +11,9 @@ import static org.molgenis.Type.REF;
 public class RefSqlColumn extends SqlColumn {
   private DSLContext jooq;
 
-  public RefSqlColumn(
-      SqlTable table, String columnName, String toTable, String toColumn, Boolean isNullable) {
-    super(table, columnName, REF, toTable, toColumn, isNullable);
+  public RefSqlColumn(SqlTable table, String columnName, String toTable, String toColumn) {
+    super(table, columnName, REF);
+    this.setReference(toTable, toColumn);
     this.jooq = table.getJooq();
   }
 

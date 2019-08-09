@@ -61,7 +61,7 @@ public class TableMetadata implements Table {
 
   @Override
   public Column addColumn(String name, Type type) throws MolgenisException {
-    Column c = new ColumnMetadata(this, name, type, false);
+    Column c = new ColumnMetadata(this, name, type);
     columns.put(name, c);
     return c;
   }
@@ -83,14 +83,14 @@ public class TableMetadata implements Table {
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
-    Column c = new ColumnMetadata(this, name, REF, false).setReference(toTable, toColumn);
+    Column c = new ColumnMetadata(this, name, REF).setReference(toTable, toColumn);
     columns.put(name, c);
     return c;
   }
 
   @Override
   public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
-    Column c = new ColumnMetadata(this, name, REF_ARRAY, false).setReference(toTable, toColumn);
+    Column c = new ColumnMetadata(this, name, REF_ARRAY).setReference(toTable, toColumn);
     columns.put(name, c);
     return c;
   }
@@ -124,8 +124,10 @@ public class TableMetadata implements Table {
       String joinTableName)
       throws MolgenisException {
     Column c =
-        new ColumnMetadata(
-            this, name, MREF, refTable, refColumn, reverseName, reverseRefColumn, joinTableName);
+        new ColumnMetadata(this, name, MREF)
+            .setReference(refTable, refColumn)
+            .setReverseReference(reverseName, reverseRefColumn)
+            .setJoinTable(joinTableName);
     columns.put(name, c);
     return c;
   }
