@@ -18,16 +18,8 @@
   "sort": {
     "FirstName": "asc",
     "LastName": "desc"
-  }
-
-  select=firstName,
-  lastName,
-  father/firstName
-  &
-  lastName: ==Duck
-  &
-  Agy: <=50
-  ]
+  },
+  "select": "firstName,lastName,father/firstName&lastName:==Duck&Agy: <=50",
   "filter": [
     {
       "Age:<": 50
