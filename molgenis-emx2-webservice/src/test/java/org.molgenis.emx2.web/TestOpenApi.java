@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.Type.*;
 
 public class TestOpenApi {
@@ -32,6 +33,7 @@ public class TestOpenApi {
     personTable.addColumn("Last Name", STRING);
 
     OpenAPI api = OpenApiFactory.createOpenApi(schema);
+    assertEquals(2, api.getComponents().getSchemas().size());
 
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);

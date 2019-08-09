@@ -8,6 +8,8 @@ import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
+
 public class TestDefinitionParser {
 
   @Test
@@ -27,7 +29,12 @@ public class TestDefinitionParser {
     for (String t : tests) {
       System.out.println("testing definition string: '" + t + "'");
       List<MolgenisExceptionMessage> messages = new ArrayList<>();
-      for (EmxDefinitionTerm tag : new EmxDefinitionParser().parse(line++, messages, t)) {
+
+      List<EmxDefinitionTerm> tags = new EmxDefinitionParser().parse(line++, messages, t);
+      // both have a ref
+      assertTrue(tags.contains(EmxDefinitionTerm.REF));
+
+      for (EmxDefinitionTerm tag : tags) {
         System.out.println(tag);
       }
       System.out.println("messages:");
