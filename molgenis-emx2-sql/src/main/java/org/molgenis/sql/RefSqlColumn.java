@@ -30,11 +30,11 @@ public class RefSqlColumn extends SqlColumn {
                 + "."
                 + getName()
                 + " REFERENCES "
-                + getRefTable()
+                + getRefTableName()
                 + "."
-                + getRefColumn());
-    Name fkeyTable = name(getTable().getSchema().getName(), getRefTable());
-    Name fkeyField = name(getRefColumn());
+                + getRefColumnName());
+    Name fkeyTable = name(getTable().getSchema().getName(), getRefTableName());
+    Name fkeyField = name(getRefColumnName());
 
     // execute alter table add column
     jooq.alterTable(thisTable).addColumn(thisColumn).execute();

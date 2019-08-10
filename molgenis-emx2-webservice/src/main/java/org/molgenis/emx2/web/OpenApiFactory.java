@@ -12,6 +12,7 @@ import org.molgenis.Column;
 import org.molgenis.MolgenisException;
 import org.molgenis.Table;
 
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,39 +33,14 @@ public class OpenApiFactory {
   public static OpenAPI createOpenApi(org.molgenis.Schema schema) throws MolgenisException {
 
     OpenAPI api = new OpenAPI();
-    api.info(
-        new Info()
-            .title("API for: " + schema.getName())
-            .version("0.0.1")
-            .description(
-                "MOLGENIS API for schema stored in MOLGENIS under name '"
-                    + schema.getName()
-                    + "'"));
+    api.info(createInfo(schema));
 
     Paths paths = new Paths();
     Components components = new Components();
 
     for (String tableNameUnencoded : schema.getTableNames()) {
       Table table = schema.getTable(tableNameUnencoded);
-      String tableName = tableNameUnencoded;
-
-      // components
-      components.addSchemas(tableName, rowSchemaComponentFor(table));
-      components.addResponses(tableName, apiResponseComponentFor(tableName));
-
-      // operations
-      PathItem tablePath = new PathItem();
-      PathItem tablePathWithMolgenisid = new PathItem();
-
-      tablePath.post(postOperationFor(tableName));
-      tablePath.put(putOperationFor(tableName));
-      tablePathWithMolgenisid.get(getOperationFor(tableName));
-      tablePathWithMolgenisid.delete(deleteOperationFor(tableName));
-
-      // add the paths to paths
-      String path = "/data/" + table.getSchemaName() + "/" + tableName;
-      paths.addPathItem(path, tablePath);
-      paths.addPathItem(path + "/{molgenisid}", tablePathWithMolgenisid);
+      createApiForTable(table, paths, components);
     }
 
     // assembly
@@ -72,6 +48,37 @@ public class OpenApiFactory {
     api.setComponents(components);
 
     return api;
+  }
+
+  public static void createApiForTable(Table table, Paths paths, Components components)
+      throws MolgenisException {
+    String tableName = table.getName();
+
+    // components
+    components.addSchemas(tableName, rowSchemaComponentFor(table));
+    components.addResponses(tableName, apiResponseComponentFor(tableName));
+
+    // operations
+    PathItem tablePath = new PathItem();
+    PathItem tablePathWithMolgenisid = new PathItem();
+
+    tablePath.post(postOperationFor(tableName));
+    tablePath.put(putOperationFor(tableName));
+    tablePathWithMolgenisid.get(getOperationFor(tableName));
+    tablePathWithMolgenisid.delete(deleteOperationFor(tableName));
+
+    // add the paths to paths
+    String path = String.format("/data/%s/%s", table.getSchemaName(), tableName);
+    paths.addPathItem(path, tablePath);
+    paths.addPathItem(path + "/{molgenisid}", tablePathWithMolgenisid);
+  }
+
+  public static Info createInfo(org.molgenis.Schema schema) {
+    return new Info()
+        .title("API for: " + schema.getName())
+        .version("0.0.1")
+        .description(
+            "MOLGENIS API for schema stored in MOLGENIS under name '" + schema.getName() + "'");
   }
 
   private static Schema rowSchemaComponentFor(Table table) throws MolgenisException {
@@ -92,35 +99,27 @@ public class OpenApiFactory {
   }
 
   private static Operation getOperationFor(String tableName) {
-    ApiResponses responses = createApiResponse(tableName);
-
     return new Operation()
         .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
         .addTagsItem(tableName)
         .addParametersItem(molgenisid)
-        .responses(responses);
+        .responses(createApiResponse(tableName));
   }
 
   private static Operation putOperationFor(String tableName) {
-    RequestBody requestBody = createRequestBody(tableName);
-    ApiResponses responses = createApiResponse(tableName);
-
     return new Operation()
         .addTagsItem(tableName)
         .summary("Update row in " + tableName)
-        .requestBody(requestBody)
-        .responses(responses);
+        .requestBody(createRequestBody(tableName))
+        .responses(createApiResponse(tableName));
   }
 
   public static Operation postOperationFor(String tableName) {
-    RequestBody requestBody = createRequestBody(tableName);
-    ApiResponses responses = createApiResponse(tableName);
-
     return new Operation()
         .addTagsItem(tableName)
         .summary("Insert row into " + tableName)
-        .requestBody(requestBody)
-        .responses(responses);
+        .requestBody(createRequestBody(tableName))
+        .responses(createApiResponse(tableName));
   }
 
   public static ApiResponses createApiResponse(String tableName) {
@@ -180,14 +179,10 @@ public class OpenApiFactory {
       case DATETIME_ARRAY:
         return new ArraySchema().items(new StringSchema().format("datetime"));
       case REF:
-        Table refTable = column.getTable().getSchema().getTable(column.getRefTable());
-        Column refColumn = refTable.getColumn(column.getRefColumn());
-        return createColumnSchema(refColumn);
+        return createColumnSchema(column.getRefColumn());
       case REF_ARRAY:
       case MREF:
-        refTable = column.getTable().getSchema().getTable(column.getRefTable());
-        refColumn = refTable.getColumn(column.getRefColumn());
-        return new ArraySchema().items(createColumnSchema(refColumn));
+        return new ArraySchema().items(createColumnSchema(column.getRefColumn()));
       default:
         throw new MolgenisException(
             "createColumnSchema failed: Type " + column.getType() + " not supported ");

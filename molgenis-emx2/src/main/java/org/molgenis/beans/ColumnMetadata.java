@@ -82,12 +82,12 @@ public class ColumnMetadata implements Column {
   }
 
   @Override
-  public String getRefTable() {
+  public String getRefTableName() {
     return refTable;
   }
 
   @Override
-  public String getRefColumn() throws MolgenisException {
+  public String getRefColumnName() throws MolgenisException {
     return this.refColumn;
   }
 
@@ -99,6 +99,11 @@ public class ColumnMetadata implements Column {
   @Override
   public String getReverseRefColumn() {
     return this.reverseRefColumn;
+  }
+
+  @Override
+  public Column getRefColumn() throws MolgenisException {
+    return getTable().getSchema().getTable(getRefTableName()).getColumn(getRefColumnName());
   }
 
   @Override

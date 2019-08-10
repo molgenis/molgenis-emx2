@@ -16,9 +16,9 @@ public interface Column {
 
   String getDefaultValue();
 
-  String getRefTable();
+  String getRefTableName();
 
-  String getRefColumn() throws MolgenisException;
+  String getRefColumnName() throws MolgenisException;
 
   String getReverseColumnName();
 
@@ -27,6 +27,8 @@ public interface Column {
   String getJoinTable();
 
   String getDescription();
+
+  Column getRefColumn() throws MolgenisException;
 
   Column nullable(boolean nillable) throws MolgenisException;
 

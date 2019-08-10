@@ -85,7 +85,7 @@ public class MolgenisMetadataFileWriter {
         case UUID:
           break;
         case REF:
-          d.setParameterValue(col.getRefTable());
+          d.setParameterValue(col.getRefTableName());
           break;
         case MREF:
           break;

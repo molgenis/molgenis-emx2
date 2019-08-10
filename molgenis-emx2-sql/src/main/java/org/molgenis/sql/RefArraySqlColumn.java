@@ -29,10 +29,10 @@ public class RefArraySqlColumn extends SqlColumn {
 
   private void createIsReferencedByTrigger() throws MolgenisException {
     Name triggerName = getTriggerName();
-    Name toTable = name(getTable().getSchema().getName(), getRefTable());
+    Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name thisTable = name(getTable().getSchema().getName(), getTable().getName());
     Name thisColumn = name(getName());
-    Name toColumn = name(getRefColumn());
+    Name toColumn = name(getRefColumnName());
 
     Name functionName =
         name(
@@ -80,8 +80,8 @@ public class RefArraySqlColumn extends SqlColumn {
     Name triggerName = getTriggerName();
     Name thisTable = name(getTable().getSchema().getName(), getTable().getName());
     Name thisColumn = name(getName());
-    Name toTable = name(getTable().getSchema().getName(), getRefTable());
-    Name toColumn = name(getRefColumn());
+    Name toTable = name(getTable().getSchema().getName(), getRefTableName());
+    Name toColumn = name(getRefColumnName());
 
     Name functionName =
         name(
@@ -115,7 +115,10 @@ public class RefArraySqlColumn extends SqlColumn {
         functionName,
         keyword(
             SqlTypeUtils.getPsqlType(
-                    getTable().getSchema().getTable(getRefTable()).getColumn(getRefColumn()))
+                    getTable()
+                        .getSchema()
+                        .getTable(getRefTableName())
+                        .getColumn(getRefColumnName()))
                 + "[]"),
         thisColumn,
         toColumn,
@@ -136,8 +139,8 @@ public class RefArraySqlColumn extends SqlColumn {
             + "."
             + getName()
             + " REFERENCES "
-            + getRefTable()
+            + getRefTableName()
             + "."
-            + getRefColumn());
+            + getRefColumnName());
   }
 }

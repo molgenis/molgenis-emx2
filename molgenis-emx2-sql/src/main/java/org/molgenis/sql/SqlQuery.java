@@ -117,7 +117,7 @@ public class SqlQuery extends QueryBean implements Query {
             jooqTable
                 .leftJoin(
                     DSL.select(
-                            field("array_agg({0})", name(column.getRefColumn()))
+                            field("array_agg({0})", name(column.getRefColumnName()))
                                 .as(column.getName()),
                             field(name(column.getReverseRefColumn())))
                         .from(table(name(table.getSchemaName(), column.getJoinTable())))
@@ -230,9 +230,9 @@ public class SqlQuery extends QueryBean implements Query {
         String leftColumn = c.getName();
         String leftAlias = path.length > 2 ? name + "/" + String.join("/", leftPath) : name;
 
-        String rightTable = c.getRefTable();
+        String rightTable = c.getRefTableName();
         String rightAlias = name + "/" + String.join("/", rightPath);
-        String rightColumn = c.getRefColumn();
+        String rightColumn = c.getRefColumnName();
 
         if (duplicatePaths.contains(rightAlias)) break; // only once needed
 
@@ -290,7 +290,7 @@ public class SqlQuery extends QueryBean implements Query {
       return c;
     } else {
       return getColumn(
-          t.getSchema().getTable(c.getRefTable()), Arrays.copyOfRange(path, 1, path.length));
+          t.getSchema().getTable(c.getRefTableName()), Arrays.copyOfRange(path, 1, path.length));
     }
   }
 }

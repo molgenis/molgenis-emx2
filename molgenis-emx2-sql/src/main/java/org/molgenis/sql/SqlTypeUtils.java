@@ -57,23 +57,23 @@ public class SqlTypeUtils extends TypeUtils {
             column
                 .getTable()
                 .getSchema()
-                .getTable(column.getRefTable())
-                .getColumn(column.getRefColumn()));
+                .getTable(column.getRefTableName())
+                .getColumn(column.getRefColumnName()));
       case REF_ARRAY:
         return jooqTypeOf(
                 column
                     .getTable()
                     .getSchema()
-                    .getTable(column.getRefTable())
-                    .getColumn(column.getRefColumn()))
+                    .getTable(column.getRefTableName())
+                    .getColumn(column.getRefColumnName()))
             .getArrayDataType();
       case MREF:
         return jooqTypeOf(
                 column
                     .getTable()
                     .getSchema()
-                    .getTable(column.getRefTable())
-                    .getColumn(column.getRefColumn()))
+                    .getTable(column.getRefTableName())
+                    .getColumn(column.getRefColumnName()))
             .getArrayDataType();
       default:
         // should never happen
@@ -137,8 +137,8 @@ public class SqlTypeUtils extends TypeUtils {
     return column
         .getTable()
         .getSchema()
-        .getTable(column.getRefTable())
-        .getColumn(column.getRefColumn())
+        .getTable(column.getRefTableName())
+        .getColumn(column.getRefColumnName())
         .getType();
   }
 

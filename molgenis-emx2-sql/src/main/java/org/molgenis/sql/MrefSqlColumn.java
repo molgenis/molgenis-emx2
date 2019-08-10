@@ -43,8 +43,8 @@ public class MrefSqlColumn extends SqlColumn {
   public MrefSqlColumn createColumn() throws MolgenisException {
 
     // create nullable array columns compatible with the refs
-    SqlTable otherTable = (SqlTable) getTable().getSchema().getTable(getRefTable());
-    Column otherColumn = otherTable.getColumn(getRefColumn());
+    SqlTable otherTable = (SqlTable) getTable().getSchema().getTable(getRefTableName());
+    Column otherColumn = otherTable.getColumn(getRefColumnName());
 
     jooq.alterTable(name(getTable().getSchemaName(), getTable().getName()))
         .add(field(name(getName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
@@ -58,7 +58,7 @@ public class MrefSqlColumn extends SqlColumn {
 
     // create the joinTable
     Table table = getTable().getSchema().createTableIfNotExists(getJoinTable());
-    table.addRef(getRefColumn(), getRefTable(), getRefColumn());
+    table.addRef(getRefColumnName(), getRefTableName(), getRefColumnName());
     table.addRef(getReverseRefColumn(), getTable().getName(), getReverseRefColumn());
 
     // add the reverse column to the other table
@@ -69,7 +69,7 @@ public class MrefSqlColumn extends SqlColumn {
             getTable().getName(),
             getReverseRefColumn(),
             getName(),
-            getRefColumn(),
+            getRefColumnName(),
             getJoinTable());
     otherTable.addMrefReverse(reverseColumn);
 
@@ -91,7 +91,7 @@ public class MrefSqlColumn extends SqlColumn {
     // jooq parameters
     String insertOrUpdateTrigger =
         column.getTable().getName() + "_" + column.getName() + "_UPSERT_TRIGGER";
-    Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumn());
+    Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
 
     // insert and update trigger:
     // first delete to to previous instance of 'self'
@@ -118,10 +118,10 @@ public class MrefSqlColumn extends SqlColumn {
         name(column.getTable().getSchemaName(), insertOrUpdateTrigger),
         keyword(SqlTypeUtils.getPsqlType(targetColumn)),
         table(name(joinTable.getSchema().getName(), joinTable.getName())),
-        field(name(reverseColumn.getRefColumn())),
+        field(name(reverseColumn.getRefColumnName())),
         field(name(column.getName())),
         name(MOLGENISID),
-        field(name(column.getRefColumn())));
+        field(name(column.getRefColumnName())));
 
     jooq.execute(
         "CREATE TRIGGER {0} "
@@ -144,7 +144,7 @@ public class MrefSqlColumn extends SqlColumn {
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(column.getTable().getSchemaName(), deleteTrigger),
         table(name(joinTable.getSchema().getName(), joinTable.getName())),
-        field(name(reverseColumn.getRefColumn())));
+        field(name(reverseColumn.getRefColumnName())));
     jooq.execute(
         "CREATE TRIGGER {0} "
             + "\n\tAFTER DELETE ON {1}"
