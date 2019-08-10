@@ -24,7 +24,7 @@ public class CompareTools {
     // hide constructor
   }
 
-  public static void compare(Schema schema1, Schema schema2) throws MolgenisException {
+  public static void assertEquals(Schema schema1, Schema schema2) throws MolgenisException {
     Collection<String> tableNames1 = schema1.getTableNames();
     Collection<String> tableNames2 = schema2.getTableNames();
 

@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.molgenis.*;
 import org.molgenis.emx2.io.csv.RowReaderCsv;
-import org.molgenis.emx2.io.format.EmxDefinitionList;
+import org.molgenis.emx2.io.format.MolgenisPropertyList;
 import org.molgenis.emx2.io.format.MolgenisFileHeader;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 
@@ -32,7 +32,7 @@ public class MolgenisEmx2FileReader {
           new MolgenisFileRow(
               r.getString(MolgenisFileHeader.TABLE.toString().toLowerCase()),
               r.getString(MolgenisFileHeader.COLUMN.toString().toLowerCase()),
-              r.getString(MolgenisFileHeader.DEFINITION.toString().toLowerCase())));
+              r.getString(MolgenisFileHeader.PROPERTIES.toString().toLowerCase())));
     }
     load(schema, rows);
   }
@@ -41,7 +41,7 @@ public class MolgenisEmx2FileReader {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
     loadColumns(rows, schema, messages);
-    loadTables(schema, rows, messages);
+    loadTableProperties(schema, rows, messages);
     if (!messages.isEmpty()) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
     }
@@ -58,7 +58,7 @@ public class MolgenisEmx2FileReader {
     }
   }
 
-  private static void loadTables(
+  private static void loadTableProperties(
       Schema model, List<MolgenisFileRow> rows, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
@@ -68,9 +68,7 @@ public class MolgenisEmx2FileReader {
       String tableName = row.getTable().trim();
       String columnName = row.getColumn().trim();
 
-      if (tableName != null
-          && !"".equals(tableName)
-          && (columnName == null || "".equals(columnName.trim()))) {
+      if (!"".equals(tableName) && "".equals(columnName.trim())) {
 
         Table table = model.getTable(tableName);
         extractTableDefinition(line, row, table, messages);
@@ -82,15 +80,13 @@ public class MolgenisEmx2FileReader {
       int line, MolgenisFileRow row, Table table, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
 
-    EmxDefinitionList def = new EmxDefinitionList(row.getDefinition());
+    MolgenisPropertyList def = new MolgenisPropertyList(row.getDefinition());
     for (String term : def.getTerms()) {
-      switch (term) {
-        case "unique":
-          List<String> uniques = def.getParameterList(term);
-          table.addUnique(uniques.toArray(new String[uniques.size()]));
-          break;
-        default:
-          messages.add(new MolgenisExceptionMessage(line, "term " + term + " not supported"));
+      if ("unique".equals(term)) {
+        List<String> uniques = def.getParameterList(term);
+        table.addUnique(uniques.toArray(new String[uniques.size()]));
+      } else {
+        messages.add(new MolgenisExceptionMessage(line, "term " + term + " not supported"));
       }
     }
   }
@@ -116,27 +112,45 @@ public class MolgenisEmx2FileReader {
                   + columnName
                   + "'");
         } catch (Exception e) {
-          EmxDefinitionList def = new EmxDefinitionList(row.getDefinition());
-          Type type = getType(def);
-          Column column = null;
-          String refTable = "";
-          String refColumn = "";
-          if (REF.equals(type)) {
-            column = table.addRef(columnName, refTable, refColumn);
-          } else if (REF_ARRAY.equals(type)) {
-            column = table.addRefArray(columnName, refTable, refColumn);
-          } else {
-            column = table.addColumn(columnName, type);
-          }
-          applyDefinitionsToColumn(line, def, column);
+          loadColumn(row, columnName, table, line, messages);
         }
       }
     }
   }
 
-  private static void applyDefinitionsToColumn(int line, EmxDefinitionList def, Column column) {}
+  private static void loadColumn(
+      MolgenisFileRow row,
+      String columnName,
+      Table table,
+      int line,
+      List<MolgenisExceptionMessage> messages)
+      throws MolgenisException {
+    MolgenisPropertyList def = new MolgenisPropertyList(row.getDefinition());
+    Column column = null;
+    Type type = getType(def);
 
-  private static Type getType(EmxDefinitionList def) {
+    if (REF.equals(type)) {
+      try {
+        String refTable = def.getParameterList("ref").get(0);
+        String refColumn = def.getParameterList("ref").get(1);
+        column = table.addRef(columnName, refTable, refColumn);
+      } catch (Exception e) {
+        messages.add(
+            new MolgenisExceptionMessage(line, "Parsing of 'ref' failed. " + e.getMessage()));
+      }
+    } else if (REF_ARRAY.equals(type)) {
+      String refTable = def.getParameterList("ref_array").get(0);
+      String refColumn = def.getParameterList("ref_array").get(1);
+      column = table.addRefArray(columnName, refTable, refColumn);
+    } else {
+      column = table.addColumn(columnName, type);
+    }
+
+    // other properties
+    if (def.contains("nullable")) column.nullable(true);
+  }
+
+  private static Type getType(MolgenisPropertyList def) {
     Type type = null;
     for (String term : def.getTerms()) {
       try {

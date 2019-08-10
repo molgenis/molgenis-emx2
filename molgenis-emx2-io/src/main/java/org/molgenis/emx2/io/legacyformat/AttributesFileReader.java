@@ -1,9 +1,8 @@
 package org.molgenis.emx2.io.legacyformat;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.molgenis.*;
 import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.emx2.io.csv.RowReaderCsv;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -113,18 +112,8 @@ public class AttributesFileReader {
 
   public List<AttributesFileRow> readRowsFromCsv(Reader in) throws MolgenisException {
     try {
-      Iterable<CSVRecord> records =
-          CSVFormat.DEFAULT
-              .withHeader(AttributesType.class)
-              .withAllowMissingColumnNames()
-              .withFirstRecordAsHeader()
-              .withIgnoreHeaderCase()
-              .withIgnoreSurroundingSpaces()
-              .withTrim()
-              .withIgnoreEmptyLines(true)
-              .parse(in);
       List<AttributesFileRow> rows = new ArrayList<>();
-      for (CSVRecord record : records) {
+      for (Row record : RowReaderCsv.read(in)) {
         AttributesFileRow row = new AttributesFileRow();
         row.setEntity(get(record, ENTITY));
         row.setName(get(record, NAME));
@@ -152,10 +141,10 @@ public class AttributesFileReader {
     }
   }
 
-  private String get(CSVRecord record, Enum<?> term) {
+  private String get(Row row, Enum<?> term) {
     try {
-      String value = record.get(term);
-      if ("".equals(value.trim())) return null;
+      String value = row.getString(term.toString().toLowerCase());
+      if (value == null || "".equals(value.trim())) return null;
       return value;
     } catch (IllegalArgumentException exception) {
       return null;

@@ -38,9 +38,9 @@ public class TestLegacyReader {
       Schema schema2 =
           new AttributesFileReader().readModelFromCsv(new StringReader(writer.toString()));
 
-      // compare
+      // assertEquals
       try {
-        CompareTools.compare(schema, schema2);
+        CompareTools.assertEquals(schema, schema2);
       } catch (Exception e) {
         fail(e.getMessage());
       }

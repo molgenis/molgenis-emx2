@@ -7,17 +7,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EmxDefinitionList {
+public class MolgenisPropertyList {
   private static final Pattern pattern =
       Pattern.compile("([a-z]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
 
   private Map<String, String> termParameterMap = new LinkedHashMap<>();
 
-  public EmxDefinitionList() {
+  public MolgenisPropertyList() {
     // null constructor
   }
 
-  public EmxDefinitionList(String definitionString) {
+  public MolgenisPropertyList(String definitionString) {
     if (definitionString == null || "".equals(definitionString)) return;
     // else
     Matcher matcher = pattern.matcher(definitionString);
@@ -41,29 +41,29 @@ public class EmxDefinitionList {
     return Arrays.asList(termParameterMap.get(term).split(","));
   }
 
-  public EmxDefinitionList add(String name) {
+  public MolgenisPropertyList add(String name) {
     termParameterMap.put(name, null);
     return this;
   }
 
-  public EmxDefinitionList add(String name, String parameterValue) {
+  public MolgenisPropertyList add(String name, String parameterValue) {
     termParameterMap.put(name, parameterValue);
     return this;
   }
 
-  public EmxDefinitionList add(String name, Collection<String> parameterValues) {
+  public MolgenisPropertyList add(String name, Collection<String> parameterValues) {
     return this.add(name, join(parameterValues));
   }
 
-  public EmxDefinitionList add(Type type) {
+  public MolgenisPropertyList add(Type type) {
     return this.add(type.toString().toLowerCase());
   }
 
-  public EmxDefinitionList add(Type type, String parameterValue) {
+  public MolgenisPropertyList add(Type type, String parameterValue) {
     return this.add(type.toString().toLowerCase(), parameterValue);
   }
 
-  public EmxDefinitionList add(Type type, Collection<String> parameterValues) {
+  public MolgenisPropertyList add(Type type, Collection<String> parameterValues) {
     return this.add(type, join(parameterValues));
   }
 

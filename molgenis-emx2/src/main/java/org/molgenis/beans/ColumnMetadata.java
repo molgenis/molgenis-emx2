@@ -115,7 +115,8 @@ public class ColumnMetadata implements Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
-    if (Type.REF.equals(getType())) builder.append("ref(").append(refTable).append(")");
+    if (Type.REF.equals(getType()))
+      builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getType().toString().toLowerCase());
     if (isNullable()) builder.append(" nullable");
     return builder.toString();

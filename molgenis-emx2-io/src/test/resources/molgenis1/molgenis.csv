@@ -1,4 +1,4 @@
-table,column,definition
+table,column,properties
 subject,name
 sample,name,
-sample,subject,ref(subject.name)
+sample,subject,"ref(subject,name)"

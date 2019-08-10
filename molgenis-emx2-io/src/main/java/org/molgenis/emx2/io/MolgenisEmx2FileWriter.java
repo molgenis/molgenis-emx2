@@ -1,10 +1,11 @@
 package org.molgenis.emx2.io;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.molgenis.*;
-import org.molgenis.emx2.io.format.EmxDefinitionList;
+import org.molgenis.Column;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
+import org.molgenis.emx2.io.format.MolgenisPropertyList;
+import org.simpleflatmapper.csv.CsvWriter;
+import org.simpleflatmapper.util.CheckedConsumer;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -21,14 +22,12 @@ public class MolgenisEmx2FileWriter {
   }
 
   public static void writeCsv(Schema model, Writer writer) throws IOException, MolgenisException {
-    CSVPrinter csvPrinter =
-        new CSVPrinter(
-            writer, CSVFormat.DEFAULT.withHeader("table", "column", "definition", "description"));
-    for (MolgenisFileRow row : convertModelToMolgenisFileRows(model)) {
-      csvPrinter.printRecord(
-          row.getTable(), row.getColumn(), row.getDefinition(), row.getDescription());
-    }
-    csvPrinter.close();
+
+    List<MolgenisFileRow> rows = convertModelToMolgenisFileRows(model);
+
+    CsvWriter.CsvWriterDSL<MolgenisFileRow> writerDsl = CsvWriter.from(MolgenisFileRow.class);
+    CsvWriter<MolgenisFileRow> csvWriter = writerDsl.to(writer);
+    rows.forEach(CheckedConsumer.toConsumer(csvWriter::append));
   }
 
   public static List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
@@ -46,7 +45,7 @@ public class MolgenisEmx2FileWriter {
 
   private static void writeTableDefinitionRow(Table table, List<MolgenisFileRow> rows) {
     if (!table.getUniques().isEmpty()) {
-      EmxDefinitionList def = new EmxDefinitionList();
+      MolgenisPropertyList def = new MolgenisPropertyList();
       for (Unique u : table.getUniques()) {
         def.add("unique", u.getColumnNames());
       }
@@ -54,12 +53,11 @@ public class MolgenisEmx2FileWriter {
     }
   }
 
-  private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows)
-      throws MolgenisException {
+  private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows) {
 
     // ignore internal ID, is implied
     if (!MOLGENISID.equals(column.getName())) {
-      EmxDefinitionList def = new EmxDefinitionList();
+      MolgenisPropertyList def = new MolgenisPropertyList();
       if (!STRING.equals(column.getType())) def.add(column.getType().toString().toLowerCase());
       if (column.isNullable()) def.add("nillable");
       if (column.isReadonly()) def.add("readonly");
