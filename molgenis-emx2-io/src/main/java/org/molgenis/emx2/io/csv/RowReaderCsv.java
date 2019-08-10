@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.csv;
 
 import org.molgenis.emx2.io.csv.RowReaderFlatmapper;
 

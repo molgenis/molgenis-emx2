@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io;
 
-import org.javers.core.diff.Diff;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
@@ -10,10 +9,9 @@ import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
 import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 
 import java.io.*;
-import java.util.Collection;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.writeCsv;
+import static org.molgenis.emx2.io.MolgenisEmx2FileWriter.writeCsv;
 
 public class TestLegacyReader {
 

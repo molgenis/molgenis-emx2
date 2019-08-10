@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
 
-public class MolgenisMetadataFileWriter {
+public class MolgenisEmx2FileWriter {
 
-  private MolgenisMetadataFileWriter() {
+  private MolgenisEmx2FileWriter() {
     // to prevent instantiation of this static method class
   }
 
@@ -36,29 +36,40 @@ public class MolgenisMetadataFileWriter {
   public static List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
       throws MolgenisException {
     List<MolgenisFileRow> rows = new ArrayList<>();
-
     for (String tableName : model.getTableNames()) {
       Table table = model.getTable(tableName);
-      if (!table.getUniques().isEmpty()) {
-        rows.add(convertTableToRow(table));
-      }
+      writeTableDefinitionRow(table, rows);
       for (Column column : table.getColumns()) {
-        // ignore internal ID
-        if (!MOLGENISID.equals(column.getName())) {
-          rows.add(convertColumnToRow(table, column));
-        }
+        writeColumnDefinitionRow(column, rows);
       }
     }
     return rows;
   }
 
-  private static MolgenisFileRow convertColumnToRow(Table table, Column column)
-      throws MolgenisException {
-    return new MolgenisFileRow(
-        table.getName(), column.getName(), getDefinitionString(column), column.getDescription());
+  private static void writeTableDefinitionRow(Table table, List<MolgenisFileRow> rows) {
+    if (!table.getUniques().isEmpty()) {
+      List<EmxDefinitionTerm> def = new ArrayList<>();
+      for (Unique u : table.getUniques()) {
+        def.add(UNIQUE.setParameterList(u.getColumnNames()));
+      }
+      rows.add(new MolgenisFileRow(table.getName(), "", join(def, " ")));
+    }
   }
 
-  private static String getDefinitionString(Column col) throws MolgenisException {
+  private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows)
+      throws MolgenisException {
+    // ignore internal ID
+    if (!MOLGENISID.equals(column.getName())) {
+      rows.add(
+          new MolgenisFileRow(
+              column.getTable().getName(),
+              column.getName(),
+              getColumnDefinitionString(column),
+              column.getDescription()));
+    }
+  }
+
+  private static String getColumnDefinitionString(Column col) throws MolgenisException {
     List<EmxDefinitionTerm> def = new ArrayList<>();
 
     if (!Type.STRING.equals(col.getType())) {
@@ -101,14 +112,6 @@ public class MolgenisMetadataFileWriter {
     if (col.isUnique()) def.add(UNIQUE.setParameterValue(null));
 
     return join(def, " ");
-  }
-
-  private static MolgenisFileRow convertTableToRow(Table table) {
-    List<EmxDefinitionTerm> def = new ArrayList<>();
-    for (Unique u : table.getUniques()) {
-      def.add(UNIQUE.setParameterList(u.getColumnNames()));
-    }
-    return new MolgenisFileRow(table.getName(), "", join(def, " "));
   }
 
   private static String join(Collection collection, String delimiter) {

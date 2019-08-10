@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io;
 
 import org.molgenis.*;
+import org.molgenis.emx2.io.csv.RowReaderCsv;
 import org.molgenis.emx2.io.format.EmxDefinitionParser;
 import org.molgenis.emx2.io.format.EmxDefinitionTerm;
 import org.molgenis.emx2.io.format.MolgenisFileHeader;
@@ -16,9 +17,9 @@ import java.util.List;
 import static org.molgenis.Type.*;
 import static org.molgenis.emx2.io.format.EmxDefinitionTerm.UNIQUE;
 
-public class MolgenisMetadataFileReader {
+public class MolgenisEmx2FileReader {
 
-  protected MolgenisMetadataFileReader() {
+  protected MolgenisEmx2FileReader() {
     // hides constructor
   }
 
@@ -38,7 +39,7 @@ public class MolgenisMetadataFileReader {
     load(schema, rows);
   }
 
-  public static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
+  private static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
     loadTablesFirst(rows, schema);

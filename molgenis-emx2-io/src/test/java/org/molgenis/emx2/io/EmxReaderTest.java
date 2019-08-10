@@ -16,8 +16,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.convertModelToMolgenisFileRows;
-import static org.molgenis.emx2.io.MolgenisMetadataFileWriter.writeCsv;
+import static org.molgenis.emx2.io.MolgenisEmx2FileWriter.convertModelToMolgenisFileRows;
+import static org.molgenis.emx2.io.MolgenisEmx2FileWriter.writeCsv;
 
 public class EmxReaderTest {
 
@@ -26,7 +26,7 @@ public class EmxReaderTest {
     try {
       StopWatch.start("\nmodel read from test1.txt:");
       Schema model1 = new SchemaMetadata("model1");
-      MolgenisMetadataFileReader.load(model1, getFile("test1.txt"));
+      MolgenisEmx2FileReader.load(model1, getFile("test1.txt"));
       System.out.println(model1.toString());
 
       StopWatch.print("\nmodel converted back to lines:");
@@ -42,7 +42,7 @@ public class EmxReaderTest {
 
       StopWatch.print("\nroundtrip readBuffered model from this csv");
       Schema model2 = new SchemaMetadata("model1");
-      MolgenisMetadataFileReader.load(model2, new StringReader(csv));
+      MolgenisEmx2FileReader.load(model2, new StringReader(csv));
       // System.out.println(model1.print());
 
       // compare

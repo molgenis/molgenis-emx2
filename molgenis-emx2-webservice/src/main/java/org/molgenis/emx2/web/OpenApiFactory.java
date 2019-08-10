@@ -12,7 +12,6 @@ import org.molgenis.Column;
 import org.molgenis.MolgenisException;
 import org.molgenis.Table;
 
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -68,7 +67,13 @@ public class OpenApiFactory {
     tablePathWithMolgenisid.delete(deleteOperationFor(tableName));
 
     // add the paths to paths
-    String path = String.format("/data/%s/%s", table.getSchemaName(), tableName);
+    String path =
+        new StringBuilder()
+            .append("/data/")
+            .append(table.getSchemaName())
+            .append("/")
+            .append(tableName)
+            .toString();
     paths.addPathItem(path, tablePath);
     paths.addPathItem(path + "/{molgenisid}", tablePathWithMolgenisid);
   }
