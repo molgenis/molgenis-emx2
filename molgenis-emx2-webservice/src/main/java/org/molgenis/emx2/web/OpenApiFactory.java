@@ -18,6 +18,12 @@ import java.util.Map;
 import static org.molgenis.Row.MOLGENISID;
 
 public class OpenApiFactory {
+  static final Parameter molgenisid =
+      new PathParameter()
+          .name(MOLGENISID)
+          .in("path")
+          .required(true)
+          .schema(new StringSchema().format("uuid"));
 
   private OpenApiFactory() {
     // hide public constructor
@@ -42,77 +48,23 @@ public class OpenApiFactory {
       Table table = schema.getTable(tableNameUnencoded);
       String tableName = tableNameUnencoded;
 
-      PathItem tablePath = new PathItem();
-      PathItem pathWithMolgenisid = new PathItem();
-
-      Map<String, Schema> properties = new LinkedHashMap<>();
-      for (Column column : table.getColumns()) {
-        properties.put(column.getName(), columnSchema(column));
-      }
-
       // components
-      components.addSchemas(tableName, new Schema().type("object").properties(properties));
-      components.addResponses(
-          tableName,
-          new ApiResponse()
-              .content(
-                  new Content()
-                      .addMediaType(
-                          "application/json",
-                          new MediaType().schema(new Schema().$ref(tableName)))));
-
-      // input/output
-      Parameter molgenisid =
-          new PathParameter()
-              .name(MOLGENISID)
-              .in("path")
-              .required(true)
-              .schema(new StringSchema().format("uuid"));
-      RequestBody body =
-          new RequestBody()
-              .content(
-                  new Content()
-                      .addMediaType(
-                          "application/json",
-                          new MediaType().schema(new Schema().$ref(tableName))));
-      ApiResponses responses =
-          new ApiResponses()
-              .addApiResponse("200", new ApiResponse().$ref(tableName))
-              .addApiResponse("400", new ApiResponse().description("Bad request"));
+      components.addSchemas(tableName, rowSchemaComponentFor(table));
+      components.addResponses(tableName, apiResponseComponentFor(tableName));
 
       // operations
-      tablePath.post(
-          new Operation()
-              .addTagsItem(tableName)
-              .summary("Insert row into " + tableName)
-              .requestBody(body)
-              .responses(responses));
-      tablePath.put(
-          new Operation()
-              .addTagsItem(tableName)
-              .summary("Update row in " + tableName)
-              .requestBody(body)
-              .responses(responses));
+      PathItem tablePath = new PathItem();
+      PathItem tablePathWithMolgenisid = new PathItem();
 
-      pathWithMolgenisid.get(
-          new Operation()
-              .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
-              .addTagsItem(tableName)
-              .addParametersItem(molgenisid)
-              .responses(responses));
-      pathWithMolgenisid.delete(
-          new Operation()
-              .addTagsItem(tableName)
-              .summary("Delete one row from " + tableName)
-              .addParametersItem(molgenisid)
-              .responses(
-                  new ApiResponses()
-                      .addApiResponse("200", new ApiResponse().description("success"))));
+      tablePath.post(postOperationFor(tableName));
+      tablePath.put(putOperationFor(tableName));
+      tablePathWithMolgenisid.get(getOperationFor(tableName));
+      tablePathWithMolgenisid.delete(deleteOperationFor(tableName));
 
       // add the paths to paths
-      String prefix = "/data/" + table.getSchemaName() + "/" + tableName;
-      paths.addPathItem(prefix, tablePath);
-      paths.addPathItem(prefix + "/{molgenisid}", pathWithMolgenisid);
+      String path = "/data/" + table.getSchemaName() + "/" + tableName;
+      paths.addPathItem(path, tablePath);
+      paths.addPathItem(path + "/{molgenisid}", tablePathWithMolgenisid);
     }
 
     // assembly
@@ -122,7 +74,78 @@ public class OpenApiFactory {
     return api;
   }
 
-  private static Schema columnSchema(Column column) throws MolgenisException {
+  private static Schema rowSchemaComponentFor(Table table) throws MolgenisException {
+    Map<String, Schema> properties = new LinkedHashMap<>();
+    for (Column column : table.getColumns()) {
+      properties.put(column.getName(), createColumnSchema(column));
+    }
+    return new Schema().type("object").properties(properties);
+  }
+
+  private static Operation deleteOperationFor(String tableName) {
+    return new Operation()
+        .addTagsItem(tableName)
+        .summary("Delete one row from " + tableName)
+        .addParametersItem(molgenisid)
+        .responses(
+            new ApiResponses().addApiResponse("200", new ApiResponse().description("success")));
+  }
+
+  private static Operation getOperationFor(String tableName) {
+    ApiResponses responses = createApiResponse(tableName);
+
+    return new Operation()
+        .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
+        .addTagsItem(tableName)
+        .addParametersItem(molgenisid)
+        .responses(responses);
+  }
+
+  private static Operation putOperationFor(String tableName) {
+    RequestBody requestBody = createRequestBody(tableName);
+    ApiResponses responses = createApiResponse(tableName);
+
+    return new Operation()
+        .addTagsItem(tableName)
+        .summary("Update row in " + tableName)
+        .requestBody(requestBody)
+        .responses(responses);
+  }
+
+  public static Operation postOperationFor(String tableName) {
+    RequestBody requestBody = createRequestBody(tableName);
+    ApiResponses responses = createApiResponse(tableName);
+
+    return new Operation()
+        .addTagsItem(tableName)
+        .summary("Insert row into " + tableName)
+        .requestBody(requestBody)
+        .responses(responses);
+  }
+
+  public static ApiResponses createApiResponse(String tableName) {
+    return new ApiResponses()
+        .addApiResponse("200", new ApiResponse().$ref(tableName))
+        .addApiResponse("400", new ApiResponse().description("Bad request"));
+  }
+
+  public static RequestBody createRequestBody(String tableName) {
+    return new RequestBody()
+        .content(
+            new Content()
+                .addMediaType(
+                    "application/json", new MediaType().schema(new Schema().$ref(tableName))));
+  }
+
+  public static ApiResponse apiResponseComponentFor(String tableName) {
+    return new ApiResponse()
+        .content(
+            new Content()
+                .addMediaType(
+                    "application/json", new MediaType().schema(new Schema().$ref(tableName))));
+  }
+
+  private static Schema createColumnSchema(Column column) throws MolgenisException {
     switch (column.getType()) {
       case UUID:
         return new StringSchema().format("uuid");
@@ -159,15 +182,15 @@ public class OpenApiFactory {
       case REF:
         Table refTable = column.getTable().getSchema().getTable(column.getRefTable());
         Column refColumn = refTable.getColumn(column.getRefColumn());
-        return columnSchema(refColumn);
+        return createColumnSchema(refColumn);
       case REF_ARRAY:
       case MREF:
         refTable = column.getTable().getSchema().getTable(column.getRefTable());
         refColumn = refTable.getColumn(column.getRefColumn());
-        return new ArraySchema().items(columnSchema(refColumn));
+        return new ArraySchema().items(createColumnSchema(refColumn));
       default:
         throw new MolgenisException(
-            "columnSchema failed: Type " + column.getType() + " not supported ");
+            "createColumnSchema failed: Type " + column.getType() + " not supported ");
     }
   }
 }
