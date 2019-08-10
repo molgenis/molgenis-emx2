@@ -39,13 +39,9 @@ public class MolgenisEmx2FileReader {
 
   private static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
-    try {
-      loadTablesFirst(rows, schema);
-      loadColumns(rows, schema, messages);
-      loadTableProperties(schema, rows, messages);
-    } catch (MolgenisException e) {
-      throw e;
-    }
+    loadTablesFirst(rows, schema);
+    loadColumns(rows, schema, messages);
+    loadTableProperties(schema, rows, messages);
     if (!messages.isEmpty()) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
     }

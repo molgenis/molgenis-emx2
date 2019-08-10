@@ -10,6 +10,7 @@ import org.simpleflatmapper.util.CheckedConsumer;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.molgenis.Row.MOLGENISID;
@@ -50,7 +51,7 @@ public class MolgenisEmx2FileWriter {
       def.add("unique", u.getColumnNames());
     }
     if (table.getPrimaryKey().length > 0
-        && !table.getPrimaryKey().equals(new String[] {MOLGENISID}))
+        && !Arrays.equals(table.getPrimaryKey(), new String[] {MOLGENISID}))
       def.add("pkey", table.getPrimaryKey());
 
     if (!def.getTerms().isEmpty())
