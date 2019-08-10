@@ -39,7 +39,10 @@ public class MolgenisPropertyList {
 
   public List<String> getParameterList(String term) {
     if (termParameterMap.get(term) == null) return new ArrayList<>();
-    return Arrays.asList(termParameterMap.get(term).split(","));
+    String[] values = termParameterMap.get(term).split(",");
+    List<String> result = new ArrayList<>();
+    for (String value : values) result.add(value.trim());
+    return result;
   }
 
   public MolgenisPropertyList add(String name) {

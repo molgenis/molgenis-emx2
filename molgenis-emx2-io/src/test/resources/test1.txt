@@ -27,15 +27,16 @@ typeTest, defaultBool, bool default(true)
 typeTest, defaultText, text default(hello world)
 typeTest, defaultDate, date default(01-01-2018)
 typeTest, defaultDateTime, datetime default(01-01-2018 13:03:03)
-table A, ,"unique(column A,column B)"
-table A, column A,"nillable ref(table B,column B)""
-table A, column B,
+table A, ,"unique(column AA,column AB)"
+table A, column AA,"nillable ref(table B,column B)"
+table A, column AB,
+table B, column B,
 person,Display name,unique
 person,First name,
 person,Last name,
 person, birthDate, nillable date
 person, weight, nillable int
-person, birthPlace, ref(cities.name)
+person, birthPlace, "ref(cities,name)"
 cities, name, unique
 person,,"unique(First name,Last name)"
 

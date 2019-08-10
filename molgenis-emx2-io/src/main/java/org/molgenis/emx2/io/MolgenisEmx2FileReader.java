@@ -39,9 +39,13 @@ public class MolgenisEmx2FileReader {
 
   private static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
-    loadTablesFirst(rows, schema);
-    loadColumns(rows, schema, messages);
-    loadTableProperties(schema, rows, messages);
+    try {
+      loadTablesFirst(rows, schema);
+      loadColumns(rows, schema, messages);
+      loadTableProperties(schema, rows, messages);
+    } catch (MolgenisException e) {
+      throw e;
+    }
     if (!messages.isEmpty()) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
     }
@@ -140,6 +144,7 @@ public class MolgenisEmx2FileReader {
       } catch (Exception e) {
         messages.add(
             new MolgenisExceptionMessage(line, "Parsing of 'ref' failed. " + e.getMessage()));
+        throw e;
       }
     } else if (REF_ARRAY.equals(type)) {
       String refTable = def.getParameterList("ref_array").get(0);

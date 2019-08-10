@@ -44,6 +44,7 @@ public class EmxReaderTest {
       StopWatch.print("Roundtrip test success: comparison returned 'equal'");
 
     } catch (MolgenisException e) {
+      System.out.println(e.getMessages());
       throw new RuntimeException(e);
     }
   }

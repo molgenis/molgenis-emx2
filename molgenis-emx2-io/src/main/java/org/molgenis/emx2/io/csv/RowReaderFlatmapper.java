@@ -19,7 +19,7 @@ public class RowReaderFlatmapper {
 
   public static Iterable<org.molgenis.Row> read(Reader in) throws IOException {
     // don't used buffered, it is slower
-    Iterator<Map> iterator = CsvParser.mapTo(Map.class).iterator(in);
+    Iterator<Map> iterator = CsvParser.dsl().trimSpaces().mapTo(Map.class).iterator(in);
 
     return () ->
         new Iterator<Row>() {
