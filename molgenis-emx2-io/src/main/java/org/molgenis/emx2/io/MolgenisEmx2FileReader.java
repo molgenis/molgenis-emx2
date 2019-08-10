@@ -43,8 +43,8 @@ public class MolgenisEmx2FileReader {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
     loadTablesFirst(rows, schema);
-    convertRowsToColumns(rows, schema, messages);
-    convertRowsToTables(rows, schema, messages);
+    loadColumns(rows, schema, messages);
+    loadTableDefinition(rows, schema, messages);
     if (!messages.isEmpty()) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
     }
@@ -68,7 +68,7 @@ public class MolgenisEmx2FileReader {
     }
   }
 
-  private static void convertRowsToTables(
+  private static void loadTableDefinition(
       List<MolgenisFileRow> rows, Schema model, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
@@ -111,7 +111,7 @@ public class MolgenisEmx2FileReader {
     }
   }
 
-  private static void convertRowsToColumns(
+  private static void loadColumns(
       List<MolgenisFileRow> rows, Schema model, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
