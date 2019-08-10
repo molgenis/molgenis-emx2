@@ -2,8 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.MolgenisExceptionMessage;
-import org.molgenis.emx2.io.format.EmxDefinitionParser;
-import org.molgenis.emx2.io.format.EmxDefinitionTerm;
+import org.molgenis.emx2.io.format.EmxDefinitionList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +25,16 @@ public class TestDefinitionParser {
         };
 
     int line = 1;
-    for (String t : tests) {
-      System.out.println("testing definition string: '" + t + "'");
+    for (String testString : tests) {
+      System.out.println("testing definition string: '" + testString + "'");
       List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
-      List<EmxDefinitionTerm> tags = new EmxDefinitionParser().parse(line++, messages, t);
+      EmxDefinitionList def = new EmxDefinitionList(testString);
       // both have a ref
-      assertTrue(tags.contains(EmxDefinitionTerm.REF));
+      assertTrue(def.contains("ref"));
 
-      for (EmxDefinitionTerm tag : tags) {
-        System.out.println(tag);
+      for (String tag : def.getTerms()) {
+        System.out.println(tag + " with parameter" + def.getParamterValue(tag));
       }
       System.out.println("messages:");
       for (MolgenisExceptionMessage message : messages) {

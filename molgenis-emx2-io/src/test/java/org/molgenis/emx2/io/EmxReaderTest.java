@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 import org.molgenis.utils.StopWatch;
 
@@ -24,34 +25,28 @@ public class EmxReaderTest {
   @Test
   public void test1() throws IOException, MolgenisException {
     try {
-      StopWatch.start("\nmodel read from test1.txt:");
+      StopWatch.start("\nread model from test1.txt:\n");
       Schema model1 = new SchemaMetadata("model1");
       MolgenisEmx2FileReader.load(model1, getFile("test1.txt"));
       System.out.println(model1.toString());
 
-      StopWatch.print("\nmodel converted back to lines:");
-      for (MolgenisFileRow row : convertModelToMolgenisFileRows(model1)) {
-        // System.out.println(row);
-      }
-
-      StopWatch.print("\nmodel printed back to csv");
+      StopWatch.print("\nwrite model back to csv:\n");
       StringWriter writer = new StringWriter();
       writeCsv(model1, writer);
       String csv = writer.toString();
       System.out.println(csv);
 
-      StopWatch.print("\nroundtrip readBuffered model from this csv");
+      StopWatch.print("\nroundtrip read model from this csv\n");
       Schema model2 = new SchemaMetadata("model1");
       MolgenisEmx2FileReader.load(model2, new StringReader(csv));
-      // System.out.println(model1.print());
+      System.out.println(model1.toString());
 
       // compare
-      Javers javers = JaversBuilder.javers().build();
-      Diff diff = javers.compare(model1, model2);
-      if (diff.hasChanges()) {
-        fail("Roundtrip test failed: changes, " + diff.toString());
-      }
-      StopWatch.print("comparison returned 'equal'");
+      StopWatch.print("\ncompare\n");
+
+      CompareTools.compare(model1, model2);
+
+      StopWatch.print("Roundtrip test success: comparison returned 'equal'");
 
     } catch (MolgenisException e) {
       throw new RuntimeException(e);

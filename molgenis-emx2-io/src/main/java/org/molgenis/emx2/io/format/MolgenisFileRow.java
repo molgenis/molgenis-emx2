@@ -7,14 +7,14 @@ public class MolgenisFileRow {
   private String description;
 
   public MolgenisFileRow(String table, String column, String definition) {
-    this.table = table;
-    this.column = column;
-    this.definition = definition;
+    this.table = table == null ? "" : table.trim();
+    this.column = column == null ? "" : column.trim();
+    this.definition = definition == null ? "" : definition.trim();
   }
 
   public MolgenisFileRow(String table, String column, String definition, String description) {
     this(table, column, definition);
-    this.description = description;
+    this.description = description == null ? "" : description.trim();
   }
 
   public String getTable() {

@@ -3,18 +3,16 @@ package org.molgenis.emx2.io;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.molgenis.*;
-import org.molgenis.emx2.io.format.EmxDefinitionTerm;
+import org.molgenis.emx2.io.format.EmxDefinitionList;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.emx2.io.format.EmxDefinitionTerm.*;
+import static org.molgenis.Type.STRING;
 
 public class MolgenisEmx2FileWriter {
 
@@ -48,74 +46,32 @@ public class MolgenisEmx2FileWriter {
 
   private static void writeTableDefinitionRow(Table table, List<MolgenisFileRow> rows) {
     if (!table.getUniques().isEmpty()) {
-      List<EmxDefinitionTerm> def = new ArrayList<>();
+      EmxDefinitionList def = new EmxDefinitionList();
       for (Unique u : table.getUniques()) {
-        def.add(UNIQUE.setParameterList(u.getColumnNames()));
+        def.add("unique", u.getColumnNames());
       }
-      rows.add(new MolgenisFileRow(table.getName(), "", join(def, " ")));
+      rows.add(new MolgenisFileRow(table.getName(), "", def.toString()));
     }
   }
 
   private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows)
       throws MolgenisException {
-    // ignore internal ID
+
+    // ignore internal ID, is implied
     if (!MOLGENISID.equals(column.getName())) {
+      EmxDefinitionList def = new EmxDefinitionList();
+      if (!STRING.equals(column.getType())) def.add(column.getType().toString().toLowerCase());
+      if (column.isNullable()) def.add("nillable");
+      if (column.isReadonly()) def.add("readonly");
+      if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
+      if (column.isUnique()) def.add("unique");
+
       rows.add(
           new MolgenisFileRow(
               column.getTable().getName(),
               column.getName(),
-              getColumnDefinitionString(column),
+              def.toString(),
               column.getDescription()));
     }
-  }
-
-  private static String getColumnDefinitionString(Column col) throws MolgenisException {
-    List<EmxDefinitionTerm> def = new ArrayList<>();
-
-    if (!Type.STRING.equals(col.getType())) {
-      EmxDefinitionTerm d = EmxDefinitionTerm.valueOf(col.getType());
-      switch (d) {
-        case STRING:
-          break;
-        case INT:
-          break;
-        case BOOL:
-          break;
-        case DECIMAL:
-          break;
-        case TEXT:
-          break;
-        case DATE:
-          break;
-        case DATETIME:
-          break;
-        case NILLABLE:
-          break;
-        case UNIQUE:
-          break;
-        case UUID:
-          break;
-        case REF:
-          d.setParameterValue(col.getRefTableName());
-          break;
-        case MREF:
-          break;
-        default:
-          throw new MolgenisException("unknown type " + d + " this is a coding error!");
-      }
-
-      def.add(d);
-    }
-    if (col.isNullable()) def.add(NILLABLE);
-    if (col.isReadonly()) def.add(READONLY);
-    if (col.getDefaultValue() != null) def.add(DEFAULT.setParameterValue(col.getDefaultValue()));
-    if (col.isUnique()) def.add(UNIQUE.setParameterValue(null));
-
-    return join(def, " ");
-  }
-
-  private static String join(Collection collection, String delimiter) {
-    return (String)
-        collection.stream().map(Object::toString).collect(Collectors.joining(delimiter));
   }
 }

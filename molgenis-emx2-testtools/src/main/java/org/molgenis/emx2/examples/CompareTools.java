@@ -28,9 +28,14 @@ public class CompareTools {
     Collection<String> tableNames1 = schema1.getTableNames();
     Collection<String> tableNames2 = schema2.getTableNames();
 
-    if (!tableNames1.equals(tableNames2))
-      throw new MolgenisException(
-          "Schema's have different tables: " + tableNames1 + " versus " + tableNames2);
+    for (Object tableName : tableNames1)
+      if (!tableNames2.contains(tableName))
+        throw new MolgenisException(
+            "Schema's have different tables: schema2 doesn't contain '" + tableName + "'");
+    for (Object tableName : tableNames2)
+      if (!tableNames1.contains(tableName))
+        throw new MolgenisException(
+            "Schema's have different tables: schema1 doesn't contain '" + tableName + "'");
 
     for (String tableName : tableNames1) {
       Diff diff = javers.compare(schema1.getTable(tableName), schema2.getTable(tableName));
