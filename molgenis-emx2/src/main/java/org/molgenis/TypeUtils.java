@@ -14,13 +14,9 @@ public class TypeUtils {
   }
 
   public static UUID toUuid(Object v) {
-    try {
-      if (v == null) return null;
-      if (v instanceof String) return UUID.fromString((String) v);
-      return (UUID) v;
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Value cannot be converted to UUID: " + v);
-    }
+    if (v == null) return null;
+    if (v instanceof String) return UUID.fromString((String) v);
+    return (UUID) v;
   }
 
   public static UUID[] toUuidArray(Object v) {
@@ -47,12 +43,8 @@ public class TypeUtils {
   }
 
   public static Integer toInt(Object v) {
-    try {
-      if (v instanceof String) return Integer.parseInt((String) v);
-      return (Integer) v;
-    } catch (Exception e) {
-      throw new UnsupportedOperationException("Value cannot be converted to Integer: " + v);
-    }
+    if (v instanceof String) return Integer.parseInt((String) v);
+    return (Integer) v;
   }
 
   public static Integer[] toIntArray(Object v) {
@@ -64,15 +56,11 @@ public class TypeUtils {
   }
 
   public static Boolean toBool(Object v) {
-    try {
-      if (v instanceof String) {
-        if ("true".equalsIgnoreCase((String) v)) return true;
-        if ("false".equalsIgnoreCase((String) v)) return false;
-      }
-      return (Boolean) v;
-    } catch (Exception e) {
-      throw new UnsupportedOperationException("Value cannot be converted to Boolean[]: " + v);
+    if (v instanceof String) {
+      if ("true".equalsIgnoreCase((String) v)) return true;
+      if ("false".equalsIgnoreCase((String) v)) return false;
     }
+    return (Boolean) v;
   }
 
   public static Boolean[] toBoolArray(Object v) {
@@ -84,12 +72,8 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    try {
-      if (v instanceof String) return Double.parseDouble((String) v);
-      return (Double) v;
-    } catch (Exception e) {
-      throw new UnsupportedOperationException("Value cannot be converted to Double: " + v);
-    }
+    if (v instanceof String) return Double.parseDouble((String) v);
+    return (Double) v;
   }
 
   public static Double[] toDecimalArray(Object v) {
@@ -101,16 +85,12 @@ public class TypeUtils {
   }
 
   public static LocalDate toDate(Object v) {
-    try {
-      if (v == null) return null;
-      else if (v instanceof LocalDate) return (LocalDate) v;
-      else if (v instanceof OffsetDateTime) {
-        return ((OffsetDateTime) v).toLocalDate();
-      } else {
-        return LocalDate.parse(v.toString());
-      }
-    } catch (Exception e) {
-      throw new UnsupportedOperationException("Value cannot be converted to LocalDate: " + v);
+    if (v == null) return null;
+    else if (v instanceof LocalDate) return (LocalDate) v;
+    else if (v instanceof OffsetDateTime) {
+      return ((OffsetDateTime) v).toLocalDate();
+    } else {
+      return LocalDate.parse(v.toString());
     }
   }
 
