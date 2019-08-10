@@ -42,4 +42,25 @@ public class ProductComponentPartsExample {
     productTable.addUnique(NAME);
     productTable.addRefArray(COMPONENTS, COMPONENT, NAME);
   }
+
+  public static void populate(Schema schema) throws MolgenisException {
+
+    Table partTable = schema.getTable(PART);
+    Row part1 = new Row().setString(NAME, FORMS).setInt(WEIGHT, 100);
+    Row part2 = new Row().setString(NAME, LOGIN).setInt(WEIGHT, 50);
+    partTable.insert(part1);
+    partTable.insert(part2);
+
+    Table componentTable = schema.getTable(COMPONENT);
+    Row component1 = new Row().setString(NAME, EXPLORER).setRefArray(PARTS, FORMS, LOGIN);
+    Row component2 = new Row().setString(NAME, NAVIGATOR).setRefArray(PARTS, LOGIN);
+    componentTable.insert(component1);
+    componentTable.insert(component2);
+
+    Table productTable = schema.getTable(PRODUCT);
+    Row product1 =
+        new Row().setString(NAME, "molgenis").setRefArray(COMPONENTS, EXPLORER, NAVIGATOR);
+
+    productTable.insert(product1);
+  }
 }

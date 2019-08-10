@@ -98,6 +98,7 @@ public class TestQueryWithRefArrays {
     StopWatch.start("DependencyOrderOutsideTransactionFails");
 
     ProductComponentPartsExample.create(schema);
+    ProductComponentPartsExample.populate(schema);
 
     StopWatch.print("tables created");
 
