@@ -13,7 +13,7 @@ public class CompositePrimaryKeyExample {
     // hide constructor
   }
 
-  public static void createCompositePrimaryExample(Schema schema) throws MolgenisException {
+  public static void createCompositePrimaryKeyExample(Schema schema) throws MolgenisException {
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 
     for (Type type : types) {

@@ -44,22 +44,40 @@ public class MolgenisEmx2FileWriter {
   }
 
   private static void writeTableDefinitionRow(Table table, List<MolgenisFileRow> rows) {
-    if (!table.getUniques().isEmpty()) {
-      MolgenisPropertyList def = new MolgenisPropertyList();
-      for (Unique u : table.getUniques()) {
-        def.add("unique", u.getColumnNames());
-      }
-      rows.add(new MolgenisFileRow(table.getName(), "", def.toString()));
+
+    MolgenisPropertyList def = new MolgenisPropertyList();
+    for (Unique u : table.getUniques()) {
+      def.add("unique", u.getColumnNames());
     }
+    if (table.getPrimaryKey().length > 0
+        && !table.getPrimaryKey().equals(new String[] {MOLGENISID}))
+      def.add("pkey", table.getPrimaryKey());
+
+    if (!def.getTerms().isEmpty())
+      rows.add(new MolgenisFileRow(table.getName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows) {
+  private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows)
+      throws MolgenisException {
 
     // ignore internal ID, is implied
     if (!MOLGENISID.equals(column.getName())) {
       MolgenisPropertyList def = new MolgenisPropertyList();
-      if (!STRING.equals(column.getType())) def.add(column.getType().toString().toLowerCase());
-      if (column.isNullable()) def.add("nillable");
+      switch (column.getType()) {
+        case STRING:
+          break;
+        case REF:
+        case REF_ARRAY:
+          def.add(
+              column.getType().toString().toLowerCase(),
+              column.getRefTableName(),
+              column.getRefColumnName());
+
+          break;
+        default:
+          def.add(column.getType().toString().toLowerCase());
+      }
+      if (column.isNullable()) def.add("nullable");
       if (column.isReadonly()) def.add("readonly");
       if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
       if (column.isUnique()) def.add("unique");

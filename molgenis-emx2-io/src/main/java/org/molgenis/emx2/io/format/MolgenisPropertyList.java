@@ -6,10 +6,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MolgenisPropertyList {
   private static final Pattern pattern =
-      Pattern.compile("([a-z]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
+      Pattern.compile("([a-zA-Z_]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
 
   private Map<String, String> termParameterMap = new LinkedHashMap<>();
 
@@ -51,6 +52,10 @@ public class MolgenisPropertyList {
     return this;
   }
 
+  public MolgenisPropertyList add(String name, String... parameterValues) {
+    return this.add(name, join(parameterValues));
+  }
+
   public MolgenisPropertyList add(String name, Collection<String> parameterValues) {
     return this.add(name, join(parameterValues));
   }
@@ -67,8 +72,12 @@ public class MolgenisPropertyList {
     return this.add(type, join(parameterValues));
   }
 
-  private static String join(Collection collection) {
-    return (String) collection.stream().map(Object::toString).collect(Collectors.joining(","));
+  private static String join(Collection<String> parameterValues) {
+    return join(parameterValues.toArray(new String[parameterValues.size()]));
+  }
+
+  private static String join(String[] parameterValues) {
+    return Stream.of(parameterValues).map(Object::toString).collect(Collectors.joining(","));
   }
 
   public boolean contains(String term) {
@@ -85,7 +94,8 @@ public class MolgenisPropertyList {
     return sb.toString().trim();
   }
 
-  public void remove(String term) {
-    termParameterMap.remove(term);
+  public String[] getParameterArray(String term) {
+    List<String> parameterList = getParameterList(term);
+    return parameterList.toArray(new String[parameterList.size()]);
   }
 }

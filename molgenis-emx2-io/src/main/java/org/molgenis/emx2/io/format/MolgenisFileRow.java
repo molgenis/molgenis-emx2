@@ -3,17 +3,17 @@ package org.molgenis.emx2.io.format;
 public class MolgenisFileRow {
   private String table;
   private String column;
-  private String definition;
+  private String properties;
   private String description;
 
-  public MolgenisFileRow(String table, String column, String definition) {
+  public MolgenisFileRow(String table, String column, String properties) {
     this.table = table == null ? "" : table.trim();
     this.column = column == null ? "" : column.trim();
-    this.definition = definition == null ? "" : definition.trim();
+    this.properties = properties == null ? "" : properties.trim();
   }
 
-  public MolgenisFileRow(String table, String column, String definition, String description) {
-    this(table, column, definition);
+  public MolgenisFileRow(String table, String column, String properties, String description) {
+    this(table, column, properties);
     this.description = description == null ? "" : description.trim();
   }
 
@@ -25,8 +25,8 @@ public class MolgenisFileRow {
     return column;
   }
 
-  public String getDefinition() {
-    return definition;
+  public String getProperties() {
+    return properties;
   }
 
   public String getDescription() {
@@ -34,6 +34,6 @@ public class MolgenisFileRow {
   }
 
   public String toString() {
-    return String.format("{table='%s', column='%s', definitions='%s'}", table, column, definition);
+    return String.format("{table='%s', column='%s', definitions='%s'}", table, column, properties);
   }
 }

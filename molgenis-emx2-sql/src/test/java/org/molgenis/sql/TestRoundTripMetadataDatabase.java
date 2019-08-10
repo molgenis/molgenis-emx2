@@ -80,7 +80,7 @@ public class TestRoundTripMetadataDatabase {
   @Test
   public void testCompsitePrimaryKeys() throws MolgenisException {
     Schema schema = database.createSchema(SCHEMA_NAME + "6");
-    CompositePrimaryKeyExample.createCompositePrimaryExample(schema);
+    CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema);
     try {
       reloadAndCompare(database, schema);
     } catch (Exception e) {

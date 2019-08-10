@@ -1,4 +1,4 @@
-table, column, definition
+table, column, properties
 typeTest, someString,
 typeTest, someInt, int
 typeTest, someDecimal, decimal

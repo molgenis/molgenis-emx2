@@ -80,13 +80,17 @@ public class MolgenisEmx2FileReader {
       int line, MolgenisFileRow row, Table table, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
 
-    MolgenisPropertyList def = new MolgenisPropertyList(row.getDefinition());
+    MolgenisPropertyList def = new MolgenisPropertyList(row.getProperties());
     for (String term : def.getTerms()) {
-      if ("unique".equals(term)) {
-        List<String> uniques = def.getParameterList(term);
-        table.addUnique(uniques.toArray(new String[uniques.size()]));
-      } else {
-        messages.add(new MolgenisExceptionMessage(line, "term " + term + " not supported"));
+      switch (term) {
+        case "unique":
+          table.addUnique(def.getParameterArray(term));
+          break;
+        case "pkey":
+          table.setPrimaryKey(def.getParameterArray(term));
+          break;
+        default:
+          messages.add(new MolgenisExceptionMessage(line, "term " + term + " not supported"));
       }
     }
   }
@@ -125,15 +129,14 @@ public class MolgenisEmx2FileReader {
       int line,
       List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
-    MolgenisPropertyList def = new MolgenisPropertyList(row.getDefinition());
-    Column column = null;
+    MolgenisPropertyList def = new MolgenisPropertyList(row.getProperties());
     Type type = getType(def);
 
     if (REF.equals(type)) {
       try {
         String refTable = def.getParameterList("ref").get(0);
         String refColumn = def.getParameterList("ref").get(1);
-        column = table.addRef(columnName, refTable, refColumn);
+        table.addRef(columnName, refTable, refColumn);
       } catch (Exception e) {
         messages.add(
             new MolgenisExceptionMessage(line, "Parsing of 'ref' failed. " + e.getMessage()));
@@ -141,12 +144,13 @@ public class MolgenisEmx2FileReader {
     } else if (REF_ARRAY.equals(type)) {
       String refTable = def.getParameterList("ref_array").get(0);
       String refColumn = def.getParameterList("ref_array").get(1);
-      column = table.addRefArray(columnName, refTable, refColumn);
+      table.addRefArray(columnName, refTable, refColumn);
     } else {
-      column = table.addColumn(columnName, type);
+      table.addColumn(columnName, type);
     }
 
     // other properties
+    Column column = table.getColumn(columnName);
     if (def.contains("nullable")) column.nullable(true);
   }
 
