@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class RowStoreForCsvFilesDirectory implements RowStore {
+  static final String CSV_EXTENSION = ".csv";
+
   private final Path directoryPath;
 
   public RowStoreForCsvFilesDirectory(Path directoryPath) throws MolgenisException {

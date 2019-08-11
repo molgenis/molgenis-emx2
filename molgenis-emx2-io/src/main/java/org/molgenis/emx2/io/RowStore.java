@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface RowStore {
 
-  static final String CSV_EXTENSION = ".csv";
-
   void write(String name, List<Row> rows) throws IOException;
 
   List<Row> read(String name) throws IOException;

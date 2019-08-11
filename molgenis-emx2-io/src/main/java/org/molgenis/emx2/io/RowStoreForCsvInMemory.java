@@ -22,7 +22,8 @@ public class RowStoreForCsvInMemory implements RowStore {
     Writer bufferedWriter = new BufferedWriter(writer);
     String existing = "";
     if (store.containsKey(name)) existing = store.get(name);
-    CsvRowWriter.writeCsv(rows, writer);
+    CsvRowWriter.writeCsv(rows, bufferedWriter);
+    bufferedWriter.close();
     store.put(name, existing + writer.toString());
   }
 
