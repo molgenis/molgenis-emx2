@@ -1,10 +1,17 @@
 package org.molgenis;
 
+import com.google.gson.JsonArray;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TypeUtils {
@@ -30,6 +37,7 @@ public class TypeUtils {
 
   public static String[] toStringArray(Object v) {
     if (v == null) return new String[0];
+    if (v instanceof String) v = splitCsvString((String) v);
     if (v instanceof String[]) return (String[]) v;
     else if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toString).toArray(String[]::new);
@@ -39,6 +47,26 @@ public class TypeUtils {
   public static String toString(Object v) {
     if (v == null) return null;
     if (v instanceof String) return (String) v;
+    if (v instanceof Object[])
+      return Stream.of((Object[]) v)
+          .map(
+              s ->
+                  s == null
+                      ? ""
+                      : s.toString().contains(",") ? "\"" + s.toString() + "\"" : s.toString())
+          .collect(Collectors.joining(","));
+    if (v instanceof Collection)
+      return Stream.of((Collection) v)
+          .map(
+              s ->
+                  s == null
+                      ? ""
+                      : s.toString().contains(",") ? "\"" + s.toString() + "\"" : s.toString())
+          .collect(Collectors.joining(","));
+    if (v instanceof Collection)
+      return Stream.of((Collection) v)
+          .map(s -> s == null ? "\"\"" : "\"" + s.toString() + "\"")
+          .collect(Collectors.joining(","));
     return v.toString();
   }
 
@@ -50,7 +78,9 @@ public class TypeUtils {
   public static Integer[] toIntArray(Object v) {
     if (v == null) return new Integer[0];
     if (v instanceof Integer[]) return (Integer[]) v;
-    else if (v instanceof Object[])
+    if (v instanceof String) v = splitCsvString((String) v);
+
+    if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toInt).toArray(Integer[]::new);
     return new Integer[] {toInt(v)};
   }
@@ -66,7 +96,8 @@ public class TypeUtils {
   public static Boolean[] toBoolArray(Object v) {
     if (v == null) return new Boolean[0];
     if (v instanceof Boolean[]) return (Boolean[]) v;
-    else if (v instanceof Object[])
+    if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toBool).toArray(Boolean[]::new);
     return new Boolean[] {toBool(v)};
   }
@@ -79,26 +110,25 @@ public class TypeUtils {
   public static Double[] toDecimalArray(Object v) {
     if (v == null) return new Double[0];
     if (v instanceof Double[]) return (Double[]) v;
-    else if (v instanceof Object[])
+    if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toDecimal).toArray(Double[]::new);
     return new Double[] {toDecimal(v)};
   }
 
   public static LocalDate toDate(Object v) {
     if (v == null) return null;
-    else if (v instanceof LocalDate) return (LocalDate) v;
-    else if (v instanceof OffsetDateTime) {
-      return ((OffsetDateTime) v).toLocalDate();
-    } else {
-      return LocalDate.parse(v.toString());
-    }
+    if (v instanceof LocalDate) return (LocalDate) v;
+    if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDate();
+    return LocalDate.parse(v.toString());
   }
 
   public static LocalDate[] toDateArrray(Object v) {
 
     if (v == null) return new LocalDate[0];
-    else if (v instanceof LocalDate[]) return (LocalDate[]) v;
-    else if (v instanceof Object[])
+    if (v instanceof LocalDate[]) return (LocalDate[]) v;
+    if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toDate).toArray(LocalDate[]::new);
     return new LocalDate[] {toDate(v)};
   }
@@ -114,6 +144,7 @@ public class TypeUtils {
   public static LocalDateTime[] toDateTimeArray(Object v) {
     if (v == null) return new LocalDateTime[0];
     if (v instanceof LocalDateTime[]) return (LocalDateTime[]) v;
+    if (v instanceof String) v = splitCsvString((String) v);
     if (v instanceof Object[]) {
       return Stream.of((Object[]) v).map(TypeUtils::toDateTime).toArray(LocalDateTime[]::new);
     }
@@ -156,5 +187,29 @@ public class TypeUtils {
       default:
         throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
     }
+  }
+
+  private static String[] splitCsvString(String value) {
+    // thanks stackoverflow
+    ArrayList<String> result = new ArrayList<>();
+    boolean notInsideComma = true;
+    int start = 0;
+    for (int i = 0; i < value.length() - 1; i++) {
+      if (value.charAt(i) == ',' && notInsideComma) {
+        result.add(trimQuotes(value.substring(start, i)));
+        start = i + 1;
+      } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
+    }
+    result.add(trimQuotes(value.substring(start)));
+    return result.toArray(new String[result.size()]);
+  }
+
+  private static String trimQuotes(String value) {
+    if (value == null || !value.contains("\"")) return value;
+    value = value.trim();
+    if (value.startsWith("\"") && value.endsWith("\"")) {
+      return value.substring(1, value.length() - 1);
+    }
+    return value;
   }
 }

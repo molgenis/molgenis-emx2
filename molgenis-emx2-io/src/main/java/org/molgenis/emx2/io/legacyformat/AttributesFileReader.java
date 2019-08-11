@@ -2,7 +2,7 @@ package org.molgenis.emx2.io.legacyformat;
 
 import org.molgenis.*;
 import org.molgenis.beans.SchemaMetadata;
-import org.molgenis.emx2.io.csv.RowReaderCsv;
+import org.molgenis.emx2.io.csv.CsvRowReader;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public class AttributesFileReader {
   public List<AttributesFileRow> readRowsFromCsv(Reader in) throws MolgenisException {
     try {
       List<AttributesFileRow> rows = new ArrayList<>();
-      for (Row record : RowReaderCsv.read(in)) {
+      for (Row record : CsvRowReader.read(in)) {
         AttributesFileRow row = new AttributesFileRow();
         row.setEntity(get(record, ENTITY));
         row.setName(get(record, NAME));

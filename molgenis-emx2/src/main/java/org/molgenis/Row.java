@@ -33,6 +33,10 @@ public class Row implements Identifiable {
     return this;
   }
 
+  public Row setRef(String molgenisid, Object id) {
+    return this.set(molgenisid, id);
+  }
+
   public UUID getUuid(String name) {
     return TypeUtils.toUuid(values.get(name));
   }
@@ -125,12 +129,7 @@ public class Row implements Identifiable {
     return this;
   }
 
-  public Row setRef(String name, Row value) {
-    this.values.put(name, value.getMolgenisid());
-    return this;
-  }
-
-  public Row setRef(String name, UUID value) {
+  public Row setIntArray(String name, Integer[] value) {
     this.values.put(name, value);
     return this;
   }
@@ -140,12 +139,27 @@ public class Row implements Identifiable {
     return this;
   }
 
+  public Row setDecimalArray(String name, Double[] value) {
+    this.values.put(name, value);
+    return this;
+  }
+
   public Row setBool(String columnId, Boolean value) {
     this.values.put(columnId, value);
     return this;
   }
 
+  public Row setBoolArray(String name, Boolean[] value) {
+    this.values.put(name, value);
+    return this;
+  }
+
   public Row setDate(String columnId, LocalDate value) {
+    this.values.put(columnId, value);
+    return this;
+  }
+
+  public Row setDateArray(String columnId, LocalDate[] value) {
     this.values.put(columnId, value);
     return this;
   }
@@ -155,12 +169,27 @@ public class Row implements Identifiable {
     return this;
   }
 
+  public Row setDateTimeArray(String columnId, LocalDateTime[] value) {
+    this.values.put(columnId, value);
+    return this;
+  }
+
   public Row setText(String columnId, String value) {
     this.values.put(columnId, value);
     return this;
   }
 
+  public Row setTextArray(String columnId, String[] value) {
+    this.values.put(columnId, value);
+    return this;
+  }
+
   public Row setUuid(String columnId, UUID value) {
+    this.values.put(columnId, value);
+    return this;
+  }
+
+  public Row setUuidArray(String columnId, UUID[] value) {
     this.values.put(columnId, value);
     return this;
   }
@@ -182,16 +211,11 @@ public class Row implements Identifiable {
     StringBuilder builder = new StringBuilder();
     builder.append("ROW(");
     for (Map.Entry<String, Object> col : values.entrySet()) {
-      if (col.getValue() instanceof Object[]) {
-        builder
-            .append(col.getKey())
-            .append("='")
-            .append(Arrays.toString((Object[]) col.getValue()))
-            .append("' ");
-
-      } else {
-        builder.append(col.getKey()).append("='").append(col.getValue()).append("' ");
-      }
+      builder
+          .append(col.getKey())
+          .append("='")
+          .append(TypeUtils.toString(col.getValue()))
+          .append("' ");
     }
     builder.append(")");
     return builder.toString();
@@ -201,7 +225,7 @@ public class Row implements Identifiable {
     return this.values;
   }
 
-  public Collection<String> getColumns() {
+  public Collection<String> getColumnNames() {
     return this.values.keySet();
   }
 

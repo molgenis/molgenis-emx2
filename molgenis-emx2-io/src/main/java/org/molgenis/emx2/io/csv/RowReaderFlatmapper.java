@@ -4,8 +4,7 @@ import org.molgenis.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class RowReaderFlatmapper {
 
@@ -17,13 +16,22 @@ public class RowReaderFlatmapper {
     return read(new FileReader(f));
   }
 
+  public static List<Row> readList(Reader in) throws IOException {
+    List<Row> result = new ArrayList<>();
+    for (Row r : read(in)) {
+      result.add(r);
+    }
+    return result;
+  }
+
   public static Iterable<org.molgenis.Row> read(Reader in) throws IOException {
     // don't used buffered, it is slower
-    Iterator<Map> iterator = CsvParser.dsl().trimSpaces().mapTo(Map.class).iterator(in);
+    Iterator<LinkedHashMap> iterator =
+        CsvParser.dsl().trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
 
     return () ->
         new Iterator<Row>() {
-          final Iterator<Map> it = iterator;
+          final Iterator<LinkedHashMap> it = iterator;
 
           public boolean hasNext() {
             return it.hasNext();

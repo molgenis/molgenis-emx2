@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
 import org.molgenis.*;
-import org.molgenis.emx2.io.csv.RowReaderCsv;
+import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.io.format.MolgenisPropertyList;
 import org.molgenis.emx2.io.format.MolgenisFileHeader;
 import org.molgenis.emx2.io.format.MolgenisFileRow;
@@ -27,7 +27,7 @@ public class MolgenisEmx2FileReader {
 
   public static void load(Schema schema, Reader reader) throws IOException, MolgenisException {
     List<MolgenisFileRow> rows = new ArrayList<>();
-    for (Row r : RowReaderCsv.read(reader)) {
+    for (Row r : CsvRowReader.read(reader)) {
       rows.add(
           new MolgenisFileRow(
               r.getString(MolgenisFileHeader.TABLE.toString().toLowerCase()),

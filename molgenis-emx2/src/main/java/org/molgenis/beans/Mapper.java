@@ -41,7 +41,7 @@ public class Mapper {
     try {
       E e = klazz.getConstructor().newInstance();
       Map<String, Object> values = row.getValueMap();
-      for (String name : row.getColumns()) {
+      for (String name : row.getColumnNames()) {
         Object value = values.get(name);
         if (value != null) {
           Method m =
