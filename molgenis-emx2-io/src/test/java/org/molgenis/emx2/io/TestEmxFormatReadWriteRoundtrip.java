@@ -2,17 +2,19 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.MolgenisException;
+import org.molgenis.Row;
 import org.molgenis.Schema;
 import org.molgenis.beans.SchemaMetadata;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.examples.synthetic.*;
+import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
+import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.util.List;
 
-public class TestRoundTripModels {
+public class TestEmxFormatReadWriteRoundtrip {
 
   @Test
   public void testArrayTypeTestExample() throws MolgenisException, IOException {
@@ -58,16 +60,18 @@ public class TestRoundTripModels {
 
   public void executeCompare(Schema schema1) throws IOException, MolgenisException {
     try {
-      // now write it out and read back and compare
-      StringWriter writer = new StringWriter();
-      Emx2FileWriter.writeCsv(schema1, writer);
+      // now write it out and fromReader back and compare
 
-      System.out.println(writer.toString());
+      List<Row> contents = ConvertSchemaToEmx2.toRowList(schema1);
+      for (Row r : contents) {
+        System.out.println(r);
+      }
 
       Schema schema2 = new SchemaMetadata("test");
-      Emx2FileReader.load(schema2, new StringReader(writer.toString()));
+      ConvertEmx2ToSchema.fromRowList(schema2, contents);
 
       CompareTools.assertEquals(schema1, schema2);
+
     } catch (MolgenisException e) {
       System.out.println(e.getMessages());
       throw e;

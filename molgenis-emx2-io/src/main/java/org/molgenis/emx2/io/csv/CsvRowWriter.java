@@ -26,7 +26,7 @@ public class CsvRowWriter {
 
     CsvWriter<Map> csvWriter = writerDsl.to(writer);
     for (Row r : rows) {
-      // convert all values into strings first
+      // fromReader all values into strings first
       Map<String, String> values = new LinkedHashMap<>();
       for (String columnName : r.getColumnNames()) {
         values.put(columnName, r.getString(columnName));

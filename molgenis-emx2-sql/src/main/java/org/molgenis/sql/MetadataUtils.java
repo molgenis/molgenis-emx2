@@ -5,7 +5,6 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.*;
-import org.molgenis.utils.StopWatch;
 
 import java.util.Collection;
 import java.util.List;
@@ -243,8 +242,6 @@ public class MetadataUtils {
 
   protected static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
       throws MolgenisException {
-    StopWatch.print("begin load column metadata");
-
     // load tables and columns
     Collection<Record> columnRecords =
         table
@@ -276,6 +273,5 @@ public class MetadataUtils {
               columnName, new SqlColumn(table, columnName, columnType).loadNullable(nullable));
       }
     }
-    StopWatch.print("load column metadata complete");
   }
 }

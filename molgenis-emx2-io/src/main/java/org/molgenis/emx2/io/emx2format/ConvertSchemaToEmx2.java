@@ -1,9 +1,7 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.emx2format;
 
 import org.molgenis.*;
 import org.molgenis.Column;
-import org.molgenis.emx2.io.emx2format.MolgenisFileRow;
-import org.molgenis.emx2.io.emx2format.MolgenisPropertyList;
 import org.simpleflatmapper.csv.CsvWriter;
 import org.simpleflatmapper.util.CheckedConsumer;
 
@@ -15,24 +13,32 @@ import java.util.List;
 
 import static org.molgenis.Row.MOLGENISID;
 
-public class Emx2FileWriter {
+public class ConvertSchemaToEmx2 {
 
-  private Emx2FileWriter() {
+  private ConvertSchemaToEmx2() {
     // to prevent instantiation of this static method class
   }
 
-  public static void writeCsv(Schema model, Writer writer) throws IOException, MolgenisException {
+  public static void toCsv(Schema model, Writer writer) throws IOException, MolgenisException {
 
-    List<MolgenisFileRow> rows = convertModelToMolgenisFileRows(model);
+    List<Emx2FileRow> rows = convertModelToMolgenisFileRows(model);
 
-    CsvWriter.CsvWriterDSL<MolgenisFileRow> writerDsl = CsvWriter.from(MolgenisFileRow.class);
-    CsvWriter<MolgenisFileRow> csvWriter = writerDsl.to(writer);
+    CsvWriter.CsvWriterDSL<Emx2FileRow> writerDsl = CsvWriter.from(Emx2FileRow.class);
+    CsvWriter<Emx2FileRow> csvWriter = writerDsl.to(writer);
     rows.forEach(CheckedConsumer.toConsumer(csvWriter::append));
   }
 
-  public static List<MolgenisFileRow> convertModelToMolgenisFileRows(Schema model)
+  public static List<Row> toRowList(Schema model) throws MolgenisException {
+    List<Row> result = new ArrayList<>();
+    for (Emx2FileRow r : convertModelToMolgenisFileRows(model)) {
+      result.add(r.toRow());
+    }
+    return result;
+  }
+
+  private static List<Emx2FileRow> convertModelToMolgenisFileRows(Schema model)
       throws MolgenisException {
-    List<MolgenisFileRow> rows = new ArrayList<>();
+    List<Emx2FileRow> rows = new ArrayList<>();
     for (String tableName : model.getTableNames()) {
       Table table = model.getTable(tableName);
       writeTableDefinitionRow(table, rows);
@@ -43,9 +49,9 @@ public class Emx2FileWriter {
     return rows;
   }
 
-  private static void writeTableDefinitionRow(Table table, List<MolgenisFileRow> rows) {
+  private static void writeTableDefinitionRow(Table table, List<Emx2FileRow> rows) {
 
-    MolgenisPropertyList def = new MolgenisPropertyList();
+    Emx2PropertyList def = new Emx2PropertyList();
     for (Unique u : table.getUniques()) {
       def.add("unique", u.getColumnNames());
     }
@@ -53,16 +59,15 @@ public class Emx2FileWriter {
         && !Arrays.equals(table.getPrimaryKey(), new String[] {MOLGENISID}))
       def.add("pkey", table.getPrimaryKey());
 
-    if (!def.getTerms().isEmpty())
-      rows.add(new MolgenisFileRow(table.getName(), "", def.toString()));
+    if (!def.getTerms().isEmpty()) rows.add(new Emx2FileRow(table.getName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(Column column, List<MolgenisFileRow> rows)
+  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows)
       throws MolgenisException {
 
     // ignore internal ID, is implied
     if (!MOLGENISID.equals(column.getName())) {
-      MolgenisPropertyList def = new MolgenisPropertyList();
+      Emx2PropertyList def = new Emx2PropertyList();
       switch (column.getType()) {
         case STRING:
           break;
@@ -83,7 +88,7 @@ public class Emx2FileWriter {
       if (column.isUnique()) def.add("unique");
 
       rows.add(
-          new MolgenisFileRow(
+          new Emx2FileRow(
               column.getTable().getName(),
               column.getName(),
               def.toString(),

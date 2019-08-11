@@ -1,6 +1,5 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.stores;
 
-import org.molgenis.MolgenisException;
 import org.molgenis.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
@@ -17,17 +16,15 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
 
   private final Path directoryPath;
 
-  public RowStoreForCsvFilesDirectory(Path directoryPath) throws MolgenisException {
+  public RowStoreForCsvFilesDirectory(Path directoryPath) throws IOException {
     this.directoryPath = directoryPath;
-    if (directoryPath.toFile().exists()) {
-      throw new MolgenisException("Directory '" + directoryPath + "' already exists");
-    }
+    if (!directoryPath.toFile().exists())
+      throw new IOException("Directory " + directoryPath + " doesn't exist");
   }
 
   @Override
   public void write(String name, List<Row> rows) throws IOException {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
-    Files.createDirectories(directoryPath);
     Writer writer = Files.newBufferedWriter(relativePath);
     CsvRowWriter.writeCsv(rows, writer);
     writer.close();

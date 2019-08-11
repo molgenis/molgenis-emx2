@@ -75,10 +75,14 @@ public class SqlSchema extends SchemaMetadata implements Schema {
 
   @Override
   public SqlTable createTableIfNotExists(String name) throws MolgenisException {
-    SqlTable table = new SqlTable(this, name);
-    table.createTable();
-    super.tables.put(name, table);
-    return table;
+    try {
+      return getTable(name);
+    } catch (Exception e) {
+      SqlTable table = new SqlTable(this, name);
+      table.createTable();
+      super.tables.put(name, table);
+      return table;
+    }
   }
 
   @Override

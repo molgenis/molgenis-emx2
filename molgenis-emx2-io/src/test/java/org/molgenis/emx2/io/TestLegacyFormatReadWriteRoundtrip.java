@@ -11,9 +11,9 @@ import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 import java.io.*;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.io.Emx2FileWriter.writeCsv;
+import static org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2.toCsv;
 
-public class TestLegacyReader {
+public class TestLegacyFormatReadWriteRoundtrip {
 
   @Test
   public void test() throws MolgenisException {
@@ -31,10 +31,10 @@ public class TestLegacyReader {
           new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
 
       StringWriter writer = new StringWriter();
-      writeCsv(schema, writer);
+      toCsv(schema, writer);
       System.out.println(writer);
 
-      // load it again
+      // fromReader it again
       Schema schema2 =
           new AttributesFileReader().readModelFromCsv(new StringReader(writer.toString()));
 

@@ -2,14 +2,14 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.MolgenisExceptionMessage;
-import org.molgenis.emx2.io.emx2format.MolgenisPropertyList;
+import org.molgenis.emx2.io.emx2format.Emx2PropertyList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestDefinitionParser {
+public class TestEmx2PropertiesParser {
 
   @Test
   public void test() {
@@ -29,7 +29,7 @@ public class TestDefinitionParser {
       System.out.println("testing definition string: '" + testString + "'");
       List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
-      MolgenisPropertyList def = new MolgenisPropertyList(testString);
+      Emx2PropertyList def = new Emx2PropertyList(testString);
       // both have a ref
       assertTrue(def.contains("ref"));
 

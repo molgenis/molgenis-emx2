@@ -5,6 +5,7 @@ import org.molgenis.MolgenisException;
 import org.molgenis.Schema;
 import org.molgenis.beans.SchemaMetadata;
 import org.molgenis.emx2.examples.CompareTools;
+import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
 import org.molgenis.utils.StopWatch;
 
 import java.io.File;
@@ -13,27 +14,28 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.io.Emx2FileWriter.writeCsv;
+import static org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2.toCsv;
 
-public class EmxReaderTest {
+public class TestEmxFormatReaderAndWriter {
 
   @Test
   public void test1() throws IOException, MolgenisException {
     try {
-      StopWatch.start("\nread model from test1.txt:\n");
+      StopWatch.start("\nfromReader model from test1.txt:\n");
+
       Schema model1 = new SchemaMetadata("model1");
-      Emx2FileReader.load(model1, getFile("test1.txt"));
+      ConvertEmx2ToSchema.fromCsvFile(model1, getFile("test1.txt"));
       System.out.println(model1.toString());
 
       StopWatch.print("\nwrite model back to csv:\n");
       StringWriter writer = new StringWriter();
-      writeCsv(model1, writer);
+      toCsv(model1, writer);
       String csv = writer.toString();
       System.out.println(csv);
 
-      StopWatch.print("\nroundtrip read model from this csv\n");
+      StopWatch.print("\nroundtrip fromReader model from this csv\n");
       Schema model2 = new SchemaMetadata("model1");
-      Emx2FileReader.load(model2, new StringReader(csv));
+      ConvertEmx2ToSchema.fromReader(model2, new StringReader(csv));
       System.out.println(model1.toString());
 
       // assertEquals

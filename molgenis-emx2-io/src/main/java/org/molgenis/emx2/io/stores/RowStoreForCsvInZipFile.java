@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.stores;
 
 import org.molgenis.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;

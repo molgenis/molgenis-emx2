@@ -1,10 +1,7 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.emx2format;
 
 import org.molgenis.*;
 import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.emx2.io.emx2format.MolgenisPropertyList;
-import org.molgenis.emx2.io.emx2format.MolgenisFileHeader;
-import org.molgenis.emx2.io.emx2format.MolgenisFileRow;
 
 import java.io.File;
 import java.io.FileReader;
@@ -15,29 +12,31 @@ import java.util.List;
 
 import static org.molgenis.Type.*;
 
-public class Emx2FileReader {
+public class ConvertEmx2ToSchema {
 
-  protected Emx2FileReader() {
+  protected ConvertEmx2ToSchema() {
     // hides constructor
   }
 
-  public static void load(Schema schema, File file) throws IOException, MolgenisException {
-    load(schema, new FileReader(file));
+  public static void fromCsvFile(Schema schema, File file) throws IOException, MolgenisException {
+    fromRowList(schema, CsvRowReader.readList(new FileReader(file)));
   }
 
-  public static void load(Schema schema, Reader reader) throws IOException, MolgenisException {
-    List<MolgenisFileRow> rows = new ArrayList<>();
-    for (Row r : CsvRowReader.read(reader)) {
-      rows.add(
-          new MolgenisFileRow(
-              r.getString(MolgenisFileHeader.TABLE.toString().toLowerCase()),
-              r.getString(MolgenisFileHeader.COLUMN.toString().toLowerCase()),
-              r.getString(MolgenisFileHeader.PROPERTIES.toString().toLowerCase())));
+  public static void fromReader(Schema schema, Reader reader)
+      throws IOException, MolgenisException {
+    fromRowList(schema, CsvRowReader.readList(reader));
+  }
+
+  public static void fromRowList(Schema schema, List<Row> rows) throws MolgenisException {
+    List<Emx2FileRow> typedRows = new ArrayList<>();
+    for (Row r : rows) {
+      typedRows.add(new Emx2FileRow(r));
     }
-    load(schema, rows);
+    executeLoadProcedure(schema, typedRows);
   }
 
-  private static void load(Schema schema, List<MolgenisFileRow> rows) throws MolgenisException {
+  private static void executeLoadProcedure(Schema schema, List<Emx2FileRow> rows)
+      throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
     loadColumns(rows, schema, messages);
@@ -47,9 +46,9 @@ public class Emx2FileReader {
     }
   }
 
-  private static void loadTablesFirst(List<MolgenisFileRow> rows, Schema schema)
+  private static void loadTablesFirst(List<Emx2FileRow> rows, Schema schema)
       throws MolgenisException {
-    for (MolgenisFileRow row : rows) {
+    for (Emx2FileRow row : rows) {
       String tableName = row.getTable();
       if (!"".equals(tableName)) {
         tableName = tableName.trim();
@@ -59,10 +58,10 @@ public class Emx2FileReader {
   }
 
   private static void loadTableProperties(
-      Schema model, List<MolgenisFileRow> rows, List<MolgenisExceptionMessage> messages)
+      Schema model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
-    for (MolgenisFileRow row : rows) {
+    for (Emx2FileRow row : rows) {
       line++;
 
       String tableName = row.getTable().trim();
@@ -77,10 +76,10 @@ public class Emx2FileReader {
   }
 
   private static void extractTableDefinition(
-      int line, MolgenisFileRow row, Table table, List<MolgenisExceptionMessage> messages)
+      int line, Emx2FileRow row, Table table, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
 
-    MolgenisPropertyList def = new MolgenisPropertyList(row.getProperties());
+    Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
       switch (term) {
         case "unique":
@@ -96,15 +95,15 @@ public class Emx2FileReader {
   }
 
   private static void loadColumns(
-      List<MolgenisFileRow> rows, Schema model, List<MolgenisExceptionMessage> messages)
+      List<Emx2FileRow> rows, Schema model, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
-    for (MolgenisFileRow row : rows) {
+    for (Emx2FileRow row : rows) {
       line++;
       String tableName = row.getTable();
       String columnName = row.getColumn();
       if (!"".equals(tableName) && !"".equals(columnName)) {
-        Table table = model.createTableIfNotExists(tableName);
+        Table table = model.getTable(tableName);
         try {
           table.getColumn(columnName);
           throw new MolgenisException(
@@ -123,13 +122,13 @@ public class Emx2FileReader {
   }
 
   private static void loadColumn(
-      MolgenisFileRow row,
+      Emx2FileRow row,
       String columnName,
       Table table,
       int line,
       List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
-    MolgenisPropertyList def = new MolgenisPropertyList(row.getProperties());
+    Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     Type type = getType(def);
 
     if (REF.equals(type)) {
@@ -155,7 +154,7 @@ public class Emx2FileReader {
     if (def.contains("nullable")) column.nullable(true);
   }
 
-  private static Type getType(MolgenisPropertyList def) {
+  private static Type getType(Emx2PropertyList def) {
     Type type = null;
     for (String term : def.getTerms()) {
       try {

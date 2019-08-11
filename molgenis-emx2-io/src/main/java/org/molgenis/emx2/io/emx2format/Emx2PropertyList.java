@@ -8,17 +8,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MolgenisPropertyList {
+public class Emx2PropertyList {
   private static final Pattern pattern =
       Pattern.compile("([a-zA-Z_]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
 
   private Map<String, String> termParameterMap = new LinkedHashMap<>();
 
-  public MolgenisPropertyList() {
+  public Emx2PropertyList() {
     // null constructor
   }
 
-  public MolgenisPropertyList(String definitionString) {
+  public Emx2PropertyList(String definitionString) {
     if (definitionString == null || "".equals(definitionString)) return;
     // else
     Matcher matcher = pattern.matcher(definitionString);
@@ -45,33 +45,33 @@ public class MolgenisPropertyList {
     return result;
   }
 
-  public MolgenisPropertyList add(String name) {
+  public Emx2PropertyList add(String name) {
     termParameterMap.put(name, null);
     return this;
   }
 
-  public MolgenisPropertyList add(String name, String parameterValue) {
+  public Emx2PropertyList add(String name, String parameterValue) {
     termParameterMap.put(name, parameterValue);
     return this;
   }
 
-  public MolgenisPropertyList add(String name, String... parameterValues) {
+  public Emx2PropertyList add(String name, String... parameterValues) {
     return this.add(name, join(parameterValues));
   }
 
-  public MolgenisPropertyList add(String name, Collection<String> parameterValues) {
+  public Emx2PropertyList add(String name, Collection<String> parameterValues) {
     return this.add(name, join(parameterValues));
   }
 
-  public MolgenisPropertyList add(Type type) {
+  public Emx2PropertyList add(Type type) {
     return this.add(type.toString().toLowerCase());
   }
 
-  public MolgenisPropertyList add(Type type, String parameterValue) {
+  public Emx2PropertyList add(Type type, String parameterValue) {
     return this.add(type.toString().toLowerCase(), parameterValue);
   }
 
-  public MolgenisPropertyList add(Type type, Collection<String> parameterValues) {
+  public Emx2PropertyList add(Type type, Collection<String> parameterValues) {
     return this.add(type, join(parameterValues));
   }
 

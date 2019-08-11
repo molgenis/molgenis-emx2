@@ -35,44 +35,31 @@ public class SqlQuery extends QueryBean implements Query {
   public List<Row> retrieve() throws MolgenisException {
 
     try {
-      StopWatch.print("start SqlQuery.retrieve");
-
       List<Row> result = new ArrayList<>();
 
       // createColumn the select
 
       SelectSelectStep selectStep;
       List<Field> fields = getFields(from);
-      StopWatch.print("getFields complete");
 
       if (fields.isEmpty()) selectStep = sql.select(fields);
       else selectStep = sql.select();
-      StopWatch.print("selectStep complete");
 
       // createColumn the from
       SelectJoinStep fromStep = selectStep.from(getJooqTable(from));
 
-      StopWatch.print("fromStep complete");
-
       // createColumn the joins
       fromStep = createJoins(from.getName(), from, fromStep);
-      StopWatch.print("createJoins complete");
-
       // createColumn the where
       fromStep.where(createConditions(from.getName()));
-
-      StopWatch.print("createWhere complete");
 
       // createColumn the sort
 
       // retrieve
-      StopWatch.print("begin execute retrieve");
       Result<Record> fetch = fromStep.fetch();
       for (Record r : fetch) {
         result.add(new SqlRow(r));
       }
-      StopWatch.print("execute retrieve complete");
-
       // createColumn the from & joins
 
       return result;

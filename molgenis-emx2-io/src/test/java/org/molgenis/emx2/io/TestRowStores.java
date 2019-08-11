@@ -4,6 +4,10 @@ import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Row;
 import org.molgenis.emx2.examples.CompareTools;
+import org.molgenis.emx2.io.stores.RowStore;
+import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
+import org.molgenis.emx2.io.stores.RowStoreForCsvInMemory;
+import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
 import org.molgenis.utils.StopWatch;
 
 import java.io.File;
@@ -17,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class TestReadWriteCsv {
+public class TestRowStores {
   @Test
   public void testCsvDirectoryStore() throws IOException {
     Path tmp = Files.createTempDirectory(null);
@@ -93,7 +97,7 @@ public class TestReadWriteCsv {
 
     List<Row> rows2 = store.read("test");
     // for (Row r : rows2) System.out.println(r);
-    StopWatch.print("read them back from " + store.getClass().getSimpleName(), count);
+    StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
     // compare
     CompareTools.assertEquals(rows, rows2);
@@ -104,7 +108,7 @@ public class TestReadWriteCsv {
 
     rows2 = store.read("test2");
     // for (Row r : rows2) System.out.println(r);
-    StopWatch.print("read them back from " + store.getClass().getSimpleName(), count);
+    StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
     // compare
     CompareTools.assertEquals(rows, rows2);
