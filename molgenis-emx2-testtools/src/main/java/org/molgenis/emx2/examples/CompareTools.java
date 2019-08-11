@@ -32,7 +32,7 @@ public class CompareTools {
 
   public static void assertEquals(List<Row> list1, List<Row> list2) throws MolgenisException {
 
-    if (list1.size() != list1.size())
+    if (list1.size() != list2.size())
       throw new MolgenisException("List<Row> have different length ");
 
     for (int i = 0; i < list1.size(); i++) {
