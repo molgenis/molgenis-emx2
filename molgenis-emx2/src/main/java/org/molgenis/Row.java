@@ -33,10 +33,6 @@ public class Row implements Identifiable {
     return this;
   }
 
-  public Row setRef(String molgenisid, Object id) {
-    return this.set(molgenisid, id);
-  }
-
   public UUID getUuid(String name) {
     return TypeUtils.toUuid(values.get(name));
   }
@@ -129,7 +125,12 @@ public class Row implements Identifiable {
     return this;
   }
 
-  public Row setIntArray(String name, Integer[] value) {
+  public Row setRef(String name, Row value) {
+    this.values.put(name, value.getMolgenisid());
+    return this;
+  }
+
+  public Row setRef(String name, UUID value) {
     this.values.put(name, value);
     return this;
   }
