@@ -8,7 +8,6 @@ import org.molgenis.Row;
 import org.molgenis.Select;
 import org.molgenis.Table;
 import org.molgenis.beans.QueryBean;
-import org.molgenis.utils.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
