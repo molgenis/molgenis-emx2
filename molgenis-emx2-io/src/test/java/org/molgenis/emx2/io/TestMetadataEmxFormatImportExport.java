@@ -14,7 +14,7 @@ import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
 import java.io.IOException;
 import java.util.List;
 
-public class TestEmxFormatReadWriteRoundtrip {
+public class TestMetadataEmxFormatImportExport {
 
   @Test
   public void testArrayTypeTestExample() throws MolgenisException, IOException {

@@ -13,7 +13,7 @@ import java.io.*;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2.toCsv;
 
-public class TestLegacyFormatReadWriteRoundtrip {
+public class TestMetadataLegacyFormatImportExport {
 
   @Test
   public void test() throws MolgenisException {

@@ -21,12 +21,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class TestRowStores {
+public class TestBackendServiceUsingRowStores {
   @Test
   public void testCsvDirectoryStore() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     try {
       Path folderInTmpDir = tmp.resolve("test");
+      Files.createDirectories(folderInTmpDir);
       System.out.println("created tmp dir " + folderInTmpDir);
       RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(folderInTmpDir);
       executeTest(store);
@@ -44,9 +45,9 @@ public class TestRowStores {
   public void testCsvZipStore() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     try {
-      Path folderInTmpDir = tmp.resolve("test");
-      System.out.println("created tmp dir " + folderInTmpDir);
-      RowStoreForCsvInZipFile store = new RowStoreForCsvInZipFile(folderInTmpDir);
+      Path zipFile = tmp.resolve("test.zip");
+      System.out.println("defined zip file " + zipFile);
+      RowStoreForCsvInZipFile store = new RowStoreForCsvInZipFile(zipFile);
       executeTest(store);
     } catch (MolgenisException e) {
       e.printStackTrace();
