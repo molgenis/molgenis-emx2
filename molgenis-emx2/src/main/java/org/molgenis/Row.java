@@ -125,6 +125,11 @@ public class Row implements Identifiable {
     return this;
   }
 
+  public Row setIntArray(String name, Integer[] value) {
+    this.values.put(name, value);
+    return this;
+  }
+
   public Row setRef(String name, Row value) {
     this.values.put(name, value.getMolgenisid());
     return this;
