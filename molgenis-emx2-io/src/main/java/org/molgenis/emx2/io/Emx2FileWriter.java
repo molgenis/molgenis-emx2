@@ -2,8 +2,8 @@ package org.molgenis.emx2.io;
 
 import org.molgenis.*;
 import org.molgenis.Column;
-import org.molgenis.emx2.io.format.MolgenisFileRow;
-import org.molgenis.emx2.io.format.MolgenisPropertyList;
+import org.molgenis.emx2.io.emx2format.MolgenisFileRow;
+import org.molgenis.emx2.io.emx2format.MolgenisPropertyList;
 import org.simpleflatmapper.csv.CsvWriter;
 import org.simpleflatmapper.util.CheckedConsumer;
 
@@ -14,11 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Type.STRING;
 
-public class MolgenisEmx2FileWriter {
+public class Emx2FileWriter {
 
-  private MolgenisEmx2FileWriter() {
+  private Emx2FileWriter() {
     // to prevent instantiation of this static method class
   }
 

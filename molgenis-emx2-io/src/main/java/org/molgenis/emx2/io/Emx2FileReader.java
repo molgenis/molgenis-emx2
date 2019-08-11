@@ -2,9 +2,9 @@ package org.molgenis.emx2.io;
 
 import org.molgenis.*;
 import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.emx2.io.format.MolgenisPropertyList;
-import org.molgenis.emx2.io.format.MolgenisFileHeader;
-import org.molgenis.emx2.io.format.MolgenisFileRow;
+import org.molgenis.emx2.io.emx2format.MolgenisPropertyList;
+import org.molgenis.emx2.io.emx2format.MolgenisFileHeader;
+import org.molgenis.emx2.io.emx2format.MolgenisFileRow;
 
 import java.io.File;
 import java.io.FileReader;
@@ -15,9 +15,9 @@ import java.util.List;
 
 import static org.molgenis.Type.*;
 
-public class MolgenisEmx2FileReader {
+public class Emx2FileReader {
 
-  protected MolgenisEmx2FileReader() {
+  protected Emx2FileReader() {
     // hides constructor
   }
 

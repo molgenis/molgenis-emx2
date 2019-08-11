@@ -13,7 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.io.MolgenisEmx2FileWriter.writeCsv;
+import static org.molgenis.emx2.io.Emx2FileWriter.writeCsv;
 
 public class EmxReaderTest {
 
@@ -22,7 +22,7 @@ public class EmxReaderTest {
     try {
       StopWatch.start("\nread model from test1.txt:\n");
       Schema model1 = new SchemaMetadata("model1");
-      MolgenisEmx2FileReader.load(model1, getFile("test1.txt"));
+      Emx2FileReader.load(model1, getFile("test1.txt"));
       System.out.println(model1.toString());
 
       StopWatch.print("\nwrite model back to csv:\n");
@@ -33,7 +33,7 @@ public class EmxReaderTest {
 
       StopWatch.print("\nroundtrip read model from this csv\n");
       Schema model2 = new SchemaMetadata("model1");
-      MolgenisEmx2FileReader.load(model2, new StringReader(csv));
+      Emx2FileReader.load(model2, new StringReader(csv));
       System.out.println(model1.toString());
 
       // assertEquals

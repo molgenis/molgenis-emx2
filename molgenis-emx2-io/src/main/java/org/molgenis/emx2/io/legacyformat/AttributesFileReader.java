@@ -99,11 +99,12 @@ public class AttributesFileReader {
         case MREF:
           return MREF;
         case COMPOUND:
-          throw new MolgenisException("new format doesn't support 'compound' data type");
+          throw new MolgenisException("new emx2format doesn't support 'compound' data type");
         case ONE_TO_MANY:
-          throw new MolgenisException("new format doesn't yet support 'ONE_TO_MANY' data type");
+          throw new MolgenisException("new emx2format doesn't yet support 'ONE_TO_MANY' data type");
         default:
-          throw new MolgenisException("new format doesn't yet support " + oldType + " data type");
+          throw new MolgenisException(
+              "new emx2format doesn't yet support " + oldType + " data type");
       }
     } catch (IllegalArgumentException e) {
       throw new MolgenisException("attributes type '" + dataType + "' not known");

@@ -4,41 +4,82 @@ import org.junit.Test;
 import org.molgenis.MolgenisException;
 import org.molgenis.Row;
 import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.utils.StopWatch;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 public class TestReadWriteCsv {
   @Test
-  public void test() throws IOException, MolgenisException {
+  public void testCsvDirectoryStore() throws IOException {
+    Path tmp = Files.createTempDirectory(null);
+    try {
+      Path folderInTmpDir = tmp.resolve("test");
+      System.out.println("created tmp dir " + folderInTmpDir);
+      RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(folderInTmpDir);
+      executeTest(store);
+    } catch (MolgenisException e) {
+      e.printStackTrace();
+    } finally {
+      Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
+    if (Files.exists(tmp))
+      throw new RuntimeException(
+          "TMP directory " + tmp + " not deleted. This should never happen.");
+  }
+
+  @Test
+  public void testCsvZipStore() throws IOException {
+    Path tmp = Files.createTempDirectory(null);
+    try {
+      Path folderInTmpDir = tmp.resolve("test");
+      System.out.println("created tmp dir " + folderInTmpDir);
+      RowStoreForCsvInZipFile store = new RowStoreForCsvInZipFile(folderInTmpDir);
+      executeTest(store);
+    } catch (MolgenisException e) {
+      e.printStackTrace();
+    } finally {
+      Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
+    if (Files.exists(tmp))
+      throw new RuntimeException(
+          "TMP directory " + tmp + " not deleted. This should never happen.");
+  }
+
+  @Test
+  public void testCsvStringStore() throws IOException, MolgenisException {
+    executeTest(new RowStoreForCsvInMemory());
+  }
+
+  public static void executeTest(RowStore store) throws IOException, MolgenisException {
 
     List<Row> rows = new ArrayList<>();
-    for (int i = 1; i <= 10; i++) {
+    int count = 10;
+    for (int i = 1; i <= count; i++) {
       rows.add(
           new Row()
               .setString("stringCol", "test" + i)
               .setInt("intCol", i)
               .setDecimal("decimalCol", new Double(new Double(i) / 2))
               .setUuid("uuidCol", UUID.randomUUID())
-              .setDate("dateCol", LocalDate.of(2019, 12, i))
+              .setDate("dateCol", LocalDate.of(2019, 12, 12))
               .setDateTime("datetimeCol", LocalDateTime.now())
               .setBool("boolCol", true)
-              .setStringArray("stringarrayCol", new String[] {"a", "b"})
+              .setStringArray("stringarrayCol", new String[] {"a", "b,including comma,"})
               .setIntArray("intarrayCol", new Integer[] {1, 2})
               .setDecimalArray("doubleArrayCol", new Double[] {1.0, 2.0})
               .setDecimalArray("doubleArrayCol", new Double[] {1.0, 2.0})
               .setDateArray(
                   "dateArray",
-                  new LocalDate[] {LocalDate.of(2019, 12, i), LocalDate.of(2019, 12, i)})
+                  new LocalDate[] {LocalDate.of(2019, 12, 12), LocalDate.of(2019, 12, 12)})
               .setDateTimeArray(
                   "datetimeArrayCol",
                   new LocalDateTime[] {LocalDateTime.now(), LocalDateTime.now()})
@@ -47,20 +88,26 @@ public class TestReadWriteCsv {
     StopWatch.start("created some rows");
 
     // write them
-    StringWriter writer = new StringWriter();
-    CsvRowWriter.writeCsv(rows, writer);
+    store.write("test", rows);
+    StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    System.out.println(writer.toString());
-    StopWatch.print("wrote them to CSV");
-
-    // read them
-    List<Row> rows2 = CsvRowReader.readList(new StringReader(writer.toString()));
-    for (Row r : rows2) System.out.println(r);
-    StopWatch.print("read them back from CSV");
+    List<Row> rows2 = store.read("test");
+    // for (Row r : rows2) System.out.println(r);
+    StopWatch.print("read them back from " + store.getClass().getSimpleName(), count);
 
     // compare
     CompareTools.assertEquals(rows, rows2);
 
+    // write another one
+    store.write("test2", rows);
+    StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
+
+    rows2 = store.read("test2");
+    // for (Row r : rows2) System.out.println(r);
+    StopWatch.print("read them back from " + store.getClass().getSimpleName(), count);
+
+    // compare
+    CompareTools.assertEquals(rows, rows2);
     StopWatch.print("compared succesfully");
   }
 }

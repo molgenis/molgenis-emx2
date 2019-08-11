@@ -17,7 +17,7 @@ public class ZipLoader {
     // get metadata from ZIP or DIRECTORY
     if (file.isDirectory()) {
       File molgenisFile = new File(file, "molgenis.csv");
-      MolgenisEmx2FileReader.load(schema, molgenisFile);
+      Emx2FileReader.load(schema, molgenisFile);
     }
 
     // get the molgenis.csv file with the data model, and load that first

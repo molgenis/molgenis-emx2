@@ -60,12 +60,12 @@ public class TestRoundTripModels {
     try {
       // now write it out and read back and compare
       StringWriter writer = new StringWriter();
-      MolgenisEmx2FileWriter.writeCsv(schema1, writer);
+      Emx2FileWriter.writeCsv(schema1, writer);
 
       System.out.println(writer.toString());
 
       Schema schema2 = new SchemaMetadata("test");
-      MolgenisEmx2FileReader.load(schema2, new StringReader(writer.toString()));
+      Emx2FileReader.load(schema2, new StringReader(writer.toString()));
 
       CompareTools.assertEquals(schema1, schema2);
     } catch (MolgenisException e) {

@@ -11,7 +11,7 @@ import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
 import java.io.*;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.io.MolgenisEmx2FileWriter.writeCsv;
+import static org.molgenis.emx2.io.Emx2FileWriter.writeCsv;
 
 public class TestLegacyReader {
 

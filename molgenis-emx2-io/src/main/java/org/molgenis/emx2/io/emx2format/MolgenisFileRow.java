@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.format;
+package org.molgenis.emx2.io.emx2format;
 
 public class MolgenisFileRow {
   private String table;
