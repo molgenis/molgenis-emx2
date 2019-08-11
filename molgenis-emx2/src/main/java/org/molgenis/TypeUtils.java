@@ -1,16 +1,12 @@
 package org.molgenis;
 
-import com.google.gson.JsonArray;
-
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,26 +43,8 @@ public class TypeUtils {
   public static String toString(Object v) {
     if (v == null) return null;
     if (v instanceof String) return (String) v;
-    if (v instanceof Object[])
-      return Stream.of((Object[]) v)
-          .map(
-              s ->
-                  s == null
-                      ? ""
-                      : s.toString().contains(",") ? "\"" + s.toString() + "\"" : s.toString())
-          .collect(Collectors.joining(","));
-    if (v instanceof Collection)
-      return Stream.of((Collection) v)
-          .map(
-              s ->
-                  s == null
-                      ? ""
-                      : s.toString().contains(",") ? "\"" + s.toString() + "\"" : s.toString())
-          .collect(Collectors.joining(","));
-    if (v instanceof Collection)
-      return Stream.of((Collection) v)
-          .map(s -> s == null ? "\"\"" : "\"" + s.toString() + "\"")
-          .collect(Collectors.joining(","));
+    if (v instanceof Object[]) return joinCsvString((Object[]) v);
+    if (v instanceof Collection) return joinCsvString(((Collection) v).toArray());
     return v.toString();
   }
 
@@ -79,7 +57,6 @@ public class TypeUtils {
     if (v == null) return new Integer[0];
     if (v instanceof Integer[]) return (Integer[]) v;
     if (v instanceof String) v = splitCsvString((String) v);
-
     if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toInt).toArray(Integer[]::new);
     return new Integer[] {toInt(v)};
@@ -187,6 +164,18 @@ public class TypeUtils {
       default:
         throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
     }
+  }
+
+  private static String joinCsvString(Object[] v) {
+    return Stream.of(v)
+        .map(
+            s -> {
+              if (s == null) return "";
+              String str = s.toString();
+              if (str.contains(",")) return "\"" + s.toString() + "\"";
+              else return str;
+            })
+        .collect(Collectors.joining(","));
   }
 
   private static String[] splitCsvString(String value) {

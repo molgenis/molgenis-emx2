@@ -5,14 +5,11 @@ import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.jooq.DSLContext;
 import org.molgenis.*;
-import org.molgenis.utils.StopWatch;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import static junit.framework.TestCase.fail;
 
 public class CompareTools {
 

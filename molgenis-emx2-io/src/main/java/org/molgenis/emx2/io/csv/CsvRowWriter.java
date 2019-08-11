@@ -2,7 +2,6 @@ package org.molgenis.emx2.io.csv;
 
 import org.molgenis.Row;
 import org.simpleflatmapper.csv.CsvWriter;
-import org.simpleflatmapper.lightningcsv.CsvCellWriter;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -11,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CsvRowWriter {
+
+  private CsvRowWriter() {
+    // hide constructor
+  }
 
   public static void writeCsv(List<Row> rows, Writer writer) throws IOException {
 
