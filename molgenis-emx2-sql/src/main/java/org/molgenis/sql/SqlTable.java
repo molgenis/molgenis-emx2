@@ -57,7 +57,7 @@ class SqlTable extends TableMetadata implements Table {
         tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + MANAGER));
 
     // add default molgenisid primary key column
-    this.addColumn(MOLGENISID).primaryKey();
+    this.addColumn(MOLGENISID, UUID).primaryKey();
   }
 
   @Override
@@ -261,7 +261,7 @@ class SqlTable extends TableMetadata implements Table {
             count.set(step.execute());
           });
     } catch (DataAccessException e) {
-      throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
+      throw new SqlMolgenisException(e);
     }
     return count.get();
   }
@@ -300,7 +300,7 @@ class SqlTable extends TableMetadata implements Table {
             updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
           });
     } catch (DataAccessException e) {
-      throw new MolgenisException(e);
+      throw new SqlMolgenisException(e);
     }
     return count.get();
   }
@@ -369,7 +369,7 @@ class SqlTable extends TableMetadata implements Table {
             deleteBatch(batch);
           });
     } catch (DataAccessException e) {
-      throw new MolgenisException(e.getCause(PSQLException.class).getMessage(), e);
+      throw new SqlMolgenisException(e);
     }
     return count.get();
   }

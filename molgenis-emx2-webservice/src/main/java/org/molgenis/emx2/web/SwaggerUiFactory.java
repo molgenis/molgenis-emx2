@@ -1,14 +1,14 @@
 package org.molgenis.emx2.web;
 
-public class SwaggerUi {
+public class SwaggerUiFactory {
 
-  private SwaggerUi() {
+  private SwaggerUiFactory() {
     // hide constructor
   }
 
   public static String createSwaggerUI(String schemaName) {
     String version =
-        "3.19.5"; // newer versions give errors on my Mac: i can not type in RequestBody field
+        "3.23.5"; // newer versions give errors on my Mac: i can not type in RequestBody field
     return String.format(
         "<html>"
             + "<head>"
@@ -17,7 +17,6 @@ public class SwaggerUi {
             + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui.css\">"
             + "</head>"
             + "<body>"
-            + "<div>Using Swagger UI %s</div>"
             + "<div id=\"swagger\"/>"
             + "<script>"
             + "window.onload = function() {\n"
@@ -32,8 +31,7 @@ public class SwaggerUi {
             + "        ],\n"
             + "        plugins: [\n"
             + "          SwaggerUIBundle.plugins.DownloadUrl\n"
-            + "        ],"
-            + "        layout: \"StandaloneLayout\"\n"
+            + "        ]"
             + "      })\n"
             + "      \n"
             + "      \n"
@@ -42,6 +40,6 @@ public class SwaggerUi {
             + "}\n"
             + "</script>"
             + "</body></html>",
-        version, version, version, version, schemaName);
+        version, version, version, schemaName);
   }
 }

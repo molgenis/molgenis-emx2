@@ -10,7 +10,7 @@ public class TestWebApi {
   public static void main(String[] args) throws MolgenisException {
     Database db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
-    Schema schema = db.createSchema("stores");
+    Schema schema = db.createSchema("pet store");
 
     Table categoryTable = schema.createTableIfNotExists("Category");
     categoryTable.addColumn("name").unique();

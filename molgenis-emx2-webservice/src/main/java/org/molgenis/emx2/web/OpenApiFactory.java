@@ -19,11 +19,7 @@ import static org.molgenis.Row.MOLGENISID;
 
 public class OpenApiFactory {
   static final Parameter molgenisid =
-      new PathParameter()
-          .name(MOLGENISID)
-          .in("path")
-          .required(true)
-          .schema(new StringSchema().format("uuid"));
+      new PathParameter().name(MOLGENISID).in("path").required(true).schema(new UUIDSchema());
 
   private OpenApiFactory() {
     // hide public constructor
@@ -61,10 +57,10 @@ public class OpenApiFactory {
     PathItem tablePath = new PathItem();
     PathItem tablePathWithMolgenisid = new PathItem();
 
-    tablePath.post(postOperationFor(tableName));
-    tablePath.put(putOperationFor(tableName));
-    tablePathWithMolgenisid.get(getOperationFor(tableName));
-    tablePathWithMolgenisid.delete(deleteOperationFor(tableName));
+    tablePath.post(post(tableName));
+    tablePath.put(put(tableName));
+    tablePathWithMolgenisid.get(get(tableName));
+    tablePathWithMolgenisid.delete(delete(tableName));
 
     // add the paths to paths
     String path =
@@ -94,7 +90,7 @@ public class OpenApiFactory {
     return new Schema().type("object").properties(properties);
   }
 
-  private static Operation deleteOperationFor(String tableName) {
+  private static Operation delete(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
         .summary("Delete one row from " + tableName)
@@ -103,7 +99,7 @@ public class OpenApiFactory {
             new ApiResponses().addApiResponse("200", new ApiResponse().description("success")));
   }
 
-  private static Operation getOperationFor(String tableName) {
+  private static Operation get(String tableName) {
     return new Operation()
         .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
         .addTagsItem(tableName)
@@ -111,7 +107,7 @@ public class OpenApiFactory {
         .responses(createApiResponse(tableName));
   }
 
-  private static Operation putOperationFor(String tableName) {
+  private static Operation put(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
         .summary("Update row in " + tableName)
@@ -119,7 +115,7 @@ public class OpenApiFactory {
         .responses(createApiResponse(tableName));
   }
 
-  public static Operation postOperationFor(String tableName) {
+  public static Operation post(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
         .summary("Insert row into " + tableName)
@@ -152,9 +148,9 @@ public class OpenApiFactory {
   private static Schema createColumnSchema(Column column) throws MolgenisException {
     switch (column.getType()) {
       case UUID:
-        return new StringSchema().format("uuid");
+        return new UUIDSchema();
       case UUID_ARRAY:
-        return new ArraySchema().items(new StringSchema().format("uuid"));
+        return new ArraySchema().items(new UUIDSchema());
       case STRING:
         return new StringSchema();
       case STRING_ARRAY:

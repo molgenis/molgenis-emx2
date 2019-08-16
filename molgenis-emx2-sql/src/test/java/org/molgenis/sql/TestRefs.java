@@ -76,7 +76,7 @@ public class TestRefs {
       bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
     } catch (Exception e) {
-      System.out.println("delete exception correct: \n" + e.getMessage());
+      System.out.println("delete exception correct: \n" + e);
     }
 
     // and update, should be cascading :-)
@@ -87,7 +87,7 @@ public class TestRefs {
       aTable.delete(aRow);
       fail("delete should fail");
     } catch (Exception e) {
-      System.out.println("insert exception correct: \n" + e.getMessage());
+      System.out.println("insert exception correct: \n" + e);
     }
 
     bTable.delete(bRow);

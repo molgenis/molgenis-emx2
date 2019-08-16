@@ -45,18 +45,18 @@ public class RefArraySqlColumn extends SqlColumn {
             + "\n$BODY$"
             + "\n\tBEGIN"
             + "\n\tIF(EXISTS(SELECT * from {1} WHERE OLD.{2} = ANY({3}) ) ) THEN "
-            + "RAISE EXCEPTION 'update or delete on table "
+            + "RAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'update or delete on table "
             + toTable.unqualifiedName().toString()
             + " violates foreign key constraint "
             + triggerName.unqualifiedName().toString()
             + " on table "
             + thisTable.unqualifiedName().toString()
             + ""
-            + "\nDetail: Key ("
+            + "', DETAIL = 'Key ("
             + toColumn.unqualifiedName().toString()
-            + ")=(%) is still referenced from table "
+            + ")=('|| OLD.{2} ||') is still referenced from table "
             + thisTable.unqualifiedName().toString()
-            + "',OLD.{2};"
+            + "';"
             + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
             + "\nEND;"
@@ -103,11 +103,11 @@ public class RefArraySqlColumn extends SqlColumn {
             + thisTable.unqualifiedName().toString() // for odd reasons {5} and {6} didn't work
             + " violates foreign key constraint "
             + triggerName.unqualifiedName().toString()
-            + "\nDetail: ("
+            + "' USING ERRCODE = '23503', DETAIL = 'Key("
             + thisColumn.unqualifiedName().toString()
-            + ")=(%) is not present in table "
+            + ")=(' || array_to_string(test,',') || ') is not present in table "
             + toTable.unqualifiedName().toString()
-            + "',array_to_string(test,',');"
+            + "';"
             + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
             + "\nEND;"

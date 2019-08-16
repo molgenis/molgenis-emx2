@@ -17,7 +17,7 @@ import java.util.Map;
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.emx2.web.JsonRowMapper.rowToJson;
 import static org.molgenis.emx2.web.OpenApiFactory.createOpenApi;
-import static org.molgenis.emx2.web.SwaggerUi.createSwaggerUI;
+import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
 import static spark.Spark.*;
 
 public class WebApiFactory {
@@ -34,7 +34,9 @@ public class WebApiFactory {
     database = db;
 
     port(8080);
-    get("/", (request, response) -> "Welcome. Data api available under /data");
+    get(
+        "/",
+        (request, response) -> "Welcome. Data api available under <a href=\"/data\">/data</a>");
     get("/data", WebApiFactory::listSchemas);
     get("/data/:schema", WebApiFactory::listTables);
     get("/data/:schema/openapi.yaml", WebApiFactory::getOpenApiYaml);

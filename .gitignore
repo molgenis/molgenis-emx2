@@ -4,6 +4,7 @@ target/
 .settings/
 .project
 .classpath
+examplefiles
 *.iml
 *.ipr
 *.iws
