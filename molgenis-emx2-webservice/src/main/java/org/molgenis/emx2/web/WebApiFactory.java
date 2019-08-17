@@ -118,8 +118,7 @@ public class WebApiFactory {
     return writer.toString();
   }
 
-  private static String listTablesJson(Request request, Response response)
-      throws MolgenisException {
+  private static String listTablesJson(Request request, Response response) {
     return "test";
   }
 

@@ -40,6 +40,6 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
   @Override
   public boolean contains(String name) throws IOException {
     Path path = directoryPath.resolve(name + CSV_EXTENSION);
-    return Files.exists(path);
+    return path.toFile().exists();
   }
 }

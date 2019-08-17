@@ -32,6 +32,7 @@ public class MolgenisException extends Exception {
     this.messages.addAll(messages);
   }
 
+  @Override
   public String getMessage() {
     return toString();
   }
@@ -64,6 +65,7 @@ public class MolgenisException extends Exception {
     this.type = type;
   }
 
+  @Override
   public String toString() {
     return String.format("Type: %s%nTitle: %s%nDetail: %s%n", getType(), getTitle(), getDetail());
   }

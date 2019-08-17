@@ -13,10 +13,10 @@ public class SqlMolgenisException extends MolgenisException {
   }
 
   private void translate(PSQLException cause) {
-    String error_code = cause.getSQLState();
+    String errorCode = cause.getSQLState();
     // https://www.postgresql.org/docs/current/protocol-error-fields.html
 
-    switch (error_code) {
+    switch (errorCode) {
       case "23503":
         this.setType("foreign_key_violation");
         break;

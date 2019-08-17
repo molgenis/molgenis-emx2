@@ -8,7 +8,6 @@ import org.molgenis.Query;
 import org.molgenis.Row;
 import org.molgenis.Table;
 import org.molgenis.beans.TableMetadata;
-import org.postgresql.util.PSQLException;
 
 import java.util.ArrayList;
 import java.util.Collection;

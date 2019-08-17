@@ -64,7 +64,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
   public boolean contains(String name) throws IOException {
     try (FileSystem zipfs = open()) {
       Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
-      return Files.exists(path);
+      return path.toFile().exists();
     }
   }
 }
