@@ -5,24 +5,36 @@ import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.*;
+import org.molgenis.emx2.io.MolgenisImport;
+import org.molgenis.emx2.io.csv.CsvRowWriter;
 import spark.Request;
 import spark.Response;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.Row.MOLGENISID;
 import static org.molgenis.emx2.web.JsonRowMapper.rowToJson;
+import static org.molgenis.emx2.web.JsonRowMapper.rowsToJson;
 import static org.molgenis.emx2.web.OpenApiFactory.createOpenApi;
 import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
 import static spark.Spark.*;
 
 public class WebApiFactory {
   private static Database database;
-  private static final String APPLICATION_JSON = "application/json";
+  private static final String ACCEPT_JSON = "application/json";
+  private static final String ACCEPT_CSV = "text/csv";
+  private static final String MULTIPART_FORM = "multipart/form-data";
+
   private static final String SCHEMA = "schema";
   private static final String TABLE = "table";
 
@@ -36,13 +48,25 @@ public class WebApiFactory {
     port(8080);
     get(
         "/",
-        (request, response) -> "Welcome. Data api available under <a href=\"/data\">/data</a>");
+        (request, response) ->
+            "Welcome. Data api available under <a href=\"/data\">/data</a> and api documentaiton under <a href=\"/openapi\">/openapi</a>");
     get("/data", WebApiFactory::listSchemas);
-    get("/data/:schema", WebApiFactory::listTables);
-    get("/data/:schema/openapi.yaml", WebApiFactory::getOpenApiYaml);
+
+    // documentation
+    get("/openapi", ACCEPT_JSON, WebApiFactory::listTablesJson);
+    get("/openapi/:schema", WebApiFactory::tableOpenApi);
+    get("/openapi/:schema/openapi.yaml", WebApiFactory::getOpenApiYaml);
+
+    // actual api
+    get("/data/:schema", ACCEPT_JSON, WebApiFactory::listTablesJson);
+    post("/data/:schema", WebApiFactory::uploadSchemaZip);
+
+    get("/data/:schema/:table", ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
+    get("/data/:schema/:table", ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
+    post("/data/:schema/:table", ACCEPT_JSON, WebApiFactory::postRow);
+    put("/data/:schema/:table", ACCEPT_JSON, WebApiFactory::putRow);
+
     get("/data/:schema/:table/:molgenisid", WebApiFactory::getRow);
-    put("/data/:schema/:table", APPLICATION_JSON, WebApiFactory::putRow);
-    post("/data/:schema/:table", APPLICATION_JSON, WebApiFactory::postRow);
 
     // handling of exceptions
     exception(
@@ -60,11 +84,49 @@ public class WebApiFactory {
         });
   }
 
+  private static String uploadSchemaZip(Request request, Response response)
+      throws MolgenisException, IOException, ServletException {
+    Schema schema = database.getSchema(request.params(SCHEMA));
+    Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".tmp");
+    tempFile.toFile().deleteOnExit();
+    request.attribute(
+        "org.eclipse.jetty.multipartConfig",
+        new MultipartConfigElement(tempFile.toAbsolutePath().toString()));
+    try (InputStream input = request.raw().getPart("file").getInputStream()) {
+      Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING);
+    }
+    MolgenisImport.fromZipFile(tempFile, schema);
+    response.status(200);
+    return "Import success";
+  }
+
+  private static String tableQueryAcceptJSON(Request request, Response response)
+      throws MolgenisException {
+    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    List<Row> rows = table.retrieve();
+    return rowsToJson(rows);
+  }
+
+  private static String tableQueryAcceptCSV(Request request, Response response)
+      throws MolgenisException, IOException {
+    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    List<Row> rows = table.retrieve();
+    StringWriter writer = new StringWriter();
+    CsvRowWriter.writeCsv(rows, writer);
+    return writer.toString();
+  }
+
+  private static String listTablesJson(Request request, Response response)
+      throws MolgenisException {
+    Schema s = database.getSchema(request.params(SCHEMA));
+    return "test";
+  }
+
   private static String putRow(Request request, Response response) throws MolgenisException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Row row = JsonRowMapper.jsonToRow(request.body());
     table.update(row);
-    response.type(APPLICATION_JSON);
+    response.type(ACCEPT_JSON);
     response.status(200);
     return rowToJson(row);
   }
@@ -81,7 +143,7 @@ public class WebApiFactory {
     Row row = JsonRowMapper.jsonToRow(request.body());
     table.insert(row);
     response.status(200);
-    response.type(APPLICATION_JSON);
+    response.type(ACCEPT_JSON);
     return rowToJson(row);
   }
 
@@ -95,7 +157,7 @@ public class WebApiFactory {
     return writer.toString();
   }
 
-  private static String listTables(Request request, Response response) {
+  private static String tableOpenApi(Request request, Response response) {
     response.status(200);
     return createSwaggerUI(request.params(SCHEMA));
   }

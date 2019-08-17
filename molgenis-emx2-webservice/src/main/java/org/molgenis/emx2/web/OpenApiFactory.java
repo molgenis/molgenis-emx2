@@ -18,6 +18,7 @@ import java.util.Map;
 import static org.molgenis.Row.MOLGENISID;
 
 public class OpenApiFactory {
+
   static final Parameter molgenisid =
       new PathParameter().name(MOLGENISID).in("path").required(true).schema(new UUIDSchema());
 
@@ -33,6 +34,8 @@ public class OpenApiFactory {
     Paths paths = new Paths();
     Components components = new Components();
 
+    createApiForSchema(schema, paths, components);
+
     for (String tableNameUnencoded : schema.getTableNames()) {
       Table table = schema.getTable(tableNameUnencoded);
       createApiForTable(table, paths, components);
@@ -45,18 +48,86 @@ public class OpenApiFactory {
     return api;
   }
 
+  private static void createApiForSchema(
+      org.molgenis.Schema schema, Paths paths, Components components) {
+    String path = new StringBuilder().append("/data/").append(schema.getName()).toString();
+
+    // components
+
+    Map<String, Schema> problemProperties = new LinkedHashMap<>();
+    problemProperties.put(
+        "type",
+        new StringSchema()
+            .format("url")
+            .description("a URL to a document describing the error condition "));
+    problemProperties.put(
+        "title",
+        new StringSchema().description("A short, human-readable title for the general error type"));
+    problemProperties.put(
+        "detail",
+        new StringSchema().description("A human-readable description of the specific error"));
+    components.addSchemas("Problem", new Schema().type("object").properties(problemProperties));
+    components.addResponses(
+        "Problem",
+        new ApiResponse()
+            .content(
+                new Content()
+                    .addMediaType(
+                        "application/json", new MediaType().schema(new Schema().$ref("Problem")))));
+
+    // operations
+    PathItem schemaPath = new PathItem();
+
+    // post multi-part-form for upload file
+    schemaPath.post(
+        new Operation()
+            .summary("Import zipfile")
+            .requestBody(
+                new RequestBody()
+                    .content(
+                        new Content()
+                            .addMediaType(
+                                "multipart/form-data",
+                                new MediaType()
+                                    .schema(
+                                        new Schema()
+                                            .type("object")
+                                            .addProperties(
+                                                "file",
+                                                new FileSchema().description("upload file"))))))
+            .responses(
+                new ApiResponses()
+                    .addApiResponse("200", new ApiResponse().description("Success"))
+                    .addApiResponse(
+                        "400", new ApiResponse().description("Bad request").$ref("Problem"))
+                    .addApiResponse("500", new ApiResponse().description("Server error"))));
+
+    // meta/tableName retrieves table metadata
+
+    // import
+
+    // export
+
+    // post new table
+
+    // post attribute
+
+    paths.addPathItem(path, schemaPath);
+  }
+
   public static void createApiForTable(Table table, Paths paths, Components components)
       throws MolgenisException {
     String tableName = table.getName();
 
     // components
-    components.addSchemas(tableName, rowSchemaComponentFor(table));
-    components.addResponses(tableName, apiResponseComponentFor(tableName));
+    addRowSchemeComponent(table, components);
+    apiResponseComponentFor(tableName, components);
 
     // operations
     PathItem tablePath = new PathItem();
     PathItem tablePathWithMolgenisid = new PathItem();
 
+    tablePath.get(getTableQuery(tableName));
     tablePath.post(post(tableName));
     tablePath.put(put(tableName));
     tablePathWithMolgenisid.get(get(tableName));
@@ -74,6 +145,26 @@ public class OpenApiFactory {
     paths.addPathItem(path + "/{molgenisid}", tablePathWithMolgenisid);
   }
 
+  private static Operation getTableQuery(String tableName) {
+
+    MediaType mediaType =
+        new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)));
+
+    return new Operation()
+        .addTagsItem(tableName)
+        .summary("Retrieve multiple rows from " + tableName)
+        .responses(
+            new ApiResponses()
+                .addApiResponse(
+                    "200",
+                    new ApiResponse()
+                        .description("success")
+                        .content(
+                            new Content()
+                                .addMediaType("application/json", mediaType)
+                                .addMediaType("text/csv", mediaType))));
+  }
+
   public static Info createInfo(org.molgenis.Schema schema) {
     return new Info()
         .title("API for: " + schema.getName())
@@ -82,12 +173,13 @@ public class OpenApiFactory {
             "MOLGENIS API for schema stored in MOLGENIS under name '" + schema.getName() + "'");
   }
 
-  private static Schema rowSchemaComponentFor(Table table) throws MolgenisException {
+  private static void addRowSchemeComponent(Table table, Components components)
+      throws MolgenisException {
     Map<String, Schema> properties = new LinkedHashMap<>();
     for (Column column : table.getColumns()) {
       properties.put(column.getName(), createColumnSchema(column));
     }
-    return new Schema().type("object").properties(properties);
+    components.addSchemas(table.getName(), new Schema().type("object").properties(properties));
   }
 
   private static Operation delete(String tableName) {
@@ -137,12 +229,14 @@ public class OpenApiFactory {
                     "application/json", new MediaType().schema(new Schema().$ref(tableName))));
   }
 
-  public static ApiResponse apiResponseComponentFor(String tableName) {
-    return new ApiResponse()
-        .content(
-            new Content()
-                .addMediaType(
-                    "application/json", new MediaType().schema(new Schema().$ref(tableName))));
+  public static void apiResponseComponentFor(String tableName, Components components) {
+    components.addResponses(
+        tableName,
+        new ApiResponse()
+            .content(
+                new Content()
+                    .addMediaType(
+                        "application/json", new MediaType().schema(new Schema().$ref(tableName)))));
   }
 
   private static Schema createColumnSchema(Column column) throws MolgenisException {

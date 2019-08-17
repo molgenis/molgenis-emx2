@@ -10,4 +10,6 @@ public interface RowStore {
   void write(String name, List<Row> rows) throws IOException;
 
   List<Row> read(String name) throws IOException;
+
+  boolean contains(String name) throws IOException;
 }

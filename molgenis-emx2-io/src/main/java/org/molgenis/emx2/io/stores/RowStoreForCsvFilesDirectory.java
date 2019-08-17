@@ -36,4 +36,10 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
     Reader reader = Files.newBufferedReader(relativePath);
     return CsvRowReader.readList(reader);
   }
+
+  @Override
+  public boolean contains(String name) throws IOException {
+    Path path = directoryPath.resolve(name + CSV_EXTENSION);
+    return Files.exists(path);
+  }
 }

@@ -22,9 +22,6 @@ public class RowStoreForCsvInZipFile implements RowStore {
   private Path zipFilePath;
 
   public RowStoreForCsvInZipFile(Path zipFilePath) throws IOException {
-    if (zipFilePath.toFile().exists())
-      throw new IOException("Zipfile " + zipFilePath + " already exists");
-
     this.zipFilePath = zipFilePath;
     this.create();
   }
@@ -60,6 +57,14 @@ public class RowStoreForCsvInZipFile implements RowStore {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Reader reader = Files.newBufferedReader(pathInZipfile);
       return CsvRowReader.readList(reader);
+    }
+  }
+
+  @Override
+  public boolean contains(String name) throws IOException {
+    try (FileSystem zipfs = open()) {
+      Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
+      return Files.exists(path);
     }
   }
 }

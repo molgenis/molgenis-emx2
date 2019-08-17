@@ -35,6 +35,11 @@ public class RowStoreForCsvInMemory implements RowStore {
     return CsvRowReader.readList(reader);
   }
 
+  @Override
+  public boolean contains(String name) throws IOException {
+    return store.containsKey(name);
+  }
+
   public String viewContents(String name) {
     return store.get(name);
   }
