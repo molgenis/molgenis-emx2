@@ -30,10 +30,12 @@ import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
 import static spark.Spark.*;
 
 public class WebApiFactory {
+  public static final String SCHEMA_PATH = "/data/:schema"; // NOSONAR
+  public static final String TABLE_PATH = SCHEMA_PATH + "/:table"; // NOSONAR
+
   private static Database database;
   private static final String ACCEPT_JSON = "application/json";
   private static final String ACCEPT_CSV = "text/csv";
-  private static final String MULTIPART_FORM = "multipart/form-data";
 
   private static final String SCHEMA = "schema";
   private static final String TABLE = "table";
@@ -58,13 +60,13 @@ public class WebApiFactory {
     get("/openapi/:schema/openapi.yaml", WebApiFactory::getOpenApiYaml);
 
     // actual api
-    get("/data/:schema", ACCEPT_JSON, WebApiFactory::listTablesJson);
-    post("/data/:schema", WebApiFactory::uploadSchemaZip);
+    get(SCHEMA_PATH, ACCEPT_JSON, WebApiFactory::listTablesJson);
+    post(SCHEMA_PATH, WebApiFactory::uploadSchemaZip);
 
-    get("/data/:schema/:table", ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
-    get("/data/:schema/:table", ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
-    post("/data/:schema/:table", ACCEPT_JSON, WebApiFactory::postRow);
-    put("/data/:schema/:table", ACCEPT_JSON, WebApiFactory::putRow);
+    get(TABLE_PATH, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
+    get(TABLE_PATH, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
+    post(TABLE_PATH, ACCEPT_JSON, WebApiFactory::postRow);
+    put(TABLE_PATH, ACCEPT_JSON, WebApiFactory::putRow);
 
     get("/data/:schema/:table/:molgenisid", WebApiFactory::getRow);
 
@@ -118,7 +120,6 @@ public class WebApiFactory {
 
   private static String listTablesJson(Request request, Response response)
       throws MolgenisException {
-    Schema s = database.getSchema(request.params(SCHEMA));
     return "test";
   }
 

@@ -19,8 +19,11 @@ import static org.molgenis.Row.MOLGENISID;
 
 public class OpenApiFactory {
 
+  public static final String APPLICATION_JSON = "application/json";
   static final Parameter molgenisid =
       new PathParameter().name(MOLGENISID).in("path").required(true).schema(new UUIDSchema());
+  public static final String OBJECT = "object";
+  public static final String PROBLEM = "Problem";
 
   private OpenApiFactory() {
     // hide public constructor
@@ -66,14 +69,14 @@ public class OpenApiFactory {
     problemProperties.put(
         "detail",
         new StringSchema().description("A human-readable description of the specific error"));
-    components.addSchemas("Problem", new Schema().type("object").properties(problemProperties));
+    components.addSchemas(PROBLEM, new Schema().type(OBJECT).properties(problemProperties));
     components.addResponses(
-        "Problem",
+        PROBLEM,
         new ApiResponse()
             .content(
                 new Content()
                     .addMediaType(
-                        "application/json", new MediaType().schema(new Schema().$ref("Problem")))));
+                        APPLICATION_JSON, new MediaType().schema(new Schema().$ref(PROBLEM)))));
 
     // operations
     PathItem schemaPath = new PathItem();
@@ -91,7 +94,7 @@ public class OpenApiFactory {
                                 new MediaType()
                                     .schema(
                                         new Schema()
-                                            .type("object")
+                                            .type(OBJECT)
                                             .addProperties(
                                                 "file",
                                                 new FileSchema().description("upload file"))))))
@@ -99,7 +102,7 @@ public class OpenApiFactory {
                 new ApiResponses()
                     .addApiResponse("200", new ApiResponse().description("Success"))
                     .addApiResponse(
-                        "400", new ApiResponse().description("Bad request").$ref("Problem"))
+                        "400", new ApiResponse().description("Bad request").$ref(PROBLEM))
                     .addApiResponse("500", new ApiResponse().description("Server error"))));
 
     // meta/tableName retrieves table metadata
@@ -161,7 +164,7 @@ public class OpenApiFactory {
                         .description("success")
                         .content(
                             new Content()
-                                .addMediaType("application/json", mediaType)
+                                .addMediaType(APPLICATION_JSON, mediaType)
                                 .addMediaType("text/csv", mediaType))));
   }
 
@@ -179,7 +182,7 @@ public class OpenApiFactory {
     for (Column column : table.getColumns()) {
       properties.put(column.getName(), createColumnSchema(column));
     }
-    components.addSchemas(table.getName(), new Schema().type("object").properties(properties));
+    components.addSchemas(table.getName(), new Schema().type(OBJECT).properties(properties));
   }
 
   private static Operation delete(String tableName) {
@@ -226,7 +229,7 @@ public class OpenApiFactory {
         .content(
             new Content()
                 .addMediaType(
-                    "application/json", new MediaType().schema(new Schema().$ref(tableName))));
+                    APPLICATION_JSON, new MediaType().schema(new Schema().$ref(tableName))));
   }
 
   public static void apiResponseComponentFor(String tableName, Components components) {
@@ -236,7 +239,7 @@ public class OpenApiFactory {
             .content(
                 new Content()
                     .addMediaType(
-                        "application/json", new MediaType().schema(new Schema().$ref(tableName)))));
+                        APPLICATION_JSON, new MediaType().schema(new Schema().$ref(tableName)))));
   }
 
   private static Schema createColumnSchema(Column column) throws MolgenisException {

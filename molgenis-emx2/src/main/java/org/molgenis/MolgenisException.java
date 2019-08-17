@@ -65,6 +65,6 @@ public class MolgenisException extends Exception {
   }
 
   public String toString() {
-    return String.format("Type: %s\nTitle: %s\nDetail: %s\n", getType(), getTitle(), getDetail());
+    return String.format("Type: %s%nTitle: %s%nDetail: %s%n", getType(), getTitle(), getDetail());
   }
 }

@@ -23,6 +23,8 @@ public class SqlMolgenisException extends MolgenisException {
       case "23505":
         this.setType("unique_violation");
         break;
+      default:
+        this.setType("not_yet_typed");
     }
     this.setTitle(cause.getServerErrorMessage().getMessage());
     this.setDetail(cause.getServerErrorMessage().getDetail());
