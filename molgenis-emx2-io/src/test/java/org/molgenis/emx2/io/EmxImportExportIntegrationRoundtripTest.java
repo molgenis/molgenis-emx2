@@ -20,7 +20,7 @@ import java.util.Comparator;
 
 import static org.molgenis.emx2.io.MolgenisExport.toDirectory;
 
-public class TestExportImportRoundtrip {
+public class EmxImportExportIntegrationRoundtripTest {
 
   static Database database;
 
