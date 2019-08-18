@@ -27,7 +27,14 @@ public class SqlReferenceMultiple extends ReferenceMultipleBean implements Refer
 
     String[] nameArray = getNameArray();
     if (nameArray == null || nameArray.length != toColumns.length)
-      throw new MolgenisException("Reference toColumn must be of same size");
+      throw new MolgenisException(
+          "invalid_foreign_key",
+          "Foreign key reference invalid",
+          "Create of foreign key from table '"
+              + table.getName()
+              + "' to table '"
+              + toTable
+              + "' failed: fromColumn and toColumn must have the same number of colums");
 
     for (int i = 0; i < nameArray.length; i++) {
       RefSqlColumn c =

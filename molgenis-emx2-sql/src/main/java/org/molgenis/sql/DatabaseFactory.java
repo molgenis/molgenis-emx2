@@ -91,10 +91,16 @@ public class DatabaseFactory {
   public static void checkColumnExists(Column c) throws MolgenisException {
     List<Table<?>> tables = DatabaseFactory.getJooq().meta().getTables(c.getTable().getName());
     if (tables.isEmpty())
-      throw new MolgenisException("Table '" + c.getTable().getName() + "' does not exist");
+      throw new MolgenisException(
+          "invalid_table",
+          "Table cannot be found",
+          "Table '" + c.getTable().getName() + "' could not be found");
     Table<?> table = tables.get(0);
     Field f = table.field(c.getName());
     if (f == null)
-      throw new MolgenisException("Field '" + c.getName() + "." + c.getName() + "' does not exist");
+      throw new MolgenisException(
+          "invalid_column",
+          "Column cannot be found",
+          "Column '" + c.getTable().getName() + "'.'" + c.getName() + "' could not be found");
   }
 }

@@ -207,8 +207,8 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME:
         return "timestamp without time zone";
       default:
-        throw new MolgenisException(
-            "Internal: data cannot be mapped to psqlType " + column.getType());
+        throw new RuntimeException(
+            "Internal error: data cannot be mapped to psqlType " + column.getType());
     }
   }
 }

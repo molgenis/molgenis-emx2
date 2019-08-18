@@ -62,7 +62,10 @@ class SqlTable extends TableMetadata implements Table {
   @Override
   public SqlTable setPrimaryKey(String... columnNames) throws MolgenisException {
     if (columnNames.length == 0)
-      throw new MolgenisException("Primary key requires 1 or more columns");
+      throw new MolgenisException(
+          "invalid_primary_key",
+          "Primary key creation failed",
+          "Primary key requires 1 or more columns, however, 0 columns where provided");
     Name[] keyNames = Stream.of(columnNames).map(DSL::name).toArray(Name[]::new);
 
     // drop primary

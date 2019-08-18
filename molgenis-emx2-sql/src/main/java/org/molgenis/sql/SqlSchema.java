@@ -39,7 +39,11 @@ public class SqlSchema extends SchemaMetadata implements Schema {
       if (table.exists()) {
         this.tables.put(name, table);
         return table;
-      } else throw new MolgenisException("Table '" + name + "' doesn't exists");
+      } else
+        throw new MolgenisException(
+            "undefined_table",
+            "Table not found",
+            "Table '" + name + "' couldn't not be found in schema " + getName());
     }
   }
 

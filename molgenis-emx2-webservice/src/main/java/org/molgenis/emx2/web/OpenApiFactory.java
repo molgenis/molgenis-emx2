@@ -282,7 +282,7 @@ public class OpenApiFactory {
       case MREF:
         return new ArraySchema().items(createColumnSchema(column.getRefColumn()));
       default:
-        throw new MolgenisException(
+        throw new RuntimeException(
             "createColumnSchema failed: Type " + column.getType() + " not supported ");
     }
   }

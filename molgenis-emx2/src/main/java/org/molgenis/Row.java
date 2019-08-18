@@ -273,7 +273,9 @@ public class Row implements Identifiable {
         return (T) getUuidArray(name);
       default:
         throw new MolgenisException(
-            "Row.get(Class,name) not implemented for Class = " + type.getSimpleName());
+            "invalid_type",
+            "Cannot cast column to java type",
+            "Row.get(Class,name) not implemented for Class = " + type.getCanonicalName());
     }
   }
 }

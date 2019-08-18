@@ -140,7 +140,10 @@ public class TypeUtils {
     for (Type t : Type.values()) {
       if (t.getType().equals(klazz)) return t;
     }
-    throw new MolgenisException("Cannot determine type of " + klazz);
+    throw new MolgenisException(
+        "invalid_type",
+        "Can not determine typeOf(Class)",
+        "No MOLGENIS type is defined to match " + klazz.getCanonicalName());
   }
 
   public static Type getArrayType(Type type) {

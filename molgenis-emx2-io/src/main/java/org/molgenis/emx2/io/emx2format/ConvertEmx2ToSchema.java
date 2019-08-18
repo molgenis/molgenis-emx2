@@ -107,7 +107,9 @@ public class ConvertEmx2ToSchema {
         try {
           table.getColumn(columnName);
           throw new MolgenisException(
-              "error on line "
+              "duplicate_column",
+              "Duplicate column definition",
+              "Error on line "
                   + line
                   + ": duplicate column definition table='"
                   + tableName

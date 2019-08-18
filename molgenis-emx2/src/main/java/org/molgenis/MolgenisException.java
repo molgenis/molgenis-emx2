@@ -7,9 +7,9 @@ import java.util.List;
 /** compatible with https://tools.ietf.org/html/rfc7807 */
 public class MolgenisException extends Exception {
 
-  private String title;
-  private String detail;
-  private String type;
+  protected String title;
+  protected String detail;
+  protected String type;
 
   private final List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
@@ -17,14 +17,27 @@ public class MolgenisException extends Exception {
     super(e);
   }
 
-  public MolgenisException(String message) {
-    super(message);
-    this.setDetail(message);
+  public MolgenisException(String type, String title, String detail, Exception cause) {
+    super(cause);
+    this.type = type;
+    this.title = title;
+    this.detail = detail;
   }
 
-  public MolgenisException(String message, Exception e) {
-    super(message, e);
-    this.setDetail(message);
+  public MolgenisException(String type, String title, String detail) {
+    this.type = type;
+    this.title = title;
+    this.detail = detail;
+  }
+
+  //  public MolgenisException(String message) {
+  //    super(message);
+  //    this.detail = message;
+  //  }
+
+  public MolgenisException(String detail, Exception e) {
+    super(detail, e);
+    this.detail = detail;
   }
 
   public MolgenisException(String message, List<MolgenisExceptionMessage> messages) {
@@ -45,24 +58,12 @@ public class MolgenisException extends Exception {
     return title;
   }
 
-  protected void setTitle(String title) {
-    this.title = title;
-  }
-
   public String getDetail() {
     return detail;
   }
 
-  protected void setDetail(String detail) {
-    this.detail = detail;
-  }
-
   public String getType() {
     return type;
-  }
-
-  protected void setType(String type) {
-    this.type = type;
   }
 
   @Override

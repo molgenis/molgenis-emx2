@@ -22,7 +22,11 @@ public class DatabaseBean implements Database {
   @Override
   public Schema getSchema(String name) throws MolgenisException {
     Schema result = this.schemas.get(name);
-    if (result == null) throw new MolgenisException("Schema '" + name + " doesn't exist");
+    if (result == null)
+      throw new MolgenisException(
+          "schema_not_found",
+          "Schema not found",
+          "Schema with name='" + name + "' could not be found");
     return result;
   }
 

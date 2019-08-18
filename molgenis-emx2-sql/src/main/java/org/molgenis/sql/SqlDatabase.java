@@ -47,7 +47,9 @@ public class SqlDatabase extends DatabaseBean implements Database {
       if (schema.exists()) {
         schemas.put(name, schema);
         return schema;
-      } else throw new MolgenisException("Schema '" + name + " doesn't exist");
+      } else
+        throw new MolgenisException(
+            "invalid_schema", "Schema doesn't exist", "Schema '" + name + " could not be found");
     }
   }
 

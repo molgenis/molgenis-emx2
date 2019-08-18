@@ -47,7 +47,11 @@ public class SchemaMetadata implements Schema {
   @Override
   public Table getTable(String name) throws MolgenisException {
     Table table = tables.get(name);
-    if (table == null) throw new MolgenisException(String.format("Table '%s' unknown", name));
+    if (table == null)
+      throw new MolgenisException(
+          "undefined_table",
+          "Table not found",
+          String.format("Table with name='%s' could not be found", name));
     return table;
   }
 

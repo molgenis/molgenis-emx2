@@ -16,7 +16,10 @@ public class ReferenceMultipleBean implements ReferenceMultiple {
   @Override
   public Table to(String toTable, String... toColumn) throws MolgenisException {
     if (nameArray == null || nameArray.length != toColumn.length)
-      throw new MolgenisException("Ref must have same name of names as toColumns");
+      throw new MolgenisException(
+          "invalid_foreign_key",
+          "Multiple reference must have same length of names as toColumns",
+          "TODO error detail");
 
     for (int i = 0; i < nameArray.length; i++) {
       table.addColumn(

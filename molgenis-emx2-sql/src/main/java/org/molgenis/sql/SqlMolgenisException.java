@@ -18,15 +18,15 @@ public class SqlMolgenisException extends MolgenisException {
 
     switch (errorCode) {
       case "23503":
-        this.setType("foreign_key_violation");
+        this.type = "foreign_key_violation";
         break;
       case "23505":
-        this.setType("unique_violation");
+        this.type = "unique_violation";
         break;
       default:
-        this.setType("not_yet_typed");
+        this.type = "not_yet_typed";
     }
-    this.setTitle(cause.getServerErrorMessage().getMessage());
-    this.setDetail(cause.getServerErrorMessage().getDetail());
+    this.title = cause.getServerErrorMessage().getMessage();
+    this.detail = cause.getServerErrorMessage().getDetail();
   }
 }

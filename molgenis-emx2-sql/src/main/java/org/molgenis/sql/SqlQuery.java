@@ -189,7 +189,10 @@ public class SqlQuery extends QueryBean implements Query {
             "{0} && {1}",
             SqlTypeUtils.getTypedValue(w.getValues(), getColumn(from, path)), field(selector));
       default:
-        throw new MolgenisException("Where clause not supported: " + w.toString());
+        throw new MolgenisException(
+            "invalid_query",
+            "Creation of filter condiation failed",
+            "Where clause '" + w.toString() + "' is not supported");
     }
   }
 
@@ -271,7 +274,11 @@ public class SqlQuery extends QueryBean implements Query {
 
   private Column getColumn(Table t, String[] path) throws MolgenisException {
     Column c = t.getColumn(path[0]);
-    if (c == null) throw new MolgenisException("Column '" + path[0] + "' unknown");
+    if (c == null)
+      throw new MolgenisException(
+          "undefined_column",
+          "Column not found",
+          "Column '" + path[0] + "' cannot be found in table " + t.getName());
     if (path.length == 1) {
       return c;
     } else {

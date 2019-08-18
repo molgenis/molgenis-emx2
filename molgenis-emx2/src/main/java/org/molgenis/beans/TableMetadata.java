@@ -7,6 +7,9 @@ import static org.molgenis.Type.*;
 import java.util.*;
 
 public class TableMetadata implements Table {
+  public static final String INVALID_FOREIGN_KEY = "invalid_foreign_key";
+  public static final String ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED =
+      "Adding of foreign key reference failed";
   private String name;
   private Schema schema;
   protected Map<String, Column> columns = new LinkedHashMap<>();
@@ -50,7 +53,10 @@ public class TableMetadata implements Table {
   @Override
   public Column getColumn(String name) throws MolgenisException {
     if (columns.containsKey(name)) return columns.get(name);
-    throw new MolgenisException(String.format("Column '%s' unknown", name));
+    throw new MolgenisException(
+        "undefined_column",
+        "Column could not be found",
+        String.format("Column with name='%s' could not be found", name));
   }
 
   @Override
@@ -76,7 +82,11 @@ public class TableMetadata implements Table {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
-          "Adding of reference '" + name + "' failed: no suitable primary key defined");
+          INVALID_FOREIGN_KEY,
+          ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED,
+          "Adding of foreign key reference with name='"
+              + name
+              + "' and default toColumn failed because no suitable primary key is defined. Add primary key or use explicit toColumn.");
     return this.addRef(name, toTable, primaryKeys[0]);
   }
 
@@ -99,7 +109,11 @@ public class TableMetadata implements Table {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
-          "Adding of reference '" + name + "' failed: no suitable primary key defined");
+          INVALID_FOREIGN_KEY,
+          ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED,
+          "Adding of array reference name='"
+              + name
+              + "' failed because no suitable primary key defined. Add primary key or use explicit toColumn.");
     return this.addRefArray(name, toTable, primaryKeys[0]);
   }
 
@@ -146,7 +160,14 @@ public class TableMetadata implements Table {
     List<Column> cols = new ArrayList<>();
     for (String columnName : columnNames) {
       Column c = getColumn(columnName);
-      if (c == null) throw new MolgenisException("Unique unknown: " + columnNames);
+      if (c == null)
+        throw new MolgenisException(
+            "invalid_unique",
+            "Add or update of unique constraint failed",
+            "Addition of unique failed because column '"
+                + columnName
+                + "' is not known in table "
+                + getName());
       cols.add(c);
     }
     String uniqueName = name + "_" + String.join("_", columnNames) + "_UNIQUE";
@@ -174,14 +195,18 @@ public class TableMetadata implements Table {
       }
     }
     throw new MolgenisException(
-        "getUniqueName(" + keyList + ") failed: constraint unknown in table " + this.name);
+        "invalid_unique",
+        "GetUniqueName failed",
+        "Unique constraint with columns " + keyList + " is not known in table " + this.name);
   }
 
   @Override
   public void removeUnique(String... keys) throws MolgenisException {
     if (keys.length == 1 && MOLGENISID.equals(keys[0]))
       throw new MolgenisException(
-          "You are not allowed to remove unique constraint on primary key path " + MOLGENISID);
+          "invalid_unique",
+          "Removal of unique failed",
+          "You are not allowed to remove unique constraint on system column '" + MOLGENISID + "");
     String uniqueName = getUniqueName(keys);
     uniques.remove(uniqueName);
   }
