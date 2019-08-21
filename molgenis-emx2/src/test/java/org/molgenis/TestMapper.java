@@ -46,8 +46,8 @@ public class TestMapper {
     assertEquals(Type.UUID, molgenisid.getType());
     assertEquals(STRING, firstName.getType());
 
-    assertTrue(firstName.isNullable());
-    assertFalse(lastName.isNullable());
+    assertTrue(firstName.getNullable());
+    assertFalse(lastName.getNullable());
 
     assertEquals("This is optional first name", firstName.getDescription());
   }

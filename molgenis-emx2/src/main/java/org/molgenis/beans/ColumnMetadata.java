@@ -78,7 +78,7 @@ public class ColumnMetadata implements Column {
   }
 
   @Override
-  public Boolean isNullable() {
+  public Boolean getNullable() {
     return nullable;
   }
 
@@ -119,12 +119,12 @@ public class ColumnMetadata implements Column {
     if (Type.REF.equals(getType()))
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getType().toString().toLowerCase());
-    if (isNullable()) builder.append(" setNullable");
+    if (getNullable()) builder.append(" setNullable");
     return builder.toString();
   }
 
   @Override
-  public Boolean isReadonly() {
+  public Boolean getReadonly() {
     return readonly;
   }
 
@@ -175,8 +175,9 @@ public class ColumnMetadata implements Column {
   }
 
   @Override
-  public Column unique() throws MolgenisException {
-    getTable().addUnique(this.getName());
+  public Column setUnique(boolean unique) throws MolgenisException {
+    if (unique) getTable().addUnique(this.getName());
+    else getTable().removeUnique(this.getName());
     return this;
   }
 

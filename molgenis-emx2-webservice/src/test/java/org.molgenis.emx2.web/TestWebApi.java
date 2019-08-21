@@ -13,20 +13,20 @@ public class TestWebApi {
     Schema schema = db.createSchema("pet store");
 
     Table categoryTable = schema.createTableIfNotExists("Category");
-    categoryTable.addColumn("name").unique();
+    categoryTable.addColumn("name").setUnique(true);
 
     Table tagTable = schema.createTableIfNotExists("Tag");
-    tagTable.addColumn("name").unique();
+    tagTable.addColumn("name").setUnique(true);
 
     Table petTable = schema.createTableIfNotExists("Pet");
-    petTable.addColumn("name").unique();
+    petTable.addColumn("name").setUnique(true);
     petTable.addRef("category", "Category").setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", "Tag");
 
     Table userTable = schema.createTableIfNotExists("User");
-    userTable.addColumn("username").unique();
+    userTable.addColumn("username").setUnique(true);
     userTable.addColumn("firstName");
     userTable.addColumn("lastName");
     userTable.addColumn("email"); // todo: validation email

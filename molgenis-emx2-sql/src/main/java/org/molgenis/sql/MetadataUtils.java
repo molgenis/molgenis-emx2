@@ -182,13 +182,13 @@ public class MetadataUtils {
             column.getTable().getName(),
             column.getName(),
             column.getType(),
-            column.isNullable(),
+            column.getNullable(),
             column.getRefTableName(),
             column.getRefColumnName())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getType())
-        .set(NULLABLE, column.isNullable())
+        .set(NULLABLE, column.getNullable())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
         .execute();

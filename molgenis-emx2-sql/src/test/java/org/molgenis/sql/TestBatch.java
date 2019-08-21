@@ -131,7 +131,7 @@ public class TestBatch {
     assertEquals(1, personTable.getUniques().size());
     try {
       personTable.removeUnique(MOLGENISID);
-      fail("you shouldn't be allowed to remove primary key isUnique constraint");
+      fail("you shouldn't be allowed to remove primary key unique constraint");
     } catch (Exception e) {
       // good stuff
     }

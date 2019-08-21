@@ -2,15 +2,13 @@ package org.molgenis;
 
 public interface Column {
 
-  Table getTable();
-
   String getName();
 
   Type getType();
 
-  Boolean isNullable();
+  Boolean getNullable();
 
-  Boolean isReadonly();
+  Boolean getReadonly();
 
   Boolean isUnique();
 
@@ -28,11 +26,15 @@ public interface Column {
 
   String getDescription();
 
+  // implementation methods
+
+  Table getTable();
+
   Column getRefColumn() throws MolgenisException;
 
   Column setNullable(boolean nillable) throws MolgenisException;
 
-  Column unique() throws MolgenisException;
+  Column setUnique(boolean unique) throws MolgenisException;
 
   Column primaryKey() throws MolgenisException;
 

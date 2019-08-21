@@ -82,8 +82,8 @@ public class ConvertSchemaToEmx2 {
         default:
           def.add(column.getType().toString().toLowerCase());
       }
-      if (column.isNullable()) def.add("nullable");
-      if (column.isReadonly()) def.add("readonly");
+      if (column.getNullable()) def.add("nullable");
+      if (column.getReadonly()) def.add("readonly");
       if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
       if (column.isUnique()) def.add("unique");
 
