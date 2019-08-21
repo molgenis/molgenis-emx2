@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>org.molgenis</groupId>
-            <artifactId>molgenis-emx2-testtools</artifactId>
+            <artifactId>molgenis-emx2-exampledata</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>

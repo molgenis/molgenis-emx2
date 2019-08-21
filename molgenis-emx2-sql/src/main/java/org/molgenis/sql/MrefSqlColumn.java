@@ -42,7 +42,7 @@ public class MrefSqlColumn extends SqlColumn {
   @Override
   public MrefSqlColumn createColumn() throws MolgenisException {
 
-    // create nullable array columns compatible with the refs
+    // create setNullable array columns compatible with the refs
     SqlTable otherTable = (SqlTable) getTable().getSchema().getTable(getRefTableName());
     Column otherColumn = otherTable.getColumn(getRefColumnName());
 
@@ -57,7 +57,7 @@ public class MrefSqlColumn extends SqlColumn {
         .execute();
 
     // create the joinTable
-    Table table = getTable().getSchema().createTableIfNotExists(getJoinTable());
+    Table table = getTable().getSchema().createTableIfNotExists(getMrefJoinTableName());
     table.addRef(getRefColumnName(), getRefTableName(), getRefColumnName());
     table.addRef(getReverseRefColumn(), getTable().getName(), getReverseRefColumn());
 
@@ -70,7 +70,7 @@ public class MrefSqlColumn extends SqlColumn {
             getReverseRefColumn(),
             getName(),
             getRefColumnName(),
-            getJoinTable());
+            getMrefJoinTableName());
     otherTable.addMrefReverse(reverseColumn);
 
     // create triggers both ways
@@ -88,13 +88,13 @@ public class MrefSqlColumn extends SqlColumn {
       DSLContext jooq, Table joinTable, Column column, Column reverseColumn)
       throws MolgenisException {
 
-    // jooq parameters
+    //  parameters
     String insertOrUpdateTrigger =
         column.getTable().getName() + "_" + column.getName() + "_UPSERT_TRIGGER";
     Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
 
-    // insert and update trigger:
-    // first delete to to previous instance of 'self'
+    // insert and update trigger: does the following
+    // first delete mrefs to previous instance of 'self'
     // and then update with current set of refColumn, reverseRefColumn pairs
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
@@ -131,7 +131,7 @@ public class MrefSqlColumn extends SqlColumn {
         name(column.getTable().getSchemaName(), column.getTable().getName()),
         name(column.getTable().getSchemaName(), insertOrUpdateTrigger));
 
-    // delete trigger: delete all to to 'self'
+    // delete trigger: will delete all mrefs that involve 'self' before deleting 'self'
     String deleteTrigger = column.getTable().getName() + "_" + column.getName() + "_DELETE_TRIGGER";
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"

@@ -3,6 +3,7 @@ package org.molgenis.sql;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.molgenis.MolgenisException;
+import org.molgenis.Permission;
 import org.molgenis.Query;
 import org.molgenis.Schema;
 import org.molgenis.beans.SchemaMetadata;
@@ -10,7 +11,7 @@ import org.molgenis.beans.SchemaMetadata;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.Role.*;
+import static org.molgenis.Permission.*;
 import static org.molgenis.sql.MetadataUtils.*;
 import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
@@ -53,9 +54,9 @@ public class SqlSchema extends SchemaMetadata implements Schema {
     try (CreateSchemaFinalStep step = jooq.createSchema(schemaName)) {
       step.execute();
 
-      String viewer = MG_ROLE_PREFIX + schemaName.toUpperCase() + VIEWER;
-      String editor = MG_ROLE_PREFIX + schemaName.toUpperCase() + EDITOR;
-      String manager = MG_ROLE_PREFIX + schemaName.toUpperCase() + MANAGER;
+      String viewer = MG_ROLE_PREFIX + schemaName.toUpperCase() + VIEW;
+      String editor = MG_ROLE_PREFIX + schemaName.toUpperCase() + EDIT;
+      String manager = MG_ROLE_PREFIX + schemaName.toUpperCase() + MANAGE;
       String admin = MG_ROLE_PREFIX + schemaName.toUpperCase() + ADMIN;
 
       db.createRole(viewer);
@@ -102,25 +103,19 @@ public class SqlSchema extends SchemaMetadata implements Schema {
   }
 
   @Override
-  public void grantAdmin(String user) {
-    jooq.execute(
-        "GRANT {0} TO {1} WITH ADMIN OPTION",
-        name(MG_ROLE_PREFIX + getName().toUpperCase() + ADMIN), name(user));
+  public void grant(Permission permission, String user) throws MolgenisException {
+    if (ADMIN.equals(permission)) {
+      jooq.execute(
+          "GRANT {0} TO {1} WITH ADMIN OPTION",
+          name(MG_ROLE_PREFIX + getName().toUpperCase() + ADMIN), name(user));
+    } else {
+      db.grantRole(MG_ROLE_PREFIX + getName().toUpperCase() + permission, user);
+    }
   }
 
   @Override
-  public void grantManage(String user) throws MolgenisException {
-    db.grantRole(MG_ROLE_PREFIX + getName().toUpperCase() + MANAGER, user);
-  }
-
-  @Override
-  public void grantEdit(String user) throws MolgenisException {
-    db.grantRole(MG_ROLE_PREFIX + getName().toUpperCase() + EDITOR, user);
-  }
-
-  @Override
-  public void grantView(String user) throws MolgenisException {
-    db.grantRole(MG_ROLE_PREFIX + getName().toUpperCase() + VIEWER, user);
+  public void revokePermission(Permission permission, String user) throws MolgenisException {
+    db.revokeRole(MG_ROLE_PREFIX + getName().toUpperCase() + permission, user);
   }
 
   @Override

@@ -16,6 +16,8 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class MetadataUtils {
+  // this demonstrates why we don't want to use jooq directly, but only as our interface
+  // so ambition is to replace this with a pure molgenis api version.
 
   private static final String MOLGENIS = "MOLGENIS";
 
@@ -37,7 +39,8 @@ public class MetadataUtils {
       field(name("column_name"), VARCHAR.nullable(false));
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
-  private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
+  private static final org.jooq.Field NULLABLE =
+      field(name("setNullable"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_COLUMN =
       field(name("ref_column"), VARCHAR.nullable(true));
@@ -103,10 +106,10 @@ public class MetadataUtils {
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || 'MANAGER', 'member'))",
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || 'MANAGE', 'member'))",
         name("TABLE_RLS_MANAGER"), table, MG_ROLE_PREFIX, TABLE_SCHEMA);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || 'VIEWER', 'member'))",
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || 'VIEW', 'member'))",
         name("TABLE_RLS_VIEWER"), table, MG_ROLE_PREFIX, TABLE_SCHEMA);
   }
 

@@ -26,7 +26,7 @@ public class TestQueryWithRefArrays {
     String PERSON = "Person";
     Table personTable = schema.createTableIfNotExists(PERSON);
     personTable.addColumn("First Name", STRING);
-    personTable.addRef("Father", PERSON).nullable(true);
+    personTable.addRef("Father", PERSON).setNullable(true);
     personTable.addColumn("Last Name", STRING);
     personTable.addUnique("First Name", "Last Name");
 

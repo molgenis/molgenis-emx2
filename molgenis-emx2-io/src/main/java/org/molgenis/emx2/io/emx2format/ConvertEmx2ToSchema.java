@@ -153,7 +153,7 @@ public class ConvertEmx2ToSchema {
 
     // other properties
     Column column = table.getColumn(columnName);
-    if (def.contains("nullable")) column.nullable(true);
+    if (def.contains("nullable")) column.setNullable(true);
   }
 
   private static Type getType(Emx2PropertyList def) {

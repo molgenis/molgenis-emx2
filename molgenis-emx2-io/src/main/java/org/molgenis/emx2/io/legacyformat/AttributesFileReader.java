@@ -57,7 +57,7 @@ public class AttributesFileReader {
         column = table.addColumn(row.getName(), type);
       }
 
-      column.nullable(row.getNillable());
+      column.setNullable(row.getNillable());
       column.setDescription(row.getDescription());
       column.setReadonly(row.getReadonly());
     }

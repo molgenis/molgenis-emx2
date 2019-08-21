@@ -35,20 +35,16 @@ public class SqlColumn extends ColumnMetadata {
   }
 
   @Override
-  public SqlColumn nullable(boolean nillable) throws MolgenisException {
+  public SqlColumn setNullable(boolean nillable) throws MolgenisException {
     if (nillable) jooq.alterTable(asJooqTable()).alterColumn(getName()).dropNotNull().execute();
     else jooq.alterTable(asJooqTable()).alterColumn(getName()).setNotNull().execute();
-    super.nullable(isNullable());
+    super.setNullable(isNullable());
     return this;
   }
 
-  protected org.jooq.Table asJooqTable() {
-    return table(name(getTable().getSchema().getName(), getTable().getName()));
-  }
-
-  public SqlColumn setIndexed(boolean indexed) {
+  public SqlColumn setIndexed(boolean index) {
     String indexName = "INDEX_" + getTable().getName() + '_' + getName();
-    if (indexed) {
+    if (index) {
       jooq.createIndexIfNotExists(name(indexName))
           .on(asJooqTable(), field(name(getName())))
           .execute();
@@ -58,12 +54,18 @@ public class SqlColumn extends ColumnMetadata {
     return this;
   }
 
+  // helper methods
+
+  protected org.jooq.Table asJooqTable() {
+    return table(name(getTable().getSchema().getName(), getTable().getName()));
+  }
+
   protected DSLContext getJooq() {
     return jooq;
   }
 
   protected Column loadNullable(Boolean nullable) throws MolgenisException {
-    super.nullable(nullable);
+    super.setNullable(nullable);
     return this;
   }
 }

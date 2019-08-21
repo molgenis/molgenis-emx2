@@ -57,8 +57,9 @@ public class ColumnMetadata implements Column {
   }
 
   @Override
-  public void primaryKey() throws MolgenisException {
+  public Column primaryKey() throws MolgenisException {
     this.table.setPrimaryKey(this.name);
+    return this;
   }
 
   @Override
@@ -107,7 +108,7 @@ public class ColumnMetadata implements Column {
   }
 
   @Override
-  public Column nullable(boolean nillable) throws MolgenisException {
+  public Column setNullable(boolean nillable) throws MolgenisException {
     this.nullable = nillable;
     return this;
   }
@@ -118,7 +119,7 @@ public class ColumnMetadata implements Column {
     if (Type.REF.equals(getType()))
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getType().toString().toLowerCase());
-    if (isNullable()) builder.append(" nullable");
+    if (isNullable()) builder.append(" setNullable");
     return builder.toString();
   }
 
@@ -160,7 +161,7 @@ public class ColumnMetadata implements Column {
 
   @Override
   public Boolean isUnique() {
-    return getTable().unique(getName());
+    return getTable().isUnique(getName());
   }
 
   @Override
@@ -180,7 +181,7 @@ public class ColumnMetadata implements Column {
   }
 
   @Override
-  public String getJoinTable() {
+  public String getMrefJoinTableName() {
     return joinTable;
   }
 

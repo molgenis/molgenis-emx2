@@ -15,7 +15,12 @@ public class DatabaseBean implements Database {
   }
 
   @Override
-  public void createUser(String name) throws MolgenisException {
+  public void addUser(String name) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeUser(String name) {
     throw new UnsupportedOperationException();
   }
 
@@ -37,6 +42,11 @@ public class DatabaseBean implements Database {
 
   @Override
   public void grantRole(String role, String user) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void revokeRole(String role, String user) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 

@@ -97,15 +97,6 @@ public class Row implements Identifiable {
     return TypeUtils.toDateTimeArray(values.get(name));
   }
 
-  public void set(Map<String, Object> values) {
-    this.values.putAll(values);
-  }
-
-  public Row set(String name, Object value) {
-    this.values.put(name, value);
-    return this;
-  }
-
   public Row setString(String name, String value) {
     this.values.put(name, value);
     return this;
@@ -114,10 +105,6 @@ public class Row implements Identifiable {
   public Row setStringArray(String name, String[] value) {
     this.values.put(name, value);
     return this;
-  }
-
-  public Row setStringArray(String name, Collection<String> value) {
-    return this.setStringArray(name, value.toArray(new String[value.size()]));
   }
 
   public Row setInt(String name, Integer value) {
@@ -213,18 +200,13 @@ public class Row implements Identifiable {
     return Collections.unmodifiableList(result);
   }
 
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ROW(");
-    for (Map.Entry<String, Object> col : values.entrySet()) {
-      builder
-          .append(col.getKey())
-          .append("='")
-          .append(TypeUtils.toString(col.getValue()))
-          .append("' ");
-    }
-    builder.append(")");
-    return builder.toString();
+  public void set(Map<String, Object> values) {
+    this.values.putAll(values);
+  }
+
+  public Row set(String name, Object value) {
+    this.values.put(name, value);
+    return this;
   }
 
   public Map<String, Object> getValueMap() {
@@ -277,5 +259,19 @@ public class Row implements Identifiable {
             "Cannot cast column to java type",
             "Row.get(Class,name) not implemented for Class = " + type.getCanonicalName());
     }
+  }
+
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("ROW(");
+    for (Map.Entry<String, Object> col : values.entrySet()) {
+      builder
+          .append(col.getKey())
+          .append("='")
+          .append(TypeUtils.toString(col.getValue()))
+          .append("' ");
+    }
+    builder.append(")");
+    return builder.toString();
   }
 }

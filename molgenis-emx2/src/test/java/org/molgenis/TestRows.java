@@ -194,7 +194,7 @@ public class TestRows {
     Table t = m.createTableIfNotExists("TypeTest");
     for (Type type : types) {
       t.addColumn("test" + type, type);
-      t.addColumn("test" + type + "_nullable", type).nullable(true);
+      t.addColumn("test" + type + "_nullable", type).setNullable(true);
       t.addColumn("test" + type + "+readonly", type).setReadonly(true);
     }
   }

@@ -24,21 +24,23 @@ public interface Column {
 
   String getReverseRefColumn();
 
-  String getJoinTable();
+  String getMrefJoinTableName();
 
   String getDescription();
 
   Column getRefColumn() throws MolgenisException;
 
-  Column nullable(boolean nillable) throws MolgenisException;
+  Column setNullable(boolean nillable) throws MolgenisException;
+
+  Column unique() throws MolgenisException;
+
+  Column primaryKey() throws MolgenisException;
 
   void setReadonly(boolean readonly);
 
   void setDescription(String description);
 
   void setDefaultValue(String defaultValue);
-
-  Column unique() throws MolgenisException;
 
   // for fluent api in Table
   Column addColumn(String name) throws MolgenisException;
@@ -53,11 +55,12 @@ public interface Column {
 
   Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException;
 
-  void primaryKey() throws MolgenisException;
-
+  @Deprecated
   Column setReference(String refTable, String refColumn);
 
+  @Deprecated
   Column setReverseReference(String reverseName, String reverseRefColumn);
 
+  @Deprecated
   Column setJoinTable(String joinTableName);
 }

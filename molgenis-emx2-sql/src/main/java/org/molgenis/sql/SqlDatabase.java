@@ -66,7 +66,7 @@ public class SqlDatabase extends DatabaseBean implements Database {
   }
 
   @Override
-  public void createUser(String name) throws MolgenisException {
+  public void addUser(String name) throws MolgenisException {
     try {
       jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(name));
     } catch (DataAccessException dae) {

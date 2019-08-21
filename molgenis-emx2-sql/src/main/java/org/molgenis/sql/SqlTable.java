@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.Role.*;
+import static org.molgenis.Permission.*;
 import static org.molgenis.Type.*;
 import static org.molgenis.sql.MetadataUtils.*;
 
@@ -47,13 +47,13 @@ class SqlTable extends TableMetadata implements Table {
     // grant rights to schema manager, editor and viewer roles
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
-        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + VIEWER));
+        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + VIEW));
     jooq.execute(
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + EDITOR));
+        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + EDIT));
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + MANAGER));
+        tableName, name(MG_ROLE_PREFIX + getSchemaName().toUpperCase() + MANAGE));
 
     // add default molgenisid primary key column
     this.addColumn(MOLGENISID, UUID).primaryKey();
@@ -219,7 +219,7 @@ class SqlTable extends TableMetadata implements Table {
   }
 
   @Override
-  public boolean unique(String... keys) {
+  public boolean isUnique(String... keys) {
     try {
       getUniqueName(keys);
       return true;

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.Permission.*;
 import static org.molgenis.Type.STRING;
 import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
@@ -29,14 +30,14 @@ public class TestRoles {
     Schema schema = database.createSchema("testRolePermissions");
 
     // createColumn test users
-    database.createUser("user_testRolePermissions_viewer");
-    database.createUser("user_testRolePermissions_editor");
-    database.createUser("user_testRolePermissions_manager");
+    database.addUser("user_testRolePermissions_viewer");
+    database.addUser("user_testRolePermissions_editor");
+    database.addUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    schema.grantView("user_testRolePermissions_viewer");
-    schema.grantEdit("user_testRolePermissions_editor");
-    schema.grantManage("user_testRolePermissions_manager");
+    schema.grant(VIEW, "user_testRolePermissions_viewer");
+    schema.grant(EDIT, "user_testRolePermissions_editor");
+    schema.grant(MANAGE, "user_testRolePermissions_manager");
 
     StopWatch.print("testRolePermissions schema created");
 
@@ -104,9 +105,9 @@ public class TestRoles {
   @Test
   public void testRole() throws MolgenisException {
     Schema schema = database.createSchema("testRole");
-    database.createUser("testadmin");
-    database.createUser("testuser");
-    schema.grantAdmin("testadmin");
+    database.addUser("testadmin");
+    database.addUser("testuser");
+    schema.grant(ADMIN, "testadmin");
     schema
         .createTableIfNotExists("Person")
         .addColumn("FirstName", STRING)
@@ -130,7 +131,7 @@ public class TestRoles {
           db -> {
             db.getSchema("testRole").createTableIfNotExists("Test");
             // this is soo cooool
-            db.getSchema("testRole").grantView("testuser");
+            db.getSchema("testRole").grant(VIEW, "testuser");
           });
 
     } catch (Exception e) {
@@ -145,14 +146,14 @@ public class TestRoles {
     // createColumn schema
     Schema s = database.createSchema("TestRLS");
     // createColumn two users
-    database.createUser("testrls1");
-    database.createUser("testrls2");
-    database.createUser("testrlsnopermission");
-    database.createUser("testrls_has_rls_view");
+    database.addUser("testrls1");
+    database.addUser("testrls2");
+    database.addUser("testrlsnopermission");
+    database.addUser("testrls_has_rls_view");
     // grant both admin on TestRLS schema so can add row level security
-    s.grantAdmin("testrls1");
-    s.grantAdmin("testrls2");
-    s.grantView("testrls_has_rls_view"); // can view table but only rows with right RLS
+    s.grant(ADMIN, "testrls1");
+    s.grant(ADMIN, "testrls2");
+    s.grant(VIEW, "testrls_has_rls_view"); // can view table but only rows with right RLS
 
     // let one user createColumn the table
     database.transaction(

@@ -43,7 +43,7 @@ public class TestSimpleTypesAllInOne {
 
     StopWatch.print("created TypeTest table");
 
-    // check nullable ok
+    // check setNullable ok
     Row row = new Row();
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");

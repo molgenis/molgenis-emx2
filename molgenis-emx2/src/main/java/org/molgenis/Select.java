@@ -2,7 +2,7 @@ package org.molgenis;
 
 public interface Select {
 
-  Select include(String column);
+  Select include(String column); // todo unclear, is part of expand
 
   Select avg(String column);
 
@@ -14,15 +14,17 @@ public interface Select {
 
   Query eq(Integer... values);
 
+  // for fluent API also include table level operations
+
   Query asc(String... path);
 
   Query desc(String... path);
 
   Where where(String... path);
 
-  String[] getPath();
+  String[] getPath(); // todo move to implementation?
 
-  public enum Aggregation {
+  enum Aggregation {
     HIDDEN,
     EXPAND,
     AVG,

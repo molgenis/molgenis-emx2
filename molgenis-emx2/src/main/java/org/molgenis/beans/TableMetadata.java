@@ -163,8 +163,8 @@ public class TableMetadata implements Table {
       if (c == null)
         throw new MolgenisException(
             "invalid_unique",
-            "Add or update of unique constraint failed",
-            "Addition of unique failed because column '"
+            "Add or update of isUnique constraint failed",
+            "Addition of isUnique failed because column '"
                 + columnName
                 + "' is not known in table "
                 + getName());
@@ -177,7 +177,7 @@ public class TableMetadata implements Table {
   }
 
   @Override
-  public boolean unique(String... names) {
+  public boolean isUnique(String... names) {
     try {
       getUniqueName(names);
       return true;
@@ -205,8 +205,8 @@ public class TableMetadata implements Table {
     if (keys.length == 1 && MOLGENISID.equals(keys[0]))
       throw new MolgenisException(
           "invalid_unique",
-          "Removal of unique failed",
-          "You are not allowed to remove unique constraint on system column '" + MOLGENISID + "");
+          "Removal of isUnique failed",
+          "You are not allowed to remove isUnique constraint on system column '" + MOLGENISID + "");
     String uniqueName = getUniqueName(keys);
     uniques.remove(uniqueName);
   }

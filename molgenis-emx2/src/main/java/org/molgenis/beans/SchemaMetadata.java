@@ -65,22 +65,12 @@ public class SchemaMetadata implements Schema {
   }
 
   @Override
-  public void grantAdmin(String user) {
+  public void grant(Permission permission, String role) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void grantManage(String user) throws MolgenisException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void grantEdit(String user) throws MolgenisException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void grantView(String user) throws MolgenisException {
+  public void revokePermission(Permission permission, String user) throws MolgenisException {
     throw new UnsupportedOperationException();
   }
 

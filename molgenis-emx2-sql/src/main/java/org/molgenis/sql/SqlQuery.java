@@ -78,7 +78,9 @@ public class SqlQuery extends QueryBean implements Query {
     for (Column column : table.getColumns()) {
       if (!MREF.equals(column.getType())) {
         fields.add(
-            field(name(column.getJoinTable(), column.getName()), SqlTypeUtils.jooqTypeOf(column)));
+            field(
+                name(column.getMrefJoinTableName(), column.getName()),
+                SqlTypeUtils.jooqTypeOf(column)));
       } else {
         fields.add(field(name(table.getName(), column.getName()), SqlTypeUtils.jooqTypeOf(column)));
       }
@@ -106,11 +108,11 @@ public class SqlQuery extends QueryBean implements Query {
                             field("array_agg({0})", name(column.getRefColumnName()))
                                 .as(column.getName()),
                             field(name(column.getReverseRefColumn())))
-                        .from(table(name(table.getSchemaName(), column.getJoinTable())))
+                        .from(table(name(table.getSchemaName(), column.getMrefJoinTableName())))
                         .groupBy(field(name(column.getReverseRefColumn())))
-                        .asTable(column.getJoinTable()))
+                        .asTable(column.getMrefJoinTableName()))
                 .on(
-                    field(name(column.getJoinTable(), column.getReverseRefColumn()))
+                    field(name(column.getMrefJoinTableName(), column.getReverseRefColumn()))
                         .eq((field(name(table.getName(), column.getReverseRefColumn())))));
       }
     }
@@ -248,7 +250,7 @@ public class SqlQuery extends QueryBean implements Query {
                         field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
             break;
           case MREF:
-            String joinTable = c.getJoinTable();
+            String joinTable = c.getMrefJoinTableName();
 
             // to link table
             fromStep =

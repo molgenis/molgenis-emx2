@@ -80,10 +80,10 @@ public class TestBatch {
 
     personTable
         .addColumn("First Name", STRING)
-        .nullable(false)
+        .setNullable(false)
         .addColumn("Last Name", STRING)
         .addRef("Father", personTable.getName())
-        .nullable(true);
+        .setNullable(true);
     personTable.addUnique("First Name", "Last Name");
 
     // createColumn a fromTable
@@ -92,9 +92,9 @@ public class TestBatch {
       Table personTable2 = schema.createTableIfNotExists(PERSON + i);
       personTable2
           .addColumn("First Name", STRING)
-          .nullable(false); // default nullable=false but for testing
+          .setNullable(false); // default setNullable=false but for testing
       personTable2.addColumn("Last Name", STRING);
-      personTable2.addRef("Father", personTable2.getName()).nullable(true);
+      personTable2.addRef("Father", personTable2.getName()).setNullable(true);
       personTable2.addUnique("First Name", "Last Name");
     }
     StopWatch.print("Created tables");
@@ -131,7 +131,7 @@ public class TestBatch {
     assertEquals(1, personTable.getUniques().size());
     try {
       personTable.removeUnique(MOLGENISID);
-      fail("you shouldn't be allowed to remove primary key unique constraint");
+      fail("you shouldn't be allowed to remove primary key isUnique constraint");
     } catch (Exception e) {
       // good stuff
     }

@@ -4,9 +4,9 @@ import java.util.Collection;
 
 public interface Schema {
 
-  String getName();
-
   Collection<String> getTableNames() throws MolgenisException;
+
+  String getName();
 
   Table getTable(String name) throws MolgenisException;
 
@@ -14,13 +14,9 @@ public interface Schema {
 
   void dropTable(String tableId) throws MolgenisException;
 
-  void grantAdmin(String user);
+  void grant(Permission permission, String role) throws MolgenisException;
 
-  void grantManage(String user) throws MolgenisException;
-
-  void grantEdit(String user) throws MolgenisException;
-
-  void grantView(String user) throws MolgenisException;
+  void revokePermission(Permission permission, String role) throws MolgenisException;
 
   Query query(String tableName) throws MolgenisException;
 }

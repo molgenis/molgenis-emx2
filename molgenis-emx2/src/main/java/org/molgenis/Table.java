@@ -7,9 +7,9 @@ public interface Table {
 
   String getName();
 
-  Schema getSchema();
-
   String getSchemaName();
+
+  Schema getSchema();
 
   Table setPrimaryKey(String... columnNames) throws MolgenisException;
 
@@ -52,23 +52,24 @@ public interface Table {
 
   Unique addUnique(String... name) throws MolgenisException;
 
-  boolean unique(String... tableName);
+  boolean isUnique(String... tableName);
 
   void removeUnique(String... name) throws MolgenisException;
 
   int insert(Row... row) throws MolgenisException;
 
-  int insert(Collection<Row> rows) throws MolgenisException;
+  int insert(Collection<Row> rows)
+      throws MolgenisException; // todo: use Iterable or Iterator instead?
 
   int update(Row... row) throws MolgenisException;
 
-  int update(Collection<Row> rows) throws MolgenisException;
+  int update(Collection<Row> rows) throws MolgenisException; // todo: update based on secondary key.
 
   int delete(Row... row) throws MolgenisException;
 
   int delete(Collection<Row> rows) throws MolgenisException;
 
-  void deleteByPrimaryKey(Object... name);
+  void deleteByPrimaryKey(Object... name); // todo: remove?
 
   Select select(String... path);
 
@@ -80,7 +81,7 @@ public interface Table {
 
   <E> List<E> retrieve(String columnName, Class<E> klazz) throws MolgenisException;
 
-  void enableSearch();
+  void enableSearch(); // todo: decide if standard on.
 
-  void enableRowLevelSecurity() throws MolgenisException;
+  void enableRowLevelSecurity() throws MolgenisException; // todo: decide if standard on
 }

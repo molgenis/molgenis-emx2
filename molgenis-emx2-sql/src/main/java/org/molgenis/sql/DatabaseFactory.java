@@ -101,6 +101,6 @@ public class DatabaseFactory {
       throw new MolgenisException(
           "invalid_column",
           "Column cannot be found",
-          "Column '" + c.getTable().getName() + "'.'" + c.getName() + "' could not be found");
+          "Column '" + c.getTable().getName() + "'.'    " + c.getName() + "' could not be found");
   }
 }

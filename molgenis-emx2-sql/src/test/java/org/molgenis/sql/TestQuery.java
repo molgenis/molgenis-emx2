@@ -28,7 +28,7 @@ package org.molgenis.sql; // package org.molgenis.sql;
 //    String PERSON = "Person";
 //    Table person = s.createTableIfNotExists(PERSON);
 //    person.addColumn("First Name", STRING);
-//    person.addRef("Father", PERSON).nullable(true);
+//    person.addRef("Father", PERSON).setNullable(true);
 //    person.addColumn("Last Name", STRING);
 //    person.addUnique("First Name", "Last Name");
 //
@@ -132,7 +132,7 @@ package org.molgenis.sql; // package org.molgenis.sql;
 //    // needed:
 //    // join+columns paths, potentially multiple paths. We only support outer join over
 // relationships
-//    // if names are not unique, require explicit select naming
+//    // if names are not isUnique, require explicit select naming
 //    // complex nested where clauses
 //    // sortby clauses
 //    // later: group by.

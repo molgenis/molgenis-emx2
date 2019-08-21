@@ -6,7 +6,7 @@ public interface Query {
 
   Select select(String... path);
 
-  Select expand(String... column);
+  Select expand(String... column); // do we need this one?
 
   Query search(String terms);
 
@@ -26,11 +26,11 @@ public interface Query {
 
   Query desc(String... column);
 
-  List<Select> getSelectList();
+  List<Select> getSelectList(); // move to implementation?
 
-  List<Where> getWhereLists();
+  List<Where> getWhereLists(); // move to implementation
 
-  List<Sort> getSortList();
+  List<Sort> getSortList(); // move to implementation
 
   List<Row> retrieve() throws MolgenisException;
 

@@ -20,7 +20,7 @@ public class TestWebApi {
 
     Table petTable = schema.createTableIfNotExists("Pet");
     petTable.addColumn("name").unique();
-    petTable.addRef("category", "Category").nullable(true);
+    petTable.addRef("category", "Category").setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", "Tag");
