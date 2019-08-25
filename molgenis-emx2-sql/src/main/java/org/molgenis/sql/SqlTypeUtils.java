@@ -6,7 +6,6 @@ import org.molgenis.*;
 import org.molgenis.data.Row;
 import org.molgenis.data.Table;
 import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
 import org.molgenis.metadata.Type;
 import org.molgenis.utils.TypeUtils;
 
@@ -213,7 +212,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME:
         return "timestamp without time zone";
       default:
-        throw new RuntimeException(
+        throw new MolgenisException(
+            "internal_error",
+            "Should only happen during development",
             "Internal error: data cannot be mapped to psqlType " + column.getType());
     }
   }

@@ -14,7 +14,7 @@ import static org.molgenis.sql.MetadataUtils.*;
 import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
-  @JsonIgnore private transient SqlDatabase db;
+  @JsonIgnore private SqlDatabase db;
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(name);
@@ -36,11 +36,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       if (table.exists()) {
         this.tables.put(name, table);
         return table;
-      } else
+      } else {
         throw new MolgenisException(
             "undefined_table",
             "Table not found",
             "Table '" + name + "' couldn't not be found in schema " + getName());
+      }
     }
   }
 
@@ -88,7 +89,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public Collection<String> getTableNames() throws MolgenisException {
+  public Collection<String> getTableNames() {
     Collection<String> result = super.getTableNames();
     if (result.isEmpty()) {
       result = loadTableNames(this);

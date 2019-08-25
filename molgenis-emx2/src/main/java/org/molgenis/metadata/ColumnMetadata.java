@@ -80,7 +80,7 @@ public class ColumnMetadata {
     return refTable;
   }
 
-  public String getRefColumnName() throws MolgenisException {
+  public String getRefColumnName() {
     return this.refColumn;
   }
 
@@ -101,7 +101,7 @@ public class ColumnMetadata {
           .getColumn(getRefColumnName());
   }
 
-  public ColumnMetadata setNullable(boolean nillable) throws MolgenisException {
+  public ColumnMetadata setNullable(boolean nillable) {
     this.nullable = nillable;
     return this;
   }

@@ -147,41 +147,41 @@ public class OpenApiForSchemaFactory {
                 .addApiResponse("500", new ApiResponse().description("Server error")));
   }
 
-  private static void schemaPermissioApi(String name) {
+  // private static void schemaPermissioApi(String name) {
 
-    // users have roles
-    // roles have permissions
-    // thus we need listing of role-permissions and user-roles
-    // thus get schema.roles/permissions and schema.users would provide listing of those things
+  // users have roles
+  // roles have permissions
+  // thus we need listing of role-permissions and user-roles
+  // thus get schema.roles/permissions and schema.users would provide listing of those things
 
-    /*
-    *
-    resource centric:
-    api/schema.permissions
-    api/schema/table.permissions
-    api/schema/table/molgenisid.permissions
-    get: {role: permission, anotherRole: anotherPermission}
-    post, delete {role:aPermission} allows to change those
+  /*
+  *
+  resource centric:
+  api/schema.permissions
+  api/schema/table.permissions
+  api/schema/table/molgenisid.permissions
+  get: {role: permission, anotherRole: anotherPermission}
+  post, delete {role:aPermission} allows to change those
 
-    role centric, so I can manage roles. Doesn't include RLS
-    GET api/schema.roles: {
-    	aRole: {_schema: permission, aTable:permission, etc:permission}
-    	otherRole: {etc}
-    }
-    POST
-    GET api/schema.roles/aRole: {_schema: permission, aTable:permission, etc:permission}
-    DELETE api/schema.roles/aRole: 200
-    POST api/schema.roles/aRole: {_schema: permission, aTable:permission}} //creates role if not exists
-    * */
-
-    // post to grant new { role: roleid, permission: permission, object: schema/table }
-    // revoke permission by delete of {idem}
-    // there is no update of a permission
-    // do we want all permissions for schema in one go? I think yes?
-
-    // in addition I want to quickly check if current user has a permission for a table.
-
+  role centric, so I can manage roles. Doesn't include RLS
+  GET api/schema.roles: {
+  	aRole: {_schema: permission, aTable:permission, etc:permission}
+  	otherRole: {etc}
   }
+  POST
+  GET api/schema.roles/aRole: {_schema: permission, aTable:permission, etc:permission}
+  DELETE api/schema.roles/aRole: 200
+  POST api/schema.roles/aRole: {_schema: permission, aTable:permission}} //creates role if not exists
+  * */
+
+  // post to grant new { role: roleid, permission: permission, object: schema/table }
+  // revoke permission by delete of {idem}
+  // there is no update of a permission
+  // do we want all permissions for schema in one go? I think yes?
+
+  // in addition I want to quickly check if current user has a permission for a table.
+
+  // }
 
   private static void createOpenApiForTable(TableMetadata table, Paths paths, Components components)
       throws MolgenisException {
@@ -338,16 +338,6 @@ public class OpenApiForSchemaFactory {
     components.addSchemas("SchemaMetadata", metadataSchema);
   }
 
-  private static void metadataResponseBody(Components components) {
-    Schema tableSchema = new Schema();
-
-    components.addResponses(
-        "schema",
-        new ApiResponse()
-            .content(
-                new Content().addMediaType(APPLICATION_JSON, new MediaType().schema(tableSchema))));
-  }
-
   private static Schema columnSchema(ColumnMetadata column) throws MolgenisException {
     switch (column.getType()) {
       case UUID:
@@ -388,7 +378,9 @@ public class OpenApiForSchemaFactory {
       case MREF:
         return new ArraySchema().items(columnSchema(column.getRefColumn()));
       default:
-        throw new RuntimeException(
+        throw new MolgenisException(
+            "internal_error",
+            "Should never happen unless during development",
             "createColumnSchema failed: Type " + column.getType() + " not supported ");
     }
   }

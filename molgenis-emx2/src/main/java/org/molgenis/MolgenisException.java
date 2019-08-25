@@ -30,11 +30,6 @@ public class MolgenisException extends Exception {
     this.detail = detail;
   }
 
-  //  public MolgenisException(String message) {
-  //    super(message);
-  //    this.detail = message;
-  //  }
-
   public MolgenisException(String detail, Exception e) {
     super(detail, e);
     this.detail = detail;

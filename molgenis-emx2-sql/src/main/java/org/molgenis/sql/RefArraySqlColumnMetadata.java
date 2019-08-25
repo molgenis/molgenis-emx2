@@ -1,6 +1,5 @@
 package org.molgenis.sql;
 
-import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.MolgenisException;
 
@@ -28,7 +27,6 @@ public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
-  // todo: enable cascading updates
   private void createIsReferencedByTrigger() throws MolgenisException {
     Name triggerName = getTriggerName();
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());

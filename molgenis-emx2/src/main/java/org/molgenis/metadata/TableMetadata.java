@@ -188,7 +188,7 @@ public class TableMetadata {
       builder.append("\n\t").append(c.toString());
     }
     for (String[] u : getUniques()) {
-      builder.append("\n\t").append(u.toString());
+      builder.append("\n\t").append(Arrays.toString(u));
     }
     builder.append("\n}");
     return builder.toString();

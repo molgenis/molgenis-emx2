@@ -7,7 +7,6 @@ import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.TypeLiteral;
 import org.molgenis.*;
 import org.molgenis.data.Row;
-import org.molgenis.data.Table;
 import org.molgenis.metadata.ColumnMetadata;
 import org.molgenis.metadata.TableMetadata;
 

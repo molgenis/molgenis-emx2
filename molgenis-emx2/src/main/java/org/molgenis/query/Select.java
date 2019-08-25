@@ -2,7 +2,7 @@ package org.molgenis.query;
 
 public interface Select {
 
-  Select include(String column); // todo unclear, is part of expand
+  Select include(String column); // might be unclear, is part of expand
 
   Select avg(String column);
 
@@ -22,7 +22,7 @@ public interface Select {
 
   Where where(String... path);
 
-  String[] getPath(); // todo move to implementation?
+  String[] getPath();
 
   enum Aggregation {
     HIDDEN,

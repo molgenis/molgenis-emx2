@@ -5,7 +5,6 @@ import org.molgenis.data.Row;
 import org.molgenis.metadata.ColumnMetadata;
 import org.molgenis.metadata.SchemaMetadata;
 import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Unique;
 import org.simpleflatmapper.csv.CsvWriter;
 import org.simpleflatmapper.util.CheckedConsumer;
 

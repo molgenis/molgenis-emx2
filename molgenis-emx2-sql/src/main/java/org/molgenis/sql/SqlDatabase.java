@@ -48,9 +48,10 @@ public class SqlDatabase implements Database {
       SqlSchema schema = new SqlSchema(this, metadata);
       schemas.put(name, metadata);
       return schema;
-    } else
+    } else {
       throw new MolgenisException(
           "invalid_schema", "Schema doesn't exist", "Schema '" + name + " could not be found");
+    }
   }
 
   @Override
@@ -79,7 +80,9 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void removeUser(String name) {}
+  public void removeUser(String name) {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public void grantRole(String role, String user) throws MolgenisException {
@@ -91,7 +94,9 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void revokeRole(String role, String user) throws MolgenisException {}
+  public void revokeRole(String role, String user) throws MolgenisException {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public void transaction(Transaction transaction) throws MolgenisException {

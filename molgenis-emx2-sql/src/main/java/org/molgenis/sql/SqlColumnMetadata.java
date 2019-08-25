@@ -35,7 +35,7 @@ public class SqlColumnMetadata extends ColumnMetadata {
   }
 
   @Override
-  public SqlColumnMetadata setNullable(boolean nillable) throws MolgenisException {
+  public SqlColumnMetadata setNullable(boolean nillable) {
     if (nillable) jooq.alterTable(asJooqTable()).alterColumn(getName()).dropNotNull().execute();
     else jooq.alterTable(asJooqTable()).alterColumn(getName()).setNotNull().execute();
     super.setNullable(getNullable());

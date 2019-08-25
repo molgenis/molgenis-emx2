@@ -30,7 +30,7 @@ public class SchemaMetadata {
   }
 
   @JsonIgnore
-  public Collection<String> getTableNames() throws MolgenisException {
+  public Collection<String> getTableNames() {
     return Collections.unmodifiableCollection(tables.keySet());
   }
 
@@ -57,7 +57,7 @@ public class SchemaMetadata {
     return tables.containsKey(name);
   }
 
-  public void dropTable(String tableId) throws MolgenisException {
+  public void dropTable(String tableId) {
     tables.remove(tableId);
   }
 

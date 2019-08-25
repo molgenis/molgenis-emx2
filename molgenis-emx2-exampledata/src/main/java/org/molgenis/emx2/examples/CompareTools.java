@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static junit.framework.TestCase.fail;
+
 public class CompareTools {
 
   private static Javers javers;
@@ -38,11 +40,9 @@ public class CompareTools {
     // hide constructor
   }
 
-  public static void assertEquals(List<Row> list1, List<Row> list2)
-      throws RuntimeException, MolgenisException {
+  public static void assertEquals(List<Row> list1, List<Row> list2) throws MolgenisException {
 
-    if (list1.size() != list2.size())
-      throw new RuntimeException("List<Row> have different length ");
+    if (list1.size() != list2.size()) fail("List<Row> have different length ");
 
     for (int i = 0; i < list1.size(); i++) {
 
@@ -53,8 +53,7 @@ public class CompareTools {
       Collection<String> colNames2 = r2.getColumnNames();
 
       if (!colNames1.equals(colNames2)) {
-        throw new RuntimeException(
-            "List<Row> has different column names on row " + i + ": " + r1 + "+\nversus\n" + r2);
+        fail("List<Row> has different column names on row " + i + ": " + r1 + "+\nversus\n" + r2);
       }
 
       Map<String, Object> values1 = r1.getValueMap();
@@ -63,7 +62,7 @@ public class CompareTools {
 
         if (!r1.get(type, colName).equals(r2.get(type, colName))
             && !Arrays.equals((Object[]) r1.get(type, colName), (Object[]) r2.get(type, colName))) {
-          throw new RuntimeException(
+          fail(
               "List<Row> has different value for row "
                   + i
                   + ", column "
@@ -84,12 +83,10 @@ public class CompareTools {
 
     for (Object tableName : tableNames1)
       if (!tableNames2.contains(tableName))
-        throw new RuntimeException(
-            "Schema's have different tables: schema2 doesn't contain '" + tableName + "'");
+        fail("Schema's have different tables: schema2 doesn't contain '" + tableName + "'");
     for (Object tableName : tableNames2)
       if (!tableNames1.contains(tableName))
-        throw new RuntimeException(
-            "Schema's have different tables: schema1 doesn't contain '" + tableName + "'");
+        fail("Schema's have different tables: schema1 doesn't contain '" + tableName + "'");
 
     for (String tableName : tableNames1) {
       Diff diff =
@@ -97,7 +94,7 @@ public class CompareTools {
               .compare(schema1.getTableMetadata(tableName), schema2.getTableMetadata(tableName));
 
       if (diff.hasChanges()) {
-        throw new RuntimeException("Roundtrip test failed: changes, " + diff.toString());
+        fail("Roundtrip test failed: changes, " + diff.toString());
       }
     }
   }
@@ -119,7 +116,7 @@ public class CompareTools {
       Diff diff = getJavers().compare(t1, t2);
 
       if (diff.hasChanges()) {
-        throw new RuntimeException("Roundtrip test failed: changes, " + diff.toString());
+        fail("Roundtrip test failed: changes, " + diff.toString());
       }
     }
   }

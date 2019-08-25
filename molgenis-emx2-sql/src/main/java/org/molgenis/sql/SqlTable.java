@@ -249,7 +249,6 @@ class SqlTable implements Table {
   }
 
   private org.jooq.Table getJooqTable() {
-    TableMetadata metadata = getMetadata();
     return table(name(metadata.getSchema().getName(), metadata.getName()));
   }
 

@@ -11,7 +11,7 @@ import java.util.*;
 
 public class Row implements Identifiable {
 
-  // todo use https://github.com/Devskiller/friendly-id instead of ugly uuid
+  // option: use https://github.com/Devskiller/friendly-id instead of ugly uuid
   public static final String MOLGENISID = "molgenisid";
   private Map<String, Object> values = new LinkedHashMap<>();
 

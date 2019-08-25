@@ -1,7 +1,5 @@
 package org.molgenis.emx2.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jsoniter.output.EncodingMode;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsonException;
@@ -131,7 +129,7 @@ public class WebApiFactory {
   }
 
   private static String openApiListSchemas(Request request, Response response)
-      throws MolgenisException, IOException {
+      throws MolgenisException {
     SchemaMetadata schema = database.getSchema(request.params(SCHEMA)).getMetadata();
     List<TableMetadata> result = new ArrayList<>();
     for (String name : schema.getTableNames()) {

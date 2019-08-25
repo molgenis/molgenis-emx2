@@ -22,7 +22,7 @@ class SqlTableMetadata extends TableMetadata {
   public static final String MG_SEARCH_INDEX_COLUMN_NAME = "MG_SEARCH_VECTOR";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
 
-  @JsonIgnore private transient SqlDatabase db;
+  @JsonIgnore private SqlDatabase db;
 
   SqlTableMetadata(SqlDatabase db, SqlSchemaMetadata schema, String name) {
     super(schema, name);
@@ -155,10 +155,6 @@ class SqlTableMetadata extends TableMetadata {
     return table(name(getSchema().getName(), getName()));
   }
 
-  private Field getJooqField(ColumnMetadata c) throws MolgenisException {
-    return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
-  }
-
   public boolean exists() {
     return !getColumns().isEmpty();
   }
@@ -211,6 +207,7 @@ class SqlTableMetadata extends TableMetadata {
     super.removeUnique(correctOrderedNames);
   }
 
+  @Override
   public void enableSearch() {
 
     // 1. add tsvector column with index
@@ -260,6 +257,7 @@ class SqlTableMetadata extends TableMetadata {
             getJooqTable());
   }
 
+  @Override
   public void enableRowLevelSecurity() throws MolgenisException {
     SqlColumnMetadata c = this.addColumn(MG_EDIT_ROLE, STRING);
     c.setIndexed(true);

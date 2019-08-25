@@ -18,17 +18,18 @@ public interface Table {
   int insert(Row... row) throws MolgenisException;
 
   int insert(Collection<Row> rows)
-      throws MolgenisException; // todo: use Iterable or Iterator instead?
+      throws MolgenisException; // consider use Iterable or Iterator instead?
 
   int update(Row... row) throws MolgenisException;
 
-  int update(Collection<Row> rows) throws MolgenisException; // todo: update based on secondary key.
+  int update(Collection<Row> rows)
+      throws MolgenisException; // wish list: update based on secondary key.
 
   int delete(Row... row) throws MolgenisException;
 
   int delete(Collection<Row> rows) throws MolgenisException;
 
-  void deleteByPrimaryKey(Object... name); // todo: remove?
+  void deleteByPrimaryKey(Object... name);
 
   Select select(String... path);
 

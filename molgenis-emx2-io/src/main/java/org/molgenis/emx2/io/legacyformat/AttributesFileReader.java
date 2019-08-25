@@ -18,6 +18,10 @@ import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
 
+  public static final String PARSE_ERROR = "parse_error";
+  public static final String PARSING_OF_ATTRIBUTES_FILE_FAILED =
+      "Parsing of attributes file failed";
+
   public SchemaMetadata readModelFromCsv(File f) throws FileNotFoundException, MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
@@ -108,24 +112,24 @@ public class AttributesFileReader {
           return MREF;
         case COMPOUND:
           throw new MolgenisException(
-              "parse_error",
-              "Parsing of attributes file failed",
+              PARSE_ERROR,
+              PARSING_OF_ATTRIBUTES_FILE_FAILED,
               "new emx2format doesn't support 'compound' data type");
         case ONE_TO_MANY:
           throw new MolgenisException(
-              "parse_error",
-              "Parsing of attributes file failed",
+              PARSE_ERROR,
+              PARSING_OF_ATTRIBUTES_FILE_FAILED,
               "new emx2format doesn't yet support 'ONE_TO_MANY' data type");
         default:
           throw new MolgenisException(
-              "parse_error",
-              "Parsing of attributes file failed",
+              PARSE_ERROR,
+              PARSING_OF_ATTRIBUTES_FILE_FAILED,
               "new emx2format doesn't yet support " + oldType + " data type");
       }
     } catch (IllegalArgumentException e) {
       throw new MolgenisException(
-          "parse_error",
-          "Parsing of attributes file failed",
+          PARSE_ERROR,
+          PARSING_OF_ATTRIBUTES_FILE_FAILED,
           "attributes type '" + dataType + "' not known");
     }
   }
@@ -157,8 +161,7 @@ public class AttributesFileReader {
       }
       return rows;
     } catch (IOException e) {
-      throw new MolgenisException(
-          "parse_error", "Parsing of attribuges file failed", e.getMessage());
+      throw new MolgenisException(PARSE_ERROR, "Parsing of attribuges file failed", e.getMessage());
     }
   }
 
