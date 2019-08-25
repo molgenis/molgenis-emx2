@@ -53,7 +53,7 @@ package org.molgenis.sql; // package org.molgenis.sql;
 //
 //    StopWatch.print("got schema");
 //
-//    Query q = s.getTable("Person").query();
+//    Query q = s.getTableMetadata("Person").query();
 //    q.select("First Name")
 //        .select("Last Name")
 //        .expand("Father")
@@ -70,7 +70,7 @@ package org.molgenis.sql; // package org.molgenis.sql;
 //
 //    StopWatch.print("query complete");
 //
-//    q = s.getTable("Person").query();
+//    q = s.getTableMetadata("Person").query();
 //    q.select("First Name")
 //        .select("Last Name")
 //        .expand("Father")
@@ -145,7 +145,7 @@ package org.molgenis.sql; // package org.molgenis.sql;
 //    //
 //    //        System.out.println(q1);
 //
-//    Query q = s.getTable("Product").query();
+//    Query q = s.getTableMetadata("Product").query();
 //    q.select("name")
 //        .expand("components")
 //        .include("name")
@@ -167,7 +167,7 @@ package org.molgenis.sql; // package org.molgenis.sql;
 //
 //    StopWatch.print("cleared cache");
 //
-//    Query q2 = s.getTable("Product").query();
+//    Query q2 = s.getTableMetadata("Product").query();
 //    q2.select("name")
 //        .expand("components")
 //        .include("name")

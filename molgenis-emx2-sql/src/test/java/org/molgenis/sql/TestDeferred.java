@@ -2,6 +2,10 @@ package org.molgenis.sql;
 
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.data.Schema;
 import org.molgenis.utils.StopWatch;
 
 import java.util.UUID;
@@ -40,7 +44,7 @@ public class TestDeferred {
     Table subjectTable = schema.createTableIfNotExists("Subject");
 
     Table sampleTable = schema.createTableIfNotExists("Sample");
-    sampleTable.addRef("subject", "Subject");
+    sampleTable.getMetadata().addRef("subject", "Subject");
 
     StopWatch.print("schema created");
 
@@ -63,7 +67,7 @@ public class TestDeferred {
             Table subjectTable = schema.createTableIfNotExists("Subject");
 
             Table sampleTable = schema.createTableIfNotExists("Sample");
-            sampleTable.addRef("subject", "Subject");
+            sampleTable.getMetadata().addRef("subject", "Subject");
 
             StopWatch.print("schema created");
 

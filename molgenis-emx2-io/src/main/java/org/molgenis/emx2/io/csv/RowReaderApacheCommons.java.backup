@@ -2,7 +2,7 @@
 //
 // import org.apache.commons.csv.CSVFormat;
 // import org.apache.commons.csv.CSVRecord;
-// import org.molgenis.Row;
+// import org.molgenis.data.Row;
 // import org.molgenis.beans.Row;
 //
 // import java.io.*;

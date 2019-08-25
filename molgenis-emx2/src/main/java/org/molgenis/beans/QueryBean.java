@@ -1,6 +1,8 @@
 package org.molgenis.beans;
 
 import org.molgenis.*;
+import org.molgenis.data.Row;
+import org.molgenis.query.*;
 
 import java.util.*;
 

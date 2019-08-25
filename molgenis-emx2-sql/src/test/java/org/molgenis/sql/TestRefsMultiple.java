@@ -3,9 +3,14 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestRefsMultiple {
 
@@ -61,10 +66,11 @@ public class TestRefsMultiple {
     String uniqueColumn1 = "AUnique" + type;
     String uniqueColumn2 = "AUnique" + type + "2";
 
-    aTable.addColumn(uniqueColumn1, type);
-    aTable.addColumn(uniqueColumn2, type);
-    // we use MOLGENISID as primary key
-    aTable.addUnique(uniqueColumn1, uniqueColumn2);
+    aTable
+        .getMetadata()
+        .addColumn(uniqueColumn1, type)
+        .addColumn(uniqueColumn2, type)
+        .addUnique(uniqueColumn1, uniqueColumn2);
 
     Row aRow = new Row().set(uniqueColumn1, insertValue).set(uniqueColumn2, insertValue);
     aTable.insert(aRow);
@@ -73,7 +79,10 @@ public class TestRefsMultiple {
     String refFromBToA1 = "RefToAKeyOf" + type;
     String refFromBToA2 = "RefToAKeyOf" + type + "2";
 
-    bTable.addRefMultiple(refFromBToA1, refFromBToA2).to("A", uniqueColumn1, uniqueColumn2);
+    bTable
+        .getMetadata()
+        .addRefMultiple(refFromBToA1, refFromBToA2)
+        .to("A", uniqueColumn1, uniqueColumn2);
     Row bRow = new Row().set(refFromBToA1, insertValue).set(refFromBToA2, insertValue);
     bTable.insert(bRow);
 

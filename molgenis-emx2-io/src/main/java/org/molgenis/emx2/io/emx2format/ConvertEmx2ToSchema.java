@@ -1,7 +1,13 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.*;
+import org.molgenis.MolgenisException;
+import org.molgenis.MolgenisExceptionMessage;
+import org.molgenis.data.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
+import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
 
 import java.io.File;
 import java.io.FileReader;
@@ -10,7 +16,10 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
+import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.NULLABLE;
+import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.PKEY;
+import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.UNIQUE;
 
 public class ConvertEmx2ToSchema {
 
@@ -18,16 +27,17 @@ public class ConvertEmx2ToSchema {
     // hides constructor
   }
 
-  public static void fromCsvFile(Schema schema, File file) throws IOException, MolgenisException {
+  public static void fromCsvFile(SchemaMetadata schema, File file)
+      throws IOException, MolgenisException {
     fromRowList(schema, CsvRowReader.readList(new FileReader(file)));
   }
 
-  public static void fromReader(Schema schema, Reader reader)
+  public static void fromReader(SchemaMetadata schema, Reader reader)
       throws IOException, MolgenisException {
     fromRowList(schema, CsvRowReader.readList(reader));
   }
 
-  public static void fromRowList(Schema schema, List<Row> rows) throws MolgenisException {
+  public static void fromRowList(SchemaMetadata schema, List<Row> rows) throws MolgenisException {
     List<Emx2FileRow> typedRows = new ArrayList<>();
     for (Row r : rows) {
       typedRows.add(new Emx2FileRow(r));
@@ -35,7 +45,7 @@ public class ConvertEmx2ToSchema {
     executeLoadProcedure(schema, typedRows);
   }
 
-  private static void executeLoadProcedure(Schema schema, List<Emx2FileRow> rows)
+  private static void executeLoadProcedure(SchemaMetadata schema, List<Emx2FileRow> rows)
       throws MolgenisException {
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
@@ -46,7 +56,7 @@ public class ConvertEmx2ToSchema {
     }
   }
 
-  private static void loadTablesFirst(List<Emx2FileRow> rows, Schema schema)
+  private static void loadTablesFirst(List<Emx2FileRow> rows, SchemaMetadata schema)
       throws MolgenisException {
     for (Emx2FileRow row : rows) {
       String tableName = row.getTable();
@@ -58,7 +68,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static void loadTableProperties(
-      Schema model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages)
+      SchemaMetadata model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
     for (Emx2FileRow row : rows) {
@@ -69,23 +79,23 @@ public class ConvertEmx2ToSchema {
 
       if (!"".equals(tableName) && "".equals(columnName.trim())) {
 
-        Table table = model.getTable(tableName);
+        TableMetadata table = model.getTableMetadata(tableName);
         extractTableDefinition(line, row, table, messages);
       }
     }
   }
 
   private static void extractTableDefinition(
-      int line, Emx2FileRow row, Table table, List<MolgenisExceptionMessage> messages)
+      int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
 
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
       switch (term) {
-        case "unique":
+        case UNIQUE:
           table.addUnique(def.getParameterArray(term));
           break;
-        case "pkey":
+        case PKEY:
           table.setPrimaryKey(def.getParameterArray(term));
           break;
         default:
@@ -95,7 +105,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static void loadColumns(
-      List<Emx2FileRow> rows, Schema model, List<MolgenisExceptionMessage> messages)
+      List<Emx2FileRow> rows, SchemaMetadata model, List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     int line = 1;
     for (Emx2FileRow row : rows) {
@@ -103,7 +113,7 @@ public class ConvertEmx2ToSchema {
       String tableName = row.getTable();
       String columnName = row.getColumn();
       if (!"".equals(tableName) && !"".equals(columnName)) {
-        Table table = model.getTable(tableName);
+        TableMetadata table = model.getTableMetadata(tableName);
         try {
           table.getColumn(columnName);
           throw new MolgenisException(
@@ -126,7 +136,7 @@ public class ConvertEmx2ToSchema {
   private static void loadColumn(
       Emx2FileRow row,
       String columnName,
-      Table table,
+      TableMetadata table,
       int line,
       List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
@@ -135,8 +145,8 @@ public class ConvertEmx2ToSchema {
 
     if (REF.equals(type)) {
       try {
-        String refTable = def.getParameterList("ref").get(0);
-        String refColumn = def.getParameterList("ref").get(1);
+        String refTable = def.getParameterList(REF.toString().toLowerCase()).get(0);
+        String refColumn = def.getParameterList(REF.toString().toLowerCase()).get(1);
         table.addRef(columnName, refTable, refColumn);
       } catch (Exception e) {
         messages.add(
@@ -144,16 +154,16 @@ public class ConvertEmx2ToSchema {
         throw e;
       }
     } else if (REF_ARRAY.equals(type)) {
-      String refTable = def.getParameterList("ref_array").get(0);
-      String refColumn = def.getParameterList("ref_array").get(1);
+      String refTable = def.getParameterList(REF_ARRAY).get(0);
+      String refColumn = def.getParameterList(REF_ARRAY).get(1);
       table.addRefArray(columnName, refTable, refColumn);
     } else {
       table.addColumn(columnName, type);
     }
 
     // other properties
-    Column column = table.getColumn(columnName);
-    if (def.contains("nullable")) column.setNullable(true);
+    ColumnMetadata column = table.getColumn(columnName);
+    if (def.contains(NULLABLE)) column.setNullable(true);
   }
 
   private static Type getType(Emx2PropertyList def) {

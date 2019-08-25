@@ -3,9 +3,9 @@ package org.molgenis.sql;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.*;
 import org.jooq.impl.DSL;
-import org.molgenis.Column;
-import org.molgenis.Database;
+import org.molgenis.data.Database;
 import org.molgenis.MolgenisException;
+import org.molgenis.metadata.ColumnMetadata;
 
 import java.util.List;
 
@@ -88,7 +88,7 @@ public class DatabaseFactory {
     return jooq;
   }
 
-  public static void checkColumnExists(Column c) throws MolgenisException {
+  public static void checkColumnExists(ColumnMetadata c) throws MolgenisException {
     List<Table<?>> tables = DatabaseFactory.getJooq().meta().getTables(c.getTable().getName());
     if (tables.isEmpty())
       throw new MolgenisException(

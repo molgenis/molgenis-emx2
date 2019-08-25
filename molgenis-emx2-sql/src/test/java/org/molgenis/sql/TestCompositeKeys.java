@@ -3,11 +3,16 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestCompositeKeys {
   static Database database;
@@ -68,10 +73,12 @@ public class TestCompositeKeys {
     Schema schema = database.createSchema("TestCompositeKeys" + type.toString());
 
     Table aTable = schema.createTableIfNotExists("CompositeKeyTable");
-    aTable.addColumn("col1", type);
-    aTable.addColumn("col2", type);
-    aTable.addColumn("col3", type);
-    aTable.setPrimaryKey("col1", "col2");
+    aTable
+        .getMetadata()
+        .addColumn("col1", type)
+        .addColumn("col2", type)
+        .addColumn("col3", type)
+        .setPrimaryKey("col1", "col2");
 
     Row aRow = new Row().set("col1", data[0]).set("col2", data[0]).set("col3", data[0]);
     Row aRow2 = new Row().set("col1", data[0]).set("col2", data[1]).set("col3", data[0]);

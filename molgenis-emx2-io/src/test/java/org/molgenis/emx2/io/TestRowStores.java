@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.MolgenisException;
-import org.molgenis.Row;
+import org.molgenis.data.Row;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;

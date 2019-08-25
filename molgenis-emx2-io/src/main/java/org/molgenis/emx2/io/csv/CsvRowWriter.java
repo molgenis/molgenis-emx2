@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.csv;
 
-import org.molgenis.Row;
+import org.molgenis.data.Row;
 import org.simpleflatmapper.csv.CsvWriter;
 
 import java.io.IOException;

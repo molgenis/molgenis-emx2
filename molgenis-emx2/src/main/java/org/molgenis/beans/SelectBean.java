@@ -1,8 +1,8 @@
 package org.molgenis.beans;
 
-import org.molgenis.Query;
-import org.molgenis.Select;
-import org.molgenis.Where;
+import org.molgenis.query.Query;
+import org.molgenis.query.Select;
+import org.molgenis.query.Where;
 
 import java.io.Serializable;
 import java.util.Arrays;

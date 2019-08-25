@@ -3,11 +3,17 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestRefArray {
   private static Database db;
@@ -70,8 +76,7 @@ public class TestRefArray {
 
     Table aTable = schema.createTableIfNotExists("A");
     String aKey = "A" + type + "Key";
-    aTable.addColumn(aKey, type);
-    aTable.addUnique(aKey);
+    aTable.getMetadata().addColumn(aKey, type).addUnique(aKey);
 
     Row aRow = new Row().set(aKey, testValues[0]);
     Row aRow2 = new Row().set(aKey, testValues[1]);
@@ -79,7 +84,7 @@ public class TestRefArray {
 
     Table bTable = schema.createTableIfNotExists("B");
     String refToA = type + "RefToA";
-    bTable.addRefArray(refToA, "A", aKey);
+    bTable.getMetadata().addRefArray(refToA, "A", aKey);
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 1, 3));

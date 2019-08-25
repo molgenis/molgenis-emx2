@@ -4,22 +4,24 @@ import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.*;
 import org.junit.Test;
 import org.molgenis.*;
-import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestOpenApi {
 
   @Test
   public void constructApi() throws MolgenisException, IOException, URISyntaxException {
-    org.molgenis.Schema schema = new SchemaMetadata("test");
+    SchemaMetadata schema = new SchemaMetadata("test");
 
-    Table table = schema.createTableIfNotExists("TypeTest");
+    TableMetadata table = schema.createTableIfNotExists("TypeTest");
     for (Type type : Type.values()) {
       if (MREF.equals(type) || REF.equals(type) || REF_ARRAY.equals(type)) {
         // TODO: outside of test for now
@@ -28,12 +30,12 @@ public class TestOpenApi {
       }
     }
 
-    Table personTable = schema.createTableIfNotExists("Person");
+    TableMetadata personTable = schema.createTableIfNotExists("Person");
     personTable.addColumn("First Name", STRING);
     personTable.addColumn("Last Name", STRING);
 
-    OpenAPI api = OpenApiFactory.createOpenApi(schema);
-    assertEquals(3, api.getComponents().getSchemas().size());
+    OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema);
+    assertEquals(8, api.getComponents().getSchemas().size());
 
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);

@@ -3,6 +3,11 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.query.Query;
+import org.molgenis.data.Schema;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -11,9 +16,9 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Type.INT;
-import static org.molgenis.Type.STRING;
+import static org.molgenis.data.Row.MOLGENISID;
+import static org.molgenis.metadata.Type.INT;
+import static org.molgenis.metadata.Type.STRING;
 
 public class TestBatch {
   private static Database db;
@@ -30,8 +35,7 @@ public class TestBatch {
 
     Schema schema = db.createSchema("testBatch");
     Table testBatchTable = schema.createTableIfNotExists("TestBatch");
-    testBatchTable.addColumn("test", STRING);
-    testBatchTable.addColumn("testint", INT);
+    testBatchTable.getMetadata().addColumn("test", STRING).addColumn("testint", INT);
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -79,23 +83,26 @@ public class TestBatch {
     Table personTable = schema.createTableIfNotExists(PERSON);
 
     personTable
+        .getMetadata()
         .addColumn("First Name", STRING)
         .setNullable(false)
         .addColumn("Last Name", STRING)
-        .addRef("Father", personTable.getName())
-        .setNullable(true);
-    personTable.addUnique("First Name", "Last Name");
+        .addRef("Father", PERSON)
+        .setNullable(true)
+        .addUnique("First Name", "Last Name");
 
     // createColumn a fromTable
     // TODO need to optimize the reloading to be more lazy
     for (int i = 0; i < 10; i++) {
       Table personTable2 = schema.createTableIfNotExists(PERSON + i);
       personTable2
+          .getMetadata()
           .addColumn("First Name", STRING)
-          .setNullable(false); // default setNullable=false but for testing
-      personTable2.addColumn("Last Name", STRING);
-      personTable2.addRef("Father", personTable2.getName()).setNullable(true);
-      personTable2.addUnique("First Name", "Last Name");
+          .setNullable(false)
+          .addColumn("Last Name", STRING)
+          .addRef("Father", personTable2.getName())
+          .setNullable(true)
+          .addUnique("First Name", "Last Name");
     }
     StopWatch.print("Created tables");
 
@@ -128,28 +135,30 @@ public class TestBatch {
     StopWatch.print("Delete", count);
 
     assertEquals(0, schema.getTable("Person").retrieve().size());
-    assertEquals(1, personTable.getUniques().size());
+    assertEquals(1, personTableReloaded.getMetadata().getUniques().size());
+    assertEquals(1, personTable.getMetadata().getUniques().size());
     try {
-      personTable.removeUnique(MOLGENISID);
+      personTable.getMetadata().removeUnique(MOLGENISID);
       fail("you shouldn't be allowed to remove primary key unique constraint");
     } catch (Exception e) {
       // good stuff
     }
-    personTable.removeUnique("Last Name", "First Name");
-    assertEquals(0, personTable.getUniques().size());
+    assertEquals(1, personTable.getMetadata().getUniques().size());
+    personTable.getMetadata().removeUnique("First Name", "Last Name");
+    assertEquals(0, personTable.getMetadata().getUniques().size());
 
-    assertEquals(4, personTable.getColumns().size());
+    assertEquals(4, personTable.getMetadata().getColumns().size());
     try {
-      personTable.removeColumn(MOLGENISID);
+      personTable.getMetadata().removeColumn(MOLGENISID);
       fail("you shouldn't be allowed to remove primary key column");
     } catch (Exception e) {
       // good stuff
     }
-    personTable.removeColumn("Father");
-    assertEquals(3, personTable.getColumns().size());
+    personTable.getMetadata().removeColumn("Father");
+    assertEquals(3, personTable.getMetadata().getColumns().size());
 
     // drop a fromTable
-    db.getSchema("testCreate").dropTable(personTable.getName());
+    db.getSchema("testCreate").getMetadata().dropTable(personTable.getName());
     try {
       db.getSchema("testCreate").getTable(personTable.getName());
       fail("should have been dropped");

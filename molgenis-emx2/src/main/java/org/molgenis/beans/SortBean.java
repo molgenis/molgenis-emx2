@@ -1,7 +1,7 @@
 package org.molgenis.beans;
 
-import org.molgenis.Order;
-import org.molgenis.Sort;
+import org.molgenis.query.Order;
+import org.molgenis.query.Sort;
 
 import java.util.Arrays;
 

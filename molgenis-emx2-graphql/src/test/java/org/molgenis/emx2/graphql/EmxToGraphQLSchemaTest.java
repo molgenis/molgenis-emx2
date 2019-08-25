@@ -4,24 +4,23 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaPrinter;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
-import org.molgenis.Schema;
-import org.molgenis.Table;
-import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.STRING;
+import static org.molgenis.metadata.Type.STRING;
 
 public class EmxToGraphQLSchemaTest {
 
   @Test
   public void test1() throws MolgenisException {
-    Schema m = new SchemaMetadata("test");
+    SchemaMetadata m = new SchemaMetadata("test");
 
-    Table t2 = m.createTableIfNotExists("Family");
+    TableMetadata t2 = m.createTableIfNotExists("Family");
     t2.addColumn("Name", STRING);
     t2.addUnique("Name");
 
-    Table t = m.createTableIfNotExists("Person");
+    TableMetadata t = m.createTableIfNotExists("Person");
     t.addColumn("FirstName", STRING);
     t.addColumn("LastName", STRING);
     t.addRef("family", t2.getName(), "Name");

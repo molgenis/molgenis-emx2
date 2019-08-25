@@ -3,12 +3,17 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import java.io.Serializable;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestSimpleDatatypes {
 
@@ -73,9 +78,7 @@ public class TestSimpleDatatypes {
     Table aTable = schema.createTableIfNotExists("A");
     String aKey = type + "Key";
     String aColumn = type + "Col";
-    aTable.addColumn(aKey, type);
-    aTable.addColumn(aColumn, type);
-    aTable.setPrimaryKey(aKey);
+    aTable.getMetadata().addColumn(aKey, type).addColumn(aColumn, type).setPrimaryKey(aKey);
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);

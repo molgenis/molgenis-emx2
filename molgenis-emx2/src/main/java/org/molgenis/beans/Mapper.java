@@ -1,7 +1,10 @@
 package org.molgenis.beans;
 
 import org.molgenis.*;
-import org.molgenis.annotations.ColumnMetadata;
+import org.molgenis.data.Row;
+import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.TypeUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -15,8 +18,8 @@ public class Mapper {
     // hides public constructor
   }
 
-  public static org.molgenis.Row[] map(Object... beans) throws MolgenisException {
-    ArrayList<org.molgenis.Row> rows = new ArrayList<>();
+  public static Row[] map(Object... beans) throws MolgenisException {
+    ArrayList<Row> rows = new ArrayList<>();
     try {
       for (Object b : beans) {
         Class c = b.getClass();
@@ -34,10 +37,10 @@ public class Mapper {
     } catch (Exception e) {
       throw new MolgenisException(e);
     }
-    return rows.toArray(new org.molgenis.Row[rows.size()]);
+    return rows.toArray(new Row[rows.size()]);
   }
 
-  public static <E> E map(Class<E> klazz, org.molgenis.Row row) throws MolgenisException {
+  public static <E> E map(Class<E> klazz, Row row) throws MolgenisException {
     try {
       E e = klazz.getConstructor().newInstance();
       Map<String, Object> values = row.getValueMap();
@@ -56,16 +59,16 @@ public class Mapper {
     }
   }
 
-  public static Table map(Class klazz) throws MolgenisException {
-    Table t = new TableMetadata(null, klazz.getSimpleName());
+  public static TableMetadata map(Class klazz) throws MolgenisException {
+    TableMetadata t = new TableMetadata(null, klazz.getSimpleName());
 
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
       try {
         if (!f.getName().contains("jacoco")) {
-          Column col = t.addColumn(f.getName(), TypeUtils.typeOf(f.getType()));
-          if (f.isAnnotationPresent(ColumnMetadata.class)) {
-            ColumnMetadata cm = f.getAnnotation(ColumnMetadata.class);
+          ColumnMetadata col = t.addColumn(f.getName(), TypeUtils.typeOf(f.getType()));
+          if (f.isAnnotationPresent(ColumnAnnotation.class)) {
+            ColumnAnnotation cm = f.getAnnotation(ColumnAnnotation.class);
             col.setNullable(cm.nullable());
             col.setDescription(cm.description());
           }

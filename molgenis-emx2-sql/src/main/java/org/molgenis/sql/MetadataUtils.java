@@ -4,7 +4,8 @@ import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.*;
+import org.molgenis.MolgenisException;
+import org.molgenis.metadata.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -113,7 +114,7 @@ public class MetadataUtils {
         name("TABLE_RLS_VIEWER"), table, MG_ROLE_PREFIX, TABLE_SCHEMA);
   }
 
-  protected static void saveSchemaMetadata(DSLContext sql, Schema schema) {
+  protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
     sql.insertInto(SCHEMA_METADATA)
         .columns(TABLE_SCHEMA)
         .values(schema.getName())
@@ -126,11 +127,11 @@ public class MetadataUtils {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
   }
 
-  protected static void deleteSchema(DSLContext sql, Schema schema) {
+  protected static void deleteSchema(DSLContext sql, SchemaMetadata schema) {
     sql.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
   }
 
-  protected static Collection<String> loadTableNames(SqlSchema sqlSchema) {
+  protected static Collection<String> loadTableNames(SqlSchemaMetadata sqlSchema) {
     return sqlSchema
         .getJooq()
         .selectFrom(TABLE_METADATA)
@@ -139,40 +140,40 @@ public class MetadataUtils {
         .getValues(TABLE_NAME, String.class);
   }
 
-  protected static void saveTableMetadata(SqlTable table) {
+  protected static void saveTableMetadata(SqlTableMetadata table) {
     table
         .getJooq()
         .insertInto(TABLE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY)
-        .values(table.getSchemaName(), table.getName(), table.getPrimaryKey())
+        .values(table.getSchema().getName(), table.getName(), table.getPrimaryKey())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
         .set(TABLE_PRIMARYKEY, table.getPrimaryKey())
         .execute();
   }
 
-  protected static void loadTableMetadata(SqlTable table) throws MolgenisException {
+  protected static void loadTableMetadata(SqlTableMetadata table) throws MolgenisException {
     // load tables metadata
     //   Collection<Record> columnRecords =
     Record tableRecord =
         table
             .getJooq()
             .selectFrom(TABLE_METADATA)
-            .where(TABLE_SCHEMA.eq(table.getSchemaName()), (TABLE_NAME).eq(table.getName()))
+            .where(TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getName()))
             .fetchOne();
     String[] pkey = tableRecord.get(TABLE_PRIMARYKEY, String[].class);
     if (pkey.length > 0) table.loadPrimaryKey(pkey);
   }
 
-  protected static void deleteTable(SqlTable table) {
+  protected static void deleteTable(SqlTableMetadata table) {
     table
         .getJooq()
         .deleteFrom(TABLE_METADATA)
-        .where(TABLE_SCHEMA.eq(table.getSchemaName()), TABLE_NAME.eq(table.getName()))
+        .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getName()))
         .execute();
   }
 
-  protected static void saveColumnMetadata(SqlColumn column) throws MolgenisException {
+  protected static void saveColumnMetadata(SqlColumnMetadata column) throws MolgenisException {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)
@@ -194,8 +195,10 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void deleteColumn(DSLContext sql, Column column) {
-    sql.deleteFrom(COLUMN_METADATA)
+  protected static void deleteColumn(SqlColumnMetadata column) {
+    column
+        .getJooq()
+        .deleteFrom(COLUMN_METADATA)
         .where(
             TABLE_SCHEMA.eq(column.getTable().getSchema()),
             TABLE_NAME.eq(column.getTable().getName()),
@@ -203,39 +206,38 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void saveUnique(DSLContext sql, Unique unique) {
-    sql.insertInto(UNIQUE_METADATA)
+  protected static void saveUnique(SqlTableMetadata table, String... columnNames) {
+    table
+        .getJooq()
+        .insertInto(UNIQUE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-        .values(unique.getSchemaName(), unique.getTableName(), unique.getColumnNames())
+        .values(table.getSchema().getName(), table.getName(), columnNames)
         .onConflict(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
         .doNothing()
         .execute();
   }
 
-  protected static void deleteUnique(DSLContext sql, Unique unique) {
-    sql.deleteFrom(UNIQUE_METADATA)
+  protected static void deleteUnique(SqlTableMetadata table, String... columnNames) {
+    table
+        .getJooq()
+        .deleteFrom(UNIQUE_METADATA)
         .where(
-            TABLE_SCHEMA.eq(unique.getSchemaName()),
-            TABLE_NAME.eq(unique.getTableName()),
-            UNIQUE_COLUMNS.eq(unique.getColumnNames()))
+            TABLE_SCHEMA.eq(table.getSchema().getName()),
+            TABLE_NAME.eq(table.getName()),
+            UNIQUE_COLUMNS.eq(columnNames))
         .execute();
   }
 
-  protected static boolean schemaExists(SqlSchema schema) {
-    return schema
-        .getJooq()
-        .selectFrom(SCHEMA_METADATA)
-        .where(TABLE_SCHEMA.eq(schema.getName()))
-        .fetch()
-        .isNotEmpty();
+  protected static boolean schemaExists(DSLContext jooq, String name) {
+    return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
   }
 
-  protected static void loadUniqueMetadata(SqlTable table) throws MolgenisException {
+  protected static void loadUniqueMetadata(SqlTableMetadata table) throws MolgenisException {
     List<Record> uniqueRecordList =
         table
             .getJooq()
             .selectFrom(UNIQUE_METADATA)
-            .where(TABLE_SCHEMA.eq(table.getSchemaName()), (TABLE_NAME).eq(table.getName()))
+            .where(TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getName()))
             .fetch();
 
     for (Record uniqueRecord : uniqueRecordList) {
@@ -243,14 +245,14 @@ public class MetadataUtils {
     }
   }
 
-  protected static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
-      throws MolgenisException {
+  protected static void loadColumnMetadata(
+      SqlTableMetadata table, Map<String, ColumnMetadata> columnMap) throws MolgenisException {
     // load tables and columns
     Collection<Record> columnRecords =
         table
             .getJooq()
             .selectFrom(COLUMN_METADATA)
-            .where(TABLE_SCHEMA.eq(table.getSchemaName()), (TABLE_NAME).eq(table.getName()))
+            .where(TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getName()))
             .fetch();
 
     for (Record col : columnRecords) {
@@ -264,16 +266,19 @@ public class MetadataUtils {
         case REF:
           columnMap.put(
               columnName,
-              new RefSqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
+              new RefSqlColumnMetadata(table, columnName, toTable, toColumn)
+                  .loadNullable(nullable));
           break;
         case REF_ARRAY:
           columnMap.put(
               columnName,
-              new RefArraySqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
+              new RefArraySqlColumnMetadata(table, columnName, toTable, toColumn)
+                  .loadNullable(nullable));
           break;
         default:
           columnMap.put(
-              columnName, new SqlColumn(table, columnName, columnType).loadNullable(nullable));
+              columnName,
+              new SqlColumnMetadata(table, columnName, columnType).loadNullable(nullable));
       }
     }
   }

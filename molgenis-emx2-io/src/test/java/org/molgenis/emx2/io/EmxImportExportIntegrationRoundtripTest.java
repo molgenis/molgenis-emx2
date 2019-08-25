@@ -2,11 +2,9 @@ package org.molgenis.emx2.io;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.Database;
+import org.molgenis.data.Database;
 import org.molgenis.MolgenisException;
-import org.molgenis.Schema;
-import org.molgenis.Table;
-import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.data.Schema;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.sql.DatabaseFactory;
@@ -17,8 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-
-import static org.molgenis.emx2.io.MolgenisExport.toDirectory;
 
 public class EmxImportExportIntegrationRoundtripTest {
 
@@ -42,7 +38,7 @@ public class EmxImportExportIntegrationRoundtripTest {
 
       StopWatch.print("schema1 created, ready to load the example data");
 
-      ProductComponentPartsExample.create(schema1);
+      ProductComponentPartsExample.create(schema1.getMetadata());
       ProductComponentPartsExample.populate(schema1);
 
       StopWatch.print("example schema loaded");
@@ -58,7 +54,7 @@ public class EmxImportExportIntegrationRoundtripTest {
       MolgenisImport.fromDirectory(directory, schema2);
       StopWatch.print("import complete");
 
-      CompareTools.assertEquals(schema1, schema2);
+      CompareTools.assertEquals(schema1.getMetadata(), schema2.getMetadata());
 
       StopWatch.print("schema comparison: equal");
 

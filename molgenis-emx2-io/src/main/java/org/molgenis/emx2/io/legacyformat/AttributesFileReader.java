@@ -1,29 +1,34 @@
 package org.molgenis.emx2.io.legacyformat;
 
 import org.molgenis.*;
-import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.data.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
+import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Type.*;
+import static org.molgenis.data.Row.MOLGENISID;
+import static org.molgenis.metadata.Type.*;
 import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
 
-  public Schema readModelFromCsv(File f) throws FileNotFoundException, MolgenisException {
+  public SchemaMetadata readModelFromCsv(File f) throws FileNotFoundException, MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
 
-  public Schema readModelFromCsv(Reader in) throws MolgenisException {
+  public SchemaMetadata readModelFromCsv(Reader in) throws MolgenisException {
     return convertAttributesToModel(readRowsFromCsv(in));
   }
 
-  public Schema convertAttributesToModel(List<AttributesFileRow> rows) throws MolgenisException {
-    Schema model = new SchemaMetadata("test");
+  public SchemaMetadata convertAttributesToModel(List<AttributesFileRow> rows)
+      throws MolgenisException {
+    SchemaMetadata model = new SchemaMetadata("test");
 
     int lineNumber = 0;
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
@@ -37,10 +42,13 @@ public class AttributesFileReader {
   }
 
   private void convertAttributeLine(
-      Schema model, int lineNumber, List<MolgenisExceptionMessage> messages, AttributesFileRow row)
+      SchemaMetadata model,
+      int lineNumber,
+      List<MolgenisExceptionMessage> messages,
+      AttributesFileRow row)
       throws MolgenisException {
     // get or create table
-    Table table = model.getTable(row.getEntity());
+    TableMetadata table = model.getTableMetadata(row.getEntity());
     if (table == null) table = model.createTableIfNotExists(row.getEntity());
 
     // check if attribute exists
@@ -50,7 +58,7 @@ public class AttributesFileReader {
               lineNumber, "attribute " + row.getName() + " is defined twice"));
     } else {
       Type type = getEmxType(lineNumber, messages, row);
-      Column column;
+      ColumnMetadata column;
       if (REF.equals(type)) {
         column = table.addRef(row.getName(), row.getRefEntity(), MOLGENISID);
       } else {

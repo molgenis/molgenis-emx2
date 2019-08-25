@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.csv;
 
-import org.molgenis.Row;
+import org.molgenis.data.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.*;
@@ -12,7 +12,7 @@ public class RowReaderFlatmapper {
     // hide constructor
   }
 
-  public static Iterable<org.molgenis.Row> read(File f) throws IOException {
+  public static Iterable<Row> read(File f) throws IOException {
     return read(new FileReader(f));
   }
 
@@ -24,7 +24,7 @@ public class RowReaderFlatmapper {
     return result;
   }
 
-  public static Iterable<org.molgenis.Row> read(Reader in) throws IOException {
+  public static Iterable<Row> read(Reader in) throws IOException {
     // don't used buffered, it is slower
     Iterator<LinkedHashMap> iterator =
         CsvParser.dsl().trimSpaces().mapTo(LinkedHashMap.class).iterator(in);

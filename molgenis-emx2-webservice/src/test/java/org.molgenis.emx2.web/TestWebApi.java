@@ -1,31 +1,36 @@
 package org.molgenis.emx2.web;
 
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Table;
+import org.molgenis.data.Schema;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
 import org.molgenis.sql.DatabaseFactory;
 
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestWebApi {
 
   public static void main(String[] args) throws MolgenisException {
     Database db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
-    Schema schema = db.createSchema("pet store");
+    SchemaMetadata schema = db.createSchema("pet store").getMetadata();
 
-    Table categoryTable = schema.createTableIfNotExists("Category");
+    TableMetadata categoryTable = schema.createTableIfNotExists("Category");
     categoryTable.addColumn("name").setUnique(true);
 
-    Table tagTable = schema.createTableIfNotExists("Tag");
+    TableMetadata tagTable = schema.createTableIfNotExists("Tag");
     tagTable.addColumn("name").setUnique(true);
 
-    Table petTable = schema.createTableIfNotExists("Pet");
+    TableMetadata petTable = schema.createTableIfNotExists("Pet");
     petTable.addColumn("name").setUnique(true);
     petTable.addRef("category", "Category").setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", "Tag");
 
-    Table userTable = schema.createTableIfNotExists("User");
+    TableMetadata userTable = schema.createTableIfNotExists("User");
     userTable.addColumn("username").setUnique(true);
     userTable.addColumn("firstName");
     userTable.addColumn("lastName");
@@ -34,7 +39,7 @@ public class TestWebApi {
     userTable.addColumn("phone"); // todo: validation phon
     userTable.addColumn("userStatus", INT);
 
-    Table orderTable = schema.createTableIfNotExists("Order");
+    TableMetadata orderTable = schema.createTableIfNotExists("Order");
     orderTable.addRef("petId", "Pet", "name");
     orderTable.addColumn("quantity", INT); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false

@@ -3,7 +3,7 @@
 // import com.univocity.parsers.common.record.Record;
 // import com.univocity.parsers.csv.CsvParser;
 // import com.univocity.parsers.csv.CsvParserSettings;
-// import org.molgenis.Row;
+// import org.molgenis.data.Row;
 // import org.molgenis.beans.Row;
 //
 // import java.io.*;

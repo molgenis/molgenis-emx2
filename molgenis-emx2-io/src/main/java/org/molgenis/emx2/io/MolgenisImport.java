@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
 import org.molgenis.MolgenisException;
-import org.molgenis.Schema;
+import org.molgenis.data.Schema;
 import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
@@ -30,7 +30,7 @@ public class MolgenisImport {
     // todo: make transactional
     // read metadata, if available
     if (store.contains("molgenis")) {
-      ConvertEmx2ToSchema.fromRowList(schema, store.read("molgenis"));
+      ConvertEmx2ToSchema.fromRowList(schema.getMetadata(), store.read("molgenis"));
     }
     // read data
     for (String tableName : schema.getTableNames()) {

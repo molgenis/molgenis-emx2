@@ -1,10 +1,10 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
-import org.molgenis.Column;
 import org.molgenis.MolgenisException;
-import org.molgenis.Schema;
-import org.molgenis.Table;
+import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
 
 import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;
@@ -15,14 +15,14 @@ import static graphql.schema.GraphQLSchema.newSchema;
 
 public class GrahpqlEndpoint {
 
-  GraphQLSchema getSchema(Schema model) throws MolgenisException {
+  GraphQLSchema getSchema(SchemaMetadata model) throws MolgenisException {
     GraphQLSchema.Builder schema = newSchema();
 
     GraphQLObjectType.Builder query = newObject().name("QueryOld");
     for (String tableName : model.getTableNames()) {
-      Table table = model.getTable(tableName);
+      TableMetadata table = model.getTableMetadata(tableName);
       GraphQLObjectType.Builder type = newObject().name(table.getName());
-      for (Column col : table.getColumns()) {
+      for (ColumnMetadata col : table.getColumns()) {
         type.field(newFieldDefinition().name(col.getName()).type(GraphQLString));
       }
       query.field(

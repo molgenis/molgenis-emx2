@@ -1,7 +1,10 @@
 package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.beans.SchemaMetadata;
+import org.molgenis.data.Row;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +16,7 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestRows {
 
@@ -33,7 +36,7 @@ public class TestRows {
     assertEquals(1, m.getTableNames().size());
 
     // System.out.println("model print: " + m.print());
-    Table t = m.getTable("TypeTest");
+    TableMetadata t = m.getTableMetadata("TypeTest");
     assertEquals("TypeTest", t.getName());
     assertEquals(3 * types.size(), t.getColumns().size());
     assertEquals(BOOL, t.getColumn("testBOOL").getType());
@@ -45,7 +48,7 @@ public class TestRows {
 
     m.dropTable("TypeTest");
     try {
-      m.getTable("TypeTest");
+      m.getTableMetadata("TypeTest");
       fail("Table should have been dropped");
     } catch (Exception e) {
       // this is expected
@@ -55,7 +58,7 @@ public class TestRows {
 
   @Test
   public void testSimpleTypes() {
-    org.molgenis.Row r = new Row();
+    Row r = new Row();
 
     // int
     r.setString("test", "1");
@@ -191,7 +194,7 @@ public class TestRows {
   }
 
   private void addContents(SchemaMetadata m, List<Type> types) throws MolgenisException {
-    Table t = m.createTableIfNotExists("TypeTest");
+    TableMetadata t = m.createTableIfNotExists("TypeTest");
     for (Type type : types) {
       t.addColumn("test" + type, type);
       t.addColumn("test" + type + "_nullable", type).setNullable(true);

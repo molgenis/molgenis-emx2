@@ -3,14 +3,20 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 import org.molgenis.utils.StopWatch;
+import org.molgenis.utils.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestMrefs {
 
@@ -75,13 +81,13 @@ public class TestMrefs {
 
     Table aTable = aSchema.createTableIfNotExists("A");
     String keyOfA = "AKey";
-    aTable.addColumn(keyOfA, type);
-    aTable.addUnique(keyOfA);
+    aTable.getMetadata().addColumn(keyOfA, type);
+    aTable.getMetadata().addUnique(keyOfA);
 
     Table bTable = aSchema.createTableIfNotExists("B");
     String keyOfB = "BKey";
-    bTable.addColumn(keyOfB, STRING);
-    bTable.addUnique(keyOfB);
+    bTable.getMetadata().addColumn(keyOfB, STRING);
+    bTable.getMetadata().addUnique(keyOfB);
 
     StopWatch.print("schema created");
 
@@ -96,7 +102,7 @@ public class TestMrefs {
     String refName = type + "refToA";
     String refReverseName = type + "refToB";
     String joinTableName = "AB";
-    bTable.addMref(refName, "A", keyOfA, refReverseName, keyOfB, joinTableName);
+    bTable.getMetadata().addMref(refName, "A", keyOfA, refReverseName, keyOfB, joinTableName);
 
     Row bRow =
         new Row().set(keyOfB, keyOfB + "1").set(refName, Arrays.copyOfRange(testValues, 1, 3));

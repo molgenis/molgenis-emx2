@@ -5,20 +5,23 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.molgenis.Database;
+import org.molgenis.data.Database;
 import org.molgenis.MolgenisException;
 import org.molgenis.Transaction;
-import org.molgenis.beans.DatabaseBean;
+import org.molgenis.metadata.SchemaMetadata;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.sql.MetadataUtils.loadSchemaNames;
 
-public class SqlDatabase extends DatabaseBean implements Database {
+public class SqlDatabase implements Database {
   private DSLContext jooq;
+  private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
 
   public SqlDatabase(DataSource source) throws MolgenisException {
     this.jooq = DSL.using(source, SQLDialect.POSTGRES_10);
@@ -32,30 +35,27 @@ public class SqlDatabase extends DatabaseBean implements Database {
 
   @Override
   public SqlSchema createSchema(String schemaName) throws MolgenisException {
-    SqlSchema schema = new SqlSchema(this, schemaName);
+    SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
-    super.schemas.put(schemaName, schema);
-    return schema;
+    schemas.put(schemaName, schema);
+    return new SqlSchema(this, schema);
   }
 
   @Override
   public SqlSchema getSchema(String name) throws MolgenisException {
-    try {
-      return (SqlSchema) super.getSchema(name);
-    } catch (Exception e) {
-      SqlSchema schema = new SqlSchema(this, name);
-      if (schema.exists()) {
-        schemas.put(name, schema);
-        return schema;
-      } else
-        throw new MolgenisException(
-            "invalid_schema", "Schema doesn't exist", "Schema '" + name + " could not be found");
-    }
+    SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
+    if (metadata.exists()) {
+      SqlSchema schema = new SqlSchema(this, metadata);
+      schemas.put(name, metadata);
+      return schema;
+    } else
+      throw new MolgenisException(
+          "invalid_schema", "Schema doesn't exist", "Schema '" + name + " could not be found");
   }
 
   @Override
   public Collection<String> getSchemaNames() throws MolgenisException {
-    Collection<String> result = super.getSchemaNames();
+    Collection<String> result = schemas.keySet();
     if (result.isEmpty()) {
       result = loadSchemaNames(this);
       for (String r : result) {
@@ -79,6 +79,9 @@ public class SqlDatabase extends DatabaseBean implements Database {
   }
 
   @Override
+  public void removeUser(String name) {}
+
+  @Override
   public void grantRole(String role, String user) throws MolgenisException {
     try {
       jooq.execute("GRANT {0} TO {1}", name(role), name(user));
@@ -86,6 +89,9 @@ public class SqlDatabase extends DatabaseBean implements Database {
       throw new MolgenisException(dae);
     }
   }
+
+  @Override
+  public void revokeRole(String role, String user) throws MolgenisException {}
 
   @Override
   public void transaction(Transaction transaction) throws MolgenisException {
@@ -120,6 +126,11 @@ public class SqlDatabase extends DatabaseBean implements Database {
     } finally {
       jooq.execute("RESET SESSION AUTHORIZATION");
     }
+  }
+
+  @Override
+  public void clearCache() {
+    this.schemas = new LinkedHashMap<>();
   }
 
   protected DSLContext getJooq() {

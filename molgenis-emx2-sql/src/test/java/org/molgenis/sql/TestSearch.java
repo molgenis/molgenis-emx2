@@ -3,6 +3,11 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import java.sql.SQLException;
 
@@ -22,10 +27,12 @@ public class TestSearch {
     // setup
     Schema schema = db.createSchema("TestSearch");
     Table aTable = schema.createTableIfNotExists("TestSearch");
-    aTable.addColumn("sub", Type.STRING);
-    aTable.addColumn("body", Type.TEXT);
-    aTable.addColumn("year", Type.INT);
-    aTable.enableSearch();
+    aTable
+        .getMetadata()
+        .addColumn("sub", Type.STRING)
+        .addColumn("body", Type.TEXT)
+        .addColumn("year", Type.INT);
+    aTable.getMetadata().enableSearch();
 
     aTable.insert(
         new Row()

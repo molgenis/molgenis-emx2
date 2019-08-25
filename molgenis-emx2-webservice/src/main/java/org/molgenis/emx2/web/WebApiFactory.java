@@ -1,12 +1,22 @@
 package org.molgenis.emx2.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.jsoniter.output.EncodingMode;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
+import org.molgenis.data.Schema;
+import org.molgenis.json.JsonRowMapper;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
 import spark.Request;
 import spark.Response;
 
@@ -18,20 +28,22 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.emx2.web.JsonRowMapper.rowToJson;
-import static org.molgenis.emx2.web.JsonRowMapper.rowsToJson;
-import static org.molgenis.emx2.web.OpenApiFactory.createOpenApi;
+import static org.molgenis.data.Row.MOLGENISID;
+import static org.molgenis.json.JsonRowMapper.rowToJson;
+import static org.molgenis.json.JsonRowMapper.rowsToJson;
+import static org.molgenis.emx2.web.OpenApiForSchemaFactory.createOpenApi;
 import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
 import static spark.Spark.*;
 
 public class WebApiFactory {
-  public static final String SCHEMA_PATH = "/data/:schema"; // NOSONAR
-  public static final String TABLE_PATH = SCHEMA_PATH + "/:table"; // NOSONAR
+  private static final String DATA_SCHEMA = "/data/:schema"; // NOSONAR
+  private static final String DATA_SCHEMA_TABLE = DATA_SCHEMA + "/:table"; // NOSONAR
+  private static final String DATA_SCHEMA_TABLE_MOLGENISID = DATA_SCHEMA_TABLE + "/:molgenisid";
 
   private static Database database;
   private static final String ACCEPT_JSON = "application/json";
@@ -52,23 +64,23 @@ public class WebApiFactory {
         "/",
         (request, response) ->
             "Welcome. Data api available under <a href=\"/data\">/data</a> and api documentaiton under <a href=\"/openapi\">/openapi</a>");
-    get("/data", WebApiFactory::listSchemas);
+    get("/data", WebApiFactory::schemaGet);
 
     // documentation
-    get("/openapi", ACCEPT_JSON, WebApiFactory::listTablesJson);
-    get("/openapi/:schema", WebApiFactory::tableOpenApi);
-    get("/openapi/:schema/openapi.yaml", WebApiFactory::getOpenApiYaml);
+    get("/openapi", ACCEPT_JSON, WebApiFactory::openApiListSchemas);
+    get("/openapi/:schema", WebApiFactory::openApiUserInterface);
+    get("/openapi/:schema/openapi.yaml", WebApiFactory::openApiYaml);
 
     // actual api
-    get(SCHEMA_PATH, ACCEPT_JSON, WebApiFactory::listTablesJson);
-    post(SCHEMA_PATH, WebApiFactory::uploadSchemaZip);
+    get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::openApiListSchemas);
+    post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
 
-    get(TABLE_PATH, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
-    get(TABLE_PATH, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
-    post(TABLE_PATH, ACCEPT_JSON, WebApiFactory::postRow);
-    put(TABLE_PATH, ACCEPT_JSON, WebApiFactory::putRow);
+    get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
+    get(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
+    post(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tablePostOperation);
+    put(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::rowPutOperation);
 
-    get("/data/:schema/:table/:molgenisid", WebApiFactory::getRow);
+    get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
 
     // handling of exceptions
     exception(
@@ -86,7 +98,7 @@ public class WebApiFactory {
         });
   }
 
-  private static String uploadSchemaZip(Request request, Response response)
+  private static String schemaPostZip(Request request, Response response)
       throws MolgenisException, IOException, ServletException {
     Schema schema = database.getSchema(request.params(SCHEMA));
     Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".tmp");
@@ -118,11 +130,19 @@ public class WebApiFactory {
     return writer.toString();
   }
 
-  private static String listTablesJson(Request request, Response response) {
-    return "test";
+  private static String openApiListSchemas(Request request, Response response)
+      throws MolgenisException, IOException {
+    SchemaMetadata schema = database.getSchema(request.params(SCHEMA)).getMetadata();
+    List<TableMetadata> result = new ArrayList<>();
+    for (String name : schema.getTableNames()) {
+      result.add(schema.getTableMetadata(name));
+    }
+    JsonStream.setMode(EncodingMode.REFLECTION_MODE);
+    return JsonStream.serialize(result);
   }
 
-  private static String putRow(Request request, Response response) throws MolgenisException {
+  private static String rowPutOperation(Request request, Response response)
+      throws MolgenisException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Row row = JsonRowMapper.jsonToRow(request.body());
     table.update(row);
@@ -131,14 +151,16 @@ public class WebApiFactory {
     return rowToJson(row);
   }
 
-  public static String getRow(Request request, Response response) throws MolgenisException {
+  private static String tableGetOperation(Request request, Response response)
+      throws MolgenisException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     List<Row> rows = table.query().where(MOLGENISID).eq(request.params(MOLGENISID)).retrieve();
     response.status(200);
     return rowToJson(rows.get(0));
   }
 
-  private static String postRow(Request request, Response response) throws MolgenisException {
+  private static String tablePostOperation(Request request, Response response)
+      throws MolgenisException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Row row = JsonRowMapper.jsonToRow(request.body());
     table.insert(row);
@@ -147,22 +169,22 @@ public class WebApiFactory {
     return rowToJson(row);
   }
 
-  private static String getOpenApiYaml(Request request, Response response)
+  private static String openApiYaml(Request request, Response response)
       throws MolgenisException, IOException {
     Schema schema = database.getSchema(request.params(SCHEMA));
-    OpenAPI api = createOpenApi(schema);
+    OpenAPI api = createOpenApi(schema.getMetadata());
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);
     response.status(200);
     return writer.toString();
   }
 
-  private static String tableOpenApi(Request request, Response response) {
+  private static String openApiUserInterface(Request request, Response response) {
     response.status(200);
     return createSwaggerUI(request.params(SCHEMA));
   }
 
-  private static String listSchemas(Request request, Response response) throws MolgenisException {
+  private static String schemaGet(Request request, Response response) throws MolgenisException {
     response.status(200);
     Map<String, String> schemas = new LinkedHashMap<>();
     for (String schemaName : database.getSchemaNames()) {

@@ -2,11 +2,12 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.MolgenisException;
-import org.molgenis.Schema;
+import org.molgenis.data.Schema;
 import org.molgenis.MolgenisExceptionMessage;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
 import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
+import org.molgenis.metadata.SchemaMetadata;
 
 import java.io.*;
 
@@ -27,7 +28,7 @@ public class TestMetadataLegacyFormatImportExport {
     }
 
     try {
-      Schema schema =
+      SchemaMetadata schema =
           new AttributesFileReader().readModelFromCsv(getFile("attributes_typetest.csv"));
 
       StringWriter writer = new StringWriter();
@@ -35,7 +36,7 @@ public class TestMetadataLegacyFormatImportExport {
       System.out.println(writer);
 
       // fromReader it again
-      Schema schema2 =
+      SchemaMetadata schema2 =
           new AttributesFileReader().readModelFromCsv(new StringReader(writer.toString()));
 
       // assertEquals

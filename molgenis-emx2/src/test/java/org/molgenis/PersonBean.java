@@ -1,13 +1,13 @@
 package org.molgenis;
 
-import org.molgenis.annotations.ColumnMetadata;
+import org.molgenis.beans.ColumnAnnotation;
 
 import java.util.UUID;
 
 public class PersonBean {
   private UUID molgenisid;
 
-  @ColumnMetadata(description = "This is optional first name", nullable = true)
+  @ColumnAnnotation(description = "This is optional first name", nullable = true)
   private String firstName;
 
   private String lastName;

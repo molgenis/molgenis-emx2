@@ -3,7 +3,11 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
 import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
+import org.molgenis.data.Schema;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -33,7 +37,7 @@ public class TestSimpleTypesAllInOne {
 
     // generate TypeTest table, with columns for each type
 
-    SimpleTypeTestExample.createSimpleTypeTest(schema);
+    SimpleTypeTestExample.createSimpleTypeTest(schema.getMetadata());
 
     // retrieve this table from metadataa
 

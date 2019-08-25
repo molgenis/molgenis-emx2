@@ -1,12 +1,14 @@
 package org.molgenis.emx2.examples;
 
 import org.molgenis.MolgenisException;
-import org.molgenis.Row;
-import org.molgenis.Schema;
-import org.molgenis.Table;
+import org.molgenis.data.Row;
+import org.molgenis.data.Schema;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
 
-import static org.molgenis.Type.INT;
-import static org.molgenis.Type.STRING;
+import static org.molgenis.metadata.Type.INT;
+import static org.molgenis.metadata.Type.STRING;
 
 public class ProductComponentPartsExample {
   public static final String PART = "Part";
@@ -25,19 +27,19 @@ public class ProductComponentPartsExample {
     // hide constructor
   }
 
-  public static void create(Schema schema) throws MolgenisException {
+  public static void create(SchemaMetadata schema) throws MolgenisException {
 
-    Table partTable = schema.createTableIfNotExists(PART);
+    TableMetadata partTable = schema.createTableIfNotExists(PART);
     partTable.addColumn(NAME, STRING);
     partTable.addColumn(WEIGHT, INT);
     partTable.addUnique(NAME);
 
-    Table componentTable = schema.createTableIfNotExists(COMPONENT);
+    TableMetadata componentTable = schema.createTableIfNotExists(COMPONENT);
     componentTable.addColumn(NAME, STRING);
     componentTable.addUnique(NAME);
     componentTable.addRefArray(PARTS, PART, NAME);
 
-    Table productTable = schema.createTableIfNotExists(PRODUCT);
+    TableMetadata productTable = schema.createTableIfNotExists(PRODUCT);
     productTable.addColumn(NAME, STRING);
     productTable.addUnique(NAME);
     productTable.addRefArray(COMPONENTS, COMPONENT, NAME);

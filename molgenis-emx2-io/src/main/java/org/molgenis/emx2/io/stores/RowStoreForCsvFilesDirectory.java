@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.stores;
 
-import org.molgenis.Row;
+import org.molgenis.data.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
 

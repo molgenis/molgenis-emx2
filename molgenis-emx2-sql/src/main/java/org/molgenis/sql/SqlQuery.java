@@ -3,29 +3,31 @@ package org.molgenis.sql;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.*;
-import org.molgenis.Query;
-import org.molgenis.Row;
-import org.molgenis.Select;
-import org.molgenis.Table;
+import org.molgenis.query.Query;
+import org.molgenis.data.Row;
+import org.molgenis.query.Select;
 import org.molgenis.beans.QueryBean;
+import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.query.Where;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.Operator.OR;
-import static org.molgenis.Operator.SEARCH;
-import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Type.*;
+import static org.molgenis.query.Operator.OR;
+import static org.molgenis.query.Operator.SEARCH;
+import static org.molgenis.data.Row.MOLGENISID;
+import static org.molgenis.metadata.Type.*;
 import static org.molgenis.sql.SqlTable.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
 
-  private Table from;
+  private TableMetadata from;
   private DSLContext sql;
 
-  public SqlQuery(SqlTable from, DSLContext sql) {
+  public SqlQuery(TableMetadata from, DSLContext sql) {
     this.from = from;
     this.sql = sql;
   }
@@ -71,11 +73,11 @@ public class SqlQuery extends QueryBean implements Query {
     }
   }
 
-  private org.jooq.Table getJooqTable(Table table) throws MolgenisException {
+  private org.jooq.Table getJooqTable(TableMetadata table) throws MolgenisException {
 
     // create all columns
     List<Field> fields = new ArrayList<>();
-    for (Column column : table.getColumns()) {
+    for (ColumnMetadata column : table.getColumns()) {
       if (!MREF.equals(column.getType())) {
         fields.add(
             field(
@@ -95,11 +97,11 @@ public class SqlQuery extends QueryBean implements Query {
 
     org.jooq.Table jooqTable =
         DSL.select(fields)
-            .from(name(table.getSchemaName(), table.getName()))
+            .from(name(table.getSchema().getName(), table.getName()))
             .asTable(table.getName());
 
     // for mrefs join
-    for (Column column : table.getColumns()) {
+    for (ColumnMetadata column : table.getColumns()) {
       if (MREF.equals(column.getType())) {
         jooqTable =
             jooqTable
@@ -108,7 +110,8 @@ public class SqlQuery extends QueryBean implements Query {
                             field("array_agg({0})", name(column.getRefColumnName()))
                                 .as(column.getName()),
                             field(name(column.getReverseRefColumn())))
-                        .from(table(name(table.getSchemaName(), column.getMrefJoinTableName())))
+                        .from(
+                            table(name(table.getSchema().getName(), column.getMrefJoinTableName())))
                         .groupBy(field(name(column.getReverseRefColumn())))
                         .asTable(column.getMrefJoinTableName()))
                 .on(
@@ -119,12 +122,12 @@ public class SqlQuery extends QueryBean implements Query {
     return jooqTable;
   }
 
-  private List<Field> getFields(Table from) {
+  private List<Field> getFields(TableMetadata from) {
     List<Field> fields = new ArrayList<>();
     List<Select> selectList = this.getSelectList();
 
     if (selectList.isEmpty()) {
-      for (Column c : from.getColumns()) {
+      for (ColumnMetadata c : from.getColumns()) {
         this.select(c.getName());
       }
     }
@@ -205,7 +208,7 @@ public class SqlQuery extends QueryBean implements Query {
         name(from.getName(), MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + search + "' )");
   }
 
-  private SelectJoinStep createJoins(String name, Table table, SelectJoinStep fromStep)
+  private SelectJoinStep createJoins(String name, TableMetadata table, SelectJoinStep fromStep)
       throws MolgenisException {
     List<String> duplicatePaths = new ArrayList<>();
 
@@ -216,7 +219,7 @@ public class SqlQuery extends QueryBean implements Query {
       if (path.length >= 2) {
         String[] rightPath = Arrays.copyOfRange(path, 0, path.length - 1);
         String[] leftPath = Arrays.copyOfRange(path, 0, path.length - 2);
-        Column c = getColumn(table, rightPath);
+        ColumnMetadata c = getColumn(table, rightPath);
 
         String leftColumn = c.getName();
         String leftAlias = path.length > 2 ? name + "/" + String.join("/", leftPath) : name;
@@ -274,8 +277,8 @@ public class SqlQuery extends QueryBean implements Query {
     return fromStep;
   }
 
-  private Column getColumn(Table t, String[] path) throws MolgenisException {
-    Column c = t.getColumn(path[0]);
+  private ColumnMetadata getColumn(TableMetadata t, String[] path) throws MolgenisException {
+    ColumnMetadata c = t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(
           "undefined_column",
@@ -285,7 +288,8 @@ public class SqlQuery extends QueryBean implements Query {
       return c;
     } else {
       return getColumn(
-          t.getSchema().getTable(c.getRefTableName()), Arrays.copyOfRange(path, 1, path.length));
+          t.getSchema().getTableMetadata(c.getRefTableName()),
+          Arrays.copyOfRange(path, 1, path.length));
     }
   }
 }

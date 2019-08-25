@@ -1,8 +1,11 @@
 package org.molgenis.emx2.examples.synthetic;
 
 import org.molgenis.*;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
 
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class ArrayTypeTestExample {
 
@@ -10,9 +13,9 @@ public class ArrayTypeTestExample {
     // hide constructor
   }
 
-  public static void createSimpleTypeTest(Schema schema) throws MolgenisException {
+  public static void createSimpleTypeTest(SchemaMetadata schema) throws MolgenisException {
 
-    Table typeTestTable = schema.createTableIfNotExists("ArrayTypeTest");
+    TableMetadata typeTestTable = schema.createTableIfNotExists("ArrayTypeTest");
     Type[] types =
         new Type[] {
           UUID_ARRAY,

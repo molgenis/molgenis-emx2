@@ -1,7 +1,11 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.*;
-import org.molgenis.Column;
+import org.molgenis.MolgenisException;
+import org.molgenis.data.Row;
+import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Unique;
 import org.simpleflatmapper.csv.CsvWriter;
 import org.simpleflatmapper.util.CheckedConsumer;
 
@@ -11,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.data.Row.MOLGENISID;
 
 public class ConvertSchemaToEmx2 {
 
@@ -19,7 +23,8 @@ public class ConvertSchemaToEmx2 {
     // to prevent instantiation of this static method class
   }
 
-  public static void toCsv(Schema model, Writer writer) throws IOException, MolgenisException {
+  public static void toCsv(SchemaMetadata model, Writer writer)
+      throws IOException, MolgenisException {
 
     List<Emx2FileRow> rows = convertModelToMolgenisFileRows(model);
 
@@ -28,7 +33,7 @@ public class ConvertSchemaToEmx2 {
     rows.forEach(CheckedConsumer.toConsumer(csvWriter::append));
   }
 
-  public static List<Row> toRowList(Schema model) throws MolgenisException {
+  public static List<Row> toRowList(SchemaMetadata model) throws MolgenisException {
     List<Row> result = new ArrayList<>();
     for (Emx2FileRow r : convertModelToMolgenisFileRows(model)) {
       result.add(r.toRow());
@@ -36,24 +41,24 @@ public class ConvertSchemaToEmx2 {
     return result;
   }
 
-  private static List<Emx2FileRow> convertModelToMolgenisFileRows(Schema model)
+  private static List<Emx2FileRow> convertModelToMolgenisFileRows(SchemaMetadata model)
       throws MolgenisException {
     List<Emx2FileRow> rows = new ArrayList<>();
     for (String tableName : model.getTableNames()) {
-      Table table = model.getTable(tableName);
+      TableMetadata table = model.getTableMetadata(tableName);
       writeTableDefinitionRow(table, rows);
-      for (Column column : table.getColumns()) {
+      for (ColumnMetadata column : table.getColumns()) {
         writeColumnDefinitionRow(column, rows);
       }
     }
     return rows;
   }
 
-  private static void writeTableDefinitionRow(Table table, List<Emx2FileRow> rows) {
+  private static void writeTableDefinitionRow(TableMetadata table, List<Emx2FileRow> rows) {
 
     Emx2PropertyList def = new Emx2PropertyList();
-    for (Unique u : table.getUniques()) {
-      def.add("unique", u.getColumnNames());
+    for (String[] u : table.getUniques()) {
+      def.add("unique", u);
     }
     if (table.getPrimaryKey().length > 0
         && !Arrays.equals(table.getPrimaryKey(), new String[] {MOLGENISID}))
@@ -62,7 +67,7 @@ public class ConvertSchemaToEmx2 {
     if (!def.getTerms().isEmpty()) rows.add(new Emx2FileRow(table.getName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows)
+  private static void writeColumnDefinitionRow(ColumnMetadata column, List<Emx2FileRow> rows)
       throws MolgenisException {
 
     // ignore internal ID, is implied

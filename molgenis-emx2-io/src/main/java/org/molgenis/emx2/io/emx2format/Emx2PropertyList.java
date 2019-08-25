@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.Type;
+import org.molgenis.metadata.Type;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Emx2PropertyList {
+  public static final String UNIQUE = "unique";
+  public static final String PKEY = "pkey";
+  public static final String NULLABLE = "nullable";
+
   private static final Pattern pattern =
       Pattern.compile("([a-zA-Z_]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
 
@@ -100,5 +104,9 @@ public class Emx2PropertyList {
   public String[] getParameterArray(String term) {
     List<String> parameterList = getParameterList(term);
     return parameterList.toArray(new String[parameterList.size()]);
+  }
+
+  public List<String> getParameterList(Type type) {
+    return getParameterList(type.toString().toLowerCase());
   }
 }

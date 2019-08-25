@@ -2,7 +2,7 @@ package org.molgenis.sql;
 
 import org.jooq.Field;
 import org.jooq.Record;
-import org.molgenis.Row;
+import org.molgenis.data.Row;
 
 import java.sql.Array;
 import java.sql.SQLException;

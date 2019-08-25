@@ -3,9 +3,14 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestRefs {
 
@@ -59,14 +64,13 @@ public class TestRefs {
 
     Table aTable = schema.createTableIfNotExists("A");
     String fieldName = "AKeyOf" + type;
-    aTable.addColumn(fieldName, type);
-    aTable.addUnique(fieldName);
+    aTable.getMetadata().addColumn(fieldName, type).addUnique(fieldName);
     Row aRow = new Row().set(fieldName, insertValue);
     aTable.insert(aRow);
 
     Table bTable = schema.createTableIfNotExists("B");
     String refFromBToA = "RefToAKeyOf" + type;
-    bTable.addRef(refFromBToA, "A", fieldName);
+    bTable.getMetadata().addRef(refFromBToA, "A", fieldName);
     Row bRow = new Row().set(refFromBToA, insertValue);
     bTable.insert(bRow);
 

@@ -3,14 +3,19 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
+import org.molgenis.query.Query;
+import org.molgenis.data.Schema;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.STRING;
+import static org.molgenis.metadata.Type.STRING;
 
 public class TestQueryWithRefArrays {
   static Database db;
@@ -25,10 +30,13 @@ public class TestQueryWithRefArrays {
     // createColumn some tables with contents
     String PERSON = "Person";
     Table personTable = schema.createTableIfNotExists(PERSON);
-    personTable.addColumn("First Name", STRING);
-    personTable.addRef("Father", PERSON).setNullable(true);
-    personTable.addColumn("Last Name", STRING);
-    personTable.addUnique("First Name", "Last Name");
+    personTable
+        .getMetadata()
+        .addColumn("First Name", STRING)
+        .addRef("Father", PERSON)
+        .setNullable(true)
+        .addColumn("Last Name", STRING)
+        .addUnique("First Name", "Last Name");
 
     Row father = new Row().setString("First Name", "Donald").setString("Last Name", "Duck");
     Row child =
@@ -97,7 +105,7 @@ public class TestQueryWithRefArrays {
 
     StopWatch.start("DependencyOrderOutsideTransactionFails");
 
-    ProductComponentPartsExample.create(schema);
+    ProductComponentPartsExample.create(schema.getMetadata());
     ProductComponentPartsExample.populate(schema);
 
     StopWatch.print("tables created");

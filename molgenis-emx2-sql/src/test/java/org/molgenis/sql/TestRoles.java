@@ -3,6 +3,10 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.data.Schema;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -10,7 +14,7 @@ import java.sql.SQLException;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.Permission.*;
-import static org.molgenis.Type.STRING;
+import static org.molgenis.metadata.Type.STRING;
 import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class TestRoles {
@@ -110,6 +114,7 @@ public class TestRoles {
     schema.grant(ADMIN, "testadmin");
     schema
         .createTableIfNotExists("Person")
+        .getMetadata()
         .addColumn("FirstName", STRING)
         .addColumn("LastName", STRING);
 
@@ -159,14 +164,17 @@ public class TestRoles {
     database.transaction(
         "testrls1",
         db -> {
-          db.getSchema("TestRLS").createTableIfNotExists("TestRLS").addColumn("col1", STRING);
+          db.getSchema("TestRLS")
+              .createTableIfNotExists("TestRLS")
+              .getMetadata()
+              .addColumn("col1", STRING);
         });
 
     // let the other add RLS
     database.transaction(
         "testrls2",
         db -> {
-          db.getSchema("TestRLS").getTable("TestRLS").enableRowLevelSecurity();
+          db.getSchema("TestRLS").getTable("TestRLS").getMetadata().enableRowLevelSecurity();
         });
 
     // let the first add a row (checks if admin permissions are setup correctly)

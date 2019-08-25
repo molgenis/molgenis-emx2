@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.Row;
+import org.molgenis.data.Row;
 
 import static org.molgenis.emx2.io.emx2format.Emx2FileHeader.*;
 

@@ -1,8 +1,11 @@
 package org.molgenis.emx2.examples.synthetic;
 
 import org.molgenis.*;
+import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.metadata.TableMetadata;
+import org.molgenis.metadata.Type;
 
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class CompositeRefExample {
 
@@ -10,12 +13,12 @@ public class CompositeRefExample {
     // hide constructor
   }
 
-  public static void createCompositeRefExample(Schema schema) throws MolgenisException {
+  public static void createCompositeRefExample(SchemaMetadata schema) throws MolgenisException {
     Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 
     for (Type type : types) {
       String aTableName = type.toString() + "_A";
-      Table aTable = schema.createTableIfNotExists(aTableName);
+      TableMetadata aTable = schema.createTableIfNotExists(aTableName);
       String uniqueColumn1 = "AUnique" + type;
       String uniqueColumn2 = "AUnique" + type + "2";
 
@@ -26,7 +29,7 @@ public class CompositeRefExample {
       aTable.addUnique(uniqueColumn1, uniqueColumn2);
 
       String bTableName = type.toString() + "_B";
-      Table bTable = schema.createTableIfNotExists(bTableName);
+      TableMetadata bTable = schema.createTableIfNotExists(bTableName);
       String refFromBToA1 = "RefToAKeyOf" + type;
       String refFromBToA2 = "RefToAKeyOf" + type + "2";
 

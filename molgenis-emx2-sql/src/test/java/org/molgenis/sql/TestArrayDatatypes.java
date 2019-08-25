@@ -3,13 +3,18 @@ package org.molgenis.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.*;
+import org.molgenis.data.Database;
+import org.molgenis.data.Row;
+import org.molgenis.data.Table;
+import org.molgenis.metadata.Type;
+import org.molgenis.data.Schema;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.Type.*;
+import static org.molgenis.metadata.Type.*;
 
 public class TestArrayDatatypes {
 
@@ -78,8 +83,7 @@ public class TestArrayDatatypes {
 
     Table tableA = schema.createTableIfNotExists("A");
     String aFieldName = type + "Col";
-    tableA.addColumn(aFieldName, type);
-    tableA.addUnique(aFieldName);
+    tableA.getMetadata().addColumn(aFieldName, type).addUnique(aFieldName);
 
     Row aRow = new Row().set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);
