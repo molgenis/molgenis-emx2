@@ -147,8 +147,6 @@ public class OpenApiForSchemaFactory {
                 .addApiResponse("500", new ApiResponse().description("Server error")));
   }
 
-  // private static void schemaPermissioApi(String name) {
-
   // users have roles
   // roles have permissions
   // thus we need listing of role-permissions and user-roles
@@ -180,8 +178,6 @@ public class OpenApiForSchemaFactory {
   // do we want all permissions for schema in one go? I think yes?
 
   // in addition I want to quickly check if current user has a permission for a table.
-
-  // }
 
   private static void createOpenApiForTable(TableMetadata table, Paths paths, Components components)
       throws MolgenisException {
