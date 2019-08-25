@@ -157,37 +157,37 @@ public class SqlTypeUtils extends TypeUtils {
     }
     switch (type) {
       case UUID:
-        return row.getUuid(column.getName());
+        return row.getUuid(column.getColumnName());
       case UUID_ARRAY:
-        return row.getUuidArray(column.getName());
+        return row.getUuidArray(column.getColumnName());
       case STRING:
-        return row.getString(column.getName());
+        return row.getString(column.getColumnName());
       case STRING_ARRAY:
-        return row.getStringArray(column.getName());
+        return row.getStringArray(column.getColumnName());
       case BOOL:
-        return row.getBoolean(column.getName());
+        return row.getBoolean(column.getColumnName());
       case BOOL_ARRAY:
-        return row.getBooleanArray(column.getName());
+        return row.getBooleanArray(column.getColumnName());
       case INT:
-        return row.getInteger(column.getName());
+        return row.getInteger(column.getColumnName());
       case INT_ARRAY:
-        return row.getIntegerArray(column.getName());
+        return row.getIntegerArray(column.getColumnName());
       case DECIMAL:
-        return row.getDecimal(column.getName());
+        return row.getDecimal(column.getColumnName());
       case DECIMAL_ARRAY:
-        return row.getDecimalArray(column.getName());
+        return row.getDecimalArray(column.getColumnName());
       case TEXT:
-        return row.getText(column.getName());
+        return row.getText(column.getColumnName());
       case TEXT_ARRAY:
-        return row.getTextArray(column.getName());
+        return row.getTextArray(column.getColumnName());
       case DATE:
-        return row.getDate(column.getName());
+        return row.getDate(column.getColumnName());
       case DATE_ARRAY:
-        return row.getDateArray(column.getName());
+        return row.getDateArray(column.getColumnName());
       case DATETIME:
-        return row.getDateTime(column.getName());
+        return row.getDateTime(column.getColumnName());
       case DATETIME_ARRAY:
-        return row.getDateTimeArray(column.getName());
+        return row.getDateTimeArray(column.getColumnName());
       default:
         throw new UnsupportedOperationException("Unsupported type found:" + column.getType());
     }

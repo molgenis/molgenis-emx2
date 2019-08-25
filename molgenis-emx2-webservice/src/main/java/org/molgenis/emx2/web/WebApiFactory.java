@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import com.jsoniter.output.EncodingMode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
@@ -12,7 +12,7 @@ import org.molgenis.data.Table;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.data.Schema;
-import org.molgenis.json.JsonRowMapper;
+import org.molgenis.emx2.json.JsonRowMapper;
 import org.molgenis.metadata.SchemaMetadata;
 import org.molgenis.metadata.TableMetadata;
 import spark.Request;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.data.Row.MOLGENISID;
-import static org.molgenis.json.JsonRowMapper.rowToJson;
-import static org.molgenis.json.JsonRowMapper.rowsToJson;
+import static org.molgenis.emx2.json.JsonRowMapper.rowToJson;
+import static org.molgenis.emx2.json.JsonRowMapper.rowsToJson;
 import static org.molgenis.emx2.web.OpenApiForSchemaFactory.createOpenApi;
 import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
 import static spark.Spark.*;
@@ -129,14 +129,13 @@ public class WebApiFactory {
   }
 
   private static String openApiListSchemas(Request request, Response response)
-      throws MolgenisException {
+      throws MolgenisException, JsonProcessingException {
     SchemaMetadata schema = database.getSchema(request.params(SCHEMA)).getMetadata();
     List<TableMetadata> result = new ArrayList<>();
     for (String name : schema.getTableNames()) {
       result.add(schema.getTableMetadata(name));
     }
-    JsonStream.setMode(EncodingMode.REFLECTION_MODE);
-    return JsonStream.serialize(result);
+    return JsonMapper.schemaToJson(schema);
   }
 
   private static String rowPutOperation(Request request, Response response)

@@ -1,4 +1,4 @@
 table,column,properties
-subject,name
-sample,name,
-sample,subject,"ref(subject,name)"
+subject,tableName
+sample,tableName,
+sample,subject,"ref(subject,tableName)"

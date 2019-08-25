@@ -13,19 +13,19 @@ public class TableMetadata {
 
   private SchemaMetadata schema;
 
-  private String name;
+  private String tableName;
   protected Map<String, ColumnMetadata> columns;
   protected List<String[]> uniques;
   protected String[] primaryKey;
 
-  public TableMetadata(SchemaMetadata schema, String name) {
+  public TableMetadata(SchemaMetadata schema, String tableName) {
     this.clearCache();
     this.schema = schema;
-    this.name = name;
+    this.tableName = tableName;
   }
 
-  public String getName() {
-    return name;
+  public String getTableName() {
+    return tableName;
   }
 
   public SchemaMetadata getSchema() {
@@ -52,7 +52,7 @@ public class TableMetadata {
     throw new MolgenisException(
         "undefined_column",
         "Column could not be found",
-        String.format("Column with name='%s' could not be found", name));
+        String.format("Column with tableName='%s' could not be found", name));
   }
 
   public ColumnMetadata addColumn(String name) throws MolgenisException {
@@ -66,7 +66,7 @@ public class TableMetadata {
   }
 
   public ColumnMetadata addColumn(ColumnMetadata column) throws MolgenisException {
-    columns.put(column.getName(), column);
+    columns.put(column.getColumnName(), column);
     return column;
   }
 
@@ -76,7 +76,7 @@ public class TableMetadata {
       throw new MolgenisException(
           INVALID_FOREIGN_KEY,
           ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED,
-          "Adding of foreign key reference with name='"
+          "Adding of foreign key reference with tableName='"
               + name
               + "' and default toColumn failed because no suitable primary key is defined. Add primary key or use explicit toColumn.");
     return this.addRef(name, toTable, primaryKeys[0]);
@@ -102,7 +102,7 @@ public class TableMetadata {
       throw new MolgenisException(
           INVALID_FOREIGN_KEY,
           ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED,
-          "Adding of array reference name='"
+          "Adding of array reference tableName='"
               + name
               + "' failed because no suitable primary key defined. Add primary key or use explicit toColumn.");
     return this.addRefArray(name, toTable, primaryKeys[0]);
@@ -151,7 +151,7 @@ public class TableMetadata {
             "Addition of unique failed because column '"
                 + columnName
                 + "' is not known in table "
-                + getName());
+                + getTableName());
     }
     uniques.add(columnNames);
     return this;
@@ -182,7 +182,7 @@ public class TableMetadata {
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("TABLE(").append(getName()).append("){");
+    builder.append("TABLE(").append(getTableName()).append("){");
     for (ColumnMetadata c : getColumns()) {
       builder.append("\n\t").append(c.toString());
     }

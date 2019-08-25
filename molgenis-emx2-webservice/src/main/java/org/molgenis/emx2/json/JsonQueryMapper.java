@@ -1,4 +1,4 @@
-package org.molgenis.json;
+package org.molgenis.emx2.json;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;

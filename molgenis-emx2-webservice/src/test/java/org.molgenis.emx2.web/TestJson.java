@@ -1,12 +1,13 @@
-package org.molgenis.json;
+package org.molgenis.emx2.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
-import com.jsoniter.output.EncodingMode;
-import com.jsoniter.output.JsonStream;
-import com.jsoniter.spi.Config;
 import org.junit.Test;
 import org.molgenis.MolgenisException;
+import org.molgenis.emx2.examples.ProductComponentPartsExample;
+import org.molgenis.emx2.json.JsonQueryMapper;
+import org.molgenis.emx2.web.JsonMapper;
 import org.molgenis.metadata.SchemaMetadata;
 import org.molgenis.query.Query;
 import org.molgenis.beans.QueryBean;
@@ -18,24 +19,21 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.json.JsonRowMapper.jsonToRow;
+import static org.molgenis.emx2.json.JsonRowMapper.jsonToRows;
+import static org.molgenis.emx2.web.JsonMapper.rowsToJson;
 import static org.molgenis.metadata.Type.DECIMAL;
 import static org.molgenis.metadata.Type.INT;
 import static org.molgenis.metadata.Type.STRING;
-import static org.molgenis.json.JsonQueryMapper.jsonToQuery;
-import static org.molgenis.json.JsonQueryMapper.queryToJson;
-import static org.molgenis.json.JsonRowMapper.jsonToRow;
-import static org.molgenis.json.JsonRowMapper.jsonToRows;
-import static org.molgenis.json.JsonRowMapper.rowsToJson;
 
 public class TestJson {
 
   @Test
-  public void testSchemaToJson() throws MolgenisException {
+  public void testSchemaToJson() throws MolgenisException, JsonProcessingException {
+
     SchemaMetadata s = new SchemaMetadata("test");
-
-    TableMetadata t = s.createTableIfNotExists("Person");
-    t.addColumn("test", STRING);
-
+    ProductComponentPartsExample.create(s);
+    System.out.println(JsonMapper.schemaToJson(s));
     // JsonStream.setMode(EncodingMode.REFLECTION_MODE);
     // System.out.println(JsonStream.serialize(Config.INSTANCE, s));
   }
@@ -82,7 +80,7 @@ public class TestJson {
   }
 
   @Test
-  public void testRowsToJson() {
+  public void testRowsToJson() throws JsonProcessingException {
     List<Row> rows = new ArrayList<>();
     rows.add(new Row().setString("FirstName", "Donald"));
 
@@ -112,14 +110,14 @@ public class TestJson {
         .asc("LastName")
         .asc("FirstName");
 
-    String json1 = queryToJson(q);
+    String json1 = JsonQueryMapper.queryToJson(q);
 
     System.out.println(q);
 
     System.out.println(json1);
 
-    Query q2 = jsonToQuery(json1, new QueryBean());
-    String json2 = queryToJson(q2);
+    Query q2 = JsonQueryMapper.jsonToQuery(json1, new QueryBean());
+    String json2 = JsonQueryMapper.queryToJson(q2);
 
     System.out.println(q2);
     System.out.println(json2);

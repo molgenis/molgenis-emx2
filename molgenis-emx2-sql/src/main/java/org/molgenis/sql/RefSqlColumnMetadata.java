@@ -20,13 +20,14 @@ public class RefSqlColumnMetadata extends SqlColumnMetadata {
   public RefSqlColumnMetadata createColumn() throws MolgenisException {
 
     // define jooq parameters
-    Field thisColumn = field(name(getName()), SqlTypeUtils.jooqTypeOf(this));
-    org.jooq.Table thisTable = table(name(getTable().getSchema().getName(), getTable().getName()));
+    Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));
+    org.jooq.Table thisTable =
+        table(name(getTable().getSchema().getName(), getTable().getTableName()));
     Name fkeyConstraintName =
         name(
-            getTable().getName()
+            getTable().getTableName()
                 + "."
-                + getName()
+                + getColumnName()
                 + " REFERENCES "
                 + getRefTableName()
                 + "."
@@ -52,7 +53,7 @@ public class RefSqlColumnMetadata extends SqlColumnMetadata {
             thisTable, fkeyConstraintName);
 
     getJooq()
-        .createIndex(name(getTable().getName()) + "_" + name(getName()) + "_FKINDEX")
+        .createIndex(name(getTable().getTableName()) + "_" + name(getColumnName()) + "_FKINDEX")
         .on(thisTable, thisColumn)
         .execute();
 

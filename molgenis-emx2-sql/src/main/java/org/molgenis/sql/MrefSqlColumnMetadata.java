@@ -47,11 +47,11 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
     ColumnMetadata otherColumn = otherTable.getColumn(getRefColumnName());
 
     getJooq()
-        .alterTable(name(schemaName, getTable().getName()))
-        .add(field(name(getName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
+        .alterTable(name(schemaName, getTable().getTableName()))
+        .add(field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
     getJooq()
-        .alterTable(name(schemaName, otherTable.getName()))
+        .alterTable(name(schemaName, otherTable.getTableName()))
         .add(
             field(
                 name(getReverseColumnName()),
@@ -61,16 +61,16 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
     // create the joinTable
     TableMetadata table = getTable().getSchema().createTableIfNotExists(getMrefJoinTableName());
     table.addRef(getRefColumnName(), getRefTableName(), getRefColumnName());
-    table.addRef(getReverseRefColumn(), getTable().getName(), getReverseRefColumn());
+    table.addRef(getReverseRefColumn(), getTable().getTableName(), getReverseRefColumn());
 
     // add the reverse column to the other table
     MrefSqlColumnMetadata reverseColumn =
         new MrefSqlColumnMetadata(
             otherTable,
             getReverseColumnName(),
-            getTable().getName(),
+            getTable().getTableName(),
             getReverseRefColumn(),
-            getName(),
+            getColumnName(),
             getRefColumnName(),
             getMrefJoinTableName());
     otherTable.addMrefReverse(reverseColumn);
@@ -93,7 +93,7 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
     //  parameters
     String schemaName = column.getTable().getSchema().getName();
     String insertOrUpdateTrigger =
-        column.getTable().getName() + "_" + column.getName() + "_UPSERT_TRIGGER";
+        column.getTable().getTableName() + "_" + column.getColumnName() + "_UPSERT_TRIGGER";
     ColumnMetadata targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
 
     // insert and update trigger: does the following
@@ -120,9 +120,9 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(column.getTable().getSchema().getName(), insertOrUpdateTrigger),
         keyword(SqlTypeUtils.getPsqlType(targetColumn)),
-        table(name(joinTable.getSchema().getName(), joinTable.getName())),
+        table(name(joinTable.getSchema().getName(), joinTable.getTableName())),
         field(name(reverseColumn.getRefColumnName())),
-        field(name(column.getName())),
+        field(name(column.getColumnName())),
         name(MOLGENISID),
         field(name(column.getRefColumnName())));
 
@@ -131,11 +131,12 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
             + "\n\tBEFORE INSERT ON {1}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(insertOrUpdateTrigger),
-        name(schemaName, column.getTable().getName()),
+        name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
 
     // delete trigger: will delete all mrefs that involve 'self' before deleting 'self'
-    String deleteTrigger = column.getTable().getName() + "_" + column.getName() + "_DELETE_TRIGGER";
+    String deleteTrigger =
+        column.getTable().getTableName() + "_" + column.getColumnName() + "_DELETE_TRIGGER";
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
@@ -146,14 +147,14 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(schemaName, deleteTrigger),
-        table(name(joinTable.getSchema().getName(), joinTable.getName())),
+        table(name(joinTable.getSchema().getName(), joinTable.getTableName())),
         field(name(reverseColumn.getRefColumnName())));
     jooq.execute(
         "CREATE TRIGGER {0} "
             + "\n\tAFTER DELETE ON {1}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(deleteTrigger),
-        name(schemaName, column.getTable().getName()),
+        name(schemaName, column.getTable().getTableName()),
         name(schemaName, deleteTrigger));
   }
 }

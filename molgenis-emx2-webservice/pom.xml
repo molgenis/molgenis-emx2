@@ -50,5 +50,11 @@
             <artifactId>jsoniter</artifactId>
             <version>0.9.19</version>
         </dependency>
+        <dependency>
+            <groupId>org.molgenis</groupId>
+            <artifactId>molgenis-emx2-exampledata</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

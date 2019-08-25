@@ -58,7 +58,7 @@ class SqlTable implements Table {
                 List<Field> fields = new ArrayList<>();
                 List<String> fieldNames = new ArrayList<>();
                 for (ColumnMetadata c : getMetadata().getColumns()) {
-                  fieldNames.add(c.getName());
+                  fieldNames.add(c.getColumnName());
                   fields.add(getJooqField(c));
                 }
                 InsertValuesStepN step =
@@ -91,7 +91,7 @@ class SqlTable implements Table {
                 ArrayList<Field> fields = new ArrayList<>();
                 ArrayList<String> fieldNames = new ArrayList<>();
                 for (ColumnMetadata c : getMetadata().getColumns()) {
-                  fieldNames.add(c.getName());
+                  fieldNames.add(c.getColumnName());
                   fields.add(getJooqField(c));
                 }
 
@@ -237,7 +237,7 @@ class SqlTable implements Table {
 
   @Override
   public String getName() {
-    return getMetadata().getName();
+    return getMetadata().getTableName();
   }
 
   private List<Field> getPrimaryKeyFields() throws MolgenisException {
@@ -249,10 +249,10 @@ class SqlTable implements Table {
   }
 
   private org.jooq.Table getJooqTable() {
-    return table(name(metadata.getSchema().getName(), metadata.getName()));
+    return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
   private Field getJooqField(ColumnMetadata c) throws MolgenisException {
-    return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
+    return field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c));
   }
 }

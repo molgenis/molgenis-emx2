@@ -20,7 +20,7 @@ public class SqlColumnMetadata extends ColumnMetadata {
   /** constructor for REF */
   public SqlColumnMetadata createColumn() throws MolgenisException {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
-    Field thisColumn = field(name(getName()), thisType);
+    Field thisColumn = field(name(getColumnName()), thisType);
     jooq.alterTable(asJooqTable()).addColumn(thisColumn).execute();
 
     jooq.alterTable(asJooqTable())
@@ -35,17 +35,18 @@ public class SqlColumnMetadata extends ColumnMetadata {
 
   @Override
   public SqlColumnMetadata setNullable(boolean nillable) {
-    if (nillable) jooq.alterTable(asJooqTable()).alterColumn(getName()).dropNotNull().execute();
-    else jooq.alterTable(asJooqTable()).alterColumn(getName()).setNotNull().execute();
+    if (nillable)
+      jooq.alterTable(asJooqTable()).alterColumn(getColumnName()).dropNotNull().execute();
+    else jooq.alterTable(asJooqTable()).alterColumn(getColumnName()).setNotNull().execute();
     super.setNullable(getNullable());
     return this;
   }
 
   public SqlColumnMetadata setIndexed(boolean index) {
-    String indexName = "INDEX_" + getTable().getName() + '_' + getName();
+    String indexName = "INDEX_" + getTable().getTableName() + '_' + getColumnName();
     if (index) {
       jooq.createIndexIfNotExists(name(indexName))
-          .on(asJooqTable(), field(name(getName())))
+          .on(asJooqTable(), field(name(getColumnName())))
           .execute();
     } else {
       jooq.dropIndexIfExists(name(getTable().getSchema().getName(), indexName));
@@ -56,7 +57,7 @@ public class SqlColumnMetadata extends ColumnMetadata {
   // helper methods
 
   protected org.jooq.Table asJooqTable() {
-    return table(name(getTable().getSchema().getName(), getTable().getName()));
+    return table(name(getTable().getSchema().getName(), getTable().getTableName()));
   }
 
   protected DSLContext getJooq() {

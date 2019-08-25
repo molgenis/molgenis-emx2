@@ -50,9 +50,9 @@ public class SqlQuery extends QueryBean implements Query {
       SelectJoinStep fromStep = selectStep.from(getJooqTable(from));
 
       // createColumn the joins
-      fromStep = createJoins(from.getName(), from, fromStep);
+      fromStep = createJoins(from.getTableName(), from, fromStep);
       // createColumn the where
-      fromStep.where(createConditions(from.getName()));
+      fromStep.where(createConditions(from.getTableName()));
 
       // createColumn the sort
 
@@ -81,10 +81,13 @@ public class SqlQuery extends QueryBean implements Query {
       if (!MREF.equals(column.getType())) {
         fields.add(
             field(
-                name(column.getMrefJoinTableName(), column.getName()),
+                name(column.getMrefJoinTableName(), column.getColumnName()),
                 SqlTypeUtils.jooqTypeOf(column)));
       } else {
-        fields.add(field(name(table.getName(), column.getName()), SqlTypeUtils.jooqTypeOf(column)));
+        fields.add(
+            field(
+                name(table.getTableName(), column.getColumnName()),
+                SqlTypeUtils.jooqTypeOf(column)));
       }
     }
 
@@ -97,8 +100,8 @@ public class SqlQuery extends QueryBean implements Query {
 
     org.jooq.Table jooqTable =
         DSL.select(fields)
-            .from(name(table.getSchema().getName(), table.getName()))
-            .asTable(table.getName());
+            .from(name(table.getSchema().getName(), table.getTableName()))
+            .asTable(table.getTableName());
 
     // for mrefs join
     for (ColumnMetadata column : table.getColumns()) {
@@ -108,7 +111,7 @@ public class SqlQuery extends QueryBean implements Query {
                 .leftJoin(
                     DSL.select(
                             field("array_agg({0})", name(column.getRefColumnName()))
-                                .as(column.getName()),
+                                .as(column.getColumnName()),
                             field(name(column.getReverseRefColumn())))
                         .from(
                             table(name(table.getSchema().getName(), column.getMrefJoinTableName())))
@@ -116,7 +119,7 @@ public class SqlQuery extends QueryBean implements Query {
                         .asTable(column.getMrefJoinTableName()))
                 .on(
                     field(name(column.getMrefJoinTableName(), column.getReverseRefColumn()))
-                        .eq((field(name(table.getName(), column.getReverseRefColumn())))));
+                        .eq((field(name(table.getTableName(), column.getReverseRefColumn())))));
       }
     }
     return jooqTable;
@@ -128,19 +131,19 @@ public class SqlQuery extends QueryBean implements Query {
 
     if (selectList.isEmpty()) {
       for (ColumnMetadata c : from.getColumns()) {
-        this.select(c.getName());
+        this.select(c.getColumnName());
       }
     }
 
     for (Select select : selectList) {
       String[] path = select.getPath();
       if (path.length == 1) {
-        fields.add(field(name(from.getName(), path[0])).as(name(path[0])));
+        fields.add(field(name(from.getTableName(), path[0])).as(name(path[0])));
       } else {
         String[] tablePath = Arrays.copyOfRange(path, 0, path.length - 1);
         String[] fieldPath = Arrays.copyOfRange(path, 0, path.length);
 
-        String tableAlias = from.getName() + "/" + String.join("/", tablePath);
+        String tableAlias = from.getTableName() + "/" + String.join("/", tablePath);
         fields.add(
             field(name(tableAlias, path[path.length - 1])).as(name(String.join("/", fieldPath))));
       }
@@ -205,7 +208,10 @@ public class SqlQuery extends QueryBean implements Query {
     StringBuilder search = new StringBuilder();
     for (Object s : w.getValues()) search.append(s + ":* ");
     return condition(
-        name(from.getName(), MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + search + "' )");
+        name(from.getTableName(), MG_SEARCH_INDEX_COLUMN_NAME)
+            + " @@ to_tsquery('"
+            + search
+            + "' )");
   }
 
   private SelectJoinStep createJoins(String name, TableMetadata table, SelectJoinStep fromStep)
@@ -221,7 +227,7 @@ public class SqlQuery extends QueryBean implements Query {
         String[] leftPath = Arrays.copyOfRange(path, 0, path.length - 2);
         ColumnMetadata c = getColumn(table, rightPath);
 
-        String leftColumn = c.getName();
+        String leftColumn = c.getColumnName();
         String leftAlias = path.length > 2 ? name + "/" + String.join("/", leftPath) : name;
 
         String rightTable = c.getRefTableName();
@@ -283,7 +289,7 @@ public class SqlQuery extends QueryBean implements Query {
       throw new MolgenisException(
           "undefined_column",
           "Column not found",
-          "Column '" + path[0] + "' cannot be found in table " + t.getName());
+          "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
     if (path.length == 1) {
       return c;
     } else {

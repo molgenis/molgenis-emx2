@@ -145,7 +145,7 @@ public class MetadataUtils {
         .getJooq()
         .insertInto(TABLE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY)
-        .values(table.getSchema().getName(), table.getName(), table.getPrimaryKey())
+        .values(table.getSchema().getName(), table.getTableName(), table.getPrimaryKey())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
         .set(TABLE_PRIMARYKEY, table.getPrimaryKey())
@@ -159,7 +159,8 @@ public class MetadataUtils {
         table
             .getJooq()
             .selectFrom(TABLE_METADATA)
-            .where(TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getName()))
+            .where(
+                TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetchOne();
     String[] pkey = tableRecord.get(TABLE_PRIMARYKEY, String[].class);
     if (pkey.length > 0) table.loadPrimaryKey(pkey);
@@ -169,7 +170,7 @@ public class MetadataUtils {
     table
         .getJooq()
         .deleteFrom(TABLE_METADATA)
-        .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getName()))
+        .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getTableName()))
         .execute();
   }
 
@@ -180,8 +181,8 @@ public class MetadataUtils {
         .columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, REF_TABLE, REF_COLUMN)
         .values(
             column.getTable().getSchema().getName(),
-            column.getTable().getName(),
-            column.getName(),
+            column.getTable().getTableName(),
+            column.getColumnName(),
             column.getType(),
             column.getNullable(),
             column.getRefTableName(),
@@ -201,8 +202,8 @@ public class MetadataUtils {
         .deleteFrom(COLUMN_METADATA)
         .where(
             TABLE_SCHEMA.eq(column.getTable().getSchema()),
-            TABLE_NAME.eq(column.getTable().getName()),
-            COLUMN_NAME.eq(column.getName()))
+            TABLE_NAME.eq(column.getTable().getTableName()),
+            COLUMN_NAME.eq(column.getColumnName()))
         .execute();
   }
 
@@ -211,7 +212,7 @@ public class MetadataUtils {
         .getJooq()
         .insertInto(UNIQUE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-        .values(table.getSchema().getName(), table.getName(), columnNames)
+        .values(table.getSchema().getName(), table.getTableName(), columnNames)
         .onConflict(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
         .doNothing()
         .execute();
@@ -223,7 +224,7 @@ public class MetadataUtils {
         .deleteFrom(UNIQUE_METADATA)
         .where(
             TABLE_SCHEMA.eq(table.getSchema().getName()),
-            TABLE_NAME.eq(table.getName()),
+            TABLE_NAME.eq(table.getTableName()),
             UNIQUE_COLUMNS.eq(columnNames))
         .execute();
   }
@@ -237,7 +238,8 @@ public class MetadataUtils {
         table
             .getJooq()
             .selectFrom(UNIQUE_METADATA)
-            .where(TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getName()))
+            .where(
+                TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetch();
 
     for (Record uniqueRecord : uniqueRecordList) {
@@ -252,7 +254,8 @@ public class MetadataUtils {
         table
             .getJooq()
             .selectFrom(COLUMN_METADATA)
-            .where(TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getName()))
+            .where(
+                TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetch();
 
     for (Record col : columnRecords) {

@@ -30,7 +30,7 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
           "invalid_foreign_key",
           "Foreign key reference invalid",
           "Create of foreign key from table '"
-              + table.getName()
+              + table.getTableName()
               + "' to table '"
               + toTable
               + "' failed: fromColumn and toColumn must have the same number of colums");
@@ -41,7 +41,7 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
               (SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
       getTable().addColumn(c);
 
-      Field thisColumn = field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));
+      Field thisColumn = field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));
       table.getJooq().alterTable(table.getJooqTable()).addColumn(thisColumn).execute();
       saveColumnMetadata(c);
     }

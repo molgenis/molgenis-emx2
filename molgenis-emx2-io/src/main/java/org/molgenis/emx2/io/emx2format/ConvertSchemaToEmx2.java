@@ -63,13 +63,14 @@ public class ConvertSchemaToEmx2 {
         && !Arrays.equals(table.getPrimaryKey(), new String[] {MOLGENISID}))
       def.add("pkey", table.getPrimaryKey());
 
-    if (!def.getTerms().isEmpty()) rows.add(new Emx2FileRow(table.getName(), "", def.toString()));
+    if (!def.getTerms().isEmpty())
+      rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
   }
 
   private static void writeColumnDefinitionRow(ColumnMetadata column, List<Emx2FileRow> rows) {
 
     // ignore internal ID, is implied
-    if (!MOLGENISID.equals(column.getName())) {
+    if (!MOLGENISID.equals(column.getColumnName())) {
       Emx2PropertyList def = new Emx2PropertyList();
       switch (column.getType()) {
         case STRING:
@@ -92,8 +93,8 @@ public class ConvertSchemaToEmx2 {
 
       rows.add(
           new Emx2FileRow(
-              column.getTable().getName(),
-              column.getName(),
+              column.getTable().getTableName(),
+              column.getColumnName(),
               def.toString(),
               column.getDescription()));
     }

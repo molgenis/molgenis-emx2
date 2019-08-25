@@ -173,8 +173,8 @@
 //    StopWatch.print("MetObjects run", count);
 //  }
 //
-//  private File getFile(String name) {
-//    String file = ClassLoader.getSystemResource(name).getFile();
+//  private File getFile(String tableName) {
+//    String file = ClassLoader.getSystemResource(tableName).getFile();
 //    return new File(file);
 //  }
 // }

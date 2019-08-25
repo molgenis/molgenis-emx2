@@ -1,4 +1,4 @@
-package org.molgenis.json;
+package org.molgenis.emx2.json;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.ValueType;
@@ -53,14 +53,14 @@ public class JsonRowMapper {
       try {
         switch (c.getType()) {
           case INT:
-            r.setInt(c.getName(), json.get(c.getName()).toInt());
+            r.setInt(c.getColumnName(), json.get(c.getColumnName()).toInt());
             break;
           case DECIMAL:
-            r.setDecimal(c.getName(), json.get(c.getName()).toDouble());
+            r.setDecimal(c.getColumnName(), json.get(c.getColumnName()).toDouble());
             break;
           case STRING:
-            if (ValueType.STRING.equals(json.get(c.getName()).valueType())) {
-              r.setString(c.getName(), json.get(c.getName()).toString());
+            if (ValueType.STRING.equals(json.get(c.getColumnName()).valueType())) {
+              r.setString(c.getColumnName(), json.get(c.getColumnName()).toString());
               break;
             } else throw new IllegalArgumentException();
           default:
@@ -72,7 +72,7 @@ public class JsonRowMapper {
         throw new MolgenisException(
             String.format(
                 "Malformed json: expected '%s' to be of type '%s' but found '%s'. Total object: %s",
-                c.getName(), c.getType(), json.get(c.getName()).valueType(), json),
+                c.getColumnName(), c.getType(), json.get(c.getColumnName()).valueType(), json),
             e);
       }
     }

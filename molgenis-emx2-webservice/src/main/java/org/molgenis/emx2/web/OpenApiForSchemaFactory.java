@@ -181,7 +181,7 @@ public class OpenApiForSchemaFactory {
 
   private static void createOpenApiForTable(TableMetadata table, Paths paths, Components components)
       throws MolgenisException {
-    String tableName = table.getName();
+    String tableName = table.getTableName();
 
     // components
     rowSchemaComponent(table, components);
@@ -233,13 +233,13 @@ public class OpenApiForSchemaFactory {
       throws MolgenisException {
     Map<String, Schema> properties = new LinkedHashMap<>();
     for (ColumnMetadata column : table.getColumns()) {
-      properties.put(column.getName(), columnSchema(column));
+      properties.put(column.getColumnName(), columnSchema(column));
     }
-    components.addSchemas(table.getName(), new Schema().type(OBJECT).properties(properties));
+    components.addSchemas(table.getTableName(), new Schema().type(OBJECT).properties(properties));
     Map<String, Schema> insertProperties = new LinkedHashMap<>(properties);
     insertProperties.remove(MOLGENISID);
     components.addSchemas(
-        "New" + table.getName(), new Schema().type(OBJECT).properties(insertProperties));
+        "New" + table.getTableName(), new Schema().type(OBJECT).properties(insertProperties));
   }
 
   private static Operation rowDelete(String tableName) {

@@ -46,3 +46,6 @@ Instead EMX allows you to precisely manipulate the database backend.
 *  legacy reader
 *  implement unqiue and primary key annotations for class->table mapping
 
+## Discussion
+
+* how to best project into json schema. Confusing because ideally one schema would be a json schema so you can treat molgenis as big json store.

@@ -45,7 +45,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   void createTable() throws MolgenisException {
-    Name tableName = name(getSchema().getName(), getName());
+    Name tableName = name(getSchema().getName(), getTableName());
     DSLContext jooq = db.getJooq();
     jooq.createTable(tableName).columns().execute();
     saveTableMetadata(this);
@@ -75,7 +75,7 @@ class SqlTableMetadata extends TableMetadata {
     db.getJooq()
         .execute(
             "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}",
-            getJooqTable(), name(getName() + "_pkey"));
+            getJooqTable(), name(getTableName() + "_pkey"));
 
     // create the new one
     db.getJooq().alterTable(getJooqTable()).add(constraint().primaryKey(keyNames)).execute();
@@ -140,7 +140,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   protected void addMrefReverse(MrefSqlColumnMetadata reverse) {
-    columns.put(reverse.getName(), reverse);
+    columns.put(reverse.getColumnName(), reverse);
   }
 
   @Override
@@ -150,7 +150,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   org.jooq.Table getJooqTable() {
-    return table(name(getSchema().getName(), getName()));
+    return table(name(getSchema().getName(), getTableName()));
   }
 
   public boolean exists() {
@@ -158,7 +158,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public void dropTable() {
-    db.getJooq().dropTable(name(getSchema().getName(), getName())).execute();
+    db.getJooq().dropTable(name(getSchema().getName(), getTableName())).execute();
     deleteTable(this);
   }
 
@@ -172,7 +172,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata addUnique(String... columnNames) throws MolgenisException {
-    String uniqueName = getName() + "_" + String.join("_", columnNames) + "_UNIQUE";
+    String uniqueName = getTableName() + "_" + String.join("_", columnNames) + "_UNIQUE";
     db.getJooq()
         .alterTable(getJooqTable())
         .add(constraint(name(uniqueName)).unique(columnNames))
@@ -199,7 +199,7 @@ class SqlTableMetadata extends TableMetadata {
           "Remove unique failed because the unique was unknown",
           "Unique constraint consisting of columns " + list1 + "could not be found. ");
 
-    String uniqueName = getName() + "_" + String.join("_", correctOrderedNames) + "_UNIQUE";
+    String uniqueName = getTableName() + "_" + String.join("_", correctOrderedNames) + "_UNIQUE";
     db.getJooq().alterTable(getJooqTable()).dropConstraint(name(uniqueName)).execute();
     MetadataUtils.deleteUnique(this, correctOrderedNames);
     super.removeUnique(correctOrderedNames);
@@ -224,13 +224,14 @@ class SqlTableMetadata extends TableMetadata {
     // 3. createColumn the trigger function to automatically update the
     // MG_SEARCH_INDEX_COLUMN_NAME
     String triggerfunction =
-        String.format("\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getName());
+        String.format(
+            "\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getTableName());
 
     StringBuilder mgSearchVector = new StringBuilder("to_tsvector('english', ' '");
     for (ColumnMetadata c : getColumns()) {
-      if (!c.getName().startsWith("MG_"))
+      if (!c.getColumnName().startsWith("MG_"))
         mgSearchVector.append(
-            String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName()));
+            String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getColumnName()));
     }
     mgSearchVector.append(")");
 
@@ -264,7 +265,7 @@ class SqlTableMetadata extends TableMetadata {
     db.getJooq()
         .execute(
             "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
-            name("RLS/" + getSchema().getName() + "/" + getName()),
+            name("RLS/" + getSchema().getName() + "/" + getTableName()),
             getJooqTable(),
             name(MG_EDIT_ROLE));
     // set RLS on the table

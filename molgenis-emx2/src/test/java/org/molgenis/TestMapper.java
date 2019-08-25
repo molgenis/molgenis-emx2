@@ -44,8 +44,8 @@ public class TestMapper {
     ColumnMetadata firstName = t.getColumn("firstName");
     ColumnMetadata lastName = t.getColumn("lastName");
 
-    assertEquals("firstName", firstName.getName());
-    assertEquals("lastName", lastName.getName());
+    assertEquals("firstName", firstName.getColumnName());
+    assertEquals("lastName", lastName.getColumnName());
 
     assertEquals(Type.UUID, molgenisid.getType());
     assertEquals(STRING, firstName.getType());

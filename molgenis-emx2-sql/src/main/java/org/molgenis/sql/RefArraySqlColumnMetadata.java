@@ -30,14 +30,14 @@ public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
   private void createIsReferencedByTrigger() {
     Name triggerName = getTriggerName();
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
-    Name thisTable = name(getTable().getSchema().getName(), getTable().getName());
-    Name thisColumn = name(getName());
+    Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
+    Name thisColumn = name(getColumnName());
     Name toColumn = name(getRefColumnName());
 
     Name functionName =
         name(
             getTable().getSchema().getName(),
-            getTable().getName() + "_" + getName() + "_REF_ARRAY_TRIGGER2");
+            getTable().getTableName() + "_" + getColumnName() + "_REF_ARRAY_TRIGGER2");
 
     // create the function
     getJooq()
@@ -80,15 +80,15 @@ public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
   /** trigger on this column to check if foreign key exists */
   private void createReferenceExistsTrigger() throws MolgenisException {
     Name triggerName = getTriggerName();
-    Name thisTable = name(getTable().getSchema().getName(), getTable().getName());
-    Name thisColumn = name(getName());
+    Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
+    Name thisColumn = name(getColumnName());
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name toColumn = name(getRefColumnName());
 
     Name functionName =
         name(
             getTable().getSchema().getName(),
-            getTable().getName() + "_" + getName() + "_REF_ARRAY_TRIGGER");
+            getTable().getTableName() + "_" + getColumnName() + "_REF_ARRAY_TRIGGER");
 
     // create the function
     getJooq()
@@ -139,9 +139,9 @@ public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
 
   private Name getTriggerName() {
     return name(
-        getTable().getName()
+        getTable().getTableName()
             + "."
-            + getName()
+            + getColumnName()
             + " REFERENCES "
             + getRefTableName()
             + "."

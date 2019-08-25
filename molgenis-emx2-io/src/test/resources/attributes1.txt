@@ -1,13 +1,13 @@
-name,entity,dataType,nillable,refEntity,idAttribute,description
-cityName,cities,,FALSE,,TRUE,unique city name
+tableName,entity,dataType,nillable,refEntity,idAttribute,description
+cityName,cities,,FALSE,,TRUE,unique city tableName
 lat,cities,decimal,,,,latitude in degrees
 lng,cities,decimal,,,,longitude in degrees
-displayName,persons,,FALSE,,TRUE,unique name
-firstName,persons,,,,,first name
-lastName,persons,,,,,family name
+displayName,persons,,FALSE,,TRUE,unique tableName
+firstName,persons,,,,,first tableName
+lastName,persons,,,,,family tableName
 birthdate,patients,date,,,,day of birth
 birthplace,patients,xref,,cities,,place of birth
 children,patients,mref,,patients,,children of a patient
 disease,patients,,,,,disese description
-userName,users,,FALSE,,TRUE,unique login name
+userName,users,,FALSE,,TRUE,unique login tableName
 active,users,bool,,,,whether user is active

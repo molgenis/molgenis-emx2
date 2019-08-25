@@ -1,13 +1,12 @@
 package org.molgenis.metadata;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.molgenis.MolgenisException;
 import static org.molgenis.metadata.Type.STRING;
 
 public class ColumnMetadata {
   private TableMetadata table;
 
-  private String name;
+  private String columnName;
   private Type type;
   private boolean nullable = false;
   private String refTable;
@@ -21,9 +20,9 @@ public class ColumnMetadata {
   private String validation;
   private String defaultValue;
 
-  public ColumnMetadata(TableMetadata table, String name, Type type) {
+  public ColumnMetadata(TableMetadata table, String columnName, Type type) {
     this.table = table;
-    this.name = name;
+    this.columnName = columnName;
     this.type = type;
   }
 
@@ -54,7 +53,7 @@ public class ColumnMetadata {
   }
 
   public ColumnMetadata primaryKey() throws MolgenisException {
-    this.table.setPrimaryKey(this.name);
+    this.table.setPrimaryKey(this.columnName);
     return this;
   }
 
@@ -62,8 +61,8 @@ public class ColumnMetadata {
     return table;
   }
 
-  public String getName() {
-    return name;
+  public String getColumnName() {
+    return columnName;
   }
 
   public Type getType() {
@@ -106,7 +105,7 @@ public class ColumnMetadata {
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append(getName()).append(" ");
+    builder.append(getColumnName()).append(" ");
     if (Type.REF.equals(getType()))
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getType().toString().toLowerCase());
@@ -147,7 +146,7 @@ public class ColumnMetadata {
   }
 
   public Boolean isUnique() {
-    return getTable().isUnique(getName());
+    return getTable().isUnique(getColumnName());
   }
 
   public String getDefaultValue() {
@@ -159,8 +158,8 @@ public class ColumnMetadata {
   }
 
   public ColumnMetadata setUnique(boolean unique) throws MolgenisException {
-    if (unique) getTable().addUnique(this.getName());
-    else getTable().removeUnique(this.getName());
+    if (unique) getTable().addUnique(this.getColumnName());
+    else getTable().removeUnique(this.getColumnName());
     return this;
   }
 

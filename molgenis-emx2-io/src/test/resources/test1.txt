@@ -31,12 +31,12 @@ table A, ,"unique(column AA,column AB)"
 table A, column AA,"nillable ref(table B,column B)"
 table A, column AB,
 table B, column B,
-person,Display name,unique
-person,First name,
-person,Last name,
+person,Display tableName,unique
+person,First tableName,
+person,Last tableName,
 person, birthDate, nillable date
 person, weight, nillable int
-person, birthPlace, "ref(cities,name)"
-cities, name, unique
-person,,"unique(First name,Last name)"
+person, birthPlace, "ref(cities,tableName)"
+cities, tableName, unique
+person,,"unique(First tableName,Last tableName)"
 

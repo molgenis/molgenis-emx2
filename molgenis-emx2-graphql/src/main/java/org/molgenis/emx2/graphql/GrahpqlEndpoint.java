@@ -21,13 +21,13 @@ public class GrahpqlEndpoint {
     GraphQLObjectType.Builder query = newObject().name("QueryOld");
     for (String tableName : model.getTableNames()) {
       TableMetadata table = model.getTableMetadata(tableName);
-      GraphQLObjectType.Builder type = newObject().name(table.getName());
+      GraphQLObjectType.Builder type = newObject().name(table.getTableName());
       for (ColumnMetadata col : table.getColumns()) {
-        type.field(newFieldDefinition().name(col.getName()).type(GraphQLString));
+        type.field(newFieldDefinition().name(col.getColumnName()).type(GraphQLString));
       }
       query.field(
           GraphQLFieldDefinition.newFieldDefinition()
-              .name(table.getName())
+              .name(table.getTableName())
               .type(GraphQLList.list(type.build()))
               .argument(newArgument().name("where").type(GraphQLString).build())
               .argument(newArgument().name("limit").type(GraphQLInt).build())
