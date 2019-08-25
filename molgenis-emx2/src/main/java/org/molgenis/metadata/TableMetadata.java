@@ -175,6 +175,7 @@ public class TableMetadata {
     for (int i = 0; i < uniques.size(); i++) {
       if (Arrays.equals(uniques.get(i), keys)) {
         uniques.remove(i);
+        break;
       }
     }
   }
