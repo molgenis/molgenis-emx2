@@ -1,5 +1,6 @@
 package org.molgenis.metadata;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.molgenis.MolgenisException;
 import static org.molgenis.metadata.Type.STRING;
 
@@ -109,7 +110,7 @@ public class ColumnMetadata {
     if (Type.REF.equals(getType()))
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getType().toString().toLowerCase());
-    if (getNullable()) builder.append(" setNullable");
+    if (Boolean.TRUE.equals(getNullable())) builder.append(" setNullable");
     return builder.toString();
   }
 

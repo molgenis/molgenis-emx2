@@ -27,7 +27,7 @@ public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
-  private void createIsReferencedByTrigger() throws MolgenisException {
+  private void createIsReferencedByTrigger() {
     Name triggerName = getTriggerName();
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name thisTable = name(getTable().getSchema().getName(), getTable().getName());
@@ -137,7 +137,7 @@ public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
             triggerName, thisColumn, thisTable, toTable, functionName);
   }
 
-  private Name getTriggerName() throws MolgenisException {
+  private Name getTriggerName() {
     return name(
         getTable().getName()
             + "."

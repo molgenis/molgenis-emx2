@@ -173,7 +173,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void saveColumnMetadata(SqlColumnMetadata column) throws MolgenisException {
+  protected static void saveColumnMetadata(SqlColumnMetadata column) {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)

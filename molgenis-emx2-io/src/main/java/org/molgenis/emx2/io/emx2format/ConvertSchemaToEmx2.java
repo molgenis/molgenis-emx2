@@ -66,8 +66,7 @@ public class ConvertSchemaToEmx2 {
     if (!def.getTerms().isEmpty()) rows.add(new Emx2FileRow(table.getName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(ColumnMetadata column, List<Emx2FileRow> rows)
-      throws MolgenisException {
+  private static void writeColumnDefinitionRow(ColumnMetadata column, List<Emx2FileRow> rows) {
 
     // ignore internal ID, is implied
     if (!MOLGENISID.equals(column.getName())) {
@@ -86,10 +85,10 @@ public class ConvertSchemaToEmx2 {
         default:
           def.add(column.getType().toString().toLowerCase());
       }
-      if (column.getNullable()) def.add("nullable");
-      if (column.getReadonly()) def.add("readonly");
+      if (Boolean.TRUE.equals(column.getNullable())) def.add("nullable");
+      if (Boolean.TRUE.equals(column.getReadonly())) def.add("readonly");
+      if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
       if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
-      if (column.isUnique()) def.add("unique");
 
       rows.add(
           new Emx2FileRow(

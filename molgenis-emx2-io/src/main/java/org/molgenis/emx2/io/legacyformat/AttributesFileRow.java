@@ -232,23 +232,23 @@ public class AttributesFileRow {
   }
 
   public void writeReadonly(StringBuilder builder) {
-    if (readonly) builder.append(" readonly");
+    if (Boolean.TRUE.equals(readonly)) builder.append(" readonly");
   }
 
   public void writeLabelAttribute(StringBuilder builder) {
-    if (labelAttribute) builder.append(" labelAttribute");
+    if (Boolean.TRUE.equals(labelAttribute)) builder.append(" labelAttribute");
   }
 
   public void writeAggregateable(StringBuilder builder) {
-    if (aggregateable) builder.append(" aggregateable");
+    if (Boolean.TRUE.equals(aggregateable)) builder.append(" aggregateable");
   }
 
   public void writeIdAttribute(StringBuilder builder) {
-    if (idAttribute) builder.append(" idAttribute");
+    if (Boolean.TRUE.equals(idAttribute)) builder.append(" idAttribute");
   }
 
   public void writeNillable(StringBuilder builder) {
-    if (nillable) builder.append(" nillable");
+    if (Boolean.TRUE.equals(nillable)) builder.append(" nillable");
   }
 
   public void writeLabel(StringBuilder builder) {
