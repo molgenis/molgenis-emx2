@@ -4,6 +4,7 @@ import org.molgenis.MolgenisException;
 import org.molgenis.MolgenisExceptionMessage;
 import org.molgenis.data.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
+import org.molgenis.emx2.io.csv.RowReaderFlatmapper;
 import org.molgenis.metadata.ColumnMetadata;
 import org.molgenis.metadata.SchemaMetadata;
 import org.molgenis.metadata.TableMetadata;
