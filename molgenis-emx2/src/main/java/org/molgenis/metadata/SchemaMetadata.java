@@ -57,7 +57,7 @@ public class SchemaMetadata {
     return tables.containsKey(name);
   }
 
-  public void dropTable(String tableId) {
+  public void dropTable(String tableId) throws MolgenisException {
     tables.remove(tableId);
   }
 
