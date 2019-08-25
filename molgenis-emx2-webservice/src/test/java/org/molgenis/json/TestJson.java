@@ -36,8 +36,8 @@ public class TestJson {
     TableMetadata t = s.createTableIfNotExists("Person");
     t.addColumn("test", STRING);
 
-    JsonStream.setMode(EncodingMode.REFLECTION_MODE);
-    System.out.println(JsonStream.serialize(Config.INSTANCE, s));
+    // JsonStream.setMode(EncodingMode.REFLECTION_MODE);
+    // System.out.println(JsonStream.serialize(Config.INSTANCE, s));
   }
 
   @Test

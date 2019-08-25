@@ -13,6 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class CsvRowReader {
+
+  private CsvRowReader() {
+    // to prevent new CsvRowReader()
+  }
+
   public static Iterable<Row> read(File f) throws IOException {
     return read(new FileReader(f));
   }

@@ -1,6 +1,5 @@
 package org.molgenis.sql;
 
-import com.jsoniter.annotation.JsonIgnore;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.MolgenisException;
@@ -21,8 +20,7 @@ class SqlTableMetadata extends TableMetadata {
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
   public static final String MG_SEARCH_INDEX_COLUMN_NAME = "MG_SEARCH_VECTOR";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
-
-  @JsonIgnore private SqlDatabase db;
+  private SqlDatabase db;
 
   SqlTableMetadata(SqlDatabase db, SqlSchemaMetadata schema, String name) {
     super(schema, name);

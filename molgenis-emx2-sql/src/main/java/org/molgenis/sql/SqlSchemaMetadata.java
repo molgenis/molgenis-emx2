@@ -1,6 +1,5 @@
 package org.molgenis.sql;
 
-import com.jsoniter.annotation.JsonIgnore;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.molgenis.MolgenisException;
@@ -14,7 +13,7 @@ import static org.molgenis.sql.MetadataUtils.*;
 import static org.molgenis.sql.SqlTable.MG_ROLE_PREFIX;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
-  @JsonIgnore private SqlDatabase db;
+  private SqlDatabase db;
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(name);

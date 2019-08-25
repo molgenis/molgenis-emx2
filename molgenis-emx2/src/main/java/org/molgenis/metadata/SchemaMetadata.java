@@ -1,6 +1,5 @@
 package org.molgenis.metadata;
 
-import com.jsoniter.annotation.JsonIgnore;
 import org.molgenis.MolgenisException;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +28,6 @@ public class SchemaMetadata {
     this.name = name;
   }
 
-  @JsonIgnore
   public Collection<String> getTableNames() {
     return Collections.unmodifiableCollection(tables.keySet());
   }

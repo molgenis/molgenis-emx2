@@ -1,6 +1,5 @@
 package org.molgenis.sql;
 
-import com.jsoniter.annotation.JsonIgnore;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -11,7 +10,7 @@ import org.molgenis.metadata.ColumnMetadata;
 import static org.jooq.impl.DSL.*;
 
 public class SqlColumnMetadata extends ColumnMetadata {
-  @JsonIgnore private DSLContext jooq;
+  private DSLContext jooq;
 
   public SqlColumnMetadata(SqlTableMetadata table, String columnName, Type columnType) {
     super(table, columnName, columnType);

@@ -1,6 +1,5 @@
 package org.molgenis.metadata;
 
-import com.jsoniter.annotation.JsonIgnore;
 import org.molgenis.MolgenisException;
 
 import static org.molgenis.metadata.Type.*;
@@ -12,7 +11,7 @@ public class TableMetadata {
   public static final String ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED =
       "Adding of foreign key reference failed";
 
-  @JsonIgnore private SchemaMetadata schema;
+  private SchemaMetadata schema;
 
   private String name;
   protected Map<String, ColumnMetadata> columns;
@@ -29,7 +28,6 @@ public class TableMetadata {
     return name;
   }
 
-  @JsonIgnore
   public SchemaMetadata getSchema() {
     return schema;
   }

@@ -1,12 +1,10 @@
 package org.molgenis.metadata;
 
-import com.jsoniter.annotation.JsonIgnore;
 import org.molgenis.MolgenisException;
-
 import static org.molgenis.metadata.Type.STRING;
 
 public class ColumnMetadata {
-  @JsonIgnore private TableMetadata table;
+  private TableMetadata table;
 
   private String name;
   private Type type;
@@ -59,7 +57,6 @@ public class ColumnMetadata {
     return this;
   }
 
-  @JsonIgnore
   public TableMetadata getTable() {
     return table;
   }
