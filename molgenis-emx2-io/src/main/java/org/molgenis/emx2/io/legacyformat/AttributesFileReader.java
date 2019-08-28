@@ -93,23 +93,23 @@ public class AttributesFileReader {
     try {
       AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
       switch (oldType) {
-        case Type.STRING:
+        case STRING:
           return STRING;
-        case Type.INT:
+        case INT:
           return INT;
-        case Type.DECIMAL:
+        case DECIMAL:
           return DECIMAL;
-        case Type.TEXT:
+        case TEXT:
           return TEXT;
-        case Type.BOOL:
+        case BOOL:
           return BOOL;
-        case Type.DATE:
+        case DATE:
           return DATE;
-        case Type.DATETIME:
+        case DATETIME:
           return DATETIME;
         case XREF:
           return REF;
-        case Type.MREF:
+        case MREF:
           return MREF;
         case COMPOUND:
           throw new MolgenisException(
