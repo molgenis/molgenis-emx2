@@ -5,16 +5,16 @@ import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.molgenis.Database;
-import org.molgenis.Row;
-import org.molgenis.Table;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
-import org.molgenis.Schema;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.web.json.JsonRowMapper;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
-import org.molgenis.utils.MolgenisException;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.utils.MolgenisException;
 import spark.Request;
 import spark.Response;
 
@@ -31,11 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.emx2.web.JsonMapper.rowToJson;
-import static org.molgenis.emx2.web.JsonMapper.rowsToJson;
-import static org.molgenis.emx2.web.OpenApiForSchemaFactory.createOpenApi;
-import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
+import static org.molgenis.emx2.Row.MOLGENISID;
 import static spark.Spark.*;
 
 public class WebApiFactory {
@@ -116,7 +112,7 @@ public class WebApiFactory {
       throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     List<Row> rows = table.retrieve();
-    return rowsToJson(rows);
+    return JsonMapper.rowsToJson(rows);
   }
 
   private static String tableQueryAcceptCSV(Request request, Response response)
@@ -145,7 +141,7 @@ public class WebApiFactory {
     table.update(row);
     response.type(ACCEPT_JSON);
     response.status(200);
-    return rowToJson(row);
+    return JsonMapper.rowToJson(row);
   }
 
   private static String tableGetOperation(Request request, Response response)
@@ -153,7 +149,7 @@ public class WebApiFactory {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     List<Row> rows = table.query().where(MOLGENISID).eq(request.params(MOLGENISID)).retrieve();
     response.status(200);
-    return rowToJson(rows.get(0));
+    return JsonMapper.rowToJson(rows.get(0));
   }
 
   private static String tablePostOperation(Request request, Response response)
@@ -163,13 +159,13 @@ public class WebApiFactory {
     table.insert(row);
     response.status(200);
     response.type(ACCEPT_JSON);
-    return rowToJson(row);
+    return JsonMapper.rowToJson(row);
   }
 
   private static String openApiYaml(Request request, Response response)
       throws MolgenisException, IOException {
     Schema schema = database.getSchema(request.params(SCHEMA));
-    OpenAPI api = createOpenApi(schema.getMetadata());
+    OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema.getMetadata());
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);
     response.status(200);
@@ -178,7 +174,7 @@ public class WebApiFactory {
 
   private static String openApiUserInterface(Request request, Response response) {
     response.status(200);
-    return createSwaggerUI(request.params(SCHEMA));
+    return SwaggerUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
   private static String schemaGet(Request request, Response response) throws MolgenisException {

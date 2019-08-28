@@ -4,10 +4,10 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.jsoniter.spi.TypeLiteral;
-import org.molgenis.Row;
-import org.molgenis.Column;
-import org.molgenis.TableMetadata;
-import org.molgenis.utils.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.*;
 

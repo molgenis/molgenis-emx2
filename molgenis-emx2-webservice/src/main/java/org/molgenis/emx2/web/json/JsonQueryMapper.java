@@ -3,14 +3,16 @@ package org.molgenis.emx2.web.json;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsoniterSpi;
-import org.molgenis.Query;
-import org.molgenis.Select;
-import org.molgenis.Where;
-import org.molgenis.query.*;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Select;
+import org.molgenis.emx2.Where;
+import org.molgenis.emx2.query.Operator;
+import org.molgenis.emx2.query.Order;
+import org.molgenis.emx2.query.Sort;
 
 import java.util.*;
 
-import static org.molgenis.query.Order.ASC;
+import static org.molgenis.emx2.query.Order.ASC;
 
 public class JsonQueryMapper {
 

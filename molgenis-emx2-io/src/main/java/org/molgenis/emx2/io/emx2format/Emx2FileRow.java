@@ -1,8 +1,6 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.Row;
-
-import static org.molgenis.emx2.io.emx2format.Emx2FileHeader.*;
+import org.molgenis.emx2.Row;
 
 public class Emx2FileRow {
   private String table;
@@ -18,10 +16,10 @@ public class Emx2FileRow {
 
   public Emx2FileRow(Row row) {
     this(
-        row.getString(TABLE.name().toLowerCase()),
-        row.getString(COLUMN.name().toLowerCase()),
-        row.getString(PROPERTIES.name().toLowerCase()),
-        row.getString(DESCRIPTION.name().toLowerCase()));
+        row.getString(Emx2FileHeader.TABLE.name().toLowerCase()),
+        row.getString(Emx2FileHeader.COLUMN.name().toLowerCase()),
+        row.getString(Emx2FileHeader.PROPERTIES.name().toLowerCase()),
+        row.getString(Emx2FileHeader.DESCRIPTION.name().toLowerCase()));
   }
 
   public Emx2FileRow(String table, String column, String properties, String description) {
@@ -47,10 +45,10 @@ public class Emx2FileRow {
 
   public Row toRow() {
     return new Row()
-        .setString(TABLE.name().toLowerCase(), table)
-        .setString(COLUMN.name().toLowerCase(), column)
-        .setString(PROPERTIES.name().toLowerCase(), properties)
-        .setString(DESCRIPTION.name().toLowerCase(), description);
+        .setString(Emx2FileHeader.TABLE.name().toLowerCase(), table)
+        .setString(Emx2FileHeader.COLUMN.name().toLowerCase(), column)
+        .setString(Emx2FileHeader.PROPERTIES.name().toLowerCase(), properties)
+        .setString(Emx2FileHeader.DESCRIPTION.name().toLowerCase(), description);
   }
 
   public String toString() {

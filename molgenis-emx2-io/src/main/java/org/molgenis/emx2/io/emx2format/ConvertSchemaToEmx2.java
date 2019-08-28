@@ -1,10 +1,10 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.Row;
-import org.molgenis.Column;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.simpleflatmapper.csv.CsvWriter;
 import org.simpleflatmapper.util.CheckedConsumer;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.emx2.Row.MOLGENISID;
 
 public class ConvertSchemaToEmx2 {
 

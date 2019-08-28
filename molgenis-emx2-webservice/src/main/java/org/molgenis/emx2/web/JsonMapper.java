@@ -8,12 +8,12 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jooq.DSLContext;
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.Row;
-import org.molgenis.Column;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
-import org.molgenis.sql.SqlDatabase;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.Row;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.Type;
+import org.molgenis.emx2.Type;
 
 import java.util.*;
 import java.util.regex.Matcher;

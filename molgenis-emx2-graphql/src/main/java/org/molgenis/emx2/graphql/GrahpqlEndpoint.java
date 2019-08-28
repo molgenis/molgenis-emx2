@@ -1,10 +1,10 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.Column;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;

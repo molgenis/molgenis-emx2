@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import org.junit.Test;
-import org.molgenis.utils.MolgenisException;
+import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.web.json.JsonQueryMapper;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.Query;
-import org.molgenis.query.QueryBean;
-import org.molgenis.Row;
-import org.molgenis.TableMetadata;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.query.QueryBean;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,9 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRows;
 import static org.molgenis.emx2.web.JsonMapper.rowsToJson;
-import static org.molgenis.Type.DECIMAL;
-import static org.molgenis.Type.INT;
-import static org.molgenis.Type.STRING;
+import static org.molgenis.emx2.Type.DECIMAL;
+import static org.molgenis.emx2.Type.INT;
+import static org.molgenis.emx2.Type.STRING;
 
 public class TestJson {
 

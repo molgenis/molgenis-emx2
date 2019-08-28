@@ -8,15 +8,15 @@ import io.swagger.v3.oas.models.parameters.PathParameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.Column;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.emx2.Row.MOLGENISID;
 
 public class OpenApiForSchemaFactory {
 

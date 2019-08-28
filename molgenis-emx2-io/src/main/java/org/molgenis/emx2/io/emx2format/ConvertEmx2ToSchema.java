@@ -1,13 +1,13 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.utils.MolgenisExceptionMessage;
-import org.molgenis.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.Column;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
-import org.molgenis.Type;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.utils.MolgenisExceptionMessage;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.Type;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,10 +16,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.Type.*;
-import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.NULLABLE;
-import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.PKEY;
-import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.UNIQUE;
+import static org.molgenis.emx2.Type.*;
 
 public class ConvertEmx2ToSchema {
 
@@ -92,10 +89,10 @@ public class ConvertEmx2ToSchema {
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
       switch (term) {
-        case UNIQUE:
+        case Emx2PropertyList.UNIQUE:
           table.addUnique(def.getParameterArray(term));
           break;
-        case PKEY:
+        case Emx2PropertyList.PKEY:
           table.setPrimaryKey(def.getParameterArray(term));
           break;
         default:
@@ -163,7 +160,7 @@ public class ConvertEmx2ToSchema {
 
     // other properties
     Column column = table.getColumn(columnName);
-    if (def.contains(NULLABLE)) column.setNullable(true);
+    if (def.contains(Emx2PropertyList.NULLABLE)) column.setNullable(true);
   }
 
   private static Type getType(Emx2PropertyList def) {

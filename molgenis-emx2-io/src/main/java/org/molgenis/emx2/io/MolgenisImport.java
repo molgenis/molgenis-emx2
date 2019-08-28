@@ -1,10 +1,10 @@
 package org.molgenis.emx2.io;
 
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.Schema;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
-import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
 
 import java.io.IOException;

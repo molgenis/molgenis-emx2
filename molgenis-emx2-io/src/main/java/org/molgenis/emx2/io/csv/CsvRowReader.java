@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.csv;
 
-import org.molgenis.Row;
+import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.File;

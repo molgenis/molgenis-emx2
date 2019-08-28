@@ -1,20 +1,20 @@
 package org.molgenis.emx2.io.legacyformat;
 
-import org.molgenis.Row;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.Column;
-import org.molgenis.SchemaMetadata;
-import org.molgenis.TableMetadata;
-import org.molgenis.Type;
-import org.molgenis.utils.MolgenisException;
-import org.molgenis.utils.MolgenisExceptionMessage;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.Type;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.utils.MolgenisExceptionMessage;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.Row.MOLGENISID;
-import static org.molgenis.Type.*;
+import static org.molgenis.emx2.Row.MOLGENISID;
+import static org.molgenis.emx2.Type.*;
 import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
@@ -93,23 +93,23 @@ public class AttributesFileReader {
     try {
       AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
       switch (oldType) {
-        case STRING:
+        case Type.STRING:
           return STRING;
-        case INT:
+        case Type.INT:
           return INT;
-        case DECIMAL:
+        case Type.DECIMAL:
           return DECIMAL;
-        case TEXT:
+        case Type.TEXT:
           return TEXT;
-        case BOOL:
+        case Type.BOOL:
           return BOOL;
-        case DATE:
+        case Type.DATE:
           return DATE;
-        case DATETIME:
+        case Type.DATETIME:
           return DATETIME;
         case XREF:
           return REF;
-        case MREF:
+        case Type.MREF:
           return MREF;
         case COMPOUND:
           throw new MolgenisException(
