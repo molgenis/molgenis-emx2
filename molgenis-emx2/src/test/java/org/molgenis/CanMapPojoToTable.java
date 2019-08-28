@@ -12,7 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.metadata.Type.*;
 
-public class TestMapper {
+public class CanMapPojoToTable {
 
   @Test
   public void testBeanToRowToBean() throws MolgenisException {

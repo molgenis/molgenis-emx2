@@ -12,7 +12,7 @@ import org.molgenis.data.Table;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.data.Schema;
-import org.molgenis.emx2.json.JsonRowMapper;
+import org.molgenis.emx2.web.json.JsonRowMapper;
 import org.molgenis.metadata.SchemaMetadata;
 import org.molgenis.metadata.TableMetadata;
 import spark.Request;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.data.Row.MOLGENISID;
-import static org.molgenis.emx2.json.JsonRowMapper.rowToJson;
-import static org.molgenis.emx2.json.JsonRowMapper.rowsToJson;
+import static org.molgenis.emx2.web.JsonMapper.rowToJson;
+import static org.molgenis.emx2.web.JsonMapper.rowsToJson;
 import static org.molgenis.emx2.web.OpenApiForSchemaFactory.createOpenApi;
 import static org.molgenis.emx2.web.SwaggerUiFactory.createSwaggerUI;
 import static spark.Spark.*;
@@ -113,7 +113,7 @@ public class WebApiFactory {
   }
 
   private static String tableQueryAcceptJSON(Request request, Response response)
-      throws MolgenisException {
+      throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     List<Row> rows = table.retrieve();
     return rowsToJson(rows);
@@ -139,7 +139,7 @@ public class WebApiFactory {
   }
 
   private static String rowPutOperation(Request request, Response response)
-      throws MolgenisException {
+      throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Row row = JsonRowMapper.jsonToRow(request.body());
     table.update(row);
@@ -149,7 +149,7 @@ public class WebApiFactory {
   }
 
   private static String tableGetOperation(Request request, Response response)
-      throws MolgenisException {
+      throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     List<Row> rows = table.query().where(MOLGENISID).eq(request.params(MOLGENISID)).retrieve();
     response.status(200);
@@ -157,7 +157,7 @@ public class WebApiFactory {
   }
 
   private static String tablePostOperation(Request request, Response response)
-      throws MolgenisException {
+      throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Row row = JsonRowMapper.jsonToRow(request.body());
     table.insert(row);

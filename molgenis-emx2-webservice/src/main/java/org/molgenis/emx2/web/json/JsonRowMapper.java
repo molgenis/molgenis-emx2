@@ -1,9 +1,8 @@
-package org.molgenis.emx2.json;
+package org.molgenis.emx2.web.json;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
-import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.TypeLiteral;
 import org.molgenis.*;
 import org.molgenis.data.Row;
@@ -16,16 +15,6 @@ public class JsonRowMapper {
 
   private JsonRowMapper() {
     // hide constructor
-  }
-
-  public static String rowToJson(Row row) {
-
-    Map<String, Object> map = row.getValueMap();
-    for (Map.Entry<String, Object> entry : map.entrySet()) {
-      if (entry.getValue() instanceof UUID)
-        map.put(entry.getKey(), ((UUID) entry.getValue()).toString());
-    }
-    return JsonStream.serialize(map);
   }
 
   public static List<Row> jsonToRows(String json) {
@@ -77,19 +66,5 @@ public class JsonRowMapper {
       }
     }
     return r;
-  }
-
-  public static String rowsToJson(List<Row> rows) {
-    Map<String, Object>[] values = new Map[rows.size()];
-    int i = 0;
-    for (Row r : rows) {
-      Map<String, Object> map = r.getValueMap();
-      for (Map.Entry<String, Object> entry : map.entrySet()) {
-        if (entry.getValue() instanceof UUID)
-          map.put(entry.getKey(), ((UUID) entry.getValue()).toString());
-      }
-      values[i++] = r.getValueMap();
-    }
-    return JsonStream.serialize(values);
   }
 }

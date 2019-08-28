@@ -57,7 +57,7 @@ public class TestRows {
   }
 
   @Test
-  public void testSimpleTypes() {
+  public void rowCanSetGetSimpleTypes() {
     Row r = new Row();
 
     // int
@@ -144,7 +144,7 @@ public class TestRows {
   }
 
   @Test
-  public void testArrayTypes() {
+  public void rowCanGetSetArrayTypeColumns() {
     Row r = new Row();
 
     // null should return in empty array
