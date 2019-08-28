@@ -1,4 +1,4 @@
-package org.molgenis.query;
+package org.molgenis;
 
 public interface Select {
 

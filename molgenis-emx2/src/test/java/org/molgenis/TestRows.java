@@ -1,10 +1,7 @@
 package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.data.Row;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.utils.MolgenisException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +13,7 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestRows {
 

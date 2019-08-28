@@ -1,13 +1,12 @@
 package org.molgenis.emx2.io;
 
 import org.junit.Test;
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Schema;
-import org.molgenis.MolgenisExceptionMessage;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.utils.MolgenisExceptionMessage;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.io.legacyformat.AttributesFileReader;
 import org.molgenis.emx2.io.legacyformat.AttributesFileRow;
-import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.SchemaMetadata;
 
 import java.io.*;
 

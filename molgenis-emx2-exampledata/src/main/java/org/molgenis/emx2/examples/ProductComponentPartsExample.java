@@ -1,14 +1,14 @@
 package org.molgenis.emx2.examples;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Row;
-import org.molgenis.data.Schema;
-import org.molgenis.data.Table;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Row;
+import org.molgenis.Schema;
+import org.molgenis.Table;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
 
-import static org.molgenis.metadata.Type.INT;
-import static org.molgenis.metadata.Type.STRING;
+import static org.molgenis.Type.INT;
+import static org.molgenis.Type.STRING;
 
 public class ProductComponentPartsExample {
   public static final String PART = "Part";

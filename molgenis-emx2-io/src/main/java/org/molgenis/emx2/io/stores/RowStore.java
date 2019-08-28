@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.stores;
 
-import org.molgenis.data.Row;
+import org.molgenis.Row;
 
 import java.io.IOException;
 import java.util.List;

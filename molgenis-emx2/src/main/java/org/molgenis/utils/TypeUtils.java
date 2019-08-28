@@ -1,7 +1,6 @@
 package org.molgenis.utils;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.Type;
+import org.molgenis.Type;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;

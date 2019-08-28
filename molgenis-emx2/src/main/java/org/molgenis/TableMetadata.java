@@ -1,8 +1,8 @@
-package org.molgenis.metadata;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class TableMetadata {
   private SchemaMetadata schema;
 
   private String tableName;
-  protected Map<String, ColumnMetadata> columns;
+  protected Map<String, Column> columns;
   protected List<String[]> uniques;
   protected String[] primaryKey;
 
@@ -41,13 +41,13 @@ public class TableMetadata {
     return this.primaryKey;
   }
 
-  public List<ColumnMetadata> getColumns() {
-    ArrayList<ColumnMetadata> result = new ArrayList<>();
+  public List<Column> getColumns() {
+    ArrayList<Column> result = new ArrayList<>();
     result.addAll(columns.values());
     return Collections.unmodifiableList(result);
   }
 
-  public ColumnMetadata getColumn(String name) throws MolgenisException {
+  public Column getColumn(String name) throws MolgenisException {
     if (columns.containsKey(name)) return columns.get(name);
     throw new MolgenisException(
         "undefined_column",
@@ -55,22 +55,22 @@ public class TableMetadata {
         String.format("Column with tableName='%s' could not be found", name));
   }
 
-  public ColumnMetadata addColumn(String name) throws MolgenisException {
+  public Column addColumn(String name) throws MolgenisException {
     return this.addColumn(name, STRING);
   }
 
-  public ColumnMetadata addColumn(String name, Type type) throws MolgenisException {
-    ColumnMetadata c = new ColumnMetadata(this, name, type);
+  public Column addColumn(String name, Type type) throws MolgenisException {
+    Column c = new Column(this, name, type);
     columns.put(name, c);
     return c;
   }
 
-  public ColumnMetadata addColumn(ColumnMetadata column) throws MolgenisException {
+  public Column addColumn(Column column) throws MolgenisException {
     columns.put(column.getColumnName(), column);
     return column;
   }
 
-  public ColumnMetadata addRef(String name, String toTable) throws MolgenisException {
+  public Column addRef(String name, String toTable) throws MolgenisException {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
@@ -82,21 +82,19 @@ public class TableMetadata {
     return this.addRef(name, toTable, primaryKeys[0]);
   }
 
-  public ColumnMetadata addRef(String name, String toTable, String toColumn)
-      throws MolgenisException {
-    ColumnMetadata c = new ColumnMetadata(this, name, REF).setReference(toTable, toColumn);
+  public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
+    Column c = new Column(this, name, REF).setReference(toTable, toColumn);
     columns.put(name, c);
     return c;
   }
 
-  public ColumnMetadata addRefArray(String name, String toTable, String toColumn)
-      throws MolgenisException {
-    ColumnMetadata c = new ColumnMetadata(this, name, REF_ARRAY).setReference(toTable, toColumn);
+  public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
+    Column c = new Column(this, name, REF_ARRAY).setReference(toTable, toColumn);
     columns.put(name, c);
     return c;
   }
 
-  public ColumnMetadata addRefArray(String name, String toTable) throws MolgenisException {
+  public Column addRefArray(String name, String toTable) throws MolgenisException {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
@@ -116,7 +114,7 @@ public class TableMetadata {
     return new ReferenceMultiple(this, REF_ARRAY, name);
   }
 
-  public ColumnMetadata addMref(
+  public Column addMref(
       String name,
       String refTable,
       String refColumn,
@@ -124,8 +122,8 @@ public class TableMetadata {
       String reverseRefColumn,
       String joinTableName)
       throws MolgenisException {
-    ColumnMetadata c =
-        new ColumnMetadata(this, name, MREF)
+    Column c =
+        new Column(this, name, MREF)
             .setReference(refTable, refColumn)
             .setReverseReference(reverseName, reverseRefColumn)
             .setJoinTable(joinTableName);
@@ -143,7 +141,7 @@ public class TableMetadata {
 
   public TableMetadata addUnique(String... columnNames) throws MolgenisException {
     for (String columnName : columnNames) {
-      ColumnMetadata c = getColumn(columnName);
+      Column c = getColumn(columnName);
       if (c == null)
         throw new MolgenisException(
             "invalid_unique",
@@ -167,11 +165,13 @@ public class TableMetadata {
   }
 
   public void removeUnique(String... keys) throws MolgenisException {
-    if (keys.length == 1 && MOLGENISID.equals(keys[0]))
+    if (keys.length == 1 && Identifiable.MOLGENISID.equals(keys[0]))
       throw new MolgenisException(
           "invalid_unique",
           "Removal of unique failed",
-          "You are not allowed to remove unique constraint on system column '" + MOLGENISID + "");
+          "You are not allowed to remove unique constraint on system column '"
+              + Identifiable.MOLGENISID
+              + "");
     for (int i = 0; i < uniques.size(); i++) {
       if (Arrays.equals(uniques.get(i), keys)) {
         uniques.remove(i);
@@ -183,7 +183,7 @@ public class TableMetadata {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("TABLE(").append(getTableName()).append("){");
-    for (ColumnMetadata c : getColumns()) {
+    for (Column c : getColumns()) {
       builder.append("\n\t").append(c.toString());
     }
     for (String[] u : getUniques()) {

@@ -1,9 +1,6 @@
-package org.molgenis.data;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.Permission;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.query.Query;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.Collection;
 

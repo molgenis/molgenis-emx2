@@ -1,14 +1,12 @@
 package org.molgenis.emx2.web;
 
-import org.molgenis.*;
-import org.molgenis.data.Database;
-import org.molgenis.data.Table;
-import org.molgenis.data.Schema;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.Database;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
 import org.molgenis.sql.DatabaseFactory;
+import org.molgenis.utils.MolgenisException;
 
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestWebApi {
 

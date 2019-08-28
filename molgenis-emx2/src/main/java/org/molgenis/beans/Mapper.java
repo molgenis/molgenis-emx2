@@ -1,9 +1,9 @@
 package org.molgenis.beans;
 
-import org.molgenis.*;
-import org.molgenis.data.Row;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.Row;
+import org.molgenis.Column;
+import org.molgenis.TableMetadata;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.utils.TypeUtils;
 
 import java.lang.reflect.Field;
@@ -66,7 +66,7 @@ public class Mapper {
     for (Field f : fields) {
       try {
         if (!f.getName().contains("jacoco")) {
-          ColumnMetadata col = t.addColumn(f.getName(), TypeUtils.typeOf(f.getType()));
+          Column col = t.addColumn(f.getName(), TypeUtils.typeOf(f.getType()));
           if (f.isAnnotationPresent(ColumnAnnotation.class)) {
             ColumnAnnotation cm = f.getAnnotation(ColumnAnnotation.class);
             col.setNullable(cm.nullable());

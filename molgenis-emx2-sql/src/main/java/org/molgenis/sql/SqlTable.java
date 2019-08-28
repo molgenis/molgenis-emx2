@@ -3,13 +3,14 @@ package org.molgenis.sql;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.molgenis.*;
-import org.molgenis.metadata.*;
-import org.molgenis.query.Query;
-import org.molgenis.data.Row;
-import org.molgenis.data.Table;
-import org.molgenis.query.Select;
-import org.molgenis.query.Where;
+import org.molgenis.Column;
+import org.molgenis.TableMetadata;
+import org.molgenis.Query;
+import org.molgenis.Row;
+import org.molgenis.Table;
+import org.molgenis.Select;
+import org.molgenis.Where;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +34,7 @@ class SqlTable implements Table {
   }
 
   @Override
-  public org.molgenis.data.Schema getSchema() {
+  public org.molgenis.Schema getSchema() {
     return new SqlSchema(db, metadata.getSchema());
   }
 
@@ -57,7 +58,7 @@ class SqlTable implements Table {
                 // get metadata
                 List<Field> fields = new ArrayList<>();
                 List<String> fieldNames = new ArrayList<>();
-                for (ColumnMetadata c : getMetadata().getColumns()) {
+                for (Column c : getMetadata().getColumns()) {
                   fieldNames.add(c.getColumnName());
                   fields.add(getJooqField(c));
                 }
@@ -90,7 +91,7 @@ class SqlTable implements Table {
                 // get metadata
                 ArrayList<Field> fields = new ArrayList<>();
                 ArrayList<String> fieldNames = new ArrayList<>();
-                for (ColumnMetadata c : getMetadata().getColumns()) {
+                for (Column c : getMetadata().getColumns()) {
                   fieldNames.add(c.getColumnName());
                   fields.add(getJooqField(c));
                 }
@@ -203,7 +204,7 @@ class SqlTable implements Table {
       for (Row r : rows) {
         Condition rowCondition = null;
         for (String keyName : keyNames) {
-          ColumnMetadata key = getMetadata().getColumn(keyName);
+          Column key = getMetadata().getColumn(keyName);
           if (rowCondition == null) {
             rowCondition = getJooqField(key).eq(r.get(key.getType(), keyName));
           } else {
@@ -252,7 +253,7 @@ class SqlTable implements Table {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
-  private Field getJooqField(ColumnMetadata c) throws MolgenisException {
+  private Field getJooqField(Column c) throws MolgenisException {
     return field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c));
   }
 }

@@ -1,9 +1,9 @@
-package org.molgenis.metadata;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
-import static org.molgenis.metadata.Type.STRING;
+import org.molgenis.utils.MolgenisException;
+import static org.molgenis.Type.STRING;
 
-public class ColumnMetadata {
+public class Column {
   private TableMetadata table;
 
   private String columnName;
@@ -20,39 +20,37 @@ public class ColumnMetadata {
   private String validation;
   private String defaultValue;
 
-  public ColumnMetadata(TableMetadata table, String columnName, Type type) {
+  public Column(TableMetadata table, String columnName, Type type) {
     this.table = table;
     this.columnName = columnName;
     this.type = type;
   }
 
-  public ColumnMetadata addColumn(String name) throws MolgenisException {
+  public Column addColumn(String name) throws MolgenisException {
     return this.getTable().addColumn(name, STRING);
   }
 
-  public ColumnMetadata addColumn(String name, Type type) throws MolgenisException {
+  public Column addColumn(String name, Type type) throws MolgenisException {
     return this.getTable().addColumn(name, type);
   }
 
-  public ColumnMetadata addRef(String name, String toTable) throws MolgenisException {
+  public Column addRef(String name, String toTable) throws MolgenisException {
     return this.getTable().addRef(name, toTable);
   }
 
-  public ColumnMetadata addRef(String name, String toTable, String toColumn)
-      throws MolgenisException {
+  public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
     return this.getTable().addRef(name, toTable, toColumn);
   }
 
-  public ColumnMetadata addRefArray(String name, String toTable) throws MolgenisException {
+  public Column addRefArray(String name, String toTable) throws MolgenisException {
     return this.getTable().addRefArray(name, toTable);
   }
 
-  public ColumnMetadata addRefArray(String name, String toTable, String toColumn)
-      throws MolgenisException {
+  public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
     return this.getTable().addRef(name, toTable, toColumn);
   }
 
-  public ColumnMetadata primaryKey() throws MolgenisException {
+  public Column primaryKey() throws MolgenisException {
     this.table.setPrimaryKey(this.columnName);
     return this;
   }
@@ -89,7 +87,7 @@ public class ColumnMetadata {
     return this.reverseRefColumn;
   }
 
-  public ColumnMetadata getRefColumn() throws MolgenisException {
+  public Column getRefColumn() throws MolgenisException {
     if (getRefColumnName() == null) return null;
     else
       return getTable()
@@ -98,7 +96,7 @@ public class ColumnMetadata {
           .getColumn(getRefColumnName());
   }
 
-  public ColumnMetadata setNullable(boolean nillable) {
+  public Column setNullable(boolean nillable) {
     this.nullable = nillable;
     return this;
   }
@@ -157,7 +155,7 @@ public class ColumnMetadata {
     this.defaultValue = defaultValue;
   }
 
-  public ColumnMetadata setUnique(boolean unique) throws MolgenisException {
+  public Column setUnique(boolean unique) throws MolgenisException {
     if (unique) getTable().addUnique(this.getColumnName());
     else getTable().removeUnique(this.getColumnName());
     return this;
@@ -167,19 +165,19 @@ public class ColumnMetadata {
     return joinTable;
   }
 
-  public ColumnMetadata setReference(String refTable, String refColumn) {
+  public Column setReference(String refTable, String refColumn) {
     this.refTable = refTable;
     this.refColumn = refColumn;
     return this;
   }
 
-  public ColumnMetadata setReverseReference(String reverseName, String reverseRefColumn) {
+  public Column setReverseReference(String reverseName, String reverseRefColumn) {
     this.reverseName = reverseName;
     this.reverseRefColumn = reverseRefColumn;
     return this;
   }
 
-  public ColumnMetadata setJoinTable(String joinTableName) {
+  public Column setJoinTable(String joinTableName) {
     this.joinTable = joinTableName;
     return this;
   }

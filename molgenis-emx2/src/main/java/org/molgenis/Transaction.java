@@ -1,6 +1,6 @@
 package org.molgenis;
 
-import org.molgenis.data.Database;
+import org.molgenis.utils.MolgenisException;
 
 @FunctionalInterface
 public interface Transaction {

@@ -2,20 +2,20 @@ package org.molgenis.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.*;
-import org.molgenis.data.Database;
-import org.molgenis.data.Row;
-import org.molgenis.data.Table;
+import org.molgenis.Database;
+import org.molgenis.Row;
+import org.molgenis.Table;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.query.Query;
-import org.molgenis.data.Schema;
+import org.molgenis.Query;
+import org.molgenis.Schema;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.metadata.Type.STRING;
+import static org.molgenis.Type.STRING;
 
 public class TestQueryWithRefArrays {
   static Database db;

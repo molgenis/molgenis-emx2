@@ -3,22 +3,22 @@ package org.molgenis.sql;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.Type;
-import org.molgenis.metadata.ColumnMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Type;
+import org.molgenis.Column;
 
 import static org.jooq.impl.DSL.*;
 
-public class SqlColumnMetadata extends ColumnMetadata {
+public class SqlColumn extends Column {
   private DSLContext jooq;
 
-  public SqlColumnMetadata(SqlTableMetadata table, String columnName, Type columnType) {
+  public SqlColumn(SqlTableMetadata table, String columnName, Type columnType) {
     super(table, columnName, columnType);
     this.jooq = table.getJooq();
   }
 
   /** constructor for REF */
-  public SqlColumnMetadata createColumn() throws MolgenisException {
+  public SqlColumn createColumn() throws MolgenisException {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
     Field thisColumn = field(name(getColumnName()), thisType);
     jooq.alterTable(asJooqTable()).addColumn(thisColumn).execute();
@@ -34,7 +34,7 @@ public class SqlColumnMetadata extends ColumnMetadata {
   }
 
   @Override
-  public SqlColumnMetadata setNullable(boolean nillable) {
+  public SqlColumn setNullable(boolean nillable) {
     if (nillable)
       jooq.alterTable(asJooqTable()).alterColumn(getColumnName()).dropNotNull().execute();
     else jooq.alterTable(asJooqTable()).alterColumn(getColumnName()).setNotNull().execute();
@@ -42,7 +42,7 @@ public class SqlColumnMetadata extends ColumnMetadata {
     return this;
   }
 
-  public SqlColumnMetadata setIndexed(boolean index) {
+  public SqlColumn setIndexed(boolean index) {
     String indexName = "INDEX_" + getTable().getTableName() + '_' + getColumnName();
     if (index) {
       jooq.createIndexIfNotExists(name(indexName))
@@ -64,7 +64,7 @@ public class SqlColumnMetadata extends ColumnMetadata {
     return jooq;
   }
 
-  protected ColumnMetadata loadNullable(Boolean nullable) throws MolgenisException {
+  protected Column loadNullable(Boolean nullable) throws MolgenisException {
     super.setNullable(nullable);
     return this;
   }

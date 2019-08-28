@@ -1,7 +1,7 @@
 package org.molgenis;
 
 import org.junit.Test;
-import org.molgenis.beans.QueryBean;
+import org.molgenis.query.QueryBean;
 
 import static org.junit.Assert.assertEquals;
 

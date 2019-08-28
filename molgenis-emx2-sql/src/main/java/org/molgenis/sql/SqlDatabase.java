@@ -5,10 +5,10 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.molgenis.data.Database;
-import org.molgenis.MolgenisException;
+import org.molgenis.Database;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.Transaction;
-import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.SchemaMetadata;
 
 import javax.sql.DataSource;
 import java.util.Collection;

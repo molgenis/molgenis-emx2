@@ -1,7 +1,7 @@
 package org.molgenis.sql;
 
 import org.jooq.exception.DataAccessException;
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 import org.postgresql.util.PSQLException;
 
 public class SqlMolgenisException extends MolgenisException {

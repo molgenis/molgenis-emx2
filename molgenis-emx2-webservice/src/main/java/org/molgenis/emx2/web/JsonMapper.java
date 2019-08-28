@@ -8,12 +8,11 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jooq.DSLContext;
-import org.jooq.impl.DefaultDSLContext;
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Row;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Row;
+import org.molgenis.Column;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
 import org.molgenis.sql.SqlDatabase;
 
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class JsonMapper {
           new ObjectMapper()
               .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
               .addMixIn(TableMetadata.class, MixinForJsonIgnore.class)
-              .addMixIn(ColumnMetadata.class, MixinForJsonIgnore.class)
+              .addMixIn(Column.class, MixinForJsonIgnore.class)
               .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
               .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
               .setSerializationInclusion(JsonInclude.Include.NON_NULL)

@@ -2,9 +2,9 @@ package org.molgenis.emx2.io;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.data.Database;
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Schema;
+import org.molgenis.Database;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Schema;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.sql.DatabaseFactory;

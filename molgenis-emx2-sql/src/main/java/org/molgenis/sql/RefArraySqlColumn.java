@@ -1,23 +1,23 @@
 package org.molgenis.sql;
 
 import org.jooq.Name;
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.keyword;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.metadata.Type.REF_ARRAY;
+import static org.molgenis.Type.REF_ARRAY;
 import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 
-public class RefArraySqlColumnMetadata extends SqlColumnMetadata {
+public class RefArraySqlColumn extends SqlColumn {
 
-  public RefArraySqlColumnMetadata(
+  public RefArraySqlColumn(
       SqlTableMetadata table, String columnName, String toTable, String toColumn) {
     super(table, columnName, REF_ARRAY);
     this.setReference(toTable, toColumn);
   }
 
   @Override
-  public RefArraySqlColumnMetadata createColumn() throws MolgenisException {
+  public RefArraySqlColumn createColumn() throws MolgenisException {
     super.createColumn();
     this.createReferenceExistsTrigger();
     this.createIsReferencedByTrigger();

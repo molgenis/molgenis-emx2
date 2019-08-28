@@ -1,6 +1,6 @@
-package org.molgenis.metadata;
+package org.molgenis;
 
-import org.molgenis.*;
+import org.molgenis.utils.MolgenisException;
 
 public class ReferenceMultiple {
   TableMetadata table;
@@ -21,8 +21,7 @@ public class ReferenceMultiple {
           "TODO error detail");
 
     for (int i = 0; i < nameArray.length; i++) {
-      table.addColumn(
-          new ColumnMetadata(table, nameArray[i], type).setReference(toTable, toColumn[i]));
+      table.addColumn(new Column(table, nameArray[i], type).setReference(toTable, toColumn[i]));
     }
 
     return table;

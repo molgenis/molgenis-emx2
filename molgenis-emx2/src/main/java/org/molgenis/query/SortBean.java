@@ -1,4 +1,4 @@
-package org.molgenis.beans;
+package org.molgenis.query;
 
 import org.molgenis.query.Order;
 import org.molgenis.query.Sort;

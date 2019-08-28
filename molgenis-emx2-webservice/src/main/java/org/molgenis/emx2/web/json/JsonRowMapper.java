@@ -4,10 +4,10 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.jsoniter.spi.TypeLiteral;
-import org.molgenis.*;
-import org.molgenis.data.Row;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.Row;
+import org.molgenis.Column;
+import org.molgenis.TableMetadata;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.*;
 
@@ -38,7 +38,7 @@ public class JsonRowMapper {
 
   public static Row jsonToRow(TableMetadata t, Any json) throws MolgenisException {
     Row r = new Row();
-    for (ColumnMetadata c : t.getColumns()) {
+    for (Column c : t.getColumns()) {
       try {
         switch (c.getType()) {
           case INT:

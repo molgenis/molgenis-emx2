@@ -1,6 +1,6 @@
-package org.molgenis.metadata;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;

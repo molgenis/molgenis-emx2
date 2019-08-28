@@ -4,8 +4,10 @@ import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.*;
+import org.molgenis.Column;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.Type;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.Collection;
 import java.util.List;
@@ -174,7 +176,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void saveColumnMetadata(SqlColumnMetadata column) {
+  protected static void saveColumnMetadata(SqlColumn column) {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)
@@ -196,7 +198,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void deleteColumn(SqlColumnMetadata column) {
+  protected static void deleteColumn(SqlColumn column) {
     column
         .getJooq()
         .deleteFrom(COLUMN_METADATA)
@@ -247,8 +249,8 @@ public class MetadataUtils {
     }
   }
 
-  protected static void loadColumnMetadata(
-      SqlTableMetadata table, Map<String, ColumnMetadata> columnMap) throws MolgenisException {
+  protected static void loadColumnMetadata(SqlTableMetadata table, Map<String, Column> columnMap)
+      throws MolgenisException {
     // load tables and columns
     Collection<Record> columnRecords =
         table
@@ -269,19 +271,16 @@ public class MetadataUtils {
         case REF:
           columnMap.put(
               columnName,
-              new RefSqlColumnMetadata(table, columnName, toTable, toColumn)
-                  .loadNullable(nullable));
+              new RefSqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         case REF_ARRAY:
           columnMap.put(
               columnName,
-              new RefArraySqlColumnMetadata(table, columnName, toTable, toColumn)
-                  .loadNullable(nullable));
+              new RefArraySqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         default:
           columnMap.put(
-              columnName,
-              new SqlColumnMetadata(table, columnName, columnType).loadNullable(nullable));
+              columnName, new SqlColumn(table, columnName, columnType).loadNullable(nullable));
       }
     }
   }

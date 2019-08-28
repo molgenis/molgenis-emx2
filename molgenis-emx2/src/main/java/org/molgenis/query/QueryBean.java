@@ -1,8 +1,10 @@
-package org.molgenis.beans;
+package org.molgenis.query;
 
-import org.molgenis.*;
-import org.molgenis.data.Row;
-import org.molgenis.query.*;
+import org.molgenis.Query;
+import org.molgenis.Row;
+import org.molgenis.Select;
+import org.molgenis.Where;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.*;
 

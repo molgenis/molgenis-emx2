@@ -3,10 +3,10 @@ package org.molgenis.sql;
 import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.impl.DSL;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
-import org.molgenis.metadata.ReferenceMultiple;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.TableMetadata;
+import org.molgenis.Type;
+import org.molgenis.ReferenceMultiple;
 
 import java.util.Arrays;
 
@@ -36,9 +36,8 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
               + "' failed: fromColumn and toColumn must have the same number of colums");
 
     for (int i = 0; i < nameArray.length; i++) {
-      RefSqlColumnMetadata c =
-          new RefSqlColumnMetadata(
-              (SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
+      RefSqlColumn c =
+          new RefSqlColumn((SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
       getTable().addColumn(c);
 
       Field thisColumn = field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));

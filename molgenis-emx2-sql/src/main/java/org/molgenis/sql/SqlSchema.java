@@ -1,10 +1,10 @@
 package org.molgenis.sql;
 
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.Permission;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.query.Query;
-import org.molgenis.data.Schema;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.Query;
+import org.molgenis.Schema;
 
 import java.util.Collection;
 

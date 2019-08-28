@@ -3,12 +3,12 @@ package org.molgenis.emx2.graphql;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaPrinter;
 import org.junit.Test;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.metadata.Type.STRING;
+import static org.molgenis.Type.STRING;
 
 public class EmxToGraphQLSchemaTest {
 

@@ -1,6 +1,6 @@
 package org.molgenis.beans;
 
-import org.molgenis.data.Identifiable;
+import org.molgenis.Identifiable;
 
 import java.util.UUID;
 

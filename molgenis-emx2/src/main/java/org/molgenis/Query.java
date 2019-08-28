@@ -1,7 +1,7 @@
-package org.molgenis.query;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Row;
+import org.molgenis.query.Sort;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.List;
 

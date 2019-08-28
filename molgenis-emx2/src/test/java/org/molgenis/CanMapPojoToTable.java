@@ -2,15 +2,12 @@ package org.molgenis;
 
 import org.junit.Test;
 import org.molgenis.beans.Mapper;
-import org.molgenis.data.Row;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.utils.MolgenisException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 
 public class CanMapPojoToTable {
 
@@ -39,10 +36,10 @@ public class CanMapPojoToTable {
   @Test
   public void testPersonClassToTable() throws MolgenisException {
     TableMetadata t = Mapper.map(PersonBean.class);
-    ColumnMetadata molgenisid = t.getColumn("molgenisid");
+    Column molgenisid = t.getColumn("molgenisid");
 
-    ColumnMetadata firstName = t.getColumn("firstName");
-    ColumnMetadata lastName = t.getColumn("lastName");
+    Column firstName = t.getColumn("firstName");
+    Column lastName = t.getColumn("lastName");
 
     assertEquals("firstName", firstName.getColumnName());
     assertEquals("lastName", lastName.getColumnName());

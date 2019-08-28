@@ -1,4 +1,7 @@
-package org.molgenis.query;
+package org.molgenis;
+
+import org.molgenis.Query;
+import org.molgenis.query.Operator;
 
 import java.io.Serializable;
 

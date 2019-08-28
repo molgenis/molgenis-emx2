@@ -1,10 +1,6 @@
-package org.molgenis.data;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.query.Query;
-import org.molgenis.query.Select;
-import org.molgenis.query.Where;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,12 +1,12 @@
 package org.molgenis.emx2.examples.synthetic;
 
-import org.molgenis.*;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
+import org.molgenis.Type;
+import org.molgenis.utils.MolgenisException;
 
-import static org.molgenis.metadata.Type.*;
-import static org.molgenis.metadata.Type.DATETIME;
+import static org.molgenis.Type.*;
+import static org.molgenis.Type.DATETIME;
 
 public class RefAndRefArrayTestExample {
   private RefAndRefArrayTestExample() {

@@ -3,13 +3,22 @@
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=mswertz_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=mswertz_molgenis-emx2)
 
 # molgenis-emx2
-POC to inform future MOLGENIS  developments, in particular to:
-*  experiment a modular data 'micro' web API service that uses PostgresQL for all heavy lifting
+POC to test some ideas and potentially inform future MOLGENIS developments. In particular this poc 
+*  experiments a modular data 'micro' web API service that uses PostgresQL for all heavy lifting
 *  minimize dependencies, no Spring stuff, no Elasticsearch (might be add-on services, but too heavy for basics)
-*  implement features we currently not have so we can learn about those
-*  explore abstractions that match the underlying system (instead of making all be 'repository')
-*  outside scope: file service, script service, authentication (asumed to be other services)
-The implemtation uses Jooq as low level database backend,  SparkJava for REST-like services, and Swagger for API generation
+*  implements features we currently do not have so we can learn about those
+*  explore simple abstractions that match the underlying system (instead of making all be 'repository')
+*  outside scope: file service, script service, authentication (asumed all to be other services on top)
+The POC uses Jooq as low level database backend, SparkJava for REST-like web services, Jackson for most CSV/IO, and Swagger for API generation
+
+## modules
+*  emx2: interface and base classes, concept only
+*  emx2-sql: implementation into postgresql
+*  emx2-io: emx2 format, csv import/export of data, legacy import
+*  emx2-webservice: web API on top of sql + io.
+*  emx2-exampledata: test data models and data, used in various test
+*  emx2-graphql: incomplete, useless ATM
+
 
 ## Feature list (mostly in POC or 'walking skeleton' state)
 *  support for multiple schemas
@@ -55,6 +64,7 @@ The implemtation uses Jooq as low level database backend,  SparkJava for REST-li
     - will be very interesting to see how this compares in cost/features to our needs, and elastic.
     - see https://www.postgresql.org/docs/11/textsearch.html
 * programmer friendly API (or at least, that is what I think)
+    - Rows class enables type safe code, with magic type conversions
     - assume always sets / arrays / batches
     - reflection based POJO to table mapping, without  heavy metadata / mapping code 
     - no magic with lazy loading and stuff
@@ -63,6 +73,11 @@ The implemtation uses Jooq as low level database backend,  SparkJava for REST-li
     - somewhat REST like but tuned to our needs
     - make it easy for non REST specialists to use
     - aim to minimize the number of calls
+    
+## Most interesting classes
+* 
+*  emx2.webservice.WebApiFactory - I am not sure if this is how to generate OpenApi
+
 
 ## Todo or consider later (memo to self)
 *  many implementations are missing!
@@ -76,5 +91,5 @@ The implemtation uses Jooq as low level database backend,  SparkJava for REST-li
 *  Default values
 *  legacy reader
 *  implement unqiue and primary key POJO annotations for class->table mapping
-
+``
 

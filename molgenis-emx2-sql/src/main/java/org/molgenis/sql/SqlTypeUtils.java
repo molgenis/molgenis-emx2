@@ -2,19 +2,19 @@ package org.molgenis.sql;
 
 import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.*;
-import org.molgenis.data.Row;
-import org.molgenis.data.Table;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.Row;
+import org.molgenis.Table;
+import org.molgenis.Column;
+import org.molgenis.Type;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.utils.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.cast;
-import static org.molgenis.metadata.Type.MREF;
-import static org.molgenis.metadata.Type.REF_ARRAY;
+import static org.molgenis.Type.MREF;
+import static org.molgenis.Type.REF_ARRAY;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -22,7 +22,7 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static DataType jooqTypeOf(ColumnMetadata column) throws MolgenisException {
+  public static DataType jooqTypeOf(Column column) throws MolgenisException {
     Type sqlType = column.getType();
     switch (sqlType) {
       case UUID:
@@ -89,13 +89,13 @@ public class SqlTypeUtils extends TypeUtils {
   public static Collection<Object> getValuesAsCollection(Row row, Table table)
       throws MolgenisException {
     Collection<Object> values = new ArrayList<>();
-    for (ColumnMetadata c : table.getMetadata().getColumns()) {
+    for (Column c : table.getMetadata().getColumns()) {
       values.add(getTypedValue(row, c));
     }
     return values;
   }
 
-  public static Object getTypedValue(Object v, ColumnMetadata column) throws MolgenisException {
+  public static Object getTypedValue(Object v, Column column) throws MolgenisException {
     Type type = column.getType();
     if (Type.REF.equals(type)) {
       type = getRefType(column);
@@ -138,7 +138,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static Type getRefType(ColumnMetadata column) throws MolgenisException {
+  public static Type getRefType(Column column) throws MolgenisException {
     return column
         .getTable()
         .getSchema()
@@ -147,7 +147,7 @@ public class SqlTypeUtils extends TypeUtils {
         .getType();
   }
 
-  public static Object getTypedValue(Row row, ColumnMetadata column) throws MolgenisException {
+  public static Object getTypedValue(Row row, Column column) throws MolgenisException {
     Type type = column.getType();
     if (Type.REF.equals(type)) {
       type = getRefType(column);
@@ -193,7 +193,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static String getPsqlType(ColumnMetadata column) throws MolgenisException {
+  public static String getPsqlType(Column column) throws MolgenisException {
     switch (column.getType()) {
       case STRING:
         return "character varying";

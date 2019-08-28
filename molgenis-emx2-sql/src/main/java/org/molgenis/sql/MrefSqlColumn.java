@@ -1,13 +1,13 @@
 package org.molgenis.sql;
 
 import org.jooq.DSLContext;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Column;
+import org.molgenis.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.data.Row.MOLGENISID;
-import static org.molgenis.metadata.Type.MREF;
+import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.MREF;
 import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 
 /**
@@ -21,9 +21,9 @@ import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
  * <p>Note: we replace all relevant values in joinTable to allow also for changing of the refered to
  * column. This might get slow on large MREF lists (to be measured).
  */
-public class MrefSqlColumnMetadata extends SqlColumnMetadata {
+public class MrefSqlColumn extends SqlColumn {
 
-  protected MrefSqlColumnMetadata(
+  protected MrefSqlColumn(
       SqlTableMetadata sqlTable,
       String name,
       String refTable,
@@ -38,13 +38,13 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
   }
 
   @Override
-  public MrefSqlColumnMetadata createColumn() throws MolgenisException {
+  public MrefSqlColumn createColumn() throws MolgenisException {
     String schemaName = getTable().getSchema().getName();
 
     // create setNullable array columns compatible with the refs
     SqlTableMetadata otherTable =
         (SqlTableMetadata) getTable().getSchema().getTableMetadata(getRefTableName());
-    ColumnMetadata otherColumn = otherTable.getColumn(getRefColumnName());
+    Column otherColumn = otherTable.getColumn(getRefColumnName());
 
     getJooq()
         .alterTable(name(schemaName, getTable().getTableName()))
@@ -64,8 +64,8 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
     table.addRef(getReverseRefColumn(), getTable().getTableName(), getReverseRefColumn());
 
     // add the reverse column to the other table
-    MrefSqlColumnMetadata reverseColumn =
-        new MrefSqlColumnMetadata(
+    MrefSqlColumn reverseColumn =
+        new MrefSqlColumn(
             otherTable,
             getReverseColumnName(),
             getTable().getTableName(),
@@ -87,14 +87,14 @@ public class MrefSqlColumnMetadata extends SqlColumnMetadata {
   }
 
   private static void createTriggers(
-      DSLContext jooq, TableMetadata joinTable, ColumnMetadata column, ColumnMetadata reverseColumn)
+      DSLContext jooq, TableMetadata joinTable, Column column, Column reverseColumn)
       throws MolgenisException {
 
     //  parameters
     String schemaName = column.getTable().getSchema().getName();
     String insertOrUpdateTrigger =
         column.getTable().getTableName() + "_" + column.getColumnName() + "_UPSERT_TRIGGER";
-    ColumnMetadata targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
+    Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
 
     // insert and update trigger: does the following
     // first delete mrefs to previous instance of 'self'

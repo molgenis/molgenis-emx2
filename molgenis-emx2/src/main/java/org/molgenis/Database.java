@@ -1,7 +1,6 @@
-package org.molgenis.data;
+package org.molgenis;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.Transaction;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.Collection;
 

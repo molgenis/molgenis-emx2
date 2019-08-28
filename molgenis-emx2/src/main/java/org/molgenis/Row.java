@@ -1,9 +1,8 @@
-package org.molgenis.data;
+package org.molgenis;
 
 import com.fasterxml.uuid.Generators;
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.utils.TypeUtils;
-import org.molgenis.metadata.Type;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

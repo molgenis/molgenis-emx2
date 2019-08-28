@@ -2,14 +2,14 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
-import org.molgenis.*;
-import org.molgenis.query.Query;
-import org.molgenis.data.Row;
-import org.molgenis.query.Select;
-import org.molgenis.beans.QueryBean;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.query.Where;
+import org.molgenis.Query;
+import org.molgenis.Row;
+import org.molgenis.Select;
+import org.molgenis.query.QueryBean;
+import org.molgenis.Column;
+import org.molgenis.TableMetadata;
+import org.molgenis.Where;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,8 +18,8 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.query.Operator.OR;
 import static org.molgenis.query.Operator.SEARCH;
-import static org.molgenis.data.Row.MOLGENISID;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.*;
 import static org.molgenis.sql.SqlTable.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
@@ -77,7 +77,7 @@ public class SqlQuery extends QueryBean implements Query {
 
     // create all columns
     List<Field> fields = new ArrayList<>();
-    for (ColumnMetadata column : table.getColumns()) {
+    for (Column column : table.getColumns()) {
       if (!MREF.equals(column.getType())) {
         fields.add(
             field(
@@ -104,7 +104,7 @@ public class SqlQuery extends QueryBean implements Query {
             .asTable(table.getTableName());
 
     // for mrefs join
-    for (ColumnMetadata column : table.getColumns()) {
+    for (Column column : table.getColumns()) {
       if (MREF.equals(column.getType())) {
         jooqTable =
             jooqTable
@@ -130,7 +130,7 @@ public class SqlQuery extends QueryBean implements Query {
     List<Select> selectList = this.getSelectList();
 
     if (selectList.isEmpty()) {
-      for (ColumnMetadata c : from.getColumns()) {
+      for (Column c : from.getColumns()) {
         this.select(c.getColumnName());
       }
     }
@@ -225,7 +225,7 @@ public class SqlQuery extends QueryBean implements Query {
       if (path.length >= 2) {
         String[] rightPath = Arrays.copyOfRange(path, 0, path.length - 1);
         String[] leftPath = Arrays.copyOfRange(path, 0, path.length - 2);
-        ColumnMetadata c = getColumn(table, rightPath);
+        Column c = getColumn(table, rightPath);
 
         String leftColumn = c.getColumnName();
         String leftAlias = path.length > 2 ? name + "/" + String.join("/", leftPath) : name;
@@ -283,8 +283,8 @@ public class SqlQuery extends QueryBean implements Query {
     return fromStep;
   }
 
-  private ColumnMetadata getColumn(TableMetadata t, String[] path) throws MolgenisException {
-    ColumnMetadata c = t.getColumn(path[0]);
+  private Column getColumn(TableMetadata t, String[] path) throws MolgenisException {
+    Column c = t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(
           "undefined_column",

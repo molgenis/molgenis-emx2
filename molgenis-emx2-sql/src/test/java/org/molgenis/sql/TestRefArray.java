@@ -2,18 +2,17 @@ package org.molgenis.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.*;
-import org.molgenis.data.Database;
-import org.molgenis.data.Row;
-import org.molgenis.data.Table;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
-import org.molgenis.data.Schema;
+import org.molgenis.Database;
+import org.molgenis.Row;
+import org.molgenis.Table;
+import org.molgenis.Type;
+import org.molgenis.Schema;
+import org.molgenis.utils.MolgenisException;
 
 import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestRefArray {
   private static Database db;

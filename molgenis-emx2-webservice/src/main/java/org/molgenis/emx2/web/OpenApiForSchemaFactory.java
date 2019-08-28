@@ -8,15 +8,15 @@ import io.swagger.v3.oas.models.parameters.PathParameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Column;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.molgenis.data.Row.MOLGENISID;
+import static org.molgenis.Row.MOLGENISID;
 
 public class OpenApiForSchemaFactory {
 
@@ -232,7 +232,7 @@ public class OpenApiForSchemaFactory {
   private static void rowSchemaComponent(TableMetadata table, Components components)
       throws MolgenisException {
     Map<String, Schema> properties = new LinkedHashMap<>();
-    for (ColumnMetadata column : table.getColumns()) {
+    for (Column column : table.getColumns()) {
       properties.put(column.getColumnName(), columnSchema(column));
     }
     components.addSchemas(table.getTableName(), new Schema().type(OBJECT).properties(properties));
@@ -334,7 +334,7 @@ public class OpenApiForSchemaFactory {
     components.addSchemas("SchemaMetadata", metadataSchema);
   }
 
-  private static Schema columnSchema(ColumnMetadata column) throws MolgenisException {
+  private static Schema columnSchema(Column column) throws MolgenisException {
     switch (column.getType()) {
       case UUID:
         return new UUIDSchema();

@@ -1,14 +1,14 @@
 package org.molgenis.emx2.io;
 
 import org.junit.Test;
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Row;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Row;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.examples.synthetic.*;
 import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
-import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.SchemaMetadata;
 
 import java.io.IOException;
 import java.util.List;

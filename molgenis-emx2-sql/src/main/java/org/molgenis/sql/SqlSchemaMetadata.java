@@ -2,8 +2,8 @@ package org.molgenis.sql;
 
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.SchemaMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.SchemaMetadata;
 
 import java.util.Collection;
 

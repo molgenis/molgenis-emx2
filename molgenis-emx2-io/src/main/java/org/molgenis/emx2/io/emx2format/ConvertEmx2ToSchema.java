@@ -1,13 +1,13 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.MolgenisExceptionMessage;
-import org.molgenis.data.Row;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.utils.MolgenisExceptionMessage;
+import org.molgenis.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.Column;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
+import org.molgenis.Type;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,7 +16,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.NULLABLE;
 import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.PKEY;
 import static org.molgenis.emx2.io.emx2format.Emx2PropertyList.UNIQUE;
@@ -162,7 +162,7 @@ public class ConvertEmx2ToSchema {
     }
 
     // other properties
-    ColumnMetadata column = table.getColumn(columnName);
+    Column column = table.getColumn(columnName);
     if (def.contains(NULLABLE)) column.setNullable(true);
   }
 

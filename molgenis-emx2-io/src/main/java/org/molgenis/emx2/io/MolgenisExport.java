@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Schema;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Schema;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
 import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;

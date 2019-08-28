@@ -1,19 +1,20 @@
 package org.molgenis.emx2.io.legacyformat;
 
-import org.molgenis.*;
-import org.molgenis.data.Row;
+import org.molgenis.Row;
 import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.Column;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
+import org.molgenis.Type;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.utils.MolgenisExceptionMessage;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.data.Row.MOLGENISID;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.*;
 import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
@@ -62,7 +63,7 @@ public class AttributesFileReader {
               lineNumber, "attribute " + row.getName() + " is defined twice"));
     } else {
       Type type = getEmxType(lineNumber, messages, row);
-      ColumnMetadata column;
+      Column column;
       if (REF.equals(type)) {
         column = table.addRef(row.getName(), row.getRefEntity(), MOLGENISID);
       } else {

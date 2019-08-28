@@ -3,6 +3,9 @@ package org.molgenis.emx2.web.json;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsoniterSpi;
+import org.molgenis.Query;
+import org.molgenis.Select;
+import org.molgenis.Where;
 import org.molgenis.query.*;
 
 import java.util.*;

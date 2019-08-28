@@ -1,6 +1,6 @@
 package org.molgenis.sql;
 
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 
 public class ATestToolOnlyCleansDatabase {
 

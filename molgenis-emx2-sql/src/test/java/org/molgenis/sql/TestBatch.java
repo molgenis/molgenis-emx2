@@ -2,12 +2,12 @@ package org.molgenis.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.*;
-import org.molgenis.data.Database;
-import org.molgenis.data.Row;
-import org.molgenis.data.Table;
-import org.molgenis.query.Query;
-import org.molgenis.data.Schema;
+import org.molgenis.Database;
+import org.molgenis.Row;
+import org.molgenis.Table;
+import org.molgenis.Query;
+import org.molgenis.Schema;
+import org.molgenis.utils.MolgenisException;
 import org.molgenis.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -16,9 +16,9 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
-import static org.molgenis.data.Row.MOLGENISID;
-import static org.molgenis.metadata.Type.INT;
-import static org.molgenis.metadata.Type.STRING;
+import static org.molgenis.Row.MOLGENISID;
+import static org.molgenis.Type.INT;
+import static org.molgenis.Type.STRING;
 
 public class TestBatch {
   private static Database db;

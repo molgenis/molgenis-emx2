@@ -1,10 +1,10 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.MolgenisException;
-import org.molgenis.data.Row;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Row;
+import org.molgenis.Column;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
 import org.simpleflatmapper.csv.CsvWriter;
 import org.simpleflatmapper.util.CheckedConsumer;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.molgenis.data.Row.MOLGENISID;
+import static org.molgenis.Row.MOLGENISID;
 
 public class ConvertSchemaToEmx2 {
 
@@ -46,7 +46,7 @@ public class ConvertSchemaToEmx2 {
     for (String tableName : model.getTableNames()) {
       TableMetadata table = model.getTableMetadata(tableName);
       writeTableDefinitionRow(table, rows);
-      for (ColumnMetadata column : table.getColumns()) {
+      for (Column column : table.getColumns()) {
         writeColumnDefinitionRow(column, rows);
       }
     }
@@ -67,7 +67,7 @@ public class ConvertSchemaToEmx2 {
       rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(ColumnMetadata column, List<Emx2FileRow> rows) {
+  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows) {
 
     // ignore internal ID, is implied
     if (!MOLGENISID.equals(column.getColumnName())) {

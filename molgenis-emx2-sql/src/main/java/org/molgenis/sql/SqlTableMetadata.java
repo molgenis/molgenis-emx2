@@ -2,10 +2,11 @@ package org.molgenis.sql;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
-import org.molgenis.MolgenisException;
-import org.molgenis.metadata.ColumnMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.Identifiable;
+import org.molgenis.utils.MolgenisException;
+import org.molgenis.Column;
+import org.molgenis.TableMetadata;
+import org.molgenis.Type;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.Permission.*;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 import static org.molgenis.sql.MetadataUtils.*;
 
 class SqlTableMetadata extends TableMetadata {
@@ -34,7 +35,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public ColumnMetadata getColumn(String name) throws MolgenisException {
+  public Column getColumn(String name) throws MolgenisException {
     try {
       return super.getColumn(name);
       // in case it has been made by other thread, try to load from backend
@@ -59,7 +60,7 @@ class SqlTableMetadata extends TableMetadata {
     jooq.execute("ALTER TABLE {0} OWNER TO {1}", tableName, name(prefix + MANAGE));
 
     // add default molgenisid primary key column
-    this.addColumn(MOLGENISID, UUID).primaryKey();
+    this.addColumn(Identifiable.MOLGENISID, UUID).primaryKey();
   }
 
   @Override
@@ -87,26 +88,24 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlColumnMetadata addColumn(String name, Type type) throws MolgenisException {
-    SqlColumnMetadata c = new SqlColumnMetadata(this, name, type);
+  public SqlColumn addColumn(String name, Type type) throws MolgenisException {
+    SqlColumn c = new SqlColumn(this, name, type);
     c.createColumn();
     columns.put(name, c);
     return c;
   }
 
   @Override
-  public ColumnMetadata addRef(String name, String toTable, String toColumn)
-      throws MolgenisException {
-    RefSqlColumnMetadata c = new RefSqlColumnMetadata(this, name, toTable, toColumn);
+  public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
+    RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     this.addColumn(c);
     return c;
   }
 
   @Override
-  public ColumnMetadata addRefArray(String name, String toTable, String toColumn)
-      throws MolgenisException {
-    RefArraySqlColumnMetadata c = new RefArraySqlColumnMetadata(this, name, toTable, toColumn);
+  public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
+    RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     this.addColumn(c);
     return c;
@@ -123,7 +122,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public MrefSqlColumnMetadata addMref(
+  public MrefSqlColumn addMref(
       String name,
       String refTable,
       String refColumn,
@@ -131,15 +130,15 @@ class SqlTableMetadata extends TableMetadata {
       String reverseRefColumn,
       String joinTable)
       throws MolgenisException {
-    MrefSqlColumnMetadata c =
-        new MrefSqlColumnMetadata(
+    MrefSqlColumn c =
+        new MrefSqlColumn(
             this, name, refTable, refColumn, reverseName, reverseRefColumn, joinTable);
     c.createColumn();
     columns.put(name, c);
     return c;
   }
 
-  protected void addMrefReverse(MrefSqlColumnMetadata reverse) {
+  protected void addMrefReverse(MrefSqlColumn reverse) {
     columns.put(reverse.getColumnName(), reverse);
   }
 
@@ -228,7 +227,7 @@ class SqlTableMetadata extends TableMetadata {
             "\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getTableName());
 
     StringBuilder mgSearchVector = new StringBuilder("to_tsvector('english', ' '");
-    for (ColumnMetadata c : getColumns()) {
+    for (Column c : getColumns()) {
       if (!c.getColumnName().startsWith("MG_"))
         mgSearchVector.append(
             String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getColumnName()));
@@ -258,7 +257,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public void enableRowLevelSecurity() throws MolgenisException {
-    SqlColumnMetadata c = this.addColumn(MG_EDIT_ROLE, STRING);
+    SqlColumn c = this.addColumn(MG_EDIT_ROLE, STRING);
     c.setIndexed(true);
 
     db.getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());

@@ -2,22 +2,21 @@ package org.molgenis.sql;
 
 import org.jooq.Field;
 import org.jooq.Name;
-import org.molgenis.MolgenisException;
+import org.molgenis.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.metadata.Type.REF;
+import static org.molgenis.Type.REF;
 import static org.molgenis.sql.MetadataUtils.saveColumnMetadata;
 
-public class RefSqlColumnMetadata extends SqlColumnMetadata {
+public class RefSqlColumn extends SqlColumn {
 
-  public RefSqlColumnMetadata(
-      SqlTableMetadata table, String columnName, String toTable, String toColumn) {
+  public RefSqlColumn(SqlTableMetadata table, String columnName, String toTable, String toColumn) {
     super(table, columnName, REF);
     this.setReference(toTable, toColumn);
   }
 
   @Override
-  public RefSqlColumnMetadata createColumn() throws MolgenisException {
+  public RefSqlColumn createColumn() throws MolgenisException {
 
     // define jooq parameters
     Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));

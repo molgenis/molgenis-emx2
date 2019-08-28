@@ -3,17 +3,17 @@ package org.molgenis.emx2.web;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.*;
 import org.junit.Test;
-import org.molgenis.*;
-import org.molgenis.metadata.SchemaMetadata;
-import org.molgenis.metadata.TableMetadata;
-import org.molgenis.metadata.Type;
+import org.molgenis.SchemaMetadata;
+import org.molgenis.TableMetadata;
+import org.molgenis.Type;
+import org.molgenis.utils.MolgenisException;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.metadata.Type.*;
+import static org.molgenis.Type.*;
 
 public class TestOpenApi {
 

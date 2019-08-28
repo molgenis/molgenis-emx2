@@ -1,4 +1,4 @@
-package org.molgenis.metadata;
+package org.molgenis;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,8 +23,6 @@ public enum Type {
   REF(Object.class),
   REF_ARRAY(Object[].class),
   MREF(Object[].class);
-
-  public static final String MOLGENISID = "molgenisid";
 
   private Class javaType;
 
