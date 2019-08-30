@@ -65,7 +65,7 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.4</version>
                 <configuration>
-                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                    <destFile>${sonar.coverage.jacoco.xmlReportPaths}</destFile>
                     <append>true</append>
                 </configuration>
                 <executions>
