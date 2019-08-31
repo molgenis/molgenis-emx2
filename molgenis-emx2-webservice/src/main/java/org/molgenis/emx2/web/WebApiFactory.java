@@ -66,9 +66,13 @@ public class WebApiFactory {
     post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
 
+    // table operations
     get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
     get(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
     post(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tablePostOperation);
+    delete(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableDeleteOperation);
+
+    // row operations
     put(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::rowPutOperation);
 
     get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
@@ -94,17 +98,12 @@ public class WebApiFactory {
 
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
     tempDir.toFile().deleteOnExit();
-    try {
+    try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = database.getSchema(request.params(SCHEMA));
       Path zipFile = tempDir.resolve("download.zip");
       MolgenisExport.toZipFile(zipFile, schema);
-
-      OutputStream outputStream = response.raw().getOutputStream();
       outputStream.write(Files.readAllBytes(zipFile));
-      outputStream.flush();
-
       response.status(200);
-
       return "Export success";
     } finally {
       Files.walk(tempDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
@@ -153,16 +152,6 @@ public class WebApiFactory {
     return JsonMapper.schemaToJson(schema);
   }
 
-  private static String rowPutOperation(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    Row row = JsonRowMapper.jsonToRow(request.body());
-    table.update(row);
-    response.type(ACCEPT_JSON);
-    response.status(200);
-    return JsonMapper.rowToJson(row);
-  }
-
   private static String tableGetOperation(Request request, Response response)
       throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
@@ -174,11 +163,31 @@ public class WebApiFactory {
   private static String tablePostOperation(Request request, Response response)
       throws MolgenisException, JsonProcessingException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    Row row = JsonRowMapper.jsonToRow(request.body());
-    table.insert(row);
+    List<Row> rows = JsonRowMapper.jsonToRows(request.body());
+    table.insert(rows);
     response.status(200);
     response.type(ACCEPT_JSON);
-    return JsonMapper.rowToJson(row);
+    return JsonMapper.rowsToJson(rows);
+  }
+
+  private static String tableDeleteOperation(Request request, Response response)
+      throws MolgenisException, JsonProcessingException {
+    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    List<Row> rows = JsonRowMapper.jsonToRows(request.body());
+    table.delete(rows);
+    response.status(200);
+    response.type(ACCEPT_JSON);
+    return JsonMapper.rowsToJson(rows);
+  }
+
+  private static String rowPutOperation(Request request, Response response)
+      throws MolgenisException, JsonProcessingException {
+    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    List<Row> rows = JsonRowMapper.jsonToRows(request.body());
+    table.update(rows);
+    response.type(ACCEPT_JSON);
+    response.status(200);
+    return JsonMapper.rowsToJson(rows);
   }
 
   private static String openApiYaml(Request request, Response response)

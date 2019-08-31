@@ -195,9 +195,13 @@ public class OpenApiForSchemaFactory {
     PathItem tablePath = new PathItem();
     PathItem rowPath = new PathItem();
 
+    // multiple row operations
     tablePath.get(tableGet(tableName));
     tablePath.post(tablePostOperation(tableName));
     tablePath.put(tablePutOperation(tableName));
+    tablePath.delete(tableDeleteOperation(tableName));
+
+    // one row operations
     rowPath.get(rowGetOperation(tableName));
     rowPath.delete(rowDelete(tableName));
 
@@ -266,7 +270,7 @@ public class OpenApiForSchemaFactory {
   private static Operation tablePutOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
-        .summary("Update row in " + tableName)
+        .summary("Update an array of one or more rows in " + tableName)
         .requestBody(tablePutRequestBody(tableName))
         .responses(rowApiResponse(tableName));
   }
@@ -274,9 +278,20 @@ public class OpenApiForSchemaFactory {
   private static Operation tablePostOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
-        .summary("Insert row into " + tableName)
+        .summary("Insert an array of one or more rows into " + tableName)
         .requestBody(tablePostRequestBody(tableName))
         .responses(rowApiResponse(tableName));
+  }
+
+  private static Operation tableDeleteOperation(String tableName) {
+    return new Operation()
+        .addTagsItem(tableName)
+        .summary("Delete an array of one more row by their primary key from " + tableName)
+        .requestBody(tablePutRequestBody(tableName))
+        .responses(
+            new ApiResponses()
+                .addApiResponse("200", new ApiResponse().description("success"))
+                .addApiResponse("400", new ApiResponse().description("Bad request")));
   }
 
   private static ApiResponses rowApiResponse(String tableName) {
@@ -290,14 +305,18 @@ public class OpenApiForSchemaFactory {
         .content(
             new Content()
                 .addMediaType(
-                    ACCEPT_JSON, new MediaType().schema(new Schema().$ref("New" + tableName))));
+                    ACCEPT_JSON,
+                    new MediaType()
+                        .schema(new ArraySchema().items(new Schema().$ref("New" + tableName)))));
   }
 
   private static RequestBody tablePutRequestBody(String tableName) {
     return new RequestBody()
         .content(
             new Content()
-                .addMediaType(ACCEPT_JSON, new MediaType().schema(new Schema().$ref(tableName))));
+                .addMediaType(
+                    ACCEPT_JSON,
+                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)))));
   }
 
   private static void apiResponseComponentFor(String tableName, Components components) {
