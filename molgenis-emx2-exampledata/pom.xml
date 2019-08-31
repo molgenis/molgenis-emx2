@@ -33,4 +33,9 @@
             <version>3.11.11</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}
+        </sonar.coverage.jacoco.xmlReportPaths>
+    </properties>
 </project>
