@@ -13,7 +13,7 @@ import org.molgenis.emx2.Row;
 import java.io.IOException;
 import java.util.List;
 
-public class CanImportExportAllMetadataExamples {
+public class TestImportExportAllMetadataExamples {
 
   @Test
   public void testArrayTypeTestExample() throws MolgenisException, IOException {

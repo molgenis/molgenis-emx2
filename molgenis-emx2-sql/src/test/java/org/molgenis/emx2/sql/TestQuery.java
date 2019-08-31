@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql; // package org.molgenis.sql;
+// package org.molgenis.emx2.sql; // package org.molgenis.sql;
 //
 // import org.junit.BeforeClass;
 // import org.junit.Test;

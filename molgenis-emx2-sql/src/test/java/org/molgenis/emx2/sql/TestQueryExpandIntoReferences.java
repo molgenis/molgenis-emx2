@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Type.STRING;
 
-public class CanQueryExpandIntoReferences {
+public class TestQueryExpandIntoReferences {
   static Database db;
 
   @BeforeClass

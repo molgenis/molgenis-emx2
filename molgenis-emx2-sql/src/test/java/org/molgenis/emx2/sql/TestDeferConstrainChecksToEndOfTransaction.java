@@ -12,10 +12,10 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.fail;
 
-public class DoesDeferConstrainChecksToEndOfTransaction {
+public class TestDeferConstrainChecksToEndOfTransaction {
   Database database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
-  public DoesDeferConstrainChecksToEndOfTransaction() throws MolgenisException {}
+  public TestDeferConstrainChecksToEndOfTransaction() throws MolgenisException {}
 
   public void DependencyOrderNotNeededInTransaction() throws MolgenisException {
 

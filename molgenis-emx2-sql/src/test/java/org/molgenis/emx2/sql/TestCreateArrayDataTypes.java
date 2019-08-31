@@ -16,7 +16,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Type.*;
 
-public class CanCreateArrayDataTypes {
+public class TestCreateArrayDataTypes {
 
   static Database database;
 
@@ -80,7 +80,7 @@ public class CanCreateArrayDataTypes {
   private void executeTest(Type type, Serializable[] values) throws MolgenisException {
 
     Schema schema =
-        database.createSchema("CanCreateArrayDataTypes" + type.toString().toUpperCase());
+        database.createSchema("TestCreateArrayDataTypes" + type.toString().toUpperCase());
 
     Table tableA = schema.createTableIfNotExists("A");
     String aFieldName = type + "Col";

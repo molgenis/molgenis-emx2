@@ -12,7 +12,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Type.*;
 
-public class CanCreateCompositeForeignKeys {
+public class TestCreateCompositeForeignKeys {
 
   static Database db;
 
@@ -61,7 +61,7 @@ public class CanCreateCompositeForeignKeys {
       throws MolgenisException {
 
     Schema schema =
-        db.createSchema("CanCreateForeignKeys" + type.toString().toUpperCase() + "Multiple");
+        db.createSchema("TestCreateForeignKeys" + type.toString().toUpperCase() + "Multiple");
 
     Table aTable = schema.createTableIfNotExists("A");
     String uniqueColumn1 = "AUnique" + type;

@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 import static org.molgenis.emx2.Type.*;
 
-public class CanCreateManyToManyRelations {
+public class TestCreateManyToManyRelations {
 
   static Database db;
 
@@ -78,7 +78,7 @@ public class CanCreateManyToManyRelations {
     StopWatch.start("executeTest");
 
     Schema aSchema =
-        db.createSchema("CanCreateManyToManyRelations" + type.toString().toUpperCase());
+        db.createSchema("TestCreateManyToManyRelations" + type.toString().toUpperCase());
 
     Table aTable = aSchema.createTableIfNotExists("A");
     String keyOfA = "AKey";

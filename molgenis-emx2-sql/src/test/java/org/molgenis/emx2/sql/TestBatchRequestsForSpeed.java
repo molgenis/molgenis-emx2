@@ -18,7 +18,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 
-public class CanBatchRequestsForSpeed {
+public class TestBatchRequestsForSpeed {
   private static Database db;
 
   @BeforeClass
@@ -32,7 +32,7 @@ public class CanBatchRequestsForSpeed {
     StopWatch.start("testBatch started");
 
     Schema schema = db.createSchema("testBatch");
-    Table testBatchTable = schema.createTableIfNotExists("CanBatchRequestsForSpeed");
+    Table testBatchTable = schema.createTableIfNotExists("TestBatchRequestsForSpeed");
     testBatchTable.getMetadata().addColumn("test", Type.STRING).addColumn("testint", Type.INT);
 
     int size = 1000;
@@ -67,7 +67,7 @@ public class CanBatchRequestsForSpeed {
     testBatchTable.update(rows);
     StopWatch.print("Batch update ", rows.size());
 
-    StopWatch.print("Retrieved", schema.getTable("CanBatchRequestsForSpeed").retrieve().size());
+    StopWatch.print("Retrieved", schema.getTable("TestBatchRequestsForSpeed").retrieve().size());
   }
 
   @Test

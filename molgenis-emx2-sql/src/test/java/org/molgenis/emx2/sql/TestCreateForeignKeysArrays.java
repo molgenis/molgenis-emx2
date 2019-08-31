@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
 
-public class CanCreateForeignKeysArrays {
+public class TestCreateForeignKeysArrays {
   private static Database db;
 
   @BeforeClass

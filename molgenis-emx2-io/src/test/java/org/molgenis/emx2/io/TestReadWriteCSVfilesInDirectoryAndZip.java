@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class CanReadWriteCSVfilesInDirectoryAndZip {
+public class TestReadWriteCSVfilesInDirectoryAndZip {
   @Test
   public void testCsvDirectoryStore() throws IOException {
     Path tmp = Files.createTempDirectory(null);

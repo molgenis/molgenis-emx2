@@ -14,7 +14,7 @@ import java.io.Serializable;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Type.*;
 
-public class CanCreateCompositeKeys {
+public class TestCreateCompositeKeys {
   static Database database;
 
   @BeforeClass
@@ -70,7 +70,7 @@ public class CanCreateCompositeKeys {
   }
 
   public void executeTest(Type type, Serializable[] data) throws MolgenisException {
-    Schema schema = database.createSchema("CanCreateCompositeKeys" + type.toString());
+    Schema schema = database.createSchema("TestCreateCompositeKeys" + type.toString());
 
     Table aTable = schema.createTableIfNotExists("CompositeKeyTable");
     aTable

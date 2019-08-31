@@ -13,7 +13,7 @@ import java.io.*;
 
 import static junit.framework.TestCase.fail;
 
-public class CanReadWriteLegacyEMXformat {
+public class TestReadWriteLegacyEMXformat {
 
   @Test
   public void test() throws MolgenisException {

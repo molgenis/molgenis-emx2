@@ -11,9 +11,9 @@ import org.molgenis.emx2.Schema;
 
 import static junit.framework.TestCase.fail;
 
-public class MetaDataIsStoredForNextSessions {
+public class TestMetaDataIsStoredForNextSessions {
 
-  static final String SCHEMA_NAME = "MetaDataIsStoredForNextSessions";
+  static final String SCHEMA_NAME = "TestMetaDataIsStoredForNextSessions";
 
   static Database database;
 

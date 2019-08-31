@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
-public class CanImportExportEmx2DataAndMetadata {
+public class TestImportExportEmx2DataAndMetadata {
 
   static Database database;
 

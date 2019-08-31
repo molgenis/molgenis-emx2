@@ -12,7 +12,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Type.*;
 
-public class CanCreateForeignKeys {
+public class TestCreateForeignKeys {
 
   static Database db;
 
@@ -60,7 +60,7 @@ public class CanCreateForeignKeys {
   private void executeTest(Type type, Object insertValue, Object updateValue)
       throws MolgenisException {
 
-    Schema schema = db.createSchema("CanCreateForeignKeys" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestCreateForeignKeys" + type.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
     String fieldName = "AKeyOf" + type;

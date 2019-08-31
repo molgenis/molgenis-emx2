@@ -16,7 +16,7 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Type.STRING;
 
-public class CanGrantRolesToUsers {
+public class TestGrantRolesToUsers {
   private static Database database;
 
   @BeforeClass

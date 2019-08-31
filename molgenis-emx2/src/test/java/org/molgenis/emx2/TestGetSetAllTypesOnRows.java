@@ -15,7 +15,7 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.Type.*;
 
-public class CanGetSetAllTypesOnRows {
+public class TestGetSetAllTypesOnRows {
 
   @Test
   public void test1() throws MolgenisException {

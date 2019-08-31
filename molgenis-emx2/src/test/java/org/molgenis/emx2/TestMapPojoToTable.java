@@ -11,7 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.Type.*;
 
-public class CanMapPojoToTable {
+public class TestMapPojoToTable {
 
   @Test
   public void testBeanToRowToBean() throws MolgenisException {

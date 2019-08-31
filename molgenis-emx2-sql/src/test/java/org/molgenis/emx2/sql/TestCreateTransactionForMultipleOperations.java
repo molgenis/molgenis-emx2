@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Type.STRING;
 
-public class CanCreateTransactionForMultipleOperations {
+public class TestCreateTransactionForMultipleOperations {
   private static Database db;
 
   @BeforeClass

@@ -20,7 +20,7 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Type.*;
 
-public class CanCreateBasicDataTypeColumns {
+public class TestCreateBasicDataTypeColumns {
 
   static Database db;
 
@@ -153,7 +153,7 @@ public class CanCreateBasicDataTypeColumns {
   private void executeTest(Type type, Serializable[] values) throws MolgenisException {
 
     Schema schema =
-        db.createSchema("CanCreateBasicDataTypeColumns" + type.toString().toUpperCase());
+        db.createSchema("TestCreateBasicDataTypeColumns" + type.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
     String aKey = type + "Key";

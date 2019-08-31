@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 
-public class CanFullTextSearch {
+public class TestFullTextSearch {
   private static Database db;
 
   @BeforeClass
@@ -25,8 +25,8 @@ public class CanFullTextSearch {
   public void testSearch() throws MolgenisException {
 
     // setup
-    Schema schema = db.createSchema("CanFullTextSearch");
-    Table aTable = schema.createTableIfNotExists("CanFullTextSearch");
+    Schema schema = db.createSchema("TestFullTextSearch");
+    Table aTable = schema.createTableIfNotExists("TestFullTextSearch");
     aTable
         .getMetadata()
         .addColumn("sub", Type.STRING)
