@@ -26,7 +26,7 @@
         <!-- Sonar -->
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <aggregate.report.dir>tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
+        <aggregate.report.dir>report-aggregator/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
         <sonar.language>java</sonar.language>
     </properties>
 
