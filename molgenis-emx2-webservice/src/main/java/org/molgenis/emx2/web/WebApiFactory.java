@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.molgenis.emx2.Row.MOLGENISID;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
@@ -106,7 +107,9 @@ public class WebApiFactory {
       response.status(200);
       return "Export success";
     } finally {
-      Files.walk(tempDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      try (Stream<Path> files = Files.walk(tempDir)) {
+        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
     }
   }
 
