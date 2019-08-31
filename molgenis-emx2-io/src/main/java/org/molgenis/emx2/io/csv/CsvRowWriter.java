@@ -17,6 +17,8 @@ public class CsvRowWriter {
 
   public static void writeCsv(List<Row> rows, Writer writer) throws IOException {
 
+    if (rows.size() == 0) return;
+
     CsvWriter.CsvWriterDSL<Map> writerDsl =
         CsvWriter.from(Map.class)
             .columns(

@@ -24,6 +24,7 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
 
   @Override
   public void write(String name, List<Row> rows) throws IOException {
+    if (rows.size() == 0) return;
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     Writer writer = Files.newBufferedWriter(relativePath);
     CsvRowWriter.writeCsv(rows, writer);

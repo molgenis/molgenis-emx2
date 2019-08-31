@@ -17,10 +17,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.molgenis.emx2.Row.MOLGENISID;
+import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
+import static org.molgenis.emx2.web.Constants.ACCEPT_ZIP;
 
 public class OpenApiForSchemaFactory {
 
-  public static final String APPLICATION_JSON = "application/json";
   static final Parameter molgenisid =
       new PathParameter().name(MOLGENISID).in("path").required(true).schema(new UUIDSchema());
   public static final String OBJECT = "object";
@@ -87,7 +88,7 @@ public class OpenApiForSchemaFactory {
             .content(
                 new Content()
                     .addMediaType(
-                        APPLICATION_JSON, new MediaType().schema(new Schema().$ref(PROBLEM)))));
+                        ACCEPT_JSON, new MediaType().schema(new Schema().$ref(PROBLEM)))));
 
     // operations
     PathItem schemaPath = new PathItem();
@@ -121,8 +122,11 @@ public class OpenApiForSchemaFactory {
                         .content(
                             new Content()
                                 .addMediaType(
-                                    APPLICATION_JSON,
-                                    new MediaType().schema(new Schema().$ref("SchemaMetadata"))))));
+                                    ACCEPT_JSON,
+                                    new MediaType().schema(new Schema().$ref("SchemaMetadata")))
+                                .addMediaType(
+                                    ACCEPT_ZIP,
+                                    new MediaType().schema(new StringSchema().format("binary"))))));
   }
 
   private static Operation schemaZipUpload() {
@@ -225,7 +229,7 @@ public class OpenApiForSchemaFactory {
                         .description("success")
                         .content(
                             new Content()
-                                .addMediaType(APPLICATION_JSON, mediaType)
+                                .addMediaType(ACCEPT_JSON, mediaType)
                                 .addMediaType("text/csv", mediaType))));
   }
 
@@ -286,16 +290,14 @@ public class OpenApiForSchemaFactory {
         .content(
             new Content()
                 .addMediaType(
-                    APPLICATION_JSON,
-                    new MediaType().schema(new Schema().$ref("New" + tableName))));
+                    ACCEPT_JSON, new MediaType().schema(new Schema().$ref("New" + tableName))));
   }
 
   private static RequestBody tablePutRequestBody(String tableName) {
     return new RequestBody()
         .content(
             new Content()
-                .addMediaType(
-                    APPLICATION_JSON, new MediaType().schema(new Schema().$ref(tableName))));
+                .addMediaType(ACCEPT_JSON, new MediaType().schema(new Schema().$ref(tableName))));
   }
 
   private static void apiResponseComponentFor(String tableName, Components components) {
@@ -305,7 +307,7 @@ public class OpenApiForSchemaFactory {
             .content(
                 new Content()
                     .addMediaType(
-                        APPLICATION_JSON, new MediaType().schema(new Schema().$ref(tableName)))));
+                        ACCEPT_JSON, new MediaType().schema(new Schema().$ref(tableName)))));
   }
 
   private static void schemaMetadataSchema(Components components) {

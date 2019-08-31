@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.io.MolgenisExport;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.emx2.Schema;
@@ -20,18 +21,16 @@ import spark.Response;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.molgenis.emx2.Row.MOLGENISID;
+import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
+import static org.molgenis.emx2.web.Constants.ACCEPT_ZIP;
 import static spark.Spark.*;
 
 public class WebApiFactory {
@@ -40,9 +39,6 @@ public class WebApiFactory {
   private static final String DATA_SCHEMA_TABLE_MOLGENISID = DATA_SCHEMA_TABLE + "/:molgenisid";
 
   private static Database database;
-  private static final String ACCEPT_JSON = "application/json";
-  private static final String ACCEPT_CSV = "text/csv";
-
   private static final String SCHEMA = "schema";
   private static final String TABLE = "table";
 
@@ -68,6 +64,7 @@ public class WebApiFactory {
     // actual api
     get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::openApiListSchemas);
     post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
+    get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
 
     get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
     get(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
@@ -90,6 +87,28 @@ public class WebApiFactory {
           res.status(400);
           res.body(e.getMessage());
         });
+  }
+
+  private static String schemaGetZip(Request request, Response response)
+      throws MolgenisException, IOException {
+
+    Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
+    tempDir.toFile().deleteOnExit();
+    try {
+      Schema schema = database.getSchema(request.params(SCHEMA));
+      Path zipFile = tempDir.resolve("download.zip");
+      MolgenisExport.toZipFile(zipFile, schema);
+
+      OutputStream outputStream = response.raw().getOutputStream();
+      outputStream.write(Files.readAllBytes(zipFile));
+      outputStream.flush();
+
+      response.status(200);
+
+      return "Export success";
+    } finally {
+      Files.walk(tempDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
   }
 
   private static String schemaPostZip(Request request, Response response)
