@@ -204,7 +204,6 @@ public class OpenApiForSchemaFactory {
 
     // one row operations
     rowPath.get(rowGetOperation(tableName));
-    rowPath.delete(rowDelete(tableName));
 
     // add the paths to paths
     String path =
