@@ -89,6 +89,9 @@ Most core ideas where already described in https://docs.google.com/document/d/19
     - aim to minimize the number of calls
 
 ## Todo or consider later (memo to self)
+*  remove molgenisid. It sucks (to my surprise)
+*  throw error if primary key column is empty on update and delete
+*  throw error when webservice is called with only csv header and no values
 *  many implementations are missing!
 *  update is actually upsert (insert ... on conflict update)
 *  refactor query to have 'WhereList' for each 'OR' clause and introduce a 'Filter' concept as items in the Where
