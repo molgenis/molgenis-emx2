@@ -75,7 +75,7 @@ public class TestCreateForeignKeys {
 
     Table bTable = schema.createTableIfNotExists("B");
     String refFromBToA = "RefToAKeyOf" + type;
-    bTable.getMetadata().addColumn("ID", Type.INT).addRef(refFromBToA, "A", fieldName);
+    bTable.getMetadata().addColumn("ID", Type.INT).primaryKey().addRef(refFromBToA, "A", fieldName);
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 
@@ -89,7 +89,7 @@ public class TestCreateForeignKeys {
     }
 
     // and update, should be cascading :-)
-    aTable.update(aRow.set(fieldName, updateValue)); // this should fail!
+    aTable.update(aRow.set(fieldName, updateValue));
 
     // delete of A should fail
     try {

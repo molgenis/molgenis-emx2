@@ -2,22 +2,23 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Select;
-import org.molgenis.emx2.Where;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.Type.MREF;
+import static org.molgenis.emx2.Type.REF;
+import static org.molgenis.emx2.Type.REF_ARRAY;
 
 class SqlTable implements Table {
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
@@ -220,13 +221,32 @@ class SqlTable implements Table {
         Condition rowCondition = null;
         for (String keyName : keyNames) {
           Column key = getMetadata().getColumn(keyName);
+          // consider to move this to helper methods
+          Type type = key.getType();
+          if (REF.equals(type)) {
+            type =
+                key.getTable()
+                    .getSchema()
+                    .getTableMetadata(key.getRefTableName())
+                    .getColumn(key.getRefColumnName())
+                    .getType();
+          }
+          if (REF_ARRAY.equals(type) || MREF.equals(type)) {
+            type =
+                TypeUtils.getArrayType(
+                    key.getTable()
+                        .getSchema()
+                        .getTableMetadata(key.getRefTableName())
+                        .getColumn(key.getRefColumnName())
+                        .getType());
+          }
+
           if (rowCondition == null) {
-            rowCondition =
-                getJooqField(key).eq(cast(r.get(key.getType(), keyName), getJooqField(key)));
+            rowCondition = getJooqField(key).eq(cast(r.get(type, keyName), getJooqField(key)));
           } else {
             rowCondition =
                 rowCondition.and(
-                    getJooqField(key).eq(cast(r.get(key.getType(), keyName), getJooqField(key))));
+                    getJooqField(key).eq(cast(r.get(type, keyName), getJooqField(key))));
           }
         }
         if (whereCondition == null) {

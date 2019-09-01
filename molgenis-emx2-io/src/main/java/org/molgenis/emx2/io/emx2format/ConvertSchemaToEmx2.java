@@ -64,7 +64,8 @@ public class ConvertSchemaToEmx2 {
       rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows) {
+  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows)
+      throws MolgenisException {
 
     // ignore internal ID, is implied
     Emx2PropertyList def = new Emx2PropertyList();
