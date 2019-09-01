@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
-import org.molgenis.emx2.Identifiable;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Permission;
 import org.molgenis.emx2.TableMetadata;
@@ -57,9 +56,6 @@ class SqlTableMetadata extends TableMetadata {
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
         tableName, DSL.name(prefix + Permission.EDIT));
     jooq.execute("ALTER TABLE {0} OWNER TO {1}", tableName, DSL.name(prefix + Permission.MANAGE));
-
-    // add default molgenisid primary key column
-    this.addColumn(Identifiable.MOLGENISID, UUID).primaryKey();
   }
 
   @Override
@@ -152,7 +148,23 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public boolean exists() {
-    return !getColumns().isEmpty();
+    // first look at already loaded metadata, in case of no columns, check the underlying table
+    if (!getColumns().isEmpty()) {
+      return true;
+    }
+    // jooq doesn't have operator for this, so by hand. Might be slow
+    if (0
+        < db.getJooq()
+            .select(count())
+            .from(name("information_schema", "tables"))
+            .where(
+                field("table_schema")
+                    .eq(getSchema().getName())
+                    .and(field("table_name").eq(getTableName())))
+            .fetchOne(0, Integer.class)) {
+      return true;
+    }
+    return false;
   }
 
   public void dropTable() {
@@ -177,6 +189,8 @@ class SqlTableMetadata extends TableMetadata {
         .execute();
     MetadataUtils.saveUnique(this, columnNames);
     super.addUnique(columnNames);
+    if (getPrimaryKey().length == 0)
+      this.setPrimaryKey(columnNames); // default first unique is also primary key
     return this;
   }
 

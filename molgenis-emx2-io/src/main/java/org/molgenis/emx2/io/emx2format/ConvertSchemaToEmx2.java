@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.molgenis.emx2.Row.MOLGENISID;
-
 public class ConvertSchemaToEmx2 {
 
   private ConvertSchemaToEmx2() {
@@ -57,12 +55,11 @@ public class ConvertSchemaToEmx2 {
 
     Emx2PropertyList def = new Emx2PropertyList();
     for (String[] u : table.getUniques()) {
-      def.add("unique", u);
+      def.add(Emx2PropertyList.UNIQUE, u);
     }
-    if (table.getPrimaryKey().length > 0
-        && !Arrays.equals(table.getPrimaryKey(), new String[] {MOLGENISID}))
-      def.add("pkey", table.getPrimaryKey());
-
+    if (table.getPrimaryKey().length > 0) {
+      def.add(Emx2PropertyList.PKEY, table.getPrimaryKey());
+    }
     if (!def.getTerms().isEmpty())
       rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
   }
@@ -70,33 +67,31 @@ public class ConvertSchemaToEmx2 {
   private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows) {
 
     // ignore internal ID, is implied
-    if (!MOLGENISID.equals(column.getColumnName())) {
-      Emx2PropertyList def = new Emx2PropertyList();
-      switch (column.getType()) {
-        case STRING:
-          break;
-        case REF:
-        case REF_ARRAY:
-          def.add(
-              column.getType().toString().toLowerCase(),
-              column.getRefTableName(),
-              column.getRefColumnName());
+    Emx2PropertyList def = new Emx2PropertyList();
+    switch (column.getType()) {
+      case STRING:
+        break;
+      case REF:
+      case REF_ARRAY:
+        def.add(
+            column.getType().toString().toLowerCase(),
+            column.getRefTableName(),
+            column.getRefColumnName());
 
-          break;
-        default:
-          def.add(column.getType().toString().toLowerCase());
-      }
-      if (Boolean.TRUE.equals(column.getNullable())) def.add("nullable");
-      if (Boolean.TRUE.equals(column.getReadonly())) def.add("readonly");
-      if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
-      if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
-
-      rows.add(
-          new Emx2FileRow(
-              column.getTable().getTableName(),
-              column.getColumnName(),
-              def.toString(),
-              column.getDescription()));
+        break;
+      default:
+        def.add(column.getType().toString().toLowerCase());
     }
+    if (Boolean.TRUE.equals(column.getNullable())) def.add("nullable");
+    if (Boolean.TRUE.equals(column.getReadonly())) def.add("readonly");
+    if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
+    if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
+
+    rows.add(
+        new Emx2FileRow(
+            column.getTable().getTableName(),
+            column.getColumnName(),
+            def.toString(),
+            column.getDescription()));
   }
 }

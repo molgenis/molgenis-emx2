@@ -16,14 +16,11 @@ import org.molgenis.emx2.TableMetadata;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.molgenis.emx2.Row.MOLGENISID;
 import static org.molgenis.emx2.web.Constants.*;
 
 public class OpenApiForSchemaFactory {
 
   public static final String OK = "200";
-  static final Parameter molgenisid =
-      new PathParameter().name(MOLGENISID).in("path").required(true).schema(new UUIDSchema());
   public static final String OBJECT = "object";
   public static final String PROBLEM = "Problem";
   public static final String BAD_REQUEST = "400";
@@ -203,7 +200,7 @@ public class OpenApiForSchemaFactory {
     tablePath.delete(tableDeleteOperation(tableName));
 
     // one row operations
-    rowPath.get(rowGetOperation(tableName));
+    // rowPath.get(rowGetOperation(tableName));
 
     // add the paths to paths
     String path =
@@ -246,21 +243,13 @@ public class OpenApiForSchemaFactory {
     components.addSchemas(table.getTableName(), new Schema().type(OBJECT).properties(properties));
   }
 
-  private static Operation rowDelete(String tableName) {
-    return new Operation()
-        .addTagsItem(tableName)
-        .summary("Delete one row from " + tableName)
-        .addParametersItem(molgenisid)
-        .responses(new ApiResponses().addApiResponse(OK, new ApiResponse().description("success")));
-  }
-
-  private static Operation rowGetOperation(String tableName) {
-    return new Operation()
-        .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
-        .addTagsItem(tableName)
-        .addParametersItem(molgenisid)
-        .responses(rowApiResponse(tableName));
-  }
+  //  private static Operation rowGetOperation(String tableName) {
+  //    return new Operation()
+  //        .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
+  //        .addTagsItem(tableName)
+  //        .addParametersItem(molgenisid)
+  //        .responses(rowApiResponse(tableName));
+  //  }
 
   private static Operation tablePutOperation(String tableName) {
     return new Operation()

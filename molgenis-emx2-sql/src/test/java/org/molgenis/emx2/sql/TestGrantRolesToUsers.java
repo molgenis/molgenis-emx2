@@ -2,11 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -56,7 +52,7 @@ public class TestGrantRolesToUsers {
     } catch (Exception e) {
     }
 
-    StopWatch.print("test viewer permission");
+    StopWatch.print("test editor permission");
 
     try {
       database.transaction(
@@ -68,7 +64,7 @@ public class TestGrantRolesToUsers {
           });
     } catch (Exception e) {
     }
-    StopWatch.print("test editor permission");
+    StopWatch.print("test editor permission success");
 
     try {
       database.transaction(
@@ -76,6 +72,8 @@ public class TestGrantRolesToUsers {
           db -> {
             try {
               db.getSchema("testRolePermissions").createTableIfNotExists("Test");
+              //                  .getMetadata()
+              //                  .addColumn("ID", Type.INT);
             } catch (Exception e) {
               e.printStackTrace();
               throw e;
@@ -85,7 +83,7 @@ public class TestGrantRolesToUsers {
       fail("role(manager) should be able to createColumn tables"); // should not happen
       throw e;
     }
-    StopWatch.print("test manager permission -> created a table");
+    StopWatch.print("test manager permission -> created a table, success");
 
     // test that all can query
     try {
@@ -102,7 +100,7 @@ public class TestGrantRolesToUsers {
       e.printStackTrace();
       fail("role(viewers) should  be able to query "); // should not happen
     }
-    StopWatch.print("test viewer query");
+    StopWatch.print("test viewer query, success");
   }
 
   @Test

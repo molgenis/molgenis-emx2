@@ -64,32 +64,37 @@ public class TestCreateForeignKeys {
 
     Table aTable = schema.createTableIfNotExists("A");
     String fieldName = "AKeyOf" + type;
-    aTable.getMetadata().addColumn(fieldName, type).addUnique(fieldName);
-    Row aRow = new Row().set(fieldName, insertValue);
+    aTable
+        .getMetadata()
+        .addColumn("ID", Type.INT)
+        .primaryKey()
+        .addColumn(fieldName, type)
+        .addUnique(fieldName);
+    Row aRow = new Row().setInt("ID", 1).set(fieldName, insertValue);
     aTable.insert(aRow);
 
     Table bTable = schema.createTableIfNotExists("B");
     String refFromBToA = "RefToAKeyOf" + type;
-    bTable.getMetadata().addRef(refFromBToA, "A", fieldName);
-    Row bRow = new Row().set(refFromBToA, insertValue);
+    bTable.getMetadata().addColumn("ID", Type.INT).addRef(refFromBToA, "A", fieldName);
+    Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 
     // insert to non-existing value should fail
-    Row bErrorRow = new Row().set(refFromBToA, updateValue);
+    Row bErrorRow = new Row().setInt("ID", 3).set(refFromBToA, updateValue);
     try {
       bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
     } catch (Exception e) {
-      System.out.println("delete exception correct: \n" + e);
+      System.out.println("insert exception correct: \n" + e);
     }
 
     // and update, should be cascading :-)
-    aTable.update(aRow.set(fieldName, updateValue));
+    aTable.update(aRow.set(fieldName, updateValue)); // this should fail!
 
     // delete of A should fail
     try {
       aTable.delete(aRow);
-      fail("delete should fail");
+      fail("delete should fail because bRow is still referencing aRow");
     } catch (Exception e) {
       System.out.println("insert exception correct: \n" + e);
     }

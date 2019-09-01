@@ -46,9 +46,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DECIMAL_ARRAY:
         return SQLDataType.DOUBLE.getArrayDataType();
       case TEXT:
-        return SQLDataType.CLOB;
+        return SQLDataType.VARCHAR;
       case TEXT_ARRAY:
-        return SQLDataType.CLOB.getArrayDataType();
+        return SQLDataType.VARCHAR.getArrayDataType();
       case DATE:
         return SQLDataType.DATE;
       case DATE_ARRAY:
@@ -122,9 +122,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DECIMAL_ARRAY:
         return TypeUtils.toDecimalArray(v);
       case TEXT:
-        return cast(TypeUtils.toText(v), SQLDataType.CLOB);
+        return cast(TypeUtils.toText(v), SQLDataType.VARCHAR);
       case TEXT_ARRAY:
-        return cast(TypeUtils.toTextArray(v), SQLDataType.CLOB.getArrayDataType());
+        return cast(TypeUtils.toTextArray(v), SQLDataType.VARCHAR.getArrayDataType());
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
@@ -206,7 +206,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DECIMAL:
         return "decimal";
       case TEXT:
-        return "text";
+        return "character varying";
       case DATE:
         return "date";
       case DATETIME:

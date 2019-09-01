@@ -13,7 +13,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.emx2.Row.MOLGENISID;
 import static org.molgenis.emx2.Type.*;
 import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
@@ -65,7 +64,7 @@ public class AttributesFileReader {
       Type type = getEmxType(lineNumber, messages, row);
       Column column;
       if (REF.equals(type)) {
-        column = table.addRef(row.getName(), row.getRefEntity(), MOLGENISID);
+        column = table.addRef(row.getName(), row.getRefEntity());
       } else {
         column = table.addColumn(row.getName(), type);
       }

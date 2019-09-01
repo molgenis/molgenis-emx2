@@ -12,7 +12,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Type.*;
 
-public class TestCreateCompositeForeignKeys {
+public class TestCreateCompositeMREF {
 
   static Database db;
 
@@ -60,8 +60,7 @@ public class TestCreateCompositeForeignKeys {
   private void executeTest(Type type, Object insertValue, Object updateValue)
       throws MolgenisException {
 
-    Schema schema =
-        db.createSchema("TestCreateForeignKeys" + type.toString().toUpperCase() + "Multiple");
+    Schema schema = db.createSchema("TestCreateCompositeMREF" + type.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
     String uniqueColumn1 = "AUnique" + type;
@@ -69,11 +68,14 @@ public class TestCreateCompositeForeignKeys {
 
     aTable
         .getMetadata()
+        .addColumn("ID", Type.INT)
+        .primaryKey()
         .addColumn(uniqueColumn1, type)
         .addColumn(uniqueColumn2, type)
         .addUnique(uniqueColumn1, uniqueColumn2);
 
-    Row aRow = new Row().set(uniqueColumn1, insertValue).set(uniqueColumn2, insertValue);
+    Row aRow =
+        new Row().setInt("ID", 1).set(uniqueColumn1, insertValue).set(uniqueColumn2, insertValue);
     aTable.insert(aRow);
 
     Table bTable = schema.createTableIfNotExists("B");
@@ -82,13 +84,17 @@ public class TestCreateCompositeForeignKeys {
 
     bTable
         .getMetadata()
+        .addColumn("ID", Type.INT)
+        .primaryKey()
         .addRefMultiple(refFromBToA1, refFromBToA2)
         .to("A", uniqueColumn1, uniqueColumn2);
-    Row bRow = new Row().set(refFromBToA1, insertValue).set(refFromBToA2, insertValue);
+    Row bRow =
+        new Row().setInt("ID", 1).set(refFromBToA1, insertValue).set(refFromBToA2, insertValue);
     bTable.insert(bRow);
 
     // insert to non-existing value should fail
-    Row bErrorRow = new Row().set(refFromBToA1, updateValue).set(refFromBToA2, updateValue);
+    Row bErrorRow =
+        new Row().setInt("ID", 2).set(refFromBToA1, updateValue).set(refFromBToA2, updateValue);
     try {
       bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
@@ -102,7 +108,7 @@ public class TestCreateCompositeForeignKeys {
     // delete of A should fail
     try {
       aTable.delete(aRow);
-      fail("delete should fail");
+      fail("delete should fail because a bRow is still referencing to it");
     } catch (Exception e) {
       System.out.println("delete exception correct: \n" + e.getMessage());
     }

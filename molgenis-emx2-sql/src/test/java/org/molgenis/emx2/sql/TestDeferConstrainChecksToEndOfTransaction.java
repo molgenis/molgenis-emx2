@@ -1,10 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -42,14 +39,16 @@ public class TestDeferConstrainChecksToEndOfTransaction {
     Schema schema = db.createSchema("TestDeffered");
 
     Table subjectTable = schema.createTableIfNotExists("Subject");
+    subjectTable.getMetadata().addColumn("ID", Type.INT).primaryKey();
 
     Table sampleTable = schema.createTableIfNotExists("Sample");
+    sampleTable.getMetadata().addColumn("ID", Type.INT).primaryKey();
     sampleTable.getMetadata().addRef("subject", "Subject");
 
     StopWatch.print("schema created");
 
     Row aSubjectRow = new Row();
-    Row aSampleRow = new Row().setUuid("subject", aSubjectRow.getMolgenisid());
+    Row aSampleRow = new Row().setInt("subject", aSubjectRow.getInteger("ID"));
 
     sampleTable.insert(aSampleRow);
     subjectTable.insert(aSubjectRow);

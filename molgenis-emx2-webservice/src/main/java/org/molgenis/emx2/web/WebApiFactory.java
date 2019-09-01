@@ -29,7 +29,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.molgenis.emx2.Row.MOLGENISID;
 import static org.molgenis.emx2.web.Constants.*;
 import static spark.Spark.*;
 
@@ -78,7 +77,7 @@ public class WebApiFactory {
     delete(DATA_SCHEMA_TABLE, WebApiFactory::tableDeleteOperation);
 
     // row operations (get rid of those?)
-    get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
+    // get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
 
     // handling of exceptions
     exception(
@@ -168,13 +167,14 @@ public class WebApiFactory {
     return JsonMapper.schemaToJson(schema);
   }
 
-  private static String tableGetOperation(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    List<Row> rows = table.query().where(MOLGENISID).eq(request.params(MOLGENISID)).retrieve();
-    response.status(200);
-    return JsonMapper.rowToJson(rows.get(0));
-  }
+  //  private static String tableGetOperation(Request request, Response response)
+  //      throws MolgenisException, JsonProcessingException {
+  //    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+  //
+  //    List<Row> rows = table.query().where(MOLGENISID).eq(request.params(MOLGENISID)).retrieve();
+  //    response.status(200);
+  //    return JsonMapper.rowToJson(rows.get(0));
+  //  }
 
   private static String tablePostOperation(Request request, Response response)
       throws MolgenisException, IOException {

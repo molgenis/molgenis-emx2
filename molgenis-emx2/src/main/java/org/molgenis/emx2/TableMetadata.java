@@ -165,13 +165,6 @@ public class TableMetadata {
   }
 
   public void removeUnique(String... keys) throws MolgenisException {
-    if (keys.length == 1 && Identifiable.MOLGENISID.equals(keys[0]))
-      throw new MolgenisException(
-          "invalid_unique",
-          "Removal of unique failed",
-          "You are not allowed to remove unique constraint on system column '"
-              + Identifiable.MOLGENISID
-              + "");
     for (int i = 0; i < uniques.size(); i++) {
       if (Arrays.equals(uniques.get(i), keys)) {
         uniques.remove(i);

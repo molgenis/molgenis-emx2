@@ -189,4 +189,8 @@ public class Column {
   public TableMetadata setPrimaryKey(String... columnNames) throws MolgenisException {
     return getTable().setPrimaryKey(columnNames);
   }
+
+  public ReferenceMultiple addRefMultiple(String... columnNames) throws MolgenisException {
+    return getTable().addRefMultiple(columnNames);
+  }
 }

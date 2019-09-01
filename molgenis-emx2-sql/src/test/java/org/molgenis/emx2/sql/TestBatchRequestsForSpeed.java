@@ -33,7 +33,11 @@ public class TestBatchRequestsForSpeed {
 
     Schema schema = db.createSchema("testBatch");
     Table testBatchTable = schema.createTableIfNotExists("TestBatchRequestsForSpeed");
-    testBatchTable.getMetadata().addColumn("test", Type.STRING).addColumn("testint", Type.INT);
+    testBatchTable
+        .getMetadata()
+        .addColumn("test", Type.STRING)
+        .primaryKey()
+        .addColumn("testint", Type.INT);
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -82,6 +86,8 @@ public class TestBatchRequestsForSpeed {
 
     personTable
         .getMetadata()
+        .addColumn("ID", Type.INT)
+        .primaryKey()
         .addColumn("First Name", Type.STRING)
         .setNullable(false)
         .addColumn("Last Name", Type.STRING)
@@ -95,6 +101,8 @@ public class TestBatchRequestsForSpeed {
       Table personTable2 = schema.createTableIfNotExists(PERSON + i);
       personTable2
           .getMetadata()
+          .addColumn("ID", Type.INT)
+          .primaryKey()
           .addColumn("First Name", Type.STRING)
           .setNullable(false)
           .addColumn("Last Name", Type.STRING)
@@ -117,7 +125,11 @@ public class TestBatchRequestsForSpeed {
     List<Row> rows = new ArrayList<>();
     int count = 1000;
     for (int i = 0; i < count; i++) {
-      rows.add(new Row().setString("Last Name", "Duck" + i).setString("First Name", "Donald"));
+      rows.add(
+          new Row()
+              .setInt("ID", i)
+              .setString("Last Name", "Duck" + i)
+              .setString("First Name", "Donald"));
     }
     System.out.println("Metadata" + personTableReloaded);
     personTableReloaded.insert(rows);
@@ -135,19 +147,13 @@ public class TestBatchRequestsForSpeed {
     assertEquals(0, schema.getTable("Person").retrieve().size());
     assertEquals(1, personTableReloaded.getMetadata().getUniques().size());
     assertEquals(1, personTable.getMetadata().getUniques().size());
-    try {
-      personTable.getMetadata().removeUnique(Row.MOLGENISID);
-      fail("you shouldn't be allowed to remove primary key unique constraint");
-    } catch (Exception e) {
-      // good stuff
-    }
     assertEquals(1, personTable.getMetadata().getUniques().size());
     personTable.getMetadata().removeUnique("First Name", "Last Name");
     assertEquals(0, personTable.getMetadata().getUniques().size());
 
     assertEquals(4, personTable.getMetadata().getColumns().size());
     try {
-      personTable.getMetadata().removeColumn(Row.MOLGENISID);
+      personTable.getMetadata().removeColumn("ID");
       fail("you shouldn't be allowed to remove primary key column");
     } catch (Exception e) {
       // good stuff

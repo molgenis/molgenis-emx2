@@ -18,7 +18,6 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.query.Operator.OR;
 import static org.molgenis.emx2.query.Operator.SEARCH;
-import static org.molgenis.emx2.Row.MOLGENISID;
 import static org.molgenis.emx2.Type.*;
 import static org.molgenis.emx2.sql.SqlTable.MG_SEARCH_INDEX_COLUMN_NAME;
 
@@ -266,14 +265,16 @@ public class SqlQuery extends QueryBean implements Query {
                 fromStep
                     .leftJoin(
                         table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
-                    .on(field(name(joinTable, rightColumn)).eq(field(name(leftAlias, MOLGENISID))));
+                    .on(field(name(joinTable, rightColumn)).eq(field(name(leftAlias, leftColumn))));
 
             // to other end of the mref
             fromStep =
                 fromStep
                     .leftJoin(
                         table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(field(name(joinTable, leftColumn)).eq(field(name(rightAlias, MOLGENISID))));
+                    .on(
+                        field(name(joinTable, leftColumn))
+                            .eq(field(name(rightAlias, rightColumn))));
             break;
           default:
             break;

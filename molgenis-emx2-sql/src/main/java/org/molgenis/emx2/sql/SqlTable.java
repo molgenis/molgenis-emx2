@@ -83,6 +83,13 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) throws MolgenisException {
+
+    if (getPrimaryKeyFields().size() == 0)
+      throw new MolgenisException(
+          "invalid_table_definition",
+          "Cannot update because primary key is not defined",
+          "Table " + getName() + " cannot process row update requests. First define primary key");
+
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.getJooq()
@@ -199,15 +206,27 @@ class SqlTable implements Table {
     if (!rows.isEmpty()) {
       String[] keyNames = getMetadata().getPrimaryKey();
 
+      // in case no primary key is defined, use all columns
+      if (keyNames.length == 0) {
+        List<Column> allColumns = getMetadata().getColumns();
+        keyNames = new String[allColumns.size()];
+        for (int i = 0; i < keyNames.length; i++) {
+          keyNames[i] = allColumns.get(i).getColumnName();
+        }
+      }
+
       Condition whereCondition = null;
       for (Row r : rows) {
         Condition rowCondition = null;
         for (String keyName : keyNames) {
           Column key = getMetadata().getColumn(keyName);
           if (rowCondition == null) {
-            rowCondition = getJooqField(key).eq(r.get(key.getType(), keyName));
+            rowCondition =
+                getJooqField(key).eq(cast(r.get(key.getType(), keyName), getJooqField(key)));
           } else {
-            rowCondition = rowCondition.and(getJooqField(key).eq(r.get(key.getType(), keyName)));
+            rowCondition =
+                rowCondition.and(
+                    getJooqField(key).eq(cast(r.get(key.getType(), keyName), getJooqField(key))));
           }
         }
         if (whereCondition == null) {

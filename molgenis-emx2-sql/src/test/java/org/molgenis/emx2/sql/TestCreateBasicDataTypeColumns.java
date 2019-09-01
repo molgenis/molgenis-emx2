@@ -85,7 +85,6 @@ public class TestCreateBasicDataTypeColumns {
     // check queryOld and test getters
     List<Row> result = schema.getTable("TypeTest").retrieve();
     for (Row res : result) {
-      res.setMolgenisid(java.util.UUID.randomUUID());
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);
       assert (res.getString("Test_string") instanceof String);

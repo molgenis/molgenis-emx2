@@ -2,11 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -32,18 +28,22 @@ public class TestQueryExpandIntoReferences {
     Table personTable = schema.createTableIfNotExists(PERSON);
     personTable
         .getMetadata()
+        .addColumn("ID", Type.INT)
+        .primaryKey()
         .addColumn("First Name", STRING)
         .addRef("Father", PERSON)
         .setNullable(true)
         .addColumn("Last Name", STRING)
         .addUnique("First Name", "Last Name");
 
-    Row father = new Row().setString("First Name", "Donald").setString("Last Name", "Duck");
+    Row father =
+        new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");
     Row child =
         new Row()
+            .setInt("ID", 2)
             .setString("First Name", "Kwik")
             .setString("Last Name", "Duck")
-            .setRef("Father", father);
+            .setInt("Father", father.getInteger("ID"));
 
     personTable.insert(father);
     personTable.insert(child);

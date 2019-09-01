@@ -8,32 +8,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class Row implements Identifiable {
+public class Row {
 
   // option: use https://github.com/Devskiller/friendly-id instead of ugly uuid
-  public static final String MOLGENISID = "molgenisid";
   private Map<String, Object> values = new LinkedHashMap<>();
 
-  public Row() { // to ensure we have nicely sorted record we have time based uuid
-    this(Generators.timeBasedGenerator().generate());
-  }
+  public Row() {}
 
   public Row(Map<String, ?> values) {
     this();
     this.values.putAll(values);
-  }
-
-  public Row(UUID id) {
-    setMolgenisid(id);
-  }
-
-  public UUID getMolgenisid() {
-    return (UUID) values.get(MOLGENISID);
-  }
-
-  public Row setMolgenisid(UUID id) {
-    this.setRef(MOLGENISID, id);
-    return this;
   }
 
   public UUID getUuid(String name) {
@@ -116,16 +100,6 @@ public class Row implements Identifiable {
   }
 
   public Row setIntArray(String name, Integer[] value) {
-    this.values.put(name, value);
-    return this;
-  }
-
-  public Row setRef(String name, Row value) {
-    this.values.put(name, value.getMolgenisid());
-    return this;
-  }
-
-  public Row setRef(String name, UUID value) {
     this.values.put(name, value);
     return this;
   }

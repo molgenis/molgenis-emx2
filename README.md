@@ -83,13 +83,14 @@ Most core ideas where already described in https://docs.google.com/document/d/19
     - reflection based POJO to table mapping, without  heavy metadata / mapping code 
     - no magic with lazy loading and stuff
 * simple web service
-    - each row has a 'molgenisid' to be used for updates, but that is not necessary primary key
     - somewhat REST like but tuned to our needs
     - make it easy for non REST specialists to use
     - aim to minimize the number of calls
 
 ## Todo or consider later (memo to self)
-*  remove molgenisid. It sucks (to my surprise)
+*  when deleting record that doesn't exist there should be error
+*  when updating record(key) that doesn't exist there should be an error
+*  removed molgenisid. It sucks (to my surprise)
 *  throw error if primary key column is empty on update and delete
 *  throw error when webservice is called with only csv header and no values
 *  many implementations are missing!

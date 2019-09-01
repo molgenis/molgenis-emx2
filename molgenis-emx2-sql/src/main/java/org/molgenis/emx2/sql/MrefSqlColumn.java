@@ -6,7 +6,6 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Row.MOLGENISID;
 import static org.molgenis.emx2.Type.MREF;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
@@ -111,7 +110,7 @@ public class MrefSqlColumn extends SqlColumn {
             + "\n\tFOREACH item IN ARRAY NEW.{4}"
             + "\n\tLOOP"
             // INSERT INTO jointable(refColumn,getReverseRefColumn) VALUES (item, NEW.refColumn)
-            + "\n\t\tINSERT INTO {2} ({5},{3},{6}) VALUES (md5(random()::text || clock_timestamp()::text)::uuid, NEW.{3},item);"
+            + "\n\t\tINSERT INTO {2} ({3},{5}) VALUES (NEW.{3},item);"
             + "\n\tEND LOOP;"
             // NEW.column = NULL
             + "\n\tNEW.{4} = NULL;"
@@ -123,7 +122,6 @@ public class MrefSqlColumn extends SqlColumn {
         table(name(joinTable.getSchema().getName(), joinTable.getTableName())),
         field(name(reverseColumn.getRefColumnName())),
         field(name(column.getColumnName())),
-        name(MOLGENISID),
         field(name(column.getRefColumnName())));
 
     jooq.execute(
