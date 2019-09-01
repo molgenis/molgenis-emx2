@@ -18,12 +18,12 @@ public interface Table {
 
   int update(Row... row) throws MolgenisException;
 
-  int update(Collection<Row> rows)
+  int update(Iterable<Row> rows)
       throws MolgenisException; // wish list: update based on secondary key.
 
   int delete(Row... row) throws MolgenisException;
 
-  int delete(Collection<Row> rows) throws MolgenisException;
+  int delete(Iterable<Row> rows) throws MolgenisException;
 
   void deleteByPrimaryKey(Object... name);
 

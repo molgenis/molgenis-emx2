@@ -245,10 +245,6 @@ public class OpenApiForSchemaFactory {
       properties.put(column.getColumnName(), columnSchema(column));
     }
     components.addSchemas(table.getTableName(), new Schema().type(OBJECT).properties(properties));
-    Map<String, Schema> insertProperties = new LinkedHashMap<>(properties);
-    insertProperties.remove(MOLGENISID);
-    components.addSchemas(
-        "New" + table.getTableName(), new Schema().type(OBJECT).properties(insertProperties));
   }
 
   private static Operation rowDelete(String tableName) {
@@ -271,23 +267,23 @@ public class OpenApiForSchemaFactory {
     return new Operation()
         .addTagsItem(tableName)
         .summary("Update an array of one or more rows in " + tableName)
-        .requestBody(tablePutRequestBody(tableName))
-        .responses(rowApiResponse(tableName));
+        .requestBody(tableRequestBody(tableName))
+        .responses(tableApiResponses(tableName));
   }
 
   private static Operation tablePostOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
         .summary("Insert an array of one or more rows into " + tableName)
-        .requestBody(tablePostRequestBody(tableName))
-        .responses(rowApiResponse(tableName));
+        .requestBody(tableRequestBody(tableName))
+        .responses(tableApiResponses(tableName));
   }
 
   private static Operation tableDeleteOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
         .summary("Delete an array of one more row by their primary key from " + tableName)
-        .requestBody(tablePutRequestBody(tableName))
+        .requestBody(tableRequestBody(tableName))
         .responses(tableApiResponses(tableName));
   }
 
@@ -303,14 +299,13 @@ public class OpenApiForSchemaFactory {
         .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));
   }
 
-  private static RequestBody tablePostRequestBody(String tableName) {
+  private static RequestBody tableRequestBody(String tableName) {
     return new RequestBody()
         .content(
             new Content()
                 .addMediaType(
                     ACCEPT_JSON,
-                    new MediaType()
-                        .schema(new ArraySchema().items(new Schema().$ref("New" + tableName))))
+                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName))))
                 .addMediaType(
                     ACCEPT_CSV, new MediaType().schema(new StringSchema().format(ACCEPT_CSV)))
                 .addMediaType(
@@ -320,15 +315,6 @@ public class OpenApiForSchemaFactory {
                             new Schema()
                                 .type("object")
                                 .addProperties("file", new FileSchema().format(ACCEPT_CSV)))));
-  }
-
-  private static RequestBody tablePutRequestBody(String tableName) {
-    return new RequestBody()
-        .content(
-            new Content()
-                .addMediaType(
-                    ACCEPT_JSON,
-                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)))));
   }
 
   private static void apiResponseComponentFor(String tableName, Components components) {

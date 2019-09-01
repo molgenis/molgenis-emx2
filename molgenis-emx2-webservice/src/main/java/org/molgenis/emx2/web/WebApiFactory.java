@@ -23,7 +23,6 @@ import spark.Response;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -76,11 +75,9 @@ public class WebApiFactory {
     get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
     get(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
     post(DATA_SCHEMA_TABLE, WebApiFactory::tablePostOperation);
-    post(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tablePostOperationCSV);
-    delete(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableDeleteOperation);
+    delete(DATA_SCHEMA_TABLE, WebApiFactory::tableDeleteOperation);
 
     // row operations (get rid of those?)
-    put(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::rowPutOperation);
     get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
 
     // handling of exceptions
@@ -182,8 +179,24 @@ public class WebApiFactory {
   private static String tablePostOperation(Request request, Response response)
       throws MolgenisException, IOException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    Iterable<Row> rows = tableRequestBodyToRows(request);
+    int count = table.insert(rows);
+    response.status(200);
+    response.type(ACCEPT_JSON);
+    return "" + count;
+  }
 
-    // support json and formdata request type
+  private static String tableDeleteOperation(Request request, Response response)
+      throws MolgenisException, IOException {
+    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    Iterable<Row> rows = tableRequestBodyToRows(request);
+    int count = table.delete(rows);
+    response.status(200);
+    response.type(ACCEPT_JSON);
+    return "" + count;
+  }
+
+  private static Iterable<Row> tableRequestBodyToRows(Request request) throws IOException {
     Iterable<Row> rows;
     switch (request.contentType()) {
       case ACCEPT_JSON:
@@ -196,39 +209,7 @@ public class WebApiFactory {
         throw new UnsupportedOperationException(
             "unsupported content type: " + request.contentType());
     }
-    int count = table.insert(rows);
-    response.status(200);
-    response.type(ACCEPT_JSON);
-    return "" + count;
-  }
-
-  private static String tablePostOperationCSV(Request request, Response response)
-      throws MolgenisException, IOException, ServletException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    int count = table.insert(CsvRowReader.read(new StringReader(request.params("csv"))));
-    response.status(200);
-    response.type(ACCEPT_JSON);
-    return "" + count;
-  }
-
-  private static String tableDeleteOperation(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    List<Row> rows = JsonRowMapper.jsonToRows(request.body());
-    table.delete(rows);
-    response.status(200);
-    response.type(ACCEPT_JSON);
-    return JsonMapper.rowsToJson(rows);
-  }
-
-  private static String rowPutOperation(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    List<Row> rows = JsonRowMapper.jsonToRows(request.body());
-    table.update(rows);
-    response.type(ACCEPT_JSON);
-    response.status(200);
-    return JsonMapper.rowsToJson(rows);
+    return rows;
   }
 
   private static String openApiYaml(Request request, Response response)

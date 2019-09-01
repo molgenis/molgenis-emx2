@@ -78,6 +78,11 @@ class SqlTable implements Table {
 
   @Override
   public int update(Row... rows) throws MolgenisException {
+    return update(Arrays.asList(rows));
+  }
+
+  @Override
+  public int update(Iterable<Row> rows) throws MolgenisException {
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.getJooq()
@@ -116,11 +121,6 @@ class SqlTable implements Table {
     return count.get();
   }
 
-  @Override
-  public int update(Collection<Row> rows) throws MolgenisException {
-    return update(rows.toArray(new Row[rows.size()]));
-  }
-
   private void updateBatch(
       Collection<Row> rows,
       org.jooq.Table t,
@@ -145,28 +145,7 @@ class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Collection<Row> rows) throws MolgenisException {
-    return delete(rows.toArray(new Row[rows.size()]));
-  }
-
-  @Override
-  public void deleteByPrimaryKey(Object... key) {
-    throw new UnsupportedOperationException("TODO");
-  }
-
-  @Override
-  public Select select(String... path) {
-    return null;
-  }
-
-  @Override
-  public Where where(String... path) {
-    return null;
-  }
-
-  @Override
-  public int delete(Row... rows) throws MolgenisException {
-
+  public int delete(Iterable<Row> rows) throws MolgenisException {
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.getJooq()
@@ -194,6 +173,26 @@ class SqlTable implements Table {
       throw new SqlMolgenisException(e);
     }
     return count.get();
+  }
+
+  @Override
+  public void deleteByPrimaryKey(Object... key) {
+    throw new UnsupportedOperationException("TODO");
+  }
+
+  @Override
+  public Select select(String... path) {
+    return null;
+  }
+
+  @Override
+  public Where where(String... path) {
+    return null;
+  }
+
+  @Override
+  public int delete(Row... rows) throws MolgenisException {
+    return delete(Arrays.asList(rows));
   }
 
   private void deleteBatch(Collection<Row> rows) throws MolgenisException {
