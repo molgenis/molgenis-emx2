@@ -11,9 +11,11 @@ import org.molgenis.emx2.Where;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 
@@ -41,12 +43,7 @@ class SqlTable implements Table {
     return metadata;
   }
 
-  public int insert(Collection<Row> rows) throws MolgenisException {
-    return insert(rows.toArray(new Row[rows.size()]));
-  }
-
-  @Override
-  public int insert(Row... rows) throws MolgenisException {
+  public int insert(Iterable<Row> rows) throws MolgenisException {
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.getJooq()
@@ -72,6 +69,11 @@ class SqlTable implements Table {
       throw new SqlMolgenisException(e);
     }
     return count.get();
+  }
+
+  @Override
+  public int insert(Row... rows) throws MolgenisException {
+    return insert(Arrays.asList(rows));
   }
 
   @Override

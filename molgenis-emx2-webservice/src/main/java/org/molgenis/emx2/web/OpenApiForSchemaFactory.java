@@ -17,15 +17,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.molgenis.emx2.Row.MOLGENISID;
-import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
-import static org.molgenis.emx2.web.Constants.ACCEPT_ZIP;
+import static org.molgenis.emx2.web.Constants.*;
 
 public class OpenApiForSchemaFactory {
 
+  public static final String OK = "200";
   static final Parameter molgenisid =
       new PathParameter().name(MOLGENISID).in("path").required(true).schema(new UUIDSchema());
   public static final String OBJECT = "object";
   public static final String PROBLEM = "Problem";
+  public static final String BAD_REQUEST = "400";
 
   private OpenApiForSchemaFactory() {
     // hide public constructor
@@ -113,11 +114,11 @@ public class OpenApiForSchemaFactory {
 
   private static Operation schemaGet() {
     return new Operation()
-        .summary("Get complete schema metadata")
+        .summary("Get complete schema metadata (JSON, CSV) or even complete contents (as ZIP)")
         .responses(
             new ApiResponses()
                 .addApiResponse(
-                    "200",
+                    OK,
                     new ApiResponse()
                         .content(
                             new Content()
@@ -134,21 +135,21 @@ public class OpenApiForSchemaFactory {
         .summary("Import zipfile")
         .requestBody(
             new RequestBody()
-                .content(
-                    new Content()
-                        .addMediaType(
-                            "multipart/form-data",
-                            new MediaType()
-                                .schema(
-                                    new Schema()
-                                        .type(OBJECT)
-                                        .addProperties(
-                                            "file", new FileSchema().description("upload file"))))))
+                .content(new Content().addMediaType("multipart/form-data", fileUploadMediaType())))
         .responses(
             new ApiResponses()
-                .addApiResponse("200", new ApiResponse().description("Success"))
-                .addApiResponse("400", new ApiResponse().description("Bad request").$ref(PROBLEM))
+                .addApiResponse(OK, new ApiResponse().description("Success"))
+                .addApiResponse(
+                    BAD_REQUEST, new ApiResponse().description("Bad request").$ref(PROBLEM))
                 .addApiResponse("500", new ApiResponse().description("Server error")));
+  }
+
+  private static MediaType fileUploadMediaType() {
+    return new MediaType()
+        .schema(
+            new Schema()
+                .type(OBJECT)
+                .addProperties("file", new FileSchema().description("upload file")));
   }
 
   // users have roles
@@ -228,13 +229,13 @@ public class OpenApiForSchemaFactory {
         .responses(
             new ApiResponses()
                 .addApiResponse(
-                    "200",
+                    OK,
                     new ApiResponse()
                         .description("success")
                         .content(
                             new Content()
                                 .addMediaType(ACCEPT_JSON, mediaType)
-                                .addMediaType("text/csv", mediaType))));
+                                .addMediaType(ACCEPT_CSV, mediaType))));
   }
 
   private static void rowSchemaComponent(TableMetadata table, Components components)
@@ -255,8 +256,7 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Delete one row from " + tableName)
         .addParametersItem(molgenisid)
-        .responses(
-            new ApiResponses().addApiResponse("200", new ApiResponse().description("success")));
+        .responses(new ApiResponses().addApiResponse(OK, new ApiResponse().description("success")));
   }
 
   private static Operation rowGetOperation(String tableName) {
@@ -288,16 +288,19 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Delete an array of one more row by their primary key from " + tableName)
         .requestBody(tablePutRequestBody(tableName))
-        .responses(
-            new ApiResponses()
-                .addApiResponse("200", new ApiResponse().description("success"))
-                .addApiResponse("400", new ApiResponse().description("Bad request")));
+        .responses(tableApiResponses(tableName));
   }
 
   private static ApiResponses rowApiResponse(String tableName) {
     return new ApiResponses()
-        .addApiResponse("200", new ApiResponse().$ref(tableName))
-        .addApiResponse("400", new ApiResponse().description("Bad request"));
+        .addApiResponse(OK, new ApiResponse().$ref(tableName))
+        .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));
+  }
+
+  private static ApiResponses tableApiResponses(String tableName) {
+    return new ApiResponses()
+        .addApiResponse(OK, new ApiResponse().description("success"))
+        .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));
   }
 
   private static RequestBody tablePostRequestBody(String tableName) {
@@ -307,7 +310,16 @@ public class OpenApiForSchemaFactory {
                 .addMediaType(
                     ACCEPT_JSON,
                     new MediaType()
-                        .schema(new ArraySchema().items(new Schema().$ref("New" + tableName)))));
+                        .schema(new ArraySchema().items(new Schema().$ref("New" + tableName))))
+                .addMediaType(
+                    ACCEPT_CSV, new MediaType().schema(new StringSchema().format(ACCEPT_CSV)))
+                .addMediaType(
+                    ACCEPT_FORMDATA,
+                    new MediaType()
+                        .schema(
+                            new Schema()
+                                .type("object")
+                                .addProperties("file", new FileSchema().format(ACCEPT_CSV)))));
   }
 
   private static RequestBody tablePutRequestBody(String tableName) {

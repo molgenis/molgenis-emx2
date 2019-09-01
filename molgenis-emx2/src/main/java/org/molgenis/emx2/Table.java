@@ -13,7 +13,7 @@ public interface Table {
 
   int insert(Row... row) throws MolgenisException;
 
-  int insert(Collection<Row> rows)
+  int insert(Iterable<Row> rows)
       throws MolgenisException; // consider use Iterable or Iterator instead?
 
   int update(Row... row) throws MolgenisException;

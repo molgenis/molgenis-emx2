@@ -10,6 +10,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.MolgenisExport;
 import org.molgenis.emx2.io.MolgenisImport;
+import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.web.json.JsonRowMapper;
@@ -22,6 +23,7 @@ import spark.Response;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -29,13 +31,12 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.molgenis.emx2.Row.MOLGENISID;
-import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
-import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
-import static org.molgenis.emx2.web.Constants.ACCEPT_ZIP;
+import static org.molgenis.emx2.web.Constants.*;
 import static spark.Spark.*;
 
 public class WebApiFactory {
-  private static final String DATA_SCHEMA = "/data/:schema"; // NOSONAR
+  private static final String DATA = "/data";
+  private static final String DATA_SCHEMA = DATA + "/:schema"; // NOSONAR
   private static final String DATA_SCHEMA_TABLE = DATA_SCHEMA + "/:table"; // NOSONAR
   private static final String DATA_SCHEMA_TABLE_MOLGENISID = DATA_SCHEMA_TABLE + "/:molgenisid";
 
@@ -51,18 +52,22 @@ public class WebApiFactory {
     database = db;
 
     port(8080);
+    // root
     get(
         "/",
         (request, response) ->
             "Welcome. Data api available under <a href=\"/data\">/data</a> and api documentaiton under <a href=\"/openapi\">/openapi</a>");
-    get("/data", WebApiFactory::schemaGet);
+
+    // the data api
+
+    get(DATA, WebApiFactory::schemaGet);
 
     // documentation
     get("/openapi", ACCEPT_JSON, WebApiFactory::openApiListSchemas);
     get("/openapi/:schema", WebApiFactory::openApiUserInterface);
     get("/openapi/:schema/openapi.yaml", WebApiFactory::openApiYaml);
 
-    // actual api
+    // schema operations
     get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::openApiListSchemas);
     post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
@@ -70,12 +75,12 @@ public class WebApiFactory {
     // table operations
     get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
     get(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
-    post(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tablePostOperation);
+    post(DATA_SCHEMA_TABLE, WebApiFactory::tablePostOperation);
+    post(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tablePostOperationCSV);
     delete(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableDeleteOperation);
 
-    // row operations
+    // row operations (get rid of those?)
     put(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::rowPutOperation);
-
     get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
 
     // handling of exceptions
@@ -104,7 +109,13 @@ public class WebApiFactory {
       Path zipFile = tempDir.resolve("download.zip");
       MolgenisExport.toZipFile(zipFile, schema);
       outputStream.write(Files.readAllBytes(zipFile));
-      response.status(200);
+      response.type("application/zip");
+      response.header(
+          "Content-Disposition",
+          "attachment; filename="
+              + schema.getMetadata().getName()
+              + System.currentTimeMillis()
+              + ".zip");
       return "Export success";
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
@@ -116,8 +127,7 @@ public class WebApiFactory {
   private static String schemaPostZip(Request request, Response response)
       throws MolgenisException, IOException, ServletException {
     Schema schema = database.getSchema(request.params(SCHEMA));
-    Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".tmp");
-    tempFile.toFile().deleteOnExit();
+    Path tempFile = getTempFile();
     request.attribute(
         "org.eclipse.jetty.multipartConfig",
         new MultipartConfigElement(tempFile.toAbsolutePath().toString()));
@@ -127,6 +137,12 @@ public class WebApiFactory {
     MolgenisImport.fromZipFile(tempFile, schema);
     response.status(200);
     return "Import success";
+  }
+
+  private static Path getTempFile() throws IOException {
+    Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".tmp");
+    tempFile.toFile().deleteOnExit();
+    return tempFile;
   }
 
   private static String tableQueryAcceptJSON(Request request, Response response)
@@ -164,13 +180,35 @@ public class WebApiFactory {
   }
 
   private static String tablePostOperation(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
+      throws MolgenisException, IOException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    List<Row> rows = JsonRowMapper.jsonToRows(request.body());
-    table.insert(rows);
+
+    // support json and formdata request type
+    Iterable<Row> rows;
+    switch (request.contentType()) {
+      case ACCEPT_JSON:
+        rows = JsonRowMapper.jsonToRows(request.body());
+        break;
+      case ACCEPT_CSV:
+        rows = CsvRowReader.read(new StringReader(request.body()));
+        break;
+      default:
+        throw new UnsupportedOperationException(
+            "unsupported content type: " + request.contentType());
+    }
+    int count = table.insert(rows);
     response.status(200);
     response.type(ACCEPT_JSON);
-    return JsonMapper.rowsToJson(rows);
+    return "" + count;
+  }
+
+  private static String tablePostOperationCSV(Request request, Response response)
+      throws MolgenisException, IOException, ServletException {
+    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    int count = table.insert(CsvRowReader.read(new StringReader(request.params("csv"))));
+    response.status(200);
+    response.type(ACCEPT_JSON);
+    return "" + count;
   }
 
   private static String tableDeleteOperation(Request request, Response response)

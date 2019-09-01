@@ -36,13 +36,12 @@ public class JsonMapper {
     return getWriter().writeValueAsString(table);
   }
 
-  public static String rowsToJson(List<Row> rows) throws JsonProcessingException {
-    Map<String, Object>[] values = new Map[rows.size()];
-    int i = 0;
+  public static String rowsToJson(Iterable<Row> rows) throws JsonProcessingException {
+    List<Map<String, Object>> values = new ArrayList<>();
     for (Row r : rows) {
       Map<String, Object> map = r.getValueMap();
       preprocessRow(map);
-      values[i++] = r.getValueMap();
+      values.add(r.getValueMap());
     }
     return getWriter().writeValueAsString(values);
   }
