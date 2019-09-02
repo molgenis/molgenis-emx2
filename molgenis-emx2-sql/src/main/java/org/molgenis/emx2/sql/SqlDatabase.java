@@ -34,6 +34,9 @@ public class SqlDatabase implements Database {
 
   @Override
   public SqlSchema createSchema(String schemaName) throws MolgenisException {
+    if (schemaName == null || schemaName.isEmpty())
+      throw new MolgenisException(
+          "invalid_schema_name", "Schema name cannot be null", "Schema name was null or empty");
     SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
     schemas.put(schemaName, schema);

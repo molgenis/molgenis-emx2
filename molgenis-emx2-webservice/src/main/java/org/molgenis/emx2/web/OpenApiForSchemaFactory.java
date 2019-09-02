@@ -3,8 +3,6 @@ package org.molgenis.emx2.web;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.*;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.parameters.PathParameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
@@ -13,6 +11,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,11 +30,16 @@ public class OpenApiForSchemaFactory {
 
   public static OpenAPI createOpenApi(SchemaMetadata schema) throws MolgenisException {
 
+    // basic metadata
     OpenAPI api = new OpenAPI();
     api.info(createOpenApiInfo(schema));
 
+    // create the paths and components
     Paths paths = new Paths();
     Components components = new Components();
+
+    // populate the paths and components
+    createOpenApiForBaseOperations(paths, components); // todo, if this should be moved elsewhere
 
     createOpenApiForSchema(schema, paths, components);
 
@@ -57,6 +61,32 @@ public class OpenApiForSchemaFactory {
         .version("0.0.1")
         .description(
             "MOLGENIS API for schema stored in MOLGENIS under name '" + schema.getName() + "'");
+  }
+
+  private static void createOpenApiForBaseOperations(Paths paths, Components components) {
+    String path = new StringBuilder().append("/data/").toString();
+    PathItem baseApi = new PathItem();
+
+    baseApi.post(apiPostOperation());
+
+    paths.addPathItem("/data", baseApi);
+  }
+
+  private static Operation apiPostOperation() {
+    return new Operation()
+        .summary("Create a new schema")
+        .requestBody(
+            new RequestBody()
+                .content(
+                    new Content()
+                        .addMediaType(
+                            ACCEPT_JSON,
+                            new MediaType()
+                                .schema(
+                                    new Schema()
+                                        .type("object")
+                                        .addProperties("name", new StringSchema())))))
+        .responses(tableApiResponses());
   }
 
   private static void createOpenApiForSchema(
@@ -93,7 +123,6 @@ public class OpenApiForSchemaFactory {
 
     // post multi-part-form for upload file
     schemaPath.post(schemaZipUpload());
-
     schemaPath.get(schemaGet());
 
     // meta/tableName retrieves table metadata
@@ -256,7 +285,7 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Update an array of one or more rows in " + tableName)
         .requestBody(tableRequestBody(tableName))
-        .responses(tableApiResponses(tableName));
+        .responses(tableApiResponses());
   }
 
   private static Operation tablePostOperation(String tableName) {
@@ -264,7 +293,7 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Insert an array of one or more rows into " + tableName)
         .requestBody(tableRequestBody(tableName))
-        .responses(tableApiResponses(tableName));
+        .responses(tableApiResponses());
   }
 
   private static Operation tableDeleteOperation(String tableName) {
@@ -272,7 +301,7 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Delete an array of one more row by their primary key from " + tableName)
         .requestBody(tableRequestBody(tableName))
-        .responses(tableApiResponses(tableName));
+        .responses(tableApiResponses());
   }
 
   private static ApiResponses rowApiResponse(String tableName) {
@@ -281,7 +310,7 @@ public class OpenApiForSchemaFactory {
         .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));
   }
 
-  private static ApiResponses tableApiResponses(String tableName) {
+  private static ApiResponses tableApiResponses() {
     return new ApiResponses()
         .addApiResponse(OK, new ApiResponse().description("success"))
         .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));

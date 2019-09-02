@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
 import static spark.Spark.*;
 
 public class WebApiFactory {
@@ -58,7 +59,8 @@ public class WebApiFactory {
 
     // the data api
 
-    get(DATA, WebApiFactory::schemaGet);
+    get(DATA, WebApiFactory::apiGet);
+    post(DATA, WebApiFactory::createSchema);
 
     // documentation
     get("/openapi", ACCEPT_JSON, WebApiFactory::openApiListSchemas);
@@ -67,8 +69,8 @@ public class WebApiFactory {
 
     // schema operations
     get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::openApiListSchemas);
-    post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
+    post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
 
     // table operations
     get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
@@ -93,6 +95,14 @@ public class WebApiFactory {
           res.status(400);
           res.body(e.getMessage());
         });
+  }
+
+  private static String createSchema(Request request, Response response) throws MolgenisException {
+    Row row = jsonToRow(request.body());
+    // todo validate
+    database.createSchema(row.getString("name"));
+    response.status(200);
+    return "Create schema success";
   }
 
   private static String schemaGetZip(Request request, Response response)
@@ -227,7 +237,7 @@ public class WebApiFactory {
     return SwaggerUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
-  private static String schemaGet(Request request, Response response) throws MolgenisException {
+  private static String apiGet(Request request, Response response) throws MolgenisException {
     response.status(200);
     Map<String, String> schemas = new LinkedHashMap<>();
     for (String schemaName : database.getSchemaNames()) {
