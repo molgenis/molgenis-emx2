@@ -60,7 +60,7 @@ public class WebApiFactory {
     // the data api
 
     get(DATA, WebApiFactory::apiGet);
-    post(DATA, WebApiFactory::createSchema);
+    post(DATA, WebApiFactory::schemaPost);
 
     // documentation
     get("/openapi", ACCEPT_JSON, WebApiFactory::openApiListSchemas);
@@ -71,6 +71,7 @@ public class WebApiFactory {
     get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::openApiListSchemas);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
     post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
+    delete(DATA_SCHEMA, WebApiFactory::schemaDelete);
 
     // table operations
     get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
@@ -97,7 +98,13 @@ public class WebApiFactory {
         });
   }
 
-  private static String createSchema(Request request, Response response) throws MolgenisException {
+  private static String schemaDelete(Request request, Response response) throws MolgenisException {
+    database.dropSchema(request.params(SCHEMA));
+    response.status(200);
+    return "Delete schema success";
+  }
+
+  private static String schemaPost(Request request, Response response) throws MolgenisException {
     Row row = jsonToRow(request.body());
     // todo validate
     database.createSchema(row.getString("name"));

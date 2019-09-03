@@ -124,6 +124,7 @@ public class OpenApiForSchemaFactory {
     // post multi-part-form for upload file
     schemaPath.post(schemaZipUpload());
     schemaPath.get(schemaGet());
+    schemaPath.delete(schemaDelete());
 
     // meta/tableName retrieves table metadata
 
@@ -136,6 +137,10 @@ public class OpenApiForSchemaFactory {
     // post attribute
 
     paths.addPathItem(path, schemaPath);
+  }
+
+  private static Operation schemaDelete() {
+    return new Operation().summary("Delete this schema").responses(tableApiResponses());
   }
 
   private static Operation schemaGet() {

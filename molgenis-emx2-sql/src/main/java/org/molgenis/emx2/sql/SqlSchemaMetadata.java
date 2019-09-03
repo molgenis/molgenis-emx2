@@ -2,9 +2,11 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.Permission;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.postgresql.util.PSQLException;
 
 import java.util.Collection;
 
@@ -67,8 +69,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
       db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(viewer));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
-    } catch (Exception e) {
-      throw new MolgenisException(e);
+    } catch (DataAccessException e) {
+      throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);
     }
     MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
   }

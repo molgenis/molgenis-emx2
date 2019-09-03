@@ -12,6 +12,8 @@ public interface Database {
 
   Schema getSchema(String name) throws MolgenisException;
 
+  void dropSchema(String name) throws MolgenisException;
+
   void addUser(String name) throws MolgenisException;
 
   void removeUser(String name);

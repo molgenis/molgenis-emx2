@@ -128,8 +128,8 @@ public class MetadataUtils {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
   }
 
-  protected static void deleteSchema(DSLContext sql, SchemaMetadata schema) {
-    sql.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
+  protected static void deleteSchema(SqlSchemaMetadata schema) {
+    schema.getJooq().deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
   }
 
   protected static Collection<String> loadTableNames(SqlSchemaMetadata sqlSchema) {

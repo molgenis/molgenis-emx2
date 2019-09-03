@@ -36,7 +36,7 @@ public class SqlDatabase implements Database {
   public SqlSchema createSchema(String schemaName) throws MolgenisException {
     if (schemaName == null || schemaName.isEmpty())
       throw new MolgenisException(
-          "invalid_schema_name", "Schema name cannot be null", "Schema name was null or empty");
+          "schema_create_failed", "Schema create failed", "Schema name was null or empty");
     SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
     schemas.put(schemaName, schema);
@@ -52,7 +52,23 @@ public class SqlDatabase implements Database {
       return schema;
     } else {
       throw new MolgenisException(
-          "invalid_schema", "Schema doesn't exist", "Schema '" + name + " could not be found");
+          "get_schema_failed",
+          "Get schema failed",
+          "Schema with name '" + name + "' could not be found");
+    }
+  }
+
+  @Override
+  public void dropSchema(String name) throws MolgenisException {
+    try {
+      SchemaMetadata schema = getSchema(name).getMetadata();
+      getJooq().dropSchema(name);
+      MetadataUtils.deleteSchema((SqlSchemaMetadata) schema);
+    } catch (MolgenisException me) {
+      throw new MolgenisException("drop_schema_failed", "Drop schema failed", me.getDetail());
+    } catch (DataAccessException dae) {
+      throw new MolgenisException(
+          "drop_schema_failed", "Drop schema failed", dae.getCause().getMessage());
     }
   }
 
