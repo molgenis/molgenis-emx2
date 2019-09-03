@@ -1,66 +1,84 @@
 package org.molgenis.emx2.io;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.examples.CompareTools;
+import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
 import org.molgenis.emx2.examples.synthetic.*;
+import org.molgenis.emx2.sql.DatabaseFactory;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 
 import java.io.IOException;
 import java.util.List;
 
-public class TestImportExportAllMetadataExamples {
+public class TestImportExportAllExamples {
+
+  static Database db;
+
+  @BeforeClass
+  public static void setup() throws MolgenisException {
+    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+  }
 
   @Test
   public void testArrayTypeTestExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("test");
+    SchemaMetadata schema1 = new SchemaMetadata("1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testCompositePrimaryKeyExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("test");
+    SchemaMetadata schema1 = new SchemaMetadata("2");
     CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testCompositeRefExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("test");
+    SchemaMetadata schema1 = new SchemaMetadata("3");
     CompositeRefExample.createCompositeRefExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testRefAndRefArrayExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("test");
+    SchemaMetadata schema1 = new SchemaMetadata("4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testSimpleTypeTestExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("test");
+    SchemaMetadata schema1 = new SchemaMetadata("5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void tesProductComponentPartsExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("test");
+  public void testProductComponentPartsExample() throws MolgenisException, IOException {
+    SchemaMetadata schema1 = new SchemaMetadata("6");
     ProductComponentPartsExample.create(schema1);
+    executeCompare(schema1);
+  }
+
+  @Test
+  public void testPetStore() throws MolgenisException, IOException {
+    SchemaMetadata schema1 = new SchemaMetadata("7");
+    PetStoreExample.create(schema1);
     executeCompare(schema1);
   }
 
   public void executeCompare(SchemaMetadata schema1) throws IOException, MolgenisException {
     try {
       // now write it out and fromReader back and compare
-
       List<Row> contents = ConvertSchemaToEmx2.toRowList(schema1);
       for (Row r : contents) {
         System.out.println(r);
@@ -70,6 +88,12 @@ public class TestImportExportAllMetadataExamples {
       ConvertEmx2ToSchema.fromRowList(schema2, contents);
 
       CompareTools.assertEquals(schema1, schema2);
+
+      //      Schema schema3 = db.createSchema(getClass().getSimpleName() + schema1.getName());
+      //      schema3.transaction(
+      //          db -> {
+      //            ConvertEmx2ToSchema.fromRowList(schema3.getMetadata(), contents);
+      //          });
 
     } catch (MolgenisException e) {
       System.out.println(e.getMessages());

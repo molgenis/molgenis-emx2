@@ -13,12 +13,19 @@ public class SqlMolgenisException extends MolgenisException {
   }
 
   public SqlMolgenisException(String type, String title, DataAccessException dae) {
+    this(type, title, "", dae);
+  }
+
+  public SqlMolgenisException(
+      String type, String title, String detailMessage, DataAccessException dae) {
     super(dae);
     this.type = type;
     this.title = title;
     Throwable cause = dae.getCause();
     if (cause instanceof PSQLException) {
-      String detailMessage = ((PSQLException) cause).getServerErrorMessage().getDetail();
+      detailMessage =
+          (detailMessage + " " + ((PSQLException) cause).getServerErrorMessage().getDetail())
+              .trim();
       this.detail =
           ((PSQLException) cause).getServerErrorMessage().getMessage()
               + (detailMessage == null ? "" : " " + detailMessage);

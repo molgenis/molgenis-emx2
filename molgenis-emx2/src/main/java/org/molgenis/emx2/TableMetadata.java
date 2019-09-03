@@ -7,8 +7,8 @@ import static org.molgenis.emx2.Type.*;
 import java.util.*;
 
 public class TableMetadata {
-  public static final String INVALID_FOREIGN_KEY = "invalid_foreign_key";
-  public static final String ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED =
+  public static final String FOREIGN_KEY_ADD_FAILED = "foreign_key_add_failed";
+  public static final String FOREIGN_KEY_ADD_FAILED_MESSAGE =
       "Adding of foreign key reference failed";
 
   private SchemaMetadata schema;
@@ -74,11 +74,17 @@ public class TableMetadata {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
-          INVALID_FOREIGN_KEY,
-          ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED,
-          "Adding of foreign key reference with tableName='"
+          FOREIGN_KEY_ADD_FAILED,
+          FOREIGN_KEY_ADD_FAILED_MESSAGE,
+          "Adding of foreign key reference "
               + name
-              + "' and default toColumn failed because no suitable primary key is defined. Add primary key or use explicit toColumn.");
+              + "from table '"
+              + getTableName()
+              + "' to table '"
+              + toTable
+              + "' failed: '"
+              + toTable
+              + "' has no suitable primary key/unique defined.");
     return this.addRef(name, toTable, primaryKeys[0]);
   }
 
@@ -98,8 +104,8 @@ public class TableMetadata {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
-          INVALID_FOREIGN_KEY,
-          ADDING_OF_FOREIGN_KEY_REFERENCE_FAILED,
+          FOREIGN_KEY_ADD_FAILED,
+          FOREIGN_KEY_ADD_FAILED_MESSAGE,
           "Adding of array reference tableName='"
               + name
               + "' failed because no suitable primary key defined. Add primary key or use explicit toColumn.");
@@ -152,6 +158,7 @@ public class TableMetadata {
                 + getTableName());
     }
     uniques.add(columnNames);
+    if (this.getPrimaryKey().length == 0) this.setPrimaryKey(columnNames);
     return this;
   }
 

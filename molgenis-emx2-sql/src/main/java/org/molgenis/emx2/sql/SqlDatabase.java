@@ -128,7 +128,7 @@ public class SqlDatabase implements Database {
             transaction.run(db);
           });
     } catch (DataAccessException e) {
-      throw new MolgenisException(e);
+      throw new SqlMolgenisException(e);
     }
   }
 
@@ -144,8 +144,8 @@ public class SqlDatabase implements Database {
             Database db = new SqlDatabase(config);
             transaction.run(db);
           });
-    } catch (Exception e) {
-      throw new MolgenisException(e);
+    } catch (DataAccessException e) {
+      throw new SqlMolgenisException(e);
     } finally {
       jooq.execute("RESET SESSION AUTHORIZATION");
     }

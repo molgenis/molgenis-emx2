@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import org.molgenis.emx2.Permission;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collection;
@@ -70,5 +67,15 @@ public class SqlSchema implements Schema {
   @Override
   public Query query(String tableName) throws MolgenisException {
     return getTable(tableName).query();
+  }
+
+  @Override
+  public void transaction(Transaction transaction) throws MolgenisException {
+    db.transaction(transaction);
+  }
+
+  @Override
+  public void transaction(String role, Transaction transaction) throws MolgenisException {
+    db.transaction(role, transaction);
   }
 }

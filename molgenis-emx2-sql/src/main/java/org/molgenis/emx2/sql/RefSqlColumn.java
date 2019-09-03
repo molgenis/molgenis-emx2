@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.Field;
 import org.jooq.Name;
+import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
@@ -17,47 +18,58 @@ public class RefSqlColumn extends SqlColumn {
 
   @Override
   public RefSqlColumn createColumn() throws MolgenisException {
+    try {
 
-    // define jooq parameters
-    Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));
-    org.jooq.Table thisTable =
-        table(name(getTable().getSchema().getName(), getTable().getTableName()));
-    Name fkeyConstraintName =
-        name(
-            getTable().getTableName()
-                + "."
-                + getColumnName()
-                + " REFERENCES "
-                + getRefTableName()
-                + "."
-                + getRefColumnName());
-    Name fkeyTable = name(getTable().getSchema().getName(), getRefTableName());
-    Name fkeyField = name(getRefColumnName());
+      // define jooq parameters
+      Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));
+      org.jooq.Table thisTable =
+          table(name(getTable().getSchema().getName(), getTable().getTableName()));
+      Name fkeyConstraintName =
+          name(
+              getTable().getTableName()
+                  + "."
+                  + getColumnName()
+                  + " REFERENCES "
+                  + getRefTableName()
+                  + "."
+                  + getRefColumnName());
+      Name fkeyTable = name(getTable().getSchema().getName(), getRefTableName());
+      Name fkeyField = name(getRefColumnName());
 
-    // execute alter table add column
-    getJooq().alterTable(thisTable).addColumn(thisColumn).execute();
+      // execute alter table add column
+      getJooq().alterTable(thisTable).addColumn(thisColumn).execute();
 
-    getJooq()
-        .alterTable(thisTable)
-        .add(
-            constraint(fkeyConstraintName)
-                .foreignKey(thisColumn)
-                .references(fkeyTable, fkeyField)
-                .onUpdateCascade())
-        .execute();
+      getJooq()
+          .alterTable(thisTable)
+          .add(
+              constraint(fkeyConstraintName)
+                  .foreignKey(thisColumn)
+                  .references(fkeyTable, fkeyField)
+                  .onUpdateCascade())
+          .execute();
 
-    getJooq()
-        .execute(
-            "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE",
-            thisTable, fkeyConstraintName);
+      getJooq()
+          .execute(
+              "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE",
+              thisTable, fkeyConstraintName);
 
-    getJooq()
-        .createIndex(name(getTable().getTableName()) + "_" + name(getColumnName()) + "_FKINDEX")
-        .on(thisTable, thisColumn)
-        .execute();
+      getJooq()
+          .createIndex(name(getTable().getTableName()) + "_" + name(getColumnName()) + "_FKINDEX")
+          .on(thisTable, thisColumn)
+          .execute();
 
-    saveColumnMetadata(this);
-
+      saveColumnMetadata(this);
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException(
+          "foreign_key_create_failed",
+          "Creation of foreign key failed",
+          "Foreign key '"
+              + getColumnName()
+              + "' could not be created in table '"
+              + getTable().getTableName()
+              + "'",
+          dae);
+    }
     return this;
   }
 }

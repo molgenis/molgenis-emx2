@@ -19,4 +19,8 @@ public interface Schema {
   void revokePermission(Permission permission, String role) throws MolgenisException;
 
   Query query(String tableName) throws MolgenisException;
+
+  void transaction(Transaction transaction) throws MolgenisException;
+
+  void transaction(String role, Transaction transaction) throws MolgenisException;
 }

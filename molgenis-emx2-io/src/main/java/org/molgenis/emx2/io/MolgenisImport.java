@@ -28,14 +28,17 @@ public class MolgenisImport {
 
   static void executeImport(RowStore store, Schema schema) throws MolgenisException, IOException {
     // todo: make transactional
-    // read metadata, if available
-    if (store.contains("molgenis")) {
-      ConvertEmx2ToSchema.fromRowList(schema.getMetadata(), store.read("molgenis"));
-    }
-    // read data
-    for (String tableName : schema.getTableNames()) {
-      if (store.contains(tableName))
-        schema.getTable(tableName).update(store.read(tableName)); // actually upsert
-    }
+    schema.transaction(
+        db -> {
+          // read metadata, if available
+          if (store.contains("molgenis")) {
+            ConvertEmx2ToSchema.fromRowList(schema.getMetadata(), store.read("molgenis"));
+          }
+          // read data
+          for (String tableName : schema.getTableNames()) {
+            if (store.contains(tableName))
+              schema.getTable(tableName).update(store.read(tableName)); // actually upsert
+          }
+        });
   }
 }
