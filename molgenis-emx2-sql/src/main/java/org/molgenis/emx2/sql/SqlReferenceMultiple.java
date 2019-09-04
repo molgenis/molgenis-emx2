@@ -38,7 +38,7 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
     for (int i = 0; i < nameArray.length; i++) {
       RefSqlColumn c =
           new RefSqlColumn((SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
-      getTable().addColumn(c);
+      ((SqlTableMetadata) getTable()).addColumnWithoutCreate(c);
 
       Field thisColumn = field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));
       table.getJooq().alterTable(table.getJooqTable()).addColumn(thisColumn).execute();

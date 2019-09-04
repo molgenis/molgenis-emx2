@@ -36,17 +36,19 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public SqlTable create(TableMetadata metadata) throws MolgenisException {
-    SqlTable result = this.createTableIfNotExists(metadata.getTableName());
-    TableMetadata table = result.getMetadata();
-    for (Column c : metadata.getColumns()) {
-      table.addColumn(c);
-    }
-    if (metadata.getPrimaryKey().length > 0) table.setPrimaryKey(metadata.getPrimaryKey());
-    for (String[] unique : table.getUniques()) {
-      table.addUnique(unique);
-    }
-    return result;
+  public Table create(TableMetadata metadata) throws MolgenisException {
+    transaction(
+        db -> {
+          TableMetadata table = this.createTableIfNotExists(metadata.getTableName()).getMetadata();
+          for (Column c : metadata.getColumns()) {
+            table.addColumn(c);
+          }
+          if (metadata.getPrimaryKey().length > 0) table.setPrimaryKey(metadata.getPrimaryKey());
+          for (String[] unique : metadata.getUniques()) {
+            table.addUnique(unique);
+          }
+        });
+    return getTable(metadata.getTableName());
   }
 
   @Override
@@ -99,28 +101,31 @@ public class SqlSchema implements Schema {
 
   @Override
   public void copy(SchemaMetadata from) throws MolgenisException {
-    List<TableMetadata> tableList = new ArrayList<>();
-    for (String tableName : from.getTableNames()) {
-      tableList.add(from.getTableMetadata(tableName));
-    }
+    transaction(
+        db -> {
+          List<TableMetadata> tableList = new ArrayList<>();
+          for (String tableName : from.getTableNames()) {
+            tableList.add(from.getTableMetadata(tableName));
+          }
 
-    // sort dependency order, todo circular dependencies
-    Collections.sort(
-        tableList,
-        (a, b) -> {
-          String aName = a.getTableName();
-          String bName = b.getTableName();
-          for (Column c : a.getColumns()) {
-            if (bName.equals(c.getRefTableName())) return 1;
+          // sort dependency order, todo circular dependencies
+          Collections.sort(
+              tableList,
+              (a, b) -> {
+                String aName = a.getTableName();
+                String bName = b.getTableName();
+                for (Column c : a.getColumns()) {
+                  if (bName.equals(c.getRefTableName())) return 1;
+                }
+                for (Column c : b.getColumns()) {
+                  if (aName.equals(c.getRefTableName())) return -1;
+                }
+                return 0;
+              });
+
+          for (TableMetadata table : tableList) {
+            this.create(table);
           }
-          for (Column c : b.getColumns()) {
-            if (aName.equals(c.getRefTableName())) return -1;
-          }
-          return 0;
         });
-
-    for (TableMetadata table : tableList) {
-      this.create(table);
-    }
   }
 }

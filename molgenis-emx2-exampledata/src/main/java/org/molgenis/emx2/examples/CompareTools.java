@@ -94,7 +94,7 @@ public class CompareTools {
               .compare(schema1.getTableMetadata(tableName), schema2.getTableMetadata(tableName));
 
       if (diff.hasChanges()) {
-        fail("Roundtrip test failed: changes, " + diff.toString());
+        fail("Roundtrip test failed: changes for table " + tableName + ": " + diff.toString());
       }
     }
   }

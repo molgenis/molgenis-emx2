@@ -12,7 +12,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Type.*;
 
-public class TestCreateCompositeMREF {
+public class TestCreateCompositeRef {
 
   static Database db;
 
@@ -60,7 +60,7 @@ public class TestCreateCompositeMREF {
   private void executeTest(Type type, Object insertValue, Object updateValue)
       throws MolgenisException {
 
-    Schema schema = db.createSchema("TestCreateCompositeMREF" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestCreateCompositeRef" + type.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
     String uniqueColumn1 = "AUnique" + type;

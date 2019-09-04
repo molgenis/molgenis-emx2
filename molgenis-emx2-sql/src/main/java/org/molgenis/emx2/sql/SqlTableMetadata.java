@@ -44,18 +44,22 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   void createTable() throws MolgenisException {
-    Name tableName = name(getSchema().getName(), getTableName());
-    DSLContext jooq = db.getJooq();
-    jooq.createTable(tableName).columns().execute();
-    MetadataUtils.saveTableMetadata(this);
+    db.transaction(
+        dsl -> {
+          Name tableName = name(getSchema().getName(), getTableName());
+          DSLContext jooq = db.getJooq();
+          jooq.createTable(tableName).columns().execute();
+          MetadataUtils.saveTableMetadata(this);
 
-    // grant rights to schema manager, editor and viewer roles
-    String prefix = MG_ROLE_PREFIX + getSchema().getName().toUpperCase();
-    jooq.execute("GRANT SELECT ON {0} TO {1}", tableName, DSL.name(prefix + Permission.VIEW));
-    jooq.execute(
-        "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        tableName, DSL.name(prefix + Permission.EDIT));
-    jooq.execute("ALTER TABLE {0} OWNER TO {1}", tableName, DSL.name(prefix + Permission.MANAGE));
+          // grant rights to schema manager, editor and viewer roles
+          String prefix = MG_ROLE_PREFIX + getSchema().getName().toUpperCase();
+          jooq.execute("GRANT SELECT ON {0} TO {1}", tableName, DSL.name(prefix + Permission.VIEW));
+          jooq.execute(
+              "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
+              tableName, DSL.name(prefix + Permission.EDIT));
+          jooq.execute(
+              "ALTER TABLE {0} OWNER TO {1}", tableName, DSL.name(prefix + Permission.MANAGE));
+        });
   }
 
   @Override
@@ -88,6 +92,10 @@ class SqlTableMetadata extends TableMetadata {
     c.createColumn();
     super.addColumn(c);
     return c;
+  }
+
+  protected void addColumnWithoutCreate(Column metadata) throws MolgenisException {
+    super.addColumn(metadata);
   }
 
   @Override
@@ -141,13 +149,13 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlReferenceMultiple addRefMultiple(String... name) throws MolgenisException {
-    return new SqlReferenceMultiple(this, REF, name);
+  public SqlReferenceMultiple addRefMultiple(String... names) throws MolgenisException {
+    return new SqlReferenceMultiple(this, REF, names);
   }
 
   @Override
-  public SqlReferenceMultiple addRefArrayMultiple(String... name) throws MolgenisException {
-    return new SqlReferenceMultiple(this, REF_ARRAY, name);
+  public SqlReferenceMultiple addRefArrayMultiple(String... names) throws MolgenisException {
+    return new SqlReferenceMultiple(this, REF_ARRAY, names);
   }
 
   @Override
@@ -163,7 +171,7 @@ class SqlTableMetadata extends TableMetadata {
         new MrefSqlColumn(
             this, name, refTable, refColumn, reverseName, reverseRefColumn, joinTable);
     c.createColumn();
-    columns.put(name, c);
+    super.addColumn(c);
     return c;
   }
 
@@ -222,9 +230,9 @@ class SqlTableMetadata extends TableMetadata {
         .add(constraint(name(uniqueName)).unique(columnNames))
         .execute();
     MetadataUtils.saveUnique(this, columnNames);
-    super.addUnique(columnNames);
     if (getPrimaryKey().length == 0)
       this.setPrimaryKey(columnNames); // default first unique is also primary key
+    super.addUnique(columnNames);
     return this;
   }
 
