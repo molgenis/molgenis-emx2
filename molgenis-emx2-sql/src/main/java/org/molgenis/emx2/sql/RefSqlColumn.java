@@ -19,11 +19,14 @@ public class RefSqlColumn extends SqlColumn {
   @Override
   public RefSqlColumn createColumn() throws MolgenisException {
     try {
-
       // define jooq parameters
       Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));
       org.jooq.Table thisTable =
           table(name(getTable().getSchema().getName(), getTable().getTableName()));
+
+      // execute alter table add column
+      getJooq().alterTable(thisTable).addColumn(thisColumn).execute();
+
       Name fkeyConstraintName =
           name(
               getTable().getTableName()
@@ -35,9 +38,6 @@ public class RefSqlColumn extends SqlColumn {
                   + getRefColumnName());
       Name fkeyTable = name(getTable().getSchema().getName(), getRefTableName());
       Name fkeyField = name(getRefColumnName());
-
-      // execute alter table add column
-      getJooq().alterTable(thisTable).addColumn(thisColumn).execute();
 
       getJooq()
           .alterTable(thisTable)

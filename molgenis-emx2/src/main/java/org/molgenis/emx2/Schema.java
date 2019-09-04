@@ -12,6 +12,8 @@ public interface Schema {
 
   Table createTableIfNotExists(String name) throws MolgenisException;
 
+  Table create(TableMetadata table) throws MolgenisException;
+
   Table getTable(String name) throws MolgenisException;
 
   void grant(Permission permission, String role) throws MolgenisException;
@@ -23,4 +25,6 @@ public interface Schema {
   void transaction(Transaction transaction) throws MolgenisException;
 
   void transaction(String role, Transaction transaction) throws MolgenisException;
+
+  void copy(SchemaMetadata from) throws MolgenisException;
 }

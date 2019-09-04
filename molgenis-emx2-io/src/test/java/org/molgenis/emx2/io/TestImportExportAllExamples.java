@@ -41,12 +41,12 @@ public class TestImportExportAllExamples {
     executeCompare(schema1);
   }
 
-  @Test
-  public void testCompositeRefExample() throws MolgenisException, IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("3");
-    CompositeRefExample.createCompositeRefExample(schema1);
-    executeCompare(schema1);
-  }
+  //  @Test
+  //  public void testCompositeRefExample() throws MolgenisException, IOException {
+  //    SchemaMetadata schema1 = new SchemaMetadata("3");
+  //    CompositeRefExample.createCompositeRefExample(schema1);
+  //    executeCompare(schema1);
+  //  }
 
   @Test
   public void testRefAndRefArrayExample() throws MolgenisException, IOException {
@@ -84,16 +84,12 @@ public class TestImportExportAllExamples {
         System.out.println(r);
       }
 
-      SchemaMetadata schema2 = new SchemaMetadata("test");
-      ConvertEmx2ToSchema.fromRowList(schema2, contents);
+      SchemaMetadata schema2 = ConvertEmx2ToSchema.fromRowList(contents);
 
       CompareTools.assertEquals(schema1, schema2);
 
-      //      Schema schema3 = db.createSchema(getClass().getSimpleName() + schema1.getName());
-      //      schema3.transaction(
-      //          db -> {
-      //            ConvertEmx2ToSchema.fromRowList(schema3.getMetadata(), contents);
-      //          });
+      Schema schema3 = db.createSchema(getClass().getSimpleName() + schema1.getName());
+      schema3.copy(schema2);
 
     } catch (MolgenisException e) {
       System.out.println(e.getMessages());

@@ -3,8 +3,12 @@ package org.molgenis.emx2.sql;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
+import static org.jooq.impl.DSL.createTableIfNotExists;
 import static org.jooq.impl.DSL.name;
 
 public class SqlSchema implements Schema {
@@ -29,6 +33,20 @@ public class SqlSchema implements Schema {
       getMetadata().createTableIfNotExists(name);
       return getTable(name);
     }
+  }
+
+  @Override
+  public SqlTable create(TableMetadata metadata) throws MolgenisException {
+    SqlTable result = this.createTableIfNotExists(metadata.getTableName());
+    TableMetadata table = result.getMetadata();
+    for (Column c : metadata.getColumns()) {
+      table.addColumn(c);
+    }
+    if (metadata.getPrimaryKey().length > 0) table.setPrimaryKey(metadata.getPrimaryKey());
+    for (String[] unique : table.getUniques()) {
+      table.addUnique(unique);
+    }
+    return result;
   }
 
   @Override
@@ -77,5 +95,32 @@ public class SqlSchema implements Schema {
   @Override
   public void transaction(String role, Transaction transaction) throws MolgenisException {
     db.transaction(role, transaction);
+  }
+
+  @Override
+  public void copy(SchemaMetadata from) throws MolgenisException {
+    List<TableMetadata> tableList = new ArrayList<>();
+    for (String tableName : from.getTableNames()) {
+      tableList.add(from.getTableMetadata(tableName));
+    }
+
+    // sort dependency order, todo circular dependencies
+    Collections.sort(
+        tableList,
+        (a, b) -> {
+          String aName = a.getTableName();
+          String bName = b.getTableName();
+          for (Column c : a.getColumns()) {
+            if (bName.equals(c.getRefTableName())) return 1;
+          }
+          for (Column c : b.getColumns()) {
+            if (aName.equals(c.getRefTableName())) return -1;
+          }
+          return 0;
+        });
+
+    for (TableMetadata table : tableList) {
+      this.create(table);
+    }
   }
 }

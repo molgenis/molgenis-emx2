@@ -1,6 +1,9 @@
 package org.molgenis.emx2.io;
 
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -9,6 +12,10 @@ import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class MolgenisImport {
 
@@ -32,7 +39,8 @@ public class MolgenisImport {
         db -> {
           // read metadata, if available
           if (store.contains("molgenis")) {
-            ConvertEmx2ToSchema.fromRowList(schema.getMetadata(), store.read("molgenis"));
+            SchemaMetadata emx2Schema = ConvertEmx2ToSchema.fromRowList(store.read("molgenis"));
+            schema.copy(emx2Schema);
           }
           // read data
           for (String tableName : schema.getTableNames()) {

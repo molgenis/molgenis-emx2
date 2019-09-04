@@ -1,13 +1,9 @@
 package org.molgenis.emx2.io.emx2format;
 
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.MolgenisExceptionMessage;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
 
 import java.io.File;
 import java.io.FileReader;
@@ -24,26 +20,25 @@ public class ConvertEmx2ToSchema {
     // hides constructor
   }
 
-  public static void fromCsvFile(SchemaMetadata schema, File file)
-      throws IOException, MolgenisException {
-    fromRowList(schema, CsvRowReader.readList(new FileReader(file)));
+  public static SchemaMetadata fromCsvFile(File file) throws IOException, MolgenisException {
+    return fromRowList(CsvRowReader.readList(new FileReader(file)));
   }
 
-  public static void fromReader(SchemaMetadata schema, Reader reader)
-      throws IOException, MolgenisException {
-    fromRowList(schema, CsvRowReader.readList(reader));
+  public static SchemaMetadata fromReader(Reader reader) throws IOException, MolgenisException {
+    return fromRowList(CsvRowReader.readList(reader));
   }
 
-  public static void fromRowList(SchemaMetadata schema, List<Row> rows) throws MolgenisException {
+  public static SchemaMetadata fromRowList(List<Row> rows) throws MolgenisException {
     List<Emx2FileRow> typedRows = new ArrayList<>();
     for (Row r : rows) {
       typedRows.add(new Emx2FileRow(r));
     }
-    executeLoadProcedure(schema, typedRows);
+    return executeLoadProcedure(typedRows);
   }
 
-  private static void executeLoadProcedure(SchemaMetadata schema, List<Emx2FileRow> rows)
+  private static SchemaMetadata executeLoadProcedure(List<Emx2FileRow> rows)
       throws MolgenisException {
+    SchemaMetadata schema = new SchemaMetadata();
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
     loadColumns(rows, schema, messages);
@@ -51,6 +46,7 @@ public class ConvertEmx2ToSchema {
     if (!messages.isEmpty()) {
       throw new MolgenisException("molgenis.csv reading failed", messages);
     }
+    return schema;
   }
 
   private static void loadTablesFirst(List<Emx2FileRow> rows, SchemaMetadata schema)

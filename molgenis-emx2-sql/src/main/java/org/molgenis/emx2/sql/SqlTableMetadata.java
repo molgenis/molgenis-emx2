@@ -86,15 +86,49 @@ class SqlTableMetadata extends TableMetadata {
   public SqlColumn addColumn(String name, Type type) throws MolgenisException {
     SqlColumn c = new SqlColumn(this, name, type);
     c.createColumn();
-    columns.put(name, c);
+    super.addColumn(c);
     return c;
+  }
+
+  @Override
+  public Column addColumn(Column metadata) throws MolgenisException {
+    Column result = null;
+
+    switch (metadata.getType()) {
+      case REF:
+        result =
+            addRef(
+                metadata.getColumnName(), metadata.getRefTableName(), metadata.getRefColumnName());
+        break;
+      case REF_ARRAY:
+        result =
+            addRefArray(
+                metadata.getColumnName(), metadata.getRefTableName(), metadata.getRefColumnName());
+        break;
+      case MREF:
+        result =
+            addMref(
+                metadata.getColumnName(),
+                metadata.getRefTableName(),
+                metadata.getRefColumnName(),
+                metadata.getReverseColumnName(),
+                metadata.getReverseRefColumn(),
+                metadata.getMrefJoinTableName());
+        break;
+      default:
+        result = addColumn(metadata.getColumnName(), metadata.getType());
+    }
+    result.setDescription(metadata.getDescription());
+    result.setNullable(metadata.getNullable());
+    result.setDefaultValue(metadata.getDefaultValue());
+    return result;
   }
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
     RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
     c.createColumn();
-    this.addColumn(c);
+    super.addColumn(c);
     return c;
   }
 
@@ -102,7 +136,7 @@ class SqlTableMetadata extends TableMetadata {
   public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
     RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn);
     c.createColumn();
-    this.addColumn(c);
+    super.addColumn(c);
     return c;
   }
 

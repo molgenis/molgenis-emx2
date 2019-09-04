@@ -88,6 +88,8 @@ Most core ideas where already described in https://docs.google.com/document/d/19
     - aim to minimize the number of calls
 
 ## Todo or consider later (memo to self)
+*  composite ref is not yet reloadable (huge challenging bug, not sure whether we should support that)
+*  check for maximum limit of identifiers, i.e. 63 characters
 *  when deleting record that doesn't exist there should be error
 *  when updating record(key) that doesn't exist there should be an error
 *  removed molgenisid. It sucks (to my surprise)

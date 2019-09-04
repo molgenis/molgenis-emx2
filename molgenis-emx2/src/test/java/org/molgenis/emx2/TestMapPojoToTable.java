@@ -18,7 +18,6 @@ public class TestMapPojoToTable {
     PersonBean b = new PersonBean();
     b.setFirstName("Donald");
     b.setLastName("Duck");
-
     Row[] rows = Mapper.map(b);
 
     assertEquals(1, rows.length);

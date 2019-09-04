@@ -25,7 +25,6 @@ public class CompositeRefExample {
       aTable.addColumn(uniqueColumn1, type);
       aTable.addColumn(uniqueColumn2, type);
 
-      // we use MOLGENISID as primary key
       aTable.addUnique(uniqueColumn1, uniqueColumn2);
 
       String bTableName = type.toString() + "_B";

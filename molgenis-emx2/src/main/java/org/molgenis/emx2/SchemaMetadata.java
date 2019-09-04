@@ -1,15 +1,15 @@
 package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.MolgenisException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import java.util.*;
 
 public class SchemaMetadata {
 
   private String name;
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
+
+  public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
     this.name = name;
