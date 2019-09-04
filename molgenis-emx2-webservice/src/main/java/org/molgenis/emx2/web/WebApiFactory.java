@@ -55,11 +55,13 @@ public class WebApiFactory {
     get(
         "/",
         (request, response) ->
-            "Welcome. Data api available under <a href=\"/data\">/data</a> and api documentaiton under <a href=\"/openapi\">/openapi</a>");
+            "Welcome to MOLGENIS EMX2 POC.<br/> Data api available under <a href=\"/data\">/data</a><br/>API documentation under <a href=\"/openapi\">/openapi</a>");
 
     // the data api
 
     get(DATA, WebApiFactory::apiGet);
+    get(DATA + "/", WebApiFactory::apiGet); //should be automatic right?
+
     post(DATA, WebApiFactory::schemaPost);
 
     // documentation
@@ -176,12 +178,11 @@ public class WebApiFactory {
 
   private static String openApiListSchemas(Request request, Response response)
       throws MolgenisException, JsonProcessingException {
-    SchemaMetadata schema = database.getSchema(request.params(SCHEMA)).getMetadata();
-    List<TableMetadata> result = new ArrayList<>();
-    for (String name : schema.getTableNames()) {
-      result.add(schema.getTableMetadata(name));
+    StringBuilder result = new StringBuilder();
+    for (String name : database.getSchemaNames()) {
+      result.append("<a href=\"" + request.url() + "/" + name + "\">" + name + "</a><br/>");
     }
-    return JsonMapper.schemaToJson(schema);
+    return result.toString();
   }
 
   //  private static String tableGetOperation(Request request, Response response)
