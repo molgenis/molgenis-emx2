@@ -51,6 +51,13 @@ public class WebApiFactory {
     database = db;
 
     port(8080);
+
+    before( // in case of trailing slash, remove that slash
+        (req, res) -> {
+          String path = req.pathInfo();
+          if (path.endsWith("/")) res.redirect(path.substring(0, path.length() - 1));
+        });
+
     // root
     get(
         "/",
@@ -60,8 +67,6 @@ public class WebApiFactory {
     // the data api
 
     get(DATA, WebApiFactory::apiGet);
-    get(DATA + "/", WebApiFactory::apiGet); //should be automatic right?
-
     post(DATA, WebApiFactory::schemaPost);
 
     // documentation
