@@ -1,6 +1,5 @@
 package org.molgenis.emx2;
 
-import com.fasterxml.uuid.Generators;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
 

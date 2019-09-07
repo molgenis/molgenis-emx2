@@ -11,15 +11,6 @@
 
     <artifactId>molgenis-emx2</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.uuid</groupId>
-            <artifactId>java-uuid-generator</artifactId>
-            <version>3.1.4</version>
-        </dependency>
-
-    </dependencies>
-
     <properties>
         <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}
         </sonar.coverage.jacoco.xmlReportPaths>

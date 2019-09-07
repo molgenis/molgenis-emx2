@@ -213,8 +213,4 @@ public class TableMetadata {
     uniques = new ArrayList<>();
     primaryKey = new String[0];
   }
-
-  public void removePrimaryKey(String[] columnNames) {
-    this.primaryKey = null;
-  }
 }

@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.MolgenisException;
-import org.molgenis.emx2.utils.TypeUtils;
 
 import static org.molgenis.emx2.Type.STRING;
 
@@ -198,7 +197,7 @@ public class Column {
   }
 
   public Column setPrimaryKey(boolean primaryKey) throws MolgenisException {
-    if (true) this.table.setPrimaryKey(this.getColumnName());
+    if (primaryKey) this.table.setPrimaryKey(this.getColumnName());
     else throw new UnsupportedOperationException();
     return this;
   }

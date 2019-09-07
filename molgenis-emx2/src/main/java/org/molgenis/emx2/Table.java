@@ -2,7 +2,6 @@ package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.MolgenisException;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface Table {
