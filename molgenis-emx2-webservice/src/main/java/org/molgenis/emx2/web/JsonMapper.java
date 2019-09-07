@@ -21,6 +21,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonMapper {
+
+  private JsonMapper() {
+    // hide constructor
+  }
+
   private static ObjectWriter writer;
 
   public static String schemaToJson(SchemaMetadata schema)

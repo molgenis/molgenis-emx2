@@ -1,6 +1,10 @@
 package org.molgenis.emx2.web;
 
 public class Constants {
+  private Constants() {
+    // hide constructor
+  }
+
   public static final String ACCEPT_JSON = "application/json";
   public static final String ACCEPT_CSV = "text/csv";
   public static final String ACCEPT_ZIP = "application/zip";

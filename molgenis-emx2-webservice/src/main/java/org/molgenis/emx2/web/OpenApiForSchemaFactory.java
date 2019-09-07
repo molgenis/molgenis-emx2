@@ -22,6 +22,8 @@ public class OpenApiForSchemaFactory {
   public static final String OBJECT = "object";
   public static final String PROBLEM = "Problem";
   public static final String BAD_REQUEST = "400";
+  public static final String BAD_REQUEST_MESSAGE = "Bad request";
+  public static final String DATA_PATH = "/data";
 
   private OpenApiForSchemaFactory() {
     // hide public constructor
@@ -38,7 +40,7 @@ public class OpenApiForSchemaFactory {
     Components components = new Components();
 
     // populate the paths and components
-    createOpenApiForBaseOperations(paths, components); // todo, if this should be moved elsewhere
+    createOpenApiForBaseOperations(paths); // todo, if this should be moved elsewhere
 
     createOpenApiForSchema(schema, paths, components);
 
@@ -62,13 +64,12 @@ public class OpenApiForSchemaFactory {
             "MOLGENIS API for schema stored in MOLGENIS under name '" + schema.getName() + "'");
   }
 
-  private static void createOpenApiForBaseOperations(Paths paths, Components components) {
-    String path = new StringBuilder().append("/data/").toString();
+  private static void createOpenApiForBaseOperations(Paths paths) {
     PathItem baseApi = new PathItem();
 
     baseApi.post(apiPostOperation());
 
-    paths.addPathItem("/data", baseApi);
+    paths.addPathItem(DATA_PATH, baseApi);
   }
 
   private static Operation apiPostOperation() {
@@ -83,7 +84,7 @@ public class OpenApiForSchemaFactory {
                             new MediaType()
                                 .schema(
                                     new Schema()
-                                        .type("object")
+                                        .type(OBJECT)
                                         .addProperties("name", new StringSchema())))))
         .responses(tableApiResponses());
   }
@@ -91,7 +92,7 @@ public class OpenApiForSchemaFactory {
   private static void createOpenApiForSchema(
       SchemaMetadata schema, Paths paths, Components components) {
 
-    String path = new StringBuilder().append("/data/").append(schema.getName()).toString();
+    String path = new StringBuilder().append(DATA_PATH).append(schema.getName()).toString();
 
     // components
     schemaMetadataSchema(components);
@@ -170,7 +171,7 @@ public class OpenApiForSchemaFactory {
             new ApiResponses()
                 .addApiResponse(OK, new ApiResponse().description("Success"))
                 .addApiResponse(
-                    BAD_REQUEST, new ApiResponse().description("Bad request").$ref(PROBLEM))
+                    BAD_REQUEST, new ApiResponse().description(BAD_REQUEST_MESSAGE).$ref(PROBLEM))
                 .addApiResponse("500", new ApiResponse().description("Server error")));
   }
 
@@ -238,7 +239,7 @@ public class OpenApiForSchemaFactory {
     // add the paths to paths
     String path =
         new StringBuilder()
-            .append("/data/")
+            .append(DATA_PATH)
             .append(table.getSchema().getName())
             .append("/")
             .append(tableName)
@@ -311,13 +312,13 @@ public class OpenApiForSchemaFactory {
   private static ApiResponses rowApiResponse(String tableName) {
     return new ApiResponses()
         .addApiResponse(OK, new ApiResponse().$ref(tableName))
-        .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));
+        .addApiResponse(BAD_REQUEST, new ApiResponse().description(BAD_REQUEST_MESSAGE));
   }
 
   private static ApiResponses tableApiResponses() {
     return new ApiResponses()
         .addApiResponse(OK, new ApiResponse().description("success"))
-        .addApiResponse(BAD_REQUEST, new ApiResponse().description("Bad request"));
+        .addApiResponse(BAD_REQUEST, new ApiResponse().description(BAD_REQUEST_MESSAGE));
   }
 
   private static RequestBody tableRequestBody(String tableName) {
