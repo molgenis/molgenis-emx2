@@ -1,6 +1,5 @@
 package org.molgenis.emx2.examples;
 
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -10,6 +9,10 @@ import static org.molgenis.emx2.Type.INT;
 import static org.molgenis.emx2.Type.STRING_ARRAY;
 
 public class PetStoreExample {
+
+  private PetStoreExample() {
+    // hide public constructor
+  }
 
   public static void create(SchemaMetadata schema) throws MolgenisException {
 

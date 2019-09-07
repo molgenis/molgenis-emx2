@@ -43,7 +43,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
 
   @Override
   public void write(String name, List<Row> rows) throws IOException {
-    if (rows.size() > 0) {
+    if (!rows.isEmpty()) {
       try (FileSystem zipfs = open()) {
         Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
         Writer writer = Files.newBufferedWriter(pathInZipfile);

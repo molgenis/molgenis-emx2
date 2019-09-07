@@ -11,7 +11,6 @@ import org.simpleflatmapper.util.CheckedConsumer;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ConvertSchemaToEmx2 {
@@ -65,8 +64,7 @@ public class ConvertSchemaToEmx2 {
       rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
   }
 
-  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows)
-      throws MolgenisException {
+  private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows) {
 
     // ignore internal ID, is implied
     Emx2PropertyList def = new Emx2PropertyList();
