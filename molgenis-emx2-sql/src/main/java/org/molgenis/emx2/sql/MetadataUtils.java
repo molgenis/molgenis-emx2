@@ -5,6 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Permission;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Type;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -108,11 +109,21 @@ public class MetadataUtils {
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || 'MANAGE', 'member'))",
-        name("TABLE_RLS_MANAGER"), table, SqlTable.MG_ROLE_PREFIX, TABLE_SCHEMA);
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || '"
+            + Permission.MANAGER
+            + "', 'member'))",
+        name("TABLE_RLS_" + Permission.MANAGER),
+        table,
+        SqlTable.MG_ROLE_PREFIX,
+        TABLE_SCHEMA);
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || 'VIEW', 'member'))",
-        name("TABLE_RLS_VIEWER"), table, SqlTable.MG_ROLE_PREFIX, TABLE_SCHEMA);
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || '"
+            + Permission.MEMBER
+            + "', 'member'))",
+        name("TABLE_RLS_" + Permission.MEMBER),
+        table,
+        SqlTable.MG_ROLE_PREFIX,
+        TABLE_SCHEMA);
   }
 
   protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {

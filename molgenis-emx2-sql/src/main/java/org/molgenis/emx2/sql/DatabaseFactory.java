@@ -53,7 +53,9 @@ public class DatabaseFactory {
 
   private static void deleteAllRoles() {
     for (String roleName : jooq.selectFrom(name("pg_roles")).fetchSet("rolname", String.class)) {
-      if (roleName.startsWith("testRole")) {
+      if (roleName.startsWith("MG_")
+          || roleName.startsWith("test")
+          || roleName.startsWith("user_")) {
         jooq.execute("DROP ROLE {0}", name(roleName));
       }
     }

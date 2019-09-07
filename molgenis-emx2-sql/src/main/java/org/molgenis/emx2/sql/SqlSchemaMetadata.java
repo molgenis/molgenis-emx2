@@ -49,24 +49,24 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schemaName)) {
       step.execute();
 
-      String viewer = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.VIEW;
-      String editor = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.EDIT;
-      String manager = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.MANAGE;
-      String admin = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.ADMIN;
+      String member = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.MEMBER;
+      String editor = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.EDITOR;
+      String manager = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.MANAGER;
+      String owner = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.OWNER;
 
-      db.createRole(viewer);
+      db.createRole(member);
       db.createRole(editor);
       db.createRole(manager);
-      db.createRole(admin);
+      db.createRole(owner);
 
-      db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
-      db.getJooq().execute("GRANT {0},{1} TO {2}", name(viewer), name(editor), name(manager));
+      db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
+      db.getJooq().execute("GRANT {0},{1} TO {2}", name(member), name(editor), name(manager));
       db.getJooq()
           .execute(
               "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
-              name(viewer), name(editor), name(manager), name(admin));
+              name(member), name(editor), name(manager), name(owner));
 
-      db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(viewer));
+      db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(member));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);

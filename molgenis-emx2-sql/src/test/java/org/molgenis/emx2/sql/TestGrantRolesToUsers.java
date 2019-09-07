@@ -7,6 +7,7 @@ import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
@@ -18,6 +19,24 @@ public class TestGrantRolesToUsers {
   @BeforeClass
   public static void setUp() throws MolgenisException, SQLException {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+  }
+
+  @Test
+  public void testGrantRevokeMembership() throws MolgenisException {
+
+    Schema schema = database.createSchema("testGrantRevokeMembership");
+    assertEquals(Arrays.asList("Member", "Editor", "Manager", "Owner"), schema.getRoles());
+
+    schema.addMember("user1", "Member");
+    assertEquals(1, schema.getMembers().size());
+
+    schema.addMember("user1", "Editor"); // should override previous
+    assertEquals(1, schema.getMembers().size());
+    assertEquals("Editor", schema.getRoleForUser("user1"));
+
+    schema.removeMember("user1");
+
+    assertEquals(0, schema.getMembers().size());
   }
 
   @Test
@@ -34,9 +53,9 @@ public class TestGrantRolesToUsers {
     database.addUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    schema.grant(Permission.VIEW, "user_testRolePermissions_viewer");
-    schema.grant(Permission.EDIT, "user_testRolePermissions_editor");
-    schema.grant(Permission.MANAGE, "user_testRolePermissions_manager");
+    schema.addMember("user_testRolePermissions_viewer", Permission.MEMBER.toString());
+    schema.addMember("user_testRolePermissions_editor", Permission.EDITOR.toString());
+    schema.addMember("user_testRolePermissions_manager", Permission.MANAGER.toString());
 
     StopWatch.print("testRolePermissions schema created");
 
@@ -108,7 +127,7 @@ public class TestGrantRolesToUsers {
     Schema schema = database.createSchema("testRole");
     database.addUser("testadmin");
     database.addUser("testuser");
-    schema.grant(Permission.ADMIN, "testadmin");
+    schema.addMember("testadmin", Permission.OWNER.toString());
     schema
         .createTableIfNotExists("Person")
         .getMetadata()
@@ -133,7 +152,7 @@ public class TestGrantRolesToUsers {
           db -> {
             db.getSchema("testRole").createTableIfNotExists("Test");
             // this is soo cooool
-            db.getSchema("testRole").grant(Permission.VIEW, "testuser");
+            db.getSchema("testRole").addMember("testuser", Permission.MEMBER.toString());
           });
 
     } catch (Exception e) {
@@ -148,14 +167,14 @@ public class TestGrantRolesToUsers {
     // createColumn schema
     Schema s = database.createSchema("TestRLS");
     // createColumn two users
-    database.addUser("testrls1");
-    database.addUser("testrls2");
     database.addUser("testrlsnopermission");
     database.addUser("testrls_has_rls_view");
     // grant both admin on TestRLS schema so can add row level security
-    s.grant(Permission.ADMIN, "testrls1");
-    s.grant(Permission.ADMIN, "testrls2");
-    s.grant(Permission.VIEW, "testrls_has_rls_view"); // can view table but only rows with right RLS
+    s.addMember("testrls1", Permission.OWNER.toString());
+    s.addMember("testrls2", Permission.OWNER.toString());
+    s.addMember(
+        "testrls_has_rls_view",
+        Permission.MEMBER.toString()); // can view table but only rows with right RLS
 
     // let one user createColumn the table
     database.transaction(

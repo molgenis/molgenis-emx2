@@ -53,12 +53,14 @@ class SqlTableMetadata extends TableMetadata {
 
           // grant rights to schema manager, editor and viewer roles
           String prefix = MG_ROLE_PREFIX + getSchema().getName().toUpperCase();
-          jooq.execute("GRANT SELECT ON {0} TO {1}", tableName, DSL.name(prefix + Permission.VIEW));
+          jooq.execute(
+              "GRANT SELECT ON {0} TO {1}", tableName, name(prefix + Permission.MEMBER.toString()));
           jooq.execute(
               "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-              tableName, DSL.name(prefix + Permission.EDIT));
+              tableName, name(prefix + Permission.EDITOR.toString()));
           jooq.execute(
-              "ALTER TABLE {0} OWNER TO {1}", tableName, DSL.name(prefix + Permission.MANAGE));
+              "ALTER TABLE {0} OWNER TO {1}",
+              tableName, name(prefix + Permission.MANAGER.toString()));
         });
   }
 

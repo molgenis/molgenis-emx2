@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -13,6 +14,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.jooq.impl.DSL.inline;
@@ -85,15 +87,18 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void addUser(String name) throws MolgenisException {
+  public void addUser(String user) throws MolgenisException {
+    String userName = SqlTable.MG_USER_PREFIX + user;
+
     try {
-      jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(name));
+      transaction(
+          database -> {
+            List<Record> result =
+                jooq.fetch("SELECT FROM pg_catalog.pg_roles " + "WHERE rolname = {0}", userName);
+            if (result.size() == 0) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
+          });
     } catch (DataAccessException dae) {
-      if (dae.getMessage().contains("already exists")) {
-        // do nothing, idempotent
-      } else {
-        throw new MolgenisException(dae);
-      }
+      throw new MolgenisException(dae);
     }
   }
 
@@ -103,22 +108,8 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void grantRole(String role, String user) throws MolgenisException {
-    try {
-      jooq.execute("GRANT {0} TO {1}", name(role), name(user));
-    } catch (DataAccessException dae) {
-      throw new MolgenisException(dae);
-    }
-  }
-
-  @Override
-  public void revokeRole(String role, String user) throws MolgenisException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void transaction(Transaction transaction) throws MolgenisException {
-    // createColumn independent copy of database with transaction connection
+    // createColumn independent merge of database with transaction connection
     try {
       jooq.transaction(
           config -> {
@@ -134,8 +125,8 @@ public class SqlDatabase implements Database {
 
   @Override
   public void transaction(String user, Transaction transaction) throws MolgenisException {
-    // createColumn independent copy of database with transaction connection
-    jooq.execute("SET SESSION AUTHORIZATION {0}", name(user));
+    // createColumn independent merge of database with transaction connection
+    jooq.execute("SET SESSION AUTHORIZATION {0}", name(SqlTable.MG_USER_PREFIX + user));
     try {
       jooq.transaction(
           config -> {

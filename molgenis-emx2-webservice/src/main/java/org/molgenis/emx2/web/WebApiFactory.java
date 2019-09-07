@@ -5,14 +5,11 @@ import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.MolgenisExport;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
 import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
@@ -30,6 +27,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.json.JsonMembersMapper.jsonToMembers;
+import static org.molgenis.emx2.web.json.JsonMembersMapper.membersToJson;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
 import static org.molgenis.emx2.web.json.JsonSchemaMapper.schemaToJson;
 import static spark.Spark.*;
@@ -80,6 +79,10 @@ public class WebApiFactory {
     get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::schemaGetJson);
     get(DATA_SCHEMA, ACCEPT_CSV, WebApiFactory::schemaGetCsv);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
+
+    get("/admin/:schema/members", WebApiFactory::membersGet);
+    post("/admin/:schema/members", WebApiFactory::membersPost);
+
     post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
     delete(DATA_SCHEMA, WebApiFactory::schemaDelete);
 
@@ -105,6 +108,22 @@ public class WebApiFactory {
           res.status(400);
           res.body(e.getMessage());
         });
+  }
+
+  private static String membersPost(Request request, Response response)
+      throws MolgenisException, IOException {
+    List<Member> members = jsonToMembers(request.body());
+    Schema schema = database.getSchema(request.params(SCHEMA));
+    schema.addMembers(members);
+    response.status(200);
+    return "" + members.size();
+  }
+
+  private static String membersGet(Request request, Response response)
+      throws MolgenisException, JsonProcessingException {
+    Schema schema = database.getSchema(request.params(SCHEMA));
+    response.status(200);
+    return membersToJson(schema.getMembers());
   }
 
   private static String schemaGetCsv(Request request, Response response)

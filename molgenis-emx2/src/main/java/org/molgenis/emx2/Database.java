@@ -18,10 +18,6 @@ public interface Database {
 
   void removeUser(String name);
 
-  void grantRole(String role, String user) throws MolgenisException;
-
-  void revokeRole(String role, String user) throws MolgenisException;
-
   void transaction(Transaction transaction) throws MolgenisException;
 
   void transaction(String role, Transaction transaction) throws MolgenisException;

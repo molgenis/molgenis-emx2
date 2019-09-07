@@ -41,35 +41,35 @@ public class Table {
     return tm;
   }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String[] getPkey() {
-        return pkey;
-    }
+  public String[] getPkey() {
+    return pkey;
+  }
 
-    public void setPkey(String[] pkey) {
-        this.pkey = pkey;
-    }
+  public void setPkey(String[] pkey) {
+    this.pkey = pkey;
+  }
 
-    public Collection<String[]> getUniques() {
-        return uniques;
-    }
+  public Collection<String[]> getUniques() {
+    return uniques;
+  }
 
-    public void setUniques(Collection<String[]> uniques) {
-        this.uniques = uniques;
-    }
+  public void setUniques(Collection<String[]> uniques) {
+    this.uniques = uniques;
+  }
 
-    public Collection<Column> getColumns() {
-        return columns;
-    }
+  public Collection<Column> getColumns() {
+    return columns;
+  }
 
-    public void setColumns(Collection<Column> columns) {
-        this.columns = columns;
-    }
+  public void setColumns(Collection<Column> columns) {
+    this.columns = columns;
+  }
 }

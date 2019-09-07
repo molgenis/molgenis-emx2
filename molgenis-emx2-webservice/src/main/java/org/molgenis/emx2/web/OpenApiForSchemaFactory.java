@@ -24,6 +24,7 @@ public class OpenApiForSchemaFactory {
   public static final String BAD_REQUEST = "400";
   public static final String BAD_REQUEST_MESSAGE = "Bad request";
   public static final String DATA_PATH = "/data";
+  public static final String MEMBER = "Member";
 
   private OpenApiForSchemaFactory() {
     // hide public constructor
@@ -39,11 +40,15 @@ public class OpenApiForSchemaFactory {
     Paths paths = new Paths();
     Components components = new Components();
 
-    // populate the paths and components
-    createOpenApiForBaseOperations(paths); // todo, if this should be moved elsewhere
+    // /data
+    PathItem dataApi = new PathItem();
+    dataApi.post(apiPostOperation());
+    paths.addPathItem(DATA_PATH, dataApi);
 
+    // /data/:schema
     createOpenApiForSchema(schema, paths, components);
 
+    // /data/:schema/:table
     for (String tableNameUnencoded : schema.getTableNames()) {
       TableMetadata table = schema.getTableMetadata(tableNameUnencoded);
       createOpenApiForTable(table, paths, components);
@@ -62,14 +67,6 @@ public class OpenApiForSchemaFactory {
         .version("0.0.1")
         .description(
             "MOLGENIS API for schema stored in MOLGENIS under name '" + schema.getName() + "'");
-  }
-
-  private static void createOpenApiForBaseOperations(Paths paths) {
-    PathItem baseApi = new PathItem();
-
-    baseApi.post(apiPostOperation());
-
-    paths.addPathItem(DATA_PATH, baseApi);
   }
 
   private static Operation apiPostOperation() {
@@ -129,7 +126,18 @@ public class OpenApiForSchemaFactory {
 
     paths.addPathItem(path, schemaPath);
 
-    PathItem schemaAdminPath = new PathItem();
+    // /data/:schema.roles
+    components.addSchemas(
+        "Member",
+        new ObjectSchema()
+            .addProperties("user", new StringSchema())
+            .addProperties("role", new StringSchema()));
+
+    PathItem membersPath = new PathItem();
+    membersPath.get(membersGet());
+    membersPath.post(membersPost());
+    membersPath.delete(membersDelete());
+    paths.addPathItem("/admin/" + schema.getName() + "/members", membersPath);
 
     // meta/tableName retrieves table metadata
 
@@ -141,6 +149,18 @@ public class OpenApiForSchemaFactory {
 
     // post attribute
 
+  }
+
+  private static Operation membersGet() {
+    return tableGet(MEMBER);
+  }
+
+  private static Operation membersDelete() {
+    return tableDeleteOperation(MEMBER);
+  }
+
+  private static Operation membersPost() {
+    return tablePostOperation(MEMBER);
   }
 
   private static Operation schemaDelete() {
@@ -232,16 +252,12 @@ public class OpenApiForSchemaFactory {
 
     // operations
     PathItem tablePath = new PathItem();
-    PathItem rowPath = new PathItem();
 
     // multiple row operations
     tablePath.get(tableGet(tableName));
     tablePath.post(tablePostOperation(tableName));
     tablePath.put(tablePutOperation(tableName));
     tablePath.delete(tableDeleteOperation(tableName));
-
-    // one row operations
-    // rowPath.get(rowGetOperation(tableName));
 
     // add the paths to paths
     String path =
@@ -252,7 +268,6 @@ public class OpenApiForSchemaFactory {
             .append(tableName)
             .toString();
     paths.addPathItem(path, tablePath);
-    paths.addPathItem(path + "/{molgenisid}", rowPath);
   }
 
   private static Operation tableGet(String tableName) {
@@ -295,7 +310,7 @@ public class OpenApiForSchemaFactory {
   private static Operation tablePutOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
-        .summary("Update an array of one or more rows in " + tableName)
+        .summary("Update an array of one or more " + tableName)
         .requestBody(tableRequestBody(tableName))
         .responses(apiResponses());
   }
@@ -303,7 +318,7 @@ public class OpenApiForSchemaFactory {
   private static Operation tablePostOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
-        .summary("Insert an array of one or more rows into " + tableName)
+        .summary("Add an array of one or more " + tableName)
         .requestBody(tableRequestBody(tableName))
         .responses(apiResponses());
   }
@@ -311,7 +326,7 @@ public class OpenApiForSchemaFactory {
   private static Operation tableDeleteOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)
-        .summary("Delete an array of one more row by their primary key from " + tableName)
+        .summary("Delete an array of one more " + tableName)
         .requestBody(tableRequestBody(tableName))
         .responses(apiResponses());
   }

@@ -33,7 +33,7 @@ public class MolgenisImport {
           // read metadata, if available
           if (store.contains("molgenis")) {
             SchemaMetadata emx2Schema = ConvertEmx2ToSchema.fromRowList(store.read("molgenis"));
-            schema.copy(emx2Schema);
+            schema.merge(emx2Schema);
           }
           // read data
           for (String tableName : schema.getTableNames()) {
