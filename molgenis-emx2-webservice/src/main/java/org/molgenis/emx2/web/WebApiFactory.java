@@ -13,9 +13,9 @@ import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.csv.CsvRowReader;
 import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
+import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 import spark.Request;
 import spark.Response;
@@ -31,13 +31,13 @@ import java.util.stream.Stream;
 
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
+import static org.molgenis.emx2.web.json.JsonSchemaMapper.schemaToJson;
 import static spark.Spark.*;
 
 public class WebApiFactory {
   private static final String DATA = "/data";
   private static final String DATA_SCHEMA = DATA + "/:schema"; // NOSONAR
   private static final String DATA_SCHEMA_TABLE = DATA_SCHEMA + "/:table"; // NOSONAR
-  private static final String DATA_SCHEMA_TABLE_MOLGENISID = DATA_SCHEMA_TABLE + "/:molgenisid";
 
   private static Database database;
   private static final String SCHEMA = "schema";
@@ -75,7 +75,8 @@ public class WebApiFactory {
     get("/openapi/:schema/openapi.yaml", WebApiFactory::openApiYaml);
 
     // schema operations
-    get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::openApiListSchemas);
+    get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::schemaGetJson);
+    get(DATA_SCHEMA, ACCEPT_CSV, WebApiFactory::schemaGetCsv);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
     post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
     delete(DATA_SCHEMA, WebApiFactory::schemaDelete);
@@ -87,7 +88,6 @@ public class WebApiFactory {
     delete(DATA_SCHEMA_TABLE, WebApiFactory::tableDeleteOperation);
 
     // row operations (get rid of those?)
-    // get(DATA_SCHEMA_TABLE_MOLGENISID, WebApiFactory::tableGetOperation);
 
     // handling of exceptions
     exception(
@@ -103,6 +103,23 @@ public class WebApiFactory {
           res.status(400);
           res.body(e.getMessage());
         });
+  }
+
+  private static String schemaGetCsv(Request request, Response response)
+      throws MolgenisException, IOException {
+    Schema schema = database.getSchema(request.params(SCHEMA));
+    StringWriter writer = new StringWriter();
+    ConvertSchemaToEmx2.toCsv(schema.getMetadata(), writer);
+    response.status(200);
+    return writer.toString();
+  }
+
+  private static String schemaGetJson(Request request, Response response)
+      throws MolgenisException, IOException {
+    Schema schema = database.getSchema(request.params(SCHEMA));
+    String json = schemaToJson(schema.getMetadata());
+    response.status(200);
+    return json;
   }
 
   private static String schemaDelete(Request request, Response response) throws MolgenisException {
@@ -182,22 +199,13 @@ public class WebApiFactory {
   }
 
   private static String openApiListSchemas(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
+      throws MolgenisException {
     StringBuilder result = new StringBuilder();
     for (String name : database.getSchemaNames()) {
       result.append("<a href=\"" + request.url() + "/" + name + "\">" + name + "</a><br/>");
     }
     return result.toString();
   }
-
-  //  private static String tableGetOperation(Request request, Response response)
-  //      throws MolgenisException, JsonProcessingException {
-  //    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-  //
-  //    List<Row> rows = table.query().where(MOLGENISID).eq(request.params(MOLGENISID)).retrieve();
-  //    response.status(200);
-  //    return JsonMapper.rowToJson(rows.get(0));
-  //  }
 
   private static String tablePostOperation(Request request, Response response)
       throws MolgenisException, IOException {

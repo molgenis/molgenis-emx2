@@ -1,12 +1,14 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
@@ -15,6 +17,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +40,7 @@ public class JsonMapper {
     return getWriter().writeValueAsString(tables);
   }
 
-  public static String schemaToJson(TableMetadata table) throws JsonProcessingException {
+  public static String tableToJson(TableMetadata table) throws JsonProcessingException {
     return getWriter().writeValueAsString(table);
   }
 
@@ -64,7 +67,7 @@ public class JsonMapper {
     }
   }
 
-  private static ObjectWriter getWriter() {
+  public static ObjectWriter getWriter() {
 
     if (writer == null) {
       DefaultPrettyPrinter printer =

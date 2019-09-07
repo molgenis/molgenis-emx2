@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2format;
 
+import org.molgenis.emx2.io.csv.CsvRowWriter;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Column;
@@ -21,11 +22,7 @@ public class ConvertSchemaToEmx2 {
 
   public static void toCsv(SchemaMetadata model, Writer writer)
       throws IOException, MolgenisException {
-
-    List<Emx2FileRow> rows = convertModelToMolgenisFileRows(model);
-    CsvWriter.CsvWriterDSL<Emx2FileRow> writerDsl = CsvWriter.from(Emx2FileRow.class);
-    CsvWriter<Emx2FileRow> csvWriter = writerDsl.to(writer);
-    rows.forEach(CheckedConsumer.toConsumer(csvWriter::append));
+    CsvRowWriter.writeCsv(toRowList(model), writer);
   }
 
   public static List<Row> toRowList(SchemaMetadata model) throws MolgenisException {

@@ -86,13 +86,14 @@ public class OpenApiForSchemaFactory {
                                     new Schema()
                                         .type(OBJECT)
                                         .addProperties("name", new StringSchema())))))
-        .responses(tableApiResponses());
+        .responses(apiResponses());
   }
 
   private static void createOpenApiForSchema(
       SchemaMetadata schema, Paths paths, Components components) {
 
-    String path = new StringBuilder().append(DATA_PATH).append(schema.getName()).toString();
+    String path =
+        new StringBuilder().append(DATA_PATH).append("/").append(schema.getName()).toString();
 
     // components
     schemaMetadataSchema(components);
@@ -140,7 +141,7 @@ public class OpenApiForSchemaFactory {
   }
 
   private static Operation schemaDelete() {
-    return new Operation().summary("Delete this schema").responses(tableApiResponses());
+    return new Operation().summary("Delete this schema").responses(apiResponses());
   }
 
   private static Operation schemaGet() {
@@ -158,7 +159,10 @@ public class OpenApiForSchemaFactory {
                                     new MediaType().schema(new Schema().$ref("SchemaMetadata")))
                                 .addMediaType(
                                     ACCEPT_ZIP,
-                                    new MediaType().schema(new StringSchema().format("binary"))))));
+                                    new MediaType().schema(new StringSchema().format("binary")))
+                                .addMediaType(
+                                    ACCEPT_CSV,
+                                    new MediaType().schema(new Schema().$ref("SchemaMetadata"))))));
   }
 
   private static Operation schemaZipUpload() {
@@ -290,7 +294,7 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Update an array of one or more rows in " + tableName)
         .requestBody(tableRequestBody(tableName))
-        .responses(tableApiResponses());
+        .responses(apiResponses());
   }
 
   private static Operation tablePostOperation(String tableName) {
@@ -298,7 +302,7 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Insert an array of one or more rows into " + tableName)
         .requestBody(tableRequestBody(tableName))
-        .responses(tableApiResponses());
+        .responses(apiResponses());
   }
 
   private static Operation tableDeleteOperation(String tableName) {
@@ -306,16 +310,10 @@ public class OpenApiForSchemaFactory {
         .addTagsItem(tableName)
         .summary("Delete an array of one more row by their primary key from " + tableName)
         .requestBody(tableRequestBody(tableName))
-        .responses(tableApiResponses());
+        .responses(apiResponses());
   }
 
-  private static ApiResponses rowApiResponse(String tableName) {
-    return new ApiResponses()
-        .addApiResponse(OK, new ApiResponse().$ref(tableName))
-        .addApiResponse(BAD_REQUEST, new ApiResponse().description(BAD_REQUEST_MESSAGE));
-  }
-
-  private static ApiResponses tableApiResponses() {
+  private static ApiResponses apiResponses() {
     return new ApiResponses()
         .addApiResponse(OK, new ApiResponse().description("success"))
         .addApiResponse(BAD_REQUEST, new ApiResponse().description(BAD_REQUEST_MESSAGE));
@@ -335,7 +333,7 @@ public class OpenApiForSchemaFactory {
                     new MediaType()
                         .schema(
                             new Schema()
-                                .type("object")
+                                .type(OBJECT)
                                 .addProperties("file", new FileSchema().format(ACCEPT_CSV)))));
   }
 

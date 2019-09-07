@@ -41,6 +41,14 @@ public class SchemaMetadata {
     }
   }
 
+  public TableMetadata createTable(TableMetadata table) throws MolgenisException {
+    if (tables.containsKey(table.getTableName()))
+      throw new MolgenisException(
+          "create_table_failed", "create_table_failed", "Table already exists");
+    this.tables.put(table.getTableName(), table);
+    return table;
+  }
+
   public TableMetadata getTableMetadata(String name) throws MolgenisException {
     TableMetadata table = tables.get(name);
     if (table == null)

@@ -198,7 +198,6 @@ public class Column {
 
   public Column setPrimaryKey(boolean primaryKey) throws MolgenisException {
     if (primaryKey) this.table.setPrimaryKey(this.getColumnName());
-    else throw new UnsupportedOperationException();
     return this;
   }
 

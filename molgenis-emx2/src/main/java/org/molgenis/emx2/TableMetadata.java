@@ -55,6 +55,11 @@ public class TableMetadata {
         String.format("Column with tableName='%s' could not be found", name));
   }
 
+  public Column addColumn(Column column) throws MolgenisException {
+    columns.put(column.getColumnName(), column);
+    return column;
+  }
+
   public Column addColumn(String name) throws MolgenisException {
     return this.addColumn(name, STRING);
   }
@@ -63,11 +68,6 @@ public class TableMetadata {
     Column c = new Column(this, name, type);
     columns.put(name, c);
     return c;
-  }
-
-  public Column addColumn(Column column) throws MolgenisException {
-    columns.put(column.getColumnName(), column);
-    return column;
   }
 
   public Column addRef(String name, String toTable) throws MolgenisException {
