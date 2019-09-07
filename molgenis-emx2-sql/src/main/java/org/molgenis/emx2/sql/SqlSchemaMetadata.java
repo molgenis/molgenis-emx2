@@ -6,7 +6,6 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.Permission;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
-import org.postgresql.util.PSQLException;
 
 import java.util.Collection;
 

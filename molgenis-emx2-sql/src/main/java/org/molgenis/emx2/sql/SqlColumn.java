@@ -64,7 +64,7 @@ public class SqlColumn extends Column {
     return jooq;
   }
 
-  protected Column loadNullable(Boolean nullable) throws MolgenisException {
+  protected Column loadNullable(Boolean nullable) {
     super.setNullable(nullable);
     return this;
   }

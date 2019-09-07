@@ -38,7 +38,7 @@ public class SqlSchema implements Schema {
   @Override
   public Table create(TableMetadata metadata) throws MolgenisException {
     transaction(
-        db -> {
+        database -> {
           TableMetadata table = this.createTableIfNotExists(metadata.getTableName()).getMetadata();
           for (Column c : metadata.getColumns()) {
             table.addColumn(c);
@@ -102,13 +102,13 @@ public class SqlSchema implements Schema {
   @Override
   public void copy(SchemaMetadata from) throws MolgenisException {
     transaction(
-        db -> {
+        database -> {
           List<TableMetadata> tableList = new ArrayList<>();
           for (String tableName : from.getTableNames()) {
             tableList.add(from.getTableMetadata(tableName));
           }
 
-          // sort dependency order, todo circular dependencies
+          // todo circular dependencies
           Collections.sort(
               tableList,
               (a, b) -> {

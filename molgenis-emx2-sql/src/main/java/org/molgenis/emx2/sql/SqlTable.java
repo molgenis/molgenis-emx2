@@ -85,7 +85,7 @@ class SqlTable implements Table {
   @Override
   public int update(Iterable<Row> rows) throws MolgenisException {
 
-    if (getPrimaryKeyFields().size() == 0)
+    if (getPrimaryKeyFields().isEmpty())
       throw new MolgenisException(
           "invalid_table_definition",
           "Cannot update because primary key is not defined",

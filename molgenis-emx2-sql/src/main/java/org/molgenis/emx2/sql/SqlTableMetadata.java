@@ -195,7 +195,7 @@ class SqlTableMetadata extends TableMetadata {
       return true;
     }
     // jooq doesn't have operator for this, so by hand. Might be slow
-    if (0
+    return 0
         < db.getJooq()
             .select(count())
             .from(name("information_schema", "tables"))
@@ -203,10 +203,7 @@ class SqlTableMetadata extends TableMetadata {
                 field("table_schema")
                     .eq(getSchema().getName())
                     .and(field("table_name").eq(getTableName())))
-            .fetchOne(0, Integer.class)) {
-      return true;
-    }
-    return false;
+            .fetchOne(0, Integer.class);
   }
 
   public void dropTable() {
