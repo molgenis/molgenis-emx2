@@ -127,6 +127,10 @@ public class OpenApiForSchemaFactory {
     schemaPath.get(schemaGet());
     schemaPath.delete(schemaDelete());
 
+    paths.addPathItem(path, schemaPath);
+
+    PathItem schemaAdminPath = new PathItem();
+
     // meta/tableName retrieves table metadata
 
     // import
@@ -137,7 +141,6 @@ public class OpenApiForSchemaFactory {
 
     // post attribute
 
-    paths.addPathItem(path, schemaPath);
   }
 
   private static Operation schemaDelete() {

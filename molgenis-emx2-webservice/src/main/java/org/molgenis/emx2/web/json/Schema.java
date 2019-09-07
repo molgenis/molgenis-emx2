@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Schema {
-  public String name;
-  public List<Table> tables = new ArrayList<>();
+  private String name;
+  private List<Table> tables = new ArrayList<>();
 
   public Schema() {};
 
@@ -25,5 +25,21 @@ public class Schema {
       s.createTable(t.getTableMetadata(s));
     }
     return s;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public List<Table> getTables() {
+    return tables;
+  }
+
+  public void setTables(List<Table> tables) {
+    this.tables = tables;
   }
 }

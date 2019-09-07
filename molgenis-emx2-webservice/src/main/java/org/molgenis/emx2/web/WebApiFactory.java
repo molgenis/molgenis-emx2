@@ -35,6 +35,8 @@ import static org.molgenis.emx2.web.json.JsonSchemaMapper.schemaToJson;
 import static spark.Spark.*;
 
 public class WebApiFactory {
+  // todo look into javalin that claims to have openapi and sparkjava merged together
+
   private static final String DATA = "/data";
   private static final String DATA_SCHEMA = DATA + "/:schema"; // NOSONAR
   private static final String DATA_SCHEMA_TABLE = DATA_SCHEMA + "/:table"; // NOSONAR

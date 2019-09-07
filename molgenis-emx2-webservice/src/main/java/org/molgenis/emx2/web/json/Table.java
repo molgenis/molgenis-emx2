@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Table {
-  public String name;
-  public String[] pkey;
-  public Collection<String[]> uniques = new ArrayList<>();
-  public Collection<Column> columns = new ArrayList<>();
+  private String name;
+  private String[] pkey;
+  private Collection<String[]> uniques = new ArrayList<>();
+  private Collection<Column> columns = new ArrayList<>();
 
   public Table() {}
 
@@ -40,4 +40,36 @@ public class Table {
     }
     return tm;
   }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String[] getPkey() {
+        return pkey;
+    }
+
+    public void setPkey(String[] pkey) {
+        this.pkey = pkey;
+    }
+
+    public Collection<String[]> getUniques() {
+        return uniques;
+    }
+
+    public void setUniques(Collection<String[]> uniques) {
+        this.uniques = uniques;
+    }
+
+    public Collection<Column> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(Collection<Column> columns) {
+        this.columns = columns;
+    }
 }
