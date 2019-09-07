@@ -52,11 +52,11 @@ public class WebApiFactory {
 
     port(8080);
 
-    before( // in case of trailing slash, remove that slash
-        (req, res) -> {
-          String path = req.pathInfo();
-          if (path.endsWith("/")) res.redirect(path.substring(0, path.length() - 1));
-        });
+    //    before( // in case of trailing slash, remove that slash
+    //        (req, res) -> {
+    //          String path = req.pathInfo();
+    //          if (path.endsWith("/")) res.redirect(path.substring(0, path.length() - 1));
+    //        });
 
     // root
     get(

@@ -224,15 +224,17 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata addUnique(String... columnNames) throws MolgenisException {
-    String uniqueName = getTableName() + "_" + String.join("_", columnNames) + "_UNIQUE";
-    db.getJooq()
-        .alterTable(getJooqTable())
-        .add(constraint(name(uniqueName)).unique(columnNames))
-        .execute();
-    MetadataUtils.saveUnique(this, columnNames);
-    if (getPrimaryKey().length == 0)
+    if (getPrimaryKey().length == 0) {
       this.setPrimaryKey(columnNames); // default first unique is also primary key
-    super.addUnique(columnNames);
+    } else {
+      String uniqueName = getTableName() + "_" + String.join("_", columnNames) + "_UNIQUE";
+      db.getJooq()
+          .alterTable(getJooqTable())
+          .add(constraint(name(uniqueName)).unique(columnNames))
+          .execute();
+      MetadataUtils.saveUnique(this, columnNames);
+      super.addUnique(columnNames);
+    }
     return this;
   }
 
@@ -247,11 +249,12 @@ class SqlTableMetadata extends TableMetadata {
         correctOrderedNames = uniques.get(i);
       }
     }
-    if (correctOrderedNames == null)
+    if (correctOrderedNames == null) {
       throw new MolgenisException(
           "unique_invalid",
           "Remove unique failed because the unique was unknown",
           "Unique constraint consisting of columns " + list1 + "could not be found. ");
+    }
 
     String uniqueName = getTableName() + "_" + String.join("_", correctOrderedNames) + "_UNIQUE";
     db.getJooq().alterTable(getJooqTable()).dropConstraint(name(uniqueName)).execute();

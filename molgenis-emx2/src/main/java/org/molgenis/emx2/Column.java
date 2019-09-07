@@ -185,6 +185,7 @@ public class Column {
   }
 
   public TableMetadata addUnique(String... columnNames) throws MolgenisException {
+
     return getTable().addUnique(columnNames);
   }
 
@@ -194,5 +195,15 @@ public class Column {
 
   public ReferenceMultiple addRefMultiple(String... columnNames) throws MolgenisException {
     return getTable().addRefMultiple(columnNames);
+  }
+
+  public Column setPrimaryKey(boolean primaryKey) throws MolgenisException {
+    if (true) this.table.setPrimaryKey(this.getColumnName());
+    else throw new UnsupportedOperationException();
+    return this;
+  }
+
+  public boolean isPrimaryKey() {
+    return table.isPrimaryKey(this.getColumnName());
   }
 }

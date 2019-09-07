@@ -157,8 +157,8 @@ public class TableMetadata {
                 + "' is not known in table "
                 + getTableName());
     }
-    uniques.add(columnNames);
     if (this.getPrimaryKey().length == 0) this.setPrimaryKey(columnNames);
+    else uniques.add(columnNames);
     return this;
   }
 
@@ -167,6 +167,13 @@ public class TableMetadata {
       if (Arrays.equals(names, el)) {
         return true;
       }
+    }
+    return false;
+  }
+
+  public boolean isPrimaryKey(String... names) {
+    if (Arrays.equals(names, this.primaryKey)) {
+      return true;
     }
     return false;
   }
@@ -205,5 +212,9 @@ public class TableMetadata {
     columns = new LinkedHashMap<>();
     uniques = new ArrayList<>();
     primaryKey = new String[0];
+  }
+
+  public void removePrimaryKey(String[] columnNames) {
+    this.primaryKey = null;
   }
 }

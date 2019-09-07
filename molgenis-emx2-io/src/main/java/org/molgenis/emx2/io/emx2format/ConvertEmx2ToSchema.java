@@ -156,6 +156,8 @@ public class ConvertEmx2ToSchema {
 
     // other properties
     Column column = table.getColumn(columnName);
+    if (def.contains(Emx2PropertyList.UNIQUE)) column.setUnique(true);
+    if (def.contains(Emx2PropertyList.PKEY)) column.setPrimaryKey(true);
     if (def.contains(Emx2PropertyList.NULLABLE)) column.setNullable(true);
   }
 

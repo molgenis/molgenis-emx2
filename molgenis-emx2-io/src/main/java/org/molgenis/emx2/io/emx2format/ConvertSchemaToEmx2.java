@@ -24,7 +24,6 @@ public class ConvertSchemaToEmx2 {
       throws IOException, MolgenisException {
 
     List<Emx2FileRow> rows = convertModelToMolgenisFileRows(model);
-
     CsvWriter.CsvWriterDSL<Emx2FileRow> writerDsl = CsvWriter.from(Emx2FileRow.class);
     CsvWriter<Emx2FileRow> csvWriter = writerDsl.to(writer);
     rows.forEach(CheckedConsumer.toConsumer(csvWriter::append));
@@ -54,12 +53,14 @@ public class ConvertSchemaToEmx2 {
   private static void writeTableDefinitionRow(TableMetadata table, List<Emx2FileRow> rows) {
 
     Emx2PropertyList def = new Emx2PropertyList();
+    // write multiple key constraints on table level, otherwise this will be done per column
     for (String[] u : table.getUniques()) {
-      def.add(Emx2PropertyList.UNIQUE, u);
+      if (u.length > 1) def.add(Emx2PropertyList.UNIQUE, u);
     }
-    if (table.getPrimaryKey().length > 0) {
+    if (table.getPrimaryKey().length > 1) {
       def.add(Emx2PropertyList.PKEY, table.getPrimaryKey());
     }
+    // write table definition row, but only if not empty
     if (!def.getTerms().isEmpty())
       rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
   }
@@ -85,6 +86,7 @@ public class ConvertSchemaToEmx2 {
     }
     if (Boolean.TRUE.equals(column.getNullable())) def.add("nullable");
     if (Boolean.TRUE.equals(column.getReadonly())) def.add("readonly");
+    if (Boolean.TRUE.equals(column.isPrimaryKey())) def.add("pkey");
     if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
     if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
 
