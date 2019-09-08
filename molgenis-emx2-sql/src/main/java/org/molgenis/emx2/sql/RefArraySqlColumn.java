@@ -39,7 +39,7 @@ public class RefArraySqlColumn extends SqlColumn {
             getTable().getSchema().getName(),
             getTable().getTableName() + "_" + getColumnName() + "_REF_ARRAY_TRIGGER2");
 
-    // create the function
+    // createTableIfNotExists the function
     getJooq()
         .execute(
             "CREATE FUNCTION {0}() RETURNS trigger AS"
@@ -67,7 +67,7 @@ public class RefArraySqlColumn extends SqlColumn {
             toColumn,
             thisColumn);
 
-    // create the trigger
+    // createTableIfNotExists the trigger
     getJooq()
         .execute(
             "CREATE CONSTRAINT TRIGGER {0} "
@@ -90,7 +90,7 @@ public class RefArraySqlColumn extends SqlColumn {
             getTable().getSchema().getName(),
             getTable().getTableName() + "_" + getColumnName() + "_REF_ARRAY_TRIGGER");
 
-    // create the function
+    // createTableIfNotExists the function
     getJooq()
         .execute(
             "CREATE FUNCTION {0}() RETURNS trigger AS"

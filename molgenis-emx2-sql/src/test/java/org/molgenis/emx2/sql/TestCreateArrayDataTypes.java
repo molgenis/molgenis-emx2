@@ -102,10 +102,10 @@ public class TestCreateArrayDataTypes {
       } else {
         assertEquals(
             Arrays.copyOfRange(values, 0, 2)[0].toString(),
-            ((Object[]) r.get(type, aFieldName))[0].toString());
+            ((Object[]) r.get(aFieldName, type))[0].toString());
         assertEquals(
             Arrays.copyOfRange(values, 0, 2)[1].toString(),
-            ((Object[]) r.get(type, aFieldName))[1].toString());
+            ((Object[]) r.get(aFieldName, type))[1].toString());
       }
     }
 

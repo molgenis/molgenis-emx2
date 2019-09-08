@@ -16,7 +16,9 @@ public interface Database {
 
   void addUser(String name) throws MolgenisException;
 
-  void removeUser(String name);
+  boolean hasUser(String testrls_has_rls_view);
+
+  void removeUser(String name) throws MolgenisException;
 
   void transaction(Transaction transaction) throws MolgenisException;
 

@@ -244,11 +244,11 @@ class SqlTable implements Table {
           }
 
           if (rowCondition == null) {
-            rowCondition = getJooqField(key).eq(cast(r.get(type, keyName), getJooqField(key)));
+            rowCondition = getJooqField(key).eq(cast(r.get(keyName, type), getJooqField(key)));
           } else {
             rowCondition =
                 rowCondition.and(
-                    getJooqField(key).eq(cast(r.get(type, keyName), getJooqField(key))));
+                    getJooqField(key).eq(cast(r.get(keyName, type), getJooqField(key))));
           }
         }
         if (whereCondition == null) {

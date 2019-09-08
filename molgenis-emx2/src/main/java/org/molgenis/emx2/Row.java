@@ -193,7 +193,7 @@ public class Row {
     return this.values.keySet();
   }
 
-  public Object get(Type type, String name) throws MolgenisException {
+  public Object get(String name, Type type) throws MolgenisException {
     return get(name, type.getType());
   }
 

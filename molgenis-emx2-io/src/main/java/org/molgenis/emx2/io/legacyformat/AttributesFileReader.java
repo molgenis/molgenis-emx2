@@ -51,7 +51,7 @@ public class AttributesFileReader {
       List<MolgenisExceptionMessage> messages,
       AttributesFileRow row)
       throws MolgenisException {
-    // get or create table
+    // get or createTableIfNotExists table
     TableMetadata table = model.getTableMetadata(row.getEntity());
     if (table == null) table = model.createTableIfNotExists(row.getEntity());
 

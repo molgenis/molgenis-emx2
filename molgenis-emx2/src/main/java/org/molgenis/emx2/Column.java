@@ -22,6 +22,7 @@ public class Column {
   private String defaultValue;
 
   public Column(TableMetadata table, String columnName, Type type) {
+    // todo check not null
     this.table = table;
     this.columnName = columnName;
     this.type = type;
@@ -35,6 +36,7 @@ public class Column {
     return this.getTable().addColumn(name, type);
   }
 
+  // todo can we remove these and instead use setReference and setReverseReference?
   public Column addRef(String name, String toTable) throws MolgenisException {
     return this.getTable().addRef(name, toTable);
   }
@@ -89,6 +91,7 @@ public class Column {
   }
 
   public Column getRefColumn() throws MolgenisException {
+    // todo: should return primary key column?
     if (getRefColumnName() == null) return null;
     else
       return getTable()
@@ -128,22 +131,6 @@ public class Column {
     this.description = description;
   }
 
-  public String getVisible() {
-    return visible;
-  }
-
-  public void setVisible(String visible) {
-    this.visible = visible;
-  }
-
-  public String getValidation() {
-    return validation;
-  }
-
-  public void setValidation(String validation) {
-    this.validation = validation;
-  }
-
   public Boolean isUnique() {
     return getTable().isUnique(getColumnName());
   }
@@ -178,7 +165,7 @@ public class Column {
     return this;
   }
 
-  public Column setJoinTable(String joinTableName) {
+  public Column setMrefJoinTable(String joinTableName) {
     this.joinTable = joinTableName;
     return this;
   }

@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -49,10 +49,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schemaName)) {
       step.execute();
 
-      String member = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.MEMBER;
-      String editor = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.EDITOR;
-      String manager = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.MANAGER;
-      String owner = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + Permission.OWNER;
+      String member = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.MEMBER;
+      String editor = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.EDITOR;
+      String manager = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.MANAGER;
+      String owner = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.OWNER;
 
       db.createRole(member);
       db.createRole(editor);
@@ -69,7 +69,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(member));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
     } catch (DataAccessException e) {
-      throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);
+      throw new SqlMolgenisException(
+          "schema_create_failed", "Schema createTableIfNotExists failed", e);
     }
     MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
   }

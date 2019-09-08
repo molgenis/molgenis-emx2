@@ -36,7 +36,7 @@ public class OpenApiForSchemaFactory {
     OpenAPI api = new OpenAPI();
     api.info(createOpenApiInfo(schema));
 
-    // create the paths and components
+    // createTableIfNotExists the paths and components
     Paths paths = new Paths();
     Components components = new Components();
 

@@ -132,7 +132,7 @@ public class TableMetadata {
         new Column(this, name, MREF)
             .setReference(refTable, refColumn)
             .setReverseReference(reverseName, reverseRefColumn)
-            .setJoinTable(joinTableName);
+            .setMrefJoinTable(joinTableName);
     columns.put(name, c);
     return c;
   }

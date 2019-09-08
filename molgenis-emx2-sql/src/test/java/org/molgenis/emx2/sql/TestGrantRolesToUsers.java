@@ -53,9 +53,9 @@ public class TestGrantRolesToUsers {
     database.addUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    schema.addMember("user_testRolePermissions_viewer", Permission.MEMBER.toString());
-    schema.addMember("user_testRolePermissions_editor", Permission.EDITOR.toString());
-    schema.addMember("user_testRolePermissions_manager", Permission.MANAGER.toString());
+    schema.addMember("user_testRolePermissions_viewer", DefaultRoles.MEMBER.toString());
+    schema.addMember("user_testRolePermissions_editor", DefaultRoles.EDITOR.toString());
+    schema.addMember("user_testRolePermissions_manager", DefaultRoles.MANAGER.toString());
 
     StopWatch.print("testRolePermissions schema created");
 
@@ -127,7 +127,7 @@ public class TestGrantRolesToUsers {
     Schema schema = database.createSchema("testRole");
     database.addUser("testadmin");
     database.addUser("testuser");
-    schema.addMember("testadmin", Permission.OWNER.toString());
+    schema.addMember("testadmin", DefaultRoles.OWNER.toString());
     schema
         .createTableIfNotExists("Person")
         .getMetadata()
@@ -152,7 +152,7 @@ public class TestGrantRolesToUsers {
           db -> {
             db.getSchema("testRole").createTableIfNotExists("Test");
             // this is soo cooool
-            db.getSchema("testRole").addMember("testuser", Permission.MEMBER.toString());
+            db.getSchema("testRole").addMember("testuser", DefaultRoles.MEMBER.toString());
           });
 
     } catch (Exception e) {
@@ -168,13 +168,15 @@ public class TestGrantRolesToUsers {
     Schema s = database.createSchema("TestRLS");
     // createColumn two users
     database.addUser("testrlsnopermission");
+    assertEquals(true, database.hasUser("testrlsnopermission"));
+
     database.addUser("testrls_has_rls_view");
     // grant both admin on TestRLS schema so can add row level security
-    s.addMember("testrls1", Permission.OWNER.toString());
-    s.addMember("testrls2", Permission.OWNER.toString());
+    s.addMember("testrls1", DefaultRoles.OWNER.toString());
+    s.addMember("testrls2", DefaultRoles.OWNER.toString());
     s.addMember(
         "testrls_has_rls_view",
-        Permission.MEMBER.toString()); // can view table but only rows with right RLS
+        DefaultRoles.MEMBER.toString()); // can view table but only rows with right RLS
 
     // let one user createColumn the table
     database.transaction(
@@ -221,5 +223,8 @@ public class TestGrantRolesToUsers {
         db -> {
           assertEquals(1, db.getSchema("TestRLS").getTable("TestRLS").retrieve().size());
         });
+
+    database.removeUser("testrls_has_rls_view");
+    assertEquals(false, database.hasUser("testrls_has_rls_view"));
   }
 }

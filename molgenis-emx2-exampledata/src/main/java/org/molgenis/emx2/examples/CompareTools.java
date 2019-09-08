@@ -60,17 +60,17 @@ public class CompareTools {
       for (String colName : colNames1) {
         Type type = TypeUtils.typeOf(values1.get(colName).getClass());
 
-        if (!r1.get(type, colName).equals(r2.get(type, colName))
-            && !Arrays.equals((Object[]) r1.get(type, colName), (Object[]) r2.get(type, colName))) {
+        if (!r1.get(colName, type).equals(r2.get(colName, type))
+            && !Arrays.equals((Object[]) r1.get(colName, type), (Object[]) r2.get(colName, type))) {
           fail(
               "List<Row> has different value for row "
                   + i
                   + ", column "
                   + colName
                   + ": "
-                  + TypeUtils.toString(r1.get(type, colName))
+                  + TypeUtils.toString(r1.get(colName, type))
                   + "\nversus\n"
-                  + TypeUtils.toString(r2.get(type, colName)));
+                  + TypeUtils.toString(r2.get(colName, type)));
         }
       }
     }

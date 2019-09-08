@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Type;
@@ -54,13 +54,14 @@ class SqlTableMetadata extends TableMetadata {
           // grant rights to schema manager, editor and viewer roles
           String prefix = MG_ROLE_PREFIX + getSchema().getName().toUpperCase();
           jooq.execute(
-              "GRANT SELECT ON {0} TO {1}", tableName, name(prefix + Permission.MEMBER.toString()));
+              "GRANT SELECT ON {0} TO {1}",
+              tableName, name(prefix + DefaultRoles.MEMBER.toString()));
           jooq.execute(
               "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-              tableName, name(prefix + Permission.EDITOR.toString()));
+              tableName, name(prefix + DefaultRoles.EDITOR.toString()));
           jooq.execute(
               "ALTER TABLE {0} OWNER TO {1}",
-              tableName, name(prefix + Permission.MANAGER.toString()));
+              tableName, name(prefix + DefaultRoles.MANAGER.toString()));
         });
   }
 
@@ -79,7 +80,7 @@ class SqlTableMetadata extends TableMetadata {
             "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}",
             getJooqTable(), name(getTableName() + "_pkey"));
 
-    // create the new one
+    // createTableIfNotExists the new one
     db.getJooq().alterTable(getJooqTable()).add(constraint().primaryKey(keyNames)).execute();
 
     // update the decorated super

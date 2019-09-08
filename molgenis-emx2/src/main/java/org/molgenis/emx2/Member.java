@@ -4,7 +4,9 @@ public class Member {
   private String user;
   private String role;
 
-  public Member() {}
+  public Member() {
+    // used for automatic (de)serialization
+  }
 
   public Member(String user, String role) {
     this.user = user;

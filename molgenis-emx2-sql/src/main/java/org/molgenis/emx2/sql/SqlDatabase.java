@@ -38,7 +38,9 @@ public class SqlDatabase implements Database {
   public SqlSchema createSchema(String schemaName) throws MolgenisException {
     if (schemaName == null || schemaName.isEmpty())
       throw new MolgenisException(
-          "schema_create_failed", "Schema create failed", "Schema name was null or empty");
+          "schema_create_failed",
+          "Schema createTableIfNotExists failed",
+          "Schema name was null or empty");
     SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
     schemas.put(schemaName, schema);
@@ -94,7 +96,7 @@ public class SqlDatabase implements Database {
       transaction(
           database -> {
             List<Record> result =
-                jooq.fetch("SELECT FROM pg_catalog.pg_roles " + "WHERE rolname = {0}", userName);
+                jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
             if (result.size() == 0) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
           });
     } catch (DataAccessException dae) {
@@ -103,8 +105,22 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void removeUser(String name) {
-    throw new UnsupportedOperationException();
+  public boolean hasUser(String user) {
+    String userName = SqlTable.MG_USER_PREFIX + user;
+    return jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName)
+            .size()
+        > 0;
+  }
+
+  @Override
+  public void removeUser(String user) throws MolgenisException {
+    if (!hasUser(user))
+      throw new MolgenisException(
+          "remove_user_failed",
+          "remove user failed",
+          "User with name '" + user + "' doesn't exist");
+    String userName = SqlTable.MG_USER_PREFIX + user;
+    jooq.execute("DROP ROLE {0}", name(userName));
   }
 
   @Override

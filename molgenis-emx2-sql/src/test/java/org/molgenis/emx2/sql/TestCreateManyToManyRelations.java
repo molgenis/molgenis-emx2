@@ -115,8 +115,8 @@ public class TestCreateManyToManyRelations {
     List<Row> bRowsRetrieved = bTable.retrieve();
     Type arrayType = TypeUtils.getArrayType(type);
     assertArrayEquals(
-        (Object[]) bRow.get(arrayType, refName),
-        (Object[]) bRowsRetrieved.get(0).get(arrayType, refName));
+        (Object[]) bRow.get(refName, arrayType),
+        (Object[]) bRowsRetrieved.get(0).get(refName, arrayType));
 
     // and update
     bRow.set(refName, Arrays.copyOfRange(testValues, 0, 2));

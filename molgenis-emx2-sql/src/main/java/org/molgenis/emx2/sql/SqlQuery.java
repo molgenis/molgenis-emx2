@@ -74,7 +74,7 @@ public class SqlQuery extends QueryBean implements Query {
 
   private org.jooq.Table getJooqTable(TableMetadata table) throws MolgenisException {
 
-    // create all columns
+    // createTableIfNotExists all columns
     List<Field> fields = new ArrayList<>();
     for (Column column : table.getColumns()) {
       if (!MREF.equals(column.getType())) {

@@ -73,11 +73,11 @@ public class SqlSchema implements Schema {
               String rolename =
                   SqlTable.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase() + m.getRole();
 
-              // create user if not exists
+              // createTableIfNotExists user if not exists
               db.addUser(m.getUser());
 
               // give god powers. todo check if this is necessary in practice
-              if (Permission.OWNER.toString().equals(m.getRole())) {
+              if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
                 db.getJooq().execute("ALTER ROLE {0} CREATEROLE", name(username));
               }
 
@@ -177,7 +177,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public Table create(TableMetadata metadata) throws MolgenisException {
+  public Table createTableIfNotExists(TableMetadata metadata) throws MolgenisException {
     transaction(
         database -> {
           TableMetadata table = this.createTableIfNotExists(metadata.getTableName()).getMetadata();
@@ -246,7 +246,7 @@ public class SqlSchema implements Schema {
               });
 
           for (TableMetadata table : tableList) {
-            this.create(table);
+            this.createTableIfNotExists(table);
           }
         });
   }

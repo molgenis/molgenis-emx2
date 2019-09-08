@@ -15,8 +15,6 @@ public interface Query {
 
   Query avg(String... path);
 
-  Query sum(String... path);
-
   Where where(String... path);
 
   Where and(String... path);

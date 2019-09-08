@@ -1,6 +1,6 @@
 package org.molgenis.emx2;
 
-public enum Permission {
+public enum DefaultRoles {
   MEMBER("Member"),
   EDITOR("Editor"),
   MANAGER("Manager"),
@@ -8,7 +8,7 @@ public enum Permission {
 
   private String name;
 
-  Permission(String name) {
+  DefaultRoles(String name) {
     this.name = name;
   }
 

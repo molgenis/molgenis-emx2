@@ -33,14 +33,14 @@ public class MrefSqlColumn extends SqlColumn {
     super(sqlTable, name, MREF);
     this.setReference(refTable, refColumn);
     this.setReverseReference(reverseName, reverseRefColumn);
-    this.setJoinTable(joinTableName);
+    this.setMrefJoinTable(joinTableName);
   }
 
   @Override
   public MrefSqlColumn createColumn() throws MolgenisException {
     String schemaName = getTable().getSchema().getName();
 
-    // create setNullable array columns compatible with the refs
+    // createTableIfNotExists setNullable array columns compatible with the refs
     SqlTableMetadata otherTable =
         (SqlTableMetadata) getTable().getSchema().getTableMetadata(getRefTableName());
     Column otherColumn = otherTable.getColumn(getRefColumnName());
@@ -57,7 +57,7 @@ public class MrefSqlColumn extends SqlColumn {
                 SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
 
-    // create the joinTable
+    // createTableIfNotExists the joinTable
     TableMetadata table = getTable().getSchema().createTableIfNotExists(getMrefJoinTableName());
     table.addRef(getRefColumnName(), getRefTableName(), getRefColumnName());
     table.addRef(getReverseRefColumn(), getTable().getTableName(), getReverseRefColumn());
@@ -74,7 +74,7 @@ public class MrefSqlColumn extends SqlColumn {
             getMrefJoinTableName());
     otherTable.addMrefReverse(reverseColumn);
 
-    // create triggers both ways
+    // createTableIfNotExists triggers both ways
     createTriggers(getJooq(), table, this, reverseColumn);
     createTriggers(getJooq(), table, reverseColumn, this);
 
