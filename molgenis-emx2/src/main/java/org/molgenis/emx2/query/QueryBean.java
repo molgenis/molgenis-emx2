@@ -47,12 +47,6 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public Query sum(String... path) {
-    this.selects.add(new SelectBean(this, Select.Aggregation.SUM, path));
-    return this;
-  }
-
-  @Override
   public WhereBean where(String... path) {
     WhereBean f = new WhereBean(this, path);
     wheres.add(f);

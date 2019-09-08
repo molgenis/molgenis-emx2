@@ -25,9 +25,9 @@ public interface Schema {
 
   void removeMember(String user1) throws MolgenisException;
 
-    List<String> getRoles();
+  List<String> getRoles();
 
-    String getRoleForUser(String user) throws MolgenisException;
+  String getRoleForUser(String user) throws MolgenisException;
 
   Table createTableIfNotExists(String name) throws MolgenisException;
 
