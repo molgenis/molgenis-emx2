@@ -28,7 +28,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
 
   private void create() throws IOException {
     Map<String, String> env = new HashMap<>();
-    env.put("createTableIfNotExists", "true");
+    env.put("create", "true");
     final URI zipUri = URI.create("jar:" + zipFilePath.toUri());
     FileSystem zipfs = FileSystems.newFileSystem(zipUri, env, null);
     zipfs.close();
@@ -36,7 +36,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
 
   private FileSystem open() throws IOException {
     Map<String, String> env = new HashMap<>();
-    env.put("createTableIfNotExists", "false");
+    env.put("create", "false");
     final URI zipUri = URI.create("jar:" + zipFilePath.toUri());
     return FileSystems.newFileSystem(zipUri, env, null);
   }
