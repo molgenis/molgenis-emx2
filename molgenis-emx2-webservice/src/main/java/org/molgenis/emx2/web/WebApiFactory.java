@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
@@ -8,9 +9,10 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.MolgenisExport;
 import org.molgenis.emx2.io.MolgenisImport;
-import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.emx2.io.csv.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvRowReader;
+import org.molgenis.emx2.io.readers.CsvRowWriter;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -23,6 +25,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -41,6 +47,7 @@ public class WebApiFactory {
   private static final String DATA_SCHEMA_TABLE = DATA_SCHEMA + "/:table"; // NOSONAR
 
   private static Database database;
+  private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
   private static final String SCHEMA = "schema";
   private static final String TABLE = "table";
 
@@ -65,8 +72,9 @@ public class WebApiFactory {
         (request, response) ->
             "Welcome to MOLGENIS EMX2 POC.<br/> Data api available under <a href=\"/data\">/data</a><br/>API documentation under <a href=\"/openapi\">/openapi</a>");
 
-    // the data api
+    // aut api
 
+    // the data api
     get(DATA, WebApiFactory::apiGet);
     post(DATA, WebApiFactory::schemaPost);
 
@@ -78,6 +86,7 @@ public class WebApiFactory {
     // schema operations
     get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::schemaGetJson);
     get(DATA_SCHEMA, ACCEPT_CSV, WebApiFactory::schemaGetCsv);
+    get(DATA_SCHEMA, ACCEPT_EXCEL, WebApiFactory::schemaGetExcel);
     get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
 
     get("/admin/:schema/members", WebApiFactory::membersGet);
@@ -135,9 +144,29 @@ public class WebApiFactory {
     return writer.toString();
   }
 
+  private static String schemaGetExcel(Request request, Response response)
+      throws MolgenisException, IOException {
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
+    Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
+    tempDir.toFile().deleteOnExit();
+    try (OutputStream outputStream = response.raw().getOutputStream()) {
+      Path excelFile = tempDir.resolve("download.xlsx");
+      MolgenisExport.toExcelFile(excelFile, schema);
+      outputStream.write(Files.readAllBytes(excelFile));
+      response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      response.header(
+          "Content-Disposition",
+          "attachment; filename="
+              + schema.getMetadata().getName()
+              + System.currentTimeMillis()
+              + ".xlsx");
+      return "Export success";
+    }
+  }
+
   private static String schemaGetJson(Request request, Response response)
       throws MolgenisException, IOException {
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     String json = schemaToJson(schema.getMetadata());
     response.status(200);
     return json;
@@ -268,10 +297,10 @@ public class WebApiFactory {
       throws MolgenisException, IOException {
     Schema schema = database.getSchema(request.params(SCHEMA));
     OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema.getMetadata());
-    StringWriter writer = new StringWriter();
-    Yaml.pretty().writeValue(writer, api);
     response.status(200);
-    return writer.toString();
+    return Yaml.mapper()
+        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+        .writeValueAsString(api);
   }
 
   private static String openApiUserInterface(Request request, Response response) {
@@ -286,5 +315,35 @@ public class WebApiFactory {
       schemas.put(schemaName, request.url() + "/" + schemaName);
     }
     return JsonStream.serialize(schemas);
+  }
+
+  private static Database getAuthenticatedDatabase(Request request) throws MolgenisException {
+    return database;
+
+    //    String token = request.headers("x-molgenis-token");
+    //
+    //    // for testing, we use token == role, and give connection in a map
+    //    // of course this leaves open connections
+    //
+    //    if (databaseForRole.get(token) == null) {
+    //      Connection conn = null;
+    //      try {
+    //        conn =
+    //            DriverManager.getConnection(
+    //                "jdbc:postgresql://localhost:5432/molgenis", "molgenis", "molgenis");
+    //      } catch (SQLException sqle) {
+    //        throw new MolgenisException("connection faile", "conenction failed",
+    // sqle.getMessage());
+    //      }
+    //      try (Statement stmt = conn.createStatement()) {
+    //        stmt.execute("set role \"" + token + "\"");
+    //      } catch (SQLException sqle) {
+    //        throw new MolgenisException(
+    //            "invalid_token", "Invalid token", "Role " + token + " not known" +
+    // sqle.getMessage());
+    //      }
+    //      databaseForRole.put(token, new SqlDatabase(conn));
+    //    }
+    //    return databaseForRole.get(token);
   }
 }

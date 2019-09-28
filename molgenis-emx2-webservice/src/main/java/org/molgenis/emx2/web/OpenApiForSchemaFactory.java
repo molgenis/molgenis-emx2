@@ -6,13 +6,14 @@ import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.molgenis.emx2.web.Constants.*;
 
@@ -23,7 +24,7 @@ public class OpenApiForSchemaFactory {
   public static final String PROBLEM = "Problem";
   public static final String BAD_REQUEST = "400";
   public static final String BAD_REQUEST_MESSAGE = "Bad request";
-  public static final String DATA_PATH = "/data";
+  public static final String DATA_PATH = "/data/";
   public static final String MEMBER = "Member";
 
   private OpenApiForSchemaFactory() {
@@ -39,6 +40,17 @@ public class OpenApiForSchemaFactory {
     // createTableIfNotExists the paths and components
     Paths paths = new Paths();
     Components components = new Components();
+
+    // auth
+    components.addSecuritySchemes(
+        "ApiKeyAuth",
+        new SecurityScheme()
+            .type(SecurityScheme.Type.APIKEY)
+            .in(SecurityScheme.In.HEADER)
+            .name("x-molgenis-token"));
+    List<SecurityRequirement> securityRequirementList = new ArrayList<>();
+    securityRequirementList.add(new SecurityRequirement().addList("ApiKeyAuth"));
+    api.security(securityRequirementList);
 
     // /data
     PathItem dataApi = new PathItem();
@@ -185,6 +197,9 @@ public class OpenApiForSchemaFactory {
                                     new MediaType().schema(new StringSchema().format("binary")))
                                 .addMediaType(
                                     ACCEPT_CSV,
+                                    new MediaType().schema(new Schema().$ref("SchemaMetadata")))
+                                .addMediaType(
+                                    ACCEPT_EXCEL,
                                     new MediaType().schema(new Schema().$ref("SchemaMetadata"))))));
   }
 
@@ -296,7 +311,12 @@ public class OpenApiForSchemaFactory {
     for (Column column : table.getColumns()) {
       properties.put(column.getColumnName(), columnSchema(column));
     }
-    components.addSchemas(table.getTableName(), new Schema().type(OBJECT).properties(properties));
+    components.addSchemas(
+        table.getTableName(),
+        new Schema()
+            .description("JSON schema for " + table.getTableName())
+            .type(OBJECT)
+            .properties(properties));
   }
 
   //  private static Operation rowGetOperation(String tableName) {
@@ -359,6 +379,7 @@ public class OpenApiForSchemaFactory {
     components.addResponses(
         tableName,
         new ApiResponse()
+            .description("Response for table " + tableName)
             .content(
                 new Content()
                     .addMediaType(

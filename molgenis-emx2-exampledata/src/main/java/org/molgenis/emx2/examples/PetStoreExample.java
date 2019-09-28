@@ -1,7 +1,6 @@
 package org.molgenis.emx2.examples;
 
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.molgenis.emx2.Type.BOOL;
@@ -34,7 +33,7 @@ public class PetStoreExample {
     userTable.addColumn("firstName");
     userTable.addColumn("lastName");
     userTable.addColumn("email"); // todo: validation email
-    userTable.addColumn("password"); // todo: password type?
+    userTable.addColumn("password"); // todo: password type
     userTable.addColumn("phone"); // todo: validation phone
     userTable.addColumn("userStatus", INT);
 
@@ -43,5 +42,14 @@ public class PetStoreExample {
     orderTable.addColumn("quantity", INT); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered
+  }
+
+  public static void populate(Schema schema) throws MolgenisException {
+
+    schema
+        .getTable("Category")
+        .insert(new Row().set("name", "aCategory"), new Row().set("name", "bCategory"));
+
+    schema.getTable("Tag").insert(new Row().set("name", "aTag"), new Row().set("name", "bTag"));
   }
 }

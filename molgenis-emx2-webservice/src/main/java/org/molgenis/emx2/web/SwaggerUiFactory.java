@@ -8,7 +8,7 @@ public class SwaggerUiFactory {
 
   public static String createSwaggerUI(String schemaName) {
     String version =
-        "3.23.5"; // newer versions give errors on my Mac: i can not type in RequestBody field
+        "3.23.9"; // newer versions give errors on my Mac: i can not type in RequestBody field
     return String.format(
         "<html>"
             + "<head>"

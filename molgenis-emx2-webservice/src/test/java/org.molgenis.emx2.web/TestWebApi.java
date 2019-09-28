@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.examples.PetStoreExample;
@@ -14,8 +15,9 @@ public class TestWebApi {
   public static void main(String[] args) throws MolgenisException {
     Database db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
-    SchemaMetadata schema = db.createSchema("pet store").getMetadata();
-    PetStoreExample.create(schema);
+    Schema schema = db.createSchema("pet store");
+    PetStoreExample.create(schema.getMetadata());
+    PetStoreExample.populate(schema);
 
     WebApiFactory.createWebApi(db);
   }

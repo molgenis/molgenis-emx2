@@ -1,8 +1,8 @@
 package org.molgenis.emx2.io.stores;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.emx2.io.csv.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvRowReader;
+import org.molgenis.emx2.io.readers.CsvRowWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
   }
 
   @Override
-  public boolean contains(String name) throws IOException {
+  public boolean containsTable(String name) throws IOException {
     try (FileSystem zipfs = open()) {
       Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       return Files.exists(path);

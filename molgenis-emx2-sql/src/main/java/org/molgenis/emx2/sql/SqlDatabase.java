@@ -12,6 +12,7 @@ import org.molgenis.emx2.Transaction;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,6 +24,11 @@ import static org.jooq.impl.DSL.name;
 public class SqlDatabase implements Database {
   private DSLContext jooq;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
+
+  public SqlDatabase(Connection connection) throws MolgenisException {
+    this.jooq = DSL.using(connection, SQLDialect.POSTGRES_10);
+    MetadataUtils.createMetadataSchemaIfNotExists(jooq);
+  }
 
   public SqlDatabase(DataSource source) throws MolgenisException {
     this.jooq = DSL.using(source, SQLDialect.POSTGRES_10);

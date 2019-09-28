@@ -1,8 +1,8 @@
 package org.molgenis.emx2.io.stores;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.csv.CsvRowReader;
-import org.molgenis.emx2.io.csv.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvRowReader;
+import org.molgenis.emx2.io.readers.CsvRowWriter;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class RowStoreForCsvFilesDirectory implements RowStore {
-  static final String CSV_EXTENSION = ".csv";
+  static final String CSV_EXTENSION = ".readers";
 
   private final Path directoryPath;
 
@@ -39,7 +39,7 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
   }
 
   @Override
-  public boolean contains(String name) throws IOException {
+  public boolean containsTable(String name) throws IOException {
     Path path = directoryPath.resolve(name + CSV_EXTENSION);
     return path.toFile().exists();
   }

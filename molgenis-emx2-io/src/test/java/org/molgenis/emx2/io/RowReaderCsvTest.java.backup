@@ -2,10 +2,10 @@
 //
 // import org.junit.Test;
 // import org.molgenis.data.Row;
-// import org.molgenis.emx2.io.csv.RowReaderApacheCommons;
-// import org.molgenis.emx2.io.csv.RowReaderFlatmapper;
-// import org.molgenis.emx2.io.csv.RowReaderJackson;
-// import org.molgenis.emx2.io.csv.RowReaderUnivocity;
+// import org.molgenis.emx2.io.readers.RowReaderApacheCommons;
+// import org.molgenis.emx2.io.readers.RowReaderFlatmapper;
+// import org.molgenis.emx2.io.readers.RowReaderJackson;
+// import org.molgenis.emx2.io.readers.RowReaderUnivocity;
 // import StopWatch;
 //
 // import java.io.File;

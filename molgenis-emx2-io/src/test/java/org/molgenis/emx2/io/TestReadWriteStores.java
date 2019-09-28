@@ -3,10 +3,7 @@ package org.molgenis.emx2.io;
 import org.junit.Test;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.io.stores.RowStore;
-import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
-import org.molgenis.emx2.io.stores.RowStoreForCsvInMemory;
-import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
+import org.molgenis.emx2.io.stores.*;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -21,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class TestReadWriteCSVfilesInDirectoryAndZip {
+public class TestReadWriteStores {
   @Test
   public void testCsvDirectoryStore() throws IOException {
     Path tmp = Files.createTempDirectory(null);
@@ -48,6 +45,24 @@ public class TestReadWriteCSVfilesInDirectoryAndZip {
       Path zipFile = tmp.resolve("test.zip");
       System.out.println("defined zip file " + zipFile);
       RowStoreForCsvInZipFile store = new RowStoreForCsvInZipFile(zipFile);
+      executeTest(store);
+    } catch (MolgenisException e) {
+      e.printStackTrace();
+    } finally {
+      Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
+    if (Files.exists(tmp))
+      throw new RuntimeException(
+          "TMP directory " + tmp + " not deleted. This should never happen.");
+  }
+
+  @Test
+  public void testExcelStore() throws IOException {
+    Path tmp = Files.createTempDirectory(null);
+    try {
+      Path excelFile = tmp.resolve("test.xlsx");
+      System.out.println("defined excel file " + excelFile);
+      RowStoreForXlsxFile store = new RowStoreForXlsxFile(excelFile);
       executeTest(store);
     } catch (MolgenisException e) {
       e.printStackTrace();
@@ -94,9 +109,11 @@ public class TestReadWriteCSVfilesInDirectoryAndZip {
 
     // write them
     store.write("test", rows);
+    store.write("test2", rows);
+
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    List<Row> rows2 = store.read("test");
+    List<Row> rows2 = store.read("test2");
     // for (Row r : rows2) System.out.println(r);
     StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
@@ -104,10 +121,10 @@ public class TestReadWriteCSVfilesInDirectoryAndZip {
     CompareTools.assertEquals(rows, rows2);
 
     // write another one
-    store.write("CanQueryExpandIntoArrayForeignKeys", rows);
+    store.write("test3", rows);
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    rows2 = store.read("CanQueryExpandIntoArrayForeignKeys");
+    rows2 = store.read("test3");
     // for (Row r : rows2) System.out.println(r);
     StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 

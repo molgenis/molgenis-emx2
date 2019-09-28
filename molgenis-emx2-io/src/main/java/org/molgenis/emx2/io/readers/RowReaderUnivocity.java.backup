@@ -1,4 +1,4 @@
-// package org.molgenis.emx2.io.csv;
+// package org.molgenis.emx2.io.readers;
 //
 // import com.univocity.parsers.common.record.Record;
 // import com.univocity.parsers.csv.CsvParser;

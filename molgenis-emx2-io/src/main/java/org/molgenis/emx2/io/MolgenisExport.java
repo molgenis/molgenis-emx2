@@ -5,6 +5,7 @@ import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
 import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
+import org.molgenis.emx2.io.stores.RowStoreForXlsxFile;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
@@ -23,6 +24,11 @@ public class MolgenisExport {
 
   public static void toZipFile(Path zipFile, Schema schema) throws IOException, MolgenisException {
     executeExport(new RowStoreForCsvInZipFile(zipFile), schema);
+  }
+
+  public static void toExcelFile(Path excelFile, Schema schema)
+      throws IOException, MolgenisException {
+    executeExport(new RowStoreForXlsxFile(excelFile), schema);
   }
 
   private static void executeExport(RowStore store, Schema schema)

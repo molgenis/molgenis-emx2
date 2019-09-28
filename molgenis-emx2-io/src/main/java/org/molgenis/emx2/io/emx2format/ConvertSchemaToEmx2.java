@@ -1,13 +1,11 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.emx2.io.csv.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvRowWriter;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.simpleflatmapper.csv.CsvWriter;
-import org.simpleflatmapper.util.CheckedConsumer;
 
 import java.io.IOException;
 import java.io.Writer;

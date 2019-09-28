@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io.legacyformat;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.csv.CsvRowReader;
+import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;

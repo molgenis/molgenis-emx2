@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io.emx2format;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.csv.CsvRowReader;
+import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.MolgenisExceptionMessage;
 
@@ -44,7 +44,7 @@ public class ConvertEmx2ToSchema {
     loadColumns(rows, schema, messages);
     loadTableProperties(schema, rows, messages);
     if (!messages.isEmpty()) {
-      throw new MolgenisException("molgenis.csv reading failed", messages);
+      throw new MolgenisException("molgenis.readers reading failed", messages);
     }
     return schema;
   }

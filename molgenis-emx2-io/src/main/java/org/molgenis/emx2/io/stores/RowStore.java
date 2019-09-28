@@ -11,5 +11,5 @@ public interface RowStore {
 
   List<Row> read(String name) throws IOException;
 
-  boolean contains(String name) throws IOException;
+  boolean containsTable(String name) throws IOException;
 }
