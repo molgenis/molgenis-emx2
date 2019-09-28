@@ -44,19 +44,32 @@ public class TestImportExportEmx2DataAndMetadata {
       StopWatch.print("example schema loaded");
 
       MolgenisExport.toDirectory(directory, schema1);
-
-      StopWatch.print("export complete");
-
+      StopWatch.print("export to directory complete");
       Schema schema2 = database.createSchema(getClass().getSimpleName() + "2");
-
       StopWatch.print("schema2 created, ready to reload the exported data");
-
       MolgenisImport.fromDirectory(directory, schema2);
-      StopWatch.print("import complete");
-
+      StopWatch.print("import from directory complete");
       CompareTools.assertEquals(schema1.getMetadata(), schema2.getMetadata());
 
-      StopWatch.print("schema comparison: equal");
+      Path excelFile = tmp.resolve("test.xlsx");
+      MolgenisExport.toExcelFile(excelFile, schema1);
+      StopWatch.print("export to excel complete");
+      Schema schema3 = database.createSchema(getClass().getSimpleName() + "3");
+      StopWatch.print("schema3 created, ready to reload the exported data");
+      MolgenisImport.fromExcelFile(excelFile, schema3);
+      StopWatch.print("import from excel complete");
+      CompareTools.assertEquals(schema1.getMetadata(), schema3.getMetadata());
+
+      Path zipFile = tmp.resolve("test.zip");
+      MolgenisExport.toZipFile(zipFile, schema1);
+      StopWatch.print("export to zipfile complete");
+      Schema schema4 = database.createSchema(getClass().getSimpleName() + "4");
+      StopWatch.print("schema4 created, ready to reload the exported data");
+      MolgenisImport.fromZipFile(zipFile, schema4);
+      StopWatch.print("import from zipfile complete");
+      CompareTools.assertEquals(schema1.getMetadata(), schema4.getMetadata());
+
+      StopWatch.print("schema comparison: all equal");
 
     } finally {
       Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
