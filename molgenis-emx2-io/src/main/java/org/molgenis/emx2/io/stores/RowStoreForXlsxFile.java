@@ -29,20 +29,21 @@ public class RowStoreForXlsxFile implements RowStore {
     if (name.length() > 30)
       throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
 
-    Workbook wb = null;
     if (!Files.exists(excelFilePath)) {
-      try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile())) {
-        wb = new XSSFWorkbook();
+      try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
+          Workbook wb = new XSSFWorkbook()) {
         writeRowsToSheet(name, rows, wb);
         wb.write(out);
       }
     } else {
+      Workbook wb;
       try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
         wb = WorkbookFactory.create(inputStream);
         writeRowsToSheet(name, rows, wb);
       }
       try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
         wb.write(outputStream);
+      } finally {
         wb.close();
       }
     }
