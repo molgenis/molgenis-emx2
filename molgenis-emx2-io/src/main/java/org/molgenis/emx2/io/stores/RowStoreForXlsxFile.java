@@ -26,6 +26,8 @@ public class RowStoreForXlsxFile implements RowStore {
 
   @Override
   public void write(String name, List<Row> rows) throws IOException {
+    if (rows.size() == 0) return;
+
     if (name.length() > 30)
       throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
 
@@ -50,7 +52,7 @@ public class RowStoreForXlsxFile implements RowStore {
   }
 
   private void writeRowsToSheet(String name, List<Row> rows, Workbook wb) {
-    if (rows.size() > 0) {
+
       Sheet sheet = wb.createSheet(name);
       Map<String, Integer> columNames = new LinkedHashMap<>();
       int rowNum = 0;
@@ -76,7 +78,6 @@ public class RowStoreForXlsxFile implements RowStore {
         }
         rowNum++;
       }
-    }
   }
 
   @Override

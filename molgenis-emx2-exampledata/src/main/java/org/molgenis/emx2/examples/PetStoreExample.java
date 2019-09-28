@@ -9,24 +9,28 @@ import static org.molgenis.emx2.Type.STRING_ARRAY;
 
 public class PetStoreExample {
 
+  public static final String CATEGORY = "Category";
+  public static final String TAG = "Tag";
+  public static final String NAME = "name";
+
   private PetStoreExample() {
     // hide public constructor
   }
 
   public static void create(SchemaMetadata schema) throws MolgenisException {
 
-    TableMetadata categoryTable = schema.createTableIfNotExists("Category");
-    categoryTable.addColumn("name").setUnique(true);
+    TableMetadata categoryTable = schema.createTableIfNotExists(CATEGORY);
+    categoryTable.addColumn(NAME).setUnique(true);
 
-    TableMetadata tagTable = schema.createTableIfNotExists("Tag");
-    tagTable.addColumn("name").setUnique(true);
+    TableMetadata tagTable = schema.createTableIfNotExists(TAG);
+    tagTable.addColumn(NAME).setUnique(true);
 
     TableMetadata petTable = schema.createTableIfNotExists("Pet");
-    petTable.addColumn("name").setUnique(true);
-    petTable.addRef("category", "Category").setNullable(true);
+    petTable.addColumn(NAME).setUnique(true);
+    petTable.addRef("category", CATEGORY).setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
-    petTable.addRefArray("tags", "Tag");
+    petTable.addRefArray("tags", TAG);
 
     TableMetadata userTable = schema.createTableIfNotExists("User");
     userTable.addColumn("username").setUnique(true);
@@ -38,7 +42,7 @@ public class PetStoreExample {
     userTable.addColumn("userStatus", INT);
 
     TableMetadata orderTable = schema.createTableIfNotExists("Order");
-    orderTable.addRef("petId", "Pet", "name");
+    orderTable.addRef("petId", "Pet", NAME);
     orderTable.addColumn("quantity", INT); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered
@@ -47,9 +51,9 @@ public class PetStoreExample {
   public static void populate(Schema schema) throws MolgenisException {
 
     schema
-        .getTable("Category")
-        .insert(new Row().set("name", "aCategory"), new Row().set("name", "bCategory"));
+        .getTable(CATEGORY)
+        .insert(new Row().set(NAME, "aCategory"), new Row().set(NAME, "bCategory"));
 
-    schema.getTable("Tag").insert(new Row().set("name", "aTag"), new Row().set("name", "bTag"));
+    schema.getTable(TAG).insert(new Row().set(NAME, "aTag"), new Row().set(NAME, "bTag"));
   }
 }
