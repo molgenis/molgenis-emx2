@@ -73,7 +73,7 @@ public class MolgenisWebservice {
     // the data api
     get(DATA, MolgenisWebservice::apiGet);
     post(DATA, MolgenisWebservice::schemaPost);
-
+    delete(DATA, MolgenisWebservice::schemaDelete);
     // documentation
     get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
     get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);

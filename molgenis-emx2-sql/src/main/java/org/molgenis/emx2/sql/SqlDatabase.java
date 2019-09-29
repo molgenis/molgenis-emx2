@@ -72,8 +72,9 @@ public class SqlDatabase implements Database {
   public void dropSchema(String name) throws MolgenisException {
     try {
       SchemaMetadata schema = getSchema(name).getMetadata();
-      getJooq().dropSchema(name);
+      getJooq().dropSchema(name(name)).cascade().execute();
       MetadataUtils.deleteSchema((SqlSchemaMetadata) schema);
+      schemas.remove(name);
     } catch (MolgenisException me) {
       throw new MolgenisException("drop_schema_failed", "Drop schema failed", me.getDetail());
     } catch (DataAccessException dae) {

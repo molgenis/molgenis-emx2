@@ -14,16 +14,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.molgenis.emx2.web.Constants.*;
 
 /* this is a smoke test for the integration of web api with the database layer */
 public class TestWebApi {
+
+  public static final String DATA_PET_STORE_EXCEL = "/data/pet store excel";
+  public static final String DATA_PET_STORE_ZIP = "/data/pet store zip";
+  public static final String DATA_PET_STORE = "/data/pet store";
 
   @BeforeClass
   public static void before() throws MolgenisException {
@@ -40,18 +43,10 @@ public class TestWebApi {
   }
 
   @Test
-  public void testSchemaDownloadUploadRoundtrip() throws IOException {
+  public void testSchemaDownloadUploadZip() throws IOException {
+    // get original schema
+    String schemaJson = given().accept(ACCEPT_JSON).when().get(DATA_PET_STORE).asString();
 
-    String schema_path = "/data/pet store";
-    // download json schema
-    String schemaJson = given().accept(ACCEPT_JSON).when().get(schema_path).asString();
-
-    // download zip file
-    // Path tmpFile = Files.createTempFile("some",".zip");
-
-    // todo download excel file
-
-    // ZIP TEST
     // create a new schema for zip
     given()
         .contentType(ACCEPT_JSON)
@@ -60,17 +55,32 @@ public class TestWebApi {
         .post("/data")
         .then()
         .statusCode(200);
-    String schema_zip_path = "/data/pet store zip";
+
     // download zip contents of old schema
-    byte[] zipContents = given().accept(ACCEPT_ZIP).when().get(schema_path).asByteArray();
+    byte[] zipContents = given().accept(ACCEPT_ZIP).when().get(DATA_PET_STORE).asByteArray();
+
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
-    given().multiPart(zipFile).when().post(schema_zip_path).then().statusCode(200);
+    given().multiPart(zipFile).when().post(DATA_PET_STORE_ZIP).then().statusCode(200);
+
     // check if schema equal using json representation
-    String schemaJson2 = given().accept(ACCEPT_JSON).when().get(schema_zip_path).asString();
+    String schemaJson2 = given().accept(ACCEPT_JSON).when().get(DATA_PET_STORE_ZIP).asString();
     assertEquals(schemaJson, schemaJson2);
 
-    // EXCEL TEST
+    // delete a new schema for excel
+    given().accept(ACCEPT_JSON).when().delete(DATA_PET_STORE_ZIP).then().statusCode(200);
+
+    // check deleted
+    String contents = given().contentType(ACCEPT_JSON).when().get("/data").asString();
+    assertFalse(contents.contains("zip"));
+  }
+
+  @Test
+  public void testSchemaDownloadUploadExcel() throws IOException {
+
+    // download json schema
+    String schemaJson = given().accept(ACCEPT_JSON).when().get(DATA_PET_STORE).asString();
+
     // create a new schema for excel
     given()
         .contentType(ACCEPT_JSON)
@@ -79,17 +89,24 @@ public class TestWebApi {
         .post("/data")
         .then()
         .statusCode(200);
+
     // download excel contents from schema
-    byte[] excelContents = given().accept(ACCEPT_EXCEL).when().get(schema_path).asByteArray();
+    byte[] excelContents = given().accept(ACCEPT_EXCEL).when().get(DATA_PET_STORE).asByteArray();
     File excelFile = createTempFile(excelContents, ".xlsx");
+
     // upload excel into new schema
-    given().multiPart(excelFile).when().post("/data/pet store excel").then().statusCode(200);
+    given().multiPart(excelFile).when().post(DATA_PET_STORE_EXCEL).then().statusCode(200);
+
     // check if schema equal using json representation
-    String schemaJson3 = given().accept(ACCEPT_JSON).when().get("/data/pet store excel").asString();
+    String schemaJson3 = given().accept(ACCEPT_JSON).when().get(DATA_PET_STORE_EXCEL).asString();
     assertEquals(schemaJson, schemaJson3);
 
-    // download and upload csv file between schema's
-    String csvContents = given().accept(ACCEPT_CSV).when().get(schema_path).asString();
+    // delete a new schema for excel
+    given().accept(ACCEPT_JSON).when().delete(DATA_PET_STORE_EXCEL).then().statusCode(200);
+
+    // check deleted
+    String contents = given().contentType(ACCEPT_JSON).when().get("/data").asString();
+    assertFalse(contents.contains("excel"));
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
