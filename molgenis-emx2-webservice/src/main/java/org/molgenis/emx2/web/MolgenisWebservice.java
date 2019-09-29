@@ -12,12 +12,12 @@ import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
 import org.molgenis.emx2.utils.MolgenisException;
 import spark.Request;
 import spark.Response;
+import spark.Spark;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
@@ -25,10 +25,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -39,7 +35,7 @@ import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
 import static org.molgenis.emx2.web.json.JsonSchemaMapper.schemaToJson;
 import static spark.Spark.*;
 
-public class WebApiFactory {
+public class MolgenisWebservice {
   // todo look into javalin that claims to have openapi and sparkjava merged together
 
   private static final String DATA = "/data";
@@ -51,11 +47,11 @@ public class WebApiFactory {
   private static final String SCHEMA = "schema";
   private static final String TABLE = "table";
 
-  private WebApiFactory() {
+  private MolgenisWebservice() {
     // hide constructor
   }
 
-  public static void createWebApi(Database db) {
+  public static void start(Database db) {
     database = db;
 
     port(8080);
@@ -75,31 +71,29 @@ public class WebApiFactory {
     // aut api
 
     // the data api
-    get(DATA, WebApiFactory::apiGet);
-    post(DATA, WebApiFactory::schemaPost);
+    get(DATA, MolgenisWebservice::apiGet);
+    post(DATA, MolgenisWebservice::schemaPost);
 
     // documentation
-    get("/openapi", ACCEPT_JSON, WebApiFactory::openApiListSchemas);
-    get("/openapi/:schema", WebApiFactory::openApiUserInterface);
-    get("/openapi/:schema/openapi.yaml", WebApiFactory::openApiYaml);
+    get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
+    get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);
+    get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // schema operations
-    get(DATA_SCHEMA, ACCEPT_JSON, WebApiFactory::schemaGetJson);
-    get(DATA_SCHEMA, ACCEPT_CSV, WebApiFactory::schemaGetCsv);
-    get(DATA_SCHEMA, ACCEPT_EXCEL, WebApiFactory::schemaGetExcel);
-    get(DATA_SCHEMA, ACCEPT_ZIP, WebApiFactory::schemaGetZip);
+    get(DATA_SCHEMA, ACCEPT_JSON, MolgenisWebservice::schemaGetJson);
+    get(DATA_SCHEMA, ACCEPT_CSV, MolgenisWebservice::schemaGetCsv);
+    get(DATA_SCHEMA, ACCEPT_EXCEL, MolgenisWebservice::schemaGetExcel);
+    get(DATA_SCHEMA, ACCEPT_ZIP, MolgenisWebservice::schemaGetZip);
+    post(DATA_SCHEMA, MolgenisWebservice::schemaPostZip);
+    delete(DATA_SCHEMA, MolgenisWebservice::schemaDelete);
 
-    get("/admin/:schema/members", WebApiFactory::membersGet);
-    post("/admin/:schema/members", WebApiFactory::membersPost);
-
-    post(DATA_SCHEMA, WebApiFactory::schemaPostZip);
-    delete(DATA_SCHEMA, WebApiFactory::schemaDelete);
+    get("/admin/:schema/members", MolgenisWebservice::membersGet);
+    post("/admin/:schema/members", MolgenisWebservice::membersPost);
 
     // table operations
-    get(DATA_SCHEMA_TABLE, ACCEPT_JSON, WebApiFactory::tableQueryAcceptJSON);
-    get(DATA_SCHEMA_TABLE, ACCEPT_CSV, WebApiFactory::tableQueryAcceptCSV);
-    post(DATA_SCHEMA_TABLE, WebApiFactory::tablePostOperation);
-    delete(DATA_SCHEMA_TABLE, WebApiFactory::tableDeleteOperation);
+    get(DATA_SCHEMA_TABLE, MolgenisWebservice::tableGet);
+    post(DATA_SCHEMA_TABLE, ACCEPT_JSON, MolgenisWebservice::tablePost);
+    delete(DATA_SCHEMA_TABLE, MolgenisWebservice::tableDelete);
 
     // row operations (get rid of those?)
 
@@ -214,7 +208,8 @@ public class WebApiFactory {
   private static String schemaPostZip(Request request, Response response)
       throws MolgenisException, IOException, ServletException {
     Schema schema = database.getSchema(request.params(SCHEMA));
-    Path tempFile = getTempFile();
+    Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".zip");
+    tempFile.toFile().deleteOnExit();
     request.attribute(
         "org.eclipse.jetty.multipartConfig",
         new MultipartConfigElement(tempFile.toAbsolutePath().toString()));
@@ -232,20 +227,24 @@ public class WebApiFactory {
     return tempFile;
   }
 
-  private static String tableQueryAcceptJSON(Request request, Response response)
-      throws MolgenisException, JsonProcessingException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
-    List<Row> rows = table.retrieve();
-    return JsonMapper.rowsToJson(rows);
-  }
-
-  private static String tableQueryAcceptCSV(Request request, Response response)
+  private static String tableGet(Request request, Response response)
       throws MolgenisException, IOException {
+    // retrieve data
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     List<Row> rows = table.retrieve();
-    StringWriter writer = new StringWriter();
-    CsvRowWriter.writeCsv(rows, writer);
-    return writer.toString();
+    // format response
+    String accept = request.headers("Accept");
+    if (accept == null || accept.toLowerCase().contains(ACCEPT_JSON.toLowerCase())) {
+      response.type(ACCEPT_JSON);
+      return JsonMapper.rowsToJson(rows);
+    }
+    if (accept.toLowerCase().contains(ACCEPT_CSV.toLowerCase())) {
+      response.type(ACCEPT_CSV);
+      StringWriter writer = new StringWriter();
+      CsvRowWriter.writeCsv(rows, writer);
+      return writer.toString();
+    }
+    throw new UnsupportedOperationException("unsupported content type: " + request.contentType());
   }
 
   private static String openApiListSchemas(Request request, Response response)
@@ -257,7 +256,7 @@ public class WebApiFactory {
     return result.toString();
   }
 
-  private static String tablePostOperation(Request request, Response response)
+  private static String tablePost(Request request, Response response)
       throws MolgenisException, IOException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Iterable<Row> rows = tableRequestBodyToRows(request);
@@ -267,7 +266,7 @@ public class WebApiFactory {
     return "" + count;
   }
 
-  private static String tableDeleteOperation(Request request, Response response)
+  private static String tableDelete(Request request, Response response)
       throws MolgenisException, IOException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Iterable<Row> rows = tableRequestBodyToRows(request);
@@ -278,19 +277,14 @@ public class WebApiFactory {
   }
 
   private static Iterable<Row> tableRequestBodyToRows(Request request) throws IOException {
-    Iterable<Row> rows;
-    switch (request.contentType()) {
-      case ACCEPT_JSON:
-        rows = JsonRowMapper.jsonToRows(request.body());
-        break;
-      case ACCEPT_CSV:
-        rows = CsvRowReader.read(new StringReader(request.body()));
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            "unsupported content type: " + request.contentType());
-    }
-    return rows;
+    if (request.contentType().toLowerCase().contains(ACCEPT_JSON.toLowerCase()))
+      return JsonRowMapper.jsonToRows(request.body());
+
+    if (request.contentType().toLowerCase().contains(ACCEPT_CSV.toLowerCase()))
+      return CsvRowReader.read(new StringReader(request.body()));
+
+    // default
+    throw new UnsupportedOperationException("unsupported content type: " + request.contentType());
   }
 
   private static String openApiYaml(Request request, Response response)
@@ -345,5 +339,9 @@ public class WebApiFactory {
     //      databaseForRole.put(token, new SqlDatabase(conn));
     //    }
     //    return databaseForRole.get(token);
+  }
+
+  public static void stop() {
+    Spark.stop();
   }
 }
