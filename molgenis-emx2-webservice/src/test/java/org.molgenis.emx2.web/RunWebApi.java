@@ -6,7 +6,7 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.DatabaseFactory;
 import org.molgenis.emx2.utils.MolgenisException;
 
-public class RunWepApi {
+public class RunWebApi {
 
   public static void main(String[] args) throws MolgenisException {
     Database db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");

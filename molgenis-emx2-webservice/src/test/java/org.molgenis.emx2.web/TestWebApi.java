@@ -51,7 +51,8 @@ public class TestWebApi {
 
     // todo download excel file
 
-    // create a new schema
+    // ZIP TEST
+    // create a new schema for zip
     given()
         .contentType(ACCEPT_JSON)
         .body("{\"name\":\"pet store zip\"}")
@@ -60,24 +61,45 @@ public class TestWebApi {
         .then()
         .statusCode(200);
     String schema_zip_path = "/data/pet store zip";
-
-    // TODO upload json contents
-
-    // download and upload zip file between schema's
+    // download zip contents of old schema
     byte[] zipContents = given().accept(ACCEPT_ZIP).when().get(schema_path).asByteArray();
-    File tempFile = File.createTempFile("some", ".zip");
+    // upload zip contents into new schema
+    File zipFile = createTempFile(zipContents, ".zip");
+    given().multiPart(zipFile).when().post(schema_zip_path).then().statusCode(200);
+    // check if schema equal using json representation
+    String schemaJson2 = given().accept(ACCEPT_JSON).when().get(schema_zip_path).asString();
+    assertEquals(schemaJson, schemaJson2);
+
+    // EXCEL TEST
+    // create a new schema for excel
+    given()
+        .contentType(ACCEPT_JSON)
+        .body("{\"name\":\"pet store excel\"}")
+        .when()
+        .post("/data")
+        .then()
+        .statusCode(200);
+    // download excel contents from schema
+    byte[] excelContents = given().accept(ACCEPT_EXCEL).when().get(schema_path).asByteArray();
+    File excelFile = createTempFile(excelContents, ".xlsx");
+    // upload excel into new schema
+    given().multiPart(excelFile).when().post("/data/pet store excel").then().statusCode(200);
+    // check if schema equal using json representation
+    String schemaJson3 = given().accept(ACCEPT_JSON).when().get("/data/pet store excel").asString();
+    assertEquals(schemaJson, schemaJson3);
+
+    // download and upload csv file between schema's
+    String csvContents = given().accept(ACCEPT_CSV).when().get(schema_path).asString();
+  }
+
+  private File createTempFile(byte[] zipContents, String extension) throws IOException {
+    File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
     OutputStream os = new FileOutputStream(tempFile);
     os.write(zipContents);
     os.flush();
     os.close();
-    given().multiPart(tempFile).when().post(schema_zip_path).then().statusCode(200);
-
-    // TODO upload excel contents
-
-    // check if json schema equal
-    String schemaJson2 = given().accept(ACCEPT_JSON).when().get(schema_zip_path).asString();
-    assertEquals(schemaJson, schemaJson2);
+    return tempFile;
   }
 
   @Test

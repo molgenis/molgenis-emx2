@@ -208,15 +208,29 @@ public class MolgenisWebservice {
   private static String schemaPostZip(Request request, Response response)
       throws MolgenisException, IOException, ServletException {
     Schema schema = database.getSchema(request.params(SCHEMA));
-    Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".zip");
-    tempFile.toFile().deleteOnExit();
+    // get uploaded file
+    File tempFile = File.createTempFile("tempfiles-delete-on-exit", ".tmp");
+    tempFile.deleteOnExit();
     request.attribute(
         "org.eclipse.jetty.multipartConfig",
-        new MultipartConfigElement(tempFile.toAbsolutePath().toString()));
+        new MultipartConfigElement(tempFile.getAbsolutePath().toString()));
     try (InputStream input = request.raw().getPart("file").getInputStream()) {
-      Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-    MolgenisImport.fromZipFile(tempFile, schema);
+
+    // depending on file extension use proper importer
+    String fileName = request.raw().getPart("file").getSubmittedFileName();
+    if (fileName.endsWith(".zip")) {
+      MolgenisImport.fromZipFile(tempFile.toPath(), schema);
+    } else if (fileName.endsWith(".xlsx")) {
+      MolgenisImport.fromExcelFile(tempFile.toPath(), schema);
+    } else {
+      throw new IOException(
+          "File upload failed: extension "
+              + fileName.substring(fileName.lastIndexOf("."))
+              + " not supported");
+    }
+
     response.status(200);
     return "Import success";
   }
