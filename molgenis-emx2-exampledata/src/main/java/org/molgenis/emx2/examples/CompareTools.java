@@ -4,12 +4,8 @@ import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.jooq.DSLContext;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -58,19 +54,20 @@ public class CompareTools {
 
       Map<String, Object> values1 = r1.getValueMap();
       for (String colName : colNames1) {
-        Type type = TypeUtils.typeOf(values1.get(colName).getClass());
+        ColumnType columnType = TypeUtils.typeOf(values1.get(colName).getClass());
 
-        if (!r1.get(colName, type).equals(r2.get(colName, type))
-            && !Arrays.equals((Object[]) r1.get(colName, type), (Object[]) r2.get(colName, type))) {
+        if (!r1.get(colName, columnType).equals(r2.get(colName, columnType))
+            && !Arrays.equals(
+                (Object[]) r1.get(colName, columnType), (Object[]) r2.get(colName, columnType))) {
           fail(
               "List<Row> has different value for row "
                   + i
                   + ", column "
                   + colName
                   + ": "
-                  + TypeUtils.toString(r1.get(colName, type))
+                  + TypeUtils.toString(r1.get(colName, columnType))
                   + "\nversus\n"
-                  + TypeUtils.toString(r2.get(colName, type)));
+                  + TypeUtils.toString(r2.get(colName, columnType)));
         }
       }
     }

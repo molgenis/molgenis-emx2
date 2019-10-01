@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class TestQueryExpandIntoReferences {
   static Database db;
@@ -28,7 +28,7 @@ public class TestQueryExpandIntoReferences {
     Table personTable = schema.createTableIfNotExists(PERSON);
     personTable
         .getMetadata()
-        .addColumn("ID", Type.INT)
+        .addColumn("ID", ColumnType.INT)
         .primaryKey()
         .addColumn("First Name", STRING)
         .addRef("Father", PERSON)

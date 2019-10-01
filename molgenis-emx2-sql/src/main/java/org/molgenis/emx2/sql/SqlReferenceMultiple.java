@@ -3,9 +3,9 @@ package org.molgenis.emx2.sql;
 import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.impl.DSL;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
 import org.molgenis.emx2.ReferenceMultiple;
 
 import java.util.Arrays;
@@ -16,8 +16,8 @@ import static org.jooq.impl.DSL.constraint;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
 public class SqlReferenceMultiple extends ReferenceMultiple {
-  public SqlReferenceMultiple(SqlTableMetadata table, Type type, String[] nameArray) {
-    super(table, type, nameArray);
+  public SqlReferenceMultiple(SqlTableMetadata table, ColumnType columnType, String[] nameArray) {
+    super(table, columnType, nameArray);
   }
 
   @Override

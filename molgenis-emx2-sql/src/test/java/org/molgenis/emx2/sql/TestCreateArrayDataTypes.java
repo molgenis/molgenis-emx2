@@ -2,11 +2,8 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.Serializable;
@@ -14,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestCreateArrayDataTypes {
 
@@ -77,14 +74,14 @@ public class TestCreateArrayDataTypes {
   //    executeTest(BOOL_ARRAY, new Boolean[] {null, true, false});
   //  }
 
-  private void executeTest(Type type, Serializable[] values) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Serializable[] values) throws MolgenisException {
 
     Schema schema =
-        database.createSchema("TestCreateArrayDataTypes" + type.toString().toUpperCase());
+        database.createSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
 
     Table tableA = schema.createTableIfNotExists("A");
-    String aFieldName = type + "Col";
-    tableA.getMetadata().addColumn(aFieldName, type).primaryKey();
+    String aFieldName = columnType + "Col";
+    tableA.getMetadata().addColumn(aFieldName, columnType).primaryKey();
 
     Row aRow = new Row().set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);
@@ -97,15 +94,15 @@ public class TestCreateArrayDataTypes {
     List<Row> result = tableA.query().where(aFieldName).contains(values[0]).retrieve();
     assertEquals(1, result.size());
     for (Row r : result) {
-      if (DATETIME_ARRAY.equals(type)) {
+      if (DATETIME_ARRAY.equals(columnType)) {
         // TODO fix test
       } else {
         assertEquals(
             Arrays.copyOfRange(values, 0, 2)[0].toString(),
-            ((Object[]) r.get(aFieldName, type))[0].toString());
+            ((Object[]) r.get(aFieldName, columnType))[0].toString());
         assertEquals(
             Arrays.copyOfRange(values, 0, 2)[1].toString(),
-            ((Object[]) r.get(aFieldName, type))[1].toString());
+            ((Object[]) r.get(aFieldName, columnType))[1].toString());
       }
     }
 

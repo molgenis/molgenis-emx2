@@ -6,14 +6,14 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 class SqlTableMetadata extends TableMetadata {
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
@@ -90,8 +90,8 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlColumn addColumn(String name, Type type) throws MolgenisException {
-    SqlColumn c = new SqlColumn(this, name, type);
+  public SqlColumn addColumn(String name, ColumnType columnType) throws MolgenisException {
+    SqlColumn c = new SqlColumn(this, name, columnType);
     c.createColumn();
     super.addColumn(c);
     return c;
@@ -105,7 +105,7 @@ class SqlTableMetadata extends TableMetadata {
   public Column addColumn(Column metadata) throws MolgenisException {
     Column result = null;
 
-    switch (metadata.getType()) {
+    switch (metadata.getColumnType()) {
       case REF:
         result =
             addRef(
@@ -127,7 +127,7 @@ class SqlTableMetadata extends TableMetadata {
                 metadata.getMrefJoinTableName());
         break;
       default:
-        result = addColumn(metadata.getColumnName(), metadata.getType());
+        result = addColumn(metadata.getColumnName(), metadata.getColumnType());
     }
     result.setDescription(metadata.getDescription());
     result.setNullable(metadata.getNullable());

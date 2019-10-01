@@ -1,11 +1,11 @@
 package org.molgenis.emx2.examples.synthetic;
 
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
 import org.molgenis.emx2.utils.MolgenisException;
 
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class ArrayTypeTestExample {
 
@@ -16,8 +16,8 @@ public class ArrayTypeTestExample {
   public static void createSimpleTypeTest(SchemaMetadata schema) throws MolgenisException {
 
     TableMetadata typeTestTable = schema.createTableIfNotExists("ArrayTypeTest");
-    Type[] types =
-        new Type[] {
+    ColumnType[] columnTypes =
+        new ColumnType[] {
           UUID_ARRAY,
           STRING_ARRAY,
           BOOL_ARRAY,
@@ -27,11 +27,11 @@ public class ArrayTypeTestExample {
           DATE_ARRAY,
           DATETIME_ARRAY
         };
-    for (Type type : types) {
+    for (ColumnType columnType : columnTypes) {
 
-      typeTestTable.addColumn("Test_" + type.toString().toLowerCase(), type);
+      typeTestTable.addColumn("Test_" + columnType.toString().toLowerCase(), columnType);
       typeTestTable
-          .addColumn("Test_" + type.toString().toLowerCase() + "_nillable", type)
+          .addColumn("Test_" + columnType.toString().toLowerCase() + "_nillable", columnType)
           .setNullable(true);
     }
   }

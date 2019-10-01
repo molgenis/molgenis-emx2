@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.emx2format;
 
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -67,16 +67,16 @@ public class Emx2PropertyList {
     return this.add(name, join(parameterValues));
   }
 
-  public Emx2PropertyList add(Type type) {
-    return this.add(type.toString().toLowerCase());
+  public Emx2PropertyList add(ColumnType columnType) {
+    return this.add(columnType.toString().toLowerCase());
   }
 
-  public Emx2PropertyList add(Type type, String parameterValue) {
-    return this.add(type.toString().toLowerCase(), parameterValue);
+  public Emx2PropertyList add(ColumnType columnType, String parameterValue) {
+    return this.add(columnType.toString().toLowerCase(), parameterValue);
   }
 
-  public Emx2PropertyList add(Type type, Collection<String> parameterValues) {
-    return this.add(type, join(parameterValues));
+  public Emx2PropertyList add(ColumnType columnType, Collection<String> parameterValues) {
+    return this.add(columnType, join(parameterValues));
   }
 
   private static String join(Collection<String> parameterValues) {
@@ -106,7 +106,7 @@ public class Emx2PropertyList {
     return parameterList.toArray(new String[parameterList.size()]);
   }
 
-  public List<String> getParameterList(Type type) {
-    return getParameterList(type.toString().toLowerCase());
+  public List<String> getParameterList(ColumnType columnType) {
+    return getParameterList(columnType.toString().toLowerCase());
   }
 }

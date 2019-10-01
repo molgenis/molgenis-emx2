@@ -2,11 +2,8 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.sql.SQLException;
@@ -29,9 +26,9 @@ public class TestFullTextSearch {
     Table aTable = schema.createTableIfNotExists("TestFullTextSearch");
     aTable
         .getMetadata()
-        .addColumn("sub", Type.STRING)
-        .addColumn("body", Type.TEXT)
-        .addColumn("year", Type.INT);
+        .addColumn("sub", ColumnType.STRING)
+        .addColumn("body", ColumnType.TEXT)
+        .addColumn("year", ColumnType.INT);
     aTable.getMetadata().enableSearch();
 
     aTable.insert(

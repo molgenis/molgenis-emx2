@@ -9,7 +9,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestMapPojoToTable {
 
@@ -45,8 +45,8 @@ public class TestMapPojoToTable {
     assertEquals("firstName", firstName.getColumnName());
     assertEquals("lastName", lastName.getColumnName());
 
-    assertEquals(Type.UUID, molgenisid.getType());
-    assertEquals(STRING, firstName.getType());
+    assertEquals(ColumnType.UUID, molgenisid.getColumnType());
+    assertEquals(STRING, firstName.getColumnType());
 
     assertTrue(firstName.getNullable());
     assertFalse(lastName.getNullable());
@@ -58,14 +58,14 @@ public class TestMapPojoToTable {
   public void testTypeTestToTable() throws MolgenisException {
     TableMetadata table = Mapper.map(TypeTestBean.class);
 
-    for (Type type : new Type[] {STRING, INT, DECIMAL, BOOL, DATE, DATETIME}) {
+    for (ColumnType columnType : new ColumnType[] {STRING, INT, DECIMAL, BOOL, DATE, DATETIME}) {
 
       String columnName =
           "a"
-              + type.toString().substring(0, 1).toUpperCase()
-              + type.toString().substring(1).toLowerCase();
+              + columnType.toString().substring(0, 1).toUpperCase()
+              + columnType.toString().substring(1).toLowerCase();
 
-      assertEquals(type, table.getColumn(columnName).getType());
+      assertEquals(columnType, table.getColumn(columnName).getColumnType());
     }
   }
 }

@@ -2,15 +2,12 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestCreateCompositeRef {
 
@@ -57,21 +54,21 @@ public class TestCreateCompositeRef {
         UUID, "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4", "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5");
   }
 
-  private void executeTest(Type type, Object insertValue, Object updateValue)
+  private void executeTest(ColumnType columnType, Object insertValue, Object updateValue)
       throws MolgenisException {
 
-    Schema schema = db.createSchema("TestCreateCompositeRef" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestCreateCompositeRef" + columnType.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
-    String uniqueColumn1 = "AUnique" + type;
-    String uniqueColumn2 = "AUnique" + type + "2";
+    String uniqueColumn1 = "AUnique" + columnType;
+    String uniqueColumn2 = "AUnique" + columnType + "2";
 
     aTable
         .getMetadata()
-        .addColumn("ID", Type.INT)
+        .addColumn("ID", ColumnType.INT)
         .primaryKey()
-        .addColumn(uniqueColumn1, type)
-        .addColumn(uniqueColumn2, type)
+        .addColumn(uniqueColumn1, columnType)
+        .addColumn(uniqueColumn2, columnType)
         .addUnique(uniqueColumn1, uniqueColumn2);
 
     Row aRow =
@@ -79,12 +76,12 @@ public class TestCreateCompositeRef {
     aTable.insert(aRow);
 
     Table bTable = schema.createTableIfNotExists("B");
-    String refFromBToA1 = "RefToAKeyOf" + type;
-    String refFromBToA2 = "RefToAKeyOf" + type + "2";
+    String refFromBToA1 = "RefToAKeyOf" + columnType;
+    String refFromBToA2 = "RefToAKeyOf" + columnType + "2";
 
     bTable
         .getMetadata()
-        .addColumn("ID", Type.INT)
+        .addColumn("ID", ColumnType.INT)
         .primaryKey()
         .addRefMultiple(refFromBToA1, refFromBToA2)
         .to("A", uniqueColumn1, uniqueColumn2);

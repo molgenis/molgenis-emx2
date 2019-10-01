@@ -18,7 +18,7 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.query.Operator.OR;
 import static org.molgenis.emx2.query.Operator.SEARCH;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.SqlTable.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
@@ -77,7 +77,7 @@ public class SqlQuery extends QueryBean implements Query {
     // createTableIfNotExists all columns
     List<Field> fields = new ArrayList<>();
     for (Column column : table.getColumns()) {
-      if (!MREF.equals(column.getType())) {
+      if (!MREF.equals(column.getColumnType())) {
         fields.add(
             field(
                 name(column.getMrefJoinTableName(), column.getColumnName()),
@@ -104,7 +104,7 @@ public class SqlQuery extends QueryBean implements Query {
 
     // for mrefs join
     for (Column column : table.getColumns()) {
-      if (MREF.equals(column.getType())) {
+      if (MREF.equals(column.getColumnType())) {
         jooqTable =
             jooqTable
                 .leftJoin(
@@ -238,7 +238,7 @@ public class SqlQuery extends QueryBean implements Query {
         // else
         duplicatePaths.add(rightAlias);
 
-        switch (c.getType()) {
+        switch (c.getColumnType()) {
           case REF:
             fromStep =
                 fromStep

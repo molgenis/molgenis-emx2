@@ -2,7 +2,7 @@ package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.MolgenisException;
 
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 import java.util.*;
 
@@ -64,8 +64,8 @@ public class TableMetadata {
     return this.addColumn(name, STRING);
   }
 
-  public Column addColumn(String name, Type type) throws MolgenisException {
-    Column c = new Column(this, name, type);
+  public Column addColumn(String name, ColumnType columnType) throws MolgenisException {
+    Column c = new Column(this, name, columnType);
     columns.put(name, c);
     return c;
   }

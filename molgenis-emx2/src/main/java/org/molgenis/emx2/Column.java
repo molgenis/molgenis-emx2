@@ -2,13 +2,13 @@ package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.MolgenisException;
 
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {
   private TableMetadata table;
 
   private String columnName;
-  private Type type;
+  private ColumnType columnType;
   private boolean nullable = false;
   private String refTable;
   private String refColumn;
@@ -21,19 +21,19 @@ public class Column {
   private String validation;
   private String defaultValue;
 
-  public Column(TableMetadata table, String columnName, Type type) {
+  public Column(TableMetadata table, String columnName, ColumnType columnType) {
     // todo check not null
     this.table = table;
     this.columnName = columnName;
-    this.type = type;
+    this.columnType = columnType;
   }
 
   public Column addColumn(String name) throws MolgenisException {
     return this.getTable().addColumn(name, STRING);
   }
 
-  public Column addColumn(String name, Type type) throws MolgenisException {
-    return this.getTable().addColumn(name, type);
+  public Column addColumn(String name, ColumnType columnType) throws MolgenisException {
+    return this.getTable().addColumn(name, columnType);
   }
 
   // todo can we remove these and instead use setReference and setReverseReference?
@@ -66,8 +66,8 @@ public class Column {
     return columnName;
   }
 
-  public Type getType() {
-    return type;
+  public ColumnType getColumnType() {
+    return columnType;
   }
 
   public Boolean getNullable() {
@@ -108,9 +108,9 @@ public class Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getColumnName()).append(" ");
-    if (Type.REF.equals(getType()))
+    if (ColumnType.REF.equals(getColumnType()))
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
-    else builder.append(getType().toString().toLowerCase());
+    else builder.append(getColumnType().toString().toLowerCase());
     if (Boolean.TRUE.equals(getNullable())) builder.append(" setNullable");
     return builder.toString();
   }

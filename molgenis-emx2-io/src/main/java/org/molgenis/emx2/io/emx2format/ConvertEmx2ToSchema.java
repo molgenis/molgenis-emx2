@@ -12,7 +12,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class ConvertEmx2ToSchema {
 
@@ -134,9 +134,9 @@ public class ConvertEmx2ToSchema {
       List<MolgenisExceptionMessage> messages)
       throws MolgenisException {
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
-    Type type = getType(def);
+    ColumnType columnType = getType(def);
 
-    if (REF.equals(type)) {
+    if (REF.equals(columnType)) {
       try {
         String refTable = def.getParameterList(REF.toString().toLowerCase()).get(0);
         String refColumn = def.getParameterList(REF.toString().toLowerCase()).get(1);
@@ -146,12 +146,12 @@ public class ConvertEmx2ToSchema {
             new MolgenisExceptionMessage(line, "Parsing of 'ref' failed. " + e.getMessage()));
         throw e;
       }
-    } else if (REF_ARRAY.equals(type)) {
+    } else if (REF_ARRAY.equals(columnType)) {
       String refTable = def.getParameterList(REF_ARRAY).get(0);
       String refColumn = def.getParameterList(REF_ARRAY).get(1);
       table.addRefArray(columnName, refTable, refColumn);
     } else {
-      table.addColumn(columnName, type);
+      table.addColumn(columnName, columnType);
     }
 
     // other properties
@@ -161,15 +161,15 @@ public class ConvertEmx2ToSchema {
     if (def.contains(Emx2PropertyList.NULLABLE)) column.setNullable(true);
   }
 
-  private static Type getType(Emx2PropertyList def) {
-    Type type = null;
+  private static ColumnType getType(Emx2PropertyList def) {
+    ColumnType columnType = null;
     for (String term : def.getTerms()) {
       try {
-        type = Type.valueOf(term.toUpperCase());
+        columnType = ColumnType.valueOf(term.toUpperCase());
       } catch (Exception e) {
         // also okay.
       }
     }
-    return type != null ? type : STRING;
+    return columnType != null ? columnType : STRING;
   }
 }

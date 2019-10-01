@@ -193,8 +193,8 @@ public class Row {
     return this.values.keySet();
   }
 
-  public Object get(String name, Type type) throws MolgenisException {
-    return get(name, type.getType());
+  public Object get(String name, ColumnType columnType) throws MolgenisException {
+    return get(name, columnType.getType());
   }
 
   public <T> T get(String name, Class<T> type) throws MolgenisException {
@@ -232,7 +232,7 @@ public class Row {
       default:
         throw new MolgenisException(
             "invalid_type",
-            "Cannot cast column to java type",
+            "Cannot cast column to java columnType",
             "Row.get(Class,name) not implemented for Class = " + type.getCanonicalName());
     }
   }

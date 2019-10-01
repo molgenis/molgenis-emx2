@@ -1,6 +1,6 @@
 package org.molgenis.emx2.utils;
 
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -138,8 +138,8 @@ public class TypeUtils {
     return toStringArray(v);
   }
 
-  public static Type typeOf(Class klazz) throws MolgenisException {
-    for (Type t : Type.values()) {
+  public static ColumnType typeOf(Class klazz) throws MolgenisException {
+    for (ColumnType t : ColumnType.values()) {
       if (t.getType().equals(klazz)) return t;
     }
     throw new MolgenisException(
@@ -148,26 +148,27 @@ public class TypeUtils {
         "No MOLGENIS type is defined to match " + klazz.getCanonicalName());
   }
 
-  public static Type getArrayType(Type type) {
-    switch (type) {
+  public static ColumnType getArrayType(ColumnType columnType) {
+    switch (columnType) {
       case UUID:
-        return Type.UUID_ARRAY;
+        return ColumnType.UUID_ARRAY;
       case STRING:
-        return Type.STRING_ARRAY;
+        return ColumnType.STRING_ARRAY;
       case BOOL:
-        return Type.BOOL_ARRAY;
+        return ColumnType.BOOL_ARRAY;
       case INT:
-        return Type.INT_ARRAY;
+        return ColumnType.INT_ARRAY;
       case DECIMAL:
-        return Type.DECIMAL_ARRAY;
+        return ColumnType.DECIMAL_ARRAY;
       case TEXT:
-        return Type.TEXT_ARRAY;
+        return ColumnType.TEXT_ARRAY;
       case DATE:
-        return Type.DATE_ARRAY;
+        return ColumnType.DATE_ARRAY;
       case DATETIME:
-        return Type.DATETIME_ARRAY;
+        return ColumnType.DATETIME_ARRAY;
       default:
-        throw new UnsupportedOperationException("Unsupported REF_ARRAY type found:" + type);
+        throw new UnsupportedOperationException(
+            "Unsupported REF_ARRAY columnType found:" + columnType);
     }
   }
 

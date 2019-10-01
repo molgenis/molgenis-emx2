@@ -10,8 +10,8 @@
 // import java.util.List;
 //
 // import static org.junit.Assert.assertEquals;
-// import static Column.Type.INT;
-// import static Column.Type.STRING;
+// import static Column.ColumnType.INT;
+// import static Column.ColumnType.STRING;
 // import static Row.MOLGENISID;
 //
 // public class TestQuery {

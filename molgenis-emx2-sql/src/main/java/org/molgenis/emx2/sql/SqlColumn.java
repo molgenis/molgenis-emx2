@@ -4,7 +4,7 @@ import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.molgenis.emx2.utils.MolgenisException;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Column;
 
 import static org.jooq.impl.DSL.*;
@@ -12,8 +12,8 @@ import static org.jooq.impl.DSL.*;
 public class SqlColumn extends Column {
   private DSLContext jooq;
 
-  public SqlColumn(SqlTableMetadata table, String columnName, Type columnType) {
-    super(table, columnName, columnType);
+  public SqlColumn(SqlTableMetadata table, String columnName, ColumnType columnColumnType) {
+    super(table, columnName, columnColumnType);
     this.jooq = table.getJooq();
   }
 

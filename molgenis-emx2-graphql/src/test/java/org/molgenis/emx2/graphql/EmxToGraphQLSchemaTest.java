@@ -8,7 +8,7 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class EmxToGraphQLSchemaTest {
 

@@ -35,9 +35,9 @@ public class TestBatchRequestsForSpeed {
     Table testBatchTable = schema.createTableIfNotExists("TestBatchRequestsForSpeed");
     testBatchTable
         .getMetadata()
-        .addColumn("test", Type.STRING)
+        .addColumn("test", ColumnType.STRING)
         .primaryKey()
-        .addColumn("testint", Type.INT);
+        .addColumn("testint", ColumnType.INT);
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -86,11 +86,11 @@ public class TestBatchRequestsForSpeed {
 
     personTable
         .getMetadata()
-        .addColumn("ID", Type.INT)
+        .addColumn("ID", ColumnType.INT)
         .primaryKey()
-        .addColumn("First Name", Type.STRING)
+        .addColumn("First Name", ColumnType.STRING)
         .setNullable(false)
-        .addColumn("Last Name", Type.STRING)
+        .addColumn("Last Name", ColumnType.STRING)
         .addRef("Father", PERSON)
         .setNullable(true)
         .addUnique("First Name", "Last Name");
@@ -101,11 +101,11 @@ public class TestBatchRequestsForSpeed {
       Table personTable2 = schema.createTableIfNotExists(PERSON + i);
       personTable2
           .getMetadata()
-          .addColumn("ID", Type.INT)
+          .addColumn("ID", ColumnType.INT)
           .primaryKey()
-          .addColumn("First Name", Type.STRING)
+          .addColumn("First Name", ColumnType.STRING)
           .setNullable(false)
-          .addColumn("Last Name", Type.STRING)
+          .addColumn("Last Name", ColumnType.STRING)
           .addRef("Father", personTable2.getName())
           .setNullable(true)
           .addUnique("First Name", "Last Name");

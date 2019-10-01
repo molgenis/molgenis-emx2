@@ -7,8 +7,8 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
-import static org.molgenis.emx2.Type.INT;
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class ProductComponentPartsExample {
   public static final String PART = "Part";

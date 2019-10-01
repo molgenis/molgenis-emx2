@@ -13,19 +13,20 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestGetSetAllTypesOnRows {
 
   @Test
   public void test1() throws MolgenisException {
-    List<Type> types = Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
+    List<ColumnType> columnTypes =
+        Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
     SchemaMetadata m = new SchemaMetadata("test1");
-    addContents(m, types);
+    addContents(m, columnTypes);
 
     SchemaMetadata m2 = new SchemaMetadata("test1");
-    addContents(m2, types);
+    addContents(m2, columnTypes);
 
     // System.out.println("No diff: " + m.diff(m2));
 
@@ -35,8 +36,8 @@ public class TestGetSetAllTypesOnRows {
     // System.out.println("model print: " + m.print());
     TableMetadata t = m.getTableMetadata("TypeTest");
     assertEquals("TypeTest", t.getTableName());
-    assertEquals(3 * types.size(), t.getColumns().size());
-    assertEquals(BOOL, t.getColumn("testBOOL").getType());
+    assertEquals(3 * columnTypes.size(), t.getColumns().size());
+    assertEquals(BOOL, t.getColumn("testBOOL").getColumnType());
 
     // System.out.println("table print " + t.toString() + "\n: " + t.print());
 
@@ -190,12 +191,13 @@ public class TestGetSetAllTypesOnRows {
     assertArrayEquals(new LocalDateTime[] {odt.toLocalDateTime()}, r.getDateTimeArray("test"));
   }
 
-  private void addContents(SchemaMetadata m, List<Type> types) throws MolgenisException {
+  private void addContents(SchemaMetadata m, List<ColumnType> columnTypes)
+      throws MolgenisException {
     TableMetadata t = m.createTableIfNotExists("TypeTest");
-    for (Type type : types) {
-      t.addColumn("test" + type, type);
-      t.addColumn("test" + type + "_nullable", type).setNullable(true);
-      t.addColumn("test" + type + "+readonly", type).setReadonly(true);
+    for (ColumnType columnType : columnTypes) {
+      t.addColumn("test" + columnType, columnType);
+      t.addColumn("test" + columnType + "_nullable", columnType).setNullable(true);
+      t.addColumn("test" + columnType + "+readonly", columnType).setReadonly(true);
     }
   }
 }

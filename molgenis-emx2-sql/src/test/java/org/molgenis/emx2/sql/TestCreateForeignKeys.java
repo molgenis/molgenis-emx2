@@ -5,12 +5,12 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestCreateForeignKeys {
 
@@ -57,25 +57,29 @@ public class TestCreateForeignKeys {
         UUID, "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4", "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5");
   }
 
-  private void executeTest(Type type, Object insertValue, Object updateValue)
+  private void executeTest(ColumnType columnType, Object insertValue, Object updateValue)
       throws MolgenisException {
 
-    Schema schema = db.createSchema("TestCreateForeignKeys" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
-    String fieldName = "AKeyOf" + type;
+    String fieldName = "AKeyOf" + columnType;
     aTable
         .getMetadata()
-        .addColumn("ID", Type.INT)
+        .addColumn("ID", ColumnType.INT)
         .primaryKey()
-        .addColumn(fieldName, type)
+        .addColumn(fieldName, columnType)
         .addUnique(fieldName);
     Row aRow = new Row().setInt("ID", 1).set(fieldName, insertValue);
     aTable.insert(aRow);
 
     Table bTable = schema.createTableIfNotExists("B");
-    String refFromBToA = "RefToAKeyOf" + type;
-    bTable.getMetadata().addColumn("ID", Type.INT).primaryKey().addRef(refFromBToA, "A", fieldName);
+    String refFromBToA = "RefToAKeyOf" + columnType;
+    bTable
+        .getMetadata()
+        .addColumn("ID", ColumnType.INT)
+        .primaryKey()
+        .addRef(refFromBToA, "A", fieldName);
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 

@@ -2,10 +2,10 @@ package org.molgenis.emx2.examples.synthetic;
 
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class CompositeRefExample {
 
@@ -14,23 +14,24 @@ public class CompositeRefExample {
   }
 
   public static void createCompositeRefExample(SchemaMetadata schema) throws MolgenisException {
-    Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
+    ColumnType[] columnTypes =
+        new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 
-    for (Type type : types) {
-      String aTableName = type.toString() + "_A";
+    for (ColumnType columnType : columnTypes) {
+      String aTableName = columnType.toString() + "_A";
       TableMetadata aTable = schema.createTableIfNotExists(aTableName);
-      String uniqueColumn1 = "AUnique" + type;
-      String uniqueColumn2 = "AUnique" + type + "2";
+      String uniqueColumn1 = "AUnique" + columnType;
+      String uniqueColumn2 = "AUnique" + columnType + "2";
 
-      aTable.addColumn(uniqueColumn1, type);
-      aTable.addColumn(uniqueColumn2, type);
+      aTable.addColumn(uniqueColumn1, columnType);
+      aTable.addColumn(uniqueColumn2, columnType);
 
       aTable.addUnique(uniqueColumn1, uniqueColumn2);
 
-      String bTableName = type.toString() + "_B";
+      String bTableName = columnType.toString() + "_B";
       TableMetadata bTable = schema.createTableIfNotExists(bTableName);
-      String refFromBToA1 = "RefToAKeyOf" + type;
-      String refFromBToA2 = "RefToAKeyOf" + type + "2";
+      String refFromBToA1 = "RefToAKeyOf" + columnType;
+      String refFromBToA2 = "RefToAKeyOf" + columnType + "2";
 
       bTable
           .addRefMultiple(refFromBToA1, refFromBToA2)

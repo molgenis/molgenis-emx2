@@ -1,11 +1,8 @@
 package org.molgenis.emx2.io.legacyformat;
 
-import org.molgenis.emx2.Row;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvRowReader;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.MolgenisExceptionMessage;
 
@@ -13,7 +10,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.io.legacyformat.AttributesFileHeader.*;
 
 public class AttributesFileReader {
@@ -61,12 +58,12 @@ public class AttributesFileReader {
           new MolgenisExceptionMessage(
               lineNumber, "attribute " + row.getName() + " is defined twice"));
     } else {
-      Type type = getEmxType(lineNumber, messages, row);
+      ColumnType columnType = getEmxType(lineNumber, messages, row);
       Column column;
-      if (REF.equals(type)) {
+      if (REF.equals(columnType)) {
         column = table.addRef(row.getName(), row.getRefEntity());
       } else {
-        column = table.addColumn(row.getName(), type);
+        column = table.addColumn(row.getName(), columnType);
       }
 
       column.setNullable(row.getNillable());
@@ -75,20 +72,20 @@ public class AttributesFileReader {
     }
   }
 
-  private Type getEmxType(
+  private ColumnType getEmxType(
       int lineNumber, List<MolgenisExceptionMessage> messages, AttributesFileRow row) {
-    Type type = STRING;
+    ColumnType columnType = STRING;
     if (row.getDataType() != null) {
       try {
-        type = convertAttributeTypeToEmxType(row.getDataType());
+        columnType = convertAttributeTypeToEmxType(row.getDataType());
       } catch (Exception e) {
         messages.add(new MolgenisExceptionMessage(lineNumber, e.getMessage()));
       }
     }
-    return type;
+    return columnType;
   }
 
-  private Type convertAttributeTypeToEmxType(String dataType) throws MolgenisException {
+  private ColumnType convertAttributeTypeToEmxType(String dataType) throws MolgenisException {
     try {
       AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
       switch (oldType) {

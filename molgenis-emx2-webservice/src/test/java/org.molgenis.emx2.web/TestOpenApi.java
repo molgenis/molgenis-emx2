@@ -5,7 +5,7 @@ import io.swagger.v3.oas.models.*;
 import org.junit.Test;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestOpenApi {
 
@@ -22,11 +22,11 @@ public class TestOpenApi {
     SchemaMetadata schema = new SchemaMetadata("test");
 
     TableMetadata table = schema.createTableIfNotExists("TypeTest");
-    for (Type type : Type.values()) {
-      if (MREF.equals(type) || REF.equals(type) || REF_ARRAY.equals(type)) {
+    for (ColumnType columnType : ColumnType.values()) {
+      if (MREF.equals(columnType) || REF.equals(columnType) || REF_ARRAY.equals(columnType)) {
         // TODO: outside of test for now
       } else {
-        table.addColumn(type.toString().toLowerCase() + "Column", type);
+        table.addColumn(columnType.toString().toLowerCase() + "Column", columnType);
       }
     }
 

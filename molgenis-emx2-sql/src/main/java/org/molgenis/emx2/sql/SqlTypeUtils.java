@@ -2,10 +2,10 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Type;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.cast;
-import static org.molgenis.emx2.Type.MREF;
-import static org.molgenis.emx2.Type.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.MREF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -23,8 +23,8 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static DataType jooqTypeOf(Column column) throws MolgenisException {
-    Type sqlType = column.getType();
-    switch (sqlType) {
+    ColumnType sqlColumnType = column.getColumnType();
+    switch (sqlColumnType) {
       case UUID:
         return SQLDataType.UUID;
       case UUID_ARRAY:
@@ -82,7 +82,8 @@ public class SqlTypeUtils extends TypeUtils {
             .getArrayDataType();
       default:
         // should never happen
-        throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + sqlType);
+        throw new IllegalArgumentException(
+            "addColumn(name,type) : unsupported type " + sqlColumnType);
     }
   }
 
@@ -102,11 +103,11 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Object v, Column column) throws MolgenisException {
-    Type type = column.getType();
-    if (Type.REF.equals(type)) {
-      type = getRefType(column);
+    ColumnType columnType = column.getColumnType();
+    if (ColumnType.REF.equals(columnType)) {
+      columnType = getRefType(column);
     }
-    switch (type) {
+    switch (columnType) {
       case UUID:
         return TypeUtils.toUuid(v);
       case UUID_ARRAY:
@@ -140,28 +141,29 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY:
         return TypeUtils.toDateTimeArray(v);
       default:
-        throw new UnsupportedOperationException("Unsupported type type found:" + type);
+        throw new UnsupportedOperationException(
+            "Unsupported columnType columnType found:" + columnType);
     }
   }
 
-  public static Type getRefType(Column column) throws MolgenisException {
+  public static ColumnType getRefType(Column column) throws MolgenisException {
     return column
         .getTable()
         .getSchema()
         .getTableMetadata(column.getRefTableName())
         .getColumn(column.getRefColumnName())
-        .getType();
+        .getColumnType();
   }
 
   public static Object getTypedValue(Row row, Column column) throws MolgenisException {
-    Type type = column.getType();
-    if (Type.REF.equals(type)) {
-      type = getRefType(column);
+    ColumnType columnType = column.getColumnType();
+    if (ColumnType.REF.equals(columnType)) {
+      columnType = getRefType(column);
     }
-    if (REF_ARRAY.equals(type) || MREF.equals(type)) {
-      type = getArrayType(getRefType(column));
+    if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
+      columnType = getArrayType(getRefType(column));
     }
-    switch (type) {
+    switch (columnType) {
       case UUID:
         return row.getUuid(column.getColumnName());
       case UUID_ARRAY:
@@ -195,12 +197,13 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY:
         return row.getDateTimeArray(column.getColumnName());
       default:
-        throw new UnsupportedOperationException("Unsupported type found:" + column.getType());
+        throw new UnsupportedOperationException(
+            "Unsupported columnType found:" + column.getColumnType());
     }
   }
 
   public static String getPsqlType(Column column) throws MolgenisException {
-    switch (column.getType()) {
+    switch (column.getColumnType()) {
       case STRING:
         return "character varying";
       case UUID:
@@ -221,7 +224,7 @@ public class SqlTypeUtils extends TypeUtils {
         throw new MolgenisException(
             "internal_error",
             "Should only happen during development",
-            "Internal error: data cannot be mapped to psqlType " + column.getType());
+            "Internal error: data cannot be mapped to psqlType " + column.getColumnType());
     }
   }
 }

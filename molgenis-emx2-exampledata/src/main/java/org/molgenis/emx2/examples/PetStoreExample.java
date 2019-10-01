@@ -3,9 +3,9 @@ package org.molgenis.emx2.examples;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
-import static org.molgenis.emx2.Type.BOOL;
-import static org.molgenis.emx2.Type.INT;
-import static org.molgenis.emx2.Type.STRING_ARRAY;
+import static org.molgenis.emx2.ColumnType.BOOL;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
 
 public class PetStoreExample {
 

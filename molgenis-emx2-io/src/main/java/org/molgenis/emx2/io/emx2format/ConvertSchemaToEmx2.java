@@ -63,19 +63,19 @@ public class ConvertSchemaToEmx2 {
 
     // ignore internal ID, is implied
     Emx2PropertyList def = new Emx2PropertyList();
-    switch (column.getType()) {
+    switch (column.getColumnType()) {
       case STRING:
         break;
       case REF:
       case REF_ARRAY:
         def.add(
-            column.getType().toString().toLowerCase(),
+            column.getColumnType().toString().toLowerCase(),
             column.getRefTableName(),
             column.getRefColumnName());
 
         break;
       default:
-        def.add(column.getType().toString().toLowerCase());
+        def.add(column.getColumnType().toString().toLowerCase());
     }
     if (Boolean.TRUE.equals(column.getNullable())) def.add("nullable");
     if (Boolean.TRUE.equals(column.getReadonly())) def.add("readonly");

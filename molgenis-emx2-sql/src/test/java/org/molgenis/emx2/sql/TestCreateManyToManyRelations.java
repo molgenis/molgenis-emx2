@@ -2,11 +2,8 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -16,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestCreateManyToManyRelations {
 
@@ -74,15 +71,15 @@ public class TestCreateManyToManyRelations {
         });
   }
 
-  private void executeTest(Type type, Object[] testValues) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Object[] testValues) throws MolgenisException {
     StopWatch.start("executeTest");
 
     Schema aSchema =
-        db.createSchema("TestCreateManyToManyRelations" + type.toString().toUpperCase());
+        db.createSchema("TestCreateManyToManyRelations" + columnType.toString().toUpperCase());
 
     Table aTable = aSchema.createTableIfNotExists("A");
     String keyOfA = "AKey";
-    aTable.getMetadata().addColumn(keyOfA, type);
+    aTable.getMetadata().addColumn(keyOfA, columnType);
     aTable.getMetadata().addUnique(keyOfA);
 
     Table bTable = aSchema.createTableIfNotExists("B");
@@ -100,8 +97,8 @@ public class TestCreateManyToManyRelations {
     }
 
     // add two sided many-to-many
-    String refName = type + "refToA";
-    String refReverseName = type + "refToB";
+    String refName = columnType + "refToA";
+    String refReverseName = columnType + "refToB";
     String joinTableName = "AB";
     bTable.getMetadata().addMref(refName, "A", keyOfA, refReverseName, keyOfB, joinTableName);
 
@@ -113,10 +110,10 @@ public class TestCreateManyToManyRelations {
 
     // test query
     List<Row> bRowsRetrieved = bTable.retrieve();
-    Type arrayType = TypeUtils.getArrayType(type);
+    ColumnType arrayColumnType = TypeUtils.getArrayType(columnType);
     assertArrayEquals(
-        (Object[]) bRow.get(refName, arrayType),
-        (Object[]) bRowsRetrieved.get(0).get(refName, arrayType));
+        (Object[]) bRow.get(refName, arrayColumnType),
+        (Object[]) bRowsRetrieved.get(0).get(refName, arrayColumnType));
 
     // and update
     bRow.set(refName, Arrays.copyOfRange(testValues, 0, 2));

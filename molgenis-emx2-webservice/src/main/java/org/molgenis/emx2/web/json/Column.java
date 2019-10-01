@@ -1,7 +1,7 @@
 package org.molgenis.emx2.web.json;
 
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
 import org.molgenis.emx2.utils.MolgenisException;
 
 public class Column {
@@ -12,7 +12,7 @@ public class Column {
   private Boolean nullable = false;
   private String refTableName;
   private String refColumnName;
-  private Type type;
+  private ColumnType columnType;
 
   public Column() {}
 
@@ -20,14 +20,14 @@ public class Column {
     this.name = column.getColumnName();
     this.pkey = column.isPrimaryKey();
     this.unique = column.isUnique();
-    this.type = column.getType();
+    this.columnType = column.getColumnType();
     this.refTableName = column.getRefTableName();
     this.refColumnName = column.getRefColumnName();
     this.nullable = column.getNullable();
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) throws MolgenisException {
-    org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name, type);
+    org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name, columnType);
     c.setPrimaryKey(pkey);
     c.setUnique(unique);
     c.setNullable(nullable);
@@ -83,11 +83,11 @@ public class Column {
     this.refColumnName = refColumnName;
   }
 
-  public Type getType() {
-    return type;
+  public ColumnType getColumnType() {
+    return columnType;
   }
 
-  public void setType(Type type) {
-    this.type = type;
+  public void setColumnType(ColumnType columnType) {
+    this.columnType = columnType;
   }
 }

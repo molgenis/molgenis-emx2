@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonQueryMapper;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Query;
@@ -25,9 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRows;
 import static org.molgenis.emx2.web.json.JsonMapper.rowsToJson;
-import static org.molgenis.emx2.Type.DECIMAL;
-import static org.molgenis.emx2.Type.INT;
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.DECIMAL;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class TestJson {
 

@@ -11,7 +11,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class TestCreateTransactionForMultipleOperations {
   private static Database db;

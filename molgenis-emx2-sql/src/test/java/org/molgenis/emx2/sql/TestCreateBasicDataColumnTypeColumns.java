@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
 import org.molgenis.emx2.utils.StopWatch;
@@ -18,9 +18,9 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
-public class TestCreateBasicDataTypeColumns {
+public class TestCreateBasicDataColumnTypeColumns {
 
   static Database db;
 
@@ -149,15 +149,20 @@ public class TestCreateBasicDataTypeColumns {
         });
   }
 
-  private void executeTest(Type type, Serializable[] values) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Serializable[] values) throws MolgenisException {
 
     Schema schema =
-        db.createSchema("TestCreateBasicDataTypeColumns" + type.toString().toUpperCase());
+        db.createSchema(
+            "TestCreateBasicDataColumnTypeColumns" + columnType.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
-    String aKey = type + "Key";
-    String aColumn = type + "Col";
-    aTable.getMetadata().addColumn(aKey, type).addColumn(aColumn, type).setPrimaryKey(aKey);
+    String aKey = columnType + "Key";
+    String aColumn = columnType + "Col";
+    aTable
+        .getMetadata()
+        .addColumn(aKey, columnType)
+        .addColumn(aColumn, columnType)
+        .setPrimaryKey(aKey);
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);

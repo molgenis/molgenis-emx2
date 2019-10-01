@@ -6,7 +6,7 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Type.REF;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
 public class RefSqlColumn extends SqlColumn {

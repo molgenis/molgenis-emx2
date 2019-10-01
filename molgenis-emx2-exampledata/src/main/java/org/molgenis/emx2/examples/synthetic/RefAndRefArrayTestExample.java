@@ -2,11 +2,11 @@ package org.molgenis.emx2.examples.synthetic;
 
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
-import static org.molgenis.emx2.Type.*;
-import static org.molgenis.emx2.Type.DATETIME;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.DATETIME;
 
 public class RefAndRefArrayTestExample {
   private RefAndRefArrayTestExample() {
@@ -16,20 +16,21 @@ public class RefAndRefArrayTestExample {
   public static void createRefAndRefArrayTestExample(SchemaMetadata schema)
       throws MolgenisException {
 
-    Type[] types = new Type[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
+    ColumnType[] columnTypes =
+        new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 
-    for (Type type : types) {
+    for (ColumnType columnType : columnTypes) {
 
-      String aTableName = type.toString() + "_A";
+      String aTableName = columnType.toString() + "_A";
       TableMetadata aTable = schema.createTableIfNotExists(aTableName);
-      String fieldName = "AKeyOf" + type;
-      aTable.addColumn(fieldName, type);
+      String fieldName = "AKeyOf" + columnType;
+      aTable.addColumn(fieldName, columnType);
       aTable.addUnique(fieldName);
 
-      String bTableName = type.toString() + "_B";
+      String bTableName = columnType.toString() + "_B";
       TableMetadata bTable = schema.createTableIfNotExists(bTableName);
-      String refFromBToA = "RefToAKeyOf" + type;
-      String refArrayFromBToA = "RefArrayToAKeyOf" + type;
+      String refFromBToA = "RefToAKeyOf" + columnType;
+      String refArrayFromBToA = "RefArrayToAKeyOf" + columnType;
       bTable.addRef(refFromBToA, aTableName, fieldName);
       bTable.addRefArray(refArrayFromBToA, aTableName, fieldName);
     }

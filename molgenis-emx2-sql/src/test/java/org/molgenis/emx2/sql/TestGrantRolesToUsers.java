@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.STRING;
+import static org.molgenis.emx2.ColumnType.STRING;
 
 public class TestGrantRolesToUsers {
   private static Database database;
@@ -92,7 +92,7 @@ public class TestGrantRolesToUsers {
             try {
               db.getSchema("testRolePermissions").createTableIfNotExists("Test");
               //                  .getMetadata()
-              //                  .addColumn("ID", Type.INT);
+              //                  .addColumn("ID", ColumnType.INT);
             } catch (Exception e) {
               e.printStackTrace();
               throw e;

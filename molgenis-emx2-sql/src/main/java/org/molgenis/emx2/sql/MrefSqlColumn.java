@@ -6,7 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Type.MREF;
+import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
 /**

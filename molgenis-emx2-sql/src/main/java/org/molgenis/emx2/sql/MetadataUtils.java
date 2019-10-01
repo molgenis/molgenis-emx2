@@ -5,9 +5,9 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Type;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collection;
@@ -195,13 +195,13 @@ public class MetadataUtils {
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
             column.getColumnName(),
-            column.getType(),
+            column.getColumnType(),
             column.getNullable(),
             column.getRefTableName(),
             column.getRefColumnName())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
-        .set(DATA_TYPE, column.getType())
+        .set(DATA_TYPE, column.getColumnType())
         .set(NULLABLE, column.getNullable())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
@@ -272,12 +272,12 @@ public class MetadataUtils {
 
     for (Record col : columnRecords) {
       String columnName = col.get(COLUMN_NAME, String.class);
-      Type columnType = Type.valueOf(col.get(DATA_TYPE, String.class));
+      ColumnType columnColumnType = ColumnType.valueOf(col.get(DATA_TYPE, String.class));
       Boolean nullable = col.get(NULLABLE, Boolean.class);
 
       String toTable = col.get(REF_TABLE, String.class);
       String toColumn = col.get(REF_COLUMN, String.class);
-      switch (columnType) {
+      switch (columnColumnType) {
         case REF:
           columnMap.put(
               columnName,
@@ -290,7 +290,8 @@ public class MetadataUtils {
           break;
         default:
           columnMap.put(
-              columnName, new SqlColumn(table, columnName, columnType).loadNullable(nullable));
+              columnName,
+              new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));
       }
     }
   }

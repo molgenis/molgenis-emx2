@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -24,7 +24,7 @@ public class TestCreateForeignKeysArrays {
   @Test
   public void testUUID() throws MolgenisException {
     executeTest(
-        Type.UUID,
+        ColumnType.UUID,
         new java.util.UUID[] {
           java.util.UUID.fromString("f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4"),
           java.util.UUID.fromString("f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5"),
@@ -34,54 +34,54 @@ public class TestCreateForeignKeysArrays {
 
   @Test
   public void testStringRef() throws MolgenisException {
-    executeTest(Type.STRING, new String[] {"aap", "noot", "mies"});
+    executeTest(ColumnType.STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
   public void testIntRef() throws MolgenisException {
-    executeTest(Type.INT, new Integer[] {5, 6});
+    executeTest(ColumnType.INT, new Integer[] {5, 6});
   }
 
   @Test
   public void testDateRef() throws MolgenisException {
-    executeTest(Type.DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
+    executeTest(ColumnType.DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
   public void testDateTimeRef() throws MolgenisException {
     executeTest(
-        Type.DATETIME,
+        ColumnType.DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
   public void testDecimalRef() throws MolgenisException {
-    executeTest(Type.DECIMAL, new Double[] {5.0, 6.0, 7.0});
+    executeTest(ColumnType.DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
   public void testTextRef() throws MolgenisException {
     executeTest(
-        Type.TEXT,
+        ColumnType.TEXT,
         new String[] {
           "This is a hello world", "This is a hello back to you", "This is a hello some more"
         });
   }
 
-  private void executeTest(Type type, Object[] testValues) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Object[] testValues) throws MolgenisException {
 
-    Schema schema = db.createSchema("TestRefArray" + type.toString().toUpperCase());
+    Schema schema = db.createSchema("TestRefArray" + columnType.toString().toUpperCase());
 
     Table aTable = schema.createTableIfNotExists("A");
-    String aKey = "A" + type + "Key";
-    aTable.getMetadata().addColumn(aKey, type).addUnique(aKey);
+    String aKey = "A" + columnType + "Key";
+    aTable.getMetadata().addColumn(aKey, columnType).addUnique(aKey);
 
     Row aRow = new Row().set(aKey, testValues[0]);
     Row aRow2 = new Row().set(aKey, testValues[1]);
     aTable.insert(aRow, aRow2);
 
     Table bTable = schema.createTableIfNotExists("B");
-    String refToA = type + "RefToA";
+    String refToA = columnType + "RefToA";
     bTable.getMetadata().addRefArray(refToA, "A", aKey);
 
     // error on insert of faulty fkey

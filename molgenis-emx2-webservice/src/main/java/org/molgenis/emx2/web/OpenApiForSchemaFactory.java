@@ -413,7 +413,7 @@ public class OpenApiForSchemaFactory {
   }
 
   private static Schema columnSchema(Column column) throws MolgenisException {
-    switch (column.getType()) {
+    switch (column.getColumnType()) {
       case UUID:
         return new UUIDSchema();
       case UUID_ARRAY:
@@ -455,7 +455,7 @@ public class OpenApiForSchemaFactory {
         throw new MolgenisException(
             "internal_error",
             "Should never happen unless during development",
-            "createColumnSchema failed: Type " + column.getType() + " not supported ");
+            "createColumnSchema failed: ColumnType " + column.getColumnType() + " not supported ");
     }
   }
 }

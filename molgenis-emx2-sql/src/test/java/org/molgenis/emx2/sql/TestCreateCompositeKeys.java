@@ -2,17 +2,14 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Type;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Type.*;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TestCreateCompositeKeys {
   static Database database;
@@ -69,15 +66,15 @@ public class TestCreateCompositeKeys {
         });
   }
 
-  public void executeTest(Type type, Serializable[] data) throws MolgenisException {
-    Schema schema = database.createSchema("TestCreateCompositeKeys" + type.toString());
+  public void executeTest(ColumnType columnType, Serializable[] data) throws MolgenisException {
+    Schema schema = database.createSchema("TestCreateCompositeKeys" + columnType.toString());
 
     Table aTable = schema.createTableIfNotExists("CompositeKeyTable");
     aTable
         .getMetadata()
-        .addColumn("col1", type)
-        .addColumn("col2", type)
-        .addColumn("col3", type)
+        .addColumn("col1", columnType)
+        .addColumn("col2", columnType)
+        .addColumn("col3", columnType)
         .setPrimaryKey("col1", "col2");
 
     Row aRow = new Row().set("col1", data[0]).set("col2", data[0]).set("col3", data[0]);

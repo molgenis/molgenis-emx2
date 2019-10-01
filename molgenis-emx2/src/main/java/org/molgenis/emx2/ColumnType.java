@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public enum Type {
+public enum ColumnType {
   UUID(java.util.UUID.class),
   UUID_ARRAY(java.util.UUID[].class),
   STRING(String.class),
@@ -26,7 +26,7 @@ public enum Type {
 
   private Class javaType;
 
-  Type(Class javaType) {
+  ColumnType(Class javaType) {
     this.javaType = javaType;
   }
 

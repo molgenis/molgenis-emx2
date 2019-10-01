@@ -4,12 +4,12 @@ import org.molgenis.emx2.utils.MolgenisException;
 
 public class ReferenceMultiple {
   TableMetadata table;
-  Type type;
+  ColumnType columnType;
   String[] nameArray;
 
-  public ReferenceMultiple(TableMetadata table, Type type, String[] nameArray) {
+  public ReferenceMultiple(TableMetadata table, ColumnType columnType, String[] nameArray) {
     this.table = table;
-    this.type = type;
+    this.columnType = columnType;
     this.nameArray = nameArray;
   }
 
@@ -21,7 +21,8 @@ public class ReferenceMultiple {
           "TODO error detail");
 
     for (int i = 0; i < nameArray.length; i++) {
-      table.addColumn(new Column(table, nameArray[i], type).setReference(toTable, toColumn[i]));
+      table.addColumn(
+          new Column(table, nameArray[i], columnType).setReference(toTable, toColumn[i]));
     }
 
     return table;
@@ -32,8 +33,8 @@ public class ReferenceMultiple {
     return to(toTable, keys);
   }
 
-  public Type getType() {
-    return this.type;
+  public ColumnType getColumnType() {
+    return this.columnType;
   }
 
   public TableMetadata getTable() {

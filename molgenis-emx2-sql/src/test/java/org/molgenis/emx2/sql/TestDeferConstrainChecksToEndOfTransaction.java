@@ -39,10 +39,10 @@ public class TestDeferConstrainChecksToEndOfTransaction {
     Schema schema = db.createSchema("TestDeffered");
 
     Table subjectTable = schema.createTableIfNotExists("Subject");
-    subjectTable.getMetadata().addColumn("ID", Type.INT).primaryKey();
+    subjectTable.getMetadata().addColumn("ID", ColumnType.INT).primaryKey();
 
     Table sampleTable = schema.createTableIfNotExists("Sample");
-    sampleTable.getMetadata().addColumn("ID", Type.INT).primaryKey();
+    sampleTable.getMetadata().addColumn("ID", ColumnType.INT).primaryKey();
     sampleTable.getMetadata().addRef("subject", "Subject");
 
     StopWatch.print("schema created");

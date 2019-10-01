@@ -40,7 +40,7 @@ public class JsonRowMapper {
     Row r = new Row();
     for (Column c : t.getColumns()) {
       try {
-        switch (c.getType()) {
+        switch (c.getColumnType()) {
           case INT:
             r.setInt(c.getColumnName(), json.get(c.getColumnName()).toInt());
             break;
@@ -54,14 +54,17 @@ public class JsonRowMapper {
             } else throw new IllegalArgumentException();
           default:
             throw new UnsupportedOperationException(
-                "data type " + c.getType() + " not yet implemented");
+                "data type " + c.getColumnType() + " not yet implemented");
         }
 
       } catch (Exception e) {
         throw new MolgenisException(
             String.format(
                 "Malformed json: expected '%s' to be of type '%s' but found '%s'. Total object: %s",
-                c.getColumnName(), c.getType(), json.get(c.getColumnName()).valueType(), json),
+                c.getColumnName(),
+                c.getColumnType(),
+                json.get(c.getColumnName()).valueType(),
+                json),
             e);
       }
     }

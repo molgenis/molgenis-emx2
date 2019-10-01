@@ -5,7 +5,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.keyword;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.Type.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
 public class RefArraySqlColumn extends SqlColumn {
