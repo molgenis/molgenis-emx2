@@ -60,7 +60,7 @@ public class SqlSchema implements Schema {
               if (!currentRoles.contains(m.getRole()))
                 throw new MolgenisException(
                     "add_members_failed",
-                    "Add member failed",
+                    "Add member(s) failed",
                     "Role '"
                         + m.getRole()
                         + " doesn't exist in schema '"
@@ -76,7 +76,7 @@ public class SqlSchema implements Schema {
               // createTableIfNotExists user if not exists
               db.addUser(m.getUser());
 
-              // give god powers. todo check if this is necessary in practice
+              // give god powers.
               if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
                 db.getJooq().execute("ALTER ROLE {0} CREATEROLE", name(username));
               }

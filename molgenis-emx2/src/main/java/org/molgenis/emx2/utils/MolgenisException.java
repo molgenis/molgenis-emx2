@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** compatible with https://tools.ietf.org/html/rfc7807 */
-public class MolgenisException extends Exception {
+public class MolgenisException extends RuntimeException {
 
   protected String title;
   protected String detail;

@@ -111,7 +111,11 @@ public class MolgenisWebservice {
         MolgenisException.class,
         (e, req, res) -> {
           res.status(400);
-          res.body(e.getMessage());
+          res.type(ACCEPT_JSON);
+          res.body(
+              String.format(
+                  "{\n\t\"type\":\"%s\",\n\t\"title\":\"%s\",\n\t\"detail\":\"%s\"\n}",
+                  e.getType(), e.getTitle(), e.getDetail()));
         });
   }
 

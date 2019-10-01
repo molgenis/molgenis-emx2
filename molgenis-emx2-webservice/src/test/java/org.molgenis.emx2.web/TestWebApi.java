@@ -5,7 +5,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.DatabaseFactory;
@@ -21,7 +20,6 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 
 /* this is a smoke test for the integration of web api with the database layer */
@@ -74,6 +72,17 @@ public class TestWebApi {
             .asString();
     members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
     assertEquals("Viewer", ((Map) members.get(0)).get("role"));
+
+    // update bofke to nonexisting role should give error
+    Map error =
+        given()
+            .contentType(ACCEPT_JSON)
+            .body("[{\"user\":\"bofke\",\"role\":\"FAKEROLE\"}]")
+            .when()
+            .post("/members/pet store")
+            .as(Map.class);
+    assertEquals("add_members_failed", error.get("type"));
+    // make MolgenisException an unchecked exception?
 
     // remove bofke from membership
     given()
