@@ -84,6 +84,16 @@ public class TestWebApi {
     assertEquals("add_members_failed", error.get("type"));
     // make MolgenisException an unchecked exception?
 
+    // remove unknown user
+    error =
+        given()
+            .contentType(ACCEPT_JSON)
+            .body("[{\"user\":\"pofke\",\"role\":\"FAKEROLE\"}]")
+            .when()
+            .post("/members/pet store")
+            .as(Map.class);
+    assertEquals("add_members_failed", error.get("type"));
+
     // remove bofke from membership
     given()
         .contentType(ACCEPT_JSON)
