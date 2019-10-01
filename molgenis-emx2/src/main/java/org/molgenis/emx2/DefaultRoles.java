@@ -1,7 +1,7 @@
 package org.molgenis.emx2;
 
 public enum DefaultRoles {
-  MEMBER("Member"),
+  VIEWER("Viewer"),
   EDITOR("Editor"),
   MANAGER("Manager"),
   OWNER("Owner");

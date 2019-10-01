@@ -5,6 +5,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.DatabaseFactory;
@@ -15,10 +16,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 
 /* this is a smoke test for the integration of web api with the database layer */
@@ -40,6 +43,47 @@ public class TestWebApi {
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
+  }
+
+  @Test
+  public void testMembership() {
+    List members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
+    assertEquals(0, members.size());
+
+    String bofke = "[{\"user\":\"bofke\",\"role\":\"Editor\"}]";
+
+    // add bofke
+    String result =
+        given()
+            .contentType(ACCEPT_JSON)
+            .body("[{\"user\":\"bofke\",\"role\":\"Editor\"}]")
+            .when()
+            .post("/members/pet store")
+            .asString();
+
+    members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
+    assertEquals(1, members.size());
+
+    // update bofke membership
+    result =
+        given()
+            .contentType(ACCEPT_JSON)
+            .body("[{\"user\":\"bofke\",\"role\":\"Viewer\"}]")
+            .when()
+            .post("/members/pet store")
+            .asString();
+    members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
+    assertEquals("Viewer", ((Map) members.get(0)).get("role"));
+
+    // remove bofke from membership
+    given()
+        .contentType(ACCEPT_JSON)
+        .body("[{\"user\":\"bofke\",\"role\":\"Viewer\"}]")
+        .when()
+        .delete("/members/pet store")
+        .asString();
+    members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
+    assertEquals(0, members.size());
   }
 
   @Test

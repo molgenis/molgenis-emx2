@@ -25,9 +25,9 @@ public class TestGrantRolesToUsers {
   public void testGrantRevokeMembership() throws MolgenisException {
 
     Schema schema = database.createSchema("testGrantRevokeMembership");
-    assertEquals(Arrays.asList("Member", "Editor", "Manager", "Owner"), schema.getRoles());
+    assertEquals(Arrays.asList("Viewer", "Editor", "Manager", "Owner"), schema.getRoles());
 
-    schema.addMember("user1", "Member");
+    schema.addMember("user1", "Viewer");
     assertEquals(1, schema.getMembers().size());
 
     schema.addMember("user1", "Editor"); // should override previous
@@ -53,7 +53,7 @@ public class TestGrantRolesToUsers {
     database.addUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    schema.addMember("user_testRolePermissions_viewer", DefaultRoles.MEMBER.toString());
+    schema.addMember("user_testRolePermissions_viewer", DefaultRoles.VIEWER.toString());
     schema.addMember("user_testRolePermissions_editor", DefaultRoles.EDITOR.toString());
     schema.addMember("user_testRolePermissions_manager", DefaultRoles.MANAGER.toString());
 
@@ -152,7 +152,7 @@ public class TestGrantRolesToUsers {
           db -> {
             db.getSchema("testRole").createTableIfNotExists("Test");
             // this is soo cooool
-            db.getSchema("testRole").addMember("testuser", DefaultRoles.MEMBER.toString());
+            db.getSchema("testRole").addMember("testuser", DefaultRoles.VIEWER.toString());
           });
 
     } catch (Exception e) {
@@ -176,7 +176,7 @@ public class TestGrantRolesToUsers {
     s.addMember("testrls2", DefaultRoles.OWNER.toString());
     s.addMember(
         "testrls_has_rls_view",
-        DefaultRoles.MEMBER.toString()); // can view table but only rows with right RLS
+        DefaultRoles.VIEWER.toString()); // can view table but only rows with right RLS
 
     // let one user createColumn the table
     database.transaction(

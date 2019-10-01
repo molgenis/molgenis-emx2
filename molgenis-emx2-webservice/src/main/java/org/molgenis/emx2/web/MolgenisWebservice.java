@@ -73,11 +73,16 @@ public class MolgenisWebservice {
     // the data api
     get(DATA, MolgenisWebservice::apiGet);
     post(DATA, MolgenisWebservice::schemaPost);
-    delete(DATA, MolgenisWebservice::schemaDelete);
+
     // documentation
     get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
     get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);
     get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
+
+    // admin operations
+    get("/members/:schema", MolgenisWebservice::membersGet);
+    post("/members/:schema", MolgenisWebservice::membersPost);
+    delete("/members/:schema", MolgenisWebservice::membersDelete);
 
     // schema operations
     get(DATA_SCHEMA, ACCEPT_JSON, MolgenisWebservice::schemaGetJson);
@@ -87,13 +92,10 @@ public class MolgenisWebservice {
     post(DATA_SCHEMA, MolgenisWebservice::schemaPostZip);
     delete(DATA_SCHEMA, MolgenisWebservice::schemaDelete);
 
-    get("/admin/:schema/members", MolgenisWebservice::membersGet);
-    post("/admin/:schema/members", MolgenisWebservice::membersPost);
-
-    // table operations
-    get(DATA_SCHEMA_TABLE, MolgenisWebservice::tableGet);
-    post(DATA_SCHEMA_TABLE, ACCEPT_JSON, MolgenisWebservice::tablePost);
-    delete(DATA_SCHEMA_TABLE, MolgenisWebservice::tableDelete);
+    // table row operations
+    get(DATA_SCHEMA_TABLE, MolgenisWebservice::rowsGet);
+    post(DATA_SCHEMA_TABLE, ACCEPT_JSON, MolgenisWebservice::rowsPost);
+    delete(DATA_SCHEMA_TABLE, MolgenisWebservice::rowsDelete);
 
     // row operations (get rid of those?)
 
@@ -113,6 +115,15 @@ public class MolgenisWebservice {
         });
   }
 
+  private static Object membersDelete(Request request, Response response)
+      throws IOException, MolgenisException {
+    List<Member> members = jsonToMembers(request.body());
+    Schema schema = database.getSchema(request.params(SCHEMA));
+    schema.removeMembers(members);
+    response.status(200);
+    return "" + members.size();
+  }
+
   private static String membersPost(Request request, Response response)
       throws MolgenisException, IOException {
     List<Member> members = jsonToMembers(request.body());
@@ -126,6 +137,7 @@ public class MolgenisWebservice {
       throws MolgenisException, JsonProcessingException {
     Schema schema = database.getSchema(request.params(SCHEMA));
     response.status(200);
+    response.type(ACCEPT_JSON);
     return membersToJson(schema.getMembers());
   }
 
@@ -241,7 +253,7 @@ public class MolgenisWebservice {
     return tempFile;
   }
 
-  private static String tableGet(Request request, Response response)
+  private static String rowsGet(Request request, Response response)
       throws MolgenisException, IOException {
     // retrieve data
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
@@ -270,7 +282,7 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String tablePost(Request request, Response response)
+  private static String rowsPost(Request request, Response response)
       throws MolgenisException, IOException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Iterable<Row> rows = tableRequestBodyToRows(request);
@@ -280,7 +292,7 @@ public class MolgenisWebservice {
     return "" + count;
   }
 
-  private static String tableDelete(Request request, Response response)
+  private static String rowsDelete(Request request, Response response)
       throws MolgenisException, IOException {
     Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
     Iterable<Row> rows = tableRequestBodyToRows(request);

@@ -55,7 +55,7 @@ class SqlTableMetadata extends TableMetadata {
           String prefix = MG_ROLE_PREFIX + getSchema().getName().toUpperCase();
           jooq.execute(
               "GRANT SELECT ON {0} TO {1}",
-              tableName, name(prefix + DefaultRoles.MEMBER.toString()));
+              tableName, name(prefix + DefaultRoles.VIEWER.toString()));
           jooq.execute(
               "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
               tableName, name(prefix + DefaultRoles.EDITOR.toString()));

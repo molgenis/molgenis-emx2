@@ -23,7 +23,7 @@ public interface Schema {
 
   void removeMembers(List<Member> members) throws MolgenisException;
 
-  void removeMember(String user1) throws MolgenisException;
+  void removeMember(String user) throws MolgenisException;
 
   List<String> getRoles();
 
