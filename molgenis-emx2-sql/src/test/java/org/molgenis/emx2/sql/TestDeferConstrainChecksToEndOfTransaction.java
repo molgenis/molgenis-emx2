@@ -82,7 +82,7 @@ public class TestDeferConstrainChecksToEndOfTransaction {
       StopWatch.print("transaction committed)");
       fail("should have failed on wrong fkey");
     } catch (MolgenisException e) {
-      StopWatch.print("errored correctly " + e.getCause().getMessage());
+      StopWatch.print("errored correctly " + e.toString());
     }
   }
 }
