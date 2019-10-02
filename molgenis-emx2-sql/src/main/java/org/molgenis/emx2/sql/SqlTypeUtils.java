@@ -92,9 +92,9 @@ public class SqlTypeUtils extends TypeUtils {
     Collection<Object> values = new ArrayList<>();
     for (Column c : table.getMetadata().getColumns()) {
       // rls
-      if (SqlTable.MG_EDIT_ROLE.equals(c.getColumnName())) {
+      if (Constants.MG_EDIT_ROLE.equals(c.getColumnName())) {
         // big todo if we want to allow usernames here or role names
-        values.add(SqlTable.MG_USER_PREFIX + row.getString(SqlTable.MG_EDIT_ROLE));
+        values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else {
         values.add(getTypedValue(row, c));
       }

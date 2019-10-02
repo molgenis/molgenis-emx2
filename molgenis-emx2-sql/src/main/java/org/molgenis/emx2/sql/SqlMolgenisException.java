@@ -46,6 +46,9 @@ public class SqlMolgenisException extends MolgenisException {
       case "42P06":
         this.type = "duplicate_schema";
         break;
+      case "42501":
+        this.type = "insufficent_privilege";
+        break;
       default:
         this.type =
             "SqlMolgenisException has not yet implemented translation for type " + errorCode;

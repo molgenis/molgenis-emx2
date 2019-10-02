@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.*;
+import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.DefaultRoles;
@@ -14,11 +15,11 @@ import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
+import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
+import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 class SqlTableMetadata extends TableMetadata {
-  public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
-  public static final String MG_SEARCH_INDEX_COLUMN_NAME = "MG_SEARCH_VECTOR";
-  public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   private SqlDatabase db;
 
   SqlTableMetadata(SqlDatabase db, SqlSchemaMetadata schema, String name) {
@@ -63,6 +64,15 @@ class SqlTableMetadata extends TableMetadata {
               "ALTER TABLE {0} OWNER TO {1}",
               tableName, name(prefix + DefaultRoles.MANAGER.toString()));
         });
+  }
+
+  public void dropTable() throws MolgenisException {
+    try {
+      db.getJooq().dropTable(name(getSchema().getName(), getTableName())).execute();
+      MetadataUtils.deleteTable(this);
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("drop_table_failed", "Drop table failed", dae);
+    }
   }
 
   @Override
@@ -122,7 +132,7 @@ class SqlTableMetadata extends TableMetadata {
                 metadata.getColumnName(),
                 metadata.getRefTableName(),
                 metadata.getRefColumnName(),
-                metadata.getReverseColumnName(),
+                metadata.getReverseRefTableName(),
                 metadata.getReverseRefColumn(),
                 metadata.getMrefJoinTableName());
         break;
@@ -207,11 +217,6 @@ class SqlTableMetadata extends TableMetadata {
                     .eq(getSchema().getName())
                     .and(field("table_name").eq(getTableName())))
             .fetchOne(0, Integer.class);
-  }
-
-  public void dropTable() {
-    db.getJooq().dropTable(name(getSchema().getName(), getTableName())).execute();
-    MetadataUtils.deleteTable(this);
   }
 
   protected void loadPrimaryKey(String[] pkey) throws MolgenisException {

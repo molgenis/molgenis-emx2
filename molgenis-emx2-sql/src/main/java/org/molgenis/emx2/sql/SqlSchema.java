@@ -24,12 +24,17 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public void dropTable(String name) throws MolgenisException {
+    getMetadata().dropTable(name);
+  }
+
+  @Override
   public List<Member> getMembers() throws MolgenisException {
     List<Member> members = new ArrayList<>();
 
     // retrieve all role members
     String roleFilter = getRolePrefix();
-    String userFilter = SqlTable.MG_USER_PREFIX;
+    String userFilter = Constants.MG_USER_PREFIX;
     List<Record> result =
         db.getJooq()
             .fetch(
@@ -50,38 +55,39 @@ public class SqlSchema implements Schema {
 
   @Override
   public void addMembers(List<Member> members) throws MolgenisException {
-    try {
-      transaction(
-          database -> {
-            List<String> currentRoles = getRoles();
-            List<Member> currentMembers = getMembers();
+    transaction(
+        database -> {
+          List<String> currentRoles = getRoles();
+          List<Member> currentMembers = getMembers();
 
-            for (Member m : members) {
-              if (!currentRoles.contains(m.getRole()))
-                throw new MolgenisException(
-                    "add_members_failed",
-                    "Add member(s) failed",
-                    "Role '"
-                        + m.getRole()
-                        + " doesn't exist in schema '"
-                        + getMetadata().getName()
-                        + "'. Existing roles are: "
-                        + currentRoles);
+          for (Member m : members) {
+            if (!currentRoles.contains(m.getRole()))
+              throw new MolgenisException(
+                  "add_members_failed",
+                  "Add member(s) failed",
+                  "Role '"
+                      + m.getRole()
+                      + " doesn't exist in schema '"
+                      + getMetadata().getName()
+                      + "'. Existing roles are: "
+                      + currentRoles);
 
-              String username = SqlTable.MG_USER_PREFIX + m.getUser();
-              String roleprefix = getRolePrefix();
-              String rolename =
-                  SqlTable.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase() + m.getRole();
+            String username = Constants.MG_USER_PREFIX + m.getUser();
+            String roleprefix = getRolePrefix();
+            String rolename =
+                Constants.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase() + m.getRole();
 
-              // createTableIfNotExists user if not exists
+            // execugte updates database
+            try {
+              // add user if not exists
               db.addUser(m.getUser());
 
-              // give god powers.
+              // give god powers if 'owner'
               if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
                 db.getJooq().execute("ALTER ROLE {0} CREATEROLE", name(username));
               }
 
-              // revoke other roles if exists
+              // revoke other roles if user has them
               for (Member old : currentMembers) {
                 if (old.getUser().equals(m.getUser())) {
                   db.getJooq()
@@ -90,13 +96,13 @@ public class SqlSchema implements Schema {
                 }
               }
 
-              // grant role
+              // grant the new role
               db.getJooq().execute("GRANT {0} TO {1}", name(rolename), name(username));
+            } catch (DataAccessException dae) {
+              throw new SqlMolgenisException("add_members_failed", "Add member failed", dae);
             }
-          });
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("add_members_failed", "Add member failed", dae);
-    }
+          }
+        });
   }
 
   @Override
@@ -110,6 +116,32 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public void removeMembers(List<Member> members) throws MolgenisException {
+    List<String> usernames = new ArrayList<>();
+    for (Member m : members) usernames.add(m.getUser());
+
+    String userprefix = Constants.MG_USER_PREFIX;
+    String roleprefix = getRolePrefix();
+
+    transaction(
+        database -> {
+          for (Member m : getMembers()) {
+            if (usernames.contains(m.getUser())) {
+              try {
+                db.getJooq()
+                    .execute(
+                        "REVOKE {0} FROM {1}",
+                        name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
+              } catch (DataAccessException dae) {
+                throw new SqlMolgenisException(
+                    "remove_member_failed", "Remove of member failed", dae);
+              }
+            }
+          }
+        });
+  }
+
+  @Override
   public void removeMember(String user) throws MolgenisException {
     removeMembers(new Member(user, null));
   }
@@ -117,31 +149,6 @@ public class SqlSchema implements Schema {
   @Override
   public void removeMembers(Member... members) throws MolgenisException {
     removeMembers(Arrays.asList(members));
-  }
-
-  @Override
-  public void removeMembers(List<Member> members) throws MolgenisException {
-    List<String> usernames = new ArrayList<>();
-    for (Member m : members) usernames.add(m.getUser());
-
-    String userprefix = SqlTable.MG_USER_PREFIX;
-    String roleprefix = getRolePrefix();
-
-    try {
-      transaction(
-          database -> {
-            for (Member m : getMembers()) {
-              if (usernames.contains(m.getUser())) {
-                db.getJooq()
-                    .execute(
-                        "REVOKE {0} FROM {1}",
-                        name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
-              }
-            }
-          });
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("remove_member_failed", "Remove of member failed", dae);
-    }
   }
 
   @Override
@@ -203,7 +210,7 @@ public class SqlSchema implements Schema {
   }
 
   private String getRolePrefix() {
-    return SqlTable.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase();
+    return Constants.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase();
   }
 
   @Override
@@ -214,11 +221,6 @@ public class SqlSchema implements Schema {
   @Override
   public void transaction(Transaction transaction) throws MolgenisException {
     db.transaction(transaction);
-  }
-
-  @Override
-  public void transaction(String role, Transaction transaction) throws MolgenisException {
-    db.transaction(role, transaction);
   }
 
   @Override

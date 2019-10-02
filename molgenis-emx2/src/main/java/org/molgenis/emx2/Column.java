@@ -10,9 +10,9 @@ public class Column {
   private String columnName;
   private ColumnType columnType;
   private boolean nullable = false;
-  private String refTable;
+  private String refTableName;
   private String refColumn;
-  private String reverseName;
+  private String reverseRefTableName;
   private String reverseRefColumn;
   private String joinTable;
   private boolean readonly;
@@ -75,15 +75,15 @@ public class Column {
   }
 
   public String getRefTableName() {
-    return refTable;
+    return refTableName;
   }
 
   public String getRefColumnName() {
     return this.refColumn;
   }
 
-  public String getReverseColumnName() {
-    return this.reverseName;
+  public String getReverseRefTableName() {
+    return this.reverseRefTableName;
   }
 
   public String getReverseRefColumn() {
@@ -109,7 +109,7 @@ public class Column {
     StringBuilder builder = new StringBuilder();
     builder.append(getColumnName()).append(" ");
     if (ColumnType.REF.equals(getColumnType()))
-      builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
+      builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());
     if (Boolean.TRUE.equals(getNullable())) builder.append(" setNullable");
     return builder.toString();
@@ -153,20 +153,20 @@ public class Column {
     return joinTable;
   }
 
+  public Column setMrefJoinTable(String joinTableName) {
+    this.joinTable = joinTableName;
+    return this;
+  }
+
   public Column setReference(String refTable, String refColumn) {
-    this.refTable = refTable;
+    this.refTableName = refTable;
     this.refColumn = refColumn;
     return this;
   }
 
   public Column setReverseReference(String reverseName, String reverseRefColumn) {
-    this.reverseName = reverseName;
+    this.reverseRefTableName = reverseName;
     this.reverseRefColumn = reverseRefColumn;
-    return this;
-  }
-
-  public Column setMrefJoinTable(String joinTableName) {
-    this.joinTable = joinTableName;
     return this;
   }
 

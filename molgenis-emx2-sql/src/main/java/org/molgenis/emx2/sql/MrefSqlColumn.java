@@ -53,7 +53,7 @@ public class MrefSqlColumn extends SqlColumn {
         .alterTable(name(schemaName, otherTable.getTableName()))
         .add(
             field(
-                name(getReverseColumnName()),
+                name(getReverseRefTableName()),
                 SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
 
@@ -66,7 +66,7 @@ public class MrefSqlColumn extends SqlColumn {
     MrefSqlColumn reverseColumn =
         new MrefSqlColumn(
             otherTable,
-            getReverseColumnName(),
+            getReverseRefTableName(),
             getTable().getTableName(),
             getReverseRefColumn(),
             getColumnName(),

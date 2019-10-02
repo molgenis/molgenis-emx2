@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.Configuration;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Database;
@@ -12,7 +9,6 @@ import org.molgenis.emx2.Transaction;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,18 +16,16 @@ import java.util.Map;
 
 import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlDatabase implements Database {
   private DSLContext jooq;
+  private UserAwareConnectionProvider connectionProvider;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
 
-  public SqlDatabase(Connection connection) throws MolgenisException {
-    this.jooq = DSL.using(connection, SQLDialect.POSTGRES_10);
-    MetadataUtils.createMetadataSchemaIfNotExists(jooq);
-  }
-
   public SqlDatabase(DataSource source) throws MolgenisException {
-    this.jooq = DSL.using(source, SQLDialect.POSTGRES_10);
+    connectionProvider = new UserAwareConnectionProvider(source);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
   }
 
@@ -97,7 +91,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public void addUser(String user) throws MolgenisException {
-    String userName = SqlTable.MG_USER_PREFIX + user;
+    String userName = MG_USER_PREFIX + user;
 
     try {
       transaction(
@@ -113,7 +107,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public boolean hasUser(String user) {
-    String userName = SqlTable.MG_USER_PREFIX + user;
+    String userName = MG_USER_PREFIX + user;
     return jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName)
             .size()
         > 0;
@@ -126,7 +120,7 @@ public class SqlDatabase implements Database {
           "remove_user_failed",
           "remove user failed",
           "User with name '" + user + "' doesn't exist");
-    String userName = SqlTable.MG_USER_PREFIX + user;
+    String userName = MG_USER_PREFIX + user;
     jooq.execute("DROP ROLE {0}", name(userName));
   }
 
@@ -147,22 +141,21 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void transaction(String user, Transaction transaction) throws MolgenisException {
-    // createColumn independent merge of database with transaction connection
-    jooq.execute("SET SESSION AUTHORIZATION {0}", name(SqlTable.MG_USER_PREFIX + user));
-    try {
-      jooq.transaction(
-          config -> {
-            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+  public void setActiveUser(String username) {
+    this.connectionProvider.setActiveUser(username);
+  }
 
-            Database db = new SqlDatabase(config);
-            transaction.run(db);
-          });
-    } catch (DataAccessException e) {
-      throw new SqlMolgenisException(e);
-    } finally {
-      jooq.execute("RESET SESSION AUTHORIZATION");
-    }
+  @Override
+  public String getActiveUser() {
+    String user = jooq.fetchOne("SELECT SESSION_USER").get(0, String.class);
+    if (user.contains(MG_USER_PREFIX)) return user.substring(MG_USER_PREFIX.length());
+    return null;
+    // return this.connectionProvider.getActiveUser();
+  }
+
+  @Override
+  public void clearActiveUser() {
+    this.connectionProvider.clearActiveUser();
   }
 
   @Override

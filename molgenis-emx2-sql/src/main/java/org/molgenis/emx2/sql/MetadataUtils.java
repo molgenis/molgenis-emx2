@@ -114,7 +114,7 @@ public class MetadataUtils {
             + "', 'member'))",
         name("TABLE_RLS_" + DefaultRoles.MANAGER),
         table,
-        SqlTable.MG_ROLE_PREFIX,
+        Constants.MG_ROLE_PREFIX,
         TABLE_SCHEMA);
     jooq.execute(
         "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || '"
@@ -122,7 +122,7 @@ public class MetadataUtils {
             + "', 'member'))",
         name("TABLE_RLS_" + DefaultRoles.VIEWER),
         table,
-        SqlTable.MG_ROLE_PREFIX,
+        Constants.MG_ROLE_PREFIX,
         TABLE_SCHEMA);
   }
 

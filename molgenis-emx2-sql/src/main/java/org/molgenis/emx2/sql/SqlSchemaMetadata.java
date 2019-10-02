@@ -49,10 +49,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schemaName)) {
       step.execute();
 
-      String member = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.VIEWER;
-      String editor = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.EDITOR;
-      String manager = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.MANAGER;
-      String owner = SqlTable.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.OWNER;
+      String member = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.VIEWER;
+      String editor = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.EDITOR;
+      String manager = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.MANAGER;
+      String owner = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.OWNER;
 
       db.createRole(member);
       db.createRole(editor);

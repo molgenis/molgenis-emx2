@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static junit.framework.TestCase.fail;
 
@@ -25,6 +26,7 @@ public class CompareTools {
       javers =
           JaversBuilder.javers()
               .registerIgnoredClass(DSLContext.class)
+              .registerIgnoredClass(Database.class)
               .registerIgnoredClass(Schema.class)
               .registerIgnoredClass(SchemaMetadata.class)
               .build();

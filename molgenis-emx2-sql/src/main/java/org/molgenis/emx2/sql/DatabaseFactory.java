@@ -41,6 +41,7 @@ public class DatabaseFactory {
       // get fresh database
       db = new SqlDatabase(dataSource);
     }
+    db.clearActiveUser();
     return db;
   }
 

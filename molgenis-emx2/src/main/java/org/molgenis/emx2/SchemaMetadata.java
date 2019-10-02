@@ -44,7 +44,13 @@ public class SchemaMetadata {
   public TableMetadata createTable(TableMetadata table) throws MolgenisException {
     if (tables.containsKey(table.getTableName()))
       throw new MolgenisException(
-          "create_table_failed", "create_table_failed", "Table already exists");
+          "create_table_failed",
+          "Create table failed",
+          "Table with name '"
+              + table.getTableName()
+              + "'already exists in schema '"
+              + getName()
+              + "'");
     this.tables.put(table.getTableName(), table);
     return table;
   }
@@ -55,7 +61,7 @@ public class SchemaMetadata {
       throw new MolgenisException(
           "undefined_table",
           "Table not found",
-          String.format("Table with name='%s' could not be found", name));
+          "Table with name='" + name + "' could not be found");
     return table;
   }
 

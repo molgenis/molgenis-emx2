@@ -39,8 +39,6 @@ public class MolgenisWebservice {
   // todo look into javalin that claims to have openapi and sparkjava merged together
 
   private static final String DATA = "/data";
-  private static final String DATA_SCHEMA = DATA + "/:schema"; // NOSONAR
-  private static final String DATA_SCHEMA_TABLE = DATA_SCHEMA + "/:table"; // NOSONAR
 
   private static Database database;
   private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
@@ -68,36 +66,35 @@ public class MolgenisWebservice {
         (request, response) ->
             "Welcome to MOLGENIS EMX2 POC.<br/> Data api available under <a href=\"/data\">/data</a><br/>API documentation under <a href=\"/openapi\">/openapi</a>");
 
-    // aut api
-
     // the data api
-    get(DATA, MolgenisWebservice::apiGet);
-    post(DATA, MolgenisWebservice::schemaPost);
+    get("/data", MolgenisWebservice::schemasGet);
+    post("/data", MolgenisWebservice::schemasPost);
 
-    // documentation
-    get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
-    get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);
-    get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
+    // check user
+    // get("/user", MolgenisWebservice::userGet);
 
-    // admin operations
+    // schema level operations: get, add, delete tables + contents
+    get("/data/:schema", ACCEPT_JSON, MolgenisWebservice::tablesMetadataGetJSON);
+    get("/data/:schema", ACCEPT_CSV, MolgenisWebservice::tablesMetadataGetCSV);
+    get("/data/:schema", ACCEPT_EXCEL, MolgenisWebservice::tablesMetadataANDdataGetExcel);
+    get("/data/:schema", ACCEPT_ZIP, MolgenisWebservice::tablesMetadataANDdataGetZip);
+    post("/data/:schema", MolgenisWebservice::tablesMetadataANDdataPostFile);
+    delete("/data/:schema", MolgenisWebservice::tablesDelete);
+
+    // table row operations
+    get("/data/:schema/:table", MolgenisWebservice::rowsGet);
+    post("/data/:schema/:table", ACCEPT_JSON, MolgenisWebservice::rowsPost);
+    delete("/data/:schema/:table", MolgenisWebservice::rowsDelete);
+
+    // schema members operations
     get("/members/:schema", MolgenisWebservice::membersGet);
     post("/members/:schema", MolgenisWebservice::membersPost);
     delete("/members/:schema", MolgenisWebservice::membersDelete);
 
-    // schema operations
-    get(DATA_SCHEMA, ACCEPT_JSON, MolgenisWebservice::schemaGetJson);
-    get(DATA_SCHEMA, ACCEPT_CSV, MolgenisWebservice::schemaGetCsv);
-    get(DATA_SCHEMA, ACCEPT_EXCEL, MolgenisWebservice::schemaGetExcel);
-    get(DATA_SCHEMA, ACCEPT_ZIP, MolgenisWebservice::schemaGetZip);
-    post(DATA_SCHEMA, MolgenisWebservice::schemaPostZip);
-    delete(DATA_SCHEMA, MolgenisWebservice::schemaDelete);
-
-    // table row operations
-    get(DATA_SCHEMA_TABLE, MolgenisWebservice::rowsGet);
-    post(DATA_SCHEMA_TABLE, ACCEPT_JSON, MolgenisWebservice::rowsPost);
-    delete(DATA_SCHEMA_TABLE, MolgenisWebservice::rowsDelete);
-
-    // row operations (get rid of those?)
+    // documentation operations
+    get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
+    get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);
+    get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // handling of exceptions
     exception(
@@ -119,7 +116,7 @@ public class MolgenisWebservice {
         });
   }
 
-  private static Object membersDelete(Request request, Response response)
+  private static String membersDelete(Request request, Response response)
       throws IOException, MolgenisException {
     List<Member> members = jsonToMembers(request.body());
     Schema schema = database.getSchema(request.params(SCHEMA));
@@ -145,7 +142,7 @@ public class MolgenisWebservice {
     return membersToJson(schema.getMembers());
   }
 
-  private static String schemaGetCsv(Request request, Response response)
+  private static String tablesMetadataGetCSV(Request request, Response response)
       throws MolgenisException, IOException {
     Schema schema = database.getSchema(request.params(SCHEMA));
     StringWriter writer = new StringWriter();
@@ -154,9 +151,9 @@ public class MolgenisWebservice {
     return writer.toString();
   }
 
-  private static String schemaGetExcel(Request request, Response response)
+  private static String tablesMetadataANDdataGetExcel(Request request, Response response)
       throws MolgenisException, IOException {
-    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
+    Schema schema = database.getSchema(request.params(SCHEMA));
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
@@ -174,7 +171,7 @@ public class MolgenisWebservice {
     }
   }
 
-  private static String schemaGetJson(Request request, Response response)
+  private static String tablesMetadataGetJSON(Request request, Response response)
       throws MolgenisException, IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     String json = schemaToJson(schema.getMetadata());
@@ -182,13 +179,13 @@ public class MolgenisWebservice {
     return json;
   }
 
-  private static String schemaDelete(Request request, Response response) throws MolgenisException {
+  private static String tablesDelete(Request request, Response response) throws MolgenisException {
     database.dropSchema(request.params(SCHEMA));
     response.status(200);
     return "Delete schema success";
   }
 
-  private static String schemaPost(Request request, Response response) throws MolgenisException {
+  private static String schemasPost(Request request, Response response) throws MolgenisException {
     Row row = jsonToRow(request.body());
     // todo validate
     database.createSchema(row.getString("name"));
@@ -196,7 +193,7 @@ public class MolgenisWebservice {
     return "Create schema success";
   }
 
-  private static String schemaGetZip(Request request, Response response)
+  private static String tablesMetadataANDdataGetZip(Request request, Response response)
       throws MolgenisException, IOException {
 
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
@@ -221,7 +218,7 @@ public class MolgenisWebservice {
     }
   }
 
-  private static String schemaPostZip(Request request, Response response)
+  private static String tablesMetadataANDdataPostFile(Request request, Response response)
       throws MolgenisException, IOException, ServletException {
     Schema schema = database.getSchema(request.params(SCHEMA));
     // get uploaded file
@@ -332,7 +329,7 @@ public class MolgenisWebservice {
     return SwaggerUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
-  private static String apiGet(Request request, Response response) throws MolgenisException {
+  private static String schemasGet(Request request, Response response) throws MolgenisException {
     response.status(200);
     Map<String, String> schemas = new LinkedHashMap<>();
     for (String schemaName : database.getSchemaNames()) {
@@ -346,8 +343,8 @@ public class MolgenisWebservice {
 
     //    String token = request.headers("x-molgenis-token");
     //
-    //    // for testing, we use token == role, and give connection in a map
-    //    // of course this leaves open connections
+    //    // we keep a copy of Database for each user session
+    //    // they share the connection pool
     //
     //    if (databaseForRole.get(token) == null) {
     //      Connection conn = null;
@@ -356,11 +353,12 @@ public class MolgenisWebservice {
     //            DriverManager.getConnection(
     //                "jdbc:postgresql://localhost:5432/molgenis", "molgenis", "molgenis");
     //      } catch (SQLException sqle) {
-    //        throw new MolgenisException("connection faile", "conenction failed",
+    //        throw new MolgenisException("connection_failed", "connection failed",
     // sqle.getMessage());
     //      }
+    //      // set the user role on this connection
     //      try (Statement stmt = conn.createStatement()) {
-    //        stmt.execute("set role \"" + token + "\"");
+    //        stmt.execute("");
     //      } catch (SQLException sqle) {
     //        throw new MolgenisException(
     //            "invalid_token", "Invalid token", "Role " + token + " not known" +

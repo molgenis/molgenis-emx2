@@ -63,7 +63,6 @@ public class MolgenisException extends RuntimeException {
 
   @Override
   public String toString() {
-    return String.format(
-        "ColumnType: %s%nTitle: %s%nDetail: %s%n", getType(), getTitle(), getDetail());
+    return String.format("Type: %s%nTitle: %s%nDetail: %s%n", getType(), getTitle(), getDetail());
   }
 }

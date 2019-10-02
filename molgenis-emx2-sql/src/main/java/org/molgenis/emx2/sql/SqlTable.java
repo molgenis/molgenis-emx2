@@ -21,10 +21,6 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 
 class SqlTable implements Table {
-  public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE";
-  public static final String MG_SEARCH_INDEX_COLUMN_NAME = "MG_SEARCH_VECTOR";
-  public static final String MG_ROLE_PREFIX = "MG_ROLE_";
-  public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String DEFER_SQL = "SET CONSTRAINTS ALL DEFERRED";
 

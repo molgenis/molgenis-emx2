@@ -11,6 +11,20 @@ public interface Schema {
 
   Collection<String> getTableNames() throws MolgenisException;
 
+  Table createTableIfNotExists(String name) throws MolgenisException;
+
+  Table createTableIfNotExists(TableMetadata table) throws MolgenisException;
+
+  Table getTable(String name) throws MolgenisException;
+
+  void dropTable(String name) throws MolgenisException;
+
+  Query query(String tableName) throws MolgenisException;
+
+  void transaction(Transaction transaction) throws MolgenisException;
+
+  void merge(SchemaMetadata from) throws MolgenisException;
+
   void addMembers(List<Member> members) throws MolgenisException;
 
   void addMembers(Member... members) throws MolgenisException;
@@ -28,18 +42,4 @@ public interface Schema {
   List<String> getRoles();
 
   String getRoleForUser(String user) throws MolgenisException;
-
-  Table createTableIfNotExists(String name) throws MolgenisException;
-
-  Table createTableIfNotExists(TableMetadata table) throws MolgenisException;
-
-  Table getTable(String name) throws MolgenisException;
-
-  Query query(String tableName) throws MolgenisException;
-
-  void transaction(Transaction transaction) throws MolgenisException;
-
-  void transaction(String role, Transaction transaction) throws MolgenisException;
-
-  void merge(SchemaMetadata from) throws MolgenisException;
 }

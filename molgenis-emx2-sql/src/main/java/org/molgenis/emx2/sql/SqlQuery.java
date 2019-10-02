@@ -19,7 +19,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.query.Operator.OR;
 import static org.molgenis.emx2.query.Operator.SEARCH;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.sql.SqlTable.MG_SEARCH_INDEX_COLUMN_NAME;
+import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
 

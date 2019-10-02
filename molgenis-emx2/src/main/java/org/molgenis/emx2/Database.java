@@ -16,13 +16,17 @@ public interface Database {
 
   void addUser(String name) throws MolgenisException;
 
-  boolean hasUser(String testrls_has_rls_view);
+  boolean hasUser(String user);
 
   void removeUser(String name) throws MolgenisException;
 
   void transaction(Transaction transaction) throws MolgenisException;
 
-  void transaction(String role, Transaction transaction) throws MolgenisException;
+  void setActiveUser(String username);
+
+  String getActiveUser();
+
+  void clearActiveUser();
 
   void clearCache();
 }
