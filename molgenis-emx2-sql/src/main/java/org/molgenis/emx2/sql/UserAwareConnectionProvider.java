@@ -7,6 +7,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
@@ -22,10 +23,8 @@ public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
   public Connection acquire() throws DataAccessException {
     Connection connection = super.acquire();
     if (activeUser != null) { // if null we assume you want to use system user
-      try {
-        connection
-            .createStatement()
-            .execute("SET SESSION AUTHORIZATION '" + MG_USER_PREFIX + activeUser + "'");
+      try (Statement stmt = connection.createStatement()) {
+        stmt.execute("SET SESSION AUTHORIZATION '" + MG_USER_PREFIX + activeUser + "'");
       } catch (SQLException sqle) {
         throw new MolgenisException(
             "set active user failed",
@@ -38,8 +37,8 @@ public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
 
   @Override
   public void release(Connection connection) throws DataAccessException {
-    try {
-      connection.createStatement().execute("RESET SESSION AUTHORIZATION");
+    try (Statement stmt = connection.createStatement()) {
+      stmt.execute("RESET SESSION AUTHORIZATION");
     } catch (SQLException sqle) {
       throw new RuntimeException("release of connection failed ", sqle);
     }
