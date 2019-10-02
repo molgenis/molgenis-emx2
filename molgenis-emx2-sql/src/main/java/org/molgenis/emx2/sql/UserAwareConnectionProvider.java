@@ -6,13 +6,14 @@ import org.molgenis.emx2.utils.MolgenisException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
-  // active user is expected to be escaped for injection
   private String activeUser;
 
   public UserAwareConnectionProvider(DataSource source) {
@@ -22,9 +23,9 @@ public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
   @Override
   public Connection acquire() throws DataAccessException {
     Connection connection = super.acquire();
-    if (activeUser != null) { // if null we assume you want to use system user
+    if (activeUser != null) {
       try (Statement stmt = connection.createStatement()) {
-        stmt.execute("SET SESSION AUTHORIZATION '" + MG_USER_PREFIX + activeUser + "'");
+        stmt.execute("SET SESSION AUTHORIZATION " + name(MG_USER_PREFIX + activeUser) + "");
       } catch (SQLException sqle) {
         throw new MolgenisException(
             "set active user failed",

@@ -26,7 +26,7 @@ public class TestUsersAndPermissions {
       assertNull(database.getActiveUser());
 
       // add and set user
-      String user1 = "TestActiveUser1";
+      String user1 = "Test Active User1";
       database.addUser(user1);
       database.setActiveUser(user1);
       assertEquals(user1, database.getActiveUser());
