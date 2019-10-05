@@ -91,7 +91,7 @@ public class TestCreateArrayDataTypes {
     tableA.update(aRow);
 
     // cehck query
-    List<Row> result = tableA.query().where(aFieldName).contains(values[0]).retrieve();
+    List<Row> result = tableA.query().where(aFieldName, Operator.ANY, values[0]).retrieve();
     assertEquals(1, result.size());
     for (Row r : result) {
       if (DATETIME_ARRAY.equals(columnType)) {

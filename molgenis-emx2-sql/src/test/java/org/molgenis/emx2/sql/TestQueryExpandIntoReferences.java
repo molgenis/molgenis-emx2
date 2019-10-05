@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestQueryExpandIntoReferences {
   static Database db;
@@ -64,12 +65,10 @@ public class TestQueryExpandIntoReferences {
             .select("First Name")
             .select("Last Name")
             .expand("Father")
-            .include("First Name")
-            .include("Last Name")
-            .where("Last Name")
-            .eq("Duck")
-            .and("Father", "Last Name")
-            .eq("Duck");
+            .select("First Name")
+            .select("Last Name")
+            .where("Last Name", EQUALS, "Duck")
+            .and("Father/Last Name", EQUALS, "Duck");
 
     StopWatch.print("created query");
 
@@ -86,14 +85,13 @@ public class TestQueryExpandIntoReferences {
             .select("First Name")
             .select("Last Name")
             .expand("Father")
-            .include("Last Name")
-            .include("First Name")
-            .where("Last Name")
-            .eq("Duck")
-            .and("Father", "Last Name")
-            .eq("Duck");
+            .select("Last Name")
+            .select("First Name")
+            .where("Last Name", EQUALS, "Duck")
+            .and("Father/Last Name", EQUALS, "Duck");
 
     rows = query1.retrieve();
+    for (Row r : rows) System.out.println(r);
     assertEquals(1, rows.size());
 
     StopWatch.print("second time");
@@ -111,11 +109,7 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("tables created");
 
     Query q = schema.query("Product");
-    q.select("name")
-        .expand("components")
-        .include("name")
-        .expand("components", "parts")
-        .include("name");
+    q.select("name").expand("components").select("name").expand("parts").select("name");
 
     List<Row> rows = q.retrieve();
     assertEquals(3, rows.size());
@@ -133,11 +127,7 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("cleared cache");
 
     Query q2 = schema.query("Product");
-    q2.select("name")
-        .expand("components")
-        .include("name")
-        .expand("components", "parts")
-        .include("name");
+    q2.select("name").expand("components").select("name").expand("parts").select("name");
 
     // todo query expansion! q2.where("components", "parts",
     // "weight").eq(50).and("name").eq("explorer", "navigator");

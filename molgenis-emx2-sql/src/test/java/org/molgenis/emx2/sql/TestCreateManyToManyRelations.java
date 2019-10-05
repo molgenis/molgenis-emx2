@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import org.javers.common.collections.Lists;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -8,12 +9,17 @@ import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Operator.ANY;
 
 public class TestCreateManyToManyRelations {
 
@@ -71,7 +77,8 @@ public class TestCreateManyToManyRelations {
         });
   }
 
-  private void executeTest(ColumnType columnType, Object[] testValues) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Serializable[] testValues)
+      throws MolgenisException {
     StopWatch.start("executeTest");
 
     Schema aSchema =
@@ -109,11 +116,14 @@ public class TestCreateManyToManyRelations {
     StopWatch.print("data inserted");
 
     // test query
-    List<Row> bRowsRetrieved = bTable.retrieve();
+    List<Row> bRowsRetrieved = bTable.where(refName, ANY, testValues[1]).retrieve();
     ColumnType arrayColumnType = TypeUtils.getArrayType(columnType);
-    assertArrayEquals(
-        (Object[]) bRow.get(refName, arrayColumnType),
-        (Object[]) bRowsRetrieved.get(0).get(refName, arrayColumnType));
+
+    // todo insert order is not reproducible
+    List first = Arrays.asList((Object[]) bRow.get(refName, arrayColumnType));
+    List second = Arrays.asList((Object[]) bRowsRetrieved.get(0).get(refName, arrayColumnType));
+    assertTrue(
+        first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
 
     // and update
     bRow.set(refName, Arrays.copyOfRange(testValues, 0, 2));

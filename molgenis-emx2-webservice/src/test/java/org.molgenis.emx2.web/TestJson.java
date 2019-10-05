@@ -10,7 +10,7 @@ import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.web.json.JsonQueryMapper;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Query;
-import org.molgenis.emx2.query.QueryBean;
+import org.molgenis.emx2.beans.QueryBean;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.web.json.JsonSchemaMapper;
@@ -21,6 +21,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRows;
 import static org.molgenis.emx2.web.json.JsonMapper.rowsToJson;
@@ -104,13 +105,10 @@ public class TestJson {
     q.select("FirstName")
         .select("LastName")
         .expand("Father")
-        .include("FirstName")
-        .where("Age")
-        .eq(50)
-        .or("Age")
-        .eq(60)
-        .and("Father", "LastName")
-        .eq("Blaat")
+        .select("FirstName")
+        .where("Age", EQUALS, 50)
+        .or("Age", EQUALS, 60)
+        .and("Father/LastName", EQUALS, "Blaat")
         .asc("LastName")
         .asc("FirstName");
 

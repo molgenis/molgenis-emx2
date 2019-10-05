@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.io.Serializable;
 import java.util.List;
 
 public interface Table {
@@ -26,9 +27,9 @@ public interface Table {
 
   void deleteByPrimaryKey(Object... name);
 
-  Select select(String... path);
+  Query select(String... path);
 
-  Where where(String... path);
+  Query where(String path, Operator operator, Serializable... values);
 
   Query query();
 

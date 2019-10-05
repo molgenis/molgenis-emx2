@@ -19,6 +19,7 @@ import java.util.List;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestCreateBasicDataColumnTypeColumns {
 
@@ -173,16 +174,16 @@ public class TestCreateBasicDataColumnTypeColumns {
     aTable.update(aRow);
 
     // check query
-    List<Row> result = aTable.query().where(aColumn).eq(values[0]).retrieve();
+    List<Row> result = aTable.query().where(aColumn, EQUALS, values[0]).retrieve();
     assertEquals(0, result.size());
 
-    result = aTable.query().where(aColumn).eq(values[2]).retrieve();
+    result = aTable.query().where(aColumn, EQUALS, values[2]).retrieve();
     assertEquals(1, result.size());
     for (Row r : result) {
       System.out.println(r);
     }
 
-    // deletel
+    // delete
     aTable.delete(aRow, aRow2);
     assertEquals(0, aTable.retrieve().size());
   }

@@ -1,4 +1,4 @@
-package org.molgenis.sql;
+package org.molgenis.jooq;
 
 import org.jooq.DSLContext;
 import org.molgenis.*;
@@ -138,7 +138,7 @@ public class MetadataUtils2 {
     return db.getSchema(MOLGENIS).getTable(UNIQUE_TABLE);
   }
 
-  static void saveUnique(DSLContext sql, Unique unique) throws MolgenisException {
+  static void saveUnique(DSLContext jooq, Unique unique) throws MolgenisException {
     uniques()
         .update(
             new Row()
@@ -147,7 +147,7 @@ public class MetadataUtils2 {
                 .setStringArray(UNIQUE_COLUMNS, unique.getColumnNames()));
   }
 
-  static void deleteUnique(DSLContext sql, Unique unique) throws MolgenisException {
+  static void deleteUnique(DSLContext jooq, Unique unique) throws MolgenisException {
     uniques()
         .deleteByPrimaryKey(unique.getSchemaName(), unique.getTableName(), unique.getColumnNames());
   }

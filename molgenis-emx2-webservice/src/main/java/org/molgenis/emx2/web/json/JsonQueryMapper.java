@@ -4,15 +4,15 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.JsoniterSpi;
 import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Select;
 import org.molgenis.emx2.Where;
-import org.molgenis.emx2.query.Operator;
-import org.molgenis.emx2.query.Order;
-import org.molgenis.emx2.query.Sort;
+import org.molgenis.emx2.Operator;
+import org.molgenis.emx2.Order;
+import org.molgenis.emx2.Sort;
 
 import java.util.*;
 
-import static org.molgenis.emx2.query.Order.ASC;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Order.ASC;
 
 public class JsonQueryMapper {
 
@@ -37,7 +37,7 @@ public class JsonQueryMapper {
 
   public static void selectToQuery(Query q, JsonQuery jq) {
     for (String path : jq.select) {
-      q.select(path.split("/"));
+      q.select(path);
     }
   }
 
@@ -54,33 +54,29 @@ public class JsonQueryMapper {
       for (Map.Entry<String, Object[]> f : or.entrySet()) {
         String path = f.getKey();
         Object[] value = f.getValue();
-        Where where;
         if (first) {
-          where = q.or(path.split("/"));
+          q.or(path, EQUALS, Arrays.copyOf(value, value.length, Object[].class));
           first = false;
         } else {
-          where = q.and(path.split("/"));
+          q.and(path, EQUALS, Arrays.copyOf(value, value.length, Object[].class));
         }
-        where.eq(Arrays.copyOf(value, value.length, Object[].class));
       }
     }
   }
 
   public static String queryToJson(Query q) {
     JsonQuery result = new JsonQuery();
-
-    for (Select s : q.getSelectList()) {
-      result.select.add(String.join("/", s.getPath()));
-    }
+    result.select.addAll(q.getSelectList());
 
     Map<String, Object[]> clause = new LinkedHashMap<>();
     result.filters.add(clause);
     for (Where f : q.getWhereLists()) {
       Operator op = f.getOperator();
-      if (Operator.OR.equals(op)) {
-        clause = new LinkedHashMap<>();
-        result.filters.add(clause);
-      } else if (Operator.EQ.equals(op)) clause.put(String.join("/", f.getPath()), f.getValues());
+      //      if (Operator.OR.equals(op)) {
+      //        clause = new LinkedHashMap<>();
+      //        result.filters.add(clause);
+      //      } else
+      if (EQUALS.equals(op)) clause.put(String.join("/", f.getPath()), f.getValues());
     }
 
     for (Sort s : q.getSortList()) {

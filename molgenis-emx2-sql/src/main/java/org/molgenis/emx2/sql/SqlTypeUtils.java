@@ -106,6 +106,8 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType columnType = column.getColumnType();
     if (ColumnType.REF.equals(columnType)) {
       columnType = getRefType(column);
+    } else if (ColumnType.MREF.equals(columnType)) {
+      columnType = getArrayType(getRefType(column));
     }
     switch (columnType) {
       case UUID:

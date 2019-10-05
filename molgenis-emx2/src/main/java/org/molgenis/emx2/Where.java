@@ -1,21 +1,39 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.query.Operator;
-
 import java.io.Serializable;
 
-public interface Where {
-  Query eq(Serializable... values);
+public class Where {
+  String path;
+  Operator operator;
+  Serializable[] values;
 
-  Query contains(Serializable... values);
+  public Where(String path, Operator operator, Serializable... values) {
+    this.path = path;
+    this.operator = operator;
+    this.values = values;
+  }
 
-  Query search(String terms);
+  public String getPath() {
+    return path;
+  }
 
-  // below move to implementation?
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-  Operator getOperator();
+  public Operator getOperator() {
+    return operator;
+  }
 
-  Serializable[] getValues();
+  public void setOperator(Operator operator) {
+    this.operator = operator;
+  }
 
-  String[] getPath();
+  public Serializable[] getValues() {
+    return values;
+  }
+
+  public void setValues(Serializable... values) {
+    this.values = values;
+  }
 }

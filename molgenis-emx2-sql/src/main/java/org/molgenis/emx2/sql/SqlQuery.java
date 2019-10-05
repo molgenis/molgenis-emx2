@@ -2,60 +2,150 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
+import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Select;
-import org.molgenis.emx2.query.QueryBean;
+import org.molgenis.emx2.beans.QueryBean;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.Where;
 import org.molgenis.emx2.utils.MolgenisException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.query.Operator.OR;
-import static org.molgenis.emx2.query.Operator.SEARCH;
-import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
 
   private TableMetadata from;
-  private DSLContext sql;
+  private DSLContext jooq;
 
-  public SqlQuery(TableMetadata from, DSLContext sql) {
+  public SqlQuery(TableMetadata from, DSLContext jooq) {
     this.from = from;
-    this.sql = sql;
+    this.jooq = jooq;
   }
 
   @Override
   public List<Row> retrieve() throws MolgenisException {
 
     try {
-      List<Row> result = new ArrayList<>();
+      // todo major pitfall: names as paths might be too long, then we need aliases of some sort to
+      // postprocess
 
-      // createColumn the select
+      // 0. if select is empty, then select all columns of 'from'
+      List<String> selectList = getSelectList();
+      if (selectList.isEmpty()) {
+        for (Column c : from.getColumns()) {
+          selectList.add(c.getColumnName());
+        }
+      }
 
+      // 1. create the select clause with tableAliases derived from the paths
+      Set<String> tableAliases = new TreeSet<>();
+      List<Field> fields = new ArrayList<>();
+      for (String select : selectList) {
+        String[] path = getPath(select);
+        Column column = getColumn(from, path);
+        // table alias = from.getTableName + path
+        String tableAlias = from.getTableName();
+        if (path.length > 1) {
+          for (int i = 0; i < path.length - 1; i++) {
+            tableAlias += "/" + path[i];
+          }
+        }
+        if (MREF.equals(column.getColumnType())) {
+          // select array(mref_col from mreftable...)
+          fields.add(createMrefSubselect(column, tableAlias).as(select));
+        } else {
+          //
+          fields.add(
+              field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
+                  .as(select));
+        }
+        tableAliases.add(tableAlias);
+      }
       SelectSelectStep selectStep;
-      List<Field> fields = getFields(from);
+      if (!fields.isEmpty()) selectStep = jooq.select(fields);
+      else selectStep = jooq.select();
 
-      if (fields.isEmpty()) selectStep = sql.select(fields);
-      else selectStep = sql.select();
+      // 2. create from clause with joins to the ref linked tables
+      SelectJoinStep fromStep =
+          selectStep.from(table(name(from.getSchema().getName(), from.getTableName())));
+      for (String tableAlias : tableAliases) {
+        String[] path = getPath(tableAlias);
+        if (path.length > 1) {
+          Column fkey = getColumn(from, Arrays.copyOfRange(path, 1, path.length));
+          String leftAlias = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
+          switch (fkey.getColumnType()) {
+            case REF:
+              fromStep =
+                  fromStep
+                      .leftJoin(
+                          table(name(from.getSchema().getName(), fkey.getRefTableName()))
+                              .as(name(tableAlias)))
+                      .on(
+                          field(name(leftAlias, fkey.getColumnName()))
+                              .eq(field(name(tableAlias, fkey.getRefColumnName()))));
+              break;
+            case REF_ARRAY:
+              fromStep =
+                  fromStep
+                      .leftJoin(
+                          table(name(from.getSchema().getName(), fkey.getRefTableName()))
+                              .as(name(tableAlias)))
+                      .on(
+                          "{0} = ANY ({1})",
+                          field(name(tableAlias, fkey.getRefColumnName())),
+                          field(name(leftAlias, fkey.getColumnName())));
+              break;
+            case MREF:
+              String joinTable = fkey.getMrefJoinTableName();
 
-      // createColumn the from
-      SelectJoinStep fromStep = selectStep.from(getJooqTable(from));
+              // to link table
+              fromStep =
+                  fromStep
+                      .leftJoin(
+                          table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
+                      .on(
+                          field(name(joinTable, fkey.getRefColumnName()))
+                              .eq(field(name(leftAlias, fkey.getColumnName()))));
+              // to other end of the mref
+              fromStep =
+                  fromStep
+                      .leftJoin(
+                          table(name(from.getSchema().getName(), fkey.getRefTableName()))
+                              .as(name(tableAlias)))
+                      .on(
+                          field(name(joinTable, fkey.getColumnName()))
+                              .eq(field(name(tableAlias, fkey.getRefColumnName()))));
+            default:
+              break;
+          }
+        }
+      }
 
-      // createColumn the joins
-      fromStep = createJoins(from.getTableName(), from, fromStep);
-      // createColumn the where
-      fromStep.where(createConditions(from.getTableName()));
+      // todo, the 'from' must also include tableAliases for the 'where' clauses
 
-      // createColumn the sort
+      // 3. create the where clause
+      Condition filterCondition = createFilterConditions(from.getTableName());
+      Condition searchCondition = createSearchConditions(tableAliases);
+      if (filterCondition != null) {
+        if (searchCondition != null) {
+          fromStep.where(filterCondition).and(searchCondition);
+        } else {
+          fromStep.where(filterCondition);
+        }
+      } else if (searchCondition != null) {
+        fromStep.where(searchCondition);
+      }
+
+      System.out.println(fromStep.getSQL());
 
       // retrieve
+      List<Row> result = new ArrayList<>();
+
       Result<Record> fetch = fromStep.fetch();
       for (Record r : fetch) {
         result.add(new SqlRow(r));
@@ -72,96 +162,39 @@ public class SqlQuery extends QueryBean implements Query {
     }
   }
 
-  private org.jooq.Table getJooqTable(TableMetadata table) throws MolgenisException {
-
-    // createTableIfNotExists all columns
-    List<Field> fields = new ArrayList<>();
-    for (Column column : table.getColumns()) {
-      if (!MREF.equals(column.getColumnType())) {
-        fields.add(
-            field(
-                name(column.getMrefJoinTableName(), column.getColumnName()),
-                SqlTypeUtils.jooqTypeOf(column)));
+  private Condition createSearchConditions(Set<String> tableAliases) {
+    if (getSearchList().size() == 0) return null;
+    String search = String.join("|", getSearchList());
+    Condition searchCondition = null;
+    for (String tableAlias : tableAliases) {
+      Condition condition =
+          condition(
+              name(tableAlias, MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + search + "' )");
+      if (searchCondition == null) {
+        searchCondition = condition;
       } else {
-        fields.add(
-            field(
-                name(table.getTableName(), column.getColumnName()),
-                SqlTypeUtils.jooqTypeOf(column)));
+        searchCondition.or(condition);
       }
     }
-
-    // check if search term is given then add search field too
-    boolean search = false;
-    for (Where w : getWhereLists()) {
-      if (w.getOperator().equals(SEARCH)) search = true;
-    }
-    if (search) fields.add(field(name(MG_SEARCH_INDEX_COLUMN_NAME)));
-
-    org.jooq.Table jooqTable =
-        DSL.select(fields)
-            .from(name(table.getSchema().getName(), table.getTableName()))
-            .asTable(table.getTableName());
-
-    // for mrefs join
-    for (Column column : table.getColumns()) {
-      if (MREF.equals(column.getColumnType())) {
-        jooqTable =
-            jooqTable
-                .leftJoin(
-                    DSL.select(
-                            field("array_agg({0})", name(column.getRefColumnName()))
-                                .as(column.getColumnName()),
-                            field(name(column.getReverseRefColumn())))
-                        .from(
-                            table(name(table.getSchema().getName(), column.getMrefJoinTableName())))
-                        .groupBy(field(name(column.getReverseRefColumn())))
-                        .asTable(column.getMrefJoinTableName()))
-                .on(
-                    field(name(column.getMrefJoinTableName(), column.getReverseRefColumn()))
-                        .eq((field(name(table.getTableName(), column.getReverseRefColumn())))));
-      }
-    }
-    return jooqTable;
+    return searchCondition;
   }
 
-  private List<Field> getFields(TableMetadata from) {
-    List<Field> fields = new ArrayList<>();
-    List<Select> selectList = this.getSelectList();
-
-    if (selectList.isEmpty()) {
-      for (Column c : from.getColumns()) {
-        this.select(c.getColumnName());
-      }
-    }
-
-    for (Select select : selectList) {
-      String[] path = select.getPath();
-      if (path.length == 1) {
-        fields.add(field(name(from.getTableName(), path[0])).as(name(path[0])));
-      } else {
-        String[] tablePath = Arrays.copyOfRange(path, 0, path.length - 1);
-        String[] fieldPath = Arrays.copyOfRange(path, 0, path.length);
-
-        String tableAlias = from.getTableName() + "/" + String.join("/", tablePath);
-        fields.add(
-            field(name(tableAlias, path[path.length - 1])).as(name(String.join("/", fieldPath))));
-      }
-    }
-    return fields;
+  /** subselect for mref in select and/or filter clauses */
+  private Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
+    return PostgresDSL.array(
+        DSL.select(field(name(column.getMrefJoinTableName(), column.getRefColumnName())))
+            .from(name(from.getSchema().getName(), column.getMrefJoinTableName()))
+            .where(
+                field(name(column.getMrefJoinTableName(), column.getReverseRefColumn()))
+                    .eq(field(name(tableAlias, column.getReverseRefColumn())))));
   }
 
-  private Condition createConditions(String tableName) throws MolgenisException {
+  private Condition createFilterConditions(String tableName) throws MolgenisException {
     Condition conditions = null;
     boolean or = false;
     for (Where w : this.getWhereLists()) {
       Condition newCondition = null;
-      if (SEARCH.equals(w.getOperator())) {
-        newCondition = createSearchCondition(w);
-      } else if (OR.equals(w.getOperator())) {
-        or = true;
-      } else {
-        newCondition = createFilterCondition(w, tableName);
-      }
+      newCondition = createFilterCondition(w, tableName);
       if (newCondition != null) {
         if (conditions == null) conditions = newCondition;
         else if (or) {
@@ -172,12 +205,13 @@ public class SqlQuery extends QueryBean implements Query {
         }
       }
     }
+
     return conditions;
   }
 
   private Condition createFilterCondition(Where w, String tableName) throws MolgenisException {
     // in case of field operator
-    String[] path = w.getPath();
+    String[] path = getPath(w.getPath());
     StringBuilder tableAlias = new StringBuilder(tableName);
 
     if (path.length > 1) {
@@ -185,105 +219,37 @@ public class SqlQuery extends QueryBean implements Query {
     }
     Name selector = name(tableAlias.toString(), path[path.length - 1]);
     switch (w.getOperator()) {
-      case EQ:
+      case EQUALS:
         // type check
         Object[] values = w.getValues();
         for (int i = 0; i < values.length; i++)
           values[i] = SqlTypeUtils.getTypedValue(values[i], getColumn(from, path));
         return field(selector).in(values);
       case ANY:
-        return condition(
-            "{0} && {1}",
-            SqlTypeUtils.getTypedValue(w.getValues(), getColumn(from, path)), field(selector));
+        Column column = getColumn(from, path);
+        if (MREF.equals(column.getColumnType())) {
+          return condition(
+              "{0} && {1}",
+              SqlTypeUtils.getTypedValue(w.getValues(), column),
+              createMrefSubselect(column, tableAlias.toString()));
+        } else {
+          return condition(
+              "{0} && {1}", SqlTypeUtils.getTypedValue(w.getValues(), column), field(selector));
+        }
       default:
         throw new MolgenisException(
             "invalid_query",
-            "Creation of filter condiation failed",
+            "Creation of filter condition failed",
             "Where clause '" + w.toString() + "' is not supported");
     }
   }
 
-  private Condition createSearchCondition(Where w) {
-    StringBuilder search = new StringBuilder();
-    for (Object s : w.getValues()) search.append(s + ":* ");
-    return condition(
-        name(from.getTableName(), MG_SEARCH_INDEX_COLUMN_NAME)
-            + " @@ to_tsquery('"
-            + search
-            + "' )");
+  private String[] getPath(String s) {
+    // todo check for escaping with //
+    return s.split("/");
   }
 
-  private SelectJoinStep createJoins(String name, TableMetadata table, SelectJoinStep fromStep)
-      throws MolgenisException {
-    List<String> duplicatePaths = new ArrayList<>();
-
-    for (Select s : this.getSelectList()) {
-      String[] path = s.getPath();
-
-      // in case of xref
-      if (path.length >= 2) {
-        String[] rightPath = Arrays.copyOfRange(path, 0, path.length - 1);
-        String[] leftPath = Arrays.copyOfRange(path, 0, path.length - 2);
-        Column c = getColumn(table, rightPath);
-
-        String leftColumn = c.getColumnName();
-        String leftAlias = path.length > 2 ? name + "/" + String.join("/", leftPath) : name;
-
-        String rightTable = c.getRefTableName();
-        String rightAlias = name + "/" + String.join("/", rightPath);
-        String rightColumn = c.getRefColumnName();
-
-        if (duplicatePaths.contains(rightAlias)) break; // only once needed
-
-        // else
-        duplicatePaths.add(rightAlias);
-
-        switch (c.getColumnType()) {
-          case REF:
-            fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(
-                        field(name(rightAlias, rightColumn))
-                            .eq(field(name(leftAlias, leftColumn))));
-            break;
-          case REF_ARRAY:
-            fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(
-                        "{0} = ANY ({1})",
-                        field(name(rightAlias, rightColumn)), field(name(leftAlias, leftColumn)));
-            break;
-          case MREF:
-            String joinTable = c.getMrefJoinTableName();
-
-            // to link table
-            fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
-                    .on(field(name(joinTable, rightColumn)).eq(field(name(leftAlias, leftColumn))));
-
-            // to other end of the mref
-            fromStep =
-                fromStep
-                    .leftJoin(
-                        table(name(from.getSchema().getName(), rightTable)).as(name(rightAlias)))
-                    .on(
-                        field(name(joinTable, leftColumn))
-                            .eq(field(name(rightAlias, rightColumn))));
-            break;
-          default:
-            break;
-        }
-      }
-    }
-    return fromStep;
-  }
-
+  /** recursive getColumn */
   private Column getColumn(TableMetadata t, String[] path) throws MolgenisException {
     Column c = t.getColumn(path[0]);
     if (c == null)

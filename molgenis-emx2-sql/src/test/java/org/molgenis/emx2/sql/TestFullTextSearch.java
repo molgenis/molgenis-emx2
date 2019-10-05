@@ -29,7 +29,7 @@ public class TestFullTextSearch {
         .addColumn("sub", ColumnType.STRING)
         .addColumn("body", ColumnType.TEXT)
         .addColumn("year", ColumnType.INT);
-    aTable.getMetadata().enableSearch();
+    // aTable.getMetadata().enableSearch();
 
     aTable.insert(
         new Row()
@@ -49,7 +49,20 @@ public class TestFullTextSearch {
     // search in one table
     assertEquals(1, aTable.query().search("test").retrieve().size());
 
-    assertEquals(2, aTable.query().search("test").or().search("another").retrieve().size());
+    assertEquals(2, aTable.query().search("test").search("another").retrieve().size());
+
+    assertEquals(1, aTable.query().search("c.19239T>G").retrieve().size());
+
+    // match by position
+    // assertEquals(1, aTable.query().search("19239").retrieve().size());
+
+    // assertEquals(1, aTable.query().search("c.19239").retrieve().size());
+
+    // match by mutation
+    assertEquals(1, aTable.query().search("T>G").retrieve().size());
+
+    // don't match other mutation
+    assertEquals(0, aTable.query().search("c.19239T>C").retrieve().size());
 
     // search accross join of xref
   }

@@ -204,10 +204,6 @@ public class TableMetadata {
     throw new UnsupportedOperationException();
   }
 
-  public void enableSearch() {
-    throw new UnsupportedOperationException();
-  }
-
   public void clearCache() {
     columns = new LinkedHashMap<>();
     uniques = new ArrayList<>();

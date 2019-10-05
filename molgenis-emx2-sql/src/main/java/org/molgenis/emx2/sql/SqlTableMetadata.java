@@ -63,6 +63,8 @@ class SqlTableMetadata extends TableMetadata {
           jooq.execute(
               "ALTER TABLE {0} OWNER TO {1}",
               tableName, name(prefix + DefaultRoles.MANAGER.toString()));
+
+          enableSearch();
         });
   }
 
@@ -104,6 +106,7 @@ class SqlTableMetadata extends TableMetadata {
     SqlColumn c = new SqlColumn(this, name, columnType);
     c.createColumn();
     super.addColumn(c);
+    this.updateSearchIndexTriggerFunction();
     return c;
   }
 
@@ -150,6 +153,7 @@ class SqlTableMetadata extends TableMetadata {
     RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     super.addColumn(c);
+    this.updateSearchIndexTriggerFunction();
     return c;
   }
 
@@ -158,6 +162,7 @@ class SqlTableMetadata extends TableMetadata {
     RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     super.addColumn(c);
+    this.updateSearchIndexTriggerFunction();
     return c;
   }
 
@@ -185,6 +190,7 @@ class SqlTableMetadata extends TableMetadata {
             this, name, refTable, refColumn, reverseName, reverseRefColumn, joinTable);
     c.createColumn();
     super.addColumn(c);
+    this.updateSearchIndexTriggerFunction();
     return c;
   }
 
@@ -267,8 +273,7 @@ class SqlTableMetadata extends TableMetadata {
     super.removeUnique(correctOrderedNames);
   }
 
-  @Override
-  public void enableSearch() {
+  private void enableSearch() {
 
     // 1. add tsvector column with index
     db.getJooq()
@@ -280,14 +285,27 @@ class SqlTableMetadata extends TableMetadata {
     // 2. createColumn index on that column to speed up search
     db.getJooq()
         .execute(
-            "CREATE INDEX mg_search_vector_idx ON {0} USING GIN( {1} )",
-            getJooqTable(), name(MG_SEARCH_INDEX_COLUMN_NAME));
+            "CREATE INDEX {0} ON {1} USING GIN( {2} )",
+            name(getTableName() + "_search_idx"),
+            getJooqTable(),
+            name(MG_SEARCH_INDEX_COLUMN_NAME));
 
     // 3. createColumn the trigger function to automatically update the
     // MG_SEARCH_INDEX_COLUMN_NAME
-    String triggerfunction =
-        String.format(
-            "\"%s\".\"%s_search_vector_trigger\"()", getSchema().getName(), getTableName());
+    String triggerfunction = updateSearchIndexTriggerFunction();
+
+    // 4. add trigger to update the tsvector on each insert or update
+    db.getJooq()
+        .execute(
+            "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
+                + triggerfunction,
+            name(MG_SEARCH_INDEX_COLUMN_NAME),
+            getJooqTable());
+  }
+
+  private String updateSearchIndexTriggerFunction() {
+    String triggerName = getTableName() + "search_vector_trigger";
+    String triggerfunction = String.format("\"%s\".\"%s\"()", getSchema().getName(), triggerName);
 
     StringBuilder mgSearchVector = new StringBuilder("to_tsvector('english', ' '");
     for (Column c : getColumns()) {
@@ -308,14 +326,14 @@ class SqlTableMetadata extends TableMetadata {
             triggerfunction, name(MG_SEARCH_INDEX_COLUMN_NAME), mgSearchVector);
 
     db.getJooq().execute(functionBody);
-
-    // 4. add trigger to update the tsvector on each insert or update
     db.getJooq()
         .execute(
-            "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
-                + triggerfunction,
-            name(MG_SEARCH_INDEX_COLUMN_NAME),
-            getJooqTable());
+            "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
+            name(
+                MG_ROLE_PREFIX
+                    + getSchema().getName().toUpperCase()
+                    + DefaultRoles.MANAGER.toString()));
+    return triggerfunction;
   }
 
   @Override

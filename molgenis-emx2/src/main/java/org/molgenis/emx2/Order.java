@@ -1,4 +1,4 @@
-package org.molgenis.emx2.query;
+package org.molgenis.emx2;
 
 public enum Order {
   ASC,

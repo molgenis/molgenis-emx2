@@ -3,12 +3,14 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Operator;
+import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Select;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.TypeUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -187,13 +189,13 @@ class SqlTable implements Table {
   }
 
   @Override
-  public Select select(String... path) {
-    return null;
+  public Query select(String... path) {
+    return query().select(path);
   }
 
   @Override
-  public Where where(String... path) {
-    return null;
+  public Query where(String path, Operator operator, Serializable... values) {
+    return query().where(path, operator, values);
   }
 
   @Override

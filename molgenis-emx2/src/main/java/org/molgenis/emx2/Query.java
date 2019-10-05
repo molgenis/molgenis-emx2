@@ -1,39 +1,39 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.query.Sort;
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.io.Serializable;
 import java.util.List;
 
 public interface Query {
 
-  Select select(String... path);
+  List<Sort> getSortList();
 
-  Select expand(String... column); // do we need this one?
+  List<Where> getWhereLists();
+
+  List<String> getSearchList();
+
+  Query select(String... columns);
+
+  Query expand(String column);
+
+  Query collapse();
 
   Query search(String terms);
 
-  Query avg(String... path);
+  Query where(String path, Operator operator, Serializable... values);
 
-  Where where(String... path);
+  Query and(String path, Operator operator, Serializable... values);
 
-  Where and(String... path);
+  Query or(String path, Operator operator, Serializable... values);
 
-  Query or();
+  Query asc(String column);
 
-  Where or(String... path);
-
-  Query asc(String... column);
-
-  Query desc(String... column);
-
-  List<Select> getSelectList(); // move to implementation?
-
-  List<Where> getWhereLists(); // move to implementation
-
-  List<Sort> getSortList(); // move to implementation
+  Query desc(String column);
 
   List<Row> retrieve() throws MolgenisException;
 
   <E> List<E> retrieve(String columnName, Class<E> asClass);
+
+  List<String> getSelectList();
 }
