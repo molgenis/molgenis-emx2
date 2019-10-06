@@ -120,6 +120,7 @@ public class SqlQuery extends QueryBean implements Query {
                       .on(
                           field(name(joinTable, fkey.getColumnName()))
                               .eq(field(name(tableAlias, fkey.getRefColumnName()))));
+              break;
             default:
               break;
           }

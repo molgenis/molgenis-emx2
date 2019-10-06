@@ -102,6 +102,9 @@ public class TestQuery {
 
     rows = q.retrieve();
 
+    // count kwik, kwek and kwak
+    assertEquals(3, rows.size());
+
     StopWatch.print("created query second time, to check caching effects");
   }
 
