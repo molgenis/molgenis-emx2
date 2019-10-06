@@ -191,16 +191,12 @@ public class SqlQuery extends QueryBean implements Query {
 
   private Condition createFilterConditions(String tableName) throws MolgenisException {
     Condition conditions = null;
-    boolean or = false;
     for (Where w : this.getWhereLists()) {
       Condition newCondition = null;
       newCondition = createFilterCondition(w, tableName);
       if (newCondition != null) {
         if (conditions == null) conditions = newCondition;
-        else if (or) {
-          conditions = conditions.or(newCondition);
-          or = false;
-        } else {
+        else {
           conditions = conditions.and(newCondition);
         }
       }

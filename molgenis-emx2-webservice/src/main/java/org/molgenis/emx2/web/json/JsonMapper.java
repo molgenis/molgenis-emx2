@@ -2,13 +2,10 @@ package org.molgenis.emx2.web.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
@@ -17,7 +14,6 @@ import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
