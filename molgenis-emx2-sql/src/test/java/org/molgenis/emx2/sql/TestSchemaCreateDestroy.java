@@ -37,6 +37,23 @@ public class TestSchemaCreateDestroy {
       System.out.println("Error correctly:\n" + e);
     }
 
+    schema.createTableIfNotExists("test");
+
+    try {
+      schema.dropTable("test2");
+      fail("Drop schema should fail for unknown table");
+    } catch (Exception e) {
+      System.out.println("Error correctly:\n" + e);
+    }
+
+    schema.dropTable("test");
+    try {
+      schema.getTable("test");
+      fail("Table should have been dropped");
+    } catch (Exception e) {
+      System.out.println("Error correctly:\n" + e);
+    }
+
     try {
       db.dropSchema(getClass().getSimpleName() + "fake");
       fail("Drop schema should fail for unknown schema");

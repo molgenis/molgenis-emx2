@@ -134,6 +134,8 @@ public class TestGrantRolesToUsers {
       database.addUser("testadmin");
       database.addUser("testuser");
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());
+      assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
+
       schema
           .createTableIfNotExists("Person")
           .getMetadata()

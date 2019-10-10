@@ -5,6 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collection;
@@ -101,7 +102,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void dropTable(String tableName) throws MolgenisException {
-    getTableMetadata(tableName).dropTable();
+    SqlTableMetadata tableMetadata = getTableMetadata(tableName);
+    tableMetadata.dropTable();
     super.dropTable(tableName);
   }
 
