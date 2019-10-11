@@ -106,6 +106,17 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public void grantCreateSchema(String user) throws MolgenisException {
+    try {
+      String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
+      jooq.execute(
+          "GRANT CREATE ON DATABASE {0} TO {1}", name(databaseName), name(MG_USER_PREFIX + user));
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException(dae);
+    }
+  }
+
+  @Override
   public boolean hasUser(String user) {
     String userName = MG_USER_PREFIX + user;
     return jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName)

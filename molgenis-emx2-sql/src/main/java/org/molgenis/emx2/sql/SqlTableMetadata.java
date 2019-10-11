@@ -53,19 +53,22 @@ class SqlTableMetadata extends TableMetadata {
           MetadataUtils.saveTableMetadata(this);
 
           // grant rights to schema manager, editor and viewer roles
-          String prefix = MG_ROLE_PREFIX + getSchema().getName().toUpperCase();
           jooq.execute(
               "GRANT SELECT ON {0} TO {1}",
-              tableName, name(prefix + DefaultRoles.VIEWER.toString()));
+              tableName, name(getRolePrefix() + DefaultRoles.VIEWER.toString()));
           jooq.execute(
               "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-              tableName, name(prefix + DefaultRoles.EDITOR.toString()));
+              tableName, name(getRolePrefix() + DefaultRoles.EDITOR.toString()));
           jooq.execute(
               "ALTER TABLE {0} OWNER TO {1}",
-              tableName, name(prefix + DefaultRoles.MANAGER.toString()));
+              tableName, name(getRolePrefix() + DefaultRoles.MANAGER.toString()));
 
           enableSearch();
         });
+  }
+
+  String getRolePrefix() {
+    return ((SqlSchemaMetadata) getSchema()).getRolePrefix();
   }
 
   public void dropTable() throws MolgenisException {
@@ -329,10 +332,7 @@ class SqlTableMetadata extends TableMetadata {
     db.getJooq()
         .execute(
             "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
-            name(
-                MG_ROLE_PREFIX
-                    + getSchema().getName().toUpperCase()
-                    + DefaultRoles.MANAGER.toString()));
+            name(getRolePrefix() + DefaultRoles.MANAGER.toString()));
     return triggerfunction;
   }
 

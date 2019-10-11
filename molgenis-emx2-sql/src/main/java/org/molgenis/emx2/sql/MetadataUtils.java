@@ -2,12 +2,10 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
+import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.DefaultRoles;
-import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collection;
@@ -115,9 +113,10 @@ public class MetadataUtils {
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
-
+    // we record the role name in as a column 'table_rls_manager' and 'table_rls_viewer' and use
+    // this to enforce policy of being able to change vs view table.
     jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || '"
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || '/"
             + DefaultRoles.MANAGER.toString()
             + "', 'member'))",
         name("TABLE_RLS_" + DefaultRoles.MANAGER),
@@ -126,7 +125,7 @@ public class MetadataUtils {
         TABLE_SCHEMA);
 
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || '"
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || '/"
             + DefaultRoles.VIEWER
             + "', 'member'))",
         name("TABLE_RLS_" + DefaultRoles.VIEWER),

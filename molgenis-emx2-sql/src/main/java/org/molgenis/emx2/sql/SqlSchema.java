@@ -74,8 +74,7 @@ public class SqlSchema implements Schema {
 
             String username = Constants.MG_USER_PREFIX + m.getUser();
             String roleprefix = getRolePrefix();
-            String rolename =
-                Constants.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase() + m.getRole();
+            String rolename = getRolePrefix() + m.getRole();
 
             // execugte updates database
             try {
@@ -164,6 +163,10 @@ public class SqlSchema implements Schema {
     return result;
   }
 
+  private String getRolePrefix() {
+    return ((SqlSchemaMetadata) getMetadata()).getRolePrefix();
+  }
+
   @Override
   public String getRoleForUser(String user) throws MolgenisException {
     user = user.trim();
@@ -207,10 +210,6 @@ public class SqlSchema implements Schema {
   @Override
   public Collection<String> getTableNames() throws MolgenisException {
     return getMetadata().getTableNames();
-  }
-
-  private String getRolePrefix() {
-    return Constants.MG_ROLE_PREFIX + getMetadata().getName().toUpperCase();
   }
 
   @Override

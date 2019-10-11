@@ -11,6 +11,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private SqlDatabase db;
@@ -50,10 +51,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schemaName)) {
       step.execute();
 
-      String member = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.VIEWER;
-      String editor = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.EDITOR;
-      String manager = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.MANAGER;
-      String owner = Constants.MG_ROLE_PREFIX + schemaName.toUpperCase() + DefaultRoles.OWNER;
+      String member = getRolePrefix() + DefaultRoles.VIEWER;
+      String editor = getRolePrefix() + DefaultRoles.EDITOR;
+      String manager = getRolePrefix() + DefaultRoles.MANAGER;
+      String owner = getRolePrefix() + DefaultRoles.OWNER;
 
       db.createRole(member);
       db.createRole(editor);
@@ -69,11 +70,21 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
       db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(member));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
+
+      // make current user a owner
+      if (db.getActiveUser() != null) {
+        db.getJooq()
+            .execute("GRANT {0} TO {1}", name(owner), name(MG_USER_PREFIX + db.getActiveUser()));
+      }
     } catch (DataAccessException e) {
       throw new SqlMolgenisException(
           "schema_create_failed", "Schema createTableIfNotExists failed", e);
     }
     MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
+  }
+
+  String getRolePrefix() {
+    return Constants.MG_ROLE_PREFIX + getName().toUpperCase() + "/";
   }
 
   @Override

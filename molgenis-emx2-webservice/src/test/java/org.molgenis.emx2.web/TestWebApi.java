@@ -51,6 +51,7 @@ public class TestWebApi {
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, DefaultRoles.OWNER.toString());
+    db.grantCreateSchema(PET_SHOP_OWNER);
     // start web service for testing
     MolgenisWebservice.start(dataSource);
 

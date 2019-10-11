@@ -61,6 +61,7 @@ public class DatabaseFactory {
       if (roleName.startsWith("MG_")
           || roleName.startsWith("test")
           || roleName.startsWith("user_")) {
+        jooq.execute("REVOKE ALL PRIVILEGES ON DATABASE molgenis FROM {0}", name(roleName));
         jooq.execute("DROP ROLE {0}", name(roleName));
       }
     }
@@ -69,7 +70,6 @@ public class DatabaseFactory {
   private static void deleteAllSchemas() {
     for (Schema s : jooq.meta().getSchemas()) {
       String schemaName = s.getName();
-
       if (!schemaName.startsWith("pg_")
           && !"information_schema".equals(schemaName)
           && !"public".equals(schemaName)) {

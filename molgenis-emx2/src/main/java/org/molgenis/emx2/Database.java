@@ -16,6 +16,8 @@ public interface Database {
 
   void addUser(String name) throws MolgenisException;
 
+  void grantCreateSchema(String user) throws MolgenisException;
+
   boolean hasUser(String user);
 
   void removeUser(String name) throws MolgenisException;
