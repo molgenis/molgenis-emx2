@@ -7,6 +7,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;
@@ -20,17 +21,8 @@ public class DatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getTestDatabase(String userName, String password)
-      throws MolgenisException {
+  public static Database getTestDatabase(DataSource dataSource) throws MolgenisException {
     if (db == null) {
-
-      String url = "jdbc:postgresql:molgenis";
-
-      // createColumn data source
-      HikariDataSource dataSource = new HikariDataSource();
-      dataSource.setJdbcUrl(url);
-      dataSource.setUsername(userName);
-      dataSource.setPassword(password);
 
       // setup Jooq
       jooq = DSL.using(dataSource, SQLDialect.POSTGRES_10);
@@ -43,6 +35,18 @@ public class DatabaseFactory {
     }
     db.clearActiveUser();
     return db;
+  }
+
+  public static Database getTestDatabase(String userName, String password)
+      throws MolgenisException {
+    String url = "jdbc:postgresql:molgenis";
+    // createColumn data source
+    HikariDataSource dataSource = new HikariDataSource();
+    dataSource.setJdbcUrl(url);
+    dataSource.setUsername(userName);
+    dataSource.setPassword(password);
+
+    return getTestDatabase(dataSource);
   }
 
   private static void deleteAll() {

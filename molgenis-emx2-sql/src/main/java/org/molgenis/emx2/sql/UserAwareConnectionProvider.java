@@ -14,6 +14,7 @@ import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;
+  private String connectionUser;
 
   public UserAwareConnectionProvider(DataSource source) {
     super(source);

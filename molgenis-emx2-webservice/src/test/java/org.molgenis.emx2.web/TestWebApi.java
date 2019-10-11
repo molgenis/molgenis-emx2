@@ -1,10 +1,12 @@
 package org.molgenis.emx2.web;
 
+import com.zaxxer.hikari.HikariDataSource;
 import io.restassured.RestAssured;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.DatabaseFactory;
@@ -21,6 +23,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.MolgenisWebservice.MOLGENIS_TOKEN;
 
 /* this is a smoke test for the integration of web api with the database layer */
 public class TestWebApi {
@@ -28,25 +31,38 @@ public class TestWebApi {
   public static final String DATA_PET_STORE_EXCEL = "/data/pet store excel";
   public static final String DATA_PET_STORE_ZIP = "/data/pet store zip";
   public static final String DATA_PET_STORE = "/data/pet store";
+  public static final String PET_SHOP_OWNER = "pet_shop_owner";
 
   @BeforeClass
   public static void before() throws MolgenisException {
-    Database db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
+    // create data source
+    HikariDataSource dataSource = new HikariDataSource();
+    String url = "jdbc:postgresql:molgenis";
+    dataSource.setJdbcUrl(url);
+    dataSource.setUsername("molgenis");
+    dataSource.setPassword("molgenis");
+
+    // setup test schema
+    Database db = DatabaseFactory.getTestDatabase(dataSource);
     Schema schema = db.createSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
-    MolgenisWebservice.start(db);
+    // grant a user permission
+    schema.addMember(PET_SHOP_OWNER, DefaultRoles.OWNER.toString());
+    // start web service for testing
+    MolgenisWebservice.start(dataSource);
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
+    RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, PET_SHOP_OWNER);
   }
 
   @Test
   public void testMembership() {
     List members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
-    assertEquals(0, members.size());
+    assertEquals(1, members.size());
 
     String bofke = "[{\"user\":\"bofke\",\"role\":\"Editor\"}]";
 
@@ -60,7 +76,7 @@ public class TestWebApi {
             .asString();
 
     members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
-    assertEquals(1, members.size());
+    assertEquals(2, members.size());
 
     // update bofke membership
     result =
@@ -70,8 +86,10 @@ public class TestWebApi {
             .when()
             .post("/members/pet store")
             .asString();
+
     members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
-    assertEquals("Viewer", ((Map) members.get(0)).get("role"));
+    assertEquals("bofke", ((Map) members.get(1)).get("user"));
+    assertEquals("Viewer", ((Map) members.get(1)).get("role"));
 
     // update bofke to nonexisting role should give error
     Map error =
@@ -102,7 +120,7 @@ public class TestWebApi {
         .delete("/members/pet store")
         .asString();
     members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
-    assertEquals(0, members.size());
+    assertEquals(1, members.size());
   }
 
   @Test

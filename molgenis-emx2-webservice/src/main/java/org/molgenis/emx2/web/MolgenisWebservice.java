@@ -12,6 +12,7 @@ import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
 import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -21,6 +22,7 @@ import spark.Spark;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
+import javax.sql.DataSource;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,8 +41,9 @@ public class MolgenisWebservice {
   // todo look into javalin that claims to have openapi and sparkjava merged together
 
   private static final String DATA = "/data";
+  public static final String MOLGENIS_TOKEN = "x-molgenis-token";
 
-  private static Database database;
+  private static DataSource dataSource;
   private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
   private static final String SCHEMA = "schema";
   private static final String TABLE = "table";
@@ -49,9 +52,8 @@ public class MolgenisWebservice {
     // hide constructor
   }
 
-  public static void start(Database db) {
-    database = db;
-
+  public static void start(DataSource ds) {
+    dataSource = ds;
     port(8080);
 
     //    before( // in case of trailing slash, remove that slash
@@ -119,7 +121,7 @@ public class MolgenisWebservice {
   private static String membersDelete(Request request, Response response)
       throws IOException, MolgenisException {
     List<Member> members = jsonToMembers(request.body());
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     schema.removeMembers(members);
     response.status(200);
     return "" + members.size();
@@ -128,7 +130,7 @@ public class MolgenisWebservice {
   private static String membersPost(Request request, Response response)
       throws MolgenisException, IOException {
     List<Member> members = jsonToMembers(request.body());
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     schema.addMembers(members);
     response.status(200);
     return "" + members.size();
@@ -136,7 +138,7 @@ public class MolgenisWebservice {
 
   private static String membersGet(Request request, Response response)
       throws MolgenisException, JsonProcessingException {
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     response.status(200);
     response.type(ACCEPT_JSON);
     return membersToJson(schema.getMembers());
@@ -144,7 +146,7 @@ public class MolgenisWebservice {
 
   private static String tablesMetadataGetCSV(Request request, Response response)
       throws MolgenisException, IOException {
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     StringWriter writer = new StringWriter();
     ConvertSchemaToEmx2.toCsv(schema.getMetadata(), writer);
     response.status(200);
@@ -153,7 +155,7 @@ public class MolgenisWebservice {
 
   private static String tablesMetadataANDdataGetExcel(Request request, Response response)
       throws MolgenisException, IOException {
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
@@ -180,7 +182,7 @@ public class MolgenisWebservice {
   }
 
   private static String tablesDelete(Request request, Response response) throws MolgenisException {
-    database.dropSchema(request.params(SCHEMA));
+    getAuthenticatedDatabase(request).dropSchema(request.params(SCHEMA));
     response.status(200);
     return "Delete schema success";
   }
@@ -188,7 +190,7 @@ public class MolgenisWebservice {
   private static String schemasPost(Request request, Response response) throws MolgenisException {
     Row row = jsonToRow(request.body());
     // todo validate
-    database.createSchema(row.getString("name"));
+    getAuthenticatedDatabase(request).createSchema(row.getString("name"));
     response.status(200);
     return "Create schema success";
   }
@@ -199,7 +201,7 @@ public class MolgenisWebservice {
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Schema schema = database.getSchema(request.params(SCHEMA));
+      Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
       Path zipFile = tempDir.resolve("download.zip");
       MolgenisExport.toZipFile(zipFile, schema);
       outputStream.write(Files.readAllBytes(zipFile));
@@ -220,7 +222,7 @@ public class MolgenisWebservice {
 
   private static String tablesMetadataANDdataPostFile(Request request, Response response)
       throws MolgenisException, IOException, ServletException {
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     // get uploaded file
     File tempFile = File.createTempFile("tempfiles-delete-on-exit", ".tmp");
     tempFile.deleteOnExit();
@@ -257,7 +259,10 @@ public class MolgenisWebservice {
   private static String rowsGet(Request request, Response response)
       throws MolgenisException, IOException {
     // retrieve data
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    Table table =
+        getAuthenticatedDatabase(request)
+            .getSchema(request.params(SCHEMA))
+            .getTable(request.params(TABLE));
     List<Row> rows = table.retrieve();
     // format response
     String accept = request.headers("Accept");
@@ -277,7 +282,7 @@ public class MolgenisWebservice {
   private static String openApiListSchemas(Request request, Response response)
       throws MolgenisException {
     StringBuilder result = new StringBuilder();
-    for (String name : database.getSchemaNames()) {
+    for (String name : getAuthenticatedDatabase(request).getSchemaNames()) {
       result.append("<a href=\"" + request.url() + "/" + name + "\">" + name + "</a><br/>");
     }
     return result.toString();
@@ -285,7 +290,10 @@ public class MolgenisWebservice {
 
   private static String rowsPost(Request request, Response response)
       throws MolgenisException, IOException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    Table table =
+        getAuthenticatedDatabase(request)
+            .getSchema(request.params(SCHEMA))
+            .getTable(request.params(TABLE));
     Iterable<Row> rows = tableRequestBodyToRows(request);
     int count = table.insert(rows);
     response.status(200);
@@ -295,7 +303,10 @@ public class MolgenisWebservice {
 
   private static String rowsDelete(Request request, Response response)
       throws MolgenisException, IOException {
-    Table table = database.getSchema(request.params(SCHEMA)).getTable(request.params(TABLE));
+    Table table =
+        getAuthenticatedDatabase(request)
+            .getSchema(request.params(SCHEMA))
+            .getTable(request.params(TABLE));
     Iterable<Row> rows = tableRequestBodyToRows(request);
     int count = table.delete(rows);
     response.status(200);
@@ -316,7 +327,7 @@ public class MolgenisWebservice {
 
   private static String openApiYaml(Request request, Response response)
       throws MolgenisException, IOException {
-    Schema schema = database.getSchema(request.params(SCHEMA));
+    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema.getMetadata());
     response.status(200);
     return Yaml.mapper()
@@ -332,41 +343,26 @@ public class MolgenisWebservice {
   private static String schemasGet(Request request, Response response) throws MolgenisException {
     response.status(200);
     Map<String, String> schemas = new LinkedHashMap<>();
-    for (String schemaName : database.getSchemaNames()) {
+    for (String schemaName : getAuthenticatedDatabase(request).getSchemaNames()) {
       schemas.put(schemaName, request.url() + "/" + schemaName);
     }
     return JsonStream.serialize(schemas);
   }
 
   private static Database getAuthenticatedDatabase(Request request) throws MolgenisException {
-    return database;
+    String token = request.headers(MOLGENIS_TOKEN);
+    if (token == null) token = "anonymous";
 
-    //    String token = request.headers("x-molgenis-token");
-    //
-    //    // we keep a copy of Database for each user session
-    //    // they share the connection pool
-    //
-    //    if (databaseForRole.get(token) == null) {
-    //      Connection conn = null;
-    //      try {
-    //        conn =
-    //            DriverManager.getConnection(
-    //                "jdbc:postgresql://localhost:5432/molgenis", "molgenis", "molgenis");
-    //      } catch (SQLException sqle) {
-    //        throw new MolgenisException("connection_failed", "connection failed",
-    // sqle.getMessage());
-    //      }
-    //      // set the user role on this connection
-    //      try (Statement stmt = conn.createStatement()) {
-    //        stmt.execute("");
-    //      } catch (SQLException sqle) {
-    //        throw new MolgenisException(
-    //            "invalid_token", "Invalid token", "Role " + token + " not known" +
-    // sqle.getMessage());
-    //      }
-    //      databaseForRole.put(token, new SqlDatabase(conn));
-    //    }
-    //    return databaseForRole.get(token);
+    // we keep a cache of Database instance for each user on this server
+    // they share the connection pool
+    // todo remove these after a while!!!!
+
+    if (databaseForRole.get(token) == null) {
+      SqlDatabase database = new SqlDatabase(dataSource);
+      database.setActiveUser(token);
+      databaseForRole.put(token, database);
+    }
+    return databaseForRole.get(token);
   }
 
   public static void stop() {
