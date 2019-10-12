@@ -6,15 +6,15 @@ import java.util.List;
 
 /** compatible with https://tools.ietf.org/html/rfc7807 */
 public class MolgenisException extends RuntimeException {
-
-  private String title;
-  private String detail;
-  private String type;
+  private final String title;
+  private final String detail;
+  private final String type;
 
   private final List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
   public MolgenisException(Exception e) {
-    super(e);
+
+    this(null, null, null, e);
   }
 
   public MolgenisException(String type, String title, String detail, Exception cause) {
@@ -25,18 +25,21 @@ public class MolgenisException extends RuntimeException {
   }
 
   public MolgenisException(String type, String title, String detail) {
+    super();
     this.type = type;
     this.title = title;
     this.detail = detail;
   }
 
   public MolgenisException(String detail, Exception e) {
-    super(detail, e);
-    this.detail = detail;
+    this(null, null, detail, e);
   }
 
   public MolgenisException(String message, List<MolgenisExceptionMessage> messages) {
     super(message + "\nSee getMessages() for list of error messages");
+    this.type = "unknown_type";
+    this.title = message;
+    this.detail = null;
     this.messages.addAll(messages);
   }
 

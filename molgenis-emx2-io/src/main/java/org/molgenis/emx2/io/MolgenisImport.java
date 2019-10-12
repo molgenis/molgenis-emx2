@@ -5,7 +5,6 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.stores.RowStoreForXlsxFile;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
 
