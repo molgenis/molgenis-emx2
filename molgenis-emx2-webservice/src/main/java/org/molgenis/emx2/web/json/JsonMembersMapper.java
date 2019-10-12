@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JsonMembersMapper {
+  private JsonMembersMapper() {
+    // hide constructor
+  }
+
   public static List<Member> jsonToMembers(String json) throws IOException {
     return Arrays.asList(new ObjectMapper().readValue(json, Member[].class));
   }

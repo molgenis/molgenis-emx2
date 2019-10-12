@@ -24,8 +24,9 @@ public class OpenApiForSchemaFactory {
   public static final String PROBLEM = "Problem";
   public static final String BAD_REQUEST = "400";
   public static final String BAD_REQUEST_MESSAGE = "Bad request";
-  public static final String DATA_PATH = "/data/";
+  public static final String DATA_PATH = "/data/"; // NOSONAR
   public static final String MEMBER = "Member";
+  public static final String SCHEMA_METADATA = "SchemaMetadata";
 
   private OpenApiForSchemaFactory() {
     // hide public constructor
@@ -140,7 +141,7 @@ public class OpenApiForSchemaFactory {
 
     // /data/:schema.roles
     components.addSchemas(
-        "Member",
+        MEMBER,
         new ObjectSchema()
             .addProperties("user", new StringSchema())
             .addProperties("role", new StringSchema()));
@@ -191,16 +192,16 @@ public class OpenApiForSchemaFactory {
                             new Content()
                                 .addMediaType(
                                     ACCEPT_JSON,
-                                    new MediaType().schema(new Schema().$ref("SchemaMetadata")))
+                                    new MediaType().schema(new Schema().$ref(SCHEMA_METADATA)))
                                 .addMediaType(
                                     ACCEPT_ZIP,
                                     new MediaType().schema(new StringSchema().format("binary")))
                                 .addMediaType(
                                     ACCEPT_CSV,
-                                    new MediaType().schema(new Schema().$ref("SchemaMetadata")))
+                                    new MediaType().schema(new Schema().$ref(SCHEMA_METADATA)))
                                 .addMediaType(
                                     ACCEPT_EXCEL,
-                                    new MediaType().schema(new Schema().$ref("SchemaMetadata"))))));
+                                    new MediaType().schema(new Schema().$ref(SCHEMA_METADATA))))));
   }
 
   private static Operation schemaZipUpload() {
@@ -224,38 +225,6 @@ public class OpenApiForSchemaFactory {
                 .type(OBJECT)
                 .addProperties("file", new FileSchema().description("upload file")));
   }
-
-  // users have roles
-  // roles have permissions
-  // thus we need listing of role-permissions and user-roles
-  // thus get schema.roles/permissions and schema.users would provide listing of those things
-
-  /*
-  *
-  resource centric:
-  api/schema.permissions
-  api/schema/table.permissions
-  api/schema/table/molgenisid.permissions
-  get: {role: permission, anotherRole: anotherPermission}
-  post, delete {role:aPermission} allows to change those
-
-  role centric, so I can manage roles. Doesn't include RLS
-  GET api/schema.roles: {
-  	aRole: {_schema: permission, aTable:permission, etc:permission}
-  	otherRole: {etc}
-  }
-  POST
-  GET api/schema.roles/aRole: {_schema: permission, aTable:permission, etc:permission}
-  DELETE api/schema.roles/aRole: 200
-  POST api/schema.roles/aRole: {_schema: permission, aTable:permission}} //creates role if not exists
-  * */
-
-  // post to grant new { role: roleid, permission: permission, object: schema/table }
-  // revoke permission by delete of {idem}
-  // there is no update of a permission
-  // do we want all permissions for schema in one go? I think yes?
-
-  // in addition I want to quickly check if current user has a permission for a table.
 
   private static void createOpenApiForTable(
       TableMetadata table, Paths paths, Components components) {
@@ -317,14 +286,6 @@ public class OpenApiForSchemaFactory {
             .type(OBJECT)
             .properties(properties));
   }
-
-  //  private static Operation rowGetOperation(String tableName) {
-  //    return new Operation()
-  //        .summary("Retrieve one row from " + tableName + " using " + MOLGENISID)
-  //        .addTagsItem(tableName)
-  //        .addParametersItem(molgenisid)
-  //        .responses(rowApiResponse(tableName));
-  //  }
 
   private static Operation tablePutOperation(String tableName) {
     return new Operation()
@@ -408,7 +369,7 @@ public class OpenApiForSchemaFactory {
     metadataSchema.addProperties(
         "tables", new ArraySchema().items(new Schema().$ref("TableMetadata")));
 
-    components.addSchemas("SchemaMetadata", metadataSchema);
+    components.addSchemas(SCHEMA_METADATA, metadataSchema);
   }
 
   private static Schema columnSchema(Column column) {

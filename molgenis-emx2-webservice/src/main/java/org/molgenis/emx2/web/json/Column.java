@@ -2,7 +2,6 @@ package org.molgenis.emx2.web.json;
 
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
 
 public class Column {
 

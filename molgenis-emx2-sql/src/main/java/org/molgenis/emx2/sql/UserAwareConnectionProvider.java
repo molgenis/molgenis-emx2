@@ -14,14 +14,13 @@ import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;
-  private String connectionUser;
 
   public UserAwareConnectionProvider(DataSource source) {
     super(source);
   }
 
   @Override
-  public Connection acquire() throws DataAccessException {
+  public Connection acquire() {
     try {
       Connection connection = super.acquire();
       if (activeUser != null) {
@@ -38,11 +37,11 @@ public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
   }
 
   @Override
-  public void release(Connection connection) throws DataAccessException {
+  public void release(Connection connection) {
     try {
       DSL.using(connection, SQLDialect.POSTGRES_10).execute("RESET SESSION AUTHORIZATION");
     } catch (DataAccessException sqle) {
-      throw new RuntimeException("release of connection failed ", sqle);
+      throw new MolgenisException("release of connection failed ", sqle);
     }
     super.release(connection);
   }

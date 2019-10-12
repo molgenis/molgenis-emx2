@@ -2,7 +2,6 @@ package org.molgenis.emx2.web.json;
 
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;

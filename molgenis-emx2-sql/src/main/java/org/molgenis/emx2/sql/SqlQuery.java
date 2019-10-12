@@ -178,7 +178,7 @@ public class SqlQuery extends QueryBean implements Query {
   }
 
   private Condition createSearchConditions(Set<String> tableAliases) {
-    if (getSearchList().size() == 0) return null;
+    if (getSearchList().isEmpty()) return null;
     String search = String.join("|", getSearchList());
     Condition searchCondition = null;
     for (String tableAlias : tableAliases) {

@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.exception.DataAccessException;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.REF;

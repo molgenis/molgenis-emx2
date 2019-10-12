@@ -1,15 +1,12 @@
 package org.molgenis.emx2.web.json;
 
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Schema {
   private List<Table> tables = new ArrayList<>();
-
-  public Schema() {};
 
   public Schema(SchemaMetadata schema) {
     for (String tableName : schema.getTableNames()) {

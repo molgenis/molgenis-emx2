@@ -5,7 +5,6 @@ import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collection;

@@ -40,8 +40,8 @@ import static spark.Spark.*;
 public class MolgenisWebservice {
   // todo look into javalin that claims to have openapi and sparkjava merged together
 
-  private static final String DATA = "/data";
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
+  public static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
 
   private static DataSource dataSource;
   private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
@@ -56,12 +56,6 @@ public class MolgenisWebservice {
     dataSource = ds;
     port(8080);
 
-    //    before( // in case of trailing slash, remove that slash
-    //        (req, res) -> {
-    //          String path = req.pathInfo();
-    //          if (path.endsWith("/")) res.redirect(path.substring(0, path.length() - 1));
-    //        });
-
     // root
     get(
         "/",
@@ -69,29 +63,30 @@ public class MolgenisWebservice {
             "Welcome to MOLGENIS EMX2 POC.<br/> Data api available under <a href=\"/data\">/data</a><br/>API documentation under <a href=\"/openapi\">/openapi</a>");
 
     // the data api
-    get("/data", MolgenisWebservice::schemasGet);
-    post("/data", MolgenisWebservice::schemasPost);
-
-    // check user
-    // get("/user", MolgenisWebservice::userGet);
+    final String dataPath = "/data"; // NOSONAR
+    get(dataPath, MolgenisWebservice::schemasGet);
+    post(dataPath, MolgenisWebservice::schemasPost);
 
     // schema level operations: get, add, delete tables + contents
-    get("/data/:schema", ACCEPT_JSON, MolgenisWebservice::tablesMetadataGetJSON);
-    get("/data/:schema", ACCEPT_CSV, MolgenisWebservice::tablesMetadataGetCSV);
-    get("/data/:schema", ACCEPT_EXCEL, MolgenisWebservice::tablesMetadataANDdataGetExcel);
-    get("/data/:schema", ACCEPT_ZIP, MolgenisWebservice::tablesMetadataANDdataGetZip);
-    post("/data/:schema", MolgenisWebservice::tablesMetadataANDdataPostFile);
-    delete("/data/:schema", MolgenisWebservice::tablesDelete);
+    final String schemaPath = "/data/:schema"; // NOSONAR
+    get(schemaPath, ACCEPT_JSON, MolgenisWebservice::tablesMetadataGetJSON);
+    get(schemaPath, ACCEPT_CSV, MolgenisWebservice::tablesMetadataGetCSV);
+    get(schemaPath, ACCEPT_EXCEL, MolgenisWebservice::tablesMetadataANDdataGetExcel);
+    get(schemaPath, ACCEPT_ZIP, MolgenisWebservice::tablesMetadataANDdataGetZip);
+    post(schemaPath, MolgenisWebservice::tablesMetadataANDdataPostFile);
+    delete(schemaPath, MolgenisWebservice::tablesDelete);
 
     // table row operations
-    get("/data/:schema/:table", MolgenisWebservice::rowsGet);
-    post("/data/:schema/:table", ACCEPT_JSON, MolgenisWebservice::rowsPost);
-    delete("/data/:schema/:table", MolgenisWebservice::rowsDelete);
+    final String tablePath = "/data/:schema/:table"; // NOSONAR
+    get(tablePath, MolgenisWebservice::rowsGet);
+    post(tablePath, ACCEPT_JSON, MolgenisWebservice::rowsPost);
+    delete(tablePath, MolgenisWebservice::rowsDelete);
 
     // schema members operations
-    get("/members/:schema", MolgenisWebservice::membersGet);
-    post("/members/:schema", MolgenisWebservice::membersPost);
-    delete("/members/:schema", MolgenisWebservice::membersDelete);
+    final String membersPath = "/members/:schema"; // NOSONAR
+    get(membersPath, MolgenisWebservice::membersGet);
+    post(membersPath, MolgenisWebservice::membersPost);
+    delete(membersPath, MolgenisWebservice::membersDelete);
 
     // documentation operations
     get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
@@ -113,13 +108,12 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(
               String.format(
-                  "{\n\t\"type\":\"%s\",\n\t\"title\":\"%s\",\n\t\"detail\":\"%s\"\n}",
+                  "{%n\t\"type\":\"%s\",%n\t\"title\":\"%s\",%n\t\"detail\":\"%s\"%n}",
                   e.getType(), e.getTitle(), e.getDetail()));
         });
   }
 
-  private static String membersDelete(Request request, Response response)
-      throws IOException, MolgenisException {
+  private static String membersDelete(Request request, Response response) throws IOException {
     List<Member> members = jsonToMembers(request.body());
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     schema.removeMembers(members);
@@ -155,7 +149,7 @@ public class MolgenisWebservice {
   private static String tablesMetadataANDdataGetExcel(Request request, Response response)
       throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
-    Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
+    Path tempDir = Files.createTempDirectory(TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
@@ -188,7 +182,6 @@ public class MolgenisWebservice {
 
   private static String schemasPost(Request request, Response response) {
     Row row = jsonToRow(request.body());
-    // todo validate
     getAuthenticatedDatabase(request).createSchema(row.getString("name"));
     response.status(200);
     return "Create schema success";
@@ -197,7 +190,7 @@ public class MolgenisWebservice {
   private static String tablesMetadataANDdataGetZip(Request request, Response response)
       throws IOException {
 
-    Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
+    Path tempDir = Files.createTempDirectory(TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
@@ -223,11 +216,11 @@ public class MolgenisWebservice {
       throws IOException, ServletException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     // get uploaded file
-    File tempFile = File.createTempFile("tempfiles-delete-on-exit", ".tmp");
+    File tempFile = File.createTempFile(TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();
     request.attribute(
         "org.eclipse.jetty.multipartConfig",
-        new MultipartConfigElement(tempFile.getAbsolutePath().toString()));
+        new MultipartConfigElement(tempFile.getAbsolutePath()));
     try (InputStream input = request.raw().getPart("file").getInputStream()) {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -241,18 +234,12 @@ public class MolgenisWebservice {
     } else {
       throw new IOException(
           "File upload failed: extension "
-              + fileName.substring(fileName.lastIndexOf("."))
+              + fileName.substring(fileName.lastIndexOf('.'))
               + " not supported");
     }
 
     response.status(200);
     return "Import success";
-  }
-
-  private static Path getTempFile() throws IOException {
-    Path tempFile = Files.createTempFile("tempfiles-delete-on-exit", ".tmp");
-    tempFile.toFile().deleteOnExit();
-    return tempFile;
   }
 
   private static String rowsGet(Request request, Response response) throws IOException {
@@ -344,19 +331,22 @@ public class MolgenisWebservice {
   }
 
   private static Database getAuthenticatedDatabase(Request request) {
-    String token = request.headers(MOLGENIS_TOKEN);
-    if (token == null) token = "anonymous";
+    final String token =
+        request.headers(MOLGENIS_TOKEN) == null ? "anonymous" : request.headers(MOLGENIS_TOKEN);
 
     // we keep a cache of Database instance for each user on this server
     // they share the connection pool
+
     // todo remove these after a while!!!!
 
-    if (databaseForRole.get(token) == null) {
-      SqlDatabase database = new SqlDatabase(dataSource);
-      database.setActiveUser(token);
-      databaseForRole.put(token, database);
-    }
-    return databaseForRole.get(token);
+    return databaseForRole.computeIfAbsent(
+        token,
+        t -> {
+          SqlDatabase database = new SqlDatabase(dataSource);
+          database.setActiveUser(token);
+          databaseForRole.put(token, database);
+          return database;
+        });
   }
 
   public static void stop() {

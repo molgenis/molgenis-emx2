@@ -11,7 +11,6 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 
 import java.util.ArrayList;
@@ -27,8 +26,7 @@ public class JsonMapper {
 
   private static ObjectWriter writer;
 
-  public static String schemaToJson(SchemaMetadata schema)
-      throws JsonProcessingException, MolgenisException {
+  public static String schemaToJson(SchemaMetadata schema) throws JsonProcessingException {
     List<TableMetadata> tables = new ArrayList<>();
     for (String tableName : schema.getTableNames()) {
       tables.add(schema.getTableMetadata(tableName));

@@ -72,10 +72,6 @@ public class JsonQueryMapper {
     result.filters.add(clause);
     for (Where f : q.getWhereLists()) {
       Operator op = f.getOperator();
-      //      if (Operator.OR.equals(op)) {
-      //        clause = new LinkedHashMap<>();
-      //        result.filters.add(clause);
-      //      } else
       if (EQUALS.equals(op)) clause.put(String.join("/", f.getPath()), f.getValues());
     }
 

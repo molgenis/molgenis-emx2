@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.Name;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.keyword;
 import static org.jooq.impl.DSL.name;

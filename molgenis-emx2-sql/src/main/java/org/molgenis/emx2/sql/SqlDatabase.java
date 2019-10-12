@@ -98,7 +98,7 @@ public class SqlDatabase implements Database {
           database -> {
             List<Record> result =
                 jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
-            if (result.size() == 0) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
+            if (result.isEmpty()) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
           });
     } catch (DataAccessException dae) {
       throw new MolgenisException(dae);
@@ -119,9 +119,8 @@ public class SqlDatabase implements Database {
   @Override
   public boolean hasUser(String user) {
     String userName = MG_USER_PREFIX + user;
-    return jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName)
-            .size()
-        > 0;
+    return !jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName)
+        .isEmpty();
   }
 
   @Override
@@ -161,7 +160,6 @@ public class SqlDatabase implements Database {
     String user = jooq.fetchOne("SELECT SESSION_USER").get(0, String.class);
     if (user.contains(MG_USER_PREFIX)) return user.substring(MG_USER_PREFIX.length());
     return null;
-    // return this.connectionProvider.getActiveUser();
   }
 
   @Override

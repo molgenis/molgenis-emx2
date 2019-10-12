@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 

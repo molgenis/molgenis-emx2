@@ -10,7 +10,6 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -18,6 +17,10 @@ import java.io.StringWriter;
 public class JsonSchemaMapper {
 
   private static ObjectWriter writer;
+
+  private JsonSchemaMapper() {
+    // hide constructor
+  }
 
   public static String schemaToJson(SchemaMetadata schema) throws IOException {
     Schema s = new Schema(schema);
