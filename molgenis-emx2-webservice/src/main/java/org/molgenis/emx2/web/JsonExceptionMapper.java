@@ -16,8 +16,7 @@ public class JsonExceptionMapper {
     try {
       return JsonMapper.getWriter().writeValueAsString(map);
     } catch (JsonProcessingException ex) {
-      ex.printStackTrace();
+      return "ERROR CONVERSION FAILED " + ex;
     }
-    return "ERROR CONVERSION FAILED " + e;
   }
 }
