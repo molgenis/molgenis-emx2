@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import com.sun.istack.internal.NotNull;
-
 import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {
