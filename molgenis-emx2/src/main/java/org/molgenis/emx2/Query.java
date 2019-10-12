@@ -31,7 +31,7 @@ public interface Query {
 
   Query desc(String column);
 
-  List<Row> retrieve() throws MolgenisException;
+  List<Row> retrieve();
 
   <E> List<E> retrieve(String columnName, Class<E> asClass);
 

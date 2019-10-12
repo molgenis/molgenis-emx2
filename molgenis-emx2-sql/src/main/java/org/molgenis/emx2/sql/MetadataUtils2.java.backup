@@ -37,7 +37,7 @@ public class MetadataUtils2 {
     // to hide the public constructor
   }
 
-  static void createMetadataSchemaIfNotExists(Database database) throws MolgenisException {
+  static void createMetadataSchemaIfNotExists(Database database)  {
 
     database.transaction(
         db -> {
@@ -75,31 +75,31 @@ public class MetadataUtils2 {
         });
   }
 
-  static void saveSchemaMetadata(Database db, Schema schema) throws MolgenisException {
+  static void saveSchemaMetadata(Database db, Schema schema)  {
     schemas().update(new Row().setString(TABLE_SCHEMA, schema.getName()));
   }
 
-  private static Table schemas() throws MolgenisException {
+  private static Table schemas()  {
     return db.getSchema(MOLGENIS).getTable(SCHEMA_TABLE);
   }
 
-  public static Collection<String> loadSchemaNames(Database db) throws MolgenisException {
+  public static Collection<String> loadSchemaNames(Database db)  {
     return schemas().retrieve(TABLE_SCHEMA, String.class);
   }
 
-  static void deleteSchema(Database db, Schema schema) throws MolgenisException {
+  static void deleteSchema(Database db, Schema schema)  {
     schemas().deleteByPrimaryKey(schema.getName());
   }
 
-  static Collection<String> loadTableNames(Database db, Schema schema) throws MolgenisException {
+  static Collection<String> loadTableNames(Database db, Schema schema)  {
     return tables().where(TABLE_SCHEMA).eq(schema.getName()).retrieve(TABLE_NAME, String.class);
   }
 
-  static Table tables() throws MolgenisException {
+  static Table tables()  {
     return db.getSchema(MOLGENIS).getTable(TABLE_TABLE);
   }
 
-  static void saveTableMetadata(Database db, SqlTable table) throws MolgenisException {
+  static void saveTableMetadata(Database db, SqlTable table)  {
     tables()
         .update(
             new Row()
@@ -107,15 +107,15 @@ public class MetadataUtils2 {
                 .setString(TABLE_NAME, table.getName()));
   }
 
-  static void deleteTable(SqlTable table) throws MolgenisException {
+  static void deleteTable(SqlTable table)  {
     tables().deleteByPrimaryKey(table.getSchemaName(), table.getName());
   }
 
-  static Table columns() throws MolgenisException {
+  static Table columns()  {
     return db.getSchema(MOLGENIS).getTable(COLUMN_TABLE);
   }
 
-  static void saveColumnMetadata(SqlColumn column) throws MolgenisException {
+  static void saveColumnMetadata(SqlColumn column)  {
     columns()
         .update(
             new Row()
@@ -128,17 +128,17 @@ public class MetadataUtils2 {
                 .setString(REF_COLUMN, column.getRefColumn()));
   }
 
-  static void deleteColumn(Column column) throws MolgenisException {
+  static void deleteColumn(Column column)  {
     tables()
         .deleteByPrimaryKey(
             column.getTable().getSchemaName(), column.getTable().getName(), column.getName());
   }
 
-  static Table uniques() throws MolgenisException {
+  static Table uniques()  {
     return db.getSchema(MOLGENIS).getTable(UNIQUE_TABLE);
   }
 
-  static void saveUnique(DSLContext jooq, Unique unique) throws MolgenisException {
+  static void saveUnique(DSLContext jooq, Unique unique)  {
     uniques()
         .update(
             new Row()
@@ -147,12 +147,12 @@ public class MetadataUtils2 {
                 .setStringArray(UNIQUE_COLUMNS, unique.getColumnNames()));
   }
 
-  static void deleteUnique(DSLContext jooq, Unique unique) throws MolgenisException {
+  static void deleteUnique(DSLContext jooq, Unique unique)  {
     uniques()
         .deleteByPrimaryKey(unique.getSchemaName(), unique.getTableName(), unique.getColumnNames());
   }
 
-  static boolean schemaExists(SqlSchema schema) throws MolgenisException {
+  static boolean schemaExists(SqlSchema schema)  {
 
     return schemas()
             .where(SCHEMA_TABLE)
@@ -165,7 +165,7 @@ public class MetadataUtils2 {
   static void loadUniqueMetadata(SqlTable table, Map<String, Unique> uniqueMap) {}
 
   static void loadColumnMetadata(SqlTable table, Map<String, Column> columnMap)
-      throws MolgenisException {
+       {
     StopWatch.print("begin load column metadata");
 
     // load tables and columns

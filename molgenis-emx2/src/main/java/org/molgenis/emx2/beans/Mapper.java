@@ -18,7 +18,7 @@ public class Mapper {
     // hides public constructor
   }
 
-  public static Row[] map(Object... beans) throws MolgenisException {
+  public static Row[] map(Object... beans) {
     ArrayList<Row> rows = new ArrayList<>();
     try {
       for (Object b : beans) {
@@ -40,7 +40,7 @@ public class Mapper {
     return rows.toArray(new Row[rows.size()]);
   }
 
-  public static <E> E map(Class<E> klazz, Row row) throws MolgenisException {
+  public static <E> E map(Class<E> klazz, Row row) {
     try {
       E e = klazz.getConstructor().newInstance();
       Map<String, Object> values = row.getValueMap();
@@ -59,7 +59,7 @@ public class Mapper {
     }
   }
 
-  public static TableMetadata map(Class klazz) throws MolgenisException {
+  public static TableMetadata map(Class klazz) {
     TableMetadata t = new TableMetadata(null, klazz.getSimpleName());
 
     Field[] fields = klazz.getDeclaredFields();

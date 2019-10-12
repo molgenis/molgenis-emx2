@@ -15,7 +15,7 @@ import static graphql.schema.GraphQLSchema.newSchema;
 
 public class GrahpqlEndpoint {
 
-  GraphQLSchema getSchema(SchemaMetadata model) throws MolgenisException {
+  GraphQLSchema getSchema(SchemaMetadata model) {
     GraphQLSchema.Builder schema = newSchema();
 
     GraphQLObjectType.Builder query = newObject().name("QueryOld");

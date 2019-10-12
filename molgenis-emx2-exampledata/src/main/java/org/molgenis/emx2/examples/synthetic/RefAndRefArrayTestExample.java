@@ -13,8 +13,7 @@ public class RefAndRefArrayTestExample {
     // hide constructor
   }
 
-  public static void createRefAndRefArrayTestExample(SchemaMetadata schema)
-      throws MolgenisException {
+  public static void createRefAndRefArrayTestExample(SchemaMetadata schema) {
 
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};

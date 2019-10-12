@@ -17,7 +17,7 @@ public class PetStoreExample {
     // hide public constructor
   }
 
-  public static void create(SchemaMetadata schema) throws MolgenisException {
+  public static void create(SchemaMetadata schema) {
 
     TableMetadata categoryTable = schema.createTableIfNotExists(CATEGORY);
     categoryTable.addColumn(NAME).setUnique(true);
@@ -48,7 +48,7 @@ public class PetStoreExample {
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered
   }
 
-  public static void populate(Schema schema) throws MolgenisException {
+  public static void populate(Schema schema) {
 
     schema
         .getTable(CATEGORY)

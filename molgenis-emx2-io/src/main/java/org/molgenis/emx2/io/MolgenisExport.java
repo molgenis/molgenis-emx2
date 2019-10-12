@@ -17,8 +17,7 @@ public class MolgenisExport {
     // hide constructor
   }
 
-  public static void toDirectory(Path directory, Schema schema)
-      throws MolgenisException, IOException {
+  public static void toDirectory(Path directory, Schema schema) throws IOException {
     executeExport(new RowStoreForCsvFilesDirectory(directory), schema);
   }
 
@@ -26,13 +25,11 @@ public class MolgenisExport {
     executeExport(new RowStoreForCsvInZipFile(zipFile), schema);
   }
 
-  public static void toExcelFile(Path excelFile, Schema schema)
-      throws IOException, MolgenisException {
+  public static void toExcelFile(Path excelFile, Schema schema) throws IOException {
     executeExport(new RowStoreForXlsxFile(excelFile), schema);
   }
 
-  private static void executeExport(RowStore store, Schema schema)
-      throws MolgenisException, IOException {
+  private static void executeExport(RowStore store, Schema schema) throws IOException {
     // write metadata
     store.write("molgenis", ConvertSchemaToEmx2.toRowList(schema.getMetadata()));
     // write data

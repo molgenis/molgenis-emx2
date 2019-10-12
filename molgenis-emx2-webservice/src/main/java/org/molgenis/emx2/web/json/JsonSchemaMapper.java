@@ -19,14 +19,14 @@ public class JsonSchemaMapper {
 
   private static ObjectWriter writer;
 
-  public static String schemaToJson(SchemaMetadata schema) throws MolgenisException, IOException {
+  public static String schemaToJson(SchemaMetadata schema) , IOException {
     Schema s = new Schema(schema);
     StringWriter out = new StringWriter();
     getWriter().writeValue(out, s);
     return out.toString();
   }
 
-  public static SchemaMetadata jsonToSchema(String json) throws MolgenisException, IOException {
+  public static SchemaMetadata jsonToSchema(String json) , IOException {
     Schema s = new ObjectMapper().readValue(json, Schema.class);
     return s.getSchemaMetadata();
   }

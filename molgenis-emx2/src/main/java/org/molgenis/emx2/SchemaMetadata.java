@@ -32,7 +32,7 @@ public class SchemaMetadata {
     return Collections.unmodifiableCollection(tables.keySet());
   }
 
-  public TableMetadata createTableIfNotExists(String name) throws MolgenisException {
+  public TableMetadata createTableIfNotExists(String name) {
     try {
       return getTableMetadata(name);
     } catch (Exception e) {
@@ -41,7 +41,7 @@ public class SchemaMetadata {
     }
   }
 
-  public TableMetadata createTable(TableMetadata table) throws MolgenisException {
+  public TableMetadata createTable(TableMetadata table) {
     if (tables.containsKey(table.getTableName()))
       throw new MolgenisException(
           "create_table_failed",
@@ -55,7 +55,7 @@ public class SchemaMetadata {
     return table;
   }
 
-  public TableMetadata getTableMetadata(String name) throws MolgenisException {
+  public TableMetadata getTableMetadata(String name) {
     TableMetadata table = tables.get(name);
     if (table == null)
       throw new MolgenisException(
@@ -69,7 +69,7 @@ public class SchemaMetadata {
     return tables.containsKey(name);
   }
 
-  public void dropTable(String tableId) throws MolgenisException {
+  public void dropTable(String tableId) {
     tables.remove(tableId);
   }
 

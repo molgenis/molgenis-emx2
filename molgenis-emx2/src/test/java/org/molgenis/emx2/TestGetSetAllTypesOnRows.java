@@ -18,7 +18,7 @@ import static org.molgenis.emx2.ColumnType.*;
 public class TestGetSetAllTypesOnRows {
 
   @Test
-  public void test1() throws MolgenisException {
+  public void test1()  {
     List<ColumnType> columnTypes =
         Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
@@ -192,7 +192,7 @@ public class TestGetSetAllTypesOnRows {
   }
 
   private void addContents(SchemaMetadata m, List<ColumnType> columnTypes)
-      throws MolgenisException {
+       {
     TableMetadata t = m.createTableIfNotExists("TypeTest");
     for (ColumnType columnType : columnTypes) {
       t.addColumn("test" + columnType, columnType);

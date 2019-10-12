@@ -23,12 +23,11 @@ public class AttributesFileReader {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
 
-  public SchemaMetadata readModelFromCsv(Reader in) throws MolgenisException {
+  public SchemaMetadata readModelFromCsv(Reader in) {
     return convertAttributesToModel(readRowsFromCsv(in));
   }
 
-  public SchemaMetadata convertAttributesToModel(List<AttributesFileRow> rows)
-      throws MolgenisException {
+  public SchemaMetadata convertAttributesToModel(List<AttributesFileRow> rows) {
     SchemaMetadata model = new SchemaMetadata("test");
 
     int lineNumber = 0;
@@ -46,8 +45,7 @@ public class AttributesFileReader {
       SchemaMetadata model,
       int lineNumber,
       List<MolgenisExceptionMessage> messages,
-      AttributesFileRow row)
-      throws MolgenisException {
+      AttributesFileRow row) {
     // get or createTableIfNotExists table
     TableMetadata table = model.getTableMetadata(row.getEntity());
     if (table == null) table = model.createTableIfNotExists(row.getEntity());
@@ -85,7 +83,7 @@ public class AttributesFileReader {
     return columnType;
   }
 
-  private ColumnType convertAttributeTypeToEmxType(String dataType) throws MolgenisException {
+  private ColumnType convertAttributeTypeToEmxType(String dataType) {
     try {
       AttributesType oldType = AttributesType.valueOf(dataType.toUpperCase());
       switch (oldType) {
@@ -131,7 +129,7 @@ public class AttributesFileReader {
     }
   }
 
-  public List<AttributesFileRow> readRowsFromCsv(Reader in) throws MolgenisException {
+  public List<AttributesFileRow> readRowsFromCsv(Reader in) {
     try {
       List<AttributesFileRow> rows = new ArrayList<>();
       for (Row record : CsvRowReader.read(in)) {
@@ -181,7 +179,7 @@ public class AttributesFileReader {
     return "TRUE".equalsIgnoreCase(value);
   }
 
-  public List<AttributesFileRow> readRowsFromCsv(File f) throws MolgenisException {
+  public List<AttributesFileRow> readRowsFromCsv(File f) {
     try {
       return readRowsFromCsv(new FileReader(f));
     } catch (IOException e) {

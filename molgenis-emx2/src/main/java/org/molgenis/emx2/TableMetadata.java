@@ -32,7 +32,7 @@ public class TableMetadata {
     return schema;
   }
 
-  public TableMetadata setPrimaryKey(String... columnNames) throws MolgenisException {
+  public TableMetadata setPrimaryKey(String... columnNames) {
     this.primaryKey = columnNames;
     return this;
   }
@@ -47,7 +47,7 @@ public class TableMetadata {
     return Collections.unmodifiableList(result);
   }
 
-  public Column getColumn(String name) throws MolgenisException {
+  public Column getColumn(String name) {
     if (columns.containsKey(name)) return columns.get(name);
     throw new MolgenisException(
         "undefined_column",
@@ -55,22 +55,22 @@ public class TableMetadata {
         String.format("Column with tableName='%s' could not be found", name));
   }
 
-  public Column addColumn(Column column) throws MolgenisException {
+  public Column addColumn(Column column) {
     columns.put(column.getColumnName(), column);
     return column;
   }
 
-  public Column addColumn(String name) throws MolgenisException {
+  public Column addColumn(String name) {
     return this.addColumn(name, STRING);
   }
 
-  public Column addColumn(String name, ColumnType columnType) throws MolgenisException {
+  public Column addColumn(String name, ColumnType columnType) {
     Column c = new Column(this, name, columnType);
     columns.put(name, c);
     return c;
   }
 
-  public Column addRef(String name, String toTable) throws MolgenisException {
+  public Column addRef(String name, String toTable) {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
@@ -88,19 +88,19 @@ public class TableMetadata {
     return this.addRef(name, toTable, primaryKeys[0]);
   }
 
-  public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
+  public Column addRef(String name, String toTable, String toColumn) {
     Column c = new Column(this, name, REF).setReference(toTable, toColumn);
     columns.put(name, c);
     return c;
   }
 
-  public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
+  public Column addRefArray(String name, String toTable, String toColumn) {
     Column c = new Column(this, name, REF_ARRAY).setReference(toTable, toColumn);
     columns.put(name, c);
     return c;
   }
 
-  public Column addRefArray(String name, String toTable) throws MolgenisException {
+  public Column addRefArray(String name, String toTable) {
     String[] primaryKeys = getPrimaryKey();
     if (primaryKeys.length != 1)
       throw new MolgenisException(
@@ -112,11 +112,11 @@ public class TableMetadata {
     return this.addRefArray(name, toTable, primaryKeys[0]);
   }
 
-  public ReferenceMultiple addRefMultiple(String... name) throws MolgenisException {
+  public ReferenceMultiple addRefMultiple(String... name) {
     return new ReferenceMultiple(this, REF, name);
   }
 
-  public ReferenceMultiple addRefArrayMultiple(String... name) throws MolgenisException {
+  public ReferenceMultiple addRefArrayMultiple(String... name) {
     return new ReferenceMultiple(this, REF_ARRAY, name);
   }
 
@@ -126,8 +126,7 @@ public class TableMetadata {
       String refColumn,
       String reverseName,
       String reverseRefColumn,
-      String joinTableName)
-      throws MolgenisException {
+      String joinTableName) {
     Column c =
         new Column(this, name, MREF)
             .setReference(refTable, refColumn)
@@ -137,7 +136,7 @@ public class TableMetadata {
     return c;
   }
 
-  public void removeColumn(String name) throws MolgenisException {
+  public void removeColumn(String name) {
     columns.remove(name);
   }
 
@@ -145,7 +144,7 @@ public class TableMetadata {
     return Collections.unmodifiableCollection(uniques);
   }
 
-  public TableMetadata addUnique(String... columnNames) throws MolgenisException {
+  public TableMetadata addUnique(String... columnNames) {
     for (String columnName : columnNames) {
       Column c = getColumn(columnName);
       if (c == null)
@@ -178,7 +177,7 @@ public class TableMetadata {
     return false;
   }
 
-  public void removeUnique(String... keys) throws MolgenisException {
+  public void removeUnique(String... keys) {
     for (int i = 0; i < uniques.size(); i++) {
       if (Arrays.equals(uniques.get(i), keys)) {
         uniques.remove(i);
@@ -200,7 +199,7 @@ public class TableMetadata {
     return builder.toString();
   }
 
-  public void enableRowLevelSecurity() throws MolgenisException {
+  public void enableRowLevelSecurity() {
     throw new UnsupportedOperationException();
   }
 

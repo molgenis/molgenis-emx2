@@ -13,7 +13,7 @@ public class ArrayTypeTestExample {
     // hide constructor
   }
 
-  public static void createSimpleTypeTest(SchemaMetadata schema) throws MolgenisException {
+  public static void createSimpleTypeTest(SchemaMetadata schema) {
 
     TableMetadata typeTestTable = schema.createTableIfNotExists("ArrayTypeTest");
     ColumnType[] columnTypes =

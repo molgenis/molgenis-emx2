@@ -13,7 +13,7 @@ public class ReferenceMultiple {
     this.nameArray = nameArray;
   }
 
-  public TableMetadata to(String toTable, String... toColumn) throws MolgenisException {
+  public TableMetadata to(String toTable, String... toColumn) {
     if (nameArray == null || nameArray.length != toColumn.length)
       throw new MolgenisException(
           "invalid_foreign_key",
@@ -28,7 +28,7 @@ public class ReferenceMultiple {
     return table;
   }
 
-  public TableMetadata to(String toTable) throws MolgenisException {
+  public TableMetadata to(String toTable) {
     String[] keys = table.getPrimaryKey();
     return to(toTable, keys);
   }

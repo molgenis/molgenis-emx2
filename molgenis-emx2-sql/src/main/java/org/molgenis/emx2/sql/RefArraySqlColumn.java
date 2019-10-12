@@ -17,7 +17,7 @@ public class RefArraySqlColumn extends SqlColumn {
   }
 
   @Override
-  public RefArraySqlColumn createColumn() throws MolgenisException {
+  public RefArraySqlColumn createColumn() {
     super.createColumn();
     this.createReferenceExistsTrigger();
     this.createIsReferencedByTrigger();
@@ -78,7 +78,7 @@ public class RefArraySqlColumn extends SqlColumn {
   }
 
   /** trigger on this column to check if foreign key exists */
-  private void createReferenceExistsTrigger() throws MolgenisException {
+  private void createReferenceExistsTrigger() {
     Name triggerName = getTriggerName();
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
     Name thisColumn = name(getColumnName());

@@ -32,7 +32,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 public class TestJson {
 
   @Test
-  public void testSchemaToJson() throws MolgenisException, IOException {
+  public void testSchemaToJson() , IOException {
 
     SchemaMetadata s = new SchemaMetadata("test");
     ProductComponentPartsExample.create(s);
@@ -44,7 +44,7 @@ public class TestJson {
   }
 
   @Test
-  public void testJsonToRow() throws MolgenisException {
+  public void testJsonToRow()  {
 
     TableMetadata t = new TableMetadata(null, "Person");
     t.addColumn("FirstName", STRING);

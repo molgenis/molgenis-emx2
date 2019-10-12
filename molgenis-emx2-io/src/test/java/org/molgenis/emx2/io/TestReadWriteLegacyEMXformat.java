@@ -16,7 +16,7 @@ import static junit.framework.TestCase.fail;
 public class TestReadWriteLegacyEMXformat {
 
   @Test
-  public void test() throws MolgenisException {
+  public void test() {
     try {
       for (AttributesFileRow row :
           new AttributesFileReader().readRowsFromCsv(getFile("attributes_typetest.csv"))) {

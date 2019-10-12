@@ -14,7 +14,7 @@ import static org.molgenis.emx2.ColumnType.*;
 public class TestMapPojoToTable {
 
   @Test
-  public void testBeanToRowToBean() throws MolgenisException {
+  public void testBeanToRowToBean()  {
     PersonBean b = new PersonBean();
     b.setFirstName("Donald");
     b.setLastName("Duck");
@@ -35,7 +35,7 @@ public class TestMapPojoToTable {
   }
 
   @Test
-  public void testPersonClassToTable() throws MolgenisException {
+  public void testPersonClassToTable()  {
     TableMetadata t = Mapper.map(PersonBean.class);
     Column molgenisid = t.getColumn("molgenisid");
 
@@ -55,7 +55,7 @@ public class TestMapPojoToTable {
   }
 
   @Test
-  public void testTypeTestToTable() throws MolgenisException {
+  public void testTypeTestToTable()  {
     TableMetadata table = Mapper.map(TypeTestBean.class);
 
     for (ColumnType columnType : new ColumnType[] {STRING, INT, DECIMAL, BOOL, DATE, DATETIME}) {

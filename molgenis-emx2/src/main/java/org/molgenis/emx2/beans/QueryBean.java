@@ -131,7 +131,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public List<Row> retrieve() throws MolgenisException {
+  public List<Row> retrieve()  {
     if (parent != null) return parent.retrieve();
     else throw new UnsupportedOperationException();
   }

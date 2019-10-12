@@ -22,12 +22,12 @@ public class TestBatchRequestsForSpeed {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException, SQLException {
+  public static void setUp() , SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testBatch() throws MolgenisException {
+  public void testBatch()  {
 
     StopWatch.start("testBatch started");
 
@@ -75,7 +75,7 @@ public class TestBatchRequestsForSpeed {
   }
 
   @Test
-  public void testCreate() throws MolgenisException {
+  public void testCreate()  {
 
     StopWatch.start("");
 

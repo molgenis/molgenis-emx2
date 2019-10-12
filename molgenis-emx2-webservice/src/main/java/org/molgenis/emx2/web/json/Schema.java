@@ -11,13 +11,13 @@ public class Schema {
 
   public Schema() {};
 
-  public Schema(SchemaMetadata schema) throws MolgenisException {
+  public Schema(SchemaMetadata schema) {
     for (String tableName : schema.getTableNames()) {
       tables.add(new Table(schema.getTableMetadata(tableName)));
     }
   }
 
-  public SchemaMetadata getSchemaMetadata() throws MolgenisException {
+  public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
     for (Table t : tables) {
       s.createTable(t.getTableMetadata(s));

@@ -44,7 +44,7 @@ class SqlTable implements Table {
     return metadata;
   }
 
-  public int insert(Iterable<Row> rows) throws MolgenisException {
+  public int insert(Iterable<Row> rows) {
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.getJooq()
@@ -73,17 +73,17 @@ class SqlTable implements Table {
   }
 
   @Override
-  public int insert(Row... rows) throws MolgenisException {
+  public int insert(Row... rows) {
     return insert(Arrays.asList(rows));
   }
 
   @Override
-  public int update(Row... rows) throws MolgenisException {
+  public int update(Row... rows) {
     return update(Arrays.asList(rows));
   }
 
   @Override
-  public int update(Iterable<Row> rows) throws MolgenisException {
+  public int update(Iterable<Row> rows) {
 
     if (getPrimaryKeyFields().isEmpty())
       throw new MolgenisException(
@@ -134,8 +134,7 @@ class SqlTable implements Table {
       org.jooq.Table t,
       List<Field> fields,
       List<String> fieldNames,
-      List<Field> keyFields)
-      throws MolgenisException {
+      List<Field> keyFields) {
     if (!rows.isEmpty()) {
       // createColumn multi-value insert
       InsertValuesStepN step = db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
@@ -153,7 +152,7 @@ class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Iterable<Row> rows) throws MolgenisException {
+  public int delete(Iterable<Row> rows) {
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.getJooq()
@@ -199,11 +198,11 @@ class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Row... rows) throws MolgenisException {
+  public int delete(Row... rows) {
     return delete(Arrays.asList(rows));
   }
 
-  private void deleteBatch(Collection<Row> rows) throws MolgenisException {
+  private void deleteBatch(Collection<Row> rows) {
     if (!rows.isEmpty()) {
       String[] keyNames = getMetadata().getPrimaryKey();
 
@@ -266,12 +265,12 @@ class SqlTable implements Table {
   }
 
   @Override
-  public List<Row> retrieve() throws MolgenisException {
+  public List<Row> retrieve() {
     return this.query().retrieve();
   }
 
   @Override
-  public <E> List<E> retrieve(String columnName, Class<E> klazz) throws MolgenisException {
+  public <E> List<E> retrieve(String columnName, Class<E> klazz) {
     return query().retrieve(columnName, klazz);
   }
 
@@ -280,7 +279,7 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
-  private List<Field> getPrimaryKeyFields() throws MolgenisException {
+  private List<Field> getPrimaryKeyFields() {
     ArrayList<Field> keyFields = new ArrayList<>();
     for (String key : getMetadata().getPrimaryKey()) {
       keyFields.add(getJooqField(getMetadata().getColumn(key)));
@@ -292,7 +291,7 @@ class SqlTable implements Table {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
-  private Field getJooqField(Column c) throws MolgenisException {
+  private Field getJooqField(Column c) {
     return field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c));
   }
 }

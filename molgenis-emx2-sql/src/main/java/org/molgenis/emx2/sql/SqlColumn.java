@@ -18,7 +18,7 @@ public class SqlColumn extends Column {
   }
 
   /** constructor for REF */
-  public SqlColumn createColumn() throws MolgenisException {
+  public SqlColumn createColumn() {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
     Field thisColumn = field(name(getColumnName()), thisType);
     jooq.alterTable(asJooqTable()).addColumn(thisColumn).execute();

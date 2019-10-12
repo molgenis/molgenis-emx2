@@ -29,7 +29,7 @@ public class SqlQuery extends QueryBean implements Query {
   }
 
   @Override
-  public List<Row> retrieve() throws MolgenisException {
+  public List<Row> retrieve() {
 
     try {
       Set<String> tableAliases = new TreeSet<>();
@@ -204,7 +204,7 @@ public class SqlQuery extends QueryBean implements Query {
                     .eq(field(name(tableAlias, column.getReverseRefColumn())))));
   }
 
-  private Condition createFilterConditions(String tableName) throws MolgenisException {
+  private Condition createFilterConditions(String tableName) {
     Condition conditions = null;
     for (Where w : this.getWhereLists()) {
       Condition newCondition = null;
@@ -220,7 +220,7 @@ public class SqlQuery extends QueryBean implements Query {
     return conditions;
   }
 
-  private Condition createFilterCondition(Where w, String tableName) throws MolgenisException {
+  private Condition createFilterCondition(Where w, String tableName) {
     // in case of field operator
     String[] path = getPath(w.getPath());
     StringBuilder tableAlias = new StringBuilder(tableName);
@@ -261,7 +261,7 @@ public class SqlQuery extends QueryBean implements Query {
   }
 
   /** recursive getColumn */
-  private Column getColumn(TableMetadata t, String[] path) throws MolgenisException {
+  private Column getColumn(TableMetadata t, String[] path) {
     Column c = t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(

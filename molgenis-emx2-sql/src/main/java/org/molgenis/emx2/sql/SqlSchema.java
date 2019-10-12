@@ -19,17 +19,17 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public SqlTable getTable(String name) throws MolgenisException {
+  public SqlTable getTable(String name) {
     return new SqlTable(db, getMetadata().getTableMetadata(name));
   }
 
   @Override
-  public void dropTable(String name) throws MolgenisException {
+  public void dropTable(String name) {
     getMetadata().dropTable(name);
   }
 
   @Override
-  public List<Member> getMembers() throws MolgenisException {
+  public List<Member> getMembers() {
     List<Member> members = new ArrayList<>();
 
     // retrieve all role members
@@ -54,7 +54,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void addMembers(List<Member> members) throws MolgenisException {
+  public void addMembers(List<Member> members) {
     transaction(
         database -> {
           List<String> currentRoles = getRoles();
@@ -105,17 +105,17 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void addMembers(Member... members) throws MolgenisException {
+  public void addMembers(Member... members) {
     this.addMembers(Arrays.asList(members));
   }
 
   @Override
-  public void addMember(String user, String role) throws MolgenisException {
+  public void addMember(String user, String role) {
     this.addMembers(new Member(user, role));
   }
 
   @Override
-  public void removeMembers(List<Member> members) throws MolgenisException {
+  public void removeMembers(List<Member> members) {
     List<String> usernames = new ArrayList<>();
     for (Member m : members) usernames.add(m.getUser());
 
@@ -141,12 +141,12 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void removeMember(String user) throws MolgenisException {
+  public void removeMember(String user) {
     removeMembers(new Member(user, null));
   }
 
   @Override
-  public void removeMembers(Member... members) throws MolgenisException {
+  public void removeMembers(Member... members) {
     removeMembers(Arrays.asList(members));
   }
 
@@ -168,7 +168,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public String getRoleForUser(String user) throws MolgenisException {
+  public String getRoleForUser(String user) {
     user = user.trim();
     for (Member m : getMembers()) {
       if (m.getUser().equals(user)) return m.getRole();
@@ -177,7 +177,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public SqlTable createTableIfNotExists(String name) throws MolgenisException {
+  public SqlTable createTableIfNotExists(String name) {
     try {
       return getTable(name);
     } catch (Exception e) {
@@ -187,7 +187,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public Table createTableIfNotExists(TableMetadata metadata) throws MolgenisException {
+  public Table createTableIfNotExists(TableMetadata metadata) {
     transaction(
         database -> {
           TableMetadata table = this.createTableIfNotExists(metadata.getTableName()).getMetadata();
@@ -208,22 +208,22 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public Collection<String> getTableNames() throws MolgenisException {
+  public Collection<String> getTableNames() {
     return getMetadata().getTableNames();
   }
 
   @Override
-  public Query query(String tableName) throws MolgenisException {
+  public Query query(String tableName) {
     return getTable(tableName).query();
   }
 
   @Override
-  public void transaction(Transaction transaction) throws MolgenisException {
+  public void transaction(Transaction transaction) {
     db.transaction(transaction);
   }
 
   @Override
-  public void merge(SchemaMetadata from) throws MolgenisException {
+  public void merge(SchemaMetadata from) {
     transaction(
         database -> {
           List<TableMetadata> tableList = new ArrayList<>();

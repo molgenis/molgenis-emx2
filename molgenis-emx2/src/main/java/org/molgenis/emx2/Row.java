@@ -193,11 +193,11 @@ public class Row {
     return this.values.keySet();
   }
 
-  public Object get(String name, ColumnType columnType) throws MolgenisException {
+  public Object get(String name, ColumnType columnType) {
     return get(name, columnType.getType());
   }
 
-  public <T> T get(String name, Class<T> type) throws MolgenisException {
+  public <T> T get(String name, Class<T> type) {
     if (type == null) return null;
 
     switch (type.getSimpleName()) {

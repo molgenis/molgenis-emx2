@@ -14,12 +14,12 @@ public class TestFullTextSearch {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException, SQLException {
+  public static void setUp() , SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testSearch() throws MolgenisException {
+  public void testSearch()  {
 
     // setup
     Schema schema = db.createSchema("TestFullTextSearch");

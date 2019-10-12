@@ -15,12 +15,12 @@ public class TestSchemaCreateDestroy {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException, SQLException {
+  public static void setUp() , SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void schemaCrudTest() throws MolgenisException {
+  public void schemaCrudTest()  {
     try {
       db.createSchema("");
       fail("Schema createTableIfNotExists should fail on empty name");

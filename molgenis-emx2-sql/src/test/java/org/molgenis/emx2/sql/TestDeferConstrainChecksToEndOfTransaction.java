@@ -12,9 +12,9 @@ import static junit.framework.TestCase.fail;
 public class TestDeferConstrainChecksToEndOfTransaction {
   Database database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
-  public TestDeferConstrainChecksToEndOfTransaction() throws MolgenisException {}
+  public TestDeferConstrainChecksToEndOfTransaction() {}
 
-  public void DependencyOrderNotNeededInTransaction() throws MolgenisException {
+  public void DependencyOrderNotNeededInTransaction() {
 
     StopWatch.start("DependencyOrderNotNeededInTransaction");
     try {
@@ -31,11 +31,11 @@ public class TestDeferConstrainChecksToEndOfTransaction {
   }
 
   @Test(expected = MolgenisException.class)
-  public void DependencyOrderOutsideTransactionFails() throws MolgenisException {
+  public void DependencyOrderOutsideTransactionFails() {
     runTestCase(database);
   }
 
-  public void runTestCase(Database db) throws MolgenisException {
+  public void runTestCase(Database db) {
     Schema schema = db.createSchema("TestDeffered");
 
     Table subjectTable = schema.createTableIfNotExists("Subject");
@@ -55,7 +55,7 @@ public class TestDeferConstrainChecksToEndOfTransaction {
   }
 
   @Test
-  public void foreignKeysInTransactionsAraProtected() throws MolgenisException {
+  public void foreignKeysInTransactionsAraProtected() {
     StopWatch.start("foreignKeysInTransactionsAraProtected");
 
     try {

@@ -18,12 +18,12 @@ public class TestCreateArrayDataTypes {
   static Database database;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testUUIDArray() throws MolgenisException {
+  public void testUUIDArray() {
     executeTest(
         UUID_ARRAY,
         new java.util.UUID[] {
@@ -34,34 +34,34 @@ public class TestCreateArrayDataTypes {
   }
 
   @Test
-  public void testStringArray() throws MolgenisException {
+  public void testStringArray() {
     executeTest(STRING_ARRAY, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
-  public void testIntArray() throws MolgenisException {
+  public void testIntArray() {
     executeTest(INT_ARRAY, new Integer[] {5, 6});
   }
 
   @Test
-  public void testDateArray() throws MolgenisException {
+  public void testDateArray() {
     executeTest(DATE_ARRAY, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
-  public void testDateTimeArray() throws MolgenisException {
+  public void testDateTimeArray() {
     executeTest(
         DATETIME_ARRAY,
         new String[] {"2013-01-01T18:00:00.0", "2013-01-01T18:00:01.0", "2013-01-01T18:00:02.0"});
   }
 
   @Test
-  public void testDecimalArray() throws MolgenisException {
+  public void testDecimalArray() {
     executeTest(DECIMAL_ARRAY, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
-  public void testTextArray() throws MolgenisException {
+  public void testTextArray() {
     executeTest(
         TEXT_ARRAY,
         new String[] {
@@ -70,11 +70,11 @@ public class TestCreateArrayDataTypes {
   }
 
   //  @Test
-  //  public void testBool() throws MolgenisException {
+  //  public void testBool()  {
   //    executeTest(BOOL_ARRAY, new Boolean[] {null, true, false});
   //  }
 
-  private void executeTest(ColumnType columnType, Serializable[] values) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Serializable[] values) {
 
     Schema schema =
         database.createSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());

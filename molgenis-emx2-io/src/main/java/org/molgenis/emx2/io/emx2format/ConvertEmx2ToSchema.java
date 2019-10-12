@@ -28,7 +28,7 @@ public class ConvertEmx2ToSchema {
     return fromRowList(CsvRowReader.readList(reader));
   }
 
-  public static SchemaMetadata fromRowList(List<Row> rows) throws MolgenisException {
+  public static SchemaMetadata fromRowList(List<Row> rows)  {
     List<Emx2FileRow> typedRows = new ArrayList<>();
     for (Row r : rows) {
       typedRows.add(new Emx2FileRow(r));
@@ -37,7 +37,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static SchemaMetadata executeLoadProcedure(List<Emx2FileRow> rows)
-      throws MolgenisException {
+       {
     SchemaMetadata schema = new SchemaMetadata();
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
@@ -50,7 +50,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static void loadTablesFirst(List<Emx2FileRow> rows, SchemaMetadata schema)
-      throws MolgenisException {
+       {
     for (Emx2FileRow row : rows) {
       String tableName = row.getTable();
       if (!"".equals(tableName)) {
@@ -62,7 +62,7 @@ public class ConvertEmx2ToSchema {
 
   private static void loadTableProperties(
       SchemaMetadata model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages)
-      throws MolgenisException {
+       {
     int line = 1;
     for (Emx2FileRow row : rows) {
       line++;
@@ -80,7 +80,7 @@ public class ConvertEmx2ToSchema {
 
   private static void extractTableDefinition(
       int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionMessage> messages)
-      throws MolgenisException {
+       {
 
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
@@ -99,7 +99,7 @@ public class ConvertEmx2ToSchema {
 
   private static void loadColumns(
       List<Emx2FileRow> rows, SchemaMetadata model, List<MolgenisExceptionMessage> messages)
-      throws MolgenisException {
+       {
     int line = 1;
     for (Emx2FileRow row : rows) {
       line++;
@@ -132,7 +132,7 @@ public class ConvertEmx2ToSchema {
       TableMetadata table,
       int line,
       List<MolgenisExceptionMessage> messages)
-      throws MolgenisException {
+       {
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     ColumnType columnType = getType(def);
 

@@ -26,7 +26,7 @@ public class Column {
     this.nullable = column.getNullable();
   }
 
-  public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) throws MolgenisException {
+  public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name, columnType);
     c.setPrimaryKey(pkey);
     c.setUnique(unique);

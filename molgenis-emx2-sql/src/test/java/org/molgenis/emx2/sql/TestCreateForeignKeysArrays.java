@@ -17,12 +17,12 @@ public class TestCreateForeignKeysArrays {
   private static Database db;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testUUID() throws MolgenisException {
+  public void testUUID() {
     executeTest(
         ColumnType.UUID,
         new java.util.UUID[] {
@@ -33,34 +33,34 @@ public class TestCreateForeignKeysArrays {
   }
 
   @Test
-  public void testStringRef() throws MolgenisException {
+  public void testStringRef() {
     executeTest(ColumnType.STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
-  public void testIntRef() throws MolgenisException {
+  public void testIntRef() {
     executeTest(ColumnType.INT, new Integer[] {5, 6});
   }
 
   @Test
-  public void testDateRef() throws MolgenisException {
+  public void testDateRef() {
     executeTest(ColumnType.DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
-  public void testDateTimeRef() throws MolgenisException {
+  public void testDateTimeRef() {
     executeTest(
         ColumnType.DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
-  public void testDecimalRef() throws MolgenisException {
+  public void testDecimalRef() {
     executeTest(ColumnType.DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
-  public void testTextRef() throws MolgenisException {
+  public void testTextRef() {
     executeTest(
         ColumnType.TEXT,
         new String[] {
@@ -68,7 +68,7 @@ public class TestCreateForeignKeysArrays {
         });
   }
 
-  private void executeTest(ColumnType columnType, Object[] testValues) throws MolgenisException {
+  private void executeTest(ColumnType columnType, Object[] testValues) {
 
     Schema schema = db.createSchema("TestRefArray" + columnType.toString().toUpperCase());
 

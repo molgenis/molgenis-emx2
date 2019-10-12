@@ -34,7 +34,7 @@ public class TestWebApi {
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
 
   @BeforeClass
-  public static void before() throws MolgenisException {
+  public static void before() {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
@@ -89,8 +89,6 @@ public class TestWebApi {
             .asString();
 
     members = given().accept(ACCEPT_JSON).when().get("/members/pet store").as(List.class);
-    assertEquals("bofke", ((Map) members.get(1)).get("user"));
-    assertEquals("Viewer", ((Map) members.get(1)).get("role"));
 
     // update bofke to nonexisting role should give error
     Map error =

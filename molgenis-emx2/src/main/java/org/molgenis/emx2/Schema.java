@@ -9,37 +9,37 @@ public interface Schema {
 
   SchemaMetadata getMetadata();
 
-  Collection<String> getTableNames() throws MolgenisException;
+  Collection<String> getTableNames();
 
-  Table createTableIfNotExists(String name) throws MolgenisException;
+  Table createTableIfNotExists(String name);
 
-  Table createTableIfNotExists(TableMetadata table) throws MolgenisException;
+  Table createTableIfNotExists(TableMetadata table);
 
-  Table getTable(String name) throws MolgenisException;
+  Table getTable(String name);
 
-  void dropTable(String name) throws MolgenisException;
+  void dropTable(String name);
 
-  Query query(String tableName) throws MolgenisException;
+  Query query(String tableName);
 
-  void transaction(Transaction transaction) throws MolgenisException;
+  void transaction(Transaction transaction);
 
-  void merge(SchemaMetadata from) throws MolgenisException;
+  void merge(SchemaMetadata from);
 
-  void addMembers(List<Member> members) throws MolgenisException;
+  void addMembers(List<Member> members);
 
-  void addMembers(Member... members) throws MolgenisException;
+  void addMembers(Member... members);
 
-  void addMember(String user, String role) throws MolgenisException;
+  void addMember(String user, String role);
 
-  List<Member> getMembers() throws MolgenisException;
+  List<Member> getMembers();
 
-  void removeMembers(Member... members) throws MolgenisException;
+  void removeMembers(Member... members);
 
-  void removeMembers(List<Member> members) throws MolgenisException;
+  void removeMembers(List<Member> members);
 
-  void removeMember(String user) throws MolgenisException;
+  void removeMember(String user);
 
   List<String> getRoles();
 
-  String getRoleForUser(String user) throws MolgenisException;
+  String getRoleForUser(String user);
 }

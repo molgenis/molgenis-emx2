@@ -17,7 +17,7 @@ public class RefSqlColumn extends SqlColumn {
   }
 
   @Override
-  public RefSqlColumn createColumn() throws MolgenisException {
+  public RefSqlColumn createColumn() {
     try {
       // define jooq parameters
       Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));

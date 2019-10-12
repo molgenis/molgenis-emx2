@@ -31,7 +31,7 @@ public class OpenApiForSchemaFactory {
     // hide public constructor
   }
 
-  public static OpenAPI createOpenApi(SchemaMetadata schema) throws MolgenisException {
+  public static OpenAPI createOpenApi(SchemaMetadata schema) {
 
     // basic metadata
     OpenAPI api = new OpenAPI();
@@ -257,8 +257,8 @@ public class OpenApiForSchemaFactory {
 
   // in addition I want to quickly check if current user has a permission for a table.
 
-  private static void createOpenApiForTable(TableMetadata table, Paths paths, Components components)
-      throws MolgenisException {
+  private static void createOpenApiForTable(
+      TableMetadata table, Paths paths, Components components) {
     String tableName = table.getTableName();
 
     // components
@@ -305,8 +305,7 @@ public class OpenApiForSchemaFactory {
                                 .addMediaType(ACCEPT_CSV, mediaType))));
   }
 
-  private static void rowSchemaComponent(TableMetadata table, Components components)
-      throws MolgenisException {
+  private static void rowSchemaComponent(TableMetadata table, Components components) {
     Map<String, Schema> properties = new LinkedHashMap<>();
     for (Column column : table.getColumns()) {
       properties.put(column.getColumnName(), columnSchema(column));
@@ -412,7 +411,7 @@ public class OpenApiForSchemaFactory {
     components.addSchemas("SchemaMetadata", metadataSchema);
   }
 
-  private static Schema columnSchema(Column column) throws MolgenisException {
+  private static Schema columnSchema(Column column) {
     switch (column.getColumnType()) {
       case UUID:
         return new UUIDSchema();

@@ -38,7 +38,7 @@ public class CompareTools {
     // hide constructor
   }
 
-  public static void assertEquals(List<Row> list1, List<Row> list2) throws MolgenisException {
+  public static void assertEquals(List<Row> list1, List<Row> list2) {
 
     if (list1.size() != list2.size()) fail("List<Row> have different length ");
 
@@ -75,8 +75,7 @@ public class CompareTools {
     }
   }
 
-  public static void assertEquals(SchemaMetadata schema1, SchemaMetadata schema2)
-      throws MolgenisException {
+  public static void assertEquals(SchemaMetadata schema1, SchemaMetadata schema2) {
     Collection<String> tableNames1 = schema1.getTableNames();
     Collection<String> tableNames2 = schema2.getTableNames();
 
@@ -98,7 +97,7 @@ public class CompareTools {
     }
   }
 
-  public static void reloadAndCompare(Database database, Schema schema) throws MolgenisException {
+  public static void reloadAndCompare(Database database, Schema schema) {
     // remember
     String schemaName = schema.getMetadata().getName();
     Collection<String> tableNames = schema.getTableNames();

@@ -13,7 +13,7 @@ public class CompositeRefExample {
     // hide constructor
   }
 
-  public static void createCompositeRefExample(SchemaMetadata schema) throws MolgenisException {
+  public static void createCompositeRefExample(SchemaMetadata schema) {
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 

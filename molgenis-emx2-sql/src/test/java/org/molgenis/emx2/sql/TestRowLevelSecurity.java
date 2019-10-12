@@ -20,12 +20,12 @@ public class TestRowLevelSecurity {
   private static Database database;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException, SQLException {
+  public static void setUp() , SQLException {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testRls() throws MolgenisException {
+  public void testRls()  {
     try {
       // create schema
       Schema s = database.createSchema(TEST_RLS);

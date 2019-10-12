@@ -16,12 +16,12 @@ public class TestCreateCompositeKeys {
   static Database database;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testUUID() throws MolgenisException {
+  public void testUUID() {
     executeTest(
         UUID,
         new java.util.UUID[] {
@@ -32,34 +32,34 @@ public class TestCreateCompositeKeys {
   }
 
   @Test
-  public void testString() throws MolgenisException {
+  public void testString() {
     executeTest(STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
-  public void testInt() throws MolgenisException {
+  public void testInt() {
     executeTest(INT, new Integer[] {5, 6, 7});
   }
 
   @Test
-  public void testDate() throws MolgenisException {
+  public void testDate() {
     executeTest(DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
-  public void testDateTime() throws MolgenisException {
+  public void testDateTime() {
     executeTest(
         DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
-  public void testDecimal() throws MolgenisException {
+  public void testDecimal() {
     executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
-  public void testText() throws MolgenisException {
+  public void testText() {
     executeTest(
         TEXT,
         new String[] {
@@ -67,7 +67,7 @@ public class TestCreateCompositeKeys {
         });
   }
 
-  public void executeTest(ColumnType columnType, Serializable[] data) throws MolgenisException {
+  public void executeTest(ColumnType columnType, Serializable[] data) {
     Schema schema = database.createSchema("TestCreateCompositeKeys" + columnType.toString());
 
     Table aTable = schema.createTableIfNotExists("CompositeKeyTable");

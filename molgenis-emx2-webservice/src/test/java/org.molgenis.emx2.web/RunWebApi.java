@@ -10,7 +10,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 
 public class RunWebApi {
 
-  public static void main(String[] args) throws MolgenisException {
+  public static void main(String[] args) {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();

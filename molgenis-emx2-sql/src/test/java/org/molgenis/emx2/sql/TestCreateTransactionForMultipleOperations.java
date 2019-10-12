@@ -17,12 +17,12 @@ public class TestCreateTransactionForMultipleOperations {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException, SQLException {
+  public static void setUp() , SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testCommit() throws MolgenisException {
+  public void testCommit()  {
 
     db.transaction(
         db -> {
@@ -37,7 +37,7 @@ public class TestCreateTransactionForMultipleOperations {
   }
 
   @Test(expected = MolgenisException.class)
-  public void testRollBack() throws MolgenisException {
+  public void testRollBack()  {
     db.transaction(
         db -> {
           Schema schema = db.createSchema("testRollBack");

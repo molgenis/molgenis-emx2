@@ -21,7 +21,7 @@ public class DatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getTestDatabase(DataSource dataSource) throws MolgenisException {
+  public static Database getTestDatabase(DataSource dataSource) {
     if (db == null) {
 
       // setup Jooq
@@ -37,8 +37,7 @@ public class DatabaseFactory {
     return db;
   }
 
-  public static Database getTestDatabase(String userName, String password)
-      throws MolgenisException {
+  public static Database getTestDatabase(String userName, String password) {
     String url = "jdbc:postgresql:molgenis";
     // createColumn data source
     HikariDataSource dataSource = new HikariDataSource();
@@ -95,7 +94,7 @@ public class DatabaseFactory {
     return jooq;
   }
 
-  public static void checkColumnExists(Column c) throws MolgenisException {
+  public static void checkColumnExists(Column c) {
     List<Table<?>> tables = DatabaseFactory.getJooq().meta().getTables(c.getTable().getTableName());
     if (tables.isEmpty())
       throw new MolgenisException(

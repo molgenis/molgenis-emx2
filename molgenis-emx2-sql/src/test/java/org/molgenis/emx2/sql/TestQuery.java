@@ -19,7 +19,7 @@ public class TestQuery {
   static Database database;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException {
+  public static void setUp() {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
     // createColumn a schema to test with
@@ -71,7 +71,7 @@ public class TestQuery {
   }
 
   @Test
-  public void testQuery1() throws MolgenisException {
+  public void testQuery1() {
 
     StopWatch.start("testQuery1");
 

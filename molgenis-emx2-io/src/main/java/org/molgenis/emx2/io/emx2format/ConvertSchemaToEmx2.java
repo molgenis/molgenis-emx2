@@ -23,7 +23,7 @@ public class ConvertSchemaToEmx2 {
     CsvRowWriter.writeCsv(toRowList(model), writer);
   }
 
-  public static List<Row> toRowList(SchemaMetadata model) throws MolgenisException {
+  public static List<Row> toRowList(SchemaMetadata model) {
     List<Row> result = new ArrayList<>();
     for (Emx2FileRow r : convertModelToMolgenisFileRows(model)) {
       result.add(r.toRow());
@@ -31,8 +31,7 @@ public class ConvertSchemaToEmx2 {
     return result;
   }
 
-  private static List<Emx2FileRow> convertModelToMolgenisFileRows(SchemaMetadata model)
-      throws MolgenisException {
+  private static List<Emx2FileRow> convertModelToMolgenisFileRows(SchemaMetadata model) {
     List<Emx2FileRow> rows = new ArrayList<>();
     for (String tableName : model.getTableNames()) {
       TableMetadata table = model.getTableMetadata(tableName);

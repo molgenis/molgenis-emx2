@@ -37,7 +37,7 @@ public class MrefSqlColumn extends SqlColumn {
   }
 
   @Override
-  public MrefSqlColumn createColumn() throws MolgenisException {
+  public MrefSqlColumn createColumn() {
     String schemaName = getTable().getSchema().getName();
 
     // createTableIfNotExists setNullable array columns compatible with the refs
@@ -86,8 +86,7 @@ public class MrefSqlColumn extends SqlColumn {
   }
 
   private static void createTriggers(
-      DSLContext jooq, TableMetadata joinTable, Column column, Column reverseColumn)
-      throws MolgenisException {
+      DSLContext jooq, TableMetadata joinTable, Column column, Column reverseColumn) {
 
     //  parameters
     String schemaName = column.getTable().getSchema().getName();

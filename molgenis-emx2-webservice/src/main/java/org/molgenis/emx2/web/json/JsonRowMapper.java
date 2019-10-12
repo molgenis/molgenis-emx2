@@ -36,7 +36,7 @@ public class JsonRowMapper {
     return new Row(map);
   }
 
-  public static Row jsonToRow(TableMetadata t, Any json) throws MolgenisException {
+  public static Row jsonToRow(TableMetadata t, Any json) {
     Row r = new Row();
     for (Column c : t.getColumns()) {
       try {

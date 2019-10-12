@@ -26,12 +26,12 @@ public class TestCreateManyToManyRelations {
   static Database db;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testUUID_MREF() throws MolgenisException {
+  public void testUUID_MREF() {
     executeTest(
         UUID,
         new java.util.UUID[] {
@@ -42,34 +42,34 @@ public class TestCreateManyToManyRelations {
   }
 
   @Test
-  public void testString_MREF() throws MolgenisException {
+  public void testString_MREF() {
     executeTest(STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
-  public void testInt_MREF() throws MolgenisException {
+  public void testInt_MREF() {
     executeTest(INT, new Integer[] {5, 6, 7});
   }
 
   @Test
-  public void testDate_MREF() throws MolgenisException {
+  public void testDate_MREF() {
     executeTest(DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
-  public void testDateTime_MREF() throws MolgenisException {
+  public void testDateTime_MREF() {
     executeTest(
         DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
-  public void testDecimal_MREF() throws MolgenisException {
+  public void testDecimal_MREF() {
     executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
-  public void testText_MREF() throws MolgenisException {
+  public void testText_MREF() {
     executeTest(
         TEXT,
         new String[] {
@@ -77,8 +77,7 @@ public class TestCreateManyToManyRelations {
         });
   }
 
-  private void executeTest(ColumnType columnType, Serializable[] testValues)
-      throws MolgenisException {
+  private void executeTest(ColumnType columnType, Serializable[] testValues) {
     StopWatch.start("executeTest");
 
     Schema aSchema =

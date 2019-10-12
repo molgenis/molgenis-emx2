@@ -26,7 +26,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public SqlTableMetadata getTableMetadata(String name) throws MolgenisException {
+  public SqlTableMetadata getTableMetadata(String name) {
     try {
       return (SqlTableMetadata) super.getTableMetadata(name);
     } catch (Exception e) {
@@ -45,7 +45,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  void createSchema() throws MolgenisException {
+  void createSchema() {
     String schemaName = getName();
 
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schemaName)) {
@@ -88,7 +88,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public SqlTableMetadata createTableIfNotExists(String name) throws MolgenisException {
+  public SqlTableMetadata createTableIfNotExists(String name) {
     try {
       return getTableMetadata(name);
     } catch (Exception e) {
@@ -112,7 +112,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public void dropTable(String tableName) throws MolgenisException {
+  public void dropTable(String tableName) {
     SqlTableMetadata tableMetadata = getTableMetadata(tableName);
     tableMetadata.dropTable();
     super.dropTable(tableName);

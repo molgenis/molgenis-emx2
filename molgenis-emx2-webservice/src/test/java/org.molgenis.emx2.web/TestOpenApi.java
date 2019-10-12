@@ -18,7 +18,7 @@ import static org.molgenis.emx2.ColumnType.*;
 public class TestOpenApi {
 
   @Test
-  public void constructApi() throws MolgenisException, IOException, URISyntaxException {
+  public void constructApi() , IOException, URISyntaxException {
     SchemaMetadata schema = new SchemaMetadata("test");
 
     TableMetadata table = schema.createTableIfNotExists("TypeTest");

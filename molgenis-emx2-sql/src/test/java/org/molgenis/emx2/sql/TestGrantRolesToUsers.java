@@ -17,12 +17,12 @@ public class TestGrantRolesToUsers {
   private static Database database;
 
   @BeforeClass
-  public static void setUp() throws MolgenisException, SQLException {
+  public static void setUp() , SQLException {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testGrantRevokeMembership() throws MolgenisException {
+  public void testGrantRevokeMembership()  {
 
     Schema schema = database.createSchema("testGrantRevokeMembership");
     assertEquals(Arrays.asList("Viewer", "Editor", "Manager", "Owner"), schema.getRoles());
@@ -40,7 +40,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
-  public void testRolePermissions() throws MolgenisException {
+  public void testRolePermissions()  {
 
     StopWatch.start("start: testRolePermissions()");
 
@@ -128,7 +128,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
-  public void testRole() throws MolgenisException {
+  public void testRole()  {
     try {
       Schema schema = database.createSchema("testRole");
       database.addUser("testadmin");

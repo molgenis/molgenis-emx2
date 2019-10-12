@@ -21,7 +21,7 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
   }
 
   @Override
-  public TableMetadata to(String toTable, String... toColumns) throws MolgenisException {
+  public TableMetadata to(String toTable, String... toColumns) {
     SqlTableMetadata table = (SqlTableMetadata) getTable();
 
     String[] nameArray = getNameArray();

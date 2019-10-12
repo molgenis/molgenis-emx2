@@ -52,7 +52,7 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
-  protected static void createMetadataSchemaIfNotExists(DSLContext jooq) throws MolgenisException {
+  protected static void createMetadataSchemaIfNotExists(DSLContext jooq) {
 
     // check if exists
     // todo migrations
@@ -172,7 +172,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void loadTableMetadata(SqlTableMetadata table) throws MolgenisException {
+  protected static void loadTableMetadata(SqlTableMetadata table) {
     // load tables metadata
     //   Collection<Record> columnRecords =
     Record tableRecord =
@@ -257,7 +257,7 @@ public class MetadataUtils {
     return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
   }
 
-  protected static void loadUniqueMetadata(SqlTableMetadata table) throws MolgenisException {
+  protected static void loadUniqueMetadata(SqlTableMetadata table) {
     List<Record> uniqueRecordList =
         table
             .getJooq()
@@ -271,8 +271,7 @@ public class MetadataUtils {
     }
   }
 
-  protected static void loadColumnMetadata(SqlTableMetadata table, Map<String, Column> columnMap)
-      throws MolgenisException {
+  protected static void loadColumnMetadata(SqlTableMetadata table, Map<String, Column> columnMap) {
     // load tables and columns
     Collection<Record> columnRecords =
         table

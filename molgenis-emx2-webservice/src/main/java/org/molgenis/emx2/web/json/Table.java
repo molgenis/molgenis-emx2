@@ -31,7 +31,7 @@ public class Table {
     }
   }
 
-  public TableMetadata getTableMetadata(SchemaMetadata s) throws MolgenisException {
+  public TableMetadata getTableMetadata(SchemaMetadata s) {
     TableMetadata tm = new TableMetadata(s, name);
     tm.setPrimaryKey(pkey);
     for (String[] u : uniques) tm.addUnique(u);

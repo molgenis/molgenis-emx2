@@ -22,7 +22,7 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static DataType jooqTypeOf(Column column) throws MolgenisException {
+  public static DataType jooqTypeOf(Column column) {
     ColumnType sqlColumnType = column.getColumnType();
     switch (sqlColumnType) {
       case UUID:
@@ -87,8 +87,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static Collection<Object> getValuesAsCollection(Row row, Table table)
-      throws MolgenisException {
+  public static Collection<Object> getValuesAsCollection(Row row, Table table) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : table.getMetadata().getColumns()) {
       // rls
@@ -102,7 +101,7 @@ public class SqlTypeUtils extends TypeUtils {
     return values;
   }
 
-  public static Object getTypedValue(Object v, Column column) throws MolgenisException {
+  public static Object getTypedValue(Object v, Column column) {
     ColumnType columnType = column.getColumnType();
     if (ColumnType.REF.equals(columnType)) {
       columnType = getRefType(column);
@@ -148,7 +147,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static ColumnType getRefType(Column column) throws MolgenisException {
+  public static ColumnType getRefType(Column column) {
     return column
         .getTable()
         .getSchema()
@@ -157,7 +156,7 @@ public class SqlTypeUtils extends TypeUtils {
         .getColumnType();
   }
 
-  public static Object getTypedValue(Row row, Column column) throws MolgenisException {
+  public static Object getTypedValue(Row row, Column column) {
     ColumnType columnType = column.getColumnType();
     if (ColumnType.REF.equals(columnType)) {
       columnType = getRefType(column);
@@ -204,7 +203,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static String getPsqlType(Column column) throws MolgenisException {
+  public static String getPsqlType(Column column) {
     switch (column.getColumnType()) {
       case STRING:
         return "character varying";

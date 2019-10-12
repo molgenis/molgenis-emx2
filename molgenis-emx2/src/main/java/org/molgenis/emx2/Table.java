@@ -11,19 +11,17 @@ public interface Table {
 
   TableMetadata getMetadata();
 
-  int insert(Row... row) throws MolgenisException;
+  int insert(Row... row);
 
-  int insert(Iterable<Row> rows)
-      throws MolgenisException; // consider use Iterable or Iterator instead?
+  int insert(Iterable<Row> rows); // consider use Iterable or Iterator instead?
 
-  int update(Row... row) throws MolgenisException;
+  int update(Row... row);
 
-  int update(Iterable<Row> rows)
-      throws MolgenisException; // wish list: update based on secondary key.
+  int update(Iterable<Row> rows); // wish list: update based on secondary key.
 
-  int delete(Row... row) throws MolgenisException;
+  int delete(Row... row);
 
-  int delete(Iterable<Row> rows) throws MolgenisException;
+  int delete(Iterable<Row> rows);
 
   void deleteByPrimaryKey(Object... name);
 
@@ -33,9 +31,9 @@ public interface Table {
 
   Query query();
 
-  List<Row> retrieve() throws MolgenisException;
+  List<Row> retrieve();
 
-  <E> List<E> retrieve(String columnName, Class<E> klazz) throws MolgenisException;
+  <E> List<E> retrieve(String columnName, Class<E> klazz);
 
   String getName();
 }

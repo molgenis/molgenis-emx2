@@ -21,12 +21,12 @@ public class TestImportExportEmx2DataAndMetadata {
   static Database database;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup()  {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void test() throws MolgenisException, IOException {
+  public void test() , IOException {
 
     Path tmp = Files.createTempDirectory(null);
     try {

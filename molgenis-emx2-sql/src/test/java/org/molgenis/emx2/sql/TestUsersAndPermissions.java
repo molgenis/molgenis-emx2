@@ -15,7 +15,7 @@ public class TestUsersAndPermissions {
   static Database database;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 

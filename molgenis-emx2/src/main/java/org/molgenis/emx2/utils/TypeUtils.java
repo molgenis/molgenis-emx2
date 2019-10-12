@@ -138,7 +138,7 @@ public class TypeUtils {
     return toStringArray(v);
   }
 
-  public static ColumnType typeOf(Class klazz) throws MolgenisException {
+  public static ColumnType typeOf(Class klazz)  {
     for (ColumnType t : ColumnType.values()) {
       if (t.getType().equals(klazz)) return t;
     }

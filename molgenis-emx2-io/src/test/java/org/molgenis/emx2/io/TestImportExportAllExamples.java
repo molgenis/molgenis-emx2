@@ -23,54 +23,54 @@ public class TestImportExportAllExamples {
   static Database db;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup()  {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testArrayTypeTestExample() throws MolgenisException, IOException {
+  public void testArrayTypeTestExample() , IOException {
     SchemaMetadata schema1 = new SchemaMetadata("1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testCompositePrimaryKeyExample() throws MolgenisException, IOException {
+  public void testCompositePrimaryKeyExample() , IOException {
     SchemaMetadata schema1 = new SchemaMetadata("2");
     CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema1);
     executeCompare(schema1);
   }
 
   //  @Test
-  //  public void testCompositeRefExample() throws MolgenisException, IOException {
+  //  public void testCompositeRefExample() , IOException {
   //    SchemaMetadata schema1 = new SchemaMetadata("3");
   //    CompositeRefExample.createCompositeRefExample(schema1);
   //    executeCompare(schema1);
   //  }
 
   @Test
-  public void testRefAndRefArrayExample() throws MolgenisException, IOException {
+  public void testRefAndRefArrayExample() , IOException {
     SchemaMetadata schema1 = new SchemaMetadata("4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testSimpleTypeTestExample() throws MolgenisException, IOException {
+  public void testSimpleTypeTestExample() , IOException {
     SchemaMetadata schema1 = new SchemaMetadata("5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testProductComponentPartsExample() throws MolgenisException, IOException {
+  public void testProductComponentPartsExample() , IOException {
     SchemaMetadata schema1 = new SchemaMetadata("6");
     ProductComponentPartsExample.create(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testPetStore() throws MolgenisException, IOException {
+  public void testPetStore() , IOException {
     SchemaMetadata schema1 = new SchemaMetadata("7");
     PetStoreExample.create(schema1);
     executeCompare(schema1);

@@ -27,14 +27,14 @@ class SqlTableMetadata extends TableMetadata {
     this.db = db;
   }
 
-  void load() throws MolgenisException {
+  void load() {
     MetadataUtils.loadColumnMetadata(this, columns);
     MetadataUtils.loadTableMetadata(this);
     MetadataUtils.loadUniqueMetadata(this);
   }
 
   @Override
-  public Column getColumn(String name) throws MolgenisException {
+  public Column getColumn(String name) {
     try {
       return super.getColumn(name);
       // in case it has been made by other thread, try to load from backend
@@ -44,7 +44,7 @@ class SqlTableMetadata extends TableMetadata {
     }
   }
 
-  void createTable() throws MolgenisException {
+  void createTable() {
     db.transaction(
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
@@ -71,7 +71,7 @@ class SqlTableMetadata extends TableMetadata {
     return ((SqlSchemaMetadata) getSchema()).getRolePrefix();
   }
 
-  public void dropTable() throws MolgenisException {
+  public void dropTable() {
     try {
       db.getJooq().dropTable(name(getSchema().getName(), getTableName())).execute();
       MetadataUtils.deleteTable(this);
@@ -81,7 +81,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlTableMetadata setPrimaryKey(String... columnNames) throws MolgenisException {
+  public SqlTableMetadata setPrimaryKey(String... columnNames) {
     if (columnNames.length == 0)
       throw new MolgenisException(
           "invalid_primary_key",
@@ -105,7 +105,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlColumn addColumn(String name, ColumnType columnType) throws MolgenisException {
+  public SqlColumn addColumn(String name, ColumnType columnType) {
     SqlColumn c = new SqlColumn(this, name, columnType);
     c.createColumn();
     super.addColumn(c);
@@ -113,12 +113,12 @@ class SqlTableMetadata extends TableMetadata {
     return c;
   }
 
-  protected void addColumnWithoutCreate(Column metadata) throws MolgenisException {
+  protected void addColumnWithoutCreate(Column metadata) {
     super.addColumn(metadata);
   }
 
   @Override
-  public Column addColumn(Column metadata) throws MolgenisException {
+  public Column addColumn(Column metadata) {
     Column result = null;
 
     switch (metadata.getColumnType()) {
@@ -152,7 +152,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public Column addRef(String name, String toTable, String toColumn) throws MolgenisException {
+  public Column addRef(String name, String toTable, String toColumn) {
     RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     super.addColumn(c);
@@ -161,7 +161,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public Column addRefArray(String name, String toTable, String toColumn) throws MolgenisException {
+  public Column addRefArray(String name, String toTable, String toColumn) {
     RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn);
     c.createColumn();
     super.addColumn(c);
@@ -170,12 +170,12 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlReferenceMultiple addRefMultiple(String... names) throws MolgenisException {
+  public SqlReferenceMultiple addRefMultiple(String... names) {
     return new SqlReferenceMultiple(this, REF, names);
   }
 
   @Override
-  public SqlReferenceMultiple addRefArrayMultiple(String... names) throws MolgenisException {
+  public SqlReferenceMultiple addRefArrayMultiple(String... names) {
     return new SqlReferenceMultiple(this, REF_ARRAY, names);
   }
 
@@ -186,8 +186,7 @@ class SqlTableMetadata extends TableMetadata {
       String refColumn,
       String reverseName,
       String reverseRefColumn,
-      String joinTable)
-      throws MolgenisException {
+      String joinTable) {
     MrefSqlColumn c =
         new MrefSqlColumn(
             this, name, refTable, refColumn, reverseName, reverseRefColumn, joinTable);
@@ -202,7 +201,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public void removeColumn(String name) throws MolgenisException {
+  public void removeColumn(String name) {
     db.getJooq().alterTable(getJooqTable()).dropColumn(field(name(name))).execute();
     super.removeColumn(name);
   }
@@ -228,16 +227,16 @@ class SqlTableMetadata extends TableMetadata {
             .fetchOne(0, Integer.class);
   }
 
-  protected void loadPrimaryKey(String[] pkey) throws MolgenisException {
+  protected void loadPrimaryKey(String[] pkey) {
     super.setPrimaryKey(pkey);
   }
 
-  protected void loadUnique(String[] columns) throws MolgenisException {
+  protected void loadUnique(String[] columns) {
     super.addUnique(columns);
   }
 
   @Override
-  public TableMetadata addUnique(String... columnNames) throws MolgenisException {
+  public TableMetadata addUnique(String... columnNames) {
     if (getPrimaryKey().length == 0) {
       this.setPrimaryKey(columnNames); // default first unique is also primary key
     } else {
@@ -253,7 +252,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public void removeUnique(String... columnNames) throws MolgenisException {
+  public void removeUnique(String... columnNames) {
     // try to find the right unique
     String[] correctOrderedNames = null;
     List list1 = Arrays.asList(columnNames);
@@ -337,7 +336,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public void enableRowLevelSecurity() throws MolgenisException {
+  public void enableRowLevelSecurity() {
     SqlColumn c = this.addColumn(MG_EDIT_ROLE, STRING);
     c.setIndexed(true);
 

@@ -23,7 +23,7 @@ public class SqlDatabase implements Database {
   private UserAwareConnectionProvider connectionProvider;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
 
-  public SqlDatabase(DataSource source) throws MolgenisException {
+  public SqlDatabase(DataSource source) {
     connectionProvider = new UserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
@@ -35,7 +35,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public SqlSchema createSchema(String schemaName) throws MolgenisException {
+  public SqlSchema createSchema(String schemaName) {
     if (schemaName == null || schemaName.isEmpty())
       throw new MolgenisException(
           "schema_create_failed",
@@ -48,7 +48,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public SqlSchema getSchema(String name) throws MolgenisException {
+  public SqlSchema getSchema(String name) {
     SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     if (metadata.exists()) {
       SqlSchema schema = new SqlSchema(this, metadata);
@@ -63,7 +63,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void dropSchema(String name) throws MolgenisException {
+  public void dropSchema(String name) {
     try {
       SchemaMetadata schema = getSchema(name).getMetadata();
       getJooq().dropSchema(name(name)).cascade().execute();
@@ -78,7 +78,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public Collection<String> getSchemaNames() throws MolgenisException {
+  public Collection<String> getSchemaNames() {
     Collection<String> result = schemas.keySet();
     if (result.isEmpty()) {
       result = MetadataUtils.loadSchemaNames(this);
@@ -90,7 +90,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void addUser(String user) throws MolgenisException {
+  public void addUser(String user) {
     String userName = MG_USER_PREFIX + user;
 
     try {
@@ -106,7 +106,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void grantCreateSchema(String user) throws MolgenisException {
+  public void grantCreateSchema(String user) {
     try {
       String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
       jooq.execute(
@@ -125,7 +125,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void removeUser(String user) throws MolgenisException {
+  public void removeUser(String user) {
     if (!hasUser(user))
       throw new MolgenisException(
           "remove_user_failed",
@@ -136,7 +136,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void transaction(Transaction transaction) throws MolgenisException {
+  public void transaction(Transaction transaction) {
     // createColumn independent merge of database with transaction connection
     try {
       jooq.transaction(

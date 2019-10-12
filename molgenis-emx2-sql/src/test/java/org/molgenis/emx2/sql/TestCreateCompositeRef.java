@@ -14,48 +14,47 @@ public class TestCreateCompositeRef {
   static Database db;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testInt() throws MolgenisException {
+  public void testInt() {
     executeTest(INT, 5, 6);
   }
 
   @Test
-  public void testString() throws MolgenisException {
+  public void testString() {
     executeTest(STRING, "test", "DependencyOrderOutsideTransactionFails");
   }
 
   @Test
-  public void testDate() throws MolgenisException {
+  public void testDate() {
     executeTest(DATE, "2013-01-01", "2013-01-02");
   }
 
   @Test
-  public void testDateTime() throws MolgenisException {
+  public void testDateTime() {
     executeTest(DATETIME, "2013-01-01T18:00:00", "2013-01-01T18:00:01");
   }
 
   @Test
-  public void testDecimal() throws MolgenisException {
+  public void testDecimal() {
     executeTest(DECIMAL, 5.0, 6.0);
   }
 
   @Test
-  public void testText() throws MolgenisException {
+  public void testText() {
     executeTest(TEXT, "This is a hello world", "This is a hello back to you");
   }
 
   @Test
-  public void testUUID() throws MolgenisException {
+  public void testUUID() {
     executeTest(
         UUID, "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4", "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5");
   }
 
-  private void executeTest(ColumnType columnType, Object insertValue, Object updateValue)
-      throws MolgenisException {
+  private void executeTest(ColumnType columnType, Object insertValue, Object updateValue) {
 
     Schema schema = db.createSchema("TestCreateCompositeRef" + columnType.toString().toUpperCase());
 

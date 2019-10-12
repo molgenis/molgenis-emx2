@@ -27,7 +27,7 @@ public class ProductComponentPartsExample {
     // hide constructor
   }
 
-  public static void create(SchemaMetadata schema) throws MolgenisException {
+  public static void create(SchemaMetadata schema) {
 
     TableMetadata partTable = schema.createTableIfNotExists(PART);
     partTable.addColumn(NAME, STRING);
@@ -45,7 +45,7 @@ public class ProductComponentPartsExample {
     productTable.addRefArray(COMPONENTS, COMPONENT, NAME);
   }
 
-  public static void populate(Schema schema) throws MolgenisException {
+  public static void populate(Schema schema) {
 
     Table partTable = schema.getTable(PART);
     Row part1 = new Row().setString(NAME, FORMS).setInt(WEIGHT, 100);

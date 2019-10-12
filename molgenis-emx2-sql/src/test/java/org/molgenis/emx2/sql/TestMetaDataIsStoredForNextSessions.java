@@ -18,12 +18,12 @@ public class TestMetaDataIsStoredForNextSessions {
   static Database database;
 
   @BeforeClass
-  public static void setup() throws MolgenisException {
+  public static void setup() {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testProductComponentsPartsModel() throws MolgenisException {
+  public void testProductComponentsPartsModel() {
     Schema schema = database.createSchema(SCHEMA_NAME + "1");
     ProductComponentPartsExample.create(schema.getMetadata());
     try {
@@ -34,7 +34,7 @@ public class TestMetaDataIsStoredForNextSessions {
   }
 
   @Test
-  public void testSimpleTypesTest() throws MolgenisException {
+  public void testSimpleTypesTest() {
     Schema schema = database.createSchema(SCHEMA_NAME + "2");
     SimpleTypeTestExample.createSimpleTypeTest(schema.getMetadata());
     try {
@@ -45,7 +45,7 @@ public class TestMetaDataIsStoredForNextSessions {
   }
 
   @Test
-  public void testArrayTypesTest() throws MolgenisException {
+  public void testArrayTypesTest() {
     Schema schema = database.createSchema(SCHEMA_NAME + "3");
     ArrayTypeTestExample.createSimpleTypeTest(schema.getMetadata());
     try {
@@ -56,7 +56,7 @@ public class TestMetaDataIsStoredForNextSessions {
   }
 
   @Test
-  public void testRefAndRefArrayTypesTest() throws MolgenisException {
+  public void testRefAndRefArrayTypesTest() {
     Schema schema = database.createSchema(SCHEMA_NAME + "4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema.getMetadata());
     try {
@@ -67,7 +67,7 @@ public class TestMetaDataIsStoredForNextSessions {
   }
 
   @Test
-  public void testCompsiteRefs() throws MolgenisException {
+  public void testCompsiteRefs() {
     Schema schema = database.createSchema(SCHEMA_NAME + "5");
     CompositeRefExample.createCompositeRefExample(schema.getMetadata());
     try {
@@ -78,7 +78,7 @@ public class TestMetaDataIsStoredForNextSessions {
   }
 
   @Test
-  public void testCompsitePrimaryKeys() throws MolgenisException {
+  public void testCompsitePrimaryKeys() {
     Schema schema = database.createSchema(SCHEMA_NAME + "6");
     CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema.getMetadata());
     try {

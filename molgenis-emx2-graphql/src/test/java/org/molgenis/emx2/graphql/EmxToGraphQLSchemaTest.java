@@ -13,7 +13,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 public class EmxToGraphQLSchemaTest {
 
   @Test
-  public void test1() throws MolgenisException {
+  public void test1() {
     SchemaMetadata m = new SchemaMetadata("test");
 
     TableMetadata t2 = m.createTableIfNotExists("Family");

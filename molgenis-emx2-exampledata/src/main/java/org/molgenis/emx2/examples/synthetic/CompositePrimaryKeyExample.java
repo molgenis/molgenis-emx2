@@ -13,8 +13,7 @@ public class CompositePrimaryKeyExample {
     // hide constructor
   }
 
-  public static void createCompositePrimaryKeyExample(SchemaMetadata schema)
-      throws MolgenisException {
+  public static void createCompositePrimaryKeyExample(SchemaMetadata schema) {
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
 
