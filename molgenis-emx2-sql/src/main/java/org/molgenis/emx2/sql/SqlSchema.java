@@ -235,25 +235,28 @@ public class SqlSchema implements Schema {
           for (String tableName : from.getTableNames()) {
             tableList.add(from.getTableMetadata(tableName));
           }
-
-          // todo circular dependencies
-          Collections.sort(
-              tableList,
-              (a, b) -> {
-                String aName = a.getTableName();
-                String bName = b.getTableName();
-                for (Column c : a.getColumns()) {
-                  if (bName.equals(c.getRefTableName())) return 1;
-                }
-                for (Column c : b.getColumns()) {
-                  if (aName.equals(c.getRefTableName())) return -1;
-                }
-                return 0;
-              });
-
-          for (TableMetadata table : tableList) {
-            this.createTableIfNotExists(table);
-          }
+          sortTablesByDependency(tableList);
         });
+  }
+
+  private void sortTablesByDependency(List<TableMetadata> tableList) {
+    // todo circular dependencies
+    Collections.sort(
+        tableList,
+        (a, b) -> {
+          String aName = a.getTableName();
+          String bName = b.getTableName();
+          for (Column c : a.getColumns()) {
+            if (bName.equals(c.getRefTableName())) return 1;
+          }
+          for (Column c : b.getColumns()) {
+            if (aName.equals(c.getRefTableName())) return -1;
+          }
+          return 0;
+        });
+
+    for (TableMetadata table : tableList) {
+      this.createTableIfNotExists(table);
+    }
   }
 }
