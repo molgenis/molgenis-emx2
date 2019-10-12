@@ -22,13 +22,11 @@ public class MolgenisImport {
     executeImport(new RowStoreForCsvFilesDirectory(directory), schema);
   }
 
-  public static void fromZipFile(Path zipFile, Schema schema)
-      throws IOException, MolgenisException {
+  public static void fromZipFile(Path zipFile, Schema schema) throws IOException {
     executeImport(new RowStoreForCsvInZipFile(zipFile), schema);
   }
 
-  public static void fromExcelFile(Path excelFile, Schema schema)
-      throws IOException, MolgenisException {
+  public static void fromExcelFile(Path excelFile, Schema schema) {
     executeImport(new RowStoreForXlsxFile(excelFile), schema);
   }
 

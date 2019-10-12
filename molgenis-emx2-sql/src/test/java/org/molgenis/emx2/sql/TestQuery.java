@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.util.List;

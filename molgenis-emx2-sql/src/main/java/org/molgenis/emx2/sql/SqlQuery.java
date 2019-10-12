@@ -154,12 +154,13 @@ public class SqlQuery extends QueryBean implements Query {
       String[] path = getPath(select);
       Column column = getColumn(from, path);
       // table alias = from.getTableName + path
-      String tableAlias = from.getTableName();
+      StringBuilder tableAliasBuilder = new StringBuilder(from.getTableName());
       if (path.length > 1) {
         for (int i = 0; i < path.length - 1; i++) {
-          tableAlias += "/" + path[i];
+          tableAliasBuilder.append("/" + path[i]);
         }
       }
+      String tableAlias = tableAliasBuilder.toString();
       if (MREF.equals(column.getColumnType())) {
         // select array(mref_col from mreftable...)
         fields.add(createMrefSubselect(column, tableAlias).as(select));
@@ -224,7 +225,6 @@ public class SqlQuery extends QueryBean implements Query {
     // in case of field operator
     String[] path = getPath(w.getPath());
     StringBuilder tableAlias = new StringBuilder(tableName);
-
     if (path.length > 1) {
       tableAlias.append("/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1)));
     }

@@ -7,9 +7,9 @@ import java.util.List;
 /** compatible with https://tools.ietf.org/html/rfc7807 */
 public class MolgenisException extends RuntimeException {
 
-  protected String title;
-  protected String detail;
-  protected String type;
+  private String title;
+  private String detail;
+  private String type;
 
   private final List<MolgenisExceptionMessage> messages = new ArrayList<>();
 

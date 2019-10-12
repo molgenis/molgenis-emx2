@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
-import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 class SqlTableMetadata extends TableMetadata {
