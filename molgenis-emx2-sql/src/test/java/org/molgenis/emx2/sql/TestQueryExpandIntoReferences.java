@@ -18,7 +18,7 @@ public class TestQueryExpandIntoReferences {
   static Database db;
 
   @BeforeClass
-  public static void setUp() , SQLException {
+  public static void setUp() throws SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
 
     // createColumn a schema to test with
@@ -51,7 +51,7 @@ public class TestQueryExpandIntoReferences {
   }
 
   @Test
-  public void canExpandQueryInReferences()  {
+  public void canExpandQueryInReferences() {
 
     StopWatch.start("canExpandQueryInReferences");
 
@@ -98,7 +98,7 @@ public class TestQueryExpandIntoReferences {
   }
 
   @Test
-  public void CanQueryExpandIntoArrayForeignKeys()  {
+  public void CanQueryExpandIntoArrayForeignKeys() {
     Schema schema = db.getSchema("TestQueryWithRefArray");
 
     StopWatch.start("CanQueryExpandIntoArrayForeignKeys");
