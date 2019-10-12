@@ -77,31 +77,36 @@ public class SqlSchema implements Schema {
             String rolename = roleprefix + m.getRole();
 
             // execute updates database
-            try {
-              // add user if not exists
-              db.addUser(m.getUser());
-
-              // give god powers if 'owner'
-              if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
-                db.getJooq().execute("ALTER ROLE {0} CREATEROLE", name(username));
-              }
-
-              // revoke other roles if user has them
-              for (Member old : currentMembers) {
-                if (old.getUser().equals(m.getUser())) {
-                  db.getJooq()
-                      .execute(
-                          "REVOKE {0} FROM {1}", name(roleprefix + old.getRole()), name(username));
-                }
-              }
-
-              // grant the new role
-              db.getJooq().execute("GRANT {0} TO {1}", name(rolename), name(username));
-            } catch (DataAccessException dae) {
-              throw new SqlMolgenisException("add_members_failed", "Add member failed", dae);
-            }
+            updateMembershipForUser(currentMembers, m, username, rolename);
           }
         });
+  }
+
+  private void updateMembershipForUser(
+      List<Member> currentMembers, Member m, String username, String rolename) {
+    try {
+      // add user if not exists
+      db.addUser(m.getUser());
+
+      // give god powers if 'owner'
+      if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
+        db.getJooq().execute("ALTER ROLE {0} CREATEROLE", name(username));
+      }
+
+      // revoke other roles if user has them
+      for (Member old : currentMembers) {
+        if (old.getUser().equals(m.getUser())) {
+          db.getJooq()
+              .execute(
+                  "REVOKE {0} FROM {1}", name(getRolePrefix() + old.getRole()), name(username));
+        }
+      }
+
+      // grant the new role
+      db.getJooq().execute("GRANT {0} TO {1}", name(rolename), name(username));
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("add_members_failed", "Add member failed", dae);
+    }
   }
 
   @Override
