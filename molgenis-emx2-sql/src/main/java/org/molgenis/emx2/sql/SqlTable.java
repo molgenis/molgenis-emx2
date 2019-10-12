@@ -215,47 +215,53 @@ class SqlTable implements Table {
         }
       }
 
-      Condition whereCondition = null;
-      for (Row r : rows) {
-        Condition rowCondition = null;
-        for (String keyName : keyNames) {
-          Column key = getMetadata().getColumn(keyName);
-          // consider to move this to helper methods
-          ColumnType columnType = key.getColumnType();
-          if (REF.equals(columnType)) {
-            columnType =
-                key.getTable()
-                    .getSchema()
-                    .getTableMetadata(key.getRefTableName())
-                    .getColumn(key.getRefColumnName())
-                    .getColumnType();
-          }
-          if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
-            columnType =
-                TypeUtils.getArrayType(
-                    key.getTable()
-                        .getSchema()
-                        .getTableMetadata(key.getRefTableName())
-                        .getColumn(key.getRefColumnName())
-                        .getColumnType());
-          }
-
-          if (rowCondition == null) {
-            rowCondition =
-                getJooqField(key).eq(cast(r.get(keyName, columnType), getJooqField(key)));
-          } else {
-            rowCondition =
-                rowCondition.and(
-                    getJooqField(key).eq(cast(r.get(keyName, columnType), getJooqField(key))));
-          }
-        }
-        if (whereCondition == null) {
-          whereCondition = rowCondition;
-        } else {
-          whereCondition = whereCondition.or(rowCondition);
-        }
-      }
+      Condition whereCondition = getWhereConditionForBatchDelete(rows, keyNames);
       db.getJooq().deleteFrom(getJooqTable()).where(whereCondition).execute();
+    }
+  }
+
+  private Condition getWhereConditionForBatchDelete(Collection<Row> rows, String[] keyNames) {
+    Condition whereCondition = null;
+    for (Row r : rows) {
+      Condition rowCondition = null;
+      for (String keyName : keyNames) {
+        rowCondition = getRowConditionForBatchDelete(r, rowCondition, keyName);
+      }
+      if (whereCondition == null) {
+        whereCondition = rowCondition;
+      } else {
+        whereCondition = whereCondition.or(rowCondition);
+      }
+    }
+    return whereCondition;
+  }
+
+  private Condition getRowConditionForBatchDelete(Row r, Condition rowCondition, String keyName) {
+    Column key = getMetadata().getColumn(keyName);
+    // consider to move this to helper methods
+    ColumnType columnType = key.getColumnType();
+    if (REF.equals(columnType)) {
+      columnType =
+          key.getTable()
+              .getSchema()
+              .getTableMetadata(key.getRefTableName())
+              .getColumn(key.getRefColumnName())
+              .getColumnType();
+    } else if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
+      columnType =
+          TypeUtils.getArrayType(
+              key.getTable()
+                  .getSchema()
+                  .getTableMetadata(key.getRefTableName())
+                  .getColumn(key.getRefColumnName())
+                  .getColumnType());
+    }
+
+    if (rowCondition == null) {
+      return getJooqField(key).eq(cast(r.get(keyName, columnType), getJooqField(key)));
+    } else {
+      return rowCondition.and(
+          getJooqField(key).eq(cast(r.get(keyName, columnType), getJooqField(key))));
     }
   }
 
