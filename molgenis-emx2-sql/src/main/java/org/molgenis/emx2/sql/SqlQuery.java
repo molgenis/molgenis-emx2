@@ -11,6 +11,7 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.Where;
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
@@ -31,129 +32,14 @@ public class SqlQuery extends QueryBean implements Query {
   public List<Row> retrieve() throws MolgenisException {
 
     try {
-      // todo major pitfall: names as paths might be too long, then we need aliases of some sort to
-      // postprocess
-
-      // 0. if select is empty, then select all columns of 'from'
-      List<String> selectList = getSelectList();
-      if (selectList.isEmpty()) {
-        for (Column c : from.getColumns()) {
-          selectList.add(c.getColumnName());
-        }
-      }
-
-      // 1. create the select clause with tableAliases derived from the paths
       Set<String> tableAliases = new TreeSet<>();
-      List<Field> fields = new ArrayList<>();
-      for (String select : selectList) {
-        String[] path = getPath(select);
-        Column column = getColumn(from, path);
-        // table alias = from.getTableName + path
-        String tableAlias = from.getTableName();
-        if (path.length > 1) {
-          for (int i = 0; i < path.length - 1; i++) {
-            tableAlias += "/" + path[i];
-          }
-        }
-        if (MREF.equals(column.getColumnType())) {
-          // select array(mref_col from mreftable...)
-          fields.add(createMrefSubselect(column, tableAlias).as(select));
-        } else {
-          //
-          fields.add(
-              field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
-                  .as(select));
-        }
-        tableAliases.add(tableAlias);
-      }
-      SelectSelectStep selectStep;
-      if (!fields.isEmpty()) selectStep = jooq.select(fields);
-      else selectStep = jooq.select();
-
-      // 2. create from clause with joins to the ref linked tables
-      SelectJoinStep fromStep =
-          selectStep.from(table(name(from.getSchema().getName(), from.getTableName())));
-      for (String tableAlias : tableAliases) {
-        String[] path = getPath(tableAlias);
-        if (path.length > 1) {
-          Column fkey = getColumn(from, Arrays.copyOfRange(path, 1, path.length));
-          String leftAlias = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
-          switch (fkey.getColumnType()) {
-            case REF:
-              fromStep =
-                  fromStep
-                      .leftJoin(
-                          table(name(from.getSchema().getName(), fkey.getRefTableName()))
-                              .as(name(tableAlias)))
-                      .on(
-                          field(name(leftAlias, fkey.getColumnName()))
-                              .eq(field(name(tableAlias, fkey.getRefColumnName()))));
-              break;
-            case REF_ARRAY:
-              fromStep =
-                  fromStep
-                      .leftJoin(
-                          table(name(from.getSchema().getName(), fkey.getRefTableName()))
-                              .as(name(tableAlias)))
-                      .on(
-                          "{0} = ANY ({1})",
-                          field(name(tableAlias, fkey.getRefColumnName())),
-                          field(name(leftAlias, fkey.getColumnName())));
-              break;
-            case MREF:
-              String joinTable = fkey.getMrefJoinTableName();
-
-              // to link table
-              fromStep =
-                  fromStep
-                      .leftJoin(
-                          table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
-                      .on(
-                          field(name(joinTable, fkey.getRefColumnName()))
-                              .eq(field(name(leftAlias, fkey.getColumnName()))));
-              // to other end of the mref
-              fromStep =
-                  fromStep
-                      .leftJoin(
-                          table(name(from.getSchema().getName(), fkey.getRefTableName()))
-                              .as(name(tableAlias)))
-                      .on(
-                          field(name(joinTable, fkey.getColumnName()))
-                              .eq(field(name(tableAlias, fkey.getRefColumnName()))));
-              break;
-            default:
-              break;
-          }
-        }
-      }
-
-      // todo, the 'from' must also include tableAliases for the 'where' clauses
-
-      // 3. create the where clause
-      Condition filterCondition = createFilterConditions(from.getTableName());
-      Condition searchCondition = createSearchConditions(tableAliases);
-      if (filterCondition != null) {
-        if (searchCondition != null) {
-          fromStep.where(filterCondition).and(searchCondition);
-        } else {
-          fromStep.where(filterCondition);
-        }
-      } else if (searchCondition != null) {
-        fromStep.where(searchCondition);
-      }
+      SelectSelectStep selectStep = createSelectSelectStep(tableAliases);
+      SelectJoinStep fromStep = createFromStep(tableAliases, selectStep);
+      SelectJoinStep whereStep = createWhereStep(tableAliases, fromStep);
 
       System.out.println(fromStep.getSQL());
 
-      // retrieve
-      List<Row> result = new ArrayList<>();
-
-      Result<Record> fetch = fromStep.fetch();
-      for (Record r : fetch) {
-        result.add(new SqlRow(r));
-      }
-      // createColumn the from & joins
-
-      return result;
+      return queryRows(whereStep);
     } catch (MolgenisException e) {
       throw e;
     } catch (Exception e2) {
@@ -161,6 +47,134 @@ public class SqlQuery extends QueryBean implements Query {
         throw new MolgenisException("Query failed:" + e2.getCause().getMessage(), e2);
       else throw new MolgenisException(e2);
     }
+  }
+
+  private List<Row> queryRows(SelectJoinStep whereStep) throws SQLException {
+    List<Row> result = new ArrayList<>();
+    Result<Record> fetch = whereStep.fetch();
+    for (Record r : fetch) {
+      result.add(new SqlRow(r));
+    }
+    return result;
+  }
+
+  private SelectJoinStep createWhereStep(Set<String> tableAliases, SelectJoinStep fromStep) {
+    Condition filterCondition = createFilterConditions(from.getTableName());
+    Condition searchCondition = createSearchConditions(tableAliases);
+    if (filterCondition != null) {
+      if (searchCondition != null) {
+        fromStep.where(filterCondition).and(searchCondition);
+      } else {
+        fromStep.where(filterCondition);
+      }
+    } else if (searchCondition != null) {
+      fromStep.where(searchCondition);
+    }
+    return fromStep;
+  }
+
+  private SelectJoinStep createFromStep(Set<String> tableAliases, SelectSelectStep selectStep) {
+    SelectJoinStep fromStep =
+        selectStep.from(table(name(from.getSchema().getName(), from.getTableName())));
+    for (String tableAlias : tableAliases) {
+      String[] path = getPath(tableAlias);
+      if (path.length > 1) {
+        Column fkey = getColumn(from, Arrays.copyOfRange(path, 1, path.length));
+        String leftAlias = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
+        switch (fkey.getColumnType()) {
+          case REF:
+            fromStep = createRefJoin(fromStep, tableAlias, fkey, leftAlias);
+            break;
+          case REF_ARRAY:
+            fromStep = createRefArrayJoin(fromStep, tableAlias, fkey, leftAlias);
+            break;
+          case MREF:
+            fromStep = createMrefJoin(fromStep, tableAlias, fkey, leftAlias);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    return fromStep;
+  }
+
+  private SelectJoinStep createMrefJoin(
+      SelectJoinStep fromStep, String tableAlias, Column fkey, String leftAlias) {
+    String joinTable = fkey.getMrefJoinTableName();
+
+    // to link table
+    fromStep =
+        fromStep
+            .leftJoin(table(name(from.getSchema().getName(), joinTable)).as(name(joinTable)))
+            .on(
+                field(name(joinTable, fkey.getRefColumnName()))
+                    .eq(field(name(leftAlias, fkey.getColumnName()))));
+    // to other end of the mref
+    fromStep = createRefJoin(fromStep, tableAlias, fkey, joinTable);
+    return fromStep;
+  }
+
+  private SelectJoinStep createRefArrayJoin(
+      SelectJoinStep fromStep, String tableAlias, Column fkey, String leftAlias) {
+    fromStep =
+        fromStep
+            .leftJoin(
+                table(name(from.getSchema().getName(), fkey.getRefTableName()))
+                    .as(name(tableAlias)))
+            .on(
+                "{0} = ANY ({1})",
+                field(name(tableAlias, fkey.getRefColumnName())),
+                field(name(leftAlias, fkey.getColumnName())));
+    return fromStep;
+  }
+
+  private SelectJoinStep createRefJoin(
+      SelectJoinStep fromStep, String tableAlias, Column fkey, String leftAlias) {
+    fromStep =
+        fromStep
+            .leftJoin(
+                table(name(from.getSchema().getName(), fkey.getRefTableName()))
+                    .as(name(tableAlias)))
+            .on(
+                field(name(leftAlias, fkey.getColumnName()))
+                    .eq(field(name(tableAlias, fkey.getRefColumnName()))));
+    return fromStep;
+  }
+
+  private SelectSelectStep createSelectSelectStep(Set<String> tableAliases) {
+    List<String> selectList = getSelectList();
+    if (selectList.isEmpty()) {
+      for (Column c : from.getColumns()) {
+        selectList.add(c.getColumnName());
+      }
+    }
+    List<Field> fields = new ArrayList<>();
+    for (String select : selectList) {
+      String[] path = getPath(select);
+      Column column = getColumn(from, path);
+      // table alias = from.getTableName + path
+      String tableAlias = from.getTableName();
+      if (path.length > 1) {
+        for (int i = 0; i < path.length - 1; i++) {
+          tableAlias += "/" + path[i];
+        }
+      }
+      if (MREF.equals(column.getColumnType())) {
+        // select array(mref_col from mreftable...)
+        fields.add(createMrefSubselect(column, tableAlias).as(select));
+      } else {
+        //
+        fields.add(
+            field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
+                .as(select));
+      }
+      tableAliases.add(tableAlias);
+    }
+    SelectSelectStep selectStep;
+    if (!fields.isEmpty()) selectStep = jooq.select(fields);
+    else selectStep = jooq.select();
+    return selectStep;
   }
 
   private Condition createSearchConditions(Set<String> tableAliases) {
