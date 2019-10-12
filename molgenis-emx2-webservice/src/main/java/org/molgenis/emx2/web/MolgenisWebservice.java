@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.json.JsonMembersMapper.jsonToMembers;
 import static org.molgenis.emx2.web.json.JsonMembersMapper.membersToJson;
 import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
@@ -106,10 +107,7 @@ public class MolgenisWebservice {
         (e, req, res) -> {
           res.status(400);
           res.type(ACCEPT_JSON);
-          res.body(
-              String.format(
-                  "{\n\t\"type\":\"%s\",\n\t\"title\":\"%s\",\n\t\"detail\":\"%s\"\n}",
-                  e.getType(), e.getTitle(), e.getDetail())); // NOSONAR
+          res.body(molgenisExceptionToJson(e));
         });
   }
 
