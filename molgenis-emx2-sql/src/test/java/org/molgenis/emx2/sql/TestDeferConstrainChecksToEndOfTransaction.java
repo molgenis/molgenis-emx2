@@ -14,6 +14,7 @@ public class TestDeferConstrainChecksToEndOfTransaction {
 
   public TestDeferConstrainChecksToEndOfTransaction() {}
 
+  @Test
   public void DependencyOrderNotNeededInTransaction() {
 
     StopWatch.start("DependencyOrderNotNeededInTransaction");

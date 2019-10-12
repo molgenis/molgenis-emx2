@@ -1,11 +1,10 @@
-package org.molgenis.emx2.sql; // package org.molgenis.sql;
+package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.util.List;

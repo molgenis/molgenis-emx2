@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.utils.StopWatch;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.sql.SQLException;
 import java.util.List;

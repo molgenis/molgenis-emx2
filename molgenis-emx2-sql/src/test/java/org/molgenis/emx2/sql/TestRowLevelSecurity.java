@@ -6,7 +6,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.sql.SQLException;
 
@@ -20,12 +19,12 @@ public class TestRowLevelSecurity {
   private static Database database;
 
   @BeforeClass
-  public static void setUp() , SQLException {
+  public static void setUp() throws SQLException {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testRls()  {
+  public void testRls() {
     try {
       // create schema
       Schema s = database.createSchema(TEST_RLS);

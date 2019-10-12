@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.Serializable;
 import java.util.Arrays;

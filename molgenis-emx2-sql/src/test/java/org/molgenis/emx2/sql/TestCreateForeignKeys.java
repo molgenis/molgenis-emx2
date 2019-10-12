@@ -7,7 +7,6 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.ColumnType.*;

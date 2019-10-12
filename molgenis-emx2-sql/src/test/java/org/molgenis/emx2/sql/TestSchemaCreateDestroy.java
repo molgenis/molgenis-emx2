@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.sql.SQLException;
@@ -15,12 +14,12 @@ public class TestSchemaCreateDestroy {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() , SQLException {
+  public static void setUp() throws SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void schemaCrudTest()  {
+  public void schemaCrudTest() {
     try {
       db.createSchema("");
       fail("Schema createTableIfNotExists should fail on empty name");

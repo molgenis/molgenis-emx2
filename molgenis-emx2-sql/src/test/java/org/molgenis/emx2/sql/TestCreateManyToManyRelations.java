@@ -1,22 +1,17 @@
 package org.molgenis.emx2.sql;
 
-import org.javers.common.collections.Lists;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.StopWatch;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.ANY;

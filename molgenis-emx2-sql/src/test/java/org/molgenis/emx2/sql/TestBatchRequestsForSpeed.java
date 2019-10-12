@@ -8,7 +8,6 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.sql.SQLException;
