@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import com.sun.istack.internal.NotNull;
+
 import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {
@@ -14,13 +16,10 @@ public class Column {
   private String reverseRefColumn;
   private String joinTable;
   private boolean readonly;
-  private String visible;
   private String description;
-  private String validation;
   private String defaultValue;
 
   public Column(TableMetadata table, String columnName, ColumnType columnType) {
-    // todo check not null
     this.table = table;
     this.columnName = columnName;
     this.columnType = columnType;
@@ -34,7 +33,6 @@ public class Column {
     return this.getTable().addColumn(name, columnType);
   }
 
-  // todo can we remove these and instead use setReference and setReverseReference?
   public Column addRef(String name, String toTable) {
     return this.getTable().addRef(name, toTable);
   }
@@ -89,7 +87,6 @@ public class Column {
   }
 
   public Column getRefColumn() {
-    // todo: should return primary key column?
     if (getRefColumnName() == null) return null;
     else
       return getTable()

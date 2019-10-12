@@ -171,10 +171,7 @@ public class TableMetadata {
   }
 
   public boolean isPrimaryKey(String... names) {
-    if (Arrays.equals(names, this.primaryKey)) {
-      return true;
-    }
-    return false;
+    return Arrays.equals(names, this.primaryKey);
   }
 
   public void removeUnique(String... keys) {

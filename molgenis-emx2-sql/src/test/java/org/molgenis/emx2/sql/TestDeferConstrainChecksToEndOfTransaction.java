@@ -14,23 +14,6 @@ public class TestDeferConstrainChecksToEndOfTransaction {
 
   public TestDeferConstrainChecksToEndOfTransaction() {}
 
-  @Test
-  public void DependencyOrderNotNeededInTransaction() {
-
-    StopWatch.start("DependencyOrderNotNeededInTransaction");
-    try {
-      database.transaction(
-          db -> {
-            runTestCase(db);
-
-            StopWatch.print("data added (in wrong dependency order, how cool is that??)");
-          });
-    } catch (Exception e) {
-      fail("should not fail, dependency order should be deferred");
-    }
-    StopWatch.print("transaction committed)");
-  }
-
   @Test(expected = MolgenisException.class)
   public void DependencyOrderOutsideTransactionFails() {
     runTestCase(database);

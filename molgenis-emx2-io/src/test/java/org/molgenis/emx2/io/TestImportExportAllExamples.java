@@ -23,19 +23,19 @@ public class TestImportExportAllExamples {
   static Database db;
 
   @BeforeClass
-  public static void setup()  {
+  public static void setup() {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testArrayTypeTestExample() , IOException {
+  public void testArrayTypeTestExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testCompositePrimaryKeyExample() , IOException {
+  public void testCompositePrimaryKeyExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("2");
     CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema1);
     executeCompare(schema1);
@@ -49,28 +49,28 @@ public class TestImportExportAllExamples {
   //  }
 
   @Test
-  public void testRefAndRefArrayExample() , IOException {
+  public void testRefAndRefArrayExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testSimpleTypeTestExample() , IOException {
+  public void testSimpleTypeTestExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testProductComponentPartsExample() , IOException {
+  public void testProductComponentPartsExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("6");
     ProductComponentPartsExample.create(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testPetStore() , IOException {
+  public void testPetStore() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("7");
     PetStoreExample.create(schema1);
     executeCompare(schema1);
