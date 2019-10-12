@@ -37,8 +37,6 @@ public class SqlQuery extends QueryBean implements Query {
       SelectJoinStep fromStep = createFromStep(tableAliases, selectStep);
       SelectJoinStep whereStep = createWhereStep(tableAliases, fromStep);
 
-      System.out.println(fromStep.getSQL());
-
       return queryRows(whereStep);
     } catch (MolgenisException e) {
       throw e;
