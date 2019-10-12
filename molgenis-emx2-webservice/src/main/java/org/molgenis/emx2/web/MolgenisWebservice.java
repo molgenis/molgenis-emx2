@@ -108,7 +108,7 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(
               String.format(
-                  "{%n\t\"type\":\"%s\",%n\t\"title\":\"%s\",%n\t\"detail\":\"%s\"%n}",
+                  "{\n\t\"type\":\"%s\",\n\t\"title\":\"%s\",\n\t\"detail\":\"%s\"\n}",
                   e.getType(), e.getTitle(), e.getDetail()));
         });
   }
