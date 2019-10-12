@@ -18,8 +18,7 @@ public class MolgenisImport {
     // hide constructor
   }
 
-  public static void fromDirectory(Path directory, Schema schema)
-      , IOException {
+  public static void fromDirectory(Path directory, Schema schema) throws IOException {
     executeImport(new RowStoreForCsvFilesDirectory(directory), schema);
   }
 
@@ -33,7 +32,7 @@ public class MolgenisImport {
     executeImport(new RowStoreForXlsxFile(excelFile), schema);
   }
 
-  static void executeImport(RowStore store, Schema schema)  {
+  static void executeImport(RowStore store, Schema schema) {
     schema.transaction(
         db -> {
           // read metadata, if available

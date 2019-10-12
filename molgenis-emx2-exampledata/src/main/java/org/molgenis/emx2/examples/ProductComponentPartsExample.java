@@ -1,6 +1,5 @@
 package org.molgenis.emx2.examples;
 
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;

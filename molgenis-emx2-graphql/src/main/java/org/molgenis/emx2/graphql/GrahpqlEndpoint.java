@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;

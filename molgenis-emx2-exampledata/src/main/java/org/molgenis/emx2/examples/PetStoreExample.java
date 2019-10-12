@@ -1,7 +1,6 @@
 package org.molgenis.emx2.examples;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;

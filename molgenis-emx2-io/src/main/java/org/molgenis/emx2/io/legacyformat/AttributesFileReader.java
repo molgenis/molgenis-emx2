@@ -19,7 +19,7 @@ public class AttributesFileReader {
   public static final String PARSING_OF_ATTRIBUTES_FILE_FAILED =
       "Parsing of attributes file failed";
 
-  public SchemaMetadata readModelFromCsv(File f) throws FileNotFoundException, MolgenisException {
+  public SchemaMetadata readModelFromCsv(File f) throws FileNotFoundException {
     return convertAttributesToModel(readRowsFromCsv(new FileReader(f)));
   }
 

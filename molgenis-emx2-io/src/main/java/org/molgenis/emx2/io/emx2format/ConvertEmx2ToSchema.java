@@ -20,15 +20,15 @@ public class ConvertEmx2ToSchema {
     // hides constructor
   }
 
-  public static SchemaMetadata fromCsvFile(File file) throws IOException, MolgenisException {
+  public static SchemaMetadata fromCsvFile(File file) throws IOException {
     return fromRowList(CsvRowReader.readList(new FileReader(file)));
   }
 
-  public static SchemaMetadata fromReader(Reader reader) throws IOException, MolgenisException {
+  public static SchemaMetadata fromReader(Reader reader) throws IOException {
     return fromRowList(CsvRowReader.readList(reader));
   }
 
-  public static SchemaMetadata fromRowList(List<Row> rows)  {
+  public static SchemaMetadata fromRowList(List<Row> rows) {
     List<Emx2FileRow> typedRows = new ArrayList<>();
     for (Row r : rows) {
       typedRows.add(new Emx2FileRow(r));
@@ -36,8 +36,7 @@ public class ConvertEmx2ToSchema {
     return executeLoadProcedure(typedRows);
   }
 
-  private static SchemaMetadata executeLoadProcedure(List<Emx2FileRow> rows)
-       {
+  private static SchemaMetadata executeLoadProcedure(List<Emx2FileRow> rows) {
     SchemaMetadata schema = new SchemaMetadata();
     List<MolgenisExceptionMessage> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
@@ -49,8 +48,7 @@ public class ConvertEmx2ToSchema {
     return schema;
   }
 
-  private static void loadTablesFirst(List<Emx2FileRow> rows, SchemaMetadata schema)
-       {
+  private static void loadTablesFirst(List<Emx2FileRow> rows, SchemaMetadata schema) {
     for (Emx2FileRow row : rows) {
       String tableName = row.getTable();
       if (!"".equals(tableName)) {
@@ -61,8 +59,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static void loadTableProperties(
-      SchemaMetadata model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages)
-       {
+      SchemaMetadata model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages) {
     int line = 1;
     for (Emx2FileRow row : rows) {
       line++;
@@ -79,8 +76,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static void extractTableDefinition(
-      int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionMessage> messages)
-       {
+      int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionMessage> messages) {
 
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
@@ -98,8 +94,7 @@ public class ConvertEmx2ToSchema {
   }
 
   private static void loadColumns(
-      List<Emx2FileRow> rows, SchemaMetadata model, List<MolgenisExceptionMessage> messages)
-       {
+      List<Emx2FileRow> rows, SchemaMetadata model, List<MolgenisExceptionMessage> messages) {
     int line = 1;
     for (Emx2FileRow row : rows) {
       line++;
@@ -131,8 +126,7 @@ public class ConvertEmx2ToSchema {
       String columnName,
       TableMetadata table,
       int line,
-      List<MolgenisExceptionMessage> messages)
-       {
+      List<MolgenisExceptionMessage> messages) {
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     ColumnType columnType = getType(def);
 

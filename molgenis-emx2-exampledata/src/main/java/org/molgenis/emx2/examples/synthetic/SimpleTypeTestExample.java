@@ -3,7 +3,6 @@ package org.molgenis.emx2.examples.synthetic;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.ColumnType.DATETIME;

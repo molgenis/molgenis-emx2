@@ -6,7 +6,6 @@ import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
 import org.molgenis.emx2.io.stores.RowStoreForXlsxFile;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,7 +20,7 @@ public class MolgenisExport {
     executeExport(new RowStoreForCsvFilesDirectory(directory), schema);
   }
 
-  public static void toZipFile(Path zipFile, Schema schema) throws IOException, MolgenisException {
+  public static void toZipFile(Path zipFile, Schema schema) throws IOException {
     executeExport(new RowStoreForCsvInZipFile(zipFile), schema);
   }
 

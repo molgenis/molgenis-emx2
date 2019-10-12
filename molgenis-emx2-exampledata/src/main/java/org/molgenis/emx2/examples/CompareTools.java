@@ -6,14 +6,12 @@ import org.javers.core.diff.Diff;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import static junit.framework.TestCase.fail;
 
