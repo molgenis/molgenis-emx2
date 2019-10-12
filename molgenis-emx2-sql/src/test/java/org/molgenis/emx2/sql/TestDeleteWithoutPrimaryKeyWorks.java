@@ -16,12 +16,12 @@ public class TestDeleteWithoutPrimaryKeyWorks {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() , SQLException {
+  public static void setUp() throws SQLException {
     db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testDelete()  {
+  public void testDelete() {
     Schema schema = db.createSchema(getClass().getSimpleName());
 
     Table table = schema.createTableIfNotExists("Test");
