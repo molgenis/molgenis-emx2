@@ -8,6 +8,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JsonExceptionMapper {
+
+  private JsonExceptionMapper() {
+    // hide public constructor
+  }
+
   public static String molgenisExceptionToJson(MolgenisException e) {
     Map map = new LinkedHashMap();
     map.put("type", e.getType());
