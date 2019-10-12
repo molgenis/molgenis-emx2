@@ -65,10 +65,6 @@ public class SchemaMetadata {
     return table;
   }
 
-  public Boolean tableIsCached(String name) {
-    return tables.containsKey(name);
-  }
-
   public void dropTable(String tableId) {
     tables.remove(tableId);
   }

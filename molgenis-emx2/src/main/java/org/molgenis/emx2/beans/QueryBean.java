@@ -1,7 +1,6 @@
 package org.molgenis.emx2.beans;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.Serializable;
 import java.util.*;
@@ -131,7 +130,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public List<Row> retrieve()  {
+  public List<Row> retrieve() {
     if (parent != null) return parent.retrieve();
     else throw new UnsupportedOperationException();
   }

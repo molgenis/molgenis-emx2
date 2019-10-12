@@ -17,12 +17,12 @@ public class TestGrantRolesToUsers {
   private static Database database;
 
   @BeforeClass
-  public static void setUp() , SQLException {
+  public static void setUp() throws SQLException {
     database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
   }
 
   @Test
-  public void testGrantRevokeMembership()  {
+  public void testGrantRevokeMembership() {
 
     Schema schema = database.createSchema("testGrantRevokeMembership");
     assertEquals(Arrays.asList("Viewer", "Editor", "Manager", "Owner"), schema.getRoles());
@@ -40,7 +40,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
-  public void testRolePermissions()  {
+  public void testRolePermissions() {
 
     StopWatch.start("start: testRolePermissions()");
 
@@ -128,7 +128,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
-  public void testRole()  {
+  public void testRole() {
     try {
       Schema schema = database.createSchema("testRole");
       database.addUser("testadmin");

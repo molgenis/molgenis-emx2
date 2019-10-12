@@ -127,8 +127,7 @@ public class MolgenisWebservice {
     return "" + members.size();
   }
 
-  private static String membersPost(Request request, Response response)
-      , IOException {
+  private static String membersPost(Request request, Response response) throws IOException {
     List<Member> members = jsonToMembers(request.body());
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     schema.addMembers(members);
@@ -137,7 +136,7 @@ public class MolgenisWebservice {
   }
 
   private static String membersGet(Request request, Response response)
-      , JsonProcessingException {
+      throws JsonProcessingException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     response.status(200);
     response.type(ACCEPT_JSON);
@@ -145,7 +144,7 @@ public class MolgenisWebservice {
   }
 
   private static String tablesMetadataGetCSV(Request request, Response response)
-      , IOException {
+      throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     StringWriter writer = new StringWriter();
     ConvertSchemaToEmx2.toCsv(schema.getMetadata(), writer);
@@ -154,7 +153,7 @@ public class MolgenisWebservice {
   }
 
   private static String tablesMetadataANDdataGetExcel(Request request, Response response)
-      , IOException {
+      throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
     tempDir.toFile().deleteOnExit();
@@ -174,20 +173,20 @@ public class MolgenisWebservice {
   }
 
   private static String tablesMetadataGetJSON(Request request, Response response)
-      , IOException {
+      throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     String json = schemaToJson(schema.getMetadata());
     response.status(200);
     return json;
   }
 
-  private static String tablesDelete(Request request, Response response)  {
+  private static String tablesDelete(Request request, Response response) {
     getAuthenticatedDatabase(request).dropSchema(request.params(SCHEMA));
     response.status(200);
     return "Delete schema success";
   }
 
-  private static String schemasPost(Request request, Response response)  {
+  private static String schemasPost(Request request, Response response) {
     Row row = jsonToRow(request.body());
     // todo validate
     getAuthenticatedDatabase(request).createSchema(row.getString("name"));
@@ -196,7 +195,7 @@ public class MolgenisWebservice {
   }
 
   private static String tablesMetadataANDdataGetZip(Request request, Response response)
-      , IOException {
+      throws IOException {
 
     Path tempDir = Files.createTempDirectory("tempfiles-delete-on-exit");
     tempDir.toFile().deleteOnExit();
@@ -221,7 +220,7 @@ public class MolgenisWebservice {
   }
 
   private static String tablesMetadataANDdataPostFile(Request request, Response response)
-      , IOException, ServletException {
+      throws IOException, ServletException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     // get uploaded file
     File tempFile = File.createTempFile("tempfiles-delete-on-exit", ".tmp");
@@ -256,8 +255,7 @@ public class MolgenisWebservice {
     return tempFile;
   }
 
-  private static String rowsGet(Request request, Response response)
-      , IOException {
+  private static String rowsGet(Request request, Response response) throws IOException {
     // retrieve data
     Table table =
         getAuthenticatedDatabase(request)
@@ -279,8 +277,7 @@ public class MolgenisWebservice {
     throw new UnsupportedOperationException("unsupported content type: " + request.contentType());
   }
 
-  private static String openApiListSchemas(Request request, Response response)
-       {
+  private static String openApiListSchemas(Request request, Response response) {
     StringBuilder result = new StringBuilder();
     for (String name : getAuthenticatedDatabase(request).getSchemaNames()) {
       result.append("<a href=\"" + request.url() + "/" + name + "\">" + name + "</a><br/>");
@@ -288,8 +285,7 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String rowsPost(Request request, Response response)
-      , IOException {
+  private static String rowsPost(Request request, Response response) throws IOException {
     Table table =
         getAuthenticatedDatabase(request)
             .getSchema(request.params(SCHEMA))
@@ -301,8 +297,7 @@ public class MolgenisWebservice {
     return "" + count;
   }
 
-  private static String rowsDelete(Request request, Response response)
-      , IOException {
+  private static String rowsDelete(Request request, Response response) throws IOException {
     Table table =
         getAuthenticatedDatabase(request)
             .getSchema(request.params(SCHEMA))
@@ -325,8 +320,7 @@ public class MolgenisWebservice {
     throw new UnsupportedOperationException("unsupported content type: " + request.contentType());
   }
 
-  private static String openApiYaml(Request request, Response response)
-      , IOException {
+  private static String openApiYaml(Request request, Response response) throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema.getMetadata());
     response.status(200);
@@ -340,7 +334,7 @@ public class MolgenisWebservice {
     return SwaggerUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
-  private static String schemasGet(Request request, Response response)  {
+  private static String schemasGet(Request request, Response response) {
     response.status(200);
     Map<String, String> schemas = new LinkedHashMap<>();
     for (String schemaName : getAuthenticatedDatabase(request).getSchemaNames()) {
@@ -349,7 +343,7 @@ public class MolgenisWebservice {
     return JsonStream.serialize(schemas);
   }
 
-  private static Database getAuthenticatedDatabase(Request request)  {
+  private static Database getAuthenticatedDatabase(Request request) {
     String token = request.headers(MOLGENIS_TOKEN);
     if (token == null) token = "anonymous";
 

@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.utils.MolgenisException;
-
 import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {

@@ -74,9 +74,9 @@ public class SqlSchema implements Schema {
 
             String username = Constants.MG_USER_PREFIX + m.getUser();
             String roleprefix = getRolePrefix();
-            String rolename = getRolePrefix() + m.getRole();
+            String rolename = roleprefix + m.getRole();
 
-            // execugte updates database
+            // execute updates database
             try {
               // add user if not exists
               db.addUser(m.getUser());
