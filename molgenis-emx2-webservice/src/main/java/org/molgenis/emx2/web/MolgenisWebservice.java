@@ -344,7 +344,6 @@ public class MolgenisWebservice {
         t -> {
           SqlDatabase database = new SqlDatabase(dataSource);
           database.setActiveUser(token);
-          databaseForRole.put(token, database);
           return database;
         });
   }
