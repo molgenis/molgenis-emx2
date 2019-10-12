@@ -8,6 +8,10 @@ import java.util.List;
 public class Schema {
   private List<Table> tables = new ArrayList<>();
 
+  public Schema() {
+    // for json serialization
+  }
+
   public Schema(SchemaMetadata schema) {
     for (String tableName : schema.getTableNames()) {
       tables.add(new Table(schema.getTableMetadata(tableName)));
