@@ -192,4 +192,8 @@ public class Column {
   public Boolean getIndexed() {
     return indexed;
   }
+
+  public Boolean isPrimaryKey() {
+    return getTable().isPrimaryKey(getColumnName());
+  }
 }
