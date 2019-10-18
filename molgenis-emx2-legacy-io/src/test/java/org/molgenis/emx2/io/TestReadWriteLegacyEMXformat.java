@@ -13,12 +13,12 @@ public class TestReadWriteLegacyEMXformat {
   @Test
   public void test() throws IOException {
 
-    ClassLoader classLoader = getClass().getClassLoader();
-    File file = new File(classLoader.getResource("bbmri-nl").getFile());
-
-    RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(file.toPath(), ';');
-
-    SchemaMetadata schema = Emx1ToSchema.convert(store);
-    System.out.println(schema.toString());
+    //    ClassLoader classLoader = getClass().getClassLoader();
+    //    File file = new File(classLoader.getResource("bbmri-nl").getFile());
+    //
+    //    RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(file.toPath(), ';');
+    //
+    //    SchemaMetadata schema = Emx1ToSchema.convert(store);
+    //    System.out.println(schema.toString());
   }
 }
