@@ -16,6 +16,7 @@ public class Column {
   private boolean readonly;
   private String description;
   private String defaultValue;
+  private Boolean indexed;
 
   public Column(TableMetadata table, String columnName, ColumnType columnType) {
     this.table = table;
@@ -103,8 +104,10 @@ public class Column {
     builder.append(getColumnName()).append(" ");
     if (ColumnType.REF.equals(getColumnType()))
       builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
+    else if (ColumnType.MREF.equals(getColumnType()))
+      builder.append("mref(").append(refTableName).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());
-    if (Boolean.TRUE.equals(getNullable())) builder.append(" setNullable");
+    if (Boolean.TRUE.equals(getNullable())) builder.append(" nullable");
     return builder.toString();
   }
 
@@ -181,7 +184,12 @@ public class Column {
     return this;
   }
 
-  public boolean isPrimaryKey() {
-    return table.isPrimaryKey(this.getColumnName());
+  public Column setIndexed(boolean indexed) {
+    this.indexed = indexed;
+    return this;
+  };
+
+  public Boolean getIndexed() {
+    return indexed;
   }
 }

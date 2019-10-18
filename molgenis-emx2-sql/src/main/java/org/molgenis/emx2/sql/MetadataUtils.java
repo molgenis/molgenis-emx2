@@ -7,9 +7,9 @@ import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.BOOLEAN;
@@ -34,18 +34,20 @@ public class MetadataUtils {
       field(name("table_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_PRIMARYKEY =
       field(name(MOLGENIS, "table_primary_key"), SQLDataType.VARCHAR(255).getArrayDataType());
+  private static final org.jooq.Field TABLE_INHERITS =
+      field(name("table_inherits"), VARCHAR.nullable(true));
 
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
-  private static final org.jooq.Field NULLABLE =
-      field(name("setNullable"), BOOLEAN.nullable(false));
+  private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_COLUMN =
       field(name("ref_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field UNIQUE_COLUMNS =
       field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
+  private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
 
   private MetadataUtils() {
     // to hide the public constructor
@@ -66,7 +68,7 @@ public class MetadataUtils {
       // public access
 
       jooq.createTableIfNotExists(TABLE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY)
+          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY, TABLE_INHERITS)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME),
               foreignKey(TABLE_SCHEMA)
@@ -77,7 +79,14 @@ public class MetadataUtils {
 
       jooq.createTableIfNotExists(COLUMN_METADATA)
           .columns(
-              TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, REF_TABLE, REF_COLUMN)
+              TABLE_SCHEMA,
+              TABLE_NAME,
+              COLUMN_NAME,
+              DATA_TYPE,
+              NULLABLE,
+              REF_TABLE,
+              REF_COLUMN,
+              INDEXED)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
               foreignKey(TABLE_SCHEMA, TABLE_NAME)
@@ -159,11 +168,16 @@ public class MetadataUtils {
     table
         .getJooq()
         .insertInto(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY)
-        .values(table.getSchema().getName(), table.getTableName(), table.getPrimaryKey())
+        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY, TABLE_INHERITS)
+        .values(
+            table.getSchema().getName(),
+            table.getTableName(),
+            table.getPrimaryKey(),
+            table.getInherits())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
         .set(TABLE_PRIMARYKEY, table.getPrimaryKey())
+        .set(TABLE_INHERITS, table.getInherits())
         .execute();
   }
 
@@ -183,6 +197,8 @@ public class MetadataUtils {
     }
     String[] pkey = tableRecord.get(TABLE_PRIMARYKEY, String[].class);
     if (pkey.length > 0) table.loadPrimaryKey(pkey);
+
+    table.loadInherits(tableRecord.get(TABLE_INHERITS, String.class));
   }
 
   protected static void deleteTable(SqlTableMetadata table) {
@@ -197,7 +213,15 @@ public class MetadataUtils {
     column
         .getJooq()
         .insertInto(COLUMN_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, REF_TABLE, REF_COLUMN)
+        .columns(
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            COLUMN_NAME,
+            DATA_TYPE,
+            NULLABLE,
+            REF_TABLE,
+            REF_COLUMN,
+            INDEXED)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -205,13 +229,15 @@ public class MetadataUtils {
             column.getColumnType(),
             column.getNullable(),
             column.getRefTableName(),
-            column.getRefColumnName())
+            column.getRefColumnName(),
+            column.getIndexed())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
         .set(NULLABLE, column.getNullable())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
+        .set(INDEXED, column.getIndexed())
         .execute();
   }
 
@@ -266,7 +292,8 @@ public class MetadataUtils {
     }
   }
 
-  protected static void loadColumnMetadata(SqlTableMetadata table, Map<String, Column> columnMap) {
+  protected static List<Column> loadColumnMetadata(SqlTableMetadata table) {
+    List<Column> columnList = new ArrayList<>();
     // load tables and columns
     Collection<Record> columnRecords =
         table
@@ -285,20 +312,17 @@ public class MetadataUtils {
       String toColumn = col.get(REF_COLUMN, String.class);
       switch (columnColumnType) {
         case REF:
-          columnMap.put(
-              columnName,
+          columnList.add(
               new RefSqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         case REF_ARRAY:
-          columnMap.put(
-              columnName,
+          columnList.add(
               new RefArraySqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         default:
-          columnMap.put(
-              columnName,
-              new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));
+          columnList.add(new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));
       }
     }
+    return columnList;
   }
 }

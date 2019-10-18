@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
 import org.junit.Test;
-import org.molgenis.emx2.io.emx2format.Emx2PropertyList;
+import org.molgenis.emx2.io.emx2.Emx2PropertyList;
 import org.molgenis.emx2.utils.MolgenisExceptionMessage;
 
 import java.util.ArrayList;

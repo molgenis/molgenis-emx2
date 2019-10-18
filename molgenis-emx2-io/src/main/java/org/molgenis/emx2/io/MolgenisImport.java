@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.io.emx2format.ConvertEmx2ToSchema;
+import org.molgenis.emx2.io.emx2.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.stores.RowStoreForXlsxFile;
 import org.molgenis.emx2.io.stores.RowStore;

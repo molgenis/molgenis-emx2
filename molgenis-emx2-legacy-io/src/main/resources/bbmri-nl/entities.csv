@@ -1,0 +1,23 @@
+﻿name;package;extends;abstract;backend;tags;label;description;description-de;label-de;description-en;label-en;description-es;label-es;description-fr;label-fr;description-it;label-it;description-nl;label-nl;description-pt;label-pt;description-xx;label-xx
+ontology_term;bbmri_nl;;true;;;Ontology Term;;;;;;;;;;;;;;;;;
+age_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Units of time;;;;;;;;;;;;;;;;;
+biobanks;bbmri_nl;;false;;;Biobanks;Biobanks;;;;;;;;;;;;;;;;
+body_parts;bbmri_nl;;false;;;Body parts;;;;;;;;;;;;;;;;;
+cohorts;bbmri_nl;;false;;;Cohorts;;;;;;;;;;;;;;;;;
+collection_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Collection types;;;;;;;;;;;;;;;;;
+countries;bbmri_nl;;false;;;Countries;Country codes;;;;;;;;;;;;;;;;
+data_category_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Data categories;;;;;;;;;;;;;;;;;
+disease_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Diseases;;;;;;;;;;;;;;;;;
+exp_data_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Experimental data types;;;;;;;;;;;;;;;;;
+imaging_data;bbmri_nl;;false;;;Imaging data;;;;;;;;;;;;;;;;;
+juristic_persons;bbmri_nl;;false;;;Organisations;Organisations;;;;;;;;;;;;;;;;
+material_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Material types;;;;;;;;;;;;;;;;;
+modalities;bbmri_nl;;false;;;Modalities;;;;;;;;;;;;;;;;;
+persons;bbmri_nl;;false;;;Persons;Persons;;;;;;;;;;;;;;;;
+podium;bbmri_nl;;false;;;Podium;Podium;;;;;;;;;;;;;;;;
+publications;bbmri_nl;;false;;;Publications;Publications;;;;;;;;;;;;;;;;
+sample_collections;bbmri_nl;;false;;;Sample Collections;Sample Collections;;;;;;;;;;;;;;;;
+sample_size_types;bbmri_nl;;false;;;Sample Size;Sample Size;;;;;;;;;;;;;;;;
+sequences;bbmri_nl;;false;;;Sequences;;;;;;;;;;;;;;;;;
+sex_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Sex types;;;;;;;;;;;;;;;;;
+staff_size_types;bbmri_nl;;false;;;Staff Size;Staff Size;;;;;;;;;;;;;;;;

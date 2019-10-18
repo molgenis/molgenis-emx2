@@ -11,7 +11,7 @@ import org.molgenis.emx2.io.MolgenisExport;
 import org.molgenis.emx2.io.MolgenisImport;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
-import org.molgenis.emx2.io.emx2format.ConvertSchemaToEmx2;
+import org.molgenis.emx2.io.emx2.ConvertSchemaToEmx2;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
@@ -139,7 +139,7 @@ public class MolgenisWebservice {
       throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     StringWriter writer = new StringWriter();
-    ConvertSchemaToEmx2.toCsv(schema.getMetadata(), writer);
+    ConvertSchemaToEmx2.toCsv(schema.getMetadata(), writer, ',');
     response.status(200);
     return writer.toString();
   }
@@ -256,7 +256,7 @@ public class MolgenisWebservice {
     if (accept.toLowerCase().contains(ACCEPT_CSV.toLowerCase())) {
       response.type(ACCEPT_CSV);
       StringWriter writer = new StringWriter();
-      CsvRowWriter.writeCsv(rows, writer);
+      CsvRowWriter.writeCsv(rows, writer, ',');
       return writer.toString();
     }
     throw new UnsupportedOperationException("unsupported content type: " + request.contentType());
@@ -299,7 +299,7 @@ public class MolgenisWebservice {
       return JsonRowMapper.jsonToRows(request.body());
 
     if (request.contentType().toLowerCase().contains(ACCEPT_CSV.toLowerCase()))
-      return CsvRowReader.read(new StringReader(request.body()));
+      return CsvRowReader.read(new StringReader(request.body()), ',');
 
     // default
     throw new UnsupportedOperationException("unsupported content type: " + request.contentType());

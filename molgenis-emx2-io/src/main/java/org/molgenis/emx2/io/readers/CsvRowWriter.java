@@ -15,7 +15,8 @@ public class CsvRowWriter {
     // hide constructor
   }
 
-  public static void writeCsv(List<Row> rows, Writer writer) throws IOException {
+  public static void writeCsv(List<Row> rows, Writer writer, Character seperator)
+      throws IOException {
 
     if (rows.isEmpty()) return;
 
@@ -26,7 +27,7 @@ public class CsvRowWriter {
                     .getColumnNames()
                     .toArray(new String[rows.get(0).getColumnNames().size()]));
 
-    CsvWriter<Map> csvWriter = writerDsl.to(writer);
+    CsvWriter<Map> csvWriter = writerDsl.separator(seperator).to(writer);
     for (Row r : rows) {
       // fromReader all values into strings first
       Map<String, String> values = new LinkedHashMap<>();

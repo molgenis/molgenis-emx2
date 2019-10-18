@@ -65,6 +65,7 @@ public class TypeUtils {
   }
 
   public static Boolean toBool(Object v) {
+    if (v == null) return null;
     if (v instanceof String) {
       if ("true".equalsIgnoreCase((String) v)) return true;
       if ("false".equalsIgnoreCase((String) v)) return false;
@@ -138,7 +139,7 @@ public class TypeUtils {
     return toStringArray(v);
   }
 
-  public static ColumnType typeOf(Class klazz)  {
+  public static ColumnType typeOf(Class klazz) {
     for (ColumnType t : ColumnType.values()) {
       if (t.getType().equals(klazz)) return t;
     }

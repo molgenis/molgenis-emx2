@@ -19,21 +19,21 @@ public class CsvRowReader {
   }
 
   public static Iterable<Row> read(File f) throws IOException {
-    return read(new FileReader(f));
+    return read(new FileReader(f), ',');
   }
 
-  public static List<Row> readList(Reader in) throws IOException {
+  public static List<Row> readList(Reader in, Character separator) throws IOException {
     List<Row> result = new ArrayList<>();
-    for (Row r : read(in)) {
+    for (Row r : read(in, separator)) {
       result.add(r);
     }
     return result;
   }
 
-  public static Iterable<Row> read(Reader in) throws IOException {
-    // don't used buffered, it is slower
+  public static Iterable<Row> read(Reader in, Character separator) throws IOException {
+    // don't use buffered, it is slower
     Iterator<LinkedHashMap> iterator =
-        CsvParser.dsl().trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
+        CsvParser.dsl().separator(separator).trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
 
     return () ->
         new Iterator<Row>() {

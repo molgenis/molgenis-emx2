@@ -14,9 +14,10 @@ public class TableMetadata {
   private SchemaMetadata schema;
 
   private String tableName;
-  protected Map<String, Column> columns;
-  protected List<String[]> uniques;
-  protected String[] primaryKey;
+  private Map<String, Column> columns;
+  private List<String[]> uniques;
+  private String[] primaryKey;
+  private String inherits;
 
   public TableMetadata(SchemaMetadata schema, String tableName) {
     this.clearCache();
@@ -43,19 +44,45 @@ public class TableMetadata {
 
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
-    result.addAll(columns.values());
+    if (inherits != null) {
+      result.addAll(getInheritedTable().getColumns());
+
+      // ignore primary key from child class because that is same as in inheritedTable
+      List<String> primaryKey = Arrays.asList(getPrimaryKey());
+      for (Column c : this.columns.values()) {
+        if (!primaryKey.contains(c.getColumnName())) result.add(c);
+      }
+    } else {
+      result.addAll(columns.values());
+    }
     return Collections.unmodifiableList(result);
   }
 
   public Column getColumn(String name) {
     if (columns.containsKey(name)) return columns.get(name);
-    throw new MolgenisException(
-        "undefined_column",
-        "Column could not be found",
-        String.format("Column with tableName='%s' could not be found", name));
+    if (inherits != null) {
+      return getInheritedTable().getColumn(name);
+    }
+    return null;
   }
 
   public Column addColumn(Column column) {
+    if (columns.get(column.getColumnName()) != null) {
+      throw new MolgenisException(
+          "invalid_column",
+          "Invalid column",
+          String.format(
+              "Column with columnName='%s' already exist in table '%s'",
+              column.getColumnName(), getTableName()));
+    }
+    if (inherits != null && getInheritedTable().getColumn(column.getColumnName()) != null) {
+      throw new MolgenisException(
+          "invalid_column",
+          "Invalid column",
+          String.format(
+              "Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
+              column.getColumnName(), getTableName(), inherits));
+    }
     columns.put(column.getColumnName(), column);
     return column;
   }
@@ -90,13 +117,13 @@ public class TableMetadata {
 
   public Column addRef(String name, String toTable, String toColumn) {
     Column c = new Column(this, name, REF).setReference(toTable, toColumn);
-    columns.put(name, c);
+    this.addColumn(c);
     return c;
   }
 
   public Column addRefArray(String name, String toTable, String toColumn) {
     Column c = new Column(this, name, REF_ARRAY).setReference(toTable, toColumn);
-    columns.put(name, c);
+    this.addColumn(c);
     return c;
   }
 
@@ -132,11 +159,18 @@ public class TableMetadata {
             .setReference(refTable, refColumn)
             .setReverseReference(reverseName, reverseRefColumn)
             .setMrefJoinTable(joinTableName);
-    columns.put(name, c);
+    this.addColumn(c);
     return c;
   }
 
   public void removeColumn(String name) {
+    if (getColumn(name) == null) {
+      throw new MolgenisException(
+          "remove_column_failed",
+          "Remove column failed",
+          String.format(
+              "Column with columnName='%s' doesn't exist in table '%s'", name, getTableName()));
+    }
     columns.remove(name);
   }
 
@@ -183,6 +217,25 @@ public class TableMetadata {
     }
   }
 
+  public TableMetadata inherits(String otherTable) {
+    this.inherits = otherTable;
+    return this;
+  }
+
+  public String getInherits() {
+    return this.inherits;
+  }
+
+  public TableMetadata getInheritedTable() {
+    TableMetadata parent = getSchema().getTableMetadata(inherits);
+    if (parent == null)
+      throw new MolgenisException(
+          "invalid_inherit",
+          "Invalid inheritance",
+          "Defined inherited table '" + inherits + "' could not be found");
+    return parent;
+  }
+
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("TABLE(").append(getTableName()).append("){");
@@ -204,5 +257,6 @@ public class TableMetadata {
     columns = new LinkedHashMap<>();
     uniques = new ArrayList<>();
     primaryKey = new String[0];
+    inherits = null;
   }
 }

@@ -41,15 +41,22 @@ public class SqlColumn extends Column {
     return this;
   }
 
-  public SqlColumn setIndexed(boolean index) {
-    String indexName = "INDEX_" + getTable().getTableName() + '_' + getColumnName();
-    if (index) {
-      jooq.createIndexIfNotExists(name(indexName))
-          .on(asJooqTable(), field(name(getColumnName())))
-          .execute();
-    } else {
-      jooq.dropIndexIfExists(name(getTable().getSchema().getName(), indexName));
-    }
+  @Override
+  public Column setIndexed(boolean index) {
+    getJooq()
+        .transaction(
+            dsl -> {
+              String indexName = "INDEX_" + getTable().getTableName() + '_' + getColumnName();
+              if (index) {
+                jooq.createIndexIfNotExists(name(indexName))
+                    .on(asJooqTable(), field(name(getColumnName())))
+                    .execute();
+              } else {
+                jooq.dropIndexIfExists(name(getTable().getSchema().getName(), indexName));
+              }
+              super.setIndexed(index);
+              MetadataUtils.saveColumnMetadata(this);
+            });
     return this;
   }
 

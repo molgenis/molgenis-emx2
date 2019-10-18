@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.emx2format;
+package org.molgenis.emx2.io.emx2;
 
 import org.molgenis.emx2.Row;
 

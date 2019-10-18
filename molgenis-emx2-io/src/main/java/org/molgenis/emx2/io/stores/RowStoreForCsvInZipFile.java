@@ -20,10 +20,16 @@ import java.util.Map;
 public class RowStoreForCsvInZipFile implements RowStore {
   static final String CSV_EXTENSION = ".csv";
   private Path zipFilePath;
+  private Character separator;
 
-  public RowStoreForCsvInZipFile(Path zipFilePath) throws IOException {
+  public RowStoreForCsvInZipFile(Path zipFilePath, Character separator) throws IOException {
     this.zipFilePath = zipFilePath;
     this.create();
+    this.separator = separator;
+  }
+
+  public RowStoreForCsvInZipFile(Path zipFilePath) throws IOException {
+    this(zipFilePath, ',');
   }
 
   private void create() throws IOException {
@@ -47,7 +53,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
       try (FileSystem zipfs = open()) {
         Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
         Writer writer = Files.newBufferedWriter(pathInZipfile);
-        CsvRowWriter.writeCsv(rows, writer);
+        CsvRowWriter.writeCsv(rows, writer, separator);
         writer.close();
       }
     }
@@ -58,7 +64,7 @@ public class RowStoreForCsvInZipFile implements RowStore {
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Reader reader = Files.newBufferedReader(pathInZipfile);
-      return CsvRowReader.readList(reader);
+      return CsvRowReader.readList(reader, separator);
     }
   }
 

@@ -1,7 +1,8 @@
-package org.molgenis.emx2.io.legacyformat;
+package org.molgenis.emx2.legacy.format;
 
-public class AttributesFileRow {
+import org.molgenis.emx2.Row;
 
+public class Attribute {
   private String entity;
   private String name;
   private String label;
@@ -12,7 +13,7 @@ public class AttributesFileRow {
   private Boolean aggregateable;
   private Boolean labelAttribute;
   private Boolean readonly;
-  private String validationExepression;
+  private String validationExpression;
   private String visibleExpression;
   private String defaultValue;
   private String partOfAttribute;
@@ -21,148 +22,108 @@ public class AttributesFileRow {
   private Integer rangeMin;
   private Integer rangeMax;
 
-  public String getEntity() {
-    return entity;
+  public Attribute(Row row) {
+    this.entity = get(row, "entity");
+    this.name = get(row, "name");
+    this.label = get(row, "label");
+    this.dataType = get(row, "dataType");
+    this.description = get(row, "description");
+    this.nillable = row.getBoolean("nillable");
+    this.idAttribute =
+        "AUTO".equals(row.getString("idAttribute")) ? true : row.getBoolean("idAttribute");
+    this.aggregateable = row.getBoolean("aggregatable");
+    this.labelAttribute = row.getBoolean("labelAttribute");
+    this.readonly = row.getBoolean("readonly");
+    this.validationExpression = get(row, "validationExpression");
+    this.visibleExpression = get(row, "visibleExpression");
+    this.defaultValue = get(row, "defaultValue");
+    this.partOfAttribute = get(row, "partOfAttribute");
+    this.refEntity = get(row, "refEntity");
+    this.expression = get(row, "expression");
+    this.rangeMax = row.getInteger("rangeMax");
+    this.rangeMin = row.getInteger("rangeMi");
   }
 
-  public void setEntity(String entity) {
-    this.entity = entity;
+  private String get(Row row, String name) {
+    try {
+      String value = row.getString(name);
+      if (value == null || "".equals(value.trim())) return null;
+      return value.trim();
+    } catch (IllegalArgumentException exception) {
+      return null;
+    }
+  }
+
+  public String getEntity() {
+    return entity;
   }
 
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public String getLabel() {
     return label;
-  }
-
-  public void setLabel(String label) {
-    this.label = label;
   }
 
   public String getDataType() {
     return dataType;
   }
 
-  public void setDataType(String dataType) {
-    this.dataType = dataType;
-  }
-
   public String getDescription() {
     return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   public Boolean getNillable() {
     return nillable;
   }
 
-  public void setNillable(Boolean nillable) {
-    this.nillable = nillable;
-  }
-
   public Boolean getIdAttribute() {
     return idAttribute;
-  }
-
-  public void setIdAttribute(Boolean idAttribute) {
-    this.idAttribute = idAttribute;
   }
 
   public Boolean getAggregateable() {
     return aggregateable;
   }
 
-  public void setAggregateable(Boolean aggregateable) {
-    this.aggregateable = aggregateable;
-  }
-
   public Boolean getLabelAttribute() {
     return labelAttribute;
-  }
-
-  public void setLabelAttribute(Boolean labelAttribute) {
-    this.labelAttribute = labelAttribute;
   }
 
   public Boolean getReadonly() {
     return readonly;
   }
 
-  public void setReadonly(Boolean readonly) {
-    this.readonly = readonly;
-  }
-
-  public String getValidationExepression() {
-    return validationExepression;
-  }
-
-  public void setValidationExepression(String validationExepression) {
-    this.validationExepression = validationExepression;
+  public String getValidationExpression() {
+    return validationExpression;
   }
 
   public String getDefaultValue() {
     return defaultValue;
   }
 
-  public void setDefaultValue(String defaultValue) {
-    this.defaultValue = defaultValue;
-  }
-
   public String getPartOfAttribute() {
     return partOfAttribute;
-  }
-
-  public void setPartOfAttribute(String partOfAttribute) {
-    this.partOfAttribute = partOfAttribute;
   }
 
   public String getRefEntity() {
     return refEntity;
   }
 
-  public void setRefEntity(String refEntity) {
-    this.refEntity = refEntity;
-  }
-
   public String getExpression() {
     return expression;
-  }
-
-  public void setExpression(String expression) {
-    this.expression = expression;
   }
 
   public Integer getRangeMin() {
     return rangeMin;
   }
 
-  public void setRangeMin(Integer rangeMin) {
-    this.rangeMin = rangeMin;
-  }
-
   public Integer getRangeMax() {
     return rangeMax;
   }
 
-  public void setRangeMax(Integer rangeMax) {
-    this.rangeMax = rangeMax;
-  }
-
   public String getVisibleExpression() {
     return visibleExpression;
-  }
-
-  public void setVisibleExpression(String visibleExpression) {
-    this.visibleExpression = visibleExpression;
   }
 
   public String toString() {
@@ -227,8 +188,8 @@ public class AttributesFileRow {
   }
 
   public void writeValidationExpression(StringBuilder builder) {
-    if (validationExepression != null)
-      builder.append(" validationExpression='").append(validationExepression).append("'");
+    if (validationExpression != null)
+      builder.append(" validationExpression='").append(validationExpression).append("'");
   }
 
   public void writeReadonly(StringBuilder builder) {

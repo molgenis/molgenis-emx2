@@ -11,9 +11,11 @@ import java.util.Map;
 
 public class RowStoreForCsvInMemory implements RowStore {
   private final Map<String, String> store;
+  private Character separator;
 
   public RowStoreForCsvInMemory() {
     store = new LinkedHashMap<>();
+    separator = ',';
   }
 
   @Override
@@ -22,7 +24,7 @@ public class RowStoreForCsvInMemory implements RowStore {
     Writer bufferedWriter = new BufferedWriter(writer);
     String existing = "";
     if (store.containsKey(name)) existing = store.get(name);
-    CsvRowWriter.writeCsv(rows, bufferedWriter);
+    CsvRowWriter.writeCsv(rows, bufferedWriter, separator);
     bufferedWriter.close();
     store.put(name, existing + writer.toString());
   }
@@ -32,7 +34,7 @@ public class RowStoreForCsvInMemory implements RowStore {
     if (!store.containsKey(name))
       throw new IOException("CsvStringStore with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
-    return CsvRowReader.readList(reader);
+    return CsvRowReader.readList(reader, separator);
   }
 
   @Override

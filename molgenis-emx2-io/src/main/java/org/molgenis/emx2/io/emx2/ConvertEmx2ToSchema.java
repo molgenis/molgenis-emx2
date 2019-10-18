@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.emx2format;
+package org.molgenis.emx2.io.emx2;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvRowReader;
@@ -20,12 +20,12 @@ public class ConvertEmx2ToSchema {
     // hides constructor
   }
 
-  public static SchemaMetadata fromCsvFile(File file) throws IOException {
-    return fromRowList(CsvRowReader.readList(new FileReader(file)));
+  public static SchemaMetadata fromCsvFile(File file, Character separator) throws IOException {
+    return fromRowList(CsvRowReader.readList(new FileReader(file), separator));
   }
 
-  public static SchemaMetadata fromReader(Reader reader) throws IOException {
-    return fromRowList(CsvRowReader.readList(reader));
+  public static SchemaMetadata fromReader(Reader reader, Character separator) throws IOException {
+    return fromRowList(CsvRowReader.readList(reader, separator));
   }
 
   public static SchemaMetadata fromRowList(List<Row> rows) {
