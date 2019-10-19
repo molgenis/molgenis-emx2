@@ -11,6 +11,10 @@ import static org.molgenis.emx2.ColumnType.*;
 
 public class Emx1ToSchema {
 
+  private Emx1ToSchema() {
+    // hide constructor
+  }
+
   public static SchemaMetadata convert(RowStore store) throws IOException {
 
     SchemaMetadata schema = new SchemaMetadata();
@@ -35,8 +39,8 @@ public class Emx1ToSchema {
       ColumnType type = getColumnType(attribute.getDataType());
       Column column = new Column(table, attribute.getName(), type);
       // column.setRefTable(attribute.getRefEntity());
-      if (attribute.getNillable()) column.setNullable(true);
-      if (attribute.getIdAttribute()) column.setPrimaryKey(true);
+      column.setNullable(attribute.getNillable());
+      column.setPrimaryKey(attribute.getIdAttribute());
       table.addColumn(column);
     }
 
@@ -62,11 +66,11 @@ public class Emx1ToSchema {
 
   public static ColumnType getColumnType(String dataType) {
     switch (dataType) {
+      case "compound": // todo
       case "string":
       case "email":
       case "enum": // todo
       case "file": // todo
-      case "compound":; // todo
       case "hyperlink":
       case "one_to_many":
         return STRING; // todo

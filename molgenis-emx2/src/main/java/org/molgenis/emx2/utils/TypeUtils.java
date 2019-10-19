@@ -65,7 +65,6 @@ public class TypeUtils {
   }
 
   public static Boolean toBool(Object v) {
-    if (v == null) return null;
     if (v instanceof String) {
       if ("true".equalsIgnoreCase((String) v)) return true;
       if ("false".equalsIgnoreCase((String) v)) return false;

@@ -48,9 +48,9 @@ public class TableMetadata {
       result.addAll(getInheritedTable().getColumns());
 
       // ignore primary key from child class because that is same as in inheritedTable
-      List<String> primaryKey = Arrays.asList(getPrimaryKey());
+      List<String> primaryKeyList = Arrays.asList(getPrimaryKey());
       for (Column c : this.columns.values()) {
-        if (!primaryKey.contains(c.getColumnName())) result.add(c);
+        if (!primaryKeyList.contains(c.getColumnName())) result.add(c);
       }
     } else {
       result.addAll(columns.values());
