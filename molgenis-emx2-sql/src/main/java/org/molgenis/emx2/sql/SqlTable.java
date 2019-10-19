@@ -206,6 +206,10 @@ class SqlTable implements Table {
     return query().where(path, operator, values);
   }
 
+  public Query search(String terms) {
+    return query().search(terms);
+  }
+
   @Override
   public int delete(Row... rows) {
     return delete(Arrays.asList(rows));

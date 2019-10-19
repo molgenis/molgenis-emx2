@@ -34,4 +34,6 @@ public interface Table {
   <E> List<E> retrieve(String columnName, Class<E> klazz);
 
   String getName();
+
+  Query search(String dagobert);
 }

@@ -59,6 +59,19 @@ public class TestExtends {
       System.out.println("Errored correctly:\n" + e);
     }
 
+    // try to extend twice
+    try {
+      manager.inherits("Student");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
+    // try to change primary key
+    try {
+      manager.setPrimaryKey("salary");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
     // create another extended table
     TableMetadata student =
         s.createTableIfNotExists("Student").getMetadata().inherits(person.getName());
@@ -103,7 +116,8 @@ public class TestExtends {
 
     // TODO test RLS
 
-    // TODO test search
+    // test search
+    // assertEquals(1, employeeTable.search("Dagobert").retrieve().size());
 
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));

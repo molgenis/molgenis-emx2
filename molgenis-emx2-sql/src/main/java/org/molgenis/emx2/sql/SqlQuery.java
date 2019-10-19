@@ -80,7 +80,6 @@ public class SqlQuery extends QueryBean implements Query {
 
   private SelectJoinStep createFromStep(Set<String> tableAliases, SelectSelectStep selectStep) {
     SelectJoinStep fromStep = null;
-
     if (from.getInherits() != null) {
       Table table = table(name(from.getSchema().getName(), from.getTableName()));
       TableMetadata parent = from.getInheritedTable();
@@ -91,7 +90,10 @@ public class SqlQuery extends QueryBean implements Query {
           keyFields[i] = field(name(keys[i]));
         }
         table =
-            table.join(name(parent.getSchema().getName(), parent.getTableName())).using(keyFields);
+            table
+                .join(table(name(from.getSchema().getName(), parent.getTableName())))
+                .using(keyFields);
+        tableAliases.add(parent.getTableName());
         parent = parent.getInheritedTable();
       }
       table = table.as(name(from.getTableName()));
@@ -209,7 +211,7 @@ public class SqlQuery extends QueryBean implements Query {
     for (String tableAlias : tableAliases) {
       Condition condition =
           condition(
-              name(tableAlias, MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + search + "' )");
+              name(tableAlias, MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + search + "')");
       if (searchCondition == null) {
         searchCondition = condition;
       } else {
