@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.cast;
-import static org.molgenis.emx2.ColumnType.MREF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -89,7 +88,7 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static Collection<Object> getValuesAsCollection(Row row, Table table) {
     Collection<Object> values = new ArrayList<>();
-    for (Column c : table.getMetadata().getColumns()) {
+    for (Column c : table.getMetadata().getLocalColumns()) {
       // rls
       if (Constants.MG_EDIT_ROLE.equals(c.getColumnName())) {
         // big todo if we want to allow usernames here or role names
@@ -103,10 +102,10 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static Object getTypedValue(Object v, Column column) {
     ColumnType columnType = column.getColumnType();
-    if (ColumnType.REF.equals(columnType)) {
-      columnType = getRefType(column);
+    if (REF.equals(columnType)) {
+      columnType = getRefColumnType(column);
     } else if (ColumnType.MREF.equals(columnType)) {
-      columnType = getArrayType(getRefType(column));
+      columnType = getArrayType(getRefColumnType(column));
     }
     switch (columnType) {
       case UUID:
@@ -147,22 +146,14 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static ColumnType getRefType(Column column) {
-    return column
-        .getTable()
-        .getSchema()
-        .getTableMetadata(column.getRefTableName())
-        .getColumn(column.getRefColumnName())
-        .getColumnType();
-  }
-
   public static Object getTypedValue(Row row, Column column) {
     ColumnType columnType = column.getColumnType();
-    if (ColumnType.REF.equals(columnType)) {
-      columnType = getRefType(column);
+
+    if (REF.equals(columnType)) {
+      columnType = getRefColumnType(column);
     }
     if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
-      columnType = getArrayType(getRefType(column));
+      columnType = getRefArrayColumnType(column);
     }
     switch (columnType) {
       case UUID:
@@ -198,9 +189,28 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY:
         return row.getDateTimeArray(column.getColumnName());
       default:
-        throw new UnsupportedOperationException(
-            "Unsupported columnType found:" + column.getColumnType());
+        throw new UnsupportedOperationException("Unsupported columnType found:" + columnType);
     }
+  }
+
+  public static ColumnType getRefArrayColumnType(Column column) {
+    ColumnType columnType;
+    Column refColumn = column.getRefColumn();
+    while (REF.equals(refColumn.getColumnType())) {
+      refColumn = refColumn.getRefColumn();
+    }
+    columnType = getArrayType(refColumn.getColumnType());
+    return columnType;
+  }
+
+  public static ColumnType getRefColumnType(Column column) {
+    ColumnType columnType;
+    Column refColumn = column.getRefColumn();
+    while (REF.equals(refColumn.getColumnType())) {
+      refColumn = refColumn.getRefColumn();
+    }
+    columnType = refColumn.getColumnType();
+    return columnType;
   }
 
   public static String getPsqlType(Column column) {
@@ -221,6 +231,9 @@ public class SqlTypeUtils extends TypeUtils {
         return "date";
       case DATETIME:
         return "timestamp without time zone";
+      case REF:
+      case REF_ARRAY:
+        return getPsqlType(column.getRefColumn());
       default:
         throw new MolgenisException(
             "internal_error",

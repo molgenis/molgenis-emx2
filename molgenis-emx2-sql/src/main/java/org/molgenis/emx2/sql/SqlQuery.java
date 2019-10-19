@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.*;
+import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.Query;
@@ -39,9 +40,13 @@ public class SqlQuery extends QueryBean implements Query {
       SelectJoinStep fromStep = createFromStep(tableAliases, selectStep);
       SelectJoinStep whereStep = createWhereStep(tableAliases, fromStep);
 
+      System.out.println(whereStep.getSQL());
+
       return queryRows(whereStep);
     } catch (MolgenisException e) {
       throw e;
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException(dae);
     } catch (Exception e2) {
       if (e2.getCause() != null)
         throw new MolgenisException("Query failed:" + e2.getCause().getMessage(), e2);
@@ -74,8 +79,27 @@ public class SqlQuery extends QueryBean implements Query {
   }
 
   private SelectJoinStep createFromStep(Set<String> tableAliases, SelectSelectStep selectStep) {
-    SelectJoinStep fromStep =
-        selectStep.from(table(name(from.getSchema().getName(), from.getTableName())));
+    SelectJoinStep fromStep = null;
+
+    if (from.getInherits() != null) {
+      Table table = table(name(from.getSchema().getName(), from.getTableName()));
+      TableMetadata parent = from.getInheritedTable();
+      while (parent != null) {
+        String[] keys = parent.getPrimaryKey();
+        Field[] keyFields = new Field[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+          keyFields[i] = field(name(keys[i]));
+        }
+        table =
+            table.join(name(parent.getSchema().getName(), parent.getTableName())).using(keyFields);
+        parent = parent.getInheritedTable();
+      }
+      table = table.as(name(from.getTableName()));
+      fromStep = selectStep.from(table);
+    } else {
+      fromStep = selectStep.from(table(name(from.getSchema().getName(), from.getTableName())));
+    }
+
     for (String tableAlias : tableAliases) {
       String[] path = getPath(tableAlias);
       if (path.length > 1) {

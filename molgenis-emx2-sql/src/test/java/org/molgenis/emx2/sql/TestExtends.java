@@ -2,13 +2,14 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
 
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestExtends {
   private static Database db;
@@ -47,6 +48,10 @@ public class TestExtends {
         s.createTableIfNotExists("Employee").getMetadata().inherits(person.getName());
     employee.addColumn("salary", INT);
 
+    TableMetadata manager =
+        s.createTableIfNotExists("Manager").getMetadata().inherits(employee.getTableName());
+    manager.addRefArray("directs", employee.getTableName()).setNullable(true);
+
     // try to add column that already exists in parent
     try {
       employee.addColumn("birthDate", DATE);
@@ -57,10 +62,59 @@ public class TestExtends {
     // create another extended table
     TableMetadata student =
         s.createTableIfNotExists("Student").getMetadata().inherits(person.getName());
-    employee.addColumn("averageGrade", INT);
+    student.addColumn("averageGrade", INT);
 
-    // test insert, update, delete, retrieve
+    // test insert, retrieve
+    Table studentTable = s.getTable("Student");
+    studentTable.insert(new Row().setString("fullName", "Donald Duck").setInt("averageGrade", 10));
+
+    Table employeeTable = s.getTable("Employee");
+    employeeTable.insert(
+        new Row()
+            .setString("fullName", "Katrien Duck")
+            .setInt("salary", 100)
+            .setDate("birthDate", LocalDate.of(2000, 12, 01)));
+
+    Table managerTable = s.getTable("Manager");
+    Row managerRow =
+        new Row()
+            .setString("fullName", "Dagobert Duck")
+            .setInt("salary", 1000000)
+            .setDate("birthDate", LocalDate.of(2000, 12, 01))
+            .setStringArray("directs", "Katrien Duck");
+    managerTable.insert(managerRow);
+
+    Table personTable = s.getTable("Person");
+    assertEquals(3, personTable.retrieve().size());
+    assertEquals(1, studentTable.retrieve().size());
+    assertEquals(2, employeeTable.retrieve().size());
+    assertEquals(1, managerTable.retrieve().size());
+
+    // retrieve
+    assertEquals(
+        (Integer) 1000000,
+        employeeTable
+            .query()
+            .select("salary")
+            .where("fullName", EQUALS, "Dagobert Duck")
+            .retrieve()
+            .get(0)
+            .getInteger("salary"));
 
     // TODO test RLS
+
+    // TODO test search
+
+    // update
+    managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));
+    managerTable.update(managerRow);
+    assertEquals(LocalDate.of(1900, 12, 01), managerTable.retrieve().get(0).getDate("birthDate"));
+
+    // delete
+    managerTable.delete(managerRow);
+    assertEquals(2, personTable.retrieve().size());
+    assertEquals(1, studentTable.retrieve().size());
+    assertEquals(1, employeeTable.retrieve().size());
+    assertEquals(0, managerTable.retrieve().size());
   }
 }

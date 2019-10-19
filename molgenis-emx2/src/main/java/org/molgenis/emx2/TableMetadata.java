@@ -42,6 +42,12 @@ public class TableMetadata {
     return this.primaryKey;
   }
 
+  public List<Column> getLocalColumns() {
+    ArrayList<Column> result = new ArrayList<>();
+    result.addAll(columns.values());
+    return result;
+  }
+
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
     if (inherits != null) {
@@ -227,13 +233,7 @@ public class TableMetadata {
   }
 
   public TableMetadata getInheritedTable() {
-    TableMetadata parent = getSchema().getTableMetadata(inherits);
-    if (parent == null)
-      throw new MolgenisException(
-          "invalid_inherit",
-          "Invalid inheritance",
-          "Defined inherited table '" + inherits + "' could not be found");
-    return parent;
+    return getSchema().getTableMetadata(inherits);
   }
 
   public String toString() {

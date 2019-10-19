@@ -97,7 +97,9 @@ class SqlTableMetadata extends TableMetadata {
             throw new MolgenisException(
                 INHERITANCE_FAILED,
                 INHERITANCE_FAILED_MESSAGE,
-                "Table can only extend one table. Therefore it cannot extend '"
+                "Table '"
+                    + getTableName()
+                    + "'can only extend one table. Therefore it cannot extend '"
                     + otherTable
                     + "' because it already extends other table '"
                     + getInherits()
@@ -393,7 +395,7 @@ class SqlTableMetadata extends TableMetadata {
     String triggerfunction = String.format("\"%s\".\"%s\"()", getSchema().getName(), triggerName);
 
     StringBuilder mgSearchVector = new StringBuilder("to_tsvector('english', ' '");
-    for (Column c : getColumns()) {
+    for (Column c : getLocalColumns()) {
       if (!c.getColumnName().startsWith("MG_"))
         mgSearchVector.append(
             String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getColumnName()));

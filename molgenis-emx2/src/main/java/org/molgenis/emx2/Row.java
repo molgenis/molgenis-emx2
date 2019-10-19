@@ -88,7 +88,7 @@ public class Row {
     return this;
   }
 
-  public Row setStringArray(String name, String[] value) {
+  public Row setStringArray(String name, String... value) {
     this.values.put(name, value);
     return this;
   }

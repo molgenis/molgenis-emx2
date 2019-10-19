@@ -21,6 +21,8 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getRefArrayColumnType;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
 
 class SqlTable implements Table {
 
@@ -47,25 +49,28 @@ class SqlTable implements Table {
   public int insert(Iterable<Row> rows) {
     AtomicInteger count = new AtomicInteger(0);
     try {
-      db.getJooq()
-          .transaction(
-              config -> {
-                using(config).execute(DEFER_SQL);
-                // get metadata
-                List<Field> fields = new ArrayList<>();
-                List<String> fieldNames = new ArrayList<>();
-                for (Column c : getMetadata().getColumns()) {
-                  fieldNames.add(c.getColumnName());
-                  fields.add(getJooqField(c));
-                }
-                InsertValuesStepN step =
-                    using(config)
-                        .insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
-                for (Row row : rows) {
-                  step.values(SqlTypeUtils.getValuesAsCollection(row, this));
-                }
-                count.set(step.execute());
-              });
+      db.transaction(
+          db2 -> {
+
+            // first update superclass
+            if (getMetadata().getInherits() != null) {
+              getSchema().getTable(getMetadata().getInherits()).insert(rows);
+            }
+
+            // get metadata
+            List<Field> fields = new ArrayList<>();
+            List<String> fieldNames = new ArrayList<>();
+            for (Column c : getMetadata().getLocalColumns()) {
+              fieldNames.add(c.getColumnName());
+              fields.add(getJooqField(c));
+            }
+            InsertValuesStepN step =
+                db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+            for (Row row : rows) {
+              step.values(SqlTypeUtils.getValuesAsCollection(row, this));
+            }
+            count.set(step.execute());
+          });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException(e);
     }
@@ -93,36 +98,38 @@ class SqlTable implements Table {
 
     AtomicInteger count = new AtomicInteger(0);
     try {
-      db.getJooq()
-          .transaction(
-              config -> {
-                using(config).execute(DEFER_SQL);
+      db.transaction(
+          db2 -> {
+            // first update superclass
+            if (getMetadata().getInherits() != null) {
+              getSchema().getTable(getMetadata().getInherits()).update(rows);
+            }
 
-                // keep batchsize smaller to limit memory footprint
-                int batchSize = 1000;
+            // keep batchsize smaller to limit memory footprint
+            int batchSize = 1000;
 
-                // get metadata
-                ArrayList<Field> fields = new ArrayList<>();
-                ArrayList<String> fieldNames = new ArrayList<>();
-                for (Column c : getMetadata().getColumns()) {
-                  fieldNames.add(c.getColumnName());
-                  fields.add(getJooqField(c));
-                }
+            // get metadata
+            ArrayList<Field> fields = new ArrayList<>();
+            ArrayList<String> fieldNames = new ArrayList<>();
+            for (Column c : getMetadata().getLocalColumns()) {
+              fieldNames.add(c.getColumnName());
+              fields.add(getJooqField(c));
+            }
 
-                List<Field> keyFields = getPrimaryKeyFields();
+            List<Field> keyFields = getPrimaryKeyFields();
 
-                // execute in batches
-                List<Row> batch = new ArrayList<>();
-                for (Row row : rows) {
-                  batch.add(row);
-                  count.set(count.get() + 1);
-                  if (count.get() % batchSize == 0) {
-                    updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
-                    batch.clear();
-                  }
-                }
+            // execute in batches
+            List<Row> batch = new ArrayList<>();
+            for (Row row : rows) {
+              batch.add(row);
+              count.set(count.get() + 1);
+              if (count.get() % batchSize == 0) {
                 updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
-              });
+                batch.clear();
+              }
+            }
+            updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
+          });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException(e);
     }
@@ -155,27 +162,29 @@ class SqlTable implements Table {
   public int delete(Iterable<Row> rows) {
     AtomicInteger count = new AtomicInteger(0);
     try {
-      db.getJooq()
-          .transaction(
-              config -> {
-                using(config).execute(DEFER_SQL);
+      db.transaction(
+          config -> {
+            // first update superclass
+            if (getMetadata().getInherits() != null) {
+              getSchema().getTable(getMetadata().getInherits()).delete(rows);
+            }
 
-                // because of expensive jTable scanning and smaller queryOld string size this batch
-                // should be
-                // larger
-                // than insert/update
-                int batchSize = 100000;
-                List<Row> batch = new ArrayList<>();
-                for (Row row : rows) {
-                  batch.add(row);
-                  count.set(count.get() + 1);
-                  if (count.get() % batchSize == 0) {
-                    deleteBatch(batch);
-                    batch.clear();
-                  }
-                }
+            // because of expensive jTable scanning and smaller queryOld string size this batch
+            // should be
+            // larger
+            // than insert/update
+            int batchSize = 100000;
+            List<Row> batch = new ArrayList<>();
+            for (Row row : rows) {
+              batch.add(row);
+              count.set(count.get() + 1);
+              if (count.get() % batchSize == 0) {
                 deleteBatch(batch);
-              });
+                batch.clear();
+              }
+            }
+            deleteBatch(batch);
+          });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException(e);
     }
@@ -241,20 +250,9 @@ class SqlTable implements Table {
     // consider to move this to helper methods
     ColumnType columnType = key.getColumnType();
     if (REF.equals(columnType)) {
-      columnType =
-          key.getTable()
-              .getSchema()
-              .getTableMetadata(key.getRefTableName())
-              .getColumn(key.getRefColumnName())
-              .getColumnType();
+      columnType = getRefColumnType(key);
     } else if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
-      columnType =
-          TypeUtils.getArrayType(
-              key.getTable()
-                  .getSchema()
-                  .getTableMetadata(key.getRefTableName())
-                  .getColumn(key.getRefColumnName())
-                  .getColumnType());
+      columnType = getRefArrayColumnType(key);
     }
 
     if (rowCondition == null) {
@@ -293,7 +291,7 @@ class SqlTable implements Table {
     return keyFields;
   }
 
-  private org.jooq.Table getJooqTable() {
+  protected org.jooq.Table getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 

@@ -32,7 +32,7 @@ public class MolgenisException extends RuntimeException {
   }
 
   public MolgenisException(String detail, Exception e) {
-    this(null, null, detail, e);
+    this("NA", "NA", detail, e);
   }
 
   public MolgenisException(String message, List<MolgenisExceptionMessage> messages) {
