@@ -20,9 +20,9 @@ public class SqlSchema implements Schema {
 
   @Override
   public SqlTable getTable(String name) {
-    SqlTableMetadata metadata = getMetadata().getTableMetadata(name);
-    if (metadata == null) return null;
-    if (metadata.exists()) return new SqlTable(db, metadata);
+    SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
+    if (tableMetadata == null) return null;
+    if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
     else return null;
   }
 
@@ -172,7 +172,7 @@ public class SqlSchema implements Schema {
   }
 
   private String getRolePrefix() {
-    return ((SqlSchemaMetadata) getMetadata()).getRolePrefix();
+    return getMetadata().getRolePrefix();
   }
 
   @Override

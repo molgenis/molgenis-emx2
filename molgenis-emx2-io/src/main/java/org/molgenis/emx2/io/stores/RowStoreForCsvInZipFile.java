@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.stores;
 
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -23,22 +24,26 @@ public class RowStoreForCsvInZipFile implements RowStore {
   private Path zipFilePath;
   private Character separator;
 
-  public RowStoreForCsvInZipFile(Path zipFilePath, Character separator) throws IOException {
+  public RowStoreForCsvInZipFile(Path zipFilePath, Character separator) {
     this.zipFilePath = zipFilePath;
     this.create();
     this.separator = separator;
   }
 
-  public RowStoreForCsvInZipFile(Path zipFilePath) throws IOException {
+  public RowStoreForCsvInZipFile(Path zipFilePath) {
     this(zipFilePath, ',');
   }
 
-  private void create() throws IOException {
+  private void create() {
     Map<String, String> env = new HashMap<>();
     env.put("create", "true");
     final URI zipUri = URI.create("jar:" + zipFilePath.toUri());
-    FileSystem zipfs = FileSystems.newFileSystem(zipUri, env, null);
-    zipfs.close();
+    try {
+      FileSystem zipfs = FileSystems.newFileSystem(zipUri, env, null);
+      zipfs.close();
+    } catch (IOException ioe) {
+      throw new MolgenisException(ioe);
+    }
   }
 
   private FileSystem open() throws IOException {
@@ -57,7 +62,8 @@ public class RowStoreForCsvInZipFile implements RowStore {
         CsvRowWriter.writeCsv(rows, writer, separator);
         writer.close();
       } catch (IOException ioe) {
-        throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+        throw new MolgenisException(
+            ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
       }
     }
   }
@@ -69,7 +75,8 @@ public class RowStoreForCsvInZipFile implements RowStore {
       Reader reader = Files.newBufferedReader(pathInZipfile);
       return CsvRowReader.readList(reader, separator);
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
   }
 
@@ -79,7 +86,8 @@ public class RowStoreForCsvInZipFile implements RowStore {
       Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       return Files.exists(path);
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
   }
 }

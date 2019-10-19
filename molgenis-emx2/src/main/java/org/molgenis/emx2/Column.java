@@ -187,7 +187,7 @@ public class Column {
   public Column setIndexed(boolean indexed) {
     this.indexed = indexed;
     return this;
-  };
+  }
 
   public Boolean getIndexed() {
     return indexed;

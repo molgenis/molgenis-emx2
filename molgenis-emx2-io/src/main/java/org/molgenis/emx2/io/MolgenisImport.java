@@ -17,11 +17,11 @@ public class MolgenisImport {
     // hide constructor
   }
 
-  public static void fromDirectory(Path directory, Schema schema) throws IOException {
+  public static void fromDirectory(Path directory, Schema schema) {
     executeImport(new RowStoreForCsvFilesDirectory(directory), schema);
   }
 
-  public static void fromZipFile(Path zipFile, Schema schema) throws IOException {
+  public static void fromZipFile(Path zipFile, Schema schema) {
     executeImport(new RowStoreForCsvInZipFile(zipFile), schema);
   }
 

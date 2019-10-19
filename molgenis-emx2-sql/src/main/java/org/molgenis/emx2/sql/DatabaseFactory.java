@@ -8,8 +8,6 @@ import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;

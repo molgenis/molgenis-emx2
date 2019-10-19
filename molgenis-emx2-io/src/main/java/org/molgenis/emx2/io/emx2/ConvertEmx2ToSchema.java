@@ -20,11 +20,15 @@ public class ConvertEmx2ToSchema {
     // hides constructor
   }
 
-  public static SchemaMetadata fromCsvFile(File file, Character separator) throws IOException {
-    return fromRowList(CsvRowReader.readList(new FileReader(file), separator));
+  public static SchemaMetadata fromCsvFile(File file, Character separator) {
+    try {
+      return fromRowList(CsvRowReader.readList(new FileReader(file), separator));
+    } catch (IOException ioe) {
+      throw new MolgenisException(ioe);
+    }
   }
 
-  public static SchemaMetadata fromReader(Reader reader, Character separator) throws IOException {
+  public static SchemaMetadata fromReader(Reader reader, Character separator) {
     return fromRowList(CsvRowReader.readList(reader, separator));
   }
 

@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.stores;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.FileInputStream;
@@ -50,7 +51,8 @@ public class RowStoreForXlsxFile implements RowStore {
         }
       }
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
   }
 
@@ -111,7 +113,8 @@ public class RowStoreForXlsxFile implements RowStore {
       }
       return result;
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
   }
 
@@ -161,7 +164,8 @@ public class RowStoreForXlsxFile implements RowStore {
         Workbook wb = WorkbookFactory.create(inp)) {
       if (wb.getSheet(name) != null) return true;
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
     return false;
   }

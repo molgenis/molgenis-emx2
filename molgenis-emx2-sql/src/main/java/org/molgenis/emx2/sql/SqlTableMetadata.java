@@ -19,6 +19,10 @@ import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 class SqlTableMetadata extends TableMetadata {
+  public static final String DROP_TABLE_FAILED = "drop_table_failed";
+  public static final String DROP_TABLE_FAILED_MESSAGE = "Drop table failed";
+  public static final String INHERITANCE_FAILED = "inheritance_failed";
+  public static final String INHERITANCE_FAILED_MESSAGE = "Inheritance failed";
   private SqlDatabase db;
 
   SqlTableMetadata(SqlDatabase db, SqlSchemaMetadata schema, String name) {
@@ -80,7 +84,7 @@ class SqlTableMetadata extends TableMetadata {
             MetadataUtils.deleteTable(this);
           });
     } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("drop_table_failed", "Drop table failed", dae);
+      throw new SqlMolgenisException(DROP_TABLE_FAILED, DROP_TABLE_FAILED_MESSAGE, dae);
     }
   }
 
@@ -88,11 +92,11 @@ class SqlTableMetadata extends TableMetadata {
   public TableMetadata inherits(String otherTable) {
 
     db.transaction(
-        db -> {
+        tdb -> {
           if (getInherits() != null)
             throw new MolgenisException(
-                "inheritance_failed",
-                "Inheritance failed",
+                INHERITANCE_FAILED,
+                INHERITANCE_FAILED_MESSAGE,
                 "Table can only extend one table. Therefore it cannot extend '"
                     + otherTable
                     + "' because it already extends other table '"
@@ -102,14 +106,14 @@ class SqlTableMetadata extends TableMetadata {
           TableMetadata other = getSchema().getTableMetadata(otherTable);
           if (other == null)
             throw new MolgenisException(
-                "inheritance_failed",
-                "Inheritance failed",
+                INHERITANCE_FAILED,
+                INHERITANCE_FAILED_MESSAGE,
                 "Other table '" + otherTable + "' does not exist in this schema");
 
           if (other.getPrimaryKey().length == 0)
             throw new MolgenisException(
-                "inheritance_failed",
-                "Inheritance failed",
+                INHERITANCE_FAILED,
+                INHERITANCE_FAILED_MESSAGE,
                 "To extend table '" + otherTable + "' it must hast have primary key set");
 
           // extends means we copy foreign key columns from parent to child, make it foreign key to

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.stores;
 
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -30,7 +31,8 @@ public class RowStoreForCsvInMemory implements RowStore {
       bufferedWriter.close();
       store.put(name, existing + writer.toString());
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
   }
 

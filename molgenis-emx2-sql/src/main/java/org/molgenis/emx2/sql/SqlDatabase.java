@@ -143,7 +143,6 @@ public class SqlDatabase implements Database {
     }
 
     // createColumn independent merge of database with transaction connection
-    Connection connection = null;
     DSLContext originalContext = jooq;
     try (Connection conn = source.getConnection()) {
       this.inTx = true;
