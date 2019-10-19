@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface RowStore {
 
-  void write(String name, List<Row> rows) throws IOException;
+  void write(String name, List<Row> rows);
 
-  List<Row> read(String name) throws IOException;
+  List<Row> read(String name);
 
-  boolean containsTable(String name) throws IOException;
+  boolean containsTable(String name);
 }

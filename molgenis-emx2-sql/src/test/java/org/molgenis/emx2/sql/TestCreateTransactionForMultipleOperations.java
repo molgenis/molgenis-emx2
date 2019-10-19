@@ -43,7 +43,6 @@ public class TestCreateTransactionForMultipleOperations {
           Schema schema = db.createSchema("testRollBack");
           Table testTable = schema.createTableIfNotExists("testRollBack");
           testTable.getMetadata().addColumn("ColA", STRING).addUnique("ColA");
-
           Row r = new Row().setString("ColA", "test");
           testTable.insert(r);
           testTable.insert(r);

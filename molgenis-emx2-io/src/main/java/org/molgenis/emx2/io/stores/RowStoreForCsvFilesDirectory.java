@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.stores;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
+import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -16,35 +17,44 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
   private final Path directoryPath;
   private final Character separator;
 
-  public RowStoreForCsvFilesDirectory(Path directoryPath, Character separator) throws IOException {
+  public RowStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
     if (!directoryPath.toFile().exists())
-      throw new IOException("Directory " + directoryPath + " doesn't exist");
+      throw new MolgenisException(
+          "not exist", "Not exist", "Directory " + directoryPath + " doesn't exist");
     this.separator = separator;
   }
 
-  public RowStoreForCsvFilesDirectory(Path directoryPath) throws IOException {
+  public RowStoreForCsvFilesDirectory(Path directoryPath) {
     this(directoryPath, ',');
   }
 
   @Override
-  public void write(String name, List<Row> rows) throws IOException {
+  public void write(String name, List<Row> rows) {
     if (rows.isEmpty()) return;
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
-    Writer writer = Files.newBufferedWriter(relativePath);
-    CsvRowWriter.writeCsv(rows, writer, separator);
-    writer.close();
+    try {
+      Writer writer = Files.newBufferedWriter(relativePath);
+      CsvRowWriter.writeCsv(rows, writer, separator);
+      writer.close();
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+    }
   }
 
   @Override
-  public List<Row> read(String name) throws IOException {
+  public List<Row> read(String name) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
-    Reader reader = Files.newBufferedReader(relativePath);
-    return CsvRowReader.readList(reader, separator);
+    try {
+      Reader reader = Files.newBufferedReader(relativePath);
+      return CsvRowReader.readList(reader, separator);
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+    }
   }
 
   @Override
-  public boolean containsTable(String name) throws IOException {
+  public boolean containsTable(String name) {
     Path path = directoryPath.resolve(name + CSV_EXTENSION);
     return path.toFile().exists();
   }

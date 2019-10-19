@@ -9,6 +9,7 @@ import org.molgenis.emx2.utils.MolgenisException;
 import java.sql.SQLException;
 
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNull;
 
 public class TestSchemaCreateDestroy {
   private static Database db;
@@ -46,12 +47,7 @@ public class TestSchemaCreateDestroy {
     }
 
     schema.dropTable("test");
-    try {
-      schema.getTable("test");
-      fail("Table should have been dropped");
-    } catch (Exception e) {
-      System.out.println("Error correctly:\n" + e);
-    }
+    assertNull(schema.getTable("test"));
 
     try {
       db.dropSchema(getClass().getSimpleName() + "fake");

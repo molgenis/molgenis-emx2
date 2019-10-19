@@ -8,6 +8,8 @@ import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.jooq.impl.DSL.name;
@@ -21,17 +23,17 @@ public class DatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getTestDatabase(DataSource dataSource) {
+  public static Database getTestDatabase(DataSource source) {
     if (db == null) {
 
-      // setup Jooq
-      jooq = DSL.using(dataSource, SQLDialect.POSTGRES_10);
+      // setup local Jooq
+      jooq = DSL.using(source, SQLDialect.POSTGRES_10);
 
       // delete all
       deleteAll();
 
       // get fresh database
-      db = new SqlDatabase(dataSource);
+      db = new SqlDatabase(source);
     }
     db.clearActiveUser();
     return db;

@@ -4,5 +4,5 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface Transaction {
-  void run(Database database) throws IOException;
+  void run(Database database);
 }

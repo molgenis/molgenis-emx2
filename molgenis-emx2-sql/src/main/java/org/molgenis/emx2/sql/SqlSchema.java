@@ -11,16 +11,19 @@ import static org.jooq.impl.DSL.*;
 
 public class SqlSchema implements Schema {
   private SqlDatabase db;
-  private SchemaMetadata metadata;
+  private SqlSchemaMetadata metadata;
 
-  public SqlSchema(SqlDatabase db, SchemaMetadata metadata) {
+  public SqlSchema(SqlDatabase db, SqlSchemaMetadata metadata) {
     this.db = db;
     this.metadata = metadata;
   }
 
   @Override
   public SqlTable getTable(String name) {
-    return new SqlTable(db, getMetadata().getTableMetadata(name));
+    SqlTableMetadata metadata = getMetadata().getTableMetadata(name);
+    if (metadata == null) return null;
+    if (metadata.exists()) return new SqlTable(db, metadata);
+    else return null;
   }
 
   @Override
@@ -182,10 +185,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public SqlTable createTableIfNotExists(String name) {
-    try {
-      return getTable(name);
-    } catch (Exception e) {
+  public Table createTableIfNotExists(String name) {
+    Table exists = getTable(name);
+    if (exists != null) {
+      return exists;
+    } else {
       getMetadata().createTableIfNotExists(name);
       return getTable(name);
     }
@@ -208,7 +212,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public SchemaMetadata getMetadata() {
+  public SqlSchemaMetadata getMetadata() {
     return metadata;
   }
 

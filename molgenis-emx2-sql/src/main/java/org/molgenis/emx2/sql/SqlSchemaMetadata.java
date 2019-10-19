@@ -5,6 +5,8 @@ import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collection;
@@ -26,9 +28,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SqlTableMetadata getTableMetadata(String name) {
-    try {
-      return (SqlTableMetadata) super.getTableMetadata(name);
-    } catch (Exception e) {
+    TableMetadata metadata = super.getTableMetadata(name);
+    if (metadata != null) return (SqlTableMetadata) metadata;
+    else {
       // else retrieve from metadata
       SqlTableMetadata table = new SqlTableMetadata(db, this, name);
       table.load();
@@ -36,10 +38,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         this.tables.put(name, table);
         return table;
       } else {
-        throw new MolgenisException(
-            "undefined_table",
-            "Table not found",
-            "Table '" + name + "' couldn't not be found in schema " + getName());
+        return null;
       }
     }
   }
@@ -87,15 +86,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public SqlTableMetadata createTableIfNotExists(String name) {
-    try {
-      return getTableMetadata(name);
-    } catch (Exception e) {
-      SqlTableMetadata table = new SqlTableMetadata(db, this, name);
-      table.createTable();
-      super.tables.put(name, table);
-      return table;
-    }
+  public TableMetadata createTableIfNotExists(String name) {
+    TableMetadata metadata = getTableMetadata(name);
+    if (metadata != null) return metadata;
+    // else
+    SqlTableMetadata table = new SqlTableMetadata(db, this, name);
+    table.createTable();
+    super.tables.put(name, table);
+    return table;
   }
 
   @Override

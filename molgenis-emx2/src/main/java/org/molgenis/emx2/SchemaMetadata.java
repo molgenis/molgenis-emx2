@@ -16,7 +16,7 @@ public class SchemaMetadata {
   }
 
   /** for subclass to add table privately */
-  protected void loadTable(TableMetadata t) {
+  public void loadTable(TableMetadata t) {
     tables.put(t.getTableName(), t);
   }
 
@@ -33,12 +33,10 @@ public class SchemaMetadata {
   }
 
   public TableMetadata createTableIfNotExists(String name) {
-    try {
-      return getTableMetadata(name);
-    } catch (Exception e) {
+    if (getTableMetadata(name) == null) {
       tables.put(name, new TableMetadata(this, name));
-      return getTableMetadata(name);
     }
+    return getTableMetadata(name);
   }
 
   public TableMetadata createTable(TableMetadata table) {
@@ -56,19 +54,14 @@ public class SchemaMetadata {
   }
 
   public TableMetadata getTableMetadata(String name) {
-    TableMetadata table = tables.get(name);
-    if (table == null)
-      throw new MolgenisException(
-          "undefined_table",
-          "Table not found",
-          "Table with name='" + name + "' could not be found");
-    return table;
+    return tables.get(name);
   }
 
   public void dropTable(String tableId) {
     tables.remove(tableId);
   }
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for (TableMetadata t : tables.values()) {

@@ -20,12 +20,14 @@ import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
 
-  private TableMetadata from;
-  private DSLContext jooq;
+  private SqlTableMetadata from;
 
-  public SqlQuery(TableMetadata from, DSLContext jooq) {
+  public SqlQuery(SqlTableMetadata from) {
     this.from = from;
-    this.jooq = jooq;
+  }
+
+  private DSLContext getJooq() {
+    return from.getJooq();
   }
 
   @Override
@@ -171,8 +173,8 @@ public class SqlQuery extends QueryBean implements Query {
       tableAliases.add(tableAlias);
     }
     SelectSelectStep selectStep;
-    if (!fields.isEmpty()) selectStep = jooq.select(fields);
-    else selectStep = jooq.select();
+    if (!fields.isEmpty()) selectStep = getJooq().select(fields);
+    else selectStep = getJooq().select();
     return selectStep;
   }
 

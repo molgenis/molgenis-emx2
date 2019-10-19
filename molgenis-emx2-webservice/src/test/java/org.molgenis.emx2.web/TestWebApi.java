@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class TestWebApi {
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
 
   @BeforeClass
-  public static void before() {
+  public static void before() throws SQLException {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();

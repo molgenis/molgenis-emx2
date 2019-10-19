@@ -9,6 +9,8 @@ import org.molgenis.emx2.Transaction;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,19 +21,17 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlDatabase implements Database {
+  private DataSource source;
   private DSLContext jooq;
   private UserAwareConnectionProvider connectionProvider;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
+  private boolean inTx;
 
   public SqlDatabase(DataSource source) {
-    connectionProvider = new UserAwareConnectionProvider(source);
+    this.source = source;
+    this.connectionProvider = new UserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
-  }
-
-  /** private constructor for in transaction */
-  private SqlDatabase(Configuration configuration) {
-    this.jooq = DSL.using(configuration);
   }
 
   @Override
@@ -135,24 +135,59 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void transaction(Transaction transaction) {
-    // createColumn independent merge of database with transaction connection
-    try {
-      jooq.transaction(
-          config -> {
-            DSL.using(config).execute("SET CONSTRAINTS ALL DEFERRED");
+  public synchronized void transaction(Transaction transaction) {
 
-            Database db = new SqlDatabase(config);
-            transaction.run(db);
-          });
+    if (inTx) {
+      transaction.run(this);
+      return;
+    }
+
+    // createColumn independent merge of database with transaction connection
+    Connection connection = null;
+    DSLContext originalContext = jooq;
+    try (Connection conn = source.getConnection()) {
+      this.inTx = true;
+      DSL.using(conn, SQLDialect.POSTGRES_10)
+          .transaction(
+              config -> {
+                DSLContext ctx = DSL.using(config);
+                ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+                this.jooq = ctx;
+                if (connectionProvider.getActiveUser() != null) {
+                  this.setActiveUser(connectionProvider.getActiveUser());
+                }
+                transaction.run(this);
+                ctx.execute("RESET SESSION AUTHORIZATION");
+              });
+    } catch (SQLException sqle) {
+      clearCache();
+      throw new MolgenisException(sqle);
+    } catch (MolgenisException me) {
+      clearCache();
+      throw me;
     } catch (DataAccessException e) {
+      clearCache();
       throw new SqlMolgenisException(e);
+    } finally {
+      this.inTx = false;
+      jooq = originalContext;
     }
   }
 
   @Override
   public void setActiveUser(String username) {
-    this.connectionProvider.setActiveUser(username);
+    if (inTx) {
+      try {
+        jooq.execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + username));
+      } catch (DataAccessException dae) {
+        throw new MolgenisException(
+            "set active user failed",
+            "set active user failed",
+            "active user '" + username + "' failed");
+      }
+    } else {
+      this.connectionProvider.setActiveUser(username);
+    }
   }
 
   @Override
@@ -164,7 +199,16 @@ public class SqlDatabase implements Database {
 
   @Override
   public void clearActiveUser() {
-    this.connectionProvider.clearActiveUser();
+    if (inTx) {
+      // then we don't use the connection provider
+      try {
+        jooq.execute("RESET SESSION AUTHORIZATION");
+      } catch (DataAccessException sqle) {
+        throw new MolgenisException("release of connection failed ", sqle);
+      }
+    } else {
+      this.connectionProvider.clearActiveUser();
+    }
   }
 
   @Override

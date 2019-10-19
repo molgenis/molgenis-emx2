@@ -18,7 +18,7 @@ import static org.molgenis.emx2.ColumnType.*;
 public class TestGetSetAllTypesOnRows {
 
   @Test
-  public void test1()  {
+  public void test1() {
     List<ColumnType> columnTypes =
         Arrays.asList(STRING, INT, DECIMAL, BOOL, UUID, TEXT, DATE, DATETIME);
 
@@ -45,12 +45,8 @@ public class TestGetSetAllTypesOnRows {
     // System.out.println("Now we expect diff: " + m.diff(m2));
 
     m.dropTable("TypeTest");
-    try {
-      m.getTableMetadata("TypeTest");
-      fail("Table should have been dropped");
-    } catch (Exception e) {
-      // this is expected
-    }
+
+    TableMetadata test = m.getTableMetadata("TypeTest");
     assertEquals(0, m.getTableNames().size());
   }
 
@@ -191,8 +187,7 @@ public class TestGetSetAllTypesOnRows {
     assertArrayEquals(new LocalDateTime[] {odt.toLocalDateTime()}, r.getDateTimeArray("test"));
   }
 
-  private void addContents(SchemaMetadata m, List<ColumnType> columnTypes)
-       {
+  private void addContents(SchemaMetadata m, List<ColumnType> columnTypes) {
     TableMetadata t = m.createTableIfNotExists("TypeTest");
     for (ColumnType columnType : columnTypes) {
       t.addColumn("test" + columnType, columnType);

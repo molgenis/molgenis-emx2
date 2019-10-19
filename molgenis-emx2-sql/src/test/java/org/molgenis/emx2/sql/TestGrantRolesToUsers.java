@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -149,8 +150,8 @@ public class TestGrantRolesToUsers {
             });
         // should throw exception, otherwise fail
         fail();
-      } catch (Exception e) {
-        // this is expected
+      } catch (MolgenisException e) {
+        System.out.println("erorred correclty:\n" + e);
       }
       database.clearActiveUser();
 

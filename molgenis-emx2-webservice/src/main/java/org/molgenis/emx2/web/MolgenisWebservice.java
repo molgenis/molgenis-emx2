@@ -27,6 +27,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -340,7 +341,8 @@ public class MolgenisWebservice {
     return databaseForRole.computeIfAbsent(
         token,
         t -> {
-          SqlDatabase database = new SqlDatabase(dataSource);
+          SqlDatabase database;
+          database = new SqlDatabase(dataSource);
           database.setActiveUser(token);
           return database;
         });

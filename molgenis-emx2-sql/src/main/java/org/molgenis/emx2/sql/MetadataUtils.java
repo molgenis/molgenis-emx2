@@ -192,8 +192,7 @@ public class MetadataUtils {
                 TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetchOne();
     if (tableRecord == null) {
-      throw new MolgenisException(
-          "undefined_table", "Undefined table", "Table '" + table.getTableName() + "' not found");
+      return;
     }
     String[] pkey = tableRecord.get(TABLE_PRIMARYKEY, String[].class);
     if (pkey.length > 0) table.loadPrimaryKey(pkey);

@@ -27,16 +27,16 @@ class SqlTable implements Table {
   public static final String DEFER_SQL = "SET CONSTRAINTS ALL DEFERRED";
 
   private SqlDatabase db;
-  private TableMetadata metadata;
+  private SqlTableMetadata metadata;
 
-  SqlTable(SqlDatabase db, TableMetadata metadata) {
+  SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
     this.db = db;
     this.metadata = metadata;
   }
 
   @Override
   public org.molgenis.emx2.Schema getSchema() {
-    return new SqlSchema(db, metadata.getSchema());
+    return new SqlSchema(db, (SqlSchemaMetadata) metadata.getSchema());
   }
 
   @Override
@@ -267,7 +267,7 @@ class SqlTable implements Table {
 
   @Override
   public org.molgenis.emx2.Query query() {
-    return new SqlQuery(this.getMetadata(), db.getJooq());
+    return new SqlQuery((SqlTableMetadata) this.getMetadata());
   }
 
   @Override

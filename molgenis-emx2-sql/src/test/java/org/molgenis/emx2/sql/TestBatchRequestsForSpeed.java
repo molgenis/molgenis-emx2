@@ -16,6 +16,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNull;
 
 public class TestBatchRequestsForSpeed {
   private static Database db;
@@ -162,18 +163,10 @@ public class TestBatchRequestsForSpeed {
 
     // drop a fromTable
     db.getSchema("testCreate").getMetadata().dropTable(personTable.getName());
-    try {
-      db.getSchema("testCreate").getTable(personTable.getName());
-      fail("should have been dropped");
-    } catch (Exception e) { // expected
-    }
+    assertNull(db.getSchema("testCreate").getTable(personTable.getName()));
 
     // make sure nothing was left behind in backend
     db.clearCache();
-    try {
-      assertEquals(null, db.getSchema("testCreate").getTable(personTable.getName()));
-      fail("should have been dropped");
-    } catch (Exception e) { // expected
-    }
+    assertNull(null, db.getSchema("testCreate").getTable(personTable.getName()));
   }
 }

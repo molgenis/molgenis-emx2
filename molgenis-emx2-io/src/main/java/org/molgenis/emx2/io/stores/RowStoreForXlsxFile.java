@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.stores;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,29 +25,32 @@ public class RowStoreForXlsxFile implements RowStore {
   }
 
   @Override
-  public void write(String name, List<Row> rows) throws IOException {
+  public void write(String name, List<Row> rows) {
     if (rows.isEmpty()) return;
+    try {
+      if (name.length() > 30)
+        throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
 
-    if (name.length() > 30)
-      throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
-
-    if (!Files.exists(excelFilePath)) {
-      try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
-          Workbook wb = new XSSFWorkbook()) {
-        writeRowsToSheet(name, rows, wb);
-        wb.write(out);
+      if (!Files.exists(excelFilePath)) {
+        try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
+            Workbook wb = new XSSFWorkbook()) {
+          writeRowsToSheet(name, rows, wb);
+          wb.write(out);
+        }
+      } else {
+        Workbook wb;
+        try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
+          wb = WorkbookFactory.create(inputStream);
+          writeRowsToSheet(name, rows, wb);
+        }
+        try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
+          wb.write(outputStream);
+        } finally {
+          wb.close();
+        }
       }
-    } else {
-      Workbook wb;
-      try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
-        wb = WorkbookFactory.create(inputStream);
-        writeRowsToSheet(name, rows, wb);
-      }
-      try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
-        wb.write(outputStream);
-      } finally {
-        wb.close();
-      }
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
     }
   }
 
@@ -80,7 +84,7 @@ public class RowStoreForXlsxFile implements RowStore {
   }
 
   @Override
-  public List<Row> read(String name) throws IOException {
+  public List<Row> read(String name) {
     List<Row> result = new ArrayList<>();
     try (InputStream inp = new FileInputStream(excelFilePath.toFile());
         Workbook wb = WorkbookFactory.create(inp)) {
@@ -106,6 +110,8 @@ public class RowStoreForXlsxFile implements RowStore {
         }
       }
       return result;
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
     }
   }
 
@@ -150,10 +156,12 @@ public class RowStoreForXlsxFile implements RowStore {
   }
 
   @Override
-  public boolean containsTable(String name) throws IOException {
+  public boolean containsTable(String name) {
     try (InputStream inp = new FileInputStream(excelFilePath.toFile());
         Workbook wb = WorkbookFactory.create(inp)) {
       if (wb.getSheet(name) != null) return true;
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
     }
     return false;
   }

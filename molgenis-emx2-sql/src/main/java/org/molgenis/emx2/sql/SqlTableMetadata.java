@@ -169,8 +169,8 @@ class SqlTableMetadata extends TableMetadata {
     db.transaction(
         dsl -> {
           SqlColumn c = new SqlColumn(this, name, columnType);
-          c.createColumn();
           super.addColumn(c);
+          c.createColumn();
           this.updateSearchIndexTriggerFunction();
         });
     return getColumn(name);

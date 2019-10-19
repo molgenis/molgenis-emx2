@@ -32,7 +32,8 @@ public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
       throw new MolgenisException(
           "set active user failed",
           "set active user failed",
-          "active user '" + activeUser + "' failed");
+          "active user '" + activeUser + "' failed",
+          dae);
     }
   }
 

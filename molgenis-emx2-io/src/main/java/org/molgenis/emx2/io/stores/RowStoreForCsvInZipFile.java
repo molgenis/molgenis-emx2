@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.stores;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
+import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,31 +49,37 @@ public class RowStoreForCsvInZipFile implements RowStore {
   }
 
   @Override
-  public void write(String name, List<Row> rows) throws IOException {
+  public void write(String name, List<Row> rows) {
     if (!rows.isEmpty()) {
       try (FileSystem zipfs = open()) {
         Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
         Writer writer = Files.newBufferedWriter(pathInZipfile);
         CsvRowWriter.writeCsv(rows, writer, separator);
         writer.close();
+      } catch (IOException ioe) {
+        throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
       }
     }
   }
 
   @Override
-  public List<Row> read(String name) throws IOException {
+  public List<Row> read(String name) {
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Reader reader = Files.newBufferedReader(pathInZipfile);
       return CsvRowReader.readList(reader, separator);
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
     }
   }
 
   @Override
-  public boolean containsTable(String name) throws IOException {
+  public boolean containsTable(String name) {
     try (FileSystem zipfs = open()) {
       Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       return Files.exists(path);
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
     }
   }
 }

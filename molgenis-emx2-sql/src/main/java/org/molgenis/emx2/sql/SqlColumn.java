@@ -9,20 +9,18 @@ import org.molgenis.emx2.Column;
 import static org.jooq.impl.DSL.*;
 
 public class SqlColumn extends Column {
-  private DSLContext jooq;
-
   public SqlColumn(SqlTableMetadata table, String columnName, ColumnType columnColumnType) {
     super(table, columnName, columnColumnType);
-    this.jooq = table.getJooq();
   }
 
   /** constructor for REF */
   public SqlColumn createColumn() {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
     Field thisColumn = field(name(getColumnName()), thisType);
-    jooq.alterTable(asJooqTable()).addColumn(thisColumn).execute();
+    getJooq().alterTable(asJooqTable()).addColumn(thisColumn).execute();
 
-    jooq.alterTable(asJooqTable())
+    getJooq()
+        .alterTable(asJooqTable())
         .alterColumn(thisColumn)
         .setNotNull()
         .execute(); // seperate to not interfere with type
@@ -35,8 +33,8 @@ public class SqlColumn extends Column {
   @Override
   public SqlColumn setNullable(boolean nillable) {
     if (nillable)
-      jooq.alterTable(asJooqTable()).alterColumn(getColumnName()).dropNotNull().execute();
-    else jooq.alterTable(asJooqTable()).alterColumn(getColumnName()).setNotNull().execute();
+      getJooq().alterTable(asJooqTable()).alterColumn(getColumnName()).dropNotNull().execute();
+    else getJooq().alterTable(asJooqTable()).alterColumn(getColumnName()).setNotNull().execute();
     super.setNullable(getNullable());
     return this;
   }
@@ -48,11 +46,12 @@ public class SqlColumn extends Column {
             dsl -> {
               String indexName = "INDEX_" + getTable().getTableName() + '_' + getColumnName();
               if (index) {
-                jooq.createIndexIfNotExists(name(indexName))
+                getJooq()
+                    .createIndexIfNotExists(name(indexName))
                     .on(asJooqTable(), field(name(getColumnName())))
                     .execute();
               } else {
-                jooq.dropIndexIfExists(name(getTable().getSchema().getName(), indexName));
+                getJooq().dropIndexIfExists(name(getTable().getSchema().getName(), indexName));
               }
               super.setIndexed(index);
               MetadataUtils.saveColumnMetadata(this);
@@ -67,7 +66,7 @@ public class SqlColumn extends Column {
   }
 
   protected DSLContext getJooq() {
-    return jooq;
+    return ((SqlTableMetadata) getTable()).getJooq();
   }
 
   protected Column loadNullable(Boolean nullable) {

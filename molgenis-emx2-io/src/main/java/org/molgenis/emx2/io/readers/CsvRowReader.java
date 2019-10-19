@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.readers;
 
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.utils.MolgenisException;
 import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.File;
@@ -22,7 +23,7 @@ public class CsvRowReader {
     return read(new FileReader(f), ',');
   }
 
-  public static List<Row> readList(Reader in, Character separator) throws IOException {
+  public static List<Row> readList(Reader in, Character separator) {
     List<Row> result = new ArrayList<>();
     for (Row r : read(in, separator)) {
       result.add(r);
@@ -30,27 +31,31 @@ public class CsvRowReader {
     return result;
   }
 
-  public static Iterable<Row> read(Reader in, Character separator) throws IOException {
-    // don't use buffered, it is slower
-    Iterator<LinkedHashMap> iterator =
-        CsvParser.dsl().separator(separator).trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
+  public static Iterable<Row> read(Reader in, Character separator) {
+    try {
+      // don't use buffered, it is slower
+      Iterator<LinkedHashMap> iterator =
+          CsvParser.dsl().separator(separator).trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
 
-    return () ->
-        new Iterator<Row>() {
-          final Iterator<LinkedHashMap> it = iterator;
+      return () ->
+          new Iterator<Row>() {
+            final Iterator<LinkedHashMap> it = iterator;
 
-          public boolean hasNext() {
-            return it.hasNext();
-          }
+            public boolean hasNext() {
+              return it.hasNext();
+            }
 
-          public Row next() {
-            return new Row(it.next());
-          }
+            public Row next() {
+              return new Row(it.next());
+            }
 
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
-        };
+            @Override
+            public void remove() {
+              throw new UnsupportedOperationException();
+            }
+          };
+    } catch (IOException ioe) {
+      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+    }
   }
 }
