@@ -19,20 +19,20 @@ public class PetStoreExample {
   public static void create(SchemaMetadata schema) {
 
     TableMetadata categoryTable = schema.createTableIfNotExists(CATEGORY);
-    categoryTable.addColumn(NAME).setUnique(true);
+    categoryTable.addColumn(NAME).setPrimaryKey(true);
 
     TableMetadata tagTable = schema.createTableIfNotExists(TAG);
-    tagTable.addColumn(NAME).setUnique(true);
+    tagTable.addColumn(NAME).setPrimaryKey(true);
 
     TableMetadata petTable = schema.createTableIfNotExists("Pet");
-    petTable.addColumn(NAME).setUnique(true);
+    petTable.addColumn(NAME).setPrimaryKey(true);
     petTable.addRef("category", CATEGORY).setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", TAG);
 
     TableMetadata userTable = schema.createTableIfNotExists("User");
-    userTable.addColumn("username").setUnique(true);
+    userTable.addColumn("username").setPrimaryKey(true);
     userTable.addColumn("firstName");
     userTable.addColumn("lastName");
     userTable.addColumn("email"); // todo: validation email
