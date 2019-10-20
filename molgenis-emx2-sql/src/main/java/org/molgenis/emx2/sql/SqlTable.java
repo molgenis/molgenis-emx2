@@ -8,7 +8,6 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.MolgenisException;
-import org.molgenis.emx2.utils.TypeUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
