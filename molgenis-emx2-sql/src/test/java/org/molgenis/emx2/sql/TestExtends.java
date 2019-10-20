@@ -117,7 +117,8 @@ public class TestExtends {
     // TODO test RLS
 
     // test search
-    // assertEquals(1, employeeTable.search("Dagobert").retrieve().size());
+    assertEquals(1, personTable.search("Dagobert").retrieve().size());
+    assertEquals(1, employeeTable.search("Dagobert").retrieve().size());
 
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));

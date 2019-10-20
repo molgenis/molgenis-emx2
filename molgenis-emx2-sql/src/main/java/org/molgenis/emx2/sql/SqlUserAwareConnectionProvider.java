@@ -12,10 +12,10 @@ import java.sql.Connection;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
-public class UserAwareConnectionProvider extends DataSourceConnectionProvider {
+public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;
 
-  public UserAwareConnectionProvider(DataSource source) {
+  public SqlUserAwareConnectionProvider(DataSource source) {
     super(source);
   }
 

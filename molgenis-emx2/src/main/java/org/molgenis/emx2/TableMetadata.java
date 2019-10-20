@@ -48,6 +48,10 @@ public class TableMetadata {
     return result;
   }
 
+  public Set<String> getLocalColumnNames() {
+    return columns.keySet();
+  }
+
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
     if (inherits != null) {
@@ -62,6 +66,15 @@ public class TableMetadata {
       result.addAll(columns.values());
     }
     return Collections.unmodifiableList(result);
+  }
+
+  public Collection<String> getColumnNames() {
+    Set<String> result = new HashSet<>();
+    if (inherits != null) {
+      result.addAll(getInheritedTable().getColumnNames());
+    }
+    result.addAll(getLocalColumnNames());
+    return result;
   }
 
   public Column getColumn(String name) {

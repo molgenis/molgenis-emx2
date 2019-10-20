@@ -23,13 +23,13 @@ import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 public class SqlDatabase implements Database {
   private DataSource source;
   private DSLContext jooq;
-  private UserAwareConnectionProvider connectionProvider;
+  private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
   private boolean inTx;
 
   public SqlDatabase(DataSource source) {
     this.source = source;
-    this.connectionProvider = new UserAwareConnectionProvider(source);
+    this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
   }

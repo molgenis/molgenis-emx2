@@ -55,6 +55,8 @@ public class SqlMolgenisException extends MolgenisException {
         return "duplicate_schema";
       case "42501":
         return "insufficent_privilege";
+      case "42703":
+        return "column_doesnt_exist";
       default:
         return "SqlMolgenisException has not yet implemented translation for type " + errorCode;
     }
