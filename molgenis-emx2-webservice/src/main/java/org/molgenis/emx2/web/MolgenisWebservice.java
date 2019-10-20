@@ -270,7 +270,7 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String rowsPost(Request request, Response response) throws IOException {
+  private static String rowsPost(Request request, Response response) {
     Table table =
         getAuthenticatedDatabase(request)
             .getSchema(request.params(SCHEMA))
@@ -282,7 +282,7 @@ public class MolgenisWebservice {
     return "" + count;
   }
 
-  private static String rowsDelete(Request request, Response response) throws IOException {
+  private static String rowsDelete(Request request, Response response) {
     Table table =
         getAuthenticatedDatabase(request)
             .getSchema(request.params(SCHEMA))

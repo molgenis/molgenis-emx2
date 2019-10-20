@@ -8,7 +8,6 @@ import org.molgenis.emx2.io.stores.RowStoreForXlsxFile;
 import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.io.stores.RowStoreForCsvInZipFile;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 public class MolgenisImport {

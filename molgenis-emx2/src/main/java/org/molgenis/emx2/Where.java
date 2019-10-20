@@ -17,23 +17,23 @@ public class Where {
     return path;
   }
 
-  public void setPath(String path) {
-    this.path = path;
-  }
+  //  public void setPath(String path) {
+  //    this.path = path;
+  //  }
 
   public Operator getOperator() {
     return operator;
   }
 
-  public void setOperator(Operator operator) {
-    this.operator = operator;
-  }
+  //  public void setOperator(Operator operator) {
+  //    this.operator = operator;
+  //  }
 
   public Serializable[] getValues() {
     return values;
   }
 
-  public void setValues(Serializable... values) {
-    this.values = values;
-  }
+  //  public void setValues(Serializable... values) {
+  //    this.values = values;
+  //  }
 }

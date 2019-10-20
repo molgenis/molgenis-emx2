@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.TableMetadata;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;

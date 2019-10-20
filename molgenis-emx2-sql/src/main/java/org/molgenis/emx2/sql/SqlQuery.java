@@ -98,7 +98,6 @@ public class SqlQuery extends QueryBean implements Query {
       String[] path = getPath(tableAlias.getKey());
       if (path.length > 1) { // ignore the 'from'
         Column fkey = tableAlias.getValue();
-        // Column fkey = getColumn(from, Arrays.copyOfRange(path, 1, path.length), null);
         String leftAlias = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
         switch (fkey.getColumnType()) {
           case REF:
@@ -179,10 +178,6 @@ public class SqlQuery extends QueryBean implements Query {
                 field(name(tableAlias, fkey.getRefColumnName())),
                 field(name(leftAlias, fkey.getColumnName())));
     return fromStep;
-  }
-
-  private static SelectJoinStep createParentJoin() {
-    return null;
   }
 
   private static SelectJoinStep createRefJoin(
