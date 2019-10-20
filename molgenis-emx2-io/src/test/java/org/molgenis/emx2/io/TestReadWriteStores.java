@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import static junit.framework.TestCase.fail;
+
 public class TestReadWriteStores {
   @Test
   public void testCsvDirectoryStore() throws IOException {
@@ -131,5 +133,13 @@ public class TestReadWriteStores {
     // compare
     CompareTools.assertEquals(rows, rows2);
     StopWatch.print("compared succesfully");
+
+    // test that reading store that doesn't exist errors properly
+    try {
+      rows = store.read("fake");
+      fail("should have failed");
+    } catch (MolgenisException me) {
+      System.out.println("errored correctly:" + me);
+    }
   }
 }

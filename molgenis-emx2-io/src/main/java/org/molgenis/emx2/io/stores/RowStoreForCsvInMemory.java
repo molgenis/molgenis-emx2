@@ -40,7 +40,9 @@ public class RowStoreForCsvInMemory implements RowStore {
   public List<Row> read(String name) {
     if (!store.containsKey(name))
       throw new MolgenisException(
-          "not_found", "Not found", "CsvStringStore with name " + name + " doesn't exist");
+          ErrorCodes.NOT_FOUND,
+          ErrorCodes.NOT_FOUND_MESSAGE,
+          "CsvStringStore with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
     return CsvRowReader.readList(reader, separator);

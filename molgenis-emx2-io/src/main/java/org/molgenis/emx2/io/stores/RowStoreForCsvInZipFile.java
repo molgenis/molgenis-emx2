@@ -76,7 +76,10 @@ public class RowStoreForCsvInZipFile implements RowStore {
       return CsvRowReader.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
-          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+          ErrorCodes.NOT_FOUND,
+          ErrorCodes.NOT_FOUND_MESSAGE,
+          "CsvStringStore with name '" + name + "' doesn't exist. " + ioe.getMessage(),
+          ioe);
     }
   }
 
