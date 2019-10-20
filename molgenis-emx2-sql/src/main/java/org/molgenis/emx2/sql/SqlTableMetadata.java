@@ -56,7 +56,7 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
           DSLContext jooq = db.getJooq();
-          jooq.execute("CREATE TABLE IF NOT EXISTS {0}", tableName);
+          jooq.createTable(tableName).columns().execute();
           MetadataUtils.saveTableMetadata(this);
 
           // grant rights to schema manager, editor and viewer roles

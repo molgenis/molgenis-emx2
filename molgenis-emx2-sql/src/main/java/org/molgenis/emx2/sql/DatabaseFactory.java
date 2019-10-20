@@ -25,7 +25,7 @@ public class DatabaseFactory {
     if (db == null) {
 
       // setup local Jooq
-      jooq = DSL.using(source, SQLDialect.POSTGRES);
+      jooq = DSL.using(source, SQLDialect.POSTGRES_10);
 
       // delete all
       deleteAll();
