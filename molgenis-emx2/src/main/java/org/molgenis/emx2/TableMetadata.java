@@ -13,11 +13,11 @@ public class TableMetadata {
 
   private SchemaMetadata schema;
 
-  private String tableName;
-  private Map<String, Column> columns;
-  private List<String[]> uniques;
-  private String[] primaryKey;
-  private String inherits;
+  private String tableName = null;
+  private Map<String, Column> columns = new LinkedHashMap<>();
+  private List<String[]> uniques = new ArrayList<>();
+  private String[] primaryKey = new String[0];
+  private String inherits = null;
 
   public TableMetadata(SchemaMetadata schema, String tableName) {
     this.clearCache();
@@ -39,6 +39,7 @@ public class TableMetadata {
   }
 
   public String[] getPrimaryKey() {
+    if (this.inherits != null) return getInheritedTable().getPrimaryKey();
     return this.primaryKey;
   }
 

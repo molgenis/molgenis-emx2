@@ -10,7 +10,14 @@ public class Entity {
   private String label;
   private String description;
 
-  public Entity(Row row) {}
+  public Entity(Row row) {
+    this.name = row.getString("name");
+    this.extnds = row.getString("extends");
+    this.packageName = row.getString("package");
+    this.isAbstract = row.getBoolean("abstract");
+    this.label = row.getString("label");
+    this.description = row.getString("description");
+  }
 
   public String getName() {
     return name;
@@ -20,7 +27,7 @@ public class Entity {
     return packageName;
   }
 
-  public String getExtnds() {
+  public String getExtends() {
     return extnds;
   }
 

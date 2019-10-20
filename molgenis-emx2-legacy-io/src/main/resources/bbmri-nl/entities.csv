@@ -1,4 +1,4 @@
-﻿name;package;extends;abstract;backend;tags;label;description;description-de;label-de;description-en;label-en;description-es;label-es;description-fr;label-fr;description-it;label-it;description-nl;label-nl;description-pt;label-pt;description-xx;label-xx
+name;package;extends;abstract;backend;tags;label;description;description-de;label-de;description-en;label-en;description-es;label-es;description-fr;label-fr;description-it;label-it;description-nl;label-nl;description-pt;label-pt;description-xx;label-xx
 ontology_term;bbmri_nl;;true;;;Ontology Term;;;;;;;;;;;;;;;;;
 age_types;bbmri_nl;bbmri_nl_ontology_term;false;;;Units of time;;;;;;;;;;;;;;;;;
 biobanks;bbmri_nl;;false;;;Biobanks;Biobanks;;;;;;;;;;;;;;;;
