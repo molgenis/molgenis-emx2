@@ -146,7 +146,7 @@ public class SqlDatabase implements Database {
     DSLContext originalContext = jooq;
     try (Connection conn = source.getConnection()) {
       this.inTx = true;
-      DSL.using(conn, SQLDialect.POSTGRES_10)
+      DSL.using(conn, SQLDialect.POSTGRES)
           .transaction(
               config -> {
                 DSLContext ctx = DSL.using(config);
