@@ -210,27 +210,35 @@ public class TableMetadata {
                 + "' is not known in table "
                 + getTableName());
     }
-    if (this.getPrimaryKey().length == 0) this.setPrimaryKey(columnNames);
-    else uniques.add(columnNames);
+    if (isUnique(columnNames)) return this; // idempotent, we silently ignore
+    uniques.add(columnNames);
     return this;
   }
 
   public boolean isUnique(String... names) {
     for (String[] el : this.uniques) {
-      if (Arrays.equals(names, el)) {
+      if (equalContents(el, names)) {
         return true;
       }
     }
     return false;
   }
 
+  private boolean equalContents(String[] a, String[] b) {
+    ArrayList one = new ArrayList<>(Arrays.asList(a));
+    Collections.sort(one);
+    ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
+    Collections.sort(two);
+    return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
+  }
+
   public boolean isPrimaryKey(String... names) {
-    return Arrays.equals(names, this.primaryKey);
+    return equalContents(names, this.primaryKey);
   }
 
   public void removeUnique(String... keys) {
     for (int i = 0; i < uniques.size(); i++) {
-      if (Arrays.equals(uniques.get(i), keys)) {
+      if (equalContents(uniques.get(i), keys)) {
         uniques.remove(i);
         break;
       }
