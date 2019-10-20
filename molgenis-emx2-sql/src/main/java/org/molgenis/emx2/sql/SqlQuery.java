@@ -94,21 +94,21 @@ public class SqlQuery extends QueryBean implements Query {
                 .as(name(from.getTableName())));
 
     // join the tables for all paths beyond primary 'from' table
-    for (String tableAlias : tableAliases.keySet()) {
-      String[] path = getPath(tableAlias);
+    for (Map.Entry<String, Column> tableAlias : tableAliases.entrySet()) {
+      String[] path = getPath(tableAlias.getKey());
       if (path.length > 1) { // ignore the 'from'
-        Column fkey = tableAliases.get(tableAlias);
+        Column fkey = tableAlias.getValue();
         // Column fkey = getColumn(from, Arrays.copyOfRange(path, 1, path.length), null);
         String leftAlias = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
         switch (fkey.getColumnType()) {
           case REF:
-            fromStep = createRefJoin(fromStep, tableAlias, fkey, leftAlias);
+            fromStep = createRefJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
           case REF_ARRAY:
-            fromStep = createRefArrayJoin(fromStep, tableAlias, fkey, leftAlias);
+            fromStep = createRefArrayJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
           case MREF:
-            fromStep = createMrefJoin(fromStep, tableAlias, fkey, leftAlias);
+            fromStep = createMrefJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
           default:
             // leaves of the paths we don't need

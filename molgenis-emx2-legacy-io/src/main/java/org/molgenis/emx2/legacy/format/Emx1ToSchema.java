@@ -18,75 +18,16 @@ public class Emx1ToSchema {
   public static SchemaMetadata convert(RowStore store, String packagePrefix) {
     SchemaMetadata schema = new SchemaMetadata();
 
-    int line = 2; // line 1 is header
-    List<Entity> entities = new ArrayList<>();
+    List<Entity> entities = loadTables(store, schema);
+    List<Attribute> attributes = loadColumns(store, packagePrefix, schema);
+    loadInheritanceRelations(packagePrefix, schema, entities);
+    loadRefRelationships(packagePrefix, schema, attributes);
 
-    try {
-      if (store.containsTable("entities")) {
-        for (Row row : store.read("entities")) {
-          entities.add(new Entity(row));
-          line++;
-        }
-      }
+    return schema;
+  }
 
-      line = 2; // line 1 is header
-      for (Entity entity : entities) {
-        schema.createTableIfNotExists(entity.getName());
-        line++;
-      }
-    } catch (MolgenisException me) {
-      throw new MolgenisException(
-          me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
-    }
-
-    line = 2; // line 1 is header
-    List<Attribute> attributes = new ArrayList<>();
-    try {
-      if (store.containsTable("attributes")) {
-        for (Row row : store.read("attributes")) {
-          attributes.add(new Attribute(row));
-          line++;
-        }
-      }
-
-      line = 2; // line 1 is header
-      for (Attribute attribute : attributes) {
-
-        // create the table
-        TableMetadata table =
-            schema.createTableIfNotExists(getTableName(attribute.getEntity(), packagePrefix));
-
-        // create the attribute
-        ColumnType type = getColumnType(attribute.getDataType());
-        Column column = new Column(table, attribute.getName(), type);
-        // column.setRefTable(attribute.getRefEntity());
-        column.setNullable(attribute.getNillable());
-        column.setPrimaryKey(attribute.getIdAttribute());
-        table.addColumn(column);
-
-        line++;
-      }
-    } catch (MolgenisException me) {
-      throw new MolgenisException(
-          me.getType(), me.getTitle(), me.getDetail() + ". See 'attributes' line " + line, me);
-    }
-
-    // update extends relationships
-    line = 2; // line 1 is header
-    try {
-      for (Entity entity : entities) {
-        if (entity.getExtends() != null) {
-          schema
-              .getTableMetadata(entity.getName())
-              .inherits(getTableName(entity.getExtends(), packagePrefix));
-        }
-        line++;
-      }
-    } catch (MolgenisException me) {
-      throw new MolgenisException(
-          me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
-    }
-
+  private static void loadRefRelationships(
+      String packagePrefix, SchemaMetadata schema, List<Attribute> attributes) {
     // update refEntity
     for (Attribute attribute : attributes) {
       if (attribute.getDataType().contains("ref")) {
@@ -107,8 +48,83 @@ public class Emx1ToSchema {
             .setReference(otherTable.getTableName(), otherTable.getPrimaryKey()[0]);
       }
     }
+  }
 
-    return schema;
+  private static void loadInheritanceRelations(
+      String packagePrefix, SchemaMetadata schema, List<Entity> entities) {
+    int line = 2; // line 1 is header
+    try {
+      for (Entity entity : entities) {
+        if (entity.getExtends() != null) {
+          schema
+              .getTableMetadata(entity.getName())
+              .inherits(getTableName(entity.getExtends(), packagePrefix));
+        }
+        line++;
+      }
+    } catch (MolgenisException me) {
+      throw new MolgenisException(
+          me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
+    }
+  }
+
+  private static List<Attribute> loadColumns(
+      RowStore store, String packagePrefix, SchemaMetadata schema) {
+    int line = 2; // line 1 is header
+    List<Attribute> attributes = new ArrayList<>();
+    try {
+      if (store.containsTable("attributes")) {
+        for (Row row : store.read("attributes")) {
+          attributes.add(new Attribute(row));
+          line++;
+        }
+      }
+
+      line = 2; // line 1 is header
+      for (Attribute attribute : attributes) {
+
+        // create the table
+        TableMetadata table =
+            schema.createTableIfNotExists(getTableName(attribute.getEntity(), packagePrefix));
+
+        // create the attribute
+        ColumnType type = getColumnType(attribute.getDataType());
+        Column column = new Column(table, attribute.getName(), type);
+        column.setNullable(attribute.getNillable());
+        column.setPrimaryKey(attribute.getIdAttribute());
+        table.addColumn(column);
+
+        line++;
+      }
+    } catch (MolgenisException me) {
+      throw new MolgenisException(
+          me.getType(), me.getTitle(), me.getDetail() + ". See 'attributes' line " + line, me);
+    }
+    return attributes;
+  }
+
+  private static List<Entity> loadTables(RowStore store, SchemaMetadata schema) {
+    List<Entity> entities = new ArrayList<>();
+    int line = 2; // line 1 is header
+
+    try {
+      if (store.containsTable("entities")) {
+        for (Row row : store.read("entities")) {
+          entities.add(new Entity(row));
+          line++;
+        }
+      }
+
+      line = 2; // line 1 is header
+      for (Entity entity : entities) {
+        schema.createTableIfNotExists(entity.getName());
+        line++;
+      }
+    } catch (MolgenisException me) {
+      throw new MolgenisException(
+          me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
+    }
+    return entities;
   }
 
   private static String getTableName(String fullName, String packagePrefix) {
