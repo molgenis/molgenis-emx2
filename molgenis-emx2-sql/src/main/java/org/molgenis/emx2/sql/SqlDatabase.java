@@ -30,7 +30,7 @@ public class SqlDatabase implements Database {
   public SqlDatabase(DataSource source) {
     this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
   }
 
