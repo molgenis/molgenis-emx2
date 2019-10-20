@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
@@ -54,7 +55,12 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
           DSLContext jooq = db.getJooq();
-          jooq.createTable(tableName).columns(new Name[0]).execute();
+          jooq.createTable(tableName)
+              .columns(
+                  field(
+                      name(MG_SEARCH_INDEX_COLUMN_NAME),
+                      VARCHAR.nullable(true))) // add the search index field
+              .execute();
           MetadataUtils.saveTableMetadata(this);
 
           // grant rights to schema manager, editor and viewer roles
@@ -362,11 +368,8 @@ class SqlTableMetadata extends TableMetadata {
 
   private void enableSearch() {
 
-    // 1. add tsvector column with index
-    db.getJooq()
-        .execute(
-            "ALTER TABLE {0} ADD COLUMN {1} tsvector",
-            getJooqTable(), name(MG_SEARCH_INDEX_COLUMN_NAME));
+    // 1. tsvector column is already there
+
     // for future performance enhancement consider studying 'gin (t gin_trgm_ops)
 
     // 2. createColumn index on that column to speed up search
