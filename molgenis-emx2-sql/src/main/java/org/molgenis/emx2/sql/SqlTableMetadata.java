@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
+import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.TableMetadata;
@@ -55,12 +56,7 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
           DSLContext jooq = db.getJooq();
-          jooq.createTable(tableName)
-              .columns(
-                  field(
-                      name(MG_SEARCH_INDEX_COLUMN_NAME),
-                      VARCHAR.nullable(true))) // add the search index field
-              .execute();
+          jooq.execute("CREATE TABLE IF NOT EXISTS {0}", tableName);
           MetadataUtils.saveTableMetadata(this);
 
           // grant rights to schema manager, editor and viewer roles
@@ -368,7 +364,11 @@ class SqlTableMetadata extends TableMetadata {
 
   private void enableSearch() {
 
-    // 1. tsvector column is already there
+    // 1. add tsvector column with index
+    db.getJooq()
+        .execute(
+            "ALTER TABLE {0} ADD COLUMN {1} tsvector",
+            getJooqTable(), name(MG_SEARCH_INDEX_COLUMN_NAME));
 
     // for future performance enhancement consider studying 'gin (t gin_trgm_ops)
 
