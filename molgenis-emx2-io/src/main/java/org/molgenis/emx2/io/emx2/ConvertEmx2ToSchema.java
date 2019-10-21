@@ -136,9 +136,15 @@ public class ConvertEmx2ToSchema {
 
     if (REF.equals(columnType)) {
       try {
-        String refTable = def.getParameterList(REF.toString().toLowerCase()).get(0);
-        String refColumn = def.getParameterList(REF.toString().toLowerCase()).get(1);
-        table.addRef(columnName, refTable, refColumn);
+        List<String> params = def.getParameterList(REF.toString().toLowerCase());
+        if (params.size() == 0 || params.size() > 2) {
+          throw new MolgenisException("", "", "ref must have 1 or 2 parameter values");
+        }
+        if (params.size() > 1) {
+          table.addRef(columnName, params.get(0), params.get(1));
+        } else {
+          table.addRef(columnName, params.get(0));
+        }
       } catch (Exception e) {
         messages.add(
             new MolgenisExceptionMessage(line, "Parsing of 'ref' failed. " + e.getMessage()));

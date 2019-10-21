@@ -29,7 +29,8 @@ public class Attribute {
     this.dataType = get(row, "dataType");
     this.description = get(row, "description");
     this.nillable = row.getBoolean("nillable");
-    this.idAttribute = "AUTO".equals(row.getString("idAttribute")) || row.getBoolean("idAttribute");
+    this.idAttribute =
+        "AUTO".equalsIgnoreCase(row.getString("idAttribute")) || row.getBoolean("idAttribute");
     this.aggregateable = row.getBoolean("aggregatable");
     this.labelAttribute = row.getBoolean("labelAttribute");
     this.readonly = row.getBoolean("readonly");

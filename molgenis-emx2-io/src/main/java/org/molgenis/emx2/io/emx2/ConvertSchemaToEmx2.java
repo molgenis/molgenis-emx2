@@ -66,10 +66,14 @@ public class ConvertSchemaToEmx2 {
         break;
       case REF:
       case REF_ARRAY:
-        def.add(
-            column.getColumnType().toString().toLowerCase(),
-            column.getRefTableName(),
-            column.getRefColumnName());
+        if (column.getRefColumnName() != null) {
+          def.add(
+              column.getColumnType().toString().toLowerCase(),
+              column.getRefTableName(),
+              column.getRefColumnName());
+        } else {
+          def.add(column.getColumnType().toString().toLowerCase(), column.getRefTableName());
+        }
 
         break;
       default:

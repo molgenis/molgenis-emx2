@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.utils.MolgenisException;
-
 import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {
@@ -76,36 +74,6 @@ public class Column {
   }
 
   public String getRefColumnName() {
-    // if null then we try to guess it
-    if (this.refColumn == null) {
-      if (getRefTableName() == null) return null;
-      if (getTable().getSchema().getTableMetadata(getRefTableName()) == null) {
-        throw new MolgenisException(
-            "invalid_reference",
-            "Invalid reference",
-            "Reference from '"
-                + this.getTable()
-                + "' to '"
-                + this.getRefTableName()
-                + " is invalid: table '"
-                + this.getRefTableName()
-                + "' does not exist.");
-      }
-      if (getTable().getSchema().getTableMetadata(getRefTableName()).getPrimaryKey().length != 1) {
-        throw new MolgenisException(
-            "invalid_reference",
-            "Invalid reference",
-            "Reference from '"
-                + this.getTable()
-                + "' to '"
-                + this.getRefTableName()
-                + " is invalid: table '"
-                + this.getRefTableName()
-                + "' has not a single value primary key");
-      }
-      this.refColumn =
-          getTable().getSchema().getTableMetadata(getRefTableName()).getPrimaryKey()[0];
-    }
     return this.refColumn;
   }
 
@@ -136,6 +104,8 @@ public class Column {
     builder.append(getColumnName()).append(" ");
     if (ColumnType.REF.equals(getColumnType()))
       builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
+    else if (ColumnType.REF_ARRAY.equals(getColumnType()))
+      builder.append("ref_array(").append(refTableName).append(",").append(refColumn).append(")");
     else if (ColumnType.MREF.equals(getColumnType()))
       builder.append("mref(").append(refTableName).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());

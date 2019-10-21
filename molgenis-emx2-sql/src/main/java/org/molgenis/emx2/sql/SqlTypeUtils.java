@@ -2,10 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Column;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -57,33 +54,34 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY:
         return SQLDataType.TIMESTAMP.getArrayDataType();
       case REF:
-        return jooqTypeOf(
-            column
-                .getTable()
-                .getSchema()
-                .getTableMetadata(column.getRefTableName())
-                .getColumn(column.getRefColumnName()));
+        return jooqTypeOf(getRefColumnForColumn(column));
       case REF_ARRAY:
-        return jooqTypeOf(
-                column
-                    .getTable()
-                    .getSchema()
-                    .getTableMetadata(column.getRefTableName())
-                    .getColumn(column.getRefColumnName()))
-            .getArrayDataType();
+        return jooqTypeOf(getRefColumnForColumn(column)).getArrayDataType();
       case MREF:
-        return jooqTypeOf(
-                column
-                    .getTable()
-                    .getSchema()
-                    .getTableMetadata(column.getRefTableName())
-                    .getColumn(column.getRefColumnName()))
-            .getArrayDataType();
+        return jooqTypeOf(getRefColumnForColumn(column)).getArrayDataType();
       default:
         // should never happen
         throw new IllegalArgumentException(
             "addColumn(name,type) : unsupported type " + sqlColumnType);
     }
+  }
+
+  private static Column getRefColumnForColumn(Column column) {
+    TableMetadata tm = column.getTable().getSchema().getTableMetadata(column.getRefTableName());
+    if (tm == null)
+      throw new MolgenisException(
+          "invalid_reference",
+          "Invalid reference",
+          "Table reference '"
+              + column.getColumnName()
+              + "' from table '"
+              + column.getTable().getTableName()
+              + "' to table '"
+              + column.getRefTableName()
+              + "' couln't be created because table '"
+              + column.getRefTableName()
+              + "'couldn't be found");
+    return tm.getColumn(column.getRefColumnName());
   }
 
   public static Collection<Object> getValuesAsCollection(Row row, Table table) {

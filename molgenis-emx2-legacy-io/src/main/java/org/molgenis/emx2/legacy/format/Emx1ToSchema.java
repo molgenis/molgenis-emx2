@@ -30,18 +30,36 @@ public class Emx1ToSchema {
       String packagePrefix, SchemaMetadata schema, List<Attribute> attributes) {
     // update refEntity
     for (Attribute attribute : attributes) {
-      if (attribute.getDataType().contains("ref")) {
+      if (attribute.getDataType().contains("ref")
+          || attribute.getDataType().contains("categorical")) {
 
         TableMetadata table =
             schema.getTableMetadata(getTableName(attribute.getEntity(), packagePrefix));
         TableMetadata otherTable =
             schema.getTableMetadata(getTableName(attribute.getRefEntity(), packagePrefix));
 
+        if (attribute.getRefEntity() == null) {
+          throw new MolgenisException(
+              "missing_refentity",
+              "Refentity is missing for attribute '",
+              "Adding reference '"
+                  + attribute.getEntity()
+                  + "'.'"
+                  + attribute.getName()
+                  + "' failed. RefEntity was missing");
+        }
+
         if (otherTable.getPrimaryKey() == null || otherTable.getPrimaryKey().length == 0) {
           throw new MolgenisException(
               "missing_key",
               "Primary key is missing",
-              "Table '" + otherTable.getTableName() + "' has no primary key defined");
+              "Adding reference '"
+                  + attribute.getEntity()
+                  + "'.'"
+                  + attribute.getName()
+                  + " failed. Table '"
+                  + otherTable.getTableName()
+                  + "' has no primary key defined");
         }
         table
             .getColumn(attribute.getName())
@@ -89,7 +107,7 @@ public class Emx1ToSchema {
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
-        Column column = new Column(table, attribute.getName(), type);
+        Column column = table.addColumn(attribute.getName(), type);
         column.setNullable(attribute.getNillable());
         column.setPrimaryKey(attribute.getIdAttribute());
         table.addColumn(column);
@@ -160,7 +178,8 @@ public class Emx1ToSchema {
         return REF;
       case "mref":
       case "categorical_mref":
-        return MREF;
+        return REF_ARRAY; // todo: or should we use mref? but that is only in case of two sided
+        // references ATM
       default:
         return STRING;
     }

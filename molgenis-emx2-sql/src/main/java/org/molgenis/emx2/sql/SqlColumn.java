@@ -5,6 +5,7 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
 

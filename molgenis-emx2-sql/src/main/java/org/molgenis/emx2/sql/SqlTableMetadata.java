@@ -53,7 +53,7 @@ class SqlTableMetadata extends TableMetadata {
     return super.getColumn(name);
   }
 
-  void createTable() {
+  public void createTable() {
     db.transaction(
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
@@ -208,6 +208,7 @@ class SqlTableMetadata extends TableMetadata {
               "Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
               metadata.getColumnName(), getTableName(), getInherits()));
     }
+    // if ref column is empty, guess it
     db.transaction(
         dsl -> {
           Column result = null;
@@ -249,36 +250,14 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) {
-    if (getSchema().getTableMetadata(toTable) == null)
-      throw new MolgenisException(
-          FOREIGN_KEY_ADD_FAILED,
-          FOREIGN_KEY_ADD_FAILED_MESSAGE,
-          "Adding of foreign key reference "
-              + name
-              + "from table '"
-              + getTableName()
-              + "' to table '"
-              + toTable
-              + "' failed: '"
-              + toTable
-              + "' does not exist.");
-    if (getSchema().getTableMetadata(toTable).getPrimaryKey().length == 0)
-      throw new MolgenisException(
-          FOREIGN_KEY_ADD_FAILED,
-          FOREIGN_KEY_ADD_FAILED_MESSAGE,
-          "Adding of foreign key reference "
-              + name
-              + "from table '"
-              + getTableName()
-              + "' to table '"
-              + toTable
-              + "' failed: '"
-              + toTable
-              + "' has no suitable primary key/unique defined.");
-
     db.transaction(
         dsl -> {
-          RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
+          RefSqlColumn c =
+              new RefSqlColumn(
+                  this,
+                  name,
+                  toTable,
+                  toColumn == null ? getRefTablePrimaryKey(name, toTable) : toColumn);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
@@ -286,24 +265,49 @@ class SqlTableMetadata extends TableMetadata {
     return getColumn(name);
   }
 
-  @Override
-  public Column addRefArray(String name, String toTable) {
-    String[] primaryKeys = getPrimaryKey();
-    if (primaryKeys.length != 1)
+  private String getRefTablePrimaryKey(String columnName, String toTable) {
+    if (getSchema().getTableMetadata(toTable) == null) {
       throw new MolgenisException(
-          FOREIGN_KEY_ADD_FAILED,
-          FOREIGN_KEY_ADD_FAILED_MESSAGE,
-          "Adding of array reference tableName='"
-              + name
-              + "' failed because no suitable primary key defined. Add primary key or use explicit toColumn.");
-    return this.addRefArray(name, toTable, primaryKeys[0]);
+          "invalid_reference",
+          "Invalid reference",
+          "Reference '"
+              + columnName
+              + "'from '"
+              + getTableName()
+              + "' to table '"
+              + toTable
+              + " is invalid: table '"
+              + toTable
+              + "' does not exist.");
+    }
+    String[] primaryKeys = getSchema().getTableMetadata(toTable).getPrimaryKey();
+    if (primaryKeys.length != 1) {
+      throw new MolgenisException(
+          "invalid_reference",
+          "Invalid reference",
+          "Reference '"
+              + columnName
+              + "'from '"
+              + getTableName()
+              + "' to '"
+              + toTable
+              + "' is invalid: table '"
+              + toTable
+              + "' has not a single-value primary key");
+    }
+    return primaryKeys[0];
   }
 
   @Override
   public Column addRefArray(String name, String toTable, String toColumn) {
     db.transaction(
         dsl -> {
-          RefArraySqlColumn c = new RefArraySqlColumn(this, name, toTable, toColumn);
+          RefArraySqlColumn c =
+              new RefArraySqlColumn(
+                  this,
+                  name,
+                  toTable,
+                  toColumn == null ? getRefTablePrimaryKey(name, toTable) : toColumn);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
@@ -329,11 +333,20 @@ class SqlTableMetadata extends TableMetadata {
       String reverseName,
       String reverseRefColumn,
       String joinTable) {
+
     db.transaction(
         dsl -> {
           MrefSqlColumn c =
               new MrefSqlColumn(
-                  this, name, refTable, refColumn, reverseName, reverseRefColumn, joinTable);
+                  this,
+                  name,
+                  refTable,
+                  refColumn == null ? getRefTablePrimaryKey(name, refTable) : refColumn,
+                  reverseName,
+                  reverseRefColumn == null
+                      ? getRefTablePrimaryKey(name, this.getTableName())
+                      : reverseRefColumn,
+                  joinTable);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();

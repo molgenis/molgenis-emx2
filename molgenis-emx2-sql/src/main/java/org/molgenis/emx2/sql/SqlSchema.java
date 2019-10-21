@@ -239,28 +239,64 @@ public class SqlSchema implements Schema {
           for (String tableName : from.getTableNames()) {
             tableList.add(from.getTableMetadata(tableName));
           }
-          sortTablesByDependency(tableList);
+
+          // uses TableMetadata.compareTo.  todo circular dependencies
+          sort(tableList);
+
+          for (TableMetadata table : tableList) {
+            this.createTableIfNotExists(table);
+          }
         });
   }
 
-  private void sortTablesByDependency(List<TableMetadata> tableList) {
-    // todo circular dependencies
-    Collections.sort(
-        tableList,
-        (a, b) -> {
-          String aName = a.getTableName();
-          String bName = b.getTableName();
-          for (Column c : a.getColumns()) {
-            if (bName.equals(c.getRefTableName())) return 1;
-          }
-          for (Column c : b.getColumns()) {
-            if (aName.equals(c.getRefTableName())) return -1;
-          }
-          return 0;
-        });
+  private void sort(List<TableMetadata> tableList) {
+    ArrayList<TableMetadata> result = new ArrayList<>();
+    ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
 
-    for (TableMetadata table : tableList) {
-      this.createTableIfNotExists(table);
+    // randomly start
+    result.add(todo.get(0));
+    todo.remove(0);
+
+    // inefficient procedure, sorry
+    while (todo.size() > 0) {
+      for (int i = 0; i < todo.size(); i++) {
+        TableMetadata current = todo.get(i);
+        boolean depends = false;
+        for (int j = 0; j < todo.size(); j++) {
+          if (dependsOn(current, todo.get(j), new ArrayList<>())) {
+            depends = true;
+            break;
+          }
+        }
+        if (!depends) {
+          result.add(todo.get(i));
+          todo.remove(i);
+          break;
+        }
+      }
     }
+    tableList.clear();
+    tableList.addAll(result);
+  }
+
+  /** check for reference */
+  private boolean dependsOn(TableMetadata from, TableMetadata to, List<String> visited) {
+    // visited is prevent circular relations to take up the loop forever
+    visited.add(from.getTableName());
+    for (Column c : from.getColumns()) {
+      if (c.getRefTableName() != null) {
+        if (c.getRefTableName().equals(to.getTableName())) return true;
+        // recurse
+        if (!visited.contains(c.getRefTableName())
+            && dependsOn(from.getSchema().getTableMetadata(c.getRefTableName()), to, visited)) {
+          return true;
+        }
+      }
+    }
+    if (from.getInherits() != null) {
+      if (from.getInherits().equals(to.getTableName())) return true;
+      if (dependsOn(from.getInheritedTable(), to, visited)) return true;
+    }
+    return false;
   }
 }

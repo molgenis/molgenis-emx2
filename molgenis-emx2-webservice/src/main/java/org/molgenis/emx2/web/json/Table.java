@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web.json;
 
-import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;

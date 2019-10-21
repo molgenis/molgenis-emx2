@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.utils.MolgenisException;
-
 import static org.molgenis.emx2.ColumnType.*;
 
 import java.util.*;
@@ -130,6 +128,14 @@ public class TableMetadata {
 
   public ReferenceMultiple addRefArrayMultiple(String... name) {
     return new ReferenceMultiple(this, REF_ARRAY, name);
+  }
+
+  public Column addMref(String name, String refTable) {
+    return this.addMref(name, refTable, null);
+  }
+
+  public Column addMref(String name, String refTable, String refColumn) {
+    return this.addMref(name, refTable, refColumn, null, null, null);
   }
 
   public Column addMref(

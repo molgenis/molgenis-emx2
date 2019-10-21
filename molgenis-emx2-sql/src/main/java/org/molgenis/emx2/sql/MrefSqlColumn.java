@@ -39,15 +39,18 @@ public class MrefSqlColumn extends SqlColumn {
   public MrefSqlColumn createColumn() {
     String schemaName = getTable().getSchema().getName();
 
-    // createTableIfNotExists setNullable array columns compatible with the refs
+    // createTableIfNotExists
     SqlTableMetadata otherTable =
         (SqlTableMetadata) getTable().getSchema().getTableMetadata(getRefTableName());
     Column otherColumn = otherTable.getColumn(getRefColumnName());
 
+    // create refArray column to enable updates to be provided for the trigger
     getJooq()
         .alterTable(name(schemaName, getTable().getTableName()))
         .add(field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
+
+    // create the reverse refArray, but only if reverse name is given
     getJooq()
         .alterTable(name(schemaName, otherTable.getTableName()))
         .add(
