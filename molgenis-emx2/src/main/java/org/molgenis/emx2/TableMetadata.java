@@ -7,9 +7,6 @@ import static org.molgenis.emx2.ColumnType.*;
 import java.util.*;
 
 public class TableMetadata {
-  public static final String FOREIGN_KEY_ADD_FAILED = "foreign_key_add_failed";
-  public static final String FOREIGN_KEY_ADD_FAILED_MESSAGE =
-      "Adding of foreign key reference failed";
 
   private SchemaMetadata schema;
 
@@ -87,22 +84,7 @@ public class TableMetadata {
   }
 
   public Column addColumn(Column column) {
-    if (columns.get(column.getColumnName()) != null) {
-      throw new MolgenisException(
-          "invalid_column",
-          "Invalid column",
-          String.format(
-              "Column with columnName='%s' already exist in table '%s'",
-              column.getColumnName(), getTableName()));
-    }
-    if (inherits != null && getInheritedTable().getColumn(column.getColumnName()) != null) {
-      throw new MolgenisException(
-          "invalid_column",
-          "Invalid column",
-          String.format(
-              "Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
-              column.getColumnName(), getTableName(), inherits));
-    }
+    column.setTable(this);
     columns.put(column.getColumnName(), column);
     return column;
   }
@@ -118,21 +100,7 @@ public class TableMetadata {
   }
 
   public Column addRef(String name, String toTable) {
-    String[] primaryKeys = getPrimaryKey();
-    if (primaryKeys.length != 1)
-      throw new MolgenisException(
-          FOREIGN_KEY_ADD_FAILED,
-          FOREIGN_KEY_ADD_FAILED_MESSAGE,
-          "Adding of foreign key reference "
-              + name
-              + "from table '"
-              + getTableName()
-              + "' to table '"
-              + toTable
-              + "' failed: '"
-              + toTable
-              + "' has no suitable primary key/unique defined.");
-    return this.addRef(name, toTable, primaryKeys[0]);
+    return this.addRef(name, toTable, null);
   }
 
   public Column addRef(String name, String toTable, String toColumn) {
@@ -148,15 +116,7 @@ public class TableMetadata {
   }
 
   public Column addRefArray(String name, String toTable) {
-    String[] primaryKeys = getPrimaryKey();
-    if (primaryKeys.length != 1)
-      throw new MolgenisException(
-          FOREIGN_KEY_ADD_FAILED,
-          FOREIGN_KEY_ADD_FAILED_MESSAGE,
-          "Adding of array reference tableName='"
-              + name
-              + "' failed because no suitable primary key defined. Add primary key or use explicit toColumn.");
-    return this.addRefArray(name, toTable, primaryKeys[0]);
+    return this.addRefArray(name, toTable, getPrimaryKey()[0]);
   }
 
   public ReferenceMultiple addRefMultiple(String... name) {
@@ -184,13 +144,6 @@ public class TableMetadata {
   }
 
   public void removeColumn(String name) {
-    if (getColumn(name) == null) {
-      throw new MolgenisException(
-          "remove_column_failed",
-          "Remove column failed",
-          String.format(
-              "Column with columnName='%s' doesn't exist in table '%s'", name, getTableName()));
-    }
     columns.remove(name);
   }
 
@@ -199,17 +152,6 @@ public class TableMetadata {
   }
 
   public TableMetadata addUnique(String... columnNames) {
-    for (String columnName : columnNames) {
-      Column c = getColumn(columnName);
-      if (c == null)
-        throw new MolgenisException(
-            "invalid_unique",
-            "Add or update of unique constraint failed",
-            "Addition of unique failed because column '"
-                + columnName
-                + "' is not known in table "
-                + getTableName());
-    }
     if (isUnique(columnNames)) return this; // idempotent, we silently ignore
     uniques.add(columnNames);
     return this;
@@ -221,6 +163,7 @@ public class TableMetadata {
         return true;
       }
     }
+    if (inherits != null) return getInheritedTable().isUnique(names);
     return false;
   }
 
@@ -233,7 +176,7 @@ public class TableMetadata {
   }
 
   public boolean isPrimaryKey(String... names) {
-    return equalContents(names, this.primaryKey);
+    return equalContents(names, this.getPrimaryKey());
   }
 
   public void removeUnique(String... keys) {
@@ -243,6 +186,7 @@ public class TableMetadata {
         break;
       }
     }
+    // will not delete from inheritedTable
   }
 
   public TableMetadata inherits(String otherTable) {
@@ -273,6 +217,7 @@ public class TableMetadata {
 
   public void enableRowLevelSecurity() {
     throw new UnsupportedOperationException();
+    // todo decide if RLS is default on
   }
 
   public void clearCache() {

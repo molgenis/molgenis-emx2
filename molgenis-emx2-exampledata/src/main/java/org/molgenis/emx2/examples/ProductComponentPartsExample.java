@@ -31,16 +31,16 @@ public class ProductComponentPartsExample {
     TableMetadata partTable = schema.createTableIfNotExists(PART);
     partTable.addColumn(NAME, STRING);
     partTable.addColumn(WEIGHT, INT);
-    partTable.addUnique(NAME);
+    partTable.setPrimaryKey(NAME);
 
     TableMetadata componentTable = schema.createTableIfNotExists(COMPONENT);
     componentTable.addColumn(NAME, STRING);
-    componentTable.addUnique(NAME);
+    componentTable.setPrimaryKey(NAME);
     componentTable.addRefArray(PARTS, PART, NAME);
 
     TableMetadata productTable = schema.createTableIfNotExists(PRODUCT);
     productTable.addColumn(NAME, STRING);
-    productTable.addUnique(NAME);
+    productTable.setPrimaryKey(NAME);
     productTable.addRefArray(COMPONENTS, COMPONENT, NAME);
   }
 

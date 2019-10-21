@@ -41,6 +41,7 @@ public class PetStoreExample {
     userTable.addColumn("userStatus", INT);
 
     TableMetadata orderTable = schema.createTableIfNotExists("Order");
+    orderTable.addColumn("orderId").primaryKey();
     orderTable.addRef("petId", "Pet", NAME);
     orderTable.addColumn("quantity", INT); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false

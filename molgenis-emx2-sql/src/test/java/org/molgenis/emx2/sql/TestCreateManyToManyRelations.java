@@ -81,12 +81,12 @@ public class TestCreateManyToManyRelations {
     Table aTable = aSchema.createTableIfNotExists("A");
     String keyOfA = "AKey";
     aTable.getMetadata().addColumn(keyOfA, columnType);
-    aTable.getMetadata().addUnique(keyOfA);
+    aTable.getMetadata().setPrimaryKey(keyOfA);
 
     Table bTable = aSchema.createTableIfNotExists("B");
     String keyOfB = "BKey";
     bTable.getMetadata().addColumn(keyOfB, STRING);
-    bTable.getMetadata().addUnique(keyOfB);
+    bTable.getMetadata().setPrimaryKey(keyOfB);
 
     StopWatch.print("schema created");
 

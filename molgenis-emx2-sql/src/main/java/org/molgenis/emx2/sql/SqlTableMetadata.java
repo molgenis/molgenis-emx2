@@ -19,6 +19,9 @@ import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 class SqlTableMetadata extends TableMetadata {
+  public static final String FOREIGN_KEY_ADD_FAILED = "foreign_key_add_failed";
+  public static final String FOREIGN_KEY_ADD_FAILED_MESSAGE =
+      "Adding of foreign key reference failed";
   public static final String DROP_TABLE_FAILED = "drop_table_failed";
   public static final String DROP_TABLE_FAILED_MESSAGE = "Drop table failed";
   public static final String INHERITANCE_FAILED = "inheritance_failed";
@@ -188,6 +191,22 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addColumn(Column metadata) {
+    if (getColumn(metadata.getColumnName()) != null) {
+      throw new MolgenisException(
+          "invalid_column",
+          "Invalid column",
+          String.format(
+              "Column with columnName='%s' already exist in table '%s'",
+              metadata.getColumnName(), getTableName()));
+    }
+    if (getInherits() != null && getInheritedTable().getColumn(metadata.getColumnName()) != null) {
+      throw new MolgenisException(
+          "invalid_column",
+          "Invalid column",
+          String.format(
+              "Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
+              metadata.getColumnName(), getTableName(), getInherits()));
+    }
     db.transaction(
         dsl -> {
           Column result = null;
@@ -229,6 +248,33 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) {
+    if (getSchema().getTableMetadata(toTable) == null)
+      throw new MolgenisException(
+          FOREIGN_KEY_ADD_FAILED,
+          FOREIGN_KEY_ADD_FAILED_MESSAGE,
+          "Adding of foreign key reference "
+              + name
+              + "from table '"
+              + getTableName()
+              + "' to table '"
+              + toTable
+              + "' failed: '"
+              + toTable
+              + "' does not exist.");
+    if (getSchema().getTableMetadata(toTable).getPrimaryKey().length == 0)
+      throw new MolgenisException(
+          FOREIGN_KEY_ADD_FAILED,
+          FOREIGN_KEY_ADD_FAILED_MESSAGE,
+          "Adding of foreign key reference "
+              + name
+              + "from table '"
+              + getTableName()
+              + "' to table '"
+              + toTable
+              + "' failed: '"
+              + toTable
+              + "' has no suitable primary key/unique defined.");
+
     db.transaction(
         dsl -> {
           RefSqlColumn c = new RefSqlColumn(this, name, toTable, toColumn);
@@ -237,6 +283,19 @@ class SqlTableMetadata extends TableMetadata {
           this.updateSearchIndexTriggerFunction();
         });
     return getColumn(name);
+  }
+
+  @Override
+  public Column addRefArray(String name, String toTable) {
+    String[] primaryKeys = getPrimaryKey();
+    if (primaryKeys.length != 1)
+      throw new MolgenisException(
+          FOREIGN_KEY_ADD_FAILED,
+          FOREIGN_KEY_ADD_FAILED_MESSAGE,
+          "Adding of array reference tableName='"
+              + name
+              + "' failed because no suitable primary key defined. Add primary key or use explicit toColumn.");
+    return this.addRefArray(name, toTable, primaryKeys[0]);
   }
 
   @Override
@@ -322,17 +381,34 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata addUnique(String... columnNames) {
-    if (getPrimaryKey().length == 0) {
-      this.setPrimaryKey(columnNames); // default first unique is also primary key
-    } else {
-      String uniqueName = getTableName() + "_" + String.join("_", columnNames) + "_UNIQUE";
-      db.getJooq()
-          .alterTable(getJooqTable())
-          .add(constraint(name(uniqueName)).unique(columnNames))
-          .execute();
-      MetadataUtils.saveUnique(this, columnNames);
-      super.addUnique(columnNames);
+    // check if the columns exists
+    for (String columnName : columnNames) {
+      Column c = getColumn(columnName);
+      if (c == null)
+        throw new MolgenisException(
+            "invalid_unique",
+            "Add or update of unique constraint failed",
+            "Addition of unique failed because column '"
+                + columnName
+                + "' is not known in table "
+                + getTableName());
     }
+
+    // check if already exists
+    if (isUnique(columnNames)) return this; // idempotent, we silently ignore
+
+    db.transaction(
+        db2 -> {
+
+          // create the unique
+          String uniqueName = getTableName() + "_" + String.join("_", columnNames) + "_UNIQUE";
+          db.getJooq()
+              .alterTable(getJooqTable())
+              .add(constraint(name(uniqueName)).unique(columnNames))
+              .execute();
+          MetadataUtils.saveUnique(this, columnNames);
+          super.addUnique(columnNames);
+        });
     return this;
   }
 

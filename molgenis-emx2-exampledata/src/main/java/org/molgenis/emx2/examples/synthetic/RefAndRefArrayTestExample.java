@@ -23,7 +23,7 @@ public class RefAndRefArrayTestExample {
       TableMetadata aTable = schema.createTableIfNotExists(aTableName);
       String fieldName = "AKeyOf" + columnType;
       aTable.addColumn(fieldName, columnType);
-      aTable.addUnique(fieldName);
+      aTable.setPrimaryKey(fieldName);
 
       String bTableName = columnType.toString() + "_B";
       TableMetadata bTable = schema.createTableIfNotExists(bTableName);
