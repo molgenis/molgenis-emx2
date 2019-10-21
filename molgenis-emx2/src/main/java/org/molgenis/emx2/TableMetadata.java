@@ -16,7 +16,12 @@ public class TableMetadata {
   private String[] primaryKey = new String[0];
   private String inherits = null;
 
-  public TableMetadata(SchemaMetadata schema, String tableName) {
+  public TableMetadata(String tableName) {
+    this.tableName = tableName;
+  }
+
+  // can only be used by members in same package
+  protected TableMetadata(SchemaMetadata schema, String tableName) {
     this.clearCache();
     this.schema = schema;
     this.tableName = tableName;

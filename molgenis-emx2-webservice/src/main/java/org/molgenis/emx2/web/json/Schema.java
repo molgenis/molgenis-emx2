@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web.json;
 
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,12 @@ public class Schema {
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
     for (Table t : tables) {
-      s.createTable(t.getTableMetadata(s));
+      TableMetadata tm = s.createTable(t.getName());
+      tm.setPrimaryKey(t.getPkey());
+      for (String[] u : t.getUniques()) tm.addUnique(u);
+      for (Column c : t.getColumns()) {
+        tm.addColumn(c.getColumnMetadata(tm));
+      }
     }
     return s;
   }

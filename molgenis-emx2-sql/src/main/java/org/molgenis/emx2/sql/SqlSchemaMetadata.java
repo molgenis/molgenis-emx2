@@ -84,7 +84,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public TableMetadata createTableIfNotExists(String name) {
+  public TableMetadata createTable(String name) {
     TableMetadata metadata = getTableMetadata(name);
     if (metadata != null) return metadata;
     // else

@@ -190,7 +190,7 @@ public class SqlSchema implements Schema {
     if (exists != null) {
       return exists;
     } else {
-      getMetadata().createTableIfNotExists(name);
+      getMetadata().createTable(name);
       return getTable(name);
     }
   }

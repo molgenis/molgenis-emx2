@@ -16,7 +16,7 @@ public class SimpleTypeTestExample {
 
   public static void createSimpleTypeTest(SchemaMetadata schema) {
 
-    TableMetadata typeTestTable = schema.createTableIfNotExists(TYPE_TEST);
+    TableMetadata typeTestTable = schema.createTable(TYPE_TEST);
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (ColumnType columnType : columnTypes) {

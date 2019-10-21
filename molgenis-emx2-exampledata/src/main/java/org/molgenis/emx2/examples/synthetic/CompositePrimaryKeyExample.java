@@ -18,7 +18,7 @@ public class CompositePrimaryKeyExample {
 
     for (ColumnType columnType : columnTypes) {
       TableMetadata aTable =
-          schema.createTableIfNotExists(columnType.toString() + "_CompositeKeyTable");
+          schema.createTable(columnType.toString() + "_CompositeKeyTable");
       aTable.addColumn("col1", columnType);
       aTable.addColumn("col2", columnType);
       aTable.addColumn("col3");

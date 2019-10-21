@@ -18,7 +18,7 @@ public class CompositeRefExample {
 
     for (ColumnType columnType : columnTypes) {
       String aTableName = columnType.toString() + "_A";
-      TableMetadata aTable = schema.createTableIfNotExists(aTableName);
+      TableMetadata aTable = schema.createTable(aTableName);
       String uniqueColumn1 = "AUnique" + columnType;
       String uniqueColumn2 = "AUnique" + columnType + "2";
 
@@ -28,7 +28,7 @@ public class CompositeRefExample {
       aTable.addUnique(uniqueColumn1, uniqueColumn2);
 
       String bTableName = columnType.toString() + "_B";
-      TableMetadata bTable = schema.createTableIfNotExists(bTableName);
+      TableMetadata bTable = schema.createTable(bTableName);
       String refFromBToA1 = "RefToAKeyOf" + columnType;
       String refFromBToA2 = "RefToAKeyOf" + columnType + "2";
 

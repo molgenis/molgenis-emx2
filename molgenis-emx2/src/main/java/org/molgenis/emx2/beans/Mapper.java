@@ -60,7 +60,7 @@ public class Mapper {
   }
 
   public static TableMetadata map(Class klazz) {
-    TableMetadata t = new TableMetadata(null, klazz.getSimpleName());
+    TableMetadata t = new TableMetadata(klazz.getSimpleName());
 
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {

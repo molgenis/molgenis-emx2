@@ -18,20 +18,20 @@ public class PetStoreExample {
 
   public static void create(SchemaMetadata schema) {
 
-    TableMetadata categoryTable = schema.createTableIfNotExists(CATEGORY);
+    TableMetadata categoryTable = schema.createTable(CATEGORY);
     categoryTable.addColumn(NAME).setPrimaryKey(true);
 
-    TableMetadata tagTable = schema.createTableIfNotExists(TAG);
+    TableMetadata tagTable = schema.createTable(TAG);
     tagTable.addColumn(NAME).setPrimaryKey(true);
 
-    TableMetadata petTable = schema.createTableIfNotExists("Pet");
+    TableMetadata petTable = schema.createTable("Pet");
     petTable.addColumn(NAME).setPrimaryKey(true);
     petTable.addRef("category", CATEGORY).setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY);
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", TAG);
 
-    TableMetadata userTable = schema.createTableIfNotExists("User");
+    TableMetadata userTable = schema.createTable("User");
     userTable.addColumn("username").setPrimaryKey(true);
     userTable.addColumn("firstName");
     userTable.addColumn("lastName");
@@ -40,7 +40,7 @@ public class PetStoreExample {
     userTable.addColumn("phone"); // todo: validation phone
     userTable.addColumn("userStatus", INT);
 
-    TableMetadata orderTable = schema.createTableIfNotExists("Order");
+    TableMetadata orderTable = schema.createTable("Order");
     orderTable.addColumn("orderId").primaryKey();
     orderTable.addRef("petId", "Pet", NAME);
     orderTable.addColumn("quantity", INT); // todo: validation >=1

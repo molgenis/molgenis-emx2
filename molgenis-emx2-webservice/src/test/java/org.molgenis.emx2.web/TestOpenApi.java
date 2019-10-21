@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -21,7 +20,7 @@ public class TestOpenApi {
   public void constructApi() throws IOException, URISyntaxException {
     SchemaMetadata schema = new SchemaMetadata("test");
 
-    TableMetadata table = schema.createTableIfNotExists("TypeTest");
+    TableMetadata table = schema.createTable("TypeTest");
     for (ColumnType columnType : ColumnType.values()) {
       if (MREF.equals(columnType) || REF.equals(columnType) || REF_ARRAY.equals(columnType)) {
         // TODO: outside of test for now
@@ -30,7 +29,7 @@ public class TestOpenApi {
       }
     }
 
-    TableMetadata personTable = schema.createTableIfNotExists("Person");
+    TableMetadata personTable = schema.createTable("Person");
     personTable.addColumn("First Name", STRING);
     personTable.addColumn("Last Name", STRING);
 

@@ -57,7 +57,7 @@ public class ConvertEmx2ToSchema {
       String tableName = row.getTable();
       if (!"".equals(tableName)) {
         tableName = tableName.trim();
-        schema.createTableIfNotExists(tableName);
+        schema.createTable(tableName);
       }
     }
   }

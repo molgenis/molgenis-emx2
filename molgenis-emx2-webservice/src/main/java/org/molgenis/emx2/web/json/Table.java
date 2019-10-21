@@ -30,16 +30,6 @@ public class Table {
     }
   }
 
-  public TableMetadata getTableMetadata(SchemaMetadata s) {
-    TableMetadata tm = new TableMetadata(s, name);
-    tm.setPrimaryKey(pkey);
-    for (String[] u : uniques) tm.addUnique(u);
-    for (Column c : columns) {
-      tm.addColumn(c.getColumnMetadata(tm));
-    }
-    return tm;
-  }
-
   public String getName() {
     return name;
   }

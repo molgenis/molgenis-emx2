@@ -85,7 +85,7 @@ public class Emx1ToSchema {
 
         // create the table
         TableMetadata table =
-            schema.createTableIfNotExists(getTableName(attribute.getEntity(), packagePrefix));
+            schema.createTable(getTableName(attribute.getEntity(), packagePrefix));
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
@@ -117,7 +117,7 @@ public class Emx1ToSchema {
 
       line = 2; // line 1 is header
       for (Entity entity : entities) {
-        schema.createTableIfNotExists(entity.getName());
+        schema.createTable(entity.getName());
         line++;
       }
     } catch (MolgenisException me) {

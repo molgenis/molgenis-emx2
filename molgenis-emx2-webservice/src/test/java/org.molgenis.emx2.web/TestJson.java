@@ -46,7 +46,7 @@ public class TestJson {
   @Test
   public void testJsonToRow() {
 
-    TableMetadata t = new TableMetadata(null, "Person");
+    TableMetadata t = new TableMetadata("Person");
     t.addColumn("FirstName", STRING);
     t.addColumn("Age", INT);
     t.addColumn("Weight", DECIMAL);

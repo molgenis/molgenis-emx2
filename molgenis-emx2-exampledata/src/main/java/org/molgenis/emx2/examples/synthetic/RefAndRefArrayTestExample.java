@@ -20,13 +20,13 @@ public class RefAndRefArrayTestExample {
     for (ColumnType columnType : columnTypes) {
 
       String aTableName = columnType.toString() + "_A";
-      TableMetadata aTable = schema.createTableIfNotExists(aTableName);
+      TableMetadata aTable = schema.createTable(aTableName);
       String fieldName = "AKeyOf" + columnType;
       aTable.addColumn(fieldName, columnType);
       aTable.setPrimaryKey(fieldName);
 
       String bTableName = columnType.toString() + "_B";
-      TableMetadata bTable = schema.createTableIfNotExists(bTableName);
+      TableMetadata bTable = schema.createTable(bTableName);
       String refFromBToA = "RefToAKeyOf" + columnType;
       String refArrayFromBToA = "RefArrayToAKeyOf" + columnType;
       bTable.addRef(refFromBToA, aTableName, fieldName);

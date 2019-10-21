@@ -32,7 +32,7 @@ public class SchemaMetadata {
     return Collections.unmodifiableCollection(tables.keySet());
   }
 
-  public TableMetadata createTableIfNotExists(String name) {
+  public TableMetadata createTable(String name) {
     if (getTableMetadata(name) == null) {
       tables.put(name, new TableMetadata(this, name));
     }

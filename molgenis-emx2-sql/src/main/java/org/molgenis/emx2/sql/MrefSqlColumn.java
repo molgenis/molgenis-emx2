@@ -57,7 +57,7 @@ public class MrefSqlColumn extends SqlColumn {
         .execute();
 
     // createTableIfNotExists the joinTable
-    TableMetadata table = getTable().getSchema().createTableIfNotExists(getMrefJoinTableName());
+    TableMetadata table = getTable().getSchema().createTable(getMrefJoinTableName());
     table.addRef(getRefColumnName(), getRefTableName(), getRefColumnName());
     table.addRef(getReverseRefColumn(), getTable().getTableName(), getReverseRefColumn());
 

@@ -28,17 +28,17 @@ public class ProductComponentPartsExample {
 
   public static void create(SchemaMetadata schema) {
 
-    TableMetadata partTable = schema.createTableIfNotExists(PART);
+    TableMetadata partTable = schema.createTable(PART);
     partTable.addColumn(NAME, STRING);
     partTable.addColumn(WEIGHT, INT);
     partTable.setPrimaryKey(NAME);
 
-    TableMetadata componentTable = schema.createTableIfNotExists(COMPONENT);
+    TableMetadata componentTable = schema.createTable(COMPONENT);
     componentTable.addColumn(NAME, STRING);
     componentTable.setPrimaryKey(NAME);
     componentTable.addRefArray(PARTS, PART, NAME);
 
-    TableMetadata productTable = schema.createTableIfNotExists(PRODUCT);
+    TableMetadata productTable = schema.createTable(PRODUCT);
     productTable.addColumn(NAME, STRING);
     productTable.setPrimaryKey(NAME);
     productTable.addRefArray(COMPONENTS, COMPONENT, NAME);

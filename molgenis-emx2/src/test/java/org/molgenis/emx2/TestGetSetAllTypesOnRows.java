@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import org.junit.Test;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +40,7 @@ public class TestGetSetAllTypesOnRows {
 
     // System.out.println("table print " + t.toString() + "\n: " + t.print());
 
-    m2.createTableIfNotExists("OtherTable");
+    m2.createTable("OtherTable");
     // System.out.println("Now we expect diff: " + m.diff(m2));
 
     m.dropTable("TypeTest");
@@ -188,7 +187,7 @@ public class TestGetSetAllTypesOnRows {
   }
 
   private void addContents(SchemaMetadata m, List<ColumnType> columnTypes) {
-    TableMetadata t = m.createTableIfNotExists("TypeTest");
+    TableMetadata t = m.createTable("TypeTest");
     for (ColumnType columnType : columnTypes) {
       t.addColumn("test" + columnType, columnType);
       t.addColumn("test" + columnType + "_nullable", columnType).setNullable(true);

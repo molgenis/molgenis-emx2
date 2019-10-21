@@ -14,7 +14,7 @@ public class ArrayTypeTestExample {
 
   public static void createSimpleTypeTest(SchemaMetadata schema) {
 
-    TableMetadata typeTestTable = schema.createTableIfNotExists("ArrayTypeTest");
+    TableMetadata typeTestTable = schema.createTable("ArrayTypeTest");
     typeTestTable.addColumn("id").primaryKey();
     ColumnType[] columnTypes =
         new ColumnType[] {

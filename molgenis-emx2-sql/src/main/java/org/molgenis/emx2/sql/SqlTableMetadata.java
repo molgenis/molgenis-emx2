@@ -19,6 +19,7 @@ import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 class SqlTableMetadata extends TableMetadata {
+
   public static final String FOREIGN_KEY_ADD_FAILED = "foreign_key_add_failed";
   public static final String FOREIGN_KEY_ADD_FAILED_MESSAGE =
       "Adding of foreign key reference failed";
@@ -148,13 +149,13 @@ class SqlTableMetadata extends TableMetadata {
               + "' because inherits its primary key from other table '"
               + getInherits()
               + "'");
+    if (columnNames.length == 0)
+      throw new MolgenisException(
+          "invalid_primary_key",
+          "Primary key creation failed",
+          "Primary key requires 1 or more columns, however, 0 columns where provided");
     db.transaction(
         dsl -> {
-          if (columnNames.length == 0)
-            throw new MolgenisException(
-                "invalid_primary_key",
-                "Primary key creation failed",
-                "Primary key requires 1 or more columns, however, 0 columns where provided");
           Name[] keyNames = Stream.of(columnNames).map(DSL::name).toArray(Name[]::new);
 
           // drop previous primary key if exists
@@ -346,6 +347,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public void removeColumn(String name) {
+    if (getColumn(name) == null) return; // return silently, idempotent
     db.getJooq().alterTable(getJooqTable()).dropColumn(field(name(name))).execute();
     super.removeColumn(name);
   }
