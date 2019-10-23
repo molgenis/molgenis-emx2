@@ -42,7 +42,7 @@ public class MolgenisImport {
           // read emx1 metadata, if available (to be removed in future versions)
           // todo: only do this if it looks like metadata file OR make this parameter?
           if (store.containsTable("attributes")) {
-            // todo: prefix should come from entities file
+            // todo: prefix should come from entities or package file, we will remove root package
             prefix = "bbmri_nl_";
             SchemaMetadata emx1Schema = ConvertEmx1ToSchema.convert(store, prefix);
             schema.merge(emx1Schema);
