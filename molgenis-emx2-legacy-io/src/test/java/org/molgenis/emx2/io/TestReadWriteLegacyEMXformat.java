@@ -5,11 +5,11 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.io.emx2.ConvertEmx2ToSchema;
 import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
-import org.molgenis.emx2.legacy.format.Emx1ToSchema;
+import org.molgenis.emx2.io.emx1.ConvertEmx1ToSchema;
 import org.molgenis.emx2.sql.DatabaseFactory;
-import org.molgenis.emx2.sql.SqlSchema;
+import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.utils.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,32 +28,51 @@ public class TestReadWriteLegacyEMXformat {
   @Test
   public void testImportLegacyFormat() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    File file = new File(classLoader.getResource("bbmri-nl").getFile());
+    File file = new File(classLoader.getResource("bbmri-nl-complete").getFile());
 
-    RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(file.toPath(), ';');
-
+    RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(file.toPath(), ',');
+    StopWatch.start("begin import transaction");
     db.transaction(
         db -> {
           Schema schema = db.createSchema("testImportLegacyFormat");
 
+          StopWatch.print("created schema");
+
           // load metadata
-          SchemaMetadata bbmri_nl = Emx1ToSchema.convert(store, "bbmri_nl_");
+          String packagePrefix = "bbmri_nl_";
+          SchemaMetadata source = ConvertEmx1ToSchema.convert(store, packagePrefix);
           // System.out.println(bbmri_nl.toString());
 
-          schema.merge(bbmri_nl);
+          StopWatch.print("converted metadata");
+
+          schema.merge(source);
+
+          StopWatch.print("created tables");
 
           assertEquals(22, schema.getTableNames().size());
 
-          // read metadata, if available
-          if (store.containsTable("molgenis")) {
-            SchemaMetadata emx2Schema = ConvertEmx2ToSchema.fromRowList(store.read("molgenis"));
-            schema.merge(emx2Schema);
-          }
-          // read data
+          // import the data known in this stores schema
           for (String tableName : schema.getTableNames()) {
-            if (store.containsTable(tableName))
-              schema.getTable(tableName).update(store.read(tableName)); // actually upsert
+            if (store.containsTable(packagePrefix + tableName)) {
+              int count = 0;
+              try {
+                count =
+                    schema
+                        .getTable(tableName)
+                        .update(store.read(packagePrefix + tableName)); // actually upsert
+              } catch (MolgenisException e) {
+                new MolgenisException(
+                    "import_error",
+                    "Import failed",
+                    "Import of '" + tableName + "' failed: " + e.getDetail(),
+                    e);
+                System.out.println("skipped " + tableName + " becausd " + e);
+              }
+              System.out.println("wrote " + count + " rows to " + tableName);
+            }
           }
+          StopWatch.print("commit");
         });
+    StopWatch.print("transaction complete");
   }
 }

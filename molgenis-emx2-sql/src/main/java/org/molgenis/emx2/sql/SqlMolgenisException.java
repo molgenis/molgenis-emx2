@@ -47,6 +47,8 @@ public class SqlMolgenisException extends MolgenisException {
     // https://www.postgresql.org/docs/current/protocol-error-fields.html
 
     switch (errorCode) {
+      case "23502":
+        return "not_null_violation";
       case "23503":
         return "foreign_key_violation";
       case "23505":

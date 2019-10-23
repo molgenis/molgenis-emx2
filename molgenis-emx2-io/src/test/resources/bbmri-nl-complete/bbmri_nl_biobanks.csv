@@ -1,0 +1,132 @@
+id,name,acronym,contact_person,principal_investigators,description,website,juristic_person,longitude,latitude,country,biobankITSupportAvailable,biobankITStaffSize,biobankISAvailable,biobankHISAvailable,biobankSize
+aaaac2dvrk2a6acqk2mpm4yaai,Fetal Aneuploidy Biobank,,35,35,,https://www.amc.nl/web/research-75/facilities/amc-biobank-1.htm,69,,,NL,,,,,
+aaaac2dvrk2auacqk2mpm4yabe,DIPAK,,36,"834,557,37",,https://www.nierstichting.nl/dipak/,74,,,NL,,,,,
+aaaac2dvrk2baacqk2mpm4yaae,Biobank Hemoglobinopathy,,40,40,,https://www.albinusnet.nl/organisatie/divisie4/klinische-genetica/,73,,,NL,,,,,
+aaaac2dvrk2baacqk2mpm4yaai,Hoofd-halskanker Biobank,,38,"39,38",,https://www.kanker.nl/kankersoorten/hoofd-halskanker/wat-is/hoofd-halskanker,77,,,NL,,,,,
+aaaac2dvrk2baacqk2mpm4yaam,Obesity Center CGG biobank,,43,"44,45",,http://www.centrumgezondgewicht.nl/,117,,,NL,,,,,
+aaaac2dvrk2baacqk2mpm4yaau,Postpartum psychosis biobank,,46,46,,https://psych.erasmusmc.nl/aboutdisorders/np3-studie.html,117,,,NL,,,,,
+AAAACVKPKFJ4CZSUAVNCZ2AAAE,BioBank Maastricht UMC,,AAAACXPAMXFDCACQK2ME25QAAE,AAAACXPAMXFDCACQK2ME25QAAE,"The BioBank Maastricht UMC + (BioBank) is specialized in storage of large collections of biological material for scientific research. Samples can be stored in our refrigerators, ultralow freezers and liquid nitrogen tanks. This gives the possibility for storage of biomaterial in a wide range of temperatures.
+
+
+The BioBank is an initiative of the University Hospital Maastricht (azM) The BioBank works in close cooperation with Maastro Clinic (radiotherapy institute Limburg) and since 2007 a collaboration was started with the Parelsnoer Institute.
+
+In January 2005, the BioBank became a Central Research Facility (COV). Besides the storage of samples, the BioBank provides the service to carry out some standard procedures. The data of the BioBank is saved in a fully automatic web-based BioBank Information System (BIS), which was completely renewed in 2012. To ensure the safety of the biological collections, two emergency procedures are used: the Building Management System (in Dutch: GebouwBeheerSysteem G.B.S,) and the Temperature Registration System Xiltrix, IKS).).",http://www.biobank.nl/,71,,,NL,,,true,,
+AAAACVOEOZ2UYZSUAVNCZ2AAAE,Academic Medical Center Biobank,AMC Biobank,AAAACVOEOR5HMZSUAVNCZ2AAAE,AAAACVOEOR5HMZSUAVNCZ2AAAE,"As core facility, AMC Biobank provides comprehensive storage services for biological materials and related clinical data. Materials can be tissues, cells, sera, plasma, liquor, urine, feces or molecular fractions, such as DNA and RNA. While most materials are derived from patients and belong to (biobank) studies, also materials for daily research can be stored.
+AMC Biobank scheme
+The Biobank is part of AMC’s division G (Laboratory Specialisms) and works closely together with the Durrer Center for Cardiovascular Research, hosted by the ICIN–Netherlands Heart Institute. AMC Biobank and Durrer Center share people, rooms, protocols, and quality standards to facilitate high-quality sample/data collection and storage.
+AMC Biobank currently houses more than 25 (biobank) studies, including various Parelsnoer collections, shared with other Dutch university medical centers, the HELIUS study on health differences among the residents of Amsterdam with different ethnic origin, and the MARS study on molecular diagnosis and risk stratification of sepsis.
+AMC Biobank participates in (inter)national biobank initiatives, including Parelsnoer, CTMM-TraIT, and BBMRI.",http://www.amcbiobank.nl/,69,,,NL,true,2,true,true,8
+AAAACVOEPHI3IZSUAVNCZ2AAAE,Durrer Center,DC,AAAACVOEPCP3EZSUAVNCZ2AAAE,AAAACVOEPCP3EZSUAVNCZ2AAAE,"The Durrer Center for cardiovascular research (Durrer Center) is a national multidisciplinary collaboration of academic research institutes in the field of cardiology, genetics and biostatistics partaking in cardiovascular genetic and epidemiological studies and associated biobanks.
+Durrer Center provides expertise, infrastructure and services for collecting, comparing, harmonizing and merging results from individual cardiovascular genetic studies. By combining these different cohorts and making them centrally accessible and visible it creates the possibility to deliver more effective health care strategies aimed at cardiovascular disease prevention, and at tailoring medicines and other treatment regimens to individuals, families and communities.
+Since 2008, the Durrer Center has supported 32 independent research projects for samples and/or data storage. The Durrer Center has also provided research support for molecular biology and bio-informatic analyses.",http://www.durrercenter.nl/,AAAACVOEPAHUSZSUAVNCZ2AAAE,,,NL,,,,,5
+AAAACW5ELBQ4WZSUAVNCZ2AAAE,Wageningen University Research Biobank,WUR,,,,,,,,,,,,,
+AAAACW5FCXM3MZSUAVNCZ2AAAE,Erasmus MC Biobank,,,,,https://www.erasmusmc.nl/bioinformatica/contacts/?lang=en,117,,,NL,,,,,
+AAAACW7MF7WRMACQK2MD37AAAE,MeninGene Biobank,,550,550,,http://www.meningitisamc.nl/patienten/wetenschappelijk-onderzoek/meningene-onderzoek/,,,,NL,,,,,
+AAAACXAVZYY2YACQK2MD37AAAE,Netherlands Brain Bank,,,,,,,,,,,,,,
+AAAACXJQEK6I4ACQK2ME25QAAE,Leiden University Medical Center Biobank,LUMC Biobank,,,,,,,,NL,,,,,
+AAAACXJR5GDHKACQK2ME25QAAE,EORTC,,,,,,,,,,,,,,
+AAAACXO74F5GMACQK2ME25QAAE,ACS Biobank,,813,,,,,,,NL,true,,,,
+AAAACXO74P6CWACQK2ME25QAAE,TRAILS biobank,,835,,,,74,,,NL,,,,,
+AAAACXPAF5YXYACQK2ME25QAAM,AMC Renal Transplant Biobank,,644,,,,,,,NL,,,,,
+AAAACXPAGSMBGACQK2ME25QAAI,Vrije Unversiteit Medisch Centrum Bacteriele Meningitis,,644,,,,,,,NL,,,,,
+AAAACXPAJZC52ACQK2ME25QAAE,NeuroUnit Biomarkers for Inflammation and Neurodegeneration,NUBIN Biobank,,,"The NUBIN Biobanks contain several collections:
+
+1) Paired CSF, serum/plasma, DNA, MRI-scans and clinical measures of Alzheimer patients, patients with cognitive impairment and healthy controls. Size of the collection: samples from >1000 patients. 
+
+2) Paired CSF, serum/plasma, DNA, MRI-scans and clinical measures of patients with Mutliple Sclerosis, inflammatory and non-inflammatory controls. Size of the collection: samples from >250 patients.
+
+3) Serum from Multiple Sclerosis patients with extensive clinical data over several years of follow-up, annually collected. Size of the collection: samples from >360 patients.
+
+4) Serum from Multiple Sclerosis patients before treatment with interferon and during two years of treatment. Size of the collection: samples from >300 patients.",https://www.vumc.nl/afdelingen/NUBIN/,,,,NL,,,,,
+AAAACXPAPKLICACQK2ME25QAAE,Hemochromatosis family study biobank,HEFAS Study Biobank,666,666,,,,,,NL,,,,,
+AAAACXPAPP4NIACQK2ME25QAAE,Cluster Biobank,,AAAACW4LQOUXIZSUAVNCZ2AAAE,,,,,,,NL,,,,,
+AAAACXPASAS2AACQK2ME25QAAE,UMCG Research Data and Biobanking Team,UMCG Biobank,AAAACXPARPNKSACQK2ME25QAAE,664,"The UMCG has a leading position in biobank research. There is a long tradition in both research with long-term cohorts of specific patient groups and in population-based studies. Well-known Groningen Biobank/cohort studies are LifeLines, Vlagtwedde-Vlaardingen, PREVEND, GIANTT and TRAILS. Clinical biobanks have been given a boost by the participation of the UMCG in the Parelsnoer Institute (PSI) of the NFU.
+
+Besides the different biobanks with large numbers of stored biomaterials and data, also a lot of expertise and experience  is available in the UMCG on all methodological aspects of biobank research (e.g. research design, bioinformatics, bio-imaging, laboratory processes, statistics, on legal and regulatory affairs and on quality and privacy). In addition, the UMCG invested in facilities for biobank research, especially large-scale ICT facilities and long-term storage of biomaterials. In November 2012, the Board established the UMCG Biobank Regulations, that provide rules and guidelines for the collection, storage and use of human tissue and associated data from patients in the UMCG.
+
+UMCG researchers are active on important positions in all national research data / biobank organisations, such as the nationwide Parelsnoer Institute (PSI),  BBMRI-NL, NFU research IT ""data4lifesciences"" , ZonMw data management projects, Dutch Tech Centre for Life Sciences (DTL), Surf Sara projects. Also in Europe, various UMCG researchers have influential positions in the field of biobank research as in the large FP7 biobank projects: BioSHaRE, coordinated by the UMCG and  BBMRI LPC , with the UMCG as national representative. In addition, the UMCG  is closely involved in Elixir, the European bioinformatics consortium.",https://www.umcg.nl/EN/Research/Researchers/Facilities/biobanks/biobanks/Paginas/default.aspx,74,,,NL,true,,,,
+AAAACXPASYLVKACQK2ME25QAAE,CuraSAB Biobank,,556,556,,,,,,NL,,,,,
+AAAACXPATMOWYACQK2ME25QAAM,"Genetics, Arthrosis and Progression Biobank",GARP Biobank,713,713,,,,,,NL,,,,,
+AAAACXPAUCGZWACQK2ME25QAAE,Early Arthitis Clinic cohort,EAC cohort,577,577,,,,,,NL,,,,,
+AAAACXPAVQE52ACQK2ME25QAAE,National Twin Registry and Netherlands Study of Depression and Anxiety Biobank,NTR and NESDA Biobank,AAAACXPAVPA4MACQK2ME25QAAE,,,,,,,NL,,,,,
+AAAACXPAVYJOOACQK2ME25QAAE,Netherlands Study Depression and Anxiety Biobank,NESDA Biobank,608,608,,www.nesda.nl,,,,NL,,,,,
+AAAACXPAWIJHOACQK2ME25QAAE,KNOOPGenetic and Asthma together,,613,613,,,,,,NL,,,,,
+AAAACXPAWTUFCACQK2ME25QAAM,Lifelines Biobank,,AAAACXCQBT3CQACQK2MD37AAAE,,,www.lifelines.nl,,,,NL,,,,,
+AAAACXPF2EYBEACQK2ME25QAAM,Healthy LIfe in an Urban Setting Biobank,HELIUS Biobank,619,619,,,69,,,NL,,,,,
+AAAACXPF2POVSACQK2ME25QAAI,Erasmus MC Tissue Biobank,,649,,,,AAAACVHHI45RUZSUAVNCZ2AAAE,,,NL,,,,,
+AAAACXPF3FZEAACQK2ME25QAAM,NL Perinatal Screening Biobank,,745,745,,,,,,NL,,,,,
+AAAACXPF3ZSUWACQK2ME25QAAM,Tamoxifen Exemestane Adjuvant Multinational Biobank,TEAM Biobank,839,,,,,,,NL,,,,,
+AAAACXPF4GVAEACQK2ME25QAAE,Research Arthritis and Articular Cartilage Biobank,RAAK Biobank,712,713,,,,,,NL,,,,,
+AAAACXPF4VZU4ACQK2ME25QAAM,New Hoorn Study Biobank,,601,601,,,,,,NL,,,,,
+AAAACXPF7SEQEACQK2ME25QAAE,Biobank Reproduction and Development,BRAD,535,535,,,69,,,NL,,,,,
+AAAACXPFMLKW2ACQK2ME25QAAE,Surinamese in the netherlands: study on ethnicity and health Biobank,SUNSET Biobank,AAAACVOEQ4A7CZSUAVNCZ2AAAE,AAAACVOEQNADSZSUAVNCZ2AAAE,,,,,,NL,,,,,
+AAAACXPFMQJ7WACQK2ME25QAAM,RECOGIDAS MUESTRAS Biobank,,dc4,,,,,,,NL,,,,,
+AAAACXPFOKGE6ACQK2ME25QAAE,Utrecht Clamp Cohort Biobank,,687,,,,75,,,NL,,,,,
+AAAACXPFPWGMSACQK2ME25QAAE,Utrecht Depression Epidemiology Study Biobank,UDES Biobank,543,543,,,,,,NL,,,,,
+AAAACXPFROFN6ACQK2ME25QAAM,Leidsche Rijn Gezondheid Study Biobank,LGRP Biobank,AAAACXPFRLHBSACQK2ME25QAAE,AAAACXPFRLHBSACQK2ME25QAAE,,http://www.lrgp.nl/,,,,NL,,,,,
+AAAACXPFU3BUUACQK2ME25QAAE,Severely Obese Individuals Maastricht,,836,836,,,,,,NL,,,,,
+AAAACXPFV6EUKACQK2ME25QAAM,Tuberculosis Indonesia Biobank,TB-Indonesia Biobank,606,,,,,,,NL,,,,,
+AAAACXPFVEJHAACQK2ME25QAAE,Inflammatory Bowel Disease Zuid Limburg Biobank,IBD Biobank,595,595,,,,,,NL,,,,,
+AAAACXPFW2H7KACQK2ME25QAAE,Fronto-temporal Dementia Biobank,FTD Biobank,694,694,,,AAAACVHHI45RUZSUAVNCZ2AAAE,,,NL,,,,,
+AAAACXPFWJPCYACQK2ME25QAAE,HIV Host genetics cohort Biobank,,813,813,,,,,,NL,,,,,
+AAAACXPFX7P3EACQK2ME25QAAE,Vrije Unversiteit Medisch Centrum Bacteriele Meningitis Biobank,,614,614,,,,,,NL,,,,,
+AAAACXPFXCFPSACQK2ME25QAAI,LUMINA Biobank,,"825,AAAACW4LQOUXIZSUAVNCZ2AAAE",744,,,73,,,NL,,,,,
+AAAACXPJ3VCTUACQK2ME25QAAE,ARGOS Biobank,ARGOS Biobank,779,779,,,,,,NL,,,,,
+AAAACXPJW5GJ6ACQK2ME25QAAM,Diabetes care system West-Friesland Biobank,,601,601,,,,,,NL,,,,,
+AAAACXPJX4UB6ACQK2ME25QAAE,Biobank Interstitial Lung Disease,Biobank Data ILD,817,817,,,,,,NL,,,,,
+AAAACXPJXQJHAACQK2ME25QAAE,Binnenstebuiten Biobank,,611,611,,,,,,NL,,,,,
+AAAACXPJXYJXSACQK2ME25QAAE,Oogziekenhuis Biobank,,748,748,,,"AAAACVHHI45RUZSUAVNCZ2AAAE,146",,,NL,,,,,
+AAAACXPJYFQTKACQK2ME25QAAE,Myopia Study Biobank,MYST Biobank,749,,,,AAAACVHHI45RUZSUAVNCZ2AAAE,,,NL,,,,,
+AAAACXPJYUZMIACQK2ME25QAAI,Ghana Study Biobank,,829,829,,,156,,,,,,,,
+AAAACXPJZNKPOACQK2ME25QAAE,ID1000 Biobank,,754,754,,,"77,78",,,NL,,,,,
+AAAACXPK6TQCOACQK2ME25QAAE,Hoorn Study Biobank,,AAAACXPK4LR5AACQK2ME25QAAI,AAAACXPK4LR5AACQK2ME25QAAI,,,77,,,NL,,,,,
+AAAACXPKCENKIACQK2ME25QAAM,Dutch Hunger Winter Families Study Biobank,,828,828,,,,,,NL,,,,,
+AAAACXPKCIJ6KACQK2ME25QAAE,NEO Study Biobank,NEO Study Biobank,625,625,,,,,,NL,,,,,
+AAAACXPKDOM6AACQK2ME25QAAE,Netherlands Twin Register Biobank,NTR Biobank,705,705,,,,,,NL,,,,,
+AAAACXPKEJXLSACQK2ME25QAAE,Generation R Biobank,,497,612,,,AAAACVHHI45RUZSUAVNCZ2AAAE,,,NL,,,,,
+AAAACXPKEZGNYACQK2ME25QAAE,Erasmus Rucphen Family Study Biobank,,497,497,,,,,,NL,,,,,
+AAAACXPKFIXU4ACQK2ME25QAAE,POPS Biobank,,632,632,,,,,,NL,,,,,
+AAAACXPKGLJLKACQK2ME25QAAE,NESCOG Biobank,,611,611,,,,,,NL,,,,,
+AAAACXPKHAQOYACQK2ME25QAAI,ERGO Biobank,,AAAACXMDTBMYMACQK2ME25QAAE,,,,AAAACVHHI45RUZSUAVNCZ2AAAE,,,NL,,,,,
+AAAACXPKIFC32ACQK2ME25QAAM,U-TWIN Biobank,,787,787,,,,,,NL,,,,,
+AAAACXPKKEALKACQK2ME25QAAE,PIAMA Biobank,,589,589,,,,,,NL,,,,,
+AAAACXPKLWV6CACQK2ME25QAAE,WHISTLER Biobank,,814,814,,,,,,NL,,,,,
+AAAACXPKM4ZVGACQK2ME25QAAE,ORIGO Biobank,,530,530,,,,,,NL,,,,,
+AAAACXPKMVPYIACQK2ME25QAAE,ARREST Biobank,,,551,,,,,,NL,,,,,
+AAAACXPKPSTGWACQK2ME25QAAE,BOSOM Biobank,,808,808,,,,,,NL,,,,,
+AAAACXPKSBQFGACQK2ME25QAAE,Occupational asthma Biobank,,572,572,,,,,,NL,,,,,
+AAAACXPKSH53MACQK2ME25QAAE,NELSON Biobank,,799,799,,,,,,NL,,,,,
+AAAACXPKT6T6WACQK2ME25QAAM,PPHVZ Biobank,,698,698,,,,,,NL,,,,,
+AAAACXPKTCIZGACQK2ME25QAAM,GenoMEL Biobank,,571,571,,,73,,,,,,,,
+AAAACXPKTOQW6ACQK2ME25QAAE,MINDACT Biobank,,676,676,,,81,,,,,,,,
+AAAACXPKUTPDUACQK2ME25QAAE,SMART Biobank,,519,519,,,,,,NL,,,,,
+AAAACXPLAX4VSACQK2ME25QAAI,Lipidpoli Biobank,,533,533,,,,,,NL,,,,,
+AAAACXPLBYGYCACQK2ME25QAAE,The Nightingale Study Biobank,,730,,,,81,,,NL,,,,,
+AAAACXPRA5XCUACQK2ME25QAAE,Rijksdienst voor Volksgezondheid en Milieu,RIVM,698,698,,,82,,,NL,,,,,
+AAAACXPRABDP2ACQK2ME25QAAE,SMILE Biobank,,625,625,,,73,,,NL,,,,,
+AAAACXPRAIR7CACQK2ME25QAAI,Vascular Disease Biobank,,578,578,,,,,,NL,,,,,
+AAAACXPRARQ4KACQK2ME25QAAE,PACMAN Biobank,,549,549,,,,,,NL,,,,,
+AAAACXPRAZEXWACQK2ME25QAAE,SMILE Biobank,,625,625,,,73,,,NL,,,,,
+AAAACXPRBD7XQACQK2ME25QAAE,Zutphen Biobank,,563,,,,,,,NL,,,,,
+AAAACXPRCP2M6ACQK2ME25QAAE,LASA Biobank,,838,838,,,78,,,NL,,,,,
+AAAACXPRDI7YOACQK2ME25QAAE,EPOZ Biobank,,"497,612","497,612",,,AAAACVHHI45RUZSUAVNCZ2AAAE,,,NL,,,,,
+AAAACXPRDNXUMACQK2ME25QAAE,EUGENDA Biobank,,498,498,,,,,,NL,,,,,
+AAAACXPRDRIO6ACQK2ME25QAAE,Family and Health Biobank,,559,559,,,76,,,NL,,,,,
+AAAACXS4EWC6CACQK2MBZ5YAAE,PAS Biobank,,,,,,,,,NL,,,,,
+AAAACXS4EZXBQACQK2MBZ5YAAE,Genetic risk factors in Familial Hypercholesterolemia,,,,,,,,,NL,,,,,
+AAAACXSW447PSACQK2MBZ5YAAM,Biobank+NKI,BAVL,AAAACXSW445KYACQK2MBZ5YAAE,AAAACXSW445KYACQK2MBZ5YAAE,THe+collection+of+biobanks+in+the+NKI,https://www.nki.nl/,81,,,NL,true,,true,true,5
+AAAACXTCGNZLWACQK2MBZ5YAAE,Hyperlipidemia Biobank,,,,,,,,,NL,,,,,
+AAAACYAIDV754ACQK2MBZ5YAAI,CDDSS Knowledge base,,,,,,,,,NL,,,,,
+AAAACYWY5TBZGACQK2MDM4QAAE,AGNES Biobank,,791,791,,,,,,NL,,,,,
+AAAACYWYFU3V4ACQK2MDM4QAAM,PRECISION Biobank,,AAAACXJP7FNVUACQK2ME25QAAE,AAAACX57XRDFCACQK2MBZ5YAAM,,,,,,NL,,,,,
+AAAACYWZHZP6SACQK2MDM4QAAE,EPIC Biobank,,,,,,,,,NL,,,,,
+AAAACYWZIFEXYACQK2MDM4QAAM,NOAC Biobank,,,,,,,,,NL,,,,,
+aaaacz5gvxsieacqk2mgyyqaae,PALGA,PALGA,"AAAACYWYBSHJKACQK2MDM4QAAE,aaaacz5gvreriacqk2mgyyqaae",,"The PALGA Portal is a one-stop online portal, combined with a logistic infrastructure, for the request and delivery of the pseudonymized data and samples (mostly FFPE blocks and tissue slides) that are available within the pathology labs (45+) in the Netherlands.",http://www.palga.nl/en/public-pathology-database/,115,,,NL,,,,,
+aaaacz5nb2ytqacqk2mgyyqaae,PARISK,PARISK,,,,,,,,,,,,,
+aaaacz5nbabrsacqk2mgyyqaae,Parelsnoer,PSI,-2057148831,,,,,,,,,,,,
+aaaaczwp435cwacqk2mo6qaaae,SIMPEL trials Biobank,,aaaaczwp4uuz2acqk2mo6qaaae,aaaaczwp4uuz2acqk2mo6qaaae,,,76,,,NL,,,,,2
+aaaaczwpyvddcacqk2mo6qaaae,Utrecht Coronary Biobank,UCORBIO,aaaaczwpykqleacqk2mo6qaaae,aaaaczwpyqckkacqk2mo6qaaae,,,,,,NL,,,,,4
+aaaaczxoatpr2acqk2mo6qaaae,Biobank of the department gerontology and nephrology - LUMC,,aaaaczxn7vjgeacqk2mo6qaaae,"aaaaczxn7r3yyacqk2mo6qaaae,aaaaczxn7vjgeacqk2mo6qaaae",,,,,,NL,false,,,,
+aaaaczxoioaeoacqk2mo6qaaae,BBMRI-Omics,BBMRI-Omics,aaaaczeewdoneacqk2mo6qaaai,"632,504,AAAACXMDTBMYMACQK2ME25QAAE","BMRI-Omics is a data infrastructure with molecular omics data of thousands of individuals originating from 29 Dutch biobanks. BBMRI-Omics is publicly available and has proven to be worldwide valuable in the discovery of mechanisms and biomarkers for health and disease. BBMRI-Omics consists of 4,000 individuals with integrative genomics data (genome, epigenome, transcriptome and metabolome) with an extension of metabolomics data in 30,000 extra individuals and whole genome sequences in a selection of 750 individuals. The data has been optimally curated so that researchers can start right away without preprocessing.",https://omics-explorer.bbmri.nl/,aaaaczxoinawmacqk2mo6qaaae,,,NL,true,1,false,false,
+CBB,Centrale Biobank UMC Utrecht,CBB,538,538,,http://www.umcutrecht.nl/nl/Ziekenhuis/Professionals/Voor-professionals/Centrale-Biobank,75,,,NL,,,,,
+RBB,Radboud Biobank,RBB,aaaac2fxzpgk2acqk2mpm4yaae,aaaac2fxzpgk2acqk2mpm4yaae,"The Radboud Biobank was established in 2012 with the goal of providing an infrastructure within the Radboud university medical centre for the collection, storage and management of biomaterial and the matching clinical data. The construction is based on the model developed for this purpose by the Parelsnoer Institute (PSI). It is expected that the scientific data created with the help of this infrastructure will lead to improved health in patients and reinforce the position of biomedical research in Nijmegen.",https://www.radboudumc.nl/en/research/radboud-technology-centers/radboud-biobank,76,5.837226,51.812565,NL,,,,,

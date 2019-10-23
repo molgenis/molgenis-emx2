@@ -1,0 +1,13 @@
+id,cohort,description,imaging,counts,organ_name
+1,Rotterdam Study,"Unselected ; population-based ; 45+ ; cancer, cardiovascular, neurological, psychiatric, endocrine, locomotor , ophthalmological , otolarynchological , genetic , hepatic , pulmonary , dermatological , disorders.",true,14926,"56,57,58"
+10,PROSPER Study,"The PROspective Study of Pravastatin in the Elderly at Risk (PROSPER) is a randomised, double blind, placebo-controlled trial to test the hypothesis that treatment with pravastatin (40 mg/day) will reduce the risk of coronary heart disease death.",true,5804,74
+2,Maastricht Study,,true,10000,"59,60,61"
+3,SMART-MR Study,,true,1309,"62,63"
+4,Nijmegen Brain Imaging Genetics (BIG),,true,2500,64
+5,Generation R,,true,10000,"65,66,67,68"
+6,NELSON Study,,true,15822,69
+7,NESDA Study,,true,2981,70
+8,RUN DMC Study,,true,503,71
+9,Leiden Longevity Study,,true,3400,"72,73"
+AAAACYR6VANCOACQK2MBZ5YAAQ,NEO,Cohort study,true,2000,"68,AAAACYR6U43FUACQK2MBZ5YAAE,67,AAAACYR6U7SV2ACQK2MBZ5YAAE,AAAACYR6U6IVGACQK2MBZ5YAAI"
+AAAACYR6WHBIQACQK2MBZ5YAAE,EUGENDA,Case-control cohort for age-related macular degeneration (AMD),true,4000,AAAACYR6VZDP6ACQK2MBZ5YAAE

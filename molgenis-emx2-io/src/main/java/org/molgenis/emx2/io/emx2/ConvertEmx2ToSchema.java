@@ -137,7 +137,7 @@ public class ConvertEmx2ToSchema {
     if (REF.equals(columnType)) {
       try {
         List<String> params = def.getParameterList(REF.toString().toLowerCase());
-        if (params.size() == 0 || params.size() > 2) {
+        if (params.isEmpty() || params.size() > 2) {
           throw new MolgenisException("", "", "ref must have 1 or 2 parameter values");
         }
         if (params.size() > 1) {

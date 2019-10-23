@@ -1,0 +1,10 @@
+id,label,ontology,uri,description
+BIOLOGICAL_SAMPLES,Biological samples,Miabis,,Y/N if biological samples are collected from the participants in the sample collection/study
+GENEALOGICAL_RECORDS,Genealogical records,Miabis,,Y/N if genealogical records are associated with the participants in the sample collection/study
+IMAGING_DATA,Imaging data,Miabis,,Y/N if imaging data are collected from the participants in the sample collection/study
+MEDICAL_RECORDS,Medical records,Miabis,,Y/N if medical records are collected from the participants in the sample collection/study
+NATIONAL_REGISTRIES,National registries,Miabis,,Y/N if register data is associated to the participants in the sample collection/study
+NAV,Not available,,,
+OTHER,Other,Miabis,,Other
+PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS,Physiological/Biochemical measurements,Miabis,,Y/N if Measurements/tests performed during a clinical/home visit and from samples taken from donor
+SURVEY_DATA,Survey data,Miabis,,Y/N if information from surveys are collected from the participants in the sample collection/study

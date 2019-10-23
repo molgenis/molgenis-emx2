@@ -253,12 +253,7 @@ public class SqlSchema implements Schema {
     ArrayList<TableMetadata> result = new ArrayList<>();
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
 
-    // randomly start
-    result.add(todo.get(0));
-    todo.remove(0);
-
-    // inefficient procedure, sorry
-    while (todo.size() > 0) {
+    while (!todo.isEmpty()) {
       for (int i = 0; i < todo.size(); i++) {
         TableMetadata current = todo.get(i);
         boolean depends = false;
@@ -285,6 +280,19 @@ public class SqlSchema implements Schema {
     visited.add(from.getTableName());
     for (Column c : from.getColumns()) {
       if (c.getRefTableName() != null) {
+        if (from.getSchema().getTableMetadata(c.getRefTableName()) == null)
+          throw new MolgenisException(
+              "invalid_reference",
+              "invalid_reference",
+              "Reference '"
+                  + c.getColumnName()
+                  + "' from '"
+                  + from.getTableName()
+                  + "' to '"
+                  + c.getRefTableName()
+                  + "' failed. Table '"
+                  + c.getRefTableName()
+                  + "' could not be found");
         if (c.getRefTableName().equals(to.getTableName())) return true;
         // recurse
         if (!visited.contains(c.getRefTableName())

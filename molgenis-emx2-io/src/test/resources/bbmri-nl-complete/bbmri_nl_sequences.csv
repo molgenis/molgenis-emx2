@@ -1,0 +1,27 @@
+code,label
+2D FLAIR,2D FLAIR
+2D Flow,2D Flow
+3D FLAIR,3D FLAIR
+3D flow,3D flow
+Arterial Spin Labelling,Arterial Spin Labelling
+DTI,DTI
+DWI,DWI
+Dynamic Contrast Enhanced MRI,Dynamic Contrast Enhanced MRI
+Dynamic susceptibility weighted MRI,Dynamic susceptibility weighted MRI
+FLAIR,FLAIR
+Inversion Recovery sequence,Inversion Recovery sequence
+PDw 2D Spin Echo,PDw 2D Spin Echo
+rsFMRI,rsFMRI
+SWI,SWI
+T1w 2D Spin Echo,T1w 2D Spin Echo
+T1w 2D Spin Echo with Gd,T1w 2D Spin Echo with Gd
+T1w 3D fast field echo,T1w 3D fast field echo
+T1w 3D Gradient echo,T1w 3D Gradient echo
+T1w 3D Gradient echo with Gd,T1w 3D Gradient echo with Gd
+T2,T2
+T2*,T2*
+T2w 2D Gradient echo,T2w 2D Gradient echo
+T2w 2D Spin Echo,T2w 2D Spin Echo
+T2w 3D Gradient echo,T2w 3D Gradient echo
+T2w 3D Spin echo,T2w 3D Spin echo
+trFMRI,trFMRI

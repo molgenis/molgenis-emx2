@@ -1,4 +1,4 @@
-package org.molgenis.emx2.legacy.format;
+package org.molgenis.emx2.io.emx1;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.stores.RowStore;
@@ -9,9 +9,9 @@ import java.util.List;
 
 import static org.molgenis.emx2.ColumnType.*;
 
-public class Emx1ToSchema {
+public class ConvertEmx1ToSchema {
 
-  private Emx1ToSchema() {
+  private ConvertEmx1ToSchema() {
     // hide constructor
   }
 
@@ -21,13 +21,16 @@ public class Emx1ToSchema {
     List<Entity> entities = loadTables(store, schema);
     List<Attribute> attributes = loadColumns(store, packagePrefix, schema);
     loadInheritanceRelations(packagePrefix, schema, entities);
-    loadRefRelationships(packagePrefix, schema, attributes);
+    loadRefRelationships(packagePrefix, schema, entities, attributes);
 
     return schema;
   }
 
   private static void loadRefRelationships(
-      String packagePrefix, SchemaMetadata schema, List<Attribute> attributes) {
+      String packagePrefix,
+      SchemaMetadata schema,
+      List<Entity> entities,
+      List<Attribute> attributes) {
     // update refEntity
     for (Attribute attribute : attributes) {
       if (attribute.getDataType().contains("ref")
@@ -35,8 +38,6 @@ public class Emx1ToSchema {
 
         TableMetadata table =
             schema.getTableMetadata(getTableName(attribute.getEntity(), packagePrefix));
-        TableMetadata otherTable =
-            schema.getTableMetadata(getTableName(attribute.getRefEntity(), packagePrefix));
 
         if (attribute.getRefEntity() == null) {
           throw new MolgenisException(
@@ -48,22 +49,9 @@ public class Emx1ToSchema {
                   + attribute.getName()
                   + "' failed. RefEntity was missing");
         }
-
-        if (otherTable.getPrimaryKey() == null || otherTable.getPrimaryKey().length == 0) {
-          throw new MolgenisException(
-              "missing_key",
-              "Primary key is missing",
-              "Adding reference '"
-                  + attribute.getEntity()
-                  + "'.'"
-                  + attribute.getName()
-                  + " failed. Table '"
-                  + otherTable.getTableName()
-                  + "' has no primary key defined");
-        }
         table
             .getColumn(attribute.getName())
-            .setReference(otherTable.getTableName(), otherTable.getPrimaryKey()[0]);
+            .setReference(getTableName(attribute.getRefEntity(), packagePrefix), null);
       }
     }
   }

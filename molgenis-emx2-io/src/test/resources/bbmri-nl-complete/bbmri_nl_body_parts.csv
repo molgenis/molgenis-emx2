@@ -1,0 +1,117 @@
+code,label
+R-FAB52,Neck and Chest
+R-FAB53,"Neck, Chest and Abdomen"
+R-FAB54,"Neck, Chest, Abdomen and Pelvis"
+R-FAB55,Chest and Abdomen
+R-FAB56,"Chest, Abdomen and Pelvis"
+R-FAB57,Abdomen and Pelvis
+T-04000,Breast
+T-11100,Skull
+T-11166,Zygoma
+T-11170,Maxilla
+T-11210,Sternum
+T-11300,Rib
+T-11501,Cervical spine
+T-11502,Thoracic spine
+T-11503,Lumbar spine
+T-11AD0,Sacrum
+T-11BF0,Coccyx
+T-12280,Scapula
+T-12310,Clavicle
+T-12340,Ilium
+T-12403,Radius and ulna
+T-12410,Humerus
+T-12420,Radius
+T-12430,Ulna
+T-12701,Tibia and fibula
+T-12710,Femur
+T-12730,Patella
+T-12740,Tibia
+T-12770,Calcaneus
+T-15290,Temporomandibular joint
+T-15430,Elbow joint
+T-15460,Wrist joint
+T-15710,Hip joint
+T-15750,Ankle joint
+T-21000,Nose
+T-24100,Larynx
+T-25000,Trachea
+T-26000,Bronchus
+T-28000,Lung
+T-32000,Heart
+T-42000,Aorta
+T-43000,Coronary artery
+T-45010,Carotid Artery
+T-45526,Circle of Willis
+T-51000,Mouth
+T-53000,Tongue
+T-55000,Pharynx
+T-56000,Esophagus
+T-57000,Stomach
+T-58200,Duodenum
+T-58400,Jejunum
+T-58600,Ileum
+T-59300,Colon
+T-59600,Rectum
+T-61100,Parotid gland
+T-61300,Submandibular gland
+T-62000,Liver
+T-63000,Gallbladder
+T-65000,Pancreas
+T-71000,Kidney
+T-73000,Ureter
+T-74000,Bladder
+T-75000,Urethra
+T-81000,Vulva
+T-82000,Vagina
+T-83000,Uterus
+T-83200,Cervix
+T-87000,Ovary
+T-91000,Penis
+T-9200B,Prostate
+T-94000,Testis
+T-98000,Scrotum
+T-A0100,Brain
+T-A6000,Cerebellum
+T-AA000,Eye
+T-AA110,Sclera
+T-AA200,Cornea
+T-AA810,Eyelid
+T-AB000,Ear
+T-AB959,Internal Auditory Canal
+T-B3000,Adrenal gland
+T-B6000,Thyroid
+T-C3000,Spleen
+T-C8000,Thymus
+T-D0010,Entire body
+T-D00F7,Cervico-thoracic spine
+T-D00F8,Thoraco-lumbar spine
+T-D00F9,Lumbo-sacral spine
+T-D0300,Extremity
+T-D04FF,Spine
+T-D1000,Head and Neck
+T-D1100,Head
+T-D1160,Scalp
+T-D1200,Face
+T-D1206,Cheek
+T-D1213,Jaw region
+T-D14AE,Orbital structure
+T-D1600,Neck
+T-D2100,Back
+T-D2220,Shoulder
+T-D2600,Buttock
+T-D3000,Chest
+T-D3300,Mediastinum
+T-D4000,Abdomen
+T-D6000,Pelvis
+T-D8104,Axilla
+T-D8200,Upper arm
+T-D8700,Hand
+T-D8800,Finger
+T-D8810,Thumb
+T-D9100,Thigh
+T-D9200,Knee
+T-D9400,Lower leg
+T-D9440,Calf of leg
+T-D9700,Foot
+T-D9800,Toe

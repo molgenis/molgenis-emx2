@@ -4,14 +4,12 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.simpleflatmapper.csv.CsvParser;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CsvRowReader {
 
@@ -40,9 +38,23 @@ public class CsvRowReader {
       return () ->
           new Iterator<Row>() {
             final Iterator<LinkedHashMap> it = iterator;
+            final AtomicInteger line = new AtomicInteger(1);
 
             public boolean hasNext() {
-              return it.hasNext();
+              try {
+                return it.hasNext();
+              } catch (Exception e) {
+                throw new MolgenisException(
+                    "io_exception",
+                    "IO exception",
+                    e.getClass().getName()
+                        + ": "
+                        + e.getMessage()
+                        + ". Error at line "
+                        + line.get()
+                        + ".",
+                    e);
+              }
             }
 
             public Row next() {

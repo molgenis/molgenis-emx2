@@ -2,8 +2,10 @@ package org.molgenis.emx2.io.stores;
 
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.ErrorCodes;
+
 import org.molgenis.emx2.io.readers.CsvRowReader;
 import org.molgenis.emx2.io.readers.CsvRowWriter;
+import org.molgenis.emx2.io.readers.RowReaderJackson;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
@@ -48,7 +50,7 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Reader reader = Files.newBufferedReader(relativePath);
-      return CsvRowReader.readList(reader, separator);
+      return RowReaderJackson.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
           ErrorCodes.NOT_FOUND,

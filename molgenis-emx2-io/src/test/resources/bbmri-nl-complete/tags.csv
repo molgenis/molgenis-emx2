@@ -1,0 +1,3 @@
+﻿identifier,label,relationLabel,objectIRI,relationIRI,codeSystem
+miabis_biosharing,http://www.biosharing.org/bsg-000553,Specification,http://www.biosharing.org/bsg-000553,http://molgenis.org/biobankconnect/link,system
+miabis_spec,http://bbmri-wiki.wikidot.com/en:dataset,Specification,http://bbmri-wiki.wikidot.com/en:dataset,http://molgenis.org/biobankconnect/link,system

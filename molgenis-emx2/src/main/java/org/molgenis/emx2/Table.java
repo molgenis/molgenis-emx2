@@ -35,5 +35,5 @@ public interface Table {
 
   String getName();
 
-  Query search(String dagobert);
+  Query search(String searchTerms);
 }
