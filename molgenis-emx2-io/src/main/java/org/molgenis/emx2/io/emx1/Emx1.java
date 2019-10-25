@@ -5,39 +5,47 @@ import org.molgenis.emx2.io.stores.RowStore;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.molgenis.emx2.ColumnType.*;
 
-public class ConvertEmx1ToSchema {
+public class Emx1 {
 
-  private ConvertEmx1ToSchema() {
+  private Emx1() {
     // hide constructor
   }
 
-  public static SchemaMetadata convert(RowStore store, String packagePrefix) {
-    SchemaMetadata schema = new SchemaMetadata();
+  public static void upload(RowStore store, Schema targetSchema) {
 
-    List<Entity> entities = loadTables(store, schema);
-    List<Attribute> attributes = loadColumns(store, packagePrefix, schema);
-    loadInheritanceRelations(packagePrefix, schema, entities);
-    loadRefRelationships(packagePrefix, schema, entities, attributes);
+    // parse metadata into emx1 schema
+    SchemaMetadata emx1schema = new SchemaMetadata();
+    Map<String, Entity> entities = loadTables(store, emx1schema);
+    loadInheritanceRelations(emx1schema, entities);
+    List<Attribute> attributes = loadColumns(store, entities, emx1schema);
+    loadRefRelationships(emx1schema, entities, attributes);
 
-    return schema;
+    // load into target schema
+    targetSchema.merge(emx1schema);
+    for (Map.Entry<String, Entity> entity : entities.entrySet()) {
+      if (store.containsTable(entity.getKey())) {
+        targetSchema
+            .getTable(entity.getValue().getName())
+            .update(store.read(entity.getKey())); // actually upsert
+      }
+    }
   }
 
   private static void loadRefRelationships(
-      String packagePrefix,
-      SchemaMetadata schema,
-      List<Entity> entities,
-      List<Attribute> attributes) {
+      SchemaMetadata schema, Map<String, Entity> entities, List<Attribute> attributes) {
     // update refEntity
     for (Attribute attribute : attributes) {
       if (attribute.getDataType().contains("ref")
           || attribute.getDataType().contains("categorical")) {
 
         TableMetadata table =
-            schema.getTableMetadata(getTableName(attribute.getEntity(), packagePrefix));
+            schema.getTableMetadata(entities.get(attribute.getEntity()).getName());
 
         if (attribute.getRefEntity() == null) {
           throw new MolgenisException(
@@ -51,20 +59,20 @@ public class ConvertEmx1ToSchema {
         }
         table
             .getColumn(attribute.getName())
-            .setReference(getTableName(attribute.getRefEntity(), packagePrefix), null);
+            .setReference(entities.get(attribute.getRefEntity()).getName(), null);
       }
     }
   }
 
   private static void loadInheritanceRelations(
-      String packagePrefix, SchemaMetadata schema, List<Entity> entities) {
+      SchemaMetadata schema, Map<String, Entity> entities) {
     int line = 2; // line 1 is header
     try {
-      for (Entity entity : entities) {
+      for (Entity entity : entities.values()) {
         if (entity.getExtends() != null) {
           schema
               .getTableMetadata(entity.getName())
-              .inherits(getTableName(entity.getExtends(), packagePrefix));
+              .inherits(entities.get(entity.getExtends()).getName());
         }
         line++;
       }
@@ -75,7 +83,7 @@ public class ConvertEmx1ToSchema {
   }
 
   private static List<Attribute> loadColumns(
-      RowStore store, String packagePrefix, SchemaMetadata schema) {
+      RowStore store, Map<String, Entity> entities, SchemaMetadata schema) {
     int line = 2; // line 1 is header
     List<Attribute> attributes = new ArrayList<>();
     try {
@@ -90,8 +98,7 @@ public class ConvertEmx1ToSchema {
       for (Attribute attribute : attributes) {
 
         // create the table
-        TableMetadata table =
-            schema.createTable(getTableName(attribute.getEntity(), packagePrefix));
+        TableMetadata table = schema.createTable(entities.get(attribute.getEntity()).getName());
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
@@ -109,20 +116,21 @@ public class ConvertEmx1ToSchema {
     return attributes;
   }
 
-  private static List<Entity> loadTables(RowStore store, SchemaMetadata schema) {
-    List<Entity> entities = new ArrayList<>();
+  private static Map<String, Entity> loadTables(RowStore store, SchemaMetadata schema) {
+    Map<String, Entity> entities = new LinkedHashMap<>();
     int line = 2; // line 1 is header
 
     try {
       if (store.containsTable("entities")) {
         for (Row row : store.read("entities")) {
-          entities.add(new Entity(row));
+          Entity e = new Entity(row);
+          entities.put(e.getPackageName() + "_" + e.getName(), e);
           line++;
         }
       }
 
       line = 2; // line 1 is header
-      for (Entity entity : entities) {
+      for (Entity entity : entities.values()) {
         schema.createTable(entity.getName());
         line++;
       }

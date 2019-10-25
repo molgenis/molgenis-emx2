@@ -16,7 +16,6 @@
         <module>molgenis-emx2-graphql</module>
         <module>molgenis-emx2-exampledata</module>
         <module>report-aggregator</module>
-        <module>molgenis-emx2-legacy-io</module>
     </modules>
 
     <properties>
