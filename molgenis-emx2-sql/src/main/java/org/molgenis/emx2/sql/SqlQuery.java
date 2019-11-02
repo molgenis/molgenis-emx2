@@ -263,13 +263,11 @@ public class SqlQuery extends QueryBean implements Query {
     return searchCondition;
   }
 
-  /** utility methods below */
   private static String[] getPath(String s) {
     // todo check for escaping with //
     return s.split("/");
   }
 
-  /** recursive getColumn */
   private static Column getColumn(
       TableMetadata t,
       String[] path,

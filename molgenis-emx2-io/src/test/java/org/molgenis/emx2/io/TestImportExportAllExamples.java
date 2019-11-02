@@ -8,8 +8,7 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.io.emx2.Emx2Reader;
-import org.molgenis.emx2.io.emx2.Emx2Writer;
+import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.examples.synthetic.*;
 import org.molgenis.emx2.sql.DatabaseFactory;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -79,12 +78,12 @@ public class TestImportExportAllExamples {
   public void executeCompare(SchemaMetadata schema1) throws IOException, MolgenisException {
     try {
       // now write it out and fromReader back and compare
-      List<Row> contents = Emx2Writer.toRowList(schema1);
+      List<Row> contents = Emx2.toRowList(schema1);
       for (Row r : contents) {
         System.out.println(r);
       }
 
-      SchemaMetadata schema2 = Emx2Reader.fromRowList(contents);
+      SchemaMetadata schema2 = Emx2.fromRowList(contents);
 
       CompareTools.assertEquals(schema1, schema2);
 

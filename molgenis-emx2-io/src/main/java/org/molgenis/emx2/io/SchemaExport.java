@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.emx2.Emx2Writer;
+import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
@@ -29,7 +29,7 @@ public class SchemaExport {
 
   private static void executeExport(TableStore store, Schema schema) {
     // write metadata
-    store.writeTable("molgenis", Emx2Writer.toRowList(schema.getMetadata()));
+    store.writeTable("molgenis", Emx2.toRowList(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
       store.writeTable(tableName, schema.getTable(tableName).retrieve());

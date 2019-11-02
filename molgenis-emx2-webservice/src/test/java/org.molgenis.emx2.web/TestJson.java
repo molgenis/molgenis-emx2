@@ -5,7 +5,6 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import org.junit.Test;
 import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.web.json.JsonQueryMapper;
 import org.molgenis.emx2.SchemaMetadata;
@@ -13,7 +12,6 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.beans.QueryBean;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.web.json.JsonSchemaMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,9 +20,7 @@ import java.util.List;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRow;
-import static org.molgenis.emx2.web.json.JsonRowMapper.jsonToRows;
-import static org.molgenis.emx2.web.json.JsonMapper.rowsToJson;
+import static org.molgenis.emx2.web.JsonApi.*;
 import static org.molgenis.emx2.ColumnType.DECIMAL;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -36,10 +32,10 @@ public class TestJson {
 
     SchemaMetadata s = new SchemaMetadata("test");
     ProductComponentPartsExample.create(s);
-    String json = JsonSchemaMapper.schemaToJson(s);
+    String json = schemaToJson(s);
     System.out.println("json:\n" + json);
 
-    SchemaMetadata s2 = JsonSchemaMapper.jsonToSchema(json);
+    SchemaMetadata s2 = jsonToSchema(json);
     CompareTools.assertEquals(s, s2);
   }
 

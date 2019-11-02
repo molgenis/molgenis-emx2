@@ -3,7 +3,7 @@ package org.molgenis.emx2.io;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.emx1.Emx1;
-import org.molgenis.emx2.io.emx2.Emx2Reader;
+import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 import org.molgenis.emx2.io.rowstore.TableStore;
@@ -39,7 +39,7 @@ public class SchemaImport {
             Emx1.uploadFromStoreToSchema(store, schema);
           } else {
             if (store.containsTable("molgenis")) {
-              SchemaMetadata emx2Schema = Emx2Reader.fromRowList(store.readTable("molgenis"));
+              SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
               schema.merge(emx2Schema);
             } else
               // read data
