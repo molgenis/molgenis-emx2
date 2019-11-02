@@ -12,7 +12,7 @@ public class TableMetadata {
   private Map<String, Column> columns = new LinkedHashMap<>();
   private List<String[]> uniques = new ArrayList<>();
   private String[] primaryKey = new String[0];
-  private String inherits = null;
+  private String inherit = null;
 
   public TableMetadata(String tableName) {
     this.tableName = tableName;
@@ -33,29 +33,19 @@ public class TableMetadata {
     return schema;
   }
 
+  public String[] getPrimaryKey() {
+    if (this.inherit != null) return getInheritedTable().getPrimaryKey();
+    return this.primaryKey;
+  }
+
   public TableMetadata setPrimaryKey(String... columnNames) {
     this.primaryKey = columnNames;
     return this;
   }
 
-  public String[] getPrimaryKey() {
-    if (this.inherits != null) return getInheritedTable().getPrimaryKey();
-    return this.primaryKey;
-  }
-
-  public List<Column> getLocalColumns() {
-    ArrayList<Column> result = new ArrayList<>();
-    result.addAll(columns.values());
-    return result;
-  }
-
-  public Set<String> getLocalColumnNames() {
-    return columns.keySet();
-  }
-
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
-    if (inherits != null) {
+    if (inherit != null) {
       result.addAll(getInheritedTable().getColumns());
 
       // ignore primary key from child class because that is same as in inheritedTable
@@ -69,18 +59,28 @@ public class TableMetadata {
     return Collections.unmodifiableList(result);
   }
 
+  public List<Column> getLocalColumns() {
+    ArrayList<Column> result = new ArrayList<>();
+    result.addAll(columns.values());
+    return result;
+  }
+
   public Collection<String> getColumnNames() {
     Set<String> result = new HashSet<>();
-    if (inherits != null) {
+    if (inherit != null) {
       result.addAll(getInheritedTable().getColumnNames());
     }
     result.addAll(getLocalColumnNames());
     return result;
   }
 
+  public Set<String> getLocalColumnNames() {
+    return columns.keySet();
+  }
+
   public Column getColumn(String name) {
     if (columns.containsKey(name)) return columns.get(name);
-    if (inherits != null) {
+    if (inherit != null) {
       return getInheritedTable().getColumn(name);
     }
     return null;
@@ -174,16 +174,8 @@ public class TableMetadata {
         return true;
       }
     }
-    if (inherits != null) return getInheritedTable().isUnique(names);
+    if (inherit != null) return getInheritedTable().isUnique(names);
     return false;
-  }
-
-  private boolean equalContents(String[] a, String[] b) {
-    ArrayList one = new ArrayList<>(Arrays.asList(a));
-    Collections.sort(one);
-    ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
-    Collections.sort(two);
-    return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
   }
 
   public boolean isPrimaryKey(String... names) {
@@ -200,17 +192,22 @@ public class TableMetadata {
     // will not delete from inheritedTable
   }
 
-  public TableMetadata inherits(String otherTable) {
-    this.inherits = otherTable;
+  public TableMetadata setInherit(String otherTable) {
+    this.inherit = otherTable;
     return this;
   }
 
-  public String getInherits() {
-    return this.inherits;
+  public String getInherit() {
+    return this.inherit;
   }
 
   public TableMetadata getInheritedTable() {
-    return getSchema().getTableMetadata(inherits);
+    return getSchema().getTableMetadata(inherit);
+  }
+
+  public void enableRowLevelSecurity() {
+    throw new UnsupportedOperationException();
+    // todo decide if RLS is default on
   }
 
   public String toString() {
@@ -226,15 +223,18 @@ public class TableMetadata {
     return builder.toString();
   }
 
-  public void enableRowLevelSecurity() {
-    throw new UnsupportedOperationException();
-    // todo decide if RLS is default on
-  }
-
   public void clearCache() {
     columns = new LinkedHashMap<>();
     uniques = new ArrayList<>();
     primaryKey = new String[0];
-    inherits = null;
+    inherit = null;
+  }
+
+  private boolean equalContents(String[] a, String[] b) {
+    ArrayList one = new ArrayList<>(Arrays.asList(a));
+    Collections.sort(one);
+    ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
+    Collections.sort(two);
+    return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
   }
 }

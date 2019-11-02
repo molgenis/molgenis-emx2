@@ -5,9 +5,11 @@ import java.util.List;
 
 public interface Table {
 
-  Schema getSchema();
+  String getName();
 
   TableMetadata getMetadata();
+
+  Schema getSchema();
 
   int insert(Row... row);
 
@@ -27,13 +29,11 @@ public interface Table {
 
   Query where(String path, Operator operator, Serializable... values);
 
+  Query search(String searchTerms);
+
   Query query();
 
   List<Row> retrieve();
 
   <E> List<E> retrieve(String columnName, Class<E> klazz);
-
-  String getName();
-
-  Query search(String searchTerms);
 }

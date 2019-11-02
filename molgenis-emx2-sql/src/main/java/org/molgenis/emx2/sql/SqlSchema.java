@@ -301,8 +301,8 @@ public class SqlSchema implements Schema {
         }
       }
     }
-    if (from.getInherits() != null) {
-      if (from.getInherits().equals(to.getTableName())) return true;
+    if (from.getInherit() != null) {
+      if (from.getInherit().equals(to.getTableName())) return true;
       if (dependsOn(from.getInheritedTable(), to, visited)) return true;
     }
     return false;

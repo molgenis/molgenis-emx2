@@ -15,11 +15,6 @@ public class SchemaMetadata {
     this.name = name;
   }
 
-  /** for subclass to add table privately */
-  public void loadTable(TableMetadata t) {
-    tables.put(t.getTableName(), t);
-  }
-
   public String getName() {
     return name;
   }

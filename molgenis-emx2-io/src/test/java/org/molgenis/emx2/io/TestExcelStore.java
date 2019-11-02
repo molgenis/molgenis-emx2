@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.stores.RowStoreForXlsxFile;
+import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,12 +29,12 @@ public class TestExcelStore {
     tmp.toFile().deleteOnExit();
 
     Path excelFile = tmp.resolve("test.xlsx");
-    RowStoreForXlsxFile store = new RowStoreForXlsxFile(excelFile);
-    store.write("test", rows);
+    TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile);
+    store.writeTable("test", rows);
 
     // and read
-    store = new RowStoreForXlsxFile(excelFile);
-    List<Row> rows2 = store.read("test");
+    store = new TableStoreForXlsxFile(excelFile);
+    List<Row> rows2 = store.readTable("test");
 
     assertEquals(10, rows2.size());
   }

@@ -28,13 +28,13 @@ public class TestExtends {
 
     // test if fails if no foreign key
     try {
-      s.createTableIfNotExists("Employee").getMetadata().inherits(person.getName());
+      s.createTableIfNotExists("Employee").getMetadata().setInherit(person.getName());
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.createTableIfNotExists("Employee").getMetadata().inherits("fake table");
+      s.createTableIfNotExists("Employee").getMetadata().setInherit("fake table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
@@ -45,11 +45,11 @@ public class TestExtends {
 
     // create first extended table
     TableMetadata employee =
-        s.createTableIfNotExists("Employee").getMetadata().inherits(person.getName());
+        s.createTableIfNotExists("Employee").getMetadata().setInherit(person.getName());
     employee.addColumn("salary", INT);
 
     TableMetadata manager =
-        s.createTableIfNotExists("Manager").getMetadata().inherits(employee.getTableName());
+        s.createTableIfNotExists("Manager").getMetadata().setInherit(employee.getTableName());
     manager.addRefArray("directs", employee.getTableName()).setNullable(true);
 
     // try to add column that already exists in parent
@@ -61,7 +61,7 @@ public class TestExtends {
 
     // try to extend twice
     try {
-      manager.inherits("Student");
+      manager.setInherit("Student");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
@@ -74,7 +74,7 @@ public class TestExtends {
     }
     // create another extended table
     TableMetadata student =
-        s.createTableIfNotExists("Student").getMetadata().inherits(person.getName());
+        s.createTableIfNotExists("Student").getMetadata().setInherit(person.getName());
     student.addColumn("averageGrade", INT);
 
     // test insert, retrieve

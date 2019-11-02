@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.stores.RowStoreForCsvFilesDirectory;
+import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.sql.DatabaseFactory;
 
 import java.io.File;
@@ -25,10 +25,10 @@ public class TestLegacyImport {
 
     ClassLoader classLoader = getClass().getClassLoader();
     File file = new File(classLoader.getResource("bbmri-nl-complete").getFile());
-    RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(file.toPath(), ',');
+    TableStoreForCsvFilesDirectory store = new TableStoreForCsvFilesDirectory(file.toPath(), ',');
 
     Schema schema = db.createSchema("testImportLegacyFormat");
-    MolgenisImport.executeImport(store, schema);
+    SchemaImport.executeImport(store, schema);
 
     assertEquals(22, schema.getTableNames().size());
 

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
-import org.molgenis.emx2.io.readers.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
@@ -11,15 +11,15 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConvertSchemaToEmx2 {
+public class Emx2Writer {
 
-  private ConvertSchemaToEmx2() {
+  private Emx2Writer() {
     // to prevent instantiation of this static method class
   }
 
   public static void toCsv(SchemaMetadata model, Writer writer, Character separator)
       throws IOException {
-    CsvRowWriter.writeCsv(toRowList(model), writer, separator);
+    CsvTableWriter.rowsToCsv(toRowList(model), writer, separator);
   }
 
   public static List<Row> toRowList(SchemaMetadata model) {

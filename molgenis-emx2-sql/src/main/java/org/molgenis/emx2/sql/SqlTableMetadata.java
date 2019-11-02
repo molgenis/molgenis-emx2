@@ -93,11 +93,11 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata inherits(String otherTable) {
+  public TableMetadata setInherit(String otherTable) {
 
     db.transaction(
         tdb -> {
-          if (getInherits() != null)
+          if (getInherit() != null)
             throw new MolgenisException(
                 INHERITANCE_FAILED,
                 INHERITANCE_FAILED_MESSAGE,
@@ -106,7 +106,7 @@ class SqlTableMetadata extends TableMetadata {
                     + "'can only extend one table. Therefore it cannot extend '"
                     + otherTable
                     + "' because it already extends other table '"
-                    + getInherits()
+                    + getInherit()
                     + "'");
 
           TableMetadata other = getSchema().getTableMetadata(otherTable);
@@ -132,7 +132,7 @@ class SqlTableMetadata extends TableMetadata {
           this.setPrimaryKey(other.getPrimaryKey());
 
           // update super and then save the metadata
-          super.inherits(otherTable);
+          super.setInherit(otherTable);
           MetadataUtils.saveTableMetadata(this);
         });
     return this;
@@ -140,14 +140,14 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setPrimaryKey(String... columnNames) {
-    if (getInherits() != null)
+    if (getInherit() != null)
       throw new MolgenisException(
           "invalid_primary_key",
           "Primary key creation failed",
           "Primary key cannot be set on table '"
               + getTableName()
               + "' because inherits its primary key from other table '"
-              + getInherits()
+              + getInherit()
               + "'");
     if (columnNames.length == 0)
       throw new MolgenisException(
@@ -200,13 +200,13 @@ class SqlTableMetadata extends TableMetadata {
               "Column with columnName='%s' already exist in table '%s'",
               metadata.getColumnName(), getTableName()));
     }
-    if (getInherits() != null && getInheritedTable().getColumn(metadata.getColumnName()) != null) {
+    if (getInherit() != null && getInheritedTable().getColumn(metadata.getColumnName()) != null) {
       throw new MolgenisException(
           "invalid_column",
           "Invalid column",
           String.format(
               "Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
-              metadata.getColumnName(), getTableName(), getInherits()));
+              metadata.getColumnName(), getTableName(), getInherit()));
     }
     // if ref column is empty, guess it
     db.transaction(
@@ -252,8 +252,8 @@ class SqlTableMetadata extends TableMetadata {
   public Column addRef(String name, String toTable, String toColumn) {
     db.transaction(
         dsl -> {
-          RefSqlColumn c =
-              new RefSqlColumn(
+          SqlRefColumn c =
+              new SqlRefColumn(
                   this,
                   name,
                   toTable,
@@ -302,8 +302,8 @@ class SqlTableMetadata extends TableMetadata {
   public Column addRefArray(String name, String toTable, String toColumn) {
     db.transaction(
         dsl -> {
-          RefArraySqlColumn c =
-              new RefArraySqlColumn(
+          SqlRefArrayColumn c =
+              new SqlRefArrayColumn(
                   this,
                   name,
                   toTable,
@@ -336,8 +336,8 @@ class SqlTableMetadata extends TableMetadata {
 
     db.transaction(
         dsl -> {
-          MrefSqlColumn c =
-              new MrefSqlColumn(
+          SqlMrefColumn c =
+              new SqlMrefColumn(
                   this,
                   name,
                   refTable,
@@ -354,7 +354,7 @@ class SqlTableMetadata extends TableMetadata {
     return getColumn(name);
   }
 
-  protected void addMrefReverse(MrefSqlColumn reverse) {
+  protected void addMrefReverse(SqlMrefColumn reverse) {
     super.addColumn(reverse);
   }
 
@@ -534,6 +534,6 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public void loadInherits(String tableName) {
-    super.inherits(tableName);
+    super.setInherit(tableName);
   }
 }

@@ -24,32 +24,13 @@ public class Column {
     this.columnType = columnType;
   }
 
-  public Column addColumn(String name) {
-    return this.getTable().addColumn(name, STRING);
-  }
-
-  public Column addColumn(String name, ColumnType columnType) {
-    return this.getTable().addColumn(name, columnType);
-  }
-
-  public Column addRef(String name, String toTable) {
-    return this.getTable().addRef(name, toTable);
-  }
-
-  public Column addRef(String name, String toTable, String toColumn) {
-    return this.getTable().addRef(name, toTable, toColumn);
-  }
-
-  public Column addRefArray(String name, String toTable) {
-    return this.getTable().addRefArray(name, toTable);
-  }
-
-  public Column addRefArray(String name, String toTable, String toColumn) {
-    return this.getTable().addRef(name, toTable, toColumn);
-  }
-
   public Column primaryKey() {
     this.table.setPrimaryKey(this.columnName);
+    return this;
+  }
+
+  public Column setPrimaryKey(boolean primaryKey) {
+    if (primaryKey) this.table.setPrimaryKey(this.getColumnName());
     return this;
   }
 
@@ -63,10 +44,6 @@ public class Column {
 
   public ColumnType getColumnType() {
     return columnType;
-  }
-
-  public Boolean getNullable() {
-    return nullable;
   }
 
   public String getRefTableName() {
@@ -94,23 +71,14 @@ public class Column {
           .getColumn(getRefColumnName());
   }
 
-  public Column setNullable(boolean nillable) {
-    this.nullable = nillable;
-    return this;
+  public Boolean isUnique() {
+    return getTable().isUnique(getColumnName());
   }
 
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append(getColumnName()).append(" ");
-    if (ColumnType.REF.equals(getColumnType()))
-      builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
-    else if (ColumnType.REF_ARRAY.equals(getColumnType()))
-      builder.append("ref_array(").append(refTableName).append(",").append(refColumn).append(")");
-    else if (ColumnType.MREF.equals(getColumnType()))
-      builder.append("mref(").append(refTableName).append(",").append(refColumn).append(")");
-    else builder.append(getColumnType().toString().toLowerCase());
-    if (Boolean.TRUE.equals(getNullable())) builder.append(" nullable");
-    return builder.toString();
+  public Column setUnique(boolean unique) {
+    if (unique) getTable().addUnique(this.getColumnName());
+    else getTable().removeUnique(this.getColumnName());
+    return this;
   }
 
   public Boolean getReadonly() {
@@ -121,6 +89,15 @@ public class Column {
     this.readonly = readonly;
   }
 
+  public Boolean getNullable() {
+    return nullable;
+  }
+
+  public Column setNullable(boolean nillable) {
+    this.nullable = nillable;
+    return this;
+  }
+
   public String getDescription() {
     return description;
   }
@@ -129,22 +106,12 @@ public class Column {
     this.description = description;
   }
 
-  public Boolean isUnique() {
-    return getTable().isUnique(getColumnName());
-  }
-
   public String getDefaultValue() {
     return defaultValue;
   }
 
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
-  }
-
-  public Column setUnique(boolean unique) {
-    if (unique) getTable().addUnique(this.getColumnName());
-    else getTable().removeUnique(this.getColumnName());
-    return this;
   }
 
   public String getMrefJoinTableName() {
@@ -168,24 +135,6 @@ public class Column {
     return this;
   }
 
-  public TableMetadata addUnique(String... columnNames) {
-
-    return getTable().addUnique(columnNames);
-  }
-
-  public TableMetadata setPrimaryKey(String... columnNames) {
-    return getTable().setPrimaryKey(columnNames);
-  }
-
-  public ReferenceMultiple addRefMultiple(String... columnNames) {
-    return getTable().addRefMultiple(columnNames);
-  }
-
-  public Column setPrimaryKey(boolean primaryKey) {
-    if (primaryKey) this.table.setPrimaryKey(this.getColumnName());
-    return this;
-  }
-
   public Column setIndexed(boolean indexed) {
     this.indexed = indexed;
     return this;
@@ -201,5 +150,57 @@ public class Column {
 
   protected void setTable(TableMetadata tableMetadata) {
     this.table = tableMetadata;
+  }
+
+  // factory methods
+
+  public Column addColumn(String name) {
+    return this.getTable().addColumn(name, STRING);
+  }
+
+  public Column addColumn(String name, ColumnType columnType) {
+    return this.getTable().addColumn(name, columnType);
+  }
+
+  public Column addRef(String name, String toTable) {
+    return this.getTable().addRef(name, toTable);
+  }
+
+  public Column addRef(String name, String toTable, String toColumn) {
+    return this.getTable().addRef(name, toTable, toColumn);
+  }
+
+  public Column addRefArray(String name, String toTable) {
+    return this.getTable().addRefArray(name, toTable);
+  }
+
+  public Column addRefArray(String name, String toTable, String toColumn) {
+    return this.getTable().addRef(name, toTable, toColumn);
+  }
+
+  public TableMetadata addUnique(String... columnNames) {
+    return getTable().addUnique(columnNames);
+  }
+
+  public ReferenceMultiple addRefMultiple(String... columnNames) {
+    return getTable().addRefMultiple(columnNames);
+  }
+
+  public TableMetadata setPrimaryKey(String... columnNames) {
+    return getTable().setPrimaryKey(columnNames);
+  }
+
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append(getColumnName()).append(" ");
+    if (ColumnType.REF.equals(getColumnType()))
+      builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
+    else if (ColumnType.REF_ARRAY.equals(getColumnType()))
+      builder.append("ref_array(").append(refTableName).append(",").append(refColumn).append(")");
+    else if (ColumnType.MREF.equals(getColumnType()))
+      builder.append("mref(").append(refTableName).append(",").append(refColumn).append(")");
+    else builder.append(getColumnType().toString().toLowerCase());
+    if (Boolean.TRUE.equals(getNullable())) builder.append(" nullable");
+    return builder.toString();
   }
 }

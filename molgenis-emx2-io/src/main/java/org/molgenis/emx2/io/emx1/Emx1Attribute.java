@@ -2,7 +2,7 @@ package org.molgenis.emx2.io.emx1;
 
 import org.molgenis.emx2.Row;
 
-public class Attribute {
+public class Emx1Attribute {
   private String entity;
   private String name;
   private String label;
@@ -22,7 +22,7 @@ public class Attribute {
   private Integer rangeMin;
   private Integer rangeMax;
 
-  public Attribute(Row row) {
+  public Emx1Attribute(Row row) {
     this.entity = get(row, "entity");
     this.name = get(row, "name");
     this.label = get(row, "label");

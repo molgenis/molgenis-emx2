@@ -8,15 +8,15 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
-public class RefSqlColumn extends SqlColumn {
+public class SqlRefColumn extends SqlColumn {
 
-  public RefSqlColumn(SqlTableMetadata table, String columnName, String toTable, String toColumn) {
+  public SqlRefColumn(SqlTableMetadata table, String columnName, String toTable, String toColumn) {
     super(table, columnName, REF);
     this.setReference(toTable, toColumn);
   }
 
   @Override
-  public RefSqlColumn createColumn() {
+  public SqlRefColumn createColumn() {
     try {
       // define jooq parameters
       Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));

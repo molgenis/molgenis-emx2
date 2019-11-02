@@ -1,10 +1,9 @@
-package org.molgenis.emx2.io.stores;
+package org.molgenis.emx2.io.rowstore;
 
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.ErrorCodes;
 
-import org.molgenis.emx2.io.readers.CsvRowReader;
-import org.molgenis.emx2.io.readers.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
 import org.molgenis.emx2.utils.MolgenisException;
 
@@ -15,12 +14,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class RowStoreForCsvFilesDirectory implements RowStore {
+public class TableStoreForCsvFilesDirectory implements TableStore {
   static final String CSV_EXTENSION = ".csv";
   private final Path directoryPath;
   private final Character separator;
 
-  public RowStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
+  public TableStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
     if (!directoryPath.toFile().exists())
       throw new MolgenisException(
@@ -28,17 +27,17 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
     this.separator = separator;
   }
 
-  public RowStoreForCsvFilesDirectory(Path directoryPath) {
+  public TableStoreForCsvFilesDirectory(Path directoryPath) {
     this(directoryPath, ',');
   }
 
   @Override
-  public void write(String name, List<Row> rows) {
+  public void writeTable(String name, List<Row> rows) {
     if (rows.isEmpty()) return;
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);
-      CsvRowWriter.writeCsv(rows, writer, separator);
+      CsvTableWriter.rowsToCsv(rows, writer, separator);
       writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
@@ -46,7 +45,7 @@ public class RowStoreForCsvFilesDirectory implements RowStore {
   }
 
   @Override
-  public List<Row> read(String name) {
+  public List<Row> readTable(String name) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Reader reader = Files.newBufferedReader(relativePath);

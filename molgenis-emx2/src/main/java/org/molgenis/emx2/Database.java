@@ -14,11 +14,11 @@ public interface Database {
 
   void addUser(String name);
 
-  void grantCreateSchema(String user);
-
   boolean hasUser(String user);
 
   void removeUser(String name);
+
+  void grantCreateSchema(String user);
 
   void transaction(Transaction transaction);
 

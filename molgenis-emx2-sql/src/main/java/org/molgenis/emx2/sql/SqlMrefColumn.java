@@ -19,9 +19,9 @@ import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
  * <p>Note: we replace all relevant values in joinTable to allow also for changing of the refered to
  * column. This might get slow on large MREF lists (to be measured).
  */
-public class MrefSqlColumn extends SqlColumn {
+public class SqlMrefColumn extends SqlColumn {
 
-  protected MrefSqlColumn(
+  protected SqlMrefColumn(
       SqlTableMetadata sqlTable,
       String name,
       String refTable,
@@ -36,7 +36,7 @@ public class MrefSqlColumn extends SqlColumn {
   }
 
   @Override
-  public MrefSqlColumn createColumn() {
+  public SqlMrefColumn createColumn() {
     String schemaName = getTable().getSchema().getName();
 
     // createTableIfNotExists
@@ -65,8 +65,8 @@ public class MrefSqlColumn extends SqlColumn {
     table.addRef(getReverseRefColumn(), getTable().getTableName(), getReverseRefColumn());
 
     // add the reverse column to the other table
-    MrefSqlColumn reverseColumn =
-        new MrefSqlColumn(
+    SqlMrefColumn reverseColumn =
+        new SqlMrefColumn(
             otherTable,
             getReverseRefTableName(),
             getTable().getTableName(),

@@ -5,11 +5,13 @@ import java.util.List;
 
 public interface Query {
 
-  List<Sort> getSortList();
+  List<String> getSelectList();
 
   List<Where> getWhereLists();
 
   List<String> getSearchList();
+
+  List<Sort> getSortList();
 
   Query select(String... columns);
 
@@ -32,6 +34,4 @@ public interface Query {
   List<Row> retrieve();
 
   <E> List<E> retrieve(String columnName, Class<E> asClass);
-
-  List<String> getSelectList();
 }

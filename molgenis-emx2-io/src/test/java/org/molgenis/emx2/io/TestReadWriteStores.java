@@ -3,7 +3,7 @@ package org.molgenis.emx2.io;
 import org.junit.Test;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.io.stores.*;
+import org.molgenis.emx2.io.rowstore.*;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -28,7 +28,7 @@ public class TestReadWriteStores {
       Path folderInTmpDir = tmp.resolve("test");
       Files.createDirectories(folderInTmpDir);
       System.out.println("created tmp dir " + folderInTmpDir);
-      RowStoreForCsvFilesDirectory store = new RowStoreForCsvFilesDirectory(folderInTmpDir);
+      TableStoreForCsvFilesDirectory store = new TableStoreForCsvFilesDirectory(folderInTmpDir);
       executeTest(store);
     } catch (MolgenisException e) {
       e.printStackTrace();
@@ -46,7 +46,7 @@ public class TestReadWriteStores {
     try {
       Path zipFile = tmp.resolve("test.zip");
       System.out.println("defined zip file " + zipFile);
-      RowStoreForCsvInZipFile store = new RowStoreForCsvInZipFile(zipFile);
+      TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
       executeTest(store);
     } catch (MolgenisException e) {
       e.printStackTrace();
@@ -64,7 +64,7 @@ public class TestReadWriteStores {
     try {
       Path excelFile = tmp.resolve("test.xlsx");
       System.out.println("defined excel file " + excelFile);
-      RowStoreForXlsxFile store = new RowStoreForXlsxFile(excelFile);
+      TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile);
       executeTest(store);
     } catch (MolgenisException e) {
       e.printStackTrace();
@@ -78,10 +78,10 @@ public class TestReadWriteStores {
 
   @Test
   public void testCsvStringStore() throws IOException, MolgenisException {
-    executeTest(new RowStoreForCsvInMemory());
+    executeTest(new TableStoreForCsvInMemory());
   }
 
-  public static void executeTest(RowStore store) throws IOException, MolgenisException {
+  public static void executeTest(TableStore store) throws IOException, MolgenisException {
 
     List<Row> rows = new ArrayList<>();
     int count = 10;
@@ -110,12 +110,12 @@ public class TestReadWriteStores {
     StopWatch.start("created some rows");
 
     // write them
-    store.write("test", rows);
-    store.write("test2", rows);
+    store.writeTable("test", rows);
+    store.writeTable("test2", rows);
 
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    List<Row> rows2 = store.read("test2");
+    List<Row> rows2 = store.readTable("test2");
     // for (Row r : rows2) System.out.println(r);
     StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
@@ -123,10 +123,10 @@ public class TestReadWriteStores {
     CompareTools.assertEquals(rows, rows2);
 
     // write another one
-    store.write("test3", rows);
+    store.writeTable("test3", rows);
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    rows2 = store.read("test3");
+    rows2 = store.readTable("test3");
     // for (Row r : rows2) System.out.println(r);
     StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
@@ -136,7 +136,7 @@ public class TestReadWriteStores {
 
     // test that reading store that doesn't exist errors properly
     try {
-      rows = store.read("fake");
+      rows = store.readTable("fake");
       fail("should have failed");
     } catch (MolgenisException me) {
       System.out.println("errored correctly:" + me);

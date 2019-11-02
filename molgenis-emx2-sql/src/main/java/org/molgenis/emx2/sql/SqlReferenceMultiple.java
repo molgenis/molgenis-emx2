@@ -36,8 +36,8 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
               + "' failed: fromColumn and toColumn must have the same number of colums");
 
     for (int i = 0; i < nameArray.length; i++) {
-      RefSqlColumn c =
-          new RefSqlColumn((SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
+      SqlRefColumn c =
+          new SqlRefColumn((SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
       ((SqlTableMetadata) getTable()).addColumnWithoutCreate(c);
 
       Field thisColumn = field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));

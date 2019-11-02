@@ -33,9 +33,9 @@ public class SqlQuery extends QueryBean implements Query {
   public List<Row> retrieve() {
     try {
       tableAliases.put(from.getTableName(), null);
-      SelectSelectStep selectStep = createSelect();
-      SelectJoinStep fromStep = createFrom(selectStep);
-      SelectJoinStep whereStep = createWhere(fromStep);
+      SelectSelectStep selectStep = createSelectClause();
+      SelectJoinStep fromStep = createFromClause(selectStep);
+      SelectJoinStep whereStep = createWhereClause(fromStep);
       return executeQuery(whereStep);
     } catch (MolgenisException e) {
       throw e;
@@ -48,7 +48,7 @@ public class SqlQuery extends QueryBean implements Query {
     }
   }
 
-  private SelectSelectStep createSelect() {
+  private SelectSelectStep createSelectClause() {
 
     Collection<String> selectList = getSelectList();
 
@@ -77,16 +77,7 @@ public class SqlQuery extends QueryBean implements Query {
     return selectStep;
   }
 
-  private Field getFieldForColumn(Column column, String tableAlias, String columnAlias) {
-    if (MREF.equals(column.getColumnType())) {
-      return createMrefSubselect(column, tableAlias).as(columnAlias);
-    } else {
-      return field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
-          .as(columnAlias);
-    }
-  }
-
-  private SelectJoinStep createFrom(SelectSelectStep selectStep) {
+  private SelectJoinStep createFromClause(SelectSelectStep selectStep) {
 
     SelectJoinStep fromStep =
         selectStep.from(
@@ -118,7 +109,7 @@ public class SqlQuery extends QueryBean implements Query {
     return fromStep;
   }
 
-  private SelectJoinStep createWhere(SelectJoinStep fromStep) {
+  private SelectJoinStep createWhereClause(SelectJoinStep fromStep) {
     Condition filterCondition = createFilterConditions(from, getWhereLists(), tableAliases);
     Condition searchCondition = createSearchConditions(getSearchList(), tableAliases);
     if (filterCondition != null) {
@@ -141,10 +132,6 @@ public class SqlQuery extends QueryBean implements Query {
       result.add(new SqlRow(r));
     }
     return result;
-  }
-
-  private DSLContext getJooq() {
-    return from.getJooq();
   }
 
   // helper methods below
@@ -193,7 +180,6 @@ public class SqlQuery extends QueryBean implements Query {
     return fromStep;
   }
 
-  /** subselect for mref in select and/or filter clauses */
   private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
     return PostgresDSL.array(
         DSL.select(field(name(column.getMrefJoinTableName(), column.getRefColumnName())))
@@ -320,5 +306,18 @@ public class SqlQuery extends QueryBean implements Query {
           tableAliasBuilder,
           tableAliases);
     }
+  }
+
+  private Field getFieldForColumn(Column column, String tableAlias, String columnAlias) {
+    if (MREF.equals(column.getColumnType())) {
+      return createMrefSubselect(column, tableAlias).as(columnAlias);
+    } else {
+      return field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
+          .as(columnAlias);
+    }
+  }
+
+  private DSLContext getJooq() {
+    return from.getJooq();
   }
 }

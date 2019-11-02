@@ -1,9 +1,9 @@
-package org.molgenis.emx2.io.stores;
+package org.molgenis.emx2.io.rowstore;
 
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.ErrorCodes;
-import org.molgenis.emx2.io.readers.CsvRowReader;
-import org.molgenis.emx2.io.readers.CsvRowWriter;
+import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.*;
@@ -11,23 +11,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RowStoreForCsvInMemory implements RowStore {
+public class TableStoreForCsvInMemory implements TableStore {
   private final Map<String, String> store;
   private Character separator;
 
-  public RowStoreForCsvInMemory() {
+  public TableStoreForCsvInMemory() {
     store = new LinkedHashMap<>();
     separator = ',';
   }
 
   @Override
-  public void write(String name, List<Row> rows) {
+  public void writeTable(String name, List<Row> rows) {
     try {
       Writer writer = new StringWriter();
       Writer bufferedWriter = new BufferedWriter(writer);
       String existing = "";
       if (store.containsKey(name)) existing = store.get(name);
-      CsvRowWriter.writeCsv(rows, bufferedWriter, separator);
+      CsvTableWriter.rowsToCsv(rows, bufferedWriter, separator);
       bufferedWriter.close();
       store.put(name, existing + writer.toString());
     } catch (IOException ioe) {
@@ -37,7 +37,7 @@ public class RowStoreForCsvInMemory implements RowStore {
   }
 
   @Override
-  public List<Row> read(String name) {
+  public List<Row> readTable(String name) {
     if (!store.containsKey(name))
       throw new MolgenisException(
           ErrorCodes.NOT_FOUND,
@@ -45,7 +45,7 @@ public class RowStoreForCsvInMemory implements RowStore {
           "CsvStringStore with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
-    return CsvRowReader.readList(reader, separator);
+    return CsvTableReader.readList(reader, separator);
   }
 
   @Override

@@ -7,16 +7,16 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
-public class RefArraySqlColumn extends SqlColumn {
+public class SqlRefArrayColumn extends SqlColumn {
 
-  public RefArraySqlColumn(
+  public SqlRefArrayColumn(
       SqlTableMetadata table, String columnName, String toTable, String toColumn) {
     super(table, columnName, REF_ARRAY);
     this.setReference(toTable, toColumn);
   }
 
   @Override
-  public RefArraySqlColumn createColumn() {
+  public SqlRefArrayColumn createColumn() {
     super.createColumn();
     this.createReferenceExistsTrigger();
     this.createIsReferencedByTrigger();

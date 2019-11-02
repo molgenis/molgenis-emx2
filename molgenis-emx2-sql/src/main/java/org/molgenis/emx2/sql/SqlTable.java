@@ -52,8 +52,8 @@ class SqlTable implements Table {
           db2 -> {
 
             // first update superclass
-            if (getMetadata().getInherits() != null) {
-              getSchema().getTable(getMetadata().getInherits()).insert(rows);
+            if (getMetadata().getInherit() != null) {
+              getSchema().getTable(getMetadata().getInherit()).insert(rows);
             }
 
             // get metadata
@@ -100,8 +100,8 @@ class SqlTable implements Table {
       db.transaction(
           db2 -> {
             // first update superclass
-            if (getMetadata().getInherits() != null) {
-              getSchema().getTable(getMetadata().getInherits()).update(rows);
+            if (getMetadata().getInherit() != null) {
+              getSchema().getTable(getMetadata().getInherit()).update(rows);
             }
 
             // keep batchsize smaller to limit memory footprint
@@ -164,8 +164,8 @@ class SqlTable implements Table {
       db.transaction(
           config -> {
             // first update superclass
-            if (getMetadata().getInherits() != null) {
-              getSchema().getTable(getMetadata().getInherits()).delete(rows);
+            if (getMetadata().getInherit() != null) {
+              getSchema().getTable(getMetadata().getInherit()).delete(rows);
             }
 
             // because of expensive jTable scanning and smaller queryOld string size this batch

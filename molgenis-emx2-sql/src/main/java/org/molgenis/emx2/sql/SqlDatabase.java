@@ -49,6 +49,8 @@ public class SqlDatabase implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
+    // todo, re-enable caching
+    // if(schemas.get(name) != null) return schemas.get(name);
     SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     if (metadata.exists()) {
       SqlSchema schema = new SqlSchema(this, metadata);
@@ -92,7 +94,6 @@ public class SqlDatabase implements Database {
   @Override
   public void addUser(String user) {
     String userName = MG_USER_PREFIX + user;
-
     try {
       transaction(
           database -> {

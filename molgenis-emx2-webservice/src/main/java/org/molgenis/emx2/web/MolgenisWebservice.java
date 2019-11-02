@@ -7,11 +7,11 @@ import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.MolgenisExport;
-import org.molgenis.emx2.io.MolgenisImport;
-import org.molgenis.emx2.io.readers.CsvRowReader;
-import org.molgenis.emx2.io.readers.CsvRowWriter;
-import org.molgenis.emx2.io.emx2.ConvertSchemaToEmx2;
+import org.molgenis.emx2.io.SchemaExport;
+import org.molgenis.emx2.io.SchemaImport;
+import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.emx2.Emx2Writer;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.json.JsonMapper;
 import org.molgenis.emx2.web.json.JsonRowMapper;
@@ -139,7 +139,7 @@ public class MolgenisWebservice {
       throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
     StringWriter writer = new StringWriter();
-    ConvertSchemaToEmx2.toCsv(schema.getMetadata(), writer, ',');
+    Emx2Writer.toCsv(schema.getMetadata(), writer, ',');
     response.status(200);
     return writer.toString();
   }
@@ -151,7 +151,7 @@ public class MolgenisWebservice {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      MolgenisExport.toExcelFile(excelFile, schema);
+      SchemaExport.toExcelFile(excelFile, schema);
       outputStream.write(Files.readAllBytes(excelFile));
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
@@ -193,7 +193,7 @@ public class MolgenisWebservice {
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
       Path zipFile = tempDir.resolve("download.zip");
-      MolgenisExport.toZipFile(zipFile, schema);
+      SchemaExport.toZipFile(zipFile, schema);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(
@@ -226,9 +226,9 @@ public class MolgenisWebservice {
     // depending on file extension use proper importer
     String fileName = request.raw().getPart("file").getSubmittedFileName();
     if (fileName.endsWith(".zip")) {
-      MolgenisImport.fromZipFile(tempFile.toPath(), schema);
+      SchemaImport.fromZipFile(tempFile.toPath(), schema);
     } else if (fileName.endsWith(".xlsx")) {
-      MolgenisImport.fromExcelFile(tempFile.toPath(), schema);
+      SchemaImport.fromExcelFile(tempFile.toPath(), schema);
     } else {
       throw new IOException(
           "File upload failed: extension "
@@ -256,7 +256,7 @@ public class MolgenisWebservice {
     if (accept.toLowerCase().contains(ACCEPT_CSV.toLowerCase())) {
       response.type(ACCEPT_CSV);
       StringWriter writer = new StringWriter();
-      CsvRowWriter.writeCsv(rows, writer, ',');
+      CsvTableWriter.rowsToCsv(rows, writer, ',');
       return writer.toString();
     }
     throw new UnsupportedOperationException("unsupported content type: " + request.contentType());
@@ -299,7 +299,7 @@ public class MolgenisWebservice {
       return JsonRowMapper.jsonToRows(request.body());
 
     if (request.contentType().toLowerCase().contains(ACCEPT_CSV.toLowerCase()))
-      return CsvRowReader.read(new StringReader(request.body()), ',');
+      return CsvTableReader.read(new StringReader(request.body()), ',');
 
     // default
     throw new UnsupportedOperationException("unsupported content type: " + request.contentType());

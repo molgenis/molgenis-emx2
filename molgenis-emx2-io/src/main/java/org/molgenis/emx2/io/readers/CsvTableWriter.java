@@ -9,13 +9,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CsvRowWriter {
+public class CsvTableWriter {
 
-  private CsvRowWriter() {
+  private CsvTableWriter() {
     // hide constructor
   }
 
-  public static void writeCsv(List<Row> rows, Writer writer, Character seperator)
+  public static void rowsToCsv(List<Row> rows, Writer writer, Character seperator)
       throws IOException {
 
     if (rows.isEmpty()) return;

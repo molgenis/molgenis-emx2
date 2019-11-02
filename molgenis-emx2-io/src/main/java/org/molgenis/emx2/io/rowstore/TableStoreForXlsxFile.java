@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.stores;
+package org.molgenis.emx2.io.rowstore;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -18,15 +18,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RowStoreForXlsxFile implements RowStore {
+public class TableStoreForXlsxFile implements TableStore {
   private Path excelFilePath;
 
-  public RowStoreForXlsxFile(Path excelFilePath) {
+  public TableStoreForXlsxFile(Path excelFilePath) {
     this.excelFilePath = excelFilePath;
   }
 
   @Override
-  public void write(String name, List<Row> rows) {
+  public void writeTable(String name, List<Row> rows) {
     if (rows.isEmpty()) return;
     try {
       if (name.length() > 30)
@@ -86,7 +86,7 @@ public class RowStoreForXlsxFile implements RowStore {
   }
 
   @Override
-  public List<Row> read(String name) {
+  public List<Row> readTable(String name) {
     List<Row> result = new ArrayList<>();
     try (InputStream inp = new FileInputStream(excelFilePath.toFile());
         Workbook wb = WorkbookFactory.create(inp)) {

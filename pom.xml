@@ -13,7 +13,6 @@
         <module>molgenis-emx2-io</module>
         <module>molgenis-emx2-sql</module>
         <module>molgenis-emx2-webservice</module>
-        <module>molgenis-emx2-graphql</module>
         <module>molgenis-emx2-exampledata</module>
         <module>report-aggregator</module>
     </modules>

@@ -173,11 +173,11 @@ public class MetadataUtils {
             table.getSchema().getName(),
             table.getTableName(),
             table.getPrimaryKey(),
-            table.getInherits())
+            table.getInherit())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
         .set(TABLE_PRIMARYKEY, table.getPrimaryKey())
-        .set(TABLE_INHERITS, table.getInherits())
+        .set(TABLE_INHERITS, table.getInherit())
         .execute();
   }
 
@@ -312,11 +312,11 @@ public class MetadataUtils {
       switch (columnColumnType) {
         case REF:
           columnList.add(
-              new RefSqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
+              new SqlRefColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         case REF_ARRAY:
           columnList.add(
-              new RefArraySqlColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
+              new SqlRefArrayColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         default:
           columnList.add(new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));

@@ -13,8 +13,7 @@ public class SqlColumn extends Column {
     super(table, columnName, columnColumnType);
   }
 
-  /** constructor for REF */
-  public SqlColumn createColumn() {
+  SqlColumn createColumn() {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
     Field thisColumn = field(name(getColumnName()), thisType);
     getJooq().alterTable(asJooqTable()).addColumn(thisColumn).execute();
@@ -60,8 +59,7 @@ public class SqlColumn extends Column {
   }
 
   // helper methods
-
-  protected org.jooq.Table asJooqTable() {
+  private org.jooq.Table asJooqTable() {
     return table(name(getTable().getSchema().getName(), getTable().getTableName()));
   }
 
@@ -69,7 +67,7 @@ public class SqlColumn extends Column {
     return ((SqlTableMetadata) getTable()).getJooq();
   }
 
-  protected Column loadNullable(Boolean nullable) {
+  Column loadNullable(Boolean nullable) {
     super.setNullable(nullable);
     return this;
   }

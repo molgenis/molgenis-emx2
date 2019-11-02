@@ -3,7 +3,7 @@ package org.molgenis.emx2.io.emx1;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.MolgenisException;
 
-public class Entity {
+public class Emx1Entity {
   private String name;
   private String packageName;
   private String extnds;
@@ -11,7 +11,7 @@ public class Entity {
   private String label;
   private String description;
 
-  public Entity(Row row) {
+  public Emx1Entity(Row row) {
     this.name = row.getString("name");
     if (this.name == null) {
       throw new MolgenisException("", "", "name cannot be null");
