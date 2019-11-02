@@ -1,8 +1,8 @@
 package org.molgenis.emx2.web;
 
-public class SwaggerUiFactory {
+public class OpenApiUiFactory {
 
-  private SwaggerUiFactory() {
+  private OpenApiUiFactory() {
     // hide constructor
   }
 

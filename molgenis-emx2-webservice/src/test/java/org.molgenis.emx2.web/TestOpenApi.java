@@ -33,7 +33,7 @@ public class TestOpenApi {
     personTable.addColumn("First Name", STRING);
     personTable.addColumn("Last Name", STRING);
 
-    OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema);
+    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
     assertEquals(7, api.getComponents().getSchemas().size()); // useless test
 
     StringWriter writer = new StringWriter();

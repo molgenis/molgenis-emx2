@@ -82,7 +82,7 @@ public class MolgenisWebservice {
 
   private static String openApiYaml(Request request, Response response) throws IOException {
     Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
-    OpenAPI api = OpenApiForSchemaFactory.createOpenApi(schema.getMetadata());
+    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     response.status(200);
     return Yaml.mapper()
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
@@ -91,7 +91,7 @@ public class MolgenisWebservice {
 
   private static String openApiUserInterface(Request request, Response response) {
     response.status(200);
-    return SwaggerUiFactory.createSwaggerUI(request.params(SCHEMA));
+    return OpenApiUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
   static Database getAuthenticatedDatabase(Request request) {
@@ -108,7 +108,7 @@ public class MolgenisWebservice {
         t -> {
           SqlDatabase database;
           database = new SqlDatabase(dataSource);
-          database.setActiveUser(token);
+          // database.setActiveUser(token);
           return database;
         });
   }

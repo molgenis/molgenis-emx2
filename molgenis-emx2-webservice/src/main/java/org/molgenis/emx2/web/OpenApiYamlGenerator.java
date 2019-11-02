@@ -17,64 +17,126 @@ import java.util.*;
 
 import static org.molgenis.emx2.web.Constants.*;
 
-public class OpenApiForSchemaFactory {
+public class OpenApiYamlGenerator {
 
-  public static final String OK = "200";
-  public static final String OBJECT = "object";
-  public static final String PROBLEM = "Problem";
-  public static final String BAD_REQUEST = "400";
-  public static final String BAD_REQUEST_MESSAGE = "Bad request";
-  public static final String DATA_PATH = "/data/"; // NOSONAR
-  public static final String MEMBER = "Member";
-  public static final String SCHEMA_METADATA = "SchemaMetadata";
+  private static final String OK = "200";
+  private static final String OBJECT = "object";
+  private static final String PROBLEM = "Problem";
+  private static final String BAD_REQUEST = "400";
+  private static final String BAD_REQUEST_MESSAGE = "Bad request";
+  private static final String MEMBER = "Member";
+  private static final String SCHEMA = "SchemaMetadata";
 
-  private OpenApiForSchemaFactory() {
+  private OpenApiYamlGenerator() {
     // hide public constructor
   }
 
   public static OpenAPI createOpenApi(SchemaMetadata schema) {
 
-    // basic metadata
-    OpenAPI api = new OpenAPI();
-    api.info(createOpenApiInfo(schema));
-
-    // createTableIfNotExists the paths and components
     Paths paths = new Paths();
     Components components = new Components();
 
-    // auth
-    components.addSecuritySchemes(
-        "ApiKeyAuth",
-        new SecurityScheme()
-            .type(SecurityScheme.Type.APIKEY)
-            .in(SecurityScheme.In.HEADER)
-            .name("x-molgenis-token"));
-    List<SecurityRequirement> securityRequirementList = new ArrayList<>();
-    securityRequirementList.add(new SecurityRequirement().addList("ApiKeyAuth"));
-    api.security(securityRequirementList);
+    // basic metadata
+    OpenAPI api = new OpenAPI();
+    api.info(info(schema));
+    api.security(securityRequirementList());
 
-    // /data
+    // components
+    components.addSecuritySchemes("ApiKeyAuth", securityScheme());
+    components.addSchemas(PROBLEM, problemSchema());
+    components.addResponses(PROBLEM, problemResponse());
+    components.addSchemas(MEMBER, memberSchema());
+    components.addSchemas(SCHEMA, schemaSchema());
+
+    // api/json
     PathItem dataApi = new PathItem();
     dataApi.post(apiPostOperation());
-    paths.addPathItem(DATA_PATH, dataApi);
+    paths.addPathItem("/api/json", dataApi);
 
-    // /data/:schema
-    createOpenApiForSchema(schema, paths, components);
+    // api/zip/:schema
+    PathItem zipPath = new PathItem();
+    zipPath.post(postFileOperation("Zip"));
+    zipPath.get(getFileOperation("Zip", ACCEPT_ZIP));
+    paths.addPathItem("/api/zip/" + schema.getName(), zipPath);
 
-    // /data/:schema/:table
+    // api/excel/:schema
+    PathItem excelPath = new PathItem();
+    excelPath.post(postFileOperation("Excel"));
+    excelPath.get(getFileOperation("Excel", ACCEPT_EXCEL));
+    paths.addPathItem("/api/excel/" + schema.getName(), excelPath);
+
+    // api/json/:schema
+    PathItem schemaPath = new PathItem();
+    schemaPath.get(schemaGetOperation());
+    schemaPath.delete(schemaDeleteOperation());
+    paths.addPathItem("/api/json/" + schema.getName(), schemaPath);
+
+    // api/members/:schema
+    PathItem membersPath = new PathItem();
+    membersPath.get(tableGetOperation(MEMBER));
+    membersPath.post(tablePostOperation(MEMBER));
+    membersPath.delete(tableDeleteOperation(MEMBER));
+    paths.addPathItem("/api/members/" + schema.getName(), membersPath);
+
+    // api/json/:schema/:table
     for (String tableNameUnencoded : schema.getTableNames()) {
       TableMetadata table = schema.getTableMetadata(tableNameUnencoded);
-      createOpenApiForTable(table, paths, components);
+      String tableName = table.getTableName();
+
+      // table components
+      components.addSchemas(table.getTableName(), tableSchema(table));
+      components.addResponses(tableName, tableResponse(tableName));
+
+      // table operations
+      PathItem tablePath = new PathItem();
+      tablePath.get(tableGetOperation(tableName));
+      tablePath.post(tablePostOperation(tableName));
+      // tablePath.put(tablePutOperation(tableName));
+      tablePath.delete(tableDeleteOperation(tableName));
+
+      // add the paths to paths
+      paths.addPathItem("/api/json/" + table.getSchema().getName() + "/" + tableName, tablePath);
     }
 
     // assembly
     api.setPaths(paths);
     api.setComponents(components);
-
     return api;
   }
 
-  private static Info createOpenApiInfo(SchemaMetadata schema) {
+  private static Schema tableSchema(TableMetadata table) {
+    Map<String, Schema> properties = new LinkedHashMap<>();
+    for (Column column : table.getColumns()) {
+      properties.put(column.getColumnName(), columnSchema(column));
+    }
+    return new Schema()
+        .description("JSON schema for " + table.getTableName())
+        .type(OBJECT)
+        .properties(properties);
+  }
+
+  private static ApiResponse tableResponse(String tableName) {
+    return new ApiResponse()
+        .description("JSON response for table " + tableName)
+        .content(
+            new Content()
+                .addMediaType(ACCEPT_JSON, new MediaType().schema(new Schema().$ref(tableName))));
+  }
+
+  private static SecurityScheme securityScheme() {
+    return new SecurityScheme()
+        .type(SecurityScheme.Type.APIKEY)
+        .in(SecurityScheme.In.HEADER)
+        .name("x-molgenis-token");
+  }
+
+  private static List<SecurityRequirement> securityRequirementList() {
+    List<SecurityRequirement> securityRequirementList = new ArrayList<>();
+    securityRequirementList.add(new SecurityRequirement().addList("ApiKeyAuth"));
+    return securityRequirementList;
+  }
+
+  private static Info info(SchemaMetadata schema) {
     return new Info()
         .title("API for: " + schema.getName())
         .version("0.0.1")
@@ -99,15 +161,13 @@ public class OpenApiForSchemaFactory {
         .responses(apiResponses());
   }
 
-  private static void createOpenApiForSchema(
-      SchemaMetadata schema, Paths paths, Components components) {
+  private static Schema memberSchema() {
+    return new ObjectSchema()
+        .addProperties("user", new StringSchema())
+        .addProperties("role", new StringSchema());
+  }
 
-    String path =
-        new StringBuilder().append(DATA_PATH).append("/").append(schema.getName()).toString();
-
-    // components
-    schemaMetadataSchema(components);
-
+  private static Schema problemSchema() {
     Map<String, Schema> problemProperties = new LinkedHashMap<>();
     problemProperties.put(
         "type",
@@ -120,67 +180,37 @@ public class OpenApiForSchemaFactory {
     problemProperties.put(
         "detail",
         new StringSchema().description("A human-readable description of the specific error"));
-    components.addSchemas(PROBLEM, new Schema().type(OBJECT).properties(problemProperties));
-    components.addResponses(
-        PROBLEM,
-        new ApiResponse()
-            .content(
-                new Content()
-                    .addMediaType(
-                        ACCEPT_JSON, new MediaType().schema(new Schema().$ref(PROBLEM)))));
-
-    // operations
-    PathItem schemaPath = new PathItem();
-
-    // post multi-part-form for upload file
-    schemaPath.post(schemaZipUpload());
-    schemaPath.get(schemaGet());
-    schemaPath.delete(schemaDelete());
-
-    paths.addPathItem(path, schemaPath);
-
-    // /data/:schema.roles
-    components.addSchemas(
-        MEMBER,
-        new ObjectSchema()
-            .addProperties("user", new StringSchema())
-            .addProperties("role", new StringSchema()));
-
-    PathItem membersPath = new PathItem();
-    membersPath.get(membersGet());
-    membersPath.post(membersPost());
-    membersPath.delete(membersDelete());
-    paths.addPathItem("/admin/" + schema.getName() + "/members", membersPath);
-
-    // meta/tableName retrieves table metadata
-
-    // import
-
-    // export
-
-    // post new table
-
-    // post attribute
-
+    return new Schema().type(OBJECT).properties(problemProperties);
   }
 
-  private static Operation membersGet() {
-    return tableGet(MEMBER);
+  private static ApiResponse problemResponse() {
+    return new ApiResponse()
+        .content(
+            new Content()
+                .addMediaType(ACCEPT_JSON, new MediaType().schema(new Schema().$ref(PROBLEM))));
   }
 
-  private static Operation membersDelete() {
-    return tableDeleteOperation(MEMBER);
-  }
-
-  private static Operation membersPost() {
-    return tablePostOperation(MEMBER);
-  }
-
-  private static Operation schemaDelete() {
+  private static Operation schemaDeleteOperation() {
     return new Operation().summary("Delete this schema").responses(apiResponses());
   }
 
-  private static Operation schemaGet() {
+  private static Operation getFileOperation(String type, String mimeType) {
+    return new Operation()
+        .summary("Get complete schema metadata as " + type)
+        .addTagsItem(type)
+        .responses(
+            new ApiResponses()
+                .addApiResponse(
+                    OK,
+                    new ApiResponse()
+                        .content(
+                            new Content()
+                                .addMediaType(
+                                    mimeType,
+                                    new MediaType().schema(new StringSchema().format("binary"))))));
+  }
+
+  private static Operation schemaGetOperation() {
     return new Operation()
         .summary("Get complete schema metadata (JSON, CSV) or even complete contents (as ZIP)")
         .responses(
@@ -191,22 +221,21 @@ public class OpenApiForSchemaFactory {
                         .content(
                             new Content()
                                 .addMediaType(
-                                    ACCEPT_JSON,
-                                    new MediaType().schema(new Schema().$ref(SCHEMA_METADATA)))
+                                    ACCEPT_JSON, new MediaType().schema(new Schema().$ref(SCHEMA)))
                                 .addMediaType(
                                     ACCEPT_ZIP,
                                     new MediaType().schema(new StringSchema().format("binary")))
                                 .addMediaType(
-                                    ACCEPT_CSV,
-                                    new MediaType().schema(new Schema().$ref(SCHEMA_METADATA)))
+                                    ACCEPT_CSV, new MediaType().schema(new Schema().$ref(SCHEMA)))
                                 .addMediaType(
                                     ACCEPT_EXCEL,
-                                    new MediaType().schema(new Schema().$ref(SCHEMA_METADATA))))));
+                                    new MediaType().schema(new Schema().$ref(SCHEMA))))));
   }
 
-  private static Operation schemaZipUpload() {
+  private static Operation postFileOperation(String type) {
     return new Operation()
-        .summary("Import zipfile")
+        .summary("Import " + type + " file")
+        .addTagsItem(type)
         .requestBody(
             new RequestBody()
                 .content(new Content().addMediaType("multipart/form-data", fileUploadMediaType())))
@@ -226,39 +255,9 @@ public class OpenApiForSchemaFactory {
                 .addProperties("file", new FileSchema().description("upload file")));
   }
 
-  private static void createOpenApiForTable(
-      TableMetadata table, Paths paths, Components components) {
-    String tableName = table.getTableName();
-
-    // components
-    rowSchemaComponent(table, components);
-    apiResponseComponentFor(tableName, components);
-
-    // operations
-    PathItem tablePath = new PathItem();
-
-    // multiple row operations
-    tablePath.get(tableGet(tableName));
-    tablePath.post(tablePostOperation(tableName));
-    tablePath.put(tablePutOperation(tableName));
-    tablePath.delete(tableDeleteOperation(tableName));
-
-    // add the paths to paths
-    String path =
-        new StringBuilder()
-            .append(DATA_PATH)
-            .append(table.getSchema().getName())
-            .append("/")
-            .append(tableName)
-            .toString();
-    paths.addPathItem(path, tablePath);
-  }
-
-  private static Operation tableGet(String tableName) {
-
+  private static Operation tableGetOperation(String tableName) {
     MediaType mediaType =
         new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)));
-
     return new Operation()
         .addTagsItem(tableName)
         .summary("Retrieve multiple rows from " + tableName)
@@ -268,23 +267,7 @@ public class OpenApiForSchemaFactory {
                     OK,
                     new ApiResponse()
                         .description("success")
-                        .content(
-                            new Content()
-                                .addMediaType(ACCEPT_JSON, mediaType)
-                                .addMediaType(ACCEPT_CSV, mediaType))));
-  }
-
-  private static void rowSchemaComponent(TableMetadata table, Components components) {
-    Map<String, Schema> properties = new LinkedHashMap<>();
-    for (Column column : table.getColumns()) {
-      properties.put(column.getColumnName(), columnSchema(column));
-    }
-    components.addSchemas(
-        table.getTableName(),
-        new Schema()
-            .description("JSON schema for " + table.getTableName())
-            .type(OBJECT)
-            .properties(properties));
+                        .content(new Content().addMediaType(ACCEPT_JSON, mediaType))));
   }
 
   private static Operation tablePutOperation(String tableName) {
@@ -323,53 +306,28 @@ public class OpenApiForSchemaFactory {
             new Content()
                 .addMediaType(
                     ACCEPT_JSON,
-                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName))))
-                .addMediaType(
-                    ACCEPT_CSV, new MediaType().schema(new StringSchema().format(ACCEPT_CSV)))
-                .addMediaType(
-                    ACCEPT_FORMDATA,
-                    new MediaType()
-                        .schema(
-                            new Schema()
-                                .type(OBJECT)
-                                .addProperties("file", new FileSchema().format(ACCEPT_CSV)))));
+                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)))));
   }
 
-  private static void apiResponseComponentFor(String tableName, Components components) {
-    components.addResponses(
-        tableName,
-        new ApiResponse()
-            .description("Response for table " + tableName)
-            .content(
-                new Content()
-                    .addMediaType(
-                        ACCEPT_JSON, new MediaType().schema(new Schema().$ref(tableName)))));
-  }
-
-  private static void schemaMetadataSchema(Components components) {
-
-    // note: in future version we could use the PoJo metadata conversion of MOLGENIS. But now
-    // hardcoded
+  private static Schema schemaSchema() {
 
     // column
     Schema columnMetadata = new Schema();
     columnMetadata.addProperties("name", new StringSchema());
     columnMetadata.addProperties("type", new StringSchema());
-    components.addSchemas("ColumnAnnotation", columnMetadata);
+    // components.addSchemas("ColumnAnnotation", columnMetadata);
 
     // table
     Schema tableMetadata = new Schema();
     tableMetadata.addProperties("name", new StringSchema());
-    tableMetadata.addProperties(
-        "columns", new ArraySchema().items(new Schema().$ref("ColumnAnnotation")));
-    components.addSchemas("TableMetadata", tableMetadata);
+    tableMetadata.addProperties("columns", new ArraySchema().items(columnMetadata));
+    // components.addSchemas("TableMetadata", tableMetadata);
 
     // schema
     Schema metadataSchema = new Schema();
-    metadataSchema.addProperties(
-        "tables", new ArraySchema().items(new Schema().$ref("TableMetadata")));
+    metadataSchema.addProperties("tables", new ArraySchema().items(tableMetadata));
 
-    components.addSchemas(SCHEMA_METADATA, metadataSchema);
+    return metadataSchema;
   }
 
   private static Schema columnSchema(Column column) {
