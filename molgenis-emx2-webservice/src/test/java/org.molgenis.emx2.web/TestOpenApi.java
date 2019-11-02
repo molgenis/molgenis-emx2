@@ -34,7 +34,7 @@ public class TestOpenApi {
     personTable.addColumn("Last Name", STRING);
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
-    assertEquals(7, api.getComponents().getSchemas().size()); // useless test
+    assertEquals(5, api.getComponents().getSchemas().size()); // useless test
 
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);
