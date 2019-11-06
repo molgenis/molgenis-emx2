@@ -18,7 +18,7 @@ public class TestQuery {
 
   @BeforeClass
   public static void setUp() {
-    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
     Schema s = database.createSchema("TestQuery");

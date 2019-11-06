@@ -16,7 +16,7 @@ public class TestCreateCompositeKeys {
 
   @BeforeClass
   public static void setup() {
-    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getTestDatabase();
   }
 
   @Test

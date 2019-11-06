@@ -16,7 +16,7 @@ public class TestSchemaCreateDestroy {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase();
   }
 
   @Test

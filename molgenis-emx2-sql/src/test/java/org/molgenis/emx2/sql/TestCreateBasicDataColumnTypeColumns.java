@@ -27,7 +27,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
   @BeforeClass
   public static void setup() {
-    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase();
   }
 
   @Test

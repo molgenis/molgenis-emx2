@@ -18,7 +18,7 @@ public class TestQueryExpandIntoReferences {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    db = DatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
     Schema schema = db.createSchema("TestQueryWithRefArray");

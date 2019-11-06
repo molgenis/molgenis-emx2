@@ -18,7 +18,7 @@ public class TestGrantRolesToUsers {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getTestDatabase();
   }
 
   @Test

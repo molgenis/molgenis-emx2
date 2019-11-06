@@ -37,13 +37,14 @@ public class DatabaseFactory {
     return db;
   }
 
-  public static Database getTestDatabase(String userName, String password) {
+  public static Database getTestDatabase() {
     String url = "jdbc:postgresql:molgenis";
+
     // createColumn data source
     HikariDataSource dataSource = new HikariDataSource();
     dataSource.setJdbcUrl(url);
-    dataSource.setUsername(userName);
-    dataSource.setPassword(password);
+    dataSource.setUsername("molgenis");
+    dataSource.setPassword("molgenis");
 
     return getTestDatabase(dataSource);
   }
@@ -60,7 +61,9 @@ public class DatabaseFactory {
       if (roleName.startsWith("MG_")
           || roleName.startsWith("test")
           || roleName.startsWith("user_")) {
-        jooq.execute("REVOKE ALL PRIVILEGES ON DATABASE molgenis FROM {0}", name(roleName));
+        String dbName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
+        jooq.execute(
+            "REVOKE ALL PRIVILEGES ON DATABASE {0} FROM {1}", name(dbName), name(roleName));
         jooq.execute("DROP ROLE {0}", name(roleName));
       }
     }

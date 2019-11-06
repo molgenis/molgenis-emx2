@@ -57,24 +57,32 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       db.createRole(manager);
       db.createRole(owner);
 
+      // make editor also member
       db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
+      // make manager also editor and member
       db.getJooq().execute("GRANT {0},{1} TO {2}", name(member), name(editor), name(manager));
+      // make owner also editor, manager, member
       db.getJooq()
           .execute(
               "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
               name(member), name(editor), name(manager), name(owner));
 
+      // make current user the owner
+      String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
+      db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(currentUser));
+
+      // grant the permissions
       db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(member));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
 
       // make current user a owner
-      if (db.getActiveUser() != null) {
-        db.getJooq()
-            .execute("GRANT {0} TO {1}", name(owner), name(MG_USER_PREFIX + db.getActiveUser()));
-      }
+      //      if (db.getActiveUser() != null) {
+      //        db.getJooq()
+      //            .execute("GRANT {0} TO {1}", name(owner), name(MG_USER_PREFIX +
+      // db.getActiveUser()));
+      //      }
     } catch (DataAccessException e) {
-      throw new SqlMolgenisException(
-          "schema_create_failed", "Schema createTableIfNotExists failed", e);
+      throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);
     }
     MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
   }
