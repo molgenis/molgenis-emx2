@@ -20,7 +20,7 @@ public class RunWebApi {
     dataSource.setPassword("molgenis");
 
     // setup
-    Database db = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    Database db = DatabaseFactory.getTestDatabase();
     Schema schema = db.createSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);

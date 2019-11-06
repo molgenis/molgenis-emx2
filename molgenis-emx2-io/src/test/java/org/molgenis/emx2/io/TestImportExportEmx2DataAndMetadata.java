@@ -21,7 +21,7 @@ public class TestImportExportEmx2DataAndMetadata {
 
   @BeforeClass
   public static void setup() {
-    database = DatabaseFactory.getTestDatabase("molgenis", "molgenis");
+    database = DatabaseFactory.getTestDatabase();
   }
 
   @Test
