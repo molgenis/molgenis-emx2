@@ -107,7 +107,7 @@ public class JsonApi {
     return "" + count;
   }
 
-  static List<Row> jsonToRows(String json) {
+  public static List<Row> jsonToRows(String json) {
     ArrayList<Row> rows = new ArrayList<>();
 
     List<Map<String, Object>> data =

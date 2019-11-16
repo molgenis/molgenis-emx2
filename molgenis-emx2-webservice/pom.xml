@@ -46,6 +46,11 @@
             <version>RELEASE</version>
         </dependency>
         <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
+            <version>13.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.jsoniter</groupId>
             <artifactId>jsoniter</artifactId>
             <version>0.9.19</version>
