@@ -228,14 +228,14 @@ public class TestWebApi {
 
     String path = "/api/csv/pet store/Tag";
 
-    String exp1 = "name\r\naTag\r\nbTag\r\n";
+    String exp1 = "name\r\nred\r\ngreen\r\n";
     String result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
 
-    String update = "name\r\ncTag\r\n";
+    String update = "name\r\nyellow\r\n";
     given().contentType(ACCEPT_CSV).body(update).when().post(path).then().statusCode(200);
 
-    String exp2 = "name\r\naTag\r\nbTag\r\ncTag\r\n";
+    String exp2 = "name\r\nred\r\ngreen\r\nyellow\r\n";
     result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp2, result);
 
