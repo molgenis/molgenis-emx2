@@ -47,7 +47,7 @@ public class MolgenisWebservice {
     MembersApi.create();
     ZipApi.create();
     ExcelApi.create();
-    GraphqlApi.create();
+    GraphqlApi.createGraphQLSchema();
 
     // schema members operations
 
