@@ -33,7 +33,7 @@ public class GraphqlTest {
     PetStoreExample.create(s.getMetadata());
     PetStoreExample.populate(s);
 
-    GraphQLSchema qs = org.molgenis.emx2.web.graphql.GraphQLFactory.create(s);
+    GraphQLSchema qs = GraphqlApi.createGraphQLSchema(s);
 
     System.out.println(
         new SchemaPrinter(SchemaPrinter.Options.defaultOptions().includeSchemaDefintion(true))
