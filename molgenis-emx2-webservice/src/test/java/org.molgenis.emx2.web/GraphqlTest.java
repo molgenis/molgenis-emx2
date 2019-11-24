@@ -43,7 +43,7 @@ public class GraphqlTest {
 
     ExecutionInput executionInput =
         ExecutionInput.newExecutionInput()
-            .query("query { Pet(filter:{status:{eq:[\"blaat\"]}}) {name,category{name}} }")
+            .query("query { Pet(filter:{status:{eq:[\"blaat\"]}}) {name,category{name} }")
             .build();
 
     ExecutionResult executionResult = graphQL.execute(executionInput);

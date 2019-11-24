@@ -52,11 +52,16 @@ public class PetStoreExample {
   public static void populate(Schema schema) {
 
     schema.getTable(CATEGORY).insert(new Row().set(NAME, "cat"), new Row().set(NAME, "dog"));
+    schema.getTable(TAG).insert(new Row().set(NAME, "red"), new Row().set(NAME, "green"));
 
     schema
         .getTable(PET)
-        .insert(new Row().set("category", "cat").set("name", "pooky").set("status", "available"));
-
-    schema.getTable(TAG).insert(new Row().set(NAME, "red"), new Row().set(NAME, "green"));
+        .insert(
+            new Row().set("category", "cat").set("name", "pooky").set("status", "available"),
+            new Row()
+                .set("category", "dog")
+                .set("name", "spike")
+                .set("status", "sold")
+                .set("tags", "red,green"));
   }
 }

@@ -27,7 +27,7 @@ public class SqlRefArrayColumn extends SqlColumn {
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
   private void createIsReferencedByTrigger() {
-    Name triggerName = getTriggerName();
+    Name triggerName = getTriggerName("REFERENCED_BY");
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
     Name thisColumn = name(getColumnName());
@@ -78,7 +78,7 @@ public class SqlRefArrayColumn extends SqlColumn {
 
   /** trigger on this column to check if foreign key exists */
   private void createReferenceExistsTrigger() {
-    Name triggerName = getTriggerName();
+    Name triggerName = getTriggerName("REFERENCES_EXISTS");
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
     Name thisColumn = name(getColumnName());
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
@@ -136,14 +136,17 @@ public class SqlRefArrayColumn extends SqlColumn {
             triggerName, thisColumn, thisTable, toTable, functionName);
   }
 
-  private Name getTriggerName() {
+  private Name getTriggerName(String meaning) {
     return name(
         getTable().getTableName()
             + "."
             + getColumnName()
-            + " REFERENCES "
+            + " "
+            + meaning
+            + " "
             + getRefTableName()
             + "."
-            + getRefColumnName());
+            + getRefColumnName()
+            + " ");
   }
 }
