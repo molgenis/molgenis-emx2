@@ -7,7 +7,8 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.util.List;
-import java.util.Map;
+
+import static org.molgenis.emx2.sql.Filter.f;
 
 public class TestJsonQuery {
 
@@ -77,6 +78,16 @@ public class TestJsonQuery {
     System.out.println(s.retrieve());
 
     StopWatch.print("complete");
+
+    s.filter(
+        f("name").eq("opa1"),
+        f("children", f("children", f("name").eq("kind")), f("name").eq("ma")));
+
+    System.out.println(s.retrieve());
+
+    s.filter(f("children", f("children", f("name").eq("kind"))));
+
+    System.out.println(s.retrieve());
 
     //
     //    s.search("opa");

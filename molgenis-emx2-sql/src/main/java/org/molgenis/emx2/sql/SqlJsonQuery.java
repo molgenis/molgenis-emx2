@@ -1,20 +1,17 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.Field;
-import org.jooq.SelectJoinStep;
-import org.jooq.impl.DSL;
+import org.jooq.*;
+import org.jooq.conf.ParamType;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Operator;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.sql.Filter.f;
 
 /**
  * Todo:
@@ -28,8 +25,7 @@ import static org.jooq.impl.DSL.*;
 public class SqlJsonQuery {
   private SqlTableMetadata table;
   private List<Object> select;
-  private List<Condition> where;
-  private String[] search;
+  private Filter filter;
 
   public SqlJsonQuery(SqlTableMetadata table) {
     this.table = table;
@@ -49,46 +45,65 @@ public class SqlJsonQuery {
     return this;
   }
 
-  /** will search in all selected tables */
-  public SqlJsonQuery search(String... terms) {
-    this.search = terms;
+  public SqlJsonQuery filter(Filter... filters) {
+    if (filters.length > 0) {
+      this.filter = f(null, filters);
+    } else {
+      this.filter = null;
+    }
     return this;
   }
 
-  /** create filters based on paths, operators and values */
-  public Condition where(String... path) {
-    Condition c = new Condition(this, path);
-    this.where.add(c);
-    return c;
-  }
-
   public String retrieve() {
-    SelectJoinStep fromStep =
-        table
-            .getJooq()
-            .select(getFields(table.getTableName(), select, table))
-            .from(
-                table(name(table.getSchema().getName(), table.getTableName()))
-                    .as(table.getTableName()));
 
-    System.out.println(fromStep.getSQL());
+    SelectConditionStep step =
+        createSubselect(
+            table, table.getTableName(), select, filter, "json_strip_nulls(json_agg(item))", null);
 
-    return table
-        .getJooq()
-        .fetchOne("select json_strip_nulls(json_agg(item)) from (" + fromStep.getSQL() + ") item")
-        .get(0, String.class);
+    System.out.println(step.getSQL(ParamType.NAMED_OR_INLINED));
+
+    return step.fetchOne().get(0, String.class);
   }
 
-  private static List<Field> getFields(String parent, List<Object> select, SqlTableMetadata table) {
+  private static Collection<Condition> getPathConditions(Filter filter, SqlTableMetadata table) {
+    List<Condition> pathConditions = new ArrayList<>();
+    if (filter != null) {
+      for (Filter f : filter.getFilters()) {
+        Column c = table.getColumn(f.getField());
+        switch (c.getColumnType()) {
+          case REF:
+          case REF_ARRAY:
+            pathConditions.add(field(name("item", c.getColumnName())).isNotNull());
+          default:
+            // todo other path such as mref
+            break;
+        }
+      }
+    }
+    return pathConditions;
+  }
+
+  private static List<Field> getFields(
+      String parent, List<Object> select, Filter filter, SqlTableMetadata table) {
     List<Field> fields = new ArrayList<>();
     for (int i = 0; i < select.size(); i++) {
       Column column = getColumn(table, select.get(i));
       switch (column.getColumnType()) {
         case REF:
-          fields.add(createRefSubselect(parent, column, getList(column, select.get(++i))));
+          fields.add(
+              createRefColumnSubselect(
+                  column,
+                  parent,
+                  getList(column, select.get(++i)),
+                  getColumnFilter(filter, column)));
           break;
         case REF_ARRAY:
-          fields.add(createRefArraySubselect(parent, column, getList(column, select.get(++i))));
+          fields.add(
+              createRefArrayColumnSubselect(
+                  column,
+                  parent,
+                  getList(column, select.get(++i)),
+                  getColumnFilter(filter, column)));
           break;
         default:
           fields.add(field(name(column.getColumnName()), SqlTypeUtils.jooqTypeOf(column)));
@@ -97,36 +112,94 @@ public class SqlJsonQuery {
     return fields;
   }
 
-  private static Field createRefArraySubselect(String parent, Column column, List select) {
-    String fromAlias = parent + "/" + column.getColumnName();
-    List<Field> fields = getFields(fromAlias, select, getRefTableMetadata(column));
-    String sql =
-        DSL.select(fields)
-            .from(
-                table(name(column.getTable().getSchema().getName(), column.getRefTableName()))
-                    .as(fromAlias))
-            .where(
-                "{0} = ANY ({1})",
-                field(name(column.getRefColumnName())), field(name(parent, column.getColumnName())))
-            .getSQL();
-
-    return field("(select json_agg(item) from (" + sql + ")item)").as(column.getColumnName());
+  private static Filter getColumnFilter(Filter filter, Column column) {
+    if (filter != null) return filter.getFilter(column.getColumnName());
+    return null;
   }
 
-  private static Field createRefSubselect(String parent, Column column, List select) {
-    String fromAlias = parent + "/" + column.getColumnName();
-    List<Field> fields = getFields(fromAlias, select, getRefTableMetadata(column));
-    String sql =
-        DSL.select(fields)
-            .from(
-                table(name(column.getTable().getSchema().getName(), column.getRefTableName()))
-                    .as(fromAlias))
-            .where(
+  private static Field createRefColumnSubselect(
+      Column column, String parentAlias, List userSelection, Filter userFilter) {
+    return field(
+            createSubselect(
+                getRefTableMetadata(column),
+                parentAlias + "/" + column.getColumnName(),
+                userSelection,
+                userFilter,
+                "json_strip_nulls(row_to_json(item))",
                 field(name(column.getRefColumnName()))
-                    .eq(field(name(parent, column.getColumnName()))))
-            .getSQL();
+                    .eq(field(name(parentAlias, column.getColumnName())))))
+        .as(column.getColumnName());
+  }
 
-    return field("(select row_to_json(item) from (" + sql + ")item)").as(column.getColumnName());
+  private static Field createRefArrayColumnSubselect(
+      Column column, String parentAlias, List userSelection, Filter userFilter) {
+    return field(
+            createSubselect(
+                getRefTableMetadata(column),
+                parentAlias + "/" + column.getColumnName(),
+                userSelection,
+                userFilter,
+                "json_strip_nulls(json_agg(item))",
+                condition(
+                    "{0} = ANY ({1})",
+                    field(name(column.getRefColumnName())),
+                    field(name(parentAlias, column.getColumnName())))))
+        .as(column.getColumnName());
+  }
+
+  private static SelectConditionStep createSubselect(
+      SqlTableMetadata fromTable,
+      String fromAlias,
+      List userSelection,
+      Filter userFilters,
+      String aggregationFunction,
+      Condition optionalParentFilter) {
+
+    // select
+    SelectSelectStep selectStep =
+        fromTable.getJooq().select(getFields(fromAlias, userSelection, userFilters, fromTable));
+    // from
+    SelectJoinStep from =
+        selectStep.from(
+            table(name(fromTable.getSchema().getName(), fromTable.getTableName())).as(fromAlias));
+    // where
+    List<Condition> where = new ArrayList<>();
+    if (optionalParentFilter != null) where.add(optionalParentFilter);
+    where.addAll(getValueConditions(userFilters, fromTable));
+
+    return fromTable
+        .getJooq()
+        .select(field(aggregationFunction))
+        .from(table(from.where(where)).as("item"))
+        .where(getPathConditions(userFilters, fromTable));
+  }
+
+  private static Collection<Condition> getValueConditions(Filter filter, TableMetadata table) {
+    List<Condition> conditions = new ArrayList<>();
+    if (filter != null) {
+      for (Filter f : filter.getFilters()) {
+        Column c = table.getColumn(f.getField());
+        // todo validation?
+        if (f.getOperator() != null) {
+          // todo improve
+          if (c.getColumnType().equals(ColumnType.REF)
+              || c.getColumnType().equals(ColumnType.REF_ARRAY)) {
+            throw new RuntimeException(
+                "cannot set filter condition on ref/refarray field '" + f.getField() + "'");
+          }
+
+          // pffff
+          Object[] values = f.getValues();
+          for (int i = 0; i < values.length; i++)
+            values[i] = SqlTypeUtils.getTypedValue(values[i], c);
+
+          conditions.add(field(name(f.getField())).in(values));
+        } else {
+          // path filter must be done in the aggregation query
+        }
+      }
+    }
+    return conditions;
   }
 
   private static SqlTableMetadata getRefTableMetadata(Column column) {
@@ -170,42 +243,6 @@ public class SqlJsonQuery {
     for (Object o : objects) {
       if (o instanceof List) validate(((List) o).toArray());
       else checkIsString(o);
-    }
-  }
-
-  private static String random() {
-    int leftLimit = 97; // letter 'a'
-    int rightLimit = 122; // letter 'z'
-    int targetStringLength = 10;
-    Random random = new Random();
-    StringBuilder buffer = new StringBuilder(targetStringLength);
-    for (int i = 0; i < targetStringLength; i++) {
-      int randomLimitedInt = leftLimit + (int) (random.nextFloat() * (rightLimit - leftLimit + 1));
-      buffer.append((char) randomLimitedInt);
-    }
-    return buffer.toString();
-  }
-
-  /** syntactic sugar */
-  public Condition and(String... path) {
-    return this.where(path);
-  }
-
-  public class Condition {
-    private SqlJsonQuery query;
-    private String[] path;
-    private Operator operator;
-    private Serializable[] values;
-
-    public Condition(SqlJsonQuery query, String... path) {
-      this.path = path;
-      this.query = query;
-    }
-
-    public SqlJsonQuery eq(Serializable... values) {
-      this.operator = Operator.EQUALS;
-      this.values = values;
-      return query;
     }
   }
 }

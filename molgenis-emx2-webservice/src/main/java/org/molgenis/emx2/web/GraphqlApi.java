@@ -8,6 +8,7 @@ import graphql.GraphQLError;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.Filter;
 import org.molgenis.emx2.sql.SqlJsonQuery;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import spark.Request;
@@ -15,6 +16,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.sql.Filter.f;
 import static spark.Spark.*;
 
 public class GraphqlApi {
@@ -186,10 +189,23 @@ public class GraphqlApi {
 
   private static GraphQLInputObjectField createFilterType(Column col) {
     // colname : { "eq":[string], "range": [num,num,...,...], "contains":[string]}
-    return newInputObjectField()
-        .name(col.getColumnName())
-        .type(GraphQLTypeReference.typeRef("MolgenisStringFilter"))
-        .build();
+    switch (col.getColumnType()) {
+      case REF:
+        return newInputObjectField()
+            .name(col.getColumnName())
+            .type(GraphQLTypeReference.typeRef(col.getRefTableName() + "Filter"))
+            .build();
+      case REF_ARRAY:
+        return newInputObjectField()
+            .name(col.getColumnName())
+            .type(GraphQLList.list(GraphQLTypeReference.typeRef(col.getRefTableName() + "Filter")))
+            .build();
+      default:
+        return newInputObjectField()
+            .name(col.getColumnName())
+            .type(GraphQLTypeReference.typeRef("MolgenisStringFilter"))
+            .build();
+    }
   }
 
   private static GraphQLInputObjectType getMolgenisStringFilter() {
@@ -225,16 +241,51 @@ public class GraphqlApi {
     return dataFetchingEnvironment -> {
       Table table = aTable;
       Object o = dataFetchingEnvironment.getArgument("filter");
-      // Query q = createSelect(aTable.query(), "", dataFetchingEnvironment.getSelectionSet());
       SqlJsonQuery q = new SqlJsonQuery(table);
       q.select(createSelect(dataFetchingEnvironment.getSelectionSet()));
+      if (dataFetchingEnvironment.getArgument("filter") != null) {
+        q.filter(createFilters(table, dataFetchingEnvironment.getArgument("filter")));
+      }
       return transform(q.retrieve());
     };
   }
 
+  private static Filter[] createFilters(Table table, Map<String, Object> filter) {
+    List<Filter> subFilters = new ArrayList<>();
+    for (Map.Entry<String, Object> entry : filter.entrySet()) {
+      Column c = table.getMetadata().getColumn(entry.getKey());
+      if (c == null)
+        throw new RuntimeException(
+            "Column " + entry.getKey() + " unknown in table " + table.getName());
+      switch (c.getColumnType()) {
+        case REF:
+        case REF_ARRAY:
+          subFilters.add(
+              f(
+                  c.getColumnName(),
+                  createFilters(
+                      table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
+          break;
+        default:
+          // expect scalar comparison, todo for all types
+          if (entry.getValue() instanceof Map && ((Map) entry.getValue()).containsKey("eq")) {
+            subFilters.add(f(entry.getKey()).eq(((Map) entry.getValue()).get("eq")));
+          } else {
+            throw new RuntimeException(
+                "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
+          }
+      }
+    }
+    return subFilters.toArray(new Filter[subFilters.size()]);
+  }
+
   /** bit unfortunate that we have to convert from json to map and back */
   private static Object transform(String json) throws IOException {
-    return new ObjectMapper().readValue(json, List.class);
+    if (json != null) {
+      return new ObjectMapper().readValue(json, List.class);
+    } else {
+      return new ArrayList<>();
+    }
   }
 
   /**

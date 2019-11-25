@@ -41,10 +41,16 @@ public class GraphqlTest {
 
     GraphQL graphQL = GraphQL.newGraphQL(qs).build();
 
-    ExecutionInput executionInput =
-        ExecutionInput.newExecutionInput()
-            .query("query { Pet(filter:{status:{eq:[\"blaat\"]}}) {name,category{name} }")
-            .build();
+    executeQuery(graphQL, "query{Pet{name,category{name},status}}");
+
+    executeQuery(graphQL, "query{Pet(filter:{status:{eq:[\"available\"]}}) {name,category{name}}}");
+
+    executeQuery(
+        graphQL, "query{Pet(filter:{category:{name:{eq:[\"cat\"]}}}) {name,category{name}}}");
+  }
+
+  private void executeQuery(GraphQL graphQL, String query) throws JsonProcessingException {
+    ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(query).build();
 
     ExecutionResult executionResult = graphQL.execute(executionInput);
 
