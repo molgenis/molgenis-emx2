@@ -4,6 +4,8 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class Schema {
@@ -14,7 +16,11 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema) {
-    for (String tableName : schema.getTableNames()) {
+    // deterministic order is important for all kinds of comparisons
+    List<String> list = new ArrayList<>();
+    list.addAll(schema.getTableNames());
+    Collections.sort(list);
+    for (String tableName : list) {
       tables.add(new Table(schema.getTableMetadata(tableName)));
     }
   }

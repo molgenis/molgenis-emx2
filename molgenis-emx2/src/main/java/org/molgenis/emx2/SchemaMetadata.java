@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class SchemaMetadata {
 

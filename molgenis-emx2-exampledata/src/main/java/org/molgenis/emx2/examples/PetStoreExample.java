@@ -22,6 +22,15 @@ public class PetStoreExample {
     TableMetadata categoryTable = schema.createTable(CATEGORY);
     categoryTable.addColumn(NAME).setPrimaryKey(true);
 
+    TableMetadata userTable = schema.createTable("User");
+    userTable.addColumn("username").setPrimaryKey(true);
+    userTable.addColumn("firstName");
+    userTable.addColumn("lastName");
+    userTable.addColumn("email"); // todo: validation email
+    userTable.addColumn("password"); // todo: password type
+    userTable.addColumn("phone"); // todo: validation phone
+    userTable.addColumn("userStatus", INT);
+
     TableMetadata tagTable = schema.createTable(TAG);
     tagTable.addColumn(NAME).setPrimaryKey(true);
 
@@ -31,15 +40,6 @@ public class PetStoreExample {
     petTable.addColumn("photoUrls", STRING_ARRAY).setNullable(true);
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", TAG).setNullable(true);
-
-    TableMetadata userTable = schema.createTable("User");
-    userTable.addColumn("username").setPrimaryKey(true);
-    userTable.addColumn("firstName");
-    userTable.addColumn("lastName");
-    userTable.addColumn("email"); // todo: validation email
-    userTable.addColumn("password"); // todo: password type
-    userTable.addColumn("phone"); // todo: validation phone
-    userTable.addColumn("userStatus", INT);
 
     TableMetadata orderTable = schema.createTable("Order");
     orderTable.addColumn("orderId").primaryKey();

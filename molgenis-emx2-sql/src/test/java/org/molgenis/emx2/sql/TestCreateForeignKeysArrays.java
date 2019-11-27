@@ -94,8 +94,7 @@ public class TestCreateForeignKeysArrays {
     }
 
     // okay
-    Row bRow =
-        new Row().set(refToA, Arrays.copyOfRange(testValues, 0, 2)).set(refToA + "Nullable", "");
+    Row bRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 0, 2));
     bTable.insert(bRow);
 
     // delete of A should fail

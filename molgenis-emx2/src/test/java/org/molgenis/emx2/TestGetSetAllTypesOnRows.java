@@ -162,7 +162,7 @@ public class TestGetSetAllTypesOnRows {
     assertEquals("9", r.getStringArray("test")[0]);
 
     // cast int from some object
-    r.setDecimal("test", 9.3);
+    r.setString("test", "blaat");
     try {
       assertEquals(9, r.getIntegerArray("test"));
       fail("cannot convert, should fail");
