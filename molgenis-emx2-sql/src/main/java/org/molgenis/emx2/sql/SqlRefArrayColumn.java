@@ -100,7 +100,7 @@ public class SqlRefArrayColumn extends SqlColumn {
                 + "\n\ttest =  ARRAY (SELECT from_column FROM (SELECT UNNEST(NEW.{2}) as from_column) as from_table "
                 + "LEFT JOIN (SELECT {3} as to_column FROM {4}) as to_table "
                 + "ON from_table.from_column=to_table.to_column WHERE to_table.to_column IS NULL);"
-                + "\n\tIF(cardinality(test) > 0) THEN "
+                + "\n\tIF(array_length(test,1) > 0) THEN "
                 + "RAISE EXCEPTION 'insert or update on table "
                 + thisTable.unqualifiedName().toString() // for odd reasons {5} and {6} didn't work
                 + " violates foreign key constraint "

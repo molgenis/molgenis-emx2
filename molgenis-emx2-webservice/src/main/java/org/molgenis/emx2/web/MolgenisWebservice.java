@@ -7,6 +7,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -22,6 +24,7 @@ import static spark.Spark.*;
 public class MolgenisWebservice {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
   public static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
+  public static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
 
   private static DataSource dataSource;
   private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
@@ -60,6 +63,7 @@ public class MolgenisWebservice {
     exception(
         JsonException.class,
         (e, req, res) -> {
+          logger.debug(e.toString());
           res.status(400);
           res.body(
               String.format("{\"message\":\"%s%n%s\"%n}", "Failed to parse JSON:", req.body()));
@@ -67,6 +71,7 @@ public class MolgenisWebservice {
     exception(
         MolgenisException.class,
         (e, req, res) -> {
+          logger.debug(e.toString());
           res.status(400);
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));

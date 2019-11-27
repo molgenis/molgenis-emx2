@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.sql.SQLException;
 
@@ -24,7 +23,7 @@ public class TestTransaction {
 
     // as long as from same db instance you can use resources in multiple Tx
     try {
-      db.transaction(
+      db.tx(
           db -> {
             s.createTableIfNotExists("a");
             s.createTableIfNotExists("b");

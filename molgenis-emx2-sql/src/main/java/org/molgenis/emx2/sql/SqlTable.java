@@ -48,7 +48,7 @@ class SqlTable implements Table {
   public int insert(Iterable<Row> rows) {
     AtomicInteger count = new AtomicInteger(0);
     try {
-      db.transaction(
+      db.tx(
           db2 -> {
 
             // first update superclass
@@ -71,7 +71,7 @@ class SqlTable implements Table {
             count.set(step.execute());
           });
     } catch (DataAccessException e) {
-      throw new SqlMolgenisException(e);
+      throw new SqlMolgenisException("Insert into table '" + getName() + "' failed.", e);
     }
     return count.get();
   }
@@ -97,7 +97,7 @@ class SqlTable implements Table {
 
     AtomicInteger count = new AtomicInteger(0);
     try {
-      db.transaction(
+      db.tx(
           db2 -> {
             // first update superclass
             if (getMetadata().getInherit() != null) {
@@ -130,7 +130,7 @@ class SqlTable implements Table {
             updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
           });
     } catch (DataAccessException e) {
-      throw new SqlMolgenisException(e);
+      throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
     return count.get();
   }
@@ -161,7 +161,7 @@ class SqlTable implements Table {
   public int delete(Iterable<Row> rows) {
     AtomicInteger count = new AtomicInteger(0);
     try {
-      db.transaction(
+      db.tx(
           config -> {
             // first update superclass
             if (getMetadata().getInherit() != null) {
@@ -185,7 +185,7 @@ class SqlTable implements Table {
             deleteBatch(batch);
           });
     } catch (DataAccessException e) {
-      throw new SqlMolgenisException(e);
+      throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
     }
     return count.get();
   }

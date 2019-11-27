@@ -13,10 +13,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TableStoreForXlsxFile implements TableStore {
   private Path excelFilePath;
@@ -88,14 +85,14 @@ public class TableStoreForXlsxFile implements TableStore {
   @Override
   public List<Row> readTable(String name) {
     List<Row> result = new ArrayList<>();
-    try (InputStream inp = new FileInputStream(excelFilePath.toFile());
-        Workbook wb = WorkbookFactory.create(inp)) {
+    try (Workbook wb = WorkbookFactory.create(excelFilePath.toFile())) {
       Sheet sheet = wb.getSheet(name);
       if (sheet == null) throw new IOException("Sheet '" + name + "' not found in Excel file");
 
       Map<Integer, String> columnNames = null;
-      for (org.apache.poi.ss.usermodel.Row excelRow : sheet) {
-
+      Iterator<org.apache.poi.ss.usermodel.Row> rowIterator = sheet.rowIterator();
+      while (rowIterator.hasNext()) {
+        org.apache.poi.ss.usermodel.Row excelRow = rowIterator.next();
         // first non-empty row is column names
         if (columnNames == null) {
           columnNames = new LinkedHashMap<>();
@@ -163,8 +160,7 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public boolean containsTable(String name) {
-    try (InputStream inp = new FileInputStream(excelFilePath.toFile());
-        Workbook wb = WorkbookFactory.create(inp)) {
+    try (Workbook wb = WorkbookFactory.create(excelFilePath.toFile())) {
       if (wb.getSheet(name) != null) return true;
     } catch (IOException ioe) {
       throw new MolgenisException(

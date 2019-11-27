@@ -20,7 +20,7 @@ public interface Database {
 
   void grantCreateSchema(String user);
 
-  void transaction(Transaction transaction);
+  void tx(Transaction transaction);
 
   void setActiveUser(String username);
 

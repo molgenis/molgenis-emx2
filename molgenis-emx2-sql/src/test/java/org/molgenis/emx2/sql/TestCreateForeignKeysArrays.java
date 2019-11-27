@@ -82,6 +82,7 @@ public class TestCreateForeignKeysArrays {
     Table bTable = schema.createTableIfNotExists("B");
     String refToA = columnType + "RefToA";
     bTable.getMetadata().addRefArray(refToA, "A", aKey);
+    bTable.getMetadata().addRefArray(refToA + "Nullable", "A", aKey).setNullable(true);
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 1, 3));
@@ -93,7 +94,8 @@ public class TestCreateForeignKeysArrays {
     }
 
     // okay
-    Row bRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 0, 2));
+    Row bRow =
+        new Row().set(refToA, Arrays.copyOfRange(testValues, 0, 2)).set(refToA + "Nullable", "");
     bTable.insert(bRow);
 
     // delete of A should fail

@@ -24,7 +24,7 @@ public class TestCreateTransactionForMultipleOperations {
   @Test
   public void testCommit() {
 
-    db.transaction(
+    db.tx(
         db -> {
           Schema schema = db.createSchema("testCommit");
           Table testTable = schema.createTableIfNotExists("testCommit");
@@ -38,7 +38,7 @@ public class TestCreateTransactionForMultipleOperations {
 
   @Test(expected = MolgenisException.class)
   public void testRollBack() {
-    db.transaction(
+    db.tx(
         db -> {
           Schema schema = db.createSchema("testRollBack");
           Table testTable = schema.createTableIfNotExists("testRollBack");

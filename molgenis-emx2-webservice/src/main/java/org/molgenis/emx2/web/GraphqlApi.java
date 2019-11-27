@@ -9,14 +9,13 @@ import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.Filter;
-import org.molgenis.emx2.sql.SqlJsonQuery;
+import org.molgenis.emx2.sql.SqlGraphJsonQuery;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +114,11 @@ public class GraphqlApi {
                       GraphQLArgument.newArgument()
                           .name("filter")
                           .type(createFilterType(tableMetadata))
+                          .build())
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name("search")
+                          .type(Scalars.GraphQLString)
                           .build()))
           .build();
 
@@ -241,10 +245,15 @@ public class GraphqlApi {
     return dataFetchingEnvironment -> {
       Table table = aTable;
       Object o = dataFetchingEnvironment.getArgument("filter");
-      SqlJsonQuery q = new SqlJsonQuery(table);
+      SqlGraphJsonQuery q = new SqlGraphJsonQuery(table);
       q.select(createSelect(dataFetchingEnvironment.getSelectionSet()));
       if (dataFetchingEnvironment.getArgument("filter") != null) {
         q.filter(createFilters(table, dataFetchingEnvironment.getArgument("filter")));
+      }
+      String search = dataFetchingEnvironment.getArgument("search");
+      if (search != null) {
+        // todo proper tokenizer
+        q.search(search.split(" "));
       }
       return transform(q.retrieve());
     };

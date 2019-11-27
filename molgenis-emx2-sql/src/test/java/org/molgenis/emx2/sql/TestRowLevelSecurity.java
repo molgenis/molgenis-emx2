@@ -45,7 +45,7 @@ public class TestRowLevelSecurity {
 
       // let one user create the table
       database.setActiveUser("testrls1");
-      database.transaction(
+      database.tx(
           db -> {
             db.getSchema(TEST_RLS)
                 .createTableIfNotExists(TEST_RLS)
@@ -55,14 +55,14 @@ public class TestRowLevelSecurity {
 
       // let the other user add RLS
       database.setActiveUser("testrls2");
-      database.transaction(
+      database.tx(
           db -> {
             db.getSchema(TEST_RLS).getTable(TEST_RLS).getMetadata().enableRowLevelSecurity();
           });
 
       // let the first add a row (checks if admin permissions are setup correctly)
       database.setActiveUser("testrls1");
-      database.transaction(
+      database.tx(
           db -> {
             db.getSchema(TEST_RLS)
                 .getTable(TEST_RLS)
@@ -77,14 +77,14 @@ public class TestRowLevelSecurity {
 
       // let the second admin see it
       database.setActiveUser("testrls2");
-      database.transaction(
+      database.tx(
           db -> {
             assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieve().size());
           });
 
       // have RLS user query and see one row
       database.setActiveUser(TESTRLS_HAS_RLS_VIEW);
-      database.transaction(
+      database.tx(
           db -> {
             assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieve().size());
           });

@@ -62,7 +62,7 @@ public class TestGrantRolesToUsers {
     // test that viewer and editor cannot createColumn, and manager can
     try {
       database.setActiveUser("user_testRolePermissions_viewer");
-      database.transaction(
+      database.tx(
           db -> {
             db.getSchema("testRolePermissions").createTableIfNotExists("Test");
             fail("role(viewers) should not be able to createColumn tables"); // should not
@@ -76,7 +76,7 @@ public class TestGrantRolesToUsers {
 
     try {
       database.setActiveUser("user_testRolePermissions_editor");
-      database.transaction(
+      database.tx(
           db -> {
             db.getSchema("testRolePermissions").createTableIfNotExists("Test");
             fail("role(editors) should not be able to createColumn tables"); // should not
@@ -89,7 +89,7 @@ public class TestGrantRolesToUsers {
 
     try {
       database.setActiveUser("user_testRolePermissions_manager");
-      database.transaction(
+      database.tx(
           db -> {
             try {
               db.getSchema("testRolePermissions").createTableIfNotExists("Test");
@@ -110,7 +110,7 @@ public class TestGrantRolesToUsers {
     // test that all can query
     try {
       database.setActiveUser("user_testRolePermissions_viewer");
-      database.transaction(
+      database.tx(
           db -> {
             StopWatch.print("getting Table");
             Table t = db.getSchema("testRolePermissions").getTable("Test");
@@ -144,7 +144,7 @@ public class TestGrantRolesToUsers {
 
       try {
         database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");
-        database.transaction(
+        database.tx(
             db -> {
               db.getSchema("testRole").createTableIfNotExists("Test");
             });
@@ -157,7 +157,7 @@ public class TestGrantRolesToUsers {
 
       try {
         database.setActiveUser("testadmin");
-        database.transaction(
+        database.tx(
             db -> {
               db.getSchema("testRole").createTableIfNotExists("Test");
               // this is soo cooool

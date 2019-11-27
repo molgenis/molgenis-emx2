@@ -19,7 +19,7 @@ public interface Schema {
 
   Query query(String tableName);
 
-  void transaction(Transaction transaction);
+  void tx(Transaction transaction);
 
   void merge(SchemaMetadata from);
 

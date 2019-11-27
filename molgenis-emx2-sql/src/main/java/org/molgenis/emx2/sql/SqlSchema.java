@@ -58,7 +58,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public void addMembers(List<Member> members) {
-    transaction(
+    tx(
         database -> {
           List<String> currentRoles = getRoles();
           List<Member> currentMembers = getMembers();
@@ -130,7 +130,7 @@ public class SqlSchema implements Schema {
     String userprefix = Constants.MG_USER_PREFIX;
     String roleprefix = getRolePrefix();
 
-    transaction(
+    tx(
         database -> {
           for (Member m : getMembers()) {
             if (usernames.contains(m.getUser())) {
@@ -197,16 +197,28 @@ public class SqlSchema implements Schema {
 
   @Override
   public Table createTableIfNotExists(TableMetadata metadata) {
-    transaction(
+    System.out.println("creating " + metadata);
+    tx(
         database -> {
+          // big todo: what if table already exists?
           TableMetadata table = this.createTableIfNotExists(metadata.getTableName()).getMetadata();
-          for (Column c : metadata.getColumns()) {
+          // add extends relation
+          if (metadata.getInherit() != null) {
+            table.setInherit(metadata.getInherit());
+          }
+          // add 'local' columns, i.e., not those that are inherited
+          for (Column c : metadata.getLocalColumns()) {
             table.addColumn(c);
+            if (c.isPrimaryKey()) table.setPrimaryKey(metadata.getPrimaryKey());
           }
-          if (metadata.getPrimaryKey().length > 0) table.setPrimaryKey(metadata.getPrimaryKey());
-          for (String[] unique : metadata.getUniques()) {
-            table.addUnique(unique);
-          }
+          // set primary key and uniques
+          if (metadata.getInherit() == null && metadata.getPrimaryKey().length > 0)
+            for (String[] unique : metadata.getUniques()) {
+              if (!table.isUnique(unique)) {
+                table.addUnique(unique);
+              }
+            }
+          System.out.println("created " + metadata.getTableName());
         });
     return getTable(metadata.getTableName());
   }
@@ -227,13 +239,13 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void transaction(Transaction transaction) {
-    db.transaction(transaction);
+  public void tx(Transaction transaction) {
+    db.tx(transaction);
   }
 
   @Override
   public void merge(SchemaMetadata from) {
-    transaction(
+    tx(
         database -> {
           List<TableMetadata> tableList = new ArrayList<>();
           for (String tableName : from.getTableNames()) {
@@ -258,53 +270,29 @@ public class SqlSchema implements Schema {
         TableMetadata current = todo.get(i);
         boolean depends = false;
         for (int j = 0; j < todo.size(); j++) {
-          if (dependsOn(current, todo.get(j), new ArrayList<>())) {
+          if (todo.get(j).equals(current.getInheritedTable())) {
             depends = true;
             break;
+          }
+        }
+        for (Column c : current.getColumns()) {
+          if (c.getRefTableName() != null) {
+            for (int j = 0; j < todo.size(); j++) {
+              // if depends on on in todo, than skip to next
+              if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
+                depends = true;
+                break;
+              }
+            }
           }
         }
         if (!depends) {
           result.add(todo.get(i));
           todo.remove(i);
-          break;
         }
       }
     }
     tableList.clear();
     tableList.addAll(result);
-  }
-
-  /** check for reference */
-  private boolean dependsOn(TableMetadata from, TableMetadata to, List<String> visited) {
-    // visited is prevent circular relations to take up the loop forever
-    visited.add(from.getTableName());
-    for (Column c : from.getColumns()) {
-      if (c.getRefTableName() != null) {
-        if (from.getSchema().getTableMetadata(c.getRefTableName()) == null)
-          throw new MolgenisException(
-              "invalid_reference",
-              "invalid_reference",
-              "Reference '"
-                  + c.getColumnName()
-                  + "' from '"
-                  + from.getTableName()
-                  + "' to '"
-                  + c.getRefTableName()
-                  + "' failed. Table '"
-                  + c.getRefTableName()
-                  + "' could not be found");
-        if (c.getRefTableName().equals(to.getTableName())) return true;
-        // recurse
-        if (!visited.contains(c.getRefTableName())
-            && dependsOn(from.getSchema().getTableMetadata(c.getRefTableName()), to, visited)) {
-          return true;
-        }
-      }
-    }
-    if (from.getInherit() != null) {
-      if (from.getInherit().equals(to.getTableName())) return true;
-      if (dependsOn(from.getInheritedTable(), to, visited)) return true;
-    }
-    return false;
   }
 }

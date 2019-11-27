@@ -21,6 +21,10 @@ public class SqlMolgenisException extends MolgenisException {
     super(type, title, detailMessage + getDetail(dae), dae);
   }
 
+  public SqlMolgenisException(String message, DataAccessException dae) {
+    super(getType(dae), getTitle(dae), message + getDetail(dae), dae);
+  }
+
   public static String getType(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
       return translate((PSQLException) dae.getCause());

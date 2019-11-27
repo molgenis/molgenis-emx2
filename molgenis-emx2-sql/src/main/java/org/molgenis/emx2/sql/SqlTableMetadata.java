@@ -54,7 +54,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public void createTable() {
-    db.transaction(
+    db.tx(
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
           DSLContext jooq = db.getJooq();
@@ -82,7 +82,7 @@ class SqlTableMetadata extends TableMetadata {
 
   public void dropTable() {
     try {
-      db.transaction(
+      db.tx(
           dsl -> {
             db.getJooq().dropTable(name(getSchema().getName(), getTableName())).execute();
             MetadataUtils.deleteTable(this);
@@ -95,7 +95,7 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata setInherit(String otherTable) {
 
-    db.transaction(
+    db.tx(
         tdb -> {
           if (getInherit() != null)
             throw new MolgenisException(
@@ -154,7 +154,7 @@ class SqlTableMetadata extends TableMetadata {
           "invalid_primary_key",
           "Primary key creation failed",
           "Primary key requires 1 or more columns, however, 0 columns where provided");
-    db.transaction(
+    db.tx(
         dsl -> {
           Name[] keyNames = Stream.of(columnNames).map(DSL::name).toArray(Name[]::new);
 
@@ -176,7 +176,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addColumn(String name, ColumnType columnType) {
-    db.transaction(
+    db.tx(
         dsl -> {
           SqlColumn c = new SqlColumn(this, name, columnType);
           super.addColumn(c);
@@ -209,7 +209,7 @@ class SqlTableMetadata extends TableMetadata {
               metadata.getColumnName(), getTableName(), getInherit()));
     }
     // if ref column is empty, guess it
-    db.transaction(
+    db.tx(
         dsl -> {
           Column result = null;
 
@@ -250,7 +250,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) {
-    db.transaction(
+    db.tx(
         dsl -> {
           SqlRefColumn c =
               new SqlRefColumn(
@@ -300,7 +300,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addRefArray(String name, String toTable, String toColumn) {
-    db.transaction(
+    db.tx(
         dsl -> {
           SqlRefArrayColumn c =
               new SqlRefArrayColumn(
@@ -334,7 +334,7 @@ class SqlTableMetadata extends TableMetadata {
       String reverseRefColumn,
       String joinTable) {
 
-    db.transaction(
+    db.tx(
         dsl -> {
           SqlMrefColumn c =
               new SqlMrefColumn(
@@ -412,7 +412,7 @@ class SqlTableMetadata extends TableMetadata {
     // check if already exists
     if (isUnique(columnNames)) return this; // idempotent, we silently ignore
 
-    db.transaction(
+    db.tx(
         db2 -> {
 
           // create the unique

@@ -43,7 +43,7 @@ public class TestDeferConstrainChecksToEndOfTransaction {
     StopWatch.start("foreignKeysInTransactionsAraProtected");
 
     try {
-      database.transaction(
+      database.tx(
           db -> {
             Schema schema = db.createSchema("TestDeffered3");
 

@@ -6,6 +6,9 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -13,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TypeUtils {
+  private static final String LOOSE_PARSER_FORMAT =
+      "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
   protected TypeUtils() {
     // hide public constructor
@@ -52,6 +57,7 @@ public class TypeUtils {
 
   public static Integer toInt(Object v) {
     if (v instanceof String) return Integer.parseInt((String) v);
+    if (v instanceof Double) return (int) Math.round((Double) v);
     return (Integer) v;
   }
 
@@ -117,6 +123,12 @@ public class TypeUtils {
     if (v instanceof LocalDateTime) return (LocalDateTime) v;
     if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
     if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
+    TemporalAccessor temporalAccessor =
+        DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
+            .parseBest(v.toString(), ZonedDateTime::from, LocalDate::from);
+    if (temporalAccessor instanceof ZonedDateTime) {
+      return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
+    }
     return LocalDateTime.parse(v.toString());
   }
 
@@ -191,11 +203,13 @@ public class TypeUtils {
     int start = 0;
     for (int i = 0; i < value.length() - 1; i++) {
       if (value.charAt(i) == ',' && notInsideComma) {
-        result.add(trimQuotes(value.substring(start, i)));
+        String v = trimQuotes(value.substring(start, i));
+        if (!"".equals(v)) result.add(v);
         start = i + 1;
       } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
     }
-    result.add(trimQuotes(value.substring(start)));
+    String v = trimQuotes(value.substring(start));
+    if (!"".equals(v)) result.add(v);
     return result.toArray(new String[result.size()]);
   }
 

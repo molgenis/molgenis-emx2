@@ -31,7 +31,7 @@ public class SchemaImport {
 
   static void executeImport(TableStore store, Schema schema) {
 
-    schema.transaction(
+    schema.tx(
         db -> {
           // read emx1 metadata, if available (to be removed in future versions)
           // todo: only do this if it looks like metadata file OR make this parameter?

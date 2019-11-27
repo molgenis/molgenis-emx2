@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.molgenis.emx2.sql.Filter.f;
 
-public class TestJsonQuery {
+public class TestGraphJsonQuery {
 
   static Database db;
 
@@ -27,7 +27,8 @@ public class TestJsonQuery {
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
-    SqlJsonQuery s = new SqlJsonQuery((SqlTableMetadata) schema.getTable("Pet").getMetadata());
+    SqlGraphJsonQuery s =
+        new SqlGraphJsonQuery((SqlTableMetadata) schema.getTable("Pet").getMetadata());
     s.select(List.of("name", "status", "category", List.of("name"))); // , "tag", List.of("name"));
     System.out.println(s.retrieve());
 
@@ -61,7 +62,7 @@ public class TestJsonQuery {
             new Row().set("name", "kind").set("father", "pa").set("mother", "ma"));
 
     StopWatch.print("begin");
-    s = new SqlJsonQuery((SqlTableMetadata) schema.getTable("Person").getMetadata());
+    s = new SqlGraphJsonQuery((SqlTableMetadata) schema.getTable("Person").getMetadata());
 
     s.select(
         List.of(
@@ -76,6 +77,9 @@ public class TestJsonQuery {
             List.of("name", "cousins", List.of("name"))));
 
     System.out.println(s.retrieve());
+
+    s.search("opa");
+    System.out.println("search for 'opa':\n " + s.retrieve());
 
     StopWatch.print("complete");
 

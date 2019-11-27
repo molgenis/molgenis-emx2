@@ -95,7 +95,7 @@ public class SqlDatabase implements Database {
   public void addUser(String user) {
     String userName = MG_USER_PREFIX + user;
     try {
-      transaction(
+      tx(
           database -> {
             List<Record> result =
                 jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
@@ -136,41 +136,41 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public synchronized void transaction(Transaction transaction) {
+  public synchronized void tx(Transaction transaction) {
 
     if (inTx) {
+      // we dont nest transactions
       transaction.run(this);
-      return;
-    }
-
-    // createColumn independent merge of database with transaction connection
-    DSLContext originalContext = jooq;
-    try (Connection conn = source.getConnection()) {
-      this.inTx = true;
-      DSL.using(conn, SQLDialect.POSTGRES_10)
-          .transaction(
-              config -> {
-                DSLContext ctx = DSL.using(config);
-                ctx.execute("SET CONSTRAINTS ALL DEFERRED");
-                this.jooq = ctx;
-                if (connectionProvider.getActiveUser() != null) {
-                  this.setActiveUser(connectionProvider.getActiveUser());
-                }
-                transaction.run(this);
-                ctx.execute("RESET SESSION AUTHORIZATION");
-              });
-    } catch (SQLException sqle) {
-      clearCache();
-      throw new MolgenisException(sqle);
-    } catch (MolgenisException me) {
-      clearCache();
-      throw me;
-    } catch (DataAccessException e) {
-      clearCache();
-      throw new SqlMolgenisException(e);
-    } finally {
-      this.inTx = false;
-      jooq = originalContext;
+    } else {
+      // createColumn independent merge of database with transaction connection
+      DSLContext originalContext = jooq;
+      try (Connection conn = source.getConnection()) {
+        this.inTx = true;
+        DSL.using(conn, SQLDialect.POSTGRES_10)
+            .transaction(
+                config -> {
+                  DSLContext ctx = DSL.using(config);
+                  ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+                  this.jooq = ctx;
+                  if (connectionProvider.getActiveUser() != null) {
+                    this.setActiveUser(connectionProvider.getActiveUser());
+                  }
+                  transaction.run(this);
+                  this.clearActiveUser();
+                });
+      } catch (SQLException sqle) {
+        clearCache();
+        throw new MolgenisException(sqle);
+      } catch (MolgenisException me) {
+        clearCache();
+        throw me;
+      } catch (DataAccessException e) {
+        clearCache();
+        throw new SqlMolgenisException(e);
+      } finally {
+        this.inTx = false;
+        jooq = originalContext;
+      }
     }
   }
 
