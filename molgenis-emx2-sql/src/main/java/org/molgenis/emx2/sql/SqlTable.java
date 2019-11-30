@@ -8,6 +8,8 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ class SqlTable implements Table {
 
   private SqlDatabase db;
   private SqlTableMetadata metadata;
+  private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
   SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
     this.db = db;
@@ -46,6 +49,8 @@ class SqlTable implements Table {
   }
 
   public int insert(Iterable<Row> rows) {
+    long start = System.currentTimeMillis();
+
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.tx(
@@ -73,6 +78,16 @@ class SqlTable implements Table {
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Insert into table '" + getName() + "' failed.", e);
     }
+
+    logger.info(
+        "Inserted "
+            + count.get()
+            + " rows into table '"
+            + getJooqTable()
+            + "' in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
+
     return count.get();
   }
 
@@ -88,6 +103,7 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
+    long start = System.currentTimeMillis();
 
     if (getPrimaryKeyFields().isEmpty())
       throw new MolgenisException(
@@ -132,6 +148,15 @@ class SqlTable implements Table {
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
+
+    logger.info(
+        "Updated "
+            + count.get()
+            + " rows into table '"
+            + this.getJooqTable()
+            + "' in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
     return count.get();
   }
 
@@ -159,6 +184,8 @@ class SqlTable implements Table {
 
   @Override
   public int delete(Iterable<Row> rows) {
+    long start = System.currentTimeMillis();
+
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.tx(
@@ -187,6 +214,15 @@ class SqlTable implements Table {
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
     }
+
+    logger.info(
+        "Inserted "
+            + count.get()
+            + " rows into table '"
+            + this.getJooqTable()
+            + "' in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
     return count.get();
   }
 

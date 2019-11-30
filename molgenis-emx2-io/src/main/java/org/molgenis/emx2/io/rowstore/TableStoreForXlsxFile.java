@@ -17,6 +17,7 @@ import java.util.*;
 
 public class TableStoreForXlsxFile implements TableStore {
   private Path excelFilePath;
+  private Map<String, List<Row>> cache;
 
   public TableStoreForXlsxFile(Path excelFilePath) {
     this.excelFilePath = excelFilePath;
@@ -44,6 +45,7 @@ public class TableStoreForXlsxFile implements TableStore {
         try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
           wb.write(outputStream);
         } finally {
+          this.cache = null;
           wb.close();
         }
       }
@@ -82,40 +84,51 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  @Override
-  public List<Row> readTable(String name) {
-    List<Row> result = new ArrayList<>();
+  private void cache() {
     try (Workbook wb = WorkbookFactory.create(excelFilePath.toFile())) {
-      Sheet sheet = wb.getSheet(name);
-      if (sheet == null) throw new IOException("Sheet '" + name + "' not found in Excel file");
-
-      Map<Integer, String> columnNames = null;
-      Iterator<org.apache.poi.ss.usermodel.Row> rowIterator = sheet.rowIterator();
-      while (rowIterator.hasNext()) {
-        org.apache.poi.ss.usermodel.Row excelRow = rowIterator.next();
-        // first non-empty row is column names
-        if (columnNames == null) {
-          columnNames = new LinkedHashMap<>();
-          for (Cell cell : excelRow) {
-            if (!CellType.BLANK.equals(cell.getCellType())) {
-              columnNames.put(cell.getColumnIndex(), cell.getStringCellValue());
+      this.cache = new LinkedHashMap<>();
+      for (Sheet sheet : wb) {
+        String sheetName = sheet.getSheetName();
+        List<Row> result = new ArrayList<>();
+        Map<Integer, String> columnNames = null;
+        Iterator<org.apache.poi.ss.usermodel.Row> rowIterator = sheet.rowIterator();
+        while (rowIterator.hasNext()) {
+          org.apache.poi.ss.usermodel.Row excelRow = rowIterator.next();
+          // first non-empty row is column names
+          if (columnNames == null) {
+            columnNames = new LinkedHashMap<>();
+            for (Cell cell : excelRow) {
+              if (!CellType.BLANK.equals(cell.getCellType())) {
+                columnNames.put(cell.getColumnIndex(), cell.getStringCellValue());
+              }
             }
           }
+          // otherwise it is a normal row to be added to result
+          else {
+            Row row = convertRow(sheetName, columnNames, excelRow);
+            result.add(row);
+          }
         }
-        // otherwise it is a normal row to be added to result
-        else {
-          Row row = convertRow(name, columnNames, excelRow);
-          result.add(row);
-        }
+        this.cache.put(sheetName, result);
       }
-      return result;
     } catch (IOException ioe) {
+      throw new MolgenisException(
+          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+    }
+  }
+
+  @Override
+  public List<Row> readTable(String name) {
+    if (this.cache == null) {
+      this.cache();
+    }
+    if (!this.cache.containsKey(name)) {
       throw new MolgenisException(
           ErrorCodes.NOT_FOUND,
           ErrorCodes.NOT_FOUND_MESSAGE,
-          "CsvStringStore with name '" + name + "' doesn't exist." + ioe.getMessage(),
-          ioe);
+          "Table with name " + name + " not found in Excel file");
     }
+    return this.cache.get(name);
   }
 
   private Row convertRow(
@@ -160,12 +173,9 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public boolean containsTable(String name) {
-    try (Workbook wb = WorkbookFactory.create(excelFilePath.toFile())) {
-      if (wb.getSheet(name) != null) return true;
-    } catch (IOException ioe) {
-      throw new MolgenisException(
-          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+    if (this.cache == null) {
+      this.cache();
     }
-    return false;
+    return this.cache.containsKey(name);
   }
 }

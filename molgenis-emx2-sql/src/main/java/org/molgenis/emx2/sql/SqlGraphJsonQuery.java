@@ -7,6 +7,8 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -28,6 +30,7 @@ public class SqlGraphJsonQuery {
   private List<Object> select;
   private Filter filter;
   private String[] searchTerms = new String[0];
+  private Logger logger = LoggerFactory.getLogger(SqlGraphJsonQuery.class);
 
   public SqlGraphJsonQuery(SqlTableMetadata table) {
     this.table = table;
@@ -61,6 +64,7 @@ public class SqlGraphJsonQuery {
   }
 
   public String retrieve() {
+    Long start = System.currentTimeMillis();
 
     // select
     String fromAlias = table.getTableName();
@@ -80,19 +84,27 @@ public class SqlGraphJsonQuery {
 
     // where
     List<Condition> where = new ArrayList<>();
-    where.add(getValueConditions(filter, table, fromAlias));
-    if (searchTerms != null) where.add(createSearchConditions(null, table, fromAlias, select));
+    Condition valueFilter = getValueConditions(filter, table, fromAlias);
+    if (valueFilter != null) where.add(valueFilter);
+    Condition searchTerms = createSearchConditions(table, fromAlias, select);
+    if (searchTerms != null) where.add(searchTerms);
+
     SelectConditionStep step = from.where(where);
 
-    System.out.println(step.getSQL(ParamType.NAMED_OR_INLINED));
+    // System.out.println(step.getSQL(ParamType.NAMED_OR_INLINED));
 
-    return table
-        .getJooq()
-        .select(field("json_strip_nulls(json_agg(item))"))
-        .from(table(step).as("item"))
-        .where(getPathConditions(filter, table))
-        .fetchOne()
-        .get(0, String.class);
+    String result =
+        table
+            .getJooq()
+            .select(field("json_strip_nulls(json_agg(item))"))
+            .from(table(step).as("item"))
+            .where(getPathConditions(filter, table))
+            .fetchOne()
+            .get(0, String.class);
+
+    logger.info("Query completed in " + (System.currentTimeMillis() - start) + "ms");
+
+    return result;
   }
 
   private void createLeftJoins(
@@ -132,8 +144,8 @@ public class SqlGraphJsonQuery {
   }
 
   private Condition createSearchConditions(
-      Condition searchCondition, SqlTableMetadata table, String tableAlias, List<Object> select) {
-
+      SqlTableMetadata table, String tableAlias, List<Object> select) {
+    Condition searchCondition = null;
     if (this.searchTerms != null && this.searchTerms.length > 0) {
       for (String term : this.searchTerms) {
         Condition c =
@@ -142,7 +154,7 @@ public class SqlGraphJsonQuery {
         if (searchCondition == null) {
           searchCondition = c;
         } else {
-          searchCondition = searchCondition.or(c);
+          searchCondition = searchCondition.and(c);
         }
         // get from subpaths
         for (int i = 0; i < select.size(); i++) {
@@ -151,12 +163,12 @@ public class SqlGraphJsonQuery {
             case REF:
             case REF_ARRAY:
               searchCondition =
-                  createSearchConditions(
-                      searchCondition,
-                      (SqlTableMetadata)
-                          table.getSchema().getTableMetadata(column.getRefTableName()),
-                      tableAlias + "/" + column.getColumnName(),
-                      getList(column, select.get(++i)));
+                  searchCondition.or(
+                      createSearchConditions(
+                          (SqlTableMetadata)
+                              table.getSchema().getTableMetadata(column.getRefTableName()),
+                          tableAlias + "/" + column.getColumnName(),
+                          getList(column, select.get(++i))));
               break;
             default:
               break;
@@ -188,28 +200,55 @@ public class SqlGraphJsonQuery {
   private List<Field> getFields(
       String tableAlias, List<Object> select, Filter filter, SqlTableMetadata table) {
     List<Field> fields = new ArrayList<>();
-    for (int i = 0; i < select.size(); i++) {
-      Column column = getColumn(table, select.get(i));
-      switch (column.getColumnType()) {
-        case REF:
-          fields.add(
-              createRefColumnSubselect(
-                  column,
-                  tableAlias,
-                  getList(column, select.get(++i)),
-                  getColumnFilter(filter, column)));
-          break;
-        case REF_ARRAY:
-          fields.add(
-              createRefArrayColumnSubselect(
-                  column,
-                  tableAlias,
-                  getList(column, select.get(++i)),
-                  getColumnFilter(filter, column)));
-          break;
-        default:
-          fields.add(
-              field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column)));
+    List<String> fieldNames = new ArrayList<>();
+    if (select != null) {
+      for (int i = 0; i < select.size(); i++) {
+        Column column = getColumn(table, select.get(i));
+        fieldNames.add(column.getColumnName());
+        switch (column.getColumnType()) {
+          case REF:
+            fields.add(
+                createRefColumnSubselect(
+                    column,
+                    tableAlias,
+                    getList(column, select.get(++i)),
+                    getColumnFilter(filter, column)));
+            break;
+          case REF_ARRAY:
+            fields.add(
+                createRefArrayColumnSubselect(
+                    column,
+                    tableAlias,
+                    getList(column, select.get(++i)),
+                    getColumnFilter(filter, column)));
+            break;
+          default:
+            fields.add(
+                field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column)));
+        }
+      }
+    }
+    // also add fields for purpose of filters
+    if (filter != null) {
+      for (Filter f : filter.getFilters()) {
+        Column column = getColumn(table, f.getField());
+        if (!fieldNames.contains(column.getColumnName())) {
+          switch (column.getColumnType()) {
+            case REF:
+              fields.add(
+                  createRefColumnSubselect(
+                      column, tableAlias, null, getColumnFilter(filter, column)));
+              break;
+            case REF_ARRAY:
+              fields.add(
+                  createRefArrayColumnSubselect(
+                      column, tableAlias, null, getColumnFilter(filter, column)));
+              break;
+            default:
+              fields.add(
+                  field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column)));
+          }
+        }
       }
     }
     return fields;

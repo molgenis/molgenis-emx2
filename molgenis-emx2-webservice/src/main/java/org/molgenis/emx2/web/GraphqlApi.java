@@ -11,6 +11,8 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.Filter;
 import org.molgenis.emx2.sql.SqlGraphJsonQuery;
 import org.molgenis.emx2.sql.SqlTypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
@@ -27,7 +29,11 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Filter.f;
 import static spark.Spark.*;
 
+/**
+ * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
+ */
 public class GraphqlApi {
+  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {
     // hide constructor
@@ -42,13 +48,21 @@ public class GraphqlApi {
   }
 
   private static String getQuery(Request request, Response response) throws IOException {
+    long start = System.currentTimeMillis();
 
-    // very expensive for now, somehow need to cache this I suppose
+    // todo, invalidate on data changes
+    // Schema
+    long start2 = System.currentTimeMillis();
+
     Schema schema =
         MolgenisWebservice.getAuthenticatedDatabase(request)
             .getSchema(request.params(MolgenisWebservice.SCHEMA));
     GraphQLSchema gl = createGraphQLSchema(schema);
+    GraphQL g = GraphQL.newGraphQL(gl).build();
+    logger.info(
+        "todo cache schema loading, it takes " + (System.currentTimeMillis() - start2) + "ms");
 
+    // tests show overhead of this step is about 1ms (jooq takes the rest)
     String query = null;
     if ("POST".equals(request.requestMethod())) {
       ObjectNode node = new ObjectMapper().readValue(request.body(), ObjectNode.class);
@@ -65,16 +79,20 @@ public class GraphqlApi {
                   + "  }\n"
                   + "}");
     }
-    System.out.println("query\n" + query);
-    GraphQL g = GraphQL.newGraphQL(gl).build();
+    logger.info("query\n" + query);
 
+    // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = g.execute(query);
     for (GraphQLError err : executionResult.getErrors()) {
       System.err.println(err);
     }
+
+    // tests show conversions below is under 3ms
     Map<String, Object> toSpecificationResult = executionResult.toSpecification();
     String result = JsonApi.getWriter().writeValueAsString(toSpecificationResult);
-    System.out.println("result:\n" + result);
+
+    logger.info("graphql request completed in " + (System.currentTimeMillis() - start) + "ms");
+
     return result;
   }
 
@@ -278,7 +296,8 @@ public class GraphqlApi {
         default:
           // expect scalar comparison, todo for all types
           if (entry.getValue() instanceof Map && ((Map) entry.getValue()).containsKey("eq")) {
-            subFilters.add(f(entry.getKey()).eq(((Map) entry.getValue()).get("eq")));
+            ArrayList values = (ArrayList) ((Map) entry.getValue()).get("eq");
+            subFilters.add(f(entry.getKey()).eq(values.toArray()));
           } else {
             throw new RuntimeException(
                 "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
@@ -290,6 +309,7 @@ public class GraphqlApi {
 
   /** bit unfortunate that we have to convert from json to map and back */
   private static Object transform(String json) throws IOException {
+    // benchmark shows this only takes a few ms so not a performance issue
     if (json != null) {
       return new ObjectMapper().readValue(json, List.class);
     } else {
@@ -312,23 +332,5 @@ public class GraphqlApi {
       }
     }
     return result;
-  }
-
-  private static Query createSelect(
-      Query query, String prefix, DataFetchingFieldSelectionSet selectionSet) {
-    for (SelectedField s : selectionSet.getFields()) {
-      query.select(prefix + s.getName());
-      createSelect(query, prefix + s.getName() + "/", s.getSelectionSet());
-    }
-    return query;
-  }
-
-  private static List<Map<String, Object>> transform(List<Row> rows) {
-    List<Map<String, Object>> list = new ArrayList<>();
-    for (Row r : rows) {
-      Map m = r.getValueMap();
-      list.add(r.getValueMap());
-    }
-    return list;
   }
 }

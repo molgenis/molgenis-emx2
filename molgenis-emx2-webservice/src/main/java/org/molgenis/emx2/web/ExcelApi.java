@@ -29,6 +29,7 @@ public class ExcelApi {
   }
 
   static String postExcel(Request request, Response response) throws IOException, ServletException {
+    Long start = System.currentTimeMillis();
     Schema schema =
         MolgenisWebservice.getAuthenticatedDatabase(request)
             .getSchema(request.params(MolgenisWebservice.SCHEMA));
@@ -46,7 +47,7 @@ public class ExcelApi {
     String fileName = request.raw().getPart("file").getSubmittedFileName();
     SchemaImport.fromExcelFile(tempFile.toPath(), schema);
     response.status(200);
-    return "Import success";
+    return "Import success in " + (System.currentTimeMillis() - start) + "ms";
   }
 
   static String getExcel(Request request, Response response) throws IOException {
