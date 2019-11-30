@@ -82,7 +82,6 @@ public class GraphqlApi {
                   + "}");
     }
     logger.info("query\n" + query.replaceAll("[\n|\r|\t]", "_"));
-);
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = g.execute(query);
