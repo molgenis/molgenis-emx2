@@ -3,6 +3,8 @@ package org.molgenis.emx2.io.emx1;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -11,13 +13,15 @@ import java.util.Map;
 
 import static org.molgenis.emx2.ColumnType.*;
 
-public class Emx1 {
+public class Emx1Import {
+  private static Logger logger = LoggerFactory.getLogger(Emx1Import.class);
 
-  private Emx1() {
+  private Emx1Import() {
     // hide constructor
   }
 
   public static void uploadFromStoreToSchema(TableStore store, Schema targetSchema) {
+    long start = System.currentTimeMillis();
 
     // parse metadata into emx1 schema
     SchemaMetadata emx1schema = new SchemaMetadata();
@@ -35,6 +39,7 @@ public class Emx1 {
             .update(store.readTable(entity.getKey())); // actually upsert
       }
     }
+    logger.info("import completed in " + (System.currentTimeMillis() - start) + "ms");
   }
 
   private static void loadRefRelationships(

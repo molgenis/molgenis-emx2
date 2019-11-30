@@ -52,15 +52,17 @@ public class GraphqlApi {
 
     // todo, invalidate on data changes
     // Schema
-    long start2 = System.currentTimeMillis();
 
     Schema schema =
         MolgenisWebservice.getAuthenticatedDatabase(request)
             .getSchema(request.params(MolgenisWebservice.SCHEMA));
+
     GraphQLSchema gl = createGraphQLSchema(schema);
     GraphQL g = GraphQL.newGraphQL(gl).build();
     logger.info(
-        "todo cache schema loading, it takes " + (System.currentTimeMillis() - start2) + "ms");
+        "todo: create cache schema loading, it takes "
+            + (System.currentTimeMillis() - start)
+            + "ms");
 
     // tests show overhead of this step is about 1ms (jooq takes the rest)
     String query = null;

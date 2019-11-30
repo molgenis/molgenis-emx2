@@ -197,7 +197,6 @@ public class SqlSchema implements Schema {
 
   @Override
   public Table createTableIfNotExists(TableMetadata metadata) {
-    System.out.println("creating " + metadata);
     tx(
         database -> {
           // big todo: what if table already exists?
@@ -218,7 +217,6 @@ public class SqlSchema implements Schema {
                 table.addUnique(unique);
               }
             }
-          System.out.println("created " + metadata.getTableName());
         });
     return getTable(metadata.getTableName());
   }

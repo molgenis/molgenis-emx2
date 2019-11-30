@@ -8,6 +8,8 @@ import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.ColumnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,7 @@ class SqlTableMetadata extends TableMetadata {
   public static final String INHERITANCE_FAILED = "inheritance_failed";
   public static final String INHERITANCE_FAILED_MESSAGE = "Inheritance failed";
   private SqlDatabase db;
+  private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
 
   SqlTableMetadata(SqlDatabase db, SqlSchemaMetadata schema, String name) {
     super(schema, name);
@@ -54,6 +57,8 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public void createTable() {
+    long start = System.currentTimeMillis();
+
     db.tx(
         dsl -> {
           Name tableName = name(getSchema().getName(), getTableName());
@@ -74,6 +79,7 @@ class SqlTableMetadata extends TableMetadata {
 
           enableSearch();
         });
+    log(start, "created table");
   }
 
   private String getRolePrefix() {
@@ -81,6 +87,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public void dropTable() {
+    long start = System.currentTimeMillis();
     try {
       db.tx(
           dsl -> {
@@ -90,11 +97,12 @@ class SqlTableMetadata extends TableMetadata {
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(DROP_TABLE_FAILED, DROP_TABLE_FAILED_MESSAGE, dae);
     }
+    log(start, "dropped");
   }
 
   @Override
   public TableMetadata setInherit(String otherTable) {
-
+    long start = System.currentTimeMillis();
     db.tx(
         tdb -> {
           if (getInherit() != null)
@@ -135,11 +143,13 @@ class SqlTableMetadata extends TableMetadata {
           super.setInherit(otherTable);
           MetadataUtils.saveTableMetadata(this);
         });
+    log(start, "set inherit on ");
     return this;
   }
 
   @Override
   public TableMetadata setPrimaryKey(String... columnNames) {
+    long start = System.currentTimeMillis();
     if (getInherit() != null)
       throw new MolgenisException(
           "invalid_primary_key",
@@ -171,6 +181,7 @@ class SqlTableMetadata extends TableMetadata {
           super.setPrimaryKey(columnNames);
           MetadataUtils.saveTableMetadata(this);
         });
+    log(start, "set primary key " + List.of(columnNames) + " on ");
     return this;
   }
 
@@ -192,6 +203,8 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addColumn(Column metadata) {
+    long start = System.currentTimeMillis();
+
     if (getColumn(metadata.getColumnName()) != null) {
       throw new MolgenisException(
           "invalid_column",
@@ -245,11 +258,13 @@ class SqlTableMetadata extends TableMetadata {
           result.setNullable(metadata.getNullable());
           result.setDefaultValue(metadata.getDefaultValue());
         });
+    log(start, "added column '" + metadata.getColumnName() + "' to ");
     return getColumn(metadata.getColumnName());
   }
 
   @Override
   public Column addRef(String name, String toTable, String toColumn) {
+    long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
           SqlRefColumn c =
@@ -262,6 +277,7 @@ class SqlTableMetadata extends TableMetadata {
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
         });
+    log(start, "added ref '" + name + "' to ");
     return getColumn(name);
   }
 
@@ -300,6 +316,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public Column addRefArray(String name, String toTable, String toColumn) {
+    long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
           SqlRefArrayColumn c =
@@ -312,6 +329,7 @@ class SqlTableMetadata extends TableMetadata {
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
         });
+    log(start, "added refarray '" + name + "' to ");
     return getColumn(name);
   }
 
@@ -333,7 +351,7 @@ class SqlTableMetadata extends TableMetadata {
       String reverseName,
       String reverseRefColumn,
       String joinTable) {
-
+    long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
           SqlMrefColumn c =
@@ -351,6 +369,7 @@ class SqlTableMetadata extends TableMetadata {
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
         });
+    log(start, "added mref '" + name + "' to ");
     return getColumn(name);
   }
 
@@ -360,9 +379,11 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public void removeColumn(String name) {
+    long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
     db.getJooq().alterTable(getJooqTable()).dropColumn(field(name(name))).execute();
     super.removeColumn(name);
+    log(start, "removed column '" + name + "' from ");
   }
 
   org.jooq.Table getJooqTable() {
@@ -396,6 +417,8 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata addUnique(String... columnNames) {
+    long start = System.currentTimeMillis();
+
     // check if the columns exists
     for (String columnName : columnNames) {
       Column c = getColumn(columnName);
@@ -424,11 +447,14 @@ class SqlTableMetadata extends TableMetadata {
           MetadataUtils.saveUnique(this, columnNames);
           super.addUnique(columnNames);
         });
+    log(start, "added unique '" + List.of(columnNames) + "' to ");
+
     return this;
   }
 
   @Override
   public void removeUnique(String... columnNames) {
+    long start = System.currentTimeMillis();
     // try to find the right unique
     String[] correctOrderedNames = null;
     List list1 = Arrays.asList(columnNames);
@@ -449,10 +475,10 @@ class SqlTableMetadata extends TableMetadata {
     db.getJooq().alterTable(getJooqTable()).dropConstraint(name(uniqueName)).execute();
     MetadataUtils.deleteUnique(this, correctOrderedNames);
     super.removeUnique(correctOrderedNames);
+    log(start, "removed unique '" + columnNames + "' to ");
   }
 
   private void enableSearch() {
-
     // 1. add tsvector column with index
     db.getJooq()
         .execute(
@@ -531,6 +557,20 @@ class SqlTableMetadata extends TableMetadata {
 
   public DSLContext getJooq() {
     return db.getJooq();
+  }
+
+  private void log(long start, String message) {
+    String user = db.getActiveUser();
+    if (user == null) user = "molgenis";
+    logger.info(
+        user
+            + " "
+            + message
+            + " "
+            + getJooqTable()
+            + " in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
   }
 
   public void loadInherits(String tableName) {

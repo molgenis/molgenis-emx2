@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.io.emx1.Emx1;
+import org.molgenis.emx2.io.emx1.Emx1Import;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
@@ -36,7 +36,7 @@ public class SchemaImport {
           // read emx1 metadata, if available (to be removed in future versions)
           // todo: only do this if it looks like metadata file OR make this parameter?
           if (store.containsTable("attributes")) {
-            Emx1.uploadFromStoreToSchema(store, schema);
+            Emx1Import.uploadFromStoreToSchema(store, schema);
           } else {
             if (store.containsTable("molgenis")) {
               SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));

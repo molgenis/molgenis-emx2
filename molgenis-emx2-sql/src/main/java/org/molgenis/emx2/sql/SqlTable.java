@@ -79,16 +79,25 @@ class SqlTable implements Table {
       throw new SqlMolgenisException("Insert into table '" + getName() + "' failed.", e);
     }
 
-    logger.info(
-        "Inserted "
-            + count.get()
-            + " rows into table '"
-            + getJooqTable()
-            + "' in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    log(start, count, "inserted");
 
     return count.get();
+  }
+
+  private void log(long start, AtomicInteger count, String message) {
+    String user = db.getActiveUser();
+    if (user == null) user = "molgenis";
+    logger.info(
+        user
+            + " "
+            + message
+            + " "
+            + count.get()
+            + " rows into table "
+            + getJooqTable()
+            + " in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
   }
 
   @Override
@@ -149,14 +158,8 @@ class SqlTable implements Table {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
 
-    logger.info(
-        "Updated "
-            + count.get()
-            + " rows into table '"
-            + this.getJooqTable()
-            + "' in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    log(start, count, "updated");
+
     return count.get();
   }
 
@@ -215,14 +218,8 @@ class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
     }
 
-    logger.info(
-        "Inserted "
-            + count.get()
-            + " rows into table '"
-            + this.getJooqTable()
-            + "' in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    log(start, count, "deleted");
+
     return count.get();
   }
 

@@ -5,6 +5,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,9 +17,11 @@ import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.*;
 
+/** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
   private Path excelFilePath;
   private Map<String, List<Row>> cache;
+  private static Logger logger = LoggerFactory.getLogger(TableStoreForXlsxFile.class);
 
   public TableStoreForXlsxFile(Path excelFilePath) {
     this.excelFilePath = excelFilePath;
@@ -85,6 +89,7 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   private void cache() {
+    long start = System.currentTimeMillis();
     try (Workbook wb = WorkbookFactory.create(excelFilePath.toFile())) {
       this.cache = new LinkedHashMap<>();
       for (Sheet sheet : wb) {
@@ -115,6 +120,7 @@ public class TableStoreForXlsxFile implements TableStore {
       throw new MolgenisException(
           ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
+    logger.info("Excel file loaded into memory in " + (System.currentTimeMillis() - start) + "ms");
   }
 
   @Override
