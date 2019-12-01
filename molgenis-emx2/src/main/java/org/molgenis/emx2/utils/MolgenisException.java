@@ -14,7 +14,7 @@ public class MolgenisException extends RuntimeException {
 
   public MolgenisException(Exception e) {
 
-    this(null, null, null, e);
+    this(null, null, e.getClass().getSimpleName() + ": " + e.getMessage(), e);
   }
 
   public MolgenisException(String type, String title, String detail, Exception cause) {

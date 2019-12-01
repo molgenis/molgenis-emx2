@@ -4,7 +4,6 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class Schema {
     for (Table t : tables) {
       TableMetadata tm = s.createTable(t.getName());
       tm.setPrimaryKey(t.getPkey());
-      for (String[] u : t.getUniques()) tm.addUnique(u);
+      for (String[] u : t.getUnique()) tm.addUnique(u);
       for (Column c : t.getColumns()) {
         tm.addColumn(c.getColumnMetadata(tm));
       }

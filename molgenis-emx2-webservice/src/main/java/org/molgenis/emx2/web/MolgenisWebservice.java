@@ -100,7 +100,7 @@ public class MolgenisWebservice {
     return OpenApiUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
-  static Database getAuthenticatedDatabase(Request request) {
+  static synchronized Database getAuthenticatedDatabase(Request request) {
     final String token =
         request.headers(MOLGENIS_TOKEN) == null ? "anonymous" : request.headers(MOLGENIS_TOKEN);
 

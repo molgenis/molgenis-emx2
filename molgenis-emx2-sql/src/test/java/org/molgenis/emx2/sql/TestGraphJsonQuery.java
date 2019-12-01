@@ -66,15 +66,20 @@ public class TestGraphJsonQuery {
 
     s.select(
         List.of(
-            "name",
-            "father",
-            List.of("name", "father", List.of("name"), "mother", List.of("name")),
-            "mother",
-            List.of("name", "father", List.of("name"), "mother", List.of("name")),
-            "children",
-            List.of("name", "children", List.of("name")),
-            "cousins",
-            List.of("name", "cousins", List.of("name"))));
+            "items",
+            List.of(
+                "name",
+                "father",
+                List.of("name", "father", List.of("name"), "mother", List.of("name")),
+                "mother",
+                List.of("name", "father", List.of("name"), "mother", List.of("name")),
+                "children",
+                List.of(
+                    "count",
+                    "items",
+                    List.of("name", "children", List.of("items", List.of("name")))),
+                "cousins",
+                List.of("items", List.of("name", "cousins", List.of("items", List.of("name")))))));
 
     System.out.println(s.retrieve());
 
@@ -84,8 +89,9 @@ public class TestGraphJsonQuery {
     StopWatch.print("complete");
 
     s.filter(
-        f("name").eq("opa1"),
-        f("children", f("children", f("name").eq("kind")), f("name").eq("ma")));
+            f("name").eq("opa1"),
+            f("children", f("children", f("name").eq("kind")), f("name").eq("ma")).limit(1))
+        .limit(10);
 
     System.out.println(s.retrieve());
 

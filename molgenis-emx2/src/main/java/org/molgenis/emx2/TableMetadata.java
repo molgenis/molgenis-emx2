@@ -231,10 +231,10 @@ public class TableMetadata {
   }
 
   private boolean equalContents(String[] a, String[] b) {
-    ArrayList one = new ArrayList<>(Arrays.asList(a));
-    Collections.sort(one);
+    if (a == null && b == null) return true;
+    if ((a == null && b != null) || (a != null && b == null)) return false;
+    ArrayList<String> one = new ArrayList<>(Arrays.asList(a));
     ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
-    Collections.sort(two);
     return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
   }
 }

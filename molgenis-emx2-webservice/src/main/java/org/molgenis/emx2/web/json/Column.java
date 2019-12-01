@@ -11,7 +11,7 @@ public class Column {
   private Boolean nullable = false;
   private String refTableName;
   private String refColumnName;
-  private ColumnType columnType;
+  private ColumnType columnType = ColumnType.STRING;
 
   public Column() {}
 

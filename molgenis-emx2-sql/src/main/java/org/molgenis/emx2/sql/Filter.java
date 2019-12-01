@@ -10,9 +10,11 @@ public class Filter {
   private String field;
   private Operator operator;
   private Object[] values;
+  private int limit = 0;
+  private int offset = 0;
   private Map<String, Filter> filters = new LinkedHashMap<>();
 
-  private Filter(String field, Filter... filters) {
+  protected Filter(String field, Filter... filters) {
     this.field = field;
     for (Filter f : filters) {
       if (field != null && this.filters.get(f.getField()) != null) {
@@ -53,5 +55,30 @@ public class Filter {
 
   public Object[] getValues() {
     return this.values;
+  }
+
+  public Filter offset(int offset) {
+    this.offset = offset;
+    return this;
+  }
+
+  public Filter limit(int limit) {
+    this.limit = limit;
+    return this;
+  }
+
+  public Filter filter(Filter... filters) {
+    for (Filter f : filters) {
+      this.filters.put(f.getField(), f);
+    }
+    return this;
+  }
+
+  protected int getLimit() {
+    return this.limit;
+  }
+
+  protected int getOffset() {
+    return this.offset;
   }
 }

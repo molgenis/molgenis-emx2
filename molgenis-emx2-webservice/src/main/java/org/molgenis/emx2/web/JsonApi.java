@@ -178,6 +178,13 @@ public class JsonApi {
     }
   }
 
+  static String tableToJson(TableMetadata table) throws IOException {
+    org.molgenis.emx2.web.json.Table t = new org.molgenis.emx2.web.json.Table(table);
+    StringWriter out = new StringWriter();
+    getWriter().writeValue(out, t);
+    return out.toString();
+  }
+
   static String schemaToJson(SchemaMetadata schema) throws IOException {
     org.molgenis.emx2.web.json.Schema s = new org.molgenis.emx2.web.json.Schema(schema);
     StringWriter out = new StringWriter();

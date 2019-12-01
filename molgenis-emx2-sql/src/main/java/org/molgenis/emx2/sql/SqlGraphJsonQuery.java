@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.*;
-import org.jooq.conf.ParamType;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Table;
@@ -14,25 +13,23 @@ import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
-import static org.molgenis.emx2.sql.Filter.f;
 
 /**
  * Todo:
  * <li>search - done
  * <li>where - done, only equal
- * <li>first
- * <li>after
+ * <li>limit, offset - done
  * <li>sort
  * <li>mref
  */
-public class SqlGraphJsonQuery {
+public class SqlGraphJsonQuery extends Filter {
   private SqlTableMetadata table;
   private List<Object> select;
-  private Filter filter;
   private String[] searchTerms = new String[0];
   private Logger logger = LoggerFactory.getLogger(SqlGraphJsonQuery.class);
 
   public SqlGraphJsonQuery(SqlTableMetadata table) {
+    super(table.getTableName());
     this.table = table;
   }
 
@@ -50,21 +47,42 @@ public class SqlGraphJsonQuery {
     return this;
   }
 
-  public SqlGraphJsonQuery filter(Filter... filters) {
-    if (filters.length > 0) {
-      this.filter = f(null, filters);
-    } else {
-      this.filter = null;
-    }
-    return this;
-  }
-
   public void search(String... terms) {
     this.searchTerms = terms;
   }
 
   public String retrieve() {
     Long start = System.currentTimeMillis();
+
+    String result = "{}";
+
+    if (select != null) {
+      for (int i = 0; i < select.size(); i++) {
+        String field = checkIsString(select.get(i));
+        switch (field) {
+          case "items":
+            result = executeRootQuery(table, getList(null, select.get(++i)), this, searchTerms);
+            break;
+          case "count":
+            // do this later
+            break;
+          case "meta":
+            getList(null, select.get(++i));
+            // do this later
+            break;
+          default:
+            throw new MolgenisException("", "", "Unknown field '" + field + "'");
+        }
+      }
+    }
+
+    logger.info("Query completed in " + (System.currentTimeMillis() - start) + "ms");
+
+    return result;
+  }
+
+  private static String executeRootQuery(
+      SqlTableMetadata table, List<Object> select, Filter filter, String[] searchTerms) {
 
     // select
     String fromAlias = table.getTableName();
@@ -86,30 +104,32 @@ public class SqlGraphJsonQuery {
     List<Condition> where = new ArrayList<>();
     Condition valueFilter = getValueConditions(filter, table, fromAlias);
     if (valueFilter != null) where.add(valueFilter);
-    Condition searchTerms = createSearchConditions(table, fromAlias, select);
-    if (searchTerms != null) where.add(searchTerms);
+    Condition searchCondition = createSearchConditions(table, fromAlias, select, searchTerms);
+    if (searchCondition != null) where.add(searchCondition);
 
     SelectConditionStep step = from.where(where);
 
-    // System.out.println(step.getSQL(ParamType.NAMED_OR_INLINED));
-
-    String result =
+    SelectConditionStep jsonQuery =
         table
             .getJooq()
-            .select(field("json_strip_nulls(json_agg(item))"))
+            .select(
+                field("json_strip_nulls(json_agg(item))").as("items"),
+                field("count(item.*)").as("count"))
             .from(table(step).as("item"))
-            .where(getPathConditions(filter, table))
-            .fetchOne()
-            .get(0, String.class);
+            .where(getPathConditions(filter, table));
 
-    logger.info("Query completed in " + (System.currentTimeMillis() - start) + "ms");
-
-    return result;
+    return table
+        .getJooq()
+        .select(field("row_to_json(item)"))
+        .from(table(jsonQuery).as("item"))
+        .fetchOne()
+        .get(0, String.class);
   }
 
-  private void createLeftJoins(
+  private static void createLeftJoins(
       SelectJoinStep step, TableMetadata table, String leftAlias, List<Object> select) {
     for (int i = 0; i < select.size(); i++) {
+      // must skip 'items' and 'count'
       Column column = getColumn(table, select.get(i));
       String schemaName = table.getSchema().getName();
       String rightAlias = leftAlias + "/" + column.getColumnName();
@@ -126,6 +146,7 @@ public class SqlGraphJsonQuery {
               getList(column, select.get(++i)));
           break;
         case REF_ARRAY:
+          List nested = getItemsSelect(select.get(++i));
           step.leftJoin(table(name(schemaName, column.getRefTableName())).as(name(rightAlias)))
               .on(
                   "{0} = ANY ({1})",
@@ -135,19 +156,30 @@ public class SqlGraphJsonQuery {
               step,
               table.getSchema().getTableMetadata(column.getRefTableName()),
               rightAlias,
-              getList(column, select.get(++i)));
-          break;
-        default:
+              nested);
           break;
       }
     }
   }
 
-  private Condition createSearchConditions(
-      SqlTableMetadata table, String tableAlias, List<Object> select) {
+  /** navigates select and returns the list given for 'items, i.e. "items,List.of()" */
+  private static List getItemsSelect(Object o) {
+    List nested = getList(null, o);
+    for (int j = 0; j < nested.size(); j++) {
+      String field = checkIsString(nested.get(j));
+      if ("items".equals(field)) {
+        return getList(null, nested.get(++j));
+      }
+    }
+    return new ArrayList();
+  }
+
+  private static Condition createSearchConditions(
+      SqlTableMetadata table, String tableAlias, List<Object> select, String[] searchTerms) {
     Condition searchCondition = null;
-    if (this.searchTerms != null && this.searchTerms.length > 0) {
-      for (String term : this.searchTerms) {
+
+    if (searchTerms != null && searchTerms.length > 0) {
+      for (String term : searchTerms) {
         Condition c =
             condition(
                 name(tableAlias, MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + term + ":*')");
@@ -160,7 +192,6 @@ public class SqlGraphJsonQuery {
         for (int i = 0; i < select.size(); i++) {
           Column column = getColumn(table, select.get(i));
           switch (column.getColumnType()) {
-            case REF:
             case REF_ARRAY:
               searchCondition =
                   searchCondition.or(
@@ -168,7 +199,18 @@ public class SqlGraphJsonQuery {
                           (SqlTableMetadata)
                               table.getSchema().getTableMetadata(column.getRefTableName()),
                           tableAlias + "/" + column.getColumnName(),
-                          getList(column, select.get(++i))));
+                          getList(column, getItemsSelect(select.get(++i))),
+                          searchTerms));
+              break;
+            case REF:
+              searchCondition =
+                  searchCondition.or(
+                      createSearchConditions(
+                          (SqlTableMetadata)
+                              table.getSchema().getTableMetadata(column.getRefTableName()),
+                          tableAlias + "/" + column.getColumnName(),
+                          getList(column, select.get(++i)),
+                          searchTerms));
               break;
             default:
               break;
@@ -197,7 +239,7 @@ public class SqlGraphJsonQuery {
     return pathConditions;
   }
 
-  private List<Field> getFields(
+  private static List<Field> getFields(
       String tableAlias, List<Object> select, Filter filter, SqlTableMetadata table) {
     List<Field> fields = new ArrayList<>();
     List<String> fieldNames = new ArrayList<>();
@@ -259,7 +301,7 @@ public class SqlGraphJsonQuery {
     return null;
   }
 
-  private Field createRefColumnSubselect(
+  private static Field createRefColumnSubselect(
       Column column, String parentAlias, List userSelection, Filter userFilter) {
     return field(
             createSubselect(
@@ -269,33 +311,88 @@ public class SqlGraphJsonQuery {
                 userFilter,
                 "json_strip_nulls(row_to_json(item))",
                 field(name(column.getRefColumnName()))
-                    .eq(field(name(parentAlias, column.getColumnName())))))
+                    .eq(field(name(parentAlias, column.getColumnName()))),
+                0,
+                0))
         .as(column.getColumnName());
   }
 
-  private Field createRefArrayColumnSubselect(
+  private static Field createRefArrayColumnSubselect(
       Column column, String parentAlias, List userSelection, Filter userFilter) {
-    return field(
-            createSubselect(
-                getRefTableMetadata(column),
-                parentAlias + "/" + column.getColumnName(),
-                userSelection,
-                userFilter,
-                "json_strip_nulls(json_agg(item))",
-                condition(
-                    "{0} = ANY ({1})",
-                    field(name(column.getRefColumnName())),
-                    field(name(parentAlias, column.getColumnName())))))
+    DSLContext dsl = ((SqlTableMetadata) column.getTable()).getJooq();
+    List<Field> fields = new ArrayList<>();
+    if (userSelection != null) {
+      Condition condition =
+          condition(
+              "{0} = ANY ({1})",
+              field(name(column.getRefColumnName())),
+              field(name(parentAlias, column.getColumnName())));
+      String aggregatefunction = "json_strip_nulls(json_agg(item))";
+      String fromAlias = parentAlias + "/" + column.getColumnName();
+      int limit = userFilter != null ? userFilter.getLimit() : 0;
+      int offset = userFilter != null ? userFilter.getOffset() : 0;
+      for (int i = 0; i < userSelection.size(); i++) {
+        String field = checkIsString(userSelection.get(i));
+        switch (field) {
+          case "items":
+            fields.add(
+                field(
+                        createSubselect(
+                            getRefTableMetadata(column),
+                            fromAlias,
+                            getList(column, userSelection.get(++i)),
+                            userFilter,
+                            aggregatefunction,
+                            condition,
+                            limit,
+                            offset))
+                    .as("items"));
+            break;
+          case "count":
+            fields.add(
+                field(
+                        field(
+                            createSubselect(
+                                getRefTableMetadata(column),
+                                fromAlias,
+                                null,
+                                userFilter,
+                                "count(*)",
+                                condition,
+                                0,
+                                0)))
+                    .as("count"));
+            break;
+          case "meta":
+            // skip selection, you get it all
+            userSelection.get(++i);
+            fields.add(inline("{\"name\":\"todo\"}").as("meta"));
+          default:
+            throw new MolgenisException(
+                "",
+                "",
+                "query failed: field '" + field + "' unknown within " + column.getColumnName());
+        }
+      }
+    }
+
+    return field(dsl.select(field("row_to_json(conn)")).from(table(dsl.select(fields)).as("conn")))
         .as(column.getColumnName());
   }
 
-  private SelectConditionStep createSubselect(
+  private static SelectConditionStep createSubselect(
       SqlTableMetadata fromTable,
       String fromAlias,
       List userSelection,
       Filter userFilters,
       String aggregationFunction,
-      Condition optionalParentFilter) {
+      Condition optionalParentFilter,
+      int limit,
+      int offset) {
+
+    if (userSelection == null || userSelection.size() == 0) {
+      userSelection = List.of(fromTable.getPrimaryKey());
+    }
 
     // select
     SelectSelectStep selectStep =
@@ -309,11 +406,17 @@ public class SqlGraphJsonQuery {
     where.add(getValueConditions(userFilters, fromTable, fromAlias));
     where.add(optionalParentFilter);
 
-    return fromTable
-        .getJooq()
-        .select(field(aggregationFunction))
-        .from(table(from.where(where)).as("item"))
-        .where(getPathConditions(userFilters, fromTable));
+    SelectConditionStep query =
+        fromTable
+            .getJooq()
+            .select(field(aggregationFunction))
+            .from(table(from.where(where)).as("item"))
+            .where(getPathConditions(userFilters, fromTable));
+
+    if (limit > 0) query.limit(limit);
+    if (offset > 0) query.offset(offset);
+
+    return query;
   }
 
   private static Condition getValueConditions(
@@ -327,7 +430,7 @@ public class SqlGraphJsonQuery {
           // todo improve
           if (c.getColumnType().equals(ColumnType.REF)
               || c.getColumnType().equals(ColumnType.REF_ARRAY)) {
-            throw new RuntimeException(
+            throw new SqlGraphQueryException(
                 "cannot set filter condition on ref/refarray field '" + f.getField() + "'");
           }
 
@@ -352,12 +455,11 @@ public class SqlGraphJsonQuery {
   }
 
   private static List getList(Column column, Object o) {
+    if (o == null) return new ArrayList();
     if (!(o instanceof List))
-      throw new MolgenisException(
-          "",
-          "",
+      throw new SqlGraphQueryException(
           "select error: expected list to follow REF column "
-              + column.getColumnName()
+              + (column != null ? column.getColumnName() : "root")
               + " but found "
               + o);
     return (List) o;
@@ -367,26 +469,22 @@ public class SqlGraphJsonQuery {
     String colName = checkIsString(o);
     Column column = table.getColumn(colName);
     if (column == null)
-      throw new MolgenisException(
-          "",
-          "",
+      throw new SqlGraphQueryException(
           "Selection error: Column " + colName + " not found in table " + table.getTableName());
     return column;
   }
 
   private static String checkIsString(Object o) {
     if (!(o instanceof String))
-      throw new MolgenisException(
-          "query error",
-          "query error",
-          "Query only accept string or list type. E.g. 'name','tag',List.of('name')");
+      throw new SqlGraphQueryException(
+          "Query only accept string or list type. E.g. 'name','tag',List.of('name'). Found: " + o);
     return (String) o;
   }
 
-  private void validate(Object... objects) {
-    for (Object o : objects) {
-      if (o instanceof List) validate(((List) o).toArray());
-      else checkIsString(o);
+  private static class SqlGraphQueryException extends MolgenisException {
+
+    public SqlGraphQueryException(String detail) {
+      super("QUERY_ERROR", "query error", detail);
     }
   }
 }
