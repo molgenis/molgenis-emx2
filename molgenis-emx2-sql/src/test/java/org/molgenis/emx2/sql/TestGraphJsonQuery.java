@@ -29,7 +29,10 @@ public class TestGraphJsonQuery {
 
     SqlGraphJsonQuery s =
         new SqlGraphJsonQuery((SqlTableMetadata) schema.getTable("Pet").getMetadata());
-    s.select(List.of("name", "status", "category", List.of("name"))); // , "tag", List.of("name"));
+    s.select(
+        List.of(
+            "items",
+            List.of("name", "status", "category", List.of("name")))); // , "tag", List.of("name"));
     System.out.println(s.retrieve());
 
     TableMetadata person = schema.createTableIfNotExists("Person").getMetadata();
