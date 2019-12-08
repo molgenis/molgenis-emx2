@@ -17,8 +17,7 @@ import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
-import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
+import static org.molgenis.emx2.sql.Constants.*;
 
 class SqlTableMetadata extends TableMetadata {
 
@@ -479,6 +478,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private void enableSearch() {
+
     // 1. add tsvector column with index
     db.getJooq()
         .execute(
@@ -506,29 +506,47 @@ class SqlTableMetadata extends TableMetadata {
                 + triggerfunction,
             name(MG_SEARCH_INDEX_COLUMN_NAME),
             getJooqTable());
+
+    // also add text search  column
+    // 1. create column
+    db.getJooq()
+        .execute(
+            "ALTER TABLE {0} ADD COLUMN {1} TEXT",
+            getJooqTable(), name(MG_TEXT_SEARCH_COLUMN_NAME));
+    // 2. create trigram index
+    db.getJooq()
+        .execute(
+            "CREATE INDEX {0} ON {1} USING GIN( {2} gin_trgm_ops)",
+            name(getTableName() + "_text_search_idx"),
+            getJooqTable(),
+            name(MG_TEXT_SEARCH_COLUMN_NAME));
   }
 
   private String updateSearchIndexTriggerFunction() {
     String triggerName = getTableName() + "search_vector_trigger";
     String triggerfunction = String.format("\"%s\".\"%s\"()", getSchema().getName(), triggerName);
 
-    StringBuilder mgSearchVector = new StringBuilder("to_tsvector('english', ' '");
+    StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : getLocalColumns()) {
       if (!c.getColumnName().startsWith("MG_"))
         mgSearchVector.append(
             String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getColumnName()));
     }
-    mgSearchVector.append(")");
 
     String functionBody =
         String.format(
             "CREATE OR REPLACE FUNCTION %s RETURNS trigger AS $$\n"
                 + "begin\n"
-                + "\tnew.%s:=%s ;\n"
+                + "\tnew.%s:=to_tsvector('english', %s ) ;\n"
+                + "\tnew.%s:= %s  ;\n"
                 + "\treturn new;\n"
                 + "end\n"
                 + "$$ LANGUAGE plpgsql;",
-            triggerfunction, name(MG_SEARCH_INDEX_COLUMN_NAME), mgSearchVector);
+            triggerfunction,
+            name(MG_SEARCH_INDEX_COLUMN_NAME),
+            mgSearchVector,
+            name(MG_TEXT_SEARCH_COLUMN_NAME),
+            mgSearchVector);
 
     db.getJooq().execute(functionBody);
     db.getJooq()

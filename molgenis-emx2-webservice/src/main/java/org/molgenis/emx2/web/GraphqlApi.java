@@ -9,7 +9,7 @@ import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.Filter;
-import org.molgenis.emx2.sql.SqlGraphJsonQuery;
+import org.molgenis.emx2.sql.SqlGraphQuery;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.slf4j.Logger;
@@ -36,14 +36,20 @@ import static spark.Spark.*;
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
-public class GraphqlApi {
+class GraphqlApi {
+  private static final String INPUT = "input";
+  private static final String FILTER = "filter";
+  private static final String TABLES = "tables";
+  private static final String MEMBERS = "members";
+  private static final String FILTER1 = "Filter";
+  private static final String DETAIL = "detail";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {
     // hide constructor
   }
 
-  public static void createGraphQLSchema() {
+  static void createGraphQLSchema() {
 
     // schema level operations
     final String schemaPath = "/api/graphql/:schema"; // NOSONAR
@@ -52,21 +58,19 @@ public class GraphqlApi {
   }
 
   private static String getQuery(Request request, Response response) throws IOException {
+
     long start = System.currentTimeMillis();
-
-    // todo, invalidate on data changes
-    // Schema
-
     Schema schema =
         MolgenisWebservice.getAuthenticatedDatabase(request)
             .getSchema(request.params(MolgenisWebservice.SCHEMA));
 
     GraphQLSchema gl = createGraphQLSchema(schema);
     GraphQL g = GraphQL.newGraphQL(gl).build();
-    logger.info(
-        "todo: create cache schema loading, it takes "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    if (logger.isInfoEnabled())
+      logger.info(
+          "todo: create cache schema loading, it takes {}ms", (System.currentTimeMillis() - start));
+
+    start = System.currentTimeMillis();
 
     // tests show overhead of this step is about 1ms (jooq takes the rest)
     String query = null;
@@ -85,24 +89,26 @@ public class GraphqlApi {
                   + "  }\n"
                   + "}");
     }
-    logger.info("query: " + query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+    if (logger.isInfoEnabled())
+      logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = g.execute(query);
     for (GraphQLError err : executionResult.getErrors()) {
-      System.err.println(err);
+      logger.error(err.toString());
     }
 
     // tests show conversions below is under 3ms
     Map<String, Object> toSpecificationResult = executionResult.toSpecification();
     String result = JsonApi.getWriter().writeValueAsString(toSpecificationResult);
 
-    logger.info("graphql request completed in " + (System.currentTimeMillis() - start) + "ms");
+    if (logger.isInfoEnabled())
+      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return result;
   }
 
-  public static GraphQLSchema createGraphQLSchema(Schema model) {
+  static GraphQLSchema createGraphQLSchema(Schema model) {
 
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
@@ -118,7 +124,7 @@ public class GraphqlApi {
             .name("alterMetadata")
             .type(mutationResultType)
             .dataFetcher(metaMutationFetcher(model))
-            .argument(GraphQLArgument.newArgument().name("input").type(metaInput())));
+            .argument(GraphQLArgument.newArgument().name(INPUT).type(metaInput())));
 
     // add query and mutation for each table
     for (String tableName : model.getTableNames()) {
@@ -156,7 +162,7 @@ public class GraphqlApi {
               .dataFetcher(tableQueryFetcher(table))
               .argument(
                   GraphQLArgument.newArgument()
-                      .name("filter")
+                      .name(FILTER)
                       .type(tableQueryFilterType(tableMetadata))
                       .build())
               .argument(
@@ -172,7 +178,7 @@ public class GraphqlApi {
               .type(mutationResultType)
               .dataFetcher(fetcherForSave(table))
               .argument(
-                  GraphQLArgument.newArgument().name("input").type(GraphQLList.list(inputType))));
+                  GraphQLArgument.newArgument().name(INPUT).type(GraphQLList.list(inputType))));
 
       //      newFieldDefinition()
       //          .name("delete" + tableMetadata.getTableName())
@@ -192,27 +198,27 @@ public class GraphqlApi {
   private static DataFetcher<?> metaMutationFetcher(Schema model) {
     return dataFetchingEnvironment -> {
       try {
-        Map<String, Object> metaInput = dataFetchingEnvironment.getArgument("input");
+        Map<String, Object> metaInput = dataFetchingEnvironment.getArgument(INPUT);
         model.tx(
             db -> {
               try {
-                if (metaInput.containsKey("tables")) {
+                if (metaInput.containsKey(TABLES)) {
                   String json = JsonApi.getWriter().writeValueAsString(metaInput);
                   SchemaMetadata otherSchema = jsonToSchema(json);
                   model.merge(otherSchema);
                 }
-                if (metaInput.containsKey("members")) {
-                  List<Map<String, String>> members = (List) metaInput.get("members");
+                if (metaInput.containsKey(MEMBERS)) {
+                  List<Map<String, String>> members = (List) metaInput.get(MEMBERS);
                   for (Map<String, String> m : members) {
                     model.addMember(m.get("user"), m.get("role"));
                   }
                 }
               } catch (IOException e) {
-                throw new MolgenisException(e);
+                throw new GraphqlApiException(e);
               }
             });
         Map result = new LinkedHashMap<>();
-        result.put("detail", "success");
+        result.put(DETAIL, "success");
         return result;
       } catch (MolgenisException e) {
         return transform(e);
@@ -221,10 +227,10 @@ public class GraphqlApi {
   }
 
   private static Object transform(MolgenisException e) {
-    Map result = new LinkedHashMap<>();
+    Map<String, String> result = new LinkedHashMap<>();
     result.put("title", e.getTitle());
     result.put("type", e.getType());
-    result.put("detail", e.getDetail());
+    result.put(DETAIL, e.getDetail());
     return result;
   }
 
@@ -244,9 +250,8 @@ public class GraphqlApi {
   private static GraphQLObjectType metaType() {
     GraphQLObjectType.Builder metaBuilder = new GraphQLObjectType.Builder();
     metaBuilder.name("MolgenisMetaType");
-    metaBuilder.field(newFieldDefinition().name("tables").type(GraphQLList.list(metaTablesType())));
-    metaBuilder.field(
-        newFieldDefinition().name("members").type(GraphQLList.list(metaMembersType())));
+    metaBuilder.field(newFieldDefinition().name(TABLES).type(GraphQLList.list(metaTablesType())));
+    metaBuilder.field(newFieldDefinition().name(MEMBERS).type(GraphQLList.list(metaMembersType())));
     metaBuilder.field(newFieldDefinition().name("roles").type(GraphQLList.list(metaRolesType())));
     return metaBuilder.build();
   }
@@ -296,10 +301,9 @@ public class GraphqlApi {
   private static GraphQLInputObjectType metaInput() {
     GraphQLInputObjectType.Builder metaBuilder = new GraphQLInputObjectType.Builder();
     metaBuilder.name("MolgenisMetaInput");
+    metaBuilder.field(newInputObjectField().name(TABLES).type(GraphQLList.list(metaTablesInput())));
     metaBuilder.field(
-        newInputObjectField().name("tables").type(GraphQLList.list(metaTablesInput())));
-    metaBuilder.field(
-        newInputObjectField().name("members").type(GraphQLList.list(metaMembersInput())));
+        newInputObjectField().name(MEMBERS).type(GraphQLList.list(metaMembersInput())));
     return metaBuilder.build();
   }
 
@@ -359,13 +363,13 @@ public class GraphqlApi {
         .name("MolgenisMessage")
         .field(newFieldDefinition().name("type").type(Scalars.GraphQLString).build())
         .field(newFieldDefinition().name("title").type(Scalars.GraphQLString).build())
-        .field(newFieldDefinition().name("detail").type(Scalars.GraphQLString).build())
+        .field(newFieldDefinition().name(DETAIL).type(Scalars.GraphQLString).build())
         .build();
   }
 
   private static GraphQLInputObjectType tableQueryFilterType(TableMetadata table) {
     GraphQLInputObjectType.Builder filterBuilder =
-        newInputObject().name(table.getTableName() + "Filter");
+        newInputObject().name(table.getTableName() + FILTER1);
     for (Column col : table.getColumns()) {
       filterBuilder.field(tableQueryFilterType(col));
     }
@@ -373,41 +377,73 @@ public class GraphqlApi {
   }
 
   private static GraphQLInputObjectField tableQueryFilterType(Column col) {
-    // colname : { "eq":[string], "range": [num,num,...,...], "contains":[string]}
     switch (col.getColumnType()) {
       case REF:
-        return newInputObjectField()
-            .name(col.getColumnName())
-            .type(GraphQLTypeReference.typeRef(col.getRefTableName() + "Filter"))
-            .build();
       case REF_ARRAY:
         return newInputObjectField()
             .name(col.getColumnName())
-            .type(GraphQLList.list(GraphQLTypeReference.typeRef(col.getRefTableName() + "Filter")))
+            .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER1))
             .build();
       default:
-        return newInputObjectField().name(col.getColumnName()).type(typeForStringFilter()).build();
+        return newInputObjectField().name(col.getColumnName()).type(getFilterType(col)).build();
     }
   }
 
-  private static GraphQLInputObjectType stringFilter;
+  private static Map<ColumnType, GraphQLInputObjectType> filterInputTypes = new LinkedHashMap<>();
 
-  private static GraphQLInputObjectType typeForStringFilter() {
-    if (stringFilter == null) {
-      stringFilter =
-          newInputObject()
-              .name("MolgenisStringFilter")
-              .field(newInputObjectField().name("eq").type(GraphQLList.list(Scalars.GraphQLString)))
-              .build();
+  private static GraphQLInputObjectType getFilterType(Column column) {
+    ColumnType type = column.getColumnType();
+    if (filterInputTypes.get(type) == null) {
+      String typeName = type.toString().toLowerCase();
+      typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
+      GraphQLScalarType columnType = getGraphQLType(type);
+      GraphQLInputObjectType.Builder builder =
+          newInputObject().name("Molgenis" + typeName + FILTER1);
+      for (Operator operator : type.getOperators()) {
+        GraphQLInputType inputType = columnType;
+        if (operator.isMultivalue()) {
+          inputType = GraphQLList.list(columnType);
+        }
+        builder.field(newInputObjectField().name(operator.getAbbreviation()).type(inputType));
+      }
+      filterInputTypes.put(type, builder.build());
     }
-    return stringFilter;
+    return filterInputTypes.get(type);
+  }
+
+  private static GraphQLScalarType getGraphQLType(ColumnType type) {
+    switch (type) {
+      case BOOL:
+      case BOOL_ARRAY:
+        return Scalars.GraphQLBoolean;
+      case INT:
+      case INT_ARRAY:
+        return Scalars.GraphQLInt;
+      case DECIMAL:
+      case DECIMAL_ARRAY:
+        return Scalars.GraphQLFloat;
+      case DATE_ARRAY:
+      case DATE:
+      case DATETIME:
+      case DATETIME_ARRAY:
+      case STRING:
+      case TEXT:
+      case STRING_ARRAY:
+      case TEXT_ARRAY:
+      case UUID:
+      case UUID_ARRAY:
+      case REF:
+      case REF_ARRAY:
+      case MREF:
+    }
+    return Scalars.GraphQLString;
   }
 
   private static DataFetcher fetcherForSave(Table aTable) {
     return dataFetchingEnvironment -> {
       try {
         Table table = aTable;
-        List<Map<String, Object>> map = dataFetchingEnvironment.getArgument("input");
+        List<Map<String, Object>> map = dataFetchingEnvironment.getArgument(INPUT);
         int count = table.update(convertToRows(map));
         return resultMessage("success. saved " + count + " records");
       } catch (MolgenisException me) {
@@ -418,7 +454,7 @@ public class GraphqlApi {
 
   private static Map<String, String> resultMessage(String detail) {
     Map<String, String> message = new LinkedHashMap<>();
-    message.put("detail", detail);
+    message.put(DETAIL, detail);
     return message;
   }
 
@@ -450,7 +486,7 @@ public class GraphqlApi {
       for (Member m : schema.getMembers()) {
         members.add(Map.of("user", m.getUser(), "role", m.getRole()));
       }
-      result.put("members", members);
+      result.put(MEMBERS, members);
 
       // add roles
       List<Map<String, String>> roles = new ArrayList<>();
@@ -466,11 +502,10 @@ public class GraphqlApi {
   private static DataFetcher tableQueryFetcher(Table aTable) {
     return dataFetchingEnvironment -> {
       Table table = aTable;
-      Object o = dataFetchingEnvironment.getArgument("filter");
-      SqlGraphJsonQuery q = new SqlGraphJsonQuery(table);
+      SqlGraphQuery q = new SqlGraphQuery(table);
       q.select(createSelect(dataFetchingEnvironment.getSelectionSet()));
-      if (dataFetchingEnvironment.getArgument("filter") != null) {
-        q.filter(createFilters(table, dataFetchingEnvironment.getArgument("filter")));
+      if (dataFetchingEnvironment.getArgument(FILTER) != null) {
+        q.filter(createFilters(table, dataFetchingEnvironment.getArgument(FILTER)));
       }
       String search = dataFetchingEnvironment.getArgument("search");
       if (search != null) {
@@ -486,7 +521,7 @@ public class GraphqlApi {
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       Column c = table.getMetadata().getColumn(entry.getKey());
       if (c == null)
-        throw new RuntimeException(
+        throw new GraphqlApiException(
             "Column " + entry.getKey() + " unknown in table " + table.getName());
       switch (c.getColumnType()) {
         case REF:
@@ -498,12 +533,23 @@ public class GraphqlApi {
                       table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
           break;
         default:
-          // expect scalar comparison, todo for all types
-          if (entry.getValue() instanceof Map && ((Map) entry.getValue()).containsKey("eq")) {
-            ArrayList values = (ArrayList) ((Map) entry.getValue()).get("eq");
-            subFilters.add(f(entry.getKey()).eq(values.toArray()));
+          if (entry.getValue() instanceof Map) {
+            Filter f = f(entry.getKey());
+            for (Map.Entry<String, Object> entry2 :
+                ((Map<String, Object>) entry.getValue()).entrySet()) {
+              Operator op = Operator.fromAbbreviation(entry2.getKey());
+
+              if (op.isMultivalue()) {
+                // some operators are useful with multiple values separated by 'or'
+                f.add(op, ((ArrayList) entry2.getValue()).toArray());
+              } else {
+                // others, such as 'gt' are only useful with one value
+                f.add(op, entry2.getValue());
+              }
+            }
+            subFilters.add(f);
           } else {
-            throw new RuntimeException(
+            throw new GraphqlApiException(
                 "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
           }
       }
@@ -513,7 +559,7 @@ public class GraphqlApi {
 
   /** bit unfortunate that we have to convert from json to map and back */
   private static Object transform(String json) throws IOException {
-    // benchmark shows this only takes a few ms so not a performance issue
+    // benchmark shows this only takes a few ms so not a large performance issue
     if (json != null) {
       return new ObjectMapper().readValue(json, Map.class);
     } else {
@@ -521,23 +567,33 @@ public class GraphqlApi {
     }
   }
 
-  /**
-   * creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...)
-   *
-   * @return
-   * @param f
-   * @param selection
-   */
-  private static List createSelect(DataFetchingFieldSelectionSet selection) {
-    ArrayList result = new ArrayList();
+  /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
+  private static SqlGraphQuery.SelectColumn[] createSelect(
+      DataFetchingFieldSelectionSet selection) {
+    List<SqlGraphQuery.SelectColumn> result = new ArrayList<>();
     for (SelectedField s : selection.getFields()) {
       if (!s.getQualifiedName().contains("/")) {
-        result.add(s.getName());
-        if (s.getSelectionSet().getFields().size() > 0) {
-          result.add(createSelect(s.getSelectionSet()));
+        if (!s.getSelectionSet().getFields().isEmpty()) {
+          result.add(
+              new SqlGraphQuery.SelectColumn(s.getName(), createSelect(s.getSelectionSet())));
+        } else {
+          result.add(new SqlGraphQuery.SelectColumn(s.getName()));
         }
       }
     }
-    return result;
+    return result.toArray(new SqlGraphQuery.SelectColumn[result.size()]);
+  }
+
+  private static class GraphqlApiException extends MolgenisException {
+    public GraphqlApiException(String message) {
+      super(
+          GraphqlApi.class.getSimpleName().toUpperCase(),
+          GraphqlApi.class.getSimpleName(),
+          message);
+    }
+
+    public GraphqlApiException(IOException e) {
+      super(e);
+    }
   }
 }

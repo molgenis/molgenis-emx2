@@ -19,7 +19,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.IS;
 import static org.molgenis.emx2.web.JsonApi.*;
 import static org.molgenis.emx2.ColumnType.DECIMAL;
 import static org.molgenis.emx2.ColumnType.INT;
@@ -102,9 +102,9 @@ public class TestJson {
         .select("LastName")
         .expand("Father")
         .select("FirstName")
-        .where("Age", EQUALS, 50)
-        .or("Age", EQUALS, 60)
-        .and("Father/LastName", EQUALS, "Blaat")
+        .where("Age", IS, 50)
+        .or("Age", IS, 60)
+        .and("Father/LastName", IS, "Blaat")
         .asc("LastName")
         .asc("FirstName");
 

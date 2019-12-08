@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.IS;
 
 public class TestQueryExpandIntoReferences {
   static Database db;
@@ -66,8 +66,8 @@ public class TestQueryExpandIntoReferences {
             .expand("Father")
             .select("First Name")
             .select("Last Name")
-            .where("Last Name", EQUALS, "Duck")
-            .and("Father/Last Name", EQUALS, "Duck");
+            .where("Last Name", IS, "Duck")
+            .and("Father/Last Name", IS, "Duck");
 
     StopWatch.print("created query");
 
@@ -86,8 +86,8 @@ public class TestQueryExpandIntoReferences {
             .expand("Father")
             .select("Last Name")
             .select("First Name")
-            .where("Last Name", EQUALS, "Duck")
-            .and("Father/Last Name", EQUALS, "Duck");
+            .where("Last Name", IS, "Duck")
+            .and("Father/Last Name", IS, "Duck");
 
     rows = query1.retrieve();
     for (Row r : rows) System.out.println(r);

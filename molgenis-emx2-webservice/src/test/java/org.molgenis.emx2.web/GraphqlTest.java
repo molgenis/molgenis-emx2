@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.zaxxer.hikari.HikariDataSource;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;

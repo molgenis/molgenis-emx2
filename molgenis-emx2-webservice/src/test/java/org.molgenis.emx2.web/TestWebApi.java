@@ -10,7 +10,6 @@ import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.DatabaseFactory;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.File;
 import java.io.FileOutputStream;

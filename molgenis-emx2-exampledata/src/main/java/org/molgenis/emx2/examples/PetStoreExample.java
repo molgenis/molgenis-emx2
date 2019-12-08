@@ -12,6 +12,7 @@ public class PetStoreExample {
   public static final String TAG = "Tag";
   public static final String NAME = "name";
   public static final String PET = "Pet";
+  private static final String ORDER = "Order";
 
   private PetStoreExample() {
     // hide public constructor
@@ -41,9 +42,9 @@ public class PetStoreExample {
     petTable.addColumn("status"); // todo enum: available, pending, sold
     petTable.addRefArray("tags", TAG).setNullable(true);
 
-    TableMetadata orderTable = schema.createTable("Order");
+    TableMetadata orderTable = schema.createTable(ORDER);
     orderTable.addColumn("orderId").primaryKey();
-    orderTable.addRef("petId", PET, NAME);
+    orderTable.addRef("pet", PET, NAME);
     orderTable.addColumn("quantity", INT); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered
@@ -63,5 +64,21 @@ public class PetStoreExample {
                 .set("name", "spike")
                 .set("status", "sold")
                 .set("tags", "red,green"));
+
+    schema
+        .getTable(ORDER)
+        .insert(
+            new Row()
+                .set("orderId", "1")
+                .set("pet", "pooky")
+                .set("quantity", 1)
+                .set("complete", true)
+                .set("status", "delivered"),
+            new Row()
+                .set("orderId", "2")
+                .set("pet", "spike")
+                .set("quantity", 7)
+                .set("complete", false)
+                .set("status", "approved"));
   }
 }

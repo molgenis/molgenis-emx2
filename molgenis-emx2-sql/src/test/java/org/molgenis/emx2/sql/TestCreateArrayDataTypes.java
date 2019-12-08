@@ -89,7 +89,7 @@ public class TestCreateArrayDataTypes {
     aRow.set(aFieldName, Arrays.copyOfRange(values, 0, 2));
     tableA.update(aRow);
 
-    // cehck query
+    // check query
     List<Row> result = tableA.query().where(aFieldName, Operator.ANY, values[0]).retrieve();
     assertEquals(1, result.size());
     for (Row r : result) {

@@ -98,6 +98,13 @@ public class SqlTypeUtils extends TypeUtils {
     return values;
   }
 
+  public static Object[] getArrayTypedValue(Object[] values, Column column) {
+    Object[] result = new Object[values.length];
+    for (int i = 0; i < values.length; i++)
+      result[i] = SqlTypeUtils.getTypedValue(values[i], column);
+    return result;
+  }
+
   public static Object getTypedValue(Object v, Column column) {
     ColumnType columnType = column.getColumnType();
     if (REF.equals(columnType)) {
@@ -105,6 +112,10 @@ public class SqlTypeUtils extends TypeUtils {
     } else if (ColumnType.MREF.equals(columnType)) {
       columnType = getArrayType(getRefColumnType(column));
     }
+    return getTypedValue(v, columnType);
+  }
+
+  private static Object getTypedValue(Object v, ColumnType columnType) {
     switch (columnType) {
       case UUID:
         return TypeUtils.toUuid(v);

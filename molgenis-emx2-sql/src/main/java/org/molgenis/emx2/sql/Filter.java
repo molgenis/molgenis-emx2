@@ -2,25 +2,24 @@ package org.molgenis.emx2.sql;
 
 import org.molgenis.emx2.Operator;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Filter {
-
   private String field;
-  private Operator operator;
-  private Object[] values;
+  private Map<Operator, Object[]> conditions = new LinkedHashMap<>();
   private int limit = 0;
   private int offset = 0;
-  private Map<String, Filter> filters = new LinkedHashMap<>();
+  private Map<String, Filter> children = new LinkedHashMap<>();
 
-  protected Filter(String field, Filter... filters) {
+  protected Filter(String field, Filter... children) {
     this.field = field;
-    for (Filter f : filters) {
-      if (field != null && this.filters.get(f.getField()) != null) {
+    for (Filter f : children) {
+      if (field != null && this.children.get(f.getField()) != null) {
         throw new RuntimeException("already created filter for field " + f.getField());
       }
-      this.filters.put(f.getField(), f);
+      this.children.put(f.getField(), f);
     }
   }
 
@@ -28,13 +27,28 @@ public class Filter {
     return new Filter(field, filters);
   }
 
-  public Filter eq(Object... values) {
-    if (filters.size() > 0)
+  public Filter is(Object... values) {
+    validate();
+    this.conditions.put(Operator.IS, values);
+    return this;
+  }
+
+  public Filter contains(Object... values) {
+    validate();
+    this.conditions.put(Operator.CONTAINS, values);
+    return this;
+  }
+
+  public Filter similar(Object... values) {
+    validate();
+    this.conditions.put(Operator.SIMILAR_TEXT, values);
+    return this;
+  }
+
+  private void validate() {
+    if (children.size() > 0)
       throw new RuntimeException(
           "cannot eq filter on '" + this.field + "' when you also created sub filters");
-    this.operator = Operator.EQUALS;
-    this.values = values;
-    return this;
   }
 
   public String getField() {
@@ -42,19 +56,15 @@ public class Filter {
   }
 
   public Filter getFilter(String name) {
-    return this.filters.get(name);
-  }
-
-  public Operator getOperator() {
-    return this.operator;
+    return this.children.get(name);
   }
 
   public Iterable<? extends Filter> getFilters() {
-    return this.filters.values();
+    return this.children.values();
   }
 
-  public Object[] getValues() {
-    return this.values;
+  public Map<Operator, Object[]> getConditions() {
+    return Collections.unmodifiableMap(conditions);
   }
 
   public Filter offset(int offset) {
@@ -69,7 +79,7 @@ public class Filter {
 
   public Filter filter(Filter... filters) {
     for (Filter f : filters) {
-      this.filters.put(f.getField(), f);
+      this.children.put(f.getField(), f);
     }
     return this;
   }
@@ -80,5 +90,13 @@ public class Filter {
 
   protected int getOffset() {
     return this.offset;
+  }
+
+  protected boolean has(String columnName) {
+    return this.children.containsKey(columnName);
+  }
+
+  public void add(Operator operator, Object... values) {
+    this.conditions.put(operator, values);
   }
 }

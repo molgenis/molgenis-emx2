@@ -179,8 +179,7 @@ public class TypeUtils {
       case DATETIME:
         return ColumnType.DATETIME_ARRAY;
       default:
-        throw new UnsupportedOperationException(
-            "Unsupported REF_ARRAY columnType found:" + columnType);
+        throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
     }
   }
 

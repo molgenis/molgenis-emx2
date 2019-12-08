@@ -11,7 +11,7 @@ import org.molgenis.emx2.Sort;
 
 import java.util.*;
 
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.IS;
 import static org.molgenis.emx2.Order.ASC;
 
 public class JsonQueryMapper {
@@ -55,10 +55,10 @@ public class JsonQueryMapper {
         String path = f.getKey();
         Object[] value = f.getValue();
         if (first) {
-          q.or(path, EQUALS, Arrays.copyOf(value, value.length, Object[].class));
+          q.or(path, IS, Arrays.copyOf(value, value.length, Object[].class));
           first = false;
         } else {
-          q.and(path, EQUALS, Arrays.copyOf(value, value.length, Object[].class));
+          q.and(path, IS, Arrays.copyOf(value, value.length, Object[].class));
         }
       }
     }
@@ -72,7 +72,7 @@ public class JsonQueryMapper {
     result.filters.add(clause);
     for (Where f : q.getWhereLists()) {
       Operator op = f.getOperator();
-      if (EQUALS.equals(op)) clause.put(String.join("/", f.getPath()), f.getValues());
+      if (IS.equals(op)) clause.put(String.join("/", f.getPath()), f.getValues());
     }
 
     for (Sort s : q.getSortList()) {

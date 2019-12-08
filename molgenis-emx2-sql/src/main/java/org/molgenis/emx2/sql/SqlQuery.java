@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.*;
+import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.util.postgres.PostgresDSL;
@@ -126,7 +127,7 @@ public class SqlQuery extends QueryBean implements Query {
 
   private static List<Row> executeQuery(SelectJoinStep whereStep) throws SQLException {
     List<Row> result = new ArrayList<>();
-    System.out.println(whereStep.getSQL());
+    System.out.println(whereStep.getSQL(ParamType.INLINED));
     Result<Record> fetch = whereStep.fetch();
     for (Record r : fetch) {
       result.add(new SqlRow(r));
@@ -218,7 +219,7 @@ public class SqlQuery extends QueryBean implements Query {
     }
     Name selector = name(tableAliasBuilder.toString(), path[path.length - 1]);
     switch (w.getOperator()) {
-      case EQUALS:
+      case IS:
         // type check
         Object[] values = w.getValues();
         for (int i = 0; i < values.length; i++)

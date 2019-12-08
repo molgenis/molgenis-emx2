@@ -6,34 +6,22 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
-import java.util.List;
-
 import static org.molgenis.emx2.sql.Filter.f;
+import static org.molgenis.emx2.sql.SqlGraphQuery.s;
 
 public class TestGraphJsonQuery {
 
   static Database db;
+  static Schema schema;
 
   @BeforeClass
   public static void setup() {
     db = DatabaseFactory.getTestDatabase();
-  }
 
-  @Test
-  public void testQuery() {
-
-    Schema schema = db.createSchema("TestJsonQuery");
+    schema = db.createSchema("TestJsonQuery");
 
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
-
-    SqlGraphJsonQuery s =
-        new SqlGraphJsonQuery((SqlTableMetadata) schema.getTable("Pet").getMetadata());
-    s.select(
-        List.of(
-            "items",
-            List.of("name", "status", "category", List.of("name")))); // , "tag", List.of("name"));
-    System.out.println(s.retrieve());
 
     TableMetadata person = schema.createTableIfNotExists("Person").getMetadata();
     person.addColumn("name").primaryKey();
@@ -63,42 +51,56 @@ public class TestGraphJsonQuery {
                 .set("mother", "oma1")
                 .set("children", "kind"),
             new Row().set("name", "kind").set("father", "pa").set("mother", "ma"));
+  }
+
+  @Test
+  public void testQuery() {
 
     StopWatch.print("begin");
-    s = new SqlGraphJsonQuery((SqlTableMetadata) schema.getTable("Person").getMetadata());
+
+    SqlGraphQuery s = new SqlGraphQuery(schema.getTable("Pet"));
+    s.select(s("items", s("name"), s("status"), s("category", s("name"))));
+    System.out.println(s.retrieve());
+
+    s = new SqlGraphQuery(schema.getTable("Person"));
 
     s.select(
-        List.of(
+        s(
             "items",
-            List.of(
-                "name",
-                "father",
-                List.of("name", "father", List.of("name"), "mother", List.of("name")),
-                "mother",
-                List.of("name", "father", List.of("name"), "mother", List.of("name")),
-                "children",
-                List.of(
-                    "count",
-                    "items",
-                    List.of("name", "children", List.of("items", List.of("name")))),
-                "cousins",
-                List.of("items", List.of("name", "cousins", List.of("items", List.of("name")))))));
+            s("name"),
+            s("father", s("name"), s("father", s("name")), s("mother", s("name"))),
+            s("mother", s("name"), s("father", s("name")), s("mother", s("name"))),
+            s("children", s("count"), s("items", s("name"), s("children", s("items", s("name"))))),
+            s("cousins", s("items", s("name"), s("cousins", s("items", s("name")))))));
 
     System.out.println(s.retrieve());
 
+    StopWatch.print("complete");
+  }
+
+  @Test
+  public void testSearch() {
+
+    SqlGraphQuery s = new SqlGraphQuery(schema.getTable("Person"));
+    s.select(s("items", s("name")));
     s.search("opa");
     System.out.println("search for 'opa':\n " + s.retrieve());
+
+    s = new SqlGraphQuery(schema.getTable("Person"));
+    s.select(s("items", s("name"), s("children", s("items", s("name"))), s("father", s("name"))));
+    s.search("opa");
+    System.out.println("search for 'opa' also in grandparents:\n " + s.retrieve());
 
     StopWatch.print("complete");
 
     s.filter(
-            f("name").eq("opa1"),
-            f("children", f("children", f("name").eq("kind")), f("name").eq("ma")).limit(1))
+            f("name").is("opa1"),
+            f("children", f("children", f("name").is("kind")), f("name").is("ma")).limit(1))
         .limit(10);
 
     System.out.println(s.retrieve());
 
-    s.filter(f("children", f("children", f("name").eq("kind"))));
+    s.filter(f("children", f("children", f("name").is("kind"))));
 
     System.out.println(s.retrieve());
 
@@ -119,5 +121,13 @@ public class TestGraphJsonQuery {
     //        .eq("opa2")
     //        .and("father", "father", "name")
     //        .eq("opa2");
+
+    StopWatch.print("complete");
+
+    s = new SqlGraphQuery(schema.getTable("Person"));
+    s.select(s("items", s("name")));
+    s.filter(f("name").similar("opa"));
+
+    System.out.println(s.retrieve());
   }
 }

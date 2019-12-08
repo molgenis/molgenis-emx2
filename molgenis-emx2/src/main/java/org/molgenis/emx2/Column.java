@@ -4,7 +4,6 @@ import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {
   private TableMetadata table;
-
   private String columnName;
   private ColumnType columnType;
   private boolean nullable = false;
