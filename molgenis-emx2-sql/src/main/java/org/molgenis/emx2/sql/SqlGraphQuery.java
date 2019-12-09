@@ -68,20 +68,23 @@ public class SqlGraphQuery extends Filter {
 
     // items
     if (this.select.has(ITEMS_FIELD)) {
-      SelectConditionStep step =
-          createSubselect(
-              table,
-              table.getTableName(),
-              select.get(ITEMS_FIELD),
-              this,
-              AGGREGATE_ITEM,
-              condition);
-      fields.add(field(step).as(ITEMS_FIELD));
+      fields.add(
+          field(
+                  createSubselect(
+                      table,
+                      table.getTableName(),
+                      select.get(ITEMS_FIELD),
+                      this,
+                      AGGREGATE_ITEM,
+                      condition,
+                      true))
+              .as(ITEMS_FIELD));
     }
     // count
     if (select.has(COUNT_FIELD)) {
       Select step =
-          createSubselect(table, table.getTableName(), null, this, AGGREGATE_COUNT, condition);
+          createSubselect(
+              table, table.getTableName(), null, this, AGGREGATE_COUNT, condition, false);
       fields.add(field(step).as(COUNT_FIELD));
     }
     // meta
@@ -187,7 +190,8 @@ public class SqlGraphQuery extends Filter {
                             getColumnFilter(filter, column),
                             "row_to_json(item)",
                             field(name(column.getRefColumnName()))
-                                .eq(field(name(tableAlias, column.getColumnName())))))
+                                .eq(field(name(tableAlias, column.getColumnName()))),
+                            false))
                     .as(column.getColumnName()));
             break;
           case REF_ARRAY:
@@ -226,10 +230,11 @@ public class SqlGraphQuery extends Filter {
                   createSubselect(
                       getRefTable(column),
                       fromAlias,
-                      getColumSelect(select, column),
+                      select.get(ITEMS_FIELD),
                       filter,
                       AGGREGATE_ITEM,
-                      condition))
+                      condition,
+                      true))
               .as(ITEMS_FIELD));
     }
 
@@ -237,7 +242,13 @@ public class SqlGraphQuery extends Filter {
     fields.add(
         field(
                 createSubselect(
-                    getRefTable(column), fromAlias, null, filter, AGGREGATE_COUNT, condition))
+                    getRefTable(column),
+                    fromAlias,
+                    null,
+                    filter,
+                    AGGREGATE_COUNT,
+                    condition,
+                    false))
             .as(COUNT_FIELD));
 
     return field(
@@ -253,7 +264,8 @@ public class SqlGraphQuery extends Filter {
       SelectColumn select,
       Filter filter,
       String aggregationFunction,
-      Condition condition) {
+      Condition condition,
+      boolean limitOffset) {
 
     // if none selected, we use primary key to ensure we have unique records
     if (select == null || select.getColumNames().isEmpty()) {
@@ -277,12 +289,18 @@ public class SqlGraphQuery extends Filter {
     }
 
     // join the ref table
-    SelectConditionStep from =
+    SelectLimitStep from =
         fromTable
             .getJooq()
             .select(getFields(fromTable, fromAlias, select, filter))
             .from(getJooqTable(fromTable, fromAlias))
             .where(searchCondition);
+
+    // limit offset
+    if (limitOffset) {
+      from = (SelectLimitStep) from.offset(select.getOffset());
+      if (select.getLimit() > 0) from = (SelectLimitStep) from.limit(select.getLimit());
+    }
 
     // add user filters
     condition = createFiltersForColumns(condition, fromTable, filter);
@@ -294,12 +312,6 @@ public class SqlGraphQuery extends Filter {
             .select(field(aggregationFunction))
             .from(table(from).as("item"))
             .where(condition);
-
-    // apply limits and offsets
-    if (filter != null && !AGGREGATE_COUNT.equals(aggregationFunction)) {
-      if (filter.getLimit() > 0) query.limit(filter.getLimit());
-      if (filter.getOffset() > 0) query.offset(filter.getOffset());
-    }
 
     // return
     return query;
@@ -395,7 +407,7 @@ public class SqlGraphQuery extends Filter {
         case CONTAINS:
           conditions.add(field(name(columnName)).likeIgnoreCase("%" + value + "%"));
           break;
-        case SIMILAR_TEXT:
+        case TRIGRAM_MATCH:
           conditions.add(condition("word_similarity({0},{1}) > 0.6", value, name(columnName)));
           break;
         case LEXICAL_MATCH:
@@ -423,18 +435,6 @@ public class SqlGraphQuery extends Filter {
         case IS:
         case IS_NOT:
           return createEqualsFilter(columnName, operator, values);
-        case LESS_THAN:
-          conditions.add(field.lessThan(values[i]));
-          break;
-        case LESS_THAN_EQUAL:
-          conditions.add(field.lessOrEqual(values[i]));
-          break;
-        case GREATER_THAN:
-          conditions.add(field.greaterThan(values[i]));
-          break;
-        case GREATER_THAN_EQUAL:
-          conditions.add(field.greaterOrEqual(values[i]));
-          break;
         case NOT_BETWEEN:
           not = true;
           if (i + 1 > values.length)
@@ -496,6 +496,8 @@ public class SqlGraphQuery extends Filter {
 
   public static class SelectColumn {
     private String column;
+    private int limit = 0;
+    private int offset = 0;
     private Map<String, SelectColumn> children = new LinkedHashMap<>();
 
     public SelectColumn(String column) {
@@ -530,6 +532,22 @@ public class SqlGraphQuery extends Filter {
 
     public Collection<String> getColumNames() {
       return children.keySet();
+    }
+
+    public void setLimit(int limit) {
+      this.limit = limit;
+    }
+
+    public void setOffset(int offset) {
+      this.offset = offset;
+    }
+
+    public int getLimit() {
+      return limit;
+    }
+
+    public int getOffset() {
+      return offset;
     }
   }
 }

@@ -9,8 +9,6 @@ import java.util.Map;
 public class Filter {
   private String field;
   private Map<Operator, Object[]> conditions = new LinkedHashMap<>();
-  private int limit = 0;
-  private int offset = 0;
   private Map<String, Filter> children = new LinkedHashMap<>();
 
   protected Filter(String field, Filter... children) {
@@ -41,7 +39,7 @@ public class Filter {
 
   public Filter similar(Object... values) {
     validate();
-    this.conditions.put(Operator.SIMILAR_TEXT, values);
+    this.conditions.put(Operator.TRIGRAM_MATCH, values);
     return this;
   }
 
@@ -67,29 +65,11 @@ public class Filter {
     return Collections.unmodifiableMap(conditions);
   }
 
-  public Filter offset(int offset) {
-    this.offset = offset;
-    return this;
-  }
-
-  public Filter limit(int limit) {
-    this.limit = limit;
-    return this;
-  }
-
   public Filter filter(Filter... filters) {
     for (Filter f : filters) {
       this.children.put(f.getField(), f);
     }
     return this;
-  }
-
-  protected int getLimit() {
-    return this.limit;
-  }
-
-  protected int getOffset() {
-    return this.offset;
   }
 
   protected boolean has(String columnName) {

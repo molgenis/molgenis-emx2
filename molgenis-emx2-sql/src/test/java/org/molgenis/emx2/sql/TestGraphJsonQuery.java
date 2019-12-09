@@ -94,9 +94,8 @@ public class TestGraphJsonQuery {
     StopWatch.print("complete");
 
     s.filter(
-            f("name").is("opa1"),
-            f("children", f("children", f("name").is("kind")), f("name").is("ma")).limit(1))
-        .limit(10);
+        f("name").is("opa1"),
+        f("children", f("children", f("name").is("kind")), f("name").is("ma")));
 
     System.out.println(s.retrieve());
 

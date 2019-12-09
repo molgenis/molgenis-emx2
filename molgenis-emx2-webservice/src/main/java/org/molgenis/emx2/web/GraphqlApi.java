@@ -28,6 +28,7 @@ import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.Filter.f;
 import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
 import static org.molgenis.emx2.web.JsonApi.schemaToJson;
@@ -43,14 +44,18 @@ class GraphqlApi {
   private static final String MEMBERS = "members";
   private static final String FILTER1 = "Filter";
   private static final String DETAIL = "detail";
+  private static final String ITEMS = "items";
+  private static final String COUNT = "count";
+  private static final String LIMIT = "limit";
+  private static final String OFFSET = "offset";
+  private static final String SEARCH = "search";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {
     // hide constructor
   }
 
-  static void createGraphQLSchema() {
-
+  static void createGraphQLservice() {
     // schema level operations
     final String schemaPath = "/api/graphql/:schema"; // NOSONAR
     get(schemaPath, GraphqlApi::getQuery);
@@ -109,16 +114,13 @@ class GraphqlApi {
   }
 
   static GraphQLSchema createGraphQLSchema(Schema model) {
-
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
-
     GraphQLObjectType mutationResultType = typeForMutationResult();
 
     // add meta query and mutation
     queryBuilder.field(
         newFieldDefinition().name("_meta").type(metaType()).dataFetcher(metaQueryFetcher(model)));
-
     mutationBuilder.field(
         newFieldDefinition()
             .name("alterMetadata")
@@ -129,56 +131,15 @@ class GraphqlApi {
     // add query and mutation for each table
     for (String tableName : model.getTableNames()) {
       Table table = model.getTable(tableName);
-      TableMetadata tableMetadata = table.getMetadata();
 
-      // add each table as a table type
-      GraphQLObjectType.Builder tableTypeBuilder = newObject().name(tableName);
-      for (Column col : tableMetadata.getColumns()) {
-        tableTypeBuilder.field(
-            newFieldDefinition().name(col.getColumnName()).type(typeForColumn(col)));
-      }
-      GraphQLObjectType tableType = tableTypeBuilder.build();
+      // create types
+      GraphQLObjectType tableType = tableObjectType(table);
+      GraphQLInputObjectType inputType = tableInputObjectType(table);
+      GraphQLObjectType connection = tableConnectionObjectType(tableName, tableType);
 
-      // add each table as input type
-      GraphQLInputObjectType.Builder inputBuilder = newInputObject().name(tableName + "Input");
-      for (Column col : tableMetadata.getColumns()) {
-        inputBuilder.field(
-            newInputObjectField().name(col.getColumnName()).type(typeForColumnInput(col)));
-      }
-      GraphQLInputObjectType inputType = inputBuilder.build();
-
-      // create connection type
-      GraphQLObjectType.Builder connectionBuilder = newObject().name(tableName + "Connection");
-      connectionBuilder.field(newFieldDefinition().name("count").type(Scalars.GraphQLInt));
-      // connectionBuilder.field(newFieldDefinition().name("meta").type(metadataType));
-      connectionBuilder.field(newFieldDefinition().name("items").type(GraphQLList.list(tableType)));
-      GraphQLObjectType connection = connectionBuilder.build();
-
-      // add as field to query
-      queryBuilder.field(
-          newFieldDefinition()
-              .name(tableMetadata.getTableName())
-              .type(connection)
-              .dataFetcher(tableQueryFetcher(table))
-              .argument(
-                  GraphQLArgument.newArgument()
-                      .name(FILTER)
-                      .type(tableQueryFilterType(tableMetadata))
-                      .build())
-              .argument(
-                  GraphQLArgument.newArgument()
-                      .name("search")
-                      .type(Scalars.GraphQLString)
-                      .build()));
-
-      // add 'save' and 'delecte' fields to mutation
-      mutationBuilder.field(
-          newFieldDefinition()
-              .name("save" + tableMetadata.getTableName())
-              .type(mutationResultType)
-              .dataFetcher(fetcherForSave(table))
-              .argument(
-                  GraphQLArgument.newArgument().name(INPUT).type(GraphQLList.list(inputType))));
+      // create query and mutation fields
+      queryBuilder.field(getTableQueryField(table, connection));
+      mutationBuilder.field(createTableMutationField(mutationResultType, table, inputType));
 
       //      newFieldDefinition()
       //          .name("delete" + tableMetadata.getTableName())
@@ -193,6 +154,61 @@ class GraphqlApi {
         .query(queryBuilder)
         .mutation(mutationBuilder)
         .build();
+  }
+
+  private static GraphQLFieldDefinition.Builder createTableMutationField(
+      GraphQLObjectType mutationResultType, Table table, GraphQLInputObjectType inputType) {
+    return newFieldDefinition()
+        .name("save" + table.getName())
+        .type(mutationResultType)
+        .dataFetcher(fetcherForSave(table))
+        .argument(GraphQLArgument.newArgument().name(INPUT).type(GraphQLList.list(inputType)));
+  }
+
+  private static GraphQLFieldDefinition.Builder getTableQueryField(
+      Table table, GraphQLObjectType connection) {
+    return newFieldDefinition()
+        .name(table.getName())
+        .type(connection)
+        .dataFetcher(tableQueryFetcher(table))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(FILTER)
+                .type(tableFilterInputObjectType(table.getMetadata()))
+                .build())
+        .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build());
+  }
+
+  private static GraphQLObjectType tableConnectionObjectType(
+      String tableName, GraphQLObjectType tableType) {
+    GraphQLObjectType.Builder connectionBuilder = newObject().name(tableName + "Connection");
+    connectionBuilder.field(newFieldDefinition().name(COUNT).type(Scalars.GraphQLInt));
+    // connectionBuilder.field(newFieldDefinition().name("meta").type(metadataType));
+    connectionBuilder.field(
+        newFieldDefinition()
+            .name(ITEMS)
+            .type(GraphQLList.list(tableType))
+            .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
+            .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build()));
+    return connectionBuilder.build();
+  }
+
+  private static GraphQLInputObjectType tableInputObjectType(Table table) {
+    GraphQLInputObjectType.Builder inputBuilder = newInputObject().name(table.getName() + "Input");
+    for (Column col : table.getMetadata().getColumns()) {
+      inputBuilder.field(
+          newInputObjectField().name(col.getColumnName()).type(typeForColumnInput(col)));
+    }
+    return inputBuilder.build();
+  }
+
+  private static GraphQLObjectType tableObjectType(Table table) {
+    GraphQLObjectType.Builder tableTypeBuilder = newObject().name(table.getName());
+    for (Column col : table.getMetadata().getColumns()) {
+      tableTypeBuilder.field(
+          newFieldDefinition().name(col.getColumnName()).type(typeForColumn(col)));
+    }
+    return tableTypeBuilder.build();
   }
 
   private static DataFetcher<?> metaMutationFetcher(Schema model) {
@@ -367,51 +383,49 @@ class GraphqlApi {
         .build();
   }
 
-  private static GraphQLInputObjectType tableQueryFilterType(TableMetadata table) {
+  private static GraphQLInputObjectType tableFilterInputObjectType(TableMetadata table) {
     GraphQLInputObjectType.Builder filterBuilder =
         newInputObject().name(table.getTableName() + FILTER1);
     for (Column col : table.getColumns()) {
-      filterBuilder.field(tableQueryFilterType(col));
+      if (REF.equals(col.getColumnType()) || REF_ARRAY.equals((col.getColumnType()))) {
+        filterBuilder.field(
+            newInputObjectField()
+                .name(col.getColumnName())
+                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER1))
+                .build());
+      } else {
+        filterBuilder.field(
+            newInputObjectField()
+                .name(col.getColumnName())
+                .type(columnFilterInputObjectType(col))
+                .build());
+      }
     }
     return filterBuilder.build();
   }
 
-  private static GraphQLInputObjectField tableQueryFilterType(Column col) {
-    switch (col.getColumnType()) {
-      case REF:
-      case REF_ARRAY:
-        return newInputObjectField()
-            .name(col.getColumnName())
-            .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER1))
-            .build();
-      default:
-        return newInputObjectField().name(col.getColumnName()).type(getFilterType(col)).build();
-    }
-  }
-
   private static Map<ColumnType, GraphQLInputObjectType> filterInputTypes = new LinkedHashMap<>();
 
-  private static GraphQLInputObjectType getFilterType(Column column) {
+  private static GraphQLInputObjectType columnFilterInputObjectType(Column column) {
     ColumnType type = column.getColumnType();
+    // singleton
     if (filterInputTypes.get(type) == null) {
       String typeName = type.toString().toLowerCase();
       typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
-      GraphQLScalarType columnType = getGraphQLType(type);
       GraphQLInputObjectType.Builder builder =
           newInputObject().name("Molgenis" + typeName + FILTER1);
       for (Operator operator : type.getOperators()) {
-        GraphQLInputType inputType = columnType;
-        if (operator.isMultivalue()) {
-          inputType = GraphQLList.list(columnType);
-        }
-        builder.field(newInputObjectField().name(operator.getAbbreviation()).type(inputType));
+        builder.field(
+            newInputObjectField()
+                .name(operator.getAbbreviation())
+                .type(GraphQLList.list(graphQLTypeOf(type))));
       }
       filterInputTypes.put(type, builder.build());
     }
     return filterInputTypes.get(type);
   }
 
-  private static GraphQLScalarType getGraphQLType(ColumnType type) {
+  private static GraphQLScalarType graphQLTypeOf(ColumnType type) {
     switch (type) {
       case BOOL:
       case BOOL_ARRAY:
@@ -507,11 +521,12 @@ class GraphqlApi {
       if (dataFetchingEnvironment.getArgument(FILTER) != null) {
         q.filter(createFilters(table, dataFetchingEnvironment.getArgument(FILTER)));
       }
-      String search = dataFetchingEnvironment.getArgument("search");
+      String search = dataFetchingEnvironment.getArgument(SEARCH);
       if (search != null) {
         // todo proper tokenizer
         q.search(search.split(" "));
       }
+
       return transform(q.retrieve());
     };
   }
@@ -538,14 +553,7 @@ class GraphqlApi {
             for (Map.Entry<String, Object> entry2 :
                 ((Map<String, Object>) entry.getValue()).entrySet()) {
               Operator op = Operator.fromAbbreviation(entry2.getKey());
-
-              if (op.isMultivalue()) {
-                // some operators are useful with multiple values separated by 'or'
-                f.add(op, ((ArrayList) entry2.getValue()).toArray());
-              } else {
-                // others, such as 'gt' are only useful with one value
-                f.add(op, entry2.getValue());
-              }
+              f.add(op, ((ArrayList) entry2.getValue()).toArray());
             }
             subFilters.add(f);
           } else {
@@ -574,8 +582,13 @@ class GraphqlApi {
     for (SelectedField s : selection.getFields()) {
       if (!s.getQualifiedName().contains("/")) {
         if (!s.getSelectionSet().getFields().isEmpty()) {
-          result.add(
-              new SqlGraphQuery.SelectColumn(s.getName(), createSelect(s.getSelectionSet())));
+          SqlGraphQuery.SelectColumn sc =
+              new SqlGraphQuery.SelectColumn(s.getName(), createSelect(s.getSelectionSet()));
+          // get limit and offset for the selection
+          Map<String, Object> args = s.getArguments();
+          if (args.containsKey(LIMIT)) sc.setLimit((int) args.get(LIMIT));
+          if (args.containsKey(OFFSET)) sc.setOffset((int) args.get(OFFSET));
+          result.add(sc);
         } else {
           result.add(new SqlGraphQuery.SelectColumn(s.getName()));
         }
