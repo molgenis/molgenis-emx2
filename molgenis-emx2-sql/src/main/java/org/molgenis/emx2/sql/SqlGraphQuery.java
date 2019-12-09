@@ -73,7 +73,7 @@ public class SqlGraphQuery extends Filter {
                   createSubselect(
                       table,
                       table.getTableName(),
-                      select.get(ITEMS_FIELD),
+                      select != null && select.has(ITEMS_FIELD) ? select.get(ITEMS_FIELD) : null,
                       this,
                       AGGREGATE_ITEM,
                       condition,
@@ -230,7 +230,7 @@ public class SqlGraphQuery extends Filter {
                   createSubselect(
                       getRefTable(column),
                       fromAlias,
-                      select.get(ITEMS_FIELD),
+                      select != null && select.has(ITEMS_FIELD) ? select.get(ITEMS_FIELD) : null,
                       filter,
                       AGGREGATE_ITEM,
                       condition,
