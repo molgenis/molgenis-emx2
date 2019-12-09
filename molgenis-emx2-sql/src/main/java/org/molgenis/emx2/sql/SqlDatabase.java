@@ -32,6 +32,7 @@ public class SqlDatabase implements Database {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
+    this.jooq.execute("CREATE EXTENSION pg_trgm");
   }
 
   @Override
