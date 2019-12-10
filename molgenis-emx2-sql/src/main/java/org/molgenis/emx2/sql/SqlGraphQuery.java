@@ -2,10 +2,8 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.*;
 import org.jooq.conf.ParamType;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Operator.IS;
 import static org.molgenis.emx2.Operator.IS_NOT;
+import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
@@ -289,17 +288,24 @@ public class SqlGraphQuery extends Filter {
     }
 
     // join the ref table
-    SelectLimitStep from =
+    SelectConditionStep<Record> from =
         fromTable
             .getJooq()
             .select(getFields(fromTable, fromAlias, select, filter))
             .from(getJooqTable(fromTable, fromAlias))
             .where(searchCondition);
 
-    // limit offset
+    // limit offset sortby
     if (limitOffset) {
-      from = (SelectLimitStep) from.offset(select.getOffset());
-      if (select.getLimit() > 0) from = (SelectLimitStep) from.limit(select.getLimit());
+      for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
+        if (ASC.equals(col.getValue())) {
+          from = (SelectConditionStep) from.orderBy(field(name(col.getKey())).asc());
+        } else {
+          from = (SelectConditionStep) from.orderBy(field(name(col.getKey())).desc());
+        }
+      }
+      if (select.getLimit() > 0) from = (SelectConditionStep) from.limit(select.getLimit());
+      if (select.getOffset() > 0) from = (SelectConditionStep) from.offset(select.getOffset());
     }
 
     // add user filters
@@ -499,6 +505,7 @@ public class SqlGraphQuery extends Filter {
     private int limit = 0;
     private int offset = 0;
     private Map<String, SelectColumn> children = new LinkedHashMap<>();
+    private Map<String, Order> orderBy = new LinkedHashMap<>();
 
     public SelectColumn(String column) {
       this.column = column;
@@ -548,6 +555,18 @@ public class SqlGraphQuery extends Filter {
 
     public int getOffset() {
       return offset;
+    }
+
+    public void orderBy(String column, Order order) {
+      this.orderBy.put(column, order);
+    }
+
+    public void setOrderBy(Map<String, Order> values) {
+      this.orderBy.putAll(values);
+    }
+
+    public Map<String, Order> getOrderBy() {
+      return orderBy;
     }
   }
 }

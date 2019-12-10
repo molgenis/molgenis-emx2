@@ -23,12 +23,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static graphql.schema.GraphQLEnumType.newEnum;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.Order.ASC;
+import static org.molgenis.emx2.Order.DESC;
 import static org.molgenis.emx2.sql.Filter.f;
 import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
 import static org.molgenis.emx2.web.JsonApi.schemaToJson;
@@ -49,6 +52,7 @@ class GraphqlApi {
   private static final String LIMIT = "limit";
   private static final String OFFSET = "offset";
   private static final String SEARCH = "search";
+  private static final String ORDERBY = "orderby";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {
@@ -135,7 +139,7 @@ class GraphqlApi {
       // create types
       GraphQLObjectType tableType = tableObjectType(table);
       GraphQLInputObjectType inputType = tableInputObjectType(table);
-      GraphQLObjectType connection = tableConnectionObjectType(tableName, tableType);
+      GraphQLObjectType connection = tableConnectionObjectType(table, tableType);
 
       // create query and mutation fields
       queryBuilder.field(getTableQueryField(table, connection));
@@ -180,8 +184,8 @@ class GraphqlApi {
   }
 
   private static GraphQLObjectType tableConnectionObjectType(
-      String tableName, GraphQLObjectType tableType) {
-    GraphQLObjectType.Builder connectionBuilder = newObject().name(tableName + "Connection");
+      Table table, GraphQLObjectType tableType) {
+    GraphQLObjectType.Builder connectionBuilder = newObject().name(table.getName() + "Connection");
     connectionBuilder.field(newFieldDefinition().name(COUNT).type(Scalars.GraphQLInt));
     // connectionBuilder.field(newFieldDefinition().name("meta").type(metadataType));
     connectionBuilder.field(
@@ -189,7 +193,12 @@ class GraphqlApi {
             .name(ITEMS)
             .type(GraphQLList.list(tableType))
             .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
-            .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build()));
+            .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
+            .argument(
+                GraphQLArgument.newArgument()
+                    .name(ORDERBY)
+                    .type(tableOrderByInputObjectType(table))
+                    .build()));
     return connectionBuilder.build();
   }
 
@@ -404,6 +413,20 @@ class GraphqlApi {
     return filterBuilder.build();
   }
 
+  public static GraphQLEnumType orderByEnum =
+      newEnum().name("MolgenisOrderByEnum").value(ASC.name(), ASC).value(DESC.name(), DESC).build();
+
+  private static GraphQLInputObjectType tableOrderByInputObjectType(Table table) {
+    GraphQLInputObjectType.Builder orderByBuilder =
+        newInputObject().name(table.getName() + ORDERBY);
+    for (Column col : table.getMetadata().getColumns()) {
+      if (!REF_ARRAY.equals((col.getColumnType()))) {
+        orderByBuilder.field(newInputObjectField().name(col.getColumnName()).type(orderByEnum));
+      }
+    }
+    return orderByBuilder.build();
+  }
+
   private static Map<ColumnType, GraphQLInputObjectType> filterInputTypes = new LinkedHashMap<>();
 
   private static GraphQLInputObjectType columnFilterInputObjectType(Column column) {
@@ -586,8 +609,15 @@ class GraphqlApi {
               new SqlGraphQuery.SelectColumn(s.getName(), createSelect(s.getSelectionSet()));
           // get limit and offset for the selection
           Map<String, Object> args = s.getArguments();
-          if (args.containsKey(LIMIT)) sc.setLimit((int) args.get(LIMIT));
-          if (args.containsKey(OFFSET)) sc.setOffset((int) args.get(OFFSET));
+          if (args.containsKey(LIMIT)) {
+            sc.setLimit((int) args.get(LIMIT));
+          }
+          if (args.containsKey(OFFSET)) {
+            sc.setOffset((int) args.get(OFFSET));
+          }
+          if (args.containsKey(ORDERBY)) {
+            sc.setOrderBy((Map<String, Order>) args.get(ORDERBY));
+          }
           result.add(sc);
         } else {
           result.add(new SqlGraphQuery.SelectColumn(s.getName()));
