@@ -420,7 +420,7 @@ public class SqlGraphQuery extends Filter {
           conditions.add(
               condition(
                   "to_tsquery({0}) @@ to_tsvector({1})",
-                  value.trim().replace("s+", " & "), name(columnName)));
+                  value.trim().replaceAll("\\s+", ":* & ") + ":*", name(columnName)));
           break;
         default:
           throw new SqlGraphQueryException(

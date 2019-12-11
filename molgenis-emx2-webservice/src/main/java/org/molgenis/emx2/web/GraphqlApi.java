@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.ExecutionResult;
@@ -18,10 +19,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static graphql.schema.GraphQLEnumType.newEnum;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
@@ -55,6 +53,15 @@ class GraphqlApi {
   private static final String ORDERBY = "orderby";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
+  /** standard result type for mutations */
+  static GraphQLObjectType typeForMutationResult =
+      newObject()
+          .name("MolgenisMessage")
+          .field(newFieldDefinition().name("type").type(Scalars.GraphQLString).build())
+          .field(newFieldDefinition().name("title").type(Scalars.GraphQLString).build())
+          .field(newFieldDefinition().name(DETAIL).type(Scalars.GraphQLString).build())
+          .build();
+
   private GraphqlApi() {
     // hide constructor
   }
@@ -62,9 +69,23 @@ class GraphqlApi {
   static void createGraphQLservice() {
     // schema level operations
     final String schemaPath = "/api/graphql/:schema"; // NOSONAR
+
+    // per schema grapql
     get(schemaPath, GraphqlApi::getQuery);
     post(schemaPath, GraphqlApi::getQuery);
+
+    // small overall graphql
+    get("/api/graphql", GraphqlApi::getBaseQuery);
+    post("/api/graphql", GraphqlApi::getBaseQuery);
   }
+
+  private static String getBaseQuery(Request request, Response response) throws IOException {
+    Database database = MolgenisWebservice.getAuthenticatedDatabase(request);
+    return new GraphqlApiForDatabase(database).execute(getQueryFromRequest(request));
+  }
+
+  private static final String NAME = "name";
+  // base schema is always the same. Crazy code but seems best way to do this code first
 
   private static String getQuery(Request request, Response response) throws IOException {
 
@@ -82,6 +103,36 @@ class GraphqlApi {
     start = System.currentTimeMillis();
 
     // tests show overhead of this step is about 1ms (jooq takes the rest)
+    return executeQuery(g, getQueryFromRequest(request));
+  }
+
+  private static String executeQuery(GraphQL g, String query) throws JsonProcessingException {
+    long start = System.currentTimeMillis();
+
+    if (logger.isInfoEnabled())
+      logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+
+    // tests show overhead of this step is about 20ms (jooq takes the rest)
+    ExecutionResult executionResult = g.execute(query);
+    for (GraphQLError err : executionResult.getErrors()) {
+      logger.error(err.toString());
+    }
+    String result = convertExecutionResultToJson(executionResult);
+
+    if (logger.isInfoEnabled())
+      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+
+    return result;
+  }
+
+  static String convertExecutionResultToJson(ExecutionResult executionResult)
+      throws JsonProcessingException {
+    // tests show conversions below is under 3ms
+    Map<String, Object> toSpecificationResult = executionResult.toSpecification();
+    return JsonApi.getWriter().writeValueAsString(toSpecificationResult);
+  }
+
+  private static String getQueryFromRequest(Request request) throws IOException {
     String query = null;
     if ("POST".equals(request.requestMethod())) {
       ObjectNode node = new ObjectMapper().readValue(request.body(), ObjectNode.class);
@@ -98,33 +149,17 @@ class GraphqlApi {
                   + "  }\n"
                   + "}");
     }
-    if (logger.isInfoEnabled())
-      logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
-
-    // tests show overhead of this step is about 20ms (jooq takes the rest)
-    ExecutionResult executionResult = g.execute(query);
-    for (GraphQLError err : executionResult.getErrors()) {
-      logger.error(err.toString());
-    }
-
-    // tests show conversions below is under 3ms
-    Map<String, Object> toSpecificationResult = executionResult.toSpecification();
-    String result = JsonApi.getWriter().writeValueAsString(toSpecificationResult);
-
-    if (logger.isInfoEnabled())
-      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
-
-    return result;
+    return query;
   }
 
   static GraphQLSchema createGraphQLSchema(Schema model) {
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
-    GraphQLObjectType mutationResultType = typeForMutationResult();
+    GraphQLObjectType mutationResultType = typeForMutationResult;
 
     // add meta query and mutation
     queryBuilder.field(
-        newFieldDefinition().name("_meta").type(metaType()).dataFetcher(metaQueryFetcher(model)));
+        newFieldDefinition().name("_meta").type(metaType).dataFetcher(metaQueryFetcher(model)));
     mutationBuilder.field(
         newFieldDefinition()
             .name("alterMetadata")
@@ -272,56 +307,50 @@ class GraphqlApi {
     }
   }
 
-  private static GraphQLObjectType metaType() {
-    GraphQLObjectType.Builder metaBuilder = new GraphQLObjectType.Builder();
-    metaBuilder.name("MolgenisMetaType");
-    metaBuilder.field(newFieldDefinition().name(TABLES).type(GraphQLList.list(metaTablesType())));
-    metaBuilder.field(newFieldDefinition().name(MEMBERS).type(GraphQLList.list(metaMembersType())));
-    metaBuilder.field(newFieldDefinition().name("roles").type(GraphQLList.list(metaRolesType())));
-    return metaBuilder.build();
-  }
+  // metadataType
+  private static GraphQLType metaRolesType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisRolesType")
+          .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .build();
 
-  private static GraphQLType metaRolesType() {
-    GraphQLObjectType.Builder rolesTypeBuilder = new GraphQLObjectType.Builder();
-    rolesTypeBuilder.name("MolgenisRolesType");
-    rolesTypeBuilder.field(newFieldDefinition().name("name").type(Scalars.GraphQLString));
-    return rolesTypeBuilder.build();
-  }
+  private static GraphQLType metaMembersType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisMembersType")
+          .field(newFieldDefinition().name("user").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("role").type(Scalars.GraphQLString))
+          .build();
 
-  private static GraphQLType metaMembersType() {
-    GraphQLObjectType.Builder membersTypeBuilder = new GraphQLObjectType.Builder();
-    membersTypeBuilder.name("MolgenisMembersType");
-    membersTypeBuilder.field(newFieldDefinition().name("user").type(Scalars.GraphQLString));
-    membersTypeBuilder.field(newFieldDefinition().name("role").type(Scalars.GraphQLString));
-    return membersTypeBuilder.build();
-  }
+  private static GraphQLObjectType columnMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisColumnType")
+          .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("columnType").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("pkey").type(Scalars.GraphQLBoolean))
+          .field(newFieldDefinition().name("nullable").type(Scalars.GraphQLBoolean))
+          .field(newFieldDefinition().name("refTableName").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("refColumnName").type(Scalars.GraphQLString))
+          .build();
 
-  private static GraphQLObjectType metaTablesType() {
+  private static GraphQLObjectType tableMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisTableType")
+          .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("pkey").type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              newFieldDefinition()
+                  .name("unique")
+                  .type(GraphQLList.list(GraphQLList.list(Scalars.GraphQLString))))
+          .field(newFieldDefinition().name("columns").type(GraphQLList.list(columnMetadataType)))
+          .build();
 
-    GraphQLObjectType.Builder columnTypeBuilder = new GraphQLObjectType.Builder();
-    columnTypeBuilder.name("MolgenisColumnType");
-    columnTypeBuilder.field(newFieldDefinition().name("name").type(Scalars.GraphQLString));
-    columnTypeBuilder.field(newFieldDefinition().name("columnType").type(Scalars.GraphQLString));
-    columnTypeBuilder.field(newFieldDefinition().name("pkey").type(Scalars.GraphQLBoolean));
-    columnTypeBuilder.field(newFieldDefinition().name("nullable").type(Scalars.GraphQLBoolean));
-    columnTypeBuilder.field(newFieldDefinition().name("refTableName").type(Scalars.GraphQLString));
-    columnTypeBuilder.field(newFieldDefinition().name("refColumnName").type(Scalars.GraphQLString));
-
-    GraphQLObjectType.Builder tableTypeBuilder = new GraphQLObjectType.Builder();
-    tableTypeBuilder.name("MolgenisTableType");
-    tableTypeBuilder.field(newFieldDefinition().name("name").type(Scalars.GraphQLString));
-    tableTypeBuilder.field(
-        newFieldDefinition().name("pkey").type(GraphQLList.list(Scalars.GraphQLString)));
-    tableTypeBuilder.field(
-        newFieldDefinition()
-            .name("unique")
-            .type(GraphQLList.list(GraphQLList.list(Scalars.GraphQLString))));
-
-    tableTypeBuilder.field(
-        newFieldDefinition().name("columns").type(GraphQLList.list(columnTypeBuilder.build())));
-
-    return tableTypeBuilder.build();
-  }
+  private static GraphQLObjectType metaType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisMetaType")
+          .field(newFieldDefinition().name(TABLES).type(GraphQLList.list(tableMetadataType)))
+          .field(newFieldDefinition().name(MEMBERS).type(GraphQLList.list(metaMembersType)))
+          .field(newFieldDefinition().name("roles").type(GraphQLList.list(metaRolesType)))
+          .build();
 
   private static GraphQLInputObjectType metaInput() {
     GraphQLInputObjectType.Builder metaBuilder = new GraphQLInputObjectType.Builder();
@@ -344,7 +373,7 @@ class GraphqlApi {
     // todo: is there a way to use same type between input and query?
     GraphQLInputObjectType.Builder columnTypeBuilder = new GraphQLInputObjectType.Builder();
     columnTypeBuilder.name("MolgenisColumnInput");
-    columnTypeBuilder.field(newInputObjectField().name("name").type(Scalars.GraphQLString));
+    columnTypeBuilder.field(newInputObjectField().name(NAME).type(Scalars.GraphQLString));
     columnTypeBuilder.field(newInputObjectField().name("columnType").type(Scalars.GraphQLString));
     columnTypeBuilder.field(newInputObjectField().name("pkey").type(Scalars.GraphQLBoolean));
     columnTypeBuilder.field(newInputObjectField().name("nullable").type(Scalars.GraphQLBoolean));
@@ -354,7 +383,7 @@ class GraphqlApi {
 
     GraphQLInputObjectType.Builder tableTypeBuilder = new GraphQLInputObjectType.Builder();
     tableTypeBuilder.name("MolgenisTableInput");
-    tableTypeBuilder.field(newInputObjectField().name("name").type(Scalars.GraphQLString));
+    tableTypeBuilder.field(newInputObjectField().name(NAME).type(Scalars.GraphQLString));
     tableTypeBuilder.field(
         newInputObjectField().name("pkey").type(GraphQLList.list(Scalars.GraphQLString)));
     tableTypeBuilder.field(
@@ -383,15 +412,6 @@ class GraphqlApi {
     }
   }
 
-  private static GraphQLObjectType typeForMutationResult() {
-    return newObject()
-        .name("MolgenisMessage")
-        .field(newFieldDefinition().name("type").type(Scalars.GraphQLString).build())
-        .field(newFieldDefinition().name("title").type(Scalars.GraphQLString).build())
-        .field(newFieldDefinition().name(DETAIL).type(Scalars.GraphQLString).build())
-        .build();
-  }
-
   private static GraphQLInputObjectType tableFilterInputObjectType(TableMetadata table) {
     GraphQLInputObjectType.Builder filterBuilder =
         newInputObject().name(table.getTableName() + FILTER1);
@@ -413,7 +433,7 @@ class GraphqlApi {
     return filterBuilder.build();
   }
 
-  public static GraphQLEnumType orderByEnum =
+  private static final GraphQLEnumType orderByEnum =
       newEnum().name("MolgenisOrderByEnum").value(ASC.name(), ASC).value(DESC.name(), DESC).build();
 
   private static GraphQLInputObjectType tableOrderByInputObjectType(Table table) {
@@ -528,7 +548,7 @@ class GraphqlApi {
       // add roles
       List<Map<String, String>> roles = new ArrayList<>();
       for (String role : schema.getRoles()) {
-        roles.add(Map.of("name", role));
+        roles.add(Map.of(NAME, role));
       }
       result.put("roles", roles);
 
@@ -576,7 +596,11 @@ class GraphqlApi {
             for (Map.Entry<String, Object> entry2 :
                 ((Map<String, Object>) entry.getValue()).entrySet()) {
               Operator op = Operator.fromAbbreviation(entry2.getKey());
-              f.add(op, ((ArrayList) entry2.getValue()).toArray());
+              if (entry2.getValue() instanceof List) {
+                f.add(op, (List) entry2.getValue());
+              } else {
+                f.add(op, entry2.getValue());
+              }
             }
             subFilters.add(f);
           } else {

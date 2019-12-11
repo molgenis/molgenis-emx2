@@ -39,11 +39,13 @@ public class MolgenisWebservice {
     dataSource = ds;
     port(8080);
 
+    staticFiles.location("/public_html");
+
     // root
     get(
         "/",
         (request, response) ->
-            "Welcome to MOLGENIS EMX2 POC.<br/> Data api available under <a href=\"/data\">/data</a><br/>API documentation under <a href=\"/openapi\">/openapi</a>");
+            "Welcome to MOLGENIS EMX2 POC.<br/>" + listSchemas(request, response));
 
     JsonApi.create();
     CsvApi.create();
@@ -55,7 +57,7 @@ public class MolgenisWebservice {
     // schema members operations
 
     // documentation operations
-    get("/openapi", ACCEPT_JSON, MolgenisWebservice::openApiListSchemas);
+    get("/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
     get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);
     get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
@@ -78,11 +80,17 @@ public class MolgenisWebservice {
         });
   }
 
-  private static String openApiListSchemas(Request request, Response response) {
+  private static String listSchemas(Request request, Response response) {
     StringBuilder result = new StringBuilder();
+    result.append("Schemas available:<ul>");
     for (String name : getAuthenticatedDatabase(request).getSchemaNames()) {
-      result.append("<a href=\"" + request.url() + "/" + name + "\">" + name + "</a><br/>");
+      result.append("<li>" + name);
+      result.append(" <a href=\"openapi/" + name + "\">openapi</a>");
+      result.append(" <a href=\"graphiql.html?schema=" + name + "\">graphiql</a>");
+      result.append(" <a href=\"playground.html?schema=" + name + "\">gl_playground</a>");
+      result.append("</li>");
     }
+    result.append("</ul>");
     return result.toString();
   }
 

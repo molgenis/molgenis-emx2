@@ -4,6 +4,7 @@ import org.molgenis.emx2.Operator;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Filter {
@@ -78,5 +79,13 @@ public class Filter {
 
   public void add(Operator operator, Object... values) {
     this.conditions.put(operator, values);
+  }
+
+  public void add(Operator operator, List<?> values) {
+    this.conditions.put(operator, values.toArray());
+  }
+
+  public void add(Operator operator, Object values) {
+    this.conditions.put(operator, new Object[] {values});
   }
 }
