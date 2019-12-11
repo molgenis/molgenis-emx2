@@ -77,18 +77,18 @@ public class GraphqlMetadataApi {
           .build();
 
   // medatadata
-  private static GraphQLType outputRolesMetadataType =
+  private static final GraphQLType outputRolesMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .build();
-  private static GraphQLType outputMembersMetadataType =
+  private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
           .field(newFieldDefinition().name("user").type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("role").type(Scalars.GraphQLString))
           .build();
-  private static GraphQLObjectType outputColumnMetadataType =
+  private static final GraphQLObjectType outputColumnMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
@@ -98,7 +98,7 @@ public class GraphqlMetadataApi {
           .field(newFieldDefinition().name("refTableName").type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("refColumnName").type(Scalars.GraphQLString))
           .build();
-  private static GraphQLObjectType outputTableMetadataType =
+  private static final GraphQLObjectType outputTableMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisTableType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
@@ -111,7 +111,7 @@ public class GraphqlMetadataApi {
               newFieldDefinition().name("columns").type(GraphQLList.list(outputColumnMetadataType)))
           .build();
 
-  public static GraphQLObjectType outputMetadataType =
+  public static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMetaType")
           .field(newFieldDefinition().name(TABLES).type(GraphQLList.list(outputTableMetadataType)))

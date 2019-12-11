@@ -181,6 +181,7 @@ public class SqlGraphQuery extends Filter {
         switch (column.getColumnType()) {
           case REF:
             SelectColumn subselect = getColumSelect(select, column);
+            if (subselect == null) subselect = new SelectColumn(column.getColumnName());
             if (!subselect.has(column.getRefColumnName())) {
               subselect.select(column.getRefColumnName());
             }
@@ -233,12 +234,13 @@ public class SqlGraphQuery extends Filter {
         (select != null && select.has(ITEMS_FIELD)
             ? select.get(ITEMS_FIELD)
             : new SelectColumn(column.getColumnName()));
+
     if (!subselect.has(column.getRefColumnName())) {
       subselect.select(column.getRefColumnName());
     }
 
     // create subselect
-    if (filter != null || select.has(ITEMS_FIELD)) {
+    if (filter != null || (select != null && select.has(ITEMS_FIELD))) {
       // make sure the link field is there
       fields.add(
           field(
