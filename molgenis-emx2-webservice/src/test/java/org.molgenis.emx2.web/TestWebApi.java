@@ -62,7 +62,7 @@ public class TestWebApi {
   public void testMembership() {
     String path = "/api/members/pet store";
     List members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(1, members.size());
+    assertEquals(2, members.size());
 
     String bofke = "[{\"user\":\"bofke\",\"role\":\"Editor\"}]";
 
@@ -76,7 +76,7 @@ public class TestWebApi {
             .asString();
 
     members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(2, members.size());
+    assertEquals(3, members.size());
 
     // update bofke membership
     result =
@@ -118,7 +118,7 @@ public class TestWebApi {
         .delete(path)
         .asString();
     members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(1, members.size());
+    assertEquals(2, members.size());
   }
 
   @Test
