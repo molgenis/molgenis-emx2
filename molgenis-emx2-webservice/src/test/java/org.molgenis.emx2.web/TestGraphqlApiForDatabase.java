@@ -32,23 +32,21 @@ public class TestGraphqlApiForDatabase {
 
     // list
     Map<String, Object> result = api.execute("{Schemas{name}}").toSpecification();
-    assertEquals(schemaName, name(result, 0));
+    int length = length(result);
 
     // create
     api.execute("mutation{createSchema(name:\"" + schemaName + "B\"){detail}}");
 
     // check listing again
     result = api.execute("{Schemas{name}}").toSpecification();
-    assertEquals(2, length(result));
-    assertEquals(schemaName + "B", name(result, 1));
+    assertEquals(length + 1, length(result));
 
     // remove
     api.execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){detail}}");
 
     // check listing again
     result = api.execute("{Schemas{name}}").toSpecification();
-    assertEquals(1, length(result));
-    assertEquals(schemaName, name(result, 0));
+    assertEquals(length, length(result));
   }
 
   private int length(Map<String, Object> result) {

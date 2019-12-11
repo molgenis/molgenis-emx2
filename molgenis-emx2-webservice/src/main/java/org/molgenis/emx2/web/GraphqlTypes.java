@@ -7,11 +7,8 @@ import org.molgenis.emx2.ColumnType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static graphql.schema.GraphQLEnumType.newEnum;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.Order.DESC;
 
 public class GraphqlTypes {
   static final String NAME = "name";
