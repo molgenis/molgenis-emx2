@@ -180,12 +180,16 @@ public class SqlGraphQuery extends Filter {
       if (isSelected(column, select, filter)) {
         switch (column.getColumnType()) {
           case REF:
+            SelectColumn subselect = getColumSelect(select, column);
+            if (!subselect.has(column.getRefColumnName())) {
+              subselect.select(column.getRefColumnName());
+            }
             fields.add(
                 field(
                         createSubselect(
                             getRefTable(column),
                             tableAlias + "/" + column.getColumnName(),
-                            getColumSelect(select, column),
+                            subselect,
                             getColumnFilter(filter, column),
                             "row_to_json(item)",
                             field(name(column.getRefColumnName()))
@@ -196,14 +200,16 @@ public class SqlGraphQuery extends Filter {
           case REF_ARRAY:
             fields.add(
                 createRefArrayColumnSubselect(
-                    column,
-                    tableAlias,
-                    getColumSelect(select, column),
-                    getColumnFilter(filter, column)));
+                        column,
+                        tableAlias,
+                        getColumSelect(select, column),
+                        getColumnFilter(filter, column))
+                    .as(column.getColumnName()));
             break;
           default:
             fields.add(
-                field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column)));
+                field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
+                    .as(column.getColumnName()));
         }
       }
     }
@@ -222,14 +228,24 @@ public class SqlGraphQuery extends Filter {
             field(name(parentAlias, column.getColumnName())));
     String fromAlias = parentAlias + "/" + column.getColumnName();
 
-    // create subselect for the items
+    // subselection should at least contain the reffed column for joining
+    SelectColumn subselect =
+        (select != null && select.has(ITEMS_FIELD)
+            ? select.get(ITEMS_FIELD)
+            : new SelectColumn(column.getColumnName()));
+    if (!subselect.has(column.getRefColumnName())) {
+      subselect.select(column.getRefColumnName());
+    }
+
+    // create subselect
     if (filter != null || select.has(ITEMS_FIELD)) {
+      // make sure the link field is there
       fields.add(
           field(
                   createSubselect(
                       getRefTable(column),
                       fromAlias,
-                      select != null && select.has(ITEMS_FIELD) ? select.get(ITEMS_FIELD) : null,
+                      subselect,
                       filter,
                       AGGREGATE_ITEM,
                       condition,
@@ -265,11 +281,6 @@ public class SqlGraphQuery extends Filter {
       String aggregationFunction,
       Condition condition,
       boolean limitOffset) {
-
-    // if none selected, we use primary key to ensure we have unique records
-    if (select == null || select.getColumNames().isEmpty()) {
-      select = new SelectColumn(null, fromTable.getPrimaryKey());
-    }
 
     // add search filters, only for 'root' query
     Condition searchCondition = null;
@@ -567,6 +578,10 @@ public class SqlGraphQuery extends Filter {
 
     public Map<String, Order> getOrderBy() {
       return orderBy;
+    }
+
+    public void select(String columnName) {
+      this.children.put(columnName, s(columnName));
     }
   }
 }

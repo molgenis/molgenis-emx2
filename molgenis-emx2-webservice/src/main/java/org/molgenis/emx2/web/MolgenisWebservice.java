@@ -82,12 +82,17 @@ public class MolgenisWebservice {
 
   private static String listSchemas(Request request, Response response) {
     StringBuilder result = new StringBuilder();
-    result.append("Schemas available:<ul>");
+    result.append("Schema independent API:");
+    result.append(" <a href=\"graphiql.html?schema=/api/graphql\">graphiql</a>");
+    result.append(" <a href=\"playground.html?schema=/api/graphql\">gl_playground</a>");
+
+    result.append("<p/>Schema APIs:<ul>");
     for (String name : getAuthenticatedDatabase(request).getSchemaNames()) {
       result.append("<li>" + name);
       result.append(" <a href=\"openapi/" + name + "\">openapi</a>");
-      result.append(" <a href=\"graphiql.html?schema=" + name + "\">graphiql</a>");
-      result.append(" <a href=\"playground.html?schema=" + name + "\">gl_playground</a>");
+      result.append(" <a href=\"graphiql.html?schema=/api/graphql/" + name + "\">graphiql</a>");
+      result.append(
+          " <a href=\"playground.html?schema=/api/graphql/" + name + "\">gl_playground</a>");
       result.append("</li>");
     }
     result.append("</ul>");
@@ -110,10 +115,14 @@ public class MolgenisWebservice {
 
   static synchronized Database getAuthenticatedDatabase(Request request) {
     final String token =
-        request.headers(MOLGENIS_TOKEN) == null ? "anonymous" : request.headers(MOLGENIS_TOKEN);
+        request.headers(MOLGENIS_TOKEN) == null && request.session().attribute("username") == null
+            ? "anonymous"
+            : request.headers(MOLGENIS_TOKEN) == null
+                ? request.session().attribute("username")
+                : request.headers(MOLGENIS_TOKEN);
 
     // we keep a cache of Database instance for each user on this server
-    // they share the connection pool
+    // they share the connection poolrequest.session().attribute("username")
 
     // todo remove these after a while!!!!
 
@@ -122,7 +131,7 @@ public class MolgenisWebservice {
         t -> {
           SqlDatabase database;
           database = new SqlDatabase(dataSource);
-          // database.setActiveUser(token);
+          database.setActiveUser(token);
           return database;
         });
   }

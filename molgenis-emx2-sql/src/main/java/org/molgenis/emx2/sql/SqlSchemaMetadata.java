@@ -6,6 +6,8 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
@@ -14,6 +16,7 @@ import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private SqlDatabase db;
+  private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(name);
@@ -42,6 +45,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   void createSchema() {
+    long start = System.currentTimeMillis();
     String schemaName = getName();
 
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schemaName)) {
@@ -81,6 +85,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       //            .execute("GRANT {0} TO {1}", name(owner), name(MG_USER_PREFIX +
       // db.getActiveUser()));
       //      }
+      log(start, "created");
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);
     }
@@ -123,5 +128,19 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   protected DSLContext getJooq() {
     return db.getJooq();
+  }
+
+  private void log(long start, String message) {
+    String user = db.getActiveUser();
+    if (user == null) user = "molgenis";
+    logger.info(
+        user
+            + " "
+            + message
+            + " "
+            + getName()
+            + " in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
   }
 }

@@ -12,9 +12,17 @@ public class MolgenisException extends RuntimeException {
 
   private final List<MolgenisExceptionMessage> messages = new ArrayList<>();
 
-  public MolgenisException(Exception e) {
+  public MolgenisException(Exception cause) {
+    super(cause);
+    this.title = getClass().getSimpleName();
+    this.type = getClass().getSimpleName();
+    this.detail = cause.getMessage();
+  }
 
-    this(null, null, e.getClass().getSimpleName() + ": " + e.getMessage(), e);
+  public MolgenisException(String message) {
+    this.title = getClass().getSimpleName();
+    this.type = getClass().getSimpleName();
+    this.detail = message;
   }
 
   public MolgenisException(String type, String title, String detail, Exception cause) {

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -14,8 +14,7 @@ import java.util.Map;
 
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.web.GraphqlApi.convertExecutionResultToJson;
-import static org.molgenis.emx2.web.GraphqlApi.typeForMutationResult;
+import static org.molgenis.emx2.web.GraphqlTypes.typeForMutationResult;
 
 public class GraphqlApiForDatabase {
 
@@ -26,8 +25,8 @@ public class GraphqlApiForDatabase {
     this.database = database;
   }
 
-  public String execute(String query) throws JsonProcessingException {
-    return convertExecutionResultToJson(baseSchema.execute(query));
+  public ExecutionResult execute(String query) {
+    return baseSchema.execute(query);
   }
 
   // crazy code, but it seems to be meant like this :-)
@@ -63,7 +62,7 @@ public class GraphqlApiForDatabase {
                           .name("Mutation")
                           .field(
                               newFieldDefinition()
-                                  .name("addSchema")
+                                  .name("createSchema")
                                   .type(typeForMutationResult)
                                   .argument(
                                       GraphQLArgument.newArgument()

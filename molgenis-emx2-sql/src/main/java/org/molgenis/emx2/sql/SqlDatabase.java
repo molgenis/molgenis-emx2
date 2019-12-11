@@ -7,6 +7,8 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Transaction;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -26,13 +28,19 @@ public class SqlDatabase implements Database {
   private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
   private boolean inTx;
+  private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
 
   public SqlDatabase(DataSource source) {
     this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
+
+    // setup
     this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm");
+    if (!hasUser("anonymous")) {
+      this.addUser("anonymous");
+    }
   }
 
   @Override
@@ -67,11 +75,13 @@ public class SqlDatabase implements Database {
 
   @Override
   public void dropSchema(String name) {
+    long start = System.currentTimeMillis();
     try {
       SchemaMetadata schema = getSchema(name).getMetadata();
       getJooq().dropSchema(name(name)).cascade().execute();
       MetadataUtils.deleteSchema((SqlSchemaMetadata) schema);
       schemas.remove(name);
+      logger.info("dropped schema " + name);
     } catch (MolgenisException me) {
       throw new MolgenisException("drop_schema_failed", "Drop schema failed", me.getDetail());
     } catch (DataAccessException dae) {
@@ -94,6 +104,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public void addUser(String user) {
+    long start = System.currentTimeMillis();
     String userName = MG_USER_PREFIX + user;
     try {
       tx(
@@ -102,6 +113,7 @@ public class SqlDatabase implements Database {
                 jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
             if (result.isEmpty()) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
           });
+      logger.info("created user " + user);
     } catch (DataAccessException dae) {
       throw new MolgenisException(dae);
     }
@@ -127,6 +139,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public void removeUser(String user) {
+    long start = System.currentTimeMillis();
     if (!hasUser(user))
       throw new MolgenisException(
           "remove_user_failed",
@@ -134,6 +147,7 @@ public class SqlDatabase implements Database {
           "User with name '" + user + "' doesn't exist");
     String userName = MG_USER_PREFIX + user;
     jooq.execute("DROP ROLE {0}", name(userName));
+    logger.info("removed user " + user);
   }
 
   @Override
@@ -222,6 +236,7 @@ public class SqlDatabase implements Database {
   }
 
   public void createRole(String role) {
+    long start = System.currentTimeMillis();
     jooq.execute(
         "DO $$\n"
             + "BEGIN\n"
@@ -231,5 +246,6 @@ public class SqlDatabase implements Database {
             + "END\n"
             + "$$;\n",
         inline(role), name(role));
+    logger.info("created role " + role);
   }
 }

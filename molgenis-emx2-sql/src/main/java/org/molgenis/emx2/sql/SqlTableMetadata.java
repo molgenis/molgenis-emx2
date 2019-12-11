@@ -78,7 +78,7 @@ class SqlTableMetadata extends TableMetadata {
 
           enableSearch();
         });
-    log(start, "created table");
+    log(start, "created");
   }
 
   private String getRolePrefix() {

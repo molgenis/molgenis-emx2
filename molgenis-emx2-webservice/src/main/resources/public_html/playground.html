@@ -54,7 +54,8 @@
     var url = new URL(url_string);
     var schemaName = url.searchParams.get("schema");
     GraphQLPlayground.init(document.getElementById('root'), {
-        endpoint: 'api/graphql/' + schemaName
+        endpoint: schemaName,
+        settings: {'schema.polling.enable': false, 'request.credentials': 'same-origin'}
         // options as 'endpoint' belong here
     })
 })</script>

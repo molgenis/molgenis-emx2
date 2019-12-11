@@ -2,9 +2,7 @@ package org.molgenis.emx2.examples;
 
 import org.molgenis.emx2.*;
 
-import static org.molgenis.emx2.ColumnType.BOOL;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class PetStoreExample {
 
@@ -34,6 +32,7 @@ public class PetStoreExample {
 
     TableMetadata tagTable = schema.createTable(TAG);
     tagTable.addColumn(NAME).setPrimaryKey(true);
+    tagTable.addColumn("description", TEXT);
 
     TableMetadata petTable = schema.createTable(PET);
     petTable.addColumn(NAME).setPrimaryKey(true);
@@ -52,8 +51,15 @@ public class PetStoreExample {
 
   public static void populate(Schema schema) {
 
+    // initual user
+    schema.addMember("shopmanager", "Manager");
+
     schema.getTable(CATEGORY).insert(new Row().set(NAME, "cat"), new Row().set(NAME, "dog"));
-    schema.getTable(TAG).insert(new Row().set(NAME, "red"), new Row().set(NAME, "green"));
+    schema
+        .getTable(TAG)
+        .insert(
+            new Row().set(NAME, "red").set("description", "some red colored fur"),
+            new Row().set(NAME, "green").set("description", "some green colored fur"));
 
     schema
         .getTable(PET)

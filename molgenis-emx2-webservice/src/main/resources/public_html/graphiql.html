@@ -92,7 +92,7 @@
         var url = new URL(url_string);
         var schemaName = url.searchParams.get("schema");
 
-        return fetch('/api/graphql/' + schemaName, {
+        return fetch(schemaName, {
             method: 'post',
             headers: {
                 'Accept': 'application/json',
