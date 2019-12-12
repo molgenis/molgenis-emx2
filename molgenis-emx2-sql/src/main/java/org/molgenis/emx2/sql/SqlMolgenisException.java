@@ -41,7 +41,10 @@ public class SqlMolgenisException extends MolgenisException {
 
   public static String getDetail(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
-      return ((PSQLException) dae.getCause()).getServerErrorMessage().getDetail();
+      PSQLException pe = (PSQLException) dae.getCause();
+      if (pe.getServerErrorMessage().getDetail() != null) {
+        return pe.getServerErrorMessage().getDetail();
+      } else return pe.getMessage();
     }
     return "";
   }

@@ -111,7 +111,7 @@ public class SqlGraphQuery extends Filter {
   private static SelectJoinStep createJoins(
       SelectJoinStep step, TableMetadata table, String leftAlias, SelectColumn select) {
     for (Column column : table.getLocalColumns()) {
-      if (select.has(column.getColumnName())) {
+      if (select != null && select.has(column.getColumnName())) {
         String rightAlias = leftAlias + "/" + column.getColumnName();
         ColumnType type = column.getColumnType();
         if (REF_ARRAY.equals(type)) {
@@ -149,7 +149,7 @@ public class SqlGraphQuery extends Filter {
 
     // get from subpaths
     for (Column column : table.getLocalColumns()) {
-      if (select.has(column.getColumnName())) {
+      if (select != null && select.has(column.getColumnName())) {
         String nextAlias = tableAlias + "/" + column.getColumnName();
         ColumnType type = column.getColumnType();
         if (REF_ARRAY.equals(type)) {
@@ -469,6 +469,7 @@ public class SqlGraphQuery extends Filter {
                     + SqlTypeUtils.toString(values));
 
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
+          i++; // skip one
           break;
         default:
           throw new SqlGraphQueryException(

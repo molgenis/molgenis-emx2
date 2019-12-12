@@ -33,13 +33,7 @@ public class GraphqlTest {
     PetStoreExample.create(s.getMetadata());
     PetStoreExample.populate(s);
 
-    GraphQLSchema qs = GraphqlApi.createGraphQLSchema(s);
-
-    System.out.println(
-        new SchemaPrinter(SchemaPrinter.Options.defaultOptions().includeSchemaDefintion(true))
-            .print(qs));
-
-    GraphQL graphQL = GraphQL.newGraphQL(qs).build();
+    GraphQL graphQL = GraphqlApi.graphqlForSchema(s);
 
     executeQuery(graphQL, "query{Pet{name,category{name},status}}");
 

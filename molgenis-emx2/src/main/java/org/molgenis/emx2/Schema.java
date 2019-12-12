@@ -5,6 +5,8 @@ import java.util.List;
 
 public interface Schema {
 
+  Database getDatabase();
+
   SchemaMetadata getMetadata();
 
   Collection<String> getTableNames();

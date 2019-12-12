@@ -4,6 +4,7 @@ import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Transaction;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -36,10 +37,14 @@ public class SqlDatabase implements Database {
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
 
-    // setup
+    // setup default stuff
     this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm");
     if (!hasUser("anonymous")) {
       this.addUser("anonymous");
+    }
+    if (!hasUser("admin")) {
+      this.addUser("admin");
+      this.jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + "admin"));
     }
   }
 
@@ -53,6 +58,9 @@ public class SqlDatabase implements Database {
     SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
     schemas.put(schemaName, schema);
+    if (getActiveUser() != null) {
+      getSchema(schema.getName()).addMember(getActiveUser(), DefaultRoles.MANAGER.toString());
+    }
     return new SqlSchema(this, schema);
   }
 

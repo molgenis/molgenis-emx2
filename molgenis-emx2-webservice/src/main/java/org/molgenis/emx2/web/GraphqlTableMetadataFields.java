@@ -16,25 +16,26 @@ import java.util.Map;
 
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
-import static org.molgenis.emx2.web.GraphqlTypes.*;
+import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.GraphqlApi.typeForMutationResult;
 import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
 import static org.molgenis.emx2.web.JsonApi.schemaToJson;
 
-public class GraphqlMetadataApi {
+public class GraphqlTableMetadataFields {
 
-  public static GraphQLFieldDefinition.Builder createMetadataQueryField(Schema model) {
+  public static GraphQLFieldDefinition.Builder tableMetatadataQueryField(Schema schema) {
     return newFieldDefinition()
         .name("_meta")
         .type(outputMetadataType)
-        .dataFetcher(GraphqlMetadataApi.queryFetcher(model));
+        .dataFetcher(GraphqlTableMetadataFields.queryFetcher(schema));
   }
 
-  public static GraphQLFieldDefinition.Builder createMetadataMutationField(Schema model) {
+  public static GraphQLFieldDefinition.Builder tableMetadataMutationField(Schema schema) {
     return newFieldDefinition()
         .name("alterMetadata")
         .type(typeForMutationResult)
-        .dataFetcher(GraphqlMetadataApi.mutationFetcher(model))
-        .argument(GraphQLArgument.newArgument().name(INPUT).type(inputMetadataType));
+        .dataFetcher(GraphqlTableMetadataFields.mutationFetcher(schema))
+        .argument(GraphQLArgument.newArgument().name(Constants.INPUT).type(inputMetadataType));
   }
 
   private static GraphQLInputObjectType inputMembersMetadataType =
@@ -47,7 +48,7 @@ public class GraphqlMetadataApi {
   private static GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisColumnInput")
-          .field(newInputObjectField().name(GraphqlTypes.NAME).type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(NAME).type(Scalars.GraphQLString))
           .field(newInputObjectField().name("columnType").type(Scalars.GraphQLString))
           .field(newInputObjectField().name("pkey").type(Scalars.GraphQLBoolean))
           .field(newInputObjectField().name("nullable").type(Scalars.GraphQLBoolean))
@@ -58,7 +59,7 @@ public class GraphqlMetadataApi {
   private static GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisTableInput")
-          .field(newInputObjectField().name(GraphqlTypes.NAME).type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(NAME).type(Scalars.GraphQLString))
           .field(newInputObjectField().name("pkey").type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               newInputObjectField()
@@ -111,7 +112,7 @@ public class GraphqlMetadataApi {
               newFieldDefinition().name("columns").type(GraphQLList.list(outputColumnMetadataType)))
           .build();
 
-  public static final GraphQLObjectType outputMetadataType =
+  private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMetaType")
           .field(newFieldDefinition().name(TABLES).type(GraphQLList.list(outputTableMetadataType)))
@@ -137,7 +138,7 @@ public class GraphqlMetadataApi {
       // add roles
       List<Map<String, String>> roles = new ArrayList<>();
       for (String role : schema.getRoles()) {
-        roles.add(Map.of(GraphqlTypes.NAME, role));
+        roles.add(Map.of(NAME, role));
       }
       result.put("roles", roles);
 
@@ -148,7 +149,7 @@ public class GraphqlMetadataApi {
   private static DataFetcher<?> mutationFetcher(Schema model) {
     return dataFetchingEnvironment -> {
       try {
-        Map<String, Object> metaInput = dataFetchingEnvironment.getArgument(INPUT);
+        Map<String, Object> metaInput = dataFetchingEnvironment.getArgument(Constants.INPUT);
         model.tx(
             db -> {
               try {

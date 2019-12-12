@@ -71,7 +71,7 @@ public class CsvApi {
     Table table =
         getAuthenticatedDatabase(request)
             .getSchema(request.params(SCHEMA))
-            .getTable(request.params(TABLE));
+            .getTable(request.params(Constants.TABLE));
     Iterable<Row> rows = csvToRows(request);
     int count = table.delete(rows);
     response.type(ACCEPT_CSV);

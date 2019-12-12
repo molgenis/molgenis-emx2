@@ -22,14 +22,13 @@ import static org.molgenis.emx2.web.json.JsonExceptionMapper.molgenisExceptionTo
 import static spark.Spark.*;
 
 public class MolgenisWebservice {
-  public static final String MOLGENIS_TOKEN = "x-molgenis-token";
-  public static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
-  public static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+  static final String MOLGENIS_TOKEN = "x-molgenis-token";
+  static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
+  static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
 
   private static DataSource dataSource;
   private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
   static final String SCHEMA = "schema";
-  public static final String TABLE = "table";
 
   private MolgenisWebservice() {
     // hide constructor
@@ -83,16 +82,19 @@ public class MolgenisWebservice {
   private static String listSchemas(Request request, Response response) {
     StringBuilder result = new StringBuilder();
     result.append("Schema independent API:");
-    result.append(" <a href=\"graphiql.html?schema=/api/graphql\">graphiql</a>");
-    result.append(" <a href=\"playground.html?schema=/api/graphql\">gl_playground</a>");
+    result.append(
+        "graphql: <a href=\"/api/graphql/\">/api/graphql/</a> <a href=\"playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
     for (String name : getAuthenticatedDatabase(request).getSchemaNames()) {
       result.append("<li>" + name);
       result.append(" <a href=\"openapi/" + name + "\">openapi</a>");
-      result.append(" <a href=\"graphiql.html?schema=/api/graphql/" + name + "\">graphiql</a>");
       result.append(
-          " <a href=\"playground.html?schema=/api/graphql/" + name + "\">gl_playground</a>");
+          " graphql: <a href=\"/api/graphql/"
+              + name
+              + "\">endpoint</a> <a href=\"playground.html?schema=/api/graphql/"
+              + name
+              + "\">playground</a>");
       result.append("</li>");
     }
     result.append("</ul>");
@@ -113,19 +115,19 @@ public class MolgenisWebservice {
     return OpenApiUiFactory.createSwaggerUI(request.params(SCHEMA));
   }
 
+  /** get database either from session or based on token */
   static synchronized Database getAuthenticatedDatabase(Request request) {
+
+    // already in a session, then return that
+    if (request.session().attribute("database") != null) {
+      return request.session().attribute("database");
+    }
+
+    // otherwise try tokens
     final String token =
-        request.headers(MOLGENIS_TOKEN) == null && request.session().attribute("username") == null
-            ? "anonymous"
-            : request.headers(MOLGENIS_TOKEN) == null
-                ? request.session().attribute("username")
-                : request.headers(MOLGENIS_TOKEN);
+        request.headers(MOLGENIS_TOKEN) == null ? "anonymous" : request.headers(MOLGENIS_TOKEN);
 
-    // we keep a cache of Database instance for each user on this server
-    // they share the connection poolrequest.session().attribute("username")
-
-    // todo remove these after a while!!!!
-
+    // todo remove cached after a while!!!!
     return databaseForRole.computeIfAbsent(
         token,
         t -> {
@@ -136,6 +138,7 @@ public class MolgenisWebservice {
         });
   }
 
+  // helper method used in multiple places
   public static Table getTable(Request request) {
     return getAuthenticatedDatabase(request)
         .getSchema(request.params(SCHEMA))

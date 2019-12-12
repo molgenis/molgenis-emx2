@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import graphql.ExecutionResult;
+import graphql.GraphQL;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -28,24 +28,24 @@ public class TestGraphqlApiForDatabase {
   @Test
   public void test() {
 
-    GraphqlApiForDatabase api = new GraphqlApiForDatabase(database);
+    GraphQL g = GraphqlApi.graphqlForDatabase(database);
 
     // list
-    Map<String, Object> result = api.execute("{Schemas{name}}").toSpecification();
+    Map<String, Object> result = g.execute("{Schemas{name}}").toSpecification();
     int length = length(result);
 
     // create
-    api.execute("mutation{createSchema(name:\"" + schemaName + "B\"){detail}}");
+    g.execute("mutation{createSchema(name:\"" + schemaName + "B\"){detail}}");
 
     // check listing again
-    result = api.execute("{Schemas{name}}").toSpecification();
+    result = g.execute("{Schemas{name}}").toSpecification();
     assertEquals(length + 1, length(result));
 
     // remove
-    api.execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){detail}}");
+    g.execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){detail}}");
 
     // check listing again
-    result = api.execute("{Schemas{name}}").toSpecification();
+    result = g.execute("{Schemas{name}}").toSpecification();
     assertEquals(length, length(result));
   }
 

@@ -222,6 +222,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public Database getDatabase() {
+    return db;
+  }
+
+  @Override
   public SqlSchemaMetadata getMetadata() {
     return metadata;
   }

@@ -9,6 +9,7 @@ import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,18 +23,18 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.Order.DESC;
 import static org.molgenis.emx2.sql.Filter.f;
+import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.GraphqlApi.*;
-import static org.molgenis.emx2.web.GraphqlTypes.*;
 
-public class GraphqlTableApi {
+public class GraphqlTableFields {
 
   static final GraphQLEnumType orderByEnum =
       newEnum().name("MolgenisOrderByEnum").value(ASC.name(), ASC).value(DESC.name(), DESC).build();
 
-  static GraphQLFieldDefinition.Builder createTableQueryField(Table table) {
-    GraphQLObjectType tableType = GraphqlTableApi.createTableObjectType(table);
+  public static GraphQLFieldDefinition.Builder tableQueryField(Table table) {
+    GraphQLObjectType tableType = GraphqlTableFields.createTableObjectType(table);
     GraphQLObjectType connection =
-        GraphqlTableApi.createTableableConnectionObjectType(table, tableType);
+        GraphqlTableFields.createTableableConnectionObjectType(table, tableType);
     return newFieldDefinition()
         .name(table.getName())
         .type(connection)
@@ -46,7 +47,7 @@ public class GraphqlTableApi {
         .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build());
   }
 
-  static GraphQLFieldDefinition.Builder createTableMutationField(Table table) {
+  public static GraphQLFieldDefinition.Builder tableMutationField(Table table) {
     GraphQLInputObjectType inputType = createTableInputType(table);
 
     //      newFieldDefinition()
@@ -60,14 +61,15 @@ public class GraphqlTableApi {
         .name("save" + table.getName())
         .type(typeForMutationResult)
         .dataFetcher(fetcherForSave(table))
-        .argument(GraphQLArgument.newArgument().name(INPUT).type(GraphQLList.list(inputType)));
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.INPUT).type(GraphQLList.list(inputType)));
   }
 
   private static DataFetcher fetcherForSave(Table aTable) {
     return dataFetchingEnvironment -> {
       try {
         Table table = aTable;
-        List<Map<String, Object>> map = dataFetchingEnvironment.getArgument(INPUT);
+        List<Map<String, Object>> map = dataFetchingEnvironment.getArgument(Constants.INPUT);
         int count = table.update(convertToRows(map));
         return resultMessage("success. saved " + count + " records");
       } catch (MolgenisException me) {
@@ -198,10 +200,13 @@ public class GraphqlTableApi {
     return orderByBuilder.build();
   }
 
+  // cache for the next method
+  static Map<ColumnType, GraphQLInputObjectType> filterInputTypes = new LinkedHashMap<>();
+
   private static GraphQLInputObjectType columnFilterInputObjectType(Column column) {
     ColumnType type = column.getColumnType();
     // singleton
-    if (GraphqlTypes.filterInputTypes.get(type) == null) {
+    if (filterInputTypes.get(type) == null) {
       String typeName = type.toString().toLowerCase();
       typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
       GraphQLInputObjectType.Builder builder =
@@ -212,9 +217,9 @@ public class GraphqlTableApi {
                 .name(operator.getAbbreviation())
                 .type(GraphQLList.list(graphQLTypeOf(type))));
       }
-      GraphqlTypes.filterInputTypes.put(type, builder.build());
+      filterInputTypes.put(type, builder.build());
     }
-    return GraphqlTypes.filterInputTypes.get(type);
+    return filterInputTypes.get(type);
   }
 
   private static GraphQLScalarType graphQLTypeOf(ColumnType type) {
