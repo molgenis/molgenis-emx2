@@ -117,7 +117,7 @@ class GraphqlApi {
     if (role != null || isAdmin) {
       queryBuilder.field(tableMetatadataQueryField(schema));
       // add meta query, if manager
-      if (role.contains("Manager") || isAdmin) {
+      if ((role != null && role.contains("Manager")) || isAdmin) {
         mutationBuilder.field(tableMetadataMutationField(schema));
       }
     }

@@ -309,7 +309,7 @@ public class SqlGraphQuery extends Filter {
             .where(searchCondition);
 
     // limit offset sortby
-    if (limitOffset) {
+    if (limitOffset && select != null) {
       for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
         if (ASC.equals(col.getValue())) {
           from = (SelectConditionStep) from.orderBy(field(name(col.getKey())).asc());
