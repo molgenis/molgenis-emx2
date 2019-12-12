@@ -177,6 +177,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public String getRoleForUser(String user) {
+    if (user == null) return null;
     user = user.trim();
     for (Member m : getMembers()) {
       if (m.getUser().equals(user)) return m.getRole();
