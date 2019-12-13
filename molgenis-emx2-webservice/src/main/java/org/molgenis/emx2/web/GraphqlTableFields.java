@@ -35,6 +35,7 @@ public class GraphqlTableFields {
     GraphQLObjectType tableType = GraphqlTableFields.createTableObjectType(table);
     GraphQLObjectType connection =
         GraphqlTableFields.createTableableConnectionObjectType(table, tableType);
+
     return newFieldDefinition()
         .name(table.getName())
         .type(connection)
@@ -105,11 +106,11 @@ public class GraphqlTableFields {
   private static GraphQLObjectType createTableableConnectionObjectType(
       Table table, GraphQLObjectType tableType) {
     GraphQLObjectType.Builder connectionBuilder = newObject().name(table.getName() + "Connection");
-    connectionBuilder.field(newFieldDefinition().name(COUNT).type(Scalars.GraphQLInt));
     // connectionBuilder.field(newFieldDefinition().name("meta").type(metadataType));
+    connectionBuilder.field(newFieldDefinition().name(COUNT).type(Scalars.GraphQLInt));
     connectionBuilder.field(
         newFieldDefinition()
-            .name(ITEMS)
+            .name("items")
             .type(GraphQLList.list(tableType))
             .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
             .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
@@ -144,28 +145,45 @@ public class GraphqlTableFields {
   }
 
   private static GraphQLObjectType createTableObjectType(Table table) {
-    GraphQLObjectType.Builder tableTypeBuilder = newObject().name(table.getName());
-    for (Column col : table.getMetadata().getColumns()) {
-      GraphQLOutputType type;
+    GraphQLObjectType.Builder tableBuilder = newObject().name(table.getName());
+    for (Column col : table.getMetadata().getColumns())
       switch (col.getColumnType()) {
         case DECIMAL:
-          type = Scalars.GraphQLBigDecimal;
+          tableBuilder.field(
+              newFieldDefinition().name(col.getColumnName()).type(Scalars.GraphQLBigDecimal));
           break;
         case INT:
-          type = Scalars.GraphQLInt;
+          tableBuilder.field(
+              newFieldDefinition().name(col.getColumnName()).type(Scalars.GraphQLInt));
           break;
         case REF:
-          type = GraphQLTypeReference.typeRef(col.getRefTableName());
+          tableBuilder.field(
+              newFieldDefinition()
+                  .name(col.getColumnName())
+                  .type(GraphQLTypeReference.typeRef(col.getRefTableName())));
           break;
         case REF_ARRAY:
-          type = GraphQLTypeReference.typeRef(col.getRefTableName() + "Connection");
+          tableBuilder.field(
+              newFieldDefinition()
+                  .name(col.getColumnName())
+                  .type(GraphQLList.list(GraphQLTypeReference.typeRef(col.getRefTableName())))
+                  .argument(
+                      GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
+                  .argument(
+                      GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(ORDERBY)
+                          .type(GraphQLTypeReference.typeRef(col.getRefTableName() + ORDERBY))
+                          .build()));
+          tableBuilder.field(
+              newFieldDefinition().name(col.getColumnName() + "_count").type(Scalars.GraphQLInt));
           break;
         default:
-          type = Scalars.GraphQLString;
+          tableBuilder.field(
+              newFieldDefinition().name(col.getColumnName()).type(Scalars.GraphQLString));
       }
-      tableTypeBuilder.field(newFieldDefinition().name(col.getColumnName()).type(type));
-    }
-    return tableTypeBuilder.build();
+    return tableBuilder.build();
   }
 
   private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {

@@ -22,7 +22,6 @@ public class Constants {
   static final String MEMBERS = "members";
   static final String FILTER1 = "Filter";
   static final String DETAIL = "detail";
-  static final String ITEMS = "items";
   static final String COUNT = "count";
   static final String LIMIT = "limit";
   static final String OFFSET = "offset";

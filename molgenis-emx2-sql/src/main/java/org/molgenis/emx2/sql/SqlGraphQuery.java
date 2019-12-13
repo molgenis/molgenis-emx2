@@ -30,8 +30,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
  */
 public class SqlGraphQuery extends Filter {
   private static final String AGGREGATE_COUNT = "count(*)";
-  private static final String AGGREGATE_ITEM = "json_agg(item)";
-  private static final String ITEMS_FIELD = "items";
+  private static final String AGGREGATE_ITEM = "json_strip_nulls(json_agg(item))";
   private static final String COUNT_FIELD = "count";
 
   private SqlTableMetadata table;
@@ -59,13 +58,12 @@ public class SqlGraphQuery extends Filter {
 
   public String retrieve() {
     long start = System.currentTimeMillis();
+    // global filter conditions
+    Condition condition = condition("1=1");
+    String ITEMS_FIELD = "items";
 
     List<Field> fields = new ArrayList<>();
 
-    // global filter conditions
-    Condition condition = condition("1=1");
-
-    // items
     if (this.select.has(ITEMS_FIELD)) {
       fields.add(
           field(
@@ -79,28 +77,27 @@ public class SqlGraphQuery extends Filter {
                       true))
               .as(ITEMS_FIELD));
     }
-    // count
-    if (select.has(COUNT_FIELD)) {
-      Select step =
-          createSubselect(
-              table, table.getTableName(), null, this, AGGREGATE_COUNT, condition, false);
-      fields.add(field(step).as(COUNT_FIELD));
-    }
-    // meta
-    if (select.has("meta")) {
-      // do this later
-      // todo validation on other values
+
+    if (this.select.has(COUNT_FIELD)) {
+      fields.add(
+          field(
+                  createSubselect(
+                      table,
+                      table.getTableName(),
+                      select != null && select.has(ITEMS_FIELD) ? select.get(ITEMS_FIELD) : null,
+                      this,
+                      AGGREGATE_COUNT,
+                      condition,
+                      true))
+              .as(COUNT_FIELD));
     }
 
-    // from
     SelectJoinStep query =
         table
             .getJooq()
             .select(field("json_strip_nulls(row_to_json(item))"))
             .from(table(table.getJooq().select(fields)).as("item"));
-
     String result = query.fetchOne().get(0, String.class);
-
     if (logger.isInfoEnabled()) {
       logger.info(query.getSQL(ParamType.INLINED));
       logger.info(String.format("Query completed in %sms", System.currentTimeMillis() - start));
@@ -152,16 +149,7 @@ public class SqlGraphQuery extends Filter {
       if (select != null && select.has(column.getColumnName())) {
         String nextAlias = tableAlias + "/" + column.getColumnName();
         ColumnType type = column.getColumnType();
-        if (REF_ARRAY.equals(type)) {
-          SelectColumn subSelect = getColumSelect(select, column);
-          if (subSelect != null && subSelect.has(ITEMS_FIELD)) {
-            searchCondition =
-                searchCondition.or(
-                    createSearchConditions(
-                        getRefTable(column), nextAlias, subSelect.get(ITEMS_FIELD), searchTerms));
-          }
-        }
-        if (REF.equals(type)) {
+        if (REF_ARRAY.equals(type) || REF.equals(type)) {
           searchCondition =
               searchCondition.or(
                   createSearchConditions(
@@ -169,7 +157,6 @@ public class SqlGraphQuery extends Filter {
         }
       }
     }
-
     return searchCondition;
   }
 
@@ -199,12 +186,24 @@ public class SqlGraphQuery extends Filter {
                     .as(column.getColumnName()));
             break;
           case REF_ARRAY:
+            subselect = getColumSelect(select, column);
+            if (subselect == null) subselect = new SelectColumn(column.getColumnName());
+            if (!subselect.has(column.getRefColumnName())) {
+              subselect.select(column.getRefColumnName());
+            }
             fields.add(
-                createRefArrayColumnSubselect(
-                        column,
-                        tableAlias,
-                        getColumSelect(select, column),
-                        getColumnFilter(filter, column))
+                field(
+                        createSubselect(
+                            getRefTable(column),
+                            tableAlias + "/" + column.getColumnName(),
+                            subselect,
+                            getColumnFilter(filter, column),
+                            AGGREGATE_ITEM,
+                            condition(
+                                "{0} = ANY ({1})",
+                                field(name(column.getRefColumnName())),
+                                field(name(tableAlias, column.getColumnName()))),
+                            true))
                     .as(column.getColumnName()));
             break;
           default:
@@ -217,65 +216,47 @@ public class SqlGraphQuery extends Filter {
     return fields;
   }
 
-  private static Field createRefArrayColumnSubselect(
-      Column column, String parentAlias, SelectColumn select, Filter filter) {
+  //  private static Field createRefArrayColumnSubselect(
+  //      Column column, String parentAlias, SelectColumn select, Filter filter) {
+  //
+  //    DSLContext dsl = ((SqlTableMetadata) column.getTable()).getJooq();
+  //    List<Field> fields = new ArrayList<>();
+  //    Condition condition =
+  //        );
+  //    String fromAlias = parentAlias + "/" + column.getColumnName();
+  //
+  //    // subselection should at least contain the reffed column for joining
+  //    if (!select.has(column.getRefColumnName())) {
+  //      select.select(column.getRefColumnName());
+  //    }
+  //
+  //    // create subselect
+  //    if (filter != null || select != null) {
+  //      // make sure the link field is there
+  //      fields.add(field().as(ITEMS_FIELD));
+  //    }
+  //
+  //    // create subselect to count, always include for filtering
+  //    fields.add(
+  //        field(
+  //                createSubselect(
+  //                    getRefTable(column),
+  //                    fromAlias,
+  //                    null,
+  //                    filter,
+  //                    AGGREGATE_COUNT,
+  //                    condition,
+  //                    false))
+  //            .as(COUNT_FIELD));
+  //
+  //    return field(
+  //            dsl.select(field("row_to_json(conn)"))
+  //                .from(table(dsl.select(fields)).as("conn"))
+  //                .where(field(name("conn", COUNT_FIELD)).gt(0)))
+  //        .as(column.getColumnName());
+  //  }
 
-    DSLContext dsl = ((SqlTableMetadata) column.getTable()).getJooq();
-    List<Field> fields = new ArrayList<>();
-    Condition condition =
-        condition(
-            "{0} = ANY ({1})",
-            field(name(column.getRefColumnName())),
-            field(name(parentAlias, column.getColumnName())));
-    String fromAlias = parentAlias + "/" + column.getColumnName();
-
-    // subselection should at least contain the reffed column for joining
-    SelectColumn subselect =
-        (select != null && select.has(ITEMS_FIELD)
-            ? select.get(ITEMS_FIELD)
-            : new SelectColumn(column.getColumnName()));
-
-    if (!subselect.has(column.getRefColumnName())) {
-      subselect.select(column.getRefColumnName());
-    }
-
-    // create subselect
-    if (filter != null || (select != null && select.has(ITEMS_FIELD))) {
-      // make sure the link field is there
-      fields.add(
-          field(
-                  createSubselect(
-                      getRefTable(column),
-                      fromAlias,
-                      subselect,
-                      filter,
-                      AGGREGATE_ITEM,
-                      condition,
-                      true))
-              .as(ITEMS_FIELD));
-    }
-
-    // create subselect to count, always include for filtering
-    fields.add(
-        field(
-                createSubselect(
-                    getRefTable(column),
-                    fromAlias,
-                    null,
-                    filter,
-                    AGGREGATE_COUNT,
-                    condition,
-                    false))
-            .as(COUNT_FIELD));
-
-    return field(
-            dsl.select(field("row_to_json(conn)"))
-                .from(table(dsl.select(fields)).as("conn"))
-                .where(field(name("conn", COUNT_FIELD)).gt(0)))
-        .as(column.getColumnName());
-  }
-
-  private static SelectConditionStep createSubselect(
+  private static SelectJoinStep<Record1<Object>> createSubselect(
       SqlTableMetadata fromTable,
       String fromAlias,
       SelectColumn select,
@@ -284,8 +265,10 @@ public class SqlGraphQuery extends Filter {
       Condition condition,
       boolean limitOffset) {
 
+    // create filter conditions
+    condition = createFiltersForColumns(condition, fromTable, filter);
+
     // add search filters, only for 'root' query
-    Condition searchCondition = null;
     if (filter instanceof SqlGraphQuery) {
       SqlGraphQuery root = (SqlGraphQuery) filter;
       if (root.searchTerms.length > 0) {
@@ -294,9 +277,11 @@ public class SqlGraphQuery extends Filter {
         SelectJoinStep sub =
             fromTable.getJooq().select(pkey).from(getJooqTable(fromTable, fromAlias));
         sub = createJoins(sub, fromTable, fromAlias, select);
-        searchCondition =
-            pkey.in(
-                sub.where(createSearchConditions(fromTable, fromAlias, select, root.searchTerms)));
+        condition =
+            condition.and(
+                pkey.in(
+                    sub.where(
+                        createSearchConditions(fromTable, fromAlias, select, root.searchTerms))));
       }
     }
 
@@ -306,33 +291,34 @@ public class SqlGraphQuery extends Filter {
             .getJooq()
             .select(getFields(fromTable, fromAlias, select, filter))
             .from(getJooqTable(fromTable, fromAlias))
-            .where(searchCondition);
-
-    // limit offset sortby
-    if (limitOffset && select != null) {
-      for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
-        if (ASC.equals(col.getValue())) {
-          from = (SelectConditionStep) from.orderBy(field(name(col.getKey())).asc());
-        } else {
-          from = (SelectConditionStep) from.orderBy(field(name(col.getKey())).desc());
-        }
-      }
-      if (select.getLimit() > 0) from = (SelectConditionStep) from.limit(select.getLimit());
-      if (select.getOffset() > 0) from = (SelectConditionStep) from.offset(select.getOffset());
-    }
-
-    // add user filters
-    condition = createFiltersForColumns(condition, fromTable, filter);
-
-    // create the full query
-    SelectConditionStep query =
-        fromTable
-            .getJooq()
-            .select(field(aggregationFunction))
-            .from(table(from).as("item"))
             .where(condition);
 
+    // limit and offset
+    if (limitOffset) {
+      from = addLimitOffsetSortby(select, from);
+    }
+
+    // create the full query
+    SelectJoinStep<Record1<Object>> query =
+        fromTable.getJooq().select(field(aggregationFunction)).from(table(from).as("item"));
+
     // return
+    return query;
+  }
+
+  private static SelectConditionStep addLimitOffsetSortby(
+      SelectColumn select, SelectConditionStep query) {
+    if (select != null) {
+      for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
+        if (ASC.equals(col.getValue())) {
+          query = (SelectConditionStep) query.orderBy(field(name(col.getKey())).asc());
+        } else {
+          query = (SelectConditionStep) query.orderBy(field(name(col.getKey())).desc());
+        }
+      }
+      if (select.getLimit() > 0) query = (SelectConditionStep) query.limit(select.getLimit());
+      if (select.getOffset() > 0) query = (SelectConditionStep) query.offset(select.getOffset());
+    }
     return query;
   }
 
