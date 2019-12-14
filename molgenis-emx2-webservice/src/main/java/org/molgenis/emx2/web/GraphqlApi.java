@@ -25,7 +25,7 @@ import static org.molgenis.emx2.web.GraphqlDatabaseFields.*;
 import static org.molgenis.emx2.web.GraphqlTableMetadataFields.*;
 import static org.molgenis.emx2.web.GraphqlTableFields.tableMutationField;
 import static org.molgenis.emx2.web.GraphqlTableFields.tableQueryField;
-import static org.molgenis.emx2.web.GraphqlUserFields.*;
+import static org.molgenis.emx2.web.GraphqlLoginLogoutRegisterFields.*;
 
 import static spark.Spark.*;
 
@@ -113,12 +113,15 @@ class GraphqlApi {
 
     // add meta query, if member
     String role = schema.getRoleForUser(schema.getDatabase().getActiveUser());
-    boolean isAdmin = "admin".equals(schema.getDatabase().getActiveUser());
+    boolean isAdmin =
+        "admin".equals(schema.getDatabase().getActiveUser())
+            || schema.getDatabase().getActiveUser() == null;
     if (role != null || isAdmin) {
-      queryBuilder.field(tableMetatadataQueryField(schema));
+      queryBuilder.field(metaField(schema));
       // add meta query, if manager
       if ((role != null && role.contains("Manager")) || isAdmin) {
-        mutationBuilder.field(tableMetadataMutationField(schema));
+        mutationBuilder.field(saveMetaField(schema));
+        mutationBuilder.field(deleteMetaField(schema));
       }
     }
 

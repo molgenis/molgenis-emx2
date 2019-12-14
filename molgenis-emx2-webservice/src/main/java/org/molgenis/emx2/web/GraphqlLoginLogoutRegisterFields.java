@@ -11,12 +11,12 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.GraphqlApi.typeForMutationResult;
 
-public class GraphqlUserFields {
+public class GraphqlLoginLogoutRegisterFields {
 
   private static final String USERNAME = "username";
   private static final String PASSWORD = "password"; // NOSONAR
 
-  private GraphqlUserFields() {
+  private GraphqlLoginLogoutRegisterFields() {
     // no instance
   }
 

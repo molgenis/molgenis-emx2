@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static org.molgenis.emx2.web.Constants.*;
@@ -23,19 +24,31 @@ import static org.molgenis.emx2.web.JsonApi.schemaToJson;
 
 public class GraphqlTableMetadataFields {
 
-  public static GraphQLFieldDefinition.Builder tableMetatadataQueryField(Schema schema) {
+  public static GraphQLFieldDefinition.Builder metaField(Schema schema) {
     return newFieldDefinition()
         .name("_meta")
         .type(outputMetadataType)
         .dataFetcher(GraphqlTableMetadataFields.queryFetcher(schema));
   }
 
-  public static GraphQLFieldDefinition.Builder tableMetadataMutationField(Schema schema) {
+  public static GraphQLFieldDefinition saveMetaField(Schema schema) {
     return newFieldDefinition()
-        .name("alterMetadata")
+        .name("_saveMeta")
         .type(typeForMutationResult)
-        .dataFetcher(GraphqlTableMetadataFields.mutationFetcher(schema))
-        .argument(GraphQLArgument.newArgument().name(Constants.INPUT).type(inputMetadataType));
+        .dataFetcher(saveMetaFetcher(schema))
+        .argument(newArgument().name(TABLES).type(GraphQLList.list(inputTableMetadataType)))
+        .argument(newArgument().name(MEMBERS).type(GraphQLList.list(inputMembersMetadataType)))
+        .build();
+  }
+
+  public static GraphQLFieldDefinition deleteMetaField(Schema schema) {
+    return newFieldDefinition()
+        .name("_deleteMeta")
+        .type(typeForMutationResult)
+        .dataFetcher(deleteMetaFetcher(schema))
+        .argument(newArgument().name(TABLES).type(GraphQLList.list(Scalars.GraphQLString)))
+        .argument(newArgument().name(MEMBERS).type(GraphQLList.list(Scalars.GraphQLString)))
+        .build();
   }
 
   private static GraphQLInputObjectType inputMembersMetadataType =
@@ -69,26 +82,20 @@ public class GraphqlTableMetadataFields {
               newInputObjectField().name("columns").type(GraphQLList.list(inputColumnMetadataType)))
           .build();
 
-  private static GraphQLInputObjectType inputMetadataType =
-      new GraphQLInputObjectType.Builder()
-          .name("MolgenisMetaInput")
-          .field(newInputObjectField().name(TABLES).type(GraphQLList.list(inputTableMetadataType)))
-          .field(
-              newInputObjectField().name(MEMBERS).type(GraphQLList.list(inputMembersMetadataType)))
-          .build();
-
   // medatadata
   private static final GraphQLType outputRolesMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .build();
+
   private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
           .field(newFieldDefinition().name("user").type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("role").type(Scalars.GraphQLString))
           .build();
+
   private static final GraphQLObjectType outputColumnMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnType")
@@ -99,6 +106,7 @@ public class GraphqlTableMetadataFields {
           .field(newFieldDefinition().name("refTableName").type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("refColumnName").type(Scalars.GraphQLString))
           .build();
+
   private static final GraphQLObjectType outputTableMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisTableType")
@@ -146,26 +154,54 @@ public class GraphqlTableMetadataFields {
     };
   }
 
-  private static DataFetcher<?> mutationFetcher(Schema model) {
+  private static DataFetcher<?> saveMetaFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       try {
-        Map<String, Object> metaInput = dataFetchingEnvironment.getArgument(Constants.INPUT);
-        model.tx(
+        schema.tx(
             db -> {
               try {
-                if (metaInput.containsKey(TABLES)) {
-                  String json = JsonApi.getWriter().writeValueAsString(metaInput);
+                Object tables = dataFetchingEnvironment.getArgument(TABLES);
+                if (tables != null) {
+                  Map tableMap = Map.of("tables", tables);
+                  String json = JsonApi.getWriter().writeValueAsString(tableMap);
                   SchemaMetadata otherSchema = jsonToSchema(json);
-                  model.merge(otherSchema);
+                  schema.merge(otherSchema);
                 }
-                if (metaInput.containsKey(MEMBERS)) {
-                  List<Map<String, String>> members = (List) metaInput.get(MEMBERS);
+                List<Map<String, String>> members = dataFetchingEnvironment.getArgument(MEMBERS);
+                if (members != null) {
                   for (Map<String, String> m : members) {
-                    model.addMember(m.get("user"), m.get("role"));
+                    schema.addMember(m.get("user"), m.get("role"));
                   }
                 }
               } catch (IOException e) {
                 throw new GraphqlApiException(e);
+              }
+            });
+        Map result = new LinkedHashMap<>();
+        result.put(DETAIL, "success");
+        return result;
+      } catch (MolgenisException e) {
+        return GraphqlApi.transform(e);
+      }
+    };
+  }
+
+  private static DataFetcher<?> deleteMetaFetcher(Schema schema) {
+    return dataFetchingEnvironment -> {
+      try {
+        schema.tx(
+            db -> {
+              List<String> tables = dataFetchingEnvironment.getArgument(TABLES);
+              if (tables != null) {
+                for (String tableName : tables) {
+                  schema.dropTable(tableName);
+                }
+              }
+              List<String> members = dataFetchingEnvironment.getArgument(MEMBERS);
+              if (members != null) {
+                for (String name : members) {
+                  schema.removeMember(name);
+                }
               }
             });
         Map result = new LinkedHashMap<>();

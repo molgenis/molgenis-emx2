@@ -169,6 +169,34 @@ public class TestGraphqSchemaFields {
         0.0f);
   }
 
+  @Test
+  public void testMembersOperations() throws IOException {
+    // list members
+    int count = execute("{_meta{members{user}}}").at("/_meta/members").size();
+
+    // add members
+    execute("mutation{_saveMeta(members:{user:\"blaat\", role:\"Manager\"}){detail}}");
+    assertEquals(count + 1, execute("{_meta{members{user}}}").at("/_meta/members").size());
+
+    // remove members
+    execute("mutation{_deleteMeta(members:\"blaat\"){detail}}");
+    assertEquals(count, execute("{_meta{members{user}}}").at("/_meta/members").size());
+  }
+
+  @Test
+  public void testTableAlterDropOperations() throws IOException {
+    // simple meta
+    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+
+    // add table
+    execute("mutation{_saveMeta(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){detail}}");
+    assertEquals(6, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+
+    // drop
+    execute("mutation{_deleteMeta(tables:\"blaat\"){detail}}");
+    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+  }
+
   private JsonNode execute(String query) throws IOException {
     return new ObjectMapper()
         .readTree(convertExecutionResultToJson(grapql.execute(query)))
