@@ -150,7 +150,10 @@ public class Emx2 {
       }
     } else if (REF_ARRAY.equals(columnType)) {
       String refTable = def.getParameterList(REF_ARRAY).get(0);
-      String refColumn = def.getParameterList(REF_ARRAY).get(1);
+      String refColumn = null;
+      if (def.getParameterList(REF_ARRAY).size() > 1) {
+        refColumn = def.getParameterList(REF_ARRAY).get(1);
+      }
       table.addRefArray(columnName, refTable, refColumn);
     } else {
       table.addColumn(columnName, columnType);
