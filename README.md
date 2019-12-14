@@ -94,6 +94,12 @@ Most core ideas where already described in https://docs.google.com/document/d/19
     - aim to minimize the number of calls
 
 ## Todo and open issues
+*  test and fix the openapi so all the docs just work
+*  'save' for graphql allowing save of whole graphs
+*  partial updates, i.e. null columns versus missing (to be ingored) columns
+*  docker image
+*  integration tests for GraphqlAPI via SparkJava
+*  delete column
 *  add a check for maximum limit of identifiers, i.e. 63 characters (Excel limit)
 *  throw error if primary key column is empty on update and delete
 *  throw error when webservice is called with only csv header and no values

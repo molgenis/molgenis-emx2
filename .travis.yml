@@ -20,6 +20,4 @@ addons:
     organization: "mswertz-github"
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=mswertz_molgenis-emx2
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
 

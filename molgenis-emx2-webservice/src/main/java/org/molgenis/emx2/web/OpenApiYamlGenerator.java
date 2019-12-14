@@ -91,7 +91,6 @@ public class OpenApiYamlGenerator {
       PathItem tablePath = new PathItem();
       tablePath.get(tableGetOperation(tableName));
       tablePath.post(tablePostOperation(tableName));
-      // tablePath.put(tablePutOperation(tableName));
       tablePath.delete(tableDeleteOperation(tableName));
 
       // add the paths to paths
@@ -307,13 +306,11 @@ public class OpenApiYamlGenerator {
     Schema columnMetadata = new Schema();
     columnMetadata.addProperties("name", new StringSchema());
     columnMetadata.addProperties("type", new StringSchema());
-    // components.addSchemas("ColumnAnnotation", columnMetadata);
 
     // table
     Schema tableMetadata = new Schema();
     tableMetadata.addProperties("name", new StringSchema());
     tableMetadata.addProperties("columns", new ArraySchema().items(columnMetadata));
-    // components.addSchemas("TableMetadata", tableMetadata);
 
     // schema
     Schema metadataSchema = new Schema();
