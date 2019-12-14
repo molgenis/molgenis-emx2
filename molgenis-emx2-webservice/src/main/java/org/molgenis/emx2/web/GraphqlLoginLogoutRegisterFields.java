@@ -42,7 +42,7 @@ public class GraphqlLoginLogoutRegisterFields {
             GraphQLArgument.newArgument().name(PASSWORD + "_REPEAT").type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              database.addUser(USERNAME);
+              database.addUser(dataFetchingEnvironment.getArgument(USERNAME));
               return new GrahpqlUserApiException("User added");
             })
         .build();

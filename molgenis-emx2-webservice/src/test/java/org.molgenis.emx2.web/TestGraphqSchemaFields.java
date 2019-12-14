@@ -12,17 +12,18 @@ import org.molgenis.emx2.sql.DatabaseFactory;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.web.GraphqlApi.convertExecutionResultToJson;
 
 public class TestGraphqSchemaFields {
 
   private static GraphQL grapql;
+  private static Database database;
   private static final String schemaName = "TestGraphqSchemaFields";
 
   @BeforeClass
   public static void setup() {
-    Database database = DatabaseFactory.getTestDatabase();
+    database = DatabaseFactory.getTestDatabase();
     Schema schema = database.createSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
@@ -181,6 +182,29 @@ public class TestGraphqSchemaFields {
     // remove members
     execute("mutation{_deleteMeta(members:\"blaat\"){detail}}");
     assertEquals(count, execute("{_meta{members{user}}}").at("/_meta/members").size());
+  }
+
+  @Test
+  public void testLoginLogoutRegister() throws IOException {
+
+    // todo: default user should be anonymous?
+    assertNull(database.getActiveUser());
+
+    execute("mutation{_login(username:\"admin\"){detail}}");
+    assertEquals("admin", database.getActiveUser());
+
+    // todo way to register witout elevated privileges
+    assertFalse(database.hasUser("blaat"));
+    execute("mutation{_register(username:\"blaat\"){detail}}");
+    assertTrue(database.hasUser("blaat"));
+
+    execute("mutation{_logout{detail}}");
+    assertEquals("anonymous", database.getActiveUser());
+
+    // can't unregister, is that a thing?
+
+    // clear user back to supergodmode
+    database.clearActiveUser();
   }
 
   @Test
