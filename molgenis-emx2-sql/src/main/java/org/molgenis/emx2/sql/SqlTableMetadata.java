@@ -575,15 +575,10 @@ class SqlTableMetadata extends TableMetadata {
   private void log(long start, String message) {
     String user = db.getActiveUser();
     if (user == null) user = "molgenis";
-    logger.info(
-        user
-            + " "
-            + message
-            + " "
-            + getJooqTable()
-            + " in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));
+    }
   }
 
   public void loadInherits(String tableName) {

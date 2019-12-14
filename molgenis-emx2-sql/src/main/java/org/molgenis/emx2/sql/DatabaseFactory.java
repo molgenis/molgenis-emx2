@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.Column;
 
 import javax.sql.DataSource;
@@ -95,25 +94,5 @@ public class DatabaseFactory {
 
   protected static DSLContext getJooq() {
     return jooq;
-  }
-
-  public static void checkColumnExists(Column c) {
-    List<Table<?>> tables = DatabaseFactory.getJooq().meta().getTables(c.getTable().getTableName());
-    if (tables.isEmpty())
-      throw new MolgenisException(
-          "invalid_table",
-          "Table cannot be found",
-          "Table '" + c.getTable().getTableName() + "' could not be found");
-    Table<?> table = tables.get(0);
-    Field f = table.field(c.getName());
-    if (f == null)
-      throw new MolgenisException(
-          "invalid_column",
-          "Column cannot be found",
-          "Column '"
-              + c.getTable().getTableName()
-              + "'.'    "
-              + c.getName()
-              + "' could not be found");
   }
 }

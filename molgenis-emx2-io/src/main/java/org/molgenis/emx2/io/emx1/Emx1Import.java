@@ -39,7 +39,9 @@ public class Emx1Import {
             .update(store.readTable(entity.getKey())); // actually upsert
       }
     }
-    logger.info("import completed in " + (System.currentTimeMillis() - start) + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info("import completed in {}ms", (System.currentTimeMillis() - start));
+    }
   }
 
   private static void loadRefRelationships(
@@ -148,10 +150,6 @@ public class Emx1Import {
           me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
     }
     return entities;
-  }
-
-  private static String getTableName(String fullName, String packagePrefix) {
-    return fullName.replaceFirst(packagePrefix, "");
   }
 
   private static ColumnType getColumnType(String dataType) {

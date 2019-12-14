@@ -84,6 +84,7 @@ public class TestGraphJsonQuery {
     SqlGraphQuery s = new SqlGraphQuery(schema.getTable("Person"));
     s.select(s("items", s("name")));
     s.search("opa");
+
     System.out.println("search for 'opa':\n " + s.retrieve());
 
     s = new SqlGraphQuery(schema.getTable("Person"));

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.molgenis.emx2.utils.MolgenisExceptionMessage;
@@ -14,20 +13,8 @@ import static org.molgenis.emx2.ColumnType.*;
 
 public class Emx2 {
 
-  protected Emx2() {
+  private Emx2() {
     // hides constructor
-  }
-
-  public static SchemaMetadata fromCsvFile(File file, Character separator) {
-    try {
-      return fromRowList(CsvTableReader.readList(new FileReader(file), separator));
-    } catch (IOException ioe) {
-      throw new MolgenisException(ioe);
-    }
-  }
-
-  public static SchemaMetadata fromReader(Reader reader, Character separator) {
-    return fromRowList(CsvTableReader.readList(reader, separator));
   }
 
   public static SchemaMetadata fromRowList(List<Row> rows) {

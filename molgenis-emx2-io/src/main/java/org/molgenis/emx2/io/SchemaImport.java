@@ -41,12 +41,13 @@ public class SchemaImport {
             if (store.containsTable("molgenis")) {
               SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
               schema.merge(emx2Schema);
-            } else
+            } else {
               // read data
               for (String tableName : schema.getTableNames()) {
                 if (store.containsTable(tableName))
                   schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
               }
+            }
           }
         });
   }

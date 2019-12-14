@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.molgenis.emx2.Operator;
+import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,7 +17,7 @@ public class Filter {
     this.field = field;
     for (Filter f : children) {
       if (field != null && this.children.get(f.getField()) != null) {
-        throw new RuntimeException("already created filter for field " + f.getField());
+        throw new MolgenisException("already created filter for field " + f.getField());
       }
       this.children.put(f.getField(), f);
     }
@@ -32,12 +33,6 @@ public class Filter {
     return this;
   }
 
-  public Filter contains(Object... values) {
-    validate();
-    this.conditions.put(Operator.LIKE, values);
-    return this;
-  }
-
   public Filter similar(Object... values) {
     validate();
     this.conditions.put(Operator.TRIGRAM_SEARCH, values);
@@ -46,7 +41,7 @@ public class Filter {
 
   private void validate() {
     if (children.size() > 0)
-      throw new RuntimeException(
+      throw new MolgenisException(
           "cannot eq filter on '" + this.field + "' when you also created sub filters");
   }
 
@@ -56,10 +51,6 @@ public class Filter {
 
   public Filter getFilter(String name) {
     return this.children.get(name);
-  }
-
-  public Iterable<? extends Filter> getFilters() {
-    return this.children.values();
   }
 
   public Map<Operator, Object[]> getConditions() {

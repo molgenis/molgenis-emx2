@@ -188,28 +188,24 @@ public class GraphqlTableMetadataFields {
 
   private static DataFetcher<?> deleteMetaFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      try {
-        schema.tx(
-            db -> {
-              List<String> tables = dataFetchingEnvironment.getArgument(TABLES);
-              if (tables != null) {
-                for (String tableName : tables) {
-                  schema.dropTable(tableName);
-                }
+      schema.tx(
+          db -> {
+            List<String> tables = dataFetchingEnvironment.getArgument(TABLES);
+            if (tables != null) {
+              for (String tableName : tables) {
+                schema.dropTable(tableName);
               }
-              List<String> members = dataFetchingEnvironment.getArgument(MEMBERS);
-              if (members != null) {
-                for (String name : members) {
-                  schema.removeMember(name);
-                }
+            }
+            List<String> members = dataFetchingEnvironment.getArgument(MEMBERS);
+            if (members != null) {
+              for (String name : members) {
+                schema.removeMember(name);
               }
-            });
-        Map result = new LinkedHashMap<>();
-        result.put(DETAIL, "success");
-        return result;
-      } catch (MolgenisException e) {
-        return GraphqlApi.transform(e);
-      }
+            }
+          });
+      Map result = new LinkedHashMap<>();
+      result.put(DETAIL, "success");
+      return result;
     };
   }
 }

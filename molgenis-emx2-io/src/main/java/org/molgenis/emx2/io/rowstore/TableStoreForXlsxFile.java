@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
@@ -120,7 +119,9 @@ public class TableStoreForXlsxFile implements TableStore {
       throw new MolgenisException(
           ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
     }
-    logger.info("Excel file loaded into memory in " + (System.currentTimeMillis() - start) + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info("Excel file loaded into memory in {}ms", (System.currentTimeMillis() - start));
+    }
   }
 
   @Override

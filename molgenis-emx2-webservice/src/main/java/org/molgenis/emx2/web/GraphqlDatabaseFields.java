@@ -5,7 +5,6 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.utils.MolgenisException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

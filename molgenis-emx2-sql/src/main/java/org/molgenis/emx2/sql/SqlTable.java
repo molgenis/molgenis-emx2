@@ -87,17 +87,15 @@ class SqlTable implements Table {
   private void log(long start, AtomicInteger count, String message) {
     String user = db.getActiveUser();
     if (user == null) user = "molgenis";
-    logger.info(
-        user
-            + " "
-            + message
-            + " "
-            + count.get()
-            + " rows into table "
-            + getJooqTable()
-            + " in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "{} {} {} ows into table {} in {}ms",
+          user,
+          message,
+          count.get(),
+          getJooqTable(),
+          (System.currentTimeMillis() - start));
+    }
   }
 
   @Override

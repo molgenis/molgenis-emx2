@@ -270,14 +270,6 @@ public class OpenApiYamlGenerator {
                         .content(new Content().addMediaType(ACCEPT_JSON, mediaType))));
   }
 
-  private static Operation tablePutOperation(String tableName) {
-    return new Operation()
-        .addTagsItem(tableName)
-        .summary("Update an array of one or more " + tableName)
-        .requestBody(tableRequestBody(tableName))
-        .responses(apiResponses());
-  }
-
   private static Operation tablePostOperation(String tableName) {
     return new Operation()
         .addTagsItem(tableName)

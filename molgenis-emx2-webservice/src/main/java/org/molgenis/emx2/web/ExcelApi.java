@@ -20,6 +20,9 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 public class ExcelApi {
+  private ExcelApi() {
+    // hide constructor
+  }
 
   public static void create() {
     // schema level operations

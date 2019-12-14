@@ -30,7 +30,6 @@ public class CsvApi {
     final String schemaPath = "/api/csv/:schema"; // NOSONAR
     get(schemaPath, CsvApi::getTables);
     post(schemaPath, CsvApi::postTables);
-    //    delete(schemaPath, CsvApi::deleteTables);
 
     // table level operations
     final String tablePath = "/api/csv/:schema/:table"; // NOSONAR

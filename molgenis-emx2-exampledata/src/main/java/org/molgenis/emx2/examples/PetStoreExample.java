@@ -12,6 +12,13 @@ public class PetStoreExample {
   public static final String PET = "Pet";
   private static final String ORDER = "Order";
   private static final String USER = "User";
+  private static final String CATEGORY_COLUMN = "category";
+  private static final String STATUS = "status";
+  private static final String WEIGHT = "weight";
+  private static final String ORDER_ID = "orderId";
+  private static final String QUANTITY = "quantity";
+  private static final String PRICE = "price";
+  private static final String COMPLETE = "complete";
 
   private PetStoreExample() {
     // hide public constructor
@@ -27,19 +34,19 @@ public class PetStoreExample {
 
     TableMetadata petTable = schema.createTable(PET);
     petTable.addColumn(NAME).setPrimaryKey(true);
-    petTable.addRef("category", CATEGORY).setNullable(true);
+    petTable.addRef(CATEGORY_COLUMN, CATEGORY).setNullable(true);
     petTable.addColumn("photoUrls", STRING_ARRAY).setNullable(true);
-    petTable.addColumn("status"); // todo enum: available, pending, sold
+    petTable.addColumn(STATUS); // todo enum: available, pending, sold
     petTable.addRefArray("tags", TAG).setNullable(true);
-    petTable.addColumn("weight", DECIMAL);
+    petTable.addColumn(WEIGHT, DECIMAL);
 
     TableMetadata orderTable = schema.createTable(ORDER);
-    orderTable.addColumn("orderId").primaryKey();
+    orderTable.addColumn(ORDER_ID).primaryKey();
     orderTable.addRef("pet", PET, NAME);
-    orderTable.addColumn("quantity", INT); // todo: validation >=1
-    orderTable.addColumn("price", DECIMAL); // todo: validation >=1
-    orderTable.addColumn("complete", BOOL); // todo: default false
-    orderTable.addColumn("status"); // todo enum: placed, approved, delivered
+    orderTable.addColumn(QUANTITY, INT); // todo: validation >=1
+    orderTable.addColumn(PRICE, DECIMAL); // todo: validation >=1
+    orderTable.addColumn(COMPLETE, BOOL); // todo: default false
+    orderTable.addColumn(STATUS); // todo enum: placed, approved, delivered
 
     TableMetadata userTable = schema.createTable(USER);
     userTable.addColumn("username").setPrimaryKey(true);
@@ -64,34 +71,34 @@ public class PetStoreExample {
         .getTable(PET)
         .insert(
             new Row()
-                .set("category", "cat")
+                .set(CATEGORY_COLUMN, "cat")
                 .set("name", "pooky")
-                .set("status", "available")
-                .set("weight", 9.4),
+                .set(STATUS, "available")
+                .set(WEIGHT, 9.4),
             new Row()
-                .set("category", "dog")
+                .set(CATEGORY_COLUMN, "dog")
                 .set("name", "spike")
-                .set("status", "sold")
+                .set(STATUS, "sold")
                 .set("tags", "red,green")
-                .set("weight", 15.7));
+                .set(WEIGHT, 15.7));
 
     schema
         .getTable(ORDER)
         .insert(
             new Row()
-                .set("orderId", "1")
+                .set(ORDER_ID, "1")
                 .set("pet", "pooky")
-                .set("quantity", 1)
-                .set("price", 9.99)
-                .set("complete", true)
-                .set("status", "delivered"),
+                .set(QUANTITY, 1)
+                .set(PRICE, 9.99)
+                .set(COMPLETE, true)
+                .set(STATUS, "delivered"),
             new Row()
-                .set("orderId", "2")
+                .set(ORDER_ID, "2")
                 .set("pet", "spike")
-                .set("price", 14.99)
-                .set("quantity", 7)
-                .set("complete", false)
-                .set("status", "approved"));
+                .set(PRICE, 14.99)
+                .set(QUANTITY, 7)
+                .set(COMPLETE, false)
+                .set(STATUS, "approved"));
 
     schema.getTable(USER).insert(new Row().set("username", "bofke").set("pets", "spike,pooky"));
   }

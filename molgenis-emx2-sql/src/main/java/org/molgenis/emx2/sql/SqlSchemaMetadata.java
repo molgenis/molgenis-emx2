@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private SqlDatabase db;
@@ -79,12 +78,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(member));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(manager));
 
-      // make current user a owner
-      //      if (db.getActiveUser() != null) {
-      //        db.getJooq()
-      //            .execute("GRANT {0} TO {1}", name(owner), name(MG_USER_PREFIX +
-      // db.getActiveUser()));
-      //      }
       log(start, "created");
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);
@@ -133,14 +126,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private void log(long start, String message) {
     String user = db.getActiveUser();
     if (user == null) user = "molgenis";
-    logger.info(
-        user
-            + " "
-            + message
-            + " "
-            + getName()
-            + " in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    logger.info("{} {} {} in {}ms", user, message, getName(), (System.currentTimeMillis() - start));
   }
 }

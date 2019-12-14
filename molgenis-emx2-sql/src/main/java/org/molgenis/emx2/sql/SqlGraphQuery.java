@@ -217,25 +217,23 @@ public class SqlGraphQuery extends Filter {
       fields.add(count().as(COUNT_FIELD));
     }
     for (Column col : table.getColumns()) {
-      if (select.has(col.getName())) {
-        // todo: see if this is a huge performance hit or not to do all at same time
-        if (select.has(MAX_FIELD)
-            || select.has(MIN_FIELD)
-            || select.has(AVG_FIELD)
-            || select.has(SUM_FIELD)) {
-          fields.add(
-              field(
-                      "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
-                      MAX_FIELD,
-                      max(field(name(tableAlias, col.getName()))),
-                      MIN_FIELD,
-                      min(field(name(tableAlias, col.getName()))),
-                      AVG_FIELD,
-                      avg(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))),
-                      SUM_FIELD,
-                      sum(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))))
-                  .as(col.getName()));
-        }
+      if (select.has(col.getName())
+          && (select.has(MAX_FIELD)
+              || select.has(MIN_FIELD)
+              || select.has(AVG_FIELD)
+              || select.has(SUM_FIELD))) {
+        fields.add(
+            field(
+                    "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
+                    MAX_FIELD,
+                    max(field(name(tableAlias, col.getName()))),
+                    MIN_FIELD,
+                    min(field(name(tableAlias, col.getName()))),
+                    AVG_FIELD,
+                    avg(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))),
+                    SUM_FIELD,
+                    sum(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))))
+                .as(col.getName()));
       }
     }
 
@@ -451,13 +449,13 @@ public class SqlGraphQuery extends Filter {
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
-          i++;
+          i++; // NOSONAR
           break;
         case BETWEEN:
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
-          i++; // skip one NOSONAR
+          i++; // NOSONAR
           break;
         default:
           throw new SqlGraphQueryException(

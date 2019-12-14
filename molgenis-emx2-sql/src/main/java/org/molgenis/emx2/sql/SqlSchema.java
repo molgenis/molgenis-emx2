@@ -209,7 +209,8 @@ public class SqlSchema implements Schema {
           // add 'local' columns, i.e., not those that are inherited
           for (Column c : metadata.getLocalColumns()) {
             table.addColumn(c);
-            if (c.isPrimaryKey()) table.setPrimaryKey(metadata.getPrimaryKey());
+            if (Boolean.TRUE.equals(c.isPrimaryKey()))
+              table.setPrimaryKey(metadata.getPrimaryKey());
           }
           // set primary key and uniques
           if (metadata.getInherit() == null && metadata.getPrimaryKey().length > 0)

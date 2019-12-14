@@ -12,6 +12,8 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.Where;
 import org.molgenis.emx2.utils.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -22,6 +24,7 @@ import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
   private SqlTableMetadata from;
+  private static Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
   // tables that have selected fields so need to be included in the join
   private Map<String, Column> tableAliases = new TreeMap<>();
@@ -127,7 +130,9 @@ public class SqlQuery extends QueryBean implements Query {
 
   private static List<Row> executeQuery(SelectJoinStep whereStep) throws SQLException {
     List<Row> result = new ArrayList<>();
-    System.out.println(whereStep.getSQL(ParamType.INLINED));
+    if (logger.isInfoEnabled()) {
+      logger.info(whereStep.getSQL(ParamType.INLINED));
+    }
     Result<Record> fetch = whereStep.fetch();
     for (Record r : fetch) {
       result.add(new SqlRow(r));

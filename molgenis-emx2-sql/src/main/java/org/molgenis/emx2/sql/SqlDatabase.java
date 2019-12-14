@@ -24,12 +24,13 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlDatabase implements Database {
+  private static final String ADMIN = "admin";
   private DataSource source;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
+  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public SqlDatabase(DataSource source) {
     this.source = source;
@@ -42,9 +43,9 @@ public class SqlDatabase implements Database {
     if (!hasUser("anonymous")) {
       this.addUser("anonymous");
     }
-    if (!hasUser("admin")) {
-      this.addUser("admin");
-      this.jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + "admin"));
+    if (!hasUser(ADMIN)) {
+      this.addUser(ADMIN);
+      this.jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
     }
   }
 
@@ -67,7 +68,6 @@ public class SqlDatabase implements Database {
   @Override
   public SqlSchema getSchema(String name) {
     // todo, re-enable caching
-    // if(schemas.get(name) != null) return schemas.get(name);
     SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     if (metadata.exists()) {
       SqlSchema schema = new SqlSchema(this, metadata);
@@ -83,13 +83,14 @@ public class SqlDatabase implements Database {
 
   @Override
   public void dropSchema(String name) {
-    long start = System.currentTimeMillis();
     try {
       SchemaMetadata schema = getSchema(name).getMetadata();
       getJooq().dropSchema(name(name)).cascade().execute();
       MetadataUtils.deleteSchema((SqlSchemaMetadata) schema);
       schemas.remove(name);
-      logger.info("dropped schema " + name);
+      if (logger.isInfoEnabled()) {
+        logger.info("dropped schema {}", name);
+      }
     } catch (MolgenisException me) {
       throw new MolgenisException("drop_schema_failed", "Drop schema failed", me.getDetail());
     } catch (DataAccessException dae) {
@@ -112,7 +113,6 @@ public class SqlDatabase implements Database {
 
   @Override
   public void addUser(String user) {
-    long start = System.currentTimeMillis();
     String userName = MG_USER_PREFIX + user;
     try {
       tx(
@@ -121,7 +121,9 @@ public class SqlDatabase implements Database {
                 jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
             if (result.isEmpty()) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
           });
-      logger.info("created user " + user);
+      if (logger.isInfoEnabled()) {
+        logger.info("created user {}", user);
+      }
     } catch (DataAccessException dae) {
       throw new MolgenisException(dae);
     }
@@ -147,7 +149,6 @@ public class SqlDatabase implements Database {
 
   @Override
   public void removeUser(String user) {
-    long start = System.currentTimeMillis();
     if (!hasUser(user))
       throw new MolgenisException(
           "remove_user_failed",
@@ -155,7 +156,9 @@ public class SqlDatabase implements Database {
           "User with name '" + user + "' doesn't exist");
     String userName = MG_USER_PREFIX + user;
     jooq.execute("DROP ROLE {0}", name(userName));
-    logger.info("removed user " + user);
+    if (logger.isInfoEnabled()) {
+      logger.info("removed user {}", user);
+    }
   }
 
   @Override
@@ -244,7 +247,6 @@ public class SqlDatabase implements Database {
   }
 
   public void createRole(String role) {
-    long start = System.currentTimeMillis();
     jooq.execute(
         "DO $$\n"
             + "BEGIN\n"
@@ -254,6 +256,6 @@ public class SqlDatabase implements Database {
             + "END\n"
             + "$$;\n",
         inline(role), name(role));
-    logger.info("created role " + role);
+    logger.info("created role {}", role);
   }
 }

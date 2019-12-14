@@ -159,7 +159,9 @@ class GraphqlApi {
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = g.execute(query);
     for (GraphQLError err : executionResult.getErrors()) {
-      logger.error(err.toString());
+      if (logger.isErrorEnabled()) {
+        logger.error(err.toString());
+      }
     }
     String result = convertExecutionResultToJson(executionResult);
 
