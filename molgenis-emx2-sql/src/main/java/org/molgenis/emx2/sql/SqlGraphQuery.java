@@ -412,17 +412,17 @@ public class SqlGraphQuery extends Filter {
           not = true;
           conditions.add(field(name(columnName)).eq(value));
           break;
-        case NOT_CONTAINS:
+        case NOT_LIKE:
           not = true;
           conditions.add(field(name(columnName)).likeIgnoreCase("%" + value + "%"));
           break;
-        case CONTAINS:
+        case LIKE:
           conditions.add(field(name(columnName)).likeIgnoreCase("%" + value + "%"));
           break;
-        case TRIGRAM_MATCH:
+        case TRIGRAM_SEARCH:
           conditions.add(condition("word_similarity({0},{1}) > 0.6", value, name(columnName)));
           break;
-        case LEXICAL_MATCH:
+        case TEXT_SEARCH:
           conditions.add(
               condition(
                   "to_tsquery({0}) @@ to_tsvector({1})",
@@ -451,11 +451,11 @@ public class SqlGraphQuery extends Filter {
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
+          i++;
           break;
         case BETWEEN:
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
           i++; // skip one NOSONAR
           break;

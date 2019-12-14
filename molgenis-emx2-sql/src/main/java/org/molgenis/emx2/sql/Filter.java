@@ -34,13 +34,13 @@ public class Filter {
 
   public Filter contains(Object... values) {
     validate();
-    this.conditions.put(Operator.CONTAINS, values);
+    this.conditions.put(Operator.LIKE, values);
     return this;
   }
 
   public Filter similar(Object... values) {
     validate();
-    this.conditions.put(Operator.TRIGRAM_MATCH, values);
+    this.conditions.put(Operator.TRIGRAM_SEARCH, values);
     return this;
   }
 
