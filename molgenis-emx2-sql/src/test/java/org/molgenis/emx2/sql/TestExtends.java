@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestExtends {
   private static Database db;
@@ -109,7 +109,7 @@ public class TestExtends {
         employeeTable
             .query()
             .select("salary")
-            .where("fullName", IS, "Dagobert Duck")
+            .where("fullName", EQUALS, "Dagobert Duck")
             .retrieve()
             .get(0)
             .getInteger("salary"));

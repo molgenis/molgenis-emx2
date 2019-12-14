@@ -15,7 +15,7 @@ public class SqlColumn extends Column {
 
   SqlColumn createColumn() {
     DataType thisType = SqlTypeUtils.jooqTypeOf(this);
-    Field thisColumn = field(name(getColumnName()), thisType);
+    Field thisColumn = field(name(getName()), thisType);
     getJooq().alterTable(asJooqTable()).addColumn(thisColumn).execute();
 
     getJooq()
@@ -32,8 +32,8 @@ public class SqlColumn extends Column {
   @Override
   public SqlColumn setNullable(boolean nillable) {
     if (nillable)
-      getJooq().alterTable(asJooqTable()).alterColumn(getColumnName()).dropNotNull().execute();
-    else getJooq().alterTable(asJooqTable()).alterColumn(getColumnName()).setNotNull().execute();
+      getJooq().alterTable(asJooqTable()).alterColumn(getName()).dropNotNull().execute();
+    else getJooq().alterTable(asJooqTable()).alterColumn(getName()).setNotNull().execute();
     super.setNullable(getNullable());
     return this;
   }
@@ -43,11 +43,11 @@ public class SqlColumn extends Column {
     getJooq()
         .transaction(
             dsl -> {
-              String indexName = "INDEX_" + getTable().getTableName() + '_' + getColumnName();
+              String indexName = "INDEX_" + getTable().getTableName() + '_' + getName();
               if (index) {
                 getJooq()
                     .createIndexIfNotExists(name(indexName))
-                    .on(asJooqTable(), field(name(getColumnName())))
+                    .on(asJooqTable(), field(name(getName())))
                     .execute();
               } else {
                 getJooq().dropIndexIfExists(name(getTable().getSchema().getName(), indexName));

@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestQuery {
   static Database database;
@@ -79,7 +79,7 @@ public class TestQuery {
 
     Query q = s.getTable("Person").query();
     q.select("First Name", "Last Name", "Father/First Name", "Father/Last Name");
-    q.where("Last Name", IS, "Duck").and("Father/First Name", IS, "Donald");
+    q.where("Last Name", EQUALS, "Duck").and("Father/First Name", EQUALS, "Donald");
 
     StopWatch.print("created query");
 
@@ -99,7 +99,7 @@ public class TestQuery {
         .expand("Father")
         .select("Last Name")
         .select("First Name");
-    q.where("Last Name", IS, "Duck").and("Father/Last Name", IS, "Donald");
+    q.where("Last Name", EQUALS, "Duck").and("Father/Last Name", EQUALS, "Donald");
 
     rows = q.retrieve();
     // TODO this should succeed    assertEquals(3, rows.size());

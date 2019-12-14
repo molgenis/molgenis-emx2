@@ -148,7 +148,7 @@ public class SqlQuery extends QueryBean implements Query {
                 table(name(fkey.getTable().getSchema().getName(), joinTable)).as(name(joinTable)))
             .on(
                 field(name(joinTable, fkey.getRefColumnName()))
-                    .eq(field(name(leftAlias, fkey.getColumnName()))));
+                    .eq(field(name(leftAlias, fkey.getName()))));
     // to other end of the mref
     fromStep = createRefJoin(fromStep, tableAlias, fkey, joinTable);
     return fromStep;
@@ -164,7 +164,7 @@ public class SqlQuery extends QueryBean implements Query {
             .on(
                 "{0} = ANY ({1})",
                 field(name(tableAlias, fkey.getRefColumnName())),
-                field(name(leftAlias, fkey.getColumnName())));
+                field(name(leftAlias, fkey.getName())));
     return fromStep;
   }
 
@@ -176,7 +176,7 @@ public class SqlQuery extends QueryBean implements Query {
                 table(name(fkey.getTable().getSchema().getName(), fkey.getRefTableName()))
                     .as(name(tableAlias)))
             .on(
-                field(name(leftAlias, fkey.getColumnName()))
+                field(name(leftAlias, fkey.getName()))
                     .eq(field(name(tableAlias, fkey.getRefColumnName()))));
     return fromStep;
   }
@@ -219,7 +219,7 @@ public class SqlQuery extends QueryBean implements Query {
     }
     Name selector = name(tableAliasBuilder.toString(), path[path.length - 1]);
     switch (w.getOperator()) {
-      case IS:
+      case EQUALS:
         // type check
         Object[] values = w.getValues();
         for (int i = 0; i < values.length; i++)
@@ -311,7 +311,7 @@ public class SqlQuery extends QueryBean implements Query {
     if (MREF.equals(column.getColumnType())) {
       return createMrefSubselect(column, tableAlias).as(columnAlias);
     } else {
-      return field(name(tableAlias, column.getColumnName()), SqlTypeUtils.jooqTypeOf(column))
+      return field(name(tableAlias, column.getName()), SqlTypeUtils.jooqTypeOf(column))
           .as(columnAlias);
     }
   }

@@ -142,14 +142,14 @@ public class JsonApi {
       try {
         switch (c.getColumnType()) {
           case INT:
-            r.setInt(c.getColumnName(), json.get(c.getColumnName()).toInt());
+            r.setInt(c.getName(), json.get(c.getName()).toInt());
             break;
           case DECIMAL:
-            r.setDecimal(c.getColumnName(), json.get(c.getColumnName()).toDouble());
+            r.setDecimal(c.getName(), json.get(c.getName()).toDouble());
             break;
           case STRING:
-            if (ValueType.STRING.equals(json.get(c.getColumnName()).valueType())) {
-              r.setString(c.getColumnName(), json.get(c.getColumnName()).toString());
+            if (ValueType.STRING.equals(json.get(c.getName()).valueType())) {
+              r.setString(c.getName(), json.get(c.getName()).toString());
               break;
             } else throw new IllegalArgumentException();
           default:
@@ -161,10 +161,7 @@ public class JsonApi {
         throw new MolgenisException(
             String.format(
                 "Malformed json: expected '%s' to be of type '%s' but found '%s'. Total object: %s",
-                c.getColumnName(),
-                c.getColumnType(),
-                json.get(c.getColumnName()).valueType(),
-                json),
+                c.getName(), c.getColumnType(), json.get(c.getName()).valueType(), json),
             e);
       }
     }

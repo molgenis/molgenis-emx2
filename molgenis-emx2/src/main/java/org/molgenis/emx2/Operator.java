@@ -2,8 +2,8 @@ package org.molgenis.emx2;
 
 public enum Operator {
   // equality
-  IS("is", "Uses '=' operator. In case of arrays '= ANY'"),
-  IS_NOT("is_not", "Uses <> operator. In case of array 'NOT (= ANY)'"),
+  EQUALS("is", "Uses '=' operator. In case of arrays '= ANY'"),
+  NOT_EQUALS("is_not", "Uses <> operator. In case of array 'NOT (= ANY)'"),
   // ordinal
   BETWEEN("between", "Uses BETWEEN operator"),
   NOT_BETWEEN("not_between", "Uses NOT BETWEEN operator"),

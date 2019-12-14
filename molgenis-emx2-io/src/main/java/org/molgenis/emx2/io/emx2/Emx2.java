@@ -246,7 +246,7 @@ public class Emx2 {
     rows.add(
         new Emx2FileRow(
             column.getTable().getTableName(),
-            column.getColumnName(),
+            column.getName(),
             def.toString(),
             column.getDescription()));
   }

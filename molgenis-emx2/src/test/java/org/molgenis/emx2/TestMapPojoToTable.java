@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.molgenis.emx2.beans.Mapper;
 import org.molgenis.emx2.beans.PersonBean;
 import org.molgenis.emx2.beans.TypeTestBean;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,7 +13,7 @@ import static org.molgenis.emx2.ColumnType.*;
 public class TestMapPojoToTable {
 
   @Test
-  public void testBeanToRowToBean()  {
+  public void testBeanToRowToBean() {
     PersonBean b = new PersonBean();
     b.setFirstName("Donald");
     b.setLastName("Duck");
@@ -35,15 +34,15 @@ public class TestMapPojoToTable {
   }
 
   @Test
-  public void testPersonClassToTable()  {
+  public void testPersonClassToTable() {
     TableMetadata t = Mapper.map(PersonBean.class);
     Column molgenisid = t.getColumn("molgenisid");
 
     Column firstName = t.getColumn("firstName");
     Column lastName = t.getColumn("lastName");
 
-    assertEquals("firstName", firstName.getColumnName());
-    assertEquals("lastName", lastName.getColumnName());
+    assertEquals("firstName", firstName.getName());
+    assertEquals("lastName", lastName.getName());
 
     assertEquals(ColumnType.UUID, molgenisid.getColumnType());
     assertEquals(STRING, firstName.getColumnType());
@@ -55,7 +54,7 @@ public class TestMapPojoToTable {
   }
 
   @Test
-  public void testTypeTestToTable()  {
+  public void testTypeTestToTable() {
     TableMetadata table = Mapper.map(TypeTestBean.class);
 
     for (ColumnType columnType : new ColumnType[] {STRING, INT, DECIMAL, BOOL, DATE, DATETIME}) {

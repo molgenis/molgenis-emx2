@@ -65,7 +65,7 @@ class SqlTable implements Table {
             List<Field> fields = new ArrayList<>();
             List<String> fieldNames = new ArrayList<>();
             for (Column c : getMetadata().getLocalColumns()) {
-              fieldNames.add(c.getColumnName());
+              fieldNames.add(c.getName());
               fields.add(getJooqField(c));
             }
             InsertValuesStepN step =
@@ -136,7 +136,7 @@ class SqlTable implements Table {
             ArrayList<Field> fields = new ArrayList<>();
             ArrayList<String> fieldNames = new ArrayList<>();
             for (Column c : getMetadata().getLocalColumns()) {
-              fieldNames.add(c.getColumnName());
+              fieldNames.add(c.getName());
               fields.add(getJooqField(c));
             }
 
@@ -256,7 +256,7 @@ class SqlTable implements Table {
         List<Column> allColumns = getMetadata().getColumns();
         keyNames = new String[allColumns.size()];
         for (int i = 0; i < keyNames.length; i++) {
-          keyNames[i] = allColumns.get(i).getColumnName();
+          keyNames[i] = allColumns.get(i).getName();
         }
       }
 
@@ -332,6 +332,6 @@ class SqlTable implements Table {
   }
 
   private Field getJooqField(Column c) {
-    return field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c));
+    return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
   }
 }

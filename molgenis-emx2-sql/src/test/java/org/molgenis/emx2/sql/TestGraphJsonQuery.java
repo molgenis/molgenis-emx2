@@ -7,7 +7,7 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
 import static org.molgenis.emx2.sql.Filter.f;
-import static org.molgenis.emx2.sql.SqlGraphQuery.s;
+import static org.molgenis.emx2.sql.SelectColumn.s;
 
 public class TestGraphJsonQuery {
 

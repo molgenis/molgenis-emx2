@@ -133,8 +133,7 @@ class SqlTableMetadata extends TableMetadata {
           // parent, and make it primary key of this table also.
           for (String pkey : other.getPrimaryKey()) {
             Column pkeyColumn = other.getColumn(pkey);
-            this.addRef(
-                pkeyColumn.getColumnName(), other.getTableName(), pkeyColumn.getColumnName());
+            this.addRef(pkeyColumn.getName(), other.getTableName(), pkeyColumn.getName());
           }
           this.setPrimaryKey(other.getPrimaryKey());
 
@@ -204,21 +203,21 @@ class SqlTableMetadata extends TableMetadata {
   public Column addColumn(Column metadata) {
     long start = System.currentTimeMillis();
 
-    if (getColumn(metadata.getColumnName()) != null) {
+    if (getColumn(metadata.getName()) != null) {
       throw new MolgenisException(
           "invalid_column",
           "Invalid column",
           String.format(
               "Column with columnName='%s' already exist in table '%s'",
-              metadata.getColumnName(), getTableName()));
+              metadata.getName(), getTableName()));
     }
-    if (getInherit() != null && getInheritedTable().getColumn(metadata.getColumnName()) != null) {
+    if (getInherit() != null && getInheritedTable().getColumn(metadata.getName()) != null) {
       throw new MolgenisException(
           "invalid_column",
           "Invalid column",
           String.format(
               "Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
-              metadata.getColumnName(), getTableName(), getInherit()));
+              metadata.getName(), getTableName(), getInherit()));
     }
     // if ref column is empty, guess it
     db.tx(
@@ -229,21 +228,17 @@ class SqlTableMetadata extends TableMetadata {
             case REF:
               result =
                   addRef(
-                      metadata.getColumnName(),
-                      metadata.getRefTableName(),
-                      metadata.getRefColumnName());
+                      metadata.getName(), metadata.getRefTableName(), metadata.getRefColumnName());
               break;
             case REF_ARRAY:
               result =
                   addRefArray(
-                      metadata.getColumnName(),
-                      metadata.getRefTableName(),
-                      metadata.getRefColumnName());
+                      metadata.getName(), metadata.getRefTableName(), metadata.getRefColumnName());
               break;
             case MREF:
               result =
                   addMref(
-                      metadata.getColumnName(),
+                      metadata.getName(),
                       metadata.getRefTableName(),
                       metadata.getRefColumnName(),
                       metadata.getReverseRefTableName(),
@@ -251,14 +246,14 @@ class SqlTableMetadata extends TableMetadata {
                       metadata.getMrefJoinTableName());
               break;
             default:
-              result = addColumn(metadata.getColumnName(), metadata.getColumnType());
+              result = addColumn(metadata.getName(), metadata.getColumnType());
           }
           result.setDescription(metadata.getDescription());
           result.setNullable(metadata.getNullable());
           result.setDefaultValue(metadata.getDefaultValue());
         });
-    log(start, "added column '" + metadata.getColumnName() + "' to ");
-    return getColumn(metadata.getColumnName());
+    log(start, "added column '" + metadata.getName() + "' to ");
+    return getColumn(metadata.getName());
   }
 
   @Override
@@ -528,9 +523,9 @@ class SqlTableMetadata extends TableMetadata {
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : getLocalColumns()) {
-      if (!c.getColumnName().startsWith("MG_"))
+      if (!c.getName().startsWith("MG_"))
         mgSearchVector.append(
-            String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getColumnName()));
+            String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName()));
     }
 
     String functionBody =

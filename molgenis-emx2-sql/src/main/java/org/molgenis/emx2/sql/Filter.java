@@ -28,7 +28,7 @@ public class Filter {
 
   public Filter is(Object... values) {
     validate();
-    this.conditions.put(Operator.IS, values);
+    this.conditions.put(Operator.EQUALS, values);
     return this;
   }
 

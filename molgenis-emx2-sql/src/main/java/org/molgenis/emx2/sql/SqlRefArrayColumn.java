@@ -30,13 +30,13 @@ public class SqlRefArrayColumn extends SqlColumn {
     Name triggerName = getTriggerName("REFERENCED_BY");
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
-    Name thisColumn = name(getColumnName());
+    Name thisColumn = name(getName());
     Name toColumn = name(getRefColumnName());
 
     Name functionName =
         name(
             getTable().getSchema().getName(),
-            getTable().getTableName() + "_" + getColumnName() + "_REF_ARRAY_TRIGGER2");
+            getTable().getTableName() + "_" + getName() + "_REF_ARRAY_TRIGGER2");
 
     // createTableIfNotExists the function
     getJooq()
@@ -80,14 +80,14 @@ public class SqlRefArrayColumn extends SqlColumn {
   private void createReferenceExistsTrigger() {
     Name triggerName = getTriggerName("REFERENCES_EXISTS");
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
-    Name thisColumn = name(getColumnName());
+    Name thisColumn = name(getName());
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name toColumn = name(getRefColumnName());
 
     Name functionName =
         name(
             getTable().getSchema().getName(),
-            getTable().getTableName() + "_" + getColumnName() + "_REF_ARRAY_TRIGGER");
+            getTable().getTableName() + "_" + getName() + "_REF_ARRAY_TRIGGER");
 
     // createTableIfNotExists the function
     getJooq()
@@ -140,7 +140,7 @@ public class SqlRefArrayColumn extends SqlColumn {
     return name(
         getTable().getTableName()
             + "."
-            + getColumnName()
+            + getName()
             + " "
             + meaning
             + " "

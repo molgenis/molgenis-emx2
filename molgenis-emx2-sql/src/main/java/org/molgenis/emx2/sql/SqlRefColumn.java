@@ -19,7 +19,7 @@ public class SqlRefColumn extends SqlColumn {
   public SqlRefColumn createColumn() {
     try {
       // define jooq parameters
-      Field thisColumn = field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(this));
+      Field thisColumn = field(name(getName()), SqlTypeUtils.jooqTypeOf(this));
       org.jooq.Table thisTable =
           table(name(getTable().getSchema().getName(), getTable().getTableName()));
 
@@ -30,7 +30,7 @@ public class SqlRefColumn extends SqlColumn {
           name(
               getTable().getTableName()
                   + "."
-                  + getColumnName()
+                  + getName()
                   + " REFERENCES "
                   + getRefTableName()
                   + "."
@@ -53,7 +53,7 @@ public class SqlRefColumn extends SqlColumn {
               thisTable, fkeyConstraintName);
 
       getJooq()
-          .createIndex(name(getTable().getTableName()) + "_" + name(getColumnName()) + "_FKINDEX")
+          .createIndex(name(getTable().getTableName()) + "_" + name(getName()) + "_FKINDEX")
           .on(thisTable, thisColumn)
           .execute();
 
@@ -63,7 +63,7 @@ public class SqlRefColumn extends SqlColumn {
           "foreign_key_create_failed",
           "Creation of foreign key failed",
           "Foreign key '"
-              + getColumnName()
+              + getName()
               + "' could not be created in table '"
               + getTable().getTableName()
               + "'",

@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.molgenis.emx2.beans.QueryBean;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestQueryBean {
 
@@ -52,10 +52,10 @@ public class TestQueryBean {
     q.select("First Name");
     q.select("Last Name");
     q.expand("Father").select("Firs tName").select("Last Name");
-    q.where("First Name", IS, "Donald")
-        .and("Last Name", IS, "Duck")
-        .and("Age", IS, 56)
-        .or("Father/Last Name", IS, "Mouse");
+    q.where("First Name", EQUALS, "Donald")
+        .and("Last Name", EQUALS, "Duck")
+        .and("Age", EQUALS, 56)
+        .or("Father/Last Name", EQUALS, "Mouse");
     q.asc("First Name").desc("Last Name");
 
     assertEquals(4, q.getSelectList().size());
@@ -70,9 +70,9 @@ public class TestQueryBean {
         .expand("Father")
         .select("First Name")
         .select("LastName")
-        .where("First Name", IS, "Donald")
-        .and("Last Name", IS, "Duck")
-        .or("Last Name", IS, "Mouse")
+        .where("First Name", EQUALS, "Donald")
+        .and("Last Name", EQUALS, "Duck")
+        .or("Last Name", EQUALS, "Mouse")
         .asc("First Name")
         .desc("Last Name");
     System.out.println(q);
@@ -81,12 +81,12 @@ public class TestQueryBean {
     System.out.println(
         "==== SELECT firstName(EQUALS Donald), LastName (EQUALS Duck) OR LastName EQUALS Mouse");
     q = new QueryBean();
-    q.where("First Name", IS, "Donald")
-        .where("Last Name", IS, "Duck")
+    q.where("First Name", EQUALS, "Donald")
+        .where("Last Name", EQUALS, "Duck")
         .expand("Father")
         .select("Last Name")
-        .where("Father", IS, "Mouse")
-        .or("Last Name", IS, "Mouse");
+        .where("Father", EQUALS, "Mouse")
+        .or("Last Name", EQUALS, "Mouse");
     System.out.println(q);
   }
 }

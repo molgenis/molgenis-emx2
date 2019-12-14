@@ -73,7 +73,7 @@ public class SqlTypeUtils extends TypeUtils {
           "invalid_reference",
           "Invalid reference",
           "Table reference '"
-              + column.getColumnName()
+              + column.getName()
               + "' from table '"
               + column.getTable().getTableName()
               + "' to table '"
@@ -88,7 +88,7 @@ public class SqlTypeUtils extends TypeUtils {
     Collection<Object> values = new ArrayList<>();
     for (Column c : table.getMetadata().getLocalColumns()) {
       // rls
-      if (Constants.MG_EDIT_ROLE.equals(c.getColumnName())) {
+      if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         // big todo if we want to allow usernames here or role names
         values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else {
@@ -166,37 +166,37 @@ public class SqlTypeUtils extends TypeUtils {
     }
     switch (columnType) {
       case UUID:
-        return row.getUuid(column.getColumnName());
+        return row.getUuid(column.getName());
       case UUID_ARRAY:
-        return row.getUuidArray(column.getColumnName());
+        return row.getUuidArray(column.getName());
       case STRING:
-        return row.getString(column.getColumnName());
+        return row.getString(column.getName());
       case STRING_ARRAY:
-        return row.getStringArray(column.getColumnName());
+        return row.getStringArray(column.getName());
       case BOOL:
-        return row.getBoolean(column.getColumnName());
+        return row.getBoolean(column.getName());
       case BOOL_ARRAY:
-        return row.getBooleanArray(column.getColumnName());
+        return row.getBooleanArray(column.getName());
       case INT:
-        return row.getInteger(column.getColumnName());
+        return row.getInteger(column.getName());
       case INT_ARRAY:
-        return row.getIntegerArray(column.getColumnName());
+        return row.getIntegerArray(column.getName());
       case DECIMAL:
-        return row.getDecimal(column.getColumnName());
+        return row.getDecimal(column.getName());
       case DECIMAL_ARRAY:
-        return row.getDecimalArray(column.getColumnName());
+        return row.getDecimalArray(column.getName());
       case TEXT:
-        return row.getText(column.getColumnName());
+        return row.getText(column.getName());
       case TEXT_ARRAY:
-        return row.getTextArray(column.getColumnName());
+        return row.getTextArray(column.getName());
       case DATE:
-        return row.getDate(column.getColumnName());
+        return row.getDate(column.getName());
       case DATE_ARRAY:
-        return row.getDateArray(column.getColumnName());
+        return row.getDateArray(column.getName());
       case DATETIME:
-        return row.getDateTime(column.getColumnName());
+        return row.getDateTime(column.getName());
       case DATETIME_ARRAY:
-        return row.getDateTimeArray(column.getColumnName());
+        return row.getDateTimeArray(column.getName());
       default:
         throw new UnsupportedOperationException("Unsupported columnType found:" + columnType);
     }

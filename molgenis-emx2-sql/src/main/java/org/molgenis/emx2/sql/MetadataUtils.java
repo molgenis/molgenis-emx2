@@ -224,7 +224,7 @@ public class MetadataUtils {
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
-            column.getColumnName(),
+            column.getName(),
             column.getColumnType(),
             column.getNullable(),
             column.getRefTableName(),
@@ -247,7 +247,7 @@ public class MetadataUtils {
         .where(
             TABLE_SCHEMA.eq(column.getTable().getSchema()),
             TABLE_NAME.eq(column.getTable().getTableName()),
-            COLUMN_NAME.eq(column.getColumnName()))
+            COLUMN_NAME.eq(column.getName()))
         .execute();
   }
 

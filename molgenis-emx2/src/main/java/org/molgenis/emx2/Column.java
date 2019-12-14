@@ -29,7 +29,7 @@ public class Column {
   }
 
   public Column setPrimaryKey(boolean primaryKey) {
-    if (primaryKey) this.table.setPrimaryKey(this.getColumnName());
+    if (primaryKey) this.table.setPrimaryKey(this.getName());
     return this;
   }
 
@@ -37,7 +37,7 @@ public class Column {
     return table;
   }
 
-  public String getColumnName() {
+  public String getName() {
     return columnName;
   }
 
@@ -71,12 +71,12 @@ public class Column {
   }
 
   public Boolean isUnique() {
-    return getTable().isUnique(getColumnName());
+    return getTable().isUnique(getName());
   }
 
   public Column setUnique(boolean unique) {
-    if (unique) getTable().addUnique(this.getColumnName());
-    else getTable().removeUnique(this.getColumnName());
+    if (unique) getTable().addUnique(this.getName());
+    else getTable().removeUnique(this.getName());
     return this;
   }
 
@@ -144,7 +144,7 @@ public class Column {
   }
 
   public Boolean isPrimaryKey() {
-    return getTable().isPrimaryKey(getColumnName());
+    return getTable().isPrimaryKey(getName());
   }
 
   protected void setTable(TableMetadata tableMetadata) {
@@ -191,7 +191,7 @@ public class Column {
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append(getColumnName()).append(" ");
+    builder.append(getName()).append(" ");
     if (ColumnType.REF.equals(getColumnType()))
       builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
     else if (ColumnType.REF_ARRAY.equals(getColumnType()))

@@ -107,7 +107,7 @@ public class OpenApiYamlGenerator {
   private static Schema tableSchema(TableMetadata table) {
     Map<String, Schema> properties = new LinkedHashMap<>();
     for (Column column : table.getColumns()) {
-      properties.put(column.getColumnName(), columnSchema(column));
+      properties.put(column.getName(), columnSchema(column));
     }
     return new Schema()
         .description("JSON schema for " + table.getTableName())

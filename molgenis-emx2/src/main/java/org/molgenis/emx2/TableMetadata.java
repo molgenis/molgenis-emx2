@@ -51,7 +51,7 @@ public class TableMetadata {
       // ignore primary key from child class because that is same as in inheritedTable
       List<String> primaryKeyList = Arrays.asList(getPrimaryKey());
       for (Column c : this.columns.values()) {
-        if (!primaryKeyList.contains(c.getColumnName())) result.add(c);
+        if (!primaryKeyList.contains(c.getName())) result.add(c);
       }
     } else {
       result.addAll(columns.values());
@@ -88,7 +88,7 @@ public class TableMetadata {
 
   public Column addColumn(Column column) {
     column.setTable(this);
-    columns.put(column.getColumnName(), column);
+    columns.put(column.getName(), column);
     return column;
   }
 

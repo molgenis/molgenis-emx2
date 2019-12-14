@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestCreateCompositeKeys {
   static Database database;
@@ -86,7 +86,7 @@ public class TestCreateCompositeKeys {
     aRow2.set("col3", data[1]);
     aTable.update(aRow2);
 
-    assertEquals(1, aTable.query().where("col3", IS, data[1]).retrieve().size());
+    assertEquals(1, aTable.query().where("col3", EQUALS, data[1]).retrieve().size());
 
     aTable.delete(aRow);
 

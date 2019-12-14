@@ -4,6 +4,7 @@ import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.Filter;
+import org.molgenis.emx2.sql.SelectColumn;
 import org.molgenis.emx2.sql.SqlGraphQuery;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -18,15 +19,19 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.Order.DESC;
 import static org.molgenis.emx2.sql.Filter.f;
+import static org.molgenis.emx2.sql.SqlGraphQuery.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.GraphqlApi.*;
 
 public class GraphqlTableFields {
+
+  private GraphqlTableFields() {
+    // hide constructor
+  }
 
   static final GraphQLEnumType orderByEnum =
       newEnum().name("MolgenisOrderByEnum").value(ASC.name(), ASC).value(DESC.name(), DESC).build();
@@ -51,13 +56,6 @@ public class GraphqlTableFields {
   public static GraphQLFieldDefinition.Builder tableMutationField(Table table) {
     GraphQLInputObjectType inputType = createTableInputType(table);
 
-    //      newFieldDefinition()
-    //          .name("delete" + tableMetadata.getTableName())
-    //          .type(GraphQLTypeReference.typeRef(MUTATION_RESULT))
-    //          .dataFetcher(createDeleteFetcher(table))
-    //
-    // .argument(GraphQLArgument.newArgument().name("input").type(GraphQLList.list(inputType)));
-
     return newFieldDefinition()
         .name("save" + table.getName())
         .type(typeForMutationResult)
@@ -79,12 +77,6 @@ public class GraphqlTableFields {
     };
   }
 
-  private static DataFetcher<?> fetcherForDelete(Table table) {
-    return dataFetchingEnvironment -> {
-      throw new UnsupportedOperationException();
-    };
-  }
-
   private static DataFetcher fetcherForQuery(Table aTable) {
     return dataFetchingEnvironment -> {
       Table table = aTable;
@@ -95,8 +87,7 @@ public class GraphqlTableFields {
       }
       String search = dataFetchingEnvironment.getArgument(SEARCH);
       if (search != null) {
-        // todo proper tokenizer
-        q.search(search.split(" "));
+        q.search(search);
       }
 
       return transform(q.retrieve());
@@ -106,11 +97,11 @@ public class GraphqlTableFields {
   private static GraphQLObjectType createTableableConnectionObjectType(
       Table table, GraphQLObjectType tableType) {
     GraphQLObjectType.Builder connectionBuilder = newObject().name(table.getName() + "Connection");
-    // connectionBuilder.field(newFieldDefinition().name("meta").type(metadataType));
-    connectionBuilder.field(newFieldDefinition().name(COUNT).type(Scalars.GraphQLInt));
+    connectionBuilder.field(
+        newFieldDefinition().name(DATA_AGG_FIELD).type(createTableAggregationType(table)));
     connectionBuilder.field(
         newFieldDefinition()
-            .name("items")
+            .name(DATA_FIELD)
             .type(GraphQLList.list(tableType))
             .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
             .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
@@ -139,7 +130,7 @@ public class GraphqlTableFields {
           type = Scalars.GraphQLString;
           break;
       }
-      inputBuilder.field(newInputObjectField().name(col.getColumnName()).type(type));
+      inputBuilder.field(newInputObjectField().name(col.getName()).type(type));
     }
     return inputBuilder.build();
   }
@@ -150,22 +141,21 @@ public class GraphqlTableFields {
       switch (col.getColumnType()) {
         case DECIMAL:
           tableBuilder.field(
-              newFieldDefinition().name(col.getColumnName()).type(Scalars.GraphQLBigDecimal));
+              newFieldDefinition().name(col.getName()).type(Scalars.GraphQLBigDecimal));
           break;
         case INT:
-          tableBuilder.field(
-              newFieldDefinition().name(col.getColumnName()).type(Scalars.GraphQLInt));
+          tableBuilder.field(newFieldDefinition().name(col.getName()).type(Scalars.GraphQLInt));
           break;
         case REF:
           tableBuilder.field(
               newFieldDefinition()
-                  .name(col.getColumnName())
+                  .name(col.getName())
                   .type(GraphQLTypeReference.typeRef(col.getRefTableName())));
           break;
         case REF_ARRAY:
           tableBuilder.field(
               newFieldDefinition()
-                  .name(col.getColumnName())
+                  .name(col.getName())
                   .type(GraphQLList.list(GraphQLTypeReference.typeRef(col.getRefTableName())))
                   .argument(
                       GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
@@ -177,13 +167,35 @@ public class GraphqlTableFields {
                           .type(GraphQLTypeReference.typeRef(col.getRefTableName() + ORDERBY))
                           .build()));
           tableBuilder.field(
-              newFieldDefinition().name(col.getColumnName() + "_count").type(Scalars.GraphQLInt));
+              newFieldDefinition()
+                  .name(col.getName() + "_agg")
+                  .type(GraphQLTypeReference.typeRef(col.getRefTableName() + "Aggregate")));
           break;
         default:
-          tableBuilder.field(
-              newFieldDefinition().name(col.getColumnName()).type(Scalars.GraphQLString));
+          tableBuilder.field(newFieldDefinition().name(col.getName()).type(Scalars.GraphQLString));
       }
     return tableBuilder.build();
+  }
+
+  private static GraphQLObjectType createTableAggregationType(Table table) {
+    GraphQLObjectType.Builder builder = newObject().name(table.getName() + "Aggregate");
+    builder.field(newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+    for (Column col : table.getMetadata().getColumns()) {
+      ColumnType type = col.getColumnType();
+      if (INT.equals(type) || DECIMAL.equals(type)) {
+        builder.field(
+            newFieldDefinition()
+                .name(col.getName())
+                .type(
+                    newObject()
+                        .name(table.getName() + "AggregatorFor" + col.getName())
+                        .field(newFieldDefinition().name(MAX_FIELD).type(graphQLTypeOf(type)))
+                        .field(newFieldDefinition().name(MIN_FIELD).type(graphQLTypeOf(type)))
+                        .field(newFieldDefinition().name(AVG_FIELD).type(Scalars.GraphQLFloat))
+                        .field(newFieldDefinition().name(SUM_FIELD).type(graphQLTypeOf(type)))));
+      }
+    }
+    return builder.build();
   }
 
   private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {
@@ -193,13 +205,13 @@ public class GraphqlTableFields {
       if (REF.equals(col.getColumnType()) || REF_ARRAY.equals((col.getColumnType()))) {
         filterBuilder.field(
             newInputObjectField()
-                .name(col.getColumnName())
+                .name(col.getName())
                 .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER1))
                 .build());
       } else {
         filterBuilder.field(
             newInputObjectField()
-                .name(col.getColumnName())
+                .name(col.getName())
                 .type(columnFilterInputObjectType(col))
                 .build());
       }
@@ -212,7 +224,7 @@ public class GraphqlTableFields {
         newInputObject().name(table.getName() + ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
       if (!REF_ARRAY.equals((col.getColumnType()))) {
-        orderByBuilder.field(newInputObjectField().name(col.getColumnName()).type(orderByEnum));
+        orderByBuilder.field(newInputObjectField().name(col.getName()).type(orderByEnum));
       }
     }
     return orderByBuilder.build();
@@ -275,62 +287,59 @@ public class GraphqlTableFields {
       if (c == null)
         throw new GraphqlApiException(
             "Column " + entry.getKey() + " unknown in table " + table.getName());
-      switch (c.getColumnType()) {
-        case REF:
-        case REF_ARRAY:
-          subFilters.add(
-              f(
-                  c.getColumnName(),
-                  mapFilters(
-                      table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
-          break;
-        default:
-          if (entry.getValue() instanceof Map) {
-            Filter f = f(entry.getKey());
-            for (Map.Entry<String, Object> entry2 :
-                ((Map<String, Object>) entry.getValue()).entrySet()) {
-              Operator op = Operator.fromAbbreviation(entry2.getKey());
-              if (entry2.getValue() instanceof List) {
-                f.add(op, (List) entry2.getValue());
-              } else {
-                f.add(op, entry2.getValue());
-              }
-            }
-            subFilters.add(f);
-          } else {
-            throw new GraphqlApiException(
-                "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
-          }
+      if (REF.equals(c.getColumnType()) || REF_ARRAY.equals(c.getColumnType())) {
+        subFilters.add(
+            f(
+                c.getName(),
+                mapFilters(
+                    table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
+      } else {
+        if (entry.getValue() instanceof Map) {
+          subFilters.add(mapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
+        } else {
+          throw new GraphqlApiException(
+              "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
+        }
       }
     }
     return subFilters.toArray(new Filter[subFilters.size()]);
   }
 
-  /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
-  private static SqlGraphQuery.SelectColumn[] mapSelect(DataFetchingFieldSelectionSet selection) {
-    List<SqlGraphQuery.SelectColumn> result = new ArrayList<>();
-    for (SelectedField s : selection.getFields()) {
-      if (!s.getQualifiedName().contains("/")) {
-        if (!s.getSelectionSet().getFields().isEmpty()) {
-          SqlGraphQuery.SelectColumn sc =
-              new SqlGraphQuery.SelectColumn(s.getName(), mapSelect(s.getSelectionSet()));
-          // get limit and offset for the selection
-          Map<String, Object> args = s.getArguments();
-          if (args.containsKey(LIMIT)) {
-            sc.setLimit((int) args.get(LIMIT));
-          }
-          if (args.containsKey(OFFSET)) {
-            sc.setOffset((int) args.get(OFFSET));
-          }
-          if (args.containsKey(ORDERBY)) {
-            sc.setOrderBy((Map<String, Order>) args.get(ORDERBY));
-          }
-          result.add(sc);
-        } else {
-          result.add(new SqlGraphQuery.SelectColumn(s.getName()));
-        }
+  private static Filter mapToFilter(String name, Map<String, Object> subFilter) {
+    Filter f = f(name);
+    for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
+      Operator op = Operator.fromAbbreviation(entry2.getKey());
+      if (entry2.getValue() instanceof List) {
+        f.add(op, (List) entry2.getValue());
+      } else {
+        f.add(op, entry2.getValue());
       }
     }
-    return result.toArray(new SqlGraphQuery.SelectColumn[result.size()]);
+    return f;
+  }
+
+  /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
+  private static SelectColumn[] mapSelect(DataFetchingFieldSelectionSet selection) {
+    List<SelectColumn> result = new ArrayList<>();
+    for (SelectedField s : selection.getFields()) {
+      if (!s.getQualifiedName().contains("/") && !s.getSelectionSet().getFields().isEmpty()) {
+        SelectColumn sc = new SelectColumn(s.getName(), mapSelect(s.getSelectionSet()));
+        // get limit and offset for the selection
+        Map<String, Object> args = s.getArguments();
+        if (args.containsKey(LIMIT)) {
+          sc.setLimit((int) args.get(LIMIT));
+        }
+        if (args.containsKey(OFFSET)) {
+          sc.setOffset((int) args.get(OFFSET));
+        }
+        if (args.containsKey(ORDERBY)) {
+          sc.setOrderBy((Map<String, Order>) args.get(ORDERBY));
+        }
+        result.add(sc);
+      } else {
+        result.add(new SelectColumn(s.getName()));
+      }
+    }
+    return result.toArray(new SelectColumn[result.size()]);
   }
 }

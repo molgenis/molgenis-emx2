@@ -40,7 +40,7 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
           new SqlRefColumn((SqlTableMetadata) this.getTable(), nameArray[i], toTable, toColumns[i]);
       ((SqlTableMetadata) getTable()).addColumnWithoutCreate(c);
 
-      Field thisColumn = field(name(c.getColumnName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));
+      Field thisColumn = field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c).nullable(false));
       table.getJooq().alterTable(table.getJooqTable()).addColumn(thisColumn).execute();
       saveColumnMetadata(c);
     }

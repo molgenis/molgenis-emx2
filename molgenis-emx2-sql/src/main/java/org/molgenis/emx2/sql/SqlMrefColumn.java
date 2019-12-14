@@ -47,7 +47,7 @@ public class SqlMrefColumn extends SqlColumn {
     // create refArray column to enable updates to be provided for the trigger
     getJooq()
         .alterTable(name(schemaName, getTable().getTableName()))
-        .add(field(name(getColumnName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
+        .add(field(name(getName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
         .execute();
 
     // create the reverse refArray, but only if reverse name is given
@@ -71,7 +71,7 @@ public class SqlMrefColumn extends SqlColumn {
             getReverseRefTableName(),
             getTable().getTableName(),
             getReverseRefColumn(),
-            getColumnName(),
+            getName(),
             getRefColumnName(),
             getMrefJoinTableName());
     otherTable.addMrefReverse(reverseColumn);
@@ -93,7 +93,7 @@ public class SqlMrefColumn extends SqlColumn {
     //  parameters
     String schemaName = column.getTable().getSchema().getName();
     String insertOrUpdateTrigger =
-        column.getTable().getTableName() + "_" + column.getColumnName() + "_UPSERT_TRIGGER";
+        column.getTable().getTableName() + "_" + column.getName() + "_UPSERT_TRIGGER";
     Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
 
     // insert and update trigger: does the following
@@ -122,7 +122,7 @@ public class SqlMrefColumn extends SqlColumn {
         keyword(SqlTypeUtils.getPsqlType(targetColumn)),
         table(name(joinTable.getSchema().getName(), joinTable.getTableName())),
         field(name(reverseColumn.getRefColumnName())),
-        field(name(column.getColumnName())),
+        field(name(column.getName())),
         field(name(column.getRefColumnName())));
 
     jooq.execute(
@@ -135,7 +135,7 @@ public class SqlMrefColumn extends SqlColumn {
 
     // delete trigger: will delete all mrefs that involve 'self' before deleting 'self'
     String deleteTrigger =
-        column.getTable().getTableName() + "_" + column.getColumnName() + "_DELETE_TRIGGER";
+        column.getTable().getTableName() + "_" + column.getName() + "_DELETE_TRIGGER";
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"

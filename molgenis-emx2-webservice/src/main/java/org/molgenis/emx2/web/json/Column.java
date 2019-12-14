@@ -16,7 +16,7 @@ public class Column {
   public Column() {}
 
   public Column(org.molgenis.emx2.Column column) {
-    this.name = column.getColumnName();
+    this.name = column.getName();
     this.pkey = column.isPrimaryKey();
     this.unique = column.isUnique();
     this.columnType = column.getColumnType();
