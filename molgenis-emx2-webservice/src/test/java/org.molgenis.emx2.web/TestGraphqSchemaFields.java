@@ -18,7 +18,7 @@ import static org.molgenis.emx2.web.GraphqlApi.convertExecutionResultToJson;
 public class TestGraphqSchemaFields {
 
   private static GraphQL grapql;
-  private static final String schemaName = "TestGraphqlApiForDatabase";
+  private static final String schemaName = "TestGraphqSchemaFields";
 
   @BeforeClass
   public static void setup() {
