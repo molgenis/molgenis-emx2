@@ -162,10 +162,11 @@ public class TestGraphqSchemaFields {
 
     // nested agg
     assertEquals(
-        2,
-        execute("{Order{data{pet{tags_agg{count}}}}}")
-            .at("/Order/data/1/pet/tags_agg/count")
-            .intValue());
+        15.7d,
+        execute("{User{data{pets_agg{count,weight{max,min,sum,avg}}}}}")
+            .at("/User/data/0/pets_agg/weight/max")
+            .doubleValue(),
+        0.0f);
   }
 
   private JsonNode execute(String query) throws IOException {

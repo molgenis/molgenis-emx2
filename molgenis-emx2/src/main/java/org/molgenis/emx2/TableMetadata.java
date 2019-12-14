@@ -119,7 +119,7 @@ public class TableMetadata {
   }
 
   public Column addRefArray(String name, String toTable) {
-    return this.addRefArray(name, toTable, getPrimaryKey()[0]);
+    return this.addRefArray(name, toTable, null);
   }
 
   public ReferenceMultiple addRefMultiple(String... name) {
