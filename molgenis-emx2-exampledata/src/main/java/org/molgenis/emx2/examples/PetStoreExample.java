@@ -44,6 +44,7 @@ public class PetStoreExample {
     orderTable.addColumn("orderId").primaryKey();
     orderTable.addRef("pet", PET, NAME);
     orderTable.addColumn("quantity", INT); // todo: validation >=1
+    orderTable.addColumn("price", DECIMAL); // todo: validation >=1
     orderTable.addColumn("complete", BOOL); // todo: default false
     orderTable.addColumn("status"); // todo enum: placed, approved, delivered
   }
@@ -73,11 +74,13 @@ public class PetStoreExample {
                 .set("orderId", "1")
                 .set("pet", "pooky")
                 .set("quantity", 1)
+                .set("price", 9.99)
                 .set("complete", true)
                 .set("status", "delivered"),
             new Row()
                 .set("orderId", "2")
                 .set("pet", "spike")
+                .set("price", 14.99)
                 .set("quantity", 7)
                 .set("complete", false)
                 .set("status", "approved"));

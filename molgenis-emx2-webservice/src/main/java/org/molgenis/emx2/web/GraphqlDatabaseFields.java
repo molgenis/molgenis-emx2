@@ -29,12 +29,8 @@ public class GraphqlDatabaseFields {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
-              try {
-                database.dropSchema(name);
-                return Map.of("detail", "schema dropped");
-              } catch (MolgenisException e) {
-                return Map.of("detail", e.getDetail());
-              }
+              database.dropSchema(name);
+              return Map.of("detail", "schema dropped");
             });
   }
 
@@ -46,12 +42,8 @@ public class GraphqlDatabaseFields {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
-              try {
-                database.createSchema(name);
-                return Map.of("detail", "schema created");
-              } catch (MolgenisException e) {
-                return Map.of("detail", e.getDetail());
-              }
+              database.createSchema(name);
+              return Map.of("detail", "schema created");
             });
   }
 

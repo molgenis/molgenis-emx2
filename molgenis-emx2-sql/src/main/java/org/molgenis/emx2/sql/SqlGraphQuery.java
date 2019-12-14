@@ -412,7 +412,7 @@ public class SqlGraphQuery extends Filter {
           not = true;
           conditions.add(field(name(columnName)).eq(value));
           break;
-        case DOES_NOT_CONTAIN:
+        case NOT_CONTAINS:
           not = true;
           conditions.add(field(name(columnName)).likeIgnoreCase("%" + value + "%"));
           break;
