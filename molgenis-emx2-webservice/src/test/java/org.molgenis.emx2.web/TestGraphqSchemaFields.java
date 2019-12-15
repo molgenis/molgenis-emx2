@@ -226,4 +226,12 @@ public class TestGraphqSchemaFields {
         .readTree(convertExecutionResultToJson(grapql.execute(query)))
         .get("data");
   }
+
+  @Test
+  public void saveAndDeleteRows() throws IOException {
+    int count = execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue();
+    // insert should increase count
+    execute("mutation{save(Tag:{name:\"blaat\"}){message}}");
+    assertEquals(count + 1, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
+  }
 }

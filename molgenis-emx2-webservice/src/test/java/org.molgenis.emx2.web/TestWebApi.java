@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.MOLGENIS_TOKEN;
 
@@ -56,6 +55,25 @@ public class TestWebApi {
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
     RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, PET_SHOP_OWNER);
+  }
+
+  @Test
+  public void smokeTestGraphql() {
+    String path = "/api/graphql";
+    String result =
+        given()
+            .body("{\"query\":\"mutation{login(username:\\\"admin\\\"){message}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("Logged in"));
+
+    String schemaPath = "/api/graphql/pet store";
+    result = given().body("{\"query\":\"{Pet{data{name}}}\"}").when().post(schemaPath).asString();
+    assertTrue(result.contains("spike"));
+
+    result = given().body("{\"query\":\"mutation{logout{message}}\"}").when().post(path).asString();
+    assertTrue(result.contains("logged out"));
   }
 
   @Test

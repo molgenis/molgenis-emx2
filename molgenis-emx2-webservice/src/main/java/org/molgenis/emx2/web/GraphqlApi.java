@@ -9,7 +9,6 @@ import graphql.GraphQLError;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
