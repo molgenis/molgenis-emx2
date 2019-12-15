@@ -4,7 +4,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.restassured.RestAssured;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Schema;
@@ -25,6 +27,7 @@ import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.MOLGENIS_TOKEN;
 
 /* this is a smoke test for the integration of web api with the database layer */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestWebApi {
 
   public static final String DATA_PET_STORE = "/api/json/pet store";
@@ -58,26 +61,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void smokeTestGraphql() {
-    String path = "/api/graphql";
-    String result =
-        given()
-            .body("{\"query\":\"mutation{login(username:\\\"admin\\\"){message}}\"}")
-            .when()
-            .post(path)
-            .asString();
-    assertTrue(result.contains("Logged in"));
-
-    String schemaPath = "/api/graphql/pet store";
-    result = given().body("{\"query\":\"{Pet{data{name}}}\"}").when().post(schemaPath).asString();
-    assertTrue(result.contains("spike"));
-
-    result = given().body("{\"query\":\"mutation{logout{message}}\"}").when().post(path).asString();
-    assertTrue(result.contains("logged out"));
-  }
-
-  @Test
-  public void testMembership() {
+  public void test1Membership() {
     String path = "/api/members/pet store";
     List members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
     assertEquals(2, members.size());
@@ -140,7 +124,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void testSchemaDownloadUploadZip() throws IOException {
+  public void test2SchemaDownloadUploadZip() throws IOException {
     // get original schema
     String schemaJson = given().accept(ACCEPT_JSON).when().get(DATA_PET_STORE).asString();
 
@@ -174,7 +158,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void testSchemaDownloadUploadExcel() throws IOException {
+  public void test3SchemaDownloadUploadExcel() throws IOException {
 
     // download json schema
     String schemaJson = given().accept(ACCEPT_JSON).when().get("/api/json/pet store").asString();
@@ -220,7 +204,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void testTableGetPostDeleteJSON() {
+  public void test4TableGetPostDeleteJSON() {
 
     String path = "/api/json/pet store/Category";
 
@@ -241,7 +225,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void testTableGetPostDeleteCSV() {
+  public void test5TableGetPostDeleteCSV() {
 
     String path = "/api/csv/pet store/Tag";
 
@@ -260,6 +244,34 @@ public class TestWebApi {
 
     result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
+  }
+
+  @Test
+  public void test6SmokeTestGraphql() {
+    String path = "/api/graphql";
+    String result =
+        given()
+            .body("{\"query\":\"mutation{login(username:\\\"admin\\\"){message}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("Logged in"));
+
+    String schemaPath = "/api/graphql/pet store";
+    result = given().body("{\"query\":\"{Pet{data{name}}}\"}").when().post(schemaPath).asString();
+    assertTrue(result.contains("spike"));
+
+    result = given().body("{\"query\":\"mutation{logout{message}}\"}").when().post(path).asString();
+    assertTrue(result.contains("logged out"));
+
+    // login again to make sure other tests work
+    result =
+        given()
+            .body("{\"query\":\"mutation{login(username:\\\"admin\\\"){message}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("Logged in"));
   }
 
   @AfterClass
