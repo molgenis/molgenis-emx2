@@ -60,8 +60,6 @@ public class SqlRefColumn extends SqlColumn {
       saveColumnMetadata(this);
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(
-          "foreign_key_create_failed",
-          "Creation of foreign key failed",
           "Foreign key '"
               + getName()
               + "' could not be created in table '"

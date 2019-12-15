@@ -15,10 +15,7 @@ public class ReferenceMultiple {
 
   public TableMetadata to(String toTable, String... toColumn) {
     if (nameArray == null || nameArray.length != toColumn.length)
-      throw new MolgenisException(
-          "invalid_foreign_key",
-          "Multiple reference must have same length of names as toColumns",
-          "TODO error detail");
+      throw new MolgenisException("Multiple reference must have same length of names as toColumns");
 
     for (int i = 0; i < nameArray.length; i++) {
       table.addColumn(

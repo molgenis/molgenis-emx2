@@ -5,41 +5,25 @@ import org.molgenis.emx2.utils.MolgenisException;
 import org.postgresql.util.PSQLException;
 
 public class SqlMolgenisException extends MolgenisException {
-  public SqlMolgenisException(DataAccessException dae) {
-    super(getType(dae), getTitle(dae), getDetail(dae), dae);
 
+  public SqlMolgenisException(DataAccessException dae) {
+    super(getTitle(dae) + getDetail(dae), dae);
     Throwable cause = dae.getCause();
     if (cause instanceof PSQLException) translate((PSQLException) cause);
   }
 
-  public SqlMolgenisException(String type, String title, DataAccessException dae) {
-    this(type, title, "", dae);
-  }
-
-  public SqlMolgenisException(
-      String type, String title, String detailMessage, DataAccessException dae) {
-    super(type, title, detailMessage + getDetail(dae), dae);
-  }
-
   public SqlMolgenisException(String message, DataAccessException dae) {
-    super(getType(dae), getTitle(dae), message + getDetail(dae), dae);
+    super(message + getTitle(dae) + "." + getDetail(dae), dae);
   }
 
-  public static String getType(DataAccessException dae) {
-    if (dae.getCause() instanceof PSQLException) {
-      return translate((PSQLException) dae.getCause());
-    }
-    return "unknown_type";
-  }
-
-  public static String getTitle(DataAccessException dae) {
+  private static String getTitle(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
       return ((PSQLException) dae.getCause()).getServerErrorMessage().getMessage();
     }
     return dae.getMessage();
   }
 
-  public static String getDetail(DataAccessException dae) {
+  private static String getDetail(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
       PSQLException pe = (PSQLException) dae.getCause();
       if (pe.getServerErrorMessage().getDetail() != null) {

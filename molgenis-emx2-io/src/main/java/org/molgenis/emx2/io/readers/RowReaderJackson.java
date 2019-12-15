@@ -46,7 +46,7 @@ public class RowReaderJackson {
             return it.hasNext();
           }
 
-          @Deprecated
+          @Deprecated /* @deprecated */
           public Row next() {
             return new Row(it.next());
           }

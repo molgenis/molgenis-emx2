@@ -52,10 +52,7 @@ public class SqlDatabase implements Database {
   @Override
   public SqlSchema createSchema(String schemaName) {
     if (schemaName == null || schemaName.isEmpty())
-      throw new MolgenisException(
-          "schema_create_failed",
-          "Schema createTableIfNotExists failed",
-          "Schema name was null or empty");
+      throw new MolgenisException("Schema createSchema failed. Schema name was null or empty");
     SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
     schemas.put(schemaName, schema);
@@ -75,9 +72,7 @@ public class SqlDatabase implements Database {
       return schema;
     } else {
       throw new MolgenisException(
-          "get_schema_failed",
-          "Get schema failed",
-          "Schema with name '" + name + "' could not be found");
+          "Get schema failed. Schema with name '" + name + "' could not be found");
     }
   }
 
@@ -92,10 +87,9 @@ public class SqlDatabase implements Database {
         logger.info("dropped schema {}", name);
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException("drop_schema_failed", "Drop schema failed", me.getDetail());
+      throw new MolgenisException("Drop schema failed" + me.getMessage());
     } catch (DataAccessException dae) {
-      throw new MolgenisException(
-          "drop_schema_failed", "Drop schema failed", dae.getCause().getMessage());
+      throw new SqlMolgenisException("Drop schema failed", dae);
     }
   }
 
@@ -151,9 +145,7 @@ public class SqlDatabase implements Database {
   public void removeUser(String user) {
     if (!hasUser(user))
       throw new MolgenisException(
-          "remove_user_failed",
-          "remove user failed",
-          "User with name '" + user + "' doesn't exist");
+          "Remove user failed. User with name '" + user + "' doesn't exist");
     String userName = MG_USER_PREFIX + user;
     jooq.execute("DROP ROLE {0}", name(userName));
     if (logger.isInfoEnabled()) {
@@ -206,10 +198,7 @@ public class SqlDatabase implements Database {
       try {
         jooq.execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + username));
       } catch (DataAccessException dae) {
-        throw new MolgenisException(
-            "set active user failed",
-            "set active user failed",
-            "active user '" + username + "' failed");
+        throw new MolgenisException("Set active user '" + username + "' failed");
       }
     } else {
       this.connectionProvider.setActiveUser(username);

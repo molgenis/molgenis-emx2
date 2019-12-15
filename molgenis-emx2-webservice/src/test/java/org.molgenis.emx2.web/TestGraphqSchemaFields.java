@@ -27,7 +27,7 @@ public class TestGraphqSchemaFields {
     Schema schema = database.createSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
-    grapql = GraphqlApi.graphqlForSchema(schema);
+    grapql = GraphqlApi.createGraphqlForSchema(schema);
   }
 
   @Test
@@ -173,15 +173,15 @@ public class TestGraphqSchemaFields {
   @Test
   public void testMembersOperations() throws IOException {
     // list members
-    int count = execute("{_meta{members{user}}}").at("/_meta/members").size();
+    int count = execute("{meta{members{user}}}").at("/meta/members").size();
 
     // add members
-    execute("mutation{_saveMeta(members:{user:\"blaat\", role:\"Manager\"}){detail}}");
-    assertEquals(count + 1, execute("{_meta{members{user}}}").at("/_meta/members").size());
+    execute("mutation{saveMeta(members:{user:\"blaat\", role:\"Manager\"}){message}}");
+    assertEquals(count + 1, execute("{meta{members{user}}}").at("/meta/members").size());
 
     // remove members
-    execute("mutation{_deleteMeta(members:\"blaat\"){detail}}");
-    assertEquals(count, execute("{_meta{members{user}}}").at("/_meta/members").size());
+    execute("mutation{deleteMeta(members:\"blaat\"){message}}");
+    assertEquals(count, execute("{meta{members{user}}}").at("/meta/members").size());
   }
 
   @Test
@@ -190,15 +190,15 @@ public class TestGraphqSchemaFields {
     // todo: default user should be anonymous?
     assertNull(database.getActiveUser());
 
-    execute("mutation{_login(username:\"admin\"){detail}}");
+    execute("mutation{login(username:\"admin\"){message}}");
     assertEquals("admin", database.getActiveUser());
 
     // todo way to register witout elevated privileges
     assertFalse(database.hasUser("blaat"));
-    execute("mutation{_register(username:\"blaat\"){detail}}");
+    execute("mutation{register(username:\"blaat\"){message}}");
     assertTrue(database.hasUser("blaat"));
 
-    execute("mutation{_logout{detail}}");
+    execute("mutation{logout{message}}");
     assertEquals("anonymous", database.getActiveUser());
 
     // can't unregister, is that a thing?
@@ -210,15 +210,15 @@ public class TestGraphqSchemaFields {
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+    assertEquals(5, execute("{meta{tables{name}}}").at("/meta/tables").size());
 
     // add table
-    execute("mutation{_saveMeta(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){detail}}");
-    assertEquals(6, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+    execute("mutation{saveMeta(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){message}}");
+    assertEquals(6, execute("{meta{tables{name}}}").at("/meta/tables").size());
 
     // drop
-    execute("mutation{_deleteMeta(tables:\"blaat\"){detail}}");
-    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+    execute("mutation{deleteMeta(tables:\"blaat\"){message}}");
+    assertEquals(5, execute("{meta{tables{name}}}").at("/meta/tables").size());
   }
 
   private JsonNode execute(String query) throws IOException {

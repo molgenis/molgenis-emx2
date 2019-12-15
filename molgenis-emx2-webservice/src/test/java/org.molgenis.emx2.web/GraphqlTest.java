@@ -5,8 +5,6 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
-import graphql.schema.GraphQLSchema;
-import graphql.schema.idl.SchemaPrinter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -33,7 +31,7 @@ public class GraphqlTest {
     PetStoreExample.create(s.getMetadata());
     PetStoreExample.populate(s);
 
-    GraphQL graphQL = GraphqlApi.graphqlForSchema(s);
+    GraphQL graphQL = GraphqlApi.createGraphqlForSchema(s);
 
     executeQuery(graphQL, "query{Pet{name,category{name},status}}");
 

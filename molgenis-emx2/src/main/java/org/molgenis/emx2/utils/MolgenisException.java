@@ -6,74 +6,44 @@ import java.util.List;
 
 /** compatible with https://tools.ietf.org/html/rfc7807 */
 public class MolgenisException extends RuntimeException {
-  private final String title;
-  private final String detail;
-  private final String type;
-
-  private final List<MolgenisExceptionMessage> messages = new ArrayList<>();
+  private final String message;
+  private final Class type;
+  private final List<MolgenisExceptionDetail> details = new ArrayList<>();
 
   public MolgenisException(Exception cause) {
     super(cause);
-    this.title = getClass().getSimpleName();
-    this.type = getClass().getSimpleName();
-    this.detail = cause.getMessage();
+    this.type = getClass();
+    this.message = cause.getMessage();
   }
 
   public MolgenisException(String message) {
-    this.title = getClass().getSimpleName();
-    this.type = getClass().getSimpleName();
-    this.detail = message;
+    this.type = getClass();
+    this.message = message;
   }
 
-  public MolgenisException(String type, String title, String detail, Exception cause) {
-    super(cause);
-    this.type = type;
-    this.title = title;
-    this.detail = detail;
+  public MolgenisException(String message, Exception e) {
+    super(e);
+    this.type = getClass();
+    this.message = message;
   }
 
-  public MolgenisException(String type, String title, String detail) {
-    super();
-    this.type = type;
-    this.title = title;
-    this.detail = detail;
-  }
-
-  public MolgenisException(String detail, Exception e) {
-    this("NA", "NA", detail, e);
-  }
-
-  public MolgenisException(String message, List<MolgenisExceptionMessage> messages) {
+  public MolgenisException(String message, List<MolgenisExceptionDetail> details) {
     super(message + "\nSee getMessages() for list of error messages");
-    this.type = "unknown_type";
-    this.title = message;
-    this.detail = null;
-    this.messages.addAll(messages);
+    this.type = getClass();
+    this.message = message;
+    this.details.addAll(details);
   }
 
-  @Override
+  public List<MolgenisExceptionDetail> getDetails() {
+    return Collections.unmodifiableList(this.details);
+  }
+
   public String getMessage() {
-    return toString();
-  }
-
-  public List<MolgenisExceptionMessage> getMessages() {
-    return Collections.unmodifiableList(this.messages);
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getDetail() {
-    return detail;
+    return message;
   }
 
   public String getType() {
-    return type;
-  }
-
-  @Override
-  public String toString() {
-    return String.format("Type: %s%nTitle: %s%nDetail: %s%n", getType(), getTitle(), getDetail());
+    if (type != null) return type.getSimpleName();
+    return null;
   }
 }

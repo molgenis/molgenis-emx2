@@ -360,9 +360,9 @@ public class OpenApiYamlGenerator {
         return new ArraySchema().items(columnSchema(column.getRefColumn()));
       default:
         throw new MolgenisException(
-            "internal_error",
-            "Should never happen unless during development",
-            "createColumnSchema failed: ColumnType " + column.getColumnType() + " not supported ");
+            "columnSchema failed: ColumnType "
+                + column.getColumnType()
+                + " not supported. Should never happen unless during development.");
     }
   }
 }

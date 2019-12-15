@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
-import graphql.Scalars;
+import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -18,13 +18,12 @@ import spark.Response;
 import java.io.IOException;
 import java.util.*;
 
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.DETAIL;
 import static org.molgenis.emx2.web.GraphqlDatabaseFields.*;
 import static org.molgenis.emx2.web.GraphqlTableMetadataFields.*;
-import static org.molgenis.emx2.web.GraphqlTableFields.tableMutationField;
-import static org.molgenis.emx2.web.GraphqlTableFields.tableQueryField;
+import static org.molgenis.emx2.web.GraphqlTableMutationFields.tableMutationField;
+import static org.molgenis.emx2.web.GraphqlTableQueryFields.tableQueryField;
 import static org.molgenis.emx2.web.GraphqlLoginLogoutRegisterFields.*;
 
 import static spark.Spark.*;
@@ -43,19 +42,19 @@ class GraphqlApi {
     // schema level operations
     final String schemaPath = "/api/graphql/:schema"; // NOSONAR
 
-    // per schema grapql
-    get(schemaPath, GraphqlApi::handleSchemaRequests);
-    post(schemaPath, GraphqlApi::handleSchemaRequests);
-
     // small overall graphql
     get("/api/graphql", GraphqlApi::handleDatabaseRequests);
     post("/api/graphql", GraphqlApi::handleDatabaseRequests);
+
+    // per schema grapql
+    get(schemaPath, GraphqlApi::handleSchemaRequests);
+    post(schemaPath, GraphqlApi::handleSchemaRequests);
   }
 
   private static String handleDatabaseRequests(Request request, Response response)
       throws IOException {
     Database database = MolgenisWebservice.getAuthenticatedDatabase(request);
-    String result = executeQuery(graphqlForDatabase(database), request);
+    String result = executeQuery(createGraphqlForDatabase(database), request);
     handleSessions(request, database);
     return result;
   }
@@ -64,7 +63,7 @@ class GraphqlApi {
       throws IOException {
     Database database = MolgenisWebservice.getAuthenticatedDatabase(request);
     Schema schema = database.getSchema(request.params(MolgenisWebservice.SCHEMA));
-    String result = executeQuery(graphqlForSchema(schema), getQueryFromRequest(request));
+    String result = executeQuery(createGraphqlForSchema(schema), getQueryFromRequest(request));
     handleSessions(request, database);
     return result;
   }
@@ -81,7 +80,7 @@ class GraphqlApi {
     }
   }
 
-  static GraphQL graphqlForDatabase(Database database) {
+  static GraphQL createGraphqlForDatabase(Database database) {
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
 
@@ -95,12 +94,14 @@ class GraphqlApi {
     mutationBuilder.field(createSchemaField(database));
     mutationBuilder.field(deleteSchemaField(database));
 
+    // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
             GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
         .build();
   }
 
-  public static GraphQL graphqlForSchema(Schema schema) {
+  public static GraphQL createGraphqlForSchema(Schema schema) {
     long start = System.currentTimeMillis();
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
@@ -126,16 +127,18 @@ class GraphqlApi {
     }
 
     // add query and mutation for each table
+    mutationBuilder.field(tableMutationField(schema));
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       queryBuilder.field(tableQueryField(table));
-      mutationBuilder.field(tableMutationField(table));
     }
 
     // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+            .mutationExecutionStrategy(
+                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();
 
     // log timing so we dont forget to add caching later
@@ -160,7 +163,7 @@ class GraphqlApi {
     ExecutionResult executionResult = g.execute(query);
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
-        logger.error(err.toString());
+        logger.error(err.getMessage());
       }
     }
     String result = convertExecutionResultToJson(executionResult);
@@ -198,14 +201,6 @@ class GraphqlApi {
     return query;
   }
 
-  static Object transform(MolgenisException e) {
-    Map<String, String> result = new LinkedHashMap<>();
-    result.put("title", e.getTitle());
-    result.put("type", e.getType());
-    result.put(DETAIL, e.getDetail());
-    return result;
-  }
-
   static Map<String, String> resultMessage(String detail) {
     Map<String, String> message = new LinkedHashMap<>();
     message.put(DETAIL, detail);
@@ -229,12 +224,4 @@ class GraphqlApi {
       return new LinkedHashMap<>();
     }
   }
-
-  public static final GraphQLObjectType typeForMutationResult =
-      newObject()
-          .name("MolgenisMessage")
-          .field(newFieldDefinition().name("type").type(Scalars.GraphQLString).build())
-          .field(newFieldDefinition().name("title").type(Scalars.GraphQLString).build())
-          .field(newFieldDefinition().name(DETAIL).type(Scalars.GraphQLString).build())
-          .build();
 }

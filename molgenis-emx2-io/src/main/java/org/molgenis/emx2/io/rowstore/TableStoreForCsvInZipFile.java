@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io.rowstore;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -62,8 +61,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
         CsvTableWriter.rowsToCsv(rows, writer, separator);
         writer.close();
       } catch (IOException ioe) {
-        throw new MolgenisException(
-            ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+        throw new MolgenisException(ioe.getMessage(), ioe);
       }
     }
   }
@@ -76,10 +74,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       return CsvTableReader.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
-          ErrorCodes.NOT_FOUND,
-          ErrorCodes.NOT_FOUND_MESSAGE,
-          "CsvStringStore with name '" + name + "' doesn't exist. " + ioe.getMessage(),
-          ioe);
+          "Table '" + name + "' not found in file. " + ioe.getMessage(), ioe);
     }
   }
 
@@ -89,8 +84,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       return Files.exists(path);
     } catch (IOException ioe) {
-      throw new MolgenisException(
-          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+      throw new MolgenisException(ioe.getMessage(), ioe);
     }
   }
 }

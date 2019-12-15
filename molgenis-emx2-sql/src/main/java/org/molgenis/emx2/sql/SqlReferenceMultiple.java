@@ -27,8 +27,6 @@ public class SqlReferenceMultiple extends ReferenceMultiple {
     String[] nameArray = getNameArray();
     if (nameArray == null || nameArray.length != toColumns.length)
       throw new MolgenisException(
-          "invalid_foreign_key",
-          "Foreign key reference invalid",
           "Create of foreign key from table '"
               + table.getTableName()
               + "' to table '"

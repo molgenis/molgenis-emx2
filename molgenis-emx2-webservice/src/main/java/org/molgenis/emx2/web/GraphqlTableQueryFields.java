@@ -6,8 +6,6 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.Filter;
 import org.molgenis.emx2.sql.SelectColumn;
 import org.molgenis.emx2.sql.SqlGraphQuery;
-import org.molgenis.emx2.sql.SqlTypeUtils;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,9 +25,9 @@ import static org.molgenis.emx2.sql.SqlGraphQuery.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.GraphqlApi.*;
 
-public class GraphqlTableFields {
+public class GraphqlTableQueryFields {
 
-  private GraphqlTableFields() {
+  private GraphqlTableQueryFields() {
     // hide constructor
   }
 
@@ -37,14 +35,14 @@ public class GraphqlTableFields {
       newEnum().name("MolgenisOrderByEnum").value(ASC.name(), ASC).value(DESC.name(), DESC).build();
 
   public static GraphQLFieldDefinition.Builder tableQueryField(Table table) {
-    GraphQLObjectType tableType = GraphqlTableFields.createTableObjectType(table);
+    GraphQLObjectType tableType = GraphqlTableQueryFields.createTableObjectType(table);
     GraphQLObjectType connection =
-        GraphqlTableFields.createTableableConnectionObjectType(table, tableType);
+        GraphqlTableQueryFields.createTableableConnectionObjectType(table, tableType);
 
     return newFieldDefinition()
         .name(table.getName())
         .type(connection)
-        .dataFetcher(fetcherForQuery(table))
+        .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
                 .name(FILTER)
@@ -53,37 +51,13 @@ public class GraphqlTableFields {
         .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build());
   }
 
-  public static GraphQLFieldDefinition.Builder tableMutationField(Table table) {
-    GraphQLInputObjectType inputType = createTableInputType(table);
-
-    return newFieldDefinition()
-        .name("save" + table.getName())
-        .type(typeForMutationResult)
-        .dataFetcher(fetcherForSave(table))
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.INPUT).type(GraphQLList.list(inputType)));
-  }
-
-  private static DataFetcher fetcherForSave(Table aTable) {
-    return dataFetchingEnvironment -> {
-      try {
-        Table table = aTable;
-        List<Map<String, Object>> map = dataFetchingEnvironment.getArgument(Constants.INPUT);
-        int count = table.update(convertToRows(map));
-        return resultMessage("success. saved " + count + " records");
-      } catch (MolgenisException me) {
-        return transform(me);
-      }
-    };
-  }
-
-  private static DataFetcher fetcherForQuery(Table aTable) {
+  private static DataFetcher fetcherForTableQueryField(Table aTable) {
     return dataFetchingEnvironment -> {
       Table table = aTable;
       SqlGraphQuery q = new SqlGraphQuery(table);
-      q.select(mapSelect(dataFetchingEnvironment.getSelectionSet()));
+      q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
       if (dataFetchingEnvironment.getArgument(FILTER) != null) {
-        q.filter(mapFilters(table, dataFetchingEnvironment.getArgument(FILTER)));
+        q.filter(convertMapToFilterArray(table, dataFetchingEnvironment.getArgument(FILTER)));
       }
       String search = dataFetchingEnvironment.getArgument(SEARCH);
       if (search != null) {
@@ -108,31 +82,9 @@ public class GraphqlTableFields {
             .argument(
                 GraphQLArgument.newArgument()
                     .name(ORDERBY)
-                    .type(tableOrderByInputObjectType(table))
+                    .type(createTableOrderByInputObjectType(table))
                     .build()));
     return connectionBuilder.build();
-  }
-
-  private static GraphQLInputObjectType createTableInputType(Table table) {
-    GraphQLInputObjectType.Builder inputBuilder = newInputObject().name(table.getName() + "Input");
-    for (Column col : table.getMetadata().getColumns()) {
-      GraphQLInputType type;
-      ColumnType columnType = col.getColumnType();
-      if (REF.equals(columnType)) columnType = SqlTypeUtils.getRefColumnType(col);
-      switch (columnType) {
-        case DECIMAL:
-          type = Scalars.GraphQLBigDecimal;
-          break;
-        case INT:
-          type = Scalars.GraphQLInt;
-          break;
-        default:
-          type = Scalars.GraphQLString;
-          break;
-      }
-      inputBuilder.field(newInputObjectField().name(col.getName()).type(type));
-    }
-    return inputBuilder.build();
   }
 
   private static GraphQLObjectType createTableObjectType(Table table) {
@@ -212,14 +164,14 @@ public class GraphqlTableFields {
         filterBuilder.field(
             newInputObjectField()
                 .name(col.getName())
-                .type(columnFilterInputObjectType(col))
+                .type(createColumnFilterInputObjectType(col))
                 .build());
       }
     }
     return filterBuilder.build();
   }
 
-  private static GraphQLInputObjectType tableOrderByInputObjectType(Table table) {
+  private static GraphQLInputObjectType createTableOrderByInputObjectType(Table table) {
     GraphQLInputObjectType.Builder orderByBuilder =
         newInputObject().name(table.getName() + ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
@@ -230,10 +182,10 @@ public class GraphqlTableFields {
     return orderByBuilder.build();
   }
 
-  // cache for the next method
+  // cache so we can reuse filter input types between tables
   static Map<ColumnType, GraphQLInputObjectType> filterInputTypes = new LinkedHashMap<>();
 
-  private static GraphQLInputObjectType columnFilterInputObjectType(Column column) {
+  private static GraphQLInputObjectType createColumnFilterInputObjectType(Column column) {
     ColumnType type = column.getColumnType();
     // singleton
     if (filterInputTypes.get(type) == null) {
@@ -280,24 +232,25 @@ public class GraphqlTableFields {
     return Scalars.GraphQLString;
   }
 
-  private static Filter[] mapFilters(Table table, Map<String, Object> filter) {
+  private static Filter[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       Column c = table.getMetadata().getColumn(entry.getKey());
       if (c == null)
-        throw new GraphqlApiException(
+        throw new GraphqlException(
             "Column " + entry.getKey() + " unknown in table " + table.getName());
       if (REF.equals(c.getColumnType()) || REF_ARRAY.equals(c.getColumnType())) {
         subFilters.add(
             f(
                 c.getName(),
-                mapFilters(
+                convertMapToFilterArray(
                     table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
       } else {
         if (entry.getValue() instanceof Map) {
-          subFilters.add(mapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
+          subFilters.add(
+              convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
         } else {
-          throw new GraphqlApiException(
+          throw new GraphqlException(
               "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
         }
       }
@@ -305,7 +258,7 @@ public class GraphqlTableFields {
     return subFilters.toArray(new Filter[subFilters.size()]);
   }
 
-  private static Filter mapToFilter(String name, Map<String, Object> subFilter) {
+  private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {
     Filter f = f(name);
     for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
       Operator op = Operator.fromAbbreviation(entry2.getKey());
@@ -319,11 +272,11 @@ public class GraphqlTableFields {
   }
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
-  private static SelectColumn[] mapSelect(DataFetchingFieldSelectionSet selection) {
+  private static SelectColumn[] convertMapSelection(DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
     for (SelectedField s : selection.getFields()) {
       if (!s.getQualifiedName().contains("/") && !s.getSelectionSet().getFields().isEmpty()) {
-        SelectColumn sc = new SelectColumn(s.getName(), mapSelect(s.getSelectionSet()));
+        SelectColumn sc = new SelectColumn(s.getName(), convertMapSelection(s.getSelectionSet()));
         // get limit and offset for the selection
         Map<String, Object> args = s.getArguments();
         if (args.containsKey(LIMIT)) {

@@ -9,7 +9,9 @@ import java.util.Map;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.ANONYMOUS;
-import static org.molgenis.emx2.web.GraphqlApi.typeForMutationResult;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.FAILED;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
 
 public class GraphqlLoginLogoutRegisterFields {
 
@@ -22,19 +24,20 @@ public class GraphqlLoginLogoutRegisterFields {
 
   public static GraphQLFieldDefinition logoutField(Database database) {
     return newFieldDefinition()
-        .name("_logout")
+        .name("logout")
         .type(typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
+              String user = database.getActiveUser();
               database.setActiveUser(ANONYMOUS);
-              return new GrahpqlUserApiException("User logged out");
+              return new GraphqlApiMutationResult(SUCCESS, "User '%s' logged out", user);
             })
         .build();
   }
 
   public static GraphQLFieldDefinition registerField(Database database) {
     return newFieldDefinition()
-        .name("_register")
+        .name("register")
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
@@ -42,15 +45,16 @@ public class GraphqlLoginLogoutRegisterFields {
             GraphQLArgument.newArgument().name(PASSWORD + "_REPEAT").type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              database.addUser(dataFetchingEnvironment.getArgument(USERNAME));
-              return new GrahpqlUserApiException("User added");
+              String userName = dataFetchingEnvironment.getArgument(USERNAME);
+              database.addUser(userName);
+              return new GraphqlApiMutationResult(SUCCESS, "User '%s' added", userName);
             })
         .build();
   }
 
   public static GraphQLFieldDefinition loginField(Database database) {
     return newFieldDefinition()
-        .name("_login")
+        .name("login")
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
@@ -62,9 +66,9 @@ public class GraphqlLoginLogoutRegisterFields {
               // todo, fake password for now
               if (database.hasUser(userName)) {
                 database.setActiveUser(userName);
-                return new GrahpqlUserApiException("Succesfull login");
+                return new GraphqlApiMutationResult(SUCCESS, "Logged in as '%s'", userName);
               } else {
-                throw new GrahpqlUserApiException("Invalid login");
+                return new GraphqlApiMutationResult(FAILED, "Login as '%s' failed", userName);
               }
             })
         .build();
@@ -72,7 +76,7 @@ public class GraphqlLoginLogoutRegisterFields {
 
   public static GraphQLFieldDefinition userQueryField(Database database) {
     return newFieldDefinition()
-        .name("_user")
+        .name("user")
         .type(
             newObject()
                 .name("MolgenisUser")

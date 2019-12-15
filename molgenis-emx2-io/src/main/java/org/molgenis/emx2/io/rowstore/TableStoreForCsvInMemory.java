@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io.rowstore;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.utils.MolgenisException;
@@ -31,18 +30,14 @@ public class TableStoreForCsvInMemory implements TableStore {
       bufferedWriter.close();
       store.put(name, existing + writer.toString());
     } catch (IOException ioe) {
-      throw new MolgenisException(
-          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+      throw new MolgenisException(ioe.getMessage(), ioe);
     }
   }
 
   @Override
   public List<Row> readTable(String name) {
     if (!store.containsKey(name))
-      throw new MolgenisException(
-          ErrorCodes.NOT_FOUND,
-          ErrorCodes.NOT_FOUND_MESSAGE,
-          "CsvStringStore with name " + name + " doesn't exist");
+      throw new MolgenisException("Table not found. File with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
     return CsvTableReader.readList(reader, separator);

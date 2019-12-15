@@ -37,9 +37,7 @@ public class SchemaMetadata {
   public TableMetadata createTable(TableMetadata table) {
     if (tables.containsKey(table.getTableName()))
       throw new MolgenisException(
-          "create_table_failed",
-          "Create table failed",
-          "Table with name '"
+          "Create table failed: Table with name '"
               + table.getTableName()
               + "'already exists in schema '"
               + getName()

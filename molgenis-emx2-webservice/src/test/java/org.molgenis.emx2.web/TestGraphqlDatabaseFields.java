@@ -25,15 +25,15 @@ public class TestGraphqlDatabaseFields {
     Database database = DatabaseFactory.getTestDatabase();
     Schema schema = database.createSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
-    grapql = GraphqlApi.graphqlForDatabase(database);
+    grapql = GraphqlApi.createGraphqlForDatabase(database);
   }
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
     int length = execute("{Schemas{name}}").at("/data/Schemas").size();
-    execute("mutation{createSchema(name:\"" + schemaName + "B\"){detail}}");
+    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
     assertEquals(length + 1, execute("{Schemas{name}}").at("/data/Schemas").size());
-    execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){detail}}");
+    execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
     assertEquals(length, execute("{Schemas{name}}").at("/data/Schemas").size());
   }
 

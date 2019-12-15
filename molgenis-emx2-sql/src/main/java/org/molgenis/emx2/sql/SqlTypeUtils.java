@@ -70,8 +70,6 @@ public class SqlTypeUtils extends TypeUtils {
     TableMetadata tm = column.getTable().getSchema().getTableMetadata(column.getRefTableName());
     if (tm == null)
       throw new MolgenisException(
-          "invalid_reference",
-          "Invalid reference",
           "Table reference '"
               + column.getName()
               + "' from table '"
@@ -238,8 +236,6 @@ public class SqlTypeUtils extends TypeUtils {
         return getPsqlType(column.getRefColumn());
       default:
         throw new MolgenisException(
-            "internal_error",
-            "Should only happen during development",
             "Internal error: data cannot be mapped to psqlType " + column.getColumnType());
     }
   }

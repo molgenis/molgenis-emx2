@@ -245,9 +245,9 @@ public class SqlQuery extends QueryBean implements Query {
         }
       default:
         throw new MolgenisException(
-            "invalid_query",
-            "Creation of filter condition failed",
-            "Where clause '" + w.toString() + "' is not supported");
+            "Creation of filter condition failed. Where clause '"
+                + w.toString()
+                + "' is not supported");
     }
   }
 
@@ -284,8 +284,6 @@ public class SqlQuery extends QueryBean implements Query {
     Column c = t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(
-          "undefined_column",
-          "Column not found",
           "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
 
     if (path.length == 1) {

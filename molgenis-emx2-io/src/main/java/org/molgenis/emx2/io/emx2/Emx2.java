@@ -3,7 +3,7 @@ package org.molgenis.emx2.io.emx2;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.utils.MolgenisException;
-import org.molgenis.emx2.utils.MolgenisExceptionMessage;
+import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class Emx2 {
 
   private static SchemaMetadata executeLoadProcedure(List<Emx2FileRow> rows) {
     SchemaMetadata schema = new SchemaMetadata();
-    List<MolgenisExceptionMessage> messages = new ArrayList<>();
+    List<MolgenisExceptionDetail> messages = new ArrayList<>();
     loadTablesFirst(rows, schema);
     loadColumns(rows, schema, messages);
     loadTableProperties(schema, rows, messages);
@@ -48,7 +48,7 @@ public class Emx2 {
   }
 
   private static void loadTableProperties(
-      SchemaMetadata model, List<Emx2FileRow> rows, List<MolgenisExceptionMessage> messages) {
+      SchemaMetadata model, List<Emx2FileRow> rows, List<MolgenisExceptionDetail> messages) {
     int line = 1;
     for (Emx2FileRow row : rows) {
       line++;
@@ -65,7 +65,7 @@ public class Emx2 {
   }
 
   private static void extractTableDefinition(
-      int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionMessage> messages) {
+      int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionDetail> messages) {
 
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
@@ -77,13 +77,13 @@ public class Emx2 {
           table.setPrimaryKey(def.getParameterArray(term));
           break;
         default:
-          messages.add(new MolgenisExceptionMessage(line, "term " + term + " not supported"));
+          messages.add(new MolgenisExceptionDetail(line, "term " + term + " not supported"));
       }
     }
   }
 
   private static void loadColumns(
-      List<Emx2FileRow> rows, SchemaMetadata model, List<MolgenisExceptionMessage> messages) {
+      List<Emx2FileRow> rows, SchemaMetadata model, List<MolgenisExceptionDetail> messages) {
     int line = 1;
     for (Emx2FileRow row : rows) {
       line++;
@@ -94,8 +94,6 @@ public class Emx2 {
         try {
           table.getColumn(columnName);
           throw new MolgenisException(
-              "duplicate_column",
-              "Duplicate column definition",
               "Error on line "
                   + line
                   + ": duplicate column definition table='"
@@ -115,7 +113,7 @@ public class Emx2 {
       String columnName,
       TableMetadata table,
       int line,
-      List<MolgenisExceptionMessage> messages) {
+      List<MolgenisExceptionDetail> messages) {
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     ColumnType columnType = getType(def);
 
@@ -123,7 +121,7 @@ public class Emx2 {
       try {
         List<String> params = def.getParameterList(REF.toString().toLowerCase());
         if (params.isEmpty() || params.size() > 2) {
-          throw new MolgenisException("", "", "ref must have 1 or 2 parameter values");
+          throw new MolgenisException("Ref must have 1 or 2 parameter values");
         }
         if (params.size() > 1) {
           table.addRef(columnName, params.get(0), params.get(1));
@@ -132,7 +130,7 @@ public class Emx2 {
         }
       } catch (Exception e) {
         messages.add(
-            new MolgenisExceptionMessage(line, "Parsing of 'ref' failed. " + e.getMessage()));
+            new MolgenisExceptionDetail(line, "Parsing of 'ref' failed. " + e.getMessage()));
         throw e;
       }
     } else if (REF_ARRAY.equals(columnType)) {

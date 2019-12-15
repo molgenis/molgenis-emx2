@@ -66,9 +66,7 @@ public class SqlSchema implements Schema {
           for (Member m : members) {
             if (!currentRoles.contains(m.getRole()))
               throw new MolgenisException(
-                  "add_members_failed",
-                  "Add member(s) failed",
-                  "Role '"
+                  "Add member(s) failed. Role '"
                       + m.getRole()
                       + " doesn't exist in schema '"
                       + getMetadata().getName()
@@ -108,7 +106,7 @@ public class SqlSchema implements Schema {
       // grant the new role
       db.getJooq().execute("GRANT {0} TO {1}", name(rolename), name(username));
     } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("add_members_failed", "Add member failed", dae);
+      throw new SqlMolgenisException("Add member failed", dae);
     }
   }
 
@@ -140,8 +138,7 @@ public class SqlSchema implements Schema {
                         "REVOKE {0} FROM {1}",
                         name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
               } catch (DataAccessException dae) {
-                throw new SqlMolgenisException(
-                    "remove_member_failed", "Remove of member failed", dae);
+                throw new SqlMolgenisException("Remove of member failed", dae);
               }
             }
           }

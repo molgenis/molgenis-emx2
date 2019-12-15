@@ -45,8 +45,6 @@ public class CsvTableReader {
                 return it.hasNext();
               } catch (Exception e) {
                 throw new MolgenisException(
-                    "io_exception",
-                    "IO exception",
                     e.getClass().getName()
                         + ": "
                         + e.getMessage()
@@ -67,7 +65,7 @@ public class CsvTableReader {
             }
           };
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(ioe.getMessage(), ioe);
     }
   }
 }

@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.junit.Test;
 import org.molgenis.emx2.io.emx2.Emx2PropertyList;
-import org.molgenis.emx2.utils.MolgenisExceptionMessage;
+import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class TestParseSimpleAndParameterizedProperties {
     int line = 1;
     for (String testString : tests) {
       System.out.println("testing definition string: '" + testString + "'");
-      List<MolgenisExceptionMessage> messages = new ArrayList<>();
+      List<MolgenisExceptionDetail> messages = new ArrayList<>();
 
       Emx2PropertyList def = new Emx2PropertyList(testString);
       // both have a ref
@@ -37,7 +37,7 @@ public class TestParseSimpleAndParameterizedProperties {
         System.out.println(tag + " with parameter" + def.getParamterValue(tag));
       }
       System.out.println("messages:");
-      for (MolgenisExceptionMessage message : messages) {
+      for (MolgenisExceptionDetail message : messages) {
         System.out.println(message);
       }
       System.out.println("\n");

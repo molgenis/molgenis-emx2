@@ -114,9 +114,9 @@ class SqlTable implements Table {
 
     if (getPrimaryKeyFields().isEmpty())
       throw new MolgenisException(
-          "invalid_table_definition",
-          "Cannot update because primary key is not defined",
-          "Table " + getName() + " cannot process row update requests. First define primary key");
+          "Table "
+              + getName()
+              + " cannot process row update requests because no primary key is defined");
 
     AtomicInteger count = new AtomicInteger(0);
     try {

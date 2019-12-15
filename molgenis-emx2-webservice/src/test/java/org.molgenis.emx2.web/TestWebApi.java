@@ -97,7 +97,7 @@ public class TestWebApi {
             .when()
             .post(path)
             .as(Map.class);
-    assertEquals("add_members_failed", error.get("type"));
+    assertEquals("MolgenisException", error.get("type"));
     // make MolgenisException an unchecked exception?
 
     // remove unknown user
@@ -108,7 +108,7 @@ public class TestWebApi {
             .when()
             .post(path)
             .as(Map.class);
-    assertEquals("add_members_failed", error.get("type"));
+    assertEquals("MolgenisException", error.get("type"));
 
     // remove bofke from membership
     given()

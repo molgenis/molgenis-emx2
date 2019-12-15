@@ -231,9 +231,9 @@ public class Row {
         return (T) getUuidArray(name);
       default:
         throw new MolgenisException(
-            "invalid_type",
-            "Cannot cast column to java columnType",
-            "Row.get(Class,name) not implemented for Class = " + type.getCanonicalName());
+            "Cannot cast column to java columnType"
+                + "Row.get(Class,name) not implemented for Class = "
+                + type.getCanonicalName());
     }
   }
 

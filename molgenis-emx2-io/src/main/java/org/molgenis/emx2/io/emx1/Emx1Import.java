@@ -56,8 +56,6 @@ public class Emx1Import {
 
         if (attribute.getRefEntity() == null) {
           throw new MolgenisException(
-              "missing_refentity",
-              "Refentity is missing for attribute '",
               "Adding reference '"
                   + attribute.getEntity()
                   + "'.'"
@@ -84,8 +82,7 @@ public class Emx1Import {
         line++;
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException(
-          me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
+      throw new MolgenisException(me.getMessage() + ". See 'entities' line " + line, me);
     }
   }
 
@@ -117,8 +114,7 @@ public class Emx1Import {
         line++;
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException(
-          me.getType(), me.getTitle(), me.getDetail() + ". See 'attributes' line " + line, me);
+      throw new MolgenisException(me.getMessage() + ". See 'attributes' line " + line, me);
     }
     return attributes;
   }
@@ -146,8 +142,7 @@ public class Emx1Import {
         line++;
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException(
-          me.getType(), me.getTitle(), me.getDetail() + ". See 'entities' line " + line, me);
+      throw new MolgenisException(me.getMessage() + ". See 'entities' line " + line, me);
     }
     return entities;
   }

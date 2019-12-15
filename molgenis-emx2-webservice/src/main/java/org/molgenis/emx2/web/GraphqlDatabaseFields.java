@@ -12,7 +12,8 @@ import java.util.Map;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.NAME;
-import static org.molgenis.emx2.web.GraphqlApi.typeForMutationResult;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
 
 public class GraphqlDatabaseFields {
 
@@ -29,7 +30,7 @@ public class GraphqlDatabaseFields {
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
               database.dropSchema(name);
-              return Map.of("detail", "schema dropped");
+              return new GraphqlApiMutationResult(SUCCESS, "Schema %s dropped", name);
             });
   }
 
@@ -42,7 +43,7 @@ public class GraphqlDatabaseFields {
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
               database.createSchema(name);
-              return Map.of("detail", "schema created");
+              return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
             });
   }
 

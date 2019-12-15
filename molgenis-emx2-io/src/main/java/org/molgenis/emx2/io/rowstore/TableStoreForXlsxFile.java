@@ -3,7 +3,6 @@ package org.molgenis.emx2.io.rowstore;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.ErrorCodes;
 import org.molgenis.emx2.utils.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,7 @@ public class TableStoreForXlsxFile implements TableStore {
         }
       }
     } catch (IOException ioe) {
-      throw new MolgenisException(
-          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+      throw new MolgenisException(ioe.getMessage(), ioe);
     }
   }
 
@@ -116,8 +114,7 @@ public class TableStoreForXlsxFile implements TableStore {
         this.cache.put(sheetName, result);
       }
     } catch (IOException ioe) {
-      throw new MolgenisException(
-          ErrorCodes.IO_EXCEPTION, ErrorCodes.IO_EXCEPTION_MESSAGE, ioe.getMessage(), ioe);
+      throw new MolgenisException(ioe.getMessage(), ioe);
     }
     if (logger.isInfoEnabled()) {
       logger.info("Excel file loaded into memory in {}ms", (System.currentTimeMillis() - start));
@@ -130,10 +127,7 @@ public class TableStoreForXlsxFile implements TableStore {
       this.cache();
     }
     if (!this.cache.containsKey(name)) {
-      throw new MolgenisException(
-          ErrorCodes.NOT_FOUND,
-          ErrorCodes.NOT_FOUND_MESSAGE,
-          "Table with name " + name + " not found in Excel file");
+      throw new MolgenisException("Table with name " + name + " not found in Excel file");
     }
     return this.cache.get(name);
   }

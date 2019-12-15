@@ -29,11 +29,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       }
       return connection;
     } catch (DataAccessException dae) {
-      throw new MolgenisException(
-          "set active user failed",
-          "set active user failed",
-          "active user '" + activeUser + "' failed",
-          dae);
+      throw new MolgenisException("`Set active user '" + activeUser + "' failed", dae);
     }
   }
 

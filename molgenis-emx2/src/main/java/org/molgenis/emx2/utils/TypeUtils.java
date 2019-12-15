@@ -2,6 +2,7 @@ package org.molgenis.emx2.utils;
 
 import org.molgenis.emx2.ColumnType;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -89,6 +90,7 @@ public class TypeUtils {
 
   public static Double toDecimal(Object v) {
     if (v instanceof String) return Double.parseDouble((String) v);
+    if (v instanceof BigDecimal) return ((BigDecimal) v).doubleValue();
     return (Double) v;
   }
 
@@ -155,9 +157,8 @@ public class TypeUtils {
       if (t.getType().equals(klazz)) return t;
     }
     throw new MolgenisException(
-        "invalid_type",
-        "Can not determine typeOf(Class)",
-        "No MOLGENIS type is defined to match " + klazz.getCanonicalName());
+        "Can not determine typeOf(Class). No MOLGENIS type is defined to match "
+            + klazz.getCanonicalName());
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io.rowstore;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.ErrorCodes;
 
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
@@ -22,8 +21,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   public TableStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
     if (!directoryPath.toFile().exists())
-      throw new MolgenisException(
-          "not exist", "Not exist", "Directory " + directoryPath + " doesn't exist");
+      throw new MolgenisException("Directory " + directoryPath + " doesn't exist");
     this.separator = separator;
   }
 
@@ -40,7 +38,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
       CsvTableWriter.rowsToCsv(rows, writer, separator);
       writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("io_exception", "IO exception", ioe.getMessage(), ioe);
+      throw new MolgenisException(ioe.getMessage(), ioe);
     }
   }
 
@@ -52,10 +50,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
       return RowReaderJackson.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
-          ErrorCodes.NOT_FOUND,
-          ErrorCodes.NOT_FOUND_MESSAGE,
-          "CsvStringStore with name '" + name + "' doesn't exist. " + ioe.getMessage(),
-          ioe);
+          "Table not found. File with name '" + name + "' doesn't exist. " + ioe.getMessage(), ioe);
     }
   }
 

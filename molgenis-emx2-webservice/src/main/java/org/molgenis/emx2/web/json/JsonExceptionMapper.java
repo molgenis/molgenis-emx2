@@ -16,8 +16,7 @@ public class JsonExceptionMapper {
   public static String molgenisExceptionToJson(MolgenisException e) {
     Map map = new LinkedHashMap();
     map.put("type", e.getType());
-    map.put("title", e.getTitle());
-    map.put("detail", e.getDetail());
+    map.put("message", e.getMessage());
     try {
       return JsonApi.getWriter().writeValueAsString(map);
     } catch (JsonProcessingException ex) {

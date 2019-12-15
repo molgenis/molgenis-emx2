@@ -4,6 +4,6 @@ import org.molgenis.emx2.utils.MolgenisException;
 
 class SqlGraphQueryException extends MolgenisException {
   public SqlGraphQueryException(String detail, Object... params) {
-    super("QUERY_ERROR", "query error", String.format(detail, params));
+    super(String.format(detail, params));
   }
 }

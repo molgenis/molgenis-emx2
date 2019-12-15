@@ -6,7 +6,6 @@ import graphql.schema.*;
 import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,22 +17,26 @@ import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.GraphqlApi.typeForMutationResult;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
 import static org.molgenis.emx2.web.JsonApi.schemaToJson;
 
 public class GraphqlTableMetadataFields {
+  private GraphqlTableMetadataFields() {
+    // hide constructor
+  }
 
   public static GraphQLFieldDefinition.Builder metaField(Schema schema) {
     return newFieldDefinition()
-        .name("_meta")
+        .name("meta")
         .type(outputMetadataType)
         .dataFetcher(GraphqlTableMetadataFields.queryFetcher(schema));
   }
 
   public static GraphQLFieldDefinition saveMetaField(Schema schema) {
     return newFieldDefinition()
-        .name("_saveMeta")
+        .name("saveMeta")
         .type(typeForMutationResult)
         .dataFetcher(saveMetaFetcher(schema))
         .argument(newArgument().name(TABLES).type(GraphQLList.list(inputTableMetadataType)))
@@ -43,7 +46,7 @@ public class GraphqlTableMetadataFields {
 
   public static GraphQLFieldDefinition deleteMetaField(Schema schema) {
     return newFieldDefinition()
-        .name("_deleteMeta")
+        .name("deleteMeta")
         .type(typeForMutationResult)
         .dataFetcher(deleteMetaFetcher(schema))
         .argument(newArgument().name(TABLES).type(GraphQLList.list(Scalars.GraphQLString)))
@@ -156,33 +159,27 @@ public class GraphqlTableMetadataFields {
 
   private static DataFetcher<?> saveMetaFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      try {
-        schema.tx(
-            db -> {
-              try {
-                Object tables = dataFetchingEnvironment.getArgument(TABLES);
-                if (tables != null) {
-                  Map tableMap = Map.of("tables", tables);
-                  String json = JsonApi.getWriter().writeValueAsString(tableMap);
-                  SchemaMetadata otherSchema = jsonToSchema(json);
-                  schema.merge(otherSchema);
-                }
-                List<Map<String, String>> members = dataFetchingEnvironment.getArgument(MEMBERS);
-                if (members != null) {
-                  for (Map<String, String> m : members) {
-                    schema.addMember(m.get("user"), m.get("role"));
-                  }
-                }
-              } catch (IOException e) {
-                throw new GraphqlApiException(e);
+      schema.tx(
+          db -> {
+            try {
+              Object tables = dataFetchingEnvironment.getArgument(TABLES);
+              if (tables != null) {
+                Map tableMap = Map.of("tables", tables);
+                String json = JsonApi.getWriter().writeValueAsString(tableMap);
+                SchemaMetadata otherSchema = jsonToSchema(json);
+                schema.merge(otherSchema);
               }
-            });
-        Map result = new LinkedHashMap<>();
-        result.put(DETAIL, "success");
-        return result;
-      } catch (MolgenisException e) {
-        return GraphqlApi.transform(e);
-      }
+              List<Map<String, String>> members = dataFetchingEnvironment.getArgument(MEMBERS);
+              if (members != null) {
+                for (Map<String, String> m : members) {
+                  schema.addMember(m.get("user"), m.get("role"));
+                }
+              }
+            } catch (IOException e) {
+              throw new GraphqlException(e);
+            }
+          });
+      return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
     };
   }
 

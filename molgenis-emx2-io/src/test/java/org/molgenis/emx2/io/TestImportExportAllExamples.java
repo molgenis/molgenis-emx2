@@ -91,7 +91,7 @@ public class TestImportExportAllExamples {
       schema3.merge(schema2);
 
     } catch (MolgenisException e) {
-      System.out.println(e.getMessages());
+      System.out.println(e.getDetails());
       throw e;
     }
   }

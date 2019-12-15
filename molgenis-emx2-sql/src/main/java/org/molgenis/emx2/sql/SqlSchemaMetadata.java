@@ -80,7 +80,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
       log(start, "created");
     } catch (DataAccessException e) {
-      throw new SqlMolgenisException("schema_create_failed", "Schema create failed", e);
+      throw new SqlMolgenisException("Schema create failed", e);
     }
     MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
   }
