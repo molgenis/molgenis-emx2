@@ -8,8 +8,10 @@ services:
       - postgres
     volumes:
       - ./molgenis-emx2-webservice/target:/usr/local/exm2
+    environment:
+      - EMX_JDBC=jdbc:postgresql://postgres/molgenis
     working_dir: /usr/local/exm2
-    command: java -jar molgenis-emx2-jar-with-dependencies.jar jdbc:postgresql://postgres/molgenis
+    command: java -jar molgenis-emx2-jar-with-dependencies.jar
   postgres:
     image: postgres:11-alpine
     environment:
