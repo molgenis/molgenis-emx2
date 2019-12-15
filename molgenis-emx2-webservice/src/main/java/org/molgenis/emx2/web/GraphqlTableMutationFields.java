@@ -100,6 +100,9 @@ public class GraphqlTableMutationFields {
           type = Scalars.GraphQLString;
           break;
       }
+      if (col.isPrimaryKey()) {
+        type = GraphQLNonNull.nonNull(type);
+      }
       inputBuilder.field(newInputObjectField().name(col.getName()).type(type));
     }
     return inputBuilder.build();

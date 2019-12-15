@@ -112,6 +112,14 @@ class GraphqlApi {
     mutationBuilder.field(logoutField(schema.getDatabase()));
     mutationBuilder.field(registerField(schema.getDatabase()));
 
+    // add query and mutation for each table
+    mutationBuilder.field(saveField(schema));
+    mutationBuilder.field(deleteField(schema));
+    for (String tableName : schema.getTableNames()) {
+      Table table = schema.getTable(tableName);
+      queryBuilder.field(tableQueryField(table));
+    }
+
     // add meta query, if member
     String role = schema.getRoleForUser(schema.getDatabase().getActiveUser());
     boolean isAdmin =
@@ -124,14 +132,6 @@ class GraphqlApi {
         mutationBuilder.field(saveMetaField(schema));
         mutationBuilder.field(deleteMetaField(schema));
       }
-    }
-
-    // add query and mutation for each table
-    mutationBuilder.field(saveField(schema));
-    mutationBuilder.field(deleteField(schema));
-    for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      queryBuilder.field(tableQueryField(table));
     }
 
     // assemble and return
