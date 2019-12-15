@@ -11,18 +11,15 @@ public class RunMolgenisEmx2 {
 
   public static void main(String[] args) {
 
-    String defaultUrl = "jdbc:postgresql:molgenis";
-
-    if (args.length == 1) {
-      System.out.println("Starting EMX2 with postgresql url: " + args[0]);
-    } else {
-      System.out.println(
-          "Warning: takes 1 argument with the jdbc url; otherwise uses " + defaultUrl);
+    String url = "jdbc:postgresql:molgenis";
+    if (System.getenv("EMX_JDBC") != null) {
+      url = System.getenv("EMX_JDBC");
     }
+    System.out.println("Starting EMX2 with postgresql url: " + url);
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
-    dataSource.setJdbcUrl(args[0] != null ? args[0] : defaultUrl);
+    dataSource.setJdbcUrl(url);
     dataSource.setUsername("molgenis");
     dataSource.setPassword("molgenis");
 
