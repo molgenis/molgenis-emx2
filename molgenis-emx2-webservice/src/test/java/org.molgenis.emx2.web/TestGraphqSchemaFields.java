@@ -233,5 +233,8 @@ public class TestGraphqSchemaFields {
     // insert should increase count
     execute("mutation{save(Tag:{name:\"blaat\"}){message}}");
     assertEquals(count + 1, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
+    // delete
+    execute("mutation{delete(Tag:{name:\"blaat\"}){message}}");
+    assertEquals(count, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
   }
 }

@@ -20,8 +20,8 @@ import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
 
 public class GraphqlTableMutationFields {
-  public static GraphQLFieldDefinition tableMutationField(Schema schema) {
 
+  public static GraphQLFieldDefinition saveField(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         newFieldDefinition()
             .name("save")
@@ -34,7 +34,22 @@ public class GraphqlTableMutationFields {
       fieldBuilder.argument(
           GraphQLArgument.newArgument().name(tableName).type(GraphQLList.list(inputType)));
     }
+    return fieldBuilder.build();
+  }
 
+  public static GraphQLFieldDefinition deleteField(Schema schema) {
+    GraphQLFieldDefinition.Builder fieldBuilder =
+        newFieldDefinition()
+            .name("delete")
+            .type(typeForMutationResult)
+            .dataFetcher(fetcherForDelete(schema));
+
+    for (String tableName : schema.getTableNames()) {
+      fieldBuilder.argument(
+          GraphQLArgument.newArgument()
+              .name(tableName)
+              .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableName + "Input"))));
+    }
     return fieldBuilder.build();
   }
 
@@ -47,6 +62,21 @@ public class GraphqlTableMutationFields {
           Table table = schema.getTable(tableName);
           int count = table.update(convertToRows(rowsAslistOfMaps));
           result.append("saved " + count + " records to " + tableName + "\n");
+        }
+      }
+      return new GraphqlApiMutationResult(SUCCESS, result.toString());
+    };
+  }
+
+  private static DataFetcher<?> fetcherForDelete(Schema schema) {
+    return dataFetchingEnvironment -> {
+      StringBuilder result = new StringBuilder();
+      for (String tableName : schema.getTableNames()) {
+        List<Map<String, Object>> rowsAslistOfMaps = dataFetchingEnvironment.getArgument(tableName);
+        if (rowsAslistOfMaps != null) {
+          Table table = schema.getTable(tableName);
+          int count = table.delete(convertToRows(rowsAslistOfMaps));
+          result.append("deleted " + count + " records int " + tableName + "\n");
         }
       }
       return new GraphqlApiMutationResult(SUCCESS, result.toString());

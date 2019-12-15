@@ -2,23 +2,32 @@
 [![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=mswertz_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=mswertz_molgenis-emx2)
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=mswertz_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=mswertz_molgenis-emx2)
 
-# molgenis-emx2
-Reference implementation of EMX2. Uses
+# molgenis-emx2 preview
+This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview.
+
+## Features
+* EMX2 simplified metadata format
+* Support for multiple schemas; each schema functions as permission group
+* GraphQL endpoint
+* Uses PostgreSQL for all heavy lifting (incl permissions, JSON generation)
+
+## how to run
+*  need install of postresql 11 with superadmin molgenis/molgenis
+*  mvn test is most interesting to see if and how all works
+*  emx2-webservice/test RunWebApi is most interesting to play with
+*  emx2-io/test/resources/test1.txt gives idea on EMX2 format
+
+## minimal dependencies
 * PostgresQL for all heavy lifting (transactions, permissions, json generation)
-* Jooq for safe database interaction, 
+* Jooq for safe database interaction 
 * Sparkjava for lightweigh webservice
 * Jackson for json and csv parsing
 * POI for Excel parsing
 * OpenApi for web service spec
-* Graphql-java for graphql api
+* graphql-java for graphql api
 Minimizes dependencies, no Spring stuff, no Elasticsearch, just the least that can work.
 Outside scope: file service, script service, authentication (asumed all to be other services on top)
 Most core ideas where already described in https://docs.google.com/document/d/19YEGG8OGgtjCu5WlJKmHbHvosJzw3Mp6e6e7B8EioPY/edit#
-
-## guiding principles
-* idempotency of DDL and DML: if I repeat procedure with same inputs it should succeed
-    * open issue: rename of columns, update identifiers
-* transparancy: no magic should be happening. 
 
 ## modules
 *  emx2: interface and base classes, concept only
@@ -27,11 +36,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  emx2-webservice: web API on top of jooq + io.
 *  emx2-exampledata: test data models and data, used in various test
 
-## how to run
-*  need install of postresql 11 with superadmin molgenis/molgenis
-*  mvn test is most interesting to see if and how all works
-*  emx2-webservice/test TestWebApi is most interesting to play with
-*  emx2-io/test/resources/test1.txt gives idea on EMX2 format
+
 
 ## Feature list (mostly in POC or 'walking skeleton' state)
 *  simplified EMX '2.0' format 

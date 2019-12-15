@@ -21,7 +21,8 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.DETAIL;
 import static org.molgenis.emx2.web.GraphqlDatabaseFields.*;
 import static org.molgenis.emx2.web.GraphqlTableMetadataFields.*;
-import static org.molgenis.emx2.web.GraphqlTableMutationFields.tableMutationField;
+import static org.molgenis.emx2.web.GraphqlTableMutationFields.deleteField;
+import static org.molgenis.emx2.web.GraphqlTableMutationFields.saveField;
 import static org.molgenis.emx2.web.GraphqlTableQueryFields.tableQueryField;
 import static org.molgenis.emx2.web.GraphqlLoginLogoutRegisterFields.*;
 
@@ -126,7 +127,8 @@ class GraphqlApi {
     }
 
     // add query and mutation for each table
-    mutationBuilder.field(tableMutationField(schema));
+    mutationBuilder.field(saveField(schema));
+    mutationBuilder.field(deleteField(schema));
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       queryBuilder.field(tableQueryField(table));
