@@ -173,15 +173,15 @@ public class TestGraphqSchemaFields {
   @Test
   public void testMembersOperations() throws IOException {
     // list members
-    int count = execute("{meta{members{user}}}").at("/meta/members").size();
+    int count = execute("{_meta{members{user}}}").at("/_meta/members").size();
 
     // add members
     execute("mutation{saveMeta(members:{user:\"blaat\", role:\"Manager\"}){message}}");
-    assertEquals(count + 1, execute("{meta{members{user}}}").at("/meta/members").size());
+    assertEquals(count + 1, execute("{_meta{members{user}}}").at("/_meta/members").size());
 
     // remove members
     execute("mutation{deleteMeta(members:\"blaat\"){message}}");
-    assertEquals(count, execute("{meta{members{user}}}").at("/meta/members").size());
+    assertEquals(count, execute("{_meta{members{user}}}").at("/_meta/members").size());
   }
 
   @Test
@@ -210,15 +210,15 @@ public class TestGraphqSchemaFields {
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{meta{tables{name}}}").at("/meta/tables").size());
+    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
 
     // add table
     execute("mutation{saveMeta(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){message}}");
-    assertEquals(6, execute("{meta{tables{name}}}").at("/meta/tables").size());
+    assertEquals(6, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
 
     // drop
     execute("mutation{deleteMeta(tables:\"blaat\"){message}}");
-    assertEquals(5, execute("{meta{tables{name}}}").at("/meta/tables").size());
+    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
   }
 
   private JsonNode execute(String query) throws IOException {

@@ -5,6 +5,29 @@
 # molgenis-emx2 preview
 This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview.
 
+## How to run
+Fastest is to build and then user docker:
+
+```console
+mvn package -Dmaven.test.skip=true
+docker-compose up
+```
+
+Then you want to browse to http//localhost:8080
+Most fun you have with graphql playground.
+First thing to do: login as admin (passwords are not yet needed)
+
+```
+mutation{
+login(username:"admin"){message}
+}
+```
+
+Alternatively:
+* install postgres 11
+* create database 'molgenis' with superadmin user/pass molgenis
+* run molgenis-emx2-webservice/src/org.molgenis.emx2.RunMolgenisEmx2
+
 ## Features
 * EMX2 simplified metadata format
 * Support for multiple schemas; each schema functions as permission group

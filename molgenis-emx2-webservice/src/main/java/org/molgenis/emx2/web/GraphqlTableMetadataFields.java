@@ -29,7 +29,7 @@ public class GraphqlTableMetadataFields {
 
   public static GraphQLFieldDefinition.Builder metaField(Schema schema) {
     return newFieldDefinition()
-        .name("meta")
+        .name("_meta")
         .type(outputMetadataType)
         .dataFetcher(GraphqlTableMetadataFields.queryFetcher(schema));
   }

@@ -10,6 +10,7 @@ examplefiles
 *.iws
 *.DS_Store
 git.properties
+data
 */data/elasticsearch/
 /data/elasticsearch/
 test-output/

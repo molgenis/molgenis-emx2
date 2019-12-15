@@ -70,10 +70,8 @@ public class SqlDatabase implements Database {
       SqlSchema schema = new SqlSchema(this, metadata);
       schemas.put(name, metadata);
       return schema;
-    } else {
-      throw new MolgenisException(
-          "Get schema failed. Schema with name '" + name + "' could not be found");
     }
+    return null;
   }
 
   @Override

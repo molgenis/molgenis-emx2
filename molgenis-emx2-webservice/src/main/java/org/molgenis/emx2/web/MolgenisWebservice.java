@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jsoniter.spi.JsonException;
+import com.zaxxer.hikari.HikariDataSource;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;

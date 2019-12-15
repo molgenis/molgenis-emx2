@@ -8,7 +8,7 @@ import org.molgenis.emx2.sql.DatabaseFactory;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.MolgenisException;
 
-public class RunWebApi {
+public class RunWebApiTest {
 
   public static void main(String[] args) {
 

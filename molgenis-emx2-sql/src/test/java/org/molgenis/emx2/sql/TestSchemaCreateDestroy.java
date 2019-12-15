@@ -57,11 +57,6 @@ public class TestSchemaCreateDestroy {
     }
 
     db.dropSchema(getClass().getSimpleName());
-    try {
-      db.getSchema(getClass().getSimpleName());
-      fail("Schema should have been dropped");
-    } catch (Exception e) {
-      System.out.println("Error correctly:\n" + e);
-    }
+    assertNull(db.getSchema(getClass().getSimpleName()));
   }
 }

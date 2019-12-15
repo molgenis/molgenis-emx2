@@ -1,0 +1,24 @@
+version: "3.0"
+services:
+  emx2:
+    image: openjdk:13-alpine
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - ./molgenis-emx2-webservice/target:/usr/local/exm2
+    working_dir: /usr/local/exm2
+    command: java -jar molgenis-emx2-jar-with-dependencies.jar jdbc:postgresql://postgres/molgenis
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      - POSTGRES_USER=molgenis
+      - POSTGRES_PASSWORD=molgenis
+      - POSTGRES_DB=molgenis
+    expose:
+      - "5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
+

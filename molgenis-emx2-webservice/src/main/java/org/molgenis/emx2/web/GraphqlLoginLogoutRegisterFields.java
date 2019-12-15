@@ -76,7 +76,7 @@ public class GraphqlLoginLogoutRegisterFields {
 
   public static GraphQLFieldDefinition userQueryField(Database database) {
     return newFieldDefinition()
-        .name("user")
+        .name("_user")
         .type(
             newObject()
                 .name("MolgenisUser")
