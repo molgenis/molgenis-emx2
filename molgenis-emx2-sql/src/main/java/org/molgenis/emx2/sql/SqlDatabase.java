@@ -181,7 +181,7 @@ public class SqlDatabase implements Database {
         clearCache();
         throw new SqlMolgenisException(dae);
       } catch (SQLException e) {
-        e.printStackTrace();
+        throw new MolgenisException("Transaction failed", e.getMessage(), e);
       } finally {
         this.inTx = false;
         jooq = originalContext;
