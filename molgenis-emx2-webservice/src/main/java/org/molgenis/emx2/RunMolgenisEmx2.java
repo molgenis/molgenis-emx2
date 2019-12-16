@@ -5,13 +5,15 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
 
+import java.util.regex.Pattern;
+
 public class RunMolgenisEmx2 {
 
   public static void main(String[] args) {
 
     String url = "jdbc:postgresql:molgenis";
     if (args.length == 1) {
-      if (args[0].startsWith("jdbc:postgresql:") && args[0].endsWith("/molgenis")) {
+      if (Pattern.matches("[0-9A-Za-z/:]+", args[0])) {
         url = args[0];
       } else {
         System.out.println("Error: invalid jdbc string.");
