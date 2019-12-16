@@ -89,7 +89,7 @@ class SqlTable implements Table {
     if (user == null) user = "molgenis";
     if (logger.isInfoEnabled()) {
       logger.info(
-          "{} {} {} ows into table {} in {}ms",
+          "{} {} {} rows into table {} in {}ms",
           user,
           message,
           count.get(),

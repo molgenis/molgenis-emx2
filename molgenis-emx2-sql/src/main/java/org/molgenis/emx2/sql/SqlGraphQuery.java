@@ -133,6 +133,26 @@ public class SqlGraphQuery extends Filter {
     conditions = createFiltersForColumns(conditions, fromTable, filter);
 
     // add to that search filters, only for 'root' query having the search fields
+    conditions = addSearchConditions(fromTable, fromAlias, select, filter, conditions);
+
+    // add the filter conditions to the query
+    SelectConditionStep<Record> where = from.where(conditions);
+
+    // add limit and offset to that query if desired
+    if (includeLimitOfssetSort) {
+      where = createLimitOffsetOrderBy(select, where);
+    }
+
+    // create the aggregation of the subselect, e.g. into count or json
+    return fromTable.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
+  }
+
+  private static Condition addSearchConditions(
+      SqlTableMetadata fromTable,
+      String fromAlias,
+      SelectColumn select,
+      Filter filter,
+      Condition conditions) {
     if (filter instanceof SqlGraphQuery) {
       SqlGraphQuery root = (SqlGraphQuery) filter;
       if (root.searchTerms.length > 0) {
@@ -148,17 +168,7 @@ public class SqlGraphQuery extends Filter {
                         createFiltersForSearch(fromTable, fromAlias, select, root.searchTerms))));
       }
     }
-
-    // add the filter conditions to the query
-    SelectConditionStep<Record> where = from.where(conditions);
-
-    // add limit and offset to that query if desired
-    if (includeLimitOfssetSort) {
-      where = createLimitOffsetOrderBy(select, where);
-    }
-
-    // create the aggregation of the subselect, e.g. into count or json
-    return fromTable.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
+    return conditions;
   }
 
   private static List<Field> createSelectionFields(
@@ -199,7 +209,7 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Field createAggregationField(
-      TableMetadata table,
+      SqlTableMetadata table,
       String tableAlias,
       SelectColumn select,
       Filter filter,
@@ -212,6 +222,9 @@ public class SqlGraphQuery extends Filter {
 
     // user filter
     conditions = createFiltersForColumns(conditions, table, filter);
+
+    // add to that search filters, only for 'root' query having the search fields
+    conditions = addSearchConditions(table, tableAlias, select, filter, conditions);
 
     if (select.has(COUNT_FIELD)) {
       fields.add(count().as(COUNT_FIELD));

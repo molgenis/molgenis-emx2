@@ -5,15 +5,20 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
 
-import java.net.MalformedURLException;
-
 public class RunMolgenisEmx2 {
 
   public static void main(String[] args) {
 
     String url = "jdbc:postgresql:molgenis";
-    if (System.getenv("EMX_JDBC") != null) {
-      url = System.getenv("EMX_JDBC");
+    if (args.length == 1) {
+      if (args[0].startsWith("jdbc:postgresql:") && args[0].endsWith("/molgenis")) {
+        url = args[0];
+      } else {
+        System.out.println("Error: invalid jdbc string.");
+        return;
+      }
+    } else {
+      System.out.println("You can pass custom postgresql jdbc url as first parameter");
     }
     System.out.println("Starting EMX2 with postgresql url: " + url);
 
