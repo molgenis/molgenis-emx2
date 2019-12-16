@@ -1,7 +1,7 @@
 package org.molgenis.emx2.web.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.web.JsonApi;
 
 import java.util.LinkedHashMap;

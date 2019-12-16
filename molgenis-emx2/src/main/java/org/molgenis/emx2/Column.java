@@ -33,6 +33,10 @@ public class Column {
     return this;
   }
 
+  public boolean isPrimaryKey() {
+    return this.getName().equals(this.table.getPrimaryKey());
+  }
+
   public TableMetadata getTable() {
     return table;
   }
@@ -143,10 +147,6 @@ public class Column {
     return indexed;
   }
 
-  public Boolean isPrimaryKey() {
-    return getTable().isPrimaryKey(getName());
-  }
-
   protected void setTable(TableMetadata tableMetadata) {
     this.table = tableMetadata;
   }
@@ -181,11 +181,7 @@ public class Column {
     return getTable().addUnique(columnNames);
   }
 
-  public ReferenceMultiple addRefMultiple(String... columnNames) {
-    return getTable().addRefMultiple(columnNames);
-  }
-
-  public TableMetadata setPrimaryKey(String... columnNames) {
+  public TableMetadata setPrimaryKey(String columnNames) {
     return getTable().setPrimaryKey(columnNames);
   }
 

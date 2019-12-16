@@ -1,18 +1,17 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.exception.DataAccessException;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.postgresql.util.PSQLException;
 
 public class SqlMolgenisException extends MolgenisException {
 
   public SqlMolgenisException(DataAccessException dae) {
-    super(getTitle(dae) + getDetail(dae), dae);
-    Throwable cause = dae.getCause();
+    super(getTitle(dae), getDetail(dae), dae);
   }
 
-  public SqlMolgenisException(String message, DataAccessException dae) {
-    super(message + getTitle(dae) + "." + getDetail(dae), dae);
+  public SqlMolgenisException(String title, DataAccessException dae) {
+    super(title, getTitle(dae) + "." + getDetail(dae), dae);
   }
 
   private static String getTitle(DataAccessException dae) {

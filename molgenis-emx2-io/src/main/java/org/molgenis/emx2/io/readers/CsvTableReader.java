@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io.readers;
 
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.*;
@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 public class CsvTableReader {
 
@@ -45,6 +47,7 @@ public class CsvTableReader {
                 return it.hasNext();
               } catch (Exception e) {
                 throw new MolgenisException(
+                    IMPORT_FAILED,
                     e.getClass().getName()
                         + ": "
                         + e.getMessage()
@@ -65,7 +68,7 @@ public class CsvTableReader {
             }
           };
     } catch (IOException ioe) {
-      throw new MolgenisException(ioe.getMessage(), ioe);
+      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
     }
   }
 }

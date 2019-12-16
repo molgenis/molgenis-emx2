@@ -59,8 +59,6 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  emx2-webservice: web API on top of jooq + io.
 *  emx2-exampledata: test data models and data, used in various test
 
-
-
 ## Feature list (mostly in POC or 'walking skeleton' state)
 *  simplified EMX '2.0' format 
     - only one 'molgenis.csv' metadata file (instead of now multiple for package, entity, attribute)
@@ -122,23 +120,28 @@ Most core ideas where already described in https://docs.google.com/document/d/19
     - aim to minimize the number of calls
 
 ## Todo and open issues
+*  metadata change listener so we know when to clear api & metadata caches
+*  group by
+*  flattened result in graphql for tables, including group by
+    *  sorting on nested fields in graphql; showing graphql as flat table
+    *  csv result field for that flattened result
+*  graph mutation next to flat mutation
+*  decide if we need 'insert' seperate from 'update'
 *  test and fix the openapi so all the docs just work
 *  'save' for graphql allowing save of whole graphs
-*  partial updates, i.e. null columns versus missing (to be ingored) columns
-*  docker image
-*  integration tests for GraphqlAPI via SparkJava
+*  partial/patch updates, i.e. null columns versus missing (to be ingored) columns
 *  delete column
+*  default limit to 10
 *  add a check for maximum limit of identifiers, i.e. 63 characters (Excel limit)
-*  throw error if primary key column is empty on update and delete
 *  throw error when webservice is called with only csv header and no values
 *  update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey then?)
 *  job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
-*  enable search on joined tables in query (how to indicate the xpansion?)
 *  Default values
+*  Decide on free table/column names vs sanitized graphql
 *  Store the descriptions
 *  Finish the legacy reader
+*  Decide to remove multi-column pkey
 *  multi-column ref is not yet reloadable (huge challenging bug, not sure whether we should support that)
-*  sorting on nested fields in graphql; showing graphql as flat table
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
 
 ## helpfull notes

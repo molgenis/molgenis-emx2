@@ -2,7 +2,7 @@ package org.molgenis.emx2.io.emx2;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
 import java.io.*;
@@ -12,6 +12,8 @@ import java.util.List;
 import static org.molgenis.emx2.ColumnType.*;
 
 public class Emx2 {
+
+  public static final String IMPORT_FAILED = "Import failed";
 
   private Emx2() {
     // hides constructor
@@ -32,7 +34,7 @@ public class Emx2 {
     loadColumns(rows, schema, messages);
     loadTableProperties(schema, rows, messages);
     if (!messages.isEmpty()) {
-      throw new MolgenisException("molgenis.readers reading failed", messages);
+      throw new MolgenisException(IMPORT_FAILED, "molgenis.csv reading failed", messages);
     }
     return schema;
   }
@@ -74,7 +76,7 @@ public class Emx2 {
           table.addUnique(def.getParameterArray(term));
           break;
         case Emx2PropertyList.PKEY:
-          table.setPrimaryKey(def.getParameterArray(term));
+          table.setPrimaryKey(def.getParamterValue(term));
           break;
         default:
           messages.add(new MolgenisExceptionDetail(line, "term " + term + " not supported"));
@@ -94,6 +96,7 @@ public class Emx2 {
         try {
           table.getColumn(columnName);
           throw new MolgenisException(
+              IMPORT_FAILED,
               "Error on line "
                   + line
                   + ": duplicate column definition table='"
@@ -121,7 +124,7 @@ public class Emx2 {
       try {
         List<String> params = def.getParameterList(REF.toString().toLowerCase());
         if (params.isEmpty() || params.size() > 2) {
-          throw new MolgenisException("Ref must have 1 or 2 parameter values");
+          throw new MolgenisException(IMPORT_FAILED, "Ref must have 1 or 2 parameter values");
         }
         if (params.size() > 1) {
           table.addRef(columnName, params.get(0), params.get(1));
@@ -194,9 +197,6 @@ public class Emx2 {
     // write multiple key constraints on table level, otherwise this will be done per column
     for (String[] u : table.getUniques()) {
       if (u.length > 1) def.add(Emx2PropertyList.UNIQUE, u);
-    }
-    if (table.getPrimaryKey().length > 1) {
-      def.add(Emx2PropertyList.PKEY, table.getPrimaryKey());
     }
     // write table definition row, but only if not empty
     if (!def.getTerms().isEmpty())

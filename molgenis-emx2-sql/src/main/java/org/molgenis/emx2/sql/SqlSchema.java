@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import java.util.*;
 
@@ -66,7 +66,8 @@ public class SqlSchema implements Schema {
           for (Member m : members) {
             if (!currentRoles.contains(m.getRole()))
               throw new MolgenisException(
-                  "Add member(s) failed. Role '"
+                  "Add member(s) failed",
+                  "Role '"
                       + m.getRole()
                       + " doesn't exist in schema '"
                       + getMetadata().getName()
@@ -210,7 +211,8 @@ public class SqlSchema implements Schema {
               table.setPrimaryKey(metadata.getPrimaryKey());
           }
           // set primary key and uniques
-          if (metadata.getInherit() == null && metadata.getPrimaryKey().length > 0)
+          // todo check if below makes sense
+          if (metadata.getInherit() == null && metadata.getPrimaryKey() != null)
             for (String[] unique : metadata.getUniques()) {
               if (!table.isUnique(unique)) {
                 table.addUnique(unique);

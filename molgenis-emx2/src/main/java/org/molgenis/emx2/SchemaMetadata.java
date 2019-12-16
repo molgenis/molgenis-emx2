@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.utils.MolgenisException;
-
 import java.util.*;
 
 public class SchemaMetadata {
@@ -37,7 +35,8 @@ public class SchemaMetadata {
   public TableMetadata createTable(TableMetadata table) {
     if (tables.containsKey(table.getTableName()))
       throw new MolgenisException(
-          "Create table failed: Table with name '"
+          "Create table failed",
+          "Table with name '"
               + table.getTableName()
               + "'already exists in schema '"
               + getName()

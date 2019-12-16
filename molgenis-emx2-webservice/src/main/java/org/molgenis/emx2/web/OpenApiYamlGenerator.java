@@ -8,7 +8,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
@@ -360,7 +360,8 @@ public class OpenApiYamlGenerator {
         return new ArraySchema().items(columnSchema(column.getRefColumn()));
       default:
         throw new MolgenisException(
-            "columnSchema failed: ColumnType "
+            "Open api generation failed",
+            "ColumnType "
                 + column.getColumnType()
                 + " not supported. Should never happen unless during development.");
     }

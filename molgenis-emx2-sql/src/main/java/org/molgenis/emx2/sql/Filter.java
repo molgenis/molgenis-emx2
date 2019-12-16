@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.molgenis.emx2.Operator;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -17,7 +17,8 @@ public class Filter {
     this.field = field;
     for (Filter f : children) {
       if (field != null && this.children.get(f.getField()) != null) {
-        throw new MolgenisException("already created filter for field " + f.getField());
+        throw new MolgenisException(
+            "Invalid filter", "already created filter for field " + f.getField());
       }
       this.children.put(f.getField(), f);
     }
@@ -42,6 +43,7 @@ public class Filter {
   private void validate() {
     if (children.size() > 0)
       throw new MolgenisException(
+          "Invalid filter",
           "cannot eq filter on '" + this.field + "' when you also created sub filters");
   }
 

@@ -6,7 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -59,18 +59,5 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
     assertTrue(t.isUnique("b", "a")); // order doesn't matter
     t.removeUnique("b", "a");
     assertEquals(0, t.getUniques().size());
-  }
-
-  @Test
-  public void testPrimaryKey() {
-
-    SchemaMetadata s = db.createSchema("testPrimaryKey").getMetadata();
-    TableMetadata t = s.createTable("test");
-
-    t.addColumn(new Column(t, "a", STRING));
-    t.addColumn(new Column(t, "b", STRING));
-
-    t.setPrimaryKey("a", "b");
-    assertTrue(t.isPrimaryKey("b", "a")); // order doesn't matter
   }
 }

@@ -3,7 +3,7 @@ package org.molgenis.emx2.io.rowstore;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.*;
+
+import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
@@ -52,7 +54,7 @@ public class TableStoreForXlsxFile implements TableStore {
         }
       }
     } catch (IOException ioe) {
-      throw new MolgenisException(ioe.getMessage(), ioe);
+      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
     }
   }
 
@@ -114,7 +116,7 @@ public class TableStoreForXlsxFile implements TableStore {
         this.cache.put(sheetName, result);
       }
     } catch (IOException ioe) {
-      throw new MolgenisException(ioe.getMessage(), ioe);
+      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
     }
     if (logger.isInfoEnabled()) {
       logger.info("Excel file loaded into memory in {}ms", (System.currentTimeMillis() - start));
@@ -127,7 +129,8 @@ public class TableStoreForXlsxFile implements TableStore {
       this.cache();
     }
     if (!this.cache.containsKey(name)) {
-      throw new MolgenisException("Table with name " + name + " not found in Excel file");
+      throw new MolgenisException(
+          IMPORT_FAILED, "Table with name " + name + " not found in Excel file");
     }
     return this.cache.get(name);
   }

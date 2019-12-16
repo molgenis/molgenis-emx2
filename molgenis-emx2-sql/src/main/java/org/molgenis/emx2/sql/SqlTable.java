@@ -7,7 +7,7 @@ import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,8 +112,9 @@ class SqlTable implements Table {
   public int update(Iterable<Row> rows) {
     long start = System.currentTimeMillis();
 
-    if (getPrimaryKeyFields().isEmpty())
+    if (getMetadata().getPrimaryKey() == null)
       throw new MolgenisException(
+          "Update failed",
           "Table "
               + getName()
               + " cannot process row update requests because no primary key is defined");
@@ -138,19 +139,27 @@ class SqlTable implements Table {
               fields.add(getJooqField(c));
             }
 
-            List<Field> keyFields = getPrimaryKeyFields();
-
             // execute in batches
             List<Row> batch = new ArrayList<>();
             for (Row row : rows) {
               batch.add(row);
               count.set(count.get() + 1);
               if (count.get() % batchSize == 0) {
-                updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
+                updateBatch(
+                    batch,
+                    getJooqTable(),
+                    fields,
+                    fieldNames,
+                    getJooqField(getMetadata().getPrimaryKeyColumn()));
                 batch.clear();
               }
             }
-            updateBatch(batch, getJooqTable(), fields, fieldNames, keyFields);
+            updateBatch(
+                batch,
+                getJooqTable(),
+                fields,
+                fieldNames,
+                getJooqField(getMetadata().getPrimaryKeyColumn()));
           });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
@@ -166,7 +175,7 @@ class SqlTable implements Table {
       org.jooq.Table t,
       List<Field> fields,
       List<String> fieldNames,
-      List<Field> keyFields) {
+      Field keyFields) {
     if (!rows.isEmpty()) {
       // createColumn multi-value insert
       InsertValuesStepN step = db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
@@ -247,17 +256,16 @@ class SqlTable implements Table {
 
   private void deleteBatch(Collection<Row> rows) {
     if (!rows.isEmpty()) {
-      String[] keyNames = getMetadata().getPrimaryKey();
+      String[] keyNames = new String[] {getMetadata().getPrimaryKey()};
 
       // in case no primary key is defined, use all columns
-      if (keyNames.length == 0) {
+      if (getMetadata().getPrimaryKey() == null) {
         List<Column> allColumns = getMetadata().getColumns();
         keyNames = new String[allColumns.size()];
         for (int i = 0; i < keyNames.length; i++) {
           keyNames[i] = allColumns.get(i).getName();
         }
       }
-
       Condition whereCondition = getWhereConditionForBatchDelete(rows, keyNames);
       db.getJooq().deleteFrom(getJooqTable()).where(whereCondition).execute();
     }
@@ -317,12 +325,8 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
-  private List<Field> getPrimaryKeyFields() {
-    ArrayList<Field> keyFields = new ArrayList<>();
-    for (String key : getMetadata().getPrimaryKey()) {
-      keyFields.add(getJooqField(getMetadata().getColumn(key)));
-    }
-    return keyFields;
+  private Field getPrimaryKeyFields() {
+    return getJooqField(getMetadata().getColumn(getMetadata().getPrimaryKey()));
   }
 
   protected org.jooq.Table getJooqTable() {

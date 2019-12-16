@@ -2,12 +2,11 @@ package org.molgenis.emx2.web;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jsoniter.spi.JsonException;
-import com.zaxxer.hikari.HikariDataSource;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;

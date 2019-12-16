@@ -5,8 +5,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.DatabaseFactory;
-import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.utils.MolgenisException;
 
 public class RunWebApiTest {
 

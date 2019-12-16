@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.MolgenisException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -231,6 +230,7 @@ public class Row {
         return (T) getUuidArray(name);
       default:
         throw new MolgenisException(
+            "Unknown type",
             "Cannot cast column to java columnType"
                 + "Row.get(Class,name) not implemented for Class = "
                 + type.getCanonicalName());

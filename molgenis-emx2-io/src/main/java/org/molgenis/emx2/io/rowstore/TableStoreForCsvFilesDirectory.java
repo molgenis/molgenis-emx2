@@ -4,7 +4,7 @@ import org.molgenis.emx2.Row;
 
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -12,6 +12,8 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 public class TableStoreForCsvFilesDirectory implements TableStore {
   static final String CSV_EXTENSION = ".csv";
@@ -21,7 +23,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   public TableStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
     if (!directoryPath.toFile().exists())
-      throw new MolgenisException("Directory " + directoryPath + " doesn't exist");
+      throw new MolgenisException(IMPORT_FAILED, "Directory " + directoryPath + " doesn't exist");
     this.separator = separator;
   }
 
@@ -38,7 +40,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
       CsvTableWriter.rowsToCsv(rows, writer, separator);
       writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException(ioe.getMessage(), ioe);
+      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
     }
   }
 
@@ -50,7 +52,9 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
       return RowReaderJackson.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
-          "Table not found. File with name '" + name + "' doesn't exist. " + ioe.getMessage(), ioe);
+          IMPORT_FAILED,
+          "Table not found. File with name '" + name + "' doesn't exist. " + ioe.getMessage(),
+          ioe);
     }
   }
 

@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class Table {
   private String name;
-  private String[] pkey = new String[0];
+  private String pkey;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
 
@@ -35,11 +35,11 @@ public class Table {
     this.name = name;
   }
 
-  public String[] getPkey() {
+  public String getPkey() {
     return pkey;
   }
 
-  public void setPkey(String[] pkey) {
+  public void setPkey(String pkey) {
     this.pkey = pkey;
   }
 

@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.Order.ASC;
@@ -38,6 +37,7 @@ public class SqlGraphQuery extends Filter {
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
   public static final String SUM_FIELD = "sum";
+  public static final String GROUPBY_FIELD = "groupby";
 
   private static final String ANY_SQL = "{0} = ANY ({1})";
   private static final String JSON_AGG_SQL = "json_strip_nulls(json_agg(item))";
@@ -156,7 +156,7 @@ public class SqlGraphQuery extends Filter {
     if (filter instanceof SqlGraphQuery) {
       SqlGraphQuery root = (SqlGraphQuery) filter;
       if (root.searchTerms.length > 0) {
-        Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()[0]));
+        Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()));
         // create subquery
         SelectJoinStep sub =
             fromTable.getJooq().select(pkey).from(getJooqTable(fromTable, fromAlias));
@@ -214,11 +214,12 @@ public class SqlGraphQuery extends Filter {
       SelectColumn select,
       Filter filter,
       Condition conditions) {
-    DSLContext jooq = ((SqlTableMetadata) table).getJooq();
+    DSLContext jooq = table.getJooq();
 
     org.jooq.Table<Record> jooqTable = getJooqTable(table, tableAlias);
 
     List<Field> fields = new ArrayList<>();
+    List<Field> groupBy = new ArrayList<>();
 
     // user filter
     conditions = createFiltersForColumns(conditions, table, filter);
@@ -229,30 +230,46 @@ public class SqlGraphQuery extends Filter {
     if (select.has(COUNT_FIELD)) {
       fields.add(count().as(COUNT_FIELD));
     }
-    for (Column col : table.getColumns()) {
-      if (select.has(col.getName())
-          && (select.has(MAX_FIELD)
-              || select.has(MIN_FIELD)
-              || select.has(AVG_FIELD)
-              || select.has(SUM_FIELD))) {
-        fields.add(
-            field(
-                    "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
-                    MAX_FIELD,
-                    max(field(name(tableAlias, col.getName()))),
-                    MIN_FIELD,
-                    min(field(name(tableAlias, col.getName()))),
-                    AVG_FIELD,
-                    avg(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))),
-                    SUM_FIELD,
-                    sum(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))))
-                .as(col.getName()));
-      }
+    if (select.has(GROUPBY_FIELD)) {
+      // todo
     }
 
-    return field(
-        jooq.select(field(ROW_TO_JSON_SQL))
-            .from(table(jooq.select(fields).from(jooqTable).where(conditions)).as(ITEM)));
+    for (Column col : table.getColumns()) {
+      if (select.has(col.getName())) {
+        switch (col.getColumnType()) {
+          case INT:
+          case DECIMAL:
+            if (select.has(MAX_FIELD)
+                || select.has(MIN_FIELD)
+                || select.has(AVG_FIELD)
+                || select.has(SUM_FIELD)) {
+              fields.add(
+                  field(
+                          "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
+                          MAX_FIELD,
+                          max(field(name(tableAlias, col.getName()))),
+                          MIN_FIELD,
+                          min(field(name(tableAlias, col.getName()))),
+                          AVG_FIELD,
+                          avg(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))),
+                          SUM_FIELD,
+                          sum(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))))
+                      .as(col.getName()));
+            }
+            break;
+          default:
+            groupBy.add(field(name(tableAlias, col.getName())));
+        }
+      }
+    }
+    org.jooq.Table<Record> aggregateQuery;
+    if (groupBy.size() > 0) {
+      aggregateQuery =
+          table(jooq.select(fields).from(jooqTable).where(conditions).groupBy(groupBy));
+    } else {
+      aggregateQuery = table(jooq.select(fields).from(jooqTable).where(conditions));
+    }
+    return field(jooq.select(field(ROW_TO_JSON_SQL)).from(aggregateQuery.as(ITEM)));
   }
 
   private static Field createSelectionFieldForRef(
@@ -390,6 +407,7 @@ public class SqlGraphQuery extends Filter {
       case REF_ARRAY:
       default:
         throw new SqlGraphQueryException(
+            "Query failed",
             "Filter of '"
                 + name
                 + " failed: operator "
@@ -406,7 +424,8 @@ public class SqlGraphQuery extends Filter {
     } else if (NOT_EQUALS.equals(operator)) {
       return not(field(name(columnName)).in(values));
     } else {
-      throw new SqlGraphQueryException(OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
+      throw new SqlGraphQueryException(
+          "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
     }
   }
 
@@ -441,7 +460,7 @@ public class SqlGraphQuery extends Filter {
           break;
         default:
           throw new SqlGraphQueryException(
-              OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
+              "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
     if (not) return not(or(conditions));
@@ -460,19 +479,21 @@ public class SqlGraphQuery extends Filter {
         case NOT_BETWEEN:
           not = true;
           if (i + 1 > values.length)
-            throw new SqlGraphQueryException(BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+            throw new SqlGraphQueryException(
+                "Query failed", BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
           i++; // NOSONAR
           break;
         case BETWEEN:
           if (i + 1 > values.length)
-            throw new SqlGraphQueryException(BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+            throw new SqlGraphQueryException(
+                "Query failed", BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
           i++; // NOSONAR
           break;
         default:
           throw new SqlGraphQueryException(
-              OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
+              "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
     if (not) return not(or(conditions));

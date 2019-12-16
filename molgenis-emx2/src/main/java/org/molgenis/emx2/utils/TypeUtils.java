@@ -1,6 +1,7 @@
 package org.molgenis.emx2.utils;
 
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -157,6 +158,7 @@ public class TypeUtils {
       if (t.getType().equals(klazz)) return t;
     }
     throw new MolgenisException(
+        "Unknown type",
         "Can not determine typeOf(Class). No MOLGENIS type is defined to match "
             + klazz.getCanonicalName());
   }

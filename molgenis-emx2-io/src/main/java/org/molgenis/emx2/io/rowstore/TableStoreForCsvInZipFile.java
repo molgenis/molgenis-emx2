@@ -3,7 +3,7 @@ package org.molgenis.emx2.io.rowstore;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +17,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 public class TableStoreForCsvInZipFile implements TableStore {
   static final String CSV_EXTENSION = ".csv";
@@ -41,7 +43,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       FileSystem zipfs = FileSystems.newFileSystem(zipUri, env, null);
       zipfs.close();
     } catch (IOException ioe) {
-      throw new MolgenisException(ioe);
+      throw new MolgenisException(IMPORT_FAILED, ioe);
     }
   }
 
@@ -61,7 +63,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
         CsvTableWriter.rowsToCsv(rows, writer, separator);
         writer.close();
       } catch (IOException ioe) {
-        throw new MolgenisException(ioe.getMessage(), ioe);
+        throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
       }
     }
   }
@@ -74,7 +76,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       return CsvTableReader.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
-          "Table '" + name + "' not found in file. " + ioe.getMessage(), ioe);
+          IMPORT_FAILED, "Table '" + name + "' not found in file. " + ioe.getMessage(), ioe);
     }
   }
 
@@ -84,7 +86,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       return Files.exists(path);
     } catch (IOException ioe) {
-      throw new MolgenisException(ioe.getMessage(), ioe);
+      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
     }
   }
 }

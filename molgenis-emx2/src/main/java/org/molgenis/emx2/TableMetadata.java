@@ -11,7 +11,7 @@ public class TableMetadata {
   private String tableName = null;
   private Map<String, Column> columns = new LinkedHashMap<>();
   private List<String[]> uniques = new ArrayList<>();
-  private String[] primaryKey = new String[0];
+  private String primaryKey = null;
   private String inherit = null;
 
   public TableMetadata(String tableName) {
@@ -33,13 +33,13 @@ public class TableMetadata {
     return schema;
   }
 
-  public String[] getPrimaryKey() {
+  public String getPrimaryKey() {
     if (this.inherit != null) return getInheritedTable().getPrimaryKey();
     return this.primaryKey;
   }
 
-  public TableMetadata setPrimaryKey(String... columnNames) {
-    this.primaryKey = columnNames;
+  public TableMetadata setPrimaryKey(String columnName) {
+    this.primaryKey = columnName;
     return this;
   }
 
@@ -122,14 +122,6 @@ public class TableMetadata {
     return this.addRefArray(name, toTable, null);
   }
 
-  public ReferenceMultiple addRefMultiple(String... name) {
-    return new ReferenceMultiple(this, REF, name);
-  }
-
-  public ReferenceMultiple addRefArrayMultiple(String... name) {
-    return new ReferenceMultiple(this, REF_ARRAY, name);
-  }
-
   public Column addMref(String name, String refTable) {
     return this.addMref(name, refTable, null);
   }
@@ -178,10 +170,6 @@ public class TableMetadata {
     return false;
   }
 
-  public boolean isPrimaryKey(String... names) {
-    return equalContents(names, this.getPrimaryKey());
-  }
-
   public void removeUnique(String... keys) {
     for (int i = 0; i < uniques.size(); i++) {
       if (equalContents(uniques.get(i), keys)) {
@@ -226,7 +214,7 @@ public class TableMetadata {
   public void clearCache() {
     columns = new LinkedHashMap<>();
     uniques = new ArrayList<>();
-    primaryKey = new String[0];
+    primaryKey = null;
     inherit = null;
   }
 
@@ -235,5 +223,9 @@ public class TableMetadata {
     ArrayList<String> one = new ArrayList<>(Arrays.asList(a));
     ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
     return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
+  }
+
+  public Column getPrimaryKeyColumn() {
+    return getColumn(getPrimaryKey());
   }
 }

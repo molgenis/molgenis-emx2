@@ -5,7 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +33,7 @@ public class MetadataUtils {
   private static final org.jooq.Field TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_PRIMARYKEY =
-      field(name(MOLGENIS, "table_primary_key"), SQLDataType.VARCHAR(255).getArrayDataType());
+      field(name(MOLGENIS, "table_primary_key"), SQLDataType.VARCHAR(255));
   private static final org.jooq.Field TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
 
@@ -110,8 +110,8 @@ public class MetadataUtils {
       createRowLevelPermissions(jooq, TABLE_METADATA);
       createRowLevelPermissions(jooq, COLUMN_METADATA);
       createRowLevelPermissions(jooq, UNIQUE_METADATA);
-    } catch (Exception e) {
-      throw new MolgenisException(e);
+    } catch (RuntimeException e) {
+      throw e;
     }
   }
 
@@ -194,9 +194,8 @@ public class MetadataUtils {
     if (tableRecord == null) {
       return;
     }
-    String[] pkey = tableRecord.get(TABLE_PRIMARYKEY, String[].class);
-    if (pkey.length > 0) table.loadPrimaryKey(pkey);
 
+    table.loadPrimaryKey(tableRecord.get(TABLE_PRIMARYKEY, String.class));
     table.loadInherits(tableRecord.get(TABLE_INHERITS, String.class));
   }
 

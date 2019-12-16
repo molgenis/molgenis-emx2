@@ -133,6 +133,7 @@ public class GraphqlTableQueryFields {
     GraphQLObjectType.Builder builder = newObject().name(table.getName() + "Aggregate");
     builder.field(newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     for (Column col : table.getMetadata().getColumns()) {
+      // aggregate options
       ColumnType type = col.getColumnType();
       if (INT.equals(type) || DECIMAL.equals(type)) {
         builder.field(
@@ -141,10 +142,13 @@ public class GraphqlTableQueryFields {
                 .type(
                     newObject()
                         .name(table.getName() + "AggregatorFor" + col.getName())
-                        .field(newFieldDefinition().name(MAX_FIELD).type(graphQLTypeOf(type)))
-                        .field(newFieldDefinition().name(MIN_FIELD).type(graphQLTypeOf(type)))
+                        .field(newFieldDefinition().name(MAX_FIELD).type(graphQLTypeOf(col)))
+                        .field(newFieldDefinition().name(MIN_FIELD).type(graphQLTypeOf(col)))
                         .field(newFieldDefinition().name(AVG_FIELD).type(Scalars.GraphQLFloat))
-                        .field(newFieldDefinition().name(SUM_FIELD).type(graphQLTypeOf(type)))));
+                        .field(newFieldDefinition().name(SUM_FIELD).type(graphQLTypeOf(col)))));
+      } else {
+        // group by options
+        builder.field(newFieldDefinition().name(col.getName()).type(graphQLTypeOf(col)));
       }
     }
     return builder.build();
@@ -197,15 +201,15 @@ public class GraphqlTableQueryFields {
         builder.field(
             newInputObjectField()
                 .name(operator.getAbbreviation())
-                .type(GraphQLList.list(graphQLTypeOf(type))));
+                .type(GraphQLList.list(graphQLTypeOf(column))));
       }
       filterInputTypes.put(type, builder.build());
     }
     return filterInputTypes.get(type);
   }
 
-  private static GraphQLScalarType graphQLTypeOf(ColumnType type) {
-    switch (type) {
+  private static GraphQLScalarType graphQLTypeOf(Column col) {
+    switch (col.getColumnType()) {
       case BOOL:
       case BOOL_ARRAY:
         return Scalars.GraphQLBoolean;
@@ -238,6 +242,7 @@ public class GraphqlTableQueryFields {
       Column c = table.getMetadata().getColumn(entry.getKey());
       if (c == null)
         throw new GraphqlException(
+            "Graphql API error",
             "Column " + entry.getKey() + " unknown in table " + table.getName());
       if (REF.equals(c.getColumnType()) || REF_ARRAY.equals(c.getColumnType())) {
         subFilters.add(
@@ -251,6 +256,7 @@ public class GraphqlTableQueryFields {
               convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
         } else {
           throw new GraphqlException(
+              "Graphql API error",
               "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
         }
       }

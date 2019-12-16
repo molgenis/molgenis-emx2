@@ -4,7 +4,7 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -29,7 +29,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       }
       return connection;
     } catch (DataAccessException dae) {
-      throw new MolgenisException("`Set active user '" + activeUser + "' failed", dae);
+      throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }
 
@@ -37,8 +37,8 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   public void release(Connection connection) {
     try {
       DSL.using(connection, SQLDialect.POSTGRES_10).execute("RESET SESSION AUTHORIZATION");
-    } catch (DataAccessException sqle) {
-      throw new MolgenisException("release of connection failed ", sqle);
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("release of connection failed ", dae);
     }
     super.release(connection);
   }

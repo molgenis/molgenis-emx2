@@ -6,7 +6,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.ColumnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,7 @@ import static org.molgenis.emx2.sql.Constants.*;
 class SqlTableMetadata extends TableMetadata {
   public static final String DROP_TABLE_FAILED_MESSAGE = "Drop table failed";
   public static final String INHERITANCE_FAILED_MESSAGE = "Inheritance failed";
+  private static final String SET_INHERITANCE_FAILED = "Set inheritance failed";
   private SqlDatabase db;
   private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
 
@@ -100,8 +101,8 @@ class SqlTableMetadata extends TableMetadata {
         tdb -> {
           if (getInherit() != null)
             throw new MolgenisException(
-                INHERITANCE_FAILED_MESSAGE
-                    + "Table '"
+                SET_INHERITANCE_FAILED,
+                "Table '"
                     + getTableName()
                     + "'can only extend one table. Therefore it cannot extend '"
                     + otherTable
@@ -112,24 +113,17 @@ class SqlTableMetadata extends TableMetadata {
           TableMetadata other = getSchema().getTableMetadata(otherTable);
           if (other == null)
             throw new MolgenisException(
-                INHERITANCE_FAILED_MESSAGE
-                    + "Other table '"
-                    + otherTable
-                    + "' does not exist in this schema");
+                SET_INHERITANCE_FAILED,
+                "Other table '" + otherTable + "' does not exist in this schema");
 
-          if (other.getPrimaryKey().length == 0)
+          if (other.getPrimaryKey() == null)
             throw new MolgenisException(
-                INHERITANCE_FAILED_MESSAGE
-                    + "To extend table '"
-                    + otherTable
-                    + "' it must hast have primary key set");
+                SET_INHERITANCE_FAILED,
+                "To extend table '" + otherTable + "' it must have primary key set");
 
-          // extends means we copy foreign key columns from parent to child, make it foreign key to
+          // extends means we copy primary key column from parent to child, make it foreign key to
           // parent, and make it primary key of this table also.
-          for (String pkey : other.getPrimaryKey()) {
-            Column pkeyColumn = other.getColumn(pkey);
-            this.addRef(pkeyColumn.getName(), other.getTableName(), pkeyColumn.getName());
-          }
+          this.addRef(other.getPrimaryKey(), other.getTableName(), other.getPrimaryKey());
           this.setPrimaryKey(other.getPrimaryKey());
 
           // update super and then save the metadata
@@ -141,18 +135,20 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setPrimaryKey(String... columnNames) {
+  public TableMetadata setPrimaryKey(String columnNames) {
     long start = System.currentTimeMillis();
     if (getInherit() != null)
       throw new MolgenisException(
+          "Set primary key failed",
           "Primary key cannot be set on table '"
               + getTableName()
               + "' because inherits its primary key from other table '"
               + getInherit()
               + "'");
-    if (columnNames.length == 0)
+    if (columnNames == null)
       throw new MolgenisException(
-          "Primary key creation failed. Primary key requires 1 or more columns, however, 0 columns where provided");
+          "Set primary key failed",
+          "Primary key requires 1 or more columns, however, 0 columns where provided");
     db.tx(
         dsl -> {
           Name[] keyNames = Stream.of(columnNames).map(DSL::name).toArray(Name[]::new);
@@ -196,15 +192,23 @@ class SqlTableMetadata extends TableMetadata {
 
     if (getColumn(metadata.getName()) != null) {
       throw new MolgenisException(
-          String.format(
-              "Add column failed. Column with columnName='%s' already exist in table '%s'",
-              metadata.getName(), getTableName()));
+          "Add column failed",
+          "Column with columnName='"
+              + metadata.getName()
+              + "' already exist in table '"
+              + getTableName()
+              + "'");
     }
     if (getInherit() != null && getInheritedTable().getColumn(metadata.getName()) != null) {
       throw new MolgenisException(
-          String.format(
-              "Add column failed. Column with columnName='%s' already exist in table '%s' because it got inherited from table '%s'",
-              metadata.getName(), getTableName(), getInherit()));
+          "Add column failed",
+          "Column with columnName='"
+              + metadata.getName()
+              + "' already exist in table '"
+              + getTableName()
+              + "' because it got inherited from table '"
+              + getInherit()
+              + "'");
     }
     // if ref column is empty, guess it
     db.tx(
@@ -264,31 +268,10 @@ class SqlTableMetadata extends TableMetadata {
 
   private String getRefTablePrimaryKey(String columnName, String toTable) {
     if (getSchema().getTableMetadata(toTable) == null) {
-      throw new MolgenisException(
-          "Reference '"
-              + columnName
-              + "'from '"
-              + getTableName()
-              + "' to table '"
-              + toTable
-              + " is invalid: table '"
-              + toTable
-              + "' does not exist.");
+      return null;
+    } else {
+      return getSchema().getTableMetadata(toTable).getPrimaryKey();
     }
-    String[] primaryKeys = getSchema().getTableMetadata(toTable).getPrimaryKey();
-    if (primaryKeys.length != 1) {
-      throw new MolgenisException(
-          "Reference '"
-              + columnName
-              + "'from '"
-              + getTableName()
-              + "' to '"
-              + toTable
-              + "' is invalid: table '"
-              + toTable
-              + "' has not a single-value primary key");
-    }
-    return primaryKeys[0];
   }
 
   @Override
@@ -308,16 +291,6 @@ class SqlTableMetadata extends TableMetadata {
         });
     log(start, "added refarray '" + name + "' to ");
     return getColumn(name);
-  }
-
-  @Override
-  public SqlReferenceMultiple addRefMultiple(String... names) {
-    return new SqlReferenceMultiple(this, REF, names);
-  }
-
-  @Override
-  public SqlReferenceMultiple addRefArrayMultiple(String... names) {
-    return new SqlReferenceMultiple(this, REF_ARRAY, names);
   }
 
   @Override
@@ -384,7 +357,7 @@ class SqlTableMetadata extends TableMetadata {
             .fetchOne(0, Integer.class);
   }
 
-  protected void loadPrimaryKey(String[] pkey) {
+  protected void loadPrimaryKey(String pkey) {
     super.setPrimaryKey(pkey);
   }
 
@@ -401,10 +374,8 @@ class SqlTableMetadata extends TableMetadata {
       Column c = getColumn(columnName);
       if (c == null)
         throw new MolgenisException(
-            "Addition of unique failed because column '"
-                + columnName
-                + "' is not known in table "
-                + getTableName());
+            "Add unique failed",
+            "Column '" + columnName + "' is not known in table " + getTableName());
     }
 
     // check if already exists
@@ -441,9 +412,8 @@ class SqlTableMetadata extends TableMetadata {
     }
     if (correctOrderedNames == null) {
       throw new MolgenisException(
-          "Remove unique failed because unique constraint consisting of columns "
-              + list1
-              + "could not be found. ");
+          "Remove unique failed",
+          "Unique constraint consisting of columns " + list1 + "could not be found. ");
     }
 
     String uniqueName = getTableName() + "_" + String.join("_", correctOrderedNames) + "_UNIQUE";

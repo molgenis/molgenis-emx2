@@ -11,7 +11,7 @@ import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.examples.synthetic.*;
 import org.molgenis.emx2.sql.DatabaseFactory;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 
 import java.io.IOException;
@@ -32,20 +32,6 @@ public class TestImportExportAllExamples {
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
-
-  @Test
-  public void testCompositePrimaryKeyExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("2");
-    CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema1);
-    executeCompare(schema1);
-  }
-
-  //  @Test
-  //  public void testCompositeRefExample() , IOException {
-  //    SchemaMetadata schema1 = new SchemaMetadata("3");
-  //    CompositeRefExample.createCompositeRefExample(schema1);
-  //    executeCompare(schema1);
-  //  }
 
   @Test
   public void testRefAndRefArrayExample() throws IOException {

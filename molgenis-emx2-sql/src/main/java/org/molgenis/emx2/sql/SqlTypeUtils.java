@@ -4,7 +4,7 @@ import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,6 +70,7 @@ public class SqlTypeUtils extends TypeUtils {
     TableMetadata tm = column.getTable().getSchema().getTableMetadata(column.getRefTableName());
     if (tm == null)
       throw new MolgenisException(
+          "Ref column can't be found",
           "Table reference '"
               + column.getName()
               + "' from table '"
@@ -236,6 +237,7 @@ public class SqlTypeUtils extends TypeUtils {
         return getPsqlType(column.getRefColumn());
       default:
         throw new MolgenisException(
+            "Unknown type",
             "Internal error: data cannot be mapped to psqlType " + column.getColumnType());
     }
   }

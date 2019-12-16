@@ -2,7 +2,7 @@ package org.molgenis.emx2.io.emx1;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.rowstore.TableStore;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +14,7 @@ import java.util.Map;
 import static org.molgenis.emx2.ColumnType.*;
 
 public class Emx1Import {
+  static final String EMX_1_IMPORT_FAILED = "EMX1 import failed";
   private static Logger logger = LoggerFactory.getLogger(Emx1Import.class);
 
   private Emx1Import() {
@@ -56,6 +57,7 @@ public class Emx1Import {
 
         if (attribute.getRefEntity() == null) {
           throw new MolgenisException(
+              EMX_1_IMPORT_FAILED,
               "Adding reference '"
                   + attribute.getEntity()
                   + "'.'"
@@ -82,7 +84,8 @@ public class Emx1Import {
         line++;
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException(me.getMessage() + ". See 'entities' line " + line, me);
+      throw new MolgenisException(
+          EMX_1_IMPORT_FAILED, me.getMessage() + "See 'entities' line " + line, me);
     }
   }
 
@@ -114,7 +117,8 @@ public class Emx1Import {
         line++;
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException(me.getMessage() + ". See 'attributes' line " + line, me);
+      throw new MolgenisException(
+          EMX_1_IMPORT_FAILED, me.getMessage() + ". See 'attributes' line " + line, me);
     }
     return attributes;
   }
@@ -142,7 +146,8 @@ public class Emx1Import {
         line++;
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException(me.getMessage() + ". See 'entities' line " + line, me);
+      throw new MolgenisException(
+          EMX_1_IMPORT_FAILED, me.getMessage() + ". See 'entities' line " + line, me);
     }
     return entities;
   }

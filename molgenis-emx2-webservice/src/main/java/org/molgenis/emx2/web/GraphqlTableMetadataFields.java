@@ -176,7 +176,7 @@ public class GraphqlTableMetadataFields {
                 }
               }
             } catch (IOException e) {
-              throw new GraphqlException(e);
+              throw new GraphqlException("Save metadata failed", e);
             }
           });
       return new GraphqlApiMutationResult(SUCCESS, "Meta update success");

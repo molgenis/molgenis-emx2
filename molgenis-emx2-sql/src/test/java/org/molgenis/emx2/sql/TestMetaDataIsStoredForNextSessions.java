@@ -64,26 +64,4 @@ public class TestMetaDataIsStoredForNextSessions {
       fail(e.getMessage());
     }
   }
-
-  @Test
-  public void testCompsiteRefs() {
-    Schema schema = database.createSchema(SCHEMA_NAME + "5");
-    CompositeRefExample.createCompositeRefExample(schema.getMetadata());
-    try {
-      CompareTools.reloadAndCompare(database, schema);
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-  }
-
-  @Test
-  public void testCompsitePrimaryKeys() {
-    Schema schema = database.createSchema(SCHEMA_NAME + "6");
-    CompositePrimaryKeyExample.createCompositePrimaryKeyExample(schema.getMetadata());
-    try {
-      CompareTools.reloadAndCompare(database, schema);
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-  }
 }

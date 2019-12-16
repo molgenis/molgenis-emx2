@@ -15,7 +15,7 @@ import com.jsoniter.spi.TypeLiteral;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import spark.Request;
 import spark.Response;
 

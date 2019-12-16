@@ -5,6 +5,8 @@ import org.molgenis.emx2.beans.Mapper;
 import org.molgenis.emx2.beans.PersonBean;
 import org.molgenis.emx2.beans.TypeTestBean;
 
+import java.lang.reflect.InvocationTargetException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,7 +15,9 @@ import static org.molgenis.emx2.ColumnType.*;
 public class TestMapPojoToTable {
 
   @Test
-  public void testBeanToRowToBean() {
+  public void testBeanToRowToBean()
+      throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
+          InstantiationException {
     PersonBean b = new PersonBean();
     b.setFirstName("Donald");
     b.setLastName("Duck");

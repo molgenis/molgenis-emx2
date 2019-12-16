@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.sql.SQLException;

@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.exception.DataAccessException;
+import org.molgenis.emx2.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.REF;
@@ -18,6 +19,24 @@ public class SqlRefColumn extends SqlColumn {
   @Override
   public SqlRefColumn createColumn() {
     try {
+      String refTableName = getRefTableName();
+      if (refTableName == null) {
+        throw new MolgenisException(
+            "Create column failed",
+            "Create of column '" + getName() + "' failed because RefTableName was not set");
+      }
+
+      String refColumnName = getRefColumnName();
+      if (refColumnName == null) {
+        refColumnName = getTable().getSchema().getTableMetadata(getRefTableName()).getPrimaryKey();
+        if (refColumnName == null) {
+          throw new MolgenisException(
+              "Create column failed",
+              "Create of column '"
+                  + getName()
+                  + "' failed because RefColumnName was not set nor the other table has primary key set");
+        }
+      }
       // define jooq parameters
       Field thisColumn = field(name(getName()), SqlTypeUtils.jooqTypeOf(this));
       org.jooq.Table thisTable =
@@ -32,11 +51,11 @@ public class SqlRefColumn extends SqlColumn {
                   + "."
                   + getName()
                   + " REFERENCES "
-                  + getRefTableName()
+                  + refTableName
                   + "."
-                  + getRefColumnName());
-      Name fkeyTable = name(getTable().getSchema().getName(), getRefTableName());
-      Name fkeyField = name(getRefColumnName());
+                  + refColumnName);
+      Name fkeyTable = name(getTable().getSchema().getName(), refTableName);
+      Name fkeyField = name(refColumnName);
 
       getJooq()
           .alterTable(thisTable)

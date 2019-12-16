@@ -11,7 +11,7 @@ import org.molgenis.emx2.beans.QueryBean;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.Where;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +47,8 @@ public class SqlQuery extends QueryBean implements Query {
       throw new SqlMolgenisException(dae);
     } catch (Exception e2) {
       if (e2.getCause() != null)
-        throw new MolgenisException("Query failed:" + e2.getCause().getMessage(), e2);
-      else throw new MolgenisException(e2);
+        throw new MolgenisException("Query failed", e2.getCause().getMessage(), e2);
+      else throw new MolgenisException("Query failed", "Unknown error", e2);
     }
   }
 
@@ -245,9 +245,7 @@ public class SqlQuery extends QueryBean implements Query {
         }
       default:
         throw new MolgenisException(
-            "Creation of filter condition failed. Where clause '"
-                + w.toString()
-                + "' is not supported");
+            "Query failed", "Where clause '" + w.toString() + "' is not supported");
     }
   }
 
@@ -284,15 +282,15 @@ public class SqlQuery extends QueryBean implements Query {
     Column c = t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(
-          "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
+          "Query failed", "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
 
     if (path.length == 1) {
 
       // in case of inherited field we might need a 'parent' table
       String tableName = c.getTable().getTableName();
       while (!tableName.equals(t.getTableName())) {
-        tableAliasBuilder.append("/" + t.getPrimaryKey()[0]);
-        tableAliases.put(tableAliasBuilder.toString(), t.getColumn(t.getPrimaryKey()[0]));
+        tableAliasBuilder.append("/" + t.getPrimaryKey());
+        tableAliases.put(tableAliasBuilder.toString(), t.getColumn(t.getPrimaryKey()));
         t = t.getInheritedTable();
       }
 

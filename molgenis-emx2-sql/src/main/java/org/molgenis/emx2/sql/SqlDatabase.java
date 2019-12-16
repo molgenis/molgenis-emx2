@@ -7,7 +7,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Transaction;
-import org.molgenis.emx2.utils.MolgenisException;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class SqlDatabase implements Database {
   @Override
   public SqlSchema createSchema(String schemaName) {
     if (schemaName == null || schemaName.isEmpty())
-      throw new MolgenisException("Schema createSchema failed. Schema name was null or empty");
+      throw new MolgenisException("Create schema failed", "Schema name was null or empty");
     SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
     schema.createSchema();
     schemas.put(schemaName, schema);
@@ -85,7 +85,7 @@ public class SqlDatabase implements Database {
         logger.info("dropped schema {}", name);
       }
     } catch (MolgenisException me) {
-      throw new MolgenisException("Drop schema failed" + me.getMessage());
+      throw new MolgenisException("Drop schema failed", me.getMessage());
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Drop schema failed", dae);
     }
@@ -117,7 +117,7 @@ public class SqlDatabase implements Database {
         logger.info("created user {}", user);
       }
     } catch (DataAccessException dae) {
-      throw new MolgenisException(dae);
+      throw new SqlMolgenisException("Add user failed", dae);
     }
   }
 
@@ -143,7 +143,7 @@ public class SqlDatabase implements Database {
   public void removeUser(String user) {
     if (!hasUser(user))
       throw new MolgenisException(
-          "Remove user failed. User with name '" + user + "' doesn't exist");
+          "Remove user failed", "User with name '" + user + "' doesn't exist");
     String userName = MG_USER_PREFIX + user;
     jooq.execute("DROP ROLE {0}", name(userName));
     if (logger.isInfoEnabled()) {
@@ -174,15 +174,14 @@ public class SqlDatabase implements Database {
                   transaction.run(this);
                   this.clearActiveUser();
                 });
-      } catch (SQLException sqle) {
-        clearCache();
-        throw new MolgenisException(sqle);
       } catch (MolgenisException me) {
         clearCache();
         throw me;
-      } catch (DataAccessException e) {
+      } catch (DataAccessException dae) {
         clearCache();
-        throw new SqlMolgenisException(e);
+        throw new SqlMolgenisException(dae);
+      } catch (SQLException e) {
+        e.printStackTrace();
       } finally {
         this.inTx = false;
         jooq = originalContext;
@@ -196,7 +195,7 @@ public class SqlDatabase implements Database {
       try {
         jooq.execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + username));
       } catch (DataAccessException dae) {
-        throw new MolgenisException("Set active user '" + username + "' failed");
+        throw new SqlMolgenisException("Set active user failed", dae);
       }
     } else {
       this.connectionProvider.setActiveUser(username);
@@ -216,8 +215,8 @@ public class SqlDatabase implements Database {
       // then we don't use the connection provider
       try {
         jooq.execute("RESET SESSION AUTHORIZATION");
-      } catch (DataAccessException sqle) {
-        throw new MolgenisException("release of connection failed ", sqle);
+      } catch (DataAccessException dae) {
+        throw new SqlMolgenisException("Clear active user failed", dae);
       }
     } else {
       this.connectionProvider.clearActiveUser();
