@@ -27,6 +27,7 @@ public enum ColumnType {
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
   // INDIRECT
   REF(Object.class),
+  REFBACK(Object[].class),
   REF_ARRAY(Object[].class),
   MREF(Object[].class);
 

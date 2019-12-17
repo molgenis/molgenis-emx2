@@ -112,6 +112,12 @@ public class TableMetadata {
     return c;
   }
 
+  public Column addRefBack(String name, String toTable, String toColumn, String viaColumn) {
+    Column c = new Column(this, name, REFBACK).setReference(toTable, toColumn, viaColumn);
+    this.addColumn(c);
+    return c;
+  }
+
   public Column addRefArray(String name, String toTable, String toColumn) {
     Column c = new Column(this, name, REF_ARRAY).setReference(toTable, toColumn);
     this.addColumn(c);
@@ -141,7 +147,7 @@ public class TableMetadata {
         new Column(this, name, MREF)
             .setReference(refTable, refColumn)
             .setReverseReference(reverseName, reverseRefColumn)
-            .setMrefJoinTable(joinTableName);
+            .setJoinVia(joinTableName);
     this.addColumn(c);
     return c;
   }

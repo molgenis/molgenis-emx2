@@ -257,7 +257,7 @@ class SqlTableMetadata extends TableMetadata {
                   this,
                   name,
                   toTable,
-                  toColumn == null ? getRefTablePrimaryKey(name, toTable) : toColumn);
+                  toColumn == null ? getRefTablePrimaryKey(toTable) : toColumn);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
@@ -266,7 +266,28 @@ class SqlTableMetadata extends TableMetadata {
     return getColumn(name);
   }
 
-  private String getRefTablePrimaryKey(String columnName, String toTable) {
+  @Override
+  public Column addRefBack(String name, String toTable, String toColumn, String viaColumn) {
+    long start = System.currentTimeMillis();
+    db.tx(
+        dsl -> {
+          SqlRefBackColumn c =
+              new SqlRefBackColumn(
+                  this,
+                  name,
+                  toTable,
+                  toColumn == null ? getRefTablePrimaryKey(toTable) : toColumn,
+                  viaColumn);
+          c.createColumn();
+          super.addColumn(c);
+          this.updateSearchIndexTriggerFunction();
+        });
+
+    log(start, "added ref '" + name + "' to ");
+    return getColumn(name);
+  }
+
+  private String getRefTablePrimaryKey(String toTable) {
     if (getSchema().getTableMetadata(toTable) == null) {
       return null;
     } else {
@@ -284,7 +305,7 @@ class SqlTableMetadata extends TableMetadata {
                   this,
                   name,
                   toTable,
-                  toColumn == null ? getRefTablePrimaryKey(name, toTable) : toColumn);
+                  toColumn == null ? getRefTablePrimaryKey(toTable) : toColumn);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();
@@ -309,10 +330,10 @@ class SqlTableMetadata extends TableMetadata {
                   this,
                   name,
                   refTable,
-                  refColumn == null ? getRefTablePrimaryKey(name, refTable) : refColumn,
+                  refColumn == null ? getRefTablePrimaryKey(refTable) : refColumn,
                   reverseName,
                   reverseRefColumn == null
-                      ? getRefTablePrimaryKey(name, this.getTableName())
+                      ? getRefTablePrimaryKey(this.getTableName())
                       : reverseRefColumn,
                   joinTable);
           c.createColumn();
@@ -469,6 +490,12 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private String updateSearchIndexTriggerFunction() {
+    // TODO should also join in REFBACK column to make them searchable as part of 'mew'
+    //  TODO and then also should trigger indexing on update for tables with a REF to me so trigger
+    // on ref
+    // change
+    // then?
+
     String triggerName = getTableName() + "search_vector_trigger";
     String triggerfunction = String.format("\"%s\".\"%s\"()", getSchema().getName(), triggerName);
 

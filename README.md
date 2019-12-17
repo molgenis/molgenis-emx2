@@ -129,6 +129,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  decide if we need 'insert' seperate from 'update'
 *  test and fix the openapi so all the docs just work
 *  'save' for graphql allowing save of whole graphs
+*  Search should work on refback columns; lazy could be to keep copy in sync.
 *  partial/patch updates, i.e. null columns versus missing (to be ingored) columns
 *  delete column
 *  default limit to 10

@@ -32,7 +32,7 @@ public class SqlMrefColumn extends SqlColumn {
     super(sqlTable, name, MREF);
     this.setReference(refTable, refColumn);
     this.setReverseReference(reverseName, reverseRefColumn);
-    this.setMrefJoinTable(joinTableName);
+    this.setJoinVia(joinTableName);
   }
 
   @Override

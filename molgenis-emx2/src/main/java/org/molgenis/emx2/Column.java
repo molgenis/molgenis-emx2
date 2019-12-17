@@ -6,16 +6,20 @@ public class Column {
   private TableMetadata table;
   private String columnName;
   private ColumnType columnType;
+
+  // options
   private boolean nullable = false;
-  private String refTableName;
-  private String refColumn;
-  private String reverseRefTableName;
-  private String reverseRefColumn;
-  private String joinTable;
   private boolean readonly;
   private String description;
   private String defaultValue;
   private Boolean indexed;
+
+  // relationships
+  private String refTableName;
+  private String refColumn;
+  private String reverseRefTableName;
+  private String reverseRefColumn;
+  private String joinViaName;
 
   public Column(TableMetadata table, String columnName, ColumnType columnType) {
     this.table = table;
@@ -118,11 +122,11 @@ public class Column {
   }
 
   public String getMrefJoinTableName() {
-    return joinTable;
+    return joinViaName;
   }
 
-  public Column setMrefJoinTable(String joinTableName) {
-    this.joinTable = joinTableName;
+  public Column setJoinVia(String joinTableName) {
+    this.joinViaName = joinTableName;
     return this;
   }
 
@@ -135,6 +139,12 @@ public class Column {
   public Column setReverseReference(String reverseName, String reverseRefColumn) {
     this.reverseRefTableName = reverseName;
     this.reverseRefColumn = reverseRefColumn;
+    return this;
+  }
+
+  public Column setReference(String reverseName, String reverseRefColumn, String via) {
+    setReverseReference(reverseName, reverseRefColumn);
+    this.joinViaName = via;
     return this;
   }
 

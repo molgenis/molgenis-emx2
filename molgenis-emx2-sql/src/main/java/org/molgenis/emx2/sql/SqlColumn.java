@@ -5,6 +5,8 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
 
@@ -55,6 +57,20 @@ public class SqlColumn extends Column {
               super.setIndexed(index);
               MetadataUtils.saveColumnMetadata(this);
             });
+    return this;
+  }
+
+  @Override
+  public Column setReverseReference(String reverseColumnName, String reverseRefColumn) {
+    TableMetadata otherTable = getTable().getSchema().getTableMetadata(getRefTableName());
+    if (otherTable == null) {
+      throw new MolgenisException(
+          "Set reverse reference failed",
+          "Reference back from column '" + getName() + "' failed because RefTableName was not set");
+    }
+
+    otherTable.addRefBack(
+        reverseColumnName, getTable().getTableName(), reverseRefColumn, getName());
     return this;
   }
 

@@ -21,6 +21,19 @@ public class SqlTypeUtils extends TypeUtils {
   public static DataType jooqTypeOf(Column column) {
     ColumnType sqlColumnType = column.getColumnType();
     switch (sqlColumnType) {
+      case REF:
+        return jooqTypeOf(getRefColumnForColumn(column));
+      case REFBACK:
+      case REF_ARRAY:
+      case MREF:
+        return jooqTypeOf(getRefColumnForColumn(column)).getArrayDataType();
+      default:
+        return jooqTypeOf(sqlColumnType);
+    }
+  }
+
+  public static DataType jooqTypeOf(ColumnType columnType) {
+    switch (columnType) {
       case UUID:
         return SQLDataType.UUID;
       case UUID_ARRAY:
@@ -53,16 +66,9 @@ public class SqlTypeUtils extends TypeUtils {
         return SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY:
         return SQLDataType.TIMESTAMP.getArrayDataType();
-      case REF:
-        return jooqTypeOf(getRefColumnForColumn(column));
-      case REF_ARRAY:
-        return jooqTypeOf(getRefColumnForColumn(column)).getArrayDataType();
-      case MREF:
-        return jooqTypeOf(getRefColumnForColumn(column)).getArrayDataType();
       default:
         // should never happen
-        throw new IllegalArgumentException(
-            "addColumn(name,type) : unsupported type " + sqlColumnType);
+        throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + columnType);
     }
   }
 
@@ -153,7 +159,7 @@ public class SqlTypeUtils extends TypeUtils {
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(column);
     }
-    if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
+    if (REF_ARRAY.equals(columnType) || MREF.equals(columnType) || REFBACK.equals(columnType)) {
       columnType = getRefArrayColumnType(column);
     }
     switch (columnType) {
