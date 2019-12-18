@@ -22,7 +22,10 @@ public class TestOpenApi {
 
     TableMetadata table = schema.createTable("TypeTest");
     for (ColumnType columnType : ColumnType.values()) {
-      if (MREF.equals(columnType) || REF.equals(columnType) || REF_ARRAY.equals(columnType)) {
+      if (MREF.equals(columnType)
+          || REF.equals(columnType)
+          || REF_ARRAY.equals(columnType)
+          || REFBACK.equals(columnType)) {
         // TODO: outside of test for now
       } else {
         table.addColumn(columnType.toString().toLowerCase() + "Column", columnType);

@@ -356,6 +356,7 @@ public class OpenApiYamlGenerator {
       case REF:
         return columnSchema(column.getRefColumn());
       case REF_ARRAY:
+      case REFBACK:
       case MREF:
         return new ArraySchema().items(columnSchema(column.getRefColumn()));
       default:

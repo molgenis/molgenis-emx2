@@ -160,25 +160,20 @@ class SqlRefBackColumn extends SqlColumn {
     // ref_array up to date;
 
     // insert and update trigger on 'toTable' to keep REFBACK updated
-    insertOrUpdateTrigger =
-        "1"
-            + viaColumn.getTable().getTableName()
-            + "_"
-            + viaColumn.getName()
-            + "_REFBACK_UPDATETRIGGER";
+    insertOrUpdateTrigger = "1" + toTable.getTableName() + "_" + viaColumn.getName() + "_TRIGGER";
 
     getJooq()
         .execute(
             "CREATE FUNCTION {0}() RETURNS trigger AS"
                 + "\n$BODY$"
                 + "\nBEGIN"
-                + "\n\tIF TG_OP = 'UPDATE' AND OLD.{3} <> NEW.{3} AND EXISTS (SELECT 1 FROM {1} WHERE OLD.{3} = ANY ({2})) THEN"
+                + "\n\tIF (TG_OP = 'UPDATE' OR TG_OP = 'DELETE') AND EXISTS (SELECT 1 FROM {1} WHERE OLD.{3} = ANY ({2})) THEN"
                 // remove 'old' from the REFBACK array
                 + "\n\t\tUPDATE {1} set {2} = array_remove({2}, OLD.{3}) WHERE {4}=OLD.{5};"
                 + "\n\tEND IF;"
                 // add 'new' to the REFBACK array
                 // SET THAT THE OTHER POINTS TO new 'ME'
-                + "\n\tIF NOT EXISTS (SELECT 1 FROM {1} WHERE NEW.{3} = ANY ({2})) THEN "
+                + "\n\tIF TG_OP != 'DELETE' AND NOT EXISTS (SELECT 1 FROM {1} WHERE NEW.{3} = ANY ({2})) THEN "
                 + "\n\t\tUPDATE {1} SET {2} = array_append({2}, NEW.{3}) WHERE {4}=NEW.{5}; "
                 + "\n\tEND IF;"
                 + "\n\tRETURN NEW;"
@@ -194,11 +189,29 @@ class SqlRefBackColumn extends SqlColumn {
     getJooq()
         .execute(
             "CREATE TRIGGER {0} "
-                + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
+                + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2} "
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-            name(insertOrUpdateTrigger),
+            name(toColumn.getName() + "_UPDATE"),
+            name(toColumn.getName()),
+            name(schemaName, toTable.getTableName()),
+            name(schemaName, insertOrUpdateTrigger));
+
+    getJooq()
+        .execute(
+            "CREATE TRIGGER {0} "
+                + "\n\tAFTER DELETE ON {2} "
+                + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+            name(toColumn.getName() + "_DELETE"),
             name(toColumn.getName()),
             name(schemaName, toTable.getTableName()),
             name(schemaName, insertOrUpdateTrigger));
   }
+
+  // insert and update trigger on 'toTable' to keep REFBACK updated
+  //    insertOrUpdateTrigger =
+  //            "1"
+  //            + viaColumn.getTable().getTableName()
+  //            + "_"
+  //                    + viaColumn.getName()
+  //                    + "_REFBACK_UPDATETRIGGER";
 }

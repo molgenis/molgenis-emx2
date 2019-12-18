@@ -9,6 +9,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.REF;
 
 public class SqlColumn extends Column {
   public SqlColumn(SqlTableMetadata table, String columnName, ColumnType columnColumnType) {
@@ -69,8 +70,14 @@ public class SqlColumn extends Column {
           "Reference back from column '" + getName() + "' failed because RefTableName was not set");
     }
 
-    otherTable.addRefBack(
-        reverseColumnName, getTable().getTableName(), reverseRefColumn, getName());
+    // in case of REF we must create the refBack columnn
+    if (REF.equals(getColumnType())) {
+      otherTable.addRefBack(
+          reverseColumnName, getTable().getTableName(), reverseRefColumn, getName());
+    }
+
+    // update state
+    super.setReverseReference(reverseColumnName, reverseRefColumn);
     return this;
   }
 
