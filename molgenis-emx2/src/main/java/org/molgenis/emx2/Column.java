@@ -15,10 +15,10 @@ public class Column {
   private Boolean indexed;
 
   // relationships
-  private String refTableName;
+  private String refTable;
   private String refColumn;
-  private String reverseRefTableName;
-  private String reverseRefColumn;
+  //  private String reverseRefTableName;
+  //  private String reverseRefColumn;
   private String joinViaName;
 
   public Column(TableMetadata table, String columnName, ColumnType columnType) {
@@ -53,25 +53,26 @@ public class Column {
     return columnType;
   }
 
-  public String getRefTableName() {
-    return refTableName;
-  }
-
   public String getRefColumnName() {
     return this.refColumn;
   }
 
-  public String getReverseRefTableName() {
-    return this.reverseRefTableName;
+  public String getRefTableName() {
+    return this.refTable;
   }
 
-  public String getReverseRefColumn() {
-    return this.reverseRefColumn;
-  }
+  //  public String getReverseRefTableName() {
+  //    return this.reverseRefTableName;
+  //  }
+  //
+  //  public String getReverseRefColumn() {
+  //    return this.reverseRefColumn;
+  //  }
 
   public Column getRefColumn() {
-    if (getRefColumnName() == null) return null;
-    else
+    if (getRefColumnName() == null) {
+      return null;
+    } else
       return getTable()
           .getSchema()
           .getTableMetadata(getRefTableName())
@@ -121,36 +122,36 @@ public class Column {
     this.defaultValue = defaultValue;
   }
 
-  public String getMrefJoinTableName() {
+  public String getJoinViaName() {
     return joinViaName;
   }
 
-  public Column setJoinVia(String joinTableName) {
-    this.joinViaName = joinTableName;
+  public Column setJoinVia(String joinVia) {
+    this.joinViaName = joinVia;
     return this;
   }
 
   public Column setReference(String refTable, String refColumn) {
-    this.refTableName = refTable;
+    this.refTable = refTable;
     this.refColumn = refColumn;
     return this;
   }
 
-  public Column setReverseReference(String reverseName) {
-    return this.setReverseReference(reverseName, null);
-  }
-
-  public Column setReverseReference(String reverseName, String reverseRefColumn) {
-    this.reverseRefTableName = reverseName;
-    this.reverseRefColumn = reverseRefColumn;
-    return this;
-  }
-
-  public Column setReference(String reverseName, String reverseRefColumn, String via) {
-    setReverseReference(reverseName, reverseRefColumn);
+  public Column setReference(String toTable, String toColumn, String via) {
+    setReference(toTable, toColumn);
     this.joinViaName = via;
     return this;
   }
+
+  //  public Column setReverseReference(String reverseName) {
+  //    return this.setReverseReference(reverseName, null);
+  //  }
+  //
+  //  public Column setReverseReference(String reverseName, String reverseRefColumn) {
+  //    this.reverseRefTableName = reverseName;
+  //    this.reverseRefColumn = reverseRefColumn;
+  //    return this;
+  //  }
 
   public Column setIndexed(boolean indexed) {
     this.indexed = indexed;
@@ -191,6 +192,14 @@ public class Column {
     return this.getTable().addRef(name, toTable, toColumn);
   }
 
+  public Column addRefBack(String name, String toTable, String viaColumn) {
+    return this.getTable().addRefBack(name, toTable, null, viaColumn);
+  }
+
+  public Column addRefBack(String name, String toTable, String toColumn, String viaColumn) {
+    return this.getTable().addRefBack(name, toTable, toColumn, viaColumn);
+  }
+
   public TableMetadata addUnique(String... columnNames) {
     return getTable().addUnique(columnNames);
   }
@@ -203,11 +212,11 @@ public class Column {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
     if (ColumnType.REF.equals(getColumnType()))
-      builder.append("ref(").append(refTableName).append(",").append(refColumn).append(")");
+      builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else if (ColumnType.REF_ARRAY.equals(getColumnType()))
-      builder.append("ref_array(").append(refTableName).append(",").append(refColumn).append(")");
+      builder.append("ref_array(").append(refTable).append(",").append(refColumn).append(")");
     else if (ColumnType.MREF.equals(getColumnType()))
-      builder.append("mref(").append(refTableName).append(",").append(refColumn).append(")");
+      builder.append("mref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());
     if (Boolean.TRUE.equals(getNullable())) builder.append(" nullable");
     return builder.toString();

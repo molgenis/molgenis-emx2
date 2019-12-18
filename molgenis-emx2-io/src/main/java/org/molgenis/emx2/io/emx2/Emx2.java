@@ -143,6 +143,22 @@ public class Emx2 {
         refColumn = def.getParameterList(REF_ARRAY).get(1);
       }
       table.addRefArray(columnName, refTable, refColumn);
+    } else if (REFBACK.equals(columnType)) {
+      // should have 2 or 3 parameters
+      String refTable = def.getParameterList(REFBACK).get(0);
+      String refColumn = null;
+      String via = null;
+      if (def.getParameterList(REFBACK).size() == 3) {
+        refColumn = def.getParameterList(REFBACK).get(1);
+        via = def.getParameterList(REFBACK).get(2);
+      } else if (def.getParameterList(REFBACK).size() == 2) {
+        via = def.getParameterList(REFBACK).get(1);
+      } else {
+        messages.add(
+            new MolgenisExceptionDetail(
+                line, "Parsing of 'refback' failed, wrong number of parameters."));
+      }
+      table.addRefBack(columnName, refTable, refColumn, via);
     } else {
       table.addColumn(columnName, columnType);
     }
@@ -220,7 +236,20 @@ public class Emx2 {
         } else {
           def.add(column.getColumnType().toString().toLowerCase(), column.getRefTableName());
         }
-
+        break;
+      case REFBACK:
+        if (column.getRefColumnName() != null) {
+          def.add(
+              column.getColumnType().toString().toLowerCase(),
+              column.getRefTableName(),
+              column.getRefColumnName(),
+              column.getJoinViaName());
+        } else {
+          def.add(
+              column.getColumnType().toString().toLowerCase(),
+              column.getRefTableName(),
+              column.getJoinViaName());
+        }
         break;
       default:
         def.add(column.getColumnType().toString().toLowerCase());

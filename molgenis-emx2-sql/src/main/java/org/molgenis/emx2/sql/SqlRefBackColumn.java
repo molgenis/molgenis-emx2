@@ -65,7 +65,7 @@ class SqlRefBackColumn extends SqlColumn {
       }
 
       // get the via column which is also in the 'toTable'
-      String viaColumnName = this.getMrefJoinTableName();
+      String viaColumnName = this.getJoinViaName();
       if (viaColumnName == null) {
         throw new MolgenisException(
             "Create column failed",

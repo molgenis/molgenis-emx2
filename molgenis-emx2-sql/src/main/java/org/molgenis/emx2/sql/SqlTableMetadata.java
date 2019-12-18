@@ -135,7 +135,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setPrimaryKey(String columnNames) {
+  public TableMetadata setPrimaryKey(String columnName) {
     long start = System.currentTimeMillis();
     if (getInherit() != null)
       throw new MolgenisException(
@@ -145,13 +145,12 @@ class SqlTableMetadata extends TableMetadata {
               + "' because inherits its primary key from other table '"
               + getInherit()
               + "'");
-    if (columnNames == null)
+    if (columnName == null)
       throw new MolgenisException(
-          "Set primary key failed",
-          "Primary key requires 1 or more columns, however, 0 columns where provided");
+          "Set primary key failed", "Primary key requires 1 however null was provided");
     db.tx(
         dsl -> {
-          Name[] keyNames = Stream.of(columnNames).map(DSL::name).toArray(Name[]::new);
+          Name[] keyNames = Stream.of(columnName).map(DSL::name).toArray(Name[]::new);
 
           // drop previous primary key if exists
           db.getJooq()
@@ -163,10 +162,10 @@ class SqlTableMetadata extends TableMetadata {
           db.getJooq().alterTable(getJooqTable()).add(constraint().primaryKey(keyNames)).execute();
 
           // update the decorated super
-          super.setPrimaryKey(columnNames);
+          super.setPrimaryKey(columnName);
           MetadataUtils.saveTableMetadata(this);
         });
-    log(start, "set primary key " + List.of(columnNames) + " on ");
+    log(start, "set primary key " + List.of(columnName) + " on ");
     return this;
   }
 
@@ -180,10 +179,6 @@ class SqlTableMetadata extends TableMetadata {
           this.updateSearchIndexTriggerFunction();
         });
     return getColumn(name);
-  }
-
-  protected void addColumnWithoutCreate(Column metadata) {
-    super.addColumn(metadata);
   }
 
   @Override
@@ -226,15 +221,23 @@ class SqlTableMetadata extends TableMetadata {
                   addRefArray(
                       metadata.getName(), metadata.getRefTableName(), metadata.getRefColumnName());
               break;
+            case REFBACK:
+              result =
+                  addRefBack(
+                      metadata.getName(),
+                      metadata.getRefTableName(),
+                      metadata.getRefColumnName(),
+                      metadata.getJoinViaName());
+              break;
             case MREF:
               result =
                   addMref(
                       metadata.getName(),
                       metadata.getRefTableName(),
                       metadata.getRefColumnName(),
-                      metadata.getReverseRefTableName(),
-                      metadata.getReverseRefColumn(),
-                      metadata.getMrefJoinTableName());
+                      //                      metadata.getReverseRefTableName(),
+                      //                      metadata.getReverseRefColumn(),
+                      metadata.getJoinViaName());
               break;
             default:
               result = addColumn(metadata.getName(), metadata.getColumnType());
@@ -315,13 +318,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public Column addMref(
-      String name,
-      String refTable,
-      String refColumn,
-      String reverseName,
-      String reverseRefColumn,
-      String joinTable) {
+  public Column addMref(String name, String refTable, String refColumn, String joinTable) {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
@@ -331,10 +328,6 @@ class SqlTableMetadata extends TableMetadata {
                   name,
                   refTable,
                   refColumn == null ? getRefTablePrimaryKey(refTable) : refColumn,
-                  reverseName,
-                  reverseRefColumn == null
-                      ? getRefTablePrimaryKey(this.getTableName())
-                      : reverseRefColumn,
                   joinTable);
           c.createColumn();
           super.addColumn(c);

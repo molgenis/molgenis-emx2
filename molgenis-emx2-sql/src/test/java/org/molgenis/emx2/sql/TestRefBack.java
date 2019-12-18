@@ -30,10 +30,9 @@ public class TestRefBack {
 
     Table posts = schema.createTableIfNotExists("Posts");
     posts.getMetadata().addColumn("title").primaryKey();
-    posts
-        .getMetadata()
-        .addRef("user", users.getName(), "username")
-        .setReverseReference("posts", "title");
+    posts.getMetadata().addRef("user", users.getName(), "username");
+
+    users.getMetadata().addRefBack("posts", posts.getName(), "user");
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));

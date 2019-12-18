@@ -5,7 +5,6 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +44,12 @@ public class MetadataUtils {
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_COLUMN =
       field(name("ref_column"), VARCHAR.nullable(true));
+  //  private static final org.jooq.Field REVERSE_REF_TABLE =
+  //      field(name("reverse_ref_table"), VARCHAR.nullable(true));
+  //  private static final org.jooq.Field REVERSE_REF_COLUMN =
+  //      field(name("reverse_ref_column"), VARCHAR.nullable(true));
+  private static final org.jooq.Field VIA_COLUMN =
+      field(name("via_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field UNIQUE_COLUMNS =
       field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
@@ -86,6 +91,9 @@ public class MetadataUtils {
               NULLABLE,
               REF_TABLE,
               REF_COLUMN,
+              //              REVERSE_REF_TABLE,
+              //              REVERSE_REF_COLUMN,
+              VIA_COLUMN,
               INDEXED)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
@@ -219,6 +227,9 @@ public class MetadataUtils {
             NULLABLE,
             REF_TABLE,
             REF_COLUMN,
+            //            REVERSE_REF_TABLE,
+            //            REVERSE_REF_COLUMN,
+            VIA_COLUMN,
             INDEXED)
         .values(
             column.getTable().getSchema().getName(),
@@ -228,6 +239,9 @@ public class MetadataUtils {
             column.getNullable(),
             column.getRefTableName(),
             column.getRefColumnName(),
+            //            column.getReverseRefTableName(),
+            //            column.getReverseRefColumn(),
+            column.getJoinViaName(),
             column.getIndexed())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -235,6 +249,9 @@ public class MetadataUtils {
         .set(NULLABLE, column.getNullable())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
+        //        .set(REVERSE_REF_TABLE, column.getReverseRefTableName())
+        //        .set(REVERSE_REF_COLUMN, column.getReverseRefColumn())
+        .set(VIA_COLUMN, column.getJoinViaName())
         .set(INDEXED, column.getIndexed())
         .execute();
   }
@@ -308,15 +325,29 @@ public class MetadataUtils {
 
       String toTable = col.get(REF_TABLE, String.class);
       String toColumn = col.get(REF_COLUMN, String.class);
+
+      //      String reverseRefTable = col.get(REVERSE_REF_TABLE, String.class);
+      //      String reverseToColumn = col.get(REVERSE_REF_COLUMN, String.class);
+
+      String viaColumn = col.get(VIA_COLUMN, String.class);
+
       switch (columnColumnType) {
         case REF:
           columnList.add(
-              new SqlRefColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
+              new SqlRefColumn(table, columnName, toTable, toColumn)
+                  // .loadReverseReference(reverseRefTable, reverseToColumn)
+                  .loadNullable(nullable));
           break;
         case REF_ARRAY:
-        case REFBACK:
           columnList.add(
               new SqlRefArrayColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
+          break;
+        case REFBACK:
+          columnList.add(
+              new SqlRefBackColumn(table, columnName, toTable, toColumn, viaColumn)
+                  .loadNullable(nullable)
+                  //  .loadReverseReference(reverseRefTable, reverseToColumn)
+                  .loadVia(viaColumn));
           break;
         default:
           columnList.add(new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 
-public class TestCreateManyToManyRelations {
+public class TestCreateMREF {
 
   static Database db;
 
@@ -97,11 +97,13 @@ public class TestCreateManyToManyRelations {
       aRowList.add(aRow);
     }
 
-    // add two sided many-to-many
+    // add one sided many-to-many
     String refName = columnType + "refToA";
-    String refReverseName = columnType + "refToB";
     String joinTableName = "AB";
-    bTable.getMetadata().addMref(refName, "A", keyOfA, refReverseName, keyOfB, joinTableName);
+    bTable.getMetadata().addMref(refName, "A", keyOfA, joinTableName);
+
+    //    String refReverseName = columnType + "refToB";
+    // refReverseName, keyOfB
 
     Row bRow =
         new Row().set(keyOfB, keyOfB + "1").set(refName, Arrays.copyOfRange(testValues, 1, 3));

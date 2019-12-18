@@ -61,25 +61,26 @@ public class SqlColumn extends Column {
     return this;
   }
 
-  @Override
-  public Column setReverseReference(String reverseColumnName, String reverseRefColumn) {
-    TableMetadata otherTable = getTable().getSchema().getTableMetadata(getRefTableName());
-    if (otherTable == null) {
-      throw new MolgenisException(
-          "Set reverse reference failed",
-          "Reference back from column '" + getName() + "' failed because RefTableName was not set");
-    }
-
-    // in case of REF we must create the refBack columnn
-    if (REF.equals(getColumnType())) {
-      otherTable.addRefBack(
-          reverseColumnName, getTable().getTableName(), reverseRefColumn, getName());
-    }
-
-    // update state
-    super.setReverseReference(reverseColumnName, reverseRefColumn);
-    return this;
-  }
+  //  @Override
+  //  public Column setReverseReference(String reverseColumnName, String reverseRefColumn) {
+  //    TableMetadata otherTable = getTable().getSchema().getTableMetadata(getRefViaName());
+  //    if (otherTable == null) {
+  //      throw new MolgenisException(
+  //          "Set reverse reference failed",
+  //          "Reference back from column '" + getName() + "' failed because RefTableName was not
+  // set");
+  //    }
+  //
+  //    // in case of REF we must create the refBack columnn
+  //    if (REF.equals(getColumnType())) {
+  //      otherTable.addRefBack(
+  //          reverseColumnName, getTable().getTableName(), reverseRefColumn, getName());
+  //    }
+  //
+  //    // update state
+  //    super.setReverseReference(reverseColumnName, reverseRefColumn);
+  //    return this;
+  //  }
 
   // helper methods
   private org.jooq.Table asJooqTable() {
@@ -90,8 +91,26 @@ public class SqlColumn extends Column {
     return ((SqlTableMetadata) getTable()).getJooq();
   }
 
-  Column loadNullable(Boolean nullable) {
+  protected SqlColumn loadNullable(Boolean nullable) {
     super.setNullable(nullable);
     return this;
+  }
+
+  //  protected SqlColumn loadReverseReference(String reverseRefTable, String reverseToColumn) {
+  //    super.setReverseReference(reverseRefTable, reverseToColumn);
+  //    return this;
+  //  }
+
+  protected SqlColumn loadVia(String via) {
+    super.setJoinVia(via);
+    return this;
+  }
+
+  public TableMetadata getRefTable() {
+    return getTable().getSchema().getTableMetadata(getRefTableName());
+  }
+
+  public TableMetadata getJoinTable() {
+    return getTable().getSchema().getTableMetadata(getJoinViaName());
   }
 }

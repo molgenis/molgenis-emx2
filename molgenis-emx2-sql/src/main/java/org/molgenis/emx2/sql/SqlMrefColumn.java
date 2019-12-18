@@ -26,12 +26,9 @@ public class SqlMrefColumn extends SqlColumn {
       String name,
       String refTable,
       String refColumn,
-      String reverseName,
-      String reverseRefColumn,
       String joinTableName) {
     super(sqlTable, name, MREF);
     this.setReference(refTable, refColumn);
-    this.setReverseReference(reverseName, reverseRefColumn);
     this.setJoinVia(joinTableName);
   }
 
@@ -39,62 +36,44 @@ public class SqlMrefColumn extends SqlColumn {
   public SqlMrefColumn createColumn() {
     String schemaName = getTable().getSchema().getName();
 
-    // createTableIfNotExists
-    SqlTableMetadata otherTable =
-        (SqlTableMetadata) getTable().getSchema().getTableMetadata(getRefTableName());
-    Column otherColumn = otherTable.getColumn(getRefColumnName());
+    String thisTable = getTable().getTableName();
+    String thisColumn = getName();
 
-    // create refArray column to enable updates to be provided for the trigger
+    String toTable = getRefTableName();
+    String toColumn = getRefColumnName();
+
+    String reverseColumn = getTable().getPrimaryKey();
+
+    String joinTable = getJoinViaName();
+
+    // create new refArray column to enable updates to be provided for the trigger
     getJooq()
-        .alterTable(name(schemaName, getTable().getTableName()))
-        .add(field(name(getName()), SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
+        .alterTable(name(schemaName, thisTable))
+        .add(field(name(thisColumn), SqlTypeUtils.jooqTypeOf(getRefColumn()).getArrayDataType()))
         .execute();
 
-    // create the reverse refArray, but only if reverse name is given
-    getJooq()
-        .alterTable(name(schemaName, otherTable.getTableName()))
-        .add(
-            field(
-                name(getReverseRefTableName()),
-                SqlTypeUtils.jooqTypeOf(otherColumn).getArrayDataType()))
-        .execute();
+    // create joinTable the joinTable
+    TableMetadata table = getTable().getSchema().createTable(joinTable);
+    Column to = table.addRef(thisColumn, toTable, toColumn);
+    Column reverse = table.addRef(reverseColumn, thisTable, reverseColumn);
 
-    // createTableIfNotExists the joinTable
-    TableMetadata table = getTable().getSchema().createTable(getMrefJoinTableName());
-    table.addRef(getRefColumnName(), getRefTableName(), getRefColumnName());
-    table.addRef(getReverseRefColumn(), getTable().getTableName(), getReverseRefColumn());
-
-    // add the reverse column to the other table
-    SqlMrefColumn reverseColumn =
-        new SqlMrefColumn(
-            otherTable,
-            getReverseRefTableName(),
-            getTable().getTableName(),
-            getReverseRefColumn(),
-            getName(),
-            getRefColumnName(),
-            getMrefJoinTableName());
-    otherTable.addMrefReverse(reverseColumn);
-
-    // createTableIfNotExists triggers both ways
-    createTriggers(getJooq(), table, this, reverseColumn);
-    createTriggers(getJooq(), table, reverseColumn, this);
+    // create trigger on insert, update and delete of rows in this table will update mref table
+    createTriggers(getJooq(), this, table, reverse);
 
     // save metadata
     saveColumnMetadata(this);
-    saveColumnMetadata(reverseColumn);
-
     return this;
   }
 
   private static void createTriggers(
-      DSLContext jooq, TableMetadata joinTable, Column column, Column reverseColumn) {
+      DSLContext jooq, Column thisColumn, TableMetadata joinTable, Column reverseColumn) {
 
     //  parameters
-    String schemaName = column.getTable().getSchema().getName();
+    String schemaName = thisColumn.getTable().getSchema().getName();
     String insertOrUpdateTrigger =
-        column.getTable().getTableName() + "_" + column.getName() + "_UPSERT_TRIGGER";
-    Column targetColumn = reverseColumn.getTable().getColumn(column.getRefColumnName());
+        thisColumn.getTable().getTableName() + "_" + thisColumn.getName() + "_UPSERT_TRIGGER";
+    TableMetadata thisTable = thisColumn.getTable();
+    String primaryKey = thisTable.getPrimaryKey();
 
     // insert and update trigger: does the following
     // first delete mrefs to previous instance of 'self'
@@ -106,36 +85,42 @@ public class SqlMrefColumn extends SqlColumn {
             + "\n\t item {1};"
             + "\nBEGIN"
             // DELETE FROM jointable WHERE reverseRefColumn = reverseRefColumn
-            + "\n\tDELETE FROM {2} WHERE {3} = OLD.{3};"
+            + "\n\tIF TG_OP='UPDATE' THEN DELETE FROM {2} WHERE {3} = OLD.{4}; END IF;"
             // foreach new.refColumn
-            + "\n\tFOREACH item IN ARRAY NEW.{4}"
-            + "\n\tLOOP"
+            // check if we can expect 'update following on conflict insert'
+            + "\n\tFOREACH item IN ARRAY NEW.{5} LOOP"
             // INSERT INTO jointable(refColumn,getReverseRefColumn) VALUES (item, NEW.refColumn)
-            + "\n\t\tINSERT INTO {2} ({3},{5}) VALUES (NEW.{3},item);"
+            + "\n\t\tINSERT INTO {2} ({3},{5}) VALUES (NEW.{4},item);"
             + "\n\tEND LOOP;"
-            // NEW.column = NULL
-            + "\n\tNEW.{4} = NULL;"
+            // NEW.column = NULL, unless this is INSERT and we can expect ON CONFLICT
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {6} WHERE {7} = NEW.{7}) THEN NEW.{5} = NULL; END IF;"
             + "\n\tRETURN NEW;"
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
-        name(column.getTable().getSchema().getName(), insertOrUpdateTrigger),
-        keyword(SqlTypeUtils.getPsqlType(targetColumn)),
-        table(name(joinTable.getSchema().getName(), joinTable.getTableName())),
-        field(name(reverseColumn.getRefColumnName())),
-        field(name(column.getName())),
-        field(name(column.getRefColumnName())));
+        name(schemaName, insertOrUpdateTrigger), // {0} trigger name
+        keyword(
+            SqlTypeUtils.getPsqlType(
+                thisColumn.getRefColumn())), // {1} type of the primary key of this
+        table(
+            name(joinTable.getSchema().getName(), joinTable.getTableName())), // {2} the join table
+        field(name(reverseColumn.getName())), // {3} column from other table that points to 'me'
+        field(name(reverseColumn.getRefColumnName())), // {4} key in 'me' that it pionts to
+        field(name(thisColumn.getName())), // {5} the mref column we are creating
+        table(name(schemaName, thisTable.getTableName())), // {6} the table the trigger is on
+        field(name(primaryKey))); // {7} the primary key of {6}
 
     jooq.execute(
         "CREATE TRIGGER {0} "
-            + "\n\tBEFORE INSERT ON {1}"
-            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
+            + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
+            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
         name(insertOrUpdateTrigger),
-        name(schemaName, column.getTable().getTableName()),
+        name(thisColumn.getName()),
+        name(schemaName, thisColumn.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
 
     // delete trigger: will delete all mrefs that involve 'self' before deleting 'self'
     String deleteTrigger =
-        column.getTable().getTableName() + "_" + column.getName() + "_DELETE_TRIGGER";
+        thisColumn.getTable().getTableName() + "_" + thisColumn.getName() + "_DELETE_TRIGGER";
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
@@ -153,7 +138,7 @@ public class SqlMrefColumn extends SqlColumn {
             + "\n\tAFTER DELETE ON {1}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(deleteTrigger),
-        name(schemaName, column.getTable().getTableName()),
+        name(schemaName, thisColumn.getTable().getTableName()),
         name(schemaName, deleteTrigger));
   }
 }

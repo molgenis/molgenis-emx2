@@ -64,7 +64,7 @@ public class SqlQuery extends QueryBean implements Query {
       String[] path = getPath(columnAlias);
 
       StringBuilder tableAliasBuilder = new StringBuilder(from.getTableName());
-      Column column = getColumn(from, path, tableAliasBuilder, tableAliases);
+      SqlColumn column = getColumn(from, path, tableAliasBuilder, tableAliases);
       String tableAlias = tableAliasBuilder.toString();
 
       // add as fields to list
@@ -142,7 +142,7 @@ public class SqlQuery extends QueryBean implements Query {
 
   private static SelectJoinStep createMrefJoin(
       SelectJoinStep fromStep, String tableAlias, Column fkey, String leftAlias) {
-    String joinTable = fkey.getMrefJoinTableName();
+    String joinTable = fkey.getJoinViaName();
 
     // to link table
     fromStep =
@@ -184,13 +184,22 @@ public class SqlQuery extends QueryBean implements Query {
     return fromStep;
   }
 
-  private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
+  private static Field<Object[]> createMrefSubselect(SqlColumn column, String tableAlias) {
+    String via = column.getJoinViaName();
+
+    Column reverseColumn = null;
+    for (Column c : column.getJoinTable().getColumns()) {
+      if (c.getRefTableName().equals(column.getTable().getTableName())) {
+        reverseColumn = c;
+        break;
+      }
+    }
     return PostgresDSL.array(
-        DSL.select(field(name(column.getMrefJoinTableName(), column.getRefColumnName())))
-            .from(name(column.getTable().getSchema().getName(), column.getMrefJoinTableName()))
+        DSL.select(field(name(column.getJoinViaName(), column.getName())))
+            .from(name(column.getTable().getSchema().getName(), column.getJoinViaName()))
             .where(
-                field(name(column.getMrefJoinTableName(), column.getReverseRefColumn()))
-                    .eq(field(name(tableAlias, column.getReverseRefColumn())))));
+                field(name(column.getJoinViaName(), reverseColumn.getRefColumnName()))
+                    .eq(field(name(tableAlias, reverseColumn.getRefColumnName())))));
   }
 
   private static Condition createFilterConditions(
@@ -223,7 +232,7 @@ public class SqlQuery extends QueryBean implements Query {
     Name selector = name(tableAliasBuilder.toString(), path[path.length - 1]);
     switch (w.getOperator()) {
       case EQUALS:
-        Column column = getColumn(from, path, tableAliasBuilder, tableAliases);
+        SqlColumn column = getColumn(from, path, tableAliasBuilder, tableAliases);
         ColumnType type = column.getColumnType();
         if (REF_ARRAY.equals(type)
             || REFBACK.equals(type)
@@ -277,7 +286,7 @@ public class SqlQuery extends QueryBean implements Query {
     return s.split("/");
   }
 
-  private static Column getColumn(
+  private static SqlColumn getColumn(
       TableMetadata t,
       String[] path,
       StringBuilder tableAliasBuilder,
@@ -299,7 +308,7 @@ public class SqlQuery extends QueryBean implements Query {
         t = t.getInheritedTable();
       }
 
-      return c;
+      return (SqlColumn) c;
     } else {
       tableAliasBuilder.append("/" + path[0]);
       tableAliases.put(tableAliasBuilder.toString(), c);
@@ -313,7 +322,7 @@ public class SqlQuery extends QueryBean implements Query {
     }
   }
 
-  private Field getFieldForColumn(Column column, String tableAlias, String columnAlias) {
+  private Field getFieldForColumn(SqlColumn column, String tableAlias, String columnAlias) {
     if (MREF.equals(column.getColumnType())) {
       return createMrefSubselect(column, tableAlias).as(columnAlias);
     } else {

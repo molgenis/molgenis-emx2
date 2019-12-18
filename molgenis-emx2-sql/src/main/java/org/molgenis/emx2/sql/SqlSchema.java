@@ -8,6 +8,7 @@ import org.molgenis.emx2.MolgenisException;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.REFBACK;
 
 public class SqlSchema implements Schema {
   private SqlDatabase db;
@@ -260,7 +261,29 @@ public class SqlSchema implements Schema {
           sort(tableList);
 
           for (TableMetadata table : tableList) {
-            this.createTableIfNotExists(table);
+            // first create all tables, and keep refback for last
+            this.createTableIfNotExists(table.getTableName());
+          }
+          // first pass
+          for (TableMetadata table : tableList) {
+            TableMetadata tm = this.getTable(table.getTableName()).getMetadata();
+            // non-link-back relations
+            for (Column c : table.getColumns()) {
+              if (!c.getColumnType().equals(REFBACK)) {
+                tm.addColumn(c);
+              }
+            }
+            // table settings
+            if (table.getPrimaryKey() != null) tm.setPrimaryKey(table.getPrimaryKey());
+            for (String[] unique : table.getUniques()) tm.addUnique(unique);
+          }
+          // second pass for all linkback relations
+          for (TableMetadata table : tableList) {
+            for (Column c : table.getColumns()) {
+              if (c.getColumnType().equals(REFBACK)) {
+                this.getTable(table.getTableName()).getMetadata().addColumn(c);
+              }
+            }
           }
         });
   }
@@ -280,7 +303,7 @@ public class SqlSchema implements Schema {
           }
         }
         for (Column c : current.getColumns()) {
-          if (c.getRefTableName() != null) {
+          if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
             for (int j = 0; j < todo.size(); j++) {
               // if depends on on in todo, than skip to next
               if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
