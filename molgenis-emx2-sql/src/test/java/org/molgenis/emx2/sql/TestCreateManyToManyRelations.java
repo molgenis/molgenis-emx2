@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Operator.ANY;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class TestCreateManyToManyRelations {
 
@@ -110,7 +110,7 @@ public class TestCreateManyToManyRelations {
     StopWatch.print("data inserted");
 
     // test query
-    List<Row> bRowsRetrieved = bTable.where(refName, ANY, testValues[1]).retrieve();
+    List<Row> bRowsRetrieved = bTable.where(refName, EQUALS, testValues[1]).retrieve();
     ColumnType arrayColumnType = TypeUtils.getArrayType(columnType);
 
     // todo insert order is not reproducible

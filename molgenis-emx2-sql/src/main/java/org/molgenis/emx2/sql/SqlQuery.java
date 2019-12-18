@@ -197,7 +197,7 @@ public class SqlQuery extends QueryBean implements Query {
       TableMetadata from, List<Where> whereList, Map<String, Column> tableAliases) {
     Condition conditions = null;
     for (Where w : whereList) {
-      Condition newCondition = null;
+      Condition newCondition;
       newCondition = createFilterCondition(w, from, tableAliases);
       if (newCondition != null) {
         if (conditions == null) conditions = newCondition;
@@ -225,7 +225,16 @@ public class SqlQuery extends QueryBean implements Query {
       case EQUALS:
         Column column = getColumn(from, path, tableAliasBuilder, tableAliases);
         ColumnType type = column.getColumnType();
-        if (REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+        if (REF_ARRAY.equals(type)
+            || REFBACK.equals(type)
+            || STRING_ARRAY.equals(type)
+            || INT_ARRAY.equals(type)
+            || DECIMAL_ARRAY.equals(type)
+            || BOOL_ARRAY.equals(type)
+            || DATE_ARRAY.equals(type)
+            || DATETIME_ARRAY.equals(type)
+            || TEXT_ARRAY.equals(type)
+            || UUID_ARRAY.equals(type)) {
           return condition(
               "{0} && {1}", SqlTypeUtils.getTypedValue(w.getValues(), column), field(selector));
         } else if (MREF.equals(type)) {

@@ -8,7 +8,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
 import static junit.framework.TestCase.*;
-import static org.molgenis.emx2.Operator.ANY;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.sql.Filter.f;
 import static org.molgenis.emx2.sql.SelectColumn.s;

@@ -8,7 +8,9 @@ import org.molgenis.emx2.utils.StopWatch;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 
+import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -25,7 +27,10 @@ public class TestGrantRolesToUsers {
   public void testGrantRevokeMembership() {
 
     Schema schema = database.createSchema("testGrantRevokeMembership");
-    assertEquals(Arrays.asList("Viewer", "Editor", "Manager", "Owner"), schema.getRoles());
+    List first = Arrays.asList("Viewer", "Editor", "Manager", "Owner");
+    List second = schema.getRoles();
+    assertTrue(
+        first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
 
     schema.addMember("user1", "Viewer");
     assertEquals(1, schema.getMembers().size());

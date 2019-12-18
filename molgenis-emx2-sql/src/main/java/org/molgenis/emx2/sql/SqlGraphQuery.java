@@ -261,14 +261,13 @@ public class SqlGraphQuery extends Filter {
                   field(
                           "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
                           MAX_FIELD,
-                          // TODO add subquery so filters also apply
-                          max(field(name(tableAlias, col.getName()))),
+                          max(field(name(col.getName()))),
                           MIN_FIELD,
-                          min(field(name(tableAlias, col.getName()))),
+                          min(field(name(col.getName()))),
                           AVG_FIELD,
-                          avg(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))),
+                          avg(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))),
                           SUM_FIELD,
-                          sum(field(name(tableAlias, col.getName()), SqlTypeUtils.jooqTypeOf(col))))
+                          sum(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))))
                       .as(col.getName()));
             }
             break;
