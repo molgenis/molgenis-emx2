@@ -42,7 +42,7 @@ public class PetStoreExample {
 
     TableMetadata orderTable = schema.createTable(ORDER);
     orderTable.addColumn(ORDER_ID).primaryKey();
-    orderTable.addRef("pet", PET, NAME);
+    orderTable.addRef("pet", PET, NAME).setReverseReference("orders");
     orderTable.addColumn(QUANTITY, INT); // todo: validation >=1
     orderTable.addColumn(PRICE, DECIMAL); // todo: validation >=1
     orderTable.addColumn(COMPLETE, BOOL); // todo: default false

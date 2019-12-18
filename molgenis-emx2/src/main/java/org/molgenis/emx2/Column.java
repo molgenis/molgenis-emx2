@@ -136,6 +136,10 @@ public class Column {
     return this;
   }
 
+  public Column setReverseReference(String reverseName) {
+    return this.setReverseReference(reverseName, null);
+  }
+
   public Column setReverseReference(String reverseName, String reverseRefColumn) {
     this.reverseRefTableName = reverseName;
     this.reverseRefColumn = reverseRefColumn;

@@ -105,6 +105,7 @@ public class GraphqlTableQueryFields {
                   .type(GraphQLTypeReference.typeRef(col.getRefTableName())));
           break;
         case REF_ARRAY:
+        case REFBACK:
           tableBuilder.field(
               newFieldDefinition()
                   .name(col.getName())
@@ -148,7 +149,8 @@ public class GraphqlTableQueryFields {
                         .field(newFieldDefinition().name(SUM_FIELD).type(graphQLTypeOf(col)))));
       } else {
         // group by options
-        builder.field(newFieldDefinition().name(col.getName()).type(graphQLTypeOf(col)));
+        // TODO LATER
+        // builder.field(newFieldDefinition().name(col.getName()).type(graphQLTypeOf(col)));
       }
     }
     return builder.build();
@@ -158,7 +160,8 @@ public class GraphqlTableQueryFields {
     GraphQLInputObjectType.Builder filterBuilder =
         newInputObject().name(table.getTableName() + FILTER1);
     for (Column col : table.getColumns()) {
-      if (REF.equals(col.getColumnType()) || REF_ARRAY.equals((col.getColumnType()))) {
+      ColumnType type = col.getColumnType();
+      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
         filterBuilder.field(
             newInputObjectField()
                 .name(col.getName())
@@ -179,7 +182,8 @@ public class GraphqlTableQueryFields {
     GraphQLInputObjectType.Builder orderByBuilder =
         newInputObject().name(table.getName() + ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
-      if (!REF_ARRAY.equals((col.getColumnType()))) {
+      ColumnType type = col.getColumnType();
+      if (!REF_ARRAY.equals(type) && !REFBACK.equals(type)) {
         orderByBuilder.field(newInputObjectField().name(col.getName()).type(orderByEnum));
       }
     }
@@ -231,6 +235,7 @@ public class GraphqlTableQueryFields {
       case UUID_ARRAY:
       case REF:
       case REF_ARRAY:
+      case REFBACK:
       case MREF:
     }
     return Scalars.GraphQLString;
@@ -244,7 +249,8 @@ public class GraphqlTableQueryFields {
         throw new GraphqlException(
             "Graphql API error",
             "Column " + entry.getKey() + " unknown in table " + table.getName());
-      if (REF.equals(c.getColumnType()) || REF_ARRAY.equals(c.getColumnType())) {
+      ColumnType type = c.getColumnType();
+      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
         subFilters.add(
             f(
                 c.getName(),

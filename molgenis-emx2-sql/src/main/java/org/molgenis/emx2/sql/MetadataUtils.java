@@ -314,6 +314,7 @@ public class MetadataUtils {
               new SqlRefColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
         case REF_ARRAY:
+        case REFBACK:
           columnList.add(
               new SqlRefArrayColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
           break;
