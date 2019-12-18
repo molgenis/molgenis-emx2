@@ -107,7 +107,7 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType columnType = column.getColumnType();
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(column);
-    } else if (ColumnType.MREF.equals(columnType)) {
+    } else if (MREF.equals(columnType) || REFBACK.equals(columnType)) {
       columnType = getArrayType(getRefColumnType(column));
     }
     return getTypedValue(v, columnType);

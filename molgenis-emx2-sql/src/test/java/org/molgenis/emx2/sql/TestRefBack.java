@@ -7,9 +7,11 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.fail;
+import static junit.framework.TestCase.*;
+import static org.molgenis.emx2.Operator.ANY;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.sql.Filter.f;
+import static org.molgenis.emx2.sql.SelectColumn.s;
 
 public class TestRefBack {
 
@@ -58,6 +60,19 @@ public class TestRefBack {
             .get(0)
             .getStringArray("posts")
             .length);
+
+    // check query
+    assertEquals(1, users.query().where("posts", EQUALS, "jacks post").retrieve().size());
+
+    // check graph query
+    SqlGraphQuery query = new SqlGraphQuery(users).select(s("data_agg", s("count")));
+    assertTrue(query.retrieve().contains("\"count\":2"));
+
+    query =
+        new SqlGraphQuery(users)
+            .select(s("data_agg", s("count")))
+            .filter(f("posts", f("title").is("jacks post")));
+    assertTrue(query.retrieve().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading
     // delete

@@ -5,13 +5,10 @@ import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.util.postgres.PostgresDSL;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.beans.QueryBean;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.Where;
-import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +16,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.MREF;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
 
 public class SqlQuery extends QueryBean implements Query {
@@ -99,6 +96,7 @@ public class SqlQuery extends QueryBean implements Query {
             fromStep = createRefJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
           case REF_ARRAY:
+          case REFBACK:
             fromStep = createRefArrayJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
           case MREF:
@@ -225,23 +223,21 @@ public class SqlQuery extends QueryBean implements Query {
     Name selector = name(tableAliasBuilder.toString(), path[path.length - 1]);
     switch (w.getOperator()) {
       case EQUALS:
-        // type check
-        Object[] values = w.getValues();
-        for (int i = 0; i < values.length; i++)
-          values[i] =
-              SqlTypeUtils.getTypedValue(
-                  values[i], getColumn(from, path, tableAliasBuilder, tableAliases));
-        return field(selector).in(values);
-      case ANY:
         Column column = getColumn(from, path, tableAliasBuilder, tableAliases);
-        if (MREF.equals(column.getColumnType())) {
+        ColumnType type = column.getColumnType();
+        if (REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+          return condition(
+              "{0} && {1}", SqlTypeUtils.getTypedValue(w.getValues(), column), field(selector));
+        } else if (MREF.equals(type)) {
           return condition(
               "{0} && {1}",
               SqlTypeUtils.getTypedValue(w.getValues(), column),
               createMrefSubselect(column, tableAliasBuilder.toString()));
         } else {
-          return condition(
-              "{0} && {1}", SqlTypeUtils.getTypedValue(w.getValues(), column), field(selector));
+          Object[] values = w.getValues();
+          for (int i = 0; i < values.length; i++)
+            values[i] = SqlTypeUtils.getTypedValue(values[i], column);
+          return field(selector).in(values);
         }
       default:
         throw new MolgenisException(

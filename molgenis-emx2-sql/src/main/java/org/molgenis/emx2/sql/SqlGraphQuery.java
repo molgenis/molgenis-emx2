@@ -63,9 +63,15 @@ public class SqlGraphQuery extends Filter {
     this(table.getMetadata());
   }
 
-  public SelectColumn select(SelectColumn... select) {
+  public SqlGraphQuery select(SelectColumn... select) {
     this.select = new SelectColumn(null, select);
-    return this.select;
+    return this;
+  }
+
+  @Override
+  public SqlGraphQuery filter(Filter... filters) {
+    super.filter(filters);
+    return this;
   }
 
   public void search(String... terms) {
@@ -113,7 +119,7 @@ public class SqlGraphQuery extends Filter {
     return result;
   }
 
-  private static SelectJoinStep createSubselect(
+  private static Select createSubselect(
       SqlTableMetadata fromTable,
       String fromAlias,
       SelectColumn select,
@@ -143,8 +149,12 @@ public class SqlGraphQuery extends Filter {
       where = createLimitOffsetOrderBy(select, where);
     }
 
-    // create the aggregation of the subselect, e.g. into count or json
-    return fromTable.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
+    if (aggregationFunction == null) {
+      return where;
+    } else {
+      // create the aggregation of the subselect, e.g. into count or json
+      return fromTable.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
+    }
   }
 
   private static Condition addSearchConditions(
@@ -176,7 +186,9 @@ public class SqlGraphQuery extends Filter {
     List<Field> fields = new ArrayList<>();
     for (Column column : table.getLocalColumns()) {
       if (isSelectedOrFiltered(column, select, filter)) {
-        if (REF.equals(column.getColumnType()) || REF_ARRAY.equals(column.getColumnType())) {
+        if (REF.equals(column.getColumnType())
+            || REF_ARRAY.equals(column.getColumnType())
+            || REFBACK.equals(column.getColumnType())) {
           fields.add(
               createSelectionFieldForRef(
                   column,
@@ -216,19 +228,20 @@ public class SqlGraphQuery extends Filter {
       Condition conditions) {
     DSLContext jooq = table.getJooq();
 
-    org.jooq.Table<Record> jooqTable = getJooqTable(table, tableAlias);
-
-    List<Field> fields = new ArrayList<>();
-    List<Field> groupBy = new ArrayList<>();
-
-    // user filter
+    // add user filter conditions to any parent filter
     conditions = createFiltersForColumns(conditions, table, filter);
 
     // add to that search filters, only for 'root' query having the search fields
     conditions = addSearchConditions(table, tableAlias, select, filter, conditions);
 
+    List<Field> fields = new ArrayList<>();
+    List<Field> groupBy = new ArrayList<>();
+    SelectColumn subSelect = new SelectColumn("item");
+    subSelect.select(table.getPrimaryKey());
+
     if (select.has(COUNT_FIELD)) {
-      fields.add(count().as(COUNT_FIELD));
+      fields.add(field(count(field(table.getPrimaryKey()))).as(COUNT_FIELD));
+      // TODO need to have subquery
     }
     if (select.has(GROUPBY_FIELD)) {
       // todo
@@ -243,10 +256,12 @@ public class SqlGraphQuery extends Filter {
                 || select.has(MIN_FIELD)
                 || select.has(AVG_FIELD)
                 || select.has(SUM_FIELD)) {
+              subSelect.select(col.getName());
               fields.add(
                   field(
                           "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
                           MAX_FIELD,
+                          // TODO add subquery so filters also apply
                           max(field(name(tableAlias, col.getName()))),
                           MIN_FIELD,
                           min(field(name(tableAlias, col.getName()))),
@@ -262,14 +277,18 @@ public class SqlGraphQuery extends Filter {
         }
       }
     }
-    org.jooq.Table<Record> aggregateQuery;
+
+    Select source = createSubselect(table, tableAlias, subSelect, filter, null, conditions, false);
+    Select aggregateQuery;
     if (groupBy.size() > 0) {
       aggregateQuery =
-          table(jooq.select(fields).from(jooqTable).where(conditions).groupBy(groupBy));
+          jooq.select(fields).from(table(source).as("aggs")).where(conditions).groupBy(groupBy);
     } else {
-      aggregateQuery = table(jooq.select(fields).from(jooqTable).where(conditions));
+      aggregateQuery = jooq.select(fields).from(table(source).as("aggs")).where(conditions);
     }
-    return field(jooq.select(field(ROW_TO_JSON_SQL)).from(aggregateQuery.as(ITEM)));
+    return field(
+        jooq.select(field("json_strip_nulls(row_to_json(agg_item))"))
+            .from(table(aggregateQuery).as("agg_item")));
   }
 
   private static Field createSelectionFieldForRef(
@@ -291,6 +310,7 @@ public class SqlGraphQuery extends Filter {
                   false))
           .as(column.getName());
     } else {
+      // REFARRAY or REFBACK
       return field(
               createSubselect(
                   getRefTable(column),
@@ -313,7 +333,7 @@ public class SqlGraphQuery extends Filter {
       if (select != null && select.has(column.getName())) {
         String rightAlias = leftAlias + "/" + column.getName();
         ColumnType type = column.getColumnType();
-        if (REF_ARRAY.equals(type)) {
+        if (REF_ARRAY.equals(type) || REFBACK.equals(type)) {
           step =
               step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
                   .on(
@@ -340,8 +360,10 @@ public class SqlGraphQuery extends Filter {
     for (Column column : table.getLocalColumns()) {
       Filter f = getFilterForRef(filter, column);
       if (f != null) {
-        if (REF.equals(column.getColumnType()) || REF_ARRAY.equals(column.getColumnType())) {
+        ColumnType type = column.getColumnType();
+        if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
           // check that subtree exists
+          // TODO for REF_ARRAY and REFBACK consider filters on the subtree!
           condition = condition.and(field(name(column.getName())).isNotNull());
         } else {
           // add the column filter(s)
@@ -373,7 +395,7 @@ public class SqlGraphQuery extends Filter {
       if (select != null && select.has(column.getName())) {
         String nextAlias = tableAlias + "/" + column.getName();
         ColumnType type = column.getColumnType();
-        if (REF_ARRAY.equals(type) || REF.equals(type)) {
+        if (REF_ARRAY.equals(type) || REF.equals(type) || REFBACK.equals(type)) {
           searchCondition =
               searchCondition.or(
                   createFiltersForSearch(
@@ -405,6 +427,7 @@ public class SqlGraphQuery extends Filter {
         return createOrdinalFilter(name, operator, toDateTimeArray(values));
       case REF:
       case REF_ARRAY:
+      case REFBACK:
       default:
         throw new SqlGraphQueryException(
             "Query failed",
