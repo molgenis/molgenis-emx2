@@ -144,6 +144,8 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  Decide to remove multi-column pkey
 *  multi-column ref is not yet reloadable (huge challenging bug, not sure whether we should support that)
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
+*  casdcading delete
+*  prevent issue with table or column name length
 
 ## helpfull notes
 
