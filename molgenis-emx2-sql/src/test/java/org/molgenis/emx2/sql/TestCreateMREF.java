@@ -22,7 +22,7 @@ public class TestCreateMREF {
 
   @BeforeClass
   public static void setup() {
-    db = DatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
@@ -99,8 +99,7 @@ public class TestCreateMREF {
 
     // add one sided many-to-many
     String refName = columnType + "refToA";
-    String joinTableName = "AB";
-    bTable.getMetadata().addMref(refName, "A", keyOfA, joinTableName);
+    bTable.getMetadata().addMref(refName, "A", keyOfA);
 
     //    String refReverseName = columnType + "refToB";
     // refReverseName, keyOfB

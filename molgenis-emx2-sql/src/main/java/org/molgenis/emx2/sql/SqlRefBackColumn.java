@@ -13,14 +13,10 @@ import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
 class SqlRefBackColumn extends SqlColumn {
   public SqlRefBackColumn(
-      SqlTableMetadata table,
-      String columnName,
-      String toTable,
-      String toColumn,
-      String viaColumn) {
+      SqlTableMetadata table, String columnName, String toTable, String toColumn, String mappedBy) {
     super(table, columnName, REFBACK);
     this.setReference(toTable, toColumn);
-    this.setJoinVia(viaColumn);
+    this.setMappedBy(mappedBy);
   }
 
   // will create a dummy array column matching the toColumn we will link to
@@ -65,7 +61,7 @@ class SqlRefBackColumn extends SqlColumn {
       }
 
       // get the via column which is also in the 'toTable'
-      String viaColumnName = this.getJoinViaName();
+      String viaColumnName = this.getMappedBy();
       if (viaColumnName == null) {
         throw new MolgenisException(
             "Create column failed",
@@ -206,12 +202,4 @@ class SqlRefBackColumn extends SqlColumn {
             name(schemaName, toTable.getTableName()),
             name(schemaName, insertOrUpdateTrigger));
   }
-
-  // insert and update trigger on 'toTable' to keep REFBACK updated
-  //    insertOrUpdateTrigger =
-  //            "1"
-  //            + viaColumn.getTable().getTableName()
-  //            + "_"
-  //                    + viaColumn.getName()
-  //                    + "_REFBACK_UPDATETRIGGER";
 }

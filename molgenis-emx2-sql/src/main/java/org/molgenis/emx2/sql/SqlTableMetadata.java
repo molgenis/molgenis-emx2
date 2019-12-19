@@ -137,6 +137,10 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata setPrimaryKey(String columnName) {
     long start = System.currentTimeMillis();
+    if (columnName == null)
+      throw new MolgenisException(
+          "Set primary key failed", "Primary key requires 1 however null was provided");
+    if (columnName.equals(getPrimaryKey())) return this;
     if (getInherit() != null)
       throw new MolgenisException(
           "Set primary key failed",
@@ -145,9 +149,7 @@ class SqlTableMetadata extends TableMetadata {
               + "' because inherits its primary key from other table '"
               + getInherit()
               + "'");
-    if (columnName == null)
-      throw new MolgenisException(
-          "Set primary key failed", "Primary key requires 1 however null was provided");
+
     db.tx(
         dsl -> {
           Name[] keyNames = Stream.of(columnName).map(DSL::name).toArray(Name[]::new);
@@ -227,17 +229,12 @@ class SqlTableMetadata extends TableMetadata {
                       metadata.getName(),
                       metadata.getRefTableName(),
                       metadata.getRefColumnName(),
-                      metadata.getJoinViaName());
+                      metadata.getMappedBy());
               break;
             case MREF:
               result =
                   addMref(
-                      metadata.getName(),
-                      metadata.getRefTableName(),
-                      metadata.getRefColumnName(),
-                      //                      metadata.getReverseRefTableName(),
-                      //                      metadata.getReverseRefColumn(),
-                      metadata.getJoinViaName());
+                      metadata.getName(), metadata.getRefTableName(), metadata.getRefColumnName());
               break;
             default:
               result = addColumn(metadata.getName(), metadata.getColumnType());
@@ -318,7 +315,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public Column addMref(String name, String refTable, String refColumn, String joinTable) {
+  public Column addMref(String name, String refTable, String refColumn) {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
@@ -327,8 +324,7 @@ class SqlTableMetadata extends TableMetadata {
                   this,
                   name,
                   refTable,
-                  refColumn == null ? getRefTablePrimaryKey(refTable) : refColumn,
-                  joinTable);
+                  refColumn == null ? getRefTablePrimaryKey(refTable) : refColumn);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();

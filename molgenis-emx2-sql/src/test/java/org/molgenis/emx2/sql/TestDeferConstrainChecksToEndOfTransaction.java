@@ -10,7 +10,7 @@ import java.util.UUID;
 import static junit.framework.TestCase.fail;
 
 public class TestDeferConstrainChecksToEndOfTransaction {
-  Database database = DatabaseFactory.getTestDatabase();
+  Database database = TestDatabaseFactory.getTestDatabase();
 
   public TestDeferConstrainChecksToEndOfTransaction() {}
 

@@ -267,14 +267,17 @@ public class SqlSchema implements Schema {
           // first pass
           for (TableMetadata table : tableList) {
             TableMetadata tm = this.getTable(table.getTableName()).getMetadata();
-            // non-link-back relations
-            for (Column c : table.getColumns()) {
+            if (table.getInherit() != null) tm.setInherit(table.getInherit());
+
+            // exclude link-back relations
+            for (Column c : table.getLocalColumns()) {
               if (!c.getColumnType().equals(REFBACK)) {
                 tm.addColumn(c);
+                if (c.isPrimaryKey() && table.getInherit() == null) tm.setPrimaryKey(c.getName());
               }
             }
+
             // table settings
-            if (table.getPrimaryKey() != null) tm.setPrimaryKey(table.getPrimaryKey());
             for (String[] unique : table.getUniques()) tm.addUnique(unique);
           }
           // second pass for all linkback relations
@@ -302,17 +305,18 @@ public class SqlSchema implements Schema {
             break;
           }
         }
-        for (Column c : current.getColumns()) {
-          if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
-            for (int j = 0; j < todo.size(); j++) {
-              // if depends on on in todo, than skip to next
-              if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
-                depends = true;
-                break;
+        if (!depends)
+          for (Column c : current.getLocalColumns()) {
+            if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
+              for (int j = 0; j < todo.size(); j++) {
+                // if depends on on in todo, than skip to next
+                if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
+                  depends = true;
+                  break;
+                }
               }
             }
           }
-        }
         if (!depends) {
           result.add(todo.get(i));
           todo.remove(i);

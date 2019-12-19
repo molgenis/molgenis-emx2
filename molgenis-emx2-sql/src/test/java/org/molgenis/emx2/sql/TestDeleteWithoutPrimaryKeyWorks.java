@@ -16,7 +16,7 @@ public class TestDeleteWithoutPrimaryKeyWorks {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    db = DatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

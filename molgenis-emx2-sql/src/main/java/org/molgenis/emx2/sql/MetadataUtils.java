@@ -241,7 +241,7 @@ public class MetadataUtils {
             column.getRefColumnName(),
             //            column.getReverseRefTableName(),
             //            column.getReverseRefColumn(),
-            column.getJoinViaName(),
+            column.getMappedBy(),
             column.getIndexed())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -251,7 +251,7 @@ public class MetadataUtils {
         .set(REF_COLUMN, column.getRefColumnName())
         //        .set(REVERSE_REF_TABLE, column.getReverseRefTableName())
         //        .set(REVERSE_REF_COLUMN, column.getReverseRefColumn())
-        .set(VIA_COLUMN, column.getJoinViaName())
+        .set(VIA_COLUMN, column.getMappedBy())
         .set(INDEXED, column.getIndexed())
         .execute();
   }
@@ -347,7 +347,7 @@ public class MetadataUtils {
               new SqlRefBackColumn(table, columnName, toTable, toColumn, viaColumn)
                   .loadNullable(nullable)
                   //  .loadReverseReference(reverseRefTable, reverseToColumn)
-                  .loadVia(viaColumn));
+                  .loadMappedBy(viaColumn));
           break;
         default:
           columnList.add(new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));

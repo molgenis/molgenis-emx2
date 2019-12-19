@@ -16,7 +16,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
 
   @BeforeClass
   public static void setUp() {
-    db = DatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

@@ -6,7 +6,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.sql.DatabaseFactory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public class TestImportExportEmx2DataAndMetadata {
 
   @BeforeClass
   public static void setup() {
-    database = DatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

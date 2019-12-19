@@ -17,9 +17,7 @@ public class Column {
   // relationships
   private String refTable;
   private String refColumn;
-  //  private String reverseRefTableName;
-  //  private String reverseRefColumn;
-  private String joinViaName;
+  private String mappedBy;
 
   public Column(TableMetadata table, String columnName, ColumnType columnType) {
     this.table = table;
@@ -60,14 +58,6 @@ public class Column {
   public String getRefTableName() {
     return this.refTable;
   }
-
-  //  public String getReverseRefTableName() {
-  //    return this.reverseRefTableName;
-  //  }
-  //
-  //  public String getReverseRefColumn() {
-  //    return this.reverseRefColumn;
-  //  }
 
   public Column getRefColumn() {
     if (getRefColumnName() == null) {
@@ -122,12 +112,12 @@ public class Column {
     this.defaultValue = defaultValue;
   }
 
-  public String getJoinViaName() {
-    return joinViaName;
+  public String getMappedBy() {
+    return mappedBy;
   }
 
-  public Column setJoinVia(String joinVia) {
-    this.joinViaName = joinVia;
+  public Column setMappedBy(String columnName) {
+    this.mappedBy = columnName;
     return this;
   }
 
@@ -139,19 +129,9 @@ public class Column {
 
   public Column setReference(String toTable, String toColumn, String via) {
     setReference(toTable, toColumn);
-    this.joinViaName = via;
+    this.mappedBy = via;
     return this;
   }
-
-  //  public Column setReverseReference(String reverseName) {
-  //    return this.setReverseReference(reverseName, null);
-  //  }
-  //
-  //  public Column setReverseReference(String reverseName, String reverseRefColumn) {
-  //    this.reverseRefTableName = reverseName;
-  //    this.reverseRefColumn = reverseRefColumn;
-  //    return this;
-  //  }
 
   public Column setIndexed(boolean indexed) {
     this.indexed = indexed;

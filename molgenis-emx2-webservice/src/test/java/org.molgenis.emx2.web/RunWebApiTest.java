@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.sql.DatabaseFactory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RunWebApiTest {
 
@@ -18,7 +18,7 @@ public class RunWebApiTest {
     dataSource.setPassword("molgenis");
 
     // setup
-    Database db = DatabaseFactory.getTestDatabase();
+    Database db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.createSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);

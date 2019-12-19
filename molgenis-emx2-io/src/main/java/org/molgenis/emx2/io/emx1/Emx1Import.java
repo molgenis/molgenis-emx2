@@ -50,7 +50,8 @@ public class Emx1Import {
     // update refEntity
     for (Emx1Attribute attribute : attributes) {
       if (attribute.getDataType().contains("ref")
-          || attribute.getDataType().contains("categorical")) {
+          || attribute.getDataType().contains("categorical")
+          || attribute.getDataType().contains("onetomany")) {
 
         TableMetadata table =
             schema.getTableMetadata(entities.get(attribute.getEntity()).getName());
@@ -64,9 +65,14 @@ public class Emx1Import {
                   + attribute.getName()
                   + "' failed. RefEntity was missing");
         }
-        table
-            .getColumn(attribute.getName())
-            .setReference(entities.get(attribute.getRefEntity()).getName(), null);
+
+        Column c =
+            table
+                .getColumn(attribute.getName())
+                .setReference(entities.get(attribute.getRefEntity()).getName(), null);
+        if (attribute.getMappedBy() != null) {
+          c.setMappedBy(attribute.getMappedBy());
+        }
       }
     }
   }
@@ -160,7 +166,6 @@ public class Emx1Import {
       case "enum": // todo
       case "file": // todo
       case "hyperlink":
-      case "one_to_many":
         return STRING; // todo
       case "text":
       case "html":
@@ -179,6 +184,8 @@ public class Emx1Import {
       case "xref":
       case "categorical":
         return REF;
+      case "onetomany":
+        return REFBACK;
       case "mref":
       case "categorical_mref":
         return REF_ARRAY; // todo: or should we use mref? but that is only in case of two sided

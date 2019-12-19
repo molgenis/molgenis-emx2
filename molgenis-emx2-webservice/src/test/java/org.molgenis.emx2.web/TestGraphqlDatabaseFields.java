@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.sql.DatabaseFactory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.IOException;
 
@@ -22,7 +22,7 @@ public class TestGraphqlDatabaseFields {
 
   @BeforeClass
   public static void setup() {
-    Database database = DatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.createSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     grapql = GraphqlApi.createGraphqlForDatabase(database);

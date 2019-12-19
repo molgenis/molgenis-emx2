@@ -11,12 +11,12 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 
-public class DatabaseFactory {
+public class TestDatabaseFactory {
 
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
 
-  private DatabaseFactory() {
+  private TestDatabaseFactory() {
     // to hide the public constructor
   }
 
@@ -26,7 +26,7 @@ public class DatabaseFactory {
       // setup local Jooq
       jooq = DSL.using(source, SQLDialect.POSTGRES_10);
 
-      // delete all
+      // delete all, only for test databases
       deleteAll();
 
       // get fresh database

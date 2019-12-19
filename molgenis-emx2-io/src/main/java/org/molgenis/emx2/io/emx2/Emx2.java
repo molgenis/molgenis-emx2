@@ -243,12 +243,12 @@ public class Emx2 {
               column.getColumnType().toString().toLowerCase(),
               column.getRefTableName(),
               column.getRefColumnName(),
-              column.getJoinViaName());
+              column.getMappedBy());
         } else {
           def.add(
               column.getColumnType().toString().toLowerCase(),
               column.getRefTableName(),
-              column.getJoinViaName());
+              column.getMappedBy());
         }
         break;
       default:

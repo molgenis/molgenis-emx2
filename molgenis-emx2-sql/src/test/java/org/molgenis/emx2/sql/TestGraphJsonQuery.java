@@ -16,7 +16,7 @@ public class TestGraphJsonQuery {
 
   @BeforeClass
   public static void setup() {
-    db = DatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
 
     schema = db.createSchema("TestJsonQuery");
 

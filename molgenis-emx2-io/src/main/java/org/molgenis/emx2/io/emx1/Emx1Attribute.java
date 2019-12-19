@@ -19,6 +19,7 @@ public class Emx1Attribute {
   private String partOfAttribute;
   private String refEntity;
   private String expression;
+  private String mappedBy;
   private Integer rangeMin;
   private Integer rangeMax;
 
@@ -39,6 +40,7 @@ public class Emx1Attribute {
     this.defaultValue = get(row, "defaultValue");
     this.partOfAttribute = get(row, "partOfAttribute");
     this.refEntity = get(row, "refEntity");
+    this.mappedBy = get(row, "mappedBy");
     this.expression = get(row, "expression");
     this.rangeMax = row.getInteger("rangeMax");
     this.rangeMin = row.getInteger("rangeMi");
@@ -124,5 +126,9 @@ public class Emx1Attribute {
 
   public String getVisibleExpression() {
     return visibleExpression;
+  }
+
+  public String getMappedBy() {
+    return mappedBy;
   }
 }

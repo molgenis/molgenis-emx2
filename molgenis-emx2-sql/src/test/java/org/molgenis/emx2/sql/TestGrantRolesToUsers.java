@@ -20,7 +20,7 @@ public class TestGrantRolesToUsers {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    database = DatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

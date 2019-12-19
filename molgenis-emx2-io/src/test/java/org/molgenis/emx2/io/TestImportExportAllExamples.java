@@ -10,7 +10,7 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.examples.synthetic.*;
-import org.molgenis.emx2.sql.DatabaseFactory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 
@@ -23,7 +23,7 @@ public class TestImportExportAllExamples {
 
   @BeforeClass
   public static void setup() {
-    db = DatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

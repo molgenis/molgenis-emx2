@@ -6,7 +6,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
-import org.molgenis.emx2.sql.DatabaseFactory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.File;
 
@@ -17,7 +17,7 @@ public class TestLegacyImport {
 
   @BeforeClass
   public static void setup() {
-    db = DatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

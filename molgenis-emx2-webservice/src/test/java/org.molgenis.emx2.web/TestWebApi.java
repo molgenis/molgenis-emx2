@@ -11,7 +11,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.sql.DatabaseFactory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,7 +44,7 @@ public class TestWebApi {
     dataSource.setPassword("molgenis");
 
     // setup test schema
-    Database db = DatabaseFactory.getTestDatabase(dataSource);
+    Database db = TestDatabaseFactory.getTestDatabase(dataSource);
     Schema schema = db.createSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);

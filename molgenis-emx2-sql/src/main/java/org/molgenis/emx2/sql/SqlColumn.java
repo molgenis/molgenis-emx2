@@ -5,11 +5,9 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.REF;
 
 public class SqlColumn extends Column {
   public SqlColumn(SqlTableMetadata table, String columnName, ColumnType columnColumnType) {
@@ -61,27 +59,6 @@ public class SqlColumn extends Column {
     return this;
   }
 
-  //  @Override
-  //  public Column setReverseReference(String reverseColumnName, String reverseRefColumn) {
-  //    TableMetadata otherTable = getTable().getSchema().getTableMetadata(getRefViaName());
-  //    if (otherTable == null) {
-  //      throw new MolgenisException(
-  //          "Set reverse reference failed",
-  //          "Reference back from column '" + getName() + "' failed because RefTableName was not
-  // set");
-  //    }
-  //
-  //    // in case of REF we must create the refBack columnn
-  //    if (REF.equals(getColumnType())) {
-  //      otherTable.addRefBack(
-  //          reverseColumnName, getTable().getTableName(), reverseRefColumn, getName());
-  //    }
-  //
-  //    // update state
-  //    super.setReverseReference(reverseColumnName, reverseRefColumn);
-  //    return this;
-  //  }
-
   // helper methods
   private org.jooq.Table asJooqTable() {
     return table(name(getTable().getSchema().getName(), getTable().getTableName()));
@@ -96,13 +73,8 @@ public class SqlColumn extends Column {
     return this;
   }
 
-  //  protected SqlColumn loadReverseReference(String reverseRefTable, String reverseToColumn) {
-  //    super.setReverseReference(reverseRefTable, reverseToColumn);
-  //    return this;
-  //  }
-
-  protected SqlColumn loadVia(String via) {
-    super.setJoinVia(via);
+  protected SqlColumn loadMappedBy(String columnName) {
+    super.setMappedBy(columnName);
     return this;
   }
 
@@ -110,7 +82,8 @@ public class SqlColumn extends Column {
     return getTable().getSchema().getTableMetadata(getRefTableName());
   }
 
-  public TableMetadata getJoinTable() {
-    return getTable().getSchema().getTableMetadata(getJoinViaName());
+  public String getJoinTableName() {
+    // todo might be too long, i.e. 64 chars
+    return "MREF_" + getTable().getTableName() + "_" + getName();
   }
 }

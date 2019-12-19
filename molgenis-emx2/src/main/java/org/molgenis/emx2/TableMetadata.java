@@ -140,13 +140,6 @@ public class TableMetadata {
     return this.addMref(name, refTable, refColumn);
   }
 
-  public Column addMref(String name, String refTable, String refColumn, String joinTableName) {
-    Column c =
-        new Column(this, name, MREF).setReference(refTable, refColumn).setJoinVia(joinTableName);
-    this.addColumn(c);
-    return c;
-  }
-
   public void removeColumn(String name) {
     columns.remove(name);
   }

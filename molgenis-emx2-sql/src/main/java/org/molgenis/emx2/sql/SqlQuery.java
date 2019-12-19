@@ -142,7 +142,7 @@ public class SqlQuery extends QueryBean implements Query {
 
   private static SelectJoinStep createMrefJoin(
       SelectJoinStep fromStep, String tableAlias, Column fkey, String leftAlias) {
-    String joinTable = fkey.getJoinViaName();
+    String joinTable = fkey.getMappedBy();
 
     // to link table
     fromStep =
@@ -185,21 +185,23 @@ public class SqlQuery extends QueryBean implements Query {
   }
 
   private static Field<Object[]> createMrefSubselect(SqlColumn column, String tableAlias) {
-    String via = column.getJoinViaName();
+    String via = column.getMappedBy();
 
-    Column reverseColumn = null;
-    for (Column c : column.getJoinTable().getColumns()) {
-      if (c.getRefTableName().equals(column.getTable().getTableName())) {
-        reverseColumn = c;
+    Column reverseToColumn = column.getTable().getPrimaryKeyColumn();
+    // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
+    // mappedBy
+    for (Column c : column.getRefTable().getColumns()) {
+      if (column.getName().equals(c.getMappedBy())) {
+        reverseToColumn = c;
         break;
       }
     }
     return PostgresDSL.array(
-        DSL.select(field(name(column.getJoinViaName(), column.getName())))
-            .from(name(column.getTable().getSchema().getName(), column.getJoinViaName()))
+        DSL.select(field(name(column.getJoinTableName(), column.getName())))
+            .from(name(column.getTable().getSchema().getName(), column.getJoinTableName()))
             .where(
-                field(name(column.getJoinViaName(), reverseColumn.getRefColumnName()))
-                    .eq(field(name(tableAlias, reverseColumn.getRefColumnName())))));
+                field(name(column.getJoinTableName(), reverseToColumn.getName()))
+                    .eq(field(name(tableAlias, reverseToColumn.getName())))));
   }
 
   private static Condition createFilterConditions(
