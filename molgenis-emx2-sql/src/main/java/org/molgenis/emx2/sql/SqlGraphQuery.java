@@ -120,8 +120,8 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Select createSubselect(
-      SqlTableMetadata fromTable,
-      String fromAlias,
+      SqlTableMetadata table,
+      String tableAlias,
       SelectColumn select,
       Filter filter,
       String aggregationFunction,
@@ -130,16 +130,16 @@ public class SqlGraphQuery extends Filter {
 
     // fields
     SelectJoinStep from =
-        fromTable
+        table
             .getJooq()
-            .select(createSelectionFields(fromTable, fromAlias, select, filter))
-            .from(getJooqTable(fromTable, fromAlias));
+            .select(createSelectionFields(table, tableAlias, select, filter))
+            .from(getJooqTable(table, tableAlias));
 
     // add user filter conditions to any parent filter
-    conditions = createFiltersForColumns(conditions, fromTable, filter);
+    conditions = createFiltersForColumns(conditions, table, filter);
 
     // add to that search filters, only for 'root' query having the search fields
-    conditions = addSearchConditions(fromTable, fromAlias, select, filter, conditions);
+    conditions = addSearchConditions(table, tableAlias, select, filter, conditions);
 
     // add the filter conditions to the query
     SelectConditionStep<Record> where = from.where(conditions);
@@ -153,7 +153,11 @@ public class SqlGraphQuery extends Filter {
       return where;
     } else {
       // create the aggregation of the subselect, e.g. into count or json
-      return fromTable.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
+      return table
+          .getJooq()
+          .select(field(aggregationFunction))
+          .from(table(where).as(ITEM))
+          .where(createConditionsForRefs(condition("1=1"), table, filter));
     }
   }
 
@@ -191,7 +195,7 @@ public class SqlGraphQuery extends Filter {
             || REFBACK.equals(column.getColumnType())) {
           fields.add(
               createSelectionFieldForRef(
-                  column,
+                  (SqlColumn) column,
                   tableAlias,
                   select != null ? select.get(column.getName()) : null,
                   getFilterForRef(filter, column)));
@@ -281,9 +285,15 @@ public class SqlGraphQuery extends Filter {
     Select aggregateQuery;
     if (groupBy.size() > 0) {
       aggregateQuery =
-          jooq.select(fields).from(table(source).as("aggs")).where(conditions).groupBy(groupBy);
+          jooq.select(fields)
+              .from(table(source).as("aggs"))
+              .where(createConditionsForRefs(condition("1=1"), table, filter))
+              .groupBy(groupBy);
     } else {
-      aggregateQuery = jooq.select(fields).from(table(source).as("aggs")).where(conditions);
+      aggregateQuery =
+          jooq.select(fields)
+              .from(table(source).as("aggs"))
+              .where(createConditionsForRefs(condition("1=1"), table, filter));
     }
     return field(
         jooq.select(field("json_strip_nulls(row_to_json(agg_item))"))
@@ -291,7 +301,7 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Field createSelectionFieldForRef(
-      Column column, String tableAlias, SelectColumn select, Filter filter) {
+      SqlColumn column, String tableAlias, SelectColumn select, Filter filter) {
     if (select == null) select = new SelectColumn(column.getName());
     if (!select.has(column.getRefColumnName())) {
       select.select(column.getRefColumnName());
@@ -308,7 +318,8 @@ public class SqlGraphQuery extends Filter {
                       .eq(field(name(tableAlias, column.getName()))),
                   false))
           .as(column.getName());
-    } else {
+    }
+    if (REF_ARRAY.equals(column.getColumnType())) {
       // REFARRAY or REFBACK
       return field(
               createSubselect(
@@ -323,7 +334,22 @@ public class SqlGraphQuery extends Filter {
                       field(name(tableAlias, column.getName()))),
                   true))
           .as(column.getName());
+    } else if (REFBACK.equals(column.getColumnType())) {
+      return field(
+              createSubselect(
+                  getRefTable(column),
+                  tableAlias + "/" + column.getName(),
+                  select,
+                  filter,
+                  JSON_AGG_SQL,
+                  field(name(column.getMappedByColumn().getName()))
+                      .eq(field(name(tableAlias, column.getMappedByColumn().getRefColumnName()))),
+                  true))
+          .as(column.getName());
     }
+    throw new SqlGraphQueryException(
+        "Internal error",
+        "For column " + column.getTable().getTableName() + "." + column.getName());
   }
 
   private static SelectJoinStep createJoins(
@@ -353,7 +379,7 @@ public class SqlGraphQuery extends Filter {
     return step;
   }
 
-  private static Condition createFiltersForColumns(
+  private static Condition createConditionsForRefs(
       Condition condition, TableMetadata table, Filter filter) {
     if (filter == null) return condition;
     for (Column column : table.getLocalColumns()) {
@@ -364,6 +390,23 @@ public class SqlGraphQuery extends Filter {
           // check that subtree exists
           // TODO for REF_ARRAY and REFBACK consider filters on the subtree!
           condition = condition.and(field(name(column.getName())).isNotNull());
+        }
+      }
+    }
+    return condition;
+  }
+
+  private static Condition createFiltersForColumns(
+      Condition condition, TableMetadata table, Filter filter) {
+    if (filter == null) return condition;
+    for (Column column : table.getLocalColumns()) {
+      Filter f = getFilterForRef(filter, column);
+      if (f != null) {
+        ColumnType type = column.getColumnType();
+        if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+          // check that subtree exists
+          // TODO for REF_ARRAY and REFBACK consider filters on the subtree!
+          // condition = condition.and(field(name(column.getName())).isNotNull());
         } else {
           // add the column filter(s)
           for (Map.Entry<org.molgenis.emx2.Operator, Object[]> entry :

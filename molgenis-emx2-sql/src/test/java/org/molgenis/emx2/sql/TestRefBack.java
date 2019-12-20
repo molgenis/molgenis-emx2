@@ -23,6 +23,9 @@ public class TestRefBack {
   }
 
   @Test
+  public void restRefArrayBack() {}
+
+  @Test
   public void testRefBack() {
 
     Table users = schema.createTableIfNotExists("User");
@@ -48,7 +51,7 @@ public class TestRefBack {
     // add another post for jack, now the 'posts' should be updated also
     posts.insert(new Row().set("title", "jacks post").set("user", "jack"));
 
-    // check, should now have two posts in posts array
+    // check select on posts
     assertEquals(
         2,
         users
@@ -59,12 +62,18 @@ public class TestRefBack {
             .getStringArray("posts")
             .length);
 
-    // check query
+    // check filter on posts
     assertEquals(1, users.query().where("posts", EQUALS, "jacks post").retrieve().size());
 
     // check graph query
     SqlGraphQuery query = new SqlGraphQuery(users).select(s("data_agg", s("count")));
     assertTrue(query.retrieve().contains("\"count\":2"));
+
+    query =
+        new SqlGraphQuery(users)
+            .select(s("data", s("username"), s("posts", s("title"))))
+            .filter(f("posts", f("title").is("jacks post")));
+    assertTrue(query.retrieve().contains("jacks post"));
 
     query =
         new SqlGraphQuery(users)

@@ -151,7 +151,7 @@ public class TestGraphqSchemaFields {
     assertEquals(
         "red",
         execute("{Pet(filter:{tags:{name:{equals:\"red\"}}}){data{name,tags{name}}}}")
-            .at("/Pet/data/1/tags/0/name")
+            .at("/Pet/data/0/tags/0/name")
             .textValue());
 
     // root agg

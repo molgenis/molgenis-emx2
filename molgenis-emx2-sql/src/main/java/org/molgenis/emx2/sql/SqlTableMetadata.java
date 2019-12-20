@@ -240,7 +240,7 @@ class SqlTableMetadata extends TableMetadata {
               result = addColumn(metadata.getName(), metadata.getColumnType());
           }
           result.setDescription(metadata.getDescription());
-          result.setNullable(metadata.getNullable());
+          result.setNullable(metadata.isNullable());
           result.setDefaultValue(metadata.getDefaultValue());
         });
     log(start, "added column '" + metadata.getName() + "' to ");

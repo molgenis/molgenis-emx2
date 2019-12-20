@@ -254,7 +254,7 @@ public class Emx2 {
       default:
         def.add(column.getColumnType().toString().toLowerCase());
     }
-    if (Boolean.TRUE.equals(column.getNullable())) def.add("nullable");
+    if (Boolean.TRUE.equals(column.isNullable())) def.add("nullable");
     if (Boolean.TRUE.equals(column.getReadonly())) def.add("readonly");
     if (Boolean.TRUE.equals(column.isPrimaryKey())) def.add("pkey");
     if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");

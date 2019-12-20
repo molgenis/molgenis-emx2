@@ -35,7 +35,7 @@ public class SqlColumn extends Column {
     if (nillable)
       getJooq().alterTable(asJooqTable()).alterColumn(getName()).dropNotNull().execute();
     else getJooq().alterTable(asJooqTable()).alterColumn(getName()).setNotNull().execute();
-    super.setNullable(getNullable());
+    super.setNullable(isNullable());
     return this;
   }
 
@@ -85,5 +85,9 @@ public class SqlColumn extends Column {
   public String getJoinTableName() {
     // todo might be too long, i.e. 64 chars
     return "MREF_" + getTable().getTableName() + "_" + getName();
+  }
+
+  protected SqlColumn getMappedByColumn() {
+    return (SqlColumn) getRefTable().getColumn(getMappedBy());
   }
 }

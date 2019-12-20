@@ -22,7 +22,7 @@ public class Column {
     this.columnType = column.getColumnType();
     this.refTableName = column.getRefTableName();
     this.refColumnName = column.getRefColumnName();
-    this.nullable = column.getNullable();
+    this.nullable = column.isNullable();
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {

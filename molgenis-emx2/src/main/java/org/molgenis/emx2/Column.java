@@ -87,7 +87,7 @@ public class Column {
     this.readonly = readonly;
   }
 
-  public Boolean getNullable() {
+  public Boolean isNullable() {
     return nullable;
   }
 
@@ -198,7 +198,7 @@ public class Column {
     else if (ColumnType.MREF.equals(getColumnType()))
       builder.append("mref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());
-    if (Boolean.TRUE.equals(getNullable())) builder.append(" nullable");
+    if (Boolean.TRUE.equals(isNullable())) builder.append(" nullable");
     return builder.toString();
   }
 }

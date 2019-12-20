@@ -24,7 +24,7 @@ public class SqlQuery extends QueryBean implements Query {
   private static Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
   // tables that have selected fields so need to be included in the join
-  private Map<String, Column> tableAliases = new TreeMap<>();
+  private Map<String, SqlColumn> tableAliases = new TreeMap<>();
 
   public SqlQuery(SqlTableMetadata from) {
     this.from = from;
@@ -86,19 +86,20 @@ public class SqlQuery extends QueryBean implements Query {
                 .as(name(from.getTableName())));
 
     // join the tables for all paths beyond primary 'from' table
-    for (Map.Entry<String, Column> tableAlias : tableAliases.entrySet()) {
+    for (Map.Entry<String, SqlColumn> tableAlias : tableAliases.entrySet()) {
       String[] path = getPath(tableAlias.getKey());
       if (path.length > 1) { // ignore the 'from'
-        Column fkey = tableAlias.getValue();
+        SqlColumn fkey = tableAlias.getValue();
         String leftAlias = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
         switch (fkey.getColumnType()) {
           case REF:
             fromStep = createRefJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
           case REF_ARRAY:
-          case REFBACK:
             fromStep = createRefArrayJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
+          case REFBACK:
+            fromStep = createRefbackJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
           case MREF:
             fromStep = createMrefJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
@@ -184,9 +185,25 @@ public class SqlQuery extends QueryBean implements Query {
     return fromStep;
   }
 
-  private static Field<Object[]> createMrefSubselect(SqlColumn column, String tableAlias) {
-    String via = column.getMappedBy();
+  private SelectJoinStep createRefbackJoin(
+      SelectJoinStep fromStep, String tableAlias, SqlColumn fkey, String leftAlias) {
+    Column mappedBy = fkey.getMappedByColumn();
+    switch (mappedBy.getColumnType()) {
+      case REF:
+        return fromStep
+            .leftJoin(
+                table(name(fkey.getTable().getSchema().getName(), fkey.getRefTableName()))
+                    .as(name(tableAlias)))
+            .on(
+                field(name(leftAlias, mappedBy.getName()))
+                    .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
+    }
+    throw new MolgenisException(
+        "Internal error",
+        "Unsupported refback type for column '" + fkey.getName() + "' createRefBackJoin");
+  }
 
+  private static Field<Object[]> createMrefSubselect(SqlColumn column, String tableAlias) {
     Column reverseToColumn = column.getTable().getPrimaryKeyColumn();
     // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
     // mappedBy
@@ -204,8 +221,8 @@ public class SqlQuery extends QueryBean implements Query {
                     .eq(field(name(tableAlias, reverseToColumn.getName())))));
   }
 
-  private static Condition createFilterConditions(
-      TableMetadata from, List<Where> whereList, Map<String, Column> tableAliases) {
+  private Condition createFilterConditions(
+      TableMetadata from, List<Where> whereList, Map<String, SqlColumn> tableAliases) {
     Condition conditions = null;
     for (Where w : whereList) {
       Condition newCondition;
@@ -221,8 +238,8 @@ public class SqlQuery extends QueryBean implements Query {
     return conditions;
   }
 
-  private static Condition createFilterCondition(
-      Where w, TableMetadata from, Map<String, Column> tableAliases) {
+  private Condition createFilterCondition(
+      Where w, TableMetadata from, Map<String, SqlColumn> tableAliases) {
 
     // in case of field operator
     String[] path = getPath(w.getPath());
@@ -231,13 +248,13 @@ public class SqlQuery extends QueryBean implements Query {
       tableAliasBuilder.append(
           "/" + String.join("/", Arrays.copyOfRange(path, 0, path.length - 1)));
     }
-    Name selector = name(tableAliasBuilder.toString(), path[path.length - 1]);
+    String tableAlias = tableAliasBuilder.toString();
+    Name selector = name(tableAlias, path[path.length - 1]);
     switch (w.getOperator()) {
       case EQUALS:
         SqlColumn column = getColumn(from, path, tableAliasBuilder, tableAliases);
         ColumnType type = column.getColumnType();
         if (REF_ARRAY.equals(type)
-            || REFBACK.equals(type)
             || STRING_ARRAY.equals(type)
             || INT_ARRAY.equals(type)
             || DECIMAL_ARRAY.equals(type)
@@ -248,15 +265,28 @@ public class SqlQuery extends QueryBean implements Query {
             || UUID_ARRAY.equals(type)) {
           return condition(
               "{0} && {1}", SqlTypeUtils.getTypedValue(w.getValues(), column), field(selector));
+        } else if (REFBACK.equals(type)) {
+          SqlColumn mappedBy = column.getMappedByColumn();
+          String tableName = mappedBy.getTable().getTableName();
+          String schemaName = mappedBy.getTable().getSchema().getName();
+          switch (mappedBy.getColumnType()) {
+            case REF:
+              // subselect on on the other table with link to this
+              return condition(
+                  "{0} && {1}",
+                  SqlTypeUtils.getTypedValue(w.getValues(), column),
+                  PostgresDSL.array(createBackrefSubselect(column, tableAlias)));
+          }
         } else if (MREF.equals(type)) {
           return condition(
               "{0} && {1}",
               SqlTypeUtils.getTypedValue(w.getValues(), column),
-              createMrefSubselect(column, tableAliasBuilder.toString()));
+              createMrefSubselect(column, tableAlias));
         } else {
           Object[] values = w.getValues();
-          for (int i = 0; i < values.length; i++)
+          for (int i = 0; i < values.length; i++) {
             values[i] = SqlTypeUtils.getTypedValue(values[i], column);
+          }
           return field(selector).in(values);
         }
       default:
@@ -266,7 +296,7 @@ public class SqlQuery extends QueryBean implements Query {
   }
 
   private static Condition createSearchConditions(
-      List<String> searchList, Map<String, Column> tableAliases) {
+      List<String> searchList, Map<String, SqlColumn> tableAliases) {
     if (searchList.isEmpty()) return null;
     String search = String.join("|", searchList);
     Condition searchCondition = null;
@@ -292,10 +322,10 @@ public class SqlQuery extends QueryBean implements Query {
       TableMetadata t,
       String[] path,
       StringBuilder tableAliasBuilder,
-      Map<String, Column> tableAliases) {
+      Map<String, SqlColumn> tableAliases) {
 
     // table Alias builder might be null when getColumn us used in the 'from' clause
-    Column c = t.getColumn(path[0]);
+    SqlColumn c = (SqlColumn) t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(
           "Query failed", "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
@@ -306,11 +336,11 @@ public class SqlQuery extends QueryBean implements Query {
       String tableName = c.getTable().getTableName();
       while (!tableName.equals(t.getTableName())) {
         tableAliasBuilder.append("/" + t.getPrimaryKey());
-        tableAliases.put(tableAliasBuilder.toString(), t.getColumn(t.getPrimaryKey()));
+        tableAliases.put(tableAliasBuilder.toString(), (SqlColumn) t.getPrimaryKeyColumn());
         t = t.getInheritedTable();
       }
 
-      return (SqlColumn) c;
+      return c;
     } else {
       tableAliasBuilder.append("/" + path[0]);
       tableAliases.put(tableAliasBuilder.toString(), c);
@@ -327,10 +357,23 @@ public class SqlQuery extends QueryBean implements Query {
   private Field getFieldForColumn(SqlColumn column, String tableAlias, String columnAlias) {
     if (MREF.equals(column.getColumnType())) {
       return createMrefSubselect(column, tableAlias).as(columnAlias);
+    } else if (REFBACK.equals(column.getColumnType())) {
+      return PostgresDSL.array(createBackrefSubselect(column, tableAlias)).as(column.getName());
     } else {
       return field(name(tableAlias, column.getName()), SqlTypeUtils.jooqTypeOf(column))
           .as(columnAlias);
     }
+  }
+
+  private SelectConditionStep createBackrefSubselect(SqlColumn column, String tableAlias) {
+    SqlColumn mappedBy = column.getMappedByColumn();
+    //      switch (mappedBy.getColumnType()) {
+    //        case REF:
+    return DSL.select(field(name(column.getRefColumnName())))
+        .from(name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
+        .where(
+            field(name(mappedBy.getTable().getTableName(), mappedBy.getName()))
+                .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
   }
 
   private DSLContext getJooq() {

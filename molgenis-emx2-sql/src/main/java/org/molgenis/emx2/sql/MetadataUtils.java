@@ -236,7 +236,7 @@ public class MetadataUtils {
             column.getTable().getTableName(),
             column.getName(),
             column.getColumnType(),
-            column.getNullable(),
+            column.isNullable(),
             column.getRefTableName(),
             column.getRefColumnName(),
             //            column.getReverseRefTableName(),
@@ -246,7 +246,7 @@ public class MetadataUtils {
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
-        .set(NULLABLE, column.getNullable())
+        .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
         //        .set(REVERSE_REF_TABLE, column.getReverseRefTableName())
