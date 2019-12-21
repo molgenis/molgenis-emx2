@@ -87,6 +87,10 @@ public class SqlColumn extends Column {
     return "MREF_" + getTable().getTableName() + "_" + getName();
   }
 
+  public String getTableName() {
+    return getTable().getTableName();
+  }
+
   protected SqlColumn getMappedByColumn() {
     return (SqlColumn) getRefTable().getColumn(getMappedBy());
   }

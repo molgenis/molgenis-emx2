@@ -7,6 +7,8 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
+import java.util.List;
+
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.sql.Filter.f;
@@ -23,7 +25,94 @@ public class TestRefBack {
   }
 
   @Test
-  public void restRefArrayBack() {}
+  public void restRefArrayBack() {
+
+    Table parts = schema.createTableIfNotExists("Parts");
+    parts.getMetadata().addColumn("partname").primaryKey();
+
+    Table products = schema.createTableIfNotExists("Products");
+    products.getMetadata().addColumn("productname").primaryKey();
+    products.getMetadata().addRefArray("parts", "Parts");
+
+    parts.getMetadata().addRefBack("products", "Products", "parts");
+
+    parts.insert(new Row().set("partname", "smallscreen"));
+    parts.insert(new Row().set("partname", "bigscreen"));
+    parts.insert(new Row().set("partname", "smallbutton"));
+    parts.insert(new Row().set("partname", "battery"));
+
+    // ref_array entry via 'products', business as usual
+    products.insert(
+        new Row()
+            .set("productname", "smallphone")
+            .set("parts", new String[] {"smallscreen", "smallbutton"}));
+
+    // refback entry update, i.e. via 'products'
+    products.insert(new Row().set("productname", "bigphone"));
+
+    // update
+    parts.update(
+        new Row().set("partname", "bigscreen").set("products", "bigphone"),
+        new Row()
+            .set("partname", "battery")
+            .set("products", new String[] {"smallphone", "bigphone"}));
+
+    // via insert
+    parts.update(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
+
+    List<Row> pTest = products.retrieve();
+    assertEquals(2, pTest.size());
+    assertEquals("smallphone", pTest.get(0).getString("productname"));
+    assertEquals(4, products.retrieve().get(0).getStringArray("parts").length);
+
+    SqlGraphQuery query =
+        new SqlGraphQuery(products)
+            .select(
+                s("data", s("productname"), s("parts", s("partname")), s("parts_agg", s("count"))));
+    System.out.println(query.retrieve());
+    query =
+        new SqlGraphQuery(parts)
+            .select(
+                s(
+                    "data",
+                    s("partname"),
+                    s("products", s("productname")),
+                    s("products_agg", s("count"))));
+    System.out.println(query.retrieve());
+
+    query = new SqlGraphQuery(parts).select(s("data_agg", s("count")));
+    assertTrue(query.retrieve().contains("\"count\":5"));
+
+    query = new SqlGraphQuery(products).select(s("data_agg", s("count")));
+    assertTrue(query.retrieve().contains("\"count\":2"));
+
+    query =
+        new SqlGraphQuery(products)
+            .select(s("data", s("parts_agg", s("count"))))
+            .filter(f("productname").is("bigphone"));
+
+    assertTrue(query.retrieve().contains("\"count\":3"));
+
+    query =
+        new SqlGraphQuery(parts)
+            .select(s("data", s("products_agg", s("count"))))
+            .filter(f("partname").is("battery"));
+
+    assertTrue(query.retrieve().contains("\"count\":2"));
+
+    query = new SqlGraphQuery(products).select(s("data", s("parts", s("name"))));
+    System.out.println(query.retrieve());
+
+    // delete
+    parts.delete(new Row().set("partname", "headphones"));
+    assertEquals(3, products.retrieve().get(0).getStringArray("parts").length);
+
+    // delete
+    products.delete(new Row().set("productname", "bigphone"));
+
+    // check
+    assertEquals(1, products.retrieve().size());
+  }
 
   @Test
   public void testRefBack() {

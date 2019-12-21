@@ -2,8 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.Name;
 
-import static org.jooq.impl.DSL.keyword;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
@@ -27,58 +26,74 @@ public class SqlRefArrayColumn extends SqlColumn {
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
   private void createIsReferencedByTrigger() {
-    Name triggerName = getTriggerName("REFERENCED_BY");
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
     Name thisColumn = name(getName());
     Name toColumn = name(getRefColumnName());
 
-    Name functionName =
+    Name updateTrigger =
         name(
             getTable().getSchema().getName(),
-            getTable().getTableName() + "_" + getName() + "_REF_ARRAY_TRIGGER2");
+            getRefTableName() + "_" + getRefColumnName() + "_UPDTRIGGER");
 
-    // createTableIfNotExists the function
+    Name deleteTrigger =
+        name(
+            getTable().getSchema().getName(),
+            getRefTableName() + "_" + getRefColumnName() + "_DELTRIGGER");
+
+    // in case of update of other end cascade
+    getJooq()
+        .execute(
+            "CREATE FUNCTION {0}() RETURNS trigger AS"
+                + "\n$BODY$"
+                + "\n\tBEGIN"
+                + "\n\tUPDATE {1} SET {3}=ARRAY_REPLACE({3}, OLD.{2}, NEW.{2}) WHERE OLD.{2} != NEW.{2} AND OLD.{2} = ANY ({3});"
+                + "\n\tRETURN NEW;"
+                + "\nEND;"
+                + "\n$BODY$ LANGUAGE plpgsql;",
+            updateTrigger, thisTable, toColumn, thisColumn);
+
+    // createTableIfNotExists the trigger
+    getJooq()
+        .execute(
+            "CREATE CONSTRAINT TRIGGER {0} "
+                + "\n\tAFTER UPDATE OF {1} ON {2} "
+                + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
+                + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+            name(getRefColumnName() + "_UPDATE"), toColumn, toTable, updateTrigger);
+
+    // in case of delete should fail if still pointed to
     getJooq()
         .execute(
             "CREATE FUNCTION {0}() RETURNS trigger AS"
                 + "\n$BODY$"
                 + "\n\tBEGIN"
                 + "\n\tIF(EXISTS(SELECT * from {1} WHERE OLD.{2} = ANY({3}) ) ) THEN "
-                + "RAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'update or delete on table "
-                + toTable.unqualifiedName().toString()
-                + " violates foreign key constraint "
-                + triggerName.unqualifiedName().toString()
-                + " on table "
-                + thisTable.unqualifiedName().toString()
-                + ""
-                + "', DETAIL = 'Key ("
-                + toColumn.unqualifiedName().toString()
-                + ")=('|| OLD.{2} ||') is still referenced from table "
-                + thisTable.unqualifiedName().toString()
-                + "';"
+                + "RAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'update or delete on table {4} violates foreign key constraint on table {5}'"
+                + " , DETAIL = 'Key ({6})=('|| OLD.{2} ||') is still referenced from table {5}';"
                 + "\n\tEND IF;"
                 + "\n\tRETURN NEW;"
                 + "\nEND;"
                 + "\n$BODY$ LANGUAGE plpgsql;",
-            functionName,
+            deleteTrigger,
             thisTable,
             toColumn,
-            thisColumn);
+            thisColumn,
+            inline(getRefTableName()),
+            inline(getTableName()),
+            inline(getRefColumnName()));
 
-    // createTableIfNotExists the trigger
     getJooq()
         .execute(
             "CREATE CONSTRAINT TRIGGER {0} "
-                + "\n\tAFTER UPDATE OR DELETE ON {1} "
+                + "\n\tAFTER DELETE ON {1} "
                 + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-            triggerName, toTable, functionName);
+            name(getRefColumnName() + "_DELETE"), toTable, updateTrigger);
   }
 
   /** trigger on this column to check if foreign key exists */
   private void createReferenceExistsTrigger() {
-    Name triggerName = getTriggerName("REFERENCES_EXISTS");
     Name thisTable = name(getTable().getSchema().getName(), getTable().getTableName());
     Name thisColumn = name(getName());
     Name toTable = name(getTable().getSchema().getName(), getRefTableName());
@@ -87,7 +102,7 @@ public class SqlRefArrayColumn extends SqlColumn {
     Name functionName =
         name(
             getTable().getSchema().getName(),
-            getTable().getTableName() + "_" + getName() + "_REF_ARRAY_TRIGGER");
+            getTable().getTableName() + "_" + getName() + "_UPDATETRIGGER");
 
     // createTableIfNotExists the function
     getJooq()
@@ -101,30 +116,27 @@ public class SqlRefArrayColumn extends SqlColumn {
                 + "LEFT JOIN (SELECT {3} as to_column FROM {4}) as to_table "
                 + "ON from_table.from_column=to_table.to_column WHERE to_table.to_column IS NULL);"
                 + "\n\tIF(array_length(test,1) > 0) THEN "
-                + "RAISE EXCEPTION 'insert or update on table "
-                + thisTable.unqualifiedName().toString() // for odd reasons {5} and {6} didn't work
-                + " violates foreign key constraint "
-                + triggerName.unqualifiedName().toString()
-                + "' USING ERRCODE = '23503', DETAIL = 'Key("
-                + thisColumn.unqualifiedName().toString()
-                + ")=(' || array_to_string(test,',') || ') is not present in table "
-                + toTable.unqualifiedName().toString()
-                + "';"
+                + "RAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'update or delete on table {5} violates foreign key constraint'"
+                + " , DETAIL = 'Key ({6})=('|| array_to_string(test,',') ||') is not present in table {7}, column {8}';"
                 + "\n\tEND IF;"
                 + "\n\tRETURN NEW;"
                 + "\nEND;"
                 + "\n$BODY$ LANGUAGE plpgsql;",
-            functionName,
+            functionName, // {0}
             keyword(
                 SqlTypeUtils.getPsqlType(
                         getTable()
                             .getSchema()
                             .getTableMetadata(getRefTableName())
                             .getColumn(getRefColumnName()))
-                    + "[]"),
-            thisColumn,
-            toColumn,
-            toTable);
+                    + "[]"), // {1}
+            thisColumn, // {2}
+            toColumn, // {3}
+            toTable, // {4}
+            inline(getTableName()), // {5}
+            inline(getName()), // {6}
+            inline(getRefTableName()), // {7}
+            inline(getRefColumnName())); // {8}
 
     // add the trigger
     getJooq()
@@ -133,20 +145,6 @@ public class SqlRefArrayColumn extends SqlColumn {
                 + "\n\tAFTER INSERT OR UPDATE OF {1} ON {2} FROM {3}"
                 + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {4}()",
-            triggerName, thisColumn, thisTable, toTable, functionName);
-  }
-
-  private Name getTriggerName(String meaning) {
-    return name(
-        getTable().getTableName()
-            + "."
-            + getName()
-            + " "
-            + meaning
-            + " "
-            + getRefTableName()
-            + "."
-            + getRefColumnName()
-            + " ");
+            name(getTableName() + "_" + getName()), thisColumn, thisTable, toTable, functionName);
   }
 }

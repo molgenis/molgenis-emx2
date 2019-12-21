@@ -367,13 +367,26 @@ public class SqlQuery extends QueryBean implements Query {
 
   private SelectConditionStep createBackrefSubselect(SqlColumn column, String tableAlias) {
     SqlColumn mappedBy = column.getMappedByColumn();
-    //      switch (mappedBy.getColumnType()) {
-    //        case REF:
-    return DSL.select(field(name(column.getRefColumnName())))
-        .from(name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
-        .where(
-            field(name(mappedBy.getTable().getTableName(), mappedBy.getName()))
-                .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
+    switch (mappedBy.getColumnType()) {
+      case REF:
+        return DSL.select(field(name(column.getRefColumnName())))
+            .from(
+                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
+            .where(
+                field(name(mappedBy.getTable().getTableName(), mappedBy.getName()))
+                    .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
+      case REF_ARRAY:
+        return DSL.select(field(name(column.getRefColumnName())))
+            .from(
+                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
+            .where(
+                "{0} = ANY ({1})",
+                field(name(tableAlias, mappedBy.getRefColumnName())),
+                field(name(mappedBy.getTable().getTableName(), mappedBy.getName())));
+      default:
+        throw new MolgenisException(
+            "Internal error", "Refback for type not matched for column " + column.getName());
+    }
   }
 
   private DSLContext getJooq() {

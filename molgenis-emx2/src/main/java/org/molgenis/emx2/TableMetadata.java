@@ -112,12 +112,12 @@ public class TableMetadata {
     return c;
   }
 
-  public Column addRefBack(String name, String toTable, String viaColumn) {
-    return this.addRefBack(name, toTable, null, viaColumn);
+  public Column addRefBack(String name, String toTable, String mappedBy) {
+    return this.addRefBack(name, toTable, null, mappedBy);
   }
 
-  public Column addRefBack(String name, String toTable, String toColumn, String viaColumn) {
-    Column c = new Column(this, name, REFBACK).setReference(toTable, toColumn, viaColumn);
+  public Column addRefBack(String name, String toTable, String toColumn, String mappedBy) {
+    Column c = new Column(this, name, REFBACK).setReference(toTable, toColumn, mappedBy);
     this.addColumn(c);
     return c;
   }

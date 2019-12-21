@@ -128,10 +128,10 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  graph mutation next to flat mutation
 *  decide if we need 'insert' seperate from 'update'
 *  test and fix the openapi so all the docs just work
-*  'save' for graphql allowing save of whole graphs
 *  Search should work on refback columns; lazy could be to keep copy in sync.
 *  partial/patch updates, i.e. null columns versus missing (to be ingored) columns
 *  delete column
+*  rename column
 *  default limit to 10
 *  add a check for maximum limit of identifiers, i.e. 63 characters (Excel limit)
 *  throw error when webservice is called with only csv header and no values
@@ -146,6 +146,11 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
 *  casdcading delete
 *  prevent issue with table or column name length
+*  renaming of tables and columns leads to renaming of triggers also
+*  ensure trigger names are not too long
+*  ensure query aliases are not too long
+*  reduce build+test times back to under a minute
+*  decide to store both ends of ref; added value might be order of items and query speed
 
 ## helpfull notes
 

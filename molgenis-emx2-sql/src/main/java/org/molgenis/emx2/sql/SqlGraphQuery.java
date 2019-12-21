@@ -188,6 +188,7 @@ public class SqlGraphQuery extends Filter {
   private static List<Field> createSelectionFields(
       SqlTableMetadata table, String tableAlias, SelectColumn select, Filter filter) {
     List<Field> fields = new ArrayList<>();
+
     for (Column column : table.getLocalColumns()) {
       if (isSelectedOrFiltered(column, select, filter)) {
         if (REF.equals(column.getColumnType())
@@ -195,13 +196,13 @@ public class SqlGraphQuery extends Filter {
             || REFBACK.equals(column.getColumnType())) {
           fields.add(
               createSelectionFieldForRef(
-                  (SqlColumn) column,
-                  tableAlias,
-                  select != null ? select.get(column.getName()) : null,
-                  getFilterForRef(filter, column)));
+                      column,
+                      tableAlias,
+                      select != null ? select.get(column.getName()) : null,
+                      getFilterForRef(filter, column))
+                  .as(column.getName()));
         } else {
-          fields.add(
-              field(name(tableAlias, column.getName()), jooqTypeOf(column)).as(column.getName()));
+          fields.add(field(name(tableAlias, column.getName()), jooqTypeOf(column)));
         }
       }
 
@@ -211,13 +212,10 @@ public class SqlGraphQuery extends Filter {
         fields.add(
             createAggregationField(
                     getRefTable(column),
-                    tableAlias + "/Agg",
+                    tableAlias + "/" + aggFieldName,
                     select.get(aggFieldName),
                     getFilterForRef(filter, column),
-                    condition(
-                        ANY_SQL,
-                        field(name(column.getRefColumnName())),
-                        field(name(tableAlias, column.getName()))))
+                    getSubFieldCondition(column, tableAlias))
                 .as(aggFieldName));
       }
     }
@@ -245,7 +243,6 @@ public class SqlGraphQuery extends Filter {
 
     if (select.has(COUNT_FIELD)) {
       fields.add(field(count(field(table.getPrimaryKey()))).as(COUNT_FIELD));
-      // TODO need to have subquery
     }
     if (select.has(GROUPBY_FIELD)) {
       // todo
@@ -301,55 +298,56 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Field createSelectionFieldForRef(
-      SqlColumn column, String tableAlias, SelectColumn select, Filter filter) {
+      Column column, String tableAlias, SelectColumn select, Filter filter) {
     if (select == null) select = new SelectColumn(column.getName());
     if (!select.has(column.getRefColumnName())) {
       select.select(column.getRefColumnName());
     }
+    return field(
+        createSubselect(
+            getRefTable(column),
+            tableAlias + "/" + column.getName(),
+            select,
+            filter,
+            REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL,
+            getSubFieldCondition(column, tableAlias),
+            REF.equals(column.getColumnType()) ? false : true));
+  }
+
+  /**
+   * calculate the condition to link subfield to a parent field using ref, ref_array or refback
+   * relations
+   */
+  private static Condition getSubFieldCondition(Column column, String tableAlias) {
+    Condition condition = null;
     if (REF.equals(column.getColumnType())) {
-      return field(
-              createSubselect(
-                  getRefTable(column),
-                  tableAlias + "/" + column.getName(),
-                  select,
-                  filter,
-                  ROW_TO_JSON_SQL,
-                  field(name(column.getRefColumnName()))
-                      .eq(field(name(tableAlias, column.getName()))),
-                  false))
-          .as(column.getName());
-    }
-    if (REF_ARRAY.equals(column.getColumnType())) {
-      // REFARRAY or REFBACK
-      return field(
-              createSubselect(
-                  getRefTable(column),
-                  tableAlias + "/" + column.getName(),
-                  select,
-                  filter,
-                  JSON_AGG_SQL,
-                  condition(
-                      ANY_SQL,
-                      field(name(column.getRefColumnName())),
-                      field(name(tableAlias, column.getName()))),
-                  true))
-          .as(column.getName());
+      condition =
+          field(name(column.getRefColumnName())).eq(field(name(tableAlias, column.getName())));
+    } else if (REF_ARRAY.equals(column.getColumnType())) {
+      condition =
+          condition(
+              ANY_SQL,
+              field(name(column.getRefColumnName())),
+              field(name(tableAlias, column.getName())));
     } else if (REFBACK.equals(column.getColumnType())) {
-      return field(
-              createSubselect(
-                  getRefTable(column),
-                  tableAlias + "/" + column.getName(),
-                  select,
-                  filter,
-                  JSON_AGG_SQL,
-                  field(name(column.getMappedByColumn().getName()))
-                      .eq(field(name(tableAlias, column.getMappedByColumn().getRefColumnName()))),
-                  true))
-          .as(column.getName());
+      SqlColumn mappedBy = ((SqlColumn) column).getMappedByColumn();
+      if (REF.equals(mappedBy.getColumnType())) {
+        condition =
+            field(name(mappedBy.getName()))
+                .eq(field(name(tableAlias, mappedBy.getRefColumnName())));
+      } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+        condition =
+            condition(
+                ANY_SQL,
+                field(name(tableAlias, mappedBy.getRefColumnName())),
+                field(name(mappedBy.getName())));
+      }
+    } else {
+      throw new SqlGraphQueryException(
+          "Internal error",
+          "For column " + column.getTable().getTableName() + "." + column.getName());
     }
-    throw new SqlGraphQueryException(
-        "Internal error",
-        "For column " + column.getTable().getTableName() + "." + column.getName());
+    return condition;
   }
 
   private static SelectJoinStep createJoins(
@@ -358,7 +356,7 @@ public class SqlGraphQuery extends Filter {
       if (select != null && select.has(column.getName())) {
         String rightAlias = leftAlias + "/" + column.getName();
         ColumnType type = column.getColumnType();
-        if (REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+        if (REF_ARRAY.equals(type)) {
           step =
               step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
                   .on(
@@ -373,6 +371,24 @@ public class SqlGraphQuery extends Filter {
                       field(name(leftAlias, column.getName()))
                           .eq(field(name(rightAlias, column.getRefColumnName()))));
           createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
+        } else if (REFBACK.equals(type)) {
+          SqlColumn mappedBy = ((SqlColumn) column).getMappedByColumn();
+          if (REF.equals(mappedBy.getColumnType())) {
+            step =
+                step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
+                    .on(
+                        field(name(leftAlias, mappedBy.getName()))
+                            .eq(field(name(rightAlias, mappedBy.getRefColumnName()))));
+            createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
+          } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+            step =
+                step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
+                    .on(
+                        ANY_SQL,
+                        field(name(leftAlias, mappedBy.getRefColumnName())),
+                        field(name(rightAlias, mappedBy.getName())));
+            createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
+          }
         }
       }
     }
@@ -404,9 +420,7 @@ public class SqlGraphQuery extends Filter {
       if (f != null) {
         ColumnType type = column.getColumnType();
         if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
-          // check that subtree exists
-          // TODO for REF_ARRAY and REFBACK consider filters on the subtree!
-          // condition = condition.and(field(name(column.getName())).isNotNull());
+          // not columns
         } else {
           // add the column filter(s)
           for (Map.Entry<org.molgenis.emx2.Operator, Object[]> entry :

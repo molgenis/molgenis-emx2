@@ -267,7 +267,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public Column addRefBack(String name, String toTable, String toColumn, String viaColumn) {
+  public Column addRefBack(String name, String toTable, String toColumn, String mappedBy) {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
@@ -277,7 +277,7 @@ class SqlTableMetadata extends TableMetadata {
                   name,
                   toTable,
                   toColumn == null ? getRefTablePrimaryKey(toTable) : toColumn,
-                  viaColumn);
+                  mappedBy);
           c.createColumn();
           super.addColumn(c);
           this.updateSearchIndexTriggerFunction();

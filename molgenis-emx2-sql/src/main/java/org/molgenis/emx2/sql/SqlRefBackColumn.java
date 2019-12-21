@@ -133,15 +133,22 @@ class SqlRefBackColumn extends SqlColumn {
                 + "\nDECLARE"
                 + "\n\t item {1};"
                 + "\nBEGIN"
+                // check no dangling foreign keys
+                + "\n\tIF EXISTS (SELECT * from unnest(NEW.{5}) as {5} WHERE {5} NOT IN (SELECT {6} FROM {2})) THEN RAISE EXCEPTION USING ERRCODE='23503', "
+                + "\n\t\tMESSAGE = 'update or delete on table '||{9}||' violates foreign key constraint'"
+                + "\n\t\t, DETAIL = 'Key ('||{10}||')=('|| array_to_string(NEW.{5},',') ||') is not present in table '||{11}||', column '||{12};"
                 // remove all mappedBy references to 'me' that are not valid anymore
-                + "\n\tIF TG_OP = 'UPDATE' THEN"
-                + "\n\t\tUPDATE {2} set {3} = array_remove({3}, OLD.{4}) WHERE OLD.{4} = ANY {3} AND {6} != ANY NEW.{5}"
                 + "\n\tEND IF;"
-                // add all new mappedBy references to 'me' for all values in NEW.{this column}
-                + "\n\tIF TG_OP = 'INSERT' OR TG_OP='UPDATE' FOREACH item IN ARRAY NEW.{5} LOOP"
+                + "\n\tIF TG_OP = 'UPDATE' THEN"
+                + "\n\t\tUPDATE {2} set {3} = array_remove({3}, OLD.{4}) WHERE OLD.{4} = ANY ({3}) AND {6} != ANY (NEW.{5});"
+                + "\n\tEND IF;"
+                // add all new mappedBy references to 'me' for all values in NEW.{this column},
+                // check for on conflict update via not exists
+                + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN"
                 // SET THAT THE OTHER POINTS TO new 'ME'
-                + "\n\t\tUPDATE {2} SET {3} = array_append({3},item) WHERE NEW.{4} != ANY {3} AND {6} = ANY NEW.{5}"
-                + "\n\tEND LOOP;"
+                + "\n\t\tUPDATE {2} SET {3} = array_append({3},NEW.{4}) WHERE ({3} = '{}' OR NEW.{4} != ANY ({3})) AND {6} = ANY (NEW.{5});"
+                + "\n\tEND IF;"
+                + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN NEW.{5} = NULL; END IF;"
                 + "\n\tRETURN NEW;"
                 + "\nEND;"
                 + "\n$BODY$ LANGUAGE plpgsql;",
@@ -154,7 +161,13 @@ class SqlRefBackColumn extends SqlColumn {
                     getMappedByColumn()
                         .getRefColumnName())), // {4} key that mappedBy uses (might not be pkey)
             field(name(getName())), // {5} the dummy column that triggers all this
-            field(name(getRefColumnName()))); // {6} toColumn where fake foreign key dummy points to
+            field(name(getRefColumnName())), // {6} toColumn where fake foreign key dummy points to
+            table(name(schemaName, getTable().getTableName())), // {7} this table
+            field(name(getTable().getPrimaryKey())), // {8} primary key of this table
+            inline(getTableName()), // {9} inline table name
+            inline(getName()), // {10}
+            inline(getRefTableName()), // {11} inline table name
+            inline(getRefColumnName())); // {12} inline table name
 
     // attach the trigger
 
@@ -163,7 +176,7 @@ class SqlRefBackColumn extends SqlColumn {
             "CREATE TRIGGER {0} "
                 + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-            name(getMappedBy() + "_UPDATE"),
+            name(getName() + "_UPDATE"),
             name(getName()),
             name(schemaName, getTable().getTableName()),
             name(schemaName, updateTriggerName));
@@ -178,22 +191,23 @@ class SqlRefBackColumn extends SqlColumn {
                 + "\n$BODY$"
                 + "\nBEGIN"
                 // remove all mappedBy references to 'me' that are not valid anymore
-                + "\n\tUPDATE {1} set {2} = array_remove({2}, OLD.{3}) WHERE OLD.{3} = ANY {2}"
-                + "\n\tEND IF;"
+                + "\n\tUPDATE {1} set {2} = array_remove({2}, OLD.{3}) WHERE OLD.{3} = ANY ({2});"
+                + "\n\tRETURN OLD;"
                 + "\nEND;"
                 + "\n$BODY$ LANGUAGE plpgsql;",
             name(schemaName, deleteTriggerName), // {0} function name
-            table(name(schemaName, getRefTableName())), // {1} toTable table
+            table(name(schemaName, getRefTableName())), // {1} this table
             field(name(getMappedBy())), // {2} mappedBy
             field(
                 name(
                     getMappedByColumn()
                         .getRefColumnName()))); // {3} key that mappedBy uses (might not be pkey)
 
+    // attach trigger
     getJooq()
         .execute(
             "CREATE TRIGGER {0} "
-                + "\n\tBEFORE DELETE OR TRUNCATE ON {1}"
+                + "\n\tAFTER DELETE ON {1}"
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
             name(getName() + "_DELETE"),
             name(schemaName, getTable().getTableName()),
