@@ -31,15 +31,10 @@ public class SqlRefArrayColumn extends SqlColumn {
     Name thisColumn = name(getName());
     Name toColumn = name(getRefColumnName());
 
-    Name updateTrigger =
-        name(
-            getTable().getSchema().getName(),
-            getRefTableName() + "_" + getRefColumnName() + "_UPDTRIGGER");
-
-    Name deleteTrigger =
-        name(
-            getTable().getSchema().getName(),
-            getRefTableName() + "_" + getRefColumnName() + "_DELTRIGGER");
+    String updateTrigger =
+        "UPD_" + getRefTableName() + "_CASCADE_" + getTableName() + "_" + getName();
+    String deleteTrigger =
+        "DEL_" + getRefTableName() + "_CHECK_" + getTableName() + "_" + getName();
 
     // in case of update of other end cascade
     getJooq()
@@ -51,16 +46,19 @@ public class SqlRefArrayColumn extends SqlColumn {
                 + "\n\tRETURN NEW;"
                 + "\nEND;"
                 + "\n$BODY$ LANGUAGE plpgsql;",
-            updateTrigger, thisTable, toColumn, thisColumn);
+            name(getTable().getSchema().getName(), updateTrigger), thisTable, toColumn, thisColumn);
 
-    // createTableIfNotExists the trigger
+    // create the cascade trigger
     getJooq()
         .execute(
             "CREATE CONSTRAINT TRIGGER {0} "
                 + "\n\tAFTER UPDATE OF {1} ON {2} "
                 + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-            name(getRefColumnName() + "_UPDATE"), toColumn, toTable, updateTrigger);
+            name(updateTrigger),
+            toColumn,
+            toTable,
+            name(getTable().getSchema().getName(), updateTrigger));
 
     // in case of delete should fail if still pointed to
     getJooq()
@@ -75,7 +73,7 @@ public class SqlRefArrayColumn extends SqlColumn {
                 + "\n\tRETURN NEW;"
                 + "\nEND;"
                 + "\n$BODY$ LANGUAGE plpgsql;",
-            deleteTrigger,
+            name(getTable().getSchema().getName(), deleteTrigger),
             thisTable,
             toColumn,
             thisColumn,
@@ -89,7 +87,7 @@ public class SqlRefArrayColumn extends SqlColumn {
                 + "\n\tAFTER DELETE ON {1} "
                 + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
                 + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-            name(getRefColumnName() + "_DELETE"), toTable, updateTrigger);
+            name(deleteTrigger), toTable, name(getTable().getSchema().getName(), deleteTrigger));
   }
 
   /** trigger on this column to check if foreign key exists */
@@ -102,7 +100,7 @@ public class SqlRefArrayColumn extends SqlColumn {
     Name functionName =
         name(
             getTable().getSchema().getName(),
-            getTable().getTableName() + "_" + getName() + "_UPDATETRIGGER");
+            "UPD_" + getTableName() + "_CHECK_" + getTableName() + "_" + getName());
 
     // createTableIfNotExists the function
     getJooq()
