@@ -2,15 +2,15 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 import java.util.List;
 
 import static junit.framework.TestCase.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Filter.f;
 import static org.molgenis.emx2.sql.SelectColumn.s;
 
@@ -27,14 +27,17 @@ public class TestRefBack {
   @Test
   public void restRefArrayBack() {
 
-    Table parts = schema.createTableIfNotExists("Parts");
-    parts.getMetadata().addColumn("partname").primaryKey();
+    Table parts = schema.create(table("Parts").addColumn(column("partname").pkey(true)));
 
-    Table products = schema.createTableIfNotExists("Products");
-    products.getMetadata().addColumn("productname").primaryKey();
-    products.getMetadata().addRefArray("parts", "Parts");
+    Table products =
+        schema.create(
+            table("Products")
+                .addColumn(column("productname").pkey(true))
+                .addColumn(column("parts").type(REF_ARRAY).refTable("Parts")));
 
-    parts.getMetadata().addRefBack("products", "Products", "parts");
+    parts
+        .getMetadata()
+        .addColumn(column("products").type(REFBACK).refTable("Products").mappedBy("parts"));
 
     parts.insert(new Row().set("partname", "smallscreen"));
     parts.insert(new Row().set("partname", "bigscreen"));
@@ -89,14 +92,14 @@ public class TestRefBack {
     query =
         new SqlGraphQuery(products)
             .select(s("data", s("parts_agg", s("count"))))
-            .filter(f("productname").is("bigphone"));
+            .filter(f("productname").add(EQUALS, "bigphone"));
 
     assertTrue(query.retrieve().contains("\"count\":3"));
 
     query =
         new SqlGraphQuery(parts)
             .select(s("data", s("products_agg", s("count"))))
-            .filter(f("partname").is("battery"));
+            .filter(f("partname").add(EQUALS, "battery"));
 
     assertTrue(query.retrieve().contains("\"count\":2"));
 
@@ -117,14 +120,19 @@ public class TestRefBack {
   @Test
   public void testRefBack() {
 
-    Table users = schema.createTableIfNotExists("User");
-    users.getMetadata().addColumn("username").primaryKey();
+    Table users =
+        schema.create(table("User").addColumn(column("username")).setPrimaryKey("username"));
 
-    Table posts = schema.createTableIfNotExists("Posts");
-    posts.getMetadata().addColumn("title").primaryKey();
-    posts.getMetadata().addRef("user", users.getName(), "username");
+    Table posts =
+        schema.create(
+            table("Posts")
+                .addColumn(column("title"))
+                .addColumn(column("user").type(REF).refTable(users.getName()).refColumn("username"))
+                .setPrimaryKey("title"));
 
-    users.getMetadata().addRefBack("posts", posts.getName(), "user");
+    users
+        .getMetadata()
+        .addColumn(column("posts").type(REFBACK).refTable(posts.getName()).mappedBy("user"));
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));
@@ -161,13 +169,13 @@ public class TestRefBack {
     query =
         new SqlGraphQuery(users)
             .select(s("data", s("username"), s("posts", s("title"))))
-            .filter(f("posts", f("title").is("jacks post")));
+            .filter(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieve().contains("jacks post"));
 
     query =
         new SqlGraphQuery(users)
             .select(s("data_agg", s("count")))
-            .filter(f("posts", f("title").is("jacks post")));
+            .filter(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieve().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading

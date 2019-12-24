@@ -13,7 +13,8 @@ import java.util.List;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestGrantRolesToUsers {
   private static Database database;
@@ -69,7 +70,7 @@ public class TestGrantRolesToUsers {
       database.setActiveUser("user_testRolePermissions_viewer");
       database.tx(
           db -> {
-            db.getSchema("testRolePermissions").createTableIfNotExists("Test");
+            db.getSchema("testRolePermissions").create(table("Test"));
             fail("role(viewers) should not be able to createColumn tables"); // should not
             // happen
           });
@@ -83,7 +84,7 @@ public class TestGrantRolesToUsers {
       database.setActiveUser("user_testRolePermissions_editor");
       database.tx(
           db -> {
-            db.getSchema("testRolePermissions").createTableIfNotExists("Test");
+            db.getSchema("testRolePermissions").create(table("Test"));
             fail("role(editors) should not be able to createColumn tables"); // should not
             // happen
           });
@@ -97,7 +98,7 @@ public class TestGrantRolesToUsers {
       database.tx(
           db -> {
             try {
-              db.getSchema("testRolePermissions").createTableIfNotExists("Test");
+              db.getSchema("testRolePermissions").create(table("Test"));
               //                  .getMetadata()
               //                  .addColumn("ID", ColumnType.INT);
             } catch (Exception e) {
@@ -141,17 +142,13 @@ public class TestGrantRolesToUsers {
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());
       assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
 
-      schema
-          .createTableIfNotExists("Person")
-          .getMetadata()
-          .addColumn("FirstName", STRING)
-          .addColumn("LastName", STRING);
+      schema.create(table("Person").addColumn(column("FirstName")).addColumn(column("LastName")));
 
       try {
         database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");
         database.tx(
             db -> {
-              db.getSchema("testRole").createTableIfNotExists("Test");
+              db.getSchema("testRole").create(table("Test"));
             });
         // should throw exception, otherwise fail
         fail();
@@ -164,7 +161,7 @@ public class TestGrantRolesToUsers {
         database.setActiveUser("testadmin");
         database.tx(
             db -> {
-              db.getSchema("testRole").createTableIfNotExists("Test");
+              db.getSchema("testRole").create(table("Test"));
               // this is soo cooool
               db.getSchema("testRole").addMember("testuser", DefaultRoles.VIEWER.toString());
             });

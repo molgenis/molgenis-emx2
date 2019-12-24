@@ -3,11 +3,8 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.DefaultRoles;
-import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.Transaction;
-import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,19 +13,20 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.sql.CreateDatabase.*;
+import static org.molgenis.emx2.sql.Roles.executeCreateRole;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataUtils.executeCreateSchema;
 
 public class SqlDatabase implements Database {
   private static final String ADMIN = "admin";
   private DataSource source;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
-  private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>();
+  private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>(); // cache
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
@@ -49,26 +47,36 @@ public class SqlDatabase implements Database {
     }
   }
 
-  @Override
-  public SqlSchema createSchema(String schemaName) {
-    if (schemaName == null || schemaName.isEmpty())
-      throw new MolgenisException("Create schema failed", "Schema name was null or empty");
-    SqlSchemaMetadata schema = new SqlSchemaMetadata(this, schemaName);
-    schema.createSchema();
-    schemas.put(schemaName, schema);
-    if (getActiveUser() != null) {
-      getSchema(schema.getName()).addMember(getActiveUser(), DefaultRoles.MANAGER.toString());
+  private void log(long start, String message) {
+    if (logger.isInfoEnabled()) {
+      logger.info("{} in {}ms", message, (System.currentTimeMillis() - start));
     }
-    return new SqlSchema(this, schema);
+  }
+
+  @Override
+  public SqlSchema createSchema(String name) {
+    long start = System.currentTimeMillis();
+    SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
+    this.tx(
+        database -> {
+          executeCreateSchema(this, metadata);
+          schemas.put(name, metadata);
+          // make current user a manager
+          if (getActiveUser() != null) {
+            getSchema(metadata.getName())
+                .addMember(getActiveUser(), DefaultRoles.MANAGER.toString());
+          }
+        });
+    this.log(start, "created schema " + name);
+    return new SqlSchema(this, metadata);
   }
 
   @Override
   public SqlSchema getSchema(String name) {
-    // todo, re-enable caching
     SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     if (metadata.exists()) {
       SqlSchema schema = new SqlSchema(this, metadata);
-      schemas.put(name, metadata);
+      schemas.put(name, metadata); // cache
       return schema;
     }
     return null;
@@ -76,19 +84,10 @@ public class SqlDatabase implements Database {
 
   @Override
   public void dropSchema(String name) {
-    try {
-      SchemaMetadata schema = getSchema(name).getMetadata();
-      getJooq().dropSchema(name(name)).cascade().execute();
-      MetadataUtils.deleteSchema((SqlSchemaMetadata) schema);
-      schemas.remove(name);
-      if (logger.isInfoEnabled()) {
-        logger.info("dropped schema {}", name);
-      }
-    } catch (MolgenisException me) {
-      throw new MolgenisException("Drop schema failed", me.getMessage());
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Drop schema failed", dae);
-    }
+    long start = System.currentTimeMillis();
+    tx(d -> executeDropSchema(getJooq(), getSchema(name).getMetadata()));
+    schemas.remove(name);
+    log(start, "dropped schema " + name);
   }
 
   @Override
@@ -105,88 +104,39 @@ public class SqlDatabase implements Database {
 
   @Override
   public void addUser(String user) {
-    String userName = MG_USER_PREFIX + user;
-    try {
-      tx(
-          database -> {
-            List<Record> result =
-                jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
-            if (result.isEmpty()) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
-          });
-      if (logger.isInfoEnabled()) {
-        logger.info("created user {}", user);
-      }
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Add user failed", dae);
-    }
-  }
-
-  @Override
-  public void grantCreateSchema(String user) {
-    try {
-      String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
-      jooq.execute(
-          "GRANT CREATE ON DATABASE {0} TO {1}", name(databaseName), name(MG_USER_PREFIX + user));
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException(dae);
-    }
+    long start = System.currentTimeMillis();
+    tx(d -> executeAddUser(getJooq(), user));
+    log(start, "created user" + user);
   }
 
   @Override
   public boolean hasUser(String user) {
-    String userName = MG_USER_PREFIX + user;
-    return !jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName)
+    return !jooq.fetch(
+            "SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", MG_USER_PREFIX + user)
         .isEmpty();
   }
 
   @Override
   public void removeUser(String user) {
+    long start = System.currentTimeMillis();
     if (!hasUser(user))
       throw new MolgenisException(
           "Remove user failed", "User with name '" + user + "' doesn't exist");
-    String userName = MG_USER_PREFIX + user;
-    jooq.execute("DROP ROLE {0}", name(userName));
-    if (logger.isInfoEnabled()) {
-      logger.info("removed user {}", user);
-    }
+    tx(d -> jooq.execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
+    log(start, "removed user " + user);
+  }
+
+  public void addRole(String role) {
+    long start = System.currentTimeMillis();
+    executeCreateRole(getJooq(), role);
+    log(start, "created role " + role);
   }
 
   @Override
-  public synchronized void tx(Transaction transaction) {
-
-    if (inTx) {
-      // we dont nest transactions
-      transaction.run(this);
-    } else {
-      // createColumn independent merge of database with transaction connection
-      DSLContext originalContext = jooq;
-      try (Connection conn = source.getConnection()) {
-        this.inTx = true;
-        DSL.using(conn, SQLDialect.POSTGRES_10)
-            .transaction(
-                config -> {
-                  DSLContext ctx = DSL.using(config);
-                  ctx.execute("SET CONSTRAINTS ALL DEFERRED");
-                  this.jooq = ctx;
-                  if (connectionProvider.getActiveUser() != null) {
-                    this.setActiveUser(connectionProvider.getActiveUser());
-                  }
-                  transaction.run(this);
-                  this.clearActiveUser();
-                });
-      } catch (MolgenisException me) {
-        clearCache();
-        throw me;
-      } catch (DataAccessException dae) {
-        clearCache();
-        throw new SqlMolgenisException(dae);
-      } catch (SQLException e) {
-        throw new MolgenisException("Transaction failed", e.getMessage(), e);
-      } finally {
-        this.inTx = false;
-        jooq = originalContext;
-      }
-    }
+  public void grantCreateSchema(String user) {
+    long start = System.currentTimeMillis();
+    tx(d -> executeGrantCreateSchema(getJooq(), user));
+    log(start, "granted create schema to user " + user);
   }
 
   @Override
@@ -224,24 +174,48 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public synchronized void tx(Transaction transaction) {
+    if (inTx) {
+      // we do not nest transactions
+      transaction.run(this);
+    } else {
+      // createColumn independent merge of database with transaction connection
+      DSLContext originalContext = jooq;
+      try (Connection conn = source.getConnection()) {
+        this.inTx = true;
+        DSL.using(conn, SQLDialect.POSTGRES_10)
+            .transaction(
+                config -> {
+                  DSLContext ctx = DSL.using(config);
+                  ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+                  this.jooq = ctx;
+                  if (connectionProvider.getActiveUser() != null) {
+                    this.setActiveUser(connectionProvider.getActiveUser());
+                  }
+                  transaction.run(this);
+                  this.clearActiveUser();
+                });
+      } catch (MolgenisException me) {
+        clearCache();
+        throw me;
+      } catch (DataAccessException dae) {
+        clearCache();
+        throw new SqlMolgenisException(dae);
+      } catch (SQLException e) {
+        throw new MolgenisException("Transaction failed", e.getMessage(), e);
+      } finally {
+        this.inTx = false;
+        jooq = originalContext;
+      }
+    }
+  }
+
+  @Override
   public void clearCache() {
     this.schemas = new LinkedHashMap<>();
   }
 
   protected DSLContext getJooq() {
     return jooq;
-  }
-
-  public void createRole(String role) {
-    jooq.execute(
-        "DO $$\n"
-            + "BEGIN\n"
-            + "    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = {0}) THEN\n"
-            + "        CREATE ROLE {1};\n"
-            + "    END IF;\n"
-            + "END\n"
-            + "$$;\n",
-        inline(role), name(role));
-    logger.info("created role {}", role);
   }
 }

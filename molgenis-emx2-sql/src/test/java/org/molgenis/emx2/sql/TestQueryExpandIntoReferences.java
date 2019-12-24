@@ -10,8 +10,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestQueryExpandIntoReferences {
   static Database db;
@@ -25,16 +27,15 @@ public class TestQueryExpandIntoReferences {
 
     // createColumn some tables with contents
     String PERSON = "Person";
-    Table personTable = schema.createTableIfNotExists(PERSON);
-    personTable
-        .getMetadata()
-        .addColumn("ID", ColumnType.INT)
-        .primaryKey()
-        .addColumn("First Name", STRING)
-        .addRef("Father", PERSON)
-        .setNullable(true)
-        .addColumn("Last Name", STRING)
-        .addUnique("First Name", "Last Name");
+    Table personTable =
+        schema.create(
+            table(PERSON)
+                .addColumn(column("ID").type(INT))
+                .addColumn(column("First Name"))
+                .addColumn(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .addColumn(column("Last Name"))
+                .addUnique("First Name", "Last Name")
+                .setPrimaryKey("ID"));
 
     Row father =
         new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");

@@ -12,7 +12,9 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestGetSetAllTypesOnRows {
 
@@ -40,10 +42,10 @@ public class TestGetSetAllTypesOnRows {
 
     // System.out.println("table print " + t.toString() + "\n: " + t.print());
 
-    m2.createTable("OtherTable");
+    m2.create(table("OtherTable"));
     // System.out.println("Now we expect diff: " + m.diff(m2));
 
-    m.dropTable("TypeTest");
+    m.drop("TypeTest");
 
     TableMetadata test = m.getTableMetadata("TypeTest");
     assertEquals(0, m.getTableNames().size());
@@ -187,11 +189,11 @@ public class TestGetSetAllTypesOnRows {
   }
 
   private void addContents(SchemaMetadata m, List<ColumnType> columnTypes) {
-    TableMetadata t = m.createTable("TypeTest");
+    TableMetadata t = m.create(table("TypeTest"));
     for (ColumnType columnType : columnTypes) {
-      t.addColumn("test" + columnType, columnType);
-      t.addColumn("test" + columnType + "_nullable", columnType).setNullable(true);
-      t.addColumn("test" + columnType + "+readonly", columnType).setReadonly(true);
+      t.addColumn(column("test" + columnType).type(columnType));
+      t.addColumn(column("test" + columnType + "_nullable").type(columnType).nullable(true));
+      t.addColumn(column("test" + columnType + "+readonly").type(columnType).setReadonly(true));
     }
   }
 }

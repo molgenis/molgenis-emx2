@@ -10,8 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateArrayDataTypes {
 
@@ -79,9 +81,10 @@ public class TestCreateArrayDataTypes {
     Schema schema =
         database.createSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
 
-    Table tableA = schema.createTableIfNotExists("A");
     String aFieldName = columnType + "Col";
-    tableA.getMetadata().addColumn(aFieldName, columnType).primaryKey();
+    Table tableA =
+        schema.create(
+            table("A").addColumn(column(aFieldName).type(columnType)).setPrimaryKey(aFieldName));
 
     Row aRow = new Row().set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);

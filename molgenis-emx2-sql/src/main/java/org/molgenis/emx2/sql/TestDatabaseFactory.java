@@ -92,7 +92,7 @@ public class TestDatabaseFactory {
     }
   }
 
-  protected static DSLContext getJooq() {
+  private static DSLContext getJooq() {
     return jooq;
   }
 }

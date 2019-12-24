@@ -4,14 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import org.junit.Test;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.web.json.JsonQueryMapper;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Query;
 import org.molgenis.emx2.beans.QueryBean;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.TableMetadata;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,11 +16,12 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.web.JsonApi.*;
 import static org.molgenis.emx2.ColumnType.DECIMAL;
 import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.STRING;
 
 public class TestJson {
 
@@ -42,10 +40,11 @@ public class TestJson {
   @Test
   public void testJsonToRow() {
 
-    TableMetadata t = new TableMetadata("Person");
-    t.addColumn("FirstName", STRING);
-    t.addColumn("Age", INT);
-    t.addColumn("Weight", DECIMAL);
+    TableMetadata t =
+        table("Person")
+            .addColumn(column("FirstName"))
+            .addColumn(column("Age").type(INT))
+            .addColumn(column("Weight").type(DECIMAL));
 
     String json = "{\"FirstName\":\"Donald\", \"Age\":50, \"Weight\":15.4}";
     Any any = JsonIterator.deserialize(json);

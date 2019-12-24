@@ -7,9 +7,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class Row {
-
-  // option: use https://github.com/Devskiller/friendly-id instead of ugly uuid
   private Map<String, Object> values = new LinkedHashMap<>();
+
+  public static Row row() {
+    return new Row();
+  }
 
   public Row() {}
 

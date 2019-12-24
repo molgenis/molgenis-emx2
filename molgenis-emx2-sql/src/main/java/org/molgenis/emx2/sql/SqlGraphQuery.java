@@ -16,6 +16,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
+import static org.molgenis.emx2.sql.CreateSimpleColumn.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlTypeUtils.jooqTypeOf;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
@@ -300,8 +301,9 @@ public class SqlGraphQuery extends Filter {
   private static Field createSelectionFieldForRef(
       Column column, String tableAlias, SelectColumn select, Filter filter) {
     if (select == null) select = new SelectColumn(column.getName());
-    if (!select.has(column.getRefColumnName())) {
-      select.select(column.getRefColumnName());
+    String refColumn = column.getRefColumnName();
+    if (!select.has(refColumn)) {
+      select.select(refColumn);
     }
     return field(
         createSubselect(
@@ -320,27 +322,20 @@ public class SqlGraphQuery extends Filter {
    */
   private static Condition getSubFieldCondition(Column column, String tableAlias) {
     Condition condition = null;
+    String refCol = column.getRefColumnName();
     if (REF.equals(column.getColumnType())) {
-      condition =
-          field(name(column.getRefColumnName())).eq(field(name(tableAlias, column.getName())));
+      condition = field(name(refCol)).eq(field(name(tableAlias, column.getName())));
     } else if (REF_ARRAY.equals(column.getColumnType())) {
       condition =
-          condition(
-              ANY_SQL,
-              field(name(column.getRefColumnName())),
-              field(name(tableAlias, column.getName())));
+          condition(ANY_SQL, field(name(refCol)), field(name(tableAlias, column.getName())));
     } else if (REFBACK.equals(column.getColumnType())) {
-      SqlColumn mappedBy = ((SqlColumn) column).getMappedByColumn();
+      Column mappedBy = getMappedByColumn(column);
+      refCol = mappedBy.getRefColumnName();
       if (REF.equals(mappedBy.getColumnType())) {
-        condition =
-            field(name(mappedBy.getName()))
-                .eq(field(name(tableAlias, mappedBy.getRefColumnName())));
+        condition = field(name(mappedBy.getName())).eq(field(name(tableAlias, refCol)));
       } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
         condition =
-            condition(
-                ANY_SQL,
-                field(name(tableAlias, mappedBy.getRefColumnName())),
-                field(name(mappedBy.getName())));
+            condition(ANY_SQL, field(name(tableAlias, refCol)), field(name(mappedBy.getName())));
       }
     } else {
       throw new SqlGraphQueryException(
@@ -356,36 +351,36 @@ public class SqlGraphQuery extends Filter {
       if (select != null && select.has(column.getName())) {
         String rightAlias = leftAlias + "/" + column.getName();
         ColumnType type = column.getColumnType();
+        String refCol = column.getRefColumnName();
         if (REF_ARRAY.equals(type)) {
           step =
               step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
                   .on(
                       ANY_SQL,
-                      field(name(rightAlias, column.getRefColumnName())),
+                      field(name(rightAlias, refCol)),
                       field(name(leftAlias, column.getName())));
           createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
         } else if (REF.equals(type)) {
           step =
               step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
-                  .on(
-                      field(name(leftAlias, column.getName()))
-                          .eq(field(name(rightAlias, column.getRefColumnName()))));
+                  .on(field(name(leftAlias, column.getName())).eq(field(name(rightAlias, refCol))));
           createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
         } else if (REFBACK.equals(type)) {
-          SqlColumn mappedBy = ((SqlColumn) column).getMappedByColumn();
+          Column mappedBy = getMappedByColumn(column);
+          refCol = mappedBy.getRefColumnName();
           if (REF.equals(mappedBy.getColumnType())) {
             step =
                 step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
                     .on(
                         field(name(leftAlias, mappedBy.getName()))
-                            .eq(field(name(rightAlias, mappedBy.getRefColumnName()))));
+                            .eq(field(name(rightAlias, refCol))));
             createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
           } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
             step =
                 step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
                     .on(
                         ANY_SQL,
-                        field(name(leftAlias, mappedBy.getRefColumnName())),
+                        field(name(leftAlias, refCol)),
                         field(name(rightAlias, mappedBy.getName())));
             createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
           }

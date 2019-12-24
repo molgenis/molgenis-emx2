@@ -4,8 +4,10 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.ColumnType;
 
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.ColumnType.DATETIME;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class RefAndRefArrayTestExample {
   private RefAndRefArrayTestExample() {
@@ -20,17 +22,22 @@ public class RefAndRefArrayTestExample {
     for (ColumnType columnType : columnTypes) {
 
       String aTableName = columnType.toString() + "_A";
-      TableMetadata aTable = schema.createTable(aTableName);
       String fieldName = "AKeyOf" + columnType;
-      aTable.addColumn(fieldName, columnType);
-      aTable.setPrimaryKey(fieldName);
+      schema.create(
+          table(aTableName).addColumn(column(fieldName).type(columnType)).setPrimaryKey(fieldName));
 
       String bTableName = columnType.toString() + "_B";
-      TableMetadata bTable = schema.createTable(bTableName);
       String refFromBToA = "RefToAKeyOf" + columnType;
       String refArrayFromBToA = "RefArrayToAKeyOf" + columnType;
-      bTable.addRef(refFromBToA, aTableName, fieldName);
-      bTable.addRefArray(refArrayFromBToA, aTableName, fieldName);
+
+      schema.create(
+          table(bTableName)
+              .addColumn(column(refFromBToA).type(REF).refTable(aTableName).refColumn(fieldName))
+              .addColumn(
+                  column(refArrayFromBToA)
+                      .type(REF_ARRAY)
+                      .refTable(aTableName)
+                      .refColumn(fieldName)));
     }
   }
 }

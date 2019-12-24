@@ -9,7 +9,9 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 
 import static junit.framework.TestCase.fail;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateForeignKeys {
 
@@ -60,24 +62,24 @@ public class TestCreateForeignKeys {
 
     Schema schema = db.createSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
 
-    Table aTable = schema.createTableIfNotExists("A");
     String fieldName = "AKeyOf" + columnType;
-    aTable
-        .getMetadata()
-        .addColumn("ID", ColumnType.INT)
-        .primaryKey()
-        .addColumn(fieldName, columnType)
-        .addUnique(fieldName);
+    Table aTable =
+        schema.create(
+            table("A")
+                .addColumn(column("ID").type(INT))
+                .addColumn(column(fieldName).type(columnType))
+                .addUnique(fieldName)
+                .setPrimaryKey("ID"));
     Row aRow = new Row().setInt("ID", 1).set(fieldName, insertValue);
     aTable.insert(aRow);
 
-    Table bTable = schema.createTableIfNotExists("B");
     String refFromBToA = "RefToAKeyOf" + columnType;
-    bTable
-        .getMetadata()
-        .addColumn("ID", ColumnType.INT)
-        .primaryKey()
-        .addRef(refFromBToA, "A", fieldName);
+    Table bTable =
+        schema.create(
+            table("B")
+                .addColumn(column("ID").type(INT))
+                .addColumn(column(refFromBToA).type(REF).refTable("A").refColumn(fieldName))
+                .setPrimaryKey("ID"));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 

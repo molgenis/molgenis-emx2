@@ -10,6 +10,8 @@ public class SchemaMetadata {
   public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
+    if (name == null || name.isEmpty())
+      throw new MolgenisException("Create schema failed", "Schema name was null or empty");
     this.name = name;
   }
 
@@ -25,15 +27,8 @@ public class SchemaMetadata {
     return Collections.unmodifiableCollection(tables.keySet());
   }
 
-  public TableMetadata createTable(String name) {
-    if (getTableMetadata(name) == null) {
-      tables.put(name, new TableMetadata(this, name));
-    }
-    return getTableMetadata(name);
-  }
-
-  public TableMetadata createTable(TableMetadata table) {
-    if (tables.containsKey(table.getTableName()))
+  public TableMetadata create(TableMetadata table) {
+    if (tables.get(table.getTableName()) != null)
       throw new MolgenisException(
           "Create table failed",
           "Table with name '"
@@ -49,7 +44,7 @@ public class SchemaMetadata {
     return tables.get(name);
   }
 
-  public void dropTable(String tableId) {
+  public void drop(String tableId) {
     tables.remove(tableId);
   }
 
@@ -60,5 +55,9 @@ public class SchemaMetadata {
       sb.append(t);
     }
     return sb.toString();
+  }
+
+  protected void clearCache() {
+    this.tables = new LinkedHashMap<>();
   }
 }

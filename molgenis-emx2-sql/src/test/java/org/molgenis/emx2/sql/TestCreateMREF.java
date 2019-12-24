@@ -13,8 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateMREF {
 
@@ -78,15 +80,12 @@ public class TestCreateMREF {
     Schema aSchema =
         db.createSchema("TestCreateManyToManyRelations" + columnType.toString().toUpperCase());
 
-    Table aTable = aSchema.createTableIfNotExists("A");
     String keyOfA = "AKey";
-    aTable.getMetadata().addColumn(keyOfA, columnType);
-    aTable.getMetadata().setPrimaryKey(keyOfA);
+    Table aTable =
+        aSchema.create(table("A").addColumn(column(keyOfA).type(columnType)).setPrimaryKey(keyOfA));
 
-    Table bTable = aSchema.createTableIfNotExists("B");
     String keyOfB = "BKey";
-    bTable.getMetadata().addColumn(keyOfB, STRING);
-    bTable.getMetadata().setPrimaryKey(keyOfB);
+    Table bTable = aSchema.create(table("B").addColumn(column(keyOfB)).setPrimaryKey(keyOfB));
 
     StopWatch.print("schema created");
 
@@ -99,7 +98,7 @@ public class TestCreateMREF {
 
     // add one sided many-to-many
     String refName = columnType + "refToA";
-    bTable.getMetadata().addMref(refName, "A", keyOfA);
+    bTable.getMetadata().addColumn(column(refName).type(MREF).refTable("A").refColumn(keyOfA));
 
     //    String refReverseName = columnType + "refToB";
     // refReverseName, keyOfB

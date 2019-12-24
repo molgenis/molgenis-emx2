@@ -30,10 +30,10 @@ class SqlTable implements Table {
   public static final String DEFER_SQL = "SET CONSTRAINTS ALL DEFERRED";
 
   private SqlDatabase db;
-  private SqlTableMetadata metadata;
+  private TableMetadata metadata;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
-  SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
+  SqlTable(SqlDatabase db, TableMetadata metadata) {
     this.db = db;
     this.metadata = metadata;
   }
@@ -228,11 +228,6 @@ class SqlTable implements Table {
     log(start, count, "deleted");
 
     return count.get();
-  }
-
-  @Override
-  public void deleteByPrimaryKey(Object... key) {
-    throw new UnsupportedOperationException("TODO");
   }
 
   @Override

@@ -44,10 +44,6 @@ public class MetadataUtils {
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_COLUMN =
       field(name("ref_column"), VARCHAR.nullable(true));
-  //  private static final org.jooq.Field REVERSE_REF_TABLE =
-  //      field(name("reverse_ref_table"), VARCHAR.nullable(true));
-  //  private static final org.jooq.Field REVERSE_REF_COLUMN =
-  //      field(name("reverse_ref_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field VIA_COLUMN =
       field(name("via_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field UNIQUE_COLUMNS =
@@ -159,23 +155,19 @@ public class MetadataUtils {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
   }
 
-  protected static void deleteSchema(SqlSchemaMetadata schema) {
-    schema.getJooq().deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
+  protected static void deleteSchema(DSLContext jooq, SchemaMetadata schema) {
+    jooq.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
   }
 
-  protected static Collection<String> loadTableNames(SqlSchemaMetadata sqlSchema) {
-    return sqlSchema
-        .getJooq()
-        .selectFrom(TABLE_METADATA)
+  protected static Collection<String> loadTableNames(DSLContext jooq, SchemaMetadata sqlSchema) {
+    return jooq.selectFrom(TABLE_METADATA)
         .where(TABLE_SCHEMA.eq(sqlSchema.getName()))
         .fetch()
         .getValues(TABLE_NAME, String.class);
   }
 
-  protected static void saveTableMetadata(SqlTableMetadata table) {
-    table
-        .getJooq()
-        .insertInto(TABLE_METADATA)
+  protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
+    jooq.insertInto(TABLE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PRIMARYKEY, TABLE_INHERITS)
         .values(
             table.getSchema().getName(),
@@ -189,36 +181,32 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void loadTableMetadata(SqlTableMetadata table) {
-    // load tables metadata
-    //   Collection<Record> columnRecords =
+  protected static void loadTableMetadata(DSLContext jooq, TableMetadata table) {
     Record tableRecord =
-        table
-            .getJooq()
-            .selectFrom(TABLE_METADATA)
+        jooq.selectFrom(TABLE_METADATA)
             .where(
                 TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetchOne();
     if (tableRecord == null) {
       return;
     }
-
-    table.loadPrimaryKey(tableRecord.get(TABLE_PRIMARYKEY, String.class));
-    table.loadInherits(tableRecord.get(TABLE_INHERITS, String.class));
+    table.setInherit(tableRecord.get(TABLE_INHERITS, String.class));
+    for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
+      table.addColumn(c);
+    }
+    String pkey = tableRecord.get(TABLE_PRIMARYKEY, String.class);
+    if (pkey != null) table.setPrimaryKey(pkey);
+    MetadataUtils.loadUniqueMetadata(jooq, table);
   }
 
-  protected static void deleteTable(SqlTableMetadata table) {
-    table
-        .getJooq()
-        .deleteFrom(TABLE_METADATA)
+  protected static void deleteTable(DSLContext jooq, TableMetadata table) {
+    jooq.deleteFrom(TABLE_METADATA)
         .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getTableName()))
         .execute();
   }
 
-  protected static void saveColumnMetadata(SqlColumn column) {
-    column
-        .getJooq()
-        .insertInto(COLUMN_METADATA)
+  protected static void saveColumnMetadata(DSLContext jooq, Column column) {
+    jooq.insertInto(COLUMN_METADATA)
         .columns(
             TABLE_SCHEMA,
             TABLE_NAME,
@@ -227,8 +215,6 @@ public class MetadataUtils {
             NULLABLE,
             REF_TABLE,
             REF_COLUMN,
-            //            REVERSE_REF_TABLE,
-            //            REVERSE_REF_COLUMN,
             VIA_COLUMN,
             INDEXED)
         .values(
@@ -242,35 +228,29 @@ public class MetadataUtils {
             //            column.getReverseRefTableName(),
             //            column.getReverseRefColumn(),
             column.getMappedBy(),
-            column.getIndexed())
+            column.isIndexed())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
-        //        .set(REVERSE_REF_TABLE, column.getReverseRefTableName())
-        //        .set(REVERSE_REF_COLUMN, column.getReverseRefColumn())
         .set(VIA_COLUMN, column.getMappedBy())
-        .set(INDEXED, column.getIndexed())
+        .set(INDEXED, column.isIndexed())
         .execute();
   }
 
-  protected static void deleteColumn(SqlColumn column) {
-    column
-        .getJooq()
-        .deleteFrom(COLUMN_METADATA)
+  protected static void deleteColumn(DSLContext jooq, Column column) {
+    jooq.deleteFrom(COLUMN_METADATA)
         .where(
-            TABLE_SCHEMA.eq(column.getTable().getSchema()),
+            TABLE_SCHEMA.eq(column.getTable().getSchema().getName()),
             TABLE_NAME.eq(column.getTable().getTableName()),
             COLUMN_NAME.eq(column.getName()))
         .execute();
   }
 
-  protected static void saveUnique(SqlTableMetadata table, String... columnNames) {
-    table
-        .getJooq()
-        .insertInto(UNIQUE_METADATA)
+  protected static void saveUnique(DSLContext jooq, TableMetadata table, String... columnNames) {
+    jooq.insertInto(UNIQUE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
         .values(table.getSchema().getName(), table.getTableName(), columnNames)
         .onConflict(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
@@ -278,10 +258,8 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void deleteUnique(SqlTableMetadata table, String... columnNames) {
-    table
-        .getJooq()
-        .deleteFrom(UNIQUE_METADATA)
+  protected static void deleteUnique(DSLContext jooq, TableMetadata table, String... columnNames) {
+    jooq.deleteFrom(UNIQUE_METADATA)
         .where(
             TABLE_SCHEMA.eq(table.getSchema().getName()),
             TABLE_NAME.eq(table.getTableName()),
@@ -293,65 +271,35 @@ public class MetadataUtils {
     return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
   }
 
-  protected static void loadUniqueMetadata(SqlTableMetadata table) {
+  protected static void loadUniqueMetadata(DSLContext jooq, TableMetadata table) {
     List<Record> uniqueRecordList =
-        table
-            .getJooq()
-            .selectFrom(UNIQUE_METADATA)
+        jooq.selectFrom(UNIQUE_METADATA)
             .where(
                 TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetch();
 
     for (Record uniqueRecord : uniqueRecordList) {
-      table.loadUnique(uniqueRecord.get(UNIQUE_COLUMNS, String[].class));
+      table.addUnique(uniqueRecord.get(UNIQUE_COLUMNS, String[].class));
     }
   }
 
-  protected static List<Column> loadColumnMetadata(SqlTableMetadata table) {
+  protected static List<Column> loadColumnMetadata(DSLContext jooq, TableMetadata table) {
     List<Column> columnList = new ArrayList<>();
     // load tables and columns
     Collection<Record> columnRecords =
-        table
-            .getJooq()
-            .selectFrom(COLUMN_METADATA)
+        jooq.selectFrom(COLUMN_METADATA)
             .where(
                 TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetch();
 
     for (Record col : columnRecords) {
-      String columnName = col.get(COLUMN_NAME, String.class);
-      ColumnType columnColumnType = ColumnType.valueOf(col.get(DATA_TYPE, String.class));
-      Boolean nullable = col.get(NULLABLE, Boolean.class);
-
-      String toTable = col.get(REF_TABLE, String.class);
-      String toColumn = col.get(REF_COLUMN, String.class);
-
-      //      String reverseRefTable = col.get(REVERSE_REF_TABLE, String.class);
-      //      String reverseToColumn = col.get(REVERSE_REF_COLUMN, String.class);
-
-      String viaColumn = col.get(VIA_COLUMN, String.class);
-
-      switch (columnColumnType) {
-        case REF:
-          columnList.add(
-              new SqlRefColumn(table, columnName, toTable, toColumn)
-                  // .loadReverseReference(reverseRefTable, reverseToColumn)
-                  .loadNullable(nullable));
-          break;
-        case REF_ARRAY:
-          columnList.add(
-              new SqlRefArrayColumn(table, columnName, toTable, toColumn).loadNullable(nullable));
-          break;
-        case REFBACK:
-          columnList.add(
-              new SqlRefBackColumn(table, columnName, toTable, toColumn, viaColumn)
-                  .loadNullable(nullable)
-                  //  .loadReverseReference(reverseRefTable, reverseToColumn)
-                  .loadMappedBy(viaColumn));
-          break;
-        default:
-          columnList.add(new SqlColumn(table, columnName, columnColumnType).loadNullable(nullable));
-      }
+      Column c = new Column(col.get(COLUMN_NAME, String.class));
+      c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
+      c.nullable(col.get(NULLABLE, Boolean.class));
+      c.refTable(col.get(REF_TABLE, String.class));
+      c.refColumn(col.get(REF_COLUMN, String.class));
+      c.mappedBy(col.get(VIA_COLUMN, String.class));
+      columnList.add(new Column(table, c));
     }
     return columnList;
   }

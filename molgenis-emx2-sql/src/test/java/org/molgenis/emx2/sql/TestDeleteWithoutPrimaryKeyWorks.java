@@ -10,6 +10,8 @@ import org.molgenis.emx2.Table;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestDeleteWithoutPrimaryKeyWorks {
   private static Database db;
@@ -23,8 +25,7 @@ public class TestDeleteWithoutPrimaryKeyWorks {
   public void testDelete() {
     Schema schema = db.createSchema(getClass().getSimpleName());
 
-    Table table = schema.createTableIfNotExists("Test");
-    table.getMetadata().addColumn("Col1");
+    Table table = schema.create(table("Test").addColumn(column("Col1")));
 
     Row row = new Row().setString("Col1", "blaat");
     table.insert(row);

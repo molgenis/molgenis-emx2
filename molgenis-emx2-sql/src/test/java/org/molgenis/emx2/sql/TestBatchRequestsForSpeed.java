@@ -7,7 +7,6 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.sql.SQLException;
@@ -17,6 +16,10 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestBatchRequestsForSpeed {
   private static Database db;
@@ -33,12 +36,12 @@ public class TestBatchRequestsForSpeed {
     StopWatch.start("testBatch started");
 
     Schema schema = db.createSchema("testBatch");
-    Table testBatchTable = schema.createTableIfNotExists("TestBatchRequestsForSpeed");
-    testBatchTable
-        .getMetadata()
-        .addColumn("test", ColumnType.STRING)
-        .primaryKey()
-        .addColumn("testint", ColumnType.INT);
+    Table testBatchTable =
+        schema.create(
+            table("TestBatchRequestsForSpeed")
+                .addColumn(column("test"))
+                .addColumn(column("testint").type(INT))
+                .setPrimaryKey("test"));
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -83,33 +86,27 @@ public class TestBatchRequestsForSpeed {
     Schema schema = db.createSchema("testCreate");
 
     String PERSON = "Person";
-    Table personTable = schema.createTableIfNotExists(PERSON);
-
-    personTable
-        .getMetadata()
-        .addColumn("ID", ColumnType.INT)
-        .primaryKey()
-        .addColumn("First Name", ColumnType.STRING)
-        .setNullable(false)
-        .addColumn("Last Name", ColumnType.STRING)
-        .addRef("Father", PERSON)
-        .setNullable(true)
-        .addUnique("First Name", "Last Name");
+    Table personTable =
+        schema.create(
+            table(PERSON)
+                .addColumn(column("ID").type(INT).pkey(true))
+                .addColumn(column("First Name").nullable(false))
+                .addColumn(column("Last Name"))
+                .addColumn(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .addUnique("First Name", "Last Name"));
 
     // createColumn a fromTable
     // TODO need to optimize the reloading to be more lazy
     for (int i = 0; i < 10; i++) {
-      Table personTable2 = schema.createTableIfNotExists(PERSON + i);
-      personTable2
-          .getMetadata()
-          .addColumn("ID", ColumnType.INT)
-          .primaryKey()
-          .addColumn("First Name", ColumnType.STRING)
-          .setNullable(false)
-          .addColumn("Last Name", ColumnType.STRING)
-          .addRef("Father", personTable2.getName())
-          .setNullable(true)
-          .addUnique("First Name", "Last Name");
+      String name = PERSON + i;
+      schema.create(
+          table(name)
+              .addColumn(column("ID").type(INT))
+              .addColumn(column("First Name").nullable(false))
+              .addColumn(column("Last Name"))
+              .addColumn(column("Father").type(REF).refTable(name).nullable(true))
+              .setPrimaryKey("ID")
+              .addUnique("First Name", "Last Name"));
     }
     StopWatch.print("Created tables");
 
@@ -148,10 +145,8 @@ public class TestBatchRequestsForSpeed {
     assertEquals(0, schema.getTable("Person").retrieve().size());
     assertEquals(1, personTableReloaded.getMetadata().getUniques().size());
     assertEquals(1, personTable.getMetadata().getUniques().size());
-    assertEquals(1, personTable.getMetadata().getUniques().size());
     personTable.getMetadata().removeUnique("First Name", "Last Name");
     assertEquals(0, personTable.getMetadata().getUniques().size());
-
     assertEquals(4, personTable.getMetadata().getColumns().size());
     try {
       personTable.getMetadata().removeColumn("ID");
@@ -163,7 +158,7 @@ public class TestBatchRequestsForSpeed {
     assertEquals(3, personTable.getMetadata().getColumns().size());
 
     // drop a fromTable
-    db.getSchema("testCreate").getMetadata().dropTable(personTable.getName());
+    db.getSchema("testCreate").getMetadata().drop(personTable.getName());
     assertNull(db.getSchema("testCreate").getTable(personTable.getName()));
 
     // make sure nothing was left behind in backend

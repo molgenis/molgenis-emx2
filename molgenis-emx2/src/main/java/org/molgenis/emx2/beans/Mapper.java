@@ -4,7 +4,6 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.MolgenisException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +11,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.molgenis.emx2.Column.column;
 
 public class Mapper {
 
@@ -61,12 +62,13 @@ public class Mapper {
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
       if (!f.getName().contains("jacoco")) {
-        Column col = t.addColumn(f.getName(), TypeUtils.typeOf(f.getType()));
+        Column col = column(f.getName()).type(TypeUtils.typeOf(f.getType()));
         if (f.isAnnotationPresent(ColumnAnnotation.class)) {
           ColumnAnnotation cm = f.getAnnotation(ColumnAnnotation.class);
-          col.setNullable(cm.nullable());
+          col.nullable(cm.nullable());
           col.setDescription(cm.description());
         }
+        t.addColumn(col);
       }
     }
     return t;

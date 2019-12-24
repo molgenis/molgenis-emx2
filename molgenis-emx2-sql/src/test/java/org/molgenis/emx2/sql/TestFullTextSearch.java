@@ -3,11 +3,14 @@ package org.molgenis.emx2.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.ColumnType;
 
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.TEXT;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestFullTextSearch {
   private static Database db;
@@ -22,12 +25,12 @@ public class TestFullTextSearch {
 
     // setup
     Schema schema = db.createSchema("TestFullTextSearch");
-    Table aTable = schema.createTableIfNotExists("TestFullTextSearch");
-    aTable
-        .getMetadata()
-        .addColumn("sub", ColumnType.STRING)
-        .addColumn("body", ColumnType.TEXT)
-        .addColumn("year", ColumnType.INT);
+    Table aTable =
+        schema.create(
+            table("TestFullTextSearch")
+                .addColumn(column("sub"))
+                .addColumn(column("body").type(TEXT))
+                .addColumn(column("year").type(INT)));
     // aTable.getMetadata().enableSearch();
 
     aTable.insert(

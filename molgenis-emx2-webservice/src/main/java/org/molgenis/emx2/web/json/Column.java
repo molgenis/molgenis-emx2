@@ -26,11 +26,13 @@ public class Column {
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
-    org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name, columnType);
-    c.setPrimaryKey(pkey);
+    org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
+    c.type(columnType);
+    c.pkey(pkey);
     c.setUnique(unique);
-    c.setNullable(nullable);
-    c.setReference(refTableName, refColumnName);
+    c.nullable(nullable);
+    c.refTable(refTableName);
+    c.refColumn(refColumnName);
     return c;
   }
 

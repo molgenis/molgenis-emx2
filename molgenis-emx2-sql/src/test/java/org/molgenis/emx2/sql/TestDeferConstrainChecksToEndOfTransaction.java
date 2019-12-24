@@ -8,6 +8,10 @@ import org.molgenis.emx2.MolgenisException;
 import java.util.UUID;
 
 import static junit.framework.TestCase.fail;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestDeferConstrainChecksToEndOfTransaction {
   Database database = TestDatabaseFactory.getTestDatabase();
@@ -22,12 +26,15 @@ public class TestDeferConstrainChecksToEndOfTransaction {
   public void runTestCase(Database db) {
     Schema schema = db.createSchema("TestDeffered");
 
-    Table subjectTable = schema.createTableIfNotExists("Subject");
-    subjectTable.getMetadata().addColumn("ID", ColumnType.INT).primaryKey();
+    Table subjectTable =
+        schema.create(table("Subject").addColumn(column("ID").type(INT)).setPrimaryKey("ID"));
 
-    Table sampleTable = schema.createTableIfNotExists("Sample");
-    sampleTable.getMetadata().addColumn("ID", ColumnType.INT).primaryKey();
-    sampleTable.getMetadata().addRef("subject", "Subject");
+    Table sampleTable =
+        schema.create(
+            table("Sample")
+                .addColumn(column("ID").type(INT))
+                .addColumn(column("subject").type(REF).refTable("Subject"))
+                .setPrimaryKey("ID"));
 
     StopWatch.print("schema created");
 
@@ -47,10 +54,11 @@ public class TestDeferConstrainChecksToEndOfTransaction {
           db -> {
             Schema schema = db.createSchema("TestDeffered3");
 
-            Table subjectTable = schema.createTableIfNotExists("Subject");
+            Table subjectTable = schema.create(table("Subject"));
 
-            Table sampleTable = schema.createTableIfNotExists("Sample");
-            sampleTable.getMetadata().addRef("subject", "Subject");
+            Table sampleTable =
+                schema.create(
+                    table("Sample").addColumn(column("subject").type(REF).refTable("Subject")));
 
             StopWatch.print("schema created");
 

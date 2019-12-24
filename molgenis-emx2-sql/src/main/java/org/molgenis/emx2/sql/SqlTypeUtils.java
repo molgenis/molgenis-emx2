@@ -22,11 +22,11 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType sqlColumnType = column.getColumnType();
     switch (sqlColumnType) {
       case REF:
-        return jooqTypeOf(getRefColumnForColumn(column));
+        return jooqTypeOf(column.getRefColumn());
       case REFBACK:
       case REF_ARRAY:
       case MREF:
-        return jooqTypeOf(getRefColumnForColumn(column)).getArrayDataType();
+        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
       default:
         return jooqTypeOf(sqlColumnType);
     }
@@ -70,23 +70,6 @@ public class SqlTypeUtils extends TypeUtils {
         // should never happen
         throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + columnType);
     }
-  }
-
-  private static Column getRefColumnForColumn(Column column) {
-    TableMetadata tm = column.getTable().getSchema().getTableMetadata(column.getRefTableName());
-    if (tm == null)
-      throw new MolgenisException(
-          "Ref column can't be found",
-          "Table reference '"
-              + column.getName()
-              + "' from table '"
-              + column.getTable().getTableName()
-              + "' to table '"
-              + column.getRefTableName()
-              + "' couln't be created because table '"
-              + column.getRefTableName()
-              + "'couldn't be found");
-    return tm.getColumn(column.getRefColumnName());
   }
 
   public static Collection<Object> getValuesAsCollection(Row row, Table table) {
@@ -204,7 +187,7 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType columnType;
     Column refColumn = column.getRefColumn();
     while (REF.equals(refColumn.getColumnType())) {
-      refColumn = refColumn.getRefColumn();
+      refColumn = column.getRefColumn();
     }
     columnType = getArrayType(refColumn.getColumnType());
     return columnType;
@@ -214,10 +197,23 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType columnType;
     Column refColumn = column.getRefColumn();
     while (REF.equals(refColumn.getColumnType())) {
-      refColumn = refColumn.getRefColumn();
+      refColumn = column.getRefColumn();
     }
     columnType = refColumn.getColumnType();
     return columnType;
+  }
+
+  //  public static Column getRefColumn(Column column) {
+  //    TableMetadata refTable = getRefTable(column);
+  //    if (column.getRefColumnName() == null) {
+  //      return refTable.getPrimaryKeyColumn();
+  //    } else {
+  //      return refTable.getColumn(column.getRefColumnName());
+  //    }
+  //  }
+
+  public static TableMetadata getRefTable(Column column) {
+    return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
   }
 
   public static String getPsqlType(Column column) {

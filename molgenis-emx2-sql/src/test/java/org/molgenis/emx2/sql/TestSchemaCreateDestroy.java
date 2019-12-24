@@ -10,6 +10,7 @@ import java.sql.SQLException;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestSchemaCreateDestroy {
   private static Database db;
@@ -37,7 +38,7 @@ public class TestSchemaCreateDestroy {
       System.out.println("Error correctly:\n" + e);
     }
 
-    schema.createTableIfNotExists("test");
+    schema.create(table("test"));
 
     try {
       schema.dropTable("test2");

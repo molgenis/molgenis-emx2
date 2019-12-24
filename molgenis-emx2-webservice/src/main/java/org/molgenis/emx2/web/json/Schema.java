@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.molgenis.emx2.TableMetadata.table;
+
 public class Schema {
   private List<Table> tables = new ArrayList<>();
 
@@ -27,7 +29,7 @@ public class Schema {
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
     for (Table t : tables) {
-      TableMetadata tm = s.createTable(t.getName());
+      TableMetadata tm = s.create(table(t.getName()));
       tm.setPrimaryKey(t.getPkey());
       for (String[] u : t.getUnique()) tm.addUnique(u);
       for (Column c : t.getColumns()) {

@@ -11,9 +11,7 @@ public interface Schema {
 
   Collection<String> getTableNames();
 
-  Table createTableIfNotExists(String name);
-
-  Table createTableIfNotExists(TableMetadata table);
+  Table create(TableMetadata table);
 
   Table getTable(String name);
 

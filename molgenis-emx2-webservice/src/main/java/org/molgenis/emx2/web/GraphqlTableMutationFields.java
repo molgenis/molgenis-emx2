@@ -6,6 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.sql.CreateSimpleColumn;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 
 import java.util.List;

@@ -5,52 +5,39 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.MREF;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
+import static org.molgenis.emx2.sql.CreateSimpleColumn.getJoinTableName;
+import static org.molgenis.emx2.sql.SqlTypeUtils.*;
 
-/**
- * Creates a join table.
- *
- * <p>Also refTable.refColumn[] and refBackTable.refBackColumn[] columns are created
- *
- * <p>Finally, triggers take inserts/updates on refColumn[] or refBackColumn[] and put content in
- * joinTable
- *
- * <p>Note: we replace all relevant values in joinTable to allow also for changing of the refered to
- * column. This might get slow on large MREF lists (to be measured).
- */
-public class SqlMrefColumn extends SqlColumn {
+public class CreateMrefColumn {
 
-  protected SqlMrefColumn(
-      SqlTableMetadata sqlTable, String name, String refTable, String refColumn) {
-    super(sqlTable, name, MREF);
-    this.setReference(refTable, refColumn);
-  }
-
-  @Override
-  public SqlMrefColumn createColumn() {
-    String schemaName = getTable().getSchema().getName();
+  public static void createMrefColumn(DSLContext jooq, Column column) {
+    String schemaName = column.getTable().getSchema().getName();
 
     // create the column in this table
-    getJooq()
-        .alterTable(name(schemaName, getTable().getTableName()))
-        .add(field(name(getName()), SqlTypeUtils.jooqTypeOf(getRefColumn()).getArrayDataType()))
+    jooq.alterTable(name(schemaName, column.getTable().getTableName()))
+        .add(field(name(column.getName()), jooqTypeOf(column.getRefColumn()).getArrayDataType()))
         .execute();
 
     // create joinTable the joinTable
-    TableMetadata table = getTable().getSchema().createTable(getJoinTableName());
-    // to points to other table
-    table.addRef(getName(), getRefTableName(), getRefColumnName());
-    // reverse points to primary key of this table
-    Column reverseColumn = getTable().getPrimaryKeyColumn();
-    table.addRef(reverseColumn.getName(), getTable().getTableName(), reverseColumn.getName());
+    column
+        .getTable()
+        .getSchema()
+        .create(new TableMetadata(getJoinTableName(column)))
+        .addColumn(
+            new Column(column.getName())
+                .type(REF)
+                .refTable(column.getRefTableName())
+                .refColumn(column.getRefColumnName()))
+        .addColumn(
+            new Column(column.getTable().getPrimaryKey())
+                .type(REF)
+                .refTable(column.getTable().getTableName())
+                .refColumn(column.getTable().getPrimaryKey()));
 
     // create trigger on insert, update and delete of rows in this table will update mref table
-    createTriggers(getJooq(), this, getJoinTableName());
-
-    // save metadata
-    saveColumnMetadata(this);
-    return this;
+    createTriggers(jooq, column, getJoinTableName(column));
   }
 
   private static void createTriggers(DSLContext jooq, Column thisColumn, String joinTableName) {
@@ -61,7 +48,7 @@ public class SqlMrefColumn extends SqlColumn {
         thisColumn.getTable().getTableName() + "_" + thisColumn.getName() + "_UPSERT_TRIGGER";
     TableMetadata thisTable = thisColumn.getTable();
     String primaryKey = thisTable.getPrimaryKey();
-    String sqlType = SqlTypeUtils.getPsqlType(thisColumn.getRefColumn());
+    String sqlType = getPsqlType(thisColumn.getRefColumn());
 
     // insert and update trigger: does the following
     // first delete mrefs to previous instance of 'self'

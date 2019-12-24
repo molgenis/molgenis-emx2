@@ -13,7 +13,7 @@ public interface Table {
 
   int insert(Row... row);
 
-  int insert(Iterable<Row> rows); // consider use Iterable or Iterator instead?
+  int insert(Iterable<Row> rows);
 
   int update(Row... row);
 
@@ -22,8 +22,6 @@ public interface Table {
   int delete(Row... row);
 
   int delete(Iterable<Row> rows);
-
-  void deleteByPrimaryKey(Object... name);
 
   Query select(String... path);
 

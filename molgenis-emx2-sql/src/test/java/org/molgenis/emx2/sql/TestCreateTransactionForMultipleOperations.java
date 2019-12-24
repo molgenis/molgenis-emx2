@@ -11,7 +11,8 @@ import org.molgenis.emx2.MolgenisException;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateTransactionForMultipleOperations {
   private static Database db;
@@ -27,8 +28,8 @@ public class TestCreateTransactionForMultipleOperations {
     db.tx(
         db -> {
           Schema schema = db.createSchema("testCommit");
-          Table testTable = schema.createTableIfNotExists("testCommit");
-          testTable.getMetadata().addColumn("ColA", STRING).addUnique("ColA");
+          Table testTable =
+              schema.create(table("testCommit").addColumn(column("ColA")).addUnique("ColA"));
           testTable.insert(new Row().setString("ColA", "test"));
           testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });
@@ -41,8 +42,8 @@ public class TestCreateTransactionForMultipleOperations {
     db.tx(
         db -> {
           Schema schema = db.createSchema("testRollBack");
-          Table testTable = schema.createTableIfNotExists("testRollBack");
-          testTable.getMetadata().addColumn("ColA", STRING).addUnique("ColA");
+          Table testTable =
+              schema.create(table("testRollBack").addColumn(column("ColA")).addUnique("ColA"));
           Row r = new Row().setString("ColA", "test");
           testTable.insert(r);
           testTable.insert(r);

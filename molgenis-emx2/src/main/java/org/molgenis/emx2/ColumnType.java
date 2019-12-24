@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import static org.molgenis.emx2.Constants.*;
 
 public enum ColumnType {
-  // EQUALITY_OPERATORS
+  // SIMPLE
   BOOL(Boolean.class, EQUALITY_OPERATORS),
   BOOL_ARRAY(Boolean[].class, EQUALITY_OPERATORS),
   UUID(java.util.UUID.class, EQUALITY_OPERATORS),
   UUID_ARRAY(java.util.UUID[].class, EQUALITY_OPERATORS),
-  // STRING OPERATORS
+  // STRING
   STRING(String.class, STRING_OPERATORS),
   STRING_ARRAY(String[].class, STRING_OPERATORS),
   TEXT(String.class, STRING_OPERATORS),

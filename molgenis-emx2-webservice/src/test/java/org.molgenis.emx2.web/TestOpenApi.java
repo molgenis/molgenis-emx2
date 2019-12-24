@@ -12,7 +12,9 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestOpenApi {
 
@@ -20,7 +22,7 @@ public class TestOpenApi {
   public void constructApi() throws IOException, URISyntaxException {
     SchemaMetadata schema = new SchemaMetadata("test");
 
-    TableMetadata table = schema.createTable("TypeTest");
+    TableMetadata table = schema.create(table("TypeTest"));
     for (ColumnType columnType : ColumnType.values()) {
       if (MREF.equals(columnType)
           || REF.equals(columnType)
@@ -28,13 +30,13 @@ public class TestOpenApi {
           || REFBACK.equals(columnType)) {
         // TODO: outside of test for now
       } else {
-        table.addColumn(columnType.toString().toLowerCase() + "Column", columnType);
+        table.addColumn(column(columnType.toString().toLowerCase() + "Column").type(columnType));
       }
     }
 
-    TableMetadata personTable = schema.createTable("Person");
-    personTable.addColumn("First Name", STRING);
-    personTable.addColumn("Last Name", STRING);
+    TableMetadata personTable =
+        schema.create(
+            table("Person").addColumn(column("First Name")).addColumn(column("Last Name")));
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
     assertEquals(5, api.getComponents().getSchemas().size()); // useless test

@@ -2,7 +2,9 @@ package org.molgenis.emx2.examples;
 
 import org.molgenis.emx2.*;
 
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class PetStoreExample {
 
@@ -26,38 +28,46 @@ public class PetStoreExample {
 
   public static void create(SchemaMetadata schema) {
 
-    TableMetadata categoryTable = schema.createTable(CATEGORY);
-    categoryTable.addColumn(NAME).setPrimaryKey(true);
+    schema.create(table(CATEGORY).addColumn(column(NAME)).setPrimaryKey(NAME));
 
-    TableMetadata tagTable = schema.createTable(TAG);
-    tagTable.addColumn(NAME).setPrimaryKey(true);
+    schema.create(table(TAG).addColumn(column(NAME)).setPrimaryKey(NAME));
 
-    TableMetadata petTable = schema.createTable(PET);
-    petTable.addColumn(NAME).setPrimaryKey(true);
-    petTable.addRef(CATEGORY_COLUMN, CATEGORY).setNullable(true);
-    petTable.addColumn("photoUrls", STRING_ARRAY).setNullable(true);
-    petTable.addColumn(STATUS); // todo enum: available, pending, sold
-    petTable.addRefArray("tags", TAG).setNullable(true);
-    petTable.addColumn(WEIGHT, DECIMAL);
+    schema.create(
+        table(PET)
+            .addColumn(column(NAME))
+            .addColumn(column(CATEGORY_COLUMN).type(REF).refTable(CATEGORY))
+            .addColumn(column("photoUrls").type(STRING_ARRAY).nullable(true))
+            .addColumn(column(STATUS)) // todo enum: available, pending, sold
+            .addColumn(column("tags").type(REF_ARRAY).refTable(TAG).nullable(true))
+            .addColumn(column(WEIGHT).type(DECIMAL))
+            .setPrimaryKey(NAME));
 
-    TableMetadata orderTable = schema.createTable(ORDER);
-    orderTable.addColumn(ORDER_ID).primaryKey();
-    orderTable.addRef("pet", PET, NAME);
-    petTable.addRefBack("orders", ORDER, "pet");
-    orderTable.addColumn(QUANTITY, INT); // todo: validation >=1
-    orderTable.addColumn(PRICE, DECIMAL); // todo: validation >=1
-    orderTable.addColumn(COMPLETE, BOOL); // todo: default false
-    orderTable.addColumn(STATUS); // todo enum: placed, approved, delivered
+    schema.create(
+        table(ORDER)
+            .addColumn(column(ORDER_ID))
+            .addColumn(column("pet").type(REF).refTable(PET).refColumn(NAME))
+            .addColumn(column(QUANTITY).type(INT)) // todo: validation >=1
+            .addColumn(column(PRICE).type(DECIMAL)) // todo: validation >=1
+            .addColumn(column(COMPLETE).type(BOOL)) // todo: default false
+            .addColumn(column(STATUS))
+            .setPrimaryKey(ORDER_ID)); // todo enum: placed, approved, delivered
 
-    TableMetadata userTable = schema.createTable(USER);
-    userTable.addColumn("username").setPrimaryKey(true);
-    userTable.addColumn("firstName").setNullable(true);
-    userTable.addColumn("lastName").setNullable(true);
-    userTable.addColumn("email").setNullable(true); // todo: validation email
-    userTable.addColumn("password").setNullable(true); // todo: password type
-    userTable.addColumn("phone").setNullable(true); // todo: validation phone
-    userTable.addColumn("userStatus", INT).setNullable(true);
-    userTable.addRefArray("pets", PET).setNullable(true);
+    // refback
+    schema
+        .getTableMetadata(PET)
+        .addColumn(column("orders").type(REFBACK).refTable(ORDER).mappedBy("pet"));
+
+    schema.create(
+        table(USER)
+            .addColumn(column("username"))
+            .addColumn(column("firstName").nullable(true))
+            .addColumn(column("lastName").nullable(true))
+            .addColumn(column("email").nullable(true)) // todo: validation email
+            .addColumn(column("password").nullable(true)) // todo: password type
+            .addColumn(column("phone").nullable(true)) // todo: validation phone
+            .addColumn(column("userStatus").type(INT).nullable(true))
+            .addColumn(column("pets").type(REF_ARRAY).refTable(PET).nullable(true))
+            .setPrimaryKey("username"));
   }
 
   public static void populate(Schema schema) {

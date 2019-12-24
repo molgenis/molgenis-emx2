@@ -9,9 +9,10 @@ import org.molgenis.emx2.utils.StopWatch;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestQuery {
   static Database database;
@@ -25,13 +26,16 @@ public class TestQuery {
 
     // createColumn some tables with contents
     String PERSON = "Person";
-    Table person = s.createTableIfNotExists(PERSON);
-    person.getMetadata().addColumn("ID", INT).primaryKey();
-    person.getMetadata().addColumn("First Name", STRING);
-    person.getMetadata().addColumn("Last Name", STRING);
-    person.getMetadata().addRef("Father", PERSON).setNullable(true);
-    person.getMetadata().addRef("Mother", PERSON).setNullable(true);
-    person.getMetadata().addUnique("First Name", "Last Name");
+    Table person =
+        s.create(
+            table(PERSON)
+                .addColumn(column("ID").type(INT))
+                .addColumn(column("First Name"))
+                .addColumn(column("Last Name"))
+                .addColumn(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .addColumn(column("Mother").type(REF).refTable(PERSON).nullable(true))
+                .addUnique("First Name", "Last Name")
+                .setPrimaryKey("ID"));
 
     Row donald =
         new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");

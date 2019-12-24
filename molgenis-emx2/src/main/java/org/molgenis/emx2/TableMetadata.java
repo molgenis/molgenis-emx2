@@ -1,28 +1,49 @@
 package org.molgenis.emx2;
 
-import static org.molgenis.emx2.ColumnType.*;
-
 import java.util.*;
 
 public class TableMetadata {
 
   private SchemaMetadata schema;
-
-  private String tableName = null;
-  private Map<String, Column> columns = new LinkedHashMap<>();
+  private String tableName;
+  protected Map<String, Column> columns = new LinkedHashMap<>();
   private List<String[]> uniques = new ArrayList<>();
-  private String primaryKey = null;
-  private String inherit = null;
+  protected String primaryKey = null;
+  protected String inherit = null;
+
+  public static TableMetadata table(String tableName) {
+    return new TableMetadata(tableName);
+  }
 
   public TableMetadata(String tableName) {
     this.tableName = tableName;
   }
 
-  // can only be used by members in same package
-  protected TableMetadata(SchemaMetadata schema, String tableName) {
+  public TableMetadata(SchemaMetadata schema, String tableName) {
+    this(tableName);
+    this.schema = schema;
+  }
+
+  protected TableMetadata(SchemaMetadata schema, TableMetadata metadata) {
     this.clearCache();
     this.schema = schema;
-    this.tableName = tableName;
+    this.copy(metadata);
+  }
+
+  protected void copy(TableMetadata metadata) {
+    clearCache();
+    this.tableName = metadata.getTableName();
+    for (String[] unique : metadata.getUniques()) {
+      this.uniques.add(unique);
+    }
+    for (Column c : metadata.getLocalColumns()) {
+      this.columns.put(c.getName(), new Column(this, c));
+    }
+    if (metadata.getPrimaryKey() != null) {
+      this.primaryKey = metadata.getPrimaryKey();
+      getColumn(metadata.getPrimaryKey()).pkey(true);
+    }
+    this.inherit = metadata.getInherit();
   }
 
   public String getTableName() {
@@ -34,34 +55,55 @@ public class TableMetadata {
   }
 
   public String getPrimaryKey() {
-    if (this.inherit != null) return getInheritedTable().getPrimaryKey();
+    if (getInheritedTable() != null) {
+      return getInheritedTable().getPrimaryKey();
+    }
     return this.primaryKey;
   }
 
   public TableMetadata setPrimaryKey(String columnName) {
+    if (getColumn(columnName) == null) {
+      throw new MolgenisException(
+          "Set primary key failed",
+          "'Column '" + columnName + "' unknown in table '" + getTableName() + "'");
+    }
+    // reset old
+    if (this.primaryKey != null) {
+      this.columns.get(this.primaryKey).pkey(false);
+    }
+    // set new
     this.primaryKey = columnName;
+    this.columns.get(columnName).pkey(true);
     return this;
   }
 
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
     if (inherit != null) {
-      result.addAll(getInheritedTable().getColumns());
+
+      // we create copies so we don't need worry on changes
+      for (Column col : getInheritedTable().getColumns()) {
+        result.add(new Column(this, col));
+      }
 
       // ignore primary key from child class because that is same as in inheritedTable
-      List<String> primaryKeyList = Arrays.asList(getPrimaryKey());
-      for (Column c : this.columns.values()) {
-        if (!primaryKeyList.contains(c.getName())) result.add(c);
+      for (Column c : getLocalColumns()) {
+        if (getPrimaryKey() == null || getPrimaryKey().equals(c.getName())) {
+          result.add(new Column(this, c));
+        }
       }
     } else {
-      result.addAll(columns.values());
+      return getLocalColumns();
     }
     return Collections.unmodifiableList(result);
   }
 
   public List<Column> getLocalColumns() {
     ArrayList<Column> result = new ArrayList<>();
-    result.addAll(columns.values());
+    // copy to prevent side effects
+    for (Column c : columns.values()) {
+      result.add(new Column(this, c));
+    }
     return result;
   }
 
@@ -79,68 +121,33 @@ public class TableMetadata {
   }
 
   public Column getColumn(String name) {
-    if (columns.containsKey(name)) return columns.get(name);
+    if (columns.containsKey(name)) return new Column(this, columns.get(name));
     if (inherit != null) {
-      return getInheritedTable().getColumn(name);
+      Column c = getInheritedTable().getColumn(name);
+      if (c != null) return new Column(this, c);
     }
     return null;
   }
 
-  public Column addColumn(Column column) {
+  public TableMetadata addColumn(Column column) {
+    columns.put(column.getName(), new Column(this, column));
+    if (column.isPrimaryKey()) {
+      this.setPrimaryKey(column.getName());
+    }
     column.setTable(this);
-    columns.put(column.getName(), column);
-    return column;
+    return this;
   }
 
-  public Column addColumn(String name) {
-    return this.addColumn(name, STRING);
-  }
-
-  public Column addColumn(String name, ColumnType columnType) {
-    Column c = new Column(this, name, columnType);
-    columns.put(name, c);
-    return c;
-  }
-
-  public Column addRef(String name, String toTable) {
-    return this.addRef(name, toTable, null);
-  }
-
-  public Column addRef(String name, String toTable, String toColumn) {
-    Column c = new Column(this, name, REF).setReference(toTable, toColumn);
-    this.addColumn(c);
-    return c;
-  }
-
-  public Column addRefBack(String name, String toTable, String mappedBy) {
-    return this.addRefBack(name, toTable, null, mappedBy);
-  }
-
-  public Column addRefBack(String name, String toTable, String toColumn, String mappedBy) {
-    Column c = new Column(this, name, REFBACK).setReference(toTable, toColumn, mappedBy);
-    this.addColumn(c);
-    return c;
-  }
-
-  public Column addRefArray(String name, String toTable, String toColumn) {
-    Column c = new Column(this, name, REF_ARRAY).setReference(toTable, toColumn);
-    this.addColumn(c);
-    return c;
-  }
-
-  public Column addRefArray(String name, String toTable) {
-    return this.addRefArray(name, toTable, null);
-  }
-
-  public Column addMref(String name, String refTable) {
-    return this.addMref(name, refTable, null);
-  }
-
-  public Column addMref(String name, String refTable, String refColumn) {
-    return this.addMref(name, refTable, refColumn);
+  public TableMetadata alter(Column column) {
+    columns.put(column.getName(), new Column(this, column));
+    if (column.isPrimaryKey()) this.setPrimaryKey(column.getName());
+    column.setTable(this);
+    return this;
   }
 
   public void removeColumn(String name) {
+    if (name.equals(primaryKey))
+      throw new MolgenisException("Remove column failed", "Column is primary key");
     columns.remove(name);
   }
 
@@ -150,6 +157,12 @@ public class TableMetadata {
 
   public TableMetadata addUnique(String... columnNames) {
     if (isUnique(columnNames)) return this; // idempotent, we silently ignore
+    for (String name : columnNames) {
+      if (getColumn(name) == null)
+        throw new MolgenisException(
+            "Add unique failed",
+            "Column with name '" + name + "' does not exist in table '" + getTableName() + "'");
+    }
     uniques.add(columnNames);
     return this;
   }
@@ -160,6 +173,7 @@ public class TableMetadata {
         return true;
       }
     }
+
     if (inherit != null) return getInheritedTable().isUnique(names);
     return false;
   }
@@ -184,7 +198,10 @@ public class TableMetadata {
   }
 
   public TableMetadata getInheritedTable() {
-    return getSchema().getTableMetadata(inherit);
+    if (inherit != null && getSchema() != null) {
+      return getSchema().getTableMetadata(inherit);
+    }
+    return null;
   }
 
   public void enableRowLevelSecurity() {
@@ -220,6 +237,16 @@ public class TableMetadata {
   }
 
   public Column getPrimaryKeyColumn() {
-    return getColumn(getPrimaryKey());
+    Column result = getColumn(getPrimaryKey());
+    if (result == null) {
+      throw new MolgenisException(
+          "Primary key error",
+          "Primary key '" + getPrimaryKey() + "' does not exist in table '" + getTableName() + "");
+    }
+    return result;
+  }
+
+  public boolean exists() {
+    return !getColumns().isEmpty();
   }
 }

@@ -4,7 +4,9 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class ArrayTypeTestExample {
 
@@ -14,8 +16,8 @@ public class ArrayTypeTestExample {
 
   public static void createSimpleTypeTest(SchemaMetadata schema) {
 
-    TableMetadata typeTestTable = schema.createTable("ArrayTypeTest");
-    typeTestTable.addColumn("id").primaryKey();
+    TableMetadata typeTestTable = schema.create(table("ArrayTypeTest"));
+    typeTestTable.addColumn(column("id").pkey(true));
     ColumnType[] columnTypes =
         new ColumnType[] {
           UUID_ARRAY,
@@ -29,10 +31,12 @@ public class ArrayTypeTestExample {
         };
     for (ColumnType columnType : columnTypes) {
 
-      typeTestTable.addColumn("Test_" + columnType.toString().toLowerCase(), columnType);
-      typeTestTable
-          .addColumn("Test_" + columnType.toString().toLowerCase() + "_nillable", columnType)
-          .setNullable(true);
+      typeTestTable.addColumn(
+          column("Test_" + columnType.toString().toLowerCase()).type(columnType));
+      typeTestTable.addColumn(
+          column("Test_" + columnType.toString().toLowerCase() + "_nillable")
+              .type(columnType)
+              .nullable(true));
     }
   }
 }

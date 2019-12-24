@@ -8,6 +8,7 @@ import org.molgenis.emx2.Schema;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestTransaction {
   private static Database db;
@@ -25,8 +26,8 @@ public class TestTransaction {
     try {
       db.tx(
           db -> {
-            s.createTableIfNotExists("a");
-            s.createTableIfNotExists("b");
+            s.create(table("a"));
+            s.create(table("b"));
             throw new RuntimeException("transaction stopped to check if it rolled back");
           });
     } catch (Exception e) {

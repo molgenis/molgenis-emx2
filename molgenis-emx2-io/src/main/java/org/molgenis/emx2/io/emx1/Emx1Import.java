@@ -11,7 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class Emx1Import {
   static final String EMX_1_IMPORT_FAILED = "EMX1 import failed";
@@ -69,9 +71,9 @@ public class Emx1Import {
         Column c =
             table
                 .getColumn(attribute.getName())
-                .setReference(entities.get(attribute.getRefEntity()).getName(), null);
+                .refTable(entities.get(attribute.getRefEntity()).getName());
         if (attribute.getMappedBy() != null) {
-          c.setMappedBy(attribute.getMappedBy());
+          c.mappedBy(attribute.getMappedBy());
         }
       }
     }
@@ -110,15 +112,16 @@ public class Emx1Import {
       line = 2; // line 1 is header
       for (Emx1Attribute attribute : attributes) {
 
-        // create the table
-        TableMetadata table = schema.createTable(entities.get(attribute.getEntity()).getName());
+        // create the table, if needed
+        TableMetadata table = schema.create(table(entities.get(attribute.getEntity()).getName()));
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
-        Column column = table.addColumn(attribute.getName(), type);
-        column.setNullable(attribute.getNillable());
-        column.setPrimaryKey(attribute.getIdAttribute());
-        table.addColumn(column);
+        table.addColumn(
+            column(attribute.getName())
+                .type(type)
+                .nullable(attribute.getNillable())
+                .pkey(attribute.getIdAttribute()));
 
         line++;
       }
@@ -148,7 +151,7 @@ public class Emx1Import {
 
       line = 2; // line 1 is header
       for (Emx1Entity entity : entities.values()) {
-        schema.createTable(entity.getName());
+        schema.create(table(entity.getName()));
         line++;
       }
     } catch (MolgenisException me) {

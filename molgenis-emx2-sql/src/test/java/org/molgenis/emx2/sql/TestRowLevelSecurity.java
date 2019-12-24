@@ -10,7 +10,8 @@ import org.molgenis.emx2.Schema;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestRowLevelSecurity {
   public static final String TEST_RLS_HAS_NO_PERMISSION = "test_rls_has_no_permission";
@@ -47,10 +48,7 @@ public class TestRowLevelSecurity {
       database.setActiveUser("testrls1");
       database.tx(
           db -> {
-            db.getSchema(TEST_RLS)
-                .createTableIfNotExists(TEST_RLS)
-                .getMetadata()
-                .addColumn("col1", STRING);
+            db.getSchema(TEST_RLS).create(table(TEST_RLS).addColumn(column("col1")));
           });
 
       // let the other user add RLS

@@ -18,8 +18,10 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateBasicDataColumnTypeColumns {
 
@@ -66,8 +68,6 @@ public class TestCreateBasicDataColumnTypeColumns {
     row = new Row();
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
-    // row.setEnum("Test_enum_nillable", "test");
-
     row.setBool("Test_bool_nillable", true);
     row.setInt("Test_int_nillable", 1);
     row.setDecimal("Test_decimal_nillable", 1.1);
@@ -76,7 +76,9 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setDateTime("Test_datetime_nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
     try {
       t2.insert(row);
-      fail(); // should not reach this one
+      fail(
+          "Should not be able to insert null in not-null columns"); // should not reach this one
+                                                                    // because all not null are null
     } catch (MolgenisException e) {
 
     }
@@ -156,14 +158,14 @@ public class TestCreateBasicDataColumnTypeColumns {
         db.createSchema(
             "TestCreateBasicDataColumnTypeColumns" + columnType.toString().toUpperCase());
 
-    Table aTable = schema.createTableIfNotExists("A");
     String aKey = columnType + "Key";
     String aColumn = columnType + "Col";
-    aTable
-        .getMetadata()
-        .addColumn(aKey, columnType)
-        .addColumn(aColumn, columnType)
-        .setPrimaryKey(aKey);
+    Table aTable =
+        schema.create(
+            table("A")
+                .addColumn(column(aKey).type(columnType))
+                .addColumn(column(aColumn).type(columnType))
+                .setPrimaryKey(aKey));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);

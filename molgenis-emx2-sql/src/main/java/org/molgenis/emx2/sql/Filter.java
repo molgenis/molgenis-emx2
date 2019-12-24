@@ -13,7 +13,23 @@ public class Filter {
   private Map<Operator, Object[]> conditions = new LinkedHashMap<>();
   private Map<String, Filter> children = new LinkedHashMap<>();
 
-  protected Filter(String field, Filter... children) {
+  public static Filter f(String field, Filter... filters) {
+    return new Filter(field, filters);
+  }
+
+  public static Filter f(String field, Operator equals, Object values) {
+    return new Filter(field).add(equals, values);
+  }
+
+  public static Filter f(String field, Operator equals, Object... values) {
+    return new Filter(field).add(equals, values);
+  }
+
+  public static Filter f(String field, Operator equals, List<Object> values) {
+    return new Filter(field).add(equals, values);
+  }
+
+  public Filter(String field, Filter... children) {
     this.field = field;
     for (Filter f : children) {
       if (field != null && this.children.get(f.getField()) != null) {
@@ -22,29 +38,6 @@ public class Filter {
       }
       this.children.put(f.getField(), f);
     }
-  }
-
-  public static Filter f(String field, Filter... filters) {
-    return new Filter(field, filters);
-  }
-
-  public Filter is(Object... values) {
-    validate();
-    this.conditions.put(Operator.EQUALS, values);
-    return this;
-  }
-
-  public Filter similar(Object... values) {
-    validate();
-    this.conditions.put(Operator.TRIGRAM_SEARCH, values);
-    return this;
-  }
-
-  private void validate() {
-    if (children.size() > 0)
-      throw new MolgenisException(
-          "Invalid filter",
-          "cannot eq filter on '" + this.field + "' when you also created sub filters");
   }
 
   public String getField() {
@@ -70,15 +63,18 @@ public class Filter {
     return this.children.containsKey(columnName);
   }
 
-  public void add(Operator operator, Object... values) {
+  public Filter add(Operator operator, Object... values) {
     this.conditions.put(operator, values);
+    return this;
   }
 
-  public void add(Operator operator, List<?> values) {
+  public Filter add(Operator operator, List<?> values) {
     this.conditions.put(operator, values.toArray());
+    return this;
   }
 
-  public void add(Operator operator, Object values) {
+  public Filter add(Operator operator, Object values) {
     this.conditions.put(operator, new Object[] {values});
+    return this;
   }
 }

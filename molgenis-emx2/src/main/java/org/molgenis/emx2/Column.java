@@ -5,38 +5,56 @@ import static org.molgenis.emx2.ColumnType.STRING;
 public class Column {
   private TableMetadata table;
   private String columnName;
-  private ColumnType columnType;
+  private ColumnType columnType = STRING;
 
   // options
   private boolean nullable = false;
-  private boolean readonly;
+  private boolean readonly = false;
   private String description;
   private String defaultValue;
-  private Boolean indexed;
+  private boolean indexed = false;
 
   // relationships
   private String refTable;
   private String refColumn;
   private String mappedBy;
+  private boolean pkey;
 
-  public Column(TableMetadata table, String columnName, ColumnType columnType) {
+  public Column(Column column) {
+    copy(column);
+  }
+
+  public Column(TableMetadata table, Column column) {
+    this.table = table;
+    // todo validate
+    copy(column);
+  }
+
+  private void copy(Column column) {
+    columnName = column.getName();
+    columnType = column.getColumnType();
+    nullable = column.isNullable();
+    readonly = column.isReadonly();
+    description = column.getDescription();
+    defaultValue = column.getDefaultValue();
+    indexed = column.isIndexed();
+    refTable = column.getRefTableName();
+    refColumn = column.getRefColumnName();
+    pkey = column.isPrimaryKey();
+    mappedBy = column.getMappedBy();
+  }
+
+  public static Column column(String name) {
+    return new Column(name);
+  }
+
+  public Column(String columnName) {
+    this.columnName = columnName;
+  }
+
+  public Column(TableMetadata table, String columnName) {
     this.table = table;
     this.columnName = columnName;
-    this.columnType = columnType;
-  }
-
-  public Column primaryKey() {
-    this.table.setPrimaryKey(this.columnName);
-    return this;
-  }
-
-  public Column setPrimaryKey(boolean primaryKey) {
-    if (primaryKey) this.table.setPrimaryKey(this.getName());
-    return this;
-  }
-
-  public boolean isPrimaryKey() {
-    return this.getName().equals(this.table.getPrimaryKey());
   }
 
   public TableMetadata getTable() {
@@ -52,21 +70,63 @@ public class Column {
   }
 
   public String getRefColumnName() {
+    if (this.refColumn == null && getRefTable() != null) {
+      return getRefTable().getPrimaryKey();
+    }
     return this.refColumn;
+  }
+
+  public Column getRefColumn() {
+    Column result = null;
+    if (getRefColumnName() != null) {
+      result = getRefTable().getColumn(getRefColumnName());
+    }
+    if (result == null)
+      throw new MolgenisException(
+          "Internal error",
+          "Column.getRefColumn failed for column '"
+              + getName()
+              + "' because refColumn '"
+              + getRefColumnName()
+              + "' could not be found in table '"
+              + getRefTable().getTableName()
+              + "'");
+    return result;
+  }
+
+  private SchemaMetadata getSchema() {
+    if (getTable() != null) {
+      return getTable().getSchema();
+    }
+    return null;
   }
 
   public String getRefTableName() {
     return this.refTable;
   }
 
-  public Column getRefColumn() {
-    if (getRefColumnName() == null) {
-      return null;
-    } else
-      return getTable()
-          .getSchema()
-          .getTableMetadata(getRefTableName())
-          .getColumn(getRefColumnName());
+  public TableMetadata getRefTable() {
+    if (this.refTable != null && getTable() != null) {
+      // self relation
+      if (this.refTable.equals(getTable().getTableName())) return getTable();
+      // other relation
+      if (getSchema() != null) {
+        TableMetadata result = getSchema().getTableMetadata(this.refTable);
+        if (result == null) {
+          throw new MolgenisException(
+              "Internal error",
+              "Column.getRefTable failed for column '"
+                  + getName()
+                  + "' because refTable '"
+                  + getRefTableName()
+                  + "' does not exist in schema '"
+                  + getSchema().getName()
+                  + "'");
+        }
+        return result;
+      }
+    }
+    return null;
   }
 
   public Boolean isUnique() {
@@ -79,19 +139,20 @@ public class Column {
     return this;
   }
 
-  public Boolean getReadonly() {
+  public Boolean isReadonly() {
     return readonly;
   }
 
-  public void setReadonly(boolean readonly) {
+  public Column setReadonly(boolean readonly) {
     this.readonly = readonly;
+    return this;
   }
 
   public Boolean isNullable() {
     return nullable;
   }
 
-  public Column setNullable(boolean nillable) {
+  public Column nullable(boolean nillable) {
     this.nullable = nillable;
     return this;
   }
@@ -116,76 +177,18 @@ public class Column {
     return mappedBy;
   }
 
-  public Column setMappedBy(String columnName) {
+  public Column mappedBy(String columnName) {
     this.mappedBy = columnName;
     return this;
   }
 
-  public Column setReference(String refTable, String refColumn) {
-    this.refTable = refTable;
-    this.refColumn = refColumn;
-    return this;
-  }
-
-  public Column setReference(String toTable, String toColumn, String via) {
-    setReference(toTable, toColumn);
-    this.mappedBy = via;
-    return this;
-  }
-
-  public Column setIndexed(boolean indexed) {
+  public Column index(boolean indexed) {
     this.indexed = indexed;
     return this;
   }
 
-  public Boolean getIndexed() {
+  public Boolean isIndexed() {
     return indexed;
-  }
-
-  protected void setTable(TableMetadata tableMetadata) {
-    this.table = tableMetadata;
-  }
-
-  // factory methods
-
-  public Column addColumn(String name) {
-    return this.getTable().addColumn(name, STRING);
-  }
-
-  public Column addColumn(String name, ColumnType columnType) {
-    return this.getTable().addColumn(name, columnType);
-  }
-
-  public Column addRef(String name, String toTable) {
-    return this.getTable().addRef(name, toTable);
-  }
-
-  public Column addRef(String name, String toTable, String toColumn) {
-    return this.getTable().addRef(name, toTable, toColumn);
-  }
-
-  public Column addRefArray(String name, String toTable) {
-    return this.getTable().addRefArray(name, toTable);
-  }
-
-  public Column addRefArray(String name, String toTable, String toColumn) {
-    return this.getTable().addRef(name, toTable, toColumn);
-  }
-
-  public Column addRefBack(String name, String toTable, String viaColumn) {
-    return this.getTable().addRefBack(name, toTable, null, viaColumn);
-  }
-
-  public Column addRefBack(String name, String toTable, String toColumn, String viaColumn) {
-    return this.getTable().addRefBack(name, toTable, toColumn, viaColumn);
-  }
-
-  public TableMetadata addUnique(String... columnNames) {
-    return getTable().addUnique(columnNames);
-  }
-
-  public TableMetadata setPrimaryKey(String columnNames) {
-    return getTable().setPrimaryKey(columnNames);
   }
 
   public String toString() {
@@ -200,5 +203,39 @@ public class Column {
     else builder.append(getColumnType().toString().toLowerCase());
     if (Boolean.TRUE.equals(isNullable())) builder.append(" nullable");
     return builder.toString();
+  }
+
+  public Column type(ColumnType type) {
+    if (type == null) {
+      throw new MolgenisException("Add column failed", "Type was null for column " + getName());
+    }
+    this.columnType = type;
+    return this;
+  }
+
+  public Column refTable(String refTable) {
+    this.refTable = refTable;
+    return this;
+  }
+
+  public Column refColumn(String refColumn) {
+    this.refColumn = refColumn;
+    return this;
+  }
+
+  public boolean isPrimaryKey() {
+    if (getTable() != null && getTable().getPrimaryKey() != null) {
+      return getName().equals(getTable().getPrimaryKey());
+    }
+    return this.pkey;
+  }
+
+  public Column pkey(boolean pkey) {
+    this.pkey = pkey;
+    return this;
+  }
+
+  void setTable(TableMetadata table) {
+    this.table = table;
   }
 }

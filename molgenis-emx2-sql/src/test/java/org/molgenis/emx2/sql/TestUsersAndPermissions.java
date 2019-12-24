@@ -10,6 +10,7 @@ import org.molgenis.emx2.MolgenisException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestUsersAndPermissions {
   static Database database;
@@ -41,7 +42,7 @@ public class TestUsersAndPermissions {
       // create table without permission should fail
       database.setActiveUser(user1);
       try {
-        schema1.createTableIfNotExists("Test");
+        schema1.create(table("Test"));
         fail("should have failed");
       } catch (MolgenisException e) {
         System.out.println("Failed correctly on create schema:\n" + e.toString());
@@ -52,7 +53,7 @@ public class TestUsersAndPermissions {
       schema1.addMember(user1, DefaultRoles.MANAGER.toString());
       database.setActiveUser(user1);
       try {
-        schema1.createTableIfNotExists("Test");
+        schema1.create(table("Test"));
       } catch (MolgenisException e) {
         fail("should be permitted");
       }

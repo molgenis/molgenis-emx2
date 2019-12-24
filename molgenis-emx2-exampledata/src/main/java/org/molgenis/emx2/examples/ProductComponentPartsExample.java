@@ -4,10 +4,10 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
 
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class ProductComponentPartsExample {
   public static final String PART = "Part";
@@ -28,20 +28,23 @@ public class ProductComponentPartsExample {
 
   public static void create(SchemaMetadata schema) {
 
-    TableMetadata partTable = schema.createTable(PART);
-    partTable.addColumn(NAME, STRING);
-    partTable.addColumn(WEIGHT, INT);
-    partTable.setPrimaryKey(NAME);
+    schema.create(
+        table(PART)
+            .addColumn(column(NAME))
+            .addColumn(column(WEIGHT).type(INT))
+            .setPrimaryKey(NAME));
 
-    TableMetadata componentTable = schema.createTable(COMPONENT);
-    componentTable.addColumn(NAME, STRING);
-    componentTable.setPrimaryKey(NAME);
-    componentTable.addRefArray(PARTS, PART, NAME);
+    schema.create(
+        table(COMPONENT)
+            .addColumn(column(NAME))
+            .addColumn(column(PARTS).type(REF_ARRAY).refTable(PART).refColumn(NAME))
+            .setPrimaryKey(NAME));
 
-    TableMetadata productTable = schema.createTable(PRODUCT);
-    productTable.addColumn(NAME, STRING);
-    productTable.setPrimaryKey(NAME);
-    productTable.addRefArray(COMPONENTS, COMPONENT, NAME);
+    schema.create(
+        table(PRODUCT)
+            .addColumn(column(NAME))
+            .addColumn(column(COMPONENTS).type(REF_ARRAY).refTable(COMPONENT).refColumn(NAME))
+            .setPrimaryKey(NAME));
   }
 
   public static void populate(Schema schema) {

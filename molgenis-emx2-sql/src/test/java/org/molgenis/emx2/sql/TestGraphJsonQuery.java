@@ -6,6 +6,12 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.TRIGRAM_SEARCH;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Filter.f;
 import static org.molgenis.emx2.sql.SelectColumn.s;
 
@@ -23,12 +29,14 @@ public class TestGraphJsonQuery {
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
-    TableMetadata person = schema.createTableIfNotExists("Person").getMetadata();
-    person.addColumn("name").primaryKey();
-    person.addRef("father", "Person");
-    person.addRef("mother", "Person");
-    person.addRefArray("children", "Person");
-    person.addRefArray("cousins", "Person");
+    schema.create(
+        table("Person")
+            .addColumn(column("name"))
+            .addColumn(column("father").type(REF).refTable("Person"))
+            .addColumn(column("mother").type(REF).refTable("Person"))
+            .addColumn(column("children").type(REF_ARRAY).refTable("Person"))
+            .addColumn(column("cousins").type(REF_ARRAY).refTable("Person"))
+            .setPrimaryKey("name"));
 
     schema
         .getTable("Person")
@@ -95,12 +103,12 @@ public class TestGraphJsonQuery {
     StopWatch.print("complete");
 
     s.filter(
-        f("name").is("opa1"),
-        f("children", f("children", f("name").is("kind")), f("name").is("ma")));
+        f("name", EQUALS, "opa1"),
+        f("children", f("children", f("name", EQUALS, "kind")), f("name", EQUALS, "ma")));
 
     System.out.println(s.retrieve());
 
-    s.filter(f("children", f("children", f("name").is("kind"))));
+    s.filter(f("children", f("children", f("name", EQUALS, "kind"))));
 
     System.out.println(s.retrieve());
 
@@ -126,7 +134,7 @@ public class TestGraphJsonQuery {
 
     s = new SqlGraphQuery(schema.getTable("Person"));
     s.select(s("items", s("name")));
-    s.filter(f("name").similar("opa"));
+    s.filter(f("name", TRIGRAM_SEARCH, "opa"));
 
     System.out.println(s.retrieve());
   }

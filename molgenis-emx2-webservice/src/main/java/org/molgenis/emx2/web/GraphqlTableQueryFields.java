@@ -204,7 +204,7 @@ public class GraphqlTableQueryFields {
       for (Operator operator : type.getOperators()) {
         builder.field(
             newInputObjectField()
-                .name(operator.getAbbreviation())
+                .name(operator.getName())
                 .type(GraphQLList.list(graphQLTypeOf(column))));
       }
       filterInputTypes.put(type, builder.build());

@@ -5,7 +5,7 @@ public class Member {
   private String role;
 
   public Member() {
-    // used for automatic (de)serialization
+    // used for automatic (de)serialization, in e.g. json
   }
 
   public Member(String user, String role) {
