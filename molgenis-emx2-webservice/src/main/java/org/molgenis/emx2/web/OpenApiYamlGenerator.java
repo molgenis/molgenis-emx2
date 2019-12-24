@@ -94,7 +94,7 @@ public class OpenApiYamlGenerator {
       tablePath.delete(tableDeleteOperation(tableName));
 
       // add the paths to paths
-      paths.addPathItem("/api/json/" + table.getSchema().getName() + "/" + tableName, tablePath);
+      paths.addPathItem("/api/json/" + schema.getName() + "/" + tableName, tablePath);
     }
 
     // assembly

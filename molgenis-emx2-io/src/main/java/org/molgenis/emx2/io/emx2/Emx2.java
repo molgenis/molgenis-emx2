@@ -173,9 +173,15 @@ public class Emx2 {
 
     // other properties
     Column column = table.getColumn(columnName);
-    if (def.contains(Emx2PropertyList.UNIQUE)) column.setUnique(true);
-    if (def.contains(Emx2PropertyList.PKEY)) column.pkey(true);
-    if (def.contains(Emx2PropertyList.NULLABLE)) column.nullable(true);
+    if (def.contains(Emx2PropertyList.UNIQUE)) {
+      column.setUnique(true);
+    }
+    if (def.contains(Emx2PropertyList.PKEY)) {
+      column.pkey(true);
+    }
+    if (def.contains(Emx2PropertyList.NULLABLE)) {
+      column.nullable(true);
+    }
     table.alter(column);
   }
 

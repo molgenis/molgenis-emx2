@@ -228,6 +228,8 @@ class CreateRefBackColumn {
     // search indexer fire last
     String insertOrUpdateTrigger =
         "1" + column.getTable().getTableName() + "_" + column.getName() + "_UPDATE";
+    String deleteTrigger =
+        "1" + column.getTable().getTableName() + "_" + column.getName() + "_DELETE";
 
     // insert and update trigger
     jooq.execute(
@@ -236,18 +238,13 @@ class CreateRefBackColumn {
             + "\nDECLARE"
             + "\n\t item {1};"
             + "\nBEGIN"
-            // set to null all toTable rows that point to old 'me'. Might lead to null issues
-            + "\n\tIF TG_OP = 'UPDATE' THEN"
-            + "\n\t\tUPDATE {2} set {3} = NULL WHERE {3}=OLD.{4} ;"
+            + "\n\tIF TG_OP='UPDATE' THEN"
+            + "\n\t\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
             + "\n\tEND IF;"
-            // set all toTable rows to point to new 'me' using mappedBy, and protect on conflict
-            // update
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN FOREACH item IN ARRAY NEW.{5} LOOP"
-            // SET THAT THE OTHER POINTS TO new 'ME'
-            + "\n\t\tUPDATE {2} SET {3}=NEW.{4} WHERE {6}=item;"
-            + "\n\tEND LOOP; END IF;"
-            // set to null unless there is 'on conflict' which is in case of INSERT + EXISTS
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN NEW.{5} = NULL; END IF;"
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN"
+            + "\n\t\tUPDATE {2} set {3} = NEW.{4} WHERE {6} = ANY (NEW.{5});"
+            + "\n\t\tNEW.{5} = NULL;"
+            + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
@@ -269,17 +266,49 @@ class CreateRefBackColumn {
         "CREATE TRIGGER {0} "
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-        name(column.getName() + "_UPDATE"),
+        name(
+            column.getTableName()
+                + "_"
+                + column.getName()
+                + "_UPDATEREF_"
+                + column.getRefTableName()
+                + "_"
+                + column.getMappedBy()),
         name(column.getName()),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
 
     jooq.execute(
+        "CREATE FUNCTION {0}() RETURNS trigger AS"
+            + "\n$BODY$"
+            + "\nDECLARE"
+            + "\n\t item {1};"
+            + "\nBEGIN"
+            + "\n\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
+            + "\nEND;"
+            + "\n$BODY$ LANGUAGE plpgsql;",
+        name(schemaName, deleteTrigger), // {0} function name
+        keyword(SqlTypeUtils.getPsqlType(column.getRefColumn())), // {1} type of item
+        table(name(schemaName, column.getRefTableName())), // {2} toTable table
+        field(name(column.getMappedBy())), // {3} mappedBy field
+        field(
+            name(
+                getMappedByColumn(column)
+                    .getRefColumnName()))); // {4} mappedBy reference to 'me' (might not be pkey)
+
+    jooq.execute(
         "CREATE TRIGGER {0} "
             + "\n\tAFTER DELETE ON {1} "
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-        name(column.getName() + "_DELETE"),
+        name(
+            column.getTableName()
+                + "_"
+                + column.getName()
+                + "_DELETEREF_"
+                + column.getRefTableName()
+                + "_"
+                + column.getMappedBy()),
         name(schemaName, column.getTable().getTableName()),
-        name(schemaName, insertOrUpdateTrigger));
+        name(schemaName, deleteTrigger));
   }
 }

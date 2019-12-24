@@ -184,20 +184,19 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static ColumnType getRefArrayColumnType(Column column) {
-    ColumnType columnType;
-    Column refColumn = column.getRefColumn();
-    while (REF.equals(refColumn.getColumnType())) {
-      refColumn = column.getRefColumn();
-    }
-    columnType = getArrayType(refColumn.getColumnType());
-    return columnType;
+    return getArrayType(getRefColumnType(column));
   }
 
   public static ColumnType getRefColumnType(Column column) {
     ColumnType columnType;
     Column refColumn = column.getRefColumn();
-    while (REF.equals(refColumn.getColumnType())) {
-      refColumn = column.getRefColumn();
+    while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType())) {
+      refColumn = refColumn.getRefColumn();
+      // check self reference
+      if (refColumn.getTableName().equals(column.getTableName())
+          && refColumn.getName().equals(column.getName())) {
+        return STRING;
+      }
     }
     columnType = refColumn.getColumnType();
     return columnType;

@@ -7,7 +7,6 @@ import java.util.Collection;
 
 public class Table {
   private String name;
-  private String pkey;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
 
@@ -15,7 +14,6 @@ public class Table {
 
   public Table(TableMetadata tableMetadata) {
     this.name = tableMetadata.getTableName();
-    this.pkey = tableMetadata.getPrimaryKey();
     for (String[] u : tableMetadata.getUniques()) {
       if (u.length > 1) {
         this.unique.add(u);
@@ -33,14 +31,6 @@ public class Table {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getPkey() {
-    return pkey;
-  }
-
-  public void setPkey(String pkey) {
-    this.pkey = pkey;
   }
 
   public Collection<String[]> getUnique() {

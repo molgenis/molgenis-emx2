@@ -27,8 +27,6 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
 
 class SqlTable implements Table {
 
-  public static final String DEFER_SQL = "SET CONSTRAINTS ALL DEFERRED";
-
   private SqlDatabase db;
   private TableMetadata metadata;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);

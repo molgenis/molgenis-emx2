@@ -8,7 +8,6 @@ public class TableMetadata {
   private String tableName;
   protected Map<String, Column> columns = new LinkedHashMap<>();
   private List<String[]> uniques = new ArrayList<>();
-  protected String primaryKey = null;
   protected String inherit = null;
 
   public static TableMetadata table(String tableName) {
@@ -39,10 +38,6 @@ public class TableMetadata {
     for (Column c : metadata.getLocalColumns()) {
       this.columns.put(c.getName(), new Column(this, c));
     }
-    if (metadata.getPrimaryKey() != null) {
-      this.primaryKey = metadata.getPrimaryKey();
-      getColumn(metadata.getPrimaryKey()).pkey(true);
-    }
     this.inherit = metadata.getInherit();
   }
 
@@ -58,7 +53,12 @@ public class TableMetadata {
     if (getInheritedTable() != null) {
       return getInheritedTable().getPrimaryKey();
     }
-    return this.primaryKey;
+    for (Column c : columns.values()) {
+      if (c.isPrimaryKey()) {
+        return c.getName();
+      }
+    }
+    return null;
   }
 
   public TableMetadata setPrimaryKey(String columnName) {
@@ -67,13 +67,13 @@ public class TableMetadata {
           "Set primary key failed",
           "'Column '" + columnName + "' unknown in table '" + getTableName() + "'");
     }
-    // reset old
-    if (this.primaryKey != null) {
-      this.columns.get(this.primaryKey).pkey(false);
+    for (Column c : columns.values()) {
+      if (columnName.equals(c.getName())) {
+        c.pkey(true);
+      } else {
+        c.pkey(false);
+      }
     }
-    // set new
-    this.primaryKey = columnName;
-    this.columns.get(columnName).pkey(true);
     return this;
   }
 
@@ -131,6 +131,12 @@ public class TableMetadata {
 
   public TableMetadata addColumn(Column column) {
     columns.put(column.getName(), new Column(this, column));
+    column.setTable(this);
+    return this;
+  }
+
+  public TableMetadata alter(Column column) {
+    columns.put(column.getName(), new Column(this, column));
     if (column.isPrimaryKey()) {
       this.setPrimaryKey(column.getName());
     }
@@ -138,15 +144,8 @@ public class TableMetadata {
     return this;
   }
 
-  public TableMetadata alter(Column column) {
-    columns.put(column.getName(), new Column(this, column));
-    if (column.isPrimaryKey()) this.setPrimaryKey(column.getName());
-    column.setTable(this);
-    return this;
-  }
-
   public void removeColumn(String name) {
-    if (name.equals(primaryKey))
+    if (name.equals(getPrimaryKey()))
       throw new MolgenisException("Remove column failed", "Column is primary key");
     columns.remove(name);
   }
@@ -225,7 +224,6 @@ public class TableMetadata {
   public void clearCache() {
     columns = new LinkedHashMap<>();
     uniques = new ArrayList<>();
-    primaryKey = null;
     inherit = null;
   }
 

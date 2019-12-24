@@ -83,7 +83,6 @@ class SqlTableMetadata extends TableMetadata {
           Column result = new Column(this, column);
           executeCreateColumn(getJooq(), result);
           super.columns.put(result.getName(), result);
-          if (result.isPrimaryKey()) super.primaryKey = result.getName();
         });
     log(start, "added column '" + column.getName() + "' to ");
     return this;
@@ -152,7 +151,7 @@ class SqlTableMetadata extends TableMetadata {
     db.tx(
         dsl -> {
           SqlTableMetadataUtils.executeSetPrimaryKey(getJooq(), this, columnName);
-          super.primaryKey = columnName;
+          super.setPrimaryKey(columnName);
           MetadataUtils.saveTableMetadata(getJooq(), this);
         });
     log(start, "set primary key " + List.of(columnName) + " on ");

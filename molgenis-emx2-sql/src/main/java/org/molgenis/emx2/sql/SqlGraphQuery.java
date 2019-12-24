@@ -15,7 +15,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.sql.Constants.MG_SEARCH_INDEX_COLUMN_NAME;
+import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.CreateSimpleColumn.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlTypeUtils.jooqTypeOf;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -437,7 +437,8 @@ public class SqlGraphQuery extends Filter {
     for (String term : searchTerms) {
       local.add(
           condition(
-              name(tableAlias, MG_SEARCH_INDEX_COLUMN_NAME) + " @@ to_tsquery('" + term + ":*')"));
+              "to_tsvector({0}) @@ to_tsquery('{1}:*')",
+              name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME), inline(term)));
     }
     Condition searchCondition = and(local);
 

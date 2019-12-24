@@ -136,6 +136,7 @@ public class SqlTableMetadataUtils {
     }
     // central constraints
     if (column.isPrimaryKey()) executeSetPrimaryKey(jooq, column.getTable(), column.getName());
+    updateSearchIndexTriggerFunction(jooq, column.getTable());
     saveColumnMetadata(jooq, column);
   }
 
@@ -188,6 +189,7 @@ public class SqlTableMetadataUtils {
     jooq.alterTable(getJooqTable(column.getTable()))
         .dropColumn(field(name(column.getName())))
         .execute();
+    updateSearchIndexTriggerFunction(jooq, column.getTable());
     MetadataUtils.deleteColumn(jooq, column);
   }
 

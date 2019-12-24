@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import org.molgenis.emx2.utils.TableSort;
+
 import java.util.*;
 
 public class SchemaMetadata {
@@ -57,7 +59,9 @@ public class SchemaMetadata {
     return sb.toString();
   }
 
-  protected void clearCache() {
-    this.tables = new LinkedHashMap<>();
+  public Iterable<? extends TableMetadata> getTables() {
+    List<TableMetadata> tables = new ArrayList<>(this.tables.values());
+    TableSort.sortTableByDependency(tables);
+    return tables;
   }
 }

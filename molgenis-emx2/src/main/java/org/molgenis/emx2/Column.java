@@ -89,7 +89,7 @@ public class Column {
               + "' because refColumn '"
               + getRefColumnName()
               + "' could not be found in table '"
-              + getRefTable().getTableName()
+              + getRefTableName()
               + "'");
     return result;
   }
@@ -108,7 +108,9 @@ public class Column {
   public TableMetadata getRefTable() {
     if (this.refTable != null && getTable() != null) {
       // self relation
-      if (this.refTable.equals(getTable().getTableName())) return getTable();
+      if (this.refTable.equals(getTable().getTableName())) {
+        return getTable(); // this table
+      }
       // other relation
       if (getSchema() != null) {
         TableMetadata result = getSchema().getTableMetadata(this.refTable);
@@ -224,9 +226,6 @@ public class Column {
   }
 
   public boolean isPrimaryKey() {
-    if (getTable() != null && getTable().getPrimaryKey() != null) {
-      return getName().equals(getTable().getPrimaryKey());
-    }
     return this.pkey;
   }
 

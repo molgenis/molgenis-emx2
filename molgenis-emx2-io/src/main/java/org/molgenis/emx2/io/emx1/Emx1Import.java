@@ -35,13 +35,21 @@ public class Emx1Import {
 
     // load into target schema
     targetSchema.merge(emx1schema);
-    for (Map.Entry<String, Emx1Entity> entity : entities.entrySet()) {
-      if (store.containsTable(entity.getKey())) {
+    // revert map
+    Map<String, String> tableToSheet = new LinkedHashMap<>();
+    for (Map.Entry<String, Emx1Entity> entry : entities.entrySet()) {
+      tableToSheet.put(entry.getValue().getName(), entry.getKey());
+    }
+
+    // load the tables
+    for (TableMetadata table : emx1schema.getTables()) {
+      if (store.containsTable(tableToSheet.get(table.getTableName()))) {
         targetSchema
-            .getTable(entity.getValue().getName())
-            .update(store.readTable(entity.getKey())); // actually upsert
+            .getTable(table.getTableName())
+            .update(store.readTable(tableToSheet.get(table.getTableName()))); // actually upsert
       }
     }
+
     if (logger.isInfoEnabled()) {
       logger.info("import completed in {}ms", (System.currentTimeMillis() - start));
     }
@@ -72,6 +80,7 @@ public class Emx1Import {
             table
                 .getColumn(attribute.getName())
                 .refTable(entities.get(attribute.getRefEntity()).getName());
+        table.alter(c);
         if (attribute.getMappedBy() != null) {
           c.mappedBy(attribute.getMappedBy());
         }
@@ -113,7 +122,11 @@ public class Emx1Import {
       for (Emx1Attribute attribute : attributes) {
 
         // create the table, if needed
-        TableMetadata table = schema.create(table(entities.get(attribute.getEntity()).getName()));
+        String tableName = entities.get(attribute.getEntity()).getName();
+        TableMetadata table = schema.getTableMetadata(tableName);
+        if (table == null) {
+          table = schema.create(table(tableName));
+        }
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());

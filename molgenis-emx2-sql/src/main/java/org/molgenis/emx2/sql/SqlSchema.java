@@ -6,6 +6,7 @@ import java.util.*;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataUtils.*;
+import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 public class SqlSchema implements Schema {
   private SqlDatabase db;
@@ -121,7 +122,7 @@ public class SqlSchema implements Schema {
           }
 
           // uses TableMetadata.compareTo.  todo circular dependencies
-          sort(tableList);
+          sortTableByDependency(tableList);
 
           for (TableMetadata table : tableList) {
             // first create all tables, and keep refback for last
@@ -147,48 +148,12 @@ public class SqlSchema implements Schema {
           }
           // second pass for all linkback relations
           for (TableMetadata table : tableList) {
-            for (Column c : table.getColumns()) {
+            for (Column c : table.getLocalColumns()) {
               if (c.getColumnType().equals(REFBACK)) {
                 this.getTable(table.getTableName()).getMetadata().addColumn(c);
               }
             }
           }
         });
-  }
-
-  private void sort(List<TableMetadata> tableList) {
-    ArrayList<TableMetadata> result = new ArrayList<>();
-    ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
-
-    while (!todo.isEmpty()) {
-      for (int i = 0; i < todo.size(); i++) {
-        TableMetadata current = todo.get(i);
-        boolean depends = false;
-        for (int j = 0; j < todo.size(); j++) {
-          if (todo.get(j).equals(current.getInheritedTable())) {
-            depends = true;
-            break;
-          }
-        }
-        if (!depends)
-          for (Column c : current.getLocalColumns()) {
-            if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
-              for (int j = 0; j < todo.size(); j++) {
-                // if depends on on in todo, than skip to next
-                if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
-                  depends = true;
-                  break;
-                }
-              }
-            }
-          }
-        if (!depends) {
-          result.add(todo.get(i));
-          todo.remove(i);
-        }
-      }
-    }
-    tableList.clear();
-    tableList.addAll(result);
   }
 }
