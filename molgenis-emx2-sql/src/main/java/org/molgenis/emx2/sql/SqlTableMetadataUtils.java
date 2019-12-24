@@ -44,7 +44,8 @@ public class SqlTableMetadataUtils {
 
     // then create other columns (use super to prevent side effects)
     for (Column column : table.getLocalColumns()) {
-      if (!column.getName().equals(table.getPrimaryKey())) {
+      // if inherited, pkey is aready there
+      if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
         executeCreateColumn(jooq, new Column(table, column));
       }
     }
