@@ -11,7 +11,7 @@ import java.util.List;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
-public class CreateDatabase {
+public class SqlDatabaseUtils {
 
   static void executeDropSchema(DSLContext jooq, SchemaMetadata schema) {
     try {
