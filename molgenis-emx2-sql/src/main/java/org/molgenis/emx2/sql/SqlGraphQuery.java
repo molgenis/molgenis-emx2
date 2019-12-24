@@ -55,13 +55,13 @@ public class SqlGraphQuery extends Filter {
   private String[] searchTerms = new String[0];
   private Logger logger = LoggerFactory.getLogger(SqlGraphQuery.class);
 
-  private SqlGraphQuery(TableMetadata table) {
+  private SqlGraphQuery(SqlTableMetadata table) {
     super(table.getTableName());
-    this.table = (SqlTableMetadata) table;
+    this.table = table;
   }
 
   public SqlGraphQuery(Table table) {
-    this(table.getMetadata());
+    this((SqlTableMetadata) table.getMetadata());
   }
 
   public SqlGraphQuery select(SelectColumn... select) {
@@ -134,10 +134,22 @@ public class SqlGraphQuery extends Filter {
         table
             .getJooq()
             .select(createSelectionFields(table, tableAlias, select, filter))
-            .from(getJooqTable(table, tableAlias));
+            .from(getJooqTable(table).as(tableAlias));
+
+    // inner join the inherited classes
+    TableMetadata inherit = table.getInheritedTable();
+    while (inherit != null) {
+      String subTableAlias = tableAlias + "+" + inherit.getTableName();
+      from =
+          from.innerJoin(getJooqTable(inherit).as(subTableAlias))
+              .on(
+                  field(name(tableAlias, table.getPrimaryKey()))
+                      .eq(field(name(subTableAlias, table.getPrimaryKey()))));
+      inherit = inherit.getInheritedTable();
+    }
 
     // add user filter conditions to any parent filter
-    conditions = createFiltersForColumns(conditions, table, filter);
+    conditions = createFiltersForColumns(conditions, table, tableAlias, filter);
 
     // add to that search filters, only for 'root' query having the search fields
     conditions = addSearchConditions(table, tableAlias, select, filter, conditions);
@@ -174,7 +186,7 @@ public class SqlGraphQuery extends Filter {
         Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()));
         // create subquery
         SelectJoinStep sub =
-            fromTable.getJooq().select(pkey).from(getJooqTable(fromTable, fromAlias));
+            fromTable.getJooq().select(pkey).from(getJooqTable(fromTable).as(fromAlias));
         sub = createJoins(sub, fromTable, fromAlias, select);
         conditions =
             conditions.and(
@@ -187,40 +199,57 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static List<Field> createSelectionFields(
-      SqlTableMetadata table, String tableAlias, SelectColumn select, Filter filter) {
+      TableMetadata table, String tableAlias, SelectColumn select, Filter filter) {
     List<Field> fields = new ArrayList<>();
 
-    for (Column column : table.getLocalColumns()) {
+    for (Column column : table.getColumns()) {
       if (isSelectedOrFiltered(column, select, filter)) {
+        // inheritance
+        String inheritAlias = getSubclassAlias(table, tableAlias, column);
         if (REF.equals(column.getColumnType())
             || REF_ARRAY.equals(column.getColumnType())
             || REFBACK.equals(column.getColumnType())) {
-          fields.add(
-              createSelectionFieldForRef(
-                      column,
-                      tableAlias,
-                      select != null ? select.get(column.getName()) : null,
-                      getFilterForRef(filter, column))
-                  .as(column.getName()));
+
+          // check if not inherit field
+          if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
+
+            fields.add(
+                createSelectionFieldForRef(
+                        column,
+                        inheritAlias,
+                        select != null ? select.get(column.getName()) : null,
+                        getFilterForRef(filter, column))
+                    .as(column.getName()));
+          }
+
         } else {
-          fields.add(field(name(tableAlias, column.getName()), jooqTypeOf(column)));
+          fields.add(field(name(inheritAlias, column.getName()), jooqTypeOf(column)));
         }
       }
 
       // check for aggregation
       String aggFieldName = column.getName() + "_agg";
       if (select != null && select.has(aggFieldName)) {
+        String subAlias = tableAlias + "/" + aggFieldName;
         fields.add(
             createAggregationField(
-                    getRefTable(column),
-                    tableAlias + "/" + aggFieldName,
+                    (SqlTableMetadata) getRefTable(column),
+                    subAlias,
                     select.get(aggFieldName),
                     getFilterForRef(filter, column),
-                    getSubFieldCondition(column, tableAlias))
+                    getSubFieldCondition(column, tableAlias, subAlias))
                 .as(aggFieldName));
       }
     }
     return fields;
+  }
+
+  private static String getSubclassAlias(TableMetadata table, String tableAlias, Column column) {
+    String inheritAlias = tableAlias;
+    if (!column.getTableName().equals(table.getTableName())) {
+      inheritAlias = tableAlias + "+" + column.getTableName();
+    }
+    return inheritAlias;
   }
 
   private static Field createAggregationField(
@@ -232,7 +261,7 @@ public class SqlGraphQuery extends Filter {
     DSLContext jooq = table.getJooq();
 
     // add user filter conditions to any parent filter
-    conditions = createFiltersForColumns(conditions, table, filter);
+    conditions = createFiltersForColumns(conditions, table, tableAlias, filter);
 
     // add to that search filters, only for 'root' query having the search fields
     conditions = addSearchConditions(table, tableAlias, select, filter, conditions);
@@ -305,14 +334,16 @@ public class SqlGraphQuery extends Filter {
     if (!select.has(refColumn)) {
       select.select(refColumn);
     }
+
+    String subAlias = tableAlias + "/" + column.getName();
     return field(
         createSubselect(
-            getRefTable(column),
-            tableAlias + "/" + column.getName(),
+            (SqlTableMetadata) getRefTable(column),
+            subAlias,
             select,
             filter,
             REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL,
-            getSubFieldCondition(column, tableAlias),
+            getSubFieldCondition(column, tableAlias, subAlias),
             REF.equals(column.getColumnType()) ? false : true));
   }
 
@@ -320,22 +351,26 @@ public class SqlGraphQuery extends Filter {
    * calculate the condition to link subfield to a parent field using ref, ref_array or refback
    * relations
    */
-  private static Condition getSubFieldCondition(Column column, String tableAlias) {
+  private static Condition getSubFieldCondition(Column column, String tableAlias, String subAlias) {
     Condition condition = null;
     String refCol = column.getRefColumnName();
     if (REF.equals(column.getColumnType())) {
-      condition = field(name(refCol)).eq(field(name(tableAlias, column.getName())));
+      condition = field(name(subAlias, refCol)).eq(field(name(tableAlias, column.getName())));
     } else if (REF_ARRAY.equals(column.getColumnType())) {
       condition =
-          condition(ANY_SQL, field(name(refCol)), field(name(tableAlias, column.getName())));
+          condition(
+              ANY_SQL, field(name(subAlias, refCol)), field(name(tableAlias, column.getName())));
     } else if (REFBACK.equals(column.getColumnType())) {
       Column mappedBy = getMappedByColumn(column);
       refCol = mappedBy.getRefColumnName();
       if (REF.equals(mappedBy.getColumnType())) {
-        condition = field(name(mappedBy.getName())).eq(field(name(tableAlias, refCol)));
+        condition = field(name(subAlias, mappedBy.getName())).eq(field(name(tableAlias, refCol)));
       } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
         condition =
-            condition(ANY_SQL, field(name(tableAlias, refCol)), field(name(mappedBy.getName())));
+            condition(
+                ANY_SQL,
+                field(name(tableAlias, refCol)),
+                field(name(subAlias, mappedBy.getName())));
       }
     } else {
       throw new SqlGraphQueryException(
@@ -354,7 +389,7 @@ public class SqlGraphQuery extends Filter {
         String refCol = column.getRefColumnName();
         if (REF_ARRAY.equals(type)) {
           step =
-              step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
+              step.leftJoin(getJooqTable(getRefTable(column)).as(rightAlias))
                   .on(
                       ANY_SQL,
                       field(name(rightAlias, refCol)),
@@ -362,7 +397,7 @@ public class SqlGraphQuery extends Filter {
           createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
         } else if (REF.equals(type)) {
           step =
-              step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
+              step.leftJoin(getJooqTable(getRefTable(column)).as(rightAlias))
                   .on(field(name(leftAlias, column.getName())).eq(field(name(rightAlias, refCol))));
           createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
         } else if (REFBACK.equals(type)) {
@@ -370,14 +405,14 @@ public class SqlGraphQuery extends Filter {
           refCol = mappedBy.getRefColumnName();
           if (REF.equals(mappedBy.getColumnType())) {
             step =
-                step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
+                step.leftJoin(getJooqTable(getRefTable(column)).as(rightAlias))
                     .on(
                         field(name(leftAlias, mappedBy.getName()))
                             .eq(field(name(rightAlias, refCol))));
             createJoins(step, getRefTable(column), rightAlias, select.get(column.getName()));
           } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
             step =
-                step.leftJoin(getJooqTable(getRefTable(column), rightAlias))
+                step.leftJoin(getJooqTable(getRefTable(column)).as(rightAlias))
                     .on(
                         ANY_SQL,
                         field(name(leftAlias, refCol)),
@@ -408,9 +443,9 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Condition createFiltersForColumns(
-      Condition condition, TableMetadata table, Filter filter) {
+      Condition condition, TableMetadata table, String tableAlias, Filter filter) {
     if (filter == null) return condition;
-    for (Column column : table.getLocalColumns()) {
+    for (Column column : table.getColumns()) {
       Filter f = getFilterForRef(filter, column);
       if (f != null) {
         ColumnType type = column.getColumnType();
@@ -420,8 +455,12 @@ public class SqlGraphQuery extends Filter {
           // add the column filter(s)
           for (Map.Entry<org.molgenis.emx2.Operator, Object[]> entry :
               f.getConditions().entrySet()) {
+            // check if inherited
+            String subAlias = getSubclassAlias(table, tableAlias, column);
+            // else
             condition =
-                condition.and(createFilterCondition(column, entry.getKey(), entry.getValue()));
+                condition.and(
+                    createFilterCondition(subAlias, column, entry.getKey(), entry.getValue()));
           }
         }
       }
@@ -459,8 +498,8 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Condition createFilterCondition(
-      Column column, org.molgenis.emx2.Operator operator, Object[] values) {
-    String name = column.getName();
+      String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
+    Name name = name(tableAlias, column.getName());
     switch (column.getColumnType()) {
       case TEXT:
       case STRING:
@@ -493,11 +532,11 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Condition createEqualsFilter(
-      String columnName, org.molgenis.emx2.Operator operator, Object[] values) {
+      Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     if (EQUALS.equals(operator)) {
-      return field(name(columnName)).in(values);
+      return field(columnName).in(values);
     } else if (NOT_EQUALS.equals(operator)) {
-      return not(field(name(columnName)).in(values));
+      return not(field(columnName).in(values));
     } else {
       throw new SqlGraphQueryException(
           "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
@@ -505,33 +544,33 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Condition createTextFilter(
-      String columnName, org.molgenis.emx2.Operator operator, String[] values) {
+      Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
     for (String value : values) {
       switch (operator) {
         case EQUALS:
-          conditions.add(field(name(columnName)).eq(value));
+          conditions.add(field(columnName).eq(value));
           break;
         case NOT_EQUALS:
           not = true;
-          conditions.add(field(name(columnName)).eq(value));
+          conditions.add(field(columnName).eq(value));
           break;
         case NOT_LIKE:
           not = true;
-          conditions.add(field(name(columnName)).likeIgnoreCase("%" + value + "%"));
+          conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
           break;
         case LIKE:
-          conditions.add(field(name(columnName)).likeIgnoreCase("%" + value + "%"));
+          conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
           break;
         case TRIGRAM_SEARCH:
-          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, name(columnName)));
+          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, columnName));
           break;
         case TEXT_SEARCH:
           conditions.add(
               condition(
                   "to_tsquery({0}) @@ to_tsvector({1})",
-                  value.trim().replaceAll("\\s+", ":* & ") + ":*", name(columnName)));
+                  value.trim().replaceAll("\\s+", ":* & ") + ":*", columnName));
           break;
         default:
           throw new SqlGraphQueryException(
@@ -543,7 +582,7 @@ public class SqlGraphQuery extends Filter {
   }
 
   private static Condition createOrdinalFilter(
-      String columnName, org.molgenis.emx2.Operator operator, Object[] values) {
+      Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
     for (int i = 0; i < values.length; i++) {
@@ -556,14 +595,14 @@ public class SqlGraphQuery extends Filter {
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(
                 "Query failed", BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-          conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
+          conditions.add(field(columnName).between(values[i], values[i + 1]));
           i++; // NOSONAR
           break;
         case BETWEEN:
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(
                 "Query failed", BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-          conditions.add(field(name(columnName)).between(values[i], values[i + 1]));
+          conditions.add(field(columnName).between(values[i], values[i + 1]));
           i++; // NOSONAR
           break;
         default:
@@ -592,13 +631,12 @@ public class SqlGraphQuery extends Filter {
   }
 
   // HELPER METHODS
-  private static org.jooq.Table<Record> getJooqTable(TableMetadata table, String alias) {
-    return table(name(table.getSchema().getName(), table.getTableName())).as(name(alias));
+  private static org.jooq.Table<Record> getJooqTable(TableMetadata table) {
+    return table(name(table.getSchema().getName(), table.getTableName()));
   }
 
-  private static SqlTableMetadata getRefTable(Column column) {
-    return (SqlTableMetadata)
-        column.getTable().getSchema().getTableMetadata(column.getRefTableName());
+  private static TableMetadata getRefTable(Column column) {
+    return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
   }
 
   private static boolean isSelectedOrFiltered(Column column, SelectColumn select, Filter filter) {

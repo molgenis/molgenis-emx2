@@ -80,7 +80,6 @@ public class TableMetadata {
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
     if (inherit != null) {
-
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         result.add(new Column(col.getTable(), col));
@@ -88,7 +87,7 @@ public class TableMetadata {
 
       // ignore primary key from child class because that is same as in inheritedTable
       for (Column c : getLocalColumns()) {
-        if (getPrimaryKey() == null || getPrimaryKey().equals(c.getName())) {
+        if (getInherit() == null || !getPrimaryKey().equals(c.getName())) {
           result.add(new Column(c.getTable(), c));
         }
       }

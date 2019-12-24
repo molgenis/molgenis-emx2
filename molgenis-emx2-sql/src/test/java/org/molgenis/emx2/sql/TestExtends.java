@@ -8,11 +8,14 @@ import org.molgenis.emx2.MolgenisException;
 import java.time.LocalDate;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.LIKE;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.Filter.f;
+import static org.molgenis.emx2.sql.SelectColumn.s;
 
 public class TestExtends {
   private static Database db;
@@ -59,6 +62,8 @@ public class TestExtends {
                 .setInherit("Employee")
                 .addColumn(column("directs").type(REF_ARRAY).refTable("Employee").nullable(true)));
 
+    Table ceo = s.create(table("CEO").setInherit("Manager"));
+
     // try to add column that already exists in parent
     try {
       employee.getMetadata().addColumn(column("birthDate").type(DATE));
@@ -94,20 +99,20 @@ public class TestExtends {
             .setInt("salary", 100)
             .setDate("birthDate", LocalDate.of(2000, 12, 01)));
 
-    Table managerTable = s.getTable("Manager");
+    Table ceoTable = s.getTable("CEO"); // we use CEO to make it more difficult
     Row managerRow =
         new Row()
             .setString("fullName", "Dagobert Duck")
             .setInt("salary", 1000000)
             .setDate("birthDate", LocalDate.of(2000, 12, 01))
             .setStringArray("directs", "Katrien Duck");
-    managerTable.insert(managerRow);
+    ceoTable.insert(managerRow);
 
     Table personTable = s.getTable("Person");
     assertEquals(3, personTable.retrieve().size());
     assertEquals(1, studentTable.retrieve().size());
     assertEquals(2, employeeTable.retrieve().size());
-    assertEquals(1, managerTable.retrieve().size());
+    assertEquals(1, ceoTable.retrieve().size());
 
     // retrieve
     assertEquals(
@@ -128,14 +133,44 @@ public class TestExtends {
 
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));
-    managerTable.update(managerRow);
-    assertEquals(LocalDate.of(1900, 12, 01), managerTable.retrieve().get(0).getDate("birthDate"));
+    ceoTable.update(managerRow);
+    assertEquals(LocalDate.of(1900, 12, 01), ceoTable.retrieve().get(0).getDate("birthDate"));
+
+    // test graph query
+    // simple
+    String result =
+        new SqlGraphQuery(ceoTable).select(s("data", s("fullName"), s("salary"))).retrieve();
+    System.out.println(result);
+    assertTrue(result.contains("Dagobert"));
+    // nested relation
+    result =
+        new SqlGraphQuery(ceoTable)
+            .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
+            .retrieve();
+    System.out.println(result);
+    assertTrue(result.contains("Katrien"));
+    // filtering (erroroneous)
+    result =
+        new SqlGraphQuery(ceoTable)
+            .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
+            .filter(f("directs", f("fullName", LIKE, "Pietje")))
+            .retrieve();
+    System.out.println(result);
+    assertFalse(result.contains("Katrien"));
+    // filtering (correct)
+    result =
+        new SqlGraphQuery(ceoTable)
+            .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
+            .filter(f("directs", f("fullName", LIKE, "Katrien")))
+            .retrieve();
+    System.out.println(result);
+    assertTrue(result.contains("Katrien"));
 
     // delete
-    managerTable.delete(managerRow);
+    ceoTable.delete(managerRow);
     assertEquals(2, personTable.retrieve().size());
     assertEquals(1, studentTable.retrieve().size());
     assertEquals(1, employeeTable.retrieve().size());
-    assertEquals(0, managerTable.retrieve().size());
+    assertEquals(0, ceoTable.retrieve().size());
   }
 }

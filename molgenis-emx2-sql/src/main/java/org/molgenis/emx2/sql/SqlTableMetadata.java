@@ -50,7 +50,7 @@ class SqlTableMetadata extends TableMetadata {
     if (result.size() == 0) {
       this.load();
     }
-    return super.getLocalColumns();
+    return result;
   }
 
   @Override
@@ -82,7 +82,7 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           Column result = new Column(this, column);
           executeCreateColumn(getJooq(), result);
-          super.columns.put(result.getName(), result);
+          super.addColumn(result);
         });
     log(start, "added column '" + column.getName() + "' to ");
     return this;

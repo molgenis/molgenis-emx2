@@ -3,7 +3,7 @@
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=mswertz_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=mswertz_molgenis-emx2)
 
 # molgenis-emx2 preview
-This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview.
+This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha').
 
 ## How to run
 Fastest is to build and then user docker:
@@ -120,39 +120,52 @@ Most core ideas where already described in https://docs.google.com/document/d/19
     - aim to minimize the number of calls
 
 ## Todo and open issues
+
+### first
+*  maken inheritance work in queries
 *  metadata change listener so we know when to clear api & metadata caches
-*  group by
+*  partial/patch updates, i.e. null columns versus missing (to be ingored) columns
+*  custom roles
+*  validation on queries such that illegal fields are errored
+*  merge SqlQuery and SqlGraphQuery
+*  check that 64char identifier limit doesn't break query aliases that get damn long
+
+### later
+*  column level permissions
 *  flattened result in graphql for tables, including group by
     *  sorting on nested fields in graphql; showing graphql as flat table
     *  csv result field for that flattened result
+*  test and fix the openapi so all the docs just work
+*  Search should work on refback columns
+*  group by
 *  graph mutation next to flat mutation
 *  decide if we need 'insert' seperate from 'update'
-*  test and fix the openapi so all the docs just work
-*  Search should work on refback columns; lazy could be to keep copy in sync.
-*  partial/patch updates, i.e. null columns versus missing (to be ingored) columns
-*  delete column
-*  rename column
-*  default limit to 10
+*  complete metadata mutations
+    * delete column
+    * rename column, incl triggers
+    * rame table, including triggers
+*  default limit to 10, maximize on 10.000
 *  add a check for maximum limit of identifiers, i.e. 63 characters (Excel limit)
+*  Default values
+*  Store the descriptions
+*  Finish the legacy reader
+*  column/per value validation, tuple/per row validation
+*  do we need computed values?
+*  create validation procedure for Schema/Table/Column so we can give complete error messages and remove model checks from from SQL parts
+
+### someday
 *  throw error when webservice is called with only csv header and no values
 *  update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey then?)
 *  job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
-*  Default values
 *  Decide on free table/column names vs sanitized graphql
-*  Store the descriptions
-*  Finish the legacy reader
-*  Decide to remove multi-column pkey
-*  multi-column ref is not yet reloadable (huge challenging bug, not sure whether we should support that)
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
 *  casdcading delete
-*  prevent issue with table or column name length
-*  renaming of tables and columns leads to renaming of triggers also
-*  ensure trigger names are not too long
-*  ensure query aliases are not too long
 *  reduce build+test times back to under a minute
 *  decide to store both ends of ref; added value might be order of items and query speed
+*  cross-schema foreign keys, do we need/want those?
+*  postgresql queries exposed as readonly tables
 
-## helpfull notes
+## helpful notes
 
 In Excel you can use following macro to export all into CSV files.
 
