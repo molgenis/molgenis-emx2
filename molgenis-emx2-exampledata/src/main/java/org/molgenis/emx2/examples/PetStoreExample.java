@@ -45,7 +45,7 @@ public class PetStoreExample {
     schema.create(
         table(ORDER)
             .addColumn(column(ORDER_ID))
-            .addColumn(column("pet").type(REF).refTable(PET).refColumn(NAME))
+            .addColumn(column("pet").type(REF).refTable(PET).refColumn(NAME).nullable(true))
             .addColumn(column(QUANTITY).type(INT)) // todo: validation >=1
             .addColumn(column(PRICE).type(DECIMAL)) // todo: validation >=1
             .addColumn(column(COMPLETE).type(BOOL)) // todo: default false

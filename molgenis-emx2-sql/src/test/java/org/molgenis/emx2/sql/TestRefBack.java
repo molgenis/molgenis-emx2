@@ -33,7 +33,7 @@ public class TestRefBack {
         schema.create(
             table("Products")
                 .addColumn(column("productname").pkey(true))
-                .addColumn(column("parts").type(REF_ARRAY).refTable("Parts")));
+                .addColumn(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true)));
 
     parts
         .getMetadata()
@@ -127,7 +127,12 @@ public class TestRefBack {
         schema.create(
             table("Posts")
                 .addColumn(column("title"))
-                .addColumn(column("user").type(REF).refTable(users.getName()).refColumn("username"))
+                .addColumn(
+                    column("user")
+                        .type(REF)
+                        .refTable(users.getName())
+                        .refColumn("username")
+                        .nullable(true))
                 .setPrimaryKey("title"));
 
     users

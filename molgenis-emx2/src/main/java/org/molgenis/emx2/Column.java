@@ -238,4 +238,9 @@ public class Column {
   void setTable(TableMetadata table) {
     this.table = table;
   }
+
+  public String getTableName() {
+    if (this.table != null) return this.table.getTableName();
+    return null;
+  }
 }

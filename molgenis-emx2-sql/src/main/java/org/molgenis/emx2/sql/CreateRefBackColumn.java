@@ -56,7 +56,7 @@ class CreateRefBackColumn {
                 + column.getName()
                 + "' failed because RefColumnName '"
                 + toColumn.getName()
-                + "'is not primary key and not unique or nullable");
+                + "'is not primary key and not unique and not nullable");
       }
 
       // get the via column which is also in the 'toTable'
@@ -69,8 +69,21 @@ class CreateRefBackColumn {
                 + "' failed because mappedBy was not set.");
       }
 
-      // check mappedBy column
       Column mappedByColumn = getMappedByColumn(column);
+
+      if (!mappedByColumn.isNullable()) {
+        throw new MolgenisException(
+            "Create column failed",
+            "Create of column refack '"
+                + column.getName()
+                + "' failed because mappedBy column '"
+                + mappedByColumn.getTableName()
+                + "."
+                + mappedByColumn.getName()
+                + "' is not nullable. Bi directional relations both ends must be nullable.");
+      }
+
+      // check mappedBy column
       if (mappedByColumn == null) {
         throw new MolgenisException(
             "Create column failed",
@@ -225,7 +238,7 @@ class CreateRefBackColumn {
             + "\nBEGIN"
             // set to null all toTable rows that point to old 'me'. Might lead to null issues
             + "\n\tIF TG_OP = 'UPDATE' THEN"
-            + "\n\t\tUPDATE {2} set {3} = NULL WHERE {3}=OLD.{4};"
+            + "\n\t\tUPDATE {2} set {3} = NULL WHERE {3}=OLD.{4} ;"
             + "\n\tEND IF;"
             // set all toTable rows to point to new 'me' using mappedBy, and protect on conflict
             // update

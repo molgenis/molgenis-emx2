@@ -118,9 +118,11 @@ public class SqlTableMetadataUtils {
     switch (column.getColumnType()) {
       case REF:
         createRefColumn(jooq, column);
+        executeSetNullable(jooq, column);
         break;
       case REF_ARRAY:
         createRefArrayColumn(jooq, column);
+        executeSetNullable(jooq, column);
         break;
       case REFBACK:
         createRefBackColumn(jooq, column);
@@ -130,10 +132,10 @@ public class SqlTableMetadataUtils {
         break;
       default:
         createSimpleColumn(jooq, column);
+        executeSetNullable(jooq, column);
     }
     // central constraints
     if (column.isPrimaryKey()) executeSetPrimaryKey(jooq, column.getTable(), column.getName());
-    executeSetNullable(jooq, column);
     saveColumnMetadata(jooq, column);
   }
 
