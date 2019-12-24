@@ -83,13 +83,13 @@ public class TableMetadata {
 
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
-        result.add(new Column(this, col));
+        result.add(new Column(col.getTable(), col));
       }
 
       // ignore primary key from child class because that is same as in inheritedTable
       for (Column c : getLocalColumns()) {
         if (getPrimaryKey() == null || getPrimaryKey().equals(c.getName())) {
-          result.add(new Column(this, c));
+          result.add(new Column(c.getTable(), c));
         }
       }
     } else {
@@ -102,7 +102,7 @@ public class TableMetadata {
     ArrayList<Column> result = new ArrayList<>();
     // copy to prevent side effects
     for (Column c : columns.values()) {
-      result.add(new Column(this, c));
+      result.add(new Column(c.getTable(), c));
     }
     return result;
   }
@@ -124,7 +124,7 @@ public class TableMetadata {
     if (columns.containsKey(name)) return new Column(this, columns.get(name));
     if (inherit != null) {
       Column c = getInheritedTable().getColumn(name);
-      if (c != null) return new Column(this, c);
+      if (c != null) return new Column(c.getTable(), c);
     }
     return null;
   }

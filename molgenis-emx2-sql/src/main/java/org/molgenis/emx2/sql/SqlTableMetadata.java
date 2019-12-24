@@ -152,7 +152,7 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           SqlTableMetadataUtils.executeSetPrimaryKey(getJooq(), this, columnName);
           super.setPrimaryKey(columnName);
-          MetadataUtils.saveTableMetadata(getJooq(), this);
+          MetadataUtils.saveColumnMetadata(getJooq(), getPrimaryKeyColumn());
         });
     log(start, "set primary key " + List.of(columnName) + " on ");
     return this;

@@ -44,7 +44,9 @@ public class SqlTableMetadataUtils {
 
     // then create other columns (use super to prevent side effects)
     for (Column column : table.getLocalColumns()) {
-      executeCreateColumn(jooq, new Column(table, column));
+      if (!column.getName().equals(table.getPrimaryKey())) {
+        executeCreateColumn(jooq, new Column(table, column));
+      }
     }
 
     // finally unique constraints
