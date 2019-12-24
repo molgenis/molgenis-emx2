@@ -83,15 +83,6 @@ class CreateRefBackColumn {
                 + "' is not nullable. Bi directional relations both ends must be nullable.");
       }
 
-      // check mappedBy column
-      if (mappedByColumn == null) {
-        throw new MolgenisException(
-            "Create column failed",
-            "Create of REFBACK column '"
-                + column.getName()
-                + "' failed because mappedBy did not exist");
-      }
-
       // get array type for that target column
       ColumnType arrayType = TypeUtils.getArrayType(toColumn.getColumnType());
 

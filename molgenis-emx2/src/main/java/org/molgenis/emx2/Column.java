@@ -112,8 +112,9 @@ public class Column {
         return getTable(); // this table
       }
       // other relation
-      if (getSchema() != null) {
-        TableMetadata result = getSchema().getTableMetadata(this.refTable);
+      SchemaMetadata schema = getSchema();
+      if (schema != null) {
+        TableMetadata result = schema.getTableMetadata(this.refTable);
         if (result == null) {
           throw new MolgenisException(
               "Internal error",
@@ -122,7 +123,7 @@ public class Column {
                   + "' because refTable '"
                   + getRefTableName()
                   + "' does not exist in schema '"
-                  + getSchema().getName()
+                  + schema.getName()
                   + "'");
         }
         return result;
