@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -34,11 +34,7 @@ public class ExcelApi {
 
   static String postExcel(Request request, Response response) throws IOException, ServletException {
     Long start = System.currentTimeMillis();
-    Schema schema =
-        sessionManager
-            .getSession(request)
-            .getDatabase()
-            .getSchema(request.params(MolgenisWebservice.SCHEMA));
+    Schema schema = getSchema(request);
     // get uploaded file
     File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();
@@ -57,11 +53,7 @@ public class ExcelApi {
   }
 
   static String getExcel(Request request, Response response) throws IOException {
-    Schema schema =
-        sessionManager
-            .getSession(request)
-            .getDatabase()
-            .getSchema(request.params(MolgenisWebservice.SCHEMA));
+    Schema schema = getSchema(request);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {

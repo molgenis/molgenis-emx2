@@ -140,4 +140,11 @@ public class MolgenisWebservice {
         .getSchema(sanitize(request.params(SCHEMA)))
         .getTable(sanitize(request.params(TABLE)));
   }
+
+  public static Schema getSchema(Request request) {
+    return sessionManager
+        .getSession(request)
+        .getDatabase()
+        .getSchema(sanitize(request.params(SCHEMA)));
+  }
 }

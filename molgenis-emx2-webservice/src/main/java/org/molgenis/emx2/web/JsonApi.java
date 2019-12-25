@@ -73,11 +73,7 @@ public class JsonApi {
   }
 
   private static String getTables(Request request, Response response) throws IOException {
-    Schema schema =
-        sessionManager
-            .getSession(request)
-            .getDatabase()
-            .getSchema(sanitize(request.params(SCHEMA)));
+    Schema schema = getSchema(request);
     String json = schemaToJson(schema.getMetadata());
     response.type(ACCEPT_JSON);
     response.status(200);

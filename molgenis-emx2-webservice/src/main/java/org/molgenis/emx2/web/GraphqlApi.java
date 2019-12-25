@@ -26,7 +26,7 @@ import static org.molgenis.emx2.web.GraphqlTableMutationFields.saveField;
 import static org.molgenis.emx2.web.GraphqlTableQueryFields.tableQueryField;
 import static org.molgenis.emx2.web.GraphqlLoginLogoutRegisterFields.*;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.*;
 
 /**
@@ -62,7 +62,7 @@ class GraphqlApi {
   private static String handleSchemaRequests(Request request, Response response)
       throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
-    String schemaName = request.params(MolgenisWebservice.SCHEMA);
+    String schemaName = sanitize(request.params(SCHEMA));
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     String result = executeQuery(graphqlForSchema, getQueryFromRequest(request));
     return result;

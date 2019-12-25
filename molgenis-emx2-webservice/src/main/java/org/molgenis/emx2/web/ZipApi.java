@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -39,11 +39,7 @@ public class ZipApi {
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Schema schema =
-          sessionManager
-              .getSession(request)
-              .getDatabase()
-              .getSchema(request.params(MolgenisWebservice.SCHEMA));
+      Schema schema = getSchema(request);
       Path zipFile = tempDir.resolve("download.zip");
       SchemaExport.toZipFile(zipFile, schema);
       outputStream.write(Files.readAllBytes(zipFile));
@@ -63,11 +59,7 @@ public class ZipApi {
   }
 
   static String postZip(Request request, Response response) throws IOException, ServletException {
-    Schema schema =
-        sessionManager
-            .getSession(request)
-            .getDatabase()
-            .getSchema(request.params(MolgenisWebservice.SCHEMA));
+    Schema schema = getSchema(request);
     // get uploaded file
     File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();
@@ -80,6 +72,7 @@ public class ZipApi {
 
     // depending on file extension use proper importer
     String fileName = request.raw().getPart("file").getSubmittedFileName();
+
     if (fileName.endsWith(".zip")) {
       SchemaImport.fromZipFile(tempFile.toPath(), schema);
     } else if (fileName.endsWith(".xlsx")) {

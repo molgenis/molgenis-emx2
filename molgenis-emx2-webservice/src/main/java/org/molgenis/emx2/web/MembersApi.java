@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.*;
 
 public class MembersApi {
@@ -31,8 +31,7 @@ public class MembersApi {
 
   static String membersDelete(Request request, Response response) throws IOException {
     List<Member> members = jsonToMembers(request.body());
-    Schema schema =
-        sessionManager.getDatabase(request).getSchema(request.params(MolgenisWebservice.SCHEMA));
+    Schema schema = getSchema(request);
     schema.removeMembers(members);
     response.status(200);
     return "" + members.size();
@@ -40,16 +39,14 @@ public class MembersApi {
 
   static String membersPost(Request request, Response response) throws IOException {
     List<Member> members = jsonToMembers(request.body());
-    Schema schema =
-        sessionManager.getDatabase(request).getSchema(request.params(MolgenisWebservice.SCHEMA));
+    Schema schema = getSchema(request);
     schema.addMembers(members);
     response.status(200);
     return "" + members.size();
   }
 
   static String membersGet(Request request, Response response) throws JsonProcessingException {
-    Schema schema =
-        sessionManager.getDatabase(request).getSchema(request.params(MolgenisWebservice.SCHEMA));
+    Schema schema = getSchema(request);
     response.status(200);
     response.type(ACCEPT_JSON);
     return membersToJson(schema.getMembers());
