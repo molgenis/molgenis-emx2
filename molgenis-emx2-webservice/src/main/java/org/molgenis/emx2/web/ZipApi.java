@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -39,7 +40,9 @@ public class ZipApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema =
-          MolgenisWebservice.getAuthenticatedDatabase(request)
+          sessionManager
+              .getSession(request)
+              .getDatabase()
               .getSchema(request.params(MolgenisWebservice.SCHEMA));
       Path zipFile = tempDir.resolve("download.zip");
       SchemaExport.toZipFile(zipFile, schema);
@@ -61,7 +64,9 @@ public class ZipApi {
 
   static String postZip(Request request, Response response) throws IOException, ServletException {
     Schema schema =
-        MolgenisWebservice.getAuthenticatedDatabase(request)
+        sessionManager
+            .getSession(request)
+            .getDatabase()
             .getSchema(request.params(MolgenisWebservice.SCHEMA));
     // get uploaded file
     File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");

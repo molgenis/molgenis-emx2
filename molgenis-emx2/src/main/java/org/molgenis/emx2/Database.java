@@ -6,6 +6,10 @@ public interface Database {
 
   Collection<String> getSchemaNames();
 
+  void setListener(DatabaseListener listener);
+
+  DatabaseListener getListener();
+
   Schema createSchema(String name);
 
   Schema getSchema(String name);

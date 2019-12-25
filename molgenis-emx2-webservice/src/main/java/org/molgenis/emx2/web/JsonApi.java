@@ -56,7 +56,7 @@ public class JsonApi {
 
   private static String getSchemas(Request request, Response response) {
     Map<String, String> schemas = new LinkedHashMap<>();
-    for (String schemaName : getAuthenticatedDatabase(request).getSchemaNames()) {
+    for (String schemaName : sessionManager.getSession(request).getDatabase().getSchemaNames()) {
       schemas.put(schemaName, request.url() + "/" + schemaName);
     }
     response.status(200);
@@ -66,14 +66,15 @@ public class JsonApi {
 
   private static String postSchemas(Request request, Response response) {
     Row row = jsonToRow(request.body());
-    getAuthenticatedDatabase(request).createSchema(row.getString("name"));
+    sessionManager.getSession(request).getDatabase().createSchema(row.getString("name"));
     response.status(200);
     response.type(ACCEPT_JSON);
     return "Create schema success";
   }
 
   private static String getTables(Request request, Response response) throws IOException {
-    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchema(request.params(SCHEMA));
     String json = schemaToJson(schema.getMetadata());
     response.type(ACCEPT_JSON);
     response.status(200);
@@ -81,7 +82,7 @@ public class JsonApi {
   }
 
   private static String deleteTables(Request request, Response response) {
-    getAuthenticatedDatabase(request).dropSchema(request.params(SCHEMA));
+    sessionManager.getSession(request).getDatabase().dropSchema(request.params(SCHEMA));
     response.status(200);
     response.type(ACCEPT_JSON);
     return "Delete schema success";

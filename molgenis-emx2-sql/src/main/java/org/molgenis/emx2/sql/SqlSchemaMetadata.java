@@ -31,7 +31,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         database -> {
           TableMetadata result = new SqlTableMetadata(database, this, metadata);
           executeCreateTable(getJooq(), result);
-          super.tables.put(metadata.getTableName(), result);
+          super.create(result);
+          db.getListener().schemaChanged(getName());
         });
     log(start, "created");
     return getTableMetadata(metadata.getTableName());
@@ -47,7 +48,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       SqlTableMetadata table = new SqlTableMetadata(db, this, table(name));
       table.load();
       if (table.exists()) {
-        super.create(table);
+        super.tableCache.put(name, table);
       }
     }
     return super.getTableMetadata(name);
@@ -58,9 +59,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     Collection<String> result = super.getTableNames();
     if (result.isEmpty()) {
       result = MetadataUtils.loadTableNames(getJooq(), this); // try to load
-      for (String r : result) {
-        super.tables.put(r, null);
-      }
+      super.tableNames = result;
     }
     return result;
   }
@@ -71,7 +70,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     db.tx(
         dsl -> {
           executeDropTable(getJooq(), getTableMetadata(tableName));
-          super.tables.remove(tableName);
+          super.drop(tableName);
+          db.getListener().schemaChanged(getName());
         });
     log(start, "dropped");
   }

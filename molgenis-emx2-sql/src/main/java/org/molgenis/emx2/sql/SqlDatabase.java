@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
@@ -26,9 +24,27 @@ public class SqlDatabase implements Database {
   private DataSource source;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
-  private Map<String, SchemaMetadata> schemas = new LinkedHashMap<>(); // cache
+  private Map<String, SchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private Collection<String> schemaNames = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private DatabaseListener listener =
+      new DatabaseListener() {
+        @Override
+        public void schemaRemoved(String name) {
+          // dummy
+        }
+
+        @Override
+        public void userChanged() {
+          // dummy
+        }
+
+        @Override
+        public void schemaChanged(String schemaName) {
+          // dummy
+        }
+      };
 
   public SqlDatabase(DataSource source) {
     this.source = source;
@@ -47,6 +63,16 @@ public class SqlDatabase implements Database {
     }
   }
 
+  @Override
+  public void setListener(DatabaseListener listener) {
+    this.listener = listener;
+  }
+
+  @Override
+  public DatabaseListener getListener() {
+    return this.listener;
+  }
+
   private void log(long start, String message) {
     if (logger.isInfoEnabled()) {
       logger.info("{} in {}ms", message, (System.currentTimeMillis() - start));
@@ -60,12 +86,13 @@ public class SqlDatabase implements Database {
     this.tx(
         database -> {
           executeCreateSchema(this, metadata);
-          schemas.put(name, metadata);
           // make current user a manager
           if (getActiveUser() != null) {
             getSchema(metadata.getName())
                 .addMember(getActiveUser(), DefaultRoles.MANAGER.toString());
           }
+          schemaCache.put(name, metadata);
+          schemaNames.add(name);
         });
     this.log(start, "created schema " + name);
     return new SqlSchema(this, metadata);
@@ -76,7 +103,7 @@ public class SqlDatabase implements Database {
     SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     if (metadata.exists()) {
       SqlSchema schema = new SqlSchema(this, metadata);
-      schemas.put(name, metadata); // cache
+      schemaCache.put(name, metadata); // cache
       return schema;
     }
     return null;
@@ -86,20 +113,18 @@ public class SqlDatabase implements Database {
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
     tx(d -> executeDropSchema(getJooq(), getSchema(name).getMetadata()));
-    schemas.remove(name);
+    schemaCache.remove(name);
+    schemaNames.remove(name);
+    listener.schemaRemoved(name);
     log(start, "dropped schema " + name);
   }
 
   @Override
   public Collection<String> getSchemaNames() {
-    Collection<String> result = schemas.keySet();
-    if (result.isEmpty()) {
-      result = MetadataUtils.loadSchemaNames(this);
-      for (String r : result) {
-        this.schemas.put(r, null);
-      }
+    if (this.schemaNames.isEmpty()) {
+      this.schemaNames = MetadataUtils.loadSchemaNames(this);
     }
-    return result;
+    return this.schemaNames;
   }
 
   @Override
@@ -150,6 +175,7 @@ public class SqlDatabase implements Database {
     } else {
       this.connectionProvider.setActiveUser(username);
     }
+    listener.userChanged();
   }
 
   @Override
@@ -212,7 +238,8 @@ public class SqlDatabase implements Database {
 
   @Override
   public void clearCache() {
-    this.schemas = new LinkedHashMap<>();
+    this.schemaCache = new LinkedHashMap<>();
+    this.schemaNames = new ArrayList<>();
   }
 
   protected DSLContext getJooq() {

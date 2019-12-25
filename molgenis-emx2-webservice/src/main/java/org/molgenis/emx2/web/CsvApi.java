@@ -43,7 +43,8 @@ public class CsvApi {
   }
 
   static String getTables(Request request, Response response) throws IOException {
-    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchema(request.params(SCHEMA));
     StringWriter writer = new StringWriter();
     Emx2.toCsv(schema.getMetadata(), writer, ',');
     response.status(200);
@@ -68,7 +69,9 @@ public class CsvApi {
 
   private static String deleteRows(Request request, Response response) {
     Table table =
-        getAuthenticatedDatabase(request)
+        sessionManager
+            .getSession(request)
+            .getDatabase()
             .getSchema(request.params(SCHEMA))
             .getTable(request.params(Constants.TABLE));
     Iterable<Row> rows = csvToRows(request);

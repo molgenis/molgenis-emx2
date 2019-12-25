@@ -26,6 +26,7 @@ import static org.molgenis.emx2.web.GraphqlTableMutationFields.saveField;
 import static org.molgenis.emx2.web.GraphqlTableQueryFields.tableQueryField;
 import static org.molgenis.emx2.web.GraphqlLoginLogoutRegisterFields.*;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static spark.Spark.*;
 
 /**
@@ -39,45 +40,32 @@ class GraphqlApi {
   }
 
   static void createGraphQLservice() {
-    // schema level operations
+
+    // per database graphql
+    final String databasePath = "/api/graphql";
+    get(databasePath, GraphqlApi::handleDatabaseRequests);
+    post(databasePath, GraphqlApi::handleDatabaseRequests);
+
+    // per schema graphql
     final String schemaPath = "/api/graphql/:schema"; // NOSONAR
-
-    // small overall graphql
-    get("/api/graphql", GraphqlApi::handleDatabaseRequests);
-    post("/api/graphql", GraphqlApi::handleDatabaseRequests);
-
-    // per schema grapql
     get(schemaPath, GraphqlApi::handleSchemaRequests);
     post(schemaPath, GraphqlApi::handleSchemaRequests);
   }
 
   private static String handleDatabaseRequests(Request request, Response response)
       throws IOException {
-    Database database = MolgenisWebservice.getAuthenticatedDatabase(request);
-    String result = executeQuery(createGraphqlForDatabase(database), request);
-    handleSessions(request, database);
+    MolgenisSession session = sessionManager.getSession(request);
+    String result = executeQuery(session.getGraphqlForDatabase(), request);
     return result;
   }
 
   private static String handleSchemaRequests(Request request, Response response)
       throws IOException {
-    Database database = MolgenisWebservice.getAuthenticatedDatabase(request);
-    Schema schema = database.getSchema(request.params(MolgenisWebservice.SCHEMA));
-    String result = executeQuery(createGraphqlForSchema(schema), getQueryFromRequest(request));
-    handleSessions(request, database);
+    MolgenisSession session = sessionManager.getSession(request);
+    String schemaName = request.params(MolgenisWebservice.SCHEMA);
+    GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
+    String result = executeQuery(graphqlForSchema, getQueryFromRequest(request));
     return result;
-  }
-
-  private static void handleSessions(Request request, Database database) {
-    // check if we need to put in session because user logged in
-    if (database.getActiveUser() != null && request.session() == null) {
-      request.session(true);
-      request.session().attribute("database", database);
-    }
-    // check if we should remove the session because user logged out
-    if (database.getActiveUser() == null && request.session() != null) {
-      request.session(false);
-    }
   }
 
   static GraphQL createGraphqlForDatabase(Database database) {

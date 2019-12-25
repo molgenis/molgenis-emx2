@@ -27,8 +27,9 @@ public class TestQueryExpandIntoReferences {
 
     // createColumn some tables with contents
     String PERSON = "Person";
-    Table personTable =
-        schema.create(
+    schema
+        .getMetadata()
+        .create(
             table(PERSON)
                 .addColumn(column("ID").type(INT))
                 .addColumn(column("First Name"))
@@ -46,6 +47,7 @@ public class TestQueryExpandIntoReferences {
             .setString("Last Name", "Duck")
             .setInt("Father", father.getInteger("ID"));
 
+    Table personTable = schema.getTable("Person");
     personTable.insert(father);
     personTable.insert(child);
   }

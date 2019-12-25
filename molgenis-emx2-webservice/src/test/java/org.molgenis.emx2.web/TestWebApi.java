@@ -24,7 +24,7 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.MolgenisWebservice.MOLGENIS_TOKEN;
+import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 
 /* this is a smoke test for the integration of web api with the database layer */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

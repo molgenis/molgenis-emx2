@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
+import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -17,25 +19,23 @@ import javax.sql.DataSource;
 import java.io.*;
 import java.util.*;
 
+import static org.joda.time.Minutes.minutesBetween;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static spark.Spark.*;
 
 public class MolgenisWebservice {
-  static final String MOLGENIS_TOKEN = "x-molgenis-token";
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
-
-  private static DataSource dataSource;
-  private static Map<String, Database> databaseForRole = new LinkedHashMap<>();
   static final String SCHEMA = "schema";
+  static MolgenisSessionManager sessionManager;
 
   private MolgenisWebservice() {
     // hide constructor
   }
 
   public static void start(DataSource ds) {
-    dataSource = ds;
+    sessionManager = new MolgenisSessionManager(ds);
     port(8080);
 
     staticFiles.location("/public_html");
@@ -77,6 +77,13 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
         });
+
+    // after handle session changes
+    afterAfter(sessionManager::updateSession);
+  }
+
+  public static void stop() {
+    Spark.stop();
   }
 
   private static String listSchemas(Request request, Response response) {
@@ -86,7 +93,7 @@ public class MolgenisWebservice {
         "graphql: <a href=\"/api/graphql/\">/api/graphql/</a> <a href=\"playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : getAuthenticatedDatabase(request).getSchemaNames()) {
+    for (String name : sessionManager.getSession(request).getDatabase().getSchemaNames()) {
       result.append("<li>" + name);
       result.append(" <a href=\"openapi/" + name + "\">openapi</a>");
       result.append(
@@ -102,7 +109,8 @@ public class MolgenisWebservice {
   }
 
   private static String openApiYaml(Request request, Response response) throws IOException {
-    Schema schema = getAuthenticatedDatabase(request).getSchema(request.params(SCHEMA));
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchema(request.params(SCHEMA));
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     response.status(200);
     return Yaml.mapper()
@@ -116,36 +124,12 @@ public class MolgenisWebservice {
   }
 
   /** get database either from session or based on token */
-  static synchronized Database getAuthenticatedDatabase(Request request) {
-
-    // already in a session, then return that
-    if (request.session().attribute("database") != null) {
-      return request.session().attribute("database");
-    }
-
-    // otherwise try tokens
-    final String token =
-        request.headers(MOLGENIS_TOKEN) == null ? "anonymous" : request.headers(MOLGENIS_TOKEN);
-
-    // todo remove cached after a while!!!!
-    return databaseForRole.computeIfAbsent(
-        token,
-        t -> {
-          SqlDatabase database;
-          database = new SqlDatabase(dataSource);
-          database.setActiveUser(token);
-          return database;
-        });
-  }
-
   // helper method used in multiple places
   public static Table getTable(Request request) {
-    return getAuthenticatedDatabase(request)
+    return sessionManager
+        .getSession(request)
+        .getDatabase()
         .getSchema(request.params(SCHEMA))
         .getTable(request.params(TABLE));
-  }
-
-  public static void stop() {
-    Spark.stop();
   }
 }
