@@ -123,7 +123,7 @@ public class MolgenisWebservice {
 
   private static String openApiUserInterface(Request request, Response response) {
     response.status(200);
-    return OpenApiUiFactory.createSwaggerUI(request.params(SCHEMA));
+    return OpenApiUiFactory.createSwaggerUI(sanitize(request.params(SCHEMA)));
   }
 
   public static String sanitize(String string) {
@@ -137,7 +137,7 @@ public class MolgenisWebservice {
     return sessionManager
         .getSession(request)
         .getDatabase()
-        .getSchema(request.params(SCHEMA))
-        .getTable(request.params(TABLE));
+        .getSchema(sanitize(request.params(SCHEMA)))
+        .getTable(sanitize(request.params(TABLE)));
   }
 }
