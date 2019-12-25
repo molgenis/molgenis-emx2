@@ -77,7 +77,6 @@ public class SqlTypeUtils extends TypeUtils {
     for (Column c : table.getMetadata().getLocalColumns()) {
       // rls
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
-        // big todo if we want to allow usernames here or role names
         values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else {
         values.add(getTypedValue(row, c));
@@ -145,42 +144,7 @@ public class SqlTypeUtils extends TypeUtils {
     if (REF_ARRAY.equals(columnType) || MREF.equals(columnType) || REFBACK.equals(columnType)) {
       columnType = getRefArrayColumnType(column);
     }
-    switch (columnType) {
-      case UUID:
-        return row.getUuid(column.getName());
-      case UUID_ARRAY:
-        return row.getUuidArray(column.getName());
-      case STRING:
-        return row.getString(column.getName());
-      case STRING_ARRAY:
-        return row.getStringArray(column.getName());
-      case BOOL:
-        return row.getBoolean(column.getName());
-      case BOOL_ARRAY:
-        return row.getBooleanArray(column.getName());
-      case INT:
-        return row.getInteger(column.getName());
-      case INT_ARRAY:
-        return row.getIntegerArray(column.getName());
-      case DECIMAL:
-        return row.getDecimal(column.getName());
-      case DECIMAL_ARRAY:
-        return row.getDecimalArray(column.getName());
-      case TEXT:
-        return row.getText(column.getName());
-      case TEXT_ARRAY:
-        return row.getTextArray(column.getName());
-      case DATE:
-        return row.getDate(column.getName());
-      case DATE_ARRAY:
-        return row.getDateArray(column.getName());
-      case DATETIME:
-        return row.getDateTime(column.getName());
-      case DATETIME_ARRAY:
-        return row.getDateTimeArray(column.getName());
-      default:
-        throw new UnsupportedOperationException("Unsupported columnType found:" + columnType);
-    }
+    return row.get(column.getName(), columnType);
   }
 
   public static ColumnType getRefArrayColumnType(Column column) {
@@ -201,15 +165,6 @@ public class SqlTypeUtils extends TypeUtils {
     columnType = refColumn.getColumnType();
     return columnType;
   }
-
-  //  public static Column getRefColumn(Column column) {
-  //    TableMetadata refTable = getRefTable(column);
-  //    if (column.getRefColumnName() == null) {
-  //      return refTable.getPrimaryKeyColumn();
-  //    } else {
-  //      return refTable.getColumn(column.getRefColumnName());
-  //    }
-  //  }
 
   public static TableMetadata getRefTable(Column column) {
     return column.getTable().getSchema().getTableMetadata(column.getRefTableName());

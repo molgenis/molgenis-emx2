@@ -132,6 +132,7 @@ class SqlTable implements Table {
             // get metadata
             ArrayList<Field> fields = new ArrayList<>();
             ArrayList<String> fieldNames = new ArrayList<>();
+
             for (Column c : getMetadata().getLocalColumns()) {
               fieldNames.add(c.getName());
               fields.add(getJooqField(c));
@@ -177,9 +178,11 @@ class SqlTable implements Table {
     if (!rows.isEmpty()) {
       // createColumn multi-value insert
       InsertValuesStepN step = db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
+
       for (Row row : rows) {
         step.values(SqlTypeUtils.getValuesAsCollection(row, this));
       }
+
       // on duplicate key update using same record via "excluded" keyword in postgres
       InsertOnDuplicateSetStep step2 = step.onConflict(keyFields).doUpdate();
       for (String name : fieldNames) {

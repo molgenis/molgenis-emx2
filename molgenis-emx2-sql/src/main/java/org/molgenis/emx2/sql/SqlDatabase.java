@@ -4,6 +4,7 @@ import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,11 +113,12 @@ public class SqlDatabase implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    tx(d -> executeDropSchema(getJooq(), getSchema(name).getMetadata()));
+    Schema schema = getSchema(name);
+    tx(d -> executeDropSchema(getJooq(), schema.getMetadata()));
     schemaCache.remove(name);
     schemaNames.remove(name);
     listener.schemaRemoved(name);
-    log(start, "dropped schema " + name);
+    log(start, "dropped schema " + schema.getMetadata().getName());
   }
 
   @Override

@@ -200,7 +200,6 @@ public class Row {
 
   public <T> T get(String name, Class<T> type) {
     if (type == null) return null;
-
     switch (type.getSimpleName()) {
       case "String":
         return (T) getString(name);

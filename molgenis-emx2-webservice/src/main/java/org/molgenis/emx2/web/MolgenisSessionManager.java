@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +65,13 @@ public class MolgenisSessionManager implements DatabaseListener {
     return sessions.computeIfAbsent(
         user,
         t -> {
-          logger.info("Initializing session for user: " + user);
           Database database = new SqlDatabase(dataSource);
+          if (!database.hasUser(user)) {
+            throw new MolgenisException("Authentication failed", "User " + user + " not known");
+          }
           database.setListener(this);
           database.setActiveUser(user);
+          logger.info("Initializing session for user: " + database.getActiveUser());
           return new MolgenisSession(database);
         });
   }
