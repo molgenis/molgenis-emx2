@@ -129,20 +129,22 @@ class SqlTable implements Table {
             // keep batchsize smaller to limit memory footprint
             int batchSize = 1000;
 
-            // get metadata
-            ArrayList<Field> fields = new ArrayList<>();
-            ArrayList<String> fieldNames = new ArrayList<>();
-
-            for (Column c : getMetadata().getLocalColumns()) {
-              fieldNames.add(c.getName());
-              fields.add(getJooqField(c));
-            }
-
-            // execute in batches
+            // execute in batches (batch by size or because columns set change)
+            TableMetadata metadata = getMetadata();
             List<Row> batch = new ArrayList<>();
+            ArrayList<Field> fields = new ArrayList<>();
+            Collection<String> fieldNames = new ArrayList<>();
             for (Row row : rows) {
-              batch.add(row);
-              count.set(count.get() + 1);
+
+              // get the fields metadata once per batch
+              if (fieldNames.size() == 0) {
+                fieldNames = row.getColumnNames();
+                for (String name : fieldNames) {
+                  fields.add(getJooqField(metadata.getColumn(name)));
+                }
+              }
+
+              // execute the batch if batchSize is reached or different fields are set
               if (count.get() % batchSize == 0) {
                 updateBatch(
                     batch,
@@ -151,8 +153,16 @@ class SqlTable implements Table {
                     fieldNames,
                     getJooqField(getMetadata().getPrimaryKeyColumn()));
                 batch.clear();
+                fieldNames.clear();
+                fields.clear();
               }
+
+              // else simply keep on adding rows to the batch
+              batch.add(row);
+              count.set(count.get() + 1);
             }
+
+            // execute the remaining batch
             updateBatch(
                 batch,
                 getJooqTable(),
@@ -172,10 +182,12 @@ class SqlTable implements Table {
   private void updateBatch(
       Collection<Row> rows,
       org.jooq.Table t,
-      List<Field> fields,
-      List<String> fieldNames,
+      Collection<Field> fields,
+      Collection<String> fieldNames,
       Field keyFields) {
+
     if (!rows.isEmpty()) {
+
       // createColumn multi-value insert
       InsertValuesStepN step = db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
 

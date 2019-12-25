@@ -59,7 +59,10 @@ public class MolgenisSessionManager implements DatabaseListener {
 
     // otherwise try tokens (also in case of sessionless requests)
     final String user =
-        request.headers(MOLGENIS_TOKEN) == null ? "anonymous" : request.headers(MOLGENIS_TOKEN);
+        request.headers(MOLGENIS_TOKEN) == null
+            ? "anonymous"
+            : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
+    ;
 
     // todo remove cached after a while!!!!
     return sessions.computeIfAbsent(
