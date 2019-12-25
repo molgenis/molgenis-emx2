@@ -60,16 +60,18 @@ class SqlTable implements Table {
             }
 
             // get metadata
-            List<Field> fields = new ArrayList<>();
             List<String> fieldNames = new ArrayList<>();
+            List<Column> columns = new ArrayList<>();
+            List<Field> fields = new ArrayList<>();
             for (Column c : getMetadata().getLocalColumns()) {
               fieldNames.add(c.getName());
+              columns.add(c);
               fields.add(getJooqField(c));
             }
             InsertValuesStepN step =
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
             for (Row row : rows) {
-              step.values(SqlTypeUtils.getValuesAsCollection(row, this));
+              step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
             }
             count.set(step.execute());
           });
@@ -132,29 +134,41 @@ class SqlTable implements Table {
             // execute in batches (batch by size or because columns set change)
             TableMetadata metadata = getMetadata();
             List<Row> batch = new ArrayList<>();
-            ArrayList<Field> fields = new ArrayList<>();
-            Collection<String> fieldNames = new ArrayList<>();
+            List<String> fieldNames = new ArrayList<>();
+            List<Column> columns = new ArrayList<>();
+            List<Field> fields = new ArrayList<>();
             for (Row row : rows) {
 
-              // get the fields metadata once per batch
-              if (fieldNames.size() == 0) {
-                fieldNames = row.getColumnNames();
-                for (String name : fieldNames) {
-                  fields.add(getJooqField(metadata.getColumn(name)));
+              // get the fields metadata for this row as far as known in this table
+              Collection<String> rowFields = new ArrayList<>();
+              for (String name : row.getColumnNames()) {
+                Column c = metadata.getColumn(name);
+                if (metadata.getColumn(name) != null && c.getTableName().equals(getName())) {
+                  rowFields.add(name);
                 }
               }
 
-              // execute the batch if batchSize is reached or different fields are set
-              if (count.get() % batchSize == 0) {
+              // execute the batch if batchSize is reached or fields differ from previous
+              if (batch.size() > 0
+                  && (count.get() % batchSize == 0
+                      || ((fieldNames.containsAll(rowFields)
+                          && rowFields.containsAll(fieldNames))))) {
                 updateBatch(
-                    batch,
-                    getJooqTable(),
-                    fields,
-                    fieldNames,
-                    getJooqField(getMetadata().getPrimaryKeyColumn()));
+                    batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyField());
                 batch.clear();
                 fieldNames.clear();
                 fields.clear();
+                columns.clear();
+              }
+
+              // add field metadata if first row of this batch
+              if (fieldNames.size() == 0) {
+                for (String name : rowFields) {
+                  Column c = metadata.getColumn(name);
+                  fieldNames.add(name);
+                  columns.add(c);
+                  fields.add(getJooqField(c));
+                }
               }
 
               // else simply keep on adding rows to the batch
@@ -163,12 +177,7 @@ class SqlTable implements Table {
             }
 
             // execute the remaining batch
-            updateBatch(
-                batch,
-                getJooqTable(),
-                fields,
-                fieldNames,
-                getJooqField(getMetadata().getPrimaryKeyColumn()));
+            updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyField());
           });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
@@ -182,9 +191,10 @@ class SqlTable implements Table {
   private void updateBatch(
       Collection<Row> rows,
       org.jooq.Table t,
-      Collection<Field> fields,
-      Collection<String> fieldNames,
-      Field keyFields) {
+      List<String> fieldNames,
+      List<Column> columns,
+      List<Field> fields,
+      Field keyField) {
 
     if (!rows.isEmpty()) {
 
@@ -192,11 +202,11 @@ class SqlTable implements Table {
       InsertValuesStepN step = db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
 
       for (Row row : rows) {
-        step.values(SqlTypeUtils.getValuesAsCollection(row, this));
+        step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
       }
 
       // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep step2 = step.onConflict(keyFields).doUpdate();
+      InsertOnDuplicateSetStep step2 = step.onConflict(keyField).doUpdate();
       for (String name : fieldNames) {
         step2 =
             step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
@@ -333,7 +343,7 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
-  private Field getPrimaryKeyFields() {
+  private Field getPrimaryKeyField() {
     return getJooqField(getMetadata().getColumn(getMetadata().getPrimaryKey()));
   }
 

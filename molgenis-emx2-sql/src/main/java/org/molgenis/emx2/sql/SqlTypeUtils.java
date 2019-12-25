@@ -8,6 +8,7 @@ import org.molgenis.emx2.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.jooq.impl.DSL.cast;
 import static org.molgenis.emx2.ColumnType.*;
@@ -72,10 +73,9 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static Collection<Object> getValuesAsCollection(Row row, Table table) {
+  public static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
-    for (Column c : table.getMetadata().getLocalColumns()) {
-      // rls
+    for (Column c : columns) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else {
@@ -144,7 +144,42 @@ public class SqlTypeUtils extends TypeUtils {
     if (REF_ARRAY.equals(columnType) || MREF.equals(columnType) || REFBACK.equals(columnType)) {
       columnType = getRefArrayColumnType(column);
     }
-    return row.get(column.getName(), columnType);
+    switch (columnType) {
+      case UUID:
+        return row.getUuid(column.getName());
+      case UUID_ARRAY:
+        return row.getUuidArray(column.getName());
+      case STRING:
+        return row.getString(column.getName());
+      case STRING_ARRAY:
+        return row.getStringArray(column.getName());
+      case BOOL:
+        return row.getBoolean(column.getName());
+      case BOOL_ARRAY:
+        return row.getBooleanArray(column.getName());
+      case INT:
+        return row.getInteger(column.getName());
+      case INT_ARRAY:
+        return row.getIntegerArray(column.getName());
+      case DECIMAL:
+        return row.getDecimal(column.getName());
+      case DECIMAL_ARRAY:
+        return row.getDecimalArray(column.getName());
+      case TEXT:
+        return row.getText(column.getName());
+      case TEXT_ARRAY:
+        return row.getTextArray(column.getName());
+      case DATE:
+        return row.getDate(column.getName());
+      case DATE_ARRAY:
+        return row.getDateArray(column.getName());
+      case DATETIME:
+        return row.getDateTime(column.getName());
+      case DATETIME_ARRAY:
+        return row.getDateTimeArray(column.getName());
+      default:
+        throw new UnsupportedOperationException("Unsupported columnType found:" + columnType);
+    }
   }
 
   public static ColumnType getRefArrayColumnType(Column column) {
