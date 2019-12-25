@@ -74,7 +74,10 @@ public class JsonApi {
 
   private static String getTables(Request request, Response response) throws IOException {
     Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(request.params(SCHEMA));
+        sessionManager
+            .getSession(request)
+            .getDatabase()
+            .getSchema(sanitize(request.params(SCHEMA)));
     String json = schemaToJson(schema.getMetadata());
     response.type(ACCEPT_JSON);
     response.status(200);
@@ -82,7 +85,7 @@ public class JsonApi {
   }
 
   private static String deleteTables(Request request, Response response) {
-    sessionManager.getSession(request).getDatabase().dropSchema(request.params(SCHEMA));
+    sessionManager.getSession(request).getDatabase().dropSchema(sanitize(request.params(SCHEMA)));
     response.status(200);
     response.type(ACCEPT_JSON);
     return "Delete schema success";

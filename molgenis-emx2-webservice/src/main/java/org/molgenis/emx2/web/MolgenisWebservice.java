@@ -110,7 +110,10 @@ public class MolgenisWebservice {
 
   private static String openApiYaml(Request request, Response response) throws IOException {
     Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(request.params(SCHEMA));
+        sessionManager
+            .getSession(request)
+            .getDatabase()
+            .getSchema(sanitize(request.params(SCHEMA)));
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     response.status(200);
     return Yaml.mapper()
@@ -121,6 +124,11 @@ public class MolgenisWebservice {
   private static String openApiUserInterface(Request request, Response response) {
     response.status(200);
     return OpenApiUiFactory.createSwaggerUI(request.params(SCHEMA));
+  }
+
+  public static String sanitize(String string) {
+    if (string != null) return string.replaceAll("[\n|\r|\t]", "_");
+    else return null;
   }
 
   /** get database either from session or based on token */
