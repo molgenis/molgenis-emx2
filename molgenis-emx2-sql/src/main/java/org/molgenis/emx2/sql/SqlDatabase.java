@@ -54,7 +54,8 @@ public class SqlDatabase implements Database {
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
 
     // setup default stuff
-    this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm");
+    this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+    this.jooq.execute("CREATE EXTENSION IF NOT EXISTS  pgcrypto;"); // for password hashing
     if (!hasUser("anonymous")) {
       this.addUser("anonymous");
     }
@@ -134,6 +135,18 @@ public class SqlDatabase implements Database {
     long start = System.currentTimeMillis();
     tx(d -> executeAddUser(getJooq(), user));
     log(start, "created user" + user);
+  }
+
+  @Override
+  public boolean checkUserPassword(String user, String password) {
+    return MetadataUtils.checkUserPassword(getJooq(), user, password);
+  }
+
+  @Override
+  public void setUserPassword(String user, String password) {
+    long start = System.currentTimeMillis();
+    tx(d -> MetadataUtils.setUserPassword(getJooq(), user, password));
+    log(start, "set password for user" + user);
   }
 
   @Override

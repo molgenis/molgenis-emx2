@@ -7,9 +7,8 @@ import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.MolgenisException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestUsersAndPermissions {
@@ -61,5 +60,13 @@ public class TestUsersAndPermissions {
     } finally {
       database.setActiveUser(null);
     }
+  }
+
+  @Test
+  public void testPassword() {
+
+    database.setUserPassword("donald", "blaat");
+    assertTrue(database.checkUserPassword("donald", "blaat"));
+    assertFalse(database.checkUserPassword("donald", "blaat2"));
   }
 }

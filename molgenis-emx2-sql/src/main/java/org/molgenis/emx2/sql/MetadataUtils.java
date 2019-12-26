@@ -25,6 +25,7 @@ public class MetadataUtils {
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   private static final org.jooq.Table UNIQUE_METADATA = table(name(MOLGENIS, "unique_metadata"));
+  private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
 
   // fields
   private static final org.jooq.Field TABLE_SCHEMA =
@@ -47,6 +48,9 @@ public class MetadataUtils {
   private static final org.jooq.Field UNIQUE_COLUMNS =
       field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
+
+  private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
+  private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
 
   private MetadataUtils() {
     // to hide the public constructor
@@ -106,6 +110,11 @@ public class MetadataUtils {
                   .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
                   .onUpdateCascade()
                   .onDeleteCascade())
+          .execute();
+
+      jooq.createTableIfNotExists(USERS_METADATA)
+          .columns(USER_NAME, USER_PASS)
+          .constraint(primaryKey(USER_NAME))
           .execute();
 
       jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
@@ -298,5 +307,29 @@ public class MetadataUtils {
       columnList.add(new Column(table, c));
     }
     return columnList;
+  }
+
+  public static void setUserPassword(DSLContext jooq, String user, String password) {
+    jooq.insertInto(USERS_METADATA)
+        .columns(USER_NAME, USER_PASS)
+        .values(user, field("crypt({0}, gen_salt('bf'))", password))
+        .onConflict(USER_NAME)
+        .doUpdate()
+        .set(USER_PASS, password)
+        .execute();
+  }
+
+  public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
+    Record result =
+        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as("matches"))
+            .from(USERS_METADATA)
+            .where(field(USER_NAME).eq(username))
+            .fetchOne();
+
+    if (result != null && result.get("matches", Boolean.class)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

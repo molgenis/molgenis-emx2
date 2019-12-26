@@ -122,13 +122,15 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ## Todo and open issues
 
 ### first
-*  metadata change listener so we know when to clear api & metadata caches
-*  partial/patch updates, i.e. null columns versus missing (to be ingored) columns
 *  authentication
 *  validation on queries such that illegal fields are errored (though grahpql prevents this)
 
 ### later
+*  proxy naar unpkg (configurable)
+*  settings table, overall en per schema
+*  performance test
 *  custom roles
+*  seperate upsert from update
 *  merge SqlQuery and SqlGraphQuery
 *  merge Schema and SchemaMetadata and Table and TableMetadata
 *  check that 64char identifier limit doesn't break query aliases that get damn long

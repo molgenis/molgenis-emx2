@@ -18,6 +18,10 @@ public interface Database {
 
   void addUser(String name);
 
+  boolean checkUserPassword(String name, String password);
+
+  void setUserPassword(String name, String password);
+
   boolean hasUser(String user);
 
   void removeUser(String name);
