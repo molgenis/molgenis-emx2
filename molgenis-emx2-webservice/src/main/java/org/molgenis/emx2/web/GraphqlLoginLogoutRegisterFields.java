@@ -46,7 +46,18 @@ public class GraphqlLoginLogoutRegisterFields {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(USERNAME);
-              database.addUser(userName);
+              String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
+              if (passWord == null) {
+                return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
+              }
+              if (passWord.length() < 8) {
+                return new GraphqlApiMutationResult(FAILED, "Password too short");
+              }
+              database.tx(
+                  db -> {
+                    db.addUser(userName);
+                    db.setUserPassword(userName, passWord);
+                  });
               return new GraphqlApiMutationResult(SUCCESS, "User '%s' added", userName);
             })
         .build();
@@ -64,11 +75,12 @@ public class GraphqlLoginLogoutRegisterFields {
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
 
               // todo, fake password for now
-              if (database.hasUser(userName)) {
+              if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 database.setActiveUser(userName);
                 return new GraphqlApiMutationResult(SUCCESS, "Logged in as '%s'", userName);
               } else {
-                return new GraphqlApiMutationResult(FAILED, "Login as '%s' failed", userName);
+                return new GraphqlApiMutationResult(
+                    FAILED, "Login as '%s' failed: user or password unknown", userName);
               }
             })
         .build();

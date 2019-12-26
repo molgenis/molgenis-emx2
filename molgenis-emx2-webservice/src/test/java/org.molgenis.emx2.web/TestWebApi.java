@@ -251,7 +251,8 @@ public class TestWebApi {
     String path = "/api/graphql";
     String result =
         given()
-            .body("{\"query\":\"mutation{login(username:\\\"admin\\\"){message}}\"}")
+            .body(
+                "{\"query\":\"mutation{login(username:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
             .when()
             .post(path)
             .asString();
@@ -267,7 +268,8 @@ public class TestWebApi {
     // login again to make sure other tests work
     result =
         given()
-            .body("{\"query\":\"mutation{login(username:\\\"admin\\\"){message}}\"}")
+            .body(
+                "{\"query\":\"mutation{login(username:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
             .when()
             .post(path)
             .asString();

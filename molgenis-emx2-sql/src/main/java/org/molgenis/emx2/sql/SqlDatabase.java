@@ -61,6 +61,7 @@ public class SqlDatabase implements Database {
     }
     if (!hasUser(ADMIN)) {
       this.addUser(ADMIN);
+      this.setUserPassword(ADMIN, ADMIN);
       this.jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
     }
   }

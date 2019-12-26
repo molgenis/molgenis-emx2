@@ -185,29 +185,6 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
-  public void testLoginLogoutRegister() throws IOException {
-
-    // todo: default user should be anonymous?
-    assertNull(database.getActiveUser());
-
-    execute("mutation{login(username:\"admin\"){message}}");
-    assertEquals("admin", database.getActiveUser());
-
-    // todo way to register witout elevated privileges
-    assertFalse(database.hasUser("blaat"));
-    execute("mutation{register(username:\"blaat\"){message}}");
-    assertTrue(database.hasUser("blaat"));
-
-    execute("mutation{logout{message}}");
-    assertEquals("anonymous", database.getActiveUser());
-
-    // can't unregister, is that a thing?
-
-    // clear user back to supergodmode
-    database.clearActiveUser();
-  }
-
-  @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
     assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
