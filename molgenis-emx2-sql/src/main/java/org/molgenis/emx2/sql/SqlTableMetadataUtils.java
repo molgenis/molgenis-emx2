@@ -10,13 +10,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.CreateMrefColumn.createMrefColumn;
-import static org.molgenis.emx2.sql.CreateRefArrayColumn.createRefArrayColumn;
-import static org.molgenis.emx2.sql.CreateRefBackColumn.createRefBackColumn;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.createSimpleColumn;
-import static org.molgenis.emx2.sql.CreateRefColumn.createRefColumn;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.executeSetNullable;
-import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
+import static org.molgenis.emx2.sql.CreateSimpleColumn.executeRemoveColumn;
 
 public class SqlTableMetadataUtils {
 
@@ -46,7 +40,7 @@ public class SqlTableMetadataUtils {
     for (Column column : table.getLocalColumns()) {
       // if inherited, pkey is aready there
       if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
-        executeCreateColumn(jooq, new Column(table, column));
+        CreateSimpleColumn.executeCreateColumn(jooq, new Column(table, column));
       }
     }
 
@@ -110,37 +104,20 @@ public class SqlTableMetadataUtils {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
-      jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).execute();
+      // drop all triggers from all columns
+      for (Column c : table.getLocalColumns()) {
+        executeRemoveColumn(jooq, c);
+      }
+      // drop search trigger
+      jooq.execute(
+          "DROP FUNCTION {0} CASCADE",
+          name(table.getSchema().getName(), getSearchTriggerName(table)));
+
+      jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).cascade().execute();
       MetadataUtils.deleteTable(jooq, table);
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Drop table failed", dae);
     }
-  }
-
-  static void executeCreateColumn(DSLContext jooq, Column column) {
-    switch (column.getColumnType()) {
-      case REF:
-        createRefColumn(jooq, column);
-        executeSetNullable(jooq, column);
-        break;
-      case REF_ARRAY:
-        createRefArrayColumn(jooq, column);
-        executeSetNullable(jooq, column);
-        break;
-      case REFBACK:
-        createRefBackColumn(jooq, column);
-        break;
-      case MREF:
-        createMrefColumn(jooq, column);
-        break;
-      default:
-        createSimpleColumn(jooq, column);
-        executeSetNullable(jooq, column);
-    }
-    // central constraints
-    if (column.isPrimaryKey()) executeSetPrimaryKey(jooq, column.getTable(), column.getName());
-    updateSearchIndexTriggerFunction(jooq, column.getTable());
-    saveColumnMetadata(jooq, column);
   }
 
   private static String getRolePrefix(TableMetadata table) {
@@ -154,7 +131,7 @@ public class SqlTableMetadataUtils {
     // change
     // then?
 
-    String triggerName = table.getTableName() + "search_vector_trigger";
+    String triggerName = getSearchTriggerName(table);
     String triggerfunction =
         String.format("\"%s\".\"%s\"()", table.getSchema().getName(), triggerName);
 
@@ -182,18 +159,14 @@ public class SqlTableMetadataUtils {
     return triggerfunction;
   }
 
+  private static String getSearchTriggerName(TableMetadata table) {
+    return table.getTableName() + "search_vector_trigger";
+  }
+
   static void executeRemoveUnique(DSLContext jooq, TableMetadata table, String[] unique) {
     String uniqueName = table.getTableName() + "_" + String.join("_", unique) + "_UNIQUE";
     jooq.alterTable(getJooqTable(table)).dropConstraint(name(uniqueName)).execute();
     MetadataUtils.deleteUnique(jooq, table, unique);
-  }
-
-  static void executeRemoveColumn(DSLContext jooq, Column column) {
-    jooq.alterTable(getJooqTable(column.getTable()))
-        .dropColumn(field(name(column.getName())))
-        .execute();
-    updateSearchIndexTriggerFunction(jooq, column.getTable());
-    MetadataUtils.deleteColumn(jooq, column);
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {

@@ -32,8 +32,13 @@ public class RowReaderJackson {
     return result;
   }
 
-  public static Iterable<Row> read(Reader in, Character seperator) throws IOException {
-    CsvSchema schema = CsvSchema.emptySchema().withHeader().withNullValue("");
+  public static Iterable<Row> read(Reader in, Character separator) throws IOException {
+    CsvSchema schema =
+        CsvSchema.emptySchema()
+            .withHeader()
+            .withNullValue("")
+            .withAllowComments(true)
+            .withColumnSeparator(separator);
     MappingIterator<Map> iterator = reader.with(schema).readValues(in);
 
     // ... some reference to data

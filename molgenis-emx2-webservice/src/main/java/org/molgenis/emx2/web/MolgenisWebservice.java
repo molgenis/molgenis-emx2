@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.joda.time.DateTime;
-import org.joda.time.Minutes;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -17,7 +14,6 @@ import spark.Spark;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.util.*;
 
 import static org.joda.time.Minutes.minutesBetween;
 import static org.molgenis.emx2.web.Constants.*;
@@ -57,7 +53,7 @@ public class MolgenisWebservice {
 
     // documentation operations
     get("/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
-    get("/openapi/:schema", MolgenisWebservice::openApiUserInterface);
+    get("/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
     get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // handling of exceptions
@@ -109,21 +105,11 @@ public class MolgenisWebservice {
   }
 
   private static String openApiYaml(Request request, Response response) throws IOException {
-    Schema schema =
-        sessionManager
-            .getSession(request)
-            .getDatabase()
-            .getSchema(sanitize(request.params(SCHEMA)));
-    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
+    OpenAPI api = OpenApiYamlGenerator.createOpenApi(getSchema(request).getMetadata());
     response.status(200);
     return Yaml.mapper()
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
         .writeValueAsString(api);
-  }
-
-  private static String openApiUserInterface(Request request, Response response) {
-    response.status(200);
-    return OpenApiUiFactory.createSwaggerUI(sanitize(request.params(SCHEMA)));
   }
 
   public static String sanitize(String string) {

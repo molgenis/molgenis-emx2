@@ -62,7 +62,7 @@ public class SchemaMetadata {
     return sb.toString();
   }
 
-  public Iterable<? extends TableMetadata> getTables() {
+  public List<TableMetadata> getTables() {
     List<TableMetadata> tables = new ArrayList<>();
     for (String name : getTableNames()) {
       tables.add(getTableMetadata(name));

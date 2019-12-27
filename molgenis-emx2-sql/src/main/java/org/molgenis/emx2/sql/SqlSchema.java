@@ -113,6 +113,57 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public void discard(SchemaMetadata toBeRemoved) {
+    // check if all tables and columns are known
+    List<String> errors = new ArrayList<>();
+    for (TableMetadata toBeRemovedTable : toBeRemoved.getTables()) {
+      TableMetadata t = getMetadata().getTableMetadata(toBeRemovedTable.getTableName());
+      if (t == null) {
+        errors.add("Table '" + t.getTableName() + " not found");
+      }
+      for (String name : toBeRemovedTable.getLocalColumnNames()) {
+        if (!t.getLocalColumnNames().contains(name))
+          errors.add("Column '" + t.getTableName() + "." + name + " not found");
+      }
+    }
+    if (errors.size() > 0) {
+      throw new MolgenisException(
+          "Discard failed",
+          "Discard of tables out of schema "
+              + getMetadata().getName()
+              + " failed: "
+              + String.join("\n", errors));
+    }
+
+    // get all tables, sorted and use that as scaffold
+    tx(
+        db -> {
+          List<TableMetadata> tables = getMetadata().getTables();
+          Collections.reverse(tables);
+
+          // remove whole tables unless columns attached
+          for (TableMetadata t : tables) {
+            // if no coluns then we delete whole table
+            if (toBeRemoved.getTableMetadata(t.getTableName()) != null) {
+              TableMetadata toBeRemovedTable = toBeRemoved.getTableMetadata(t.getTableName());
+              if (toBeRemovedTable.getLocalColumnNames().size() == 0
+                  || toBeRemovedTable.getLocalColumnNames().containsAll(t.getLocalColumnNames())) {
+                dropTable(t.getTableName());
+                MetadataUtils.deleteTable(getMetadata().getJooq(), t);
+              } else {
+                // or column names
+                for (String name : toBeRemovedTable.getLocalColumnNames()) {
+                  Column c = t.getColumn(name);
+                  t.removeColumn(name);
+                  MetadataUtils.deleteColumn(getMetadata().getJooq(), c);
+                }
+              }
+            }
+          }
+        });
+  }
+
+  @Override
   public void merge(SchemaMetadata from) {
     tx(
         database -> {

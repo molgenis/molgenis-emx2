@@ -81,7 +81,7 @@ class SqlTableMetadata extends TableMetadata {
     db.tx(
         dsl -> {
           Column result = new Column(this, column);
-          executeCreateColumn(getJooq(), result);
+          CreateSimpleColumn.executeCreateColumn(getJooq(), result);
           super.addColumn(result);
         });
     log(start, "added column '" + column.getName() + "' to ");
@@ -94,7 +94,7 @@ class SqlTableMetadata extends TableMetadata {
     if (getColumn(name) == null) return; // return silently, idempotent
     db.tx(
         dsl -> {
-          executeRemoveColumn(getJooq(), getColumn(name));
+          CreateSimpleColumn.executeRemoveColumn(getJooq(), getColumn(name));
           super.columns.remove(name);
         });
     log(start, "removed column '" + name + "' from ");

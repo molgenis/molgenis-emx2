@@ -23,6 +23,8 @@ public interface Schema {
 
   void merge(SchemaMetadata from);
 
+  void discard(SchemaMetadata schema);
+
   void addMembers(List<Member> members);
 
   void addMembers(Member... members);

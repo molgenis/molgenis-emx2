@@ -23,6 +23,10 @@ public class CsvTableReader {
     return read(new FileReader(f), ',');
   }
 
+  public static Iterable<Row> read(File f, Character separator) throws IOException {
+    return read(new FileReader(f), separator);
+  }
+
   public static List<Row> readList(Reader in, Character separator) {
     List<Row> result = new ArrayList<>();
     for (Row r : read(in, separator)) {

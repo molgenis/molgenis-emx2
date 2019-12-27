@@ -17,6 +17,20 @@ public class CreateRefArrayColumn {
     saveColumnMetadata(jooq, column);
   }
 
+  static void executeDropRefArrayTriggers(DSLContext jooq, Column column) {
+
+    jooq.execute(
+        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), getDeleteTriggerName(column)));
+    jooq.execute(
+        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), getUpdateTriggerName(column)));
+    jooq.execute(
+        "DROP FUNCTION {0} CASCADE ", name(getSchemaName(column), getUpdateCheckName(column)));
+  }
+
+  static String getSchemaName(Column column) {
+    return column.getTable().getSchema().getName();
+  }
+
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
   private static void createIsReferencedByTrigger(DSLContext jooq, Column column) {
@@ -26,20 +40,8 @@ public class CreateRefArrayColumn {
     Name thisColumn = name(column.getName());
     Name toColumn = name(column.getRefColumnName());
 
-    String updateTrigger =
-        "UPD_"
-            + column.getRefTableName()
-            + "_CASCADE_"
-            + column.getTable().getTableName()
-            + "_"
-            + column.getName();
-    String deleteTrigger =
-        "DEL_"
-            + column.getRefTableName()
-            + "_CHECK_"
-            + column.getTable().getTableName()
-            + "_"
-            + column.getName();
+    String updateTrigger = getUpdateTriggerName(column);
+    String deleteTrigger = getDeleteTriggerName(column);
 
     // in case of update of other end cascade
     jooq.execute(
@@ -94,6 +96,24 @@ public class CreateRefArrayColumn {
         name(deleteTrigger), toTable, name(column.getTable().getSchema().getName(), deleteTrigger));
   }
 
+  private static String getDeleteTriggerName(Column column) {
+    return "DEL_"
+        + column.getRefTableName()
+        + "_CHECK_"
+        + column.getTable().getTableName()
+        + "_"
+        + column.getName();
+  }
+
+  private static String getUpdateTriggerName(Column column) {
+    return "UPD_"
+        + column.getRefTableName()
+        + "_CASCADE_"
+        + column.getTable().getTableName()
+        + "_"
+        + column.getName();
+  }
+
   /** trigger on this column to check if foreign key exists */
   private static void createReferenceExistsTrigger(DSLContext jooq, Column column) {
     Name thisTable =
@@ -102,15 +122,7 @@ public class CreateRefArrayColumn {
     Name toTable = name(column.getTable().getSchema().getName(), column.getRefTableName());
     Name toColumn = name(column.getRefColumnName());
 
-    Name functionName =
-        name(
-            column.getTable().getSchema().getName(),
-            "UPD_"
-                + column.getTable().getTableName()
-                + "_CHECK_"
-                + column.getTable().getTableName()
-                + "_"
-                + column.getName());
+    Name functionName = name(getSchemaName(column), getUpdateCheckName(column));
 
     // createTableIfNotExists the function
     jooq.execute(
@@ -150,5 +162,14 @@ public class CreateRefArrayColumn {
         thisTable,
         toTable,
         functionName);
+  }
+
+  private static String getUpdateCheckName(Column column) {
+    return "UPD_"
+        + column.getTable().getTableName()
+        + "_CHECK_"
+        + column.getTable().getTableName()
+        + "_"
+        + column.getName();
   }
 }

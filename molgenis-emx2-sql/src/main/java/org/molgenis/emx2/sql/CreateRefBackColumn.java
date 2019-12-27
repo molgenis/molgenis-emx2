@@ -8,6 +8,7 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.CreateRefArrayColumn.getSchemaName;
 import static org.molgenis.emx2.sql.CreateSimpleColumn.getMappedByColumn;
 
 class CreateRefBackColumn {
@@ -122,8 +123,7 @@ class CreateRefBackColumn {
 
   private static void createTriggerForRefArray(DSLContext jooq, Column column) {
     String schemaName = column.getTable().getSchema().getName();
-    String updateTriggerName =
-        "1" + column.getTable().getTableName() + "_" + column.getName() + "_UPDATETRIGGER";
+    String updateTriggerName = refbackUpdateTriggerName(column);
 
     // on insert and update trigger
 
@@ -183,8 +183,7 @@ class CreateRefBackColumn {
 
     // delete and truncate trigger
 
-    String deleteTriggerName =
-        "1" + column.getTable().getTableName() + "_" + column.getName() + "_DELTRIGGER";
+    String deleteTriggerName = refbackDeleteTriggerName(column);
 
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
@@ -217,10 +216,8 @@ class CreateRefBackColumn {
     String schemaName = column.getTable().getSchema().getName();
     // added number because triggers are fired in alphabethical order, thus ensuring that text
     // search indexer fire last
-    String insertOrUpdateTrigger =
-        "1" + column.getTable().getTableName() + "_" + column.getName() + "_UPDATE";
-    String deleteTrigger =
-        "1" + column.getTable().getTableName() + "_" + column.getName() + "_DELETE";
+    String insertOrUpdateTrigger = refbackUpdateTriggerName(column);
+    String deleteTrigger = refbackDeleteTriggerName(column);
 
     // insert and update trigger
     jooq.execute(
@@ -257,14 +254,7 @@ class CreateRefBackColumn {
         "CREATE TRIGGER {0} "
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-        name(
-            column.getTableName()
-                + "_"
-                + column.getName()
-                + "_UPDATEREF_"
-                + column.getRefTableName()
-                + "_"
-                + column.getMappedBy()),
+        name(insertOrUpdateTrigger),
         name(column.getName()),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
@@ -291,15 +281,23 @@ class CreateRefBackColumn {
         "CREATE TRIGGER {0} "
             + "\n\tAFTER DELETE ON {1} "
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-        name(
-            column.getTableName()
-                + "_"
-                + column.getName()
-                + "_DELETEREF_"
-                + column.getRefTableName()
-                + "_"
-                + column.getMappedBy()),
+        name(deleteTrigger),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, deleteTrigger));
+  }
+
+  private static String refbackDeleteTriggerName(Column column) {
+    return "1" + column.getTable().getTableName() + "_" + column.getName() + "_DELETE";
+  }
+
+  private static String refbackUpdateTriggerName(Column column) {
+    return "1" + column.getTable().getTableName() + "_" + column.getName() + "_UPDATE";
+  }
+
+  static void executeDropRefbackTriggers(DSLContext jooq, Column column) {
+    jooq.execute(
+        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), refbackDeleteTriggerName(column)));
+    jooq.execute(
+        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), refbackUpdateTriggerName(column)));
   }
 }

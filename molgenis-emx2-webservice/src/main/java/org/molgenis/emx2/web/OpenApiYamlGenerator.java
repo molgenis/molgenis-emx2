@@ -19,11 +19,11 @@ import static org.molgenis.emx2.web.Constants.*;
 
 public class OpenApiYamlGenerator {
 
-  private static final String OK = "200";
+  static final String OK = "200";
   private static final String OBJECT = "object";
   private static final String PROBLEM = "Problem";
-  private static final String BAD_REQUEST = "400";
-  private static final String BAD_REQUEST_MESSAGE = "Bad request";
+  static final String BAD_REQUEST = "400";
+  static final String BAD_REQUEST_MESSAGE = "Bad request";
   private static final String MEMBER = "Member";
   private static final String SCHEMA = "SchemaMetadata";
 
@@ -285,10 +285,23 @@ public class OpenApiYamlGenerator {
         .responses(apiResponses());
   }
 
-  private static ApiResponses apiResponses() {
+  public static ApiResponses apiResponses() {
+    Content message = getMessageContent();
+
     return new ApiResponses()
-        .addApiResponse(OK, new ApiResponse().description("success"))
-        .addApiResponse(BAD_REQUEST, new ApiResponse().description(BAD_REQUEST_MESSAGE));
+        .addApiResponse(OK, new ApiResponse().description("Success").content(message))
+        .addApiResponse(BAD_REQUEST, new ApiResponse().description("Failed").content(message));
+  }
+
+  static Content getMessageContent() {
+    return new Content()
+        .addMediaType(
+            ACCEPT_JSON,
+            new MediaType()
+                .schema(
+                    new Schema()
+                        .addProperties("title", new StringSchema())
+                        .addProperties("message", new StringSchema())));
   }
 
   private static RequestBody tableRequestBody(String tableName) {

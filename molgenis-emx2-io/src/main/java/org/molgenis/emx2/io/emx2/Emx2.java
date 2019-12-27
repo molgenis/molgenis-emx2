@@ -12,6 +12,8 @@ import java.util.List;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.io.readers.RowReaderJackson.read;
+import static org.molgenis.emx2.io.readers.RowReaderJackson.readList;
 
 public class Emx2 {
 
@@ -19,6 +21,14 @@ public class Emx2 {
 
   private Emx2() {
     // hides constructor
+  }
+
+  public static SchemaMetadata loadEmx2File(File file, Character separator) throws IOException {
+    List<Emx2FileRow> typedRows = new ArrayList<>();
+    for (Row r : read(file, separator)) {
+      typedRows.add(new Emx2FileRow(r));
+    }
+    return executeLoadProcedure(typedRows);
   }
 
   public static SchemaMetadata fromRowList(List<Row> rows) {
