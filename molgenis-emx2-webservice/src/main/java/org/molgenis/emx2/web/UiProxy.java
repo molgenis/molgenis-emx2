@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import static spark.Spark.get;
 
@@ -31,10 +31,10 @@ public class UiProxy {
     get(
         pathFilter,
         (req, res) -> {
-          logger.info("trying to proxy " + req.url());
-
           // setup the request
           URL proxyUrl = getURL(req, path, target);
+          logger.info("trying to proxy " + req.url() + " to " + proxyUrl.toString());
+
           HttpURLConnection proxyConnection = (HttpURLConnection) proxyUrl.openConnection();
           mapRequestHeaders(req, proxyConnection);
           proxyConnection.setRequestMethod("GET");
@@ -53,12 +53,22 @@ public class UiProxy {
           if (("" + status).startsWith("4")) {
             res.status(status);
             mapResponseHeaders(proxyConnection, res);
+            proxyConnection.getErrorStream().transferTo(res.raw().getOutputStream());
           }
 
           // copy contents to response
           res.status(proxyConnection.getResponseCode());
           mapResponseHeaders(proxyConnection, res);
-          proxyConnection.getInputStream().transferTo(res.raw().getOutputStream());
+          // if html then rewrite
+          if (isHtml(proxyConnection)) {
+            String body = getBody(proxyConnection);
+            String oldPath = new URL(target).getPath();
+            body = rewriteHtml(body, oldPath, path);
+            res.body(body);
+          } else {
+            // else push raw
+            proxyConnection.getInputStream().transferTo(res.raw().getOutputStream());
+          }
           proxyConnection.disconnect();
 
           // return result
@@ -66,9 +76,44 @@ public class UiProxy {
         });
   }
 
+  private static String getBody(HttpURLConnection conn) throws IOException {
+    String contentEncoding = conn.getContentEncoding();
+    if (contentEncoding == null) {
+      contentEncoding = "utf-8";
+    }
+    InputStreamReader in = null;
+    if ("gzip".equals(contentEncoding) || "br".equals(contentEncoding)) {
+      in = new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
+    } else {
+      in = new InputStreamReader((InputStream) conn.getContent());
+    }
+    BufferedReader buff = new BufferedReader(in);
+    String line;
+    StringBuilder builder = new StringBuilder();
+    do {
+      line = buff.readLine();
+      builder.append(line).append("\n");
+    } while (line != null);
+    buff.close();
+    return builder.toString();
+  }
+
+  private static boolean isHtml(HttpURLConnection con) {
+    for (Map.Entry<String, List<String>> header : con.getHeaderFields().entrySet()) {
+      if (header.getKey() != null && header.getKey().contains("Content-Type")) {
+        for (String value : header.getValue()) {
+          if (value.contains("html")) return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private static void mapRequestHeaders(Request request, HttpURLConnection con) {
     for (String header : request.headers()) {
-      if (!header.equals("Content-Length")) con.setRequestProperty(header, request.headers(header));
+      if (!header.equals("Content-Length")) {
+        con.setRequestProperty(header, request.headers(header));
+      }
     }
   }
 
@@ -95,5 +140,11 @@ public class UiProxy {
       throws MalformedURLException {
     String proxyUrl = proxyTarget + req.pathInfo().replace(proxyPath, "");
     return new URL((req.queryString() == null) ? proxyUrl : (proxyUrl + "?" + req.queryString()));
+  }
+
+  private static String rewriteHtml(String body, String oldPath, String newPath) {
+    body = body.replaceAll("href\\s*=\\s*\"\\s*" + oldPath, "href=\"" + newPath);
+    body = body.replaceAll("src\\s*=\\s*\"\\s*" + oldPath, "src=\"" + newPath);
+    return body;
   }
 }
