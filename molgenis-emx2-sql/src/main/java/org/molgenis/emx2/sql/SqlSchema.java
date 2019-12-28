@@ -123,7 +123,7 @@ public class SqlSchema implements Schema {
       }
       for (String name : toBeRemovedTable.getLocalColumnNames()) {
         if (!t.getLocalColumnNames().contains(name))
-          errors.add("Column '" + t.getTableName() + "." + name + " not found");
+          errors.add("Column '" + toBeRemovedTable.getTableName() + "." + name + " not found");
       }
     }
     if (errors.size() > 0) {
