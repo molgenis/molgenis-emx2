@@ -56,6 +56,10 @@ public class MolgenisWebservice {
     get("/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
     get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
+    // setup proxy
+    UiProxy.enableProxy("/nu", "http://www.nu.nl");
+    UiProxy.enableProxy("/apps/mswertz/", "https://unpkg.com/@mswertz/");
+
     // handling of exceptions
     exception(
         JsonException.class,

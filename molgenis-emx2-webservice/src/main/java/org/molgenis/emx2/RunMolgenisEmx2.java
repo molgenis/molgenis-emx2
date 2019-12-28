@@ -30,7 +30,7 @@ public class RunMolgenisEmx2 {
     dataSource.setUsername("molgenis");
     dataSource.setPassword("molgenis");
 
-    // setup
+    // setup database
     Database db = new SqlDatabase(dataSource);
     if (db.getSchema("pet store") == null) {
       Schema schema = db.createSchema("pet store");

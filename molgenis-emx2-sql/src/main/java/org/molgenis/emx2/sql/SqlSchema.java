@@ -175,7 +175,7 @@ public class SqlSchema implements Schema {
             mergeTableList.add(mergeSchema.getTableMetadata(tableName));
           }
 
-          // uses TableMetadata.compareTo.  todo circular dependencies
+          // sort dependency order
           sortTableByDependency(mergeTableList);
 
           for (TableMetadata mergeTable : mergeTableList) {
