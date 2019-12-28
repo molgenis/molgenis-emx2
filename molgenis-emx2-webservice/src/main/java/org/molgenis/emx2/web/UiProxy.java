@@ -1,20 +1,22 @@
 package org.molgenis.emx2.web;
 
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.brotli.BrotliInterceptor;
+import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
-import spark.Response;
 
-import java.io.*;
-import java.net.*;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static spark.Spark.get;
 
 public class UiProxy {
   static final Logger logger = LoggerFactory.getLogger(UiProxy.class);
+  static final OkHttpClient client =
+      new OkHttpClient.Builder().addInterceptor(BrotliInterceptor.INSTANCE).build();
 
   // thanks to some inspiration from
   // https://github.com/abhinavsayan/java-spark-proxy-server/blob/master/src/main/java/server/ProxyServer.java
@@ -27,102 +29,62 @@ public class UiProxy {
     String path = formatPath(proxyPath);
     String target = formatPath(proxyTarget);
     String pathFilter = path + "*";
+    String temp = "/";
+    try {
+      temp = new URL(target).getPath();
+    } catch (MalformedURLException e) {
+      throw new MolgenisException("Internal error with the proxy", e);
+    }
+    final String prefix = temp;
 
     get(
         pathFilter,
         (req, res) -> {
           // setup the request
-          URL proxyUrl = getURL(req, path, target);
+          String proxyUrl = getURL(req, path, target);
           logger.info("trying to proxy " + req.url() + " to " + proxyUrl.toString());
 
-          HttpURLConnection proxyConnection = (HttpURLConnection) proxyUrl.openConnection();
-          mapRequestHeaders(req, proxyConnection);
-          proxyConnection.setRequestMethod("GET");
+          // build request excluding headers
+          okhttp3.Request proxyRequest = new okhttp3.Request.Builder().url(proxyUrl).build();
 
-          // check for redirect
-          int status = proxyConnection.getResponseCode();
-          if (status == HttpURLConnection.HTTP_MOVED_TEMP
-              || status == HttpURLConnection.HTTP_MOVED_PERM) {
-            String location = proxyConnection.getHeaderField("Location");
-            URL newUrl = new URL(location);
-            proxyConnection = (HttpURLConnection) newUrl.openConnection();
-            mapRequestHeaders(req, proxyConnection);
-            proxyConnection.setRequestMethod("GET");
-          }
+          // execute the request
+          okhttp3.Response proxyResponse = client.newCall(proxyRequest).execute();
 
-          if (("" + status).startsWith("4")) {
-            res.status(status);
-            mapResponseHeaders(proxyConnection, res);
-            proxyConnection.getErrorStream().transferTo(res.raw().getOutputStream());
-          }
+          // map to the response
+          if (proxyResponse.isSuccessful()) {
+            mapResponseHeaders(proxyResponse, res);
 
-          // copy contents to response
-          res.status(proxyConnection.getResponseCode());
-          mapResponseHeaders(proxyConnection, res);
-          // if html then rewrite
-          if (isHtml(proxyConnection)) {
-            String body = getBody(proxyConnection);
-            String oldPath = new URL(target).getPath();
-            body = rewriteHtml(body, oldPath, path);
-            res.body(body);
+            // if html or css than create body string
+            if (proxyResponse.body().contentType().subtype().equals("html")
+                || proxyResponse.body().contentType().subtype().equals("css")) {
+              // rewrite local path
+              res.body(rewriteHtml(proxyResponse.body().string(), prefix, path));
+            } else {
+              // else transfer raw bytes
+              // proxyResponse.body().byteStream().transferTo(res.raw().getOutputStream());
+              res.body(proxyResponse.body().string());
+            }
           } else {
-            // else push raw
-            proxyConnection.getInputStream().transferTo(res.raw().getOutputStream());
+            proxyResponse.body().byteStream().transferTo(res.raw().getOutputStream());
           }
-          proxyConnection.disconnect();
+          res.status(proxyResponse.code());
 
           // return result
           return res.raw();
         });
   }
 
-  private static String getBody(HttpURLConnection conn) throws IOException {
-    String contentEncoding = conn.getContentEncoding();
-    if (contentEncoding == null) {
-      contentEncoding = "utf-8";
+  private static Headers getHeaders(Request req) {
+    Headers.Builder headers = new Headers.Builder();
+    for (String headerName : req.headers()) {
+      headers.add(headerName, req.headers(headerName));
     }
-    InputStreamReader in = null;
-    if ("gzip".equals(contentEncoding) || "br".equals(contentEncoding)) {
-      in = new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
-    } else {
-      in = new InputStreamReader((InputStream) conn.getContent());
-    }
-    BufferedReader buff = new BufferedReader(in);
-    String line;
-    StringBuilder builder = new StringBuilder();
-    do {
-      line = buff.readLine();
-      builder.append(line).append("\n");
-    } while (line != null);
-    buff.close();
-    return builder.toString();
+    return headers.build();
   }
 
-  private static boolean isHtml(HttpURLConnection con) {
-    for (Map.Entry<String, List<String>> header : con.getHeaderFields().entrySet()) {
-      if (header.getKey() != null && header.getKey().contains("Content-Type")) {
-        for (String value : header.getValue()) {
-          if (value.contains("html")) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private static void mapRequestHeaders(Request request, HttpURLConnection con) {
-    for (String header : request.headers()) {
-      if (!header.equals("Content-Length")) {
-        con.setRequestProperty(header, request.headers(header));
-      }
-    }
-  }
-
-  private static void mapResponseHeaders(HttpURLConnection con, Response res) {
-    for (Map.Entry<String, List<String>> header : con.getHeaderFields().entrySet()) {
-      logger.debug("header:" + header.getKey() + " " + header.getValue());
-      if (header.getKey() != null) {
-        res.header(header.getKey(), String.join(",", header.getValue()));
-      }
+  private static void mapResponseHeaders(okhttp3.Response proxyResponse, spark.Response res) {
+    for (String headerName : proxyResponse.headers().names()) {
+      res.header(headerName, proxyResponse.header(headerName));
     }
   }
 
@@ -136,15 +98,18 @@ public class UiProxy {
     return path;
   }
 
-  private static URL getURL(Request req, String proxyPath, String proxyTarget)
-      throws MalformedURLException {
+  private static String getURL(spark.Request req, String proxyPath, String proxyTarget) {
     String proxyUrl = proxyTarget + req.pathInfo().replace(proxyPath, "");
-    return new URL((req.queryString() == null) ? proxyUrl : (proxyUrl + "?" + req.queryString()));
+    return (req.queryString() == null) ? proxyUrl : (proxyUrl + "?" + req.queryString());
   }
 
   private static String rewriteHtml(String body, String oldPath, String newPath) {
+    // sometimes you don't need '"' apparantly
+    body = body.replaceAll("href\\s*=\\s*\\s*" + oldPath, "href=" + newPath);
+    body = body.replaceAll("src\\s*=\\s*\\s*" + oldPath, "src=" + newPath);
     body = body.replaceAll("href\\s*=\\s*\"\\s*" + oldPath, "href=\"" + newPath);
     body = body.replaceAll("src\\s*=\\s*\"\\s*" + oldPath, "src=\"" + newPath);
+    body = body.replaceAll("url\\s*\\(\\s*'\\s*" + oldPath, "url('" + newPath);
     return body;
   }
 }

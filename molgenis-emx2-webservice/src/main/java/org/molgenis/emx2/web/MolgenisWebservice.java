@@ -58,7 +58,7 @@ public class MolgenisWebservice {
 
     // setup proxy
     UiProxy.enableProxy("/nu", "http://www.nu.nl");
-    UiProxy.enableProxy("/apps/mswertz/", "https://unpkg.com/@mswertz/");
+    UiProxy.enableProxy("/apps/", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.21/");
 
     // handling of exceptions
     exception(
