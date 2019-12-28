@@ -113,17 +113,17 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void discard(SchemaMetadata toBeRemoved) {
+  public void discard(SchemaMetadata discardSchema) {
     // check if all tables and columns are known
     List<String> errors = new ArrayList<>();
-    for (TableMetadata toBeRemovedTable : toBeRemoved.getTables()) {
-      TableMetadata t = getMetadata().getTableMetadata(toBeRemovedTable.getTableName());
-      if (t == null) {
-        errors.add("Table '" + t.getTableName() + " not found");
+    for (TableMetadata discardTable : discardSchema.getTables()) {
+      TableMetadata existingTable = getMetadata().getTableMetadata(discardTable.getTableName());
+      if (existingTable == null) {
+        errors.add("Table '" + discardTable.getTableName() + " not found");
       }
-      for (String name : toBeRemovedTable.getLocalColumnNames()) {
-        if (!t.getLocalColumnNames().contains(name))
-          errors.add("Column '" + toBeRemovedTable.getTableName() + "." + name + " not found");
+      for (String discardColumn : discardTable.getLocalColumnNames()) {
+        if (!existingTable.getLocalColumnNames().contains(discardColumn))
+          errors.add("Column '" + discardTable.getTableName() + "." + discardColumn + " not found");
       }
     }
     if (errors.size() > 0) {
@@ -142,20 +142,23 @@ public class SqlSchema implements Schema {
           Collections.reverse(tables);
 
           // remove whole tables unless columns attached
-          for (TableMetadata t : tables) {
+          for (TableMetadata existingTable : tables) {
             // if no coluns then we delete whole table
-            if (toBeRemoved.getTableMetadata(t.getTableName()) != null) {
-              TableMetadata toBeRemovedTable = toBeRemoved.getTableMetadata(t.getTableName());
-              if (toBeRemovedTable.getLocalColumnNames().size() == 0
-                  || toBeRemovedTable.getLocalColumnNames().containsAll(t.getLocalColumnNames())) {
-                dropTable(t.getTableName());
-                MetadataUtils.deleteTable(getMetadata().getJooq(), t);
+            if (discardSchema.getTableMetadata(existingTable.getTableName()) != null) {
+              TableMetadata discardTable =
+                  discardSchema.getTableMetadata(existingTable.getTableName());
+              if (discardTable.getLocalColumnNames().size() == 0
+                  || discardTable
+                      .getLocalColumnNames()
+                      .containsAll(existingTable.getLocalColumnNames())) {
+                dropTable(existingTable.getTableName());
+                MetadataUtils.deleteTable(getMetadata().getJooq(), existingTable);
               } else {
                 // or column names
-                for (String name : toBeRemovedTable.getLocalColumnNames()) {
-                  Column c = t.getColumn(name);
-                  t.removeColumn(name);
-                  MetadataUtils.deleteColumn(getMetadata().getJooq(), c);
+                for (String discardColumn : discardTable.getLocalColumnNames()) {
+                  Column existingColumn = existingTable.getColumn(discardColumn);
+                  existingTable.removeColumn(discardColumn);
+                  MetadataUtils.deleteColumn(getMetadata().getJooq(), existingColumn);
                 }
               }
             }
@@ -164,25 +167,27 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void merge(SchemaMetadata from) {
+  public void merge(SchemaMetadata mergeSchema) {
     tx(
         database -> {
-          List<TableMetadata> tableList = new ArrayList<>();
-          for (String tableName : from.getTableNames()) {
-            tableList.add(from.getTableMetadata(tableName));
+          List<TableMetadata> mergeTableList = new ArrayList<>();
+          for (String tableName : mergeSchema.getTableNames()) {
+            mergeTableList.add(mergeSchema.getTableMetadata(tableName));
           }
 
           // uses TableMetadata.compareTo.  todo circular dependencies
-          sortTableByDependency(tableList);
+          sortTableByDependency(mergeTableList);
 
-          for (TableMetadata table : tableList) {
+          for (TableMetadata mergeTable : mergeTableList) {
+            // todo check if table exists
+
             // first create all tables, and keep refback for last
-            if (getTable(table.getTableName()) == null) {
-              this.create(new TableMetadata(table.getTableName()));
+            if (getTable(mergeTable.getTableName()) == null) {
+              this.create(new TableMetadata(mergeTable.getTableName()));
             }
           }
           // first pass
-          for (TableMetadata table : tableList) {
+          for (TableMetadata table : mergeTableList) {
             TableMetadata tm = this.getTable(table.getTableName()).getMetadata();
             if (table.getInherit() != null) tm.setInherit(table.getInherit());
 
@@ -198,7 +203,7 @@ public class SqlSchema implements Schema {
             for (String[] unique : table.getUniques()) tm.addUnique(unique);
           }
           // second pass for all linkback relations
-          for (TableMetadata table : tableList) {
+          for (TableMetadata table : mergeTableList) {
             for (Column c : table.getLocalColumns()) {
               if (c.getColumnType().equals(REFBACK)) {
                 this.getTable(table.getTableName()).getMetadata().addColumn(c);
