@@ -120,10 +120,12 @@ public class SqlSchema implements Schema {
       TableMetadata existingTable = getMetadata().getTableMetadata(discardTable.getTableName());
       if (existingTable == null) {
         errors.add("Table '" + discardTable.getTableName() + " not found");
-      }
-      for (String discardColumn : discardTable.getLocalColumnNames()) {
-        if (!existingTable.getLocalColumnNames().contains(discardColumn))
-          errors.add("Column '" + discardTable.getTableName() + "." + discardColumn + " not found");
+      } else {
+        for (String discardColumn : discardTable.getLocalColumnNames()) {
+          if (!existingTable.getLocalColumnNames().contains(discardColumn))
+            errors.add(
+                "Column '" + discardTable.getTableName() + "." + discardColumn + " not found");
+        }
       }
     }
     if (errors.size() > 0) {
