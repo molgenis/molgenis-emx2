@@ -1,20 +1,27 @@
 package org.molgenis.emx2;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface Database {
 
-  Collection<String> getSchemaNames();
+  // transactions
 
-  void setListener(DatabaseListener listener);
+  void tx(Transaction transaction);
 
-  DatabaseListener getListener();
+  // schema management
 
   Schema createSchema(String name);
+
+  /* get Schema names without retrieving all schema contents*/
+  Collection<String> getSchemaNames();
 
   Schema getSchema(String name);
 
   void dropSchema(String name);
+
+  // user management
+  // todo might needs its own interface
 
   void addUser(String name);
 
@@ -26,15 +33,23 @@ public interface Database {
 
   void removeUser(String name);
 
-  void grantCreateSchema(String user);
-
-  void tx(Transaction transaction);
+  // session management
 
   void setActiveUser(String username);
 
   String getActiveUser();
 
   void clearActiveUser();
+
+  void grantCreateSchema(String user);
+
+  // change listener
+
+  void setListener(DatabaseListener listener);
+
+  DatabaseListener getListener();
+
+  // brute force empty cache
 
   void clearCache();
 }

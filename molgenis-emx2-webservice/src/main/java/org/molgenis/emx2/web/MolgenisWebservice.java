@@ -6,6 +6,7 @@ import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -14,6 +15,8 @@ import spark.Spark;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.joda.time.Minutes.minutesBetween;
 import static org.molgenis.emx2.web.Constants.*;
@@ -36,6 +39,35 @@ public class MolgenisWebservice {
 
     staticFiles.location("/public_html");
 
+    // check if we have a settings table
+    Database database = new SqlDatabase(ds);
+    Schema schema = database.getSchema("System");
+    if (schema == null) schema = database.createSchema("System");
+    SchemaMetadata settingsSchema = new SchemaMetadata();
+    if (schema.getTable("Apps") == null) {
+      settingsSchema.create(
+          new TableMetadata("Apps")
+              .addColumn(new Column("path").pkey(true))
+              .addColumn(new Column("source")));
+      schema.merge(settingsSchema);
+      // todo make merge user alterColumn if column already exists
+    }
+    // load some defaults
+    schema
+        .getTable("Apps")
+        .update(
+            new Row().set("path", "nu").set("source", "http://www.nu.nl"),
+            new Row()
+                .set("path", "molgenis-app-reports")
+                .set("source", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.12/"));
+    // query
+    // todo how to reload?
+    Map<String, String> apps = new LinkedHashMap<>();
+    for (Row r : schema.getTable("Apps").retrieve()) {
+      apps.put(r.getString("path"), r.getString("source"));
+    }
+    AppsProxy.enableProxy("/apps/", apps);
+
     // root
     get(
         "/",
@@ -57,8 +89,8 @@ public class MolgenisWebservice {
     get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // setup proxy
-    UiProxy.enableProxy("/nu", "http://www.nu.nl");
-    UiProxy.enableProxy("/apps/", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.21/");
+    //    AppsProxy.enableProxy("/nu", "http://www.nu.nl");
+    //    AppsProxy.enableProxy("/apps/", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.21/");
 
     // handling of exceptions
     exception(
