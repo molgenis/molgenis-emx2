@@ -6,19 +6,13 @@ import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.getJoinTableName;
+import static org.molgenis.emx2.sql.SqlColumnUtils.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTypeUtils.*;
 
-public class CreateMrefColumn {
+public class SqlColumnMrefUtils {
 
-  public static void createMrefColumn(DSLContext jooq, Column column) {
+  public static void createMrefConstraints(DSLContext jooq, Column column) {
     String schemaName = column.getTable().getSchema().getName();
-
-    // create the column in this table
-    jooq.alterTable(name(schemaName, column.getTable().getTableName()))
-        .add(field(name(column.getName()), jooqTypeOf(column.getRefColumn()).getArrayDataType()))
-        .execute();
 
     // create joinTable the joinTable
     column

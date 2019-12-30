@@ -163,6 +163,29 @@ public class TypeUtils {
             + klazz.getCanonicalName());
   }
 
+  public static ColumnType getNonArrayType(ColumnType columnType) {
+    switch (columnType) {
+      case UUID_ARRAY:
+        return ColumnType.UUID;
+      case STRING_ARRAY:
+        return ColumnType.STRING;
+      case BOOL_ARRAY:
+        return ColumnType.BOOL;
+      case INT_ARRAY:
+        return ColumnType.INT;
+      case DECIMAL_ARRAY:
+        return ColumnType.DECIMAL;
+      case TEXT_ARRAY:
+        return ColumnType.TEXT;
+      case DATE_ARRAY:
+        return ColumnType.DATE;
+      case DATETIME_ARRAY:
+        return ColumnType.DATETIME;
+      default:
+        throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
+    }
+  }
+
   public static ColumnType getArrayType(ColumnType columnType) {
     switch (columnType) {
       case UUID:

@@ -1,10 +1,12 @@
 package org.molgenis.emx2.sql;
 
+import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 
 import java.util.*;
 
-import static org.molgenis.emx2.ColumnType.REFBACK;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveConstraints;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataUtils.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -172,6 +174,8 @@ public class SqlSchema implements Schema {
   public void merge(SchemaMetadata mergeSchema) {
     tx(
         database -> {
+          DSLContext jooq = getMetadata().getJooq();
+
           List<TableMetadata> mergeTableList = new ArrayList<>();
           for (String tableName : mergeSchema.getTableNames()) {
             mergeTableList.add(mergeSchema.getTableMetadata(tableName));
@@ -180,35 +184,62 @@ public class SqlSchema implements Schema {
           // sort dependency order
           sortTableByDependency(mergeTableList);
 
+          // first add all tables not yet in schema
           for (TableMetadata mergeTable : mergeTableList) {
-            // todo check if table exists
-
-            // first create all tables, and keep refback for last
             if (getTable(mergeTable.getTableName()) == null) {
               this.create(new TableMetadata(mergeTable.getTableName()));
             }
           }
-          // first pass
-          for (TableMetadata table : mergeTableList) {
-            TableMetadata tm = this.getTable(table.getTableName()).getMetadata();
-            if (table.getInherit() != null) tm.setInherit(table.getInherit());
 
-            // exclude link-back relations
-            for (Column c : table.getLocalColumns()) {
-              if (!c.getColumnType().equals(REFBACK)) {
-                tm.addColumn(c);
+          // first add missing columns (except refback), remove constraints of type changes, remove
+          // refback
+          for (TableMetadata newTable : mergeTableList) {
+            TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
+
+            // update inheritance
+            if (newTable.getInherit() != null) {
+              oldTable.setInherit(newTable.getInherit());
+            } else if (oldTable.getInherit() != null) {
+              oldTable.removeInherit();
+            }
+
+            // add missing (except refback), remove triggers if existing column if type changed
+            for (Column newColumn : newTable.getLocalColumns()) {
+              Column oldColumn = oldTable.getColumn(newColumn.getName());
+              if (oldTable.getColumn(newColumn.getName()) == null) {
+                // if column does not exist then create except refback
+                if (!newColumn.getColumnType().equals(REFBACK)) {
+                  oldTable.addColumn(newColumn);
+                }
+              } else if (!newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+
+                // if column exist but type has changed remove triggers
+                executeRemoveConstraints(getMetadata().getJooq(), oldColumn);
               }
             }
 
-            // table settings
-            if (table.getPrimaryKey() != null) tm.setPrimaryKey(table.getPrimaryKey());
-            for (String[] unique : table.getUniques()) tm.addUnique(unique);
+            // update unique constraints if not yet exist
+            if (newTable.getPrimaryKey() != null) oldTable.setPrimaryKey(newTable.getPrimaryKey());
+            for (String[] unique : newTable.getUniques()) oldTable.addUnique(unique);
           }
-          // second pass for all linkback relations
-          for (TableMetadata table : mergeTableList) {
-            for (Column c : table.getLocalColumns()) {
-              if (c.getColumnType().equals(REFBACK)) {
-                this.getTable(table.getTableName()).getMetadata().addColumn(c);
+
+          // second pass, update to the new types, reconnect refback
+          for (TableMetadata newTable : mergeTableList) {
+            TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
+
+            for (Column newColumn : newTable.getLocalColumns()) {
+              Column oldColumn = oldTable.getColumn(newColumn.getName());
+              // update the types
+              if (oldColumn != null
+                  && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+                oldTable.alterColumn(newColumn);
+
+                // todo reconnect refback
+              }
+
+              // create new refback relations
+              if (newColumn.getColumnType().equals(REFBACK)) {
+                this.getTable(newTable.getTableName()).getMetadata().addColumn(newColumn);
               }
             }
           }

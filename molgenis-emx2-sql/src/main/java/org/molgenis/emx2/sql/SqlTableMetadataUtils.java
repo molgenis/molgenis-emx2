@@ -10,7 +10,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.executeRemoveColumn;
+import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveColumn;
 
 public class SqlTableMetadataUtils {
 
@@ -40,7 +40,7 @@ public class SqlTableMetadataUtils {
     for (Column column : table.getLocalColumns()) {
       // if inherited, pkey is aready there
       if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
-        CreateSimpleColumn.executeCreateColumn(jooq, new Column(table, column));
+        SqlColumnUtils.executeCreateColumn(jooq, new Column(table, column));
       }
     }
 
@@ -83,10 +83,14 @@ public class SqlTableMetadataUtils {
     // drop previous primary key if exists
     jooq.execute(
         "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}",
-        getJooqTable(table), name(table.getTableName() + "_pkey"));
+        getJooqTable(table), getPrimaryKeyContraintName(table));
 
     // createTableIfNotExists the new one
     jooq.alterTable(getJooqTable(table)).add(constraint().primaryKey(name(columName))).execute();
+  }
+
+  private static Name getPrimaryKeyContraintName(TableMetadata table) {
+    return name(table.getTableName() + "_pkey");
   }
 
   // helper methods
@@ -104,15 +108,22 @@ public class SqlTableMetadataUtils {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
-      // drop all triggers from all columns
-      for (Column c : table.getLocalColumns()) {
-        executeRemoveColumn(jooq, c);
-      }
+      Table thisTable = getJooqTable(table);
+
+      // remove pkey
+      jooq.alterTable(thisTable).dropConstraint(getPrimaryKeyContraintName(table)).execute();
+
       // drop search trigger
       jooq.execute(
           "DROP FUNCTION {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table)));
 
+      // drop all triggers from all columns
+      for (Column c : table.getLocalColumns()) {
+        executeRemoveColumn(jooq, c);
+      }
+
+      // drop the table
       jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).cascade().execute();
       MetadataUtils.deleteTable(jooq, table);
     } catch (DataAccessException dae) {

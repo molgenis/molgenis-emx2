@@ -206,30 +206,55 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static String getPsqlType(Column column) {
-    switch (column.getColumnType()) {
+    return getPsqlType(getPrimitiveColumnType(column));
+  }
+
+  public static ColumnType getPrimitiveColumnType(Column column) {
+    if (REF.equals(column.getColumnType())) {
+      return column.getRefColumn().getColumnType();
+    } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
+      return getArrayType(column.getRefColumn().getColumnType());
+    }
+    return column.getColumnType();
+  }
+
+  public static String getPsqlType(ColumnType type) {
+    switch (type) {
       case STRING:
         return "character varying";
+      case STRING_ARRAY:
+        return "character varying[]";
       case UUID:
         return "uuid";
+      case UUID_ARRAY:
+        return "uuid[]";
       case BOOL:
         return "bool";
+      case BOOL_ARRAY:
+        return "bool[]";
       case INT:
         return "int";
+      case INT_ARRAY:
+        return "int[]";
       case DECIMAL:
         return "decimal";
+      case DECIMAL_ARRAY:
+        return "decimal[]";
       case TEXT:
         return "character varying";
+      case TEXT_ARRAY:
+        return "character varying[]";
       case DATE:
         return "date";
+      case DATE_ARRAY:
+        return "date[]";
       case DATETIME:
         return "timestamp without time zone";
-      case REF:
-      case REF_ARRAY:
-        return getPsqlType(column.getRefColumn());
+      case DATETIME_ARRAY:
+        return "timestamp without time zone[]";
       default:
         throw new MolgenisException(
-            "Unknown type",
-            "Internal error: data cannot be mapped to psqlType " + column.getColumnType());
+            "Unknown type", "Internal error: data cannot be mapped to psqlType " + type);
     }
   }
 }

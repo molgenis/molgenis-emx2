@@ -134,7 +134,7 @@ public class TableMetadata {
     return this;
   }
 
-  public TableMetadata alter(Column column) {
+  public TableMetadata alterColumn(Column column) {
     columns.put(column.getName(), new Column(this, column));
     if (column.isPrimaryKey()) {
       this.setPrimaryKey(column.getName());
@@ -146,6 +146,8 @@ public class TableMetadata {
   public void removeColumn(String name) {
     if (name.equals(getPrimaryKey()))
       throw new MolgenisException("Remove column failed", "Column is primary key");
+    if (columns.get(name) == null)
+      throw new MolgenisException("Remove column failed", "Column '" + name + "' unknown");
     columns.remove(name);
   }
 
@@ -245,5 +247,10 @@ public class TableMetadata {
 
   public boolean exists() {
     return !getColumns().isEmpty();
+  }
+
+  public TableMetadata removeInherit() {
+    this.inherit = null;
+    return this;
   }
 }

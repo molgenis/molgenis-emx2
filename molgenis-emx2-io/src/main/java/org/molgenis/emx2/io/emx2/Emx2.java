@@ -13,7 +13,6 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.io.readers.RowReaderJackson.read;
-import static org.molgenis.emx2.io.readers.RowReaderJackson.readList;
 
 public class Emx2 {
 
@@ -192,7 +191,7 @@ public class Emx2 {
     if (def.contains(Emx2PropertyList.NULLABLE)) {
       column.nullable(true);
     }
-    table.alter(column);
+    table.alterColumn(column);
   }
 
   private static ColumnType getType(Emx2PropertyList def) {

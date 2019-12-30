@@ -18,8 +18,8 @@ import java.util.*;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.getJoinTableName;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.getMappedByColumn;
+import static org.molgenis.emx2.sql.SqlColumnUtils.getJoinTableName;
+import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefTable;
 
 public class SqlQuery extends QueryBean implements Query {

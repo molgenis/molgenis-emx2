@@ -13,7 +13,9 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.*;
+import static org.molgenis.emx2.sql.SqlColumnUtils.reapplyRefbackContraints;
 import static org.molgenis.emx2.sql.SqlTableMetadataUtils.*;
 
 class SqlTableMetadata extends TableMetadata {
@@ -81,10 +83,28 @@ class SqlTableMetadata extends TableMetadata {
     db.tx(
         dsl -> {
           Column result = new Column(this, column);
-          CreateSimpleColumn.executeCreateColumn(getJooq(), result);
+          SqlColumnUtils.executeCreateColumn(getJooq(), result);
           super.addColumn(result);
         });
     log(start, "added column '" + column.getName() + "' to ");
+    return this;
+  }
+
+  @Override
+  public TableMetadata alterColumn(Column column) {
+    Column oldColumn = getColumn(column.getName());
+    if (oldColumn == null) {
+      throw new MolgenisException(
+          "Alter column failed",
+          "Column  '" + getTableName() + "." + column.getName() + "' does not exist");
+    }
+    db.tx(
+        dsl -> {
+          Column newColumn = new Column(this, column);
+          SqlColumnUtils.executeAlterColumn(getJooq(), oldColumn, newColumn);
+          super.alterColumn(newColumn);
+          reapplyRefbackContraints(getJooq(), oldColumn, newColumn);
+        });
     return this;
   }
 
@@ -94,7 +114,7 @@ class SqlTableMetadata extends TableMetadata {
     if (getColumn(name) == null) return; // return silently, idempotent
     db.tx(
         dsl -> {
-          CreateSimpleColumn.executeRemoveColumn(getJooq(), getColumn(name));
+          SqlColumnUtils.executeRemoveColumn(getJooq(), getColumn(name));
           super.columns.remove(name);
         });
     log(start, "removed column '" + name + "' from ");
@@ -132,6 +152,11 @@ class SqlTableMetadata extends TableMetadata {
         });
     log(start, "set inherit on ");
     return this;
+  }
+
+  @Override
+  public TableMetadata removeInherit() {
+    throw new RuntimeException("removeInherit not yet implemented");
   }
 
   @Override

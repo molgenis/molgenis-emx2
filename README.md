@@ -126,6 +126,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 
 ### later
+*  known bug: if I set refback for refarray to 'null' then ref is not updated!
 *  update merge to also allow alter column
 *  validation on queries such that illegal fields are errored (though grahpql prevents this)
 *  settings table, overall en per schema

@@ -351,7 +351,7 @@ class SqlTable implements Table {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
-  private Field getJooqField(Column c) {
+  public static Field getJooqField(Column c) {
     return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
   }
 }

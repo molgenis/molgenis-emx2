@@ -1,22 +1,20 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.TypeUtils;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.CreateRefArrayColumn.getSchemaName;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.getMappedByColumn;
+import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
+import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 
-class CreateRefBackColumn {
+class SqlColumnRefBackUtils {
 
   // will create a dummy array column matching the toColumn we will link to
   // will create a before insert trigger to update all REF instances in the other table that needs
   // updating
-  static void createRefBackColumn(DSLContext jooq, Column column) {
+  static void createRefBackColumnConstraints(DSLContext jooq, Column column) {
     try {
       // get ref table
       String refTableName = column.getRefTableName();
@@ -71,6 +69,17 @@ class CreateRefBackColumn {
       }
 
       Column mappedByColumn = getMappedByColumn(column);
+      if (mappedByColumn == null) {
+        throw new MolgenisException(
+            "Create column failed",
+            "Could not create column '"
+                + column.getName()
+                + "' because could not find mappedBy column '"
+                + mappedByColumnName
+                + "' in refTable '"
+                + column.getRefTableName()
+                + "'");
+      }
 
       if (!mappedByColumn.isNullable()) {
         throw new MolgenisException(
@@ -83,15 +92,6 @@ class CreateRefBackColumn {
                 + mappedByColumn.getName()
                 + "' is not nullable. Bi directional relations both ends must be nullable.");
       }
-
-      // get array type for that target column
-      ColumnType arrayType = TypeUtils.getArrayType(toColumn.getColumnType());
-
-      // execute alter current table add that column
-      Field thisColumn = field(name(column.getName()), SqlTypeUtils.jooqTypeOf(arrayType));
-      org.jooq.Table thisTable =
-          table(name(column.getTable().getSchema().getName(), column.getTable().getTableName()));
-      jooq.alterTable(thisTable).addColumn(thisColumn).execute();
 
       // create the trigger so that insert/update/delete on REFBACK column updates the relationship
       ColumnType mappedByType = mappedByColumn.getColumnType();
@@ -294,7 +294,7 @@ class CreateRefBackColumn {
     return "1" + column.getTable().getTableName() + "_" + column.getName() + "_UPDATE";
   }
 
-  static void executeDropRefbackTriggers(DSLContext jooq, Column column) {
+  static void removeRefBackConstraints(DSLContext jooq, Column column) {
     jooq.execute(
         "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), refbackDeleteTriggerName(column)));
     jooq.execute(

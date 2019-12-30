@@ -80,7 +80,7 @@ public class Emx1Import {
             table
                 .getColumn(attribute.getName())
                 .refTable(entities.get(attribute.getRefEntity()).getName());
-        table.alter(c);
+        table.alterColumn(c);
         if (attribute.getMappedBy() != null) {
           c.mappedBy(attribute.getMappedBy());
         }

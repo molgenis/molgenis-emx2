@@ -5,30 +5,24 @@ import org.jooq.Name;
 import org.molgenis.emx2.Column;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.CreateSimpleColumn.createSimpleColumn;
-import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 
-public class CreateRefArrayColumn {
+public class SqlColumnRefArrayUtils {
 
-  static void createRefArrayColumn(DSLContext jooq, Column column) {
-    createSimpleColumn(jooq, column);
+  static void createRefArrayConstraints(DSLContext jooq, Column column) {
     createReferenceExistsTrigger(jooq, column);
     createIsReferencedByTrigger(jooq, column);
-    saveColumnMetadata(jooq, column);
   }
 
-  static void executeDropRefArrayTriggers(DSLContext jooq, Column column) {
-
+  static void removeRefArrayConstraints(DSLContext jooq, Column column) {
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), getDeleteTriggerName(column)));
+        "DROP FUNCTION {0} CASCADE",
+        name(SqlColumnUtils.getSchemaName(column), getDeleteTriggerName(column)));
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), getUpdateTriggerName(column)));
+        "DROP FUNCTION {0} CASCADE",
+        name(SqlColumnUtils.getSchemaName(column), getUpdateTriggerName(column)));
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE ", name(getSchemaName(column), getUpdateCheckName(column)));
-  }
-
-  static String getSchemaName(Column column) {
-    return column.getTable().getSchema().getName();
+        "DROP FUNCTION {0} CASCADE ",
+        name(SqlColumnUtils.getSchemaName(column), getUpdateCheckName(column)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
@@ -122,7 +116,7 @@ public class CreateRefArrayColumn {
     Name toTable = name(column.getTable().getSchema().getName(), column.getRefTableName());
     Name toColumn = name(column.getRefColumnName());
 
-    Name functionName = name(getSchemaName(column), getUpdateCheckName(column));
+    Name functionName = name(SqlColumnUtils.getSchemaName(column), getUpdateCheckName(column));
 
     // createTableIfNotExists the function
     jooq.execute(
