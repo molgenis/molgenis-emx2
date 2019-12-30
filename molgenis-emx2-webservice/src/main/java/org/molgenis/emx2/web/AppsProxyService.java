@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static spark.Spark.get;
 
@@ -80,7 +81,8 @@ public class AppsProxyService {
 
     // setup the request
     String targetFullUrl = getURL(req, appBasePath, targetBaseUrl);
-    logger.info("trying to proxy " + getPath(req.url()) + " to " + targetFullUrl.toString());
+    logger.info(
+        "trying to proxy " + sanitize(getPath(req.url())) + " to " + targetFullUrl.toString());
 
     // build request excluding headers
     okhttp3.Request proxyRequest = new okhttp3.Request.Builder().url(targetFullUrl).build();
