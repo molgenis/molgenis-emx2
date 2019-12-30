@@ -122,14 +122,13 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ## Todo and open issues
 
 ### first
-*  proxy naar unpkg (configurable)
+*  set permission on Apps rows so default something is shown
 
 
 ### later
+*  create plugin system for services (todo: isolation? runtime loading?)
 *  known bug: if I set refback for refarray to 'null' then ref is not updated!
-*  update merge to also allow alter column
 *  validation on queries such that illegal fields are errored (though grahpql prevents this)
-*  settings table, overall en per schema
 *  performance test
 *  custom roles
 *  improve error titles and messages
@@ -170,27 +169,4 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  decide to store both ends of ref; added value might be order of items and query speed
 *  cross-schema foreign keys, do we need/want those?
 *  postgresql queries exposed as readonly tables
-
-## helpful notes
-
-In Excel you can use following macro to export all into CSV files.
-
-``
-Private Sub cmdSave()
-
-Dim WS As Excel.Worksheet
-Dim CurrentWorkbook As String
-Dim CurrentFormat As Long
-
-CurrentWorkbook = ThisWorkbook.FullName
-CurrentFormat = ThisWorkbook.FileFormat
-
-For Each WS In Application.ActiveWorkbook.Worksheets
-    WS.SaveAs WS.Name & ".csv", xlCSVUTF8
-Next
-
-End Sub
-``
-
-
 

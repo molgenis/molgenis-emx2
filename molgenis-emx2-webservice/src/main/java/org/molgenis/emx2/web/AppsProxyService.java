@@ -146,8 +146,9 @@ public class AppsProxyService {
   }
 
   private static String getURL(spark.Request req, String proxyPath, String proxyTarget) {
-    String proxyUrl = proxyTarget + req.pathInfo().replace(proxyPath, "");
-    return (req.queryString() == null) ? proxyUrl : (proxyUrl + "?" + req.queryString());
+    return proxyTarget + req.pathInfo().replace(proxyPath, "");
+    // return (req.queryString() == null) ? proxyUrl : (proxyUrl + "?" + req.queryString());
+
   }
 
   private static String rewriteHtml(String body, String oldPath, String newPath) {
