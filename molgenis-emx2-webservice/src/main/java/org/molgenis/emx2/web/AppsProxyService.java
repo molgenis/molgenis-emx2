@@ -80,7 +80,7 @@ public class AppsProxyService {
 
     // setup the request
     String targetFullUrl = getURL(req, appBasePath, targetBaseUrl);
-    logger.info("trying to proxy " + req.url() + " to " + targetFullUrl.toString());
+    logger.info("trying to proxy " + getPath(req.url()) + " to " + targetFullUrl.toString());
 
     // build request excluding headers
     okhttp3.Request proxyRequest = new okhttp3.Request.Builder().url(targetFullUrl).build();
