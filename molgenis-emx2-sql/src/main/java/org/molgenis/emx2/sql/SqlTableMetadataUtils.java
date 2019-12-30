@@ -111,7 +111,9 @@ public class SqlTableMetadataUtils {
       Table thisTable = getJooqTable(table);
 
       // remove pkey
-      jooq.alterTable(thisTable).dropConstraint(getPrimaryKeyContraintName(table)).execute();
+      if (table.getPrimaryKey() != null) {
+        jooq.alterTable(thisTable).dropConstraint(getPrimaryKeyContraintName(table)).execute();
+      }
 
       // drop search trigger
       jooq.execute(

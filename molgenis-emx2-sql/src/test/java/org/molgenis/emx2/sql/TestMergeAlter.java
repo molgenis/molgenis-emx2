@@ -154,30 +154,39 @@ public class TestMergeAlter {
   public void testSimpleTypes() {
 
     // simple
-    testRoundTripAlterType(STRING, "true", BOOL, true);
-    testRoundTripAlterType(STRING, "1", INT, 1);
-    testRoundTripAlterType(STRING, "1.0", DECIMAL, 1.0);
-    testRoundTripAlterType(INT, 1, DECIMAL, 1.0);
+    executeAlterType(STRING, "true", BOOL, true);
+    executeAlterType(STRING, "1", INT, 1);
+    executeAlterType(STRING, "1.0", DECIMAL, 1.0);
+    executeAlterType(INT, 1, DECIMAL, 1.0);
 
     LocalDate date = LocalDate.now();
     LocalDateTime time = LocalDateTime.now();
     // todo: I would actually like always to get rid to 'T' is that systemwide settable?
-    testRoundTripAlterType(STRING, date.toString(), DATE, date);
-    testRoundTripAlterType(STRING, time.toString().replace("T", " "), DATETIME, time);
-    testRoundTripAlterType(
+    executeAlterType(STRING, date.toString(), DATE, date);
+    executeAlterType(STRING, time.toString().replace("T", " "), DATETIME, time);
+    executeAlterType(
         DATE,
         date,
         DATETIME,
         LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0));
 
     // array
-    testRoundTripAlterType(STRING_ARRAY, new String[] {"1"}, INT_ARRAY, new Integer[] {1});
-    testRoundTripAlterType(INT_ARRAY, new Integer[] {1, 2}, DECIMAL_ARRAY, new Double[] {1.0, 2.0});
-    testRoundTripAlterType(STRING_ARRAY, new String[] {"aap,noot"}, STRING, "{\"aap,noot\"}");
+    executeAlterType(STRING_ARRAY, new String[] {"1"}, INT_ARRAY, new Integer[] {1});
+    executeAlterType(INT_ARRAY, new Integer[] {1, 2}, DECIMAL_ARRAY, new Double[] {1.0, 2.0});
+
+    // mixed
+    executeAlterType(INT, 1, INT_ARRAY, new Integer[] {1}, false);
+    executeAlterType(STRING_ARRAY, new String[] {"aap,noot"}, STRING, "{\"aap,noot\"}", false);
+    executeAlterType(STRING, "aap", STRING_ARRAY, new String[] {"aap"}, false);
   }
 
-  private void testRoundTripAlterType(
+  private void executeAlterType(
       ColumnType fromType, Object fromVal, ColumnType toType, Object toVal) {
+    executeAlterType(fromType, fromVal, toType, toVal, true);
+  }
+
+  private void executeAlterType(
+      ColumnType fromType, Object fromVal, ColumnType toType, Object toVal, boolean roundtrip) {
     String tableName = "TEST_ALTER_" + fromType.toString() + "_TO_" + toType.toString();
     schema.create(new TableMetadata(tableName).addColumn(new Column("col1").type(fromType)));
     schema.getTable(tableName).insert(new Row().set("col1", fromVal));
@@ -192,15 +201,18 @@ public class TestMergeAlter {
           toVal, schema.getTable(tableName).retrieve().get(0).get("col1", toVal.getClass()));
     }
     // also when converted back?
-    schema.getTable(tableName).getMetadata().alterColumn(new Column("col1").type(fromType));
+    if (roundtrip) {
+      schema.getTable(tableName).getMetadata().alterColumn(new Column("col1").type(fromType));
 
-    if (fromVal instanceof Object[]) {
-      assertArrayEquals(
-          (Object[]) fromVal,
-          (Object[]) schema.getTable(tableName).retrieve().get(0).get("col1", fromVal.getClass()));
-    } else {
-      assertEquals(
-          fromVal, schema.getTable(tableName).retrieve().get(0).get("col1", fromVal.getClass()));
+      if (fromVal instanceof Object[]) {
+        assertArrayEquals(
+            (Object[]) fromVal,
+            (Object[])
+                schema.getTable(tableName).retrieve().get(0).get("col1", fromVal.getClass()));
+      } else {
+        assertEquals(
+            fromVal, schema.getTable(tableName).retrieve().get(0).get("col1", fromVal.getClass()));
+      }
     }
   }
 }
