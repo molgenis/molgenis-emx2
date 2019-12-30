@@ -54,7 +54,7 @@ public class TestWebApi {
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
-    RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, PET_SHOP_OWNER);
+    RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, "admin");
   }
 
   @Test
@@ -281,6 +281,14 @@ public class TestWebApi {
             .post(path)
             .asString();
     assertTrue(result.contains("Logged in"));
+  }
+
+  @Test
+  public void appProxySmokeTest() throws IOException {
+    String result = given().when().get("/apps/molgenis-app-reports/dist/index.html").asString();
+
+    // some unique text content
+    assertTrue(result.contains("molgenis-catalogue-templates"));
   }
 
   @AfterClass

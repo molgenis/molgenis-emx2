@@ -39,34 +39,9 @@ public class MolgenisWebservice {
 
     staticFiles.location("/public_html");
 
-    // check if we have a settings table
-    Database database = new SqlDatabase(ds);
-    Schema schema = database.getSchema("System");
-    if (schema == null) schema = database.createSchema("System");
-    SchemaMetadata settingsSchema = new SchemaMetadata();
-    if (schema.getTable("Apps") == null) {
-      settingsSchema.create(
-          new TableMetadata("Apps")
-              .addColumn(new Column("path").pkey(true))
-              .addColumn(new Column("source")));
-      schema.merge(settingsSchema);
-      // todo make merge user alterColumn if column already exists
-    }
-    // load some defaults
-    schema
-        .getTable("Apps")
-        .update(
-            new Row().set("path", "nu").set("source", "http://www.nu.nl"),
-            new Row()
-                .set("path", "molgenis-app-reports")
-                .set("source", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.12/"));
     // query
     // todo how to reload?
-    Map<String, String> apps = new LinkedHashMap<>();
-    for (Row r : schema.getTable("Apps").retrieve()) {
-      apps.put(r.getString("path"), r.getString("source"));
-    }
-    AppsProxy.enableProxy("/apps/", apps);
+    // when somebody updates the Apps table then all caches with Apps should be cleared
 
     // root
     get(
@@ -74,6 +49,8 @@ public class MolgenisWebservice {
         (request, response) ->
             "Welcome to MOLGENIS EMX2 POC.<br/>" + listSchemas(request, response));
 
+    // services
+    AppsProxyService.create(new SqlDatabase(ds));
     JsonApi.create();
     CsvApi.create();
     MembersApi.create();

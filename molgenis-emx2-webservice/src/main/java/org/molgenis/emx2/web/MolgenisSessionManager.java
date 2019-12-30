@@ -29,11 +29,6 @@ public class MolgenisSessionManager implements DatabaseListener {
     this.dataSource = dataSource;
   }
 
-  // shorthand
-  Database getDatabase(Request request) {
-    return getSession(request).getDatabase();
-  }
-
   synchronized MolgenisSession getSession(Request request) {
     // todo authentication
 
