@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -23,7 +23,7 @@ import static org.molgenis.emx2.Order.DESC;
 import static org.molgenis.emx2.sql.Filter.f;
 import static org.molgenis.emx2.sql.SqlGraphQuery.*;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.GraphqlApi.*;
+import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
 
 public class GraphqlTableQueryFields {
 
@@ -158,14 +158,14 @@ public class GraphqlTableQueryFields {
 
   private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {
     GraphQLInputObjectType.Builder filterBuilder =
-        newInputObject().name(table.getTableName() + FILTER1);
+        newInputObject().name(table.getTableName() + FILTER);
     for (Column col : table.getColumns()) {
       ColumnType type = col.getColumnType();
       if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
         filterBuilder.field(
             newInputObjectField()
                 .name(col.getName())
-                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER1))
+                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER))
                 .build());
       } else {
         filterBuilder.field(
@@ -200,7 +200,7 @@ public class GraphqlTableQueryFields {
       String typeName = type.toString().toLowerCase();
       typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
       GraphQLInputObjectType.Builder builder =
-          newInputObject().name("Molgenis" + typeName + FILTER1);
+          newInputObject().name("Molgenis" + typeName + FILTER);
       for (Operator operator : type.getOperators()) {
         builder.field(
             newInputObjectField()

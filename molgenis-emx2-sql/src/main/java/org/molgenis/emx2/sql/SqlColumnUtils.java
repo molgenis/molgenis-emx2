@@ -154,17 +154,17 @@ public class SqlColumnUtils {
     }
     // central constraints
     if (column.isPrimaryKey())
-      SqlTableMetadataUtils.executeSetPrimaryKey(jooq, column.getTable(), column.getName());
-    SqlTableMetadataUtils.updateSearchIndexTriggerFunction(jooq, column.getTable());
+      SqlTableMetadataExecutor.executeSetPrimaryKey(jooq, column.getTable(), column.getName());
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
     saveColumnMetadata(jooq, column);
   }
 
   static void executeRemoveColumn(DSLContext jooq, Column column) {
     executeRemoveConstraints(jooq, column);
-    jooq.alterTable(SqlTableMetadataUtils.getJooqTable(column.getTable()))
+    jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
         .dropColumn(field(name(column.getName())))
         .execute();
-    SqlTableMetadataUtils.updateSearchIndexTriggerFunction(jooq, column.getTable());
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
     MetadataUtils.deleteColumn(jooq, column);
   }
 

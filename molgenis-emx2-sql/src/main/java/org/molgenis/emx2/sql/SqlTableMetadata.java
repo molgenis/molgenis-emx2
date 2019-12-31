@@ -13,10 +13,9 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.*;
 import static org.molgenis.emx2.sql.SqlColumnUtils.reapplyRefbackContraints;
-import static org.molgenis.emx2.sql.SqlTableMetadataUtils.*;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 class SqlTableMetadata extends TableMetadata {
   private static final String SET_INHERITANCE_FAILED = "Set inheritance failed";
@@ -175,7 +174,7 @@ class SqlTableMetadata extends TableMetadata {
               + "'");
     db.tx(
         dsl -> {
-          SqlTableMetadataUtils.executeSetPrimaryKey(getJooq(), this, columnName);
+          SqlTableMetadataExecutor.executeSetPrimaryKey(getJooq(), this, columnName);
           super.setPrimaryKey(columnName);
           MetadataUtils.saveColumnMetadata(getJooq(), getPrimaryKeyColumn());
         });

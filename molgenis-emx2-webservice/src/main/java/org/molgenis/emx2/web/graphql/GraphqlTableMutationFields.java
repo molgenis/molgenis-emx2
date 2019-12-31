@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -15,9 +15,9 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.web.GraphqlApi.*;
-import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
-import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
+import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
 class GraphqlTableMutationFields {
   private GraphqlTableMutationFields() {

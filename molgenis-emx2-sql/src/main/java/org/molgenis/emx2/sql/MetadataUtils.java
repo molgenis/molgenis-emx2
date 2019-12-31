@@ -14,8 +14,6 @@ import static org.jooq.impl.SQLDataType.BOOLEAN;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
 public class MetadataUtils {
-  // this demonstrates why we don't want to use jooq directly, but only as our interface
-  // so ambition is to replace this with a pure molgenis api version.
 
   private static final String MOLGENIS = "MOLGENIS";
 

@@ -19,7 +19,7 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static DataType jooqTypeOf(Column column) {
+  static DataType jooqTypeOf(Column column) {
     ColumnType sqlColumnType = column.getColumnType();
     switch (sqlColumnType) {
       case REF:
@@ -33,7 +33,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static DataType jooqTypeOf(ColumnType columnType) {
+  static DataType jooqTypeOf(ColumnType columnType) {
     switch (columnType) {
       case UUID:
         return SQLDataType.UUID;
@@ -73,7 +73,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
+  static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
@@ -85,7 +85,7 @@ public class SqlTypeUtils extends TypeUtils {
     return values;
   }
 
-  public static Object getTypedValue(Object v, Column column) {
+  static Object getTypedValue(Object v, Column column) {
     ColumnType columnType = column.getColumnType();
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(column);
@@ -135,7 +135,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static Object getTypedValue(Row row, Column column) {
+  static Object getTypedValue(Row row, Column column) {
     ColumnType columnType = column.getColumnType();
 
     if (REF.equals(columnType)) {
@@ -182,7 +182,7 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static ColumnType getRefArrayColumnType(Column column) {
+  static ColumnType getRefArrayColumnType(Column column) {
     return getArrayType(getRefColumnType(column));
   }
 
@@ -201,15 +201,15 @@ public class SqlTypeUtils extends TypeUtils {
     return columnType;
   }
 
-  public static TableMetadata getRefTable(Column column) {
+  static TableMetadata getRefTable(Column column) {
     return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
   }
 
-  public static String getPsqlType(Column column) {
+  static String getPsqlType(Column column) {
     return getPsqlType(getPrimitiveColumnType(column));
   }
 
-  public static ColumnType getPrimitiveColumnType(Column column) {
+  static ColumnType getPrimitiveColumnType(Column column) {
     if (REF.equals(column.getColumnType())) {
       return column.getRefColumn().getColumnType();
     } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
@@ -218,7 +218,7 @@ public class SqlTypeUtils extends TypeUtils {
     return column.getColumnType();
   }
 
-  public static String getPsqlType(ColumnType type) {
+  static String getPsqlType(ColumnType type) {
     switch (type) {
       case STRING:
         return "character varying";

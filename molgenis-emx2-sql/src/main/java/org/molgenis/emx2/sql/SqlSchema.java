@@ -1,13 +1,12 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 
 import java.util.*;
 
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveConstraints;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataUtils.*;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 public class SqlSchema implements Schema {

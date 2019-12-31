@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import graphql.ErrorClassification;
 import graphql.ExceptionWhileDataFetching;

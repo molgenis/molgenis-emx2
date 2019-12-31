@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import org.molgenis.emx2.MolgenisException;
 

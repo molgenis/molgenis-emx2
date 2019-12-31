@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,8 +12,8 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
-import static org.molgenis.emx2.web.GraphqlApi.convertExecutionResultToJson;
+import static junit.framework.TestCase.assertEquals;
+import static org.molgenis.emx2.web.graphql.GraphqlApi.convertExecutionResultToJson;
 
 public class TestGraphqSchemaFields {
 

@@ -12,11 +12,10 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveColumn;
 
-class SqlTableMetadataUtils {
-  private SqlTableMetadataUtils() {}
+class SqlTableMetadataExecutor {
+  private SqlTableMetadataExecutor() {}
 
   static void executeCreateTable(DSLContext jooq, TableMetadata table) {
-
     // create the table
     Name tableName = name(table.getSchema().getName(), table.getTableName());
     jooq.createTable(tableName).columns().execute();
@@ -135,7 +134,7 @@ class SqlTableMetadataUtils {
   }
 
   private static String getRolePrefix(TableMetadata table) {
-    return SqlSchemaMetadataUtils.getRolePrefix(table.getSchema());
+    return SqlSchemaMetadataExecutor.getRolePrefix(table.getSchema());
   }
 
   static String updateSearchIndexTriggerFunction(DSLContext jooq, TableMetadata table) {

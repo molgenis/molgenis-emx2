@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
@@ -6,6 +6,7 @@ import graphql.schema.*;
 import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.web.JsonApi;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,8 +18,8 @@ import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
-import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
 import static org.molgenis.emx2.web.JsonApi.schemaToJson;
 

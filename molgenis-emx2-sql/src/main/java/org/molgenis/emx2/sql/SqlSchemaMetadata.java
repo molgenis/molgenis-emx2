@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlTableMetadataUtils.executeCreateTable;
-import static org.molgenis.emx2.sql.SqlTableMetadataUtils.executeDropTable;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private SqlDatabase db;

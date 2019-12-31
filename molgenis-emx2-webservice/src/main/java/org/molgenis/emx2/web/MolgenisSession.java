@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.molgenis.emx2.web.GraphqlApi.createGraphqlForDatabase;
-import static org.molgenis.emx2.web.GraphqlApi.createGraphqlForSchema;
+import static org.molgenis.emx2.web.graphql.GraphqlApi.createGraphqlForDatabase;
+import static org.molgenis.emx2.web.graphql.GraphqlApi.createGraphqlForSchema;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
@@ -30,6 +30,7 @@ public class MolgenisSession {
     this.createTime = DateTime.now();
   }
 
+  // todo remove this method, molgenis session shouldn't know this
   public GraphQL getGraphqlForDatabase() {
     if (graphqlForDatabase == null) {
       graphqlForDatabase = createGraphqlForDatabase(database);

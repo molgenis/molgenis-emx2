@@ -175,14 +175,14 @@ public class JsonApi {
     }
   }
 
-  static String schemaToJson(SchemaMetadata schema) throws IOException {
+  public static String schemaToJson(SchemaMetadata schema) throws IOException {
     org.molgenis.emx2.web.json.Schema s = new org.molgenis.emx2.web.json.Schema(schema);
     StringWriter out = new StringWriter();
     getWriter().writeValue(out, s);
     return out.toString();
   }
 
-  static SchemaMetadata jsonToSchema(String json) throws IOException {
+  public static SchemaMetadata jsonToSchema(String json) throws IOException {
     org.molgenis.emx2.web.json.Schema s =
         new ObjectMapper().readValue(json, org.molgenis.emx2.web.json.Schema.class);
     return s.getSchemaMetadata();

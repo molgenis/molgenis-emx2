@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLEnumType;
@@ -9,8 +9,8 @@ import java.util.Map;
 
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.FAILED;
-import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.FAILED;
+import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 
 public class GraphqlApiMutationResult {
   public enum Status {

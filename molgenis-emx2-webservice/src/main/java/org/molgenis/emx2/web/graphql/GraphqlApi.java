@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.graphql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,9 @@ import graphql.GraphQLError;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.web.JsonApi;
+import org.molgenis.emx2.web.MolgenisSession;
+import org.molgenis.emx2.web.MolgenisSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -19,12 +22,12 @@ import java.util.*;
 
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.DETAIL;
-import static org.molgenis.emx2.web.GraphqlDatabaseFields.*;
-import static org.molgenis.emx2.web.GraphqlTableMetadataFields.*;
-import static org.molgenis.emx2.web.GraphqlTableMutationFields.deleteField;
-import static org.molgenis.emx2.web.GraphqlTableMutationFields.saveField;
-import static org.molgenis.emx2.web.GraphqlTableQueryFields.tableQueryField;
-import static org.molgenis.emx2.web.GraphqlLoginLogoutRegisterFields.*;
+import static org.molgenis.emx2.web.graphql.GraphqlDatabaseFields.*;
+import static org.molgenis.emx2.web.graphql.GraphqlTableMetadataFields.*;
+import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.deleteField;
+import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.saveField;
+import static org.molgenis.emx2.web.graphql.GraphqlTableQueryFields.tableQueryField;
+import static org.molgenis.emx2.web.graphql.GraphqlLoginLogoutRegisterFields.*;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.*;
@@ -32,14 +35,16 @@ import static spark.Spark.*;
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
-class GraphqlApi {
+public class GraphqlApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+  private static MolgenisSessionManager sessionManager;
 
   private GraphqlApi() {
     // hide constructor
   }
 
-  static void createGraphQLservice() {
+  public static void createGraphQLservice(MolgenisSessionManager sm) {
+    sessionManager = sm;
 
     // per database graphql
     final String databasePath = "/api/graphql";
@@ -66,7 +71,7 @@ class GraphqlApi {
     return executeQuery(graphqlForSchema, getQueryFromRequest(request));
   }
 
-  static GraphQL createGraphqlForDatabase(Database database) {
+  public static GraphQL createGraphqlForDatabase(Database database) {
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
 

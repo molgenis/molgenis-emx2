@@ -29,7 +29,7 @@ public class MolgenisSessionManager implements DatabaseListener {
     this.dataSource = dataSource;
   }
 
-  synchronized MolgenisSession getSession(Request request) {
+  public synchronized MolgenisSession getSession(Request request) {
     // todo authentication
 
     // already in a session, then return that

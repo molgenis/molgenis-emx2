@@ -10,7 +10,7 @@ import org.molgenis.emx2.MolgenisException;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
 import static org.molgenis.emx2.sql.SqlTable.getJooqField;
-import static org.molgenis.emx2.sql.SqlTableMetadataUtils.getJooqTable;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
 public class SqlColumnRefUtils {
   private SqlColumnRefUtils() {

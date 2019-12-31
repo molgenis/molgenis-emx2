@@ -18,7 +18,7 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabaseUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseUtils.executeCreateRole;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataUtils.executeCreateSchema;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 public class SqlDatabase implements Database {
   private static final String ADMIN = "admin";

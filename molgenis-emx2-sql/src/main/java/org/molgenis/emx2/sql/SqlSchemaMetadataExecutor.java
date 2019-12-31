@@ -11,8 +11,8 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 
-class SqlSchemaMetadataUtils {
-  private SqlSchemaMetadataUtils() {
+class SqlSchemaMetadataExecutor {
+  private SqlSchemaMetadataExecutor() {
     // hide
   }
 

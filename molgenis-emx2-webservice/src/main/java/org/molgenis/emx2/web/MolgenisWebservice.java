@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.web.graphql.GraphqlApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -23,7 +24,7 @@ import static spark.Spark.*;
 public class MolgenisWebservice {
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
-  static final String SCHEMA = "schema";
+  public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
 
   private MolgenisWebservice() {
@@ -49,7 +50,7 @@ public class MolgenisWebservice {
     MembersApi.create();
     ZipApi.create();
     ExcelApi.create();
-    GraphqlApi.createGraphQLservice();
+    GraphqlApi.createGraphQLservice(sessionManager);
 
     // schema members operations
 
