@@ -28,7 +28,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
  * <li>sort - done
  * <li>sort search results
  * <li>mref
- * <li>inheritance !
+ * <li>inheritance
  */
 public class SqlGraphQuery extends Filter {
   public static final String COUNT_FIELD = "count";
@@ -49,6 +49,7 @@ public class SqlGraphQuery extends Filter {
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
   private static final String ITEM = "item";
+  private static final String QUERY_FAILED = "Query failed";
 
   private SqlTableMetadata table;
   private SelectColumn select;
@@ -310,7 +311,7 @@ public class SqlGraphQuery extends Filter {
 
     Select source = createSubselect(table, tableAlias, subSelect, filter, null, conditions, false);
     Select aggregateQuery;
-    if (groupBy.size() > 0) {
+    if (!groupBy.isEmpty()) {
       aggregateQuery =
           jooq.select(fields)
               .from(table(source).as("aggs"))
@@ -344,7 +345,7 @@ public class SqlGraphQuery extends Filter {
             filter,
             REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL,
             getSubFieldCondition(column, tableAlias, subAlias),
-            REF.equals(column.getColumnType()) ? false : true));
+            !REF.equals(column.getColumnType())));
   }
 
   /**
@@ -434,7 +435,6 @@ public class SqlGraphQuery extends Filter {
         ColumnType type = column.getColumnType();
         if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
           // check that subtree exists
-          // TODO for REF_ARRAY and REFBACK consider filters on the subtree!
           condition = condition.and(field(name(column.getName())).isNotNull());
         }
       }
@@ -521,7 +521,7 @@ public class SqlGraphQuery extends Filter {
       case REFBACK:
       default:
         throw new SqlGraphQueryException(
-            "Query failed",
+            QUERY_FAILED,
             "Filter of '"
                 + name
                 + " failed: operator "
@@ -539,7 +539,7 @@ public class SqlGraphQuery extends Filter {
       return not(field(columnName).in(values));
     } else {
       throw new SqlGraphQueryException(
-          "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
+          QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
     }
   }
 
@@ -574,7 +574,7 @@ public class SqlGraphQuery extends Filter {
           break;
         default:
           throw new SqlGraphQueryException(
-              "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
+              QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
     if (not) return not(or(conditions));
@@ -594,20 +594,20 @@ public class SqlGraphQuery extends Filter {
           not = true;
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(
-                "Query failed", BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+                QUERY_FAILED, BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(columnName).between(values[i], values[i + 1]));
           i++; // NOSONAR
           break;
         case BETWEEN:
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(
-                "Query failed", BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+                QUERY_FAILED, BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           conditions.add(field(columnName).between(values[i], values[i + 1]));
           i++; // NOSONAR
           break;
         default:
           throw new SqlGraphQueryException(
-              "Query failed", OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
+              QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
     if (not) return not(or(conditions));

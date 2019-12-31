@@ -19,9 +19,12 @@ import static org.molgenis.emx2.web.GraphqlApi.*;
 import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.web.GraphqlApiMutationResult.typeForMutationResult;
 
-public class GraphqlTableMutationFields {
+class GraphqlTableMutationFields {
+  private GraphqlTableMutationFields() {
+    // hide
+  }
 
-  public static GraphQLFieldDefinition saveField(Schema schema) {
+  static GraphQLFieldDefinition saveField(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         newFieldDefinition()
             .name("save")
@@ -37,7 +40,7 @@ public class GraphqlTableMutationFields {
     return fieldBuilder.build();
   }
 
-  public static GraphQLFieldDefinition deleteField(Schema schema) {
+  static GraphQLFieldDefinition deleteField(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         newFieldDefinition()
             .name("delete")

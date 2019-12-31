@@ -10,6 +10,9 @@ import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 
 class SqlColumnRefBackUtils {
+  private SqlColumnRefBackUtils() {
+    // hide
+  }
 
   // will create a dummy array column matching the toColumn we will link to
   // will create a before insert trigger to update all REF instances in the other table that needs

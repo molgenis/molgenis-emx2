@@ -6,7 +6,10 @@ import org.molgenis.emx2.Column;
 
 import static org.jooq.impl.DSL.*;
 
-public class SqlColumnRefArrayUtils {
+class SqlColumnRefArrayUtils {
+  private SqlColumnRefArrayUtils() {
+    // hide
+  }
 
   static void createRefArrayConstraints(DSLContext jooq, Column column) {
     createReferenceExistsTrigger(jooq, column);

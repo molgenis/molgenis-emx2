@@ -4,7 +4,6 @@ import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.brotli.BrotliInterceptor;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -25,63 +24,71 @@ import static spark.Spark.get;
  * We only proxy dumb resources
  */
 public class AppsProxyService {
+  private AppsProxyService() {
+    // hide
+  }
+
   static final Logger logger = LoggerFactory.getLogger(AppsProxyService.class);
   static final OkHttpClient client =
       new OkHttpClient.Builder().addInterceptor(BrotliInterceptor.INSTANCE).build();
-  static final String path = formatPath("/apps");
-  static final String pathFilter = path + "*";
+  static final String PATH = formatPath("/apps");
+  static final String PATH_FILTER = PATH + "*";
+  private static final String SYSTEM = "System";
+  private static final String SOURCE = "source";
 
   // thanks to some inspiration from
   // https://github.com/abhinavsayan/java-spark-proxy-server/blob/master/src/main/java/server/ProxyServer.java
 
   public static void create(Database database) {
-    Schema schema = database.getSchema("System");
-    if (schema == null) schema = database.createSchema("System");
+    Schema schema = database.getSchema(SYSTEM);
+    if (schema == null) schema = database.createSchema(SYSTEM);
     SchemaMetadata settingsSchema = new SchemaMetadata();
     settingsSchema.create(
         new TableMetadata("Apps")
             .addColumn(new Column("path").pkey(true))
-            .addColumn(new Column("source")));
+            .addColumn(new Column(SOURCE)));
     schema.merge(settingsSchema);
     // load some defaults
     schema
         .getTable("Apps")
         .update(
-            new Row().set("path", "nu").set("source", "http://www.nu.nl"),
+            new Row().set("path", "nu").set(SOURCE, "http://www.nu.nl"),
             new Row()
                 .set("path", "molgenis-app-reports")
-                .set("source", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.12/"));
+                .set(SOURCE, "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.12/"));
 
-    get(pathFilter, AppsProxyService::handleRequest);
+    get(PATH_FILTER, AppsProxyService::handleRequest);
   }
 
   private static Object handleRequest(Request req, Response res) throws IOException {
     // todo, cache
     Database database = sessionManager.getSession(req).getDatabase();
     Map<String, String> apps = new LinkedHashMap<>();
-    for (Row r : database.getSchema("System").getTable("Apps").retrieve()) {
-      apps.put(r.getString("path"), r.getString("source"));
+    for (Row r : database.getSchema(SYSTEM).getTable("Apps").retrieve()) {
+      apps.put(r.getString("path"), r.getString(SOURCE));
     }
 
     // need to find first element of path beyond path filter
-    String rawPath = getPath(req.url()).replaceFirst(path, "");
+    String rawPath = getPath(req.url()).replaceFirst(PATH, "");
     String appName = rawPath.split("/")[0];
     if (apps.get(appName) == null || rawPath.equals(appName)) { // we require ending / in path
       res.status(404);
       StringBuilder appLinks = new StringBuilder();
       for (String app : apps.keySet()) {
-        appLinks.append("<li><a href=\"" + formatPath(path + app) + "\">" + app + "</a></li>");
+        appLinks.append("<li><a href=\"" + formatPath(PATH + app) + "\">" + app + "</a></li>");
       }
       return "App with name '" + appName + "' unknown. Known apps: " + appLinks.toString();
     }
 
-    String appBasePath = formatPath(path + appName);
+    String appBasePath = formatPath(PATH + appName);
     String targetBaseUrl = formatPath(apps.get(appName));
     String targetBasePath = getPath(targetBaseUrl);
 
     // setup the request
     String targetFullUrl = getURL(req, appBasePath, targetBaseUrl);
-    logger.info("trying to proxy " + sanitize(req.url()) + " to " + targetFullUrl.toString());
+    if (logger.isInfoEnabled()) {
+      logger.info("trying to proxy {}} to {}", sanitize(req.url()), targetFullUrl);
+    }
 
     // build request excluding headers
     okhttp3.Request proxyRequest = new okhttp3.Request.Builder().url(targetFullUrl).build();
@@ -100,7 +107,6 @@ public class AppsProxyService {
         res.body(rewriteHtml(proxyResponse.body().string(), targetBasePath, appBasePath));
       } else {
         // else transfer raw bytes
-        // proxyResponse.body().byteStream().transferTo(res.raw().getOutputStream());
         res.body(proxyResponse.body().string());
       }
     } else {
@@ -122,14 +128,6 @@ public class AppsProxyService {
     return temp;
   }
 
-  private static Headers getHeaders(Request req) {
-    Headers.Builder headers = new Headers.Builder();
-    for (String headerName : req.headers()) {
-      headers.add(headerName, req.headers(headerName));
-    }
-    return headers.build();
-  }
-
   private static void mapResponseHeaders(okhttp3.Response proxyResponse, spark.Response res) {
     for (String headerName : proxyResponse.headers().names()) {
       res.header(headerName, proxyResponse.header(headerName));
@@ -148,8 +146,6 @@ public class AppsProxyService {
 
   private static String getURL(spark.Request req, String proxyPath, String proxyTarget) {
     return proxyTarget + req.pathInfo().replace(proxyPath, "");
-    // return (req.queryString() == null) ? proxyUrl : (proxyUrl + "?" + req.queryString());
-
   }
 
   private static String rewriteHtml(String body, String oldPath, String newPath) {

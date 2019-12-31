@@ -34,7 +34,6 @@ public class SchemaImport {
     schema.tx(
         db -> {
           // read emx1 metadata, if available (to be removed in future versions)
-          // todo: only do this if it looks like metadata file OR make this parameter?
           if (store.containsTable("attributes")) {
             Emx1Import.uploadFromStoreToSchema(store, schema);
           } else {

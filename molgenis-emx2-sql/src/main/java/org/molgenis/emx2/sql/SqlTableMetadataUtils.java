@@ -12,7 +12,8 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveColumn;
 
-public class SqlTableMetadataUtils {
+class SqlTableMetadataUtils {
+  private SqlTableMetadataUtils() {}
 
   static void executeCreateTable(DSLContext jooq, TableMetadata table) {
 
@@ -187,15 +188,6 @@ public class SqlTableMetadataUtils {
     Table jooqTable = getJooqTable(table);
     Name searchColumnName = name(MG_TEXT_SEARCH_COLUMN_NAME);
     Name searchIndexName = name(table.getTableName() + "_search_idx");
-
-    // 1. add tsvector column with index
-    // jooq.execute("ALTER TABLE {0} ADD COLUMN {1} tsvector", jooqTable, searchColumnName);
-
-    // for future performance enhancement consider studying 'gin (t gin_trgm_ops)
-
-    // 2. createColumn index on that column to speed up search
-    // jooq.execute(
-    //   "CREATE INDEX {0} ON {1} USING GIN( {2} )", searchIndexName, jooqTable, searchColumnName);
 
     // also add text search  column
     // 1. create column

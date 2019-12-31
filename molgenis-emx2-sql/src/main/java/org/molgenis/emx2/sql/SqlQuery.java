@@ -23,6 +23,7 @@ import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefTable;
 
 public class SqlQuery extends QueryBean implements Query {
+  private static final String QUERY_FAILED = "Query failed";
   private SqlTableMetadata from;
   private static Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
@@ -47,8 +48,8 @@ public class SqlQuery extends QueryBean implements Query {
       throw new SqlMolgenisException(dae);
     } catch (Exception e2) {
       if (e2.getCause() != null)
-        throw new MolgenisException("Query failed", e2.getCause().getMessage(), e2);
-      else throw new MolgenisException("Query failed", "Unknown error", e2);
+        throw new MolgenisException(QUERY_FAILED, e2.getCause().getMessage(), e2);
+      else throw new MolgenisException(QUERY_FAILED, "Unknown error", e2);
     }
   }
 
@@ -103,6 +104,7 @@ public class SqlQuery extends QueryBean implements Query {
             break;
           case REFBACK:
             fromStep = createRefbackJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
+            break;
           case MREF:
             fromStep = createMrefJoin(fromStep, tableAlias.getKey(), fkey, leftAlias);
             break;
@@ -200,10 +202,11 @@ public class SqlQuery extends QueryBean implements Query {
             .on(
                 field(name(leftAlias, mappedBy.getName()))
                     .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
+      default:
+        throw new MolgenisException(
+            "Internal error",
+            "Unsupported refback type for column '" + fkey.getName() + "' createRefBackJoin");
     }
-    throw new MolgenisException(
-        "Internal error",
-        "Unsupported refback type for column '" + fkey.getName() + "' createRefBackJoin");
   }
 
   private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
@@ -294,7 +297,7 @@ public class SqlQuery extends QueryBean implements Query {
         }
       default:
         throw new MolgenisException(
-            "Query failed", "Where clause '" + w.toString() + "' is not supported");
+            QUERY_FAILED, "Where clause '" + w.toString() + "' is not supported");
     }
   }
 
@@ -332,7 +335,7 @@ public class SqlQuery extends QueryBean implements Query {
     Column c = t.getColumn(path[0]);
     if (c == null)
       throw new MolgenisException(
-          "Query failed", "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
+          QUERY_FAILED, "Column '" + path[0] + "' cannot be found in table " + t.getTableName());
 
     if (path.length == 1) {
 

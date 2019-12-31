@@ -57,7 +57,6 @@ public class MolgenisSessionManager implements DatabaseListener {
         request.headers(MOLGENIS_TOKEN) == null
             ? "anonymous"
             : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
-    ;
 
     // todo remove cached after a while!!!!
     return sessions.computeIfAbsent(
@@ -69,7 +68,7 @@ public class MolgenisSessionManager implements DatabaseListener {
           }
           database.setListener(this);
           database.setActiveUser(user);
-          logger.info("Initializing session for user: " + database.getActiveUser());
+          logger.info("Initializing session for user: {}", database.getActiveUser());
           return new MolgenisSession(database);
         });
   }
@@ -81,7 +80,7 @@ public class MolgenisSessionManager implements DatabaseListener {
     if (session.getDatabase().getActiveUser() != null && request.session() == null) {
       request.session(true);
       request.session().attribute(SESSION_ATTRIBUTE, session);
-      logger.info("Saved session for user: " + session.getDatabase().getActiveUser());
+      logger.info("Saved session for user: {}", session.getDatabase().getActiveUser());
     }
 
     // check if session state and session user map still in sync
@@ -89,7 +88,7 @@ public class MolgenisSessionManager implements DatabaseListener {
       // remove old sessions
       sessions.remove(session.getSessionUser());
       request.session(false);
-      logger.info("Destroyed session because user " + session.getSessionUser() + " logged out");
+      logger.info("Destroyed session because user {} logged out", session.getSessionUser());
 
       // only create new session is user != null
       if (session.getDatabase().getActiveUser() != null) {
@@ -98,11 +97,9 @@ public class MolgenisSessionManager implements DatabaseListener {
         request.session().attribute(SESSION_ATTRIBUTE, newSession);
         sessions.put(newSession.getSessionUser(), newSession);
         logger.info(
-            "Changed session from old user("
-                + session.getSessionUser()
-                + ") to new user("
-                + newSession.getSessionUser()
-                + ") because login changed");
+            "Changed session from old user({}]) to new user({}}) because login changed",
+            session.getSessionUser(),
+            newSession.getSessionUser());
       }
     }
   }

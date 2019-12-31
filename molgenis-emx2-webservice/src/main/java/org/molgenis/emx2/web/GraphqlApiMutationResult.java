@@ -13,11 +13,11 @@ import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.web.GraphqlApiMutationResult.Status.SUCCESS;
 
 public class GraphqlApiMutationResult {
-  public static enum Status {
+  public enum Status {
     SUCCESS,
     FAILED,
     UNKNOWN
-  };
+  }
 
   private String message;
   private Status status;

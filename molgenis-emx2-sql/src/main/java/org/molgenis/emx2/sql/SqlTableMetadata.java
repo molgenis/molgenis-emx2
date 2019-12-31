@@ -49,7 +49,7 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public List<Column> getLocalColumns() {
     List<Column> result = super.getLocalColumns();
-    if (result.size() == 0) {
+    if (result.isEmpty()) {
       this.load();
     }
     return result;
@@ -103,7 +103,7 @@ class SqlTableMetadata extends TableMetadata {
           Column newColumn = new Column(this, column);
           SqlColumnUtils.executeAlterColumn(getJooq(), oldColumn, newColumn);
           super.alterColumn(newColumn);
-          reapplyRefbackContraints(getJooq(), oldColumn, newColumn);
+          reapplyRefbackContraints(oldColumn, newColumn);
         });
     return this;
   }
@@ -247,6 +247,7 @@ class SqlTableMetadata extends TableMetadata {
     // add policy for 'viewer' and 'editor'.
   }
 
+  @Override
   public boolean exists() {
     // first look at already loaded metadata, in case of no columns, check the underlying table
     if (!getColumns().isEmpty()) {

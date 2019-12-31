@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
@@ -326,10 +325,6 @@ public class MetadataUtils {
             .where(field(USER_NAME).eq(username))
             .fetchOne();
 
-    if (result != null && result.get("matches", Boolean.class)) {
-      return true;
-    } else {
-      return false;
-    }
+    return result != null && result.get("matches", Boolean.class);
   }
 }

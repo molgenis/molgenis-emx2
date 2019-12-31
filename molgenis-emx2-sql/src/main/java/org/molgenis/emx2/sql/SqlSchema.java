@@ -130,7 +130,7 @@ public class SqlSchema implements Schema {
         }
       }
     }
-    if (errors.size() > 0) {
+    if (!errors.isEmpty()) {
       throw new MolgenisException(
           "Discard failed",
           "Discard of tables out of schema "
@@ -141,7 +141,7 @@ public class SqlSchema implements Schema {
 
     // get all tables, sorted and use that as scaffold
     tx(
-        db -> {
+        dsl -> {
           List<TableMetadata> tables = getMetadata().getTables();
           Collections.reverse(tables);
 
@@ -151,7 +151,7 @@ public class SqlSchema implements Schema {
             if (discardSchema.getTableMetadata(existingTable.getTableName()) != null) {
               TableMetadata discardTable =
                   discardSchema.getTableMetadata(existingTable.getTableName());
-              if (discardTable.getLocalColumnNames().size() == 0
+              if (discardTable.getLocalColumnNames().isEmpty()
                   || discardTable
                       .getLocalColumnNames()
                       .containsAll(existingTable.getLocalColumnNames())) {
@@ -174,8 +174,6 @@ public class SqlSchema implements Schema {
   public void merge(SchemaMetadata mergeSchema) {
     tx(
         database -> {
-          DSLContext jooq = getMetadata().getJooq();
-
           List<TableMetadata> mergeTableList = new ArrayList<>();
           for (String tableName : mergeSchema.getTableNames()) {
             mergeTableList.add(mergeSchema.getTableMetadata(tableName));
@@ -233,8 +231,6 @@ public class SqlSchema implements Schema {
               if (oldColumn != null
                   && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
                 oldTable.alterColumn(newColumn);
-
-                // todo reconnect refback
               }
 
               // create new refback relations

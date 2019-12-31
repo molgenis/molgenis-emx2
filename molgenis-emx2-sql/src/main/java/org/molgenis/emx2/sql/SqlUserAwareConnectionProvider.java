@@ -4,7 +4,6 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
-import org.molgenis.emx2.MolgenisException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

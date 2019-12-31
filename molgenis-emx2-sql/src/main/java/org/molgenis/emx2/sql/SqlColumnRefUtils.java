@@ -4,17 +4,18 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.Table;
-import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
 import static org.molgenis.emx2.sql.SqlTable.getJooqField;
 import static org.molgenis.emx2.sql.SqlTableMetadataUtils.getJooqTable;
 
 public class SqlColumnRefUtils {
+  private SqlColumnRefUtils() {
+    // hide
+  }
 
   static void removeRefConstraints(DSLContext jooq, Column column) {
     jooq.alterTable(getJooqTable(column.getTable()))

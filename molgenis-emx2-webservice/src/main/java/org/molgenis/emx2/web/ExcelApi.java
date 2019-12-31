@@ -46,7 +46,6 @@ public class ExcelApi {
     }
 
     // depending on file extension use proper importer
-    String fileName = request.raw().getPart("file").getSubmittedFileName();
     SchemaImport.fromExcelFile(tempFile.toPath(), schema);
     response.status(200);
     return "Import success in " + (System.currentTimeMillis() - start) + "ms";

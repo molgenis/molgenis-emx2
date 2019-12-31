@@ -33,7 +33,7 @@ public class MolgenisSession {
   public GraphQL getGraphqlForDatabase() {
     if (graphqlForDatabase == null) {
       graphqlForDatabase = createGraphqlForDatabase(database);
-      logger.info("created graphql for user " + getSessionUser());
+      logger.info("created graphql for user {}", getSessionUser());
     }
     return graphqlForDatabase;
   }
@@ -46,7 +46,7 @@ public class MolgenisSession {
             "Schema not found",
             "Schema with name '" + schemaName + "' does not exist or permission denied");
       graphqlPerSchema.put(schemaName, createGraphqlForSchema(schema));
-      logger.info("created graphql " + schemaName + " for user " + getSessionUser());
+      logger.info("created graphql {} for user {}", schemaName, getSessionUser());
     }
     return graphqlPerSchema.get(schemaName);
   }
@@ -65,11 +65,11 @@ public class MolgenisSession {
 
   public void clearSchemaCache(String schemaName) {
     this.graphqlPerSchema.remove(schemaName);
-    logger.info("cleared schema cache " + schemaName + "for user " + getSessionUser());
+    logger.info("cleared schema cache {} for user {}", schemaName, getSessionUser());
   }
 
   public void clearCache() {
     this.graphqlPerSchema.clear();
-    logger.info("cleared schema for user " + getSessionUser());
+    logger.info("cleared schema for user {}", getSessionUser());
   }
 }

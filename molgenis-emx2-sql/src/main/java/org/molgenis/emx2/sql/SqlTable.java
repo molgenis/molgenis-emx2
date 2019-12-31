@@ -132,7 +132,7 @@ class SqlTable implements Table {
             int batchSize = 1000;
 
             // execute in batches (batch by size or because columns set change)
-            TableMetadata metadata = getMetadata();
+            TableMetadata tableMetadata = getMetadata();
             List<Row> batch = new ArrayList<>();
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
@@ -142,17 +142,17 @@ class SqlTable implements Table {
               // get the fields metadata for this row as far as known in this table
               Collection<String> rowFields = new ArrayList<>();
               for (String name : row.getColumnNames()) {
-                Column c = metadata.getColumn(name);
-                if (metadata.getColumn(name) != null && c.getTableName().equals(getName())) {
+                Column c = tableMetadata.getColumn(name);
+                if (tableMetadata.getColumn(name) != null && c.getTableName().equals(getName())) {
                   rowFields.add(name);
                 }
               }
 
               // execute the batch if batchSize is reached or fields differ from previous
-              if (batch.size() > 0
+              if (!batch.isEmpty()
                   && (count.get() % batchSize == 0
-                      || ((fieldNames.containsAll(rowFields)
-                          && rowFields.containsAll(fieldNames))))) {
+                      || (fieldNames.containsAll(rowFields)
+                          && rowFields.containsAll(fieldNames)))) {
                 updateBatch(
                     batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyField());
                 batch.clear();
@@ -162,9 +162,9 @@ class SqlTable implements Table {
               }
 
               // add field metadata if first row of this batch
-              if (fieldNames.size() == 0) {
+              if (fieldNames.isEmpty()) {
                 for (String name : rowFields) {
-                  Column c = metadata.getColumn(name);
+                  Column c = tableMetadata.getColumn(name);
                   fieldNames.add(name);
                   columns.add(c);
                   fields.add(getJooqField(c));

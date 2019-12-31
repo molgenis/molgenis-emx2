@@ -11,7 +11,10 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 
-public class SqlSchemaMetadataUtils {
+class SqlSchemaMetadataUtils {
+  private SqlSchemaMetadataUtils() {
+    // hide
+  }
 
   static void executeCreateSchema(SqlDatabase db, SchemaMetadata schema) {
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schema.getName())) {

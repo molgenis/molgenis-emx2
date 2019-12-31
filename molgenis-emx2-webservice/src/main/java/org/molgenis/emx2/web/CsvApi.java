@@ -42,6 +42,7 @@ public class CsvApi {
   private static final String ERROR_MESSAGE = "errorMessageType";
   private static final String SUCCESS_MESSAGE = "successMessageType";
   private static final String CSV_OUTPUT = "csvOutputType";
+  private static final String META = "_meta";
 
   private CsvApi() throws IOException {
     // hide constructor
@@ -124,10 +125,6 @@ public class CsvApi {
     return "" + count;
   }
 
-  private static Iterable<Row> csvToRows(Request request) {
-    return CsvTableReader.read(new StringReader(request.body()), getSeperator(request));
-  }
-
   private static Iterable<Row> csvToRows(File file, Request request) throws IOException {
     return CsvTableReader.read(file, getSeperator(request));
   }
@@ -142,7 +139,7 @@ public class CsvApi {
 
   private static File getUploadedFile(Request request) {
 
-    try {
+    try (InputStream input = request.raw().getPart("file").getInputStream()) {
       File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
       tempFile.deleteOnExit();
       request.attribute(
@@ -151,12 +148,8 @@ public class CsvApi {
       if (request.raw().getPart("file") == null) {
         return null;
       }
-      try (InputStream input = request.raw().getPart("file").getInputStream()) {
-        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        return tempFile;
-      } catch (Exception e) {
-        throw new MolgenisException("File upload failed", e);
-      }
+      Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      return tempFile;
     } catch (Exception e) {
       throw new MolgenisException("File upload failed", e);
     }
@@ -232,20 +225,20 @@ public class CsvApi {
         new Operation()
             .summary("Get table metadata in EMX2 format")
             .responses(queryResponses)
-            .addTagsItem("_meta"));
+            .addTagsItem(META));
     schemaPath.patch(
         new Operation()
             .summary("Add/update table metadata using EMX2 format")
             .requestBody(mutationRequest)
             .responses(mutationResponses)
-            .addTagsItem("_meta"));
+            .addTagsItem(META));
     schemaPath.delete(
         new Operation()
             .summary(
                 "Remove/discard tables and or colums using EMX2 format (properties are ignored)")
             .requestBody(mutationRequest)
             .responses(mutationResponses)
-            .addTagsItem("_meta"));
+            .addTagsItem(META));
     api.path("/api/csv/" + schema.getName(), schemaPath);
 
     for (TableMetadata table : schema.getTables()) {

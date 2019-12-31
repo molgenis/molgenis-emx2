@@ -9,11 +9,12 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTypeUtils.*;
 
-public class SqlColumnMrefUtils {
+class SqlColumnMrefUtils {
+  private SqlColumnMrefUtils() {
+    // hide
+  }
 
-  public static void createMrefConstraints(DSLContext jooq, Column column) {
-    String schemaName = column.getTable().getSchema().getName();
-
+  static void createMrefConstraints(DSLContext jooq, Column column) {
     // create joinTable the joinTable
     column
         .getTable()
@@ -35,7 +36,6 @@ public class SqlColumnMrefUtils {
   }
 
   private static void createTriggers(DSLContext jooq, Column thisColumn, String joinTableName) {
-
     //  parameters
     String schemaName = thisColumn.getTable().getSchema().getName();
     String insertOrUpdateTrigger =

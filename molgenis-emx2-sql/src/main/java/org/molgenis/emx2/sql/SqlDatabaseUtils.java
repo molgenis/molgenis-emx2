@@ -8,10 +8,14 @@ import org.molgenis.emx2.SchemaMetadata;
 
 import java.util.List;
 
+import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
-public class SqlDatabaseUtils {
+class SqlDatabaseUtils {
+  private SqlDatabaseUtils() {
+    // hide
+  }
 
   static void executeDropSchema(DSLContext jooq, SchemaMetadata schema) {
     try {
@@ -43,5 +47,17 @@ public class SqlDatabaseUtils {
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(dae);
     }
+  }
+
+  static void executeCreateRole(DSLContext jooq, String role) {
+    jooq.execute(
+        "DO $$\n"
+            + "BEGIN\n"
+            + "    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = {0}) THEN\n"
+            + "        CREATE ROLE {1};\n"
+            + "    END IF;\n"
+            + "END\n"
+            + "$$;\n",
+        inline(role), name(role));
   }
 }

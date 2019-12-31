@@ -55,8 +55,7 @@ class GraphqlApi {
   private static String handleDatabaseRequests(Request request, Response response)
       throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
-    String result = executeQuery(session.getGraphqlForDatabase(), request);
-    return result;
+    return executeQuery(session.getGraphqlForDatabase(), request);
   }
 
   private static String handleSchemaRequests(Request request, Response response)
@@ -64,8 +63,7 @@ class GraphqlApi {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
-    String result = executeQuery(graphqlForSchema, getQueryFromRequest(request));
-    return result;
+    return executeQuery(graphqlForSchema, getQueryFromRequest(request));
   }
 
   static GraphQL createGraphqlForDatabase(Database database) {

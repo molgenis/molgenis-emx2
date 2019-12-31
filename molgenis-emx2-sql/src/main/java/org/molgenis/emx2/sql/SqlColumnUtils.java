@@ -17,14 +17,8 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.*;
 import static org.molgenis.emx2.utils.TypeUtils.getNonArrayType;
 
 public class SqlColumnUtils {
-
-  static void createSimpleColumn(DSLContext jooq, Column column) {}
-
-  private static void executeSetSimpleType(DSLContext jooq, Column column) {
-    jooq.alterTable(asJooqTable(column.getTable()))
-        .alterColumn(column.getName())
-        .set(SqlTypeUtils.jooqTypeOf(column))
-        .execute();
+  private SqlColumnUtils() {
+    // hide
   }
 
   static void executeSetNullable(DSLContext jooq, Column column) {
@@ -56,7 +50,6 @@ public class SqlColumnUtils {
   }
 
   public static String getJoinTableName(Column column) {
-    // todo might be too long, i.e. 64 chars
     return "MREF_" + column.getTable().getTableName() + "_" + column.getName();
   }
 
@@ -70,10 +63,8 @@ public class SqlColumnUtils {
     executeRemoveConstraints(jooq, oldColumn);
 
     // change the raw type
-    // todo, more complicated migrations eg from non-array to array using 'array[column::cast]'
     if (newColumn.getColumnType().getType().isArray()
         && !oldColumn.getColumnType().getType().isArray()) {
-
       jooq.execute(
           "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING array[{1}::{3}]",
           asJooqTable(newColumn.getTable()),
@@ -112,7 +103,7 @@ public class SqlColumnUtils {
     saveColumnMetadata(jooq, newColumn);
   }
 
-  public static void reapplyRefbackContraints(DSLContext jooq, Column oldColumn, Column newColumn) {
+  public static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
     if ((REF.equals(oldColumn.getColumnType()) || REF_ARRAY.equals(oldColumn.getColumnType()))
         && (REF.equals(newColumn.getColumnType()) || REF_ARRAY.equals(newColumn.getColumnType()))) {
       for (Column check : oldColumn.getRefTable().getColumns()) {
