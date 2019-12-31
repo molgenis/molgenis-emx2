@@ -45,12 +45,10 @@ public class MolgenisSessionManager implements DatabaseListener {
                 + ") because timeout more than 30mins");
 
       } else {
-        logger.info("Reusing session for user(" + session.getSessionUser() + ")");
+        logger.info("Reusing session for user({})", session.getSessionUser());
         return session;
       }
     }
-
-    // todo delete stale sessions
 
     // otherwise try tokens (also in case of sessionless requests)
     final String user =
@@ -58,7 +56,6 @@ public class MolgenisSessionManager implements DatabaseListener {
             ? "anonymous"
             : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
 
-    // todo remove cached after a while!!!!
     return sessions.computeIfAbsent(
         user,
         t -> {
@@ -97,7 +94,7 @@ public class MolgenisSessionManager implements DatabaseListener {
         request.session().attribute(SESSION_ATTRIBUTE, newSession);
         sessions.put(newSession.getSessionUser(), newSession);
         logger.info(
-            "Changed session from old user({}]) to new user({}}) because login changed",
+            "Changed session from old user({}]) to new user({}) because login changed",
             session.getSessionUser(),
             newSession.getSessionUser());
       }

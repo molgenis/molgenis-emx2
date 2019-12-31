@@ -15,10 +15,7 @@ import spark.Spark;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-import static org.joda.time.Minutes.minutesBetween;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static spark.Spark.*;
@@ -38,10 +35,6 @@ public class MolgenisWebservice {
     port(8080);
 
     staticFiles.location("/public_html");
-
-    // query
-    // todo how to reload?
-    // when somebody updates the Apps table then all caches with Apps should be cleared
 
     // root
     get(
@@ -64,10 +57,6 @@ public class MolgenisWebservice {
     get("/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
     get("/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
     get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
-
-    // setup proxy
-    //    AppsProxy.enableProxy("/nu", "http://www.nu.nl");
-    //    AppsProxy.enableProxy("/apps/", "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.21/");
 
     // handling of exceptions
     exception(

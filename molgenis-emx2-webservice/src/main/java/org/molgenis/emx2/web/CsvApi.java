@@ -139,7 +139,7 @@ public class CsvApi {
 
   private static File getUploadedFile(Request request) {
 
-    try (InputStream input = request.raw().getPart("file").getInputStream()) {
+    try {
       File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
       tempFile.deleteOnExit();
       request.attribute(
@@ -148,8 +148,12 @@ public class CsvApi {
       if (request.raw().getPart("file") == null) {
         return null;
       }
-      Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      return tempFile;
+      try (InputStream input = request.raw().getPart("file").getInputStream()) {
+        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        return tempFile;
+      } catch (Exception e) {
+        throw new MolgenisException("File upload failed", e);
+      }
     } catch (Exception e) {
       throw new MolgenisException("File upload failed", e);
     }
