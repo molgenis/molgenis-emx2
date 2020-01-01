@@ -122,8 +122,14 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ## Todo and open issues
 
 ### first
+*  merge SqlQuery and SqlGraphQuery
 *  set permission on Apps rows so default something is shown
-
+*  simplest UI for login
+*  simplest UI for upload
+*  simplest UI for navigator+explorer
+*  simplest UI for forms
+*  simplest UI for memberships
+*  bug, if I filter on refback column it fails, must now select reback.other column
 
 ### later
 *  create plugin system for services (todo: isolation? runtime loading?)
@@ -131,9 +137,9 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  validation on queries such that illegal fields are errored (though grahpql prevents this)
 *  performance test
 *  custom roles
+*  more filter option s for array types (now only 'equals')
 *  improve error titles and messages
 *  seperate upsert from update
-*  merge SqlQuery and SqlGraphQuery
 *  merge Schema and SchemaMetadata and Table and TableMetadata
 *  check that 64char identifier limit doesn't break query aliases that get damn long
 *  column level permissions

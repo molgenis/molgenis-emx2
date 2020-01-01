@@ -23,15 +23,15 @@ public interface Table {
 
   int delete(Iterable<Row> rows);
 
-  Query select(String... path);
+  Query select(String... columns);
 
-  Query where(String path, Operator operator, Serializable... values);
+  Query select(SelectColumn... columns);
+
+  Query filter(String path, Operator operator, Serializable... values);
 
   Query search(String searchTerms);
 
   Query query();
 
-  List<Row> retrieve();
-
-  <E> List<E> retrieve(String columnName, Class<E> klazz);
+  List<Row> getRows();
 }

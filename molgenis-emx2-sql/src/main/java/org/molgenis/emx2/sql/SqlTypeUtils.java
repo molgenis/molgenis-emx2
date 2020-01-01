@@ -95,7 +95,7 @@ public class SqlTypeUtils extends TypeUtils {
     return getTypedValue(v, columnType);
   }
 
-  private static Object getTypedValue(Object v, ColumnType columnType) {
+  public static Object getTypedValue(Object v, ColumnType columnType) {
     switch (columnType) {
       case UUID:
         return TypeUtils.toUuid(v);
@@ -124,7 +124,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
-        return TypeUtils.toDateArrray(v);
+        return TypeUtils.toDateArray(v);
       case DATETIME:
         return TypeUtils.toDateTime(v);
       case DATETIME_ARRAY:

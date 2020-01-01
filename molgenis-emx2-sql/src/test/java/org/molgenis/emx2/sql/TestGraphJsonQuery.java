@@ -12,8 +12,8 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.TRIGRAM_SEARCH;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.Filter.f;
-import static org.molgenis.emx2.sql.SelectColumn.s;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
 
 public class TestGraphJsonQuery {
 
@@ -66,11 +66,11 @@ public class TestGraphJsonQuery {
 
     StopWatch.print("begin");
 
-    SqlGraphQuery s = new SqlGraphQuery(schema.getTable("Pet"));
+    Query s = schema.getTable("Pet").query();
     s.select(s("items", s("name"), s("status"), s("category", s("name"))));
-    System.out.println(s.retrieve());
+    System.out.println(s.retrieveJsonGraph());
 
-    s = new SqlGraphQuery(schema.getTable("Person"));
+    s = schema.getTable("Person").query();
 
     s.select(
         s(
@@ -81,7 +81,7 @@ public class TestGraphJsonQuery {
             s("children", s("count"), s("items", s("name"), s("children", s("items", s("name"))))),
             s("cousins", s("items", s("name"), s("cousins", s("items", s("name")))))));
 
-    System.out.println(s.retrieve());
+    System.out.println(s.retrieveJsonGraph());
 
     StopWatch.print("complete");
   }
@@ -89,16 +89,16 @@ public class TestGraphJsonQuery {
   @Test
   public void testSearch() {
 
-    SqlGraphQuery s = new SqlGraphQuery(schema.getTable("Person"));
+    Query s = schema.getTable("Person").query();
     s.select(s("items", s("name")));
     s.search("opa");
 
-    System.out.println("search for 'opa':\n " + s.retrieve());
+    System.out.println("search for 'opa':\n " + s.retrieveJsonGraph());
 
-    s = new SqlGraphQuery(schema.getTable("Person"));
+    s = schema.getTable("Person").query();
     s.select(s("items", s("name"), s("children", s("items", s("name"))), s("father", s("name"))));
     s.search("opa");
-    System.out.println("search for 'opa' also in grandparents:\n " + s.retrieve());
+    System.out.println("search for 'opa' also in grandparents:\n " + s.retrieveJsonGraph());
 
     StopWatch.print("complete");
 
@@ -106,11 +106,11 @@ public class TestGraphJsonQuery {
         f("name", EQUALS, "opa1"),
         f("children", f("children", f("name", EQUALS, "kind")), f("name", EQUALS, "ma")));
 
-    System.out.println(s.retrieve());
+    System.out.println(s.retrieveJsonGraph());
 
     s.filter(f("children", f("children", f("name", EQUALS, "kind"))));
 
-    System.out.println(s.retrieve());
+    System.out.println(s.retrieveJsonGraph());
 
     //
     //    s.search("opa");
@@ -132,10 +132,10 @@ public class TestGraphJsonQuery {
 
     StopWatch.print("complete");
 
-    s = new SqlGraphQuery(schema.getTable("Person"));
+    s = schema.getTable("Person").query();
     s.select(s("items", s("name")));
     s.filter(f("name", TRIGRAM_SEARCH, "opa"));
 
-    System.out.println(s.retrieve());
+    System.out.println(s.retrieveJsonGraph());
   }
 }

@@ -3,9 +3,9 @@ package org.molgenis.emx2.web.graphql;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.Filter;
-import org.molgenis.emx2.sql.SelectColumn;
-import org.molgenis.emx2.sql.SqlGraphQuery;
+import org.molgenis.emx2.FilterBean;
+import org.molgenis.emx2.SelectColumn;
+import org.molgenis.emx2.sql.SqlQueryGraphHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,8 +20,8 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.Order.DESC;
-import static org.molgenis.emx2.sql.Filter.f;
-import static org.molgenis.emx2.sql.SqlGraphQuery.*;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.sql.SqlQueryGraphHelper.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
 
@@ -54,7 +54,7 @@ public class GraphqlTableQueryFields {
   private static DataFetcher fetcherForTableQueryField(Table aTable) {
     return dataFetchingEnvironment -> {
       Table table = aTable;
-      SqlGraphQuery q = new SqlGraphQuery(table);
+      Query q = table.query();
       q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
       if (dataFetchingEnvironment.getArgument(FILTER) != null) {
         q.filter(convertMapToFilterArray(table, dataFetchingEnvironment.getArgument(FILTER)));
@@ -64,7 +64,7 @@ public class GraphqlTableQueryFields {
         q.search(search);
       }
 
-      return transform(q.retrieve());
+      return transform(q.retrieveJsonGraph());
     };
   }
 
@@ -241,7 +241,7 @@ public class GraphqlTableQueryFields {
     return Scalars.GraphQLString;
   }
 
-  private static Filter[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
+  private static FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       Column c = table.getMetadata().getColumn(entry.getKey());
@@ -267,7 +267,7 @@ public class GraphqlTableQueryFields {
         }
       }
     }
-    return subFilters.toArray(new Filter[subFilters.size()]);
+    return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
   private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {

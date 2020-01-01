@@ -76,9 +76,8 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setDateTime("Test_datetime_nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
     try {
       t2.insert(row);
-      fail(
-          "Should not be able to insert null in not-null columns"); // should not reach this one
-                                                                    // because all not null are null
+      fail("Should not be able to insert null in not-null columns"); // should not reach this one
+      // because all not null are null
     } catch (MolgenisException e) {
 
     }
@@ -86,7 +85,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     StopWatch.print("inserted rows");
 
     // check queryOld and test getters
-    List<Row> result = schema.getTable("TypeTest").retrieve();
+    List<Row> result = schema.getTable("TypeTest").getRows();
     for (Row res : result) {
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);
@@ -102,7 +101,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     StopWatch.print("checked getters");
 
-    StopWatch.print("complete", schema.getTable("TypeTest").retrieve().size());
+    StopWatch.print("complete", schema.getTable("TypeTest").getRows().size());
   }
 
   @Test
@@ -176,10 +175,10 @@ public class TestCreateBasicDataColumnTypeColumns {
     aTable.update(aRow);
 
     // check query
-    List<Row> result = aTable.query().where(aColumn, EQUALS, values[0]).retrieve();
+    List<Row> result = aTable.query().filter(aColumn, EQUALS, values[0]).getRows();
     assertEquals(0, result.size());
 
-    result = aTable.query().where(aColumn, EQUALS, values[2]).retrieve();
+    result = aTable.query().filter(aColumn, EQUALS, values[2]).getRows();
     assertEquals(1, result.size());
     for (Row r : result) {
       System.out.println(r);
@@ -187,6 +186,6 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // delete
     aTable.delete(aRow, aRow2);
-    assertEquals(0, aTable.retrieve().size());
+    assertEquals(0, aTable.getRows().size());
   }
 }

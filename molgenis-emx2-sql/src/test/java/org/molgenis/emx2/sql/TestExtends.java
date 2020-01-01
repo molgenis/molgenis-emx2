@@ -14,8 +14,8 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.LIKE;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.Filter.f;
-import static org.molgenis.emx2.sql.SelectColumn.s;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
 
 public class TestExtends {
   private static Database db;
@@ -109,10 +109,10 @@ public class TestExtends {
     ceoTable.insert(managerRow);
 
     Table personTable = s.getTable("Person");
-    assertEquals(3, personTable.retrieve().size());
-    assertEquals(1, studentTable.retrieve().size());
-    assertEquals(2, employeeTable.retrieve().size());
-    assertEquals(1, ceoTable.retrieve().size());
+    assertEquals(3, personTable.getRows().size());
+    assertEquals(1, studentTable.getRows().size());
+    assertEquals(2, employeeTable.getRows().size());
+    assertEquals(1, ceoTable.getRows().size());
 
     // retrieve
     assertEquals(
@@ -120,57 +120,56 @@ public class TestExtends {
         employeeTable
             .query()
             .select("salary")
-            .where("fullName", EQUALS, "Dagobert Duck")
-            .retrieve()
+            .filter("fullName", EQUALS, "Dagobert Duck")
+            .getRows()
             .get(0)
             .getInteger("salary"));
 
     // TODO test RLS
 
     // test search
-    assertEquals(1, personTable.search("Dagobert").retrieve().size());
-    assertEquals(1, employeeTable.search("Dagobert").retrieve().size());
+    assertEquals(1, personTable.search("Dagobert").getRows().size());
+    assertEquals(1, employeeTable.search("Dagobert").getRows().size());
 
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));
     ceoTable.update(managerRow);
-    assertEquals(LocalDate.of(1900, 12, 01), ceoTable.retrieve().get(0).getDate("birthDate"));
+    assertEquals(LocalDate.of(1900, 12, 01), ceoTable.getRows().get(0).getDate("birthDate"));
 
     // test graph query
     // simple
-    String result =
-        new SqlGraphQuery(ceoTable).select(s("data", s("fullName"), s("salary"))).retrieve();
+    String result = ceoTable.select(s("data", s("fullName"), s("salary"))).retrieveJsonGraph();
     System.out.println(result);
     assertTrue(result.contains("Dagobert"));
     // nested relation
     result =
-        new SqlGraphQuery(ceoTable)
+        ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
-            .retrieve();
+            .retrieveJsonGraph();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));
     // filtering (erroroneous)
     result =
-        new SqlGraphQuery(ceoTable)
+        ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
             .filter(f("directs", f("fullName", LIKE, "Pietje")))
-            .retrieve();
+            .retrieveJsonGraph();
     System.out.println(result);
     assertFalse(result.contains("Katrien"));
     // filtering (correct)
     result =
-        new SqlGraphQuery(ceoTable)
+        ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
             .filter(f("directs", f("fullName", LIKE, "Katrien")))
-            .retrieve();
+            .retrieveJsonGraph();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));
 
     // delete
     ceoTable.delete(managerRow);
-    assertEquals(2, personTable.retrieve().size());
-    assertEquals(1, studentTable.retrieve().size());
-    assertEquals(1, employeeTable.retrieve().size());
-    assertEquals(0, ceoTable.retrieve().size());
+    assertEquals(2, personTable.getRows().size());
+    assertEquals(1, studentTable.getRows().size());
+    assertEquals(1, employeeTable.getRows().size());
+    assertEquals(0, ceoTable.getRows().size());
   }
 }

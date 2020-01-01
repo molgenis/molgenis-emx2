@@ -111,7 +111,7 @@ public class TypeUtils {
     return LocalDate.parse(v.toString());
   }
 
-  public static LocalDate[] toDateArrray(Object v) {
+  public static LocalDate[] toDateArray(Object v) {
 
     if (v == null) return new LocalDate[0];
     if (v instanceof LocalDate[]) return (LocalDate[]) v;

@@ -30,8 +30,8 @@ public class TestDeleteWithoutPrimaryKeyWorks {
     Row row = new Row().setString("Col1", "blaat");
     table.insert(row);
 
-    assertEquals(1, table.retrieve().size());
+    assertEquals(1, table.getRows().size());
     table.delete(row);
-    assertEquals(0, table.retrieve().size());
+    assertEquals(0, table.getRows().size());
   }
 }

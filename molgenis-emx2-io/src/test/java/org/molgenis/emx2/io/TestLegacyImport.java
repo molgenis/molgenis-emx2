@@ -11,6 +11,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import java.io.File;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.molgenis.emx2.SelectColumn.s;
 
 public class TestLegacyImport {
   static Database db;
@@ -37,22 +38,22 @@ public class TestLegacyImport {
         schema
             .getTable("biobanks")
             .select(
-                "name",
-                "contact_person/full_name",
-                "principal_investigators/full_name",
-                "juristic_person/name")
+                s("name"),
+                s("contact_person", s("full_name")),
+                s("principal_investigators", s("full_name")),
+                s("juristic_person", s("name")))
             .search("GrONingen")
-            .retrieve()) {
+            .getRows()) {
       System.out.println(r.getString("name"));
     }
 
     System.out.println("search groningen");
-    for (Row r : schema.getTable("biobanks").search("groningen").retrieve()) {
+    for (Row r : schema.getTable("biobanks").search("groningen").getRows()) {
       System.out.println(r.getString("name"));
     }
 
     System.out.println("search rotterdam");
-    for (Row r : schema.getTable("biobanks").search("rotterdam").retrieve()) {
+    for (Row r : schema.getTable("biobanks").search("rotterdam").getRows()) {
       System.out.println(r.getString("name"));
     }
   }

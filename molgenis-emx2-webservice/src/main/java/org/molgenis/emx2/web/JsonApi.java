@@ -90,7 +90,7 @@ public class JsonApi {
   private static String getRows(Request request, Response response) throws IOException {
     response.type(ACCEPT_JSON);
     response.status(200);
-    return rowsToJson(getTable(request).retrieve());
+    return rowsToJson(getTable(request).getRows());
   }
 
   private static String postRows(Request request, Response response) {

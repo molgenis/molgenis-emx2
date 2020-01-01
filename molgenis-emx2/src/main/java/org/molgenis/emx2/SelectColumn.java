@@ -1,6 +1,4 @@
-package org.molgenis.emx2.sql;
-
-import org.molgenis.emx2.Order;
+package org.molgenis.emx2;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -31,6 +29,11 @@ public class SelectColumn {
     }
   }
 
+  public SelectColumn(String column, Collection<String> subselects) {
+    this(column);
+    this.select(subselects);
+  }
+
   public static SelectColumn s(String column) {
     return new SelectColumn(column);
   }
@@ -43,11 +46,11 @@ public class SelectColumn {
     return column;
   }
 
-  boolean has(String name) {
+  public boolean has(String name) {
     return children.containsKey(name);
   }
 
-  SelectColumn get(String name) {
+  public SelectColumn get(String name) {
     return children.get(name);
   }
 
@@ -71,10 +74,6 @@ public class SelectColumn {
     return offset;
   }
 
-  public void orderBy(String column, Order order) {
-    this.orderBy.put(column, order);
-  }
-
   public void setOrderBy(Map<String, Order> values) {
     this.orderBy.putAll(values);
   }
@@ -83,7 +82,21 @@ public class SelectColumn {
     return orderBy;
   }
 
-  public void select(String columnName) {
-    this.children.put(columnName, s(columnName));
+  public SelectColumn select(SelectColumn... selects) {
+    for (SelectColumn select : selects) {
+      this.children.put(select.getColumn(), select);
+    }
+    return this;
+  }
+
+  public SelectColumn select(String... columnName) {
+    for (String name : columnName) {
+      this.children.put(name, s(name));
+    }
+    return this;
+  }
+
+  public SelectColumn select(Collection<String> columnName) {
+    return this.select(columnName.toArray(new String[columnName.size()]));
   }
 }

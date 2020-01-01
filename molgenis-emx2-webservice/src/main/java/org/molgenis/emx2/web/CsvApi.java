@@ -91,7 +91,7 @@ public class CsvApi {
   }
 
   private static String tableRetrieve(Request request, Response response) throws IOException {
-    List<Row> rows = MolgenisWebservice.getTable(request).retrieve();
+    List<Row> rows = MolgenisWebservice.getTable(request).getRows();
     StringWriter writer = new StringWriter();
     CsvTableWriter.rowsToCsv(rows, writer, getSeperator(request));
     response.type(ACCEPT_CSV);

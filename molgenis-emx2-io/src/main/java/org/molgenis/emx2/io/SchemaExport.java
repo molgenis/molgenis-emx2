@@ -32,7 +32,7 @@ public class SchemaExport {
     store.writeTable("molgenis", Emx2.toRowList(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
-      store.writeTable(tableName, schema.getTable(tableName).retrieve());
+      store.writeTable(tableName, schema.getTable(tableName).getRows());
     }
   }
 }

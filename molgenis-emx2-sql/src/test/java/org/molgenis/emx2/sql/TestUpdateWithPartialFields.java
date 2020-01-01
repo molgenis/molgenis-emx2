@@ -34,25 +34,25 @@ public class TestUpdateWithPartialFields {
 
     // now if we update then val2 should be kept
     test.update(new Row().set("keycol", "row1").set("col1", "val_other"));
-    assertEquals("val_other", test.retrieve().get(0).getString("col1"));
-    assertEquals("val21", test.retrieve().get(0).getString("col2"));
+    assertEquals("val_other", test.getRows().get(0).getString("col1"));
+    assertEquals("val21", test.getRows().get(0).getString("col2"));
 
     // now if we add more cols in sec row
     test.insert(
         new Row().set("keycol", "row2").set("col1", "val12"),
         new Row().set("keycol", "row3").set("col1", "val13").set("col2", "val23"));
     assertEquals(
-        null, test.where("keycol", Operator.EQUALS, "row2").retrieve().get(0).getString("col2"));
+        null, test.filter("keycol", Operator.EQUALS, "row2").getRows().get(0).getString("col2"));
     assertEquals(
-        "val23", test.where("keycol", Operator.EQUALS, "row3").retrieve().get(0).getString("col2"));
+        "val23", test.filter("keycol", Operator.EQUALS, "row3").getRows().get(0).getString("col2"));
 
     // now if we add more cols in first row
     test.insert(
         new Row().set("keycol", "row4").set("col1", "val14").set("col2", "val24"),
         new Row().set("keycol", "row5").set("col1", "val15"));
     assertEquals(
-        "val24", test.where("keycol", Operator.EQUALS, "row4").retrieve().get(0).getString("col2"));
+        "val24", test.filter("keycol", Operator.EQUALS, "row4").getRows().get(0).getString("col2"));
     assertEquals(
-        null, test.where("keycol", Operator.EQUALS, "row5").retrieve().get(0).getString("col2"));
+        null, test.filter("keycol", Operator.EQUALS, "row5").getRows().get(0).getString("col2"));
   }
 }

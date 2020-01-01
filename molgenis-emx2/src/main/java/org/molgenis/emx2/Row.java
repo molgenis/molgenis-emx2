@@ -73,7 +73,7 @@ public class Row {
   }
 
   public LocalDate[] getDateArray(String name) {
-    return TypeUtils.toDateArrray(values.get(name));
+    return TypeUtils.toDateArray(values.get(name));
   }
 
   public LocalDateTime getDateTime(String name) {

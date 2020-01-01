@@ -1,37 +1,62 @@
 package org.molgenis.emx2;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-public interface Query {
+public interface Query extends Filter {
 
-  List<String> getSelectList();
+  Query select(SelectColumn... select);
 
-  List<Where> getWhereLists();
+  Query select(String... select);
 
-  List<String> getSearchList();
+  Query select(Collection<String> columnNames);
 
-  List<Sort> getSortList();
+  @Override
+  boolean has(String columnName);
 
-  Query select(String... columns);
+  @Override
+  Filter add(Operator operator, Object... values);
 
-  Query expand(String column);
+  @Override
+  Filter add(Operator operator, List<?> values);
 
-  Query collapse();
+  Query search(String... terms);
 
-  Query search(String terms);
+  @Override
+  String getField();
 
-  Query where(String path, Operator operator, Serializable... values);
+  @Override
+  Map<Operator, Object[]> getConditions();
 
-  Query and(String path, Operator operator, Serializable... values);
+  @Override
+  Filter getFilter(String name);
 
-  Query or(String path, Operator operator, Serializable... values);
+  @Override
+  Query filter(Filter... filters);
 
-  Query asc(String column);
+  @Override
+  Query filter(String columName, Filter... subfilters);
 
-  Query desc(String column);
+  @Override
+  Query filter(String columnName, Operator operator, Serializable... values);
 
-  List<Row> retrieve();
+  List<Row> getRows();
 
-  <E> List<E> retrieve(String columnName, Class<E> asClass);
+  String retrieveJsonGraph();
+
+  Query setLimit(int limit);
+
+  Query setOffset(int offset);
+
+  Filter getFilter();
+
+  SelectColumn getSelect();
+
+  String[] getSearchTerms();
+
+  void setOrderBy(Map<String, Order> values);
+
+  Map<String, Order> getOrderBy();
 }

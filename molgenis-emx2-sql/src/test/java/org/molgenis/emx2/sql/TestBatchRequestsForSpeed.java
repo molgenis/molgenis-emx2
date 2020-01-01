@@ -67,7 +67,7 @@ public class TestBatchRequestsForSpeed {
 
     StopWatch.print("Inserted third batch", 800);
 
-    rows = testBatchTable.retrieve();
+    rows = testBatchTable.getRows();
     assertEquals(1000, rows.size());
     for (Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
@@ -75,7 +75,7 @@ public class TestBatchRequestsForSpeed {
     testBatchTable.update(rows);
     StopWatch.print("Batch update ", rows.size());
 
-    StopWatch.print("Retrieved", schema.getTable("TestBatchRequestsForSpeed").retrieve().size());
+    StopWatch.print("Retrieved", schema.getTable("TestBatchRequestsForSpeed").getRows().size());
   }
 
   @Test
@@ -136,13 +136,13 @@ public class TestBatchRequestsForSpeed {
 
     // queryOld
     Query q = schema.getTable(PERSON).query();
-    StopWatch.print("QueryOld ", q.retrieve().size());
+    StopWatch.print("QueryOld ", q.getRows().size());
 
     // delete
     personTableReloaded.delete(rows);
     StopWatch.print("Delete", count);
 
-    assertEquals(0, schema.getTable("Person").retrieve().size());
+    assertEquals(0, schema.getTable("Person").getRows().size());
     assertEquals(1, personTableReloaded.getMetadata().getUniques().size());
     assertEquals(1, personTable.getMetadata().getUniques().size());
     personTable.getMetadata().removeUnique("First Name", "Last Name");

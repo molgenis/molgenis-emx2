@@ -11,8 +11,8 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.Filter.f;
-import static org.molgenis.emx2.sql.SelectColumn.s;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
 
 public class TestRefBack {
 
@@ -63,58 +63,56 @@ public class TestRefBack {
     // via insert
     parts.update(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
 
-    List<Row> pTest = products.retrieve();
+    List<Row> pTest = products.getRows();
     assertEquals(2, pTest.size());
     assertEquals("smallphone", pTest.get(0).getString("productname"));
-    assertEquals(4, products.retrieve().get(0).getStringArray("parts").length);
+    assertEquals(4, products.getRows().get(0).getStringArray("parts").length);
 
-    SqlGraphQuery query =
-        new SqlGraphQuery(products)
-            .select(
-                s("data", s("productname"), s("parts", s("partname")), s("parts_agg", s("count"))));
-    System.out.println(query.retrieve());
+    Query query =
+        products.select(
+            s("data", s("productname"), s("parts", s("partname")), s("parts_agg", s("count"))));
+    System.out.println(query.retrieveJsonGraph());
     query =
-        new SqlGraphQuery(parts)
-            .select(
-                s(
-                    "data",
-                    s("partname"),
-                    s("products", s("productname")),
-                    s("products_agg", s("count"))));
-    System.out.println(query.retrieve());
+        parts.select(
+            s(
+                "data",
+                s("partname"),
+                s("products", s("productname")),
+                s("products_agg", s("count"))));
+    System.out.println(query.retrieveJsonGraph());
 
-    query = new SqlGraphQuery(parts).select(s("data_agg", s("count")));
-    assertTrue(query.retrieve().contains("\"count\":5"));
+    query = parts.select(s("data_agg", s("count")));
+    assertTrue(query.retrieveJsonGraph().contains("\"count\":5"));
 
-    query = new SqlGraphQuery(products).select(s("data_agg", s("count")));
-    assertTrue(query.retrieve().contains("\"count\":2"));
+    query = products.select(s("data_agg", s("count")));
+    assertTrue(query.retrieveJsonGraph().contains("\"count\":2"));
 
     query =
-        new SqlGraphQuery(products)
+        products
             .select(s("data", s("parts_agg", s("count"))))
             .filter(f("productname").add(EQUALS, "bigphone"));
 
-    assertTrue(query.retrieve().contains("\"count\":3"));
+    assertTrue(query.retrieveJsonGraph().contains("\"count\":3"));
 
     query =
-        new SqlGraphQuery(parts)
+        parts
             .select(s("data", s("products_agg", s("count"))))
             .filter(f("partname").add(EQUALS, "battery"));
 
-    assertTrue(query.retrieve().contains("\"count\":2"));
+    assertTrue(query.retrieveJsonGraph().contains("\"count\":2"));
 
-    query = new SqlGraphQuery(products).select(s("data", s("parts", s("name"))));
-    System.out.println(query.retrieve());
+    query = products.select(s("data", s("parts", s("name"))));
+    System.out.println(query.retrieveJsonGraph());
 
     // delete
     parts.delete(new Row().set("partname", "headphones"));
-    assertEquals(3, products.retrieve().get(0).getStringArray("parts").length);
+    assertEquals(3, products.getRows().get(0).getStringArray("parts").length);
 
     // delete
     products.delete(new Row().set("productname", "bigphone"));
 
     // check
-    assertEquals(1, products.retrieve().size());
+    assertEquals(1, products.getRows().size());
   }
 
   @Test
@@ -148,7 +146,7 @@ public class TestRefBack {
     users.update(new Row().set("username", "jack").set("posts", "joes post"));
 
     // check via query we have now post for jack
-    assertEquals(1, posts.query().where("user", EQUALS, "jack").retrieve().size());
+    assertEquals(1, posts.query().filter("user", EQUALS, "jack").getRows().size());
 
     // add another post for jack, now the 'posts' should be updated also
     posts.insert(new Row().set("title", "jacks post").set("user", "jack"));
@@ -158,30 +156,28 @@ public class TestRefBack {
         2,
         users
             .query()
-            .where("username", EQUALS, "jack")
-            .retrieve()
+            .filter("username", EQUALS, "jack")
+            .getRows()
             .get(0)
             .getStringArray("posts")
             .length);
 
     // check filter on posts
-    assertEquals(1, users.query().where("posts", EQUALS, "jacks post").retrieve().size());
+    assertEquals(
+        1, users.query().filter("posts", f("title", EQUALS, "jacks post")).getRows().size());
 
     // check graph query
-    SqlGraphQuery query = new SqlGraphQuery(users).select(s("data_agg", s("count")));
-    assertTrue(query.retrieve().contains("\"count\":2"));
+    Query query = users.select(s("data_agg", s("count")));
+    assertTrue(query.retrieveJsonGraph().contains("\"count\":2"));
 
     query =
-        new SqlGraphQuery(users)
+        users
             .select(s("data", s("username"), s("posts", s("title"))))
             .filter(f("posts", f("title", EQUALS, "jacks post")));
-    assertTrue(query.retrieve().contains("jacks post"));
+    assertTrue(query.retrieveJsonGraph().contains("jacks post"));
 
-    query =
-        new SqlGraphQuery(users)
-            .select(s("data_agg", s("count")))
-            .filter(f("posts", f("title", EQUALS, "jacks post")));
-    assertTrue(query.retrieve().contains("\"count\":1"));
+    query = users.select(s("data_agg", s("count"))).filter(f("posts", EQUALS, "jacks post"));
+    assertTrue(query.retrieveJsonGraph().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading
     // delete
@@ -200,8 +196,8 @@ public class TestRefBack {
         1,
         users
             .query()
-            .where("username", EQUALS, "jack")
-            .retrieve()
+            .filter("username", EQUALS, "jack")
+            .getRows()
             .get(0)
             .getStringArray("posts")
             .length);

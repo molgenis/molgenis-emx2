@@ -13,21 +13,24 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
 
 public class TestQuery {
   static Database database;
+  static Schema schema;
+  static final String PERSON = "Person";
 
   @BeforeClass
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
-    Schema s = database.createSchema("TestQuery");
+    schema = database.createSchema("TestQuery");
 
     // createColumn some tables with contents
-    String PERSON = "Person";
     Table person =
-        s.create(
+        schema.create(
             table(PERSON)
                 .addColumn(column("ID").type(INT))
                 .addColumn(column("First Name"))
@@ -82,12 +85,12 @@ public class TestQuery {
     StopWatch.print("got schema");
 
     Query q = s.getTable("Person").query();
-    q.select("First Name", "Last Name", "Father/First Name", "Father/Last Name");
-    q.where("Last Name", EQUALS, "Duck").and("Father/First Name", EQUALS, "Donald");
+    q.select(s("First Name"), s("Last Name"), s("Father", s("First Name"), s("Last Name")));
+    q.filter("Last Name", EQUALS, "Duck").filter("Father", f("First Name", EQUALS, "Donald"));
 
     StopWatch.print("created query");
 
-    List<Row> rows = q.retrieve();
+    List<Row> rows = q.getRows();
     for (Row r : rows) {
       System.out.println(r);
     }
@@ -100,56 +103,30 @@ public class TestQuery {
     q = s.getTable("Person").query();
     q.select("First Name")
         .select("Last Name")
-        .expand("Father")
-        .select("Last Name")
-        .select("First Name");
-    q.where("Last Name", EQUALS, "Duck").and("Father/Last Name", EQUALS, "Donald");
+        .select(s("Father").select("Last Name").select("First Name"));
+    q.filter("Last Name", EQUALS, "Duck").filter("Father", f("First Name", EQUALS, "Donald"));
 
-    rows = q.retrieve();
-    // TODO this should succeed    assertEquals(3, rows.size());
+    rows = q.getRows();
+    assertEquals(3, rows.size());
 
     StopWatch.print("created query second time, to check caching effects");
   }
 
-  //      try {
-  //          database.query("pietje");
-  //          fail("exception handling from(pietje) failed");
-  //      } catch (Exception e) {
-  //          System.out.println("Succesfully caught exception: " + e);
-  //      }
-
-  //      try {
-  //          database.query("Product").as("p").join("Comp", "p", "components");
-  //          fail("should fail because faulty table");
-  //      } catch (Exception e) {
-  //          System.out.println("Succesfully caught exception: " + e);
-  //      }
-  //
-  //      try {
-  //          database.query("Product").as("p").join("Component", "p2", "components");
-  //          fail("should fail because faulty toTabel");
-  //      } catch (Exception e) {
-  //          System.out.println("Succesfully caught exception: " + e);
-  //      }
-  //
-  //      try {
-  //          database.queryOld("Product").as("p").join("Component", "p2", "components");
-  //          fail("should fail because faulty on although it is an mref");
-  //      } catch (Exception e) {
-  //          System.out.println("Succesfully caught exception: " + e);
-  //      }
-  //
-  //      try {
-  //          database.queryOld("Product").as("p").join("Component", "p", "comps");
-  //          fail("should fail because faulty on");
-  //      } catch (Exception e) {
-  //          System.out.println("Succesfully caught exception: " + e);
-  //      }
-  //
-  //      try {
-  //          database.queryOld("Product").as("p").select("wrongname").as("productName");
-  //          fail("should fail because faulty 'select'");
-  //      } catch (Exception e) {
-  //          System.out.println("Succesfully caught exception: " + e);
-  //      }
+  @Test
+  public void newQueryTest() {
+    for (Row row :
+        schema
+            .getTable(PERSON)
+            .select(
+                s("ID"),
+                s("First Name"),
+                s("Last Name"),
+                s("Mother", s("ID"), s("First Name"), s("Last Name")))
+            .filter(f("Mother", f("ID", EQUALS, 2)))
+            .setLimit(1)
+            .setOffset(1)
+            .getRows()) {
+      StopWatch.print(row.toString());
+    }
+  }
 }

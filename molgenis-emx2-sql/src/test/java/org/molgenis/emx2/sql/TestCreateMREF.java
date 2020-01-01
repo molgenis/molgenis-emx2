@@ -110,7 +110,7 @@ public class TestCreateMREF {
     StopWatch.print("data inserted");
 
     // test query
-    List<Row> bRowsRetrieved = bTable.where(refName, EQUALS, testValues[1]).retrieve();
+    List<Row> bRowsRetrieved = bTable.filter(refName, EQUALS, testValues[1]).getRows();
     ColumnType arrayColumnType = TypeUtils.getArrayType(columnType);
 
     // todo insert order is not reproducible

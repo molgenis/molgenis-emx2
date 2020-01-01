@@ -259,8 +259,13 @@ class SqlTable implements Table {
   }
 
   @Override
-  public Query where(String path, Operator operator, Serializable... values) {
-    return query().where(path, operator, values);
+  public Query select(SelectColumn... columns) {
+    return query().select(columns);
+  }
+
+  @Override
+  public Query filter(String path, Operator operator, Serializable... values) {
+    return query().filter(path, operator, values);
   }
 
   public Query search(String terms) {
@@ -324,19 +329,19 @@ class SqlTable implements Table {
   }
 
   @Override
-  public org.molgenis.emx2.Query query() {
+  public Query query() {
     return new SqlQuery((SqlTableMetadata) this.getMetadata());
   }
 
   @Override
-  public List<Row> retrieve() {
-    return this.query().retrieve();
+  public List<Row> getRows() {
+    return this.query().getRows();
   }
 
-  @Override
-  public <E> List<E> retrieve(String columnName, Class<E> klazz) {
-    return query().retrieve(columnName, klazz);
-  }
+  //  @Override
+  //  public <E> List<E> retrieve(String columnName, Class<E> klazz) {
+  //    return query().retrieve(columnName, klazz);
+  //  }
 
   @Override
   public String getName() {
