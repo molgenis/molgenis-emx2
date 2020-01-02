@@ -45,10 +45,8 @@ public class SqlQueryGraphHelper extends QueryBean {
   public static String getJson(
       SqlTableMetadata table, SelectColumn select, Filter filter, String[] searchTerms) {
     long start = System.currentTimeMillis();
-    // global filter conditions
-    Condition condition = condition("1=1");
 
-    // valideate
+    // validate
     validateConnectionSelectFields(select);
 
     List<Field> fields = new ArrayList<>();
@@ -62,7 +60,7 @@ public class SqlQueryGraphHelper extends QueryBean {
                       select.get(DATA_FIELD),
                       filter,
                       JSON_AGG_SQL,
-                      condition,
+                      null,
                       true,
                       searchTerms))
               .as(DATA_FIELD));
@@ -75,7 +73,7 @@ public class SqlQueryGraphHelper extends QueryBean {
                   table.getTableName(),
                   select.get(DATA_AGG_FIELD),
                   filter,
-                  condition,
+                  null,
                   searchTerms)
               .as(DATA_AGG_FIELD));
     }
@@ -217,7 +215,7 @@ public class SqlQueryGraphHelper extends QueryBean {
 
     List<Field> fields = new ArrayList<>();
     List<Field> groupBy = new ArrayList<>();
-    SelectColumn subSelect = new SelectColumn("item");
+    SelectColumn subSelect = new SelectColumn("item"); // will contain the subquery
     subSelect.select(table.getPrimaryKey());
 
     if (select.has(COUNT_FIELD)) {
@@ -229,11 +227,14 @@ public class SqlQueryGraphHelper extends QueryBean {
 
     for (Column col : table.getColumns()) {
       if (select.has(col.getName())) {
-        if (select.has(MAX_FIELD)
-            || select.has(MIN_FIELD)
-            || select.has(AVG_FIELD)
-            || select.has(SUM_FIELD)) {
+        SelectColumn aggField = select.get(col.getName());
+        if (aggField.has(MAX_FIELD)
+            || aggField.has(MIN_FIELD)
+            || aggField.has(AVG_FIELD)
+            || aggField.has(SUM_FIELD)) {
+          // add to subselect as input for agg functions
           subSelect.select(col.getName());
+          // add the agg functions
           fields.add(
               field(
                       "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",

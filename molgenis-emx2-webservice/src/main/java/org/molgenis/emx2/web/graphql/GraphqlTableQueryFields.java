@@ -286,23 +286,24 @@ public class GraphqlTableQueryFields {
   private static SelectColumn[] convertMapSelection(DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
     for (SelectedField s : selection.getFields()) {
-      if (!s.getQualifiedName().contains("/") && !s.getSelectionSet().getFields().isEmpty()) {
-        SelectColumn sc = new SelectColumn(s.getName(), convertMapSelection(s.getSelectionSet()));
-        // get limit and offset for the selection
-        Map<String, Object> args = s.getArguments();
-        if (args.containsKey(LIMIT)) {
-          sc.setLimit((int) args.get(LIMIT));
+      if (!s.getQualifiedName().contains("/"))
+        if (s.getSelectionSet().getFields().isEmpty()) {
+          result.add(new SelectColumn(s.getName()));
+        } else {
+          SelectColumn sc = new SelectColumn(s.getName(), convertMapSelection(s.getSelectionSet()));
+          // get limit and offset for the selection
+          Map<String, Object> args = s.getArguments();
+          if (args.containsKey(LIMIT)) {
+            sc.setLimit((int) args.get(LIMIT));
+          }
+          if (args.containsKey(OFFSET)) {
+            sc.setOffset((int) args.get(OFFSET));
+          }
+          if (args.containsKey(ORDERBY)) {
+            sc.setOrderBy((Map<String, Order>) args.get(ORDERBY));
+          }
+          result.add(sc);
         }
-        if (args.containsKey(OFFSET)) {
-          sc.setOffset((int) args.get(OFFSET));
-        }
-        if (args.containsKey(ORDERBY)) {
-          sc.setOrderBy((Map<String, Order>) args.get(ORDERBY));
-        }
-        result.add(sc);
-      } else {
-        result.add(new SelectColumn(s.getName()));
-      }
     }
     return result.toArray(new SelectColumn[result.size()]);
   }
