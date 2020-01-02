@@ -6,7 +6,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class RunWebApiTest {
+public class RunWebApi {
 
   public static void main(String[] args) {
 
@@ -15,6 +15,7 @@ public class RunWebApiTest {
     String url = "jdbc:postgresql:molgenis";
     dataSource.setJdbcUrl(url);
     dataSource.setUsername("molgenis");
+    dataSource.setPassword("molgenis");
     dataSource.setPassword("molgenis");
 
     // setup
