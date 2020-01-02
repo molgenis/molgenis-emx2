@@ -5,7 +5,6 @@ import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.FilterBean;
 import org.molgenis.emx2.SelectColumn;
-import org.molgenis.emx2.sql.SqlQueryGraphHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -64,7 +63,7 @@ public class GraphqlTableQueryFields {
         q.search(search);
       }
 
-      return transform(q.retrieveJsonGraph());
+      return transform(q.retrieveJSON());
     };
   }
 

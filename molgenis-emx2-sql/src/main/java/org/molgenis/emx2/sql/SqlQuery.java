@@ -18,7 +18,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public String retrieveJsonGraph() {
+  public String retrieveJSON() {
     return SqlQueryGraphHelper.getJson(table, getSelect(), getFilter(), getSearchTerms());
   }
 }

@@ -6,6 +6,9 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
+import java.io.IOException;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
@@ -67,21 +70,25 @@ public class TestGraphJsonQuery {
     StopWatch.print("begin");
 
     Query s = schema.getTable("Pet").query();
-    s.select(s("items", s("name"), s("status"), s("category", s("name"))));
-    System.out.println(s.retrieveJsonGraph());
+    s.select(s("data", s("name"), s("status"), s("category", s("name"))));
+    String result = s.retrieveJSON();
+    System.out.println(result);
+    assertTrue(result.contains("spike"));
 
     s = schema.getTable("Person").query();
 
     s.select(
         s(
-            "items",
+            "data",
             s("name"),
             s("father", s("name"), s("father", s("name")), s("mother", s("name"))),
             s("mother", s("name"), s("father", s("name")), s("mother", s("name"))),
             s("children", s("count"), s("items", s("name"), s("children", s("items", s("name"))))),
             s("cousins", s("items", s("name"), s("cousins", s("items", s("name")))))));
 
-    System.out.println(s.retrieveJsonGraph());
+    result = s.retrieveJSON();
+    System.out.println(result);
+    assertTrue(result.contains("\"children\":[{\"name\":\"kind\"}]}"));
 
     StopWatch.print("complete");
   }
@@ -90,15 +97,20 @@ public class TestGraphJsonQuery {
   public void testSearch() {
 
     Query s = schema.getTable("Person").query();
-    s.select(s("items", s("name")));
+    s.select(s("data", s("name")));
     s.search("opa");
 
-    System.out.println("search for 'opa':\n " + s.retrieveJsonGraph());
+    String result = s.retrieveJSON();
+    System.out.println("search for 'opa':\n " + result);
+    assertTrue(result.contains("opa"));
 
     s = schema.getTable("Person").query();
-    s.select(s("items", s("name"), s("children", s("items", s("name"))), s("father", s("name"))));
+    s.select(s("data", s("name"), s("children", s("name")), s("father", s("name"))));
     s.search("opa");
-    System.out.println("search for 'opa' also in grandparents:\n " + s.retrieveJsonGraph());
+
+    result = s.retrieveJSON();
+    System.out.println("search for 'opa' also in grandparents:\n " + result);
+    assertTrue(result.contains("opa"));
 
     StopWatch.print("complete");
 
@@ -106,11 +118,14 @@ public class TestGraphJsonQuery {
         f("name", EQUALS, "opa1"),
         f("children", f("children", f("name", EQUALS, "kind")), f("name", EQUALS, "ma")));
 
-    System.out.println(s.retrieveJsonGraph());
+    result = s.retrieveJSON();
+    System.out.println(result);
+    assertTrue(result.contains("opa1"));
 
     s.filter(f("children", f("children", f("name", EQUALS, "kind"))));
-
-    System.out.println(s.retrieveJsonGraph());
+    result = s.retrieveJSON();
+    System.out.println(result);
+    assertTrue(result.contains("kind"));
 
     //
     //    s.search("opa");
@@ -133,9 +148,11 @@ public class TestGraphJsonQuery {
     StopWatch.print("complete");
 
     s = schema.getTable("Person").query();
-    s.select(s("items", s("name")));
+    s.select(s("data", s("name")));
     s.filter(f("name", TRIGRAM_SEARCH, "opa"));
 
-    System.out.println(s.retrieveJsonGraph());
+    result = s.retrieveJSON();
+    System.out.println();
+    assertTrue(result.contains("opa"));
   }
 }

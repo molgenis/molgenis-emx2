@@ -60,7 +60,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public String retrieveJsonGraph() {
+  public String retrieveJSON() {
     throw new UnsupportedOperationException();
   }
 

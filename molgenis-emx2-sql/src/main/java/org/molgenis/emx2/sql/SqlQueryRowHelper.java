@@ -22,12 +22,11 @@ import static org.molgenis.emx2.sql.SqlColumnUtils.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
-import static org.molgenis.emx2.utils.TypeUtils.toStringArray;
 
-public class SqlQueryRowHelper {
+class SqlQueryRowHelper {
   private static Logger logger = LoggerFactory.getLogger(SqlQueryRowHelper.class);
 
-  public static List<Row> getRows(
+  static List<Row> getRows(
       SqlTableMetadata table, SelectColumn select, Filter filter, String[] searchTerms) {
 
     // create select

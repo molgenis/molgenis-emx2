@@ -44,7 +44,7 @@ public interface Query extends Filter {
 
   List<Row> getRows();
 
-  String retrieveJsonGraph();
+  String retrieveJSON();
 
   Query setLimit(int limit);
 

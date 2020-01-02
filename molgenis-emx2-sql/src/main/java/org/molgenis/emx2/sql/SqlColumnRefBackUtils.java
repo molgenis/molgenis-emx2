@@ -169,7 +169,7 @@ class SqlColumnRefBackUtils {
         table(name(schemaName, column.getTable().getTableName())), // {7} this table
         field(name(column.getTable().getPrimaryKey())), // {8} primary key of this table
         inline(column.getTable().getTableName()), // {9} inline table name
-        inline(column.getName()), // {10}
+        inline(column.getName()), // {10} name
         inline(column.getRefTableName()), // {11} inline table name
         inline(column.getRefColumnName())); // {12} inline table name
 

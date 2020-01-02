@@ -22,17 +22,20 @@ import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryRowHelper.createBackrefSubselect;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 import static org.molgenis.emx2.utils.TypeUtils.toDateTimeArray;
 
-public class SqlQueryUtils {
+class SqlQueryUtils {
   static final String QUERY_FAILED = "Query failed";
   private static final String OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE =
       "Operator %s is not support for column '%s'";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
   static final String ANY_SQL = "{0} = ANY ({1})";
+
+  private SqlQueryUtils() {
+    // hide
+  }
 
   static Condition mergeConditions(Condition conditions, Condition conditions2) {
     if (conditions == null) {

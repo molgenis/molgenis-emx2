@@ -114,7 +114,7 @@ public class TestQuery {
 
   @Test
   public void newQueryTest() {
-    for (Row row :
+    List<Row> rows =
         schema
             .getTable(PERSON)
             .select(
@@ -125,8 +125,9 @@ public class TestQuery {
             .filter(f("Mother", f("ID", EQUALS, 2)))
             .setLimit(1)
             .setOffset(1)
-            .getRows()) {
-      StopWatch.print(row.toString());
-    }
+            .getRows();
+
+    assertEquals(1, rows.size());
+    assertEquals((Integer) 2, rows.get(0).getInteger("Mother/ID"));
   }
 }

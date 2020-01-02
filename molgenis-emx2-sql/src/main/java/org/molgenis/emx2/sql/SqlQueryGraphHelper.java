@@ -48,6 +48,9 @@ public class SqlQueryGraphHelper extends QueryBean {
     // global filter conditions
     Condition condition = condition("1=1");
 
+    // valideate
+    validateConnectionSelectFields(select);
+
     List<Field> fields = new ArrayList<>();
 
     if (select.has(DATA_FIELD)) {
@@ -88,6 +91,14 @@ public class SqlQueryGraphHelper extends QueryBean {
       logger.info(String.format("Query completed in %sms", System.currentTimeMillis() - start));
     }
     return result;
+  }
+
+  private static void validateConnectionSelectFields(SelectColumn select) {
+    for (String name : select.getColumNames()) {
+      if (!DATA_FIELD.equals(name) && !DATA_AGG_FIELD.equals(name)) {
+        throw new MolgenisException(QUERY_FAILED, "Field '" + name + "' unknown");
+      }
+    }
   }
 
   private static Select createSubselect(
@@ -145,26 +156,26 @@ public class SqlQueryGraphHelper extends QueryBean {
     List<Field> fields = new ArrayList<>();
 
     for (Column column : table.getColumns()) {
+
+      // if selected and ref
       if (isSelectedOrFiltered(column, select, filter)) {
+
         // inheritance
         String inheritAlias = getSubclassAlias(table, tableAlias, column);
 
-        if (REF.equals(column.getColumnType())
-            || REF_ARRAY.equals(column.getColumnType())
-            || REFBACK.equals(column.getColumnType())
-            || MREF.equals(column.getColumnType())) {
-
-          // check if not inherit field
-          if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
-            fields.add(
-                createSelectionFieldForRef(
-                        column,
-                        inheritAlias,
-                        select != null ? select.get(column.getName()) : null,
-                        getFilterForRef(filter, column))
-                    .as(column.getName()));
-          }
-
+        // if a relationship but NOT the inheritance relationship
+        if ((REF.equals(column.getColumnType())
+                || REF_ARRAY.equals(column.getColumnType())
+                || REFBACK.equals(column.getColumnType())
+                || MREF.equals(column.getColumnType()))
+            && (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey()))) {
+          fields.add(
+              createSelectionFieldForRef(
+                      column,
+                      inheritAlias,
+                      select != null ? select.get(column.getName()) : null,
+                      getFilterForRef(filter, column))
+                  .as(column.getName()));
         } else {
           fields.add(field(name(inheritAlias, column.getName()), jooqTypeOf(column)));
         }
@@ -201,11 +212,8 @@ public class SqlQueryGraphHelper extends QueryBean {
     conditions = mergeConditions(conditions, createFiltersForColumns(table, tableAlias, filter));
 
     // add to that search filters, only for 'root' query having the search fields
-    if (searchTerms != null) {
-      conditions =
-          mergeConditions(
-              conditions, createSearchCondition(table, tableAlias, select, searchTerms));
-    }
+    conditions =
+        mergeConditions(conditions, createSearchCondition(table, tableAlias, select, searchTerms));
 
     List<Field> fields = new ArrayList<>();
     List<Field> groupBy = new ArrayList<>();
@@ -221,30 +229,25 @@ public class SqlQueryGraphHelper extends QueryBean {
 
     for (Column col : table.getColumns()) {
       if (select.has(col.getName())) {
-        switch (col.getColumnType()) {
-          case INT:
-          case DECIMAL:
-            if (select.has(MAX_FIELD)
-                || select.has(MIN_FIELD)
-                || select.has(AVG_FIELD)
-                || select.has(SUM_FIELD)) {
-              subSelect.select(col.getName());
-              fields.add(
-                  field(
-                          "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
-                          MAX_FIELD,
-                          max(field(name(col.getName()))),
-                          MIN_FIELD,
-                          min(field(name(col.getName()))),
-                          AVG_FIELD,
-                          avg(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))),
-                          SUM_FIELD,
-                          sum(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))))
-                      .as(col.getName()));
-            }
-            break;
-          default:
-            groupBy.add(field(name(tableAlias, col.getName())));
+        if (select.has(MAX_FIELD)
+            || select.has(MIN_FIELD)
+            || select.has(AVG_FIELD)
+            || select.has(SUM_FIELD)) {
+          subSelect.select(col.getName());
+          fields.add(
+              field(
+                      "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
+                      MAX_FIELD,
+                      max(field(name(col.getName()))),
+                      MIN_FIELD,
+                      min(field(name(col.getName()))),
+                      AVG_FIELD,
+                      avg(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))),
+                      SUM_FIELD,
+                      sum(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))))
+                  .as(col.getName()));
+        } else {
+          groupBy.add(field(name(tableAlias, col.getName())));
         }
       }
     }

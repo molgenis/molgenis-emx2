@@ -138,14 +138,14 @@ public class TestExtends {
 
     // test graph query
     // simple
-    String result = ceoTable.select(s("data", s("fullName"), s("salary"))).retrieveJsonGraph();
+    String result = ceoTable.select(s("data", s("fullName"), s("salary"))).retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Dagobert"));
     // nested relation
     result =
         ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
-            .retrieveJsonGraph();
+            .retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));
     // filtering (erroroneous)
@@ -153,7 +153,7 @@ public class TestExtends {
         ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
             .filter(f("directs", f("fullName", LIKE, "Pietje")))
-            .retrieveJsonGraph();
+            .retrieveJSON();
     System.out.println(result);
     assertFalse(result.contains("Katrien"));
     // filtering (correct)
@@ -161,7 +161,7 @@ public class TestExtends {
         ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
             .filter(f("directs", f("fullName", LIKE, "Katrien")))
-            .retrieveJsonGraph();
+            .retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));
 

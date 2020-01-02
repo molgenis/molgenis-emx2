@@ -71,7 +71,7 @@ public class TestRefBack {
     Query query =
         products.select(
             s("data", s("productname"), s("parts", s("partname")), s("parts_agg", s("count"))));
-    System.out.println(query.retrieveJsonGraph());
+    System.out.println(query.retrieveJSON());
     query =
         parts.select(
             s(
@@ -79,30 +79,30 @@ public class TestRefBack {
                 s("partname"),
                 s("products", s("productname")),
                 s("products_agg", s("count"))));
-    System.out.println(query.retrieveJsonGraph());
+    System.out.println(query.retrieveJSON());
 
     query = parts.select(s("data_agg", s("count")));
-    assertTrue(query.retrieveJsonGraph().contains("\"count\":5"));
+    assertTrue(query.retrieveJSON().contains("\"count\":5"));
 
     query = products.select(s("data_agg", s("count")));
-    assertTrue(query.retrieveJsonGraph().contains("\"count\":2"));
+    assertTrue(query.retrieveJSON().contains("\"count\":2"));
 
     query =
         products
             .select(s("data", s("parts_agg", s("count"))))
             .filter(f("productname").add(EQUALS, "bigphone"));
 
-    assertTrue(query.retrieveJsonGraph().contains("\"count\":3"));
+    assertTrue(query.retrieveJSON().contains("\"count\":3"));
 
     query =
         parts
             .select(s("data", s("products_agg", s("count"))))
             .filter(f("partname").add(EQUALS, "battery"));
 
-    assertTrue(query.retrieveJsonGraph().contains("\"count\":2"));
+    assertTrue(query.retrieveJSON().contains("\"count\":2"));
 
     query = products.select(s("data", s("parts", s("name"))));
-    System.out.println(query.retrieveJsonGraph());
+    System.out.println(query.retrieveJSON());
 
     // delete
     parts.delete(new Row().set("partname", "headphones"));
@@ -168,16 +168,16 @@ public class TestRefBack {
 
     // check graph query
     Query query = users.select(s("data_agg", s("count")));
-    assertTrue(query.retrieveJsonGraph().contains("\"count\":2"));
+    assertTrue(query.retrieveJSON().contains("\"count\":2"));
 
     query =
         users
             .select(s("data", s("username"), s("posts", s("title"))))
             .filter(f("posts", f("title", EQUALS, "jacks post")));
-    assertTrue(query.retrieveJsonGraph().contains("jacks post"));
+    assertTrue(query.retrieveJSON().contains("jacks post"));
 
     query = users.select(s("data_agg", s("count"))).filter(f("posts", EQUALS, "jacks post"));
-    assertTrue(query.retrieveJsonGraph().contains("\"count\":1"));
+    assertTrue(query.retrieveJSON().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading
     // delete

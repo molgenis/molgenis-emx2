@@ -119,8 +119,6 @@ public class MetadataUtils {
       createRowLevelPermissions(jooq, TABLE_METADATA);
       createRowLevelPermissions(jooq, COLUMN_METADATA);
       createRowLevelPermissions(jooq, UNIQUE_METADATA);
-    } catch (RuntimeException e) {
-      throw e;
     }
   }
 
