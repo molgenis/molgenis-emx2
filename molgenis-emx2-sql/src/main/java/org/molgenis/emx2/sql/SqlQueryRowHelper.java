@@ -65,7 +65,7 @@ class SqlQueryRowHelper {
       }
       return executeQuery(joinStep);
     } finally {
-      joinStep.close();
+      if (joinStep != null) joinStep.close();
     }
   }
 
