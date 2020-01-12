@@ -9,8 +9,8 @@ public class Column {
   private Boolean unique = false;
   private Boolean pkey = false;
   private Boolean nullable = false;
-  private String refTableName = "";
-  private String refColumnName = "";
+  private String refTableName = null;
+  private String refColumnName = null;
   private ColumnType columnType = ColumnType.STRING;
 
   public Column() {}

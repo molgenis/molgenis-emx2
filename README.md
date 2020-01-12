@@ -131,7 +131,6 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  bug, if I filter on refback column it fails, must now select reback.other column
 
 ### later
-*  change escaping of ) in EMX2 format, currently \)
 *  create plugin system for services (todo: isolation? runtime loading?)
 *  known bug: if I set refback for refarray to 'null' then ref is not updated!
 *  validation on queries such that illegal fields are errored (though grahpql prevents this)
