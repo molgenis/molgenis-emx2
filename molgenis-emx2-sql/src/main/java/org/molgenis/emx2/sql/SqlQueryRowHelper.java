@@ -37,36 +37,29 @@ class SqlQueryRowHelper {
     SelectSelectStep selectStep =
         table.getJooq().select(createSelectFields(table, tableAlias, select));
 
-    SelectJoinStep joinStep = null;
-    try {
+    // create from
+    SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias)); // nosonar
 
-      // create from
-      SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
+    // create joins
+    SelectJoinStep joinStep = createJoins(fromStep, table, tableAlias, select, filter); // nosonar
 
-      // create joins
-      joinStep = createJoins(fromStep, table, tableAlias, select, filter);
+    // create filters,
+    Condition conditions = createWheres(table, tableAlias, filter);
 
-      // create filters,
-      Condition conditions = createWheres(table, tableAlias, filter);
+    // create search
+    conditions =
+        mergeConditions(conditions, createSearchCondition(table, tableAlias, select, searchTerms));
 
-      // create search
-      conditions =
-          mergeConditions(
-              conditions, createSearchCondition(table, tableAlias, select, searchTerms));
-
-      if (conditions != null) {
-        joinStep = (SelectJoinStep) joinStep.where(conditions);
-      }
-      if (select.getLimit() > 0) {
-        joinStep = (SelectJoinStep) joinStep.limit(select.getLimit());
-      }
-      if (select.getOffset() > 0) {
-        joinStep = (SelectJoinStep) joinStep.offset(select.getOffset());
-      }
-      return executeQuery(joinStep);
-    } finally {
-      if (joinStep != null) joinStep.close();
+    if (conditions != null) {
+      joinStep = (SelectJoinStep) joinStep.where(conditions);
     }
+    if (select.getLimit() > 0) {
+      joinStep = (SelectJoinStep) joinStep.limit(select.getLimit());
+    }
+    if (select.getOffset() > 0) {
+      joinStep = (SelectJoinStep) joinStep.offset(select.getOffset());
+    }
+    return executeQuery(joinStep);
   }
 
   private static List<Field> createSelectFields(
