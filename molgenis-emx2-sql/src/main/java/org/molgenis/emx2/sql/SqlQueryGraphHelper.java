@@ -110,42 +110,46 @@ public class SqlQueryGraphHelper extends QueryBean {
       String[] searchTerms) {
 
     // fields
+
     SelectJoinStep from =
         table
             .getJooq()
             .select(createSelectionFields(table, tableAlias, select, filter))
             .from(getJooqTable(table).as(tableAlias));
+    try {
+      // inner join the inherited classes
+      from = createInheritanceJoin(table, tableAlias, from);
 
-    // inner join the inherited classes
-    from = createInheritanceJoin(table, tableAlias, from);
+      // add user filter conditions to any parent filter
+      conditions = mergeConditions(conditions, createFiltersForColumns(table, tableAlias, filter));
 
-    // add user filter conditions to any parent filter
-    conditions = mergeConditions(conditions, createFiltersForColumns(table, tableAlias, filter));
+      // add to that search filters, only for 'root' query having the search fields
+      if (searchTerms != null) {
+        conditions =
+            mergeConditions(
+                conditions, createSearchCondition(table, tableAlias, select, searchTerms));
+      }
 
-    // add to that search filters, only for 'root' query having the search fields
-    if (searchTerms != null) {
-      conditions =
-          mergeConditions(
-              conditions, createSearchCondition(table, tableAlias, select, searchTerms));
-    }
+      // add the filter conditions to the query
+      SelectConditionStep<Record> where = from.where(conditions);
 
-    // add the filter conditions to the query
-    SelectConditionStep<Record> where = from.where(conditions);
+      // add limit and offset to that query if desired
+      if (includeLimitOfssetSort) {
+        where = createLimitOffsetOrderBy(select, where);
+      }
 
-    // add limit and offset to that query if desired
-    if (includeLimitOfssetSort) {
-      where = createLimitOffsetOrderBy(select, where);
-    }
-
-    if (aggregationFunction == null) {
-      return where;
-    } else {
-      // create the aggregation of the subselect, e.g. into count or json
-      SelectJoinStep subselect =
-          table.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
-      Condition condition = createConditionsForRefs(table, filter);
-      if (condition != null) return subselect.where(condition);
-      else return subselect;
+      if (aggregationFunction == null) {
+        return where;
+      } else {
+        // create the aggregation of the subselect, e.g. into count or json
+        SelectJoinStep subselect =
+            table.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
+        Condition condition = createConditionsForRefs(table, filter);
+        if (condition != null) return subselect.where(condition);
+        else return subselect;
+      }
+    } finally {
+      from.close();
     }
   }
 
