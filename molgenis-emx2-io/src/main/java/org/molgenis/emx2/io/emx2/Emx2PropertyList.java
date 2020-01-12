@@ -12,10 +12,14 @@ public class Emx2PropertyList {
   public static final String UNIQUE = "unique";
   public static final String PKEY = "pkey";
   public static final String NULLABLE = "nullable";
+  public static final String VALIDATE = "validate";
 
   private static final Pattern pattern =
-      Pattern.compile("([a-zA-Z_]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
-
+      // Pattern.compile("([a-zA-Z_]+)(\\((.*?(?<!\\\\))\\))?"); // NOSONAR
+      // raw
+      // ([a-zA-Z_]+)(?:\(([^')"\s\\]*(?:\s+[^')"\s\\]+)*|\s*"([^"\\]*(\\[\S\s][^"\\]*)*)"\s*)?\))?
+      Pattern.compile(
+          "([a-zA-Z_]+)(?:\\(([^')\"\\s\\\\]*(?:\\s+[^')\"\\s\\\\]+)*|\\s*\"([^\"\\\\]*(\\\\[\\S\\s][^\"\\\\]*)*)\"\\s*)?\\))?"); // nosonar
   private Map<String, String> termParameterMap = new LinkedHashMap<>();
 
   public Emx2PropertyList() {
@@ -28,7 +32,10 @@ public class Emx2PropertyList {
     Matcher matcher = pattern.matcher(definitionString);
     while (matcher.find()) {
       String name = matcher.group(1).toLowerCase();
-      String value = matcher.group(3);
+      String value = matcher.group(2);
+      if (matcher.group(3) != null) {
+        value = matcher.group(3);
+      }
       this.add(name, value);
     }
   }
@@ -96,9 +103,14 @@ public class Emx2PropertyList {
     for (String term : getTerms()) {
       sb.append(" ").append(term);
       String value = getParamterValue(term);
-      if (value != null) sb.append("(").append(value).append(")");
+      if (value != null) sb.append("(").append(this.escape(value)).append(")");
     }
     return sb.toString().trim();
+  }
+
+  private String escape(String value) {
+    if (value.contains(")") || value.contains("\"")) return "\"" + value + "\"";
+    else return value;
   }
 
   public String[] getParameterArray(String term) {
