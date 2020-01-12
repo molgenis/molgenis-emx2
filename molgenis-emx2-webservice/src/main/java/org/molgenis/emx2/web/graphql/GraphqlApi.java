@@ -9,6 +9,7 @@ import graphql.GraphQLError;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.web.Constants;
 import org.molgenis.emx2.web.JsonApi;
 import org.molgenis.emx2.web.MolgenisSession;
 import org.molgenis.emx2.web.MolgenisSessionManager;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.web.Constants.DETAIL;
+import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.graphql.GraphqlDatabaseFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableMetadataFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.deleteField;
@@ -60,6 +61,7 @@ public class GraphqlApi {
   private static String handleDatabaseRequests(Request request, Response response)
       throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
+    response.header(CONTENT_TYPE, ACCEPT_JSON);
     return executeQuery(session.getGraphqlForDatabase(), request);
   }
 
@@ -68,6 +70,7 @@ public class GraphqlApi {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
+    response.header(CONTENT_TYPE, ACCEPT_JSON);
     return executeQuery(graphqlForSchema, getQueryFromRequest(request));
   }
 

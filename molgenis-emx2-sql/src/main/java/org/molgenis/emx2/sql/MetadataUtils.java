@@ -40,8 +40,9 @@ public class MetadataUtils {
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_COLUMN =
       field(name("ref_column"), VARCHAR.nullable(true));
-  private static final org.jooq.Field VIA_COLUMN =
-      field(name("via_column"), VARCHAR.nullable(true));
+  private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
+  private static final org.jooq.Field VALIDATION_SCRIPT =
+      field(name("validationScript"), VARCHAR.nullable(true));
   private static final org.jooq.Field UNIQUE_COLUMNS =
       field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
@@ -89,7 +90,8 @@ public class MetadataUtils {
               REF_COLUMN,
               //              REVERSE_REF_TABLE,
               //              REVERSE_REF_COLUMN,
-              VIA_COLUMN,
+              MAPPED_BY,
+              VALIDATION_SCRIPT,
               INDEXED)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
@@ -212,7 +214,8 @@ public class MetadataUtils {
             PKEY,
             REF_TABLE,
             REF_COLUMN,
-            VIA_COLUMN,
+            MAPPED_BY,
+            VALIDATION_SCRIPT,
             INDEXED)
         .values(
             column.getTable().getSchema().getName(),
@@ -226,6 +229,7 @@ public class MetadataUtils {
             //            column.getReverseRefTableName(),
             //            column.getReverseRefColumn(),
             column.getMappedBy(),
+            column.getValidationScript(),
             column.isIndexed())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -234,7 +238,8 @@ public class MetadataUtils {
         .set(PKEY, column.isPrimaryKey())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
-        .set(VIA_COLUMN, column.getMappedBy())
+        .set(MAPPED_BY, column.getMappedBy())
+        .set(VALIDATION_SCRIPT, column.getValidationScript())
         .set(INDEXED, column.isIndexed())
         .execute();
   }
@@ -298,7 +303,8 @@ public class MetadataUtils {
       c.pkey(col.get(PKEY, Boolean.class));
       c.refTable(col.get(REF_TABLE, String.class));
       c.refColumn(col.get(REF_COLUMN, String.class));
-      c.mappedBy(col.get(VIA_COLUMN, String.class));
+      c.mappedBy(col.get(MAPPED_BY, String.class));
+      c.validate(col.get(VALIDATION_SCRIPT, String.class));
       columnList.add(new Column(table, c));
     }
     return columnList;

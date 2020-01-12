@@ -73,4 +73,8 @@ public class MolgenisSession {
     this.graphqlPerSchema.clear();
     logger.info("cleared schema for user {}", getSessionUser());
   }
+
+  public void setCreateTime(DateTime newTime) {
+    this.createTime = newTime;
+  }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.cast;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.SqlJavascriptValidator.validateValue;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -76,10 +77,20 @@ public class SqlTypeUtils extends TypeUtils {
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {
+      Object value = getTypedValue(row, c);
+      // validation
+      if (value != null && c.getValidationScript() != null) {
+        String error = validateValue(c.getValidationScript(), value);
+        if (error != null)
+          throw new MolgenisException(
+              "Validation error on column '" + c.getName() + "'",
+              error + ". Instead found value '" + value + "'");
+      }
+      // get value
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else {
-        values.add(getTypedValue(row, c));
+        values.add(value);
       }
     }
     return values;

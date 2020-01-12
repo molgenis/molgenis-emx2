@@ -41,6 +41,12 @@ public class MolgenisWebservice {
     get(
         "/",
         (request, response) ->
+            "Welcome to MOLGENIS EMX2 data api service POC.<br/>. See <a href=\"/api\">/api</a>");
+
+    redirect.get("/api", "/api/");
+    get(
+        "/api/",
+        (request, response) ->
             "Welcome to MOLGENIS EMX2 POC.<br/>" + listSchemas(request, response));
 
     // services
@@ -55,9 +61,9 @@ public class MolgenisWebservice {
     // schema members operations
 
     // documentation operations
-    get("/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
-    get("/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
-    get("/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
+    get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
+    get("/api/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
+    get("/api/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // handling of exceptions
     exception(
@@ -89,16 +95,16 @@ public class MolgenisWebservice {
     StringBuilder result = new StringBuilder();
     result.append("Schema independent API:");
     result.append(
-        "graphql: <a href=\"/api/graphql/\">/api/graphql/</a> <a href=\"playground.html?schema=/api/graphql\">playground</a>");
+        "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
     for (String name : sessionManager.getSession(request).getDatabase().getSchemaNames()) {
       result.append("<li>" + name);
-      result.append(" <a href=\"openapi/" + name + "\">openapi</a>");
+      result.append(" <a href=\"/api/openapi/" + name + "\">openapi</a>");
       result.append(
           " graphql: <a href=\"/api/graphql/"
               + name
-              + "\">endpoint</a> <a href=\"playground.html?schema=/api/graphql/"
+              + "\">endpoint</a> <a href=\"/api/playground.html?schema=/api/graphql/"
               + name
               + "\">playground</a>");
       result.append("</li>");

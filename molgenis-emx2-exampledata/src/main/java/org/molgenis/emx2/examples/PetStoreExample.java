@@ -12,15 +12,16 @@ public class PetStoreExample {
   public static final String TAG = "Tag";
   public static final String NAME = "name";
   public static final String PET = "Pet";
-  private static final String ORDER = "Order";
-  private static final String USER = "User";
-  private static final String CATEGORY_COLUMN = "category";
-  private static final String STATUS = "status";
-  private static final String WEIGHT = "weight";
-  private static final String ORDER_ID = "orderId";
-  private static final String QUANTITY = "quantity";
-  private static final String PRICE = "price";
-  private static final String COMPLETE = "complete";
+  public static final String ORDER = "Order";
+  public static final String USER = "User";
+  public static final String CATEGORY_COLUMN = "category";
+  public static final String STATUS = "status";
+  public static final String WEIGHT = "weight";
+  public static final String ORDER_ID = "orderId";
+  public static final String QUANTITY = "quantity";
+  public static final String PRICE = "price";
+  public static final String COMPLETE = "complete";
+  public static final String EMAIL = "email";
 
   private PetStoreExample() {
     // hide public constructor
@@ -46,8 +47,14 @@ public class PetStoreExample {
         table(ORDER)
             .addColumn(column(ORDER_ID))
             .addColumn(column("pet").type(REF).refTable(PET).refColumn(NAME).nullable(true))
-            .addColumn(column(QUANTITY).type(INT)) // todo: validation >=1
-            .addColumn(column(PRICE).type(DECIMAL)) // todo: validation >=1
+            .addColumn(
+                column(QUANTITY)
+                    .type(INT)
+                    .validate("if(value<1)'Must be larger than 1'")) // todo: validation >=1
+            .addColumn(
+                column(PRICE)
+                    .type(DECIMAL)
+                    .validate("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
             .addColumn(column(COMPLETE).type(BOOL)) // todo: default false
             .addColumn(column(STATUS))
             .setPrimaryKey(ORDER_ID)); // todo enum: placed, approved, delivered
@@ -62,7 +69,11 @@ public class PetStoreExample {
             .addColumn(column("username"))
             .addColumn(column("firstName").nullable(true))
             .addColumn(column("lastName").nullable(true))
-            .addColumn(column("email").nullable(true)) // todo: validation email
+            .addColumn(
+                column(EMAIL)
+                    .nullable(true)
+                    .validate(
+                        "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
             .addColumn(column("password").nullable(true)) // todo: password type
             .addColumn(column("phone").nullable(true)) // todo: validation phone
             .addColumn(column("userStatus").type(INT).nullable(true))

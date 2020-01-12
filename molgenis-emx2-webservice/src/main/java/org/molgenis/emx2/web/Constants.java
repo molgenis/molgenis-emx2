@@ -4,6 +4,7 @@ public class Constants {
   static final String INPUT = "input";
   static final String TABLE = "table";
   public static final String ANONYMOUS = "anonymous";
+  public static final String CONTENT_TYPE = "Content-type";
 
   private Constants() {
     // hide constructor

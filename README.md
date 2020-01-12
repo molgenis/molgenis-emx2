@@ -122,7 +122,6 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ## Todo and open issues
 
 ### first
-*  merge SqlQuery and SqlGraphQuery
 *  set permission on Apps rows so default something is shown
 *  simplest UI for login
 *  simplest UI for upload

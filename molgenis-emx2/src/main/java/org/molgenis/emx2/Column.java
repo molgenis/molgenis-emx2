@@ -7,18 +7,20 @@ public class Column {
   private String columnName;
   private ColumnType columnType = STRING;
 
-  // options
-  private boolean nullable = false;
-  private boolean readonly = false;
-  private String description;
-  private String defaultValue;
-  private boolean indexed = false;
-
   // relationships
   private String refTable;
   private String refColumn;
   private String mappedBy;
-  private boolean pkey;
+  private boolean isPrimaryKey;
+
+  // options
+  private boolean nullable = false;
+  private String validationScript = null;
+  // todo implement below
+  private boolean readonly = false;
+  private String description;
+  private String defaultValue;
+  private boolean indexed = false;
 
   public Column(Column column) {
     copy(column);
@@ -40,8 +42,9 @@ public class Column {
     indexed = column.isIndexed();
     refTable = column.getRefTableName();
     refColumn = column.getRefColumnName();
-    pkey = column.isPrimaryKey();
+    isPrimaryKey = column.isPrimaryKey();
     mappedBy = column.getMappedBy();
+    validationScript = column.getValidationScript();
   }
 
   public static Column column(String name) {
@@ -227,11 +230,11 @@ public class Column {
   }
 
   public boolean isPrimaryKey() {
-    return this.pkey;
+    return this.isPrimaryKey;
   }
 
   public Column pkey(boolean pkey) {
-    this.pkey = pkey;
+    this.isPrimaryKey = pkey;
     return this;
   }
 
@@ -242,5 +245,14 @@ public class Column {
   public String getTableName() {
     if (this.table != null) return this.table.getTableName();
     return null;
+  }
+
+  public String getValidationScript() {
+    return validationScript;
+  }
+
+  public Column validate(String validationScript) {
+    this.validationScript = validationScript;
+    return this;
   }
 }

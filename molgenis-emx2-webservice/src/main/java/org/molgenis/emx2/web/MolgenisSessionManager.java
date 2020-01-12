@@ -46,6 +46,8 @@ public class MolgenisSessionManager implements DatabaseListener {
 
       } else {
         logger.info("Reusing session for user({})", session.getSessionUser());
+        // refresh timeout
+        session.setCreateTime(DateTime.now());
         return session;
       }
     }

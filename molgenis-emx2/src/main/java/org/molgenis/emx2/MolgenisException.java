@@ -57,4 +57,8 @@ public class MolgenisException extends RuntimeException {
   public String getTitle() {
     return title;
   }
+
+  public String toString() {
+    return "Title: " + getTitle() + "\nMessage: " + getMessage();
+  }
 }
