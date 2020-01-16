@@ -50,11 +50,11 @@ public class PetStoreExample {
             .addColumn(
                 column(QUANTITY)
                     .type(INT)
-                    .validate("if(value<1)'Must be larger than 1'")) // todo: validation >=1
+                    .validation("if(value<1)'Must be larger than 1'")) // todo: validation >=1
             .addColumn(
                 column(PRICE)
                     .type(DECIMAL)
-                    .validate("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
+                    .validation("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
             .addColumn(column(COMPLETE).type(BOOL)) // todo: default false
             .addColumn(column(STATUS))
             .setPrimaryKey(ORDER_ID)); // todo enum: placed, approved, delivered
@@ -72,7 +72,7 @@ public class PetStoreExample {
             .addColumn(
                 column(EMAIL)
                     .nullable(true)
-                    .validate(
+                    .validation(
                         "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
             .addColumn(column("password").nullable(true)) // todo: password type
             .addColumn(column("phone").nullable(true)) // todo: validation phone

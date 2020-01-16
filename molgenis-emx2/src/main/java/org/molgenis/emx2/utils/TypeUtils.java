@@ -1,5 +1,6 @@
 package org.molgenis.emx2.utils;
 
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 
@@ -17,6 +18,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.molgenis.emx2.ColumnType.*;
+
 public class TypeUtils {
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
@@ -27,7 +30,7 @@ public class TypeUtils {
 
   public static UUID toUuid(Object v) {
     if (v == null) return null;
-    if (v instanceof String) return UUID.fromString((String) v);
+    if (v instanceof String) return java.util.UUID.fromString((String) v);
     return (UUID) v;
   }
 
@@ -245,5 +248,14 @@ public class TypeUtils {
       return value.substring(1, value.length() - 1);
     }
     return value;
+  }
+
+  public static ColumnType getPrimitiveColumnType(Column column) {
+    if (REF.equals(column.getColumnType())) {
+      return column.getRefColumn().getColumnType();
+    } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
+      return getArrayType(column.getRefColumn().getColumnType());
+    }
+    return column.getColumnType();
   }
 }

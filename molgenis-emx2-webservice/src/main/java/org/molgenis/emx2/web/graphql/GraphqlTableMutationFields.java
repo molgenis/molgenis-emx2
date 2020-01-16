@@ -2,11 +2,7 @@ package org.molgenis.emx2.web.graphql;
 
 import graphql.Scalars;
 import graphql.schema.*;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.sql.SqlTypeUtils;
+import org.molgenis.emx2.*;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +10,7 @@ import java.util.Map;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
-import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.utils.TypeUtils.getPrimitiveColumnType;
 import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -89,25 +85,45 @@ class GraphqlTableMutationFields {
   private static GraphQLInputObjectType createTableInputType(Table table) {
     GraphQLInputObjectType.Builder inputBuilder = newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
-      GraphQLInputType type;
-      ColumnType columnType = col.getColumnType();
-      if (REF.equals(columnType)) columnType = SqlTypeUtils.getRefColumnType(col);
-      switch (columnType) {
-        case DECIMAL:
-          type = Scalars.GraphQLBigDecimal;
-          break;
-        case INT:
-          type = Scalars.GraphQLInt;
-          break;
-        default:
-          type = Scalars.GraphQLString;
-          break;
-      }
-      if (col.isPrimaryKey()) {
+      ColumnType columnType = getPrimitiveColumnType(col);
+      GraphQLInputType type = getGraphQLInputType(columnType);
+      if (col.isPrimaryKey() || !col.isNullable()) {
         type = GraphQLNonNull.nonNull(type);
       }
       inputBuilder.field(newInputObjectField().name(col.getName()).type(type));
     }
     return inputBuilder.build();
+  }
+
+  private static GraphQLInputType getGraphQLInputType(ColumnType columnType) {
+    switch (columnType) {
+      case BOOL:
+        return Scalars.GraphQLBoolean;
+      case INT:
+        return Scalars.GraphQLInt;
+      case DECIMAL:
+        return Scalars.GraphQLFloat;
+      case UUID:
+      case STRING:
+      case TEXT:
+      case DATE:
+      case DATETIME:
+        return Scalars.GraphQLString;
+      case BOOL_ARRAY:
+        return GraphQLList.list(Scalars.GraphQLBoolean);
+      case INT_ARRAY:
+        return GraphQLList.list(Scalars.GraphQLInt);
+      case DECIMAL_ARRAY:
+        return GraphQLList.list(Scalars.GraphQLFloat);
+      case STRING_ARRAY:
+      case TEXT_ARRAY:
+      case DATE_ARRAY:
+      case DATETIME_ARRAY:
+      case UUID_ARRAY:
+        return GraphQLList.list(Scalars.GraphQLString);
+      default:
+        throw new MolgenisException(
+            "Internal error", "Type " + columnType + " not expected at this place");
+    }
   }
 }

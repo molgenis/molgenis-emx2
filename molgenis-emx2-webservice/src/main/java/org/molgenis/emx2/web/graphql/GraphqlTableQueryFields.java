@@ -59,7 +59,7 @@ public class GraphqlTableQueryFields {
         q.filter(convertMapToFilterArray(table, dataFetchingEnvironment.getArgument(FILTER)));
       }
       String search = dataFetchingEnvironment.getArgument(SEARCH);
-      if (search != null) {
+      if (search != null && !search.trim().equals("")) {
         q.search(search);
       }
 

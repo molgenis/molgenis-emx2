@@ -24,6 +24,10 @@ import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
 import static org.molgenis.emx2.web.JsonApi.schemaToJson;
 
 public class GraphqlTableMetadataFields {
+  public static final String REF_TABLE_NAME = "refTable";
+  public static final String REF_COLUMN_NAME = "refColumn";
+  public static final String MAPPED_BY = "mappedBy";
+
   private GraphqlTableMetadataFields() {
     // hide constructor
   }
@@ -69,15 +73,16 @@ public class GraphqlTableMetadataFields {
           .field(newInputObjectField().name("columnType").type(Scalars.GraphQLString))
           .field(newInputObjectField().name("pkey").type(Scalars.GraphQLBoolean))
           .field(newInputObjectField().name("nullable").type(Scalars.GraphQLBoolean))
-          .field(newInputObjectField().name("refTableName").type(Scalars.GraphQLString))
-          .field(newInputObjectField().name("refColumnName").type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(REF_TABLE_NAME).type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(REF_COLUMN_NAME).type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(MAPPED_BY).type(Scalars.GraphQLString))
           .build();
 
   private static GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisTableInput")
           .field(newInputObjectField().name(NAME).type(Scalars.GraphQLString))
-          .field(newInputObjectField().name("pkey").type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(newInputObjectField().name("pkey").type(Scalars.GraphQLString))
           .field(
               newInputObjectField()
                   .name("unique")
@@ -107,15 +112,17 @@ public class GraphqlTableMetadataFields {
           .field(newFieldDefinition().name("columnType").type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("pkey").type(Scalars.GraphQLBoolean))
           .field(newFieldDefinition().name("nullable").type(Scalars.GraphQLBoolean))
-          .field(newFieldDefinition().name("refTableName").type(Scalars.GraphQLString))
-          .field(newFieldDefinition().name("refColumnName").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(REF_TABLE_NAME).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(REF_COLUMN_NAME).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(MAPPED_BY).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("validation").type(Scalars.GraphQLString))
           .build();
 
   private static final GraphQLObjectType outputTableMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisTableType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
-          .field(newFieldDefinition().name("pkey").type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(newFieldDefinition().name("pkey").type(Scalars.GraphQLString))
           .field(
               newFieldDefinition()
                   .name("unique")

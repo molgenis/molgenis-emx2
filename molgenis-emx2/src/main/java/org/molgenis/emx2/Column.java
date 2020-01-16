@@ -44,7 +44,7 @@ public class Column {
     refColumn = column.getRefColumnName();
     isPrimaryKey = column.isPrimaryKey();
     mappedBy = column.getMappedBy();
-    validationScript = column.getValidationScript();
+    validationScript = column.getValidation();
   }
 
   public static Column column(String name) {
@@ -247,11 +247,11 @@ public class Column {
     return null;
   }
 
-  public String getValidationScript() {
+  public String getValidation() {
     return validationScript;
   }
 
-  public Column validate(String validationScript) {
+  public Column validation(String validationScript) {
     this.validationScript = validationScript;
     return this;
   }

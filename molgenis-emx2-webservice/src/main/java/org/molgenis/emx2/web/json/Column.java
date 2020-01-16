@@ -9,8 +9,10 @@ public class Column {
   private Boolean unique = false;
   private Boolean pkey = false;
   private Boolean nullable = false;
-  private String refTableName = null;
-  private String refColumnName = null;
+  private String refTable = null;
+  private String refColumn = null;
+  private String mappedBy = null;
+  private String validation = null;
   private ColumnType columnType = ColumnType.STRING;
 
   public Column() {}
@@ -20,8 +22,10 @@ public class Column {
     this.pkey = column.isPrimaryKey();
     this.unique = column.isUnique();
     this.columnType = column.getColumnType();
-    this.refTableName = column.getRefTableName();
-    this.refColumnName = column.getRefColumnName();
+    this.refTable = column.getRefTableName();
+    this.refColumn = column.getRefColumnName();
+    this.mappedBy = column.getMappedBy();
+    this.validation = column.getValidation();
     this.nullable = column.isNullable();
   }
 
@@ -31,8 +35,10 @@ public class Column {
     c.pkey(pkey);
     c.setUnique(unique);
     c.nullable(nullable);
-    c.refTable(refTableName);
-    c.refColumn(refColumnName);
+    c.refTable(refTable);
+    c.refColumn(refColumn);
+    c.mappedBy(mappedBy);
+    c.validation(validation);
     return c;
   }
 
@@ -68,20 +74,20 @@ public class Column {
     this.nullable = nullable;
   }
 
-  public String getRefTableName() {
-    return refTableName;
+  public String getRefTable() {
+    return refTable;
   }
 
-  public void setRefTableName(String refTableName) {
-    this.refTableName = refTableName;
+  public void setRefTable(String refTable) {
+    this.refTable = refTable;
   }
 
-  public String getRefColumnName() {
-    return refColumnName;
+  public String getRefColumn() {
+    return refColumn;
   }
 
-  public void setRefColumnName(String refColumnName) {
-    this.refColumnName = refColumnName;
+  public void setRefColumn(String refColumn) {
+    this.refColumn = refColumn;
   }
 
   public ColumnType getColumnType() {
@@ -90,5 +96,21 @@ public class Column {
 
   public void setColumnType(ColumnType columnType) {
     this.columnType = columnType;
+  }
+
+  public String getValidation() {
+    return validation;
+  }
+
+  public void setValidation(String validation) {
+    this.validation = validation;
+  }
+
+  public String getMappedBy() {
+    return mappedBy;
+  }
+
+  public void setMappedBy(String mappedBy) {
+    this.mappedBy = mappedBy;
   }
 }

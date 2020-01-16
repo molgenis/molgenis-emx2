@@ -79,8 +79,8 @@ public class SqlTypeUtils extends TypeUtils {
     for (Column c : columns) {
       Object value = getTypedValue(row, c);
       // validation
-      if (value != null && c.getValidationScript() != null) {
-        String error = validateValue(c.getValidationScript(), value);
+      if (value != null && c.getValidation() != null) {
+        String error = validateValue(c.getValidation(), value);
         if (error != null)
           throw new MolgenisException(
               "Validation error on column '" + c.getName() + "'",
@@ -218,15 +218,6 @@ public class SqlTypeUtils extends TypeUtils {
 
   static String getPsqlType(Column column) {
     return getPsqlType(getPrimitiveColumnType(column));
-  }
-
-  static ColumnType getPrimitiveColumnType(Column column) {
-    if (REF.equals(column.getColumnType())) {
-      return column.getRefColumn().getColumnType();
-    } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
-      return getArrayType(column.getRefColumn().getColumnType());
-    }
-    return column.getColumnType();
   }
 
   static String getPsqlType(ColumnType type) {

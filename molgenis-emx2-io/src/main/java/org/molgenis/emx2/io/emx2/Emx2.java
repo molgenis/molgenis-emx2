@@ -192,7 +192,7 @@ public class Emx2 {
       column.nullable(true);
     }
     if (def.contains(Emx2PropertyList.VALIDATE)) {
-      column.validate(def.getParamterValue(Emx2PropertyList.VALIDATE));
+      column.validation(def.getParamterValue(Emx2PropertyList.VALIDATE));
     }
     table.alterColumn(column);
   }
@@ -285,8 +285,7 @@ public class Emx2 {
     if (Boolean.TRUE.equals(column.isReadonly())) def.add("readonly");
     if (Boolean.TRUE.equals(column.isPrimaryKey())) def.add("pkey");
     if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
-    if (column.getValidationScript() != null)
-      def.add(Emx2PropertyList.VALIDATE, column.getValidationScript());
+    if (column.getValidation() != null) def.add(Emx2PropertyList.VALIDATE, column.getValidation());
     if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
 
     rows.add(

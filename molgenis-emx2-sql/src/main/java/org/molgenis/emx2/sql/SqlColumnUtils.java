@@ -5,6 +5,7 @@ import org.jooq.DataType;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.utils.TypeUtils;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
@@ -70,7 +71,7 @@ public class SqlColumnUtils {
           asJooqTable(newColumn.getTable()),
           asJooqField(newColumn),
           keyword(getPsqlType(newColumn)),
-          keyword(getPsqlType(getNonArrayType(getPrimitiveColumnType(newColumn)))));
+          keyword(getPsqlType(getNonArrayType(TypeUtils.getPrimitiveColumnType(newColumn)))));
     } else {
       jooq.execute(
           "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING {1}::{2}",

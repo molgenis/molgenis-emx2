@@ -229,7 +229,7 @@ public class MetadataUtils {
             //            column.getReverseRefTableName(),
             //            column.getReverseRefColumn(),
             column.getMappedBy(),
-            column.getValidationScript(),
+            column.getValidation(),
             column.isIndexed())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -239,7 +239,7 @@ public class MetadataUtils {
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnName())
         .set(MAPPED_BY, column.getMappedBy())
-        .set(VALIDATION_SCRIPT, column.getValidationScript())
+        .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
         .execute();
   }
@@ -304,7 +304,7 @@ public class MetadataUtils {
       c.refTable(col.get(REF_TABLE, String.class));
       c.refColumn(col.get(REF_COLUMN, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));
-      c.validate(col.get(VALIDATION_SCRIPT, String.class));
+      c.validation(col.get(VALIDATION_SCRIPT, String.class));
       columnList.add(new Column(table, c));
     }
     return columnList;
