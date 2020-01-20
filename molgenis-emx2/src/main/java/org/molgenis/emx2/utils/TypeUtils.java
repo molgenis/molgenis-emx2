@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,6 +38,7 @@ public class TypeUtils {
   public static UUID[] toUuidArray(Object v) {
     if (v == null) return new UUID[0];
     if (v instanceof UUID[]) return (UUID[]) v;
+    if (v instanceof List) v = listToArray(v);
     if (v instanceof Object[]) {
       return Stream.of((Object[]) v).map(TypeUtils::toUuid).toArray(UUID[]::new);
     }
@@ -45,9 +47,10 @@ public class TypeUtils {
 
   public static String[] toStringArray(Object v) {
     if (v == null) return new String[0];
-    if (v instanceof String) v = splitCsvString((String) v);
     if (v instanceof String[]) return (String[]) v;
-    else if (v instanceof Object[])
+    if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
+    if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toString).toArray(String[]::new);
     return new String[] {v.toString()};
   }
@@ -70,6 +73,7 @@ public class TypeUtils {
     if (v == null) return new Integer[0];
     if (v instanceof Integer[]) return (Integer[]) v;
     if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
     if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toInt).toArray(Integer[]::new);
     return new Integer[] {toInt(v)};
@@ -87,6 +91,7 @@ public class TypeUtils {
     if (v == null) return new Boolean[0];
     if (v instanceof Boolean[]) return (Boolean[]) v;
     if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
     if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toBool).toArray(Boolean[]::new);
     return new Boolean[] {toBool(v)};
@@ -102,6 +107,7 @@ public class TypeUtils {
     if (v == null) return new Double[0];
     if (v instanceof Double[]) return (Double[]) v;
     if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
     if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toDecimal).toArray(Double[]::new);
     return new Double[] {toDecimal(v)};
@@ -119,6 +125,7 @@ public class TypeUtils {
     if (v == null) return new LocalDate[0];
     if (v instanceof LocalDate[]) return (LocalDate[]) v;
     if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
     if (v instanceof Object[])
       return Stream.of((Object[]) v).map(TypeUtils::toDate).toArray(LocalDate[]::new);
     return new LocalDate[] {toDate(v)};
@@ -142,6 +149,7 @@ public class TypeUtils {
     if (v == null) return new LocalDateTime[0];
     if (v instanceof LocalDateTime[]) return (LocalDateTime[]) v;
     if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
     if (v instanceof Object[]) {
       return Stream.of((Object[]) v).map(TypeUtils::toDateTime).toArray(LocalDateTime[]::new);
     }
@@ -257,5 +265,11 @@ public class TypeUtils {
       return getArrayType(column.getRefColumn().getColumnType());
     }
     return column.getColumnType();
+  }
+
+  private static Object[] listToArray(Object object) {
+    List<Object> items = (List<Object>) object;
+    Object[] result = new Object[items.size()];
+    return items.toArray(result);
   }
 }

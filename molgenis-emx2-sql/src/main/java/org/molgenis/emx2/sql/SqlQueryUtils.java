@@ -136,10 +136,24 @@ class SqlQueryUtils {
     // create local filters
     List<Condition> local = new ArrayList<>();
     for (String term : searchTerms) {
-      local.add(
-          condition(
-              "to_tsvector({0}) @@ to_tsquery('" + term.trim() + ":*')",
-              name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME)));
+      for (String subTerm : term.split(" ")) {
+        subTerm = subTerm.trim();
+        // short terms with 'like', longer with trigram
+        if (subTerm.length() <= 3)
+          local.add(
+              field(name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME))
+                  .likeIgnoreCase("%" + subTerm + "%"));
+        else {
+          local.add(
+              condition(
+                  "word_similarity({0},{1}) > 0.6",
+                  subTerm, field(name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME))));
+        }
+        //          condition(
+        //              "to_tsvector({0}) @@ to_tsquery('" + term.trim() + ":*')",
+        //              name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME)));
+        //    }
+      }
     }
     Condition searchCondition = and(local);
 

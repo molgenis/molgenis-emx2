@@ -269,6 +269,7 @@ class SqlColumnRefBackUtils {
             + "\n\t item {1};"
             + "\nBEGIN"
             + "\n\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
+            + "\n\tRETURN NEW;"
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(schemaName, deleteTrigger), // {0} function name

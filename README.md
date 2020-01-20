@@ -122,11 +122,12 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ## Todo and open issues
 
 ### first
+
+*  ensure columns are retrieved in same order as they were created
+*  add standard an lastUpdated column, as a system column
+*  implement order, default on lastUpdated
 *  set permission on Apps rows so default something is shown
-*  simplest UI for login
 *  simplest UI for upload
-*  simplest UI for navigator+explorer
-*  simplest UI for forms
 *  simplest UI for memberships
 *  bug, if I filter on refback column it fails, must now select reback.other column
 

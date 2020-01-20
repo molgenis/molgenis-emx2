@@ -3,13 +3,13 @@ package org.molgenis.emx2.web.graphql;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.web.Constants;
 import org.molgenis.emx2.web.JsonApi;
 import org.molgenis.emx2.web.MolgenisSession;
 import org.molgenis.emx2.web.MolgenisSessionManager;
@@ -25,8 +25,7 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.graphql.GraphqlDatabaseFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableMetadataFields.*;
-import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.deleteField;
-import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.saveField;
+import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableQueryFields.tableQueryField;
 import static org.molgenis.emx2.web.graphql.GraphqlLoginLogoutRegisterFields.*;
 
@@ -71,7 +70,7 @@ public class GraphqlApi {
     String schemaName = sanitize(request.params(SCHEMA));
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);
-    return executeQuery(graphqlForSchema, getQueryFromRequest(request));
+    return executeQuery(graphqlForSchema, request);
   }
 
   public static GraphQL createGraphqlForDatabase(Database database) {
@@ -107,7 +106,8 @@ public class GraphqlApi {
     mutationBuilder.field(registerField(schema.getDatabase()));
 
     // add query and mutation for each table
-    mutationBuilder.field(saveField(schema));
+    mutationBuilder.field(insertField(schema));
+    mutationBuilder.field(updateField(schema));
     mutationBuilder.field(deleteField(schema));
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
@@ -144,18 +144,32 @@ public class GraphqlApi {
     return result;
   }
 
-  private static String executeQuery(GraphQL g, Request request) throws IOException {
-    return executeQuery(g, getQueryFromRequest(request));
+  private static Map<String, Object> getVariablesFromRequest(Request request) throws IOException {
+    if ("POST".equals(request.requestMethod())) {
+      Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
+      return (Map<String, Object>) node.get("variables");
+    }
+    return null;
   }
 
-  private static String executeQuery(GraphQL g, String query) throws IOException {
+  private static String executeQuery(GraphQL g, Request request) throws IOException {
+
+    String query = getQueryFromRequest(request);
+    Map<String, Object> variables = getVariablesFromRequest(request);
+
     long start = System.currentTimeMillis();
 
     if (logger.isInfoEnabled())
       logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
-    ExecutionResult executionResult = g.execute(query);
+    ExecutionResult executionResult = null;
+    if (variables != null) {
+      executionResult = g.execute(ExecutionInput.newExecutionInput(query).variables(variables));
+    } else {
+      executionResult = g.execute(query);
+    }
+
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
         logger.error(err.getMessage());
