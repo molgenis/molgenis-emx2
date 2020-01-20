@@ -208,10 +208,10 @@ public class TestGraphqSchemaFields {
   public void saveAndDeleteRows() throws IOException {
     int count = execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue();
     // insert should increase count
-    execute("mutation{save(Tag:{name:\"blaat\"}){message}}");
+    execute("mutation{insert(Tag:{name:\"blaat\"}){message}}");
     assertEquals(count + 1, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
     // delete
-    execute("mutation{delete(Tag:{name:\"blaat\"}){message}}");
+    execute("mutation{delete(Tag:\"blaat\"){message}}");
     assertEquals(count, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
   }
 }
