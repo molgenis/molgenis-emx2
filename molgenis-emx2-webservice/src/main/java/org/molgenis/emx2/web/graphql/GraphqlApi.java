@@ -68,6 +68,11 @@ public class GraphqlApi {
       throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
+    // todo, really check permissions
+    if (getSchema(request) == null || getSchema(request).getTableNames().size() == 0) {
+      response.status(403);
+      return "{\"errors\":[{\"message\":\"Schema not found or permission denied.\"}]}";
+    }
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);
     return executeQuery(graphqlForSchema, request);
@@ -170,12 +175,16 @@ public class GraphqlApi {
       executionResult = g.execute(query);
     }
 
+    String result = convertExecutionResultToJson(executionResult);
+
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
         logger.error(err.getMessage());
       }
     }
-    String result = convertExecutionResultToJson(executionResult);
+    if (executionResult.getErrors().size() > 0) {
+      throw new MolgenisException("Error", executionResult.getErrors().get(0).getMessage());
+    }
 
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
