@@ -89,7 +89,9 @@ class SqlSchemaMetadataExecutor {
       String rolename) {
     try {
       // add user if not exists
-      db.addUser(m.getUser());
+      if (!db.hasUser(m.getUser())) {
+        db.addUser(m.getUser());
+      }
 
       // give god powers if 'owner'
       // todo would like not to have give god owners, instead use elevated privileges of some sort

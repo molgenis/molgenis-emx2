@@ -134,8 +134,17 @@ public class SqlDatabase implements Database {
   @Override
   public void addUser(String user) {
     long start = System.currentTimeMillis();
-    tx(d -> executeAddUser(getJooq(), user));
-    log(start, "created user" + user);
+    // need elevated privileges, so not as active user
+    String currentUser = getActiveUser();
+    try {
+      clearActiveUser();
+      tx(d -> executeAddUser(getJooq(), user));
+    } finally {
+      if (currentUser != null) {
+        setActiveUser(currentUser);
+      }
+    }
+    log(start, "created user " + user);
   }
 
   @Override

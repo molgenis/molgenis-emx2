@@ -34,6 +34,7 @@ class SqlDatabaseUtils {
       List<Record> result =
           jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
       if (result.isEmpty()) jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
+      else throw new MolgenisException("Add user failed", "User '" + user + "' already exists");
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add user failed", dae);
     }

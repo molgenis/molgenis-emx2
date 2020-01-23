@@ -34,7 +34,10 @@ public class TestGraphqlDatabaseFields {
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
+
+    int realLength = database.getSchemaNames().size();
     int length = execute("{Schemas{name}}").at("/data/Schemas").size();
+    assertEquals(realLength, length);
     execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
 
     assertEquals(length + 1, database.getSchemaNames().size());
@@ -49,28 +52,28 @@ public class TestGraphqlDatabaseFields {
     // todo: default user should be anonymous?
     assertNull(database.getActiveUser());
 
-    // login is admin, todo is to elevate privileges to enable registration
-    execute("mutation { login(username: \"admin\",password:\"admin\") {message}}");
+    // login is admin
+    execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
     assertEquals("admin", database.getActiveUser());
 
-    execute("mutation{register(username:\"pietje\",password:\"blaat123\"){message}}");
+    execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     Assert.assertTrue(database.hasUser("pietje"));
 
     assertTrue(
-        execute("mutation{login(username:\"pietje\",password:\"blaat12\"){message}}")
-            .at("/data/login/message")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
+            .at("/data/signin/message")
             .textValue()
             .contains("failed"));
     assertEquals("admin", database.getActiveUser());
 
     assertTrue(
-        execute("mutation{login(username:\"pietje\",password:\"blaat123\"){message}}")
-            .at("/data/login/message")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
+            .at("/data/signin/message")
             .textValue()
-            .contains("Logged in"));
+            .contains("Signed in"));
     assertEquals("pietje", database.getActiveUser());
 
-    execute("mutation{logout{message}}");
+    execute("mutation{signout{message}}");
     assertEquals("anonymous", database.getActiveUser());
 
     // back to superuser

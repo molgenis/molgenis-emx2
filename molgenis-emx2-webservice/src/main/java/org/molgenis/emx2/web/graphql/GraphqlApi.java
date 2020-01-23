@@ -27,7 +27,7 @@ import static org.molgenis.emx2.web.graphql.GraphqlDatabaseFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableMetadataFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableQueryFields.tableQueryField;
-import static org.molgenis.emx2.web.graphql.GraphqlLoginLogoutRegisterFields.*;
+import static org.molgenis.emx2.web.graphql.GraphqlAccountFields.*;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.*;
@@ -84,9 +84,9 @@ public class GraphqlApi {
 
     // add login
     queryBuilder.field(userQueryField(database));
-    mutationBuilder.field(loginField(database));
-    mutationBuilder.field(logoutField(database));
-    mutationBuilder.field(registerField(database));
+    mutationBuilder.field(signinField(database));
+    mutationBuilder.field(signoutField(database));
+    mutationBuilder.field(signupField(database));
 
     queryBuilder.field(querySchemasField(database));
     mutationBuilder.field(createSchemaField(database));
@@ -103,12 +103,6 @@ public class GraphqlApi {
     long start = System.currentTimeMillis();
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
-
-    // add login
-    queryBuilder.field(userQueryField(schema.getDatabase()));
-    mutationBuilder.field(loginField(schema.getDatabase()));
-    mutationBuilder.field(logoutField(schema.getDatabase()));
-    mutationBuilder.field(registerField(schema.getDatabase()));
 
     // add query and mutation for each table
     mutationBuilder.field(insertField(schema));

@@ -259,28 +259,29 @@ public class TestWebApi {
     String result =
         given()
             .body(
-                "{\"query\":\"mutation{login(username:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Logged in"));
+    assertTrue(result.contains("Signed in"));
 
     String schemaPath = "/api/graphql/pet store";
     result = given().body("{\"query\":\"{Pet{data{name}}}\"}").when().post(schemaPath).asString();
     assertTrue(result.contains("spike"));
 
-    result = given().body("{\"query\":\"mutation{logout{message}}\"}").when().post(path).asString();
-    assertTrue(result.contains("logged out"));
+    result =
+        given().body("{\"query\":\"mutation{signout{message}}\"}").when().post(path).asString();
+    assertTrue(result.contains("signed out"));
 
     // login again to make sure other tests work
     result =
         given()
             .body(
-                "{\"query\":\"mutation{login(username:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Logged in"));
+    assertTrue(result.contains("Signed in"));
   }
 
   @Test
