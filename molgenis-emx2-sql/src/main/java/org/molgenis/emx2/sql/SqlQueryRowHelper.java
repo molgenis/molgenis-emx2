@@ -26,40 +26,50 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 class SqlQueryRowHelper {
   private static Logger logger = LoggerFactory.getLogger(SqlQueryRowHelper.class);
 
+  private SqlQueryRowHelper() {
+    // hide constructor
+  }
+
   static List<Row> getRows(
       SqlTableMetadata table, SelectColumn select, Filter filter, String[] searchTerms) {
 
-    // create select
-    String tableAlias = table.getTableName();
-    if (select == null || select.getColumNames().isEmpty()) {
-      select = new SelectColumn(table.getTableName(), table.getColumnNames());
+    SelectJoinStep fromStep = null;
+    try {
+      // create select
+      String tableAlias = table.getTableName();
+      if (select == null || select.getColumNames().isEmpty()) {
+        select = new SelectColumn(table.getTableName(), table.getColumnNames());
+      }
+      SelectSelectStep selectStep =
+          table.getJooq().select(createSelectFields(table, tableAlias, select));
+
+      // create from
+      fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
+
+      // create joins
+      fromStep = createJoins(fromStep, table, tableAlias, select, filter);
+
+      // create filters,
+      Condition conditions = createWheres(table, tableAlias, filter);
+
+      // create search
+      conditions =
+          mergeConditions(
+              conditions, createSearchCondition(table, tableAlias, select, searchTerms));
+
+      if (conditions != null) {
+        fromStep = (SelectJoinStep) fromStep.where(conditions);
+      }
+      if (select.getLimit() > 0) {
+        fromStep = (SelectJoinStep) fromStep.limit(select.getLimit());
+      }
+      if (select.getOffset() > 0) {
+        fromStep = (SelectJoinStep) fromStep.offset(select.getOffset());
+      }
+      return executeQuery(fromStep);
+    } finally {
+      if (fromStep != null) fromStep.close();
     }
-    SelectSelectStep selectStep =
-        table.getJooq().select(createSelectFields(table, tableAlias, select));
-
-    // create from
-    SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias)); // nosonar
-
-    // create joins
-    SelectJoinStep joinStep = createJoins(fromStep, table, tableAlias, select, filter); // nosonar
-
-    // create filters,
-    Condition conditions = createWheres(table, tableAlias, filter);
-
-    // create search
-    conditions =
-        mergeConditions(conditions, createSearchCondition(table, tableAlias, select, searchTerms));
-
-    if (conditions != null) {
-      joinStep = (SelectJoinStep) joinStep.where(conditions);
-    }
-    if (select.getLimit() > 0) {
-      joinStep = (SelectJoinStep) joinStep.limit(select.getLimit());
-    }
-    if (select.getOffset() > 0) {
-      joinStep = (SelectJoinStep) joinStep.offset(select.getOffset());
-    }
-    return executeQuery(joinStep);
   }
 
   private static List<Field> createSelectFields(
@@ -128,24 +138,20 @@ class SqlQueryRowHelper {
       if (filter != null && filter.has(column.getName())) {
         ColumnType type = column.getColumnType();
 
-        if (REF.equals(type)
-            || REF_ARRAY.equals(type)
-            || MREF.equals(type)
-            || REFBACK.equals(type)) {
-
-          if (filter.has(column.getName())
-              && !filter.getFilter(column.getName()).getSubfilters().isEmpty()) {
-            // filters are on columns of the ref
-            condition =
-                mergeConditions(
-                    condition,
-                    createWheres(
-                        column.getRefTable(),
-                        tableAlias + "/" + column.getName(),
-                        getFilterForRef(filter, column)));
-          } else {
-
-          }
+        if ((REF.equals(type)
+                || REF_ARRAY.equals(type)
+                || MREF.equals(type)
+                || REFBACK.equals(type))
+            && filter.has(column.getName())
+            && !filter.getFilter(column.getName()).getSubfilters().isEmpty()) {
+          // filters are on columns of the ref
+          condition =
+              mergeConditions(
+                  condition,
+                  createWheres(
+                      column.getRefTable(),
+                      tableAlias + "/" + column.getName(),
+                      getFilterForRef(filter, column)));
         }
       }
     }
