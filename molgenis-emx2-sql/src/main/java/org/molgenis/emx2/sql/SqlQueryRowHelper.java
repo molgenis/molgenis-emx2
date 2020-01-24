@@ -33,9 +33,6 @@ class SqlQueryRowHelper {
   static List<Row> getRows(
       SqlTableMetadata table, SelectColumn select, Filter filter, String[] searchTerms) {
 
-    SelectJoinStep fromStep = null;
-    try {
-      // create select
       String tableAlias = table.getTableName();
       if (select == null || select.getColumNames().isEmpty()) {
         select = new SelectColumn(table.getTableName(), table.getColumnNames());
@@ -44,7 +41,7 @@ class SqlQueryRowHelper {
           table.getJooq().select(createSelectFields(table, tableAlias, select));
 
       // create from
-      fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
+      SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
 
       // create joins
       fromStep = createJoins(fromStep, table, tableAlias, select, filter);
@@ -66,10 +63,7 @@ class SqlQueryRowHelper {
       if (select.getOffset() > 0) {
         fromStep = (SelectJoinStep) fromStep.offset(select.getOffset());
       }
-      return executeQuery(fromStep);
-    } finally {
-      fromStep.close();
-    }
+      return executeQuery(fromStep)
   }
 
   private static List<Field> createSelectFields(
