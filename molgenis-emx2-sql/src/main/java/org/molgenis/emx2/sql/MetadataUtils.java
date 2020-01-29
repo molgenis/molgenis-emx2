@@ -212,6 +212,10 @@ public class MetadataUtils {
   }
 
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
+    String refColumn = column.getRefColumnName();
+    if (column.getRefTable() != null && column.getRefTable().getPrimaryKey().equals(refColumn)) {
+      refColumn = null;
+    }
     jooq.insertInto(COLUMN_METADATA)
         .columns(
             TABLE_SCHEMA,
@@ -234,7 +238,7 @@ public class MetadataUtils {
             column.isNullable(),
             column.isPrimaryKey(),
             column.getRefTableName(),
-            column.getRefColumnName(),
+            refColumn,
             column.getMappedBy(),
             column.getValidation(),
             column.isIndexed(),
@@ -245,7 +249,7 @@ public class MetadataUtils {
         .set(NULLABLE, column.isNullable())
         .set(PKEY, column.isPrimaryKey())
         .set(REF_TABLE, column.getRefTableName())
-        .set(REF_COLUMN, column.getRefColumnName())
+        .set(REF_COLUMN, refColumn)
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
