@@ -31,12 +31,8 @@ public class RefAndRefArrayTestExample {
 
       schema.create(
           table(bTableName)
-              .addColumn(column(refFromBToA).type(REF).refTable(aTableName).refColumn(fieldName))
-              .addColumn(
-                  column(refArrayFromBToA)
-                      .type(REF_ARRAY)
-                      .refTable(aTableName)
-                      .refColumn(fieldName)));
+              .addColumn(column(refFromBToA).type(REF).refTable(aTableName))
+              .addColumn(column(refArrayFromBToA).type(REF_ARRAY).refTable(aTableName)));
     }
   }
 }

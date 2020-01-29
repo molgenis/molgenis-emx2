@@ -37,13 +37,13 @@ public class ProductComponentPartsExample {
     schema.create(
         table(COMPONENT)
             .addColumn(column(NAME))
-            .addColumn(column(PARTS).type(REF_ARRAY).refTable(PART).refColumn(NAME))
+            .addColumn(column(PARTS).type(REF_ARRAY).refTable(PART))
             .setPrimaryKey(NAME));
 
     schema.create(
         table(PRODUCT)
             .addColumn(column(NAME))
-            .addColumn(column(COMPONENTS).type(REF_ARRAY).refTable(COMPONENT).refColumn(NAME))
+            .addColumn(column(COMPONENTS).type(REF_ARRAY).refTable(COMPONENT))
             .setPrimaryKey(NAME));
   }
 
