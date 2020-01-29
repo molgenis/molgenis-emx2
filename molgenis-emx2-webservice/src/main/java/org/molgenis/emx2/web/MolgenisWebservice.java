@@ -8,6 +8,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.graphql.GraphqlApi;
+import org.molgenis.emx2.web.graphql.GraphqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -77,7 +78,15 @@ public class MolgenisWebservice {
     exception(
         MolgenisException.class,
         (e, req, res) -> {
-          logger.debug(e.toString());
+          logger.error(e.getMessage());
+          res.status(400);
+          res.type(ACCEPT_JSON);
+          res.body(molgenisExceptionToJson(e));
+        });
+    exception(
+        GraphqlException.class,
+        (e, req, res) -> {
+          logger.error(e.getMessage());
           res.status(400);
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));

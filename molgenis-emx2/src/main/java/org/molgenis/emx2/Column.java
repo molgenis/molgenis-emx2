@@ -33,18 +33,19 @@ public class Column {
   }
 
   private void copy(Column column) {
-    columnName = column.getName();
-    columnType = column.getColumnType();
-    nullable = column.isNullable();
-    readonly = column.isReadonly();
-    description = column.getDescription();
-    defaultValue = column.getDefaultValue();
-    indexed = column.isIndexed();
-    refTable = column.getRefTableName();
-    refColumn = column.getRefColumnName();
-    isPrimaryKey = column.isPrimaryKey();
-    mappedBy = column.getMappedBy();
-    validationScript = column.getValidation();
+    columnName = column.columnName;
+    columnType = column.columnType;
+    nullable = column.nullable;
+    readonly = column.readonly;
+    description = column.description;
+    defaultValue = column.defaultValue;
+    indexed = column.indexed;
+    refTable = column.refTable;
+    refColumn = column.refColumn;
+    isPrimaryKey = column.isPrimaryKey;
+    mappedBy = column.mappedBy;
+    validationScript = column.validationScript;
+    description = column.description;
   }
 
   public static Column column(String name) {
@@ -167,8 +168,9 @@ public class Column {
     return description;
   }
 
-  public void setDescription(String description) {
+  public Column setDescription(String description) {
     this.description = description;
+    return this;
   }
 
   public String getDefaultValue() {

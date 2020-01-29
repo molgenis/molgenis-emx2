@@ -35,18 +35,19 @@ public class PetStoreExample {
 
     schema.create(
         table(PET)
-            .addColumn(column(NAME))
+            .addColumn(column(NAME).setDescription("the name"))
             .addColumn(column(CATEGORY_COLUMN).type(REF).refTable(CATEGORY))
             .addColumn(column("photoUrls").type(STRING_ARRAY).nullable(true))
             .addColumn(column(STATUS)) // todo enum: available, pending, sold
             .addColumn(column("tags").type(REF_ARRAY).refTable(TAG).nullable(true))
             .addColumn(column(WEIGHT).type(DECIMAL))
-            .setPrimaryKey(NAME));
+            .setPrimaryKey(NAME)
+            .setDescription("My pet store example table"));
 
     schema.create(
         table(ORDER)
             .addColumn(column(ORDER_ID))
-            .addColumn(column("pet").type(REF).refTable(PET).refColumn(NAME).nullable(true))
+            .addColumn(column("pet").type(REF).refTable(PET).nullable(true))
             .addColumn(
                 column(QUANTITY)
                     .type(INT)

@@ -80,6 +80,7 @@ public class TypeUtils {
   }
 
   public static Boolean toBool(Object v) {
+    if (v == null) return null;
     if (v instanceof String) {
       if ("true".equalsIgnoreCase((String) v)) return true;
       if ("false".equalsIgnoreCase((String) v)) return false;
@@ -260,9 +261,13 @@ public class TypeUtils {
 
   public static ColumnType getPrimitiveColumnType(Column column) {
     if (REF.equals(column.getColumnType())) {
-      return column.getRefColumn().getColumnType();
+      return getPrimitiveColumnType(column.getRefColumn());
     } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
-      return getArrayType(column.getRefColumn().getColumnType());
+      ColumnType type = column.getRefColumn().getColumnType();
+      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+        type = getPrimitiveColumnType(column.getRefColumn());
+      }
+      return getArrayType(type);
     }
     return column.getColumnType();
   }

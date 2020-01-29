@@ -108,6 +108,10 @@ public class GraphqlApi {
     mutationBuilder.field(insertField(schema));
     mutationBuilder.field(updateField(schema));
     mutationBuilder.field(deleteField(schema));
+    mutationBuilder.field(addColumnField(schema));
+    mutationBuilder.field(alterColumnField(schema));
+    mutationBuilder.field(dropColumnField(schema));
+
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       queryBuilder.field(tableQueryField(table));

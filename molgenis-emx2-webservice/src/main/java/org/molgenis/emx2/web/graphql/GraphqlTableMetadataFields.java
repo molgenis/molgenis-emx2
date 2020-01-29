@@ -3,6 +3,7 @@ package org.molgenis.emx2.web.graphql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
@@ -18,18 +19,85 @@ import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.JsonApi.*;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.web.JsonApi.jsonToSchema;
-import static org.molgenis.emx2.web.JsonApi.schemaToJson;
 
 public class GraphqlTableMetadataFields {
   public static final String REF_TABLE_NAME = "refTable";
   public static final String REF_COLUMN_NAME = "refColumn";
   public static final String MAPPED_BY = "mappedBy";
+  public static final String TABLE = "table";
+  public static final String COLUMN = "column";
+  public static final String DESCRIPTION = "description";
 
   private GraphqlTableMetadataFields() {
     // hide constructor
+  }
+
+  public static GraphQLFieldDefinition addColumnField(Schema schema) {
+    return newFieldDefinition()
+        .name("addColumn")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(TABLE).type(Scalars.GraphQLString))
+        .argument(newArgument().name(COLUMN).type(inputColumnMetadataType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              schema
+                  .getMetadata()
+                  .getTableMetadata(dataFetchingEnvironment.getArgument(TABLE))
+                  .addColumn(getColumnFromEnvironment(dataFetchingEnvironment));
+              return new GraphqlApiMutationResult(SUCCESS, "Column created");
+            })
+        .build();
+  }
+
+  private static Column getColumnFromEnvironment(DataFetchingEnvironment dataFetchingEnvironment) {
+    try {
+      Object columnObject = dataFetchingEnvironment.getArgument(COLUMN);
+      Column column = null;
+      if (columnObject != null) {
+        String json = JsonApi.getWriter().writeValueAsString(columnObject);
+        column = jsonToColumn(json);
+      }
+      return column;
+    } catch (Exception e) {
+      throw new GraphqlException("Column parsing failed", e);
+    }
+  }
+
+  public static GraphQLFieldDefinition alterColumnField(Schema schema) {
+    return newFieldDefinition()
+        .name("alterColumn")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(TABLE).type(Scalars.GraphQLString))
+        .argument(newArgument().name(COLUMN).type(inputColumnMetadataType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              schema
+                  .getMetadata()
+                  .getTableMetadata(dataFetchingEnvironment.getArgument(TABLE))
+                  .alterColumn(getColumnFromEnvironment(dataFetchingEnvironment));
+              return new GraphqlApiMutationResult(SUCCESS, "Column created");
+            })
+        .build();
+  }
+
+  public static GraphQLFieldDefinition dropColumnField(Schema schema) {
+    return newFieldDefinition()
+        .name("dropColumn")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(TABLE).type(Scalars.GraphQLString))
+        .argument(newArgument().name(COLUMN).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              schema
+                  .getMetadata()
+                  .getTableMetadata(dataFetchingEnvironment.getArgument(TABLE))
+                  .dropColumn(dataFetchingEnvironment.getArgument(COLUMN));
+              return new GraphqlApiMutationResult(SUCCESS, "Column dropped");
+            })
+        .build();
   }
 
   public static GraphQLFieldDefinition.Builder metaField(Schema schema) {
@@ -66,23 +134,26 @@ public class GraphqlTableMetadataFields {
           .field(newInputObjectField().name("role").type(Scalars.GraphQLString))
           .build();
 
+  public static final String PKEY = "pkey";
   private static GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisColumnInput")
           .field(newInputObjectField().name(NAME).type(Scalars.GraphQLString))
           .field(newInputObjectField().name("columnType").type(Scalars.GraphQLString))
-          .field(newInputObjectField().name("pkey").type(Scalars.GraphQLBoolean))
+          .field(newInputObjectField().name(PKEY).type(Scalars.GraphQLBoolean))
           .field(newInputObjectField().name("nullable").type(Scalars.GraphQLBoolean))
           .field(newInputObjectField().name(REF_TABLE_NAME).type(Scalars.GraphQLString))
           .field(newInputObjectField().name(REF_COLUMN_NAME).type(Scalars.GraphQLString))
           .field(newInputObjectField().name(MAPPED_BY).type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(DESCRIPTION).type(Scalars.GraphQLString))
           .build();
 
   private static GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisTableInput")
           .field(newInputObjectField().name(NAME).type(Scalars.GraphQLString))
-          .field(newInputObjectField().name("pkey").type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(PKEY).type(Scalars.GraphQLString))
+          .field(newInputObjectField().name(DESCRIPTION).type(Scalars.GraphQLString))
           .field(
               newInputObjectField()
                   .name("unique")
@@ -110,19 +181,21 @@ public class GraphqlTableMetadataFields {
           .name("MolgenisColumnType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("columnType").type(Scalars.GraphQLString))
-          .field(newFieldDefinition().name("pkey").type(Scalars.GraphQLBoolean))
+          .field(newFieldDefinition().name(PKEY).type(Scalars.GraphQLBoolean))
           .field(newFieldDefinition().name("nullable").type(Scalars.GraphQLBoolean))
           .field(newFieldDefinition().name(REF_TABLE_NAME).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name(REF_COLUMN_NAME).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name(MAPPED_BY).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("validation").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name("description").type(Scalars.GraphQLString))
           .build();
 
   private static final GraphQLObjectType outputTableMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisTableType")
           .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
-          .field(newFieldDefinition().name("pkey").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(PKEY).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(DESCRIPTION).type(Scalars.GraphQLString))
           .field(
               newFieldDefinition()
                   .name("unique")

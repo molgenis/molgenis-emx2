@@ -41,6 +41,7 @@ public class SchemaMetadata {
               + "'");
     this.tableCache.put(table.getTableName(), table);
     this.tableNames.add(table.getTableName());
+    table.setSchema(this);
     return table;
   }
 

@@ -110,7 +110,7 @@ public class SqlColumnUtils {
       for (Column check : oldColumn.getRefTable().getColumns()) {
         if (REFBACK.equals(check.getColumnType())
             && oldColumn.getName().equals(check.getMappedBy())) {
-          check.getTable().removeColumn(check.getName());
+          check.getTable().dropColumn(check.getName());
           check.getTable().addColumn(check);
         }
       }
@@ -124,7 +124,7 @@ public class SqlColumnUtils {
       for (Column check : oldColumn.getRefTable().getColumns()) {
         if (REFBACK.equals(check.getColumnType())
             && oldColumn.getName().equals(check.getMappedBy())) {
-          check.getTable().removeColumn(check.getName());
+          check.getTable().dropColumn(check.getName());
         }
       }
     }

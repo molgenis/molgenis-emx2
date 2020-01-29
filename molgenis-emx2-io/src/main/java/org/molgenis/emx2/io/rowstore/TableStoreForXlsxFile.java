@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.*;
 
+import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
@@ -102,7 +103,7 @@ public class TableStoreForXlsxFile implements TableStore {
           if (columnNames == null) {
             columnNames = new LinkedHashMap<>();
             for (Cell cell : excelRow) {
-              if (!CellType.BLANK.equals(cell.getCellType())) {
+              if (!BLANK.equals(cell.getCellType())) {
                 columnNames.put(cell.getColumnIndex(), cell.getStringCellValue());
               }
             }
@@ -110,7 +111,10 @@ public class TableStoreForXlsxFile implements TableStore {
           // otherwise it is a normal row to be added to result
           else {
             Row row = convertRow(sheetName, columnNames, excelRow);
-            result.add(row);
+            // ignore empty lines
+            if (row.getValueMap().size() > 0) {
+              result.add(row);
+            }
           }
         }
         this.cache.put(sheetName, result);
@@ -141,13 +145,15 @@ public class TableStoreForXlsxFile implements TableStore {
     Row row = new Row();
     for (Cell cell : excelRow) {
       String colName = columnNames.get(cell.getColumnIndex());
-      if (colName == null)
+      if (colName == null && !BLANK.equals(cell.getCellType())) {
         throw new IOException(
             "Read of "
                 + name
                 + " failed: column index "
                 + cell.getColumnIndex()
-                + " has no column name");
+                + " has no column name and contains value "
+                + cell.getStringCellValue());
+      }
 
       switch (cell.getCellType()) {
         case STRING:

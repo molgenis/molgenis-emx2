@@ -63,9 +63,6 @@ public class Emx1Import {
           || attribute.getDataType().contains("categorical")
           || attribute.getDataType().contains("onetomany")) {
 
-        TableMetadata table =
-            schema.getTableMetadata(entities.get(attribute.getEntity()).getName());
-
         if (attribute.getRefEntity() == null) {
           throw new MolgenisException(
               EMX_1_IMPORT_FAILED,
@@ -76,10 +73,15 @@ public class Emx1Import {
                   + "' failed. RefEntity was missing");
         }
 
-        Column c =
-            table
-                .getColumn(attribute.getName())
-                .refTable(entities.get(attribute.getRefEntity()).getName());
+        TableMetadata table =
+            schema.getTableMetadata(entities.get(attribute.getEntity()).getName());
+
+        String refTableName =
+            entities.get(attribute.getRefEntity()) != null
+                ? entities.get(attribute.getRefEntity()).getName()
+                : attribute.getRefEntity();
+
+        Column c = table.getColumn(attribute.getName()).refTable(refTableName);
         table.alterColumn(c);
         if (attribute.getMappedBy() != null) {
           c.mappedBy(attribute.getMappedBy());
@@ -122,7 +124,9 @@ public class Emx1Import {
       for (Emx1Attribute attribute : attributes) {
 
         // create the table, if needed
-        String tableName = entities.get(attribute.getEntity()).getName();
+        String entityName = attribute.getEntity();
+        String tableName =
+            entities.get(entityName) != null ? entities.get(entityName).getName() : entityName;
         TableMetadata table = schema.getTableMetadata(tableName);
         if (table == null) {
           table = schema.create(table(tableName));

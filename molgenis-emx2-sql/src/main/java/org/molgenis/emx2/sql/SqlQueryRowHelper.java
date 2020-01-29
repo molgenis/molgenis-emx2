@@ -33,37 +33,36 @@ class SqlQueryRowHelper {
   static List<Row> getRows(
       SqlTableMetadata table, SelectColumn select, Filter filter, String[] searchTerms) {
 
-      String tableAlias = table.getTableName();
-      if (select == null || select.getColumNames().isEmpty()) {
-        select = new SelectColumn(table.getTableName(), table.getColumnNames());
-      }
-      SelectSelectStep selectStep =
-          table.getJooq().select(createSelectFields(table, tableAlias, select));
+    String tableAlias = table.getTableName();
+    if (select == null || select.getColumNames().isEmpty()) {
+      select = new SelectColumn(table.getTableName(), table.getColumnNames());
+    }
+    SelectSelectStep selectStep =
+        table.getJooq().select(createSelectFields(table, tableAlias, select));
 
-      // create from
-      SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
+    // create from
+    SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
 
-      // create joins
-      fromStep = createJoins(fromStep, table, tableAlias, select, filter);
+    // create joins
+    fromStep = createJoins(fromStep, table, tableAlias, select, filter);
 
-      // create filters,
-      Condition conditions = createWheres(table, tableAlias, filter);
+    // create filters,
+    Condition conditions = createWheres(table, tableAlias, filter);
 
-      // create search
-      conditions =
-          mergeConditions(
-              conditions, createSearchCondition(table, tableAlias, select, searchTerms));
+    // create search
+    conditions =
+        mergeConditions(conditions, createSearchCondition(table, tableAlias, select, searchTerms));
 
-      if (conditions != null) {
-        fromStep = (SelectJoinStep) fromStep.where(conditions);
-      }
-      if (select.getLimit() > 0) {
-        fromStep = (SelectJoinStep) fromStep.limit(select.getLimit());
-      }
-      if (select.getOffset() > 0) {
-        fromStep = (SelectJoinStep) fromStep.offset(select.getOffset());
-      }
-      return executeQuery(fromStep)
+    if (conditions != null) {
+      fromStep = (SelectJoinStep) fromStep.where(conditions);
+    }
+    if (select.getLimit() > 0) {
+      fromStep = (SelectJoinStep) fromStep.limit(select.getLimit());
+    }
+    if (select.getOffset() > 0) {
+      fromStep = (SelectJoinStep) fromStep.offset(select.getOffset());
+    }
+    return executeQuery(fromStep);
   }
 
   private static List<Field> createSelectFields(
@@ -73,7 +72,6 @@ class SqlQueryRowHelper {
     validateSelect(select, table);
 
     for (Column column : table.getColumns()) {
-
       // if selected, we ignore aggregation here
       if (select != null && select.has(column.getName())) {
         // strip before first /

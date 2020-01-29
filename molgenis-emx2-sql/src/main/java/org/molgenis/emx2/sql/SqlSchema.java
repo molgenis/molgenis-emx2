@@ -160,7 +160,7 @@ public class SqlSchema implements Schema {
                 // or column names
                 for (String discardColumn : discardTable.getLocalColumnNames()) {
                   Column existingColumn = existingTable.getColumn(discardColumn);
-                  existingTable.removeColumn(discardColumn);
+                  existingTable.dropColumn(discardColumn);
                   MetadataUtils.deleteColumn(getMetadata().getJooq(), existingColumn);
                 }
               }

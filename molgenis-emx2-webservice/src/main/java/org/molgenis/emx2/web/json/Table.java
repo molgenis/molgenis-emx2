@@ -8,6 +8,8 @@ import java.util.Collection;
 public class Table {
   private String name;
   private String pkey;
+  private String inherit;
+  private String description;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
 
@@ -16,6 +18,8 @@ public class Table {
   public Table(TableMetadata tableMetadata) {
     this.name = tableMetadata.getTableName();
     this.pkey = tableMetadata.getPrimaryKey();
+    this.inherit = tableMetadata.getInherit();
+    this.description = tableMetadata.getDescription();
     for (String[] u : tableMetadata.getUniques()) {
       if (u.length > 1) {
         this.unique.add(u);
@@ -57,5 +61,21 @@ public class Table {
 
   public void setPkey(String pkey) {
     this.pkey = pkey;
+  }
+
+  public String getInherit() {
+    return inherit;
+  }
+
+  public void setInherit(String inherit) {
+    this.inherit = inherit;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

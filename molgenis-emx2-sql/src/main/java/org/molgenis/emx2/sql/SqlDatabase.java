@@ -55,7 +55,7 @@ public class SqlDatabase implements Database {
 
     // setup default stuff
     this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-    this.jooq.execute("CREATE EXTENSION IF NOT EXISTS  pgcrypto;"); // for password hashing
+    this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
     if (!hasUser("anonymous")) {
       this.addUser("anonymous");
     }

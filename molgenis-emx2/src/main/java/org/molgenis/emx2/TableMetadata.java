@@ -6,9 +6,10 @@ public class TableMetadata {
 
   private SchemaMetadata schema;
   private String tableName;
+  protected String inherit = null;
+  protected String description = null;
   protected Map<String, Column> columns = new LinkedHashMap<>();
   private List<String[]> uniques = new ArrayList<>();
-  protected String inherit = null;
 
   public static TableMetadata table(String tableName) {
     return new TableMetadata(tableName);
@@ -143,7 +144,7 @@ public class TableMetadata {
     return this;
   }
 
-  public void removeColumn(String name) {
+  public void dropColumn(String name) {
     if (name.equals(getPrimaryKey()))
       throw new MolgenisException("Remove column failed", "Column is primary key");
     if (columns.get(name) == null)
@@ -204,6 +205,15 @@ public class TableMetadata {
     return null;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public TableMetadata setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
   public void enableRowLevelSecurity() {
     throw new UnsupportedOperationException();
     // todo decide if RLS is default on
@@ -252,5 +262,9 @@ public class TableMetadata {
   public TableMetadata removeInherit() {
     this.inherit = null;
     return this;
+  }
+
+  public void setSchema(SchemaMetadata schemaMetadata) {
+    this.schema = schemaMetadata;
   }
 }

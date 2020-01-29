@@ -13,6 +13,7 @@ public class Column {
   private String refColumn = null;
   private String mappedBy = null;
   private String validation = null;
+  private String description = null;
   private ColumnType columnType = ColumnType.STRING;
 
   public Column() {}
@@ -27,18 +28,20 @@ public class Column {
     this.mappedBy = column.getMappedBy();
     this.validation = column.getValidation();
     this.nullable = column.isNullable();
+    this.description = column.getDescription();
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.type(columnType);
     c.pkey(pkey);
-    c.setUnique(unique);
+    if (tm != null) c.setUnique(unique);
     c.nullable(nullable);
     c.refTable(refTable);
     c.refColumn(refColumn);
     c.mappedBy(mappedBy);
     c.validation(validation);
+    c.setDescription(description);
     return c;
   }
 
@@ -112,5 +115,13 @@ public class Column {
 
   public void setMappedBy(String mappedBy) {
     this.mappedBy = mappedBy;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

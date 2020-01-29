@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
@@ -13,6 +14,8 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import java.io.IOException;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.web.graphql.GraphqlApi.convertExecutionResultToJson;
 
 public class TestGraphqSchemaFields {
@@ -199,9 +202,8 @@ public class TestGraphqSchemaFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    return new ObjectMapper()
-        .readTree(convertExecutionResultToJson(grapql.execute(query)))
-        .get("data");
+    String result = convertExecutionResultToJson(grapql.execute(query));
+    return new ObjectMapper().readTree(result).get("data");
   }
 
   @Test
@@ -213,5 +215,25 @@ public class TestGraphqSchemaFields {
     // delete
     execute("mutation{delete(Tag:\"blaat\"){message}}");
     assertEquals(count, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
+  }
+
+  @Test
+  public void testAddAlterDropColumn() throws IOException {
+    execute("mutation{addColumn(table:\"Pet\", column:{name:\"test\", nullable:true}){message}}");
+    assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+
+    execute(
+        "mutation{alterColumn(table:\"Pet\", column:{name:\"test\", nullable:true, columnType:\"INT\"}){message}}");
+    assertEquals(
+        ColumnType.INT,
+        database
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test")
+            .getColumnType());
+
+    execute("mutation{dropColumn(table:\"Pet\", column:\"test\"){message}}");
+    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
   }
 }

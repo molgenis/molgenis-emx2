@@ -68,10 +68,11 @@ public class Emx2 {
 
       String tableName = row.getTable().trim();
       String columnName = row.getColumn().trim();
+      String description = row.getDescription().trim();
 
       if (!"".equals(tableName) && "".equals(columnName.trim())) {
-
         TableMetadata table = model.getTableMetadata(tableName);
+        table.setDescription(description);
         extractTableDefinition(line, row, table, messages);
       }
     }
@@ -194,6 +195,9 @@ public class Emx2 {
     if (def.contains(Emx2PropertyList.VALIDATE)) {
       column.validation(def.getParamterValue(Emx2PropertyList.VALIDATE));
     }
+    if (row.getDescription() != null && row.getDescription() != "") {
+      column.setDescription(row.getDescription());
+    }
     table.alterColumn(column);
   }
 
@@ -242,8 +246,8 @@ public class Emx2 {
       if (u.length > 1) def.add(Emx2PropertyList.UNIQUE, u);
     }
     // write table definition row, but only if not empty
-    if (!def.getTerms().isEmpty())
-      rows.add(new Emx2FileRow(table.getTableName(), "", def.toString()));
+    if (!def.getTerms().isEmpty() || table.getDescription() != null)
+      rows.add(new Emx2FileRow(table.getTableName(), "", def.toString(), table.getDescription()));
   }
 
   private static void writeColumnDefinitionRow(Column column, List<Emx2FileRow> rows) {
@@ -255,7 +259,8 @@ public class Emx2 {
         break;
       case REF:
       case REF_ARRAY:
-        if (column.getRefColumnName() != null) {
+        if (column.getRefColumnName() != null
+            && !column.getRefColumnName().equals(column.getRefTable().getPrimaryKey())) {
           def.add(
               column.getColumnType().toString().toLowerCase(),
               column.getRefTableName(),
@@ -265,7 +270,8 @@ public class Emx2 {
         }
         break;
       case REFBACK:
-        if (column.getRefColumnName() != null) {
+        if (column.getRefColumnName() != null
+            && !column.getRefColumnName().equals(column.getRefTable().getPrimaryKey())) {
           def.add(
               column.getColumnType().toString().toLowerCase(),
               column.getRefTableName(),

@@ -149,12 +149,12 @@ public class TestBatchRequestsForSpeed {
     assertEquals(0, personTable.getMetadata().getUniques().size());
     assertEquals(4, personTable.getMetadata().getColumns().size());
     try {
-      personTable.getMetadata().removeColumn("ID");
+      personTable.getMetadata().dropColumn("ID");
       fail("you shouldn't be allowed to remove primary key column");
     } catch (Exception e) {
       // good stuff
     }
-    personTable.getMetadata().removeColumn("Father");
+    personTable.getMetadata().dropColumn("Father");
     assertEquals(3, personTable.getMetadata().getColumns().size());
 
     // drop a fromTable

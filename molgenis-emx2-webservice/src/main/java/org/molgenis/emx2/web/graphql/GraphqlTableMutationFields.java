@@ -68,7 +68,7 @@ class GraphqlTableMutationFields {
       fieldBuilder.argument(
           GraphQLArgument.newArgument()
               .name(tableName)
-              .type(GraphQLList.list(getGraphQLInputType(pkey.getColumnType()))));
+              .type(GraphQLList.list(getGraphQLInputType(getPrimitiveColumnType(pkey)))));
     }
     return fieldBuilder.build();
   }

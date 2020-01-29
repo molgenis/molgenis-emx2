@@ -31,8 +31,12 @@ public class MetadataUtils {
       field(name("table_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
+  private static final org.jooq.Field TABLE_DESCRIPTION =
+      field(name("table_description"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
+  private static final org.jooq.Field COLUMN_DESCRIPTION =
+      field(name("column_description"), VARCHAR.nullable(true));
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
@@ -69,7 +73,7 @@ public class MetadataUtils {
       // public access
 
       jooq.createTableIfNotExists(TABLE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS)
+          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME),
               foreignKey(TABLE_SCHEMA)
@@ -88,11 +92,10 @@ public class MetadataUtils {
               PKEY,
               REF_TABLE,
               REF_COLUMN,
-              //              REVERSE_REF_TABLE,
-              //              REVERSE_REF_COLUMN,
               MAPPED_BY,
               VALIDATION_SCRIPT,
-              INDEXED)
+              INDEXED,
+              COLUMN_DESCRIPTION)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
               foreignKey(TABLE_SCHEMA, TABLE_NAME)
@@ -173,8 +176,12 @@ public class MetadataUtils {
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     jooq.insertInto(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS)
-        .values(table.getSchema().getName(), table.getTableName(), table.getInherit())
+        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
+        .values(
+            table.getSchema().getName(),
+            table.getTableName(),
+            table.getInherit(),
+            table.getDescription())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
         .set(TABLE_INHERITS, table.getInherit())
@@ -191,6 +198,7 @@ public class MetadataUtils {
       return;
     }
     table.setInherit(tableRecord.get(TABLE_INHERITS, String.class));
+    table.setDescription(tableRecord.get(TABLE_DESCRIPTION, String.class));
     for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
       table.addColumn(c);
     }
@@ -216,7 +224,8 @@ public class MetadataUtils {
             REF_COLUMN,
             MAPPED_BY,
             VALIDATION_SCRIPT,
-            INDEXED)
+            INDEXED,
+            COLUMN_DESCRIPTION)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -226,11 +235,10 @@ public class MetadataUtils {
             column.isPrimaryKey(),
             column.getRefTableName(),
             column.getRefColumnName(),
-            //            column.getReverseRefTableName(),
-            //            column.getReverseRefColumn(),
             column.getMappedBy(),
             column.getValidation(),
-            column.isIndexed())
+            column.isIndexed(),
+            column.getDescription())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
@@ -241,6 +249,7 @@ public class MetadataUtils {
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
+        .set(COLUMN_DESCRIPTION, column.getDescription())
         .execute();
   }
 
@@ -305,6 +314,7 @@ public class MetadataUtils {
       c.refColumn(col.get(REF_COLUMN, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));
       c.validation(col.get(VALIDATION_SCRIPT, String.class));
+      c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
       columnList.add(new Column(table, c));
     }
     return columnList;

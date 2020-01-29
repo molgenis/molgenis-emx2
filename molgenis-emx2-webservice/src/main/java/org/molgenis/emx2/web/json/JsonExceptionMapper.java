@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.web.JsonApi;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JsonExceptionMapper {
@@ -15,10 +17,16 @@ public class JsonExceptionMapper {
 
   public static String molgenisExceptionToJson(MolgenisException e) {
     Map map = new LinkedHashMap();
-    map.put("title", e.getTitle());
     map.put("message", e.getMessage());
+
+    List errorList = new ArrayList<>();
+    errorList.add(map);
+
+    Map error = new LinkedHashMap();
+    error.put("errors", errorList);
+
     try {
-      return JsonApi.getWriter().writeValueAsString(map);
+      return JsonApi.getWriter().writeValueAsString(error);
     } catch (JsonProcessingException ex) {
       return "ERROR CONVERSION FAILED " + ex;
     }

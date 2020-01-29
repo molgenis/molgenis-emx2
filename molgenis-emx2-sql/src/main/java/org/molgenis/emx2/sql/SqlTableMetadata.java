@@ -108,7 +108,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public void removeColumn(String name) {
+  public void dropColumn(String name) {
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
     db.tx(
