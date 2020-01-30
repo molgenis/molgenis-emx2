@@ -115,6 +115,7 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           SqlColumnUtils.executeRemoveColumn(getJooq(), getColumn(name));
           super.columns.remove(name);
+          SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(getJooq(), this);
         });
     log(start, "removed column '" + name + "' from ");
   }

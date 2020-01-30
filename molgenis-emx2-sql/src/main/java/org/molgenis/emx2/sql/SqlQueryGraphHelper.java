@@ -223,7 +223,7 @@ public class SqlQueryGraphHelper extends QueryBean {
     subSelect.select(table.getPrimaryKey());
 
     if (select.has(COUNT_FIELD)) {
-      fields.add(field(count(field(table.getPrimaryKey()))).as(COUNT_FIELD));
+      fields.add(field(count(field(name(table.getPrimaryKey())))).as(COUNT_FIELD));
     }
     if (select.has(GROUPBY_FIELD)) {
       // todo

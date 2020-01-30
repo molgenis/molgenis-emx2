@@ -165,7 +165,6 @@ public class SqlColumnUtils {
     jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
         .dropColumn(field(name(column.getName())))
         .execute();
-    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
     MetadataUtils.deleteColumn(jooq, column);
   }
 
