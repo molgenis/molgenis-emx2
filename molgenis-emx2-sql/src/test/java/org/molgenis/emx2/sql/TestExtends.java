@@ -35,7 +35,7 @@ public class TestExtends {
     // test if fails if no primary key
     try {
       s.create(table("Employee").setInherit(person.getName()));
-      fail("Should fail");
+      fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }

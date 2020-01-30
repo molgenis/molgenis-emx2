@@ -47,7 +47,8 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   @Test
   public void testUniques() {
     SchemaMetadata s = db.createSchema("testUniques").getMetadata();
-    TableMetadata t = s.create(table("test").addColumn(column("a")).addColumn(column("b")));
+    TableMetadata t =
+        s.create(table("test").addColumn(column("a").pkey(true)).addColumn(column("b")));
     t.addUnique("a", "b");
     assertTrue(t.isUnique("b", "a")); // order doesn't matter
     t.removeUnique("b", "a");

@@ -80,6 +80,10 @@ public class Column {
     return this.refColumn;
   }
 
+  public String getRefColumnNameRaw() {
+    return this.refColumn;
+  }
+
   public Column getRefColumn() {
     Column result = null;
     if (getRefColumnName() != null) {

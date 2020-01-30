@@ -96,7 +96,7 @@ public class TestWebApi {
             .when()
             .post(path)
             .as(Map.class);
-    assertTrue(error.get("title").toString().contains("failed"));
+    assertTrue(error.get("errors").toString().contains("doesn't exist"));
     // make MolgenisException an unchecked exception?
 
     // remove unknown user
@@ -107,7 +107,7 @@ public class TestWebApi {
             .when()
             .post(path)
             .as(Map.class);
-    assertTrue(error.get("title").toString().contains("failed"));
+    assertTrue(error.get("errors").toString().contains("doesn't exist"));
 
     // remove bofke from membership
     given()

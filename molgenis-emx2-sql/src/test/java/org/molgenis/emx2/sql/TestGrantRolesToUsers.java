@@ -142,7 +142,11 @@ public class TestGrantRolesToUsers {
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());
       assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
 
-      schema.create(table("Person").addColumn(column("FirstName")).addColumn(column("LastName")));
+      schema.create(
+          table("Person")
+              .addColumn(column("id").pkey(true))
+              .addColumn(column("FirstName"))
+              .addColumn(column("LastName")));
 
       try {
         database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");

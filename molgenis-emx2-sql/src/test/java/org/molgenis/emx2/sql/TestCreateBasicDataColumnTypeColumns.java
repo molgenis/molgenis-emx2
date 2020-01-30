@@ -66,6 +66,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // check not null expects exception
     row = new Row();
+    row.setString("id", "test2");
     row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
     row.setString("Test_string_nillable", "test");
     row.setBool("Test_bool_nillable", true);

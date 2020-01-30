@@ -28,8 +28,7 @@ public class TestCreateTransactionForMultipleOperations {
     db.tx(
         db -> {
           Schema schema = db.createSchema("testCommit");
-          Table testTable =
-              schema.create(table("testCommit").addColumn(column("ColA")).addUnique("ColA"));
+          Table testTable = schema.create(table("testCommit").addColumn(column("ColA").pkey(true)));
           testTable.insert(new Row().setString("ColA", "test"));
           testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });

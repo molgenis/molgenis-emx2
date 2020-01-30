@@ -53,15 +53,4 @@ public class TestMetaDataIsStoredForNextSessions {
       fail(e.getMessage());
     }
   }
-
-  @Test
-  public void testRefAndRefArrayTypesTest() {
-    Schema schema = database.createSchema(SCHEMA_NAME + "4");
-    RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema.getMetadata());
-    try {
-      CompareTools.reloadAndCompare(database, schema);
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-  }
 }
