@@ -195,7 +195,7 @@ public class Emx2 {
     if (def.contains(Emx2PropertyList.VALIDATE)) {
       column.validation(def.getParamterValue(Emx2PropertyList.VALIDATE));
     }
-    if (row.getDescription() != null && row.getDescription() != "") {
+    if (row.getDescription() != null && !row.getDescription().equals("")) {
       column.setDescription(row.getDescription());
     }
     table.alterColumn(column);
