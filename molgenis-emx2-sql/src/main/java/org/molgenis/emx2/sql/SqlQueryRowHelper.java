@@ -44,7 +44,7 @@ class SqlQueryRowHelper {
     SelectJoinStep fromStep = selectStep.from(getJooqTable(table).as(tableAlias));
 
     // create joins
-    fromStep = createJoins(fromStep, table, tableAlias, select, filter);
+    fromStep = createJoins(fromStep, table, tableAlias, select, filter); // NOSONAR
 
     // create filters,
     Condition conditions = createWheres(table, tableAlias, filter);
