@@ -180,7 +180,7 @@ public class TestWebApi {
     // check if schema equal using json representation
     String schemaJson3 =
         given().accept(ACCEPT_JSON).when().get("/api/json/pet store excel").asString();
-    // cant compare because random ordering assertEquals(schemaJson, schemaJson3);
+    // todo cant compare because random ordering assertEquals(schemaJson, schemaJson3);
 
     // delete a new schema for excel
     given().accept(ACCEPT_JSON).when().delete("/api/json/pet store excel").then().statusCode(200);
