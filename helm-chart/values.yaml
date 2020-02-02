@@ -1,0 +1,9 @@
+image:
+  repository: "mswertz/emx2"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  port: 8080
+ingress:
+  host: emx2.test

@@ -1,0 +1,8 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "emx2.fullname" . }}
+spec:
+  backend:
+    serviceName: {{ include "emx2.fullname" . }}
+    servicePort: 8080

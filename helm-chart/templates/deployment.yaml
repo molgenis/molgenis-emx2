@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "emx2.fullname" . }}
+  labels:
+    {{- include "emx2.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "emx2.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "emx2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          name: {{ .Chart.Name }}
+          env:
+            - name: jdbc
+              value: jdbc:postgresql:molgenis
+          #          resources:
+          #            requests:
+          #              cpu: 1
+          #              memory: 2.5Gi
+          #            limits:
+          #              cpu: 1
+          #              memory: 2.5Gi
+          ports:
+            - containerPort: 8080
+        - image: postgres:11-alpine
+          name: postgres
+          args:
+            - -c
+            - shared_buffers=256MB
+            - -c
+            - max_locks_per_transaction=1024
+          env:
+            - name: POSTGRES_DB
+              value: molgenis
+            - name: POSTGRES_PASSWORD
+              value: molgenis
+            - name: POSTGRES_USER
+              value: molgenis
+          #          resources:
+          #            requests:
+          #              cpu: 1
+          #              memory: 2.5Gi
+          #            limits:
+          #              cpu: 1
+          #              memory: 2.5Gi
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-pv
+      volumes:
+        - name: postgres-pv
+          persistentVolumeClaim:
+            claimName: {{ include "emx2.fullname" . }}-postgres-pv
+      restartPolicy: Always
+status: {}

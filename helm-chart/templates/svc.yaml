@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "emx2.fullname" . }}
+  labels:
+    {{- include "emx2.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    {{- include "emx2.selectorLabels" . | nindent 4}}
+status:
+  loadBalancer: {}
