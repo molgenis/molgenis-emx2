@@ -1,14 +1,15 @@
 apiVersion: v1
 entries:
   emx2:
-  - apiVersion: v1
+  - apiVersion: v2
     appVersion: 1.0.0-snapshot
-    created: "2020-02-02T20:43:36.116234+01:00"
+    created: "2020-02-02T22:05:59.167932+01:00"
     description: Preview of EMX2
-    digest: 50063c7cd6eacf486877711cb93a177e0a1f0a5b7571d9a1d822ca4b76f7ae45
+    digest: b6f1ad83431d6d4ae0ab98eeb8481d0497b7b50a3df1931aaccb5425bd45f00e
     icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
     name: emx2
+    type: application
     urls:
     - http://mswertz.github.io/molgenis-emx2/helm-charts/emx2-0.0.1.tgz
     version: 0.0.1
-generated: "2020-02-02T20:43:36.11453+01:00"
+generated: "2020-02-02T22:05:59.161762+01:00"

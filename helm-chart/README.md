@@ -36,7 +36,7 @@ kubectl get pods -n ingress-nginx
 ```
 Then the logs
 ```
-kubectl logs -n ingress-nginx <name of your nginx controller>
+kubectl logs -n ingress-nginx nginx-ingress-controller-5876d56d4c-f4x2z
 ```
 
 See your endpoint
@@ -50,3 +50,9 @@ I used docker desktop and then I had to enable ingress
 
 https://kubernetes.github.io/ingress-nginx/deploy/#docker-for-mac
 
+I generated self signed cert
+
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=nginxsvc/O=nginxsvc"
+kubectl create secret tls tls-secret --key tls.key --cert tls.crt
+```

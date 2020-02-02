@@ -1,1 +1,15 @@
-#todo, change default password
+categories:
+  - MOLGENIS
+questions:
+  - variable: environment
+    label: Environment
+    description: "Environment of MOLGENIS instance"
+    type: enum
+    options:
+      - edge
+      - dev
+      - test
+      - accept
+      - prod
+    required: true
+    group: "Provisioning"

@@ -1,8 +1,15 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "emx2.fullname" . }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
-  backend:
-    serviceName: {{ include "emx2.fullname" . }}
-    servicePort: 8080
+  tls:
+    - secretName: tls-secret
+  rules:
+    - http:
+        paths:
+          - backend:
+              serviceName: {{ include "emx2.fullname" . }}
+              servicePort: 8088

@@ -1,9 +1,14 @@
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 image:
   repository: "mswertz/emx2"
   tag: "latest"
   pullPolicy: IfNotPresent
 service:
-  type: NodePort
-  port: 8080
+  type: ClusterIP
 ingress:
-  host: emx2.test
+  enabled: true
+  path: /
+  hosts:
+    - name: nightly.emx2.molgenis.org
