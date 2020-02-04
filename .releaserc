@@ -1,5 +1,6 @@
 {
 "plugins": [
+    "@semantic-release/commit-analyzer",
     ["@semantic-release/exec", {
       "publishCmd": "mvn compile jib:build -pl molgenis-emx2-webservice"
     }],
