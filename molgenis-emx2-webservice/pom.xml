@@ -78,33 +78,6 @@
             </resource>
         </resources>
         <plugins>
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
-
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.molgenis.emx2.RunMolgenisEmx2</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-            </plugin-->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
@@ -137,7 +110,6 @@
                         <image>docker.io/mswertz/emx2</image>
                         <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
                         <tags>
-                            <tag>latest</tag>
                             <tag>${revision}-${git.commit.id.abbrev}</tag>
                         </tags>
                     </to>
@@ -153,6 +125,14 @@
                         </ports>
                     </container>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
