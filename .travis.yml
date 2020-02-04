@@ -10,6 +10,8 @@ before_install:
   - sudo apt-get install -y postgresql-11 postgresql-client-11
   - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
   - sudo service postgresql restart 11
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
 before_script:
   - psql -c 'create database molgenis;' -U postgres
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
@@ -19,7 +21,6 @@ addons:
   sonarcloud:
     organization: "mswertz-github"
 script:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=mswertz_molgenis-emx2
 after_success:
   - semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --use-conveyal-workflow --dev-branch=dev --skip-maven-deploy
