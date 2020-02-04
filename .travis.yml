@@ -11,11 +11,11 @@ before_install:
   - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
   - sudo service postgresql restart 11
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
 before_script:
   - psql -c 'create database molgenis;' -U postgres
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
+  - yarn global add @conveyal/maven-semantic-release semantic-release@15
 addons:
   postgresql: "11.2"
   sonarcloud:
