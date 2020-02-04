@@ -17,7 +17,7 @@ before_script:
   - psql -c 'create database molgenis;' -U postgres
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
-  - yarn global add @conveyal/maven-semantic-release semantic-release@15
+  - yarn global add @conveyal/maven-semantic-release semantic-release@15 @semantic-release/exec
 addons:
   postgresql: "11.2"
   sonarcloud:
@@ -25,8 +25,7 @@ addons:
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=mswertz_molgenis-emx2
 after_success:
-  - mvn compile jib:build
-  - semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --use-conveyal-workflow --dev-branch=dev
+  - semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --use-conveyal-workflow --dev-branch=dev --skip-maven-deploy
 cache:
   directories:
     - $HOME/.m2
