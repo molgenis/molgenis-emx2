@@ -1,6 +1,6 @@
 apiVersion: v2
 name: emx2
-version: 0.0.2
+version: 0.0.3
 appVersion: 1.0.0-snapshot
 icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
 description: Preview of EMX2

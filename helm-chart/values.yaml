@@ -8,7 +8,7 @@ image:
 service:
   type: ClusterIP
 ingress:
+  hosts:
+    - name: emx2.local
   enabled: true
   path: /
-  hosts:
-    - name: nightly.emx2.molgenis.org

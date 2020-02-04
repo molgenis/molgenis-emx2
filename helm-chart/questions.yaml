@@ -1,15 +1,10 @@
 categories:
-  - MOLGENIS
+  - EMX2
 questions:
-  - variable: environment
-    label: Environment
-    description: "Environment of MOLGENIS instance"
-    type: enum
-    options:
-      - edge
-      - dev
-      - test
-      - accept
-      - prod
+  - variable: ingress.hosts[0].name
+    label: Hostname(s)
+    description: "Specify a hostname for this EMX2  instance"
+    type: string
     required: true
-    group: "Provisioning"
+    default: "emx2.dev.molgenis.org"
+    group: "Loadbalancing"
