@@ -138,7 +138,6 @@
                         <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
                         <tags>
                             <tag>latest</tag>
-                            <tag>${}</tag>
                         </tags>
                     </to>
                     <container>
