@@ -117,7 +117,7 @@
                         <mainClass>org.molgenis.emx2.RunMolgenisEmx2</mainClass>
                         <args>
                             <arg>
-                                ${jdbc}
+                                \${jdbc}
                             </arg>
                         </args>
                         <ports>
