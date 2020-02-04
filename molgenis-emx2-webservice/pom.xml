@@ -138,6 +138,7 @@
                         <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
                         <tags>
                             <tag>latest</tag>
+                            <tag>${revision}-${git.commit.id.abbrev}</tag>
                         </tags>
                     </to>
                     <container>
