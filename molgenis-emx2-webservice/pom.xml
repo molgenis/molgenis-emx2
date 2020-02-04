@@ -144,7 +144,7 @@
                         <mainClass>org.molgenis.emx2.RunMolgenisEmx2</mainClass>
                         <args>
                             <arg>
-                                \${jdbc}
+                                ${jdbc}
                             </arg>
                         </args>
                         <ports>
@@ -152,15 +152,6 @@
                         </ports>
                     </container>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>build-and-push-docker-image</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
