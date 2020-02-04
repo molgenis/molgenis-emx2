@@ -27,3 +27,7 @@ script:
 after_success:
   - mvn compile jib:build
   - semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --use-conveyal-workflow --dev-branch=dev
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.yarn-cache
