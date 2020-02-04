@@ -39,7 +39,6 @@
     </modules>
 
     <properties>
-        <revision>0.0.1-SNAPSHOT</revision>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.compiler.release>11</maven.compiler.release>

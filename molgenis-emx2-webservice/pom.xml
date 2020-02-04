@@ -110,7 +110,7 @@
                         <image>docker.io/mswertz/emx2</image>
                         <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
                         <tags>
-                            <tag>${revision}</tag>
+                            <tag>${project.version}</tag>
                         </tags>
                     </to>
                     <container>
@@ -127,7 +127,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>build</goal>
                         </goals>
