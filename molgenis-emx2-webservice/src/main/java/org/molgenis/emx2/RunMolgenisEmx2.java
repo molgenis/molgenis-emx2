@@ -5,11 +5,12 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class RunMolgenisEmx2 {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
 
     String url = "jdbc:postgresql:molgenis";
     if (args.length == 1) {

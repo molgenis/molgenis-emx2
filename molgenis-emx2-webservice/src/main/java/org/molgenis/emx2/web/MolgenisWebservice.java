@@ -17,6 +17,7 @@ import spark.Spark;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.util.Properties;
 
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.json.JsonExceptionMapper.molgenisExceptionToJson;
@@ -27,12 +28,19 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
+  static String version;
 
   private MolgenisWebservice() {
     // hide constructor
   }
 
-  public static void start(DataSource ds) {
+  public static void start(DataSource ds) throws IOException {
+    final Properties properties = new Properties();
+    properties.load(
+        MolgenisWebservice.class.getClassLoader().getResourceAsStream("version.properties"));
+    version = properties.getProperty("emx2.version");
+    logger.info("Starting EMX2 version: " + version);
+
     sessionManager = new MolgenisSessionManager(ds);
     port(8080);
 
@@ -43,14 +51,16 @@ public class MolgenisWebservice {
         "/",
         ACCEPT_HTML,
         (request, response) ->
-            "Welcome to MOLGENIS EMX2 data api service POC.<br/>. See <a href=\"/api/\">/api</a>");
+            "Welcome to MOLGENIS EMX2 data api service POC version "
+                + version
+                + ".<br/>. See <a href=\"/api/\">/api</a>");
 
     redirect.get("/api", "/api/");
     get(
         "/api/",
         ACCEPT_HTML,
         (request, response) -> {
-          return "Welcome to MOLGENIS EMX2 POC.<br/>" + listSchemas(request, response);
+          return "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response);
         });
 
     // services

@@ -12,3 +12,6 @@ spec:
       targetPort: 8080
   selector:
     {{- include "emx2.selectorLabels" . | nindent 4}}
+status:
+  loadBalancer: {}
+

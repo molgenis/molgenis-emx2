@@ -3,11 +3,32 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.molgenis</groupId>
     <artifactId>emx2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
+    <name>molgenis-emx2</name>
+    <description>MOLGENIS EMX 2.0</description>
+    <url>https://github.com/mswertz/molgenis-emx2</url>
+    <licenses>
+        <license>
+            <name>LGPL-3.0</name>
+            <url>https://opensource.org/licenses/LGPL-3.0</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Morris Swertz</name>
+            <email>m.a.swertz@gmail.com</email>
+            <organization>MOLGENIS</organization>
+            <organizationUrl>https://molgenis.org/</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:https://github.com/mswertz/molgenis-emx2.git</connection>
+        <developerConnection>scm:git:https://github.com/mswertz/molgenis-emx2.git</developerConnection>
+        <url>https://github.com/mswertz/molgenis-emx2</url>
+    </scm>
     <modules>
         <module>molgenis-emx2</module>
         <module>molgenis-emx2-io</module>
@@ -18,6 +39,9 @@
     </modules>
 
     <properties>
+        <revision>0.0.1-SNAPSHOT</revision>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <timestamp>${maven.build.timestamp}</timestamp>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

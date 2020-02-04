@@ -5,7 +5,7 @@
     <parent>
         <artifactId>emx2</artifactId>
         <groupId>org.molgenis</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>molgenis-emx2-webservice</artifactId>
@@ -13,12 +13,12 @@
         <dependency>
             <groupId>org.molgenis</groupId>
             <artifactId>molgenis-emx2-sql</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.molgenis</groupId>
             <artifactId>molgenis-emx2-io</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sparkjava</groupId>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.molgenis</groupId>
             <artifactId>molgenis-emx2-exampledata</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -70,8 +70,15 @@
 
     <build>
         <finalName>molgenis-emx2</finalName>
+        <!-- filter resources in order to get version number into properties file-->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.1</version>
@@ -97,6 +104,64 @@
                     </execution>
                 </executions>
 
+            </plugin-->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skipPoms>false</skipPoms>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <injectAllReactorProjects>true</injectAllReactorProjects>
+                    <generateGitPropertiesFile>false
+                    </generateGitPropertiesFile><!-- somehow necessary. otherwise the variables are not available in the pom -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>1.6.1</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:13-slim</image>
+                    </from>
+                    <to>
+                        <image>docker.io/mswertz/emx2</image>
+                        <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
+                        <tags>
+                            <tag>latest</tag>
+                            <tag>${}</tag>
+                        </tags>
+                    </to>
+                    <container>
+                        <mainClass>org.molgenis.emx2.RunMolgenisEmx2</mainClass>
+                        <args>
+                            <arg>
+                                \${jdbc}
+                            </arg>
+                        </args>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                    </container>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-and-push-docker-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

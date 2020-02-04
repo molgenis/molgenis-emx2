@@ -6,9 +6,11 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+import java.io.IOException;
+
 public class RunWebApi {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();

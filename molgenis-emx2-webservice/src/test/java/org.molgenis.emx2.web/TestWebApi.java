@@ -31,7 +31,7 @@ public class TestWebApi {
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
 
   @BeforeClass
-  public static void before() throws SQLException {
+  public static void before() throws SQLException, IOException {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
