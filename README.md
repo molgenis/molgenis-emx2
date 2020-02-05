@@ -7,10 +7,10 @@
 This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha').
 
 ## How to run
-Fastest is to build and then user docker:
+
+If you have Docker installed then fastest is to download docker-compose.yml file type in same directory:
 
 ```console
-mvn package -Dmaven.test.skip=true
 docker-compose up
 ```
 
