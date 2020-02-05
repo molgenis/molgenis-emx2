@@ -6,7 +6,7 @@
     <groupId>org.molgenis</groupId>
     <artifactId>emx2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.2</version>
+    <version>1.0.4-SNAPSHOT</version>
     <name>molgenis-emx2</name>
     <description>MOLGENIS EMX 2.0</description>
     <url>https://github.com/mswertz/molgenis-emx2</url>
