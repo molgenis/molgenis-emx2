@@ -104,7 +104,7 @@
                 <version>1.6.1</version>
                 <configuration>
                     <from>
-                        <image>openjdk:13-slim</image>
+                        <image>openjdk:13-alpine</image>
                     </from>
                     <to>
                         <image>docker.io/mswertz/emx2</image>
