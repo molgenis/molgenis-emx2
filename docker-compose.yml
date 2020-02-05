@@ -2,8 +2,7 @@ version: "3.0"
 services:
   emx2:
     image: mswertz/emx2
-    environment:
-      - jdbc=jdbc:postgresql://postgres/molgenis
+    command: jdbc:postgresql://postgres/molgenis
     ports:
       - "8080:8080"
     depends_on:

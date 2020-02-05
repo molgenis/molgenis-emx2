@@ -6,28 +6,63 @@
 # molgenis-emx2 preview
 This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha').
 
-## How to run
+Install using one of the methods below and then browse to http//localhost:8080/api/
+EMX2 uses GraphQL as its API, so login
 
-If you have Docker installed then fastest is to download docker-compose.yml file type in same directory:
+```
+mutation{
+login(username:"admin", password:"admin"){message}
+}
+```
+Obviously you should use the change password using the graphql mutation.
+
+## Installation
+
+EMX2 is distributed as [Docker image](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1) and as emx2.jar file you can run from commandline.
+See [Releases](https://github.com/mswertz/molgenis-emx2/releases).
+
+### 1. Using docker compose
+
+For local use easiest is to install Docker and then download docker-compose.yml.
+Open command prompt in download directory then type:
 
 ```console
 docker-compose up
 ```
 
-Then you want to browse to http//localhost:8080
-Most fun you have with graphql playground.
-First thing to do: login as admin (passwords are not yet needed)
-
-```
-mutation{
-login(username:"admin"){message}
-}
+Update to latest version
+```console
+docker-compose pull
 ```
 
-Alternatively:
+Stop by typing ctrl+c.
+
+### 2. Using Kubernetes Helm
+
+Download helm chart and in downloaded folder
+```
+helm install emx2 .
+```
+Instead of 'emx2' you can of course choose your own name.
+
+### 3. Using own postgresql and download jar file
+
 * install postgres 11
 * create database 'molgenis' with superadmin user/pass molgenis
-* run molgenis-emx2-webservice/src/org.molgenis.emx2.RunMolgenisEmx2
+* download latest release *.jar
+* run
+```console
+java -jar emx2-version.jar jdbc:postgresql:molgenis
+```
+
+### 4. Using own postgresql and docker image
+
+* Install postgres 11 as described above
+* then pull and deploy latest [Docker image](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
+```
+docker pull mswertz/emx2
+
+```
 
 ## Features
 * EMX2 simplified metadata format

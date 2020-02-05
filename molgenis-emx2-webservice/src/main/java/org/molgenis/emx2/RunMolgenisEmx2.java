@@ -17,7 +17,7 @@ public class RunMolgenisEmx2 {
       if (Pattern.matches("[0-9A-Za-z/:]+", args[0])) {
         url = args[0];
       } else {
-        System.out.println("Error: invalid jdbc string.");
+        System.out.println("Error: invalid jdbc string. Found '" + args[0] + "'");
         return;
       }
     } else {
