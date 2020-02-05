@@ -53,7 +53,7 @@ public class MolgenisWebservice {
         (request, response) ->
             "Welcome to MOLGENIS EMX2 data api service POC version "
                 + version
-                + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/ui/\">/ui/</a>");
+                + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/ui/\">/apps/ui/index.html</a>");
 
     redirect.get("/api", "/api/");
     get(

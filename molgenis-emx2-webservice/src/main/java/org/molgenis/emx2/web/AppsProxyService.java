@@ -54,7 +54,7 @@ public class AppsProxyService {
         .update(
             new Row()
                 .set("path", "ui")
-                .set(SOURCE, "https://www.unpkg.com/@mswertz/molgenis-emx2-ui@1.0.8/dist/"),
+                .set(SOURCE, "https://www.unpkg.com/@mswertz/molgenis-emx2-ui/"),
             new Row().set("path", "nu").set(SOURCE, "http://www.nu.nl"),
             new Row()
                 .set("path", "molgenis-app-reports")
