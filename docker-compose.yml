@@ -1,12 +1,5 @@
 version: "3.0"
 services:
-  emx2:
-    image: mswertz/emx2
-    command: jdbc:postgresql://postgres/molgenis
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
   postgres:
     image: postgres:11-alpine
     environment:
@@ -18,4 +11,11 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
+  emx2:
+    image: mswertz/emx2
+    command: jdbc:postgresql://postgres/molgenis
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
 

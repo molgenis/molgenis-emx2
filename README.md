@@ -49,20 +49,12 @@ Instead of 'emx2' you can of course choose your own name.
 
 * install postgres 11
 * create database 'molgenis' with superadmin user/pass molgenis
-* download latest release *.jar
+* run mvn pakckage
 * run
 ```console
-java -jar emx2-version.jar jdbc:postgresql:molgenis
+java -jar molgenis-emx2-webservice/target/emx2-<version>-jar-with-dependencies.jar
 ```
 
-### 4. Using own postgresql and docker image
-
-* Install postgres 11 as described above
-* then pull and deploy latest [Docker image](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
-```
-docker pull mswertz/emx2
-
-```
 
 ## Features
 * EMX2 simplified metadata format
