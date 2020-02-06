@@ -27,6 +27,7 @@ public class RunMolgenisEmx2 {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
+    dataSource.setConnectionTimeout(300000);
     dataSource.setJdbcUrl(url);
     dataSource.setUsername("molgenis");
     dataSource.setPassword("molgenis");
