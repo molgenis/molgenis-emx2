@@ -27,8 +27,6 @@ repositories {
     }
 }
 
-def allTestCoverageFile = "$buildDir/reports/jacoco/generateMergedReport/generateMergedReport.xml"
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -40,12 +38,6 @@ subprojects {
         }
     }
 
-    sonarqube {
-        properties {
-            property "sonar.jacoco.reportPaths", allTestCoverageFile
-        }
-    }
-
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.0'
         implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
@@ -53,43 +45,21 @@ subprojects {
     }
 
     sourceCompatibility = '11'
-
-    jacocoTestReport {
-        reports {
-            html.enabled = true
-            xml.enabled = true
-            csv.enabled = false
-        }
-    }
 }
 
-task mergedJacocoReport(type: JacocoReport) {
-    dependsOn = subprojects.jacocoTestReport
-    additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories.setFrom files(subprojects.sourceSets.main.output)
-    executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
-    reports {
-        html.enabled = true
-        xml.enabled = true
-        csv.enabled = false
-    }
+task jacocoMergedReport(type: JacocoReport) {
+  dependsOn = subprojects.test
+  additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+  sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+  classDirectories.setFrom files(subprojects.sourceSets.main.output)
+  executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
+  reports {
+    xml.enabled false
+    csv.enabled false
+    html.enabled true
+  }
 }
 
-// for semantinc release
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-semanticRelease {
-    repo {
-        releaseAsset jar
-        // optionally set name, label and/or contentType
-        releaseAsset sourcesJar, name: "the-sources.jar", label: 'the sources jar', contentType: 'application/zip'
-        // or
-        // releaseAsset sourcesJar name "the-sources.jar" label "the sources jar" contentType "application/zip"
-    }
-}
 
 
 
