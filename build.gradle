@@ -38,6 +38,12 @@ subprojects {
     }
 
     sourceCompatibility = '11'
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
 }
 
 task generateMergedReport(type: JacocoReport) {
