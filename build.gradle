@@ -44,6 +44,15 @@ artifacts {
     sourcesJar
 }
 
+publishing {
+    repositories {
+        maven {
+            // change to point to repo later
+            url = "$buildDir/repo"
+        }
+    }
+}
+
 semanticRelease {
     repo {
         ghToken = project.ext.ghToken
