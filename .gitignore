@@ -1,5 +1,8 @@
+#gradle
 .gradle
-build
+build/
+!gradle-wrapper.jar
+
 .DS_Store
 .idea
 target/
