@@ -34,6 +34,7 @@ repositories {
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
 semanticRelease {
     repo {
+        releaseAsset shadowJar
         releaseAsset jar
         ghToken = project.ghToken
     }
