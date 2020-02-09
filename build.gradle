@@ -44,6 +44,18 @@ subprojects {
         testImplementation 'junit:junit:4.12'
     }
 
+    sonarqube {
+    	properties {
+	    property 'sonar.coverage.jacoco.xmlReportPaths',"${project.buildDir}/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+           xml.enabled true
+       }
+    }
+
     sourceCompatibility = '11'
 }
 
@@ -54,9 +66,9 @@ task jacocoMergedReport(type: JacocoReport) {
   classDirectories.setFrom files(subprojects.sourceSets.main.output)
   executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
   reports {
-    xml.enabled false
+    xml.enabled true
     csv.enabled false
-    html.enabled true
+    html.enabled false
   }
 }
 
