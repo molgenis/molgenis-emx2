@@ -31,31 +31,6 @@ repositories {
     }
 }
 
-project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
-semanticRelease {
-    repo {
-        releaseAsset shadowJar
-        releaseAsset jar
-        ghToken = project.ghToken
-    }
-}
-
-mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
-shadow {
-    dependencies {
-        compile project(path: ':molgenis-emx2-webservice', configuration: 'shadow')
-    }
-}
-
-publishing {
-    repositories {
-        maven {
-            // change to point to repo later
-            url = "$buildDir/repo"
-        }
-    }
-}
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -97,6 +72,30 @@ task jacocoMergedReport(type: JacocoReport) {
         xml.enabled true
         csv.enabled false
         html.enabled false
+    }
+}
+
+mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
+shadow {
+    dependencies {
+        compile project(path: ':molgenis-emx2-webservice', configuration: 'shadow')
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            // change to point to repo later
+            url = "$buildDir/repo"
+        }
+    }
+}
+
+project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
+semanticRelease {
+    repo {
+        releaseAsset shadowJar
+        ghToken = project.ghToken
     }
 }
 
