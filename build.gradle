@@ -13,7 +13,7 @@ sonarqube {
     properties {
         property 'sonar.projectName', 'molgenis-emx2'
         property 'sonar.projectKey', 'mswertz_molgenis-emx2'
-	property 'sonar.coverage.jacoco.xmlReportPaths',"build/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
+	property 'sonar.coverage.jacoco.xmlReportPaths',"build/reports/jacoco/jacocoMergedReport/"
     }
 }
 
@@ -47,7 +47,7 @@ subprojects {
 
     sonarqube {
     	properties {
-	    property 'sonar.coverage.jacoco.xmlReportPaths',"${project.buildDir}/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
+	    property 'sonar.coverage.jacoco.xmlReportPaths',"${project.buildDir}/reports/jacoco/jacocoMergedReport/"
         }
     }
 
