@@ -34,13 +34,9 @@ repositories {
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
 semanticRelease {
     repo {
+        releaseAsset jar
         ghToken = project.ghToken
     }
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
 }
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
@@ -48,10 +44,6 @@ shadow {
     dependencies {
         compile project(path: ':molgenis-emx2-webservice', configuration: 'shadow')
     }
-}
-
-artifacts {
-    sourcesJar
 }
 
 publishing {
@@ -62,13 +54,6 @@ publishing {
         }
     }
 }
-
-semanticRelease {
-    repo {
-        ghToken = project.ext.ghToken
-    }
-}
-
 
 subprojects {
     apply plugin: 'java'
