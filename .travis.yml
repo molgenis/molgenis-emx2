@@ -13,6 +13,13 @@ before_install:
   - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
   - sudo service postgresql restart 11
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - git fetch --unshallow
+  - git config user.email "m.a.swertz@gmail.com"
+  - git config user.name "Travis-CI"
+  - git config url.https://.insteadOf git://
+  - git checkout -qf $TRAVIS_BRANCH
+install:
+  - echo "skip default gradlew assemble"
 before_script:
   - psql -c 'create database molgenis;' -U postgres
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
@@ -22,7 +29,7 @@ addons:
   sonarcloud:
     organization: "mswertz-github"
 script:
-  - ./gradlew build mergedJacocoReport sonarqube
+  - ./gradlew release mergedJacocoReport sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
