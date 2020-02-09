@@ -12,6 +12,7 @@ plugins {
 sonarqube {
     properties {
         property 'sonar.projectName', 'molgenis-emx2'
+        property 'sonar.projectKey', 'mswertz_molgenis-emx2'
     }
 }
 
@@ -44,4 +45,6 @@ subprojects {
 
     sourceCompatibility = '11'
 }
+
+
 
