@@ -32,4 +32,4 @@ addons:
   sonarcloud:
     organization: "mswertz-github"
 script:
-  - ./gradlew release jacocoMergedReport shadowJar sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+  - ./gradlew release jacocoMergedReport sonarqube shadowJar -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
