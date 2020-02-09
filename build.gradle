@@ -27,6 +27,8 @@ repositories {
     }
 }
 
+def allTestCoverageFile = "$buildDir/jacoco/allTestCoverage.exec"
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -35,6 +37,12 @@ subprojects {
         mavenLocal()
         maven {
             url = 'https://repo.maven.apache.org/maven2'
+        }
+    }
+
+    sonarqube {
+        properties {
+            property "sonar.jacoco.reportPaths", allTestCoverageFile
         }
     }
 
