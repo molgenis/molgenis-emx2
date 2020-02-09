@@ -9,5 +9,4 @@ include(':molgenis-emx2-sql')
 include(':molgenis-emx2-webservice')
 include(':molgenis-emx2-exampledata')
 include(':molgenis-emx2-it-report-aggregator')
-project(':molgenis-emx2-it-report-aggregator').projectDir = file('report-aggregator')
 
