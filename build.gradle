@@ -35,6 +35,12 @@ subprojects {
         }
     }
 
+    sonarqube {
+        properties {
+            property "sonar.sources", "src"
+        }
+    }
+
     sourceCompatibility = '11'
 }
 
