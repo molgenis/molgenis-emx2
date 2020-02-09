@@ -54,7 +54,7 @@ subprojects {
 }
 
 task mergedJacocoReport(type: JacocoReport) {
-    dependsOn = subprojects.test , subprojects.jacocoTestReport
+    dependsOn = subprojects.jacocoTestReport
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
