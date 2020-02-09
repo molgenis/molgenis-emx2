@@ -51,8 +51,7 @@ shadow {
 }
 
 artifacts {
-    sourcesJar ,
-    shadow
+    sourcesJar
 }
 
 publishing {
