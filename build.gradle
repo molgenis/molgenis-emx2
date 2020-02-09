@@ -34,19 +34,24 @@ semanticRelease {
         ghToken = project.ghToken
     }
 }
+
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
+
+artifacts {
+    sourcesJar
+}
+
 semanticRelease {
     repo {
-        releaseAsset jar
-        // optionally set name, label and/or contentType
-        releaseAsset sourcesJar, name: "the-sources.jar", label: 'the sources jar', contentType: 'application/zip'
-        // or
-        // releaseAsset sourcesJar name "the-sources.jar" label "the sources jar" contentType "application/zip"
+        ghToken = project.ext.ghToken
+        releaseAsset jar, contentType: 'application/zip'
+        releaseAsset sourcesJar, label: 'the sources of the project', contentType: 'application/zip'
     }
 }
+
 
 subprojects {
     apply plugin: 'java'
