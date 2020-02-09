@@ -16,12 +16,6 @@ sonarqube {
     }
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
-
 allprojects {
     group = 'org.molgenis'
 }
@@ -44,6 +38,19 @@ subprojects {
     }
 
     sourceCompatibility = '11'
+}
+
+task generateMergedReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+    additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories.setFrom files(subprojects.sourceSets.main.output)
+    executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+    }
 }
 
 

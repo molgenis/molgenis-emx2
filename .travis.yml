@@ -22,7 +22,7 @@ addons:
   sonarcloud:
     organization: "mswertz-github"
 script:
-  - ./gradlew jacocoTestReport sonarqube test
+  - ./gradlew build jacocoTestReport sonarqube
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
