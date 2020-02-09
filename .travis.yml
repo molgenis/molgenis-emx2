@@ -23,10 +23,11 @@ addons:
   sonarcloud:
     organization: "mswertz-github"
 script:
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.projectKey=mswertz_molgenis-emx2
-after_success:
-  - semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --use-conveyal-workflow --dev-branch=dev
+  - ./gradlew build --scan -s
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.m2
-    - $HOME/.yarn-cache
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
