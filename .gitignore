@@ -2,6 +2,7 @@
 .gradle
 build/
 !gradle-wrapper.jar
+out/
 
 .DS_Store
 .idea
