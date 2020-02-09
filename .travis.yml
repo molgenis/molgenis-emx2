@@ -24,7 +24,7 @@ addons:
   sonarcloud:
     organization: "mswertz-github"
 script:
-  - ./gradlew release mergedJacocoReport sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+  - ./gradlew release jacocoMergedReport sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
