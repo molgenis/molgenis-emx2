@@ -6,6 +6,7 @@ plugins {
     id "jacoco"
     id "java"
     id "org.sonarqube" version "2.8"
+    id "sonar-jacoco"
     id "de.gliderpilot.semantic-release" version "1.4.0"
 }
 
