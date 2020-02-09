@@ -11,9 +11,3 @@ include(':molgenis-emx2-exampledata')
 include(':molgenis-emx2-it-report-aggregator')
 project(':molgenis-emx2-it-report-aggregator').projectDir = file('report-aggregator')
 
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
-}
