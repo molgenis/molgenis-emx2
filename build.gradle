@@ -20,6 +20,13 @@ allprojects {
     group = 'org.molgenis'
 }
 
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://repo.maven.apache.org/maven2'
+    }
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -46,16 +53,14 @@ subprojects {
     }
 }
 
-task generateMergedReport(type: JacocoReport) {
-    dependsOn = subprojects.test
+task mergedJacocoReport(type: JacocoReport) {
+    dependsOn = subprojects.test , subprojects.jacocoTestReport
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
     executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
     reports {
-        xml.enabled false
-        csv.enabled false
-        html.enabled true
+        xml.enabled true
     }
 }
 
