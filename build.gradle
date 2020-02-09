@@ -43,8 +43,16 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
+shadow {
+    dependencies {
+        compile project(path: ':molgenis-emx2-webservice', configuration: 'shadow')
+    }
+}
+
 artifacts {
-    sourcesJar
+    sourcesJar ,
+    shadow
 }
 
 publishing {
@@ -59,8 +67,6 @@ publishing {
 semanticRelease {
     repo {
         ghToken = project.ext.ghToken
-        releaseAsset jar, contentType: 'application/zip'
-        releaseAsset sourcesJar, label: 'the sources of the project', contentType: 'application/zip'
     }
 }
 
@@ -106,13 +112,6 @@ task jacocoMergedReport(type: JacocoReport) {
         xml.enabled true
         csv.enabled false
         html.enabled false
-    }
-}
-
-mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
-shadow {
-    dependencies {
-        compile project(path: ':molgenis-emx2-webservice', configuration: 'shadow')
     }
 }
 
