@@ -21,8 +21,7 @@ public class RunMolgenisEmx2 {
         return;
       }
     } else {
-      System.out.println(
-          "You can pass custom postgresql jdbc url as first parameter in commandline");
+      System.out.println("You can pass custom postgresql jdbc url as first parameter ");
     }
     System.out.println("Starting EMX2 with postgresql url: " + url);
 
