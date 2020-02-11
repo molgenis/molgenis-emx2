@@ -49,9 +49,12 @@ subprojects {
     }
 
     writeVersion {
-        
+        dependsOn classes
+        def version = "emx2.version=" + project.version.toString()
+        mkdir "${project.buildDir}/resources/main/"
+        def file = new File("${project.buildDir}/resources/main/version.properties")
+        file.write(version)
     }
-
 
     repositories {
         mavenLocal()
