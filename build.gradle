@@ -31,14 +31,6 @@ repositories {
     }
 }
 
-task writeVersion {
-    dependsOn classes
-    def version = "emx2.version=" + project.version.toString()
-    mkdir "${project.buildDir}/resources/main/"
-    def file = new File("${project.buildDir}/resources/main/version.properties")
-    file.write(version)
-}
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -46,14 +38,6 @@ subprojects {
 
     shadowJar {
         classifier = null
-    }
-
-    writeVersion {
-        dependsOn classes
-        def version = "emx2.version=" + project.version.toString()
-        mkdir "${project.buildDir}/resources/main/"
-        def file = new File("${project.buildDir}/resources/main/version.properties")
-        file.write(version)
     }
 
     repositories {
@@ -67,6 +51,14 @@ subprojects {
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.0'
         implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
         testImplementation 'junit:junit:4.12'
+    }
+
+    task writeVersion {
+        dependsOn classes
+        def version = "emx2.version=" + project.version.toString()
+        mkdir "${project.buildDir}/resources/main/"
+        def file = new File("${project.buildDir}/resources/main/version.properties")
+        file.write(version)
     }
 
     jacocoTestReport {
