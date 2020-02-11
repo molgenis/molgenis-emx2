@@ -61,6 +61,10 @@ subprojects {
         file.write(version)
     }
 
+    test {
+        dependsOn writeVersion
+    }
+
     jacocoTestReport {
         reports {
             xml.enabled true
