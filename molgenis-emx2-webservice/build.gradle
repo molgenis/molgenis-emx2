@@ -5,6 +5,19 @@ plugins {
     id 'com.palantir.git-version' version '0.12.2'
 }
 
+task writeVersion(dependsOn: processResources) {
+    description 'write version number'
+    doLast {
+        println new File(projectDir, "src/main/java/version.properties")
+        new File(projectDir, "src/main/java/version.properties").
+                text = "emx2.version=" + project.version.toString()
+    }
+}
+
+classes {
+    dependsOn writeVersion
+}
+
 dependencies {
     compile project(':molgenis-emx2-sql')
     implementation 'org.jooq:jooq:3.11.12'
