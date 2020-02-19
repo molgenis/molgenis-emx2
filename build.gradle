@@ -10,6 +10,7 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'application'
+    id 'com.google.cloud.tools.jib' version '2.0.0'
 }
 
 sonarqube {
@@ -78,6 +79,22 @@ mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     baseName = 'molgenis-emx2'
 }
+
+jib {
+    from {
+        image = 'openjdk:13-alpine'
+    }
+    to {
+        image = 'docker.io/mswertz/emx2'
+        tags =
+                [project.version.toString()]
+    }
+    container {
+        mainClass = mainClassName
+        ports = ['8080']
+    }
+}
+
 
 publishing {
     repositories {
