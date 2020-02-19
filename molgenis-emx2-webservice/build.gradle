@@ -3,13 +3,15 @@
  */
 plugins {
     id 'com.palantir.git-version' version '0.12.2'
+    id "application"
 }
+mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 
-task writeVersion(dependsOn: processResources) {
+task writeVersion {
     description 'write version number'
     doLast {
-        println new File(projectDir, "src/main/java/version.properties")
-        new File(projectDir, "src/main/java/version.properties").
+        println new File(projectDir, "src/main/resources/version.properties")
+        new File(projectDir, "src/main/resources/version.properties").
                 text = "emx2.version=" + project.version.toString()
     }
 }
@@ -19,7 +21,7 @@ classes {
 }
 
 dependencies {
-    compile project(':molgenis-emx2-sql')
+    implementation project(':molgenis-emx2-sql')
     implementation 'org.jooq:jooq:3.11.12'
     implementation project(':molgenis-emx2-io')
     implementation project(':molgenis-emx2')
