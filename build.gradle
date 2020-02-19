@@ -9,6 +9,7 @@ plugins {
     id "de.gliderpilot.semantic-release" version "1.4.0"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'application'
 }
 
 sonarqube {
@@ -73,6 +74,7 @@ dependencies {
     implementation project(':molgenis-emx2-webservice')
 }
 
+mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     baseName = 'molgenis-emx2'
 }
