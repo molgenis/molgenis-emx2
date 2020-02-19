@@ -1,11 +1,15 @@
+ext.genOutputDir = file("$buildDir/generated-resources")
 task writeVersion {
     description 'write version number'
     doLast {
-        println new File(projectDir, "src/main/resources/version.properties")
-        new File(projectDir, "src/main/resources/version.properties").
+        mkdir genOutputDir
+        println new File(genOutputDir, "version.properties")
+        new File(genOutputDir, "version.properties").
                 text = "emx2.version=" + project.version.toString()
     }
 }
+sourceSets.main.output.dir genOutputDir, builtBy: writeVersion
+
 
 classes {
     dependsOn writeVersion
