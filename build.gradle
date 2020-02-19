@@ -73,6 +73,10 @@ dependencies {
     implementation project(':molgenis-emx2-webservice')
 }
 
+shadowJar {
+    baseName = 'molgenis-emx2'
+}
+
 publishing {
     repositories {
         maven {
