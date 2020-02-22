@@ -1,0 +1,33 @@
+//ext.genOutputDir = file("$buildDir/generated-resources")
+//task writeVersion {
+//    description 'write version number'
+//    doLast {
+//        mkdir genOutputDir
+//        println new File(genOutputDir, "version.properties")
+//        new File(genOutputDir, "version.properties").
+//                text = "emx2.version=" + project.version.toString()
+//    }
+//}
+//sourceSets.main.output.dir genOutputDir, builtBy: writeVersion
+//
+//
+//classes {
+//    dependsOn writeVersion
+//}
+
+dependencies {
+    implementation project(':apps')
+    implementation project(':backend:molgenis-emx2-sql')
+    implementation project(':backend:molgenis-emx2-io')
+    implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-exampledata')
+    implementation 'org.jooq:jooq:3.11.12'
+    implementation 'com.sparkjava:spark-core:2.8.0'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.0.14'
+    implementation 'com.graphql-java:graphql-java:13.0'
+    implementation 'com.jsoniter:jsoniter:0.9.19'
+    implementation 'com.zaxxer:HikariCP:2.7.8'
+    implementation 'com.squareup.okhttp3:okhttp:4.2.2'
+    implementation 'com.squareup.okhttp3:okhttp-brotli:4.2.2'
+    testImplementation 'io.rest-assured:rest-assured:4.1.1'
+}

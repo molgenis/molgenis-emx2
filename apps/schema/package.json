@@ -1,0 +1,44 @@
+{
+  "name": "@mswertz/emx2-schema",
+  "version": "0.0.0",
+  "license": "LGPL-3.0",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@mswertz/emx2-styleguide": "*",
+    "core-js": "^3.6.4",
+    "graphql-request": "^1.8.2",
+    "v-scroll-lock": "^1.1.0",
+    "vue": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "@vue/prettier",
+      "prettier",
+      "prettier/@typescript-eslint",
+      "prettier/babel",
+      "prettier/flowtype",
+      "prettier/react",
+      "prettier/standard",
+      "prettier/unicorn",
+      "prettier/vue"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

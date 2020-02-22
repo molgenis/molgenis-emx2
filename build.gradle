@@ -3,7 +3,7 @@
  */
 
 plugins {
-    id "jacoco"
+    //id "jacoco"
     id "java"
     id "org.sonarqube" version "2.8"
     id "de.gliderpilot.semantic-release" version "1.4.0"
@@ -32,52 +32,27 @@ repositories {
     }
 }
 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'jacoco'
-
-    repositories {
-        mavenLocal()
-        maven {
-            url = 'https://repo.maven.apache.org/maven2'
-        }
-    }
-
-    dependencies {
-        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.0'
-        implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
-        testImplementation 'junit:junit:4.12'
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-        }
-    }
-
-    sourceCompatibility = '11'
-}
-
-task jacocoMergedReport(type: JacocoReport) {
-    dependsOn = subprojects.test
-    additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories.setFrom files(subprojects.sourceSets.main.output)
-    executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled false
-    }
-}
+//task jacocoMergedReport(type: JacocoReport) {
+//    dependsOn = subprojects.test
+//    additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+//    sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+//    classDirectories.setFrom files(subprojects.sourceSets.main.output)
+//    executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
+//    reports {
+//        xml.enabled true
+//        csv.enabled false
+//        html.enabled false
+//    }
+//}
+//
 
 dependencies {
-    implementation project(':molgenis-emx2-webservice')
+    implementation project(':backend:molgenis-emx2-webservice')
 }
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
-    baseName = 'molgenis-emx2'
+    archiveBaseName = 'molgenis-emx2'
 }
 
 jib {

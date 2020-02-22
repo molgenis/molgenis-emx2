@@ -1,0 +1,69 @@
+plugins {
+    id "base"
+    id "com.github.node-gradle.node" version "2.2.1"
+}
+
+node {
+    version = '13.7.0'
+    yarnVersion = '1.22.0'
+    download = true
+}
+
+subprojects {
+
+    apply plugin: "com.github.node-gradle.node"
+
+    //all depends on styleguide
+    build.dependsOn ":apps:styleguide:build"
+
+    task build(type: YarnTask) {
+        inputs.files(fileTree('src'))
+        inputs.files(fileTree('public'))
+        inputs.file('package.json')
+
+        outputs.dir('dist')
+
+        dependsOn yarn_install
+        args = ['run', 'build']
+
+        copy {
+            from files("dist")
+            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
+        }
+    }
+
+    clean.doLast {
+        project.delete(files("dist"))
+        project.delete(files("build"))
+        project.delete(files("node_modules"))
+    }
+}
+
+clean.doLast {
+    project.delete(files("node_modules"))
+}
+
+task createJar(type: Zip) {
+    baseName 'app'
+    extension 'jar'
+    destinationDir file("${buildDir}/build/libs")
+    from('build/resources/main')
+}
+
+configurations {
+    appResources
+}
+configurations.default.extendsFrom(configurations.appResources)
+
+artifacts {
+    appResources(createJar.archivePath) {
+        builtBy createJar
+        type "jar"
+    }
+}
+
+assemble.dependsOn createJar
+
+
+
+
