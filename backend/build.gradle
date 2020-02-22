@@ -3,6 +3,13 @@ plugins {
     id "java"
 }
 
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://repo.maven.apache.org/maven2'
+    }
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
