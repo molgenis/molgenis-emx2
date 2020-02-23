@@ -74,11 +74,11 @@ semanticRelease {
 }
 
 def imageName = 'docker.io/mswertz/emx2'
-def tagName = "${project.version}"
+def tagName = project.version.toString()
 if (version.toString().endsWith('-SNAPSHOT')) {
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
     imageName = "docker.io/mswertz/emx2-snapshot"
-    tagName = "${project.version}-${ext.hash}"
+    tagName = "${project.version.toString()}-${ext.hash}"
 }
 jib {
     from {
@@ -86,7 +86,7 @@ jib {
     }
     to {
         image = imageName
-        tags = [tagName]
+        tags = [tagName.toString()]
     }
     container {
         mainClass = mainClassName
