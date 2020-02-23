@@ -6,67 +6,157 @@
 # molgenis-emx2 preview
 This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha').
 
-Install using one of the methods below and then browse to http//localhost:8080/api/
-EMX2 uses GraphQL as its API, so login
+## How to run
 
-```
-mutation{
-login(username:"admin", password:"admin"){message}
-}
-```
-Obviously you should use the change password using the graphql mutation.
+You can run EMX2 as:
+1. [Docker image](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1) using docker-compose up
+1. [java -jar molgenis-emx2-version-all.jar](https://github.com/mswertz/molgenis-emx2/releases) (then you need to install postgresql)
+1. Kubernetes Helm Chart
 
-## Installation
-
-EMX2 is distributed as [Docker image](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1) and as emx2.jar file you can run from commandline.
-See [Releases](https://github.com/mswertz/molgenis-emx2/releases).
+Details below.
 
 ### 1. Using docker compose
 
-For local use easiest is to install Docker and then download docker-compose.yml.
-Open command prompt in download directory then type:
+For local demo and development we recommend Docker. Therefore install [Docker compose](https://docs.docker.com/compose/install/) and download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
 
-```console
-docker-compose up
+To start, in directory with docker-compose.yml run:
 ```
-
-Update to latest version
+docker-compose up
+``` 
+To update to latest, run:
 ```console
 docker-compose pull
 ```
-
 Stop by typing ctrl+c.
 
-### 2. Using Kubernetes Helm
+N.B. 
+* because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is normal.
+* the data of postgresql will be stored in 'psql_data' folder
+* if you want particular [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1) then add version in docker-compose.yml file 'mswertz/emx2:version'
 
-Download helm chart and in downloaded folder
-```
-helm install emx2 .
-```
-Instead of 'emx2' you can of course choose your own name.
+### 2. Using JAR file and your own postgresql
 
-### 3. Using own postgresql and download jar file
+For minimalist server installation you can use the 'jar' file. 
 
-* install postgres 11
-* create database 'molgenis' with superadmin user/pass molgenis
-* run mvn pakckage
-* run
+* Download [molgenis-emx2-version-all.jar](https://github.com/mswertz/molgenis-emx2/releases) from releases.
+* Download and install [Postgresql](https://www.postgresql.org/download/) 
+* Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
+    ```console
+    sudo -u postgres psql
+    postgres=# create database molgenis;
+    postgres=# create user molgenis with superuser encrypted password 'molgenis';
+    postgres=# grant all privileges on database molgenis to molgenis;
+    ```
+* Start molgenis-emx2; will run on 8080 (requires java >=11)
+    ```console
+    java -jar molgenis-emx2-<version>-all.jar
+    ```
+* Optional: map to apache or nginx 
+
+### 3. Using Helm on Kubernetes
+
+If you have Kubernetes server then you can install using [Helm](https://helm.sh/docs/). 
+
+Add helm chart repository (once)
 ```console
-java -jar molgenis-emx2-webservice/target/emx2-<version>-jar-with-dependencies.jar
+helm repo add emx2 https://mswertz.github.io/molgenis-emx2/helm-charts
+```
+Run the latest release (see [Helm docs](https://helm.sh/docs/intro/using_helm/))
+```console
+helm install emx2/emx2
+```
+Update helm repository to get newest release
+```console
+helm repo update
 ```
 
+Alternatively, [download latest helm chart](https://github.com/mswertz/molgenis-emx2/tree/master/docs/helm-charts)
+
+## How to develop
+
+### Basics
+We use the following:
+* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code for a deploy is in [this repository](https://github.com/mswertz/molgenis-emx2) (it is not a monolith).
+* gradle for overall build (and yarn 'workspaces' for web app).
+    * ```gradle build``` => builds all
+    * ```gradle clean``` => removes all build artifacts
+* [Semantic Release](https://github.com/semantic-release/semantic-release) which means the commit message determine major.minor.patch release version
+    * ```fix(component): message``` => results in patch+1 release
+    * ```feat(component): message``` => results in minor+1 release
+    * ```BREAKING CHANGE: message``` => results in major+1 release
+    * ```chore(component): message``` => relates to build process, does not result in release.
+    * Other non-release commands: perf,refactor,test,style,docs.
+* [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master will result in new release, depending on commit messages
+* [Travis](https://travis-ci.org/mswertz/molgenis-emx2) to actually execute build+test(+release) for each commit
+* [Sonar](https://sonarcloud.io/dashboard?id=mswertz_molgenis-emx2) for static quality code checks
+Major thanks to all these companies!
+
+### Code organisation
+
+```
+root
++-apps          # javascript apps, one folder per app. Simply add more :-)
++-backend       # contains java modules, one folder per module. Simply add more :-)
++-deploy        # contains sources for helm chart
++-docs          # published at https://mswertz.github.io/molgenis-emx2/
++-gradle        # contains source for gradle
+build.gradle    # master build file
+settings.gradle # listing of all subprojects for gradle build
+docker-compose  # master docker file
+gradlew         # platform independent build file
+```
+
+### To build all from commandline
+
+```
+git clone https://github.com/mswertz/molgenis-emx2.git
+./gradlew build
+```
+
+### To develop java/backend 'service'
+
+Backend server is developed using Java. 
+We typically use [IntelliJ IDEA](https://www.jetbrains.com/idea/) for this.
+Simply open IntelliJ and then 'import' and select the git clone folder.
+
+### To develop javacript/frontend 'apps'
+
+Frontend apps are developed using [vuejs](https://vuejs.org/) and [vue-cli](https://cli.vuejs.org/).
+We typically use [Visual Studio 'Code'](https://code.visualstudio.com/)
+
+To develop, first cd into to folder 'apps' and install all dependencies for all apps.
+This also automatically links local dependencies using [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
+```console
+cd apps
+yarn install
+```
+
+There is one central library called 'styleguide' that contains all shared components (using bootstrap for styling).
+To view this run yarn styleguide:
+```console
+cd styleguide
+yarn styleguide
+```
+
+All other folders contain apps created using vue-cli.
+In order to develop you need to start a molgenis-exm2 as described above, e.g. docker-compose up.
+The /api path is then proxied, see vue.config.js
+In order to preview individual apps using yarn serve.
+For example
+```console
+cd apps/schema
+yarn serve
+```
+
+To create a new app
+* use vue create [name]
+* add to apps/package.json 'workspaces'
 
 ## Features
 * EMX2 simplified metadata format
 * Support for multiple schemas; each schema functions as permission group
 * GraphQL endpoint
 * Uses PostgreSQL for all heavy lifting (incl permissions, JSON generation)
-
-## how to run
-*  need install of postresql 11 with superadmin molgenis/molgenis
-*  mvn test is most interesting to see if and how all works
-*  emx2-webservice/test RunWebApi is most interesting to play with
-*  emx2-io/test/resources/test1.txt gives idea on EMX2 format
 
 ## minimal dependencies
 * PostgresQL for all heavy lifting (transactions, permissions, json generation)

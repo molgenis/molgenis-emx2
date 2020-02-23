@@ -1,15 +1,7 @@
-# EMX2 docs
+Currently this is only used to serve helm-charts
 
-## Run options
+I.e. 
+https://mswertz.github.io/molgenis-emx2/helm-charts
+is a helm chart repository  
 
-1. Use docker-compose
 
-See docker-compose.yml
-
-2. Use helm chart
-
-See folder docs/helm
-
-3. Use java -jar on your own 
-
-TODO: make jar easily available.

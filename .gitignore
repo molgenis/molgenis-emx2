@@ -17,6 +17,7 @@ examplefiles
 *.DS_Store
 git.properties
 data
+psql_data
 */data/elasticsearch/
 /data/elasticsearch/
 test-output/

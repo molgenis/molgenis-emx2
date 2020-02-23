@@ -9,7 +9,7 @@ services:
     expose:
       - "5432"
     volumes:
-      - ./.data:/var/lib/postgresql/data
+      - ./psql_data:/var/lib/postgresql/data
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
   emx2:
     image: mswertz/emx2
