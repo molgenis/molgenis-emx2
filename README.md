@@ -91,6 +91,9 @@ We use the following:
 * [Sonar](https://sonarcloud.io/dashboard?id=mswertz_molgenis-emx2) for static quality code checks
 Major thanks to all these companies!
 
+N.B. snapshot docker images can be found at [Docker hub](https://hub.docker.com/repository/docker/mswertz/emx2-snapshot)
+To use particular version in docker-compose.yml change 'mswertz/emx2' to 'mswertz/emx2-snapshot:1.0.27-SNAPSHOT-ba8f51b'
+
 ### Code organisation
 
 ```
