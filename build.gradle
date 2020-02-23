@@ -11,7 +11,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.0.0'
-    id 'com.palantir.git-version' version '0.12.2'
 }
 
 sonarqube {
@@ -76,8 +75,8 @@ semanticRelease {
 
 def imageName = 'docker.io/mswertz/emx2'
 if (version.toString().endsWith('-SNAPSHOT')) {
-    def details = versionDetails()
-    imageName = "docker.io/mswertz/emx2-snapshot-${details.gitHash}"
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+    imageName = "docker.io/mswertz/emx2-snapshot-${ext.hash}"
 }
 jib {
     from {
