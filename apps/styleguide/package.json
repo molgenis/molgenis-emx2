@@ -10,7 +10,8 @@
   "dependencies": {
     "core-js": "^3.6.4",
     "vue": "^2.6.11",
-    "vue-flatpickr-component": "^8.1.5"
+    "vue-flatpickr-component": "^8.1.5",
+    "vuex": "^3.1.2"
   },
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "devDependencies": {

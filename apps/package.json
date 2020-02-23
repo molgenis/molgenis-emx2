@@ -22,6 +22,8 @@
     "vue-template-compiler": "^2.6.11"
   },
   "licence": "LGPL-3.0",
-  "scripts": {},
+  "scripts": {
+    "styleguide:build": "vue-cli-service styleguidist:build"
+  },
   "dependencies": {}
 }
