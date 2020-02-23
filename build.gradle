@@ -55,21 +55,6 @@ shadowJar {
     archiveBaseName = 'molgenis-emx2'
 }
 
-jib {
-    from {
-        image = 'openjdk:13-alpine'
-    }
-    to {
-        image = 'docker.io/mswertz/emx2'
-        tags =
-                [project.version.toString()]
-    }
-    container {
-        mainClass = mainClassName
-        ports = ['8080']
-    }
-}
-
 
 publishing {
     repositories {
@@ -86,6 +71,24 @@ semanticRelease {
         releaseAsset shadowJar
         ghToken = project.ghToken
     }
+}
+
+jib {
+    from {
+        image = 'openjdk:13-alpine'
+    }
+    to {
+        image = 'docker.io/mswertz/emx2'
+        tags =
+                [project.version.toString()]
+    }
+    container {
+        mainClass = mainClassName
+        ports = ['8080']
+    }
+}
+if (!version.toString().endsWith('-SNAPSHOT')) {
+    publish.dependsOn jib
 }
 
 
