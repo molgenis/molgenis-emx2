@@ -23,6 +23,7 @@
   },
   "licence": "LGPL-3.0",
   "scripts": {
+    "styleguide": "vue-cli-service styleguidist",
     "styleguide:build": "vue-cli-service styleguidist:build"
   },
   "dependencies": {}

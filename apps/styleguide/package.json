@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --name @mswertz/emx2-styleguide src/index.js",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "styleguide": "vue-cli-service styleguidist"
   },
   "dependencies": {
     "core-js": "^3.6.4",
