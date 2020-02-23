@@ -11,6 +11,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.0.0'
+    id 'com.palantir.git-version' version '0.12.2'
 }
 
 sonarqube {
@@ -73,12 +74,17 @@ semanticRelease {
     }
 }
 
+def imageName = 'docker.io/mswertz/emx2'
+if (version.toString().endsWith('-SNAPSHOT')) {
+    def details = versionDetails()
+    imageName = "docker.io/mswertz/emx2-snapshot-${details.gitHash}"
+}
 jib {
     from {
         image = 'openjdk:13-alpine'
     }
     to {
-        image = 'docker.io/mswertz/emx2'
+        image = imageName
         tags =
                 [project.version.toString()]
     }
@@ -87,9 +93,9 @@ jib {
         ports = ['8080']
     }
 }
-if (!version.toString().endsWith('-SNAPSHOT')) {
-    publish.dependsOn jib
-}
+//if (!version.toString().endsWith('-SNAPSHOT')) {
+//    publish.dependsOn jib
+//}
 
 
 
