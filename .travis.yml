@@ -29,6 +29,9 @@ addons:
     - postgresql-client-11
   sonarcloud:
     organization: "mswertz-github"
+env:
+  global:
+  - PGPORT=5433
 script:
   - ./gradlew release jib jacocoMergedReport sonarqube shadowJar -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info
 before_cache:
