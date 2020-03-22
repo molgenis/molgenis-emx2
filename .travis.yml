@@ -29,9 +29,7 @@ addons:
 jobs:
   include:
     - stage: test
-      script: ./gradlew release -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info
-    - stage: deploy
-      script: ./gradlew shadowJar jib
+      script: ./gradlew release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info
     - stage: deploy
       script: ./gradlew jacocoMergedReport sonarqube
 before_cache:
