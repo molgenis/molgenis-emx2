@@ -1,5 +1,5 @@
 language: java
-install: true
+dist: bionic
 jdk:
   - openjdk11
 services:
