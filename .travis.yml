@@ -29,7 +29,6 @@ before_script:
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
   - cp config/database.yml.travis config/database.yml
 addons:
-  postgresql: "11.2"
   sonarcloud:
     organization: "mswertz-github"
 script:
