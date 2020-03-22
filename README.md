@@ -51,7 +51,7 @@ For minimalist server installation you can use the 'jar' file.
     ```console
     java -jar molgenis-emx2-<version>-all.jar
     ```
-* Optional: map to apache or nginx 
+* Recommended: map to apache or nginx to add https security
 
 ### 3. Using Helm on Kubernetes
 
@@ -123,14 +123,14 @@ Takes long first time because download of all dependencies (5 mins on my machine
 
 Backend server is developed using Java. 
 We typically use [IntelliJ IDEA](https://www.jetbrains.com/idea/) for this.
-Simply open IntelliJ and then 'import' and select the git clone folder.
-IntelliJ will recognize gradle.
+Clone the repo, then simply open IntelliJ and then 'import' and select the git clone folder.
+IntelliJ will recognize gradle and build all. First time that takes a few minutes.
 
 ### To develop javascript/frontend 'apps'
 
 Frontend apps are developed using [vuejs](https://vuejs.org/) and [vue-cli](https://cli.vuejs.org/).
 We typically use [Visual Studio 'Code'](https://code.visualstudio.com/)
-Instead of Gradle we use Yarn during development.
+Instead of Gradle we can use Yarn during development of individual apps.
 
 To develop, first cd into to folder 'apps' and install all dependencies for all apps.
 This also automatically links local dependencies using [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
@@ -157,7 +157,7 @@ yarn serve
 ```
 
 To create a new app
-* use vue create [name]
+* use ```vue create [name]```
 * add to apps/package.json 'workspaces'
 * copy a vue.config.js from another app to have the proxy.
 
@@ -166,10 +166,10 @@ Below summary of directions that have guided development.
 
 ### starting point
 * EMX2 simplified metadata format
-* Support for multiple schemas; each schema functions as permission group
+* Support for multiple schemas; each schema functions as permission group and as scope of multi-tenancy if desired
 * GraphQL endpoint for each schema, as well as 1 overall
 * Uses PostgreSQL for all heavy lifting (incl permissions, JSON generation)
-* Can be released and deployed with minimal fuzz we spend more time on 'dev'
+* Can be released and deployed with one artifact so we can spend more time on 'dev'
 
 ### minimize dependencies
 * PostgresQL for all heavy lifting (transactions, permissions, json generation)
@@ -180,14 +180,14 @@ Below summary of directions that have guided development.
 * OpenApi for web service spec
 * graphql-java for graphql api
 Minimizes dependencies, no Spring stuff, no Elasticsearch, just the least that can work.
-Outside scope: file service, script service, authentication (asumed all to be other services on top)
+Outside scope: file service, script service, authentication (asumed all to be other services used as dependency)
 Most core ideas where already described in https://docs.google.com/document/d/19YEGG8OGgtjCu5WlJKmHbHvosJzw3Mp6e6e7B8EioPY/edit#
 
-### Java modules
-*  emx2: interface and base classes, concept only
-*  emx2-jooq: implementation into postgresql
+### Backend modules
+*  emx2: interface and base classes
+*  emx2-sql: implementation into postgresql
 *  emx2-io: emx2 format, csv import/export of data, legacy import
-*  emx2-webservice: web API on top of jooq + io.
+*  emx2-webservice: web API on top of jooq + io
 *  emx2-exampledata: test data models and data, used in various test
 
 ### Feature list (mostly in POC or 'walking skeleton' state)

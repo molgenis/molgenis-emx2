@@ -1,3 +1,5 @@
+/* will produce a fat jar containing all htmls/js dists in public_html/apps*/
+
 plugins {
     id "base"
     id "com.github.node-gradle.node" version "2.2.1"
@@ -13,9 +15,10 @@ subprojects {
 
     apply plugin: "com.github.node-gradle.node"
 
-    //all depends on styleguide
+    //all depends on styleguide, so that needs build first
     build.dependsOn ":apps:styleguide:build"
 
+    /* builds each app*/
     task build(type: YarnTask) {
         inputs.files(fileTree('src'))
         inputs.files(fileTree('public'))
@@ -26,6 +29,7 @@ subprojects {
         dependsOn yarn_install
         args = ['run', 'build']
 
+        /* put in build dir in public_html folder to be served */
         copy {
             from files("dist")
             into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
@@ -43,6 +47,7 @@ clean.doLast {
     project.delete(files("node_modules"))
 }
 
+/* convert build files into one jar*/
 task createJar(type: Zip) {
     baseName 'apps'
     extension 'jar'
@@ -55,6 +60,7 @@ configurations {
 }
 configurations.default.extendsFrom(configurations.appResources)
 
+/* expose as artifact that can be used as dependency by other modules*/
 artifacts {
     appResources(createJar.archivePath) {
         builtBy createJar
