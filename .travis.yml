@@ -26,12 +26,12 @@ addons:
   postgresql: "11"
   sonarcloud:
     organization: "mswertz-github"
-script:
-  - ./gradlew release jacocoMergedReport shadowJar -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info
 jobs:
   include:
+    - stage: test
+      script: ./gradlew release jacocoMergedReport -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info
     - stage: deploy
-      script: ./gradlew jib
+      script: ./gradlew shadowJar jib
     - stage: deploy
       script: ./gradlew sonarqube
 before_cache:
