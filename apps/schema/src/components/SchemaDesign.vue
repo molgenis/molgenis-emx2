@@ -1,5 +1,5 @@
 <template>
-    <Molgenis :menuItems="menuItems" :title="schema+': Schema'">
+    <div>
         <Spinner v-if="loading"/>
         <MessageError v-else-if="error">{{ error }}</MessageError>
         <div v-else>
@@ -8,123 +8,159 @@
                     label="show attributes"
                     :defaultValue="showAttributes"
             />
-            <div style="overflow: auto; text-align:center" id="__top">
+            <div style="overflow: auto; text-align:center">
                 <img :src="yuml" :key="showAttributes"/>
             </div>
-            |
+            <div></div>
             <span v-for="table in tables" :key="table.name">
-      <a :href="'#' + table.name">{{ table.name }}</a> |
-    </span>
-            <table class="table table-hover">
-                <tbody v-for="table in tables" :key="table.name">
-                <tr>
-                    <td colspan="3">
-                        <h1 :id="table.name">
-                            {{ table.name }}
-                            <IconBar class="hover">
-                                <IconAction icon="edit"/>
-                                <IconDanger icon="trash"/>
-                            </IconBar>
-                        </h1>
-                        <br/>
-                        <a href="#__top">back to top</a>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="col">
-                        name
-                        <IconAction
-                                icon="plus"
-                                class="hover"
-                                @click="
-                currentTable = table
+      <a href="." v-scroll-to="'#' + table.name">{{ table.name }}</a> |
+        </span></div>
+        <div>
+            {{count}} tables found
+            <IconAction
+                    icon="plus"
+                    @click="
+                tableAdd = true
+              "
+            />
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <tbody v-for="table in tables" :key="table.name">
+                    <tr>
+                        <td colspan="3">
+                            <h1 :id="table.name">
+                                {{ table.name }}
+                                <IconBar class="hover">
+                                    <IconAction icon="edit"/>
+                                    <IconDanger icon="trash"
+                                                @click="currentTable = table; tableDrop = true"/>
+                                </IconBar>
+                            </h1>
+                            <br/>
+                            <a href="." v-scroll-to="'#__top'">back to top</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="col">
+                            name
+                            <IconAction
+                                    icon="plus"
+                                    class="hover"
+                                    @click="
+                currentTable = table;
                 columnAdd = true
               "
-                        />
-                        <ColumnEditModal
-                                v-if="columnAdd"
-                                :schema="schema"
-                                :table="currentTable.name"
-                                :metadata="tables"
-                                @close="
-                columnAdd = false
-                loadSchema()
-              "
-                        />
-                    </th>
-                    <th scope="col">type</th>
-                    <th scope="col">description</th>
-                </tr>
-                <tr v-for="column in table.columns" :key="column.name">
-                    <td>
-                        {{ column.name }}
-                        <IconBar class="hover">
-                            <IconAction
-                                    icon="edit"
-                                    @click="
-                  currentTable = table
-                  currentColumn = column
+                            />
+                        </th>
+                        <th scope="col">type</th>
+                        <th scope="col">description</th>
+                    </tr>
+                    <tr v-for="column in table.columns" :key="column.name">
+                        <td>
+                            {{ column.name }}
+                            <IconBar class="hover">
+                                <IconAction
+                                        icon="edit"
+                                        @click="
+                  currentTable = table;
+                  currentColumn = column;
                   columnAlter = true
                 "
-                            />
-                            <IconDanger
-                                    icon="trash"
-                                    @click="
-                  currentTable = table
-                  currentColumn = column
+                                />
+                                <IconDanger
+                                        icon="trash"
+                                        @click="
+                  currentTable = table;
+                  currentColumn = column;
                   columnDrop = true
                 "
-                            />
-                            <ColumnEditModal
-                                    v-if="columnAlter"
-                                    :defaultValue="currentColumn"
-                                    :schema="schema"
-                                    :table="currentTable.name"
-                                    :metadata="tables"
-                                    @close="
-                  columnAlter = false
-                  loadSchema()
-                "
-                            />
-                            <ColumnDropModal
-                                    v-if="columnDrop"
-                                    :schema="schema"
-                                    :table="currentTable.name"
-                                    :column="currentColumn.name"
-                                    @close="
-                  columnDrop = false
-                  loadSchema()
-                "
-                            />
-                        </IconBar>
-                    </td>
-                    <td>
-                        <span>{{ column.columnType }}</span>
-                        <span v-if="column.refTable"
-                        >({{ column.refTable }}.{{ column.refColumn }})</span
-                        >&nbsp;
-                        <span v-if="column.nullable">NULLABLE</span>
-                    </td>
-                    <td>{{ column.description }}</td>
-                </tr>
-                </tbody>
-            </table>
+                                />
+                            </IconBar>
+                        </td>
+                        <td>
+                            <span>{{ column.columnType }}</span>
+                            <span v-if="column.refTable"
+                            >({{ column.refTable }}.{{ column.refColumn }})</span
+                            >&nbsp;
+                            <span v-if="column.nullable">NULLABLE</span>
+                        </td>
+                        <td>{{ column.description }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </Molgenis>
+        <TableEditModal
+                v-if="tableAdd"
+                :schema="schema"
+                @close="
+                  tableAdd = false;
+                  loadSchema()
+                "
+        />
+        <TableDropModal
+                v-if="tableDrop"
+                :schema="schema"
+                :table="currentTable.name"
+                @close="
+                  tableDrop = false;
+                  loadSchema()
+                "
+        />
+        <ColumnEditModal
+                v-if="columnAlter"
+                :defaultValue="currentColumn"
+                :schema="schema"
+                :table="currentTable.name"
+                :metadata="tables"
+                @close="
+                  columnAlter = false;
+                  loadSchema()
+                "
+        />
+        <ColumnEditModal
+                v-if="columnAdd"
+                :schema="schema"
+                :table="currentTable.name"
+                :metadata="tables"
+                :show="true"
+                @close="
+                columnAdd = false;
+                loadSchema()
+              "
+        />
+        <ColumnDropModal
+                v-if="columnDrop"
+                :schema="schema"
+                :table="currentTable.name"
+                :column="currentColumn.name"
+                @close="
+                  columnDrop = false;
+                  loadSchema()
+                "
+        />
+    </div>
 </template>
 
 <style scoped>
+
+    @media (hover: hover) {
+        .hover {
+            opacity: 0;
+        }
+    }
+
+    .hover {
+        float: right;
+        white-space: nowrap;
+    }
+
     h1 {
         display: inline-block;
     }
 
     th {
         font-weight: bold;
-    }
-
-    .hover {
-        opacity: 0;
-        float: right;
     }
 
     table tr:hover .hover {
@@ -146,13 +182,17 @@
         IconDanger,
         Spinner,
         MessageError,
-        InputBoolean,
-        Molgenis
+        InputBoolean
     } from '@mswertz/emx2-styleguide'
     import ColumnEditModal from './ColumnEditModal'
     import ColumnDropModal from './ColumnDropModal'
+    import TableEditModal from './TableEditModal'
+    import TableDropModal from './TableDropModal'
+
+    import VueScrollTo from 'vue-scrollto'
 
     Vue.use(VScrollLock)
+    Vue.use(VueScrollTo)
 
     export default {
         props: {
@@ -165,9 +205,10 @@
             Spinner,
             MessageError,
             InputBoolean,
+            TableEditModal,
             ColumnEditModal,
             ColumnDropModal,
-            Molgenis
+            TableDropModal
         },
         data: function () {
             return {
@@ -180,6 +221,8 @@
                 columnAlter: false,
                 columnAdd: false,
                 columnDrop: false,
+                tableAdd: false,
+                tableDrop: false,
                 menuItems: []
             }
         },
@@ -202,6 +245,10 @@
             }
         },
         computed: {
+            count() {
+                if (this.tables) return this.tables.length;
+                return 0;
+            },
             endpoint() {
                 return '/api/graphql/' + this.schema
             },
@@ -221,13 +268,15 @@
                 })
                 // relations
                 this.tables.forEach(table => {
-                    table.columns.forEach(column => {
-                        if (column.columnType === 'REF') {
-                            res += `[${table.name}]->[${column.refTable}],`
-                        } else if (column.columnType === 'REF_ARRAY') {
-                            res += `[${table.name}]-*>[${column.refTable}],`
-                        }
-                    })
+                    if (table.columns) {
+                        table.columns.forEach(column => {
+                            if (column.columnType === 'REF') {
+                                res += `[${table.name}]->[${column.refTable}],`
+                            } else if (column.columnType === 'REF_ARRAY') {
+                                res += `[${table.name}]-*>[${column.refTable}],`
+                            }
+                        })
+                    }
                 })
                 return res
             }

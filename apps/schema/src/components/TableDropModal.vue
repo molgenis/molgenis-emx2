@@ -1,17 +1,17 @@
 <template>
-    <LayoutModal :show="true" :title="'Drop Column \''+column+'\''" @close="$emit('close')">
+    <LayoutModal :show="true" :title="'Drop Table \''+table+'\''" @close="$emit('close')">
         <template v-slot:body>
             <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
             <MessageError v-else-if="error">{{ error }}</MessageError>
             <div v-else>
-                Removing column <strong>{{ column }}</strong> in table <strong>{{ table }}</strong>
+                Removing table <strong>'{{ table }}'</strong> from schema <strong>'{{schema}}'</strong>
                 <br/>Are you sure?
             </div>
         </template>
         <template v-slot:footer>
             <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-            <ButtonAction v-if="!success && !success" @click="dropColumn"
-            >Drop Column
+            <ButtonAction v-if="!success && !success" @click="dropTable"
+            >Drop Table
             </ButtonAction
             >
         </template>
@@ -39,8 +39,7 @@
         },
         props: {
             schema: String,
-            table: String,
-            column: String
+            table: String
         },
         data: function () {
             return {
@@ -54,20 +53,19 @@
             }
         },
         methods: {
-            dropColumn() {
+            dropTable() {
                 this.loading = true
                 this.success = null
                 this.error = null
                 request(
                     this.endpoint,
-                    `mutation dropColumn($table:String,$column:String){dropColumn(table:$table,column:$column){message}}`,
+                    `mutation dropTable($name:String){dropTable(name:$name){message}}`,
                     {
-                        table: this.table,
-                        column: this.column
+                        name: this.table,
                     }
                 )
                     .then(data => {
-                        this.success = data.dropColumn.message
+                        this.success = data.dropTable.message
                         this.$emit('close')
                     })
                     .catch(error => {
@@ -82,28 +80,3 @@
         }
     }
 </script>
-
-<docs>
-    Example
-    ```
-    <template>
-        <ColumnDropModal
-                v-if="show"
-                schema="pet store"
-                table="Pet"
-                columnName="name"
-                @close="show = false"
-        />
-        <ButtonAction v-else @click="show = true">Show</ButtonAction>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    show: false
-                };
-            }
-        };
-    </script>
-    ```
-</docs>
