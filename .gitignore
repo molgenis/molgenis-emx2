@@ -3,6 +3,7 @@
 build/
 !gradle-wrapper.jar
 out/
+dist
 
 .DS_Store
 .idea
