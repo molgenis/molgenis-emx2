@@ -3,10 +3,7 @@ package org.molgenis.emx2.web.graphql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Member;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.web.JsonApi;
 
 import java.io.IOException;
@@ -43,11 +40,15 @@ public class GraphqlTableMetadataFields {
         .argument(newArgument().name(COLUMN).type(inputColumnMetadataType))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              schema
-                  .getMetadata()
-                  .getTableMetadata(dataFetchingEnvironment.getArgument(TABLE))
-                  .addColumn(getColumnFromEnvironment(dataFetchingEnvironment));
-              return new GraphqlApiMutationResult(SUCCESS, "Column created");
+              String tableName = dataFetchingEnvironment.getArgument(TABLE);
+              TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
+              if (tm == null) {
+                throw new GraphqlException("", "Table '" + tableName + "' not found");
+              }
+              Column column = getColumnFromEnvironment(dataFetchingEnvironment);
+              tm.addColumn(column);
+              return new GraphqlApiMutationResult(
+                  SUCCESS, "Column '" + column.getName() + "' created");
             })
         .build();
   }
@@ -64,6 +65,36 @@ public class GraphqlTableMetadataFields {
     } catch (Exception e) {
       throw new GraphqlException("Column parsing failed", e);
     }
+  }
+
+  public static GraphQLFieldDefinition createTableField(Schema schema) {
+    return newFieldDefinition()
+        .name("createTable")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              schema
+                  .getMetadata()
+                  .create(new TableMetadata(dataFetchingEnvironment.getArgument(NAME)));
+              return new GraphqlApiMutationResult(
+                  SUCCESS, "Table '" + dataFetchingEnvironment.getArgument(NAME) + "' created");
+            })
+        .build();
+  }
+
+  public static GraphQLFieldDefinition dropTableField(Schema schema) {
+    return newFieldDefinition()
+        .name("dropTable")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              schema.dropTable(dataFetchingEnvironment.getArgument(NAME));
+              return new GraphqlApiMutationResult(
+                  SUCCESS, "Table '" + dataFetchingEnvironment.getArgument(NAME) + "' dropped");
+            })
+        .build();
   }
 
   public static GraphQLFieldDefinition alterColumnField(Schema schema) {

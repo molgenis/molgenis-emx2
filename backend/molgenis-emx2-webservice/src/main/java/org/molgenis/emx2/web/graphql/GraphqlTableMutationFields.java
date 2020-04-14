@@ -65,10 +65,13 @@ class GraphqlTableMutationFields {
 
     for (String tableName : schema.getTableNames()) {
       Column pkey = schema.getMetadata().getTableMetadata(tableName).getPrimaryKeyColumn();
-      fieldBuilder.argument(
-          GraphQLArgument.newArgument()
-              .name(tableName)
-              .type(GraphQLList.list(getGraphQLInputType(getPrimitiveColumnType(pkey)))));
+      // if no pkey is provided, you cannot delete rows
+      if (pkey != null) {
+        fieldBuilder.argument(
+            GraphQLArgument.newArgument()
+                .name(tableName)
+                .type(GraphQLList.list(getGraphQLInputType(getPrimitiveColumnType(pkey)))));
+      }
     }
     return fieldBuilder.build();
   }

@@ -69,9 +69,11 @@ public class GraphqlApi {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
     // todo, really check permissions
-    if (getSchema(request) == null || getSchema(request).getTableNames().size() == 0) {
+    if (getSchema(request) == null) {
       response.status(403);
-      return "{\"errors\":[{\"message\":\"Schema not found or permission denied.\"}]}";
+      return "{\"errors\":[{\"message\":\"Schema '"
+          + schemaName
+          + "' not found or permission denied.\"}]}";
     }
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);
@@ -108,6 +110,8 @@ public class GraphqlApi {
     mutationBuilder.field(insertField(schema));
     mutationBuilder.field(updateField(schema));
     mutationBuilder.field(deleteField(schema));
+    mutationBuilder.field(createTableField(schema));
+    mutationBuilder.field(dropTableField(schema));
     mutationBuilder.field(addColumnField(schema));
     mutationBuilder.field(alterColumnField(schema));
     mutationBuilder.field(dropColumnField(schema));
