@@ -2,11 +2,12 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "account",
-    "import",
     "styleguide",
+    "central",
     "schema",
-    "tables"
+    "tables",
+    "import",
+    "account"
   ],
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.2.0",

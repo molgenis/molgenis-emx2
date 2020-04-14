@@ -14,6 +14,7 @@ module.exports = {
             ribbonBackground: 'black'
         }
     },
+    assetsDir: 'styleguide/public',
     // here proxy
     webpackConfig: {
         devServer: {
@@ -38,7 +39,7 @@ module.exports = {
                     rel: 'stylesheet',
                     href:
                     // 'https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css'
-                        'css/bootstrap-molgenis-blue.css'
+                        'assets/css/bootstrap-molgenis-blue.css'
                 },
                 {
                     rel: 'stylesheet',
@@ -55,23 +56,21 @@ module.exports = {
             content: 'styleguide/src/styleguide/introduction.md'
         },
         {
-            name: 'Styleguide',
-            components: 'styleguide/src/components/[A-Z]*.vue'
+            name: 'Components',
+            components: 'styleguide/src/components/[A-Z]*.vue',
+            content: 'styleguide/src/styleguide/components.md'
+        },
+        {
+            name: 'Molecules',
+            components: 'styleguide/src/molecules/[A-Z]*.vue'
+        },
+        {
+            name: 'Organisms',
+            components: 'styleguide/src/organisms/[A-Z]*.vue'
         }
-        // {
-        //   name: 'Molecules',
-        //   components: 'src/components/molecules/[A-Z]*.vue'
-        // },
-        // {
-        //   name: 'Organisms',
-        //   content: 'src/styleguide/organisms.md',
-        //   components: 'src/components/organisms/[A-Z]*.vue'
-        // },
         // {
         //   name: 'Pages',
         //   components: 'src/components/pages/[A-Z]*.vue'
         // }
-    ],
-    // get vuex plugged in
-    renderRootJsx: path.join(__dirname, 'styleguide/src/styleguide/previewComponent.js')
+    ]
 }
