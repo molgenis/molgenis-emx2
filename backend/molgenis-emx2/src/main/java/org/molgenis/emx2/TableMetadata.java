@@ -247,11 +247,12 @@ public class TableMetadata {
 
   public Column getPrimaryKeyColumn() {
     Column result = getColumn(getPrimaryKey());
-    if (result == null) {
-      throw new MolgenisException(
-          "Primary key error",
-          "Primary key '" + getPrimaryKey() + "' does not exist in table '" + getTableName() + "");
-    }
+    //    if (result == null) {
+    //      throw new MolgenisException(
+    //          "Primary key error",
+    //          "Primary key '" + getPrimaryKey() + "' does not exist in table '" + getTableName() +
+    // "");
+    //    }
     return result;
   }
 

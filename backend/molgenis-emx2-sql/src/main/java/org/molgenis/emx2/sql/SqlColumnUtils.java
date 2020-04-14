@@ -154,8 +154,9 @@ public class SqlColumnUtils {
         executeSetNullable(jooq, column);
     }
     // central constraints
-    if (column.isPrimaryKey())
+    if (column.isPrimaryKey()) {
       SqlTableMetadataExecutor.executeSetPrimaryKey(jooq, column.getTable(), column.getName());
+    }
     SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
     saveColumnMetadata(jooq, column);
   }

@@ -85,7 +85,7 @@ class SqlTableMetadataExecutor {
         "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}",
         getJooqTable(table), getPrimaryKeyContraintName(table));
 
-    // createTableIfNotExists the new one
+    // create the new one
     jooq.alterTable(getJooqTable(table)).add(constraint().primaryKey(name(columName))).execute();
   }
 
