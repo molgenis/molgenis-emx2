@@ -132,6 +132,7 @@ Frontend apps are developed using [vuejs](https://vuejs.org/) and [vue-cli](http
 We typically use [Visual Studio 'Code'](https://code.visualstudio.com/)
 Instead of Gradle we can use Yarn during development of individual apps.
 
+We use yarn workspaces to manage dependencies between the js modules.
 To develop, first cd into to folder 'apps' and install all dependencies for all apps.
 This also automatically links local dependencies using [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
 ```console
@@ -140,9 +141,9 @@ yarn install
 ```
 
 There is one central library called 'styleguide' that contains all shared components (using bootstrap for styling).
-To view this run yarn styleguide:
+To view this run:
 ```console
-cd styleguide
+cd apps
 yarn styleguide
 ```
 
@@ -158,8 +159,9 @@ yarn serve
 
 To create a new app
 * use ```vue create [name]```
-* add to apps/package.json 'workspaces'
+* add to apps/package.json 'workspaces' so it can be used as dependency
 * copy a vue.config.js from another app to have the proxy.
+* add to settings.gradle so it is added to the build process
 
 ## Guiding principles and features
 Below summary of directions that have guided development.

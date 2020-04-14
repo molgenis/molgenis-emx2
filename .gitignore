@@ -2,7 +2,7 @@
 .gradle
 build/
 !gradle-wrapper.jar
-out/
+out
 dist
 
 .DS_Store
