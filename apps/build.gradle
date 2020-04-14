@@ -6,12 +6,10 @@ plugins {
 }
 
 node {
-    version = '13.7.0'
-    yarnVersion = '1.22.0'
+    version = '13.12.0'
+    yarnVersion = '1.22.4'
     download = true
 }
-
-yarn_install
 
 subprojects {
 
@@ -32,7 +30,7 @@ subprojects {
             dependsOn ":apps:styleguide:build"
         }
 
-        //dependsOn yarn_install
+        dependsOn yarn_install
         args = ['run', 'build']
 
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
@@ -74,8 +72,6 @@ artifacts {
         type "jar"
     }
 }
-
-assemble.dependsOn createJar
 
 
 
