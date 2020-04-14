@@ -1,7 +1,7 @@
 <template>
   <button type="button" class="btn btn-danger" @click="onClick">
     <slot />
-    {{testvalue}}
+    {{ testvalue }}
   </button>
 </template>
 
@@ -9,7 +9,7 @@
 /** Button that is shown as a primary action */
 export default {
   methods: {
-    onClick () {
+    onClick() {
       /** emitted on click */
       this.$emit('click')
     }

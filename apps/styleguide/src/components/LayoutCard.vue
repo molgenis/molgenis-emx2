@@ -1,11 +1,11 @@
 <template>
-  <div class="card" :class="{'card-fullscreen': fullscreen}">
+  <div class="card" :class="{ 'card-fullscreen': fullscreen }">
     <div ref="header" class="card-header text-center">
-      <h4 v-if="title">{{title}}</h4>
+      <h4 v-if="title">{{ title }}</h4>
       <slot name="header" />
       <IconAction
         class="card-fullscreen-icon"
-        :icon="fullscreen? 'compress' : 'expand'"
+        :icon="fullscreen ? 'compress' : 'expand'"
         @click="fullscreen = !fullscreen"
       />
     </div>
@@ -32,13 +32,13 @@ export default {
     /** Title that is shown on the card (optional) */
     title: String
   },
-  data: function () {
+  data: function() {
     return {
       fullscreen: false
     }
   },
   computed: {
-    bodyheight () {
+    bodyheight() {
       if (this.fullscreen) {
         let header = this.$refs.header.clientHeight
         let footer = this.$refs.footer.clientHeight

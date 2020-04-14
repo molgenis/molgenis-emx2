@@ -49,6 +49,7 @@ import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
 //import '../../../public/css/bootstrap-molgenis-blue.css'
 
+/** Show a data input */
 export default {
   components: {
     flatPickr
@@ -67,53 +68,53 @@ export default {
 </script>
 
 <docs>
-Example
-```
-<template>
-  <div>
-    <InputDate v-model="value" label="My date input label" help="Some help needed?" />
-    <br />
-    You typed: {{value}}
-  </div>
-</template>
+    Example
+    ```
+    <template>
+        <div>
+            <InputDate v-model="value" label="My date input label" help="Some help needed?"/>
+            <br/>
+            You typed: {{value}}
+        </div>
+    </template>
 
-<script>
-export default {
-  data: function() {
-    return {
-      value: null
-    };
-  }
-};
-</script>
-```
-Example with default
-```
-<template>
-  <div>
-    <InputDate
-      v-model="value"
-      label="My date input label"
-      defaultValue="2020-01-10"
-      help="Some help needed?"
-    />
-    <br />
-    You typed: {{value}}
-  </div>
-</template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
+    Example with default
+    ```
+    <template>
+        <div>
+            <InputDate
+                    v-model="value"
+                    label="My date input label"
+                    defaultValue="2020-01-10"
+                    help="Some help needed?"
+            />
+            <br/>
+            You typed: {{value}}
+        </div>
+    </template>
 
-<script>
-export default {
-  data: function() {
-    return {
-      value: null
-    };
-  }
-};
-</script>
-```
-Example with error set
-```
-<InputDate v-model="value" label="My date input label" error="Some error message is shown" />
-```
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
+    Example with error set
+    ```
+    <InputDate v-model="value" label="My date input label" error="Some error message is shown"/>
+    ```
 </docs>

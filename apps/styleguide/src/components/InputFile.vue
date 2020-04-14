@@ -2,10 +2,16 @@
   <form-group v-bind="$props">
     <!-- hidden input-->
     <div class="input-group">
-      <input :id="id" ref="file" type="file" style="display:none" @change="handleFileUpload" />
+      <input
+        :id="id"
+        ref="file"
+        type="file"
+        style="display:none"
+        @change="handleFileUpload"
+      />
       <input
         class="form-control active"
-        :class="{'is-invalid':error}"
+        :class="{ 'is-invalid': error }"
         :placeholder="filename"
         @click="$refs.file.click()"
         @keydown.prevent
@@ -13,7 +19,10 @@
       <div class="input-group-append">
         <button
           class="btn"
-          :class="{'btn-outline-primary':!error,'btn-outline-danger':error }"
+          :class="{
+            'btn-outline-primary': !error,
+            'btn-outline-danger': error
+          }"
           type="button"
           title="Toggle"
           data-toggle
@@ -27,12 +36,17 @@
       <div class="input-group-append">
         <button
           class="btn"
-          :class="{'btn-outline-primary':!error,'btn-outline-danger':error }"
+          :class="{
+            'btn-outline-primary': !error,
+            'btn-outline-danger': error
+          }"
           type="button"
           title="Toggle"
           data-toggle
           @click="$refs.file.click()"
-        >Browse</button>
+        >
+          Browse
+        </button>
       </div>
     </div>
   </form-group>
@@ -50,16 +64,16 @@ import _baseInput from './_baseInput.vue'
 export default {
   extends: _baseInput,
   computed: {
-    filename () {
+    filename() {
       if (this.value) return this.value.name
       return null
     }
   },
   methods: {
-    handleFileUpload () {
+    handleFileUpload() {
       this.value = this.$refs.file.files[0]
     },
-    clearInput () {
+    clearInput() {
       alert('clear')
       this.$refs.file.value = ''
       this.value = null

@@ -10,10 +10,10 @@ export default {
     }
   },
   methods: {
-    keyhandler (event) {
+    keyhandler(event) {
       if (!this.isInt(event)) event.preventDefault()
     },
-    isInt (e) {
+    isInt(e) {
       var specialKeys = []
       specialKeys.push(8) // Backspace
       var keyCode = e.which ? e.which : e.keyCode

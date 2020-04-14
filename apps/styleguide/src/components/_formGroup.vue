@@ -3,12 +3,14 @@
 <template>
   <div class="form-group">
     <label v-if="label" :for="id">
-      <b>{{label}}</b>
+      <b>{{ label }}</b>
       <span v-if="nullable">(optional)</span>
     </label>
     <slot />
-    <div v-if="error" class="text-danger">{{error}}</div>
-    <div v-else-if="help" :id="id + 'Help'" class="form-text text-muted">{{help}}</div>
+    <div v-if="error" class="text-danger">{{ error }}</div>
+    <div v-else-if="help" :id="id + 'Help'" class="form-text text-muted">
+      {{ help }}
+    </div>
   </div>
 </template>
 

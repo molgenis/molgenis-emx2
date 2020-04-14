@@ -1,15 +1,16 @@
 <template>
   <ul class="nav nav-tabs">
     <li v-if="label" class="nav-item">
-      <a class="nav-link disabled" href="#">{{label}}</a>
+      <a class="nav-link disabled" href="#">{{ label }}</a>
     </li>
-    <li v-for="(item,index) in items" :key="index" class="nav-item">
+    <li v-for="(item, index) in items" :key="index" class="nav-item">
       <a
         class="nav-link"
-        :class="{'active': item === value}"
+        :class="{ active: item === value }"
         href="#"
         @click.prevent="select(item)"
-      >{{item}}</a>
+        >{{ item }}</a
+      >
     </li>
   </ul>
 </template>
@@ -20,7 +21,7 @@ import InputSelect from './InputSelect'
 export default {
   extends: InputSelect,
   methods: {
-    select (item) {
+    select(item) {
       this.value = item
       this.$emit('input', this.value)
     }

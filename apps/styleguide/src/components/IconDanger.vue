@@ -1,6 +1,6 @@
 <template>
   <button class="btn text-danger" style="width: 40px" @click="onClick">
-    <i :class="'fa fa-'+icon"></i>
+    <i :class="'fa fa-' + icon"></i>
   </button>
 </template>
 
@@ -11,7 +11,7 @@ export default {
     icon: String
   },
   methods: {
-    onClick () {
+    onClick() {
       /** emitted on click */
       this.$emit('click')
     }

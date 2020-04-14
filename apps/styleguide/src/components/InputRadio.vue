@@ -2,13 +2,13 @@
   <form-group v-bind="$props">
     <div>
       <div
-        v-for="(item,index) in items"
+        v-for="(item, index) in items"
         :key="index"
         class="form-check form-check-inline"
-        :class="{'is-invalid':error}"
+        :class="{ 'is-invalid': error }"
       >
         <input
-          :id="id+index"
+          :id="id + index"
           v-model="value"
           class="form-check-input"
           type="radio"
@@ -16,7 +16,7 @@
           :checked="defaultValue === item"
           :aria-describedby="id + 'Help'"
         />
-        <label class="form-check-label" :for="id+index">{{item}}</label>
+        <label class="form-check-label" :for="id + index">{{ item }}</label>
       </div>
     </div>
   </form-group>

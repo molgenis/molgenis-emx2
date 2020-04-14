@@ -10,10 +10,10 @@ export default {
     }
   },
   methods: {
-    keyhandler (event) {
+    keyhandler(event) {
       if (!this.isDecimal(event)) event.preventDefault()
     },
-    isDecimal (e) {
+    isDecimal(e) {
       var keyCode = e.which ? e.which : e.keyCode
       var ret =
         (keyCode >= 48 && keyCode <= 57) ||

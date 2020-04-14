@@ -4,6 +4,8 @@ import ButtonDanger from './components/ButtonDanger'
 
 import DataTable from './components/DataTable'
 
+import Footer from './molecules/Footer'
+
 import IconAction from './components/IconAction'
 import IconBar from './components/IconBar'
 import IconDanger from './components/IconDanger'
@@ -28,7 +30,9 @@ import LayoutNavTabs from './components/LayoutNavTabs'
 
 import MessageSuccess from './components/MessageSuccess'
 import MessageError from './components/MessageError'
+import Molgenis from './molecules/Molgenis'
 
+import NavBar from './components/NavBar'
 import Pagination from './components/Pagination'
 
 import Spinner from './components/Spinner'
@@ -38,6 +42,7 @@ export {
   ButtonAlt,
   ButtonDanger,
   DataTable,
+  Footer,
   IconBar,
   IconAction,
   IconDanger,
@@ -59,6 +64,8 @@ export {
   LayoutNavTabs,
   MessageError,
   MessageSuccess,
+  Molgenis,
+  NavBar,
   Pagination,
   Spinner
 }

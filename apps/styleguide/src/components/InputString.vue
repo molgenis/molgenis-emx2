@@ -19,7 +19,7 @@ import _baseInput from './_baseInput.vue'
 export default {
   extends: _baseInput,
   methods: {
-    keyhandler (event) {
+    keyhandler(event) {
       return event
     }
   }

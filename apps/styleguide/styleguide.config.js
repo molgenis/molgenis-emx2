@@ -14,6 +14,7 @@ module.exports = {
       ribbonBackground: 'black'
     }
   },
+  assetsDir: 'styleguide/public',
   // here proxy
   webpackConfig: {
     devServer: {
@@ -38,7 +39,7 @@ module.exports = {
           rel: 'stylesheet',
           href:
             // 'https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css'
-            'css/bootstrap-molgenis-blue.css'
+            'assets/css/bootstrap-molgenis-blue.css'
         },
         {
           rel: 'stylesheet',
@@ -71,7 +72,5 @@ module.exports = {
     //   name: 'Pages',
     //   components: 'src/components/pages/[A-Z]*.vue'
     // }
-  ],
-  // get vuex plugged in
-  renderRootJsx: path.join(__dirname, 'src/styleguide/previewComponent.js')
+  ]
 }

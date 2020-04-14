@@ -1,17 +1,17 @@
 <template>
   <button class="btn text-primary" style="width: 40px" @click="onClick">
-    <i :class="'fa fa-'+icon"></i>
+    <i :class="'fa fa-' + icon"></i>
   </button>
 </template>
 
 <script>
-/** Button that is shown as a icon */
+/** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
   props: {
     icon: String
   },
   methods: {
-    onClick () {
+    onClick() {
       /** emitted on click */
       this.$emit('click')
     }
@@ -20,10 +20,10 @@ export default {
 </script>
 
 <docs>
-Example
+    Example
 
-```jsx
-<IconAction icon="times"/>
-```
+    ```jsx
+    <IconAction icon="times"/>
+    ```
 
 </docs>

@@ -1,83 +1,67 @@
 <template>
-  <Spinner v-if="loading" />
-  <MessageError v-else-if="error">{{ error }}</MessageError>
-  <div v-else>
-    <div class="container" style="margin-top: 60px;">
-      <div v-if="view === 'home'">
-        <div class="jumbotron">
-          <h1 class="display-4">Welcome on the MOLGENIS EMX 2.0 preview.</h1>
-          <p class="lead">Tables, schemas, graphql. That's it.</p>
-          <p>
-            Choose a schema to continue
-            <InputSelect v-model="schema" :items="schemaList" />
-          </p>
+  <div>
+    <Theme
+      href="http://localhost:8080/apps/schema/css/bootstrap-molgenis-blue.css"
+    />
+    <Theme
+      href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
+    />
+    <Theme
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <NavBar
+      logo="https://master.dev.molgenis.org/img/Logo_Blue_Small.png"
+      active="My search"
+      :items="menuItems"
+    >
+      <Account @changed="reload" />
+    </NavBar>
+    <div style="background: #fafafa">
+      <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+        <div class="row">
+          <div class="col-md-12">
+            <h1 v-if="title">{{ title }}</h1>
+            <slot />
+          </div>
         </div>
       </div>
-      <Explorer v-if="view === 'explorer'" :schema="schema" />
-      <!--Schema v-if="view === 'schema'" :schema="schema" /-->
-      <Import v-if="view === 'import'" :schema="schema" />
+      <div class="row justify-content-md-center">
+        <div class="col-md-auto">
+          <Footer />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { request } from 'graphql-request'
-
-import { InputSelect, MessageError } from '@mswertz/molgenis-emx2-lib-elements'
-
-import Explorer from '../organisms/Explorer.vue'
-// import Schema from '../organisms/Schema.vue'
-// import Account from '../organisms/Account.vue'
-import Import from '../organisms/Import.vue'
+import NavBar from '../components/NavBar'
+import Account from './Account'
+import Theme from '../components/Theme'
 
 export default {
-  components: {
-    Explorer,
-    // Schema,
-    // Account,
-    Import,
-    InputSelect,
-    MessageError
-  },
-  data: function() {
-    return {
-      view: 'home',
-      schema: null,
-      schemaList: [],
-      error: null,
-      loading: false
-    }
-  },
-  computed: {
-    account() {
-      return this.$store.state.account.email
-    }
-  },
-  watch: {
-    account() {
-      this.getSchemaList()
-    }
-  },
-  created() {
-    this.getSchemaList()
+  components: { Account, NavBar, Theme },
+  props: {
+    menuItems: Array,
+    title: String
   },
   methods: {
-    getSchemaList() {
-      this.loading = true
-      request('/api/graphql', '{Schemas{name}}')
-        .then(data => {
-          this.schemaList = data.Schemas.map(schema => schema.name)
-        })
-        .catch(error => (this.error = 'internal server error' + error))
-      this.loading = false
+    reload() {
+      //brutal
+      location.reload()
     }
   }
 }
 </script>
 
 <docs>
-Example
-```
-<Molgenis/>
-```
+    ```
+    <Molgenis :menuItems="[
+        {label:'Home',href:'/'},
+        {label:'My search',href:'http://google.com'},
+        {label:'My movies',href:'http://youtube.com'}
+     ]" title="My title">
+        <p>Some contents</p>
+    </Molgenis>
+    ```
 </docs>
