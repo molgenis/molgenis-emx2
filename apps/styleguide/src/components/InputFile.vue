@@ -83,32 +83,32 @@ export default {
 </script>
 
 <docs>
-Example
-```
-<template>
-  <div>
-    <InputFile label="My file input" v-model="check" />
-    Selected: {{check}}
-  </div>
-</template>
-<script>
-export default {
-  data: function() {
-    return {
-      check: null
-    };
-  },
-  methods: {
-    clear() {
-      this.check = null;
-    }
-  }
-};
-</script>
-```
+    Example
+    ```
+    <template>
+        <div>
+            <InputFile label="My file input" v-model="check"/>
+            Selected: {{check}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    check: null
+                };
+            },
+            methods: {
+                clear() {
+                    this.check = null;
+                }
+            }
+        };
+    </script>
+    ```
 
-Example with error
-```
-<InputFile label="My file input" error="Some error" />
-```
+    Example with error
+    ```
+    <InputFile label="My file input" error="Some error"/>
+    ```
 </docs>

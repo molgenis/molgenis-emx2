@@ -6,7 +6,7 @@ export default {
   extends: InputString,
   props: {
     placeholder: {
-      default: 'Please enter decimal number (does not accept A-Za-z)'
+      default: 'enter decimal (does not accept A-Za-z,)'
     }
   },
   methods: {
@@ -26,25 +26,43 @@ export default {
 </script>
 
 <docs>
-Example
-```
-<template>
-  <div>
-    <LayoutForm>
-      <InputDecimal v-model="value" label="My decimal input label" help="Some help needed?" />
-    </LayoutForm>
-    <br />
-    You typed: {{value}}
-  </div>
-</template>
-<script>
-export default {
-  data: function() {
-    return {
-      value: null
-    };
-  }
-};
-</script>
-```
+    Example
+    ```
+    <template>
+        <div>
+            <InputDecimal v-model="value" label="My decimal input label" help="Some help needed?"/>
+            <br/>
+            You typed: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
+    Example with list
+    ```
+    <template>
+        <div>
+            <InputDecimal :list="true" v-model="value" label="My decimal input label" help="Some help needed?"/>
+            You typed: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
+
+
 </docs>

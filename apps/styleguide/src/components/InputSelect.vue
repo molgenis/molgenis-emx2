@@ -1,53 +1,132 @@
 <template>
-  <form-group v-bind="$props">
-    <select :id="id" v-model="value" class="custom-select">
-      <option selected disabled></option>
-      <option v-for="(item, index) in items" :key="index" :value="item">{{
-        item
-      }}</option>
-    </select>
-  </form-group>
+  <FormGroup v-bind="$props">
+    <InputAppend
+      v-for="(el, idx) in arrayValue"
+      :key="idx"
+      v-bind="$props"
+      @clear="clearValue(idx)"
+      :showPlus="showPlus(idx)"
+      @add="addRow"
+    >
+      <select :id="id" v-model="arrayValue[idx]" class="custom-select">
+        <option
+          v-if="!list || el == undefined"
+          :selected="el === undefined"
+          disabled
+        ></option>
+        <option
+          v-for="(option, index) in options.filter(
+            o => el == o || !arrayValue.includes(o)
+          )"
+          :key="index"
+          :value="option"
+          :selected="el == option"
+        >
+          {{ option }}
+        </option>
+      </select>
+    </InputAppend>
+  </FormGroup>
 </template>
 
 <script>
 import _baseInput from './_baseInput.vue'
+import InputAppend from './_inputAppend'
+import FormGroup from './_formGroup'
 
 export default {
   extends: _baseInput,
+  components: {
+    InputAppend,
+    FormGroup
+  },
+  methods: {
+    showPlus(idx) {
+      return (
+        this.list &&
+        !this.readonly &&
+        this.arrayValue[idx] != undefined &&
+        idx === this.arrayValue.length - 1 &&
+        this.options.filter(o => !this.arrayValue.includes(o)).length > 0
+      )
+    }
+  },
   props: {
-    items: Array
+    options: Array
   }
 }
 </script>
 
 <docs>
-Example with defaultValue
-```
-<template>
-  <div>
-    <InputSelect
-      label="Animals"
-      v-model="check"
-      defaultValue="ape"
-      :items="['lion', 'ape', 'monkey']"
-    />
-    Selected: {{check}}
-    <ButtonAction @click="clear">Clear</ButtonAction>
-  </div>
-</template>
-<script>
-export default {
-  data: function() {
-    return {
-      check: null
-    };
-  },
-  methods: {
-    clear() {
-      this.check = null;
-    }
-  }
-};
-</script>
-```
+    Example
+    ```
+    <template>
+        <div>
+            <InputSelect
+                    label=" Animals
+                "
+                    v-model="check"
+                    :options="['lion', 'ape', 'monkey']"
+            />
+            Selected: {{check}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    check: null
+                };
+            }
+        };
+    </script>
+    ```
+    Example with default
+    ```
+    <template>
+        <div>
+            <InputSelect
+                    label="Animals"
+                    v-model="check"
+                    defaultValue="ape"
+                    :options="['lion', 'ape', 'monkey']"
+            />
+            Selected: {{check}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    check: null
+                };
+            }
+        };
+    </script>
+    ```
+
+    Example list with default
+    ```
+    <template>
+        <div>
+            <InputSelect
+                    label="Animals"
+                    v-model="check"
+                    :defaultValue="['ape']"
+                    :options="['lion', 'ape', 'monkey']"
+                    :list="true"
+            />
+            Selected: {{check}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    check: null
+                };
+            }
+        };
+    </script>
+    ```
 </docs>

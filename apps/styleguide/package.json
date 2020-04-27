@@ -11,7 +11,9 @@
   "dependencies": {
     "core-js": "^3.6.4",
     "vue": "^2.6.11",
-    "vue-flatpickr-component": "^8.1.5"
+    "vue-flatpickr-component": "^8.1.5",
+    "vuedraggable": "^2.23.2",
+    "graphql-request": "^1.8.2"
   },
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "devDependencies": {

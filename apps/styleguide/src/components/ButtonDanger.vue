@@ -1,27 +1,26 @@
 <template>
-  <button type="button" class="btn btn-danger" @click="onClick">
-    <slot />
-    {{ testvalue }}
-  </button>
+    <button type="button" class="btn btn-danger" @click="onClick">
+        <slot/>
+    </button>
 </template>
 
 <script>
-/** Button that is shown as a primary action */
-export default {
-  methods: {
-    onClick() {
-      /** emitted on click */
-      this.$emit('click')
+    /** Button that is shown as a primary action */
+    export default {
+        methods: {
+            onClick() {
+                /** emitted on click */
+                this.$emit('click')
+            }
+        }
     }
-  }
-}
 </script>
 
 <docs>
-Example
+    Example
 
-```jsx
-<ButtonDanger v-on:click="alert('hello');">Dangerous actions</ButtonDanger>
-```
+    ```jsx
+    <ButtonDanger v-on:click="alert('hello');">Dangerous actions</ButtonDanger>
+    ```
 
 </docs>

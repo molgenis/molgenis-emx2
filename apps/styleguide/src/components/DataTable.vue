@@ -21,6 +21,7 @@
             v-if="selectColumn"
             type="checkbox"
             :checked="isSelected(row)"
+            @click="onRowClick(row)"
           />
         </td>
         <td
@@ -50,7 +51,7 @@ export default {
     /** set to create select boxes that will yield this columns value when selected. */
     selectColumn: String,
     /** default value */
-    defaultValue: []
+    defaultValue: Array
   },
   data: function() {
     return {
@@ -112,7 +113,7 @@ td {
             <DataTable
                     v-model="selectedItems"
                     selectColumn="lastName"
-                    :defaultValue="['Duck']"
+                    :defaultValue="selectedItems"
                     :columns="['firstName','lastName','tags']"
                     :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
                     @select="select"
@@ -125,7 +126,7 @@ td {
         export default {
             data: function () {
                 return {
-                    selectedItems: []
+                    selectedItems: ['Duck']
                 };
             },
             methods: {

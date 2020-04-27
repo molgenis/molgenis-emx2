@@ -3,13 +3,14 @@ import InputDate from './InputDate'
 
 export default {
   extends: InputDate,
-  data: function() {
-    return {
-      config: {
+  computed: {
+    config() {
+      return {
         wrap: true, // set wrap to true only when using 'input-group'
         dateFormat: 'Y-m-dTH:i:S',
         allowInput: false,
-        enableTime: true
+        enableTime: true,
+        clickOpens: !this.readonly
       }
     }
   }
@@ -17,23 +18,42 @@ export default {
 </script>
 
 <docs>
-Example
-```
-<template>
-  <div>
-    <InputDateTime v-model="value" label="My date time input label" help="Some help needed?" />
-    <br />
-    You typed: {{value}}
-  </div>
-</template>
-<script>
-export default {
-  data: function() {
-    return {
-      value: null
-    };
-  }
-};
-</script>
-```
+    Example
+    ```
+    <template>
+        <div>
+            <InputDateTime v-model="value" label="My date time input label" help="Some help needed?"/>
+            <br/>
+            You typed: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
+    Example list
+    ```
+    <template>
+        <div>
+            <InputDateTime :list="true" v-model="value" label="My date time input label" help="Some help needed?"/>
+            <br/>
+            You typed: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
 </docs>

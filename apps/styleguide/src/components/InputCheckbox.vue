@@ -9,16 +9,24 @@
       >
         <input
           :id="id + index"
-          v-model="arrayValue[0]"
+          @change="
+            arrayValue.includes(item)
+              ? (arrayValue = arrayValue.filter(c => c != item))
+              : arrayValue.push(item)
+          "
           class="form-check-input"
-          type="radio"
+          type="checkbox"
           :value="item"
-          :checked="defaultValue === item"
+          :checked="arrayValue.includes(item)"
           :aria-describedby="id + 'Help'"
         />
         <label class="form-check-label" :for="id + index">{{ item }}</label>
       </div>
-      <a href="#" v-if="arrayValue[0] !== null" @click.prevent="clearValue(0)">
+      <a
+        href="#"
+        v-if="arrayValue.filter(c => c != undefined).length > 0"
+        @click.prevent="arrayValue = [null]"
+      >
         clear
       </a>
     </div>
@@ -38,27 +46,22 @@ export default {
     ```
     <template>
         <div>
-            <InputRadio
+            <InputCheckbox
                     label="Animals"
-                    v-model="check"
-                    defaultValue="ape"
-                    :options="['lion', 'ape', 'monkey','armadillo','rino','crocodile','tiger','coyote']"
+                    v-model="value"
+                    :defaultValue="value"
+                    :options="['lion', 'ape', 'monkey']"
                     help="some help here"
             />
-            Selected: {{check}}
+            Selected: {{value}}
         </div>
     </template>
     <script>
         export default {
             data: function () {
                 return {
-                    check: null
+                    value: ['ape', 'lion']
                 };
-            },
-            methods: {
-                clear() {
-                    this.check = null;
-                }
             }
         };
     </script>
