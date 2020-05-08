@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
-import spark.embeddedserver.EmbeddedServers;
-import spark.embeddedserver.jetty.EmbeddedJettyFactory;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -65,7 +63,7 @@ public class MolgenisWebservice {
           return "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response);
         });
 
-    // services
+    // services (matched in order of creation)
     AppsProxyService.create(new SqlDatabase(ds));
     JsonApi.create();
     CsvApi.create();
@@ -73,6 +71,7 @@ public class MolgenisWebservice {
     ZipApi.create();
     ExcelApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
+    GroupPathMapper.create();
 
     // schema members operations
 

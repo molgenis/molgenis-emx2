@@ -64,8 +64,7 @@ public class GraphqlApi {
     return executeQuery(session.getGraphqlForDatabase(), request);
   }
 
-  private static String handleSchemaRequests(Request request, Response response)
-      throws IOException {
+  public static String handleSchemaRequests(Request request, Response response) throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
     // todo, really check permissions
@@ -105,6 +104,12 @@ public class GraphqlApi {
     long start = System.currentTimeMillis();
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
+
+    // login and account
+    queryBuilder.field(userQueryField(schema.getDatabase()));
+    mutationBuilder.field(signinField(schema.getDatabase()));
+    mutationBuilder.field(signoutField(schema.getDatabase()));
+    mutationBuilder.field(signupField(schema.getDatabase()));
 
     // add query and mutation for each table
     mutationBuilder.field(insertField(schema));
