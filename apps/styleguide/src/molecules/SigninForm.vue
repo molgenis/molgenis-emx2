@@ -42,8 +42,6 @@ import LayoutModal from '../components/LayoutModal'
 import Spinner from '../components/Spinner'
 import { request } from 'graphql-request'
 
-const endpoint = '/api/graphql'
-
 export default {
   components: {
     ButtonAction,
@@ -73,7 +71,7 @@ export default {
         this.error = null
         this.loading = true
         request(
-          endpoint,
+          'graphql',
           `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then(data => {

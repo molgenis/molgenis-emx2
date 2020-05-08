@@ -14,15 +14,14 @@ module.exports = {
       ribbonBackground: 'black'
     }
   },
-  assetsDir: 'styleguide/public',
-  // here proxy
+  assetsDir: 'public',
   webpackConfig: {
     devServer: {
       proxy: {
-        '/api': 'http://localhost:8080'
-      },
-      headers: {
-        'Access-Control-Allow-Origin': '*'
+        '^/graphql': {
+          target: 'http://localhost:8080/api/graphql/pet%20store',
+          pathRewrite: { '^/graphql': '' }
+        }
       }
     }
   },
@@ -58,11 +57,11 @@ module.exports = {
     {
       name: 'Styleguide',
       components: 'src/components/[A-Z]*.vue'
+    },
+    {
+      name: 'Molecules',
+      components: 'src/molecules/[A-Z]*.vue'
     }
-    // {
-    //   name: 'Molecules',
-    //   components: 'src/components/molecules/[A-Z]*.vue'
-    // },
     // {
     //   name: 'Organisms',
     //   content: 'src/styleguide/organisms.md',

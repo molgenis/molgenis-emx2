@@ -49,8 +49,6 @@ import LayoutModal from '../components/LayoutModal'
 
 import { request } from 'graphql-request'
 
-const endpoint = '/api/graphql'
-
 export default {
   components: {
     ButtonAction,
@@ -88,7 +86,7 @@ export default {
         this.error = null
         this.loading = true
         request(
-          endpoint,
+          'graphql',
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status}}`
         )
           .then(data => {

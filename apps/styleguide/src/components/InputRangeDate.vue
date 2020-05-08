@@ -4,9 +4,9 @@
       v-for="(item, idx) in arrayValue"
       :key="item"
       v-bind="$props"
-      :showClear="showClear(idx)"
+      :showClear="true"
       @clear="clearValue(idx)"
-      :showPlus="showPlus(idx)"
+      :showPlus="false"
       @add="addRow"
       class="from-group"
     >
@@ -25,6 +25,9 @@
         style="margin: 0px"
       />
     </InputAppend>
+    <div class="input-group">
+      <AppendPlus v-if="showPlus(arrayValue.length - 1)" @add="addRow" />
+    </div>
   </FormGroup>
 </template>
 

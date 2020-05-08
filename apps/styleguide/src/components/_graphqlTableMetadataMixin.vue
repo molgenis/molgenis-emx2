@@ -21,7 +21,7 @@ export default {
     reloadMetadata() {
       this.loading = true
       request(
-        this.endpoint,
+        'graphql',
         '{_meta{tables{name,pkey,columns{name,columnType,pkey,refTable,refColumn,nullable}}}}'
       )
         .then(data => {
@@ -30,14 +30,12 @@ export default {
               this.metadata = element
             }
           })
+          this.loading = false
         })
-        .catch(error => (this.error = 'internal server error' + error))
-      this.loading = false
-    }
-  },
-  computed: {
-    endpoint() {
-      return '/api/graphql/' + this.schema
+        .catch(error => {
+          this.error = 'internal server error' + error
+          this.loading = false
+        })
     }
   },
   watch: {

@@ -20,7 +20,7 @@ export default {
   methods: {
     reload() {
       this.loading = true
-      request(this.endpoint, this.graphql)
+      request('graphql', this.graphql)
         .then(data => {
           this.error = null
           this.data = data[this.table]['data']

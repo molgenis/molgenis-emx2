@@ -6,6 +6,7 @@
       v-bind="$props"
       @clear="clearValue(idx)"
       :showPlus="showPlus(idx)"
+      :showClear="showClear(idx)"
       @add="addRow"
     >
       <select class="custom-select" :id="id" @click="openSelect">
@@ -130,6 +131,30 @@ export default {
             data: function () {
                 return {
                     value: 'spike'
+                };
+            }
+        };
+    </script>
+    ```
+    Example with list
+    ```
+    <template>
+        <div>
+            <InputRef :list="true"
+                      v-model="value"
+                      schema="pet store"
+                      refTable="Pet"
+                      refColumn="name"
+                      :defaultValue="value"
+            />
+            Selection: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: ['spike']
                 };
             }
         };

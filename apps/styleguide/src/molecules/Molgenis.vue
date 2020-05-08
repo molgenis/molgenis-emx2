@@ -14,14 +14,14 @@
       active="My search"
       :items="menuItems"
     >
-      <Account @changed="reload" />
+      <Account v-model="account" />
     </NavBar>
     <div style="background: #fafafa">
       <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
         <div class="row">
           <div class="col-md-12">
             <h1 v-if="title">{{ title }}</h1>
-            <slot />
+            <slot v-bind:account="account" />
           </div>
         </div>
       </div>
@@ -45,12 +45,12 @@ export default {
     menuItems: Array,
     title: String
   },
-  methods: {
-    reload() {
-      //brutal
-      location.reload()
+  data: function() {
+    return {
+      account: null
     }
-  }
+  },
+  methods: {}
 }
 </script>
 
@@ -61,7 +61,9 @@ export default {
         {label:'My search',href:'http://google.com'},
         {label:'My movies',href:'http://youtube.com'}
      ]" title="My title">
-        <p>Some contents</p>
+        <template v-slot:default="slotProps">
+            <p>Some contents and I can see the account via slotProps = {{JSON.stringify(slotProps)}}</p>
+        </template>
     </Molgenis>
     ```
 </docs>

@@ -35,7 +35,6 @@ import SignupForm from './SignupForm.vue'
 
 import { request } from 'graphql-request'
 
-const endpoint = '/api/graphql'
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
   components: {
@@ -62,13 +61,16 @@ export default {
     }
   },
   created: function() {
-    request(endpoint, `{_user{email}}`)
+    this.loading = true
+    request('graphql', `{_user{email}}`)
       .then(data => {
         if (data._user.email !== 'anonymous') {
           this.email = data._user.email
         } else {
           this.email = null
         }
+        this.loading = false
+        this.$emit('input', this.email)
       })
       .catch(error => {
         if (error.response.status === 504) {
@@ -76,12 +78,13 @@ export default {
         } else {
           this.error = 'internal server error ' + error
         }
+        this.loading = false
       })
   },
   methods: {
     changed(email) {
       this.email = email
-      this.$emit('changed', this.email)
+      this.$emit('input', this.email)
     },
     closeSigninForm() {
       this.showSigninForm = false
@@ -93,15 +96,17 @@ export default {
     },
     signout() {
       this.loading = true
-      request(endpoint, `mutation{signout{status}}`)
+      request('graphql', `mutation{signout{status}}`)
         .then(data => {
           if (data.signout.status === 'SUCCESS') {
             this.email = null
-            this.$emit('changed', this.email)
-          } else this.error = 'sign out failed'
+          } else {
+            this.error = 'sign out failed'
+          }
+          this.loading = false
+          this.$emit('input', this.email)
         })
         .catch(error => (this.error = 'internal server error' + error))
-      this.loading = false
     }
   }
 }

@@ -78,7 +78,7 @@ import FilterContainer from './FilterContainer'
 import InputString from './InputString'
 import InputRangeInt from './InputRangeInt'
 import InputRangeDecimal from './InputRangeDecimal'
-import InputRangeDate from './InputRangeDecimal'
+import InputRangeDate from './InputRangeDate'
 import Draggable from 'vuedraggable'
 
 export default {
