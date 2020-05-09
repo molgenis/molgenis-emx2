@@ -18,10 +18,7 @@ module.exports = {
   webpackConfig: {
     devServer: {
       proxy: {
-        '^/graphql': {
-          target: 'http://localhost:8080/api/graphql/pet%20store',
-          pathRewrite: { '^/graphql': '' }
-        }
+        '/graphql': 'http://localhost:8080/pet%20store'
       }
     }
   },
