@@ -174,7 +174,13 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
+  public void testSchemaQueries() throws IOException {
+    assertEquals(schemaName, execute("{_meta{name}}").at("/_meta/name").textValue());
+  }
+
+  @Test
   public void testMembersOperations() throws IOException {
+
     // list members
     int count = execute("{_meta{members{user}}}").at("/_meta/members").size();
 

@@ -238,6 +238,7 @@ public class GraphqlTableMetadataFields {
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMetaType")
+          .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name(TABLES).type(GraphQLList.list(outputTableMetadataType)))
           .field(
               newFieldDefinition().name(MEMBERS).type(GraphQLList.list(outputMembersMetadataType)))
@@ -264,6 +265,7 @@ public class GraphqlTableMetadataFields {
         roles.add(Map.of(NAME, role));
       }
       result.put("roles", roles);
+      result.put("name", schema.getMetadata().getName());
 
       return result;
     };
