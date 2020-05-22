@@ -75,20 +75,24 @@
 
 <script>
 import FilterContainer from './FilterContainer'
+import InputCheckbox from './InputCheckbox'
 import InputString from './InputString'
 import InputRangeInt from './InputRangeInt'
 import InputRangeDecimal from './InputRangeDecimal'
 import InputRangeDate from './InputRangeDate'
+import InputRef from './InputRef'
 import Draggable from 'vuedraggable'
 
 export default {
   components: {
     FilterContainer,
     Draggable,
+    InputCheckbox,
     InputString,
     InputRangeInt,
     InputRangeDecimal,
-    InputRangeDate
+    InputRangeDate,
+    InputRef
   },
   props: {
     schema: String,

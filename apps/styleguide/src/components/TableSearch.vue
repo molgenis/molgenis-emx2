@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import _graphqlTableMixin from './_graphqlTableMixin'
+import TableMixin from '../mixins/TableMixin'
 import DataTable from './DataTable'
 import MessageError from './MessageError'
 import InputSearch from './InputSearch'
@@ -35,7 +35,7 @@ import Pagination from './Pagination.vue'
 import Spinner from './Spinner.vue'
 
 export default {
-  extends: _graphqlTableMixin,
+  extends: TableMixin,
   props: {
     defaultValue: Array,
     selectColumn: String

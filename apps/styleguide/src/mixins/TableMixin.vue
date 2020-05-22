@@ -4,10 +4,10 @@
 
 <script>
 import { request } from 'graphql-request'
-import _graphqlTableMetadataMixin from './_graphqlTableMetadataMixin'
+import TableMetadataMixin from './TableMetadataMixin'
 
 export default {
-  mixins: [_graphqlTableMetadataMixin],
+  mixins: [TableMetadataMixin],
   data: function() {
     return {
       data: [],

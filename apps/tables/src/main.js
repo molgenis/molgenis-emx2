@@ -1,8 +1,29 @@
 import Vue from "vue";
-import App from "./App.vue";
+import VueRouter from "vue-router";
+import ListTables from "./components/ListTables";
+import ViewTable from "./components/ViewTable";
 
-Vue.config.productionTip = false;
+import App from "./App";
+
+Vue.use(VueRouter);
+
+/** use vue router only to react to change url attributes */
+const router = new VueRouter({
+  routes: [
+    {
+      path: "/",
+      component: ListTables,
+      props: true
+    },
+    {
+      path: "/:tableName",
+      component: ViewTable,
+      props: true
+    }
+  ]
+});
 
 new Vue({
+  router,
   render: h => h(App)
 }).$mount("#app");

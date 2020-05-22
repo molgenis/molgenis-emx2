@@ -38,7 +38,7 @@ N.B.
 
 For minimalist server installation you can use the 'jar' file. 
 
-* Download [molgenis-emx2-version-all.jar](https://github.com/mswertz/molgenis-emx2/releases) from releases.
+* Download molgenis-emx2-version-all.jar from [releaes](https://github.com/mswertz/molgenis-emx2/releases).
 * Download and install [Postgresql](https://www.postgresql.org/download/) 
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
@@ -51,8 +51,7 @@ For minimalist server installation you can use the 'jar' file.
     ```console
     java -jar molgenis-emx2-<version>-all.jar
     ```
-* Recommended: map to apache or nginx to add https security
-
+  
 ### 3. Using Helm on Kubernetes
 
 If you have Kubernetes server then you can install using [Helm](https://helm.sh/docs/). 
@@ -76,17 +75,17 @@ Alternatively, [download latest helm chart](https://github.com/mswertz/molgenis-
 
 ### Basics
 We use the following:
-* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code for a deploy is in [this repository](https://github.com/mswertz/molgenis-emx2) (it is not a monolith).
-* [gradle](https://gradle.org/) for overall build (and yarn 'workspaces' for web app), mainly because its cache makes it faster
+* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is in [this repository](https://github.com/mswertz/molgenis-emx2) (it is not a monolith).
+* [gradle](https://gradle.org/) for build (with yarn 'workspaces' for web app)
     * ```gradle build``` => builds all
     * ```gradle clean``` => removes all build artifacts
-* [Semantic Release](https://github.com/semantic-release/semantic-release) which means the commit message determine major.minor.patch release version
+* [Semantic Release](https://github.com/semantic-release/semantic-release) where commit message determines major.minor.patch release 
     * ```fix(component): message``` => results in patch+1 release
     * ```feat(component): message``` => results in minor+1 release
     * ```BREAKING CHANGE: message``` => results in major+1 release
     * ```chore(component): message``` => relates to build process, does not result in release.
-    * Other non-release commands: perf,refactor,test,style,docs.
-* [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master will result in new release, depending on commit messages
+    * Other non-release commands: perf, refactor, test, style, docs.
+* [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master may result in release depending on commit message
 * [Travis](https://travis-ci.org/mswertz/molgenis-emx2) to actually execute build+test(+release) for each commit. See .travis.yml file.
 * [Sonar](https://sonarcloud.io/dashboard?id=mswertz_molgenis-emx2) for static quality code checks
 Major thanks to all these companies!
@@ -97,8 +96,8 @@ To use particular version in docker-compose.yml change 'mswertz/emx2' to 'mswert
 ### Code organisation
 
 ```
-[apps]          # javascript apps, one folder per app. Simply add more :-)
-[backend]       # contains java modules, one folder per module. Simply add more :-)
+[apps]          # contains javascript apps, one folder per app.
+[backend]       # contains java modules, one folder per module. 
 [deploy]        # contains sources for helm chart
 [docs]          # published at https://mswertz.github.io/molgenis-emx2/
 [gradle]        # contains source for gradle
@@ -118,21 +117,17 @@ git clone https://github.com/mswertz/molgenis-emx2.git
 ```
 Takes long first time because download of all dependencies (5 mins on my machine), but much less later (few seconds if you don't change anything) thanks to caches.
 
-
 ### To develop java/backend 'service'
 
-Backend server is developed using Java. 
+Backend is developed using Java. 
 We typically use [IntelliJ IDEA](https://www.jetbrains.com/idea/) for this.
-Clone the repo, then simply open IntelliJ and then 'import' and select the git clone folder.
+Clone the repo, then open IntelliJ and then 'import' and select the git clone folder.
 IntelliJ will recognize gradle and build all. First time that takes a few minutes.
 
 ### To develop javascript/frontend 'apps'
 
 Frontend apps are developed using [vuejs](https://vuejs.org/) and [vue-cli](https://cli.vuejs.org/).
-We typically use [Visual Studio 'Code'](https://code.visualstudio.com/)
-Instead of Gradle we can use Yarn during development of individual apps.
 
-We use yarn workspaces to manage dependencies between the js modules.
 To develop, first cd into to folder 'apps' and install all dependencies for all apps.
 This also automatically links local dependencies using [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
 ```console
@@ -148,10 +143,9 @@ yarn styleguide
 ```
 
 All other folders contain apps created using vue-cli.
-In order to develop you need to start a molgenis-exm2 as described above, e.g. docker-compose up.
-The /api path is then proxied, see vue.config.js
+In order to develop you need to start a molgenis-exm2 backend as described above, e.g. docker-compose up.
+The /api and /graphql path is then proxied, see vue.config.js
 In order to preview individual apps using yarn serve.
-For example
 ```console
 cd apps/schema
 yarn serve
@@ -168,20 +162,20 @@ Below summary of directions that have guided development.
 
 ### starting point
 * EMX2 simplified metadata format
-* Support for multiple schemas; each schema functions as permission group and as scope of multi-tenancy if desired
+* Organize data in schemas; each schema functions as permission group and as scope of multi-tenancy if desired
 * GraphQL endpoint for each schema, as well as 1 overall
-* Uses PostgreSQL for all heavy lifting (incl permissions, JSON generation)
-* Can be released and deployed with one artifact so we can spend more time on 'dev'
+* Uses PostgreSQL for all heavy lifting (incl search, permissions, JSON generation, file storage)
+* Can be packaged as one artifact to ease sharing 
+* Well isolated components (microfrontend using little spa, we envision microservice for server side add-ons)
 
-### minimize dependencies
-* PostgresQL for all heavy lifting (transactions, permissions, json generation)
+### dependencies
 * Jooq for safe database interaction 
 * Sparkjava for lightweigh webservice
 * Jackson for json and csv parsing
 * POI for Excel parsing
-* OpenApi for web service spec
 * graphql-java for graphql api
-Minimizes dependencies, no Spring stuff, no Elasticsearch, just the least that can work.
+* OpenApi for web service spec (for file based services that don't use graphql)
+To minimize dependencies, no Spring stuff, no Elasticsearch, just the least that can work.
 Outside scope: file service, script service, authentication (asumed all to be other services used as dependency)
 Most core ideas where already described in https://docs.google.com/document/d/19YEGG8OGgtjCu5WlJKmHbHvosJzw3Mp6e6e7B8EioPY/edit#
 
