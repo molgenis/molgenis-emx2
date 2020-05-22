@@ -56,7 +56,6 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata addColumn(Column column) {
-
     if (getColumn(column.getName()) != null) {
       // check if primary key not yet on local columns
       boolean found = false;
@@ -90,8 +89,8 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata alterColumn(Column column) {
-    Column oldColumn = getColumn(column.getName());
+  public TableMetadata alterColumn(String name, Column column) {
+    Column oldColumn = getColumn(name);
     if (oldColumn == null) {
       throw new MolgenisException(
           "Alter column failed",
@@ -101,7 +100,7 @@ class SqlTableMetadata extends TableMetadata {
         dsl -> {
           Column newColumn = new Column(this, column);
           SqlColumnUtils.executeAlterColumn(getJooq(), oldColumn, newColumn);
-          super.alterColumn(newColumn);
+          super.alterColumn(name, newColumn);
           reapplyRefbackContraints(oldColumn, newColumn);
         });
     return this;

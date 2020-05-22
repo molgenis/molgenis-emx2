@@ -92,7 +92,7 @@ public class TestMergeAlter {
           .getTable(REF_TABLE)
           .getMetadata()
           .alterColumn(new Column(REF_COLUMN).type(refColumnType));
-      fail("cast to colunn with faulty xref values should fail");
+      fail("cast to column with faulty xref values should fail");
     } catch (Exception e) {
       // correct
     }

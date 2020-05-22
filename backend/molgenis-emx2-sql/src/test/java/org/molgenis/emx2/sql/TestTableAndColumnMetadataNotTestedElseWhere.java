@@ -34,6 +34,21 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   }
 
   @Test
+  public void testAlterColumnName() {
+    try {
+      SchemaMetadata s = db.createSchema("testAlterColumnName").getMetadata();
+      TableMetadata t = s.create(table("test").addColumn(column("test")));
+      System.out.println(t);
+
+      t.alterColumn("test", column("test2"));
+      assertNull(t.getColumn("test"));
+      assertNotNull(t.getColumn("test2"));
+    } catch (MolgenisException me) {
+      System.out.println("Error unexpected:\n" + me);
+    }
+  }
+
+  @Test
   public void testRemoveUnknownUniqueError() {
     try {
       SchemaMetadata s = db.createSchema("testRemoveUnknownUniqueError").getMetadata();

@@ -63,6 +63,15 @@ public class SqlColumnUtils {
     // remove old constraints
     executeRemoveConstraints(jooq, oldColumn);
 
+    // rename if needed
+    if (!oldColumn.getName().equals(newColumn.getName())) {
+      jooq.execute(
+          "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+          asJooqTable(newColumn.getTable()), asJooqField(oldColumn), asJooqField(newColumn));
+      // delete old metadata
+      MetadataUtils.deleteColumn(jooq, oldColumn);
+    }
+
     // change the raw type
     if (newColumn.getColumnType().getType().isArray()
         && !oldColumn.getColumnType().getType().isArray()) {

@@ -229,7 +229,7 @@ public class SqlSchema implements Schema {
               // update the types
               if (oldColumn != null
                   && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
-                oldTable.alterColumn(newColumn);
+                oldTable.alterColumn(oldColumn.getName(), newColumn);
               }
 
               // create new refback relations

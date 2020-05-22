@@ -17,6 +17,7 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.JsonApi.*;
+import static org.molgenis.emx2.web.graphql.GraphqlAccountFields.EMAIL;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
@@ -27,9 +28,41 @@ public class GraphqlTableMetadataFields {
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
   public static final String DESCRIPTION = "description";
+  public static final String ROLE = "role";
 
   private GraphqlTableMetadataFields() {
     // hide constructor
+  }
+
+  public static GraphQLFieldDefinition saveMemberField(Schema schema) {
+    return newFieldDefinition()
+        .name("saveMember")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(newArgument().name(ROLE).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String user = dataFetchingEnvironment.getArgument(EMAIL);
+              String role = dataFetchingEnvironment.getArgument(ROLE);
+              schema.addMember(user, role);
+              return new GraphqlApiMutationResult(
+                  SUCCESS, "Member '" + user + "' created with role '" + role + "'");
+            })
+        .build();
+  }
+
+  public static GraphQLFieldDefinition removeMemberField(Schema schema) {
+    return newFieldDefinition()
+        .name("removeMember")
+        .type(typeForMutationResult)
+        .argument(newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String user = dataFetchingEnvironment.getArgument(EMAIL);
+              schema.removeMember(user);
+              return new GraphqlApiMutationResult(SUCCESS, "Member '" + user + "' removed");
+            })
+        .build();
   }
 
   public static GraphQLFieldDefinition addColumnField(Schema schema) {
@@ -131,9 +164,9 @@ public class GraphqlTableMetadataFields {
         .build();
   }
 
-  public static GraphQLFieldDefinition.Builder metaField(Schema schema) {
+  public static GraphQLFieldDefinition.Builder schemaField(Schema schema) {
     return newFieldDefinition()
-        .name("_meta")
+        .name("_schema")
         .type(outputMetadataType)
         .dataFetcher(GraphqlTableMetadataFields.queryFetcher(schema));
   }
