@@ -15,7 +15,7 @@ import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMuta
 
 public class GraphqlAccountFields {
 
-  private static final String EMAIL = "email";
+  public static final String EMAIL = "email";
   private static final String PASSWORD = "password"; // NOSONAR
 
   private GraphqlAccountFields() {

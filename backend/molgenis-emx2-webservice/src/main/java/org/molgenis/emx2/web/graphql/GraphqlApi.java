@@ -24,7 +24,7 @@ import java.util.*;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.graphql.GraphqlDatabaseFields.*;
-import static org.molgenis.emx2.web.graphql.GraphqlTableMetadataFields.*;
+import static org.molgenis.emx2.web.graphql.GraphqlSchemaFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.*;
 import static org.molgenis.emx2.web.graphql.GraphqlTableQueryFields.tableQueryField;
 import static org.molgenis.emx2.web.graphql.GraphqlAccountFields.*;
@@ -102,43 +102,30 @@ public class GraphqlApi {
 
   public static GraphQL createGraphqlForSchema(Schema schema) {
     long start = System.currentTimeMillis();
+
     GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
 
-    // login and account
+    // queries
+    queryBuilder.field(schemaQuery(schema));
     queryBuilder.field(userQueryField(schema.getDatabase()));
-    mutationBuilder.field(signinField(schema.getDatabase()));
-    mutationBuilder.field(signoutField(schema.getDatabase()));
-    mutationBuilder.field(signupField(schema.getDatabase()));
-
-    // add query and mutation for each table
-    mutationBuilder.field(insertField(schema));
-    mutationBuilder.field(updateField(schema));
-    mutationBuilder.field(deleteField(schema));
-    mutationBuilder.field(createTableField(schema));
-    mutationBuilder.field(dropTableField(schema));
-    mutationBuilder.field(addColumnField(schema));
-    mutationBuilder.field(alterColumnField(schema));
-    mutationBuilder.field(dropColumnField(schema));
-
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       queryBuilder.field(tableQueryField(table));
     }
 
-    // add meta query, if member
-    String role = schema.getRoleForUser(schema.getDatabase().getActiveUser());
-    boolean isAdmin =
-        "admin".equals(schema.getDatabase().getActiveUser())
-            || schema.getDatabase().getActiveUser() == null;
-    if (role != null || isAdmin) {
-      queryBuilder.field(metaField(schema));
-      // add meta query, if manager
-      if ((role != null && role.contains("Manager")) || isAdmin) {
-        mutationBuilder.field(saveMetaField(schema));
-        mutationBuilder.field(deleteMetaField(schema));
-      }
-    }
+    // mutations
+
+    mutationBuilder.field(insertMutation(schema));
+    mutationBuilder.field(updateMutation(schema));
+    mutationBuilder.field(deleteMutation(schema));
+    mutationBuilder.field(createMutation(schema));
+    mutationBuilder.field(alterMutation(schema));
+    mutationBuilder.field(dropMutation(schema));
+
+    mutationBuilder.field(signinField(schema.getDatabase()));
+    mutationBuilder.field(signoutField(schema.getDatabase()));
+    mutationBuilder.field(signupField(schema.getDatabase()));
 
     // assemble and return
     GraphQL result =

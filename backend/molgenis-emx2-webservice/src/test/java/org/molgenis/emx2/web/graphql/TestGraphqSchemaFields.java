@@ -175,36 +175,36 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void testSchemaQueries() throws IOException {
-    assertEquals(schemaName, execute("{_meta{name}}").at("/_meta/name").textValue());
+    assertEquals(schemaName, execute("{_schema{name}}").at("/_schema/name").textValue());
   }
 
   @Test
   public void testMembersOperations() throws IOException {
 
     // list members
-    int count = execute("{_meta{members{user}}}").at("/_meta/members").size();
+    int count = execute("{_schema{members{email}}}").at("/_schema/members").size();
 
     // add members
-    execute("mutation{saveMeta(members:{user:\"blaat\", role:\"Manager\"}){message}}");
-    assertEquals(count + 1, execute("{_meta{members{user}}}").at("/_meta/members").size());
+    execute("mutation{create(members:{email:\"blaat\", role:\"Manager\"}){message}}");
+    assertEquals(count + 1, execute("{_schema{members{email}}}").at("/_schema/members").size());
 
     // remove members
-    execute("mutation{deleteMeta(members:\"blaat\"){message}}");
-    assertEquals(count, execute("{_meta{members{user}}}").at("/_meta/members").size());
+    execute("mutation{drop(members:\"blaat\"){message}}");
+    assertEquals(count, execute("{_schema{members{email}}}").at("/_schema/members").size());
   }
 
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+    assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // add table
-    execute("mutation{saveMeta(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){message}}");
-    assertEquals(6, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+    execute("mutation{create(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){message}}");
+    assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // drop
-    execute("mutation{deleteMeta(tables:\"blaat\"){message}}");
-    assertEquals(5, execute("{_meta{tables{name}}}").at("/_meta/tables").size());
+    execute("mutation{drop(tables:\"blaat\"){message}}");
+    assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 
   private JsonNode execute(String query) throws IOException {
@@ -225,21 +225,22 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void testAddAlterDropColumn() throws IOException {
-    execute("mutation{addColumn(table:\"Pet\", column:{name:\"test\", nullable:true}){message}}");
+    execute("mutation{create(columns:{table:\"Pet\",name:\"test\", nullable:true}){message}}");
     assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
 
     execute(
-        "mutation{alterColumn(table:\"Pet\", column:{name:\"test\", nullable:true, columnType:\"INT\"}){message}}");
+        "mutation{alter(columns:{table:\"Pet\", name:\"test\", definition:{name:\"test2\", nullable:true, columnType:\"INT\"}}){message}}");
+    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
     assertEquals(
         ColumnType.INT,
         database
             .getSchema(schemaName)
             .getTable("Pet")
             .getMetadata()
-            .getColumn("test")
+            .getColumn("test2")
             .getColumnType());
 
-    execute("mutation{dropColumn(table:\"Pet\", column:\"test\"){message}}");
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
   }
 }

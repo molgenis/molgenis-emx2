@@ -136,11 +136,40 @@ public class TableMetadata {
   }
 
   public TableMetadata alterColumn(Column column) {
+    return this.alterColumn(column.getName(), column);
+  }
+
+  public TableMetadata alterColumn(String name, Column column) {
+    // add the new
     columns.put(column.getName(), new Column(this, column));
     if (column.isPrimaryKey()) {
       this.setPrimaryKey(column.getName());
     }
     column.setTable(this);
+
+    // if changed, update any unique constraints involving this column
+    if (!column.getName().equals(name)) {
+      for (String[] unique : getUniques()) {
+        List<String> uniqueList = Arrays.asList(unique);
+        if (uniqueList.contains(name)) {
+          this.removeUnique(unique);
+          uniqueList.set(uniqueList.indexOf(name), column.getName());
+          this.addUnique(uniqueList.toArray(new String[uniqueList.size()]));
+        }
+      }
+
+      // update any refs involving this column
+      for (TableMetadata tm : getSchema().getTables()) {
+        for (Column c : tm.getColumns()) {
+          if (c.getRefTableName() != null
+              && c.getRefTableName().equals(this.getTableName())
+              && c.getRefColumnName().equals(name)) {
+            c.refColumn(column.getName());
+          }
+        }
+      }
+      columns.remove(name);
+    }
     return this;
   }
 

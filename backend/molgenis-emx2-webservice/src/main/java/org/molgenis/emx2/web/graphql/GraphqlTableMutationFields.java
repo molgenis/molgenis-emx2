@@ -11,7 +11,6 @@ import java.util.Map;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
-import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.utils.TypeUtils.getPrimitiveColumnType;
 import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
@@ -22,7 +21,7 @@ class GraphqlTableMutationFields {
     // hide
   }
 
-  static GraphQLFieldDefinition insertField(Schema schema) {
+  static GraphQLFieldDefinition insertMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         newFieldDefinition()
             .name("insert")
@@ -31,14 +30,15 @@ class GraphqlTableMutationFields {
 
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      GraphQLInputObjectType inputType = createTableInputType(table);
       fieldBuilder.argument(
-          GraphQLArgument.newArgument().name(tableName).type(GraphQLList.list(inputType)));
+          GraphQLArgument.newArgument()
+              .name(tableName)
+              .type(GraphQLList.list(rowInputType(table))));
     }
     return fieldBuilder.build();
   }
 
-  static GraphQLFieldDefinition updateField(Schema schema) {
+  static GraphQLFieldDefinition updateMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         newFieldDefinition()
             .name("update")
@@ -56,7 +56,7 @@ class GraphqlTableMutationFields {
     return fieldBuilder.build();
   }
 
-  static GraphQLFieldDefinition deleteField(Schema schema) {
+  static GraphQLFieldDefinition deleteMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         newFieldDefinition()
             .name("delete")
@@ -118,7 +118,7 @@ class GraphqlTableMutationFields {
     };
   }
 
-  private static GraphQLInputObjectType createTableInputType(Table table) {
+  private static GraphQLInputObjectType rowInputType(Table table) {
     GraphQLInputObjectType.Builder inputBuilder = newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
       ColumnType columnType = getPrimitiveColumnType(col);

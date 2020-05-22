@@ -4,7 +4,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
-
+  private String table;
   private String name;
   private Boolean unique = false;
   private Boolean pkey = false;
@@ -19,6 +19,7 @@ public class Column {
   public Column() {}
 
   public Column(org.molgenis.emx2.Column column) {
+    this.table = column.getTableName();
     this.name = column.getName();
     this.pkey = column.isPrimaryKey();
     this.unique = column.isUnique();
@@ -43,6 +44,14 @@ public class Column {
     c.validation(validation);
     c.setDescription(description);
     return c;
+  }
+
+  public String getTable() {
+    return table;
+  }
+
+  public void setTable(String table) {
+    this.table = table;
   }
 
   public String getName() {

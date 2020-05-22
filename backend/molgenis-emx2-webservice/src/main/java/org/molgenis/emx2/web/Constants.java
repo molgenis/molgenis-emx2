@@ -23,6 +23,8 @@ public class Constants {
   public static final String FILTER = "filter";
   public static final String TABLES = "tables";
   public static final String MEMBERS = "members";
+  public static final String COLUMNS = "columns";
+
   public static final String DETAIL = "detail";
   static final String COUNT = "count";
   public static final String LIMIT = "limit";
