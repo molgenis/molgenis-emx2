@@ -27,8 +27,9 @@ import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestWebApi {
 
-  public static final String DATA_PET_STORE = "/api/json/pet store";
+  public static final String DATA_PET_STORE = "/api/csv/pet store";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  private static Database db;
 
   @BeforeClass
   public static void before() throws SQLException, IOException {
@@ -41,7 +42,7 @@ public class TestWebApi {
     dataSource.setPassword("molgenis");
 
     // setup test schema
-    Database db = TestDatabaseFactory.getTestDatabase(dataSource);
+    db = TestDatabaseFactory.getTestDatabase(dataSource);
     Schema schema = db.createSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
@@ -58,81 +59,12 @@ public class TestWebApi {
   }
 
   @Test
-  public void test1Membership() {
-    String path = "/api/members/pet store";
-    List members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(2, members.size());
-
-    String bofke = "[{\"user\":\"bofke\",\"role\":\"Editor\"}]";
-
-    // add bofke
-    String result =
-        given()
-            .contentType(ACCEPT_JSON)
-            .body("[{\"user\":\"bofke\",\"role\":\"Editor\"}]")
-            .when()
-            .post(path)
-            .asString();
-
-    members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(3, members.size());
-
-    // update bofke membership
-    result =
-        given()
-            .contentType(ACCEPT_JSON)
-            .body("[{\"user\":\"bofke\",\"role\":\"Viewer\"}]")
-            .when()
-            .post("/members/pet store")
-            .asString();
-
-    members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-
-    // update bofke to nonexisting role should give error
-    Map error =
-        given()
-            .contentType(ACCEPT_JSON)
-            .body("[{\"user\":\"bofke\",\"role\":\"FAKEROLE\"}]")
-            .when()
-            .post(path)
-            .as(Map.class);
-    assertTrue(error.get("errors").toString().contains("doesn't exist"));
-    // make MolgenisException an unchecked exception?
-
-    // remove unknown user
-    error =
-        given()
-            .contentType(ACCEPT_JSON)
-            .body("[{\"user\":\"pofke\",\"role\":\"FAKEROLE\"}]")
-            .when()
-            .post(path)
-            .as(Map.class);
-    assertTrue(error.get("errors").toString().contains("doesn't exist"));
-
-    // remove bofke from membership
-    given()
-        .contentType(ACCEPT_JSON)
-        .body("[{\"user\":\"bofke\",\"role\":\"Viewer\"}]")
-        .when()
-        .delete(path)
-        .asString();
-    members = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(2, members.size());
-  }
-
-  @Test
   public void test2SchemaDownloadUploadZip() throws IOException {
     // get original schema
-    String schemaJson = given().accept(ACCEPT_JSON).when().get(DATA_PET_STORE).asString();
+    String schemaCsv = given().accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
-    given()
-        .contentType(ACCEPT_JSON)
-        .body("{\"name\":\"pet store zip\"}")
-        .when()
-        .post("/api/json")
-        .then()
-        .statusCode(200);
+    db.createSchema("pet store zip");
 
     // download zip contents of old schema
     byte[] zipContents = given().accept(ACCEPT_ZIP).when().get("/api/zip/pet store").asByteArray();
@@ -142,32 +74,21 @@ public class TestWebApi {
     given().multiPart(zipFile).when().post("/api/zip/pet store zip").then().statusCode(200);
 
     // check if schema equal using json representation
-    String schemaJson2 =
-        given().accept(ACCEPT_JSON).when().get("/api/json/pet store zip").asString();
-    assertEquals(schemaJson, schemaJson2);
+    String schemaCsv2 = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store zip").asString();
+    assertEquals(schemaCsv, schemaCsv2);
 
     // delete the new schema
-    given().accept(ACCEPT_JSON).when().delete("/api/json/pet store zip").then().statusCode(200);
-
-    // check deleted
-    String contents = given().contentType(ACCEPT_JSON).when().get("/api/json").asString();
-    assertFalse(contents.contains("zip"));
+    db.dropSchema("pet store zip");
   }
 
   @Test
   public void test3SchemaDownloadUploadExcel() throws IOException {
 
     // download json schema
-    String schemaJson = given().accept(ACCEPT_JSON).when().get("/api/json/pet store").asString();
+    String schemaCSV = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store").asString();
 
     // create a new schema for excel
-    given()
-        .contentType(ACCEPT_JSON)
-        .body("{\"name\":\"pet store excel\"}")
-        .when()
-        .post("/api/json")
-        .then()
-        .statusCode(200);
+    db.createSchema("pet store excel");
 
     // download excel contents from schema
     byte[] excelContents =
@@ -178,16 +99,11 @@ public class TestWebApi {
     given().multiPart(excelFile).when().post("/api/excel/pet store excel").then().statusCode(200);
 
     // check if schema equal using json representation
-    String schemaJson3 =
-        given().accept(ACCEPT_JSON).when().get("/api/json/pet store excel").asString();
-    // todo cant compare because random ordering assertEquals(schemaJson, schemaJson3);
+    String schemaCSV2 =
+        given().accept(ACCEPT_CSV).when().get("/api/csv/pet store excel").asString();
 
     // delete a new schema for excel
-    given().accept(ACCEPT_JSON).when().delete("/api/json/pet store excel").then().statusCode(200);
-
-    // check deleted
-    String contents = given().contentType(ACCEPT_JSON).when().get("/api/json").asString();
-    assertFalse(contents.contains("excel"));
+    db.dropSchema("pet store excel");
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
@@ -198,27 +114,6 @@ public class TestWebApi {
     os.flush();
     os.close();
     return tempFile;
-  }
-
-  @Test
-  public void test4TableGetPostDeleteJSON() {
-
-    String path = "/api/json/pet store/Category";
-
-    List result = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(2, result.size());
-
-    String body = "[{\"name\":\"cCategory\"}]";
-
-    given().contentType(ACCEPT_JSON).body(body).when().post(path).then().statusCode(200);
-
-    result = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(3, result.size());
-
-    given().contentType(ACCEPT_JSON).body(body).when().delete(path).then().statusCode(200);
-
-    result = given().accept(ACCEPT_JSON).when().get(path).as(List.class);
-    assertEquals(2, result.size());
   }
 
   @Test

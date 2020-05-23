@@ -2,7 +2,6 @@ package org.molgenis.emx2.web.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.web.JsonApi;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -26,7 +25,7 @@ public class JsonExceptionMapper {
     error.put("errors", errorList);
 
     try {
-      return JsonApi.getWriter().writeValueAsString(error);
+      return JsonUtil.getWriter().writeValueAsString(error);
     } catch (JsonProcessingException ex) {
       return "ERROR CONVERSION FAILED " + ex;
     }

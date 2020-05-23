@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jsoniter.spi.JsonException;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
@@ -63,11 +62,14 @@ public class MolgenisWebservice {
           return "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response);
         });
 
+    // documentation operations
+    get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
+    get("/api/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
+    get("/api/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
+
     // services (matched in order of creation)
     AppsProxyService.create(new SqlDatabase(ds));
-    JsonApi.create();
     CsvApi.create();
-    MembersApi.create();
     ZipApi.create();
     ExcelApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
@@ -75,20 +77,7 @@ public class MolgenisWebservice {
 
     // schema members operations
 
-    // documentation operations
-    get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
-    get("/api/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
-    get("/api/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
-
     // handling of exceptions
-    exception(
-        JsonException.class,
-        (e, req, res) -> {
-          logger.debug(e.toString());
-          res.status(400);
-          res.body(
-              String.format("{\"message\":\"%s%n%s\"%n}", "Failed to parse JSON:", req.body()));
-        });
     exception(
         MolgenisException.class,
         (e, req, res) -> {

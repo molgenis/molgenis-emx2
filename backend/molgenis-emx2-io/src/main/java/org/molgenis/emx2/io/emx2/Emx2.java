@@ -7,6 +7,8 @@ import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.molgenis.emx2.Column.column;
@@ -228,7 +230,11 @@ public class Emx2 {
 
   private static List<Emx2FileRow> convertModelToMolgenisFileRows(SchemaMetadata model) {
     List<Emx2FileRow> rows = new ArrayList<>();
-    for (String tableName : model.getTableNames()) {
+    List<String> tableNames = new ArrayList();
+    // deterministic order (TODO make user define order)
+    tableNames.addAll(model.getTableNames());
+    Collections.sort(tableNames);
+    for (String tableName : tableNames) {
       TableMetadata table = model.getTableMetadata(tableName);
       writeTableDefinitionRow(table, rows);
       for (Column column : table.getColumns()) {

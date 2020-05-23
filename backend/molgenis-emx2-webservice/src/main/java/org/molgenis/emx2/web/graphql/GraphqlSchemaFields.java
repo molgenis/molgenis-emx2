@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.web.JsonApi;
+import org.molgenis.emx2.web.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.JsonApi.*;
 import static org.molgenis.emx2.web.graphql.GraphqlAccountFields.EMAIL;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -98,8 +97,8 @@ public class GraphqlSchemaFields {
               // tables
               if (tables != null) {
                 Map tableMap = Map.of("tables", tables);
-                String json = JsonApi.getWriter().writeValueAsString(tableMap);
-                SchemaMetadata otherSchema = jsonToSchema(json);
+                String json = JsonUtil.getWriter().writeValueAsString(tableMap);
+                SchemaMetadata otherSchema = JsonUtil.jsonToSchema(json);
                 schema.merge(otherSchema);
               }
               // members
@@ -118,8 +117,8 @@ public class GraphqlSchemaFields {
                   if (tm == null) {
                     throw new GraphqlException("", "Table '" + tableName + "' not found");
                   }
-                  String json = JsonApi.getWriter().writeValueAsString(c);
-                  Column column = jsonToColumn(json);
+                  String json = JsonUtil.getWriter().writeValueAsString(c);
+                  Column column = JsonUtil.jsonToColumn(json);
 
                   tm.addColumn(column);
                 }
@@ -185,8 +184,8 @@ public class GraphqlSchemaFields {
                 for (Map<String, String> c : columns) {
                   String tableName = c.get(TABLE);
                   String columnName = c.get(NAME);
-                  String json = JsonApi.getWriter().writeValueAsString(c.get(DEFINITION));
-                  Column columnDefinition = jsonToColumn(json);
+                  String json = JsonUtil.getWriter().writeValueAsString(c.get(DEFINITION));
+                  Column columnDefinition = JsonUtil.jsonToColumn(json);
                   TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
                   if (tm == null) {
                     throw new GraphqlException("", "Table '" + tableName + "' not found");
@@ -277,7 +276,7 @@ public class GraphqlSchemaFields {
     return dataFetchingEnvironment -> {
 
       // add tables
-      String json = schemaToJson(schema.getMetadata());
+      String json = JsonUtil.schemaToJson(schema.getMetadata());
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
       // add members

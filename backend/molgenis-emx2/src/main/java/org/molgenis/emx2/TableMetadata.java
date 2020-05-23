@@ -15,6 +15,14 @@ public class TableMetadata {
     return new TableMetadata(tableName);
   }
 
+  public static TableMetadata table(String tableName, Column... columns) {
+    TableMetadata tm = new TableMetadata(tableName);
+    for (Column c : columns) {
+      tm.addColumn(c);
+    }
+    return tm;
+  }
+
   public TableMetadata(String tableName) {
     this.tableName = tableName;
   }

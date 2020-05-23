@@ -10,9 +10,9 @@ import graphql.GraphQLError;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.web.JsonApi;
 import org.molgenis.emx2.web.MolgenisSession;
 import org.molgenis.emx2.web.MolgenisSessionManager;
+import org.molgenis.emx2.web.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -197,7 +197,7 @@ public class GraphqlApi {
       throws JsonProcessingException {
     // tests show conversions below is under 3ms
     Map<String, Object> toSpecificationResult = executionResult.toSpecification();
-    return JsonApi.getWriter().writeValueAsString(toSpecificationResult);
+    return JsonUtil.getWriter().writeValueAsString(toSpecificationResult);
   }
 
   private static String getQueryFromRequest(Request request) throws IOException {

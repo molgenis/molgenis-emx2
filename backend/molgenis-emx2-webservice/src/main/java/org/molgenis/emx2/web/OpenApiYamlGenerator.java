@@ -45,13 +45,7 @@ public class OpenApiYamlGenerator {
     components.addSecuritySchemes("ApiKeyAuth", securityScheme());
     components.addSchemas(PROBLEM, problemSchema());
     components.addResponses(PROBLEM, problemResponse());
-    components.addSchemas(MEMBER, memberSchema());
-    components.addSchemas(SCHEMA, schemaSchema());
-
-    // api/json
-    PathItem dataApi = new PathItem();
-    dataApi.post(apiPostOperation());
-    paths.addPathItem("/api/json", dataApi);
+    // components.addSchemas(SCHEMA, schemaSchema());
 
     // api/zip/:schema
     PathItem zipPath = new PathItem();
@@ -65,61 +59,10 @@ public class OpenApiYamlGenerator {
     excelPath.get(getFileOperation("Excel", ACCEPT_EXCEL));
     paths.addPathItem("/api/excel/" + schema.getName(), excelPath);
 
-    // api/json/:schema
-    PathItem schemaPath = new PathItem();
-    schemaPath.get(schemaGetOperation());
-    schemaPath.delete(schemaDeleteOperation());
-    paths.addPathItem("/api/json/" + schema.getName(), schemaPath);
-
-    // api/members/:schema
-    PathItem membersPath = new PathItem();
-    membersPath.get(tableGetOperation(MEMBER));
-    membersPath.post(tablePostOperation(MEMBER));
-    membersPath.delete(tableDeleteOperation(MEMBER));
-    paths.addPathItem("/api/members/" + schema.getName(), membersPath);
-
-    // api/json/:schema/:table
-    for (String tableNameUnencoded : schema.getTableNames()) {
-      TableMetadata table = schema.getTableMetadata(tableNameUnencoded);
-      String tableName = table.getTableName();
-
-      // table components
-      components.addSchemas(table.getTableName(), tableSchema(table));
-      components.addResponses(tableName, tableResponse(tableName));
-
-      // table operations
-      PathItem tablePath = new PathItem();
-      tablePath.get(tableGetOperation(tableName));
-      tablePath.post(tablePostOperation(tableName));
-      tablePath.delete(tableDeleteOperation(tableName));
-
-      // add the paths to paths
-      paths.addPathItem("/api/json/" + schema.getName() + "/" + tableName, tablePath);
-    }
-
     // assembly
     api.setPaths(paths);
     api.setComponents(components);
     return api;
-  }
-
-  private static Schema tableSchema(TableMetadata table) {
-    Map<String, Schema> properties = new LinkedHashMap<>();
-    for (Column column : table.getColumns()) {
-      properties.put(column.getName(), columnSchema(column));
-    }
-    return new Schema()
-        .description("JSON schema for " + table.getTableName())
-        .type(OBJECT)
-        .properties(properties);
-  }
-
-  private static ApiResponse tableResponse(String tableName) {
-    return new ApiResponse()
-        .description("JSON response for table " + tableName)
-        .content(
-            new Content()
-                .addMediaType(ACCEPT_JSON, new MediaType().schema(new Schema().$ref(tableName))));
   }
 
   private static SecurityScheme securityScheme() {
@@ -141,29 +84,6 @@ public class OpenApiYamlGenerator {
         .version("0.0.1")
         .description(
             "MOLGENIS API for schema stored in MOLGENIS under name '" + schema.getName() + "'");
-  }
-
-  private static Operation apiPostOperation() {
-    return new Operation()
-        .summary("Create a new schema")
-        .requestBody(
-            new RequestBody()
-                .content(
-                    new Content()
-                        .addMediaType(
-                            ACCEPT_JSON,
-                            new MediaType()
-                                .schema(
-                                    new Schema()
-                                        .type(OBJECT)
-                                        .addProperties("name", new StringSchema())))))
-        .responses(apiResponses());
-  }
-
-  private static Schema memberSchema() {
-    return new ObjectSchema()
-        .addProperties("user", new StringSchema())
-        .addProperties("role", new StringSchema());
   }
 
   private static Schema problemSchema() {
@@ -189,10 +109,6 @@ public class OpenApiYamlGenerator {
                 .addMediaType(ACCEPT_JSON, new MediaType().schema(new Schema().$ref(PROBLEM))));
   }
 
-  private static Operation schemaDeleteOperation() {
-    return new Operation().summary("Delete this schema").responses(apiResponses());
-  }
-
   private static Operation getFileOperation(String type, String mimeType) {
     return new Operation()
         .summary("Get complete schema metadata as " + type)
@@ -207,28 +123,6 @@ public class OpenApiYamlGenerator {
                                 .addMediaType(
                                     mimeType,
                                     new MediaType().schema(new StringSchema().format("binary"))))));
-  }
-
-  private static Operation schemaGetOperation() {
-    return new Operation()
-        .summary("Get complete schema metadata (JSON, CSV) or even complete contents (as ZIP)")
-        .responses(
-            new ApiResponses()
-                .addApiResponse(
-                    OK,
-                    new ApiResponse()
-                        .content(
-                            new Content()
-                                .addMediaType(
-                                    ACCEPT_JSON, new MediaType().schema(new Schema().$ref(SCHEMA)))
-                                .addMediaType(
-                                    ACCEPT_ZIP,
-                                    new MediaType().schema(new StringSchema().format("binary")))
-                                .addMediaType(
-                                    ACCEPT_CSV, new MediaType().schema(new Schema().$ref(SCHEMA)))
-                                .addMediaType(
-                                    ACCEPT_EXCEL,
-                                    new MediaType().schema(new Schema().$ref(SCHEMA))))));
   }
 
   private static Operation postFileOperation(String type) {
@@ -252,37 +146,6 @@ public class OpenApiYamlGenerator {
             new Schema()
                 .type(OBJECT)
                 .addProperties("file", new FileSchema().description("upload file")));
-  }
-
-  private static Operation tableGetOperation(String tableName) {
-    MediaType mediaType =
-        new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)));
-    return new Operation()
-        .addTagsItem(tableName)
-        .summary("Retrieve multiple rows from " + tableName)
-        .responses(
-            new ApiResponses()
-                .addApiResponse(
-                    OK,
-                    new ApiResponse()
-                        .description("success")
-                        .content(new Content().addMediaType(ACCEPT_JSON, mediaType))));
-  }
-
-  private static Operation tablePostOperation(String tableName) {
-    return new Operation()
-        .addTagsItem(tableName)
-        .summary("Add an array of one or more " + tableName)
-        .requestBody(tableRequestBody(tableName))
-        .responses(apiResponses());
-  }
-
-  private static Operation tableDeleteOperation(String tableName) {
-    return new Operation()
-        .addTagsItem(tableName)
-        .summary("Delete an array of one more " + tableName)
-        .requestBody(tableRequestBody(tableName))
-        .responses(apiResponses());
   }
 
   public static ApiResponses apiResponses() {
@@ -330,54 +193,5 @@ public class OpenApiYamlGenerator {
     metadataSchema.addProperties("tables", new ArraySchema().items(tableMetadata));
 
     return metadataSchema;
-  }
-
-  private static Schema columnSchema(Column column) {
-    switch (column.getColumnType()) {
-      case UUID:
-        return new UUIDSchema();
-      case UUID_ARRAY:
-        return new ArraySchema().items(new UUIDSchema());
-      case STRING:
-        return new StringSchema();
-      case STRING_ARRAY:
-        return new ArraySchema().items(new StringSchema());
-      case BOOL:
-        return new BooleanSchema();
-      case BOOL_ARRAY:
-        return new ArraySchema().items(new BooleanSchema());
-      case INT:
-        return new IntegerSchema();
-      case INT_ARRAY:
-        return new ArraySchema().items(new IntegerSchema());
-      case DECIMAL:
-        return new NumberSchema().format("double");
-      case DECIMAL_ARRAY:
-        return new ArraySchema().items(new NumberSchema().format("double"));
-      case TEXT:
-        return new StringSchema();
-      case TEXT_ARRAY:
-        return new ArraySchema().items(new StringSchema());
-      case DATE:
-        return new StringSchema().format("date");
-      case DATE_ARRAY:
-        return new ArraySchema().items(new StringSchema().format("date"));
-      case DATETIME:
-        return new StringSchema().format("datetime");
-      case DATETIME_ARRAY:
-        return new ArraySchema().items(new StringSchema().format("datetime"));
-      case REF:
-        return columnSchema(column.getRefColumn());
-      case REF_ARRAY:
-      case REFBACK:
-      case MREF:
-        return new ArraySchema().items(columnSchema(column.getRefColumn()));
-      default:
-        throw new MolgenisException(
-            "Open api generation failed",
-            "ColumnType "
-                + column.getColumnType()
-                + " not supported. Should never happen unless during development.");
-    }
   }
 }
