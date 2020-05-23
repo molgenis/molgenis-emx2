@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <Molgenis :menuItems="menuItems" :title="'Schema ' + schema" id="__top">
     <Spinner v-if="loading" />
     <MessageError v-else-if="error">{{ error }}</MessageError>
     <div v-else>
@@ -146,7 +146,7 @@
         loadSchema()
       "
     />
-  </div>
+  </Molgenis>
 </template>
 
 <style scoped>
@@ -188,7 +188,8 @@ import {
   IconDanger,
   Spinner,
   MessageError,
-  InputBoolean
+  InputBoolean,
+  Molgenis
 } from '@mswertz/emx2-styleguide'
 import ColumnEditModal from './ColumnEditModal'
 import ColumnDropModal from './ColumnDropModal'
@@ -214,7 +215,8 @@ export default {
     TableEditModal,
     ColumnEditModal,
     ColumnDropModal,
-    TableDropModal
+    TableDropModal,
+    Molgenis
   },
   data: function() {
     return {
@@ -229,8 +231,7 @@ export default {
       columnAdd: false,
       columnDrop: false,
       tableAdd: false,
-      tableDrop: false,
-      menuItems: []
+      tableDrop: false
     }
   },
   methods: {
@@ -240,9 +241,12 @@ export default {
       this.loading = true
       request(
         'graphql',
-        '{_schema{tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,nullable,description}}}}'
+        '{_schema{name, tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,nullable,description}}}}'
       )
-        .then(data => (this.tables = data._schema.tables))
+        .then(data => {
+          this.schema = data._schema.name
+          this.tables = data._schema.tables
+        })
         .catch(error => {
           this.error = error.response.errors[0].message
         })
@@ -250,6 +254,23 @@ export default {
     }
   },
   computed: {
+    menuItems() {
+      return [
+        { label: 'Home', href: '../home' },
+        {
+          label: 'Design',
+          href: '../design'
+        },
+        {
+          label: 'Members',
+          href: '../members'
+        },
+        {
+          label: 'GraphQL',
+          href: '/api/playground.html?schema=/api/graphql/' + this.schema
+        }
+      ]
+    },
     count() {
       if (this.tables) return this.tables.length
       return 0
@@ -281,16 +302,6 @@ export default {
           })
         }
       })
-      //pre-load the image
-      // var objImg = new Image()
-      // objImg.onload = function() {
-      //   this.loadingYuml = false
-      // }
-      // if (objImg.complete) {
-      //   alert('complete')
-      //   this.loadingYuml = false
-      // }
-      //objImg.src = res
       return res
     }
   },
