@@ -258,12 +258,16 @@ export default {
       return [
         { label: 'Home', href: '../home' },
         {
-          label: 'Design',
-          href: '../design'
+          label: 'Schema',
+          href: '../schema/'
         },
         {
-          label: 'Members',
-          href: '../members'
+          label: 'Upload',
+          href: '../import/'
+        },
+        {
+          label: 'Download',
+          href: '/api/excel/' + this.schema
         },
         {
           label: 'GraphQL',
