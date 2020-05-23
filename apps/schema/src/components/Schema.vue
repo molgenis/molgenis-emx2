@@ -9,7 +9,13 @@
         :defaultValue="showAttributes"
       />
       <div style="overflow: auto; text-align:center">
-        <img :src="yuml" :key="showAttributes" />
+        <Spinner v-if="loadingYuml" />
+        <img
+          :style="{ visibility: loadingYuml ? 'hidden' : 'visible' }"
+          :src="yuml"
+          :key="showAttributes"
+          @load="loadingYuml = false"
+        />
       </div>
       <div></div>
       <span v-for="table in tables" :key="table.name">
@@ -214,6 +220,7 @@ export default {
     return {
       showAttributes: false,
       loading: false,
+      loadingYuml: false,
       tables: null,
       error: null,
       currentTable: null,
@@ -233,15 +240,13 @@ export default {
       this.loading = true
       request(
         'graphql',
-        '{_meta{tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,nullable,description}}}}'
+        '{_schema{tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,nullable,description}}}}'
       )
-        .then(data => (this.tables = data._meta.tables))
+        .then(data => (this.tables = data._schema.tables))
         .catch(error => {
-          if (error.response.error.status === 403) {
-            this.error = 'Forbidden. Do you need to login?'
-          } else this.error = error.response.error
+          this.error = error.response.errors[0].message
         })
-      this.loading = false
+        .finally((this.loading = false))
     }
   },
   computed: {
@@ -250,12 +255,13 @@ export default {
       return 0
     },
     yuml() {
+      this.loadingYuml = true
       if (!this.tables) return ''
       let res = 'http://yuml.me/diagram/scruffy;dir:lr/class/'
       // classes
       this.tables.forEach(table => {
         res += `[${table.name}`
-        if (this.showAttributes) {
+        if (Array.isArray(table.columns) && this.showAttributes) {
           res += '|'
           table.columns.forEach(column => {
             res += `${column.name};`
@@ -265,7 +271,7 @@ export default {
       })
       // relations
       this.tables.forEach(table => {
-        if (table.columns) {
+        if (Array.isArray(table.columns)) {
           table.columns.forEach(column => {
             if (column.columnType === 'REF') {
               res += `[${table.name}]->[${column.refTable}],`
@@ -275,6 +281,16 @@ export default {
           })
         }
       })
+      //pre-load the image
+      // var objImg = new Image()
+      // objImg.onload = function() {
+      //   this.loadingYuml = false
+      // }
+      // if (objImg.complete) {
+      //   alert('complete')
+      //   this.loadingYuml = false
+      // }
+      //objImg.src = res
       return res
     }
   },

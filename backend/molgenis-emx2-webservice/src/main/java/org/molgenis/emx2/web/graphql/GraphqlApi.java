@@ -67,6 +67,12 @@ public class GraphqlApi {
   public static String handleSchemaRequests(Request request, Response response) throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
+
+    // apps is not a schema but a resource
+    if ("apps".equals(schemaName)) {
+      return handleDatabaseRequests(request, response);
+    }
+
     // todo, really check permissions
     if (getSchema(request) == null) {
       response.status(403);
@@ -74,6 +80,7 @@ public class GraphqlApi {
           + schemaName
           + "' not found or permission denied.\"}]}";
     }
+
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);
     return executeQuery(graphqlForSchema, request);

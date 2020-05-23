@@ -27,28 +27,42 @@
           v-model="column.name"
           label="Column name"
           :default-value="defaultValue ? defaultValue.name : undefined"
-          :readonly="defaultValue != undefined"
+          :error="
+            column.name == undefined || column.name == ''
+              ? 'Name is required'
+              : undefined
+          "
         />
         <InputSelect
           v-model="column.columnType"
           label="Column type"
           :default-value="defaultValue ? defaultValue.columnType : undefined"
-          :items="columnTypes"
+          :options="columnTypes"
         />
         <InputSelect
           v-if="column.columnType == 'REF'"
           v-model="column.refTable"
           label="Referenced table"
-          :default-value="defaultValue ? defaultValue.refTable : undefined"
-          :items="tables"
+          :defaultValue="defaultValue ? defaultValue.refTable : undefined"
+          :options="tables"
+          :error="
+            column.refTable == undefined || column.name == ''
+              ? 'Referenced table is required'
+              : undefined
+          "
         />
-        <!--InputSelect
+        <InputSelect
           v-if="column.columnType == 'REF'"
           v-model="column.refColumn"
           label="Referenced column"
           :defaultValue="defaultValue ? defaultValue.refColumn : undefined"
-          :items="columns"
-        /-->
+          :options="columns"
+          :error="
+            column.refColumn == undefined || column.name == ''
+              ? 'Referenced column is required'
+              : undefined
+          "
+        />
         <InputBoolean
           v-model="column.nullable"
           label="Nullable"
@@ -65,9 +79,12 @@
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="error">{{ error }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction v-if="defaultValue" @click="executeCommand">{{
-        action
-      }}</ButtonAction>
+      <ButtonAction
+        v-if="defaultValue"
+        @click="executeCommand"
+        :disabled="column.name == undefined || column.name == ''"
+        >{{ action }}
+      </ButtonAction>
       <ButtonAction v-else @click="executeCommand">{{ action }}</ButtonAction>
     </template>
   </LayoutModal>
@@ -154,9 +171,6 @@ export default {
       if (this.defaultValue) return `Alter column`
       else return `Add column`
     },
-    endpoint() {
-      return '/api/graphql/' + this.schema
-    },
     tables() {
       return this.metadata.map(table => table.name)
     },
@@ -182,27 +196,21 @@ export default {
     }
   },
   methods: {
-    executeCommand() {
+    create() {
       this.loading = true
       this.error = null
       this.success = null
-      let command = this.defaultValue ? 'alter' : 'add'
+      this.column.table = this.table
       request(
-        this.endpoint,
-        `mutation ${command}Column($table:String,$column:MolgenisColumnInput){${command}Column(table:$table,column:$column){message}}`,
+        'graphql',
+        `mutation create($column:MolgenisColumnInput){create(columns:[$column]){message}}`,
         {
-          table: this.table,
           column: this.column
         }
       )
         .then(data => {
-          if (this.defaultValue) {
-            this.tables = data.alterColumn.message
-            this.success = `Column ${this.column.name} altered`
-          } else {
-            this.tables = data.addColumn.message
-            this.success = `Column ${this.column.name} created`
-          }
+          this.tables = data.create.message
+          this.success = `Column ${this.column.name} created`
           this.$emit('close')
         })
         .catch(error => {
@@ -211,38 +219,68 @@ export default {
             this.showLogin = true
           } else this.error = error
         })
-      this.loading = false
+        .finally((this.loading = false))
+    },
+    alter() {
+      this.loading = true
+      this.error = null
+      this.success = null
+      this.column.table = this.table
+      request(
+        'graphql',
+        `mutation alter($table:String,$name:String,$definition:MolgenisColumnInput){alter(columns:[{table:$table,name:$name,definition:$definition}]){message}}`,
+        {
+          table: this.table,
+          name: this.defaultValue.name,
+          definition: this.column
+        }
+      )
+        .then(data => {
+          this.tables = data.alter.message
+          this.success = `Column ${this.column.name} altered`
+          this.$emit('close')
+        })
+        .catch(error => {
+          if (error.response.status === 403) {
+            this.error = 'Forbidden. Do you need to login?'
+            this.showLogin = true
+          } else this.error = error.response.errors[0].message
+        })
+        .finally((this.loading = false))
+    },
+    executeCommand() {
+      this.defaultValue ? this.alter() : this.create()
     }
   }
 }
 </script>
 
 <docs>
-Example:
-```
-<template>
-  <div>
-    <ButtonAction v-if="!show" @click="show = true">Show</ButtonAction>
-    <ColumnEditModal v-else v-model="column" @close="close" />
-    <br />
-    Value: {{column}}
-  </div>
-</template>
+    Example:
+    ```
+    <template>
+        <div>
+            <ButtonAction v-if="!show" @click="show = true">Show</ButtonAction>
+            <ColumnEditModal v-else v-model="column" @close="close"/>
+            <br/>
+            Value: {{column}}
+        </div>
+    </template>
 
-<script>
-export default {
-  data: function() {
-    return {
-      show: false,
-      column: {}
-    };
-  },
-  methods: {
-    close() {
-      this.show = false;
-    }
-  }
-};
-</script>
-```
+    <script>
+        export default {
+            data: function () {
+                return {
+                    show: false,
+                    column: {}
+                };
+            },
+            methods: {
+                close() {
+                    this.show = false;
+                }
+            }
+        };
+    </script>
+    ```
 </docs>

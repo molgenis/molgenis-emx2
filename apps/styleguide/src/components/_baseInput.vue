@@ -46,7 +46,7 @@ export default {
       id: null,
       /** internal value to differ between list and non-list values*/
       arrayValue: [null],
-      /** externa; visible value you can v-model on */
+      /** external visible value you can v-model on */
       value: null
     }
   },
@@ -103,7 +103,10 @@ export default {
     },
     showClear(idx) {
       return (
-        this.clear && this.arrayValue !== null && this.arrayValue[idx] !== null
+        !this.readonly &&
+        this.clear &&
+        this.arrayValue !== null &&
+        this.arrayValue[idx] !== null
       )
     }
   }

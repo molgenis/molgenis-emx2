@@ -68,7 +68,7 @@ export default {
   },
   methods: {
     openGroup(group) {
-      window.open("/apps/schema/#/" + group.name, "_blank");
+      window.open("/" + group.name + "/schema/", "_blank");
     },
     openCreateSchema() {
       this.showCreateSchema = true;

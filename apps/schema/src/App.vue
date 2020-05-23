@@ -15,14 +15,12 @@ export default {
     Schema,
     Molgenis
   },
-  data: function() {
-    return {
-      schema: null
-    }
-  },
   computed: {
     title() {
       return 'Schema' //todo get schema name from metadata
+    },
+    schema() {
+      return 'TEMP'
     },
     menuItems() {
       return [
@@ -34,6 +32,10 @@ export default {
         {
           label: 'Members',
           href: '../members'
+        },
+        {
+          label: 'GraphQL',
+          href: '/api/playground.html?schema=/api/graphql/' + this.schema
         }
       ]
     }

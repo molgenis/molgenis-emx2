@@ -25,6 +25,10 @@ allprojects {
     group = 'org.molgenis'
 }
 
+//tasks.withType(Test) {
+//    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+//}
+
 repositories {
     mavenLocal()
     maven {
