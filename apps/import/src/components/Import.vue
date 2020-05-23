@@ -1,13 +1,15 @@
 <template>
-  <Spinner v-if="loading" />
-  <div v-else>
-    {{ loading }}
-    <MessageError v-if="error">{{ error }}</MessageError>
-    <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-    <InputFile v-model="file" :file="file" />
-    <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-    <ButtonAction @click="upload">Import</ButtonAction>
-  </div>
+  <Molgenis :title="'Import into ' + schema" :menuItems="menuItems">
+    <Spinner v-if="loading" />
+    <div v-else>
+      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+      <InputFile v-model="file" />
+      <ButtonAction @click="upload" :disabled="file == undefined">
+        Import
+      </ButtonAction>
+    </div>
+  </Molgenis>
 </template>
 
 <script>
@@ -17,8 +19,10 @@ import {
   InputFile,
   MessageError,
   MessageSuccess,
-  Spinner
-} from '@mswertz/molgenis-emx2-lib-elements'
+  Spinner,
+  Molgenis
+} from "@mswertz/emx2-styleguide";
+import { request } from "graphql-request";
 
 /** Data import tool */
 export default {
@@ -28,63 +32,100 @@ export default {
     InputFile,
     MessageError,
     MessageSuccess,
-    Spinner
-  },
-  props: {
-    schema: String
+    Spinner,
+    Molgenis
   },
   data: function() {
     return {
+      schema: null,
       file: null,
       error: null,
       success: null,
       loading: false
+    };
+  },
+  computed: {
+    menuItems() {
+      return [
+        { label: "Home", href: "../home" },
+        {
+          label: "Schema",
+          href: "../schema/"
+        },
+        {
+          label: "Upload",
+          href: "../import/"
+        },
+        {
+          label: "Download",
+          href: "/api/excel/" + this.schema
+        },
+        {
+          label: "GraphQL",
+          href: "/api/playground.html?schema=/api/graphql/" + this.schema
+        }
+      ];
     }
   },
   methods: {
+    loadSchema() {
+      this.loading = true;
+      request("graphql", "{_schema{name}}")
+        .then(data => {
+          this.schema = data._schema.name;
+        })
+        .catch(error => {
+          this.error = error.response.errors[0].message;
+        })
+        .finally((this.loading = false));
+    },
     upload() {
-      this.error = null
-      this.success = null
-      this.loading = true
-      let form = new FormData()
-      form.append('file', this.file)
-      let url = '/api/excel/' + this.schema
+      this.error = null;
+      this.success = null;
+      this.loading = true;
+      let formData = new FormData();
+      alert("file: " + this.file.name);
+      formData.append("file", this.file);
+      let url = "/api/excel/" + this.schema;
       fetch(url, {
-        method: 'POST',
-        body: form
+        method: "POST",
+        body: formData
       })
         .then(response => {
+          alert("response " + JSON.stringify(response));
           if (response.ok) {
             // todo make proper json
             response.text().then(success => {
-              this.success = success
-              this.error = null
-            })
+              this.success = success;
+              this.error = null;
+            });
           } else {
             response.json().then(error => {
-              this.success = null
-              this.error = error.errors
-            })
+              this.success = null;
+              this.error = error.errors[0].message;
+            });
           }
-          this.loading = false
         })
         .catch(error => {
-          this.error = error
-          this.loading = false
+          alert("error" + JSON.stringify(error));
+          this.error = error;
         })
-    },
-    cancel() {
-      this.schemaSelected = null
-      this.file = null
+        .finally(() => {
+          this.file = null;
+          this.loading = false;
+        });
     }
+  },
+  created() {
+    this.loadSchema();
   }
-}
+};
 </script>
 
 <docs>
-Example
-```
-<Import schema="pet store"/>
+    Example
+    ```
+    <Import schema="pet store"/>
 
-```
+    ```
 </docs>
