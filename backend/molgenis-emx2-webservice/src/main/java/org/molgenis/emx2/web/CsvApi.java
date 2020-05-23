@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -173,25 +174,7 @@ public class CsvApi {
 
     // components
     Components components = new Components();
-    components.addRequestBodies(
-        MUTATION_REQUEST,
-        new RequestBody()
-            .content(
-                new Content()
-                    .addMediaType(
-                        ACCEPT_FORMDATA,
-                        new MediaType()
-                            .schema(
-                                new io.swagger.v3.oas.models.media.Schema()
-                                    .type(OBJECT)
-                                    .addProperties(
-                                        "file",
-                                        new FileSchema().description("upload csv from file"))
-                                    .addProperties(
-                                        "separator",
-                                        new StringSchema()
-                                            .addEnumItem("TAB")
-                                            .addEnumItem("COMMA"))))));
+    components.addRequestBodies(MUTATION_REQUEST, getCsvRequestBody());
 
     components.addResponses(
         ERROR_MESSAGE,
@@ -210,7 +193,7 @@ public class CsvApi {
     // requests
     RequestBody mutationRequest = new RequestBody().$ref(MUTATION_REQUEST);
 
-    // responses
+    // csv
     ApiResponses mutationResponses =
         new ApiResponses()
             .addApiResponse(OK, new ApiResponse().$ref(SUCCESS_MESSAGE))
@@ -220,10 +203,41 @@ public class CsvApi {
         new ApiResponses()
             .addApiResponse(OK, new ApiResponse().$ref(CSV_OUTPUT))
             .addApiResponse(BAD_REQUEST, new ApiResponse().$ref(ERROR_MESSAGE));
+    api.path(
+        "/api/csv/" + schema.getName(),
+        getCsvSchemaOperations(mutationRequest, mutationResponses, queryResponses));
+    for (TableMetadata table : schema.getTables()) {
+      api.path(
+          "/api/csv/" + schema.getName() + "/" + table.getTableName(),
+          getCsvTableOperations(mutationRequest, mutationResponses, queryResponses, table));
+    }
 
-    // message type
+    response.status(200);
+    return Yaml.mapper()
+        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+        .writeValueAsString(api);
+  }
 
-    // operations
+  private static RequestBody getCsvRequestBody() {
+    return new RequestBody()
+        .content(
+            new Content()
+                .addMediaType(
+                    ACCEPT_FORMDATA,
+                    new MediaType()
+                        .schema(
+                            new io.swagger.v3.oas.models.media.Schema()
+                                .type(OBJECT)
+                                .addProperties(
+                                    "file", new FileSchema().description("upload csv from file"))
+                                .addProperties(
+                                    "separator",
+                                    new StringSchema().addEnumItem("TAB").addEnumItem("COMMA")))));
+  }
+
+  @NotNull
+  private static PathItem getCsvSchemaOperations(
+      RequestBody mutationRequest, ApiResponses mutationResponses, ApiResponses queryResponses) {
     PathItem schemaPath = new PathItem();
     schemaPath.get(
         new Operation()
@@ -243,40 +257,39 @@ public class CsvApi {
             .requestBody(mutationRequest)
             .responses(mutationResponses)
             .addTagsItem(META));
-    api.path("/api/csv/" + schema.getName(), schemaPath);
+    return schemaPath;
+  }
 
-    for (TableMetadata table : schema.getTables()) {
-      PathItem tablePath = new PathItem();
-      tablePath.get(
-          new Operation()
-              .summary("Get table rows in csv format")
-              .responses(queryResponses)
-              .addTagsItem(table.getTableName()));
-      tablePath.post(
-          new Operation()
-              .summary("Insert csv rows into table")
-              .requestBody(mutationRequest)
-              .responses(mutationResponses)
-              .addTagsItem(table.getTableName()));
-      tablePath.patch(
-          new Operation()
-              .summary("Update csv rows into table (ignores columns not provided)")
-              .requestBody(mutationRequest)
-              .responses(mutationResponses)
-              .addTagsItem(table.getTableName()));
-      tablePath.delete(
-          new Operation()
-              .summary("Delete csv rows from table")
-              .requestBody(mutationRequest)
-              .responses(mutationResponses)
-              .addTagsItem(table.getTableName()));
-
-      api.path("/api/csv/" + schema.getName() + "/" + table.getTableName(), tablePath);
-    }
-
-    response.status(200);
-    return Yaml.mapper()
-        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
-        .writeValueAsString(api);
+  @NotNull
+  private static PathItem getCsvTableOperations(
+      RequestBody mutationRequest,
+      ApiResponses mutationResponses,
+      ApiResponses queryResponses,
+      TableMetadata table) {
+    PathItem tablePath = new PathItem();
+    tablePath.get(
+        new Operation()
+            .summary("Get table rows in csv format")
+            .responses(queryResponses)
+            .addTagsItem(table.getTableName()));
+    tablePath.post(
+        new Operation()
+            .summary("Insert csv rows into table")
+            .requestBody(mutationRequest)
+            .responses(mutationResponses)
+            .addTagsItem(table.getTableName()));
+    tablePath.patch(
+        new Operation()
+            .summary("Update csv rows into table (ignores columns not provided)")
+            .requestBody(mutationRequest)
+            .responses(mutationResponses)
+            .addTagsItem(table.getTableName()));
+    tablePath.delete(
+        new Operation()
+            .summary("Delete csv rows from table")
+            .requestBody(mutationRequest)
+            .responses(mutationResponses)
+            .addTagsItem(table.getTableName()));
+    return tablePath;
   }
 }

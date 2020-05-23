@@ -35,6 +35,7 @@ public class ExcelApi {
   static String postExcel(Request request, Response response) throws IOException, ServletException {
     Long start = System.currentTimeMillis();
     Schema schema = getSchema(request);
+
     // get uploaded file
     File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();
@@ -44,8 +45,6 @@ public class ExcelApi {
     try (InputStream input = request.raw().getPart("file").getInputStream()) {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-
-    // depending on file extension use proper importer
     SchemaImport.fromExcelFile(tempFile.toPath(), schema);
     response.status(200);
     return "Import success in " + (System.currentTimeMillis() - start) + "ms";

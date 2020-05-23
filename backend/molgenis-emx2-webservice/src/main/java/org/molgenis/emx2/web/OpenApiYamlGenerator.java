@@ -59,6 +59,8 @@ public class OpenApiYamlGenerator {
     excelPath.get(getFileOperation("Excel", ACCEPT_EXCEL));
     paths.addPathItem("/api/excel/" + schema.getName(), excelPath);
 
+    // api/csv/:schema
+
     // assembly
     api.setPaths(paths);
     api.setComponents(components);
