@@ -1,16 +1,42 @@
 <template>
   <div>
-    <router-link to="/">< Back to table list</router-link>
+    <router-link to="/">< Back to '{{ schema.name }}'</router-link>
     <h1>{{ tableName }}</h1>
     <Spinner v-if="loading" />
     <MessageError v-else-if="error">{{ error }}</MessageError>
-    <div class="row" v-else>
-      <div class="col col-mg-4 col-lg-4">
+    <div v-else class="row flex-nowrap">
+      <div
+        class=" col col-mg-4 col-lg-4
+        "
+      >
         <FilterSidebar v-if="table" :filters="table.columns" />
       </div>
       <div class="col">
+        <div>
+          <label>{{ count }} records found</label>
+        </div>
         <FilterWells v-if="table" :filters="table.columns" />
-        <DataTable :columns="columns" :rows="rows" />
+        <DataTable :columns="columns" :rows="rows" class="table-responsive">
+          <template v-slot:colheader>
+            <RowButtonAdd :schema="schema" :table="tableName" @close="reload" />
+          </template>
+          <template v-slot:rowheader="slotProps">
+            <IconBar>
+              <RowButtonEdit
+                :schema="schema"
+                :table="tableName"
+                :pkey="slotProps.row[table.pkey]"
+                @close="reload"
+              />
+              <RowButtonDelete
+                :schema="schema"
+                :table="tableName"
+                :pkey="slotProps.row[table.pkey]"
+                @close="reload"
+              />
+            </IconBar>
+          </template>
+        </DataTable>
       </div>
     </div>
 
@@ -42,7 +68,11 @@ import {
   MessageError,
   DataTable,
   FilterSidebar,
-  FilterWells
+  FilterWells,
+  IconBar,
+  RowButtonEdit,
+  RowButtonAdd,
+  RowButtonDelete
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -51,7 +81,10 @@ export default {
     MessageError,
     DataTable,
     FilterSidebar,
-    FilterWells
+    FilterWells,
+    RowButtonEdit,
+    RowButtonAdd,
+    RowButtonDelete
   },
   props: {
     tableName: String,
@@ -148,6 +181,9 @@ export default {
     graphql() {
       this.reload();
     }
+  },
+  created() {
+    this.reload();
   }
 };
 </script>

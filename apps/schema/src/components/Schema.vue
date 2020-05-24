@@ -256,7 +256,7 @@ export default {
   computed: {
     menuItems() {
       return [
-        { label: 'Home', href: '../home' },
+        { label: 'Tables', href: '../tables/' },
         {
           label: 'Schema',
           href: '../schema/'

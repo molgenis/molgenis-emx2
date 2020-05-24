@@ -54,18 +54,16 @@ export default {
   computed: {
     title() {
       return `Delete from ${this.table}`
-    },
-    endpoint() {
-      return '/api/graphql/' + this.schema
     }
   },
   methods: {
     executeDelete() {
       let query = `mutation delete($pkey:[String]){delete(${this.table}:$pkey){message}}`
       let variables = { pkey: [this.pkey] }
-      request(this.endpoint, query, variables)
+      request('graphql', query, variables)
         .then(data => {
           this.success = data.delete.message
+          this.$emit('close')
         })
         .catch(error => {
           this.error = error.response.errors[0].message

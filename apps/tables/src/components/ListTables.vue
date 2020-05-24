@@ -1,5 +1,7 @@
 <template>
   <div>
+    <h1>{{ schema.name }}</h1>
+    <p>Tables:</p>
     <MessageError v-if="!schema"
       >No tables found. Might you need to login?
     </MessageError>
@@ -29,7 +31,7 @@ export default {
   },
   methods: {
     open(value) {
-      open(`#/` + value.name);
+      this.$router.push(value.name);
     }
   },
   props: {

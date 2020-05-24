@@ -42,6 +42,10 @@ import Molgenis from './molecules/Molgenis'
 import NavBar from './components/NavBar'
 import Pagination from './components/Pagination'
 
+import RowButtonAdd from './molecules/RowButtonAdd'
+import RowButtonEdit from './molecules/RowButtonEdit'
+import RowButtonDelete from './molecules/RowButtonDelete'
+
 import Spinner from './components/Spinner'
 
 export {
@@ -81,5 +85,8 @@ export {
   Molgenis,
   NavBar,
   Pagination,
+  RowButtonEdit,
+  RowButtonAdd,
+  RowButtonDelete,
   Spinner
 }

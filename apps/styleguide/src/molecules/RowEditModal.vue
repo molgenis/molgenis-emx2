@@ -95,6 +95,7 @@ export default {
           }
           this.pkey = this.value[this.metadata.pkey]
           this.defaultValue = this.value
+          this.$emit('close')
         })
         .catch(error => {
           if (error.response.status === 403) {

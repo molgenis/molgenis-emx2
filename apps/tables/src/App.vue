@@ -15,14 +15,34 @@ export default {
   data() {
     return {
       molgenis: null,
-      schema: null,
-      menuItems: [{ label: "Home", href: "." }]
+      schema: null
     };
   },
   computed: {
     title() {
       if (this.schema) return this.schema.name + " / Tables";
       return "Tables";
+    },
+    menuItems() {
+      return [
+        { label: "Tables", href: "../tables/" },
+        {
+          label: "Schema",
+          href: "../schema/"
+        },
+        {
+          label: "Upload",
+          href: "../import/"
+        },
+        {
+          label: "Download",
+          href: "/api/excel/" + this.schema
+        },
+        {
+          label: "GraphQL",
+          href: "/api/playground.html?schema=/api/graphql/" + this.schema
+        }
+      ];
     }
   },
   methods: {
@@ -31,10 +51,10 @@ export default {
       this.schema = null;
       request(
         "graphql",
-        "{_meta{name,tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,nullable,description}}}}"
+        "{_schema{name,tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,nullable,description}}}}"
       )
         .then(data => {
-          this.schema = data._meta;
+          this.schema = data._schema;
         })
         .catch(error => {
           if (error.response.error.status === 403) {
