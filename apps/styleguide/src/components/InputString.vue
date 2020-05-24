@@ -48,7 +48,7 @@ export default {
     <template>
         <div>
             <InputString v-model="value" label="My string input label" help="Some help needed?"/>
-            You typed: {{value}}
+            You typed: {{JSON.stringify(value)}}
         </div>
     </template>
     <script>
@@ -91,7 +91,22 @@ export default {
     ```
     Example list
     ```
-    <InputString :list="true" label="test" :defaultValue="['aap','noot']"
-                 help="should be able to manage a list of values"/>
+    <template>
+        <div>
+            <InputString v-model="value" :list="true" label="test" :defaultValue="['aap','noot']"
+                         help="should be able to manage a list of values"/>
+            <br/>
+            You typed: {{JSON.stringify(value)}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: "blaat"
+                };
+            }
+        };
+    </script>
     ```
 </docs>

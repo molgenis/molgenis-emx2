@@ -77,9 +77,15 @@ export default {
   methods: {
     emitValue() {
       if (this.list) {
-        this.value = this.arrayValue.filter(el => el !== null)
+        this.value = this.arrayValue.map(v =>
+          v === null || v.trim() === '' ? null : v
+        )
+        this.value = this.value.filter(el => el !== null)
       } else {
         this.value = this.arrayValue[0]
+        if (this.value === null || this.value.trim() === '') {
+          this.value = null
+        }
       }
       this.$emit('input', this.value)
     },

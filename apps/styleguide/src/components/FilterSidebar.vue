@@ -21,38 +21,38 @@
       >
         <InputString
           :list="true"
-          v-if="column.columnType === 'STRING'"
+          v-if="column.columnType.startsWith('STRING')"
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
         <InputRangeInt
           :list="true"
-          v-if="column.columnType === 'INT'"
+          v-if="column.columnType.startsWith('INT')"
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
         <InputRangeDecimal
           :list="true"
-          v-if="column.columnType === 'DECIMAL'"
+          v-if="column.columnType.startsWith('DECIMAL')"
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
         <InputRangeDate
           :list="true"
-          v-if="column.columnType === 'DATE'"
+          v-if="column.columnType.startsWith('DATE')"
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
         <InputCheckbox
           :list="true"
-          v-if="column.columnType === 'BOOL'"
+          v-if="column.columnType.startsWith('BOOL')"
           :options="['true', 'false']"
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
         <InputRef
           :list="true"
-          v-if="column.columnType === 'REF'"
+          v-if="column.columnType.startsWith('REF')"
           :schema="schema"
           :refTable="column.refTable"
           :refColumn="column.refColumn"
