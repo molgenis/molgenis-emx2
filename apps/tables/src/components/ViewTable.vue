@@ -2,8 +2,8 @@
   <div>
     <router-link to="/">< Back to '{{ schema.name }}'</router-link>
     <h1>{{ tableName }}</h1>
+    <MessageError v-if="error">{{ error }}</MessageError>
     <Spinner v-if="loading" />
-    <MessageError v-else-if="error">{{ error }}</MessageError>
     <div v-else class="row flex-nowrap">
       <div
         class=" col col-mg-4 col-lg-4
@@ -41,6 +41,10 @@
     </div>
 
     <br />DEBUG
+    <br />
+    filter = {{ JSON.stringify(graphqlFilter) }}
+    <br />
+    columns = {{ JSON.stringify(columns) }}
     <br />
     tableName = {{ tableName }}
     <br />
@@ -105,7 +109,42 @@ export default {
   },
   computed: {
     graphql() {
-      return `{${this.tableName}{data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}}}}`;
+      return `query ${this.tableName}($filter:${this.tableName}filter) {${this.tableName}(filter:$filter){data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}}}}`;
+    },
+    graphqlFilter() {
+      let filter = {};
+      if (this.table) {
+        this.table.columns.forEach(col => {
+          let conditions = Array.isArray(col.conditions)
+            ? col.conditions.filter(f => f !== "" && f != undefined)
+            : [];
+          if (conditions.length > 0) {
+            if (col.columnType.startsWith("STRING")) {
+              filter[col.name] = { equals: col.conditions };
+            } else if (col.columnType.startsWith("BOOL")) {
+              filter[col.name] = { equals: col.conditions };
+            } else if (col.columnType.startsWith("REF")) {
+              //TODO should instead use REF TYPE!
+              filter[col.name] = {};
+              filter[col.name][col.refColumn] = { equals: conditions };
+            } else if (
+              [
+                "DECIMAL",
+                "DECIMAL_ARRAY",
+                "INT",
+                "INT_ARRAY",
+                "DATE",
+                "DATE_ARRAY"
+              ].includes(col.columnType)
+            ) {
+              filter[col.name] = {
+                between: conditions.flat()
+              };
+            }
+          }
+        });
+      }
+      return filter;
     },
     table() {
       let table = null;
@@ -165,7 +204,7 @@ export default {
       this.data = null;
       if (this.schema == null) return;
       this.loading = true;
-      request("graphql", this.graphql)
+      request("graphql", this.graphql, { filter: this.graphqlFilter })
         .then(data => {
           this.error = null;
           this.data = data[this.tableName]["data"];
@@ -179,6 +218,9 @@ export default {
   },
   watch: {
     graphql() {
+      this.reload();
+    },
+    graphqlFilter() {
       this.reload();
     }
   },
