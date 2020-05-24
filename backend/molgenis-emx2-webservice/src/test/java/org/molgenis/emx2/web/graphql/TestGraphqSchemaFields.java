@@ -105,10 +105,17 @@ public class TestGraphqSchemaFields {
             .at("/Order/data/0/pet/name")
             .textValue());
 
-    // not between int
+    // between int one sided
     assertEquals(
         "spike",
-        execute("{Order(filter:{quantity:{not_between:[1,3]}}){data{quantity,pet{name}}}}")
+        execute("{Order(filter:{quantity:{between:[3,null]}}){data{quantity,pet{name}}}}")
+            .at("/Order/data/0/pet/name")
+            .textValue());
+
+    // between int one sided
+    assertEquals(
+        "pooky",
+        execute("{Order(filter:{quantity:{not_between:[null,3]}}){data{quantity,pet{name}}}}")
             .at("/Order/data/0/pet/name")
             .textValue());
 

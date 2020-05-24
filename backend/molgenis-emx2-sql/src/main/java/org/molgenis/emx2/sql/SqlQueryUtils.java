@@ -380,14 +380,30 @@ class SqlQueryUtils {
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(
                 QUERY_FAILED, BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-          conditions.add(field(columnName).between(values[i], values[i + 1]));
+          if (values[i] != null && values[i + 1] != null) {
+            conditions.add(field(columnName).notBetween(values[i], values[i + 1]));
+          } else if (values[i] != null && values[i + 1] == null) {
+            conditions.add(field(columnName).lessOrEqual(values[i]));
+          } else if (values[i] == null && values[i + 1] != null) {
+            conditions.add(field(columnName).greaterOrEqual(values[i + 1]));
+          } else {
+            // nothing to do
+          }
           i++; // NOSONAR
           break;
         case BETWEEN:
           if (i + 1 > values.length)
             throw new SqlGraphQueryException(
                 QUERY_FAILED, BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-          conditions.add(field(columnName).between(values[i], values[i + 1]));
+          if (values[i] != null && values[i + 1] != null) {
+            conditions.add(field(columnName).between(values[i], values[i + 1]));
+          } else if (values[i] != null && values[i + 1] == null) {
+            conditions.add(field(columnName).greaterOrEqual(values[i]));
+          } else if (values[i] == null && values[i + 1] != null) {
+            conditions.add(field(columnName).lessOrEqual(values[i + 1]));
+          } else {
+            // nothing to do
+          }
           i++; // NOSONAR
           break;
         default:
