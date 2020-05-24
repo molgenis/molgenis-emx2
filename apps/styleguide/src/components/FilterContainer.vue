@@ -1,7 +1,8 @@
 <template>
-  <div class="card">
-    <div ref="header" class="card-header text-center">
-      <h6>{{ title }}</h6>
+  <div class="card mb-3">
+    <div ref="header" class="card-header text-center" @click="$emit('click')">
+      <IconAction class="filter-drag-icon" icon="ellipsis-v" />
+      <h6 @click="$emit('click')">{{ title }}</h6>
       <slot name="header" />
       <IconAction
         class="filter-collapse-icon"
@@ -16,12 +17,30 @@
   </div>
 </template>
 
-<style scoped>
+<style>
+.filter-drag-icon {
+  float: left;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  visibility: hidden;
+}
+
+.card-header:hover .filter-drag-icon:hover {
+  cursor: move;
+}
+
+.card-header:hover .filter-drag-icon,
+.card-header:hover .filter-collapse-icon {
+  visibility: visible;
+}
+
 .filter-collapse-icon {
   float: right;
   position: absolute;
   top: 0px;
   right: 0px;
+  visibility: hidden;
 }
 
 .card-header h6 {

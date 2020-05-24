@@ -22,10 +22,10 @@ export default {
       this.loading = true
       request(
         'graphql',
-        '{_meta{tables{name,pkey,columns{name,columnType,pkey,refTable,refColumn,nullable}}}}'
+        '{_schema{tables{name,pkey,columns{name,columnType,pkey,refTable,refColumn,nullable}}}}'
       )
         .then(data => {
-          data._meta.tables.forEach(element => {
+          data._schema.tables.forEach(element => {
             if (element.name === this.table) {
               this.metadata = element
             }

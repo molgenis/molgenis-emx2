@@ -1,12 +1,12 @@
 <template>
-  <FormGroup v-bind="$props">
+  <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
       v-for="(item, idx) in arrayValue"
       :key="item"
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"
-      :showPlus="false"
+      :showPlus="showPlus(idx)"
       @add="addRow"
       class="form-group"
     >
@@ -25,9 +25,6 @@
         style="margin: 0px"
       />
     </InputAppend>
-    <div class="input-group">
-      <AppendPlus v-if="showPlus(arrayValue.length - 1)" @add="addRow" />
-    </div>
   </FormGroup>
 </template>
 
@@ -36,7 +33,6 @@ import BaseInput from './_baseInput'
 import InputInt from './InputInt'
 import FormGroup from './_formGroup'
 import InputAppend from './_inputAppend'
-import AppendPlus from './_appendPlus'
 
 /** Input for integer values */
 export default {
@@ -66,7 +62,7 @@ export default {
       }
     }
   },
-  components: { InputInt, FormGroup, InputAppend, AppendPlus }
+  components: { InputInt, FormGroup, InputAppend }
 }
 </script>
 

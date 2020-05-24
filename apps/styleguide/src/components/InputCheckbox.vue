@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props">
+  <form-group v-bind="$props" class="checkbox-form-group">
     <div>
       <div
         v-for="(item, index) in options"
@@ -23,6 +23,7 @@
         <label class="form-check-label" :for="id + index">{{ item }}</label>
       </div>
       <a
+        class="checkbox-clear-value"
         href="#"
         v-if="arrayValue.filter(c => c != undefined).length > 0"
         @click.prevent="arrayValue = [null]"
@@ -33,11 +34,26 @@
   </form-group>
 </template>
 
+<style>
+.checkbox-clear-value {
+  display: none;
+}
+
+.checkbox-form-group:hover .checkbox-clear-value {
+  display: inline;
+}
+</style>
+
 <script>
 import InputSelect from './InputSelect'
 
 export default {
-  extends: InputSelect
+  extends: InputSelect,
+  props: {
+    list: {
+      default: true
+    }
+  }
 }
 </script>
 

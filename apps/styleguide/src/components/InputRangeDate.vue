@@ -1,14 +1,14 @@
 <template>
-  <FormGroup v-bind="$props">
+  <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
       v-for="(item, idx) in arrayValue"
       :key="item"
       v-bind="$props"
-      :showClear="true"
+      :showClear="showClear(idx)"
       @clear="clearValue(idx)"
-      :showPlus="false"
+      :showPlus="showPlus(idx)"
       @add="addRow"
-      class="from-group"
+      class="form-group"
     >
       <InputDate
         v-model="arrayValue[idx][0]"
@@ -25,9 +25,6 @@
         style="margin: 0px"
       />
     </InputAppend>
-    <div class="input-group">
-      <AppendPlus v-if="showPlus(arrayValue.length - 1)" @add="addRow" />
-    </div>
   </FormGroup>
 </template>
 
@@ -49,7 +46,8 @@ export default {
     ```
     <template>
         <div>
-            <InputRangeDate :list="true" v-model="value"/>
+            <InputRangeDate :list="true" v-model="value"
+            />
             {{value}}
         </div>
     </template>

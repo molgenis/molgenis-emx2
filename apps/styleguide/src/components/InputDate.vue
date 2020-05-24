@@ -1,6 +1,14 @@
 <template>
   <form-group v-bind="$props">
-    <div class="input-group" v-for="(el, idx) in arrayValue" :key="idx">
+    <InputAppend
+      v-for="(el, idx) in arrayValue"
+      :key="idx"
+      v-bind="$props"
+      :showClear="showClear(idx)"
+      @clear="clearValue(idx)"
+      :showPlus="showPlus(idx)"
+      @add="addRow"
+    >
       <input
         v-if="readonly"
         readonly
@@ -18,30 +26,7 @@
         :placeholder="placeholder"
         :disabled="readonly"
       />
-      <div class="input-group-append">
-        <AppendPlus v-if="showPlus(idx)" v-bind="$props" @add="addRow" />
-        <AppendClear
-          v-if="showClear(idx)"
-          v-bind="$props"
-          @clear="clearValue(idx)"
-        />
-        <button
-          class="btn"
-          :class="{
-            'btn-outline-primary': !error,
-            'btn-outline-danger': error
-          }"
-          type="button"
-          title="Toggle"
-          :disabled="readonly"
-          data-toggle
-        >
-          <i class="fa fa-calendar">
-            <span aria-hidden="true" class="sr-only">Toggle</span>
-          </i>
-        </button>
-      </div>
-    </div>
+    </InputAppend>
   </form-group>
 </template>
 
@@ -49,8 +34,7 @@
 import _baseInput from './_baseInput.vue'
 import FlatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
-import AppendPlus from './_appendPlus'
-import AppendClear from './_appendClear'
+import InputAppend from './_inputAppend'
 
 //import '../../../public/css/bootstrap-molgenis-blue.css'
 
@@ -59,8 +43,7 @@ export default {
   extends: _baseInput,
   components: {
     FlatPickr,
-    AppendPlus,
-    AppendClear
+    InputAppend
   },
   computed: {
     config() {

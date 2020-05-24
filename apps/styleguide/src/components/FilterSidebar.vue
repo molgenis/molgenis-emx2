@@ -2,20 +2,20 @@
   <div :key="timestamp">
     <Draggable
       v-model="filters"
-      handle=".card-header"
+      handle=".filter-drag-icon"
       ghost-class="border-primary"
     >
-      <div slot="header" class="container m3">
-        <label>collapse: </label>&nbsp;
-        <a href="#" @click.prevent="collapseAll">all</a>&nbsp;
-        <a href="#" @click.prevent="expandAll">none</a>
+      <div slot="header">
+        <label>Filters: </label>&nbsp;
+        <a href="#" @click.prevent="collapseAll">collapse</a>&nbsp;
+        <a href="#" @click.prevent="expandAll">expand</a>
       </div>
       <FilterContainer
-        class="m-3"
         v-for="(column, idx) in filters"
         :title="column.name"
         :key="column.name + column.updateTime + column.collapsed"
         :collapsed="column.collapsed"
+        @click="toggleCollapse(idx)"
         @collapse="collapse(idx)"
         @uncollapse="uncollapse(idx)"
       >
@@ -66,12 +66,6 @@
     url = {{ url }}
   </div>
 </template>
-
-<style>
-.card-header:hover {
-  cursor: move;
-}
-</style>
 
 <script>
 import FilterContainer from './FilterContainer'
@@ -166,6 +160,13 @@ export default {
     uncollapse(idx) {
       this.filters[idx].collapsed = false
       this.timestamp = new Date().getTime()
+    },
+    toggleCollapse(idx) {
+      if (this.filters[idx].collapsed) {
+        this.uncollapse(idx)
+      } else {
+        this.collapse(idx)
+      }
     }
   }
 }

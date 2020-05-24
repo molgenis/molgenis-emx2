@@ -1,10 +1,30 @@
 <template>
   <div class="input-group-append">
     <slot />
-    <AppendPlus v-if="showPlus" v-bind="$props" @add="$emit('add')" />
-    <AppendClear v-if="showClear" v-bind="$props" @clear="$emit('clear')" />
+    <AppendPlus
+      class="input-append-show"
+      v-if="showPlus"
+      v-bind="$props"
+      @add="$emit('add')"
+    />
+    <AppendClear
+      class="input-append-show"
+      v-if="showClear"
+      v-bind="$props"
+      @clear="$emit('clear')"
+    />
   </div>
 </template>
+
+<style scoped>
+.input-group-append .input-append-show {
+  display: none;
+}
+
+.input-group-append:hover .input-append-show {
+  display: block;
+}
+</style>
 
 <script>
 import AppendPlus from './_appendPlus'

@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props">
+  <form-group v-bind="$props" class="radio-form-group">
     <div>
       <div
         v-for="(item, index) in options"
@@ -18,12 +18,27 @@
         />
         <label class="form-check-label" :for="id + index">{{ item }}</label>
       </div>
-      <a href="#" v-if="arrayValue[0] !== null" @click.prevent="clearValue(0)">
+      <a
+        class="radio-clear-value"
+        href="#"
+        v-if="arrayValue[0] !== null"
+        @click.prevent="clearValue(0)"
+      >
         clear
       </a>
     </div>
   </form-group>
 </template>
+
+<style>
+.radio-clear-value {
+  display: none;
+}
+
+.radio-form-group:hover .radio-clear-value {
+  display: inline;
+}
+</style>
 
 <script>
 import InputSelect from './InputSelect'
