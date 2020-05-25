@@ -2,7 +2,7 @@
   <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
       v-for="(item, idx) in arrayValue"
-      :key="item"
+      :key="idx"
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"

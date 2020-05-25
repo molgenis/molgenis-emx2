@@ -1,11 +1,6 @@
 <template>
   <div>
-    <RowEditModal
-      v-if="open"
-      :schema="schema"
-      :table="table"
-      @close="closeForm"
-    />
+    <RowEditModal v-if="open" :table="table" @close="closeForm" />
     <IconAction v-else icon="plus" @click="openForm" />
   </div>
 </template>
@@ -25,7 +20,6 @@ export default {
     IconAction
   },
   props: {
-    schema: String,
     table: String
   },
   computed: {
@@ -48,6 +42,6 @@ export default {
 <docs>
     Example
     ```
-    <RowButtonAdd schema="pet store" table="Pet"/>
+    <RowButtonAdd table="Pet"/>
     ```
 </docs>

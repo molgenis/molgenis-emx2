@@ -1,12 +1,6 @@
 <template>
   <div>
-    <RowEditModal
-      v-if="open"
-      :schema="schema"
-      :table="table"
-      :pkey="pkey"
-      @close="closeForm"
-    />
+    <RowEditModal v-if="open" :table="table" :pkey="pkey" @close="closeForm" />
     <IconAction v-else icon="edit" @click="openForm" />
   </div>
 </template>

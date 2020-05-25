@@ -122,7 +122,7 @@ export default {
                     table="Pet"
                     pkey="name"
                     selectColumn="name"
-                    defaultValue="pooky"
+                    :defaultValue="['pooky']"
             >
                 <template v-slot:rowheader="props">my row action {{props.row.name}}</template>
             </TableSearch>

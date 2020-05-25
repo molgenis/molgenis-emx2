@@ -7,7 +7,6 @@ import { request } from 'graphql-request'
 
 export default {
   props: {
-    schema: String,
     table: String
   },
   data: function() {
@@ -39,7 +38,6 @@ export default {
     }
   },
   watch: {
-    schema: 'reloadMetadata',
     table: 'reloadMetadata'
   },
   created() {

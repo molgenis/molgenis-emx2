@@ -16,7 +16,6 @@
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
-        v-on="$listeners"
         @keypress="keyhandler"
       />
     </InputAppend>

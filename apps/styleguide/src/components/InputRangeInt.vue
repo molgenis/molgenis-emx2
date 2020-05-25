@@ -2,7 +2,7 @@
   <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
       v-for="(item, idx) in arrayValue"
-      :key="item"
+      :key="idx"
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"
@@ -71,7 +71,9 @@ export default {
         this.value = Array.isArray(this.arrayValue)
           ? this.arrayValue.map(v =>
               Array.isArray(v)
-                ? v.map(v2 => (v2 === null || v2.trim() === '' ? null : v2))
+                ? v.map(v2 =>
+                    !v2 || v2.length === 0 || !String(v2).trim() ? null : v2
+                  )
                 : null
             )
           : null
@@ -84,7 +86,7 @@ export default {
       } else {
         this.value = Array.isArray(this.arrayValue[0])
           ? this.arrayValue[0].map(v =>
-              v === null || v.trim() === '' ? null : v
+              !v || v.length === 0 || !v.trim() ? null : v
             )
           : null
       }

@@ -77,13 +77,18 @@ export default {
   methods: {
     emitValue() {
       if (this.list) {
+        //else contine
         this.value = this.arrayValue.map(v =>
-          v === null || v.trim() === '' ? null : v
+          !v || v.length === 0 || !String(v).trim() ? null : v
         )
-        this.value = this.value.filter(el => el !== null)
+        this.value = this.value.filter(el => el != undefined)
       } else {
         this.value = this.arrayValue[0]
-        if (this.value === null || this.value.trim() === '') {
+        if (
+          !this.value ||
+          this.value.length === 0 ||
+          !String(this.value).trim()
+        ) {
           this.value = null
         }
       }

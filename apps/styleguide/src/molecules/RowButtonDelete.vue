@@ -76,6 +76,6 @@ export default {
 <docs>
     Example
     ```
-    <RowButtonDelete schema="pet store" table="Pet" pkey="spike"/>
+    <RowButtonDelete table="Pet" pkey="spike"/>
     ```
 </docs>

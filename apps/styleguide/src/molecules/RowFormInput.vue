@@ -90,9 +90,9 @@ export default {
 <docs>
     Example:
     ```
-    <RowColumnInput columnType="STRING" label="Test String"/>
-    <RowColumnInput columnType="REF" label="Test ref" schema="pet store" refTable="Pet" refColumn="name"/>
-    <RowColumnInput columnType="DATE" label="Test Date"/>
+    <RowFormInput columnType="STRING" label="Test String"/>
+    <RowFormInput columnType="REF" label="Test ref" schema="pet store" refTable="Pet" refColumn="name"/>
+    <RowFormInput columnType="DATE" label="Test Date"/>
 
     ```
 </docs>
