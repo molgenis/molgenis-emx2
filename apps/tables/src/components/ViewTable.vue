@@ -1,35 +1,33 @@
 <template>
-  <div>
-    <router-link to="/">< Back to '{{ schema.name }}'</router-link>
+  <div v-if="schema">
+    <router-link to="/">< Back to {{ schema.name }}</router-link>
     <h1>{{ tableName }}</h1>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <Spinner v-if="loading" />
-    <div v-else class="row flex-nowrap">
-      <div
-        class=" col col-mg-4 col-lg-4
-        "
-      >
+
+    <div class="row flex-nowrap">
+      <div class=" col col-mg-4 col-lg-4">
         <FilterSidebar v-if="table" :filters="table.columns" />
       </div>
-      <div class="col">
+      <div v-if="loading" class="col">
+        <Spinner />
+      </div>
+      <div v-else class="col">
         <div>
           <label>{{ count }} records found</label>
         </div>
         <FilterWells v-if="table" :filters="table.columns" />
         <DataTable :columns="columns" :rows="rows" class="table-responsive">
           <template v-slot:colheader>
-            <RowButtonAdd :schema="schema" :table="tableName" @close="reload" />
+            <RowButtonAdd :table="tableName" @close="reload" />
           </template>
           <template v-slot:rowheader="slotProps">
             <IconBar>
               <RowButtonEdit
-                :schema="schema"
                 :table="tableName"
                 :pkey="slotProps.row[table.pkey]"
                 @close="reload"
               />
               <RowButtonDelete
-                :schema="schema"
                 :table="tableName"
                 :pkey="slotProps.row[table.pkey]"
                 @close="reload"
@@ -88,7 +86,8 @@ export default {
     FilterWells,
     RowButtonEdit,
     RowButtonAdd,
-    RowButtonDelete
+    RowButtonDelete,
+    IconBar
   },
   props: {
     tableName: String,
@@ -120,7 +119,7 @@ export default {
             : [];
           if (conditions.length > 0) {
             if (col.columnType.startsWith("STRING")) {
-              filter[col.name] = { equals: col.conditions };
+              filter[col.name] = { like: col.conditions };
             } else if (col.columnType.startsWith("BOOL")) {
               filter[col.name] = { equals: col.conditions };
             } else if (col.columnType.startsWith("REF")) {
@@ -160,12 +159,11 @@ export default {
     columnNames() {
       let result = "";
       if (this.table != null) {
-        this.table.columns.forEach(element => {
-          if (["REF", "REF_ARRAY", "REFBACK"].includes(element.columnType)) {
-            result =
-              result + " " + element.name + "{" + element.refColumn + "}";
+        this.table.columns.forEach(col => {
+          if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
+            result = result + " " + col.name + "{" + col.refColumn + "}";
           } else {
-            result = result + " " + element.name;
+            result = result + " " + col.name;
           }
         });
       }
@@ -201,6 +199,9 @@ export default {
   },
   methods: {
     reload() {
+      console.log(
+        JSON.stringify(this.graphqlFilter) + "----" + JSON.stringify(this.table)
+      );
       this.data = null;
       if (this.schema == null) return;
       this.loading = true;
@@ -217,14 +218,12 @@ export default {
     }
   },
   watch: {
-    graphql() {
-      this.reload();
-    },
     graphqlFilter() {
       this.reload();
     }
   },
   created() {
+    console.log("CREATED");
     this.reload();
   }
 };

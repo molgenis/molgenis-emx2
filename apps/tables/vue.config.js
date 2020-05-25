@@ -8,5 +8,8 @@ module.exports = {
         pathRewrite: { "^/graphql": "" }
       }
     }
+  },
+  configureWebpack: {
+    devtool: "source-map"
   }
 };
