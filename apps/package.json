@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "styleguide",
+    "settings",
     "central",
     "schema",
     "tables",

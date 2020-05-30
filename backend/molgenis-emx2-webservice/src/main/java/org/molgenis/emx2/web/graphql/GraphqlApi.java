@@ -150,10 +150,17 @@ public class GraphqlApi {
     return result;
   }
 
-  private static Map<String, Object> getVariablesFromRequest(Request request) throws IOException {
+  private static Map<String, Object> getVariablesFromRequest(Request request) {
     if ("POST".equals(request.requestMethod())) {
-      Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
-      return (Map<String, Object>) node.get("variables");
+      try {
+        Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
+        return (Map<String, Object>) node.get("variables");
+      } catch (Exception e) {
+        throw new MolgenisException(
+            "Parsing of grahpql variables failed. Should be an object with each graphql variable a key. "
+                + e.getMessage(),
+            e);
+      }
     }
     return null;
   }

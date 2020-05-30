@@ -234,6 +234,15 @@ public class GraphqlSchemaFields {
           .field(newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
           .build();
 
+  private static final GraphQLType outputSettingsMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisSettingsType")
+          .field(newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(TYPE).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(DESCRIPTION).type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(VALUE).type(Scalars.GraphQLString))
+          .build();
+
   private static final GraphQLObjectType outputColumnMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnType")
@@ -245,7 +254,7 @@ public class GraphqlSchemaFields {
           .field(newFieldDefinition().name(REF_COLUMN_NAME).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name(MAPPED_BY).type(Scalars.GraphQLString))
           .field(newFieldDefinition().name("validation").type(Scalars.GraphQLString))
-          .field(newFieldDefinition().name("description").type(Scalars.GraphQLString))
+          .field(newFieldDefinition().name(DESCRIPTION).type(Scalars.GraphQLString))
           .build();
 
   private static final GraphQLObjectType outputTableMetadataType =
@@ -269,6 +278,10 @@ public class GraphqlSchemaFields {
           .field(newFieldDefinition().name(TABLES).type(GraphQLList.list(outputTableMetadataType)))
           .field(
               newFieldDefinition().name(MEMBERS).type(GraphQLList.list(outputMembersMetadataType)))
+          .field(
+              newFieldDefinition()
+                  .name(SETTINGS)
+                  .type(GraphQLList.list(outputSettingsMetadataType)))
           .field(newFieldDefinition().name("roles").type(GraphQLList.list(outputRolesMetadataType)))
           .build();
 
@@ -282,7 +295,7 @@ public class GraphqlSchemaFields {
       // add members
       List<Map<String, String>> members = new ArrayList<>();
       for (Member m : schema.getMembers()) {
-        members.add(Map.of("user", m.getUser(), "role", m.getRole()));
+        members.add(Map.of("email", m.getUser(), "role", m.getRole()));
       }
       result.put(MEMBERS, members);
 
@@ -293,6 +306,8 @@ public class GraphqlSchemaFields {
       }
       result.put("roles", roles);
       result.put("name", schema.getMetadata().getName());
+
+      // add settings
 
       return result;
     };

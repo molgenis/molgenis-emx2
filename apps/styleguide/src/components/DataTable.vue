@@ -14,7 +14,7 @@
           </th>
         </tr>
       </thead>
-      <tr v-for="(row, index) in rows" :key="index">
+      <tr v-for="row in rows" :key="JSON.stringify(row)">
         <td>
           <slot name="rowheader" :row="row" />
           <input
