@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web.json;
+package org.molgenis.emx2.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.MolgenisException;

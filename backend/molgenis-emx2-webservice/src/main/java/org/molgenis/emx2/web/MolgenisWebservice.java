@@ -6,8 +6,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.web.graphql.GraphqlApi;
-import org.molgenis.emx2.web.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.GraphqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -19,7 +18,7 @@ import java.io.*;
 import java.util.Properties;
 
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.json.JsonExceptionMapper.molgenisExceptionToJson;
+import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static spark.Spark.*;
 
 public class MolgenisWebservice {

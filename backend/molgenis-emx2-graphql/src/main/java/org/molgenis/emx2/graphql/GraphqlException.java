@@ -1,8 +1,6 @@
-package org.molgenis.emx2.web.graphql;
+package org.molgenis.emx2.graphql;
 
 import org.molgenis.emx2.MolgenisException;
-
-import java.io.IOException;
 
 public class GraphqlException extends MolgenisException {
   public GraphqlException(String title, String message) {

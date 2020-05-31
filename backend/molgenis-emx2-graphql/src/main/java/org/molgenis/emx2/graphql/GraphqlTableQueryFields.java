@@ -1,10 +1,11 @@
-package org.molgenis.emx2.web.graphql;
+package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.FilterBean;
 import org.molgenis.emx2.SelectColumn;
+import org.molgenis.emx2.sql.SqlQueryGraphHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,13 +17,8 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.Order.DESC;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.sql.SqlQueryGraphHelper.*;
-import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 
 public class GraphqlTableQueryFields {
 
@@ -31,23 +27,31 @@ public class GraphqlTableQueryFields {
   }
 
   static final GraphQLEnumType orderByEnum =
-      newEnum().name("MolgenisOrderByEnum").value(ASC.name(), ASC).value(DESC.name(), DESC).build();
+      GraphQLEnumType.newEnum()
+          .name("MolgenisOrderByEnum")
+          .value(Order.ASC.name(), Order.ASC)
+          .value(Order.DESC.name(), Order.DESC)
+          .build();
 
   public static GraphQLFieldDefinition.Builder tableQueryField(Table table) {
     GraphQLObjectType tableType = GraphqlTableQueryFields.createTableObjectType(table);
     GraphQLObjectType connection =
         GraphqlTableQueryFields.createTableableConnectionObjectType(table, tableType);
 
-    return newFieldDefinition()
+    return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getName())
         .type(connection)
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
-                .name(FILTER)
+                .name(GraphqlConstants.FILTER)
                 .type(createTableFilterInputObjectType(table.getMetadata()))
                 .build())
-        .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build());
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.SEARCH)
+                .type(Scalars.GraphQLString)
+                .build());
   }
 
   private static DataFetcher fetcherForTableQueryField(Table aTable) {
@@ -55,10 +59,12 @@ public class GraphqlTableQueryFields {
       Table table = aTable;
       Query q = table.query();
       q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
-      if (dataFetchingEnvironment.getArgument(FILTER) != null) {
-        q.filter(convertMapToFilterArray(table, dataFetchingEnvironment.getArgument(FILTER)));
+      if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER) != null) {
+        q.filter(
+            convertMapToFilterArray(
+                table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER)));
       }
-      String search = dataFetchingEnvironment.getArgument(SEARCH);
+      String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
       if (search != null && !search.trim().equals("")) {
         q.search(search);
       }
@@ -69,83 +75,124 @@ public class GraphqlTableQueryFields {
 
   private static GraphQLObjectType createTableableConnectionObjectType(
       Table table, GraphQLObjectType tableType) {
-    GraphQLObjectType.Builder connectionBuilder = newObject().name(table.getName() + "Connection");
+    GraphQLObjectType.Builder connectionBuilder =
+        GraphQLObjectType.newObject().name(table.getName() + "Connection");
     connectionBuilder.field(
-        newFieldDefinition().name(DATA_AGG_FIELD).type(createTableAggregationType(table)));
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name(SqlQueryGraphHelper.DATA_AGG_FIELD)
+            .type(createTableAggregationType(table)));
     connectionBuilder.field(
-        newFieldDefinition()
-            .name(DATA_FIELD)
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name(SqlQueryGraphHelper.DATA_FIELD)
             .type(GraphQLList.list(tableType))
-            .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
-            .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
             .argument(
                 GraphQLArgument.newArgument()
-                    .name(ORDERBY)
+                    .name(GraphqlConstants.LIMIT)
+                    .type(Scalars.GraphQLInt)
+                    .build())
+            .argument(
+                GraphQLArgument.newArgument()
+                    .name(GraphqlConstants.OFFSET)
+                    .type(Scalars.GraphQLInt)
+                    .build())
+            .argument(
+                GraphQLArgument.newArgument()
+                    .name(GraphqlConstants.ORDERBY)
                     .type(createTableOrderByInputObjectType(table))
                     .build()));
     return connectionBuilder.build();
   }
 
   private static GraphQLObjectType createTableObjectType(Table table) {
-    GraphQLObjectType.Builder tableBuilder = newObject().name(table.getName());
+    GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
     for (Column col : table.getMetadata().getColumns())
       switch (col.getColumnType()) {
         case DECIMAL:
           tableBuilder.field(
-              newFieldDefinition().name(col.getName()).type(Scalars.GraphQLBigDecimal));
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(Scalars.GraphQLBigDecimal));
           break;
         case INT:
-          tableBuilder.field(newFieldDefinition().name(col.getName()).type(Scalars.GraphQLInt));
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(Scalars.GraphQLInt));
           break;
         case REF:
           tableBuilder.field(
-              newFieldDefinition()
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName())
                   .type(GraphQLTypeReference.typeRef(col.getRefTableName())));
           break;
         case REF_ARRAY:
         case REFBACK:
           tableBuilder.field(
-              newFieldDefinition()
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName())
                   .type(GraphQLList.list(GraphQLTypeReference.typeRef(col.getRefTableName())))
                   .argument(
-                      GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
-                  .argument(
-                      GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.LIMIT)
+                          .type(Scalars.GraphQLInt)
+                          .build())
                   .argument(
                       GraphQLArgument.newArgument()
-                          .name(ORDERBY)
-                          .type(GraphQLTypeReference.typeRef(col.getRefTableName() + ORDERBY))
+                          .name(GraphqlConstants.OFFSET)
+                          .type(Scalars.GraphQLInt)
+                          .build())
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.ORDERBY)
+                          .type(
+                              GraphQLTypeReference.typeRef(
+                                  col.getRefTableName() + GraphqlConstants.ORDERBY))
                           .build()));
           tableBuilder.field(
-              newFieldDefinition()
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName() + "_agg")
                   .type(GraphQLTypeReference.typeRef(col.getRefTableName() + "Aggregate")));
           break;
         default:
-          tableBuilder.field(newFieldDefinition().name(col.getName()).type(Scalars.GraphQLString));
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(Scalars.GraphQLString));
       }
     return tableBuilder.build();
   }
 
   private static GraphQLObjectType createTableAggregationType(Table table) {
-    GraphQLObjectType.Builder builder = newObject().name(table.getName() + "Aggregate");
-    builder.field(newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+    GraphQLObjectType.Builder builder =
+        GraphQLObjectType.newObject().name(table.getName() + "Aggregate");
+    builder.field(
+        GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     for (Column col : table.getMetadata().getColumns()) {
       // aggregate options
       ColumnType type = col.getColumnType();
-      if (INT.equals(type) || DECIMAL.equals(type)) {
+      if (ColumnType.INT.equals(type) || ColumnType.DECIMAL.equals(type)) {
         builder.field(
-            newFieldDefinition()
+            GraphQLFieldDefinition.newFieldDefinition()
                 .name(col.getName())
                 .type(
-                    newObject()
+                    GraphQLObjectType.newObject()
                         .name(table.getName() + "AggregatorFor" + col.getName())
-                        .field(newFieldDefinition().name(MAX_FIELD).type(graphQLTypeOf(col)))
-                        .field(newFieldDefinition().name(MIN_FIELD).type(graphQLTypeOf(col)))
-                        .field(newFieldDefinition().name(AVG_FIELD).type(Scalars.GraphQLFloat))
-                        .field(newFieldDefinition().name(SUM_FIELD).type(graphQLTypeOf(col)))));
+                        .field(
+                            GraphQLFieldDefinition.newFieldDefinition()
+                                .name(SqlQueryGraphHelper.MAX_FIELD)
+                                .type(graphQLTypeOf(col)))
+                        .field(
+                            GraphQLFieldDefinition.newFieldDefinition()
+                                .name(SqlQueryGraphHelper.MIN_FIELD)
+                                .type(graphQLTypeOf(col)))
+                        .field(
+                            GraphQLFieldDefinition.newFieldDefinition()
+                                .name(SqlQueryGraphHelper.AVG_FIELD)
+                                .type(Scalars.GraphQLFloat))
+                        .field(
+                            GraphQLFieldDefinition.newFieldDefinition()
+                                .name(SqlQueryGraphHelper.SUM_FIELD)
+                                .type(graphQLTypeOf(col)))));
       } else {
         // group by options
         // TODO LATER
@@ -157,18 +204,21 @@ public class GraphqlTableQueryFields {
 
   private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {
     GraphQLInputObjectType.Builder filterBuilder =
-        newInputObject().name(table.getTableName() + FILTER);
+        GraphQLInputObjectType.newInputObject()
+            .name(table.getTableName() + GraphqlConstants.FILTER);
     for (Column col : table.getColumns()) {
       ColumnType type = col.getColumnType();
-      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+      if (ColumnType.REF.equals(type)
+          || ColumnType.REF_ARRAY.equals(type)
+          || ColumnType.REFBACK.equals(type)) {
         filterBuilder.field(
-            newInputObjectField()
+            GraphQLInputObjectField.newInputObjectField()
                 .name(col.getName())
-                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER))
+                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + GraphqlConstants.FILTER))
                 .build());
       } else {
         filterBuilder.field(
-            newInputObjectField()
+            GraphQLInputObjectField.newInputObjectField()
                 .name(col.getName())
                 .type(createColumnFilterInputObjectType(col))
                 .build());
@@ -179,11 +229,12 @@ public class GraphqlTableQueryFields {
 
   private static GraphQLInputObjectType createTableOrderByInputObjectType(Table table) {
     GraphQLInputObjectType.Builder orderByBuilder =
-        newInputObject().name(table.getName() + ORDERBY);
+        GraphQLInputObjectType.newInputObject().name(table.getName() + GraphqlConstants.ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
       ColumnType type = col.getColumnType();
-      if (!REF_ARRAY.equals(type) && !REFBACK.equals(type)) {
-        orderByBuilder.field(newInputObjectField().name(col.getName()).type(orderByEnum));
+      if (!ColumnType.REF_ARRAY.equals(type) && !ColumnType.REFBACK.equals(type)) {
+        orderByBuilder.field(
+            GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(orderByEnum));
       }
     }
     return orderByBuilder.build();
@@ -199,10 +250,11 @@ public class GraphqlTableQueryFields {
       String typeName = type.toString().toLowerCase();
       typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
       GraphQLInputObjectType.Builder builder =
-          newInputObject().name("Molgenis" + typeName + FILTER);
+          GraphQLInputObjectType.newInputObject()
+              .name("Molgenis" + typeName + GraphqlConstants.FILTER);
       for (Operator operator : type.getOperators()) {
         builder.field(
-            newInputObjectField()
+            GraphQLInputObjectField.newInputObjectField()
                 .name(operator.getName())
                 .type(GraphQLList.list(graphQLTypeOf(column))));
       }
@@ -249,9 +301,11 @@ public class GraphqlTableQueryFields {
             "Graphql API error",
             "Column " + entry.getKey() + " unknown in table " + table.getName());
       ColumnType type = c.getColumnType();
-      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+      if (ColumnType.REF.equals(type)
+          || ColumnType.REF_ARRAY.equals(type)
+          || ColumnType.REFBACK.equals(type)) {
         subFilters.add(
-            f(
+            FilterBean.f(
                 c.getName(),
                 convertMapToFilterArray(
                     table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
@@ -270,7 +324,7 @@ public class GraphqlTableQueryFields {
   }
 
   private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {
-    Filter f = f(name);
+    Filter f = FilterBean.f(name);
     for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
       Operator op = Operator.fromAbbreviation(entry2.getKey());
       if (entry2.getValue() instanceof List) {
@@ -293,14 +347,14 @@ public class GraphqlTableQueryFields {
           SelectColumn sc = new SelectColumn(s.getName(), convertMapSelection(s.getSelectionSet()));
           // get limit and offset for the selection
           Map<String, Object> args = s.getArguments();
-          if (args.containsKey(LIMIT)) {
-            sc.setLimit((int) args.get(LIMIT));
+          if (args.containsKey(GraphqlConstants.LIMIT)) {
+            sc.setLimit((int) args.get(GraphqlConstants.LIMIT));
           }
-          if (args.containsKey(OFFSET)) {
-            sc.setOffset((int) args.get(OFFSET));
+          if (args.containsKey(GraphqlConstants.OFFSET)) {
+            sc.setOffset((int) args.get(GraphqlConstants.OFFSET));
           }
-          if (args.containsKey(ORDERBY)) {
-            sc.setOrderBy((Map<String, Order>) args.get(ORDERBY));
+          if (args.containsKey(GraphqlConstants.ORDERBY)) {
+            sc.setOrderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
           }
           result.add(sc);
         }

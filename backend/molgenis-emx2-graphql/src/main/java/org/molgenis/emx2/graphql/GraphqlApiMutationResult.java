@@ -1,7 +1,8 @@
-package org.molgenis.emx2.web.graphql;
+package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLEnumType;
+import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 
 import java.util.LinkedHashMap;
@@ -9,8 +10,8 @@ import java.util.Map;
 
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.FAILED;
-import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 
 public class GraphqlApiMutationResult {
   public enum Status {
@@ -37,9 +38,17 @@ public class GraphqlApiMutationResult {
           .build();
 
   public static final GraphQLObjectType typeForMutationResult =
-      newObject()
+      GraphQLObjectType.newObject()
           .name("MolgenisResult")
-          .field(newFieldDefinition().name("status").type(enumMutationResultStatus).build())
-          .field(newFieldDefinition().name("message").type(Scalars.GraphQLString).build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("status")
+                  .type(enumMutationResultStatus)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("message")
+                  .type(Scalars.GraphQLString)
+                  .build())
           .build();
 }

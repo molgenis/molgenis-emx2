@@ -17,4 +17,5 @@ include(':backend:molgenis-emx2-io')
 include(':backend:molgenis-emx2-sql')
 include(':backend:molgenis-emx2-webservice')
 include(':backend:molgenis-emx2-exampledata')
+include(':backend:molgenis-emx2-graphql')
 

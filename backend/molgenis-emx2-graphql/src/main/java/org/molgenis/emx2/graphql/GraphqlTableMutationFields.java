@@ -1,8 +1,9 @@
-package org.molgenis.emx2.web.graphql;
+package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,8 @@ import java.util.Map;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
-import static org.molgenis.emx2.utils.TypeUtils.getPrimitiveColumnType;
-import static org.molgenis.emx2.web.graphql.GraphqlApi.*;
-import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.Status.SUCCESS;
-import static org.molgenis.emx2.web.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
 class GraphqlTableMutationFields {
   private GraphqlTableMutationFields() {
@@ -23,7 +22,7 @@ class GraphqlTableMutationFields {
 
   static GraphQLFieldDefinition insertMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
-        newFieldDefinition()
+        GraphQLFieldDefinition.newFieldDefinition()
             .name("insert")
             .type(typeForMutationResult)
             .dataFetcher(fetcherForUpdateOrInsert(schema, false));
@@ -40,7 +39,7 @@ class GraphqlTableMutationFields {
 
   static GraphQLFieldDefinition updateMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
-        newFieldDefinition()
+        GraphQLFieldDefinition.newFieldDefinition()
             .name("update")
             .type(typeForMutationResult)
             .dataFetcher(fetcherForUpdateOrInsert(schema, true));
@@ -58,7 +57,7 @@ class GraphqlTableMutationFields {
 
   static GraphQLFieldDefinition deleteMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
-        newFieldDefinition()
+        GraphQLFieldDefinition.newFieldDefinition()
             .name("delete")
             .type(typeForMutationResult)
             .dataFetcher(fetcherForDelete(schema));
@@ -70,7 +69,8 @@ class GraphqlTableMutationFields {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(tableName)
-                .type(GraphQLList.list(getGraphQLInputType(getPrimitiveColumnType(pkey)))));
+                .type(
+                    GraphQLList.list(getGraphQLInputType(TypeUtils.getPrimitiveColumnType(pkey)))));
       }
     }
     return fieldBuilder.build();
@@ -85,10 +85,10 @@ class GraphqlTableMutationFields {
         if (rowsAslistOfMaps != null) {
           Table table = schema.getTable(tableName);
           if (forUpdate) {
-            int count = table.update(convertToRows(rowsAslistOfMaps));
+            int count = table.update(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
             result.append("updated " + count + " records to " + tableName + "\n");
           } else {
-            int count = table.insert(convertToRows(rowsAslistOfMaps));
+            int count = table.insert(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
             result.append("inserted " + count + " records to " + tableName + "\n");
           }
           any = true;
@@ -119,14 +119,16 @@ class GraphqlTableMutationFields {
   }
 
   private static GraphQLInputObjectType rowInputType(Table table) {
-    GraphQLInputObjectType.Builder inputBuilder = newInputObject().name(table.getName() + "Input");
+    GraphQLInputObjectType.Builder inputBuilder =
+        GraphQLInputObjectType.newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
-      ColumnType columnType = getPrimitiveColumnType(col);
+      ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
       GraphQLInputType type = getGraphQLInputType(columnType);
       // if (col.isPrimaryKey() || !col.isNullable() && !REFBACK.equals(columnType)) {
       // type = GraphQLNonNull.nonNull(type);
       // }
-      inputBuilder.field(newInputObjectField().name(col.getName()).type(type));
+      inputBuilder.field(
+          GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(type));
     }
     return inputBuilder.build();
   }

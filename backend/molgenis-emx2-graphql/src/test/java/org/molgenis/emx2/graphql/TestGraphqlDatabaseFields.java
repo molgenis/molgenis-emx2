@@ -1,8 +1,9 @@
-package org.molgenis.emx2.web.graphql;
+package org.molgenis.emx2.graphql;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
+import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,13 +11,13 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.web.graphql.GraphqlApi;
 
 import java.io.IOException;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
-import static org.molgenis.emx2.web.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForDatabase;
 
 public class TestGraphqlDatabaseFields {
 
@@ -29,7 +30,7 @@ public class TestGraphqlDatabaseFields {
     database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.createSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
-    grapql = GraphqlApi.createGraphqlForDatabase(database);
+    grapql = createGraphqlForDatabase(database);
   }
 
   @Test
@@ -40,10 +41,10 @@ public class TestGraphqlDatabaseFields {
     assertEquals(realLength, length);
     execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
 
-    assertEquals(length + 1, database.getSchemaNames().size());
+    Assert.assertEquals(length + 1, database.getSchemaNames().size());
 
     execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
-    assertEquals(length, database.getSchemaNames().size());
+    Assert.assertEquals(length, database.getSchemaNames().size());
   }
 
   @Test
@@ -54,27 +55,27 @@ public class TestGraphqlDatabaseFields {
 
     // login is admin
     execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
-    assertEquals("admin", database.getActiveUser());
+    Assert.assertEquals("admin", database.getActiveUser());
 
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     Assert.assertTrue(database.hasUser("pietje"));
 
-    assertTrue(
+    TestCase.assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
-    assertEquals("admin", database.getActiveUser());
+    Assert.assertEquals("admin", database.getActiveUser());
 
-    assertTrue(
+    TestCase.assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    assertEquals("pietje", database.getActiveUser());
+    Assert.assertEquals("pietje", database.getActiveUser());
 
     execute("mutation{signout{message}}");
-    assertEquals("anonymous", database.getActiveUser());
+    Assert.assertEquals("anonymous", database.getActiveUser());
 
     // back to superuser
     database.clearActiveUser();

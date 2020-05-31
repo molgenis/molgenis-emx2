@@ -23,9 +23,19 @@ subprojects {
 
     /* default dependencies for all projects*/
     dependencies {
+
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.0'
         implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
-        testImplementation 'junit:junit:4.12'
+        implementation 'org.jooq:jooq:3.11.12'
+        implementation 'com.zaxxer:HikariCP:2.7.8'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.0'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.11.0'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.0'
+        implementation 'com.graphql-java:graphql-java:13.0'
+
+        //also used outside test
+        implementation 'junit:junit:4.12'
     }
 
     jacocoTestReport {

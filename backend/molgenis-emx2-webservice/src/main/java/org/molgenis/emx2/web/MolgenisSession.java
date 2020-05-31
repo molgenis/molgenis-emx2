@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.molgenis.emx2.web.graphql.GraphqlApi.createGraphqlForDatabase;
-import static org.molgenis.emx2.web.graphql.GraphqlApi.createGraphqlForSchema;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForDatabase;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForSchema;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);

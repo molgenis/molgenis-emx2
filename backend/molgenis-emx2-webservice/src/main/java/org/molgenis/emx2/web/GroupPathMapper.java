@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import com.google.common.io.ByteStreams;
-import org.molgenis.emx2.web.graphql.GraphqlApi;
 import spark.Request;
 import spark.Response;
 

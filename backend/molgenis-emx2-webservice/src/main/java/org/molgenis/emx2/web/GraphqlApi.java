@@ -1,18 +1,12 @@
-package org.molgenis.emx2.web.graphql;
+package org.molgenis.emx2.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
-import graphql.execution.AsyncExecutionStrategy;
-import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.web.MolgenisSession;
-import org.molgenis.emx2.web.MolgenisSessionManager;
-import org.molgenis.emx2.web.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -20,15 +14,9 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.*;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
-import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.graphql.GraphqlDatabaseFields.*;
-import static org.molgenis.emx2.web.graphql.GraphqlSchemaFields.*;
-import static org.molgenis.emx2.web.graphql.GraphqlTableMutationFields.*;
-import static org.molgenis.emx2.web.graphql.GraphqlTableQueryFields.tableQueryField;
-import static org.molgenis.emx2.web.graphql.GraphqlAccountFields.*;
-
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.*;
 
@@ -86,70 +74,6 @@ public class GraphqlApi {
     return executeQuery(graphqlForSchema, request);
   }
 
-  public static GraphQL createGraphqlForDatabase(Database database) {
-    GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
-    GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
-
-    // add login
-    queryBuilder.field(userQueryField(database));
-    mutationBuilder.field(signinField(database));
-    mutationBuilder.field(signoutField(database));
-    mutationBuilder.field(signupField(database));
-
-    queryBuilder.field(querySchemasField(database));
-    mutationBuilder.field(createSchemaField(database));
-    mutationBuilder.field(deleteSchemaField(database));
-
-    // notice we here add custom exception handler for mutations
-    return GraphQL.newGraphQL(
-            GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-        .build();
-  }
-
-  public static GraphQL createGraphqlForSchema(Schema schema) {
-    long start = System.currentTimeMillis();
-
-    GraphQLObjectType.Builder queryBuilder = newObject().name("Query");
-    GraphQLObjectType.Builder mutationBuilder = newObject().name("Save");
-
-    // queries
-    queryBuilder.field(schemaQuery(schema));
-    queryBuilder.field(userQueryField(schema.getDatabase()));
-    for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      queryBuilder.field(tableQueryField(table));
-    }
-
-    // mutations
-
-    mutationBuilder.field(insertMutation(schema));
-    mutationBuilder.field(updateMutation(schema));
-    mutationBuilder.field(deleteMutation(schema));
-    mutationBuilder.field(createMutation(schema));
-    mutationBuilder.field(alterMutation(schema));
-    mutationBuilder.field(dropMutation(schema));
-
-    mutationBuilder.field(signinField(schema.getDatabase()));
-    mutationBuilder.field(signoutField(schema.getDatabase()));
-    mutationBuilder.field(signupField(schema.getDatabase()));
-
-    // assemble and return
-    GraphQL result =
-        GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-            .build();
-
-    // log timing so we dont forget to add caching later
-    if (logger.isInfoEnabled())
-      logger.info(
-          "todo: create cache schema loading, it takes {}ms", (System.currentTimeMillis() - start));
-
-    return result;
-  }
-
   private static Map<String, Object> getVariablesFromRequest(Request request) {
     if ("POST".equals(request.requestMethod())) {
       try {
@@ -183,7 +107,7 @@ public class GraphqlApi {
       executionResult = g.execute(query);
     }
 
-    String result = convertExecutionResultToJson(executionResult);
+    String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
 
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
@@ -198,13 +122,6 @@ public class GraphqlApi {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return result;
-  }
-
-  static String convertExecutionResultToJson(ExecutionResult executionResult)
-      throws JsonProcessingException {
-    // tests show conversions below is under 3ms
-    Map<String, Object> toSpecificationResult = executionResult.toSpecification();
-    return JsonUtil.getWriter().writeValueAsString(toSpecificationResult);
   }
 
   private static String getQueryFromRequest(Request request) throws IOException {
@@ -231,23 +148,5 @@ public class GraphqlApi {
     Map<String, String> message = new LinkedHashMap<>();
     message.put(DETAIL, detail);
     return message;
-  }
-
-  static Iterable<Row> convertToRows(List<Map<String, Object>> map) {
-    List<Row> rows = new ArrayList<>();
-    for (Map<String, Object> row : map) {
-      rows.add(new Row(row));
-    }
-    return rows;
-  }
-
-  /** bit unfortunate that we have to convert from json to map and back */
-  public static Object transform(String json) throws IOException {
-    // benchmark shows this only takes a few ms so not a large performance issue
-    if (json != null) {
-      return new ObjectMapper().readValue(json, Map.class);
-    } else {
-      return new LinkedHashMap<>();
-    }
   }
 }
