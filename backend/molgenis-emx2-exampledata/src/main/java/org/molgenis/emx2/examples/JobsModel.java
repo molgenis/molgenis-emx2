@@ -9,12 +9,12 @@ import static org.molgenis.emx2.TableMetadata.table;
 public class JobsModel {
   public static void create(SchemaMetadata schema) {
 
-    schema.create(table("Jobs", column("id").pkey(true), column("owner"), column("group")));
+    schema.create(table("Jobs", column("id"), column("owner"), column("group")).pkey("id"));
 
     schema.create(
         table(
                 "Steps",
-                column("id").pkey(true),
+                column("id"),
                 column("job").type(REF).refTable("Jobs"),
                 column("step").type(INT),
                 column("label"),
@@ -24,12 +24,13 @@ public class JobsModel {
                 column("error"),
                 column("success"),
                 column("count").type(INT))
+            .pkey("id")
             .addUnique("job", "step")
             .addUnique("job", "label"));
 
     // refback
     schema
         .getTableMetadata("Jobs")
-        .addColumn(column("steps").type(REFBACK).refTable("Steps").mappedBy("job"));
+        .add(column("steps").type(REFBACK).refTable("Steps").mappedBy("job"));
   }
 }

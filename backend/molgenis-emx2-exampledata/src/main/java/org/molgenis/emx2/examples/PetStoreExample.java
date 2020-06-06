@@ -29,57 +29,57 @@ public class PetStoreExample {
 
   public static void create(SchemaMetadata schema) {
 
-    schema.create(table(CATEGORY).addColumn(column(NAME)).setPrimaryKey(NAME));
+    schema.create(table(CATEGORY).add(column(NAME)).pkey(NAME));
 
-    schema.create(table(TAG).addColumn(column(NAME)).setPrimaryKey(NAME));
+    schema.create(table(TAG).add(column(NAME)).pkey(NAME));
 
     schema.create(
         table(PET)
-            .addColumn(column(NAME).setDescription("the name"))
-            .addColumn(column(CATEGORY_COLUMN).type(REF).refTable(CATEGORY))
-            .addColumn(column("photoUrls").type(STRING_ARRAY).nullable(true))
-            .addColumn(column(STATUS)) // todo enum: available, pending, sold
-            .addColumn(column("tags").type(REF_ARRAY).refTable(TAG).nullable(true))
-            .addColumn(column(WEIGHT).type(DECIMAL))
-            .setPrimaryKey(NAME)
+            .add(column(NAME).setDescription("the name"))
+            .add(column(CATEGORY_COLUMN).type(REF).refTable(CATEGORY))
+            .add(column("photoUrls").type(STRING_ARRAY).nullable(true))
+            .add(column(STATUS)) // todo enum: available, pending, sold
+            .add(column("tags").type(REF_ARRAY).refTable(TAG).nullable(true))
+            .add(column(WEIGHT).type(DECIMAL))
+            .pkey(NAME)
             .setDescription("My pet store example table"));
 
     schema.create(
         table(ORDER)
-            .addColumn(column(ORDER_ID))
-            .addColumn(column("pet").type(REF).refTable(PET).nullable(true))
-            .addColumn(
+            .add(column(ORDER_ID))
+            .add(column("pet").type(REF).refTable(PET).nullable(true))
+            .add(
                 column(QUANTITY)
                     .type(INT)
                     .validation("if(value<1)'Must be larger than 1'")) // todo: validation >=1
-            .addColumn(
+            .add(
                 column(PRICE)
                     .type(DECIMAL)
                     .validation("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
-            .addColumn(column(COMPLETE).type(BOOL)) // todo: default false
-            .addColumn(column(STATUS))
-            .setPrimaryKey(ORDER_ID)); // todo enum: placed, approved, delivered
+            .add(column(COMPLETE).type(BOOL)) // todo: default false
+            .add(column(STATUS))
+            .pkey(ORDER_ID)); // todo enum: placed, approved, delivered
 
     // refback
     schema
         .getTableMetadata(PET)
-        .addColumn(column("orders").type(REFBACK).refTable(ORDER).mappedBy("pet"));
+        .add(column("orders").type(REFBACK).refTable(ORDER).mappedBy("pet"));
 
     schema.create(
         table(USER)
-            .addColumn(column("username"))
-            .addColumn(column("firstName").nullable(true))
-            .addColumn(column("lastName").nullable(true))
-            .addColumn(
+            .add(column("username"))
+            .add(column("firstName").nullable(true))
+            .add(column("lastName").nullable(true))
+            .add(
                 column(EMAIL)
                     .nullable(true)
                     .validation(
                         "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
-            .addColumn(column("password").nullable(true)) // todo: password type
-            .addColumn(column("phone").nullable(true)) // todo: validation phone
-            .addColumn(column("userStatus").type(INT).nullable(true))
-            .addColumn(column("pets").type(REF_ARRAY).refTable(PET).nullable(true))
-            .setPrimaryKey("username"));
+            .add(column("password").nullable(true)) // todo: password type
+            .add(column("phone").nullable(true)) // todo: validation phone
+            .add(column("userStatus").type(INT).nullable(true))
+            .add(column("pets").type(REF_ARRAY).refTable(PET).nullable(true))
+            .pkey("username"));
   }
 
   public static void populate(Schema schema) {

@@ -24,19 +24,17 @@ public class TestOpenApi {
 
     TableMetadata table = schema.create(table("TypeTest"));
     for (ColumnType columnType : ColumnType.values()) {
-      if (MREF.equals(columnType)
-          || REF.equals(columnType)
-          || REF_ARRAY.equals(columnType)
-          || REFBACK.equals(columnType)) {
+      if (
+      // MREF.equals(columnType) ||
+      REF.equals(columnType) || REF_ARRAY.equals(columnType) || REFBACK.equals(columnType)) {
         // TODO: outside of test for now
       } else {
-        table.addColumn(column(columnType.toString().toLowerCase() + "Column").type(columnType));
+        table.add(column(columnType.toString().toLowerCase() + "Column").type(columnType));
       }
     }
 
     TableMetadata personTable =
-        schema.create(
-            table("Person").addColumn(column("First Name")).addColumn(column("Last Name")));
+        schema.create(table("Person").add(column("First Name")).add(column("Last Name")));
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
     assertEquals(1, api.getComponents().getSchemas().size()); // useless test

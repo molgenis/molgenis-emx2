@@ -21,7 +21,6 @@ public class Column {
   public Column(org.molgenis.emx2.Column column) {
     this.table = column.getTableName();
     this.name = column.getName();
-    this.pkey = column.isPrimaryKey();
     this.unique = column.isUnique();
     this.columnType = column.getColumnType();
     this.refTable = column.getRefTableName();
@@ -35,7 +34,6 @@ public class Column {
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.type(columnType);
-    c.pkey(pkey);
     if (tm != null) c.setUnique(unique);
     c.nullable(nullable);
     c.refTable(refTable);

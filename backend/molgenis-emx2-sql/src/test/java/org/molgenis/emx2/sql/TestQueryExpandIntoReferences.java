@@ -33,12 +33,12 @@ public class TestQueryExpandIntoReferences {
         .getMetadata()
         .create(
             table(PERSON)
-                .addColumn(column("ID").type(INT))
-                .addColumn(column("First Name"))
-                .addColumn(column("Father").type(REF).refTable(PERSON).nullable(true))
-                .addColumn(column("Last Name"))
+                .add(column("ID").type(INT))
+                .add(column("First Name"))
+                .add(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .add(column("Last Name"))
                 .addUnique("First Name", "Last Name")
-                .setPrimaryKey("ID"));
+                .pkey("ID"));
 
     Row father =
         new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");

@@ -27,17 +27,18 @@ public class TestRefBack {
   @Test
   public void restRefArrayBack() {
 
-    Table parts = schema.create(table("Parts").addColumn(column("partname").pkey(true)));
+    Table parts = schema.create(table("Parts").add(column("partname")).pkey("partname"));
 
     Table products =
         schema.create(
             table("Products")
-                .addColumn(column("productname").pkey(true))
-                .addColumn(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true)));
+                .add(column("productname"))
+                .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true))
+                .pkey("productname"));
 
     parts
         .getMetadata()
-        .addColumn(column("products").type(REFBACK).refTable("Products").mappedBy("parts"));
+        .add(column("products").type(REFBACK).refTable("Products").mappedBy("parts"));
 
     parts.insert(new Row().set("partname", "smallscreen"));
     parts.insert(new Row().set("partname", "bigscreen"));
@@ -118,24 +119,23 @@ public class TestRefBack {
   @Test
   public void testRefBack() {
 
-    Table users =
-        schema.create(table("User").addColumn(column("username")).setPrimaryKey("username"));
+    Table users = schema.create(table("User").add(column("username")).pkey("username"));
 
     Table posts =
         schema.create(
             table("Posts")
-                .addColumn(column("title"))
-                .addColumn(
+                .add(column("title"))
+                .add(
                     column("user")
                         .type(REF)
                         .refTable(users.getName())
                         .refColumn("username")
                         .nullable(true))
-                .setPrimaryKey("title"));
+                .pkey("title"));
 
     users
         .getMetadata()
-        .addColumn(column("posts").type(REFBACK).refTable(posts.getName()).mappedBy("user"));
+        .add(column("posts").type(REFBACK).refTable(posts.getName()).mappedBy("user"));
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));

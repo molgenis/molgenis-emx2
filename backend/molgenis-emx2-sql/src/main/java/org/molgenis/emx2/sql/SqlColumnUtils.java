@@ -103,9 +103,9 @@ public class SqlColumnUtils {
         SqlColumnRefBackUtils.createRefBackColumnConstraints(jooq, newColumn);
         executeSetNullable(jooq, newColumn);
         break;
-      case MREF:
-        SqlColumnMrefUtils.createMrefConstraints(jooq, newColumn);
-        break;
+        //      case MREF:
+        //        SqlColumnMrefUtils.createMrefConstraints(jooq, newColumn);
+        //        break;
       default:
         executeSetNullable(jooq, newColumn);
         executeRemoveRefback(oldColumn, newColumn);
@@ -120,7 +120,7 @@ public class SqlColumnUtils {
         if (REFBACK.equals(check.getColumnType())
             && oldColumn.getName().equals(check.getMappedBy())) {
           check.getTable().dropColumn(check.getName());
-          check.getTable().addColumn(check);
+          check.getTable().add(check);
         }
       }
     }
@@ -156,16 +156,13 @@ public class SqlColumnUtils {
       case REFBACK:
         createRefBackColumnConstraints(jooq, column);
         break;
-      case MREF:
-        createMrefConstraints(jooq, column);
-        break;
+        //      case MREF:
+        //        createMrefConstraints(jooq, column);
+        //        break;
       default:
         executeSetNullable(jooq, column);
     }
     // central constraints
-    if (column.isPrimaryKey()) {
-      SqlTableMetadataExecutor.executeSetPrimaryKey(jooq, column.getTable(), column.getName());
-    }
     SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
     saveColumnMetadata(jooq, column);
   }
@@ -191,8 +188,8 @@ public class SqlColumnUtils {
       case REFBACK:
         SqlColumnRefBackUtils.removeRefBackConstraints(jooq, column);
         break;
-      case MREF:
-        throw new MolgenisException("Error", "Alter on MREF field Not yet implemented");
+        //      case MREF:
+        //        throw new MolgenisException("Error", "Alter on MREF field Not yet implemented");
       default:
         // nothing else?
     }

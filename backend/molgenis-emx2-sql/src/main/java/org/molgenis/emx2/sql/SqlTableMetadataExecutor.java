@@ -38,10 +38,23 @@ class SqlTableMetadataExecutor {
 
     // then create other columns (use super to prevent side effects)
     for (Column column : table.getLocalColumns()) {
-      // if inherited, pkey is aready there
-      if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
+      // if inherited pkey then skip
+      if (table.getInherit() != null && table.isPrimaryKey(column.getName())) {
+        // do nothing
+      } else {
         SqlColumnUtils.executeCreateColumn(jooq, new Column(table, column));
+        // set singular pkey when necessary columns are there (to ease create of self references
+        if (table.getPrimaryKey() != null
+            && table.getPrimaryKey().length == 1
+            && column.getName().equals(table.getPrimaryKey()[0])) {
+          executeSetPrimaryKey(jooq, table, table.getPrimaryKey());
+        }
       }
+    }
+
+    // set composite keys
+    if (table.getPrimaryKey() != null && table.getPrimaryKey().length > 1) {
+      executeSetPrimaryKey(jooq, table, table.getPrimaryKey());
     }
 
     // finally unique constraints
@@ -74,19 +87,25 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' because table primary key is null");
     }
-    table.addColumn(column(other.getPrimaryKey()).type(REF).refTable(other.getTableName()));
-    table.setPrimaryKey(other.getPrimaryKey());
+    for (String pkey : other.getPrimaryKey()) {
+      table.add(column(pkey).type(REF).refTable(other.getTableName()));
+    }
+    table.pkey(other.getPrimaryKey());
     MetadataUtils.saveTableMetadata(jooq, table);
   }
 
-  static void executeSetPrimaryKey(DSLContext jooq, TableMetadata table, String columName) {
+  static void executeSetPrimaryKey(DSLContext jooq, TableMetadata table, String... columnName) {
     // drop previous primary key if exists
     jooq.execute(
         "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}",
         getJooqTable(table), getPrimaryKeyContraintName(table));
 
     // create the new one
-    jooq.alterTable(getJooqTable(table)).add(constraint().primaryKey(name(columName))).execute();
+    Name[] pkey = new Name[columnName.length];
+    for (int i = 0; i < columnName.length; i++) {
+      pkey[i] = name(columnName[i]);
+    }
+    jooq.alterTable(getJooqTable(table)).add(constraint().primaryKey(pkey)).execute();
   }
 
   private static Name getPrimaryKeyContraintName(TableMetadata table) {

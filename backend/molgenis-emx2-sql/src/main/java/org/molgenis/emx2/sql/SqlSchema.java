@@ -206,7 +206,7 @@ public class SqlSchema implements Schema {
               if (oldTable.getColumn(newColumn.getName()) == null) {
                 // if column does not exist then create except refback
                 if (!newColumn.getColumnType().equals(REFBACK)) {
-                  oldTable.addColumn(newColumn);
+                  oldTable.add(newColumn);
                 }
               } else if (!newColumn.getColumnType().equals(oldColumn.getColumnType())) {
 
@@ -216,7 +216,7 @@ public class SqlSchema implements Schema {
             }
 
             // update unique constraints if not yet exist
-            if (newTable.getPrimaryKey() != null) oldTable.setPrimaryKey(newTable.getPrimaryKey());
+            if (newTable.getPrimaryKey() != null) oldTable.pkey(newTable.getPrimaryKey());
             for (String[] unique : newTable.getUniques()) oldTable.addUnique(unique);
           }
 
@@ -234,7 +234,7 @@ public class SqlSchema implements Schema {
 
               // create new refback relations
               if (newColumn.getColumnType().equals(REFBACK)) {
-                this.getTable(newTable.getTableName()).getMetadata().addColumn(newColumn);
+                this.getTable(newTable.getTableName()).getMetadata().add(newColumn);
               }
             }
           }

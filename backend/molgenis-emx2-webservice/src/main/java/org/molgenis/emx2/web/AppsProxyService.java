@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.brotli.BrotliInterceptor;
 import org.molgenis.emx2.*;
@@ -44,9 +43,7 @@ public class AppsProxyService {
     if (schema == null) schema = database.createSchema(SYSTEM);
     SchemaMetadata settingsSchema = new SchemaMetadata();
     settingsSchema.create(
-        new TableMetadata("Apps")
-            .addColumn(new Column("path").pkey(true))
-            .addColumn(new Column(SOURCE)));
+        new TableMetadata("Apps").add(new Column("path")).add(new Column(SOURCE)).pkey("path"));
     schema.merge(settingsSchema);
     // load some defaults
     schema

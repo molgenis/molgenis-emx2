@@ -25,11 +25,11 @@ public enum ColumnType {
   DATE_ARRAY(LocalDate[].class, ORDINAL_OPERATORS),
   DATETIME(LocalDateTime.class, ORDINAL_OPERATORS),
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
-  // INDIRECT
+  // RELATIONSHIP
   REF(Object.class),
   REFBACK(Object[].class),
-  REF_ARRAY(Object[].class),
-  MREF(Object[].class);
+  REF_ARRAY(Object[].class);
+  // MREF(Object[].class);
 
   private Class javaType;
   private Operator[] operators;

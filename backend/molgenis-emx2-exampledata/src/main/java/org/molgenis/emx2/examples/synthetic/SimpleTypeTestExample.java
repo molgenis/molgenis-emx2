@@ -21,9 +21,9 @@ public class SimpleTypeTestExample {
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (ColumnType columnType : columnTypes) {
-      typeTestTable.addColumn(
+      typeTestTable.add(
           column("Test_" + columnType.toString().toLowerCase()).type(columnType));
-      typeTestTable.addColumn(
+      typeTestTable.add(
           column("Test_" + columnType.toString().toLowerCase() + "_nillable")
               .type(columnType)
               .nullable(true));

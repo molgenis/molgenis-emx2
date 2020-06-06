@@ -29,10 +29,13 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
+  private static final org.jooq.Field TABLE_PKEY =
+      field(name("table_key"), VARCHAR.nullable(true).getArrayDataType());
   private static final org.jooq.Field TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
+
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field COLUMN_DESCRIPTION =
@@ -40,7 +43,6 @@ public class MetadataUtils {
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
-  private static final org.jooq.Field PKEY = field(name("pkey"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_COLUMN =
       field(name("ref_column"), VARCHAR.nullable(true));
@@ -73,7 +75,7 @@ public class MetadataUtils {
       // public access
 
       jooq.createTableIfNotExists(TABLE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
+          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PKEY, TABLE_INHERITS, TABLE_DESCRIPTION)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME),
               foreignKey(TABLE_SCHEMA)
@@ -89,7 +91,6 @@ public class MetadataUtils {
               COLUMN_NAME,
               DATA_TYPE,
               NULLABLE,
-              PKEY,
               REF_TABLE,
               REF_COLUMN,
               MAPPED_BY,
@@ -176,14 +177,16 @@ public class MetadataUtils {
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     jooq.insertInto(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
+        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PKEY, TABLE_INHERITS, TABLE_DESCRIPTION)
         .values(
             table.getSchema().getName(),
             table.getTableName(),
+            table.getPrimaryKey(),
             table.getInherit(),
             table.getDescription())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
+        .set(TABLE_PKEY, table.getPrimaryKey())
         .set(TABLE_INHERITS, table.getInherit())
         .execute();
   }
@@ -200,8 +203,9 @@ public class MetadataUtils {
     table.setInherit(tableRecord.get(TABLE_INHERITS, String.class));
     table.setDescription(tableRecord.get(TABLE_DESCRIPTION, String.class));
     for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
-      table.addColumn(c);
+      table.add(c);
     }
+    table.pkey(tableRecord.get(TABLE_PKEY, String[].class));
     MetadataUtils.loadUniqueMetadata(jooq, table);
   }
 
@@ -219,7 +223,6 @@ public class MetadataUtils {
             COLUMN_NAME,
             DATA_TYPE,
             NULLABLE,
-            PKEY,
             REF_TABLE,
             REF_COLUMN,
             MAPPED_BY,
@@ -232,7 +235,6 @@ public class MetadataUtils {
             column.getName(),
             column.getColumnType(),
             column.isNullable(),
-            column.isPrimaryKey(),
             column.getRefTableName(),
             column.getRefColumnNameRaw(),
             column.getMappedBy(),
@@ -243,7 +245,6 @@ public class MetadataUtils {
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
         .set(NULLABLE, column.isNullable())
-        .set(PKEY, column.isPrimaryKey())
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_COLUMN, column.getRefColumnNameRaw())
         .set(MAPPED_BY, column.getMappedBy())
@@ -309,7 +310,6 @@ public class MetadataUtils {
       Column c = new Column(col.get(COLUMN_NAME, String.class));
       c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
       c.nullable(col.get(NULLABLE, Boolean.class));
-      c.pkey(col.get(PKEY, Boolean.class));
       c.refTable(col.get(REF_TABLE, String.class));
       c.refColumn(col.get(REF_COLUMN, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));

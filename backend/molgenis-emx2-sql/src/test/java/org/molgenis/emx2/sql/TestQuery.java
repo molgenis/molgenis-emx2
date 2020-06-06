@@ -32,13 +32,13 @@ public class TestQuery {
     Table person =
         schema.create(
             table(PERSON)
-                .addColumn(column("ID").type(INT))
-                .addColumn(column("First Name"))
-                .addColumn(column("Last Name"))
-                .addColumn(column("Father").type(REF).refTable(PERSON).nullable(true))
-                .addColumn(column("Mother").type(REF).refTable(PERSON).nullable(true))
+                .add(column("ID").type(INT))
+                .add(column("First Name"))
+                .add(column("Last Name"))
+                .add(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .add(column("Mother").type(REF).refTable(PERSON).nullable(true))
                 .addUnique("First Name", "Last Name")
-                .setPrimaryKey("ID"));
+                .pkey("ID"));
 
     Row donald =
         new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");

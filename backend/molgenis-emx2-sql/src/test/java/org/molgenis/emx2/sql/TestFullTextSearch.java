@@ -28,9 +28,10 @@ public class TestFullTextSearch {
     Table aTable =
         schema.create(
             table("TestFullTextSearch")
-                .addColumn(column("sub").pkey((true)))
-                .addColumn(column("body").type(TEXT))
-                .addColumn(column("year").type(INT)));
+                .add(column("sub"))
+                .pkey("sub")
+                .add(column("body").type(TEXT))
+                .add(column("year").type(INT)));
     // aTable.getMetadata().enableSearch();
 
     aTable.insert(

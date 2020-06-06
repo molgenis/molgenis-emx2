@@ -57,6 +57,7 @@ public class SqlQueryGraphHelper extends QueryBean {
                   createSubselect(
                       table,
                       table.getTableName(),
+                      null,
                       select.get(DATA_FIELD),
                       filter,
                       JSON_AGG_SQL,
@@ -71,6 +72,7 @@ public class SqlQueryGraphHelper extends QueryBean {
           createAggregationField(
                   table,
                   table.getTableName(),
+                  null,
                   select.get(DATA_AGG_FIELD),
                   filter,
                   null,
@@ -102,6 +104,7 @@ public class SqlQueryGraphHelper extends QueryBean {
   private static Select createSubselect(
       SqlTableMetadata table,
       String tableAlias,
+      String parentAlias,
       SelectColumn select,
       Filter filter,
       String aggregationFunction,
@@ -144,7 +147,7 @@ public class SqlQueryGraphHelper extends QueryBean {
         // create the aggregation of the subselect, e.g. into count or json
         SelectJoinStep subselect =
             table.getJooq().select(field(aggregationFunction)).from(table(where).as(ITEM));
-        Condition condition = createConditionsForRefs(table, filter);
+        Condition condition = createConditionsForRefs(parentAlias, table, filter);
         if (condition != null) return subselect.where(condition);
         else return subselect;
       }
@@ -165,12 +168,13 @@ public class SqlQueryGraphHelper extends QueryBean {
         // inheritance
         String inheritAlias = getSubclassAlias(table, tableAlias, column);
 
-        // if a relationship but NOT the inheritance relationship
+        // if a relationship but NOT the inheritance relationship (pkey)
         if ((REF.equals(column.getColumnType())
                 || REF_ARRAY.equals(column.getColumnType())
-                || REFBACK.equals(column.getColumnType())
-                || MREF.equals(column.getColumnType()))
-            && (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey()))) {
+                || REFBACK.equals(column.getColumnType()))
+            //                || MREF.equals(column.getColumnType()))
+            && (table.getInherit() == null
+                || !Arrays.asList(table.getPrimaryKey()).contains(column.getName()))) {
           fields.add(
               createSelectionFieldForRef(
                       column,
@@ -191,6 +195,7 @@ public class SqlQueryGraphHelper extends QueryBean {
             createAggregationField(
                     (SqlTableMetadata) getRefTable(column),
                     subAlias,
+                    tableAlias,
                     select.get(aggFieldName),
                     getFilterForRef(filter, column),
                     getSubFieldCondition(column, tableAlias, subAlias),
@@ -204,6 +209,7 @@ public class SqlQueryGraphHelper extends QueryBean {
   private static Field createAggregationField(
       SqlTableMetadata table,
       String tableAlias,
+      String parentAlias,
       SelectColumn select,
       Filter filter,
       Condition conditions,
@@ -258,7 +264,16 @@ public class SqlQueryGraphHelper extends QueryBean {
     }
 
     Select source =
-        createSubselect(table, tableAlias, subSelect, filter, null, conditions, false, searchTerms);
+        createSubselect(
+            table,
+            tableAlias,
+            parentAlias,
+            subSelect,
+            filter,
+            null,
+            conditions,
+            false,
+            searchTerms);
     Select aggregateQuery = null;
     if (!groupBy.isEmpty()) {
       //      aggregateQuery =
@@ -268,7 +283,7 @@ public class SqlQueryGraphHelper extends QueryBean {
       //              .groupBy(groupBy);
     } else {
       aggregateQuery = jooq.select(fields).from(table(source).as("aggs"));
-      Condition subfilter = createConditionsForRefs(table, filter);
+      Condition subfilter = createConditionsForRefs(parentAlias, table, filter);
       if (subfilter != null) aggregateQuery = ((SelectJoinStep) aggregateQuery).where(subfilter);
     }
     return field(
@@ -289,6 +304,7 @@ public class SqlQueryGraphHelper extends QueryBean {
         createSubselect(
             (SqlTableMetadata) getRefTable(column),
             subAlias,
+            tableAlias,
             select,
             filter,
             REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL,
@@ -330,7 +346,8 @@ public class SqlQueryGraphHelper extends QueryBean {
     return condition;
   }
 
-  private static Condition createConditionsForRefs(TableMetadata table, Filter filter) {
+  private static Condition createConditionsForRefs(
+      String tableAlias, TableMetadata table, Filter filter) {
     Condition condition = null;
     if (filter == null) return condition;
     for (Column column : table.getLocalColumns()) {
@@ -339,7 +356,8 @@ public class SqlQueryGraphHelper extends QueryBean {
         ColumnType type = column.getColumnType();
         if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
           // check that subtree exists
-          condition = mergeConditions(condition, field(name(column.getName())).isNotNull());
+          condition =
+              mergeConditions(condition, field(name(tableAlias, column.getName())).isNotNull());
         }
       }
     }

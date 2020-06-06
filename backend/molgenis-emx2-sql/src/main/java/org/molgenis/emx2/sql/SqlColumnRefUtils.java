@@ -35,14 +35,27 @@ public class SqlColumnRefUtils {
 
     String refColumnName = column.getRefColumnName();
     if (refColumnName == null) {
-      refColumnName =
-          column.getTable().getSchema().getTableMetadata(column.getRefTableName()).getPrimaryKey();
-      if (refColumnName == null) {
+      if (column.getTable().getSchema().getTableMetadata(column.getRefTableName()).getPrimaryKey()
+              == null
+          || column
+                  .getTable()
+                  .getSchema()
+                  .getTableMetadata(column.getRefTableName())
+                  .getPrimaryKey()
+                  .length
+              != 1) {
         throw new MolgenisException(
             "Create column failed",
             "Create of column '"
                 + column.getName()
-                + "' failed because RefColumnName was not set nor the other table has primary key set");
+                + "' failed because RefColumnName was not set nor the other table has singular primary key set");
+      } else {
+        refColumnName =
+            column
+                .getTable()
+                .getSchema()
+                .getTableMetadata(column.getRefTableName())
+                .getPrimaryKey()[0];
       }
     }
 

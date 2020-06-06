@@ -68,7 +68,7 @@ public class Mapper {
           col.nullable(cm.nullable());
           col.setDescription(cm.description());
         }
-        t.addColumn(col);
+        t.add(col);
       }
     }
     return t;

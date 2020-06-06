@@ -287,7 +287,7 @@ public class GraphqlTableQueryFields {
       case REF:
       case REF_ARRAY:
       case REFBACK:
-      case MREF:
+        //     case MREF:
     }
     return Scalars.GraphQLString;
   }

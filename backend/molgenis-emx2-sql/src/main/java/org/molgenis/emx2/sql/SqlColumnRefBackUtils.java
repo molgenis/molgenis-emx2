@@ -35,7 +35,7 @@ class SqlColumnRefBackUtils {
                 .getTable()
                 .getSchema()
                 .getTableMetadata(column.getRefTableName())
-                .getPrimaryKey();
+                .getPrimaryKey()[0];
         if (refColumnName == null) {
           throw new MolgenisException(
               "Create column failed",
@@ -50,7 +50,7 @@ class SqlColumnRefBackUtils {
       Column toColumn = column.getRefColumn();
 
       // toColumn should be a key, not null
-      if ((!toColumn.isPrimaryKey() && !toTable.isUnique(toColumn.getName()))
+      if ((!toTable.isPrimaryKey(toColumn.getName()) && !toTable.isUnique(toColumn.getName()))
           || toColumn.isNullable()) {
         throw new MolgenisException(
             "Create column failed",
@@ -105,13 +105,13 @@ class SqlColumnRefBackUtils {
         case REF_ARRAY:
           createTriggerForRefArray(jooq, column);
           break;
-        case MREF:
+          //        case MREF:
         default:
           throw new MolgenisException(
               "Create column failed",
               "Create of REFBACK column '"
                   + column.getName()
-                  + "' failed because mappedBy was not of type REF, REF_ARRAY or MREF");
+                  + "' failed because mappedBy was not of type REF, REF_ARRAY");
       }
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(

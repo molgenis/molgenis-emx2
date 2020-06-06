@@ -120,7 +120,8 @@ class SqlQueryUtils {
       if (fromTable.getPrimaryKey() == null) {
         throw new MolgenisException(QUERY_FAILED, "Search failed because no primary key was set");
       }
-      Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()));
+      // BIG TODO THIS IS NOT CORRECT
+      Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()[0]));
       // create subquery
       SelectJoinStep sub =
           fromTable.getJooq().select(pkey).from(getJooqTable(fromTable).as(fromAlias));
@@ -187,11 +188,14 @@ class SqlQueryUtils {
     TableMetadata inherit = table.getInheritedTable();
     while (inherit != null) {
       String subTableAlias = tableAlias + "+" + inherit.getTableName();
-      from =
-          from.innerJoin(getJooqTable(inherit).as(subTableAlias))
-              .on(
-                  field(name(tableAlias, table.getPrimaryKey()))
-                      .eq(field(name(subTableAlias, table.getPrimaryKey()))));
+
+      Condition[] conditions = new Condition[table.getPrimaryKey().length];
+      for (int i = 0; i < conditions.length; i++) {
+        String pkey = table.getPrimaryKey()[i];
+        conditions[i] = field(name(tableAlias, pkey)).eq(field(name(subTableAlias, pkey)));
+      }
+
+      from = from.innerJoin(getJooqTable(inherit).as(subTableAlias)).on(conditions);
       inherit = inherit.getInheritedTable();
     }
     return from;
@@ -282,8 +286,8 @@ class SqlQueryUtils {
         } else {
           return condition("FAILED");
         }
-      case MREF:
-        return null;
+        //      case MREF:
+        //        return null;
       default:
         throw new SqlGraphQueryException(
             QUERY_FAILED,

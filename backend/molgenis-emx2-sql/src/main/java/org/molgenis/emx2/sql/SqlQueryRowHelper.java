@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.jooq.impl.DSL.field;
@@ -87,11 +88,12 @@ class SqlQueryRowHelper {
         if (!select.get(column.getName()).getColumNames().isEmpty()
             && (REF.equals(column.getColumnType())
                 || REF_ARRAY.equals(column.getColumnType())
-                || REFBACK.equals(column.getColumnType())
-                || MREF.equals(column.getColumnType()))) {
+                || REFBACK.equals(column.getColumnType()))) {
+          // || MREF.equals(column.getColumnType()))) {
 
           // check if not primary key that points to the parent table
-          if (table.getInherit() == null || !column.getName().equals(table.getPrimaryKey())) {
+          if (table.getInherit() == null
+              || Arrays.asList(table.getPrimaryKey()).contains(column.getName())) {
             fields.addAll(
                 createSelectFields(
                     column.getRefTable(),
@@ -101,9 +103,10 @@ class SqlQueryRowHelper {
         } else {
           String columnAlias = prefix + column.getName();
 
-          if (MREF.equals(column.getColumnType())) {
-            fields.add(createMrefSubselect(column, inheritAlias).as(columnAlias));
-          } else if (REFBACK.equals(column.getColumnType())) {
+          //          if (MREF.equals(column.getColumnType())) {
+          //            fields.add(createMrefSubselect(column, inheritAlias).as(columnAlias));
+          //          } else
+          if (REFBACK.equals(column.getColumnType())) {
             fields.add(
                 PostgresDSL.array(createBackrefSubselect(column, inheritAlias))
                     .as(column.getName()));
@@ -132,7 +135,7 @@ class SqlQueryRowHelper {
 
         if ((REF.equals(type)
                 || REF_ARRAY.equals(type)
-                || MREF.equals(type)
+                // || MREF.equals(type)
                 || REFBACK.equals(type))
             && filter.has(column.getName())
             && !filter.getFilter(column.getName()).getSubfilters().isEmpty()) {
@@ -168,23 +171,23 @@ class SqlQueryRowHelper {
     }
   }
 
-  private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
-    Column reverseToColumn = column.getTable().getPrimaryKeyColumn();
-    // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
-    // mappedBy
-    for (Column c : column.getRefTable().getColumns()) {
-      if (column.getName().equals(c.getMappedBy())) {
-        reverseToColumn = c;
-        break;
-      }
-    }
-    return PostgresDSL.array(
-        DSL.select(field(name(getJoinTableName(column), column.getName())))
-            .from(name(column.getTable().getSchema().getName(), getJoinTableName(column)))
-            .where(
-                field(name(getJoinTableName(column), reverseToColumn.getName()))
-                    .eq(field(name(tableAlias, reverseToColumn.getName())))));
-  }
+  //  private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
+  //    Column reverseToColumn = column.getTable().getPrimaryKeyColumn();
+  //    // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
+  //    // mappedBy
+  //    for (Column c : column.getRefTable().getColumns()) {
+  //      if (column.getName().equals(c.getMappedBy())) {
+  //        reverseToColumn = c;
+  //        break;
+  //      }
+  //    }
+  //    return PostgresDSL.array(
+  //        DSL.select(field(name(getJoinTableName(column), column.getName())))
+  //            .from(name(column.getTable().getSchema().getName(), getJoinTableName(column)))
+  //            .where(
+  //                field(name(getJoinTableName(column), reverseToColumn.getName()))
+  //                    .eq(field(name(tableAlias, reverseToColumn.getName())))));
+  //  }
 
   static SelectConditionStep createBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = getMappedByColumn(column);

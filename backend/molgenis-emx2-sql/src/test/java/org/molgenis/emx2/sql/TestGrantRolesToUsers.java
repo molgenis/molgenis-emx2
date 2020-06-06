@@ -144,9 +144,10 @@ public class TestGrantRolesToUsers {
 
       schema.create(
           table("Person")
-              .addColumn(column("id").pkey(true))
-              .addColumn(column("FirstName"))
-              .addColumn(column("LastName")));
+              .add(column("id"))
+              .add(column("FirstName"))
+              .add(column("LastName"))
+              .pkey("id"));
 
       try {
         database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");

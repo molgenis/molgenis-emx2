@@ -75,7 +75,7 @@ public class TestCreateForeignKeysArrays {
     Schema schema = db.createSchema("TestRefArray" + columnType.toString().toUpperCase());
 
     String aKey = "A" + columnType + "Key";
-    Table aTable = schema.create(table("A").addColumn(column(aKey).type(columnType).pkey(true)));
+    Table aTable = schema.create(table("A").add(column(aKey).type(columnType)).pkey(aKey));
 
     Row aRow = new Row().set(aKey, testValues[0]);
     Row aRow2 = new Row().set(aKey, testValues[1]);
@@ -85,8 +85,8 @@ public class TestCreateForeignKeysArrays {
     Table bTable =
         schema.create(
             table("B")
-                .addColumn(column(refToA).type(REF_ARRAY).refTable("A").refColumn(aKey))
-                .addColumn(
+                .add(column(refToA).type(REF_ARRAY).refTable("A").refColumn(aKey))
+                .add(
                     column(refToA + "Nullable")
                         .type(REF_ARRAY)
                         .refTable("A")

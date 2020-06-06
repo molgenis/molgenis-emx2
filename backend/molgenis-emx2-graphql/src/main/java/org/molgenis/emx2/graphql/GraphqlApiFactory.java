@@ -67,7 +67,6 @@ public class GraphqlApiFactory {
     }
 
     // mutations
-
     mutationBuilder.field(GraphqlTableMutationFields.insertMutation(schema));
     mutationBuilder.field(GraphqlTableMutationFields.updateMutation(schema));
     mutationBuilder.field(GraphqlTableMutationFields.deleteMutation(schema));
@@ -111,7 +110,7 @@ public class GraphqlApiFactory {
   }
 
   /** bit unfortunate that we have to convert from json to map and back */
-  public static Object transform(String json) throws IOException {
+   static Object transform(String json) throws IOException {
     // benchmark shows this only takes a few ms so not a large performance issue
     if (json != null) {
       return new ObjectMapper().readValue(json, Map.class);

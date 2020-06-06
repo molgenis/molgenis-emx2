@@ -27,7 +27,7 @@ public class SqlTypeUtils extends TypeUtils {
         return jooqTypeOf(column.getRefColumn());
       case REFBACK:
       case REF_ARRAY:
-      case MREF:
+        //      case MREF:
         return jooqTypeOf(column.getRefColumn()).getArrayDataType();
       default:
         return jooqTypeOf(sqlColumnType);
@@ -100,7 +100,8 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType columnType = column.getColumnType();
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(column);
-    } else if (MREF.equals(columnType) || REFBACK.equals(columnType)) {
+    } else if (REF_ARRAY.equals(columnType)
+        || REFBACK.equals(columnType)) { // /MREF.equals(columnType) ||
       columnType = getArrayType(getRefColumnType(column));
     }
     return getTypedValue(v, columnType);
@@ -152,7 +153,7 @@ public class SqlTypeUtils extends TypeUtils {
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(column);
     }
-    if (REF_ARRAY.equals(columnType) || MREF.equals(columnType) || REFBACK.equals(columnType)) {
+    if (REF_ARRAY.equals(columnType) || REFBACK.equals(columnType)) { // || MREF.equals(columnType)
       columnType = getRefArrayColumnType(column);
     }
     switch (columnType) {

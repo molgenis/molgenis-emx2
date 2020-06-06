@@ -17,7 +17,7 @@ public class ArrayTypeTestExample {
   public static void createSimpleTypeTest(SchemaMetadata schema) {
 
     TableMetadata typeTestTable = schema.create(table("ArrayTypeTest"));
-    typeTestTable.addColumn(column("id").pkey(true));
+    typeTestTable.add(column("id")).pkey("id");
     ColumnType[] columnTypes =
         new ColumnType[] {
           UUID_ARRAY,
@@ -31,9 +31,8 @@ public class ArrayTypeTestExample {
         };
     for (ColumnType columnType : columnTypes) {
 
-      typeTestTable.addColumn(
-          column("Test_" + columnType.toString().toLowerCase()).type(columnType));
-      typeTestTable.addColumn(
+      typeTestTable.add(column("Test_" + columnType.toString().toLowerCase()).type(columnType));
+      typeTestTable.add(
           column("Test_" + columnType.toString().toLowerCase() + "_nillable")
               .type(columnType)
               .nullable(true));

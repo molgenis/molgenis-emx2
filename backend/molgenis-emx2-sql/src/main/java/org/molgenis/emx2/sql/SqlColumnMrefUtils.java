@@ -20,16 +20,16 @@ class SqlColumnMrefUtils {
         .getTable()
         .getSchema()
         .create(new TableMetadata(getJoinTableName(column)))
-        .addColumn(
+        .add(
             new Column(column.getName())
                 .type(REF)
                 .refTable(column.getRefTableName())
                 .refColumn(column.getRefColumnName()))
-        .addColumn(
-            new Column(column.getTable().getPrimaryKey())
+        .add(
+            new Column(column.getTable().getPrimaryKey()[0])
                 .type(REF)
                 .refTable(column.getTable().getTableName())
-                .refColumn(column.getTable().getPrimaryKey()));
+                .refColumn(column.getTable().getPrimaryKey()[0]));
 
     // create trigger on insert, update and delete of rows in this table will update mref table
     createTriggers(jooq, column, getJoinTableName(column));
@@ -41,7 +41,7 @@ class SqlColumnMrefUtils {
     String insertOrUpdateTrigger =
         thisColumn.getTable().getTableName() + "_" + thisColumn.getName() + "_UPSERT_TRIGGER";
     TableMetadata thisTable = thisColumn.getTable();
-    String primaryKey = thisTable.getPrimaryKey();
+    String[] primaryKey = thisTable.getPrimaryKey();
     String sqlType = getPsqlType(thisColumn.getRefColumn());
 
     // insert and update trigger: does the following

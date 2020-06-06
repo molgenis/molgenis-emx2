@@ -11,7 +11,6 @@ public class Column {
   private String refTable;
   private String refColumn;
   private String mappedBy;
-  private boolean isPrimaryKey;
 
   // options
   private boolean nullable = false;
@@ -42,7 +41,6 @@ public class Column {
     indexed = column.indexed;
     refTable = column.refTable;
     refColumn = column.refColumn;
-    isPrimaryKey = column.isPrimaryKey;
     mappedBy = column.mappedBy;
     validationScript = column.validationScript;
     description = column.description;
@@ -74,8 +72,11 @@ public class Column {
   }
 
   public String getRefColumnName() {
-    if (this.refColumn == null && getRefTable() != null) {
-      return getRefTable().getPrimaryKey();
+    if (this.refColumn == null
+        && getRefTable() != null
+        && getRefTable().getPrimaryKey() != null
+        && getRefTable().getPrimaryKey().length == 1) {
+      return getRefTable().getPrimaryKey()[0];
     }
     return this.refColumn;
   }
@@ -210,8 +211,8 @@ public class Column {
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else if (ColumnType.REF_ARRAY.equals(getColumnType()))
       builder.append("ref_array(").append(refTable).append(",").append(refColumn).append(")");
-    else if (ColumnType.MREF.equals(getColumnType()))
-      builder.append("mref(").append(refTable).append(",").append(refColumn).append(")");
+    //    else if (ColumnType.MREF.equals(getColumnType()))
+    //      builder.append("mref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());
     if (Boolean.TRUE.equals(isNullable())) builder.append(" nullable");
     return builder.toString();
@@ -232,15 +233,6 @@ public class Column {
 
   public Column refColumn(String refColumn) {
     this.refColumn = refColumn;
-    return this;
-  }
-
-  public boolean isPrimaryKey() {
-    return this.isPrimaryKey;
-  }
-
-  public Column pkey(boolean pkey) {
-    this.isPrimaryKey = pkey;
     return this;
   }
 

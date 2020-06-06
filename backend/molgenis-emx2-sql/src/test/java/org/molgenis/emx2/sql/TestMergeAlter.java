@@ -44,20 +44,18 @@ public class TestMergeAlter {
       String targetTableName, String refTableName, ColumnType refColumnType, String stringValue) {
     SchemaMetadata newSchema = new SchemaMetadata();
     newSchema
-        .create(new TableMetadata(targetTableName).addColumn(new Column(ID_COLUMN).pkey(true)))
-        .addColumn(
+        .create(new TableMetadata(targetTableName).add(new Column(ID_COLUMN)).pkey(ID_COLUMN))
+        .add(
             new Column(REFBACK_COLUMN)
                 .type(ColumnType.REFBACK)
                 .refTable(refTableName)
                 .mappedBy(REF_COLUMN));
     newSchema.create(
         new TableMetadata(refTableName)
-            .addColumn(new Column(ID_COLUMN).pkey(true))
-            .addColumn(
-                new Column(REF_COLUMN)
-                    .type(refColumnType)
-                    .refTable(targetTableName)
-                    .nullable(true)));
+            .add(new Column(ID_COLUMN))
+            .add(
+                new Column(REF_COLUMN).type(refColumnType).refTable(targetTableName).nullable(true))
+            .pkey(ID_COLUMN));
 
     schema.merge(newSchema);
 
@@ -109,7 +107,7 @@ public class TestMergeAlter {
     schema
         .getTable(targetTableName)
         .getMetadata()
-        .addColumn(
+        .add(
             new Column(REFBACK_COLUMN)
                 .type(ColumnType.REFBACK)
                 .refTable(refTableName)
@@ -187,7 +185,7 @@ public class TestMergeAlter {
   private void executeAlterType(
       ColumnType fromType, Object fromVal, ColumnType toType, Object toVal, boolean roundtrip) {
     String tableName = "TEST_ALTER_" + fromType.toString() + "_TO_" + toType.toString();
-    schema.create(new TableMetadata(tableName).addColumn(new Column("col1").type(fromType)));
+    schema.create(new TableMetadata(tableName).add(new Column("col1").type(fromType)));
     schema.getTable(tableName).insert(new Row().set("col1", fromVal));
     schema.getTable(tableName).getMetadata().alterColumn(new Column("col1").type(toType));
 

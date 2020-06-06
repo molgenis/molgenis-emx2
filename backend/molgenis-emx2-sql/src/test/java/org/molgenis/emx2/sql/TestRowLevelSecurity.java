@@ -48,7 +48,7 @@ public class TestRowLevelSecurity {
       database.setActiveUser("testrls1");
       database.tx(
           db -> {
-            db.getSchema(TEST_RLS).create(table(TEST_RLS).addColumn(column("col1")));
+            db.getSchema(TEST_RLS).create(table(TEST_RLS).add(column("col1")));
           });
 
       // let the other user add RLS

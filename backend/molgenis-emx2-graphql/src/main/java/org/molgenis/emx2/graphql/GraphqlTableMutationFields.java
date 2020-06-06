@@ -5,7 +5,6 @@ import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,16 +15,23 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
 class GraphqlTableMutationFields {
+
+  private enum MutationType {
+    INSERT,
+    UPDATE,
+    DELETE
+  }
+
   private GraphqlTableMutationFields() {
     // hide
   }
 
-  static GraphQLFieldDefinition insertMutation(Schema schema) {
+  public static GraphQLFieldDefinition insertMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         GraphQLFieldDefinition.newFieldDefinition()
             .name("insert")
             .type(typeForMutationResult)
-            .dataFetcher(fetcherForUpdateOrInsert(schema, false));
+            .dataFetcher(fetcher(schema, MutationType.INSERT));
 
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
@@ -37,12 +43,12 @@ class GraphqlTableMutationFields {
     return fieldBuilder.build();
   }
 
-  static GraphQLFieldDefinition updateMutation(Schema schema) {
+  public static GraphQLFieldDefinition updateMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         GraphQLFieldDefinition.newFieldDefinition()
             .name("update")
             .type(typeForMutationResult)
-            .dataFetcher(fetcherForUpdateOrInsert(schema, true));
+            .dataFetcher(fetcher(schema, MutationType.UPDATE));
 
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
@@ -55,28 +61,28 @@ class GraphqlTableMutationFields {
     return fieldBuilder.build();
   }
 
-  static GraphQLFieldDefinition deleteMutation(Schema schema) {
+  public static GraphQLFieldDefinition deleteMutation(Schema schema) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         GraphQLFieldDefinition.newFieldDefinition()
             .name("delete")
             .type(typeForMutationResult)
-            .dataFetcher(fetcherForDelete(schema));
+            .dataFetcher(fetcher(schema, MutationType.DELETE));
 
     for (String tableName : schema.getTableNames()) {
-      Column pkey = schema.getMetadata().getTableMetadata(tableName).getPrimaryKeyColumn();
       // if no pkey is provided, you cannot delete rows
-      if (pkey != null) {
+      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKey() != null
+          && schema.getMetadata().getTableMetadata(tableName).getPrimaryKey().length > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(tableName)
-                .type(
-                    GraphQLList.list(getGraphQLInputType(TypeUtils.getPrimitiveColumnType(pkey)))));
+                // reuse same input as insert
+                .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableName + "Input"))));
       }
     }
     return fieldBuilder.build();
   }
 
-  private static DataFetcher fetcherForUpdateOrInsert(Schema schema, boolean forUpdate) {
+  private static DataFetcher fetcher(Schema schema, MutationType mutationType) {
     return dataFetchingEnvironment -> {
       StringBuilder result = new StringBuilder();
       boolean any = false;
@@ -84,36 +90,25 @@ class GraphqlTableMutationFields {
         List<Map<String, Object>> rowsAslistOfMaps = dataFetchingEnvironment.getArgument(tableName);
         if (rowsAslistOfMaps != null) {
           Table table = schema.getTable(tableName);
-          if (forUpdate) {
-            int count = table.update(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
-            result.append("updated " + count + " records to " + tableName + "\n");
-          } else {
-            int count = table.insert(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
-            result.append("inserted " + count + " records to " + tableName + "\n");
+          int count = 0;
+          switch (mutationType) {
+            case UPDATE:
+              count = table.update(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
+              result.append("updated " + count + " records to " + tableName + "\n");
+              break;
+            case INSERT:
+              count = table.insert(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
+              result.append("inserted " + count + " records to " + tableName + "\n");
+              break;
+            case DELETE:
+              count = table.delete(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
+              result.append("delete " + count + " records from " + tableName + "\n");
+              break;
           }
           any = true;
         }
       }
       if (!any) throw new MolgenisException("Error with save", "no data provided");
-      return new GraphqlApiMutationResult(SUCCESS, result.toString());
-    };
-  }
-
-  private static DataFetcher<?> fetcherForDelete(Schema schema) {
-    return dataFetchingEnvironment -> {
-      StringBuilder result = new StringBuilder();
-      for (String tableName : schema.getTableNames()) {
-        Table table = schema.getTable(tableName);
-        List<Object> pkeyList = dataFetchingEnvironment.getArgument(tableName);
-        if (pkeyList != null) {
-          List<Row> rows = new ArrayList<>();
-          for (Object key : pkeyList) {
-            rows.add(new Row().set(table.getMetadata().getPrimaryKey(), key));
-          }
-          int count = table.delete(rows);
-          result.append("deleted " + count + " records int " + tableName + "\n");
-        }
-      }
       return new GraphqlApiMutationResult(SUCCESS, result.toString());
     };
   }

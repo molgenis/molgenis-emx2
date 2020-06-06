@@ -9,6 +9,7 @@ public class TableMetadata {
   protected String inherit = null;
   protected String description = null;
   protected Map<String, Column> columns = new LinkedHashMap<>();
+  private String[] primaryKey = null;
   private List<String[]> uniques = new ArrayList<>();
 
   public static TableMetadata table(String tableName) {
@@ -18,7 +19,7 @@ public class TableMetadata {
   public static TableMetadata table(String tableName, Column... columns) {
     TableMetadata tm = new TableMetadata(tableName);
     for (Column c : columns) {
-      tm.addColumn(c);
+      tm.add(c);
     }
     return tm;
   }
@@ -41,6 +42,7 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
+    this.primaryKey = metadata.getPrimaryKey();
     for (String[] unique : metadata.getUniques()) {
       this.uniques.add(unique);
     }
@@ -58,31 +60,24 @@ public class TableMetadata {
     return schema;
   }
 
-  public String getPrimaryKey() {
+  public String[] getPrimaryKey() {
     if (getInheritedTable() != null) {
       return getInheritedTable().getPrimaryKey();
     }
-    for (Column c : columns.values()) {
-      if (c.isPrimaryKey()) {
-        return c.getName();
-      }
-    }
-    return null;
+    return primaryKey;
   }
 
-  public TableMetadata setPrimaryKey(String columnName) {
-    if (getColumn(columnName) == null) {
-      throw new MolgenisException(
-          "Set primary key failed",
-          "'Column '" + columnName + "' unknown in table '" + getTableName() + "'");
-    }
-    for (Column c : columns.values()) {
-      if (columnName.equals(c.getName())) {
-        c.pkey(true);
-      } else {
-        c.pkey(false);
+  public TableMetadata pkey(String... columnName) {
+    if (columnName != null) {
+      for (String name : columnName) {
+        if (getColumn(name) == null) {
+          throw new MolgenisException(
+              "Set primary key failed",
+              "'Column '" + name + "' unknown in table '" + getTableName() + "'");
+        }
       }
     }
+    this.primaryKey = columnName;
     return this;
   }
 
@@ -137,9 +132,11 @@ public class TableMetadata {
     return null;
   }
 
-  public TableMetadata addColumn(Column column) {
-    columns.put(column.getName(), new Column(this, column));
-    column.setTable(this);
+  public TableMetadata add(Column... column) {
+    for (Column c : column) {
+      columns.put(c.getName(), new Column(this, c));
+      c.setTable(this);
+    }
     return this;
   }
 
@@ -150,8 +147,12 @@ public class TableMetadata {
   public TableMetadata alterColumn(String name, Column column) {
     // add the new
     columns.put(column.getName(), new Column(this, column));
-    if (column.isPrimaryKey()) {
-      this.setPrimaryKey(column.getName());
+    if (this.primaryKey != null && Arrays.asList(this.getPrimaryKey()).contains(name)) {
+      for (int idx = 0; idx < this.primaryKey.length; idx++) {
+        if (this.primaryKey[idx].equals(name.trim())) {
+          this.primaryKey[idx] = column.getName();
+        }
+      }
     }
     column.setTable(this);
 
@@ -203,6 +204,15 @@ public class TableMetadata {
     }
     uniques.add(columnNames);
     return this;
+  }
+
+  public boolean isPrimaryKey(String... names) {
+    if (equalContents(this.primaryKey, names)) {
+      return true;
+    }
+
+    if (inherit != null) return getInheritedTable().isPrimaryKey(names);
+    return false;
   }
 
   public boolean isUnique(String... names) {
@@ -276,21 +286,12 @@ public class TableMetadata {
   }
 
   private boolean equalContents(String[] a, String[] b) {
+    if (a == null && b != null) return false;
+    if (a != null && b == null) return false;
     if (a == b) return true;
     ArrayList<String> one = new ArrayList<>(Arrays.asList(a));
     ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
     return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
-  }
-
-  public Column getPrimaryKeyColumn() {
-    Column result = getColumn(getPrimaryKey());
-    //    if (result == null) {
-    //      throw new MolgenisException(
-    //          "Primary key error",
-    //          "Primary key '" + getPrimaryKey() + "' does not exist in table '" + getTableName() +
-    // "");
-    //    }
-    return result;
   }
 
   public boolean exists() {
@@ -305,4 +306,10 @@ public class TableMetadata {
   public void setSchema(SchemaMetadata schemaMetadata) {
     this.schema = schemaMetadata;
   }
+
+  public String getSchemaName() {
+    return getSchema().getName();
+  }
+
+  public void removePrimaryKey(String name) {}
 }

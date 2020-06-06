@@ -39,9 +39,9 @@ public class TestBatchRequestsForSpeed {
     Table testBatchTable =
         schema.create(
             table("TestBatchRequestsForSpeed")
-                .addColumn(column("test"))
-                .addColumn(column("testint").type(INT))
-                .setPrimaryKey("test"));
+                .add(column("test"))
+                .add(column("testint").type(INT))
+                .pkey("test"));
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -89,10 +89,11 @@ public class TestBatchRequestsForSpeed {
     Table personTable =
         schema.create(
             table(PERSON)
-                .addColumn(column("ID").type(INT).pkey(true))
-                .addColumn(column("First Name").nullable(false))
-                .addColumn(column("Last Name"))
-                .addColumn(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .add(column("ID").type(INT))
+                .add(column("First Name").nullable(false))
+                .add(column("Last Name"))
+                .add(column("Father").type(REF).refTable(PERSON).nullable(true))
+                .pkey("ID")
                 .addUnique("First Name", "Last Name"));
 
     // createColumn a fromTable
@@ -101,11 +102,11 @@ public class TestBatchRequestsForSpeed {
       String name = PERSON + i;
       schema.create(
           table(name)
-              .addColumn(column("ID").type(INT))
-              .addColumn(column("First Name").nullable(false))
-              .addColumn(column("Last Name"))
-              .addColumn(column("Father").type(REF).refTable(name).nullable(true))
-              .setPrimaryKey("ID")
+              .add(column("ID").type(INT))
+              .add(column("First Name").nullable(false))
+              .add(column("Last Name"))
+              .add(column("Father").type(REF).refTable(name).nullable(true))
+              .pkey("ID")
               .addUnique("First Name", "Last Name"));
     }
     StopWatch.print("Created tables");

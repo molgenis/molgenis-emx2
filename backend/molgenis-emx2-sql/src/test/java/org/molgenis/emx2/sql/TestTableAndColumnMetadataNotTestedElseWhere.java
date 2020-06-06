@@ -23,10 +23,10 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   public void testDuplicateColumnError() {
     try {
       SchemaMetadata s = db.createSchema("testDuplicateColumnError").getMetadata();
-      TableMetadata t = s.create(table("test").addColumn(column("test")));
+      TableMetadata t = s.create(table("test").add(column("test")));
       System.out.println(t);
 
-      t.addColumn(column("test"));
+      t.add(column("test"));
       fail("should not be able to add same column twice");
     } catch (MolgenisException me) {
       System.out.println("Error correctly:\n" + me);
@@ -37,7 +37,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   public void testAlterColumnName() {
     try {
       SchemaMetadata s = db.createSchema("testAlterColumnName").getMetadata();
-      TableMetadata t = s.create(table("test").addColumn(column("test")));
+      TableMetadata t = s.create(table("test").add(column("test")));
       System.out.println(t);
 
       t.alterColumn("test", column("test2"));
@@ -62,8 +62,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   @Test
   public void testUniques() {
     SchemaMetadata s = db.createSchema("testUniques").getMetadata();
-    TableMetadata t =
-        s.create(table("test").addColumn(column("a").pkey(true)).addColumn(column("b")));
+    TableMetadata t = s.create(table("test").add(column("a")).pkey("a").add(column("b")));
     t.addUnique("a", "b");
     assertTrue(t.isUnique("b", "a")); // order doesn't matter
     t.removeUnique("b", "a");

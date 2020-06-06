@@ -55,36 +55,40 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata addColumn(Column column) {
-    if (getColumn(column.getName()) != null) {
-      // check if primary key not yet on local columns
-      boolean found = false;
-      if (column.getName().equals(getPrimaryKey())) {
-        for (Column c : getLocalColumns()) {
-          if (c.getName().equals(getPrimaryKey())) {
-            found = true;
-          }
-        }
-      }
-      // if exists indeed duplicate, otherwise let it happen
-      if (found) {
-        throw new MolgenisException(
-            "Add column failed",
-            "Duplicate name; column with name "
-                + getTableName()
-                + "."
-                + column.getName()
-                + " already exists");
-      }
-    }
+  public TableMetadata add(Column... columns) {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
-          Column result = new Column(this, column);
-          SqlColumnUtils.executeCreateColumn(getJooq(), result);
-          super.addColumn(result);
+          for (Column column : columns) {
+            if (getColumn(column.getName()) != null) {
+              // check if primary key not yet on local columns
+              boolean found = false;
+              if (column.getName().equals(getPrimaryKey())) {
+                for (Column c : getLocalColumns()) {
+                  if (c.getName().equals(getPrimaryKey())) {
+                    found = true;
+                  }
+                }
+              }
+              // if exists indeed duplicate, otherwise let it happen
+              if (found) {
+                throw new MolgenisException(
+                    "Add column failed",
+                    "Duplicate name; column with name "
+                        + getTableName()
+                        + "."
+                        + column.getName()
+                        + " already exists");
+              }
+            }
+
+            Column result = new Column(this, column);
+            SqlColumnUtils.executeCreateColumn(getJooq(), result);
+            super.add(result);
+            log(start, "added column '" + column.getName() + "' to ");
+          }
         });
-    log(start, "added column '" + column.getName() + "' to ");
+
     return this;
   }
 
@@ -159,12 +163,12 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setPrimaryKey(String columnName) {
+  public TableMetadata pkey(String... columnNames) {
     long start = System.currentTimeMillis();
-    if (columnName == null)
+    if (columnNames == null)
       throw new MolgenisException("Set primary key failed", "Null was provided");
-    if (columnName.equals(getPrimaryKey()) && this.getInherit() == null) return this;
-    if (getInherit() != null && !columnName.equals(getInheritedTable().getPrimaryKey()))
+    if (isPrimaryKey(columnNames) && this.getInherit() == null) return this;
+    if (getInherit() != null && !isPrimaryKey(columnNames))
       throw new MolgenisException(
           "Set primary key failed",
           "Primary key cannot be set on table '"
@@ -174,11 +178,11 @@ class SqlTableMetadata extends TableMetadata {
               + "'");
     db.tx(
         dsl -> {
-          SqlTableMetadataExecutor.executeSetPrimaryKey(getJooq(), this, columnName);
-          super.setPrimaryKey(columnName);
-          MetadataUtils.saveColumnMetadata(getJooq(), getPrimaryKeyColumn());
+          SqlTableMetadataExecutor.executeSetPrimaryKey(getJooq(), this, columnNames);
+          super.pkey(columnNames);
+          MetadataUtils.saveTableMetadata(getJooq(), this);
         });
-    log(start, "set primary key " + List.of(columnName) + " on ");
+    log(start, "set primary key " + List.of(columnNames) + " on ");
     return this;
   }
 
@@ -233,7 +237,7 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public void enableRowLevelSecurity() {
     // todo, study if we need different row level security in inherited tables
-    this.addColumn(column(MG_EDIT_ROLE).index(true));
+    this.add(column(MG_EDIT_ROLE).index(true));
 
     getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable(this));
     getJooq()

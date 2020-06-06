@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.MREF;
+// import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefArrayColumnType;
@@ -154,7 +154,7 @@ class SqlTable implements Table {
                       || (fieldNames.containsAll(rowFields)
                           && rowFields.containsAll(fieldNames)))) {
                 updateBatch(
-                    batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyField());
+                    batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
                 batch.clear();
                 fieldNames.clear();
                 fields.clear();
@@ -177,7 +177,7 @@ class SqlTable implements Table {
             }
 
             // execute the remaining batch
-            updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyField());
+            updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
           });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
@@ -194,7 +194,7 @@ class SqlTable implements Table {
       List<String> fieldNames,
       List<Column> columns,
       List<Field> fields,
-      Field keyField) {
+      List<Field> keyField) {
 
     if (!rows.isEmpty()) {
 
@@ -279,7 +279,7 @@ class SqlTable implements Table {
 
   private void deleteBatch(Collection<Row> rows) {
     if (!rows.isEmpty()) {
-      String[] keyNames = new String[] {getMetadata().getPrimaryKey()};
+      String[] keyNames = getMetadata().getPrimaryKey();
 
       // in case no primary key is defined, use all columns
       if (getMetadata().getPrimaryKey() == null) {
@@ -316,7 +316,7 @@ class SqlTable implements Table {
     ColumnType columnType = key.getColumnType();
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(key);
-    } else if (REF_ARRAY.equals(columnType) || MREF.equals(columnType)) {
+    } else if (REF_ARRAY.equals(columnType)) { // || MREF.equals(columnType)) {
       columnType = getRefArrayColumnType(key);
     }
 
@@ -348,8 +348,12 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
-  private Field getPrimaryKeyField() {
-    return getJooqField(getMetadata().getColumn(getMetadata().getPrimaryKey()));
+  private List<Field> getPrimaryKeyFields() {
+    List<Field> result = new ArrayList<>();
+    for (String name : getMetadata().getPrimaryKey()) {
+      result.add(getJooqField(getMetadata().getColumn(name)));
+    }
+    return result;
   }
 
   protected org.jooq.Table getJooqTable() {

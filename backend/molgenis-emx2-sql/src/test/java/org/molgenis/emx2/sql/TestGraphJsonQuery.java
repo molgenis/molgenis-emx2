@@ -6,8 +6,6 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
-import java.io.IOException;
-
 import static junit.framework.TestCase.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
@@ -34,12 +32,12 @@ public class TestGraphJsonQuery {
 
     schema.create(
         table("Person")
-            .addColumn(column("name"))
-            .addColumn(column("father").type(REF).refTable("Person").nullable(true))
-            .addColumn(column("mother").type(REF).refTable("Person").nullable(true))
-            .addColumn(column("children").type(REF_ARRAY).refTable("Person"))
-            .addColumn(column("cousins").type(REF_ARRAY).refTable("Person"))
-            .setPrimaryKey("name"));
+            .add(column("name"))
+            .add(column("father").type(REF).refTable("Person").nullable(true))
+            .add(column("mother").type(REF).refTable("Person").nullable(true))
+            .add(column("children").type(REF_ARRAY).refTable("Person"))
+            .add(column("cousins").type(REF_ARRAY).refTable("Person"))
+            .pkey("name"));
 
     schema
         .getTable("Person")

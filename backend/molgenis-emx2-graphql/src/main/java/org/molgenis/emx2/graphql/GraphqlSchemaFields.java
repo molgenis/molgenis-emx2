@@ -164,7 +164,7 @@ public class GraphqlSchemaFields {
                   String json = JsonUtil.getWriter().writeValueAsString(c);
                   Column column = JsonUtil.jsonToColumn(json);
 
-                  tm.addColumn(column);
+                  tm.add(column);
                 }
               }
             } catch (IOException e) {

@@ -66,10 +66,10 @@ public class TestCreateForeignKeys {
     Table aTable =
         schema.create(
             table("A")
-                .addColumn(column("ID").type(INT))
-                .addColumn(column(fieldName).type(columnType))
+                .add(column("ID").type(INT))
+                .add(column(fieldName).type(columnType))
                 .addUnique(fieldName)
-                .setPrimaryKey("ID"));
+                .pkey("ID"));
     Row aRow = new Row().setInt("ID", 1).set(fieldName, insertValue);
     aTable.insert(aRow);
 
@@ -77,9 +77,9 @@ public class TestCreateForeignKeys {
     Table bTable =
         schema.create(
             table("B")
-                .addColumn(column("ID").type(INT))
-                .addColumn(column(refFromBToA).type(REF).refTable("A").refColumn(fieldName))
-                .setPrimaryKey("ID"));
+                .add(column("ID").type(INT))
+                .add(column(refFromBToA).type(REF).refTable("A").refColumn(fieldName))
+                .pkey("ID"));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 

@@ -231,7 +231,7 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals(
         count + 1, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
     // delete
-    execute("mutation{delete(Tag:\"blaat\"){message}}");
+    execute("mutation{delete(Tag:{name:\"blaat\"}){message}}");
     TestCase.assertEquals(
         count, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
   }

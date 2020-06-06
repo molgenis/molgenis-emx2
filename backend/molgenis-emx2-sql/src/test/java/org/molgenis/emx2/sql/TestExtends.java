@@ -48,25 +48,24 @@ public class TestExtends {
     }
 
     // set pkey and a property
-    person.getMetadata().addColumn(column("fullName")).setPrimaryKey("fullName");
-    person.getMetadata().addColumn(column("birthDate").type(DATE).nullable(true));
+    person.getMetadata().add(column("fullName")).pkey("fullName");
+    person.getMetadata().add(column("birthDate").type(DATE).nullable(true));
 
     // create first extended table
     Table employee =
-        s.create(
-            table("Employee").setInherit(person.getName()).addColumn(column("salary").type(INT)));
+        s.create(table("Employee").setInherit(person.getName()).add(column("salary").type(INT)));
 
     Table manager =
         s.create(
             table("Manager")
                 .setInherit("Employee")
-                .addColumn(column("directs").type(REF_ARRAY).refTable("Employee").nullable(true)));
+                .add(column("directs").type(REF_ARRAY).refTable("Employee").nullable(true)));
 
     Table ceo = s.create(table("CEO").setInherit("Manager"));
 
     // try to add column that already exists in parent
     try {
-      employee.getMetadata().addColumn(column("birthDate").type(DATE));
+      employee.getMetadata().add(column("birthDate").type(DATE));
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
@@ -80,13 +79,12 @@ public class TestExtends {
 
     // try to change primary key
     try {
-      manager.getMetadata().setPrimaryKey("salary");
+      manager.getMetadata().pkey("salary");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
     // create another extended table
-    s.create(
-        table("Student").setInherit(person.getName()).addColumn(column("averageGrade").type(INT)));
+    s.create(table("Student").setInherit(person.getName()).add(column("averageGrade").type(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");
