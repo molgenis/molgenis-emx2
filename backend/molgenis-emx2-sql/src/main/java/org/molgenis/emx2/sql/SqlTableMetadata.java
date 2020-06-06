@@ -63,9 +63,9 @@ class SqlTableMetadata extends TableMetadata {
             if (getColumn(column.getName()) != null) {
               // check if primary key not yet on local columns
               boolean found = false;
-              if (column.getName().equals(getPrimaryKey())) {
+              if (isPrimaryKey(column.getName())) {
                 for (Column c : getLocalColumns()) {
-                  if (c.getName().equals(getPrimaryKey())) {
+                  if (isPrimaryKey(c.getName())) {
                     found = true;
                   }
                 }

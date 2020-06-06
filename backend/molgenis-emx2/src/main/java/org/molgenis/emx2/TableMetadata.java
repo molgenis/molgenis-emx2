@@ -91,7 +91,7 @@ public class TableMetadata {
 
       // ignore primary key from child class because that is same as in inheritedTable
       for (Column c : getLocalColumns()) {
-        if (getInherit() == null || !getPrimaryKey().equals(c.getName())) {
+        if (getInherit() == null || !Arrays.asList(getPrimaryKey()).contains(c.getName())) {
           result.add(new Column(c.getTable(), c));
         }
       }
@@ -183,7 +183,7 @@ public class TableMetadata {
   }
 
   public void dropColumn(String name) {
-    if (name.equals(getPrimaryKey()))
+    if (Arrays.asList(getPrimaryKey()).contains(name))
       throw new MolgenisException("Remove column failed", "Column is primary key");
     if (columns.get(name) == null)
       throw new MolgenisException("Remove column failed", "Column '" + name + "' unknown");
