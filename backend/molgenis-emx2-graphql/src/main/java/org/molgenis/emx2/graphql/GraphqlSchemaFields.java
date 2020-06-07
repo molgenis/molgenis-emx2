@@ -12,23 +12,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.schema.GraphQLArgument.newArgument;
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
-import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlAccountFields.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
 public class GraphqlSchemaFields {
-  public static final String REF_TABLE_NAME = "refTable";
-  public static final String REF_COLUMN_NAME = "refColumn";
-  public static final String MAPPED_BY = "mappedBy";
-  public static final String TABLE = "table";
-  public static final String COLUMN = "column";
-  public static final String DESCRIPTION = "description";
-  public static final String DEFINITION = "definition";
-  public static final String ROLE = "role";
-  public static final String PKEY = "pkey";
 
   private GraphqlSchemaFields() {
     // hide constructor
@@ -88,6 +77,10 @@ public class GraphqlSchemaFields {
               GraphQLInputObjectField.newInputObjectField()
                   .name(REF_COLUMN_NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(CASCADE_DELETE)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(MAPPED_BY)
@@ -365,6 +358,10 @@ public class GraphqlSchemaFields {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_COLUMN_NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CASCADE_DELETE)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(MAPPED_BY)

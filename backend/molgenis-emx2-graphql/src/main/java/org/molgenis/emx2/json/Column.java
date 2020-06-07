@@ -11,6 +11,8 @@ public class Column {
   private Boolean nullable = false;
   private String refTable = null;
   private String refColumn = null;
+
+  private Boolean cascadeDelete = false;
   private String mappedBy = null;
   private String validation = null;
   private String description = null;
@@ -25,6 +27,7 @@ public class Column {
     this.columnType = column.getColumnType();
     this.refTable = column.getRefTableName();
     this.refColumn = column.getRefColumnName();
+    this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validation = column.getValidation();
     this.nullable = column.isNullable();
@@ -38,6 +41,7 @@ public class Column {
     c.nullable(nullable);
     c.refTable(refTable);
     c.refColumn(refColumn);
+    c.cascadeDelete(cascadeDelete);
     c.mappedBy(mappedBy);
     c.validation(validation);
     c.setDescription(description);
@@ -98,6 +102,14 @@ public class Column {
 
   public void setRefColumn(String refColumn) {
     this.refColumn = refColumn;
+  }
+
+  public Boolean getCascadeDelete() {
+    return cascadeDelete;
+  }
+
+  public void setCascadeDelete(Boolean cascadeDelete) {
+    this.cascadeDelete = cascadeDelete;
   }
 
   public ColumnType getColumnType() {
