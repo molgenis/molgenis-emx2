@@ -209,9 +209,9 @@ public class Column {
   }
 
   public Column cascadeDelete(boolean cascadeDelete) {
-    if (!REF.equals(this.columnType)) {
+    if (cascadeDelete && !REF.equals(this.columnType)) {
       throw new MolgenisException(
-          "Set casecadeDelete failed", "Columnn " + getName() + " must be of type REF");
+          "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
     }
     this.cascadeDelete = cascadeDelete;
     return this;
