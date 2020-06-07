@@ -52,6 +52,8 @@ public class MetadataUtils {
   private static final org.jooq.Field UNIQUE_COLUMNS =
       field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
+  private static final org.jooq.Field CASCADE_DELETE =
+      field(name("cascade_delete"), BOOLEAN.nullable(true));
 
   private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
   private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
@@ -96,6 +98,7 @@ public class MetadataUtils {
               MAPPED_BY,
               VALIDATION_SCRIPT,
               INDEXED,
+              CASCADE_DELETE,
               COLUMN_DESCRIPTION)
           .constraints(
               primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
@@ -228,6 +231,7 @@ public class MetadataUtils {
             MAPPED_BY,
             VALIDATION_SCRIPT,
             INDEXED,
+            CASCADE_DELETE,
             COLUMN_DESCRIPTION)
         .values(
             column.getTable().getSchema().getName(),
@@ -240,6 +244,7 @@ public class MetadataUtils {
             column.getMappedBy(),
             column.getValidation(),
             column.isIndexed(),
+            column.isCascadeDelete(),
             column.getDescription())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -250,6 +255,7 @@ public class MetadataUtils {
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
+        .set(CASCADE_DELETE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
         .execute();
   }
@@ -315,6 +321,7 @@ public class MetadataUtils {
       c.mappedBy(col.get(MAPPED_BY, String.class));
       c.validation(col.get(VALIDATION_SCRIPT, String.class));
       c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
+      c.cascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
       columnList.add(new Column(table, c));
     }
     return columnList;

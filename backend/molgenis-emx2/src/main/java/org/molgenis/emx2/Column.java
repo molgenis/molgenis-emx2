@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.STRING;
 
 public class Column {
@@ -20,6 +21,7 @@ public class Column {
   private String description;
   private String defaultValue;
   private boolean indexed = false;
+  private boolean cascadeDelete;
 
   public Column(Column column) {
     copy(column);
@@ -31,6 +33,7 @@ public class Column {
     copy(column);
   }
 
+  /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
     columnType = column.columnType;
@@ -44,6 +47,7 @@ public class Column {
     mappedBy = column.mappedBy;
     validationScript = column.validationScript;
     description = column.description;
+    cascadeDelete = column.cascadeDelete;
   }
 
   public static Column column(String name) {
@@ -164,6 +168,10 @@ public class Column {
     return nullable;
   }
 
+  public Boolean isCascadeDelete() {
+    return cascadeDelete;
+  }
+
   public Column nullable(boolean nillable) {
     this.nullable = nillable;
     return this;
@@ -200,6 +208,15 @@ public class Column {
     return this;
   }
 
+  public Column cascadeDelete(boolean cascadeDelete) {
+    if (!REF.equals(this.columnType)) {
+      throw new MolgenisException(
+          "Set casecadeDelete failed", "Columnn " + getName() + " must be of type REF");
+    }
+    this.cascadeDelete = cascadeDelete;
+    return this;
+  }
+
   public Boolean isIndexed() {
     return indexed;
   }
@@ -207,7 +224,7 @@ public class Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
-    if (ColumnType.REF.equals(getColumnType()))
+    if (REF.equals(getColumnType()))
       builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
     else if (ColumnType.REF_ARRAY.equals(getColumnType()))
       builder.append("ref_array(").append(refTable).append(",").append(refColumn).append(")");

@@ -2,18 +2,15 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-public class TestCreateForeignKeys {
+public class TestCreateForeignKeysCascadeDelete {
 
   static Database db;
 
@@ -39,7 +36,7 @@ public class TestCreateForeignKeys {
 
   @Test
   public void testDateTime() {
-      executeTest(DATETIME, "2013-01-01T18:00:00", "2013-01-01T18:00:01");
+    executeTest(DATETIME, "2013-01-01T18:00:00", "2013-01-01T18:00:01");
   }
 
   @Test
@@ -60,7 +57,8 @@ public class TestCreateForeignKeys {
 
   private void executeTest(ColumnType columnType, Object insertValue, Object updateValue) {
 
-    Schema schema = db.createSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
+    Schema schema =
+        db.createSchema("TestCreateForeignKeysCascade" + columnType.toString().toUpperCase());
 
     String fieldName = "AKeyOf" + columnType;
     Table aTable =
@@ -78,7 +76,13 @@ public class TestCreateForeignKeys {
         schema.create(
             table("B")
                 .add(column("ID").type(INT))
-                .add(column(refFromBToA).type(REF).refTable("A").refColumn(fieldName))
+                // only differen with other test
+                .add(
+                    column(refFromBToA)
+                        .type(REF)
+                        .refTable("A")
+                        .refColumn(fieldName)
+                        .cascadeDelete(true))
                 .pkey("ID"));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
@@ -95,15 +99,12 @@ public class TestCreateForeignKeys {
     // and update, should be cascading :-)
     aTable.update(aRow.set(fieldName, updateValue));
 
-    // delete of A should fail
+    // delete of A should cascade
     try {
       aTable.delete(aRow);
-      fail("delete should fail because bRow is still referencing aRow");
+      assertEquals(0, bTable.query().getRows().size());
     } catch (Exception e) {
-      System.out.println("insert exception correct: \n" + e);
+      fail("delete should cascade because cascadeDelete was set");
     }
-
-    bTable.delete(bRow);
-    aTable.delete(aRow);
   }
 }

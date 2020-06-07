@@ -192,6 +192,9 @@ public class Emx2 {
     if (def.contains(Emx2PropertyList.NULLABLE)) {
       column.nullable(true);
     }
+    if (def.contains(Emx2PropertyList.CASCADE_DELETE)) {
+      column.cascadeDelete(true);
+    }
     if (def.contains(Emx2PropertyList.VALIDATE)) {
       column.validation(def.getParamterValue(Emx2PropertyList.VALIDATE));
     }
@@ -293,6 +296,7 @@ public class Emx2 {
     }
     if (Boolean.TRUE.equals(column.isNullable())) def.add("nullable");
     if (Boolean.TRUE.equals(column.isReadonly())) def.add("readonly");
+    if (Boolean.TRUE.equals(column.isCascadeDelete())) def.add("cascadeDelete");
     if (Boolean.TRUE.equals(column.getTable().isPrimaryKey(column.getName()))) def.add("pkey");
     if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
     if (column.getValidation() != null) def.add(Emx2PropertyList.VALIDATE, column.getValidation());

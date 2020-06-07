@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Name;
-import org.jooq.Table;
+import org.jooq.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 
@@ -66,13 +63,16 @@ public class SqlColumnRefUtils {
     Name fkeyTable = name(column.getTable().getSchema().getName(), refTableName);
     Name fkeyField = name(refColumnName);
 
-    jooq.alterTable(getJooqTable(column.getTable()))
-        .add(
-            constraint(fkeyConstraintName)
-                .foreignKey(thisField)
-                .references(fkeyTable, fkeyField)
-                .onUpdateCascade())
-        .execute();
+    ConstraintForeignKeyOnStep constraint =
+        constraint(fkeyConstraintName)
+            .foreignKey(thisField)
+            .references(fkeyTable, fkeyField)
+            .onUpdateCascade();
+    if (column.isCascadeDelete()) {
+      constraint = constraint.onDeleteCascade();
+    }
+
+    jooq.alterTable(getJooqTable(column.getTable())).add(constraint).execute();
 
     jooq.execute(
         "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE",
