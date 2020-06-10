@@ -23,8 +23,12 @@ subprojects {
         inputs.files(fileTree('public'))
         inputs.file('package.json')
         inputs.file('vue.config.js')
+        outputs.dir("dist")
 
         outputs.dir('dist')
+
+        // tell gradle to apply the build cache
+        outputs.cacheIf { true }
 
         if (project.name != 'styleguide') {
             dependsOn ":apps:styleguide:build"
