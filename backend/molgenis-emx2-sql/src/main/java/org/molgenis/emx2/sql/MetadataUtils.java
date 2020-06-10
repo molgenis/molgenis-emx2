@@ -333,7 +333,7 @@ public class MetadataUtils {
         .values(user, field("crypt({0}, gen_salt('bf'))", password))
         .onConflict(USER_NAME)
         .doUpdate()
-        .set(USER_PASS, password)
+        .set(USER_PASS, field("crypt({0}, gen_salt('bf'))", password))
         .execute();
   }
 

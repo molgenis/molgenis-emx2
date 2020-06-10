@@ -250,6 +250,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ### first
 
+* test if drop schema also removes all roles for this schema
 *  simple UI to have happy flow out of the box
 *  ensure columns are retrieved in same order as they were created
 *  add standard an lastUpdated column, as a system column

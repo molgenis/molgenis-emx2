@@ -26,7 +26,7 @@ public class TestQuery {
     database = TestDatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
-    schema = database.createSchema("TestQuery");
+    schema = database.dropCreateSchema("TestQuery");
 
     // createColumn some tables with contents
     Table person =

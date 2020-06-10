@@ -39,7 +39,7 @@ public class TestCreateForeignKeys {
 
   @Test
   public void testDateTime() {
-      executeTest(DATETIME, "2013-01-01T18:00:00", "2013-01-01T18:00:01");
+    executeTest(DATETIME, "2013-01-01T18:00:00", "2013-01-01T18:00:01");
   }
 
   @Test
@@ -60,7 +60,8 @@ public class TestCreateForeignKeys {
 
   private void executeTest(ColumnType columnType, Object insertValue, Object updateValue) {
 
-    Schema schema = db.createSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
+    Schema schema =
+        db.dropCreateSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
 
     String fieldName = "AKeyOf" + columnType;
     Table aTable =

@@ -23,7 +23,7 @@ public class TestMetaDataIsStoredForNextSessions {
 
   @Test
   public void testProductComponentsPartsModel() {
-    Schema schema = database.createSchema(SCHEMA_NAME + "1");
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "1");
     ProductComponentPartsExample.create(schema.getMetadata());
     try {
       CompareTools.reloadAndCompare(database, schema);
@@ -34,7 +34,7 @@ public class TestMetaDataIsStoredForNextSessions {
 
   @Test
   public void testSimpleTypesTest() {
-    Schema schema = database.createSchema(SCHEMA_NAME + "2");
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "2");
     SimpleTypeTestExample.createSimpleTypeTest(schema.getMetadata());
     try {
       CompareTools.reloadAndCompare(database, schema);
@@ -45,7 +45,7 @@ public class TestMetaDataIsStoredForNextSessions {
 
   @Test
   public void testArrayTypesTest() {
-    Schema schema = database.createSchema(SCHEMA_NAME + "3");
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "3");
     ArrayTypeTestExample.createSimpleTypeTest(schema.getMetadata());
     try {
       CompareTools.reloadAndCompare(database, schema);

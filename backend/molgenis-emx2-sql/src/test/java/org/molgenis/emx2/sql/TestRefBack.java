@@ -21,7 +21,7 @@ public class TestRefBack {
   @BeforeClass
   public static void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.createSchema(TestRefBack.class.getSimpleName());
+    schema = database.dropCreateSchema(TestRefBack.class.getSimpleName());
   }
 
   @Test

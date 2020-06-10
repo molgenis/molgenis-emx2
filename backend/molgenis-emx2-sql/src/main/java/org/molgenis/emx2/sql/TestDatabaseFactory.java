@@ -20,14 +20,14 @@ public class TestDatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getTestDatabase(DataSource source) {
+  public static Database getTestDatabase(DataSource source, boolean deleteAll) {
     if (db == null) {
 
       // setup local Jooq
       jooq = DSL.using(source, SQLDialect.POSTGRES_10);
 
       // delete all, only for test databases
-      deleteAll();
+      if (deleteAll) deleteAll();
 
       // get fresh database
       db = new SqlDatabase(source);
@@ -37,6 +37,10 @@ public class TestDatabaseFactory {
   }
 
   public static Database getTestDatabase() {
+    return getTestDatabase(false);
+  }
+
+  public static Database getTestDatabase(boolean deleteAll) {
     String url = "jdbc:postgresql:molgenis";
 
     // createColumn data source
@@ -45,7 +49,7 @@ public class TestDatabaseFactory {
     dataSource.setUsername("molgenis");
     dataSource.setPassword("molgenis");
 
-    return getTestDatabase(dataSource);
+    return getTestDatabase(dataSource, deleteAll);
   }
 
   private static void deleteAll() {

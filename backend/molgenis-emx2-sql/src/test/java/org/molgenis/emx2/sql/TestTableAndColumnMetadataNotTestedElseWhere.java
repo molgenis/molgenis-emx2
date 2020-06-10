@@ -22,7 +22,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   @Test
   public void testDuplicateColumnError() {
     try {
-      SchemaMetadata s = db.createSchema("testDuplicateColumnError").getMetadata();
+      SchemaMetadata s = db.dropCreateSchema("testDuplicateColumnError").getMetadata();
       TableMetadata t = s.create(table("test").add(column("test")));
       System.out.println(t);
 
@@ -36,7 +36,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   @Test
   public void testAlterColumnName() {
     try {
-      SchemaMetadata s = db.createSchema("testAlterColumnName").getMetadata();
+      SchemaMetadata s = db.dropCreateSchema("testAlterColumnName").getMetadata();
       TableMetadata t = s.create(table("test").add(column("test")));
       System.out.println(t);
 
@@ -51,7 +51,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   @Test
   public void testRemoveUnknownUniqueError() {
     try {
-      SchemaMetadata s = db.createSchema("testRemoveUnknownUniqueError").getMetadata();
+      SchemaMetadata s = db.dropCreateSchema("testRemoveUnknownUniqueError").getMetadata();
       TableMetadata t = s.create(table("test").addUnique("test"));
       fail("should not be able to set unique on not existing column");
     } catch (MolgenisException me) {
@@ -61,7 +61,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
 
   @Test
   public void testUniques() {
-    SchemaMetadata s = db.createSchema("testUniques").getMetadata();
+    SchemaMetadata s = db.dropCreateSchema("testUniques").getMetadata();
     TableMetadata t = s.create(table("test").add(column("a")).pkey("a").add(column("b")));
     t.addUnique("a", "b");
     assertTrue(t.isUnique("b", "a")); // order doesn't matter

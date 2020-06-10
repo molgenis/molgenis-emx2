@@ -27,7 +27,7 @@ public class TestCreateTransactionForMultipleOperations {
 
     db.tx(
         db -> {
-          Schema schema = db.createSchema("testCommit");
+          Schema schema = db.dropCreateSchema("testCommit");
           Table testTable = schema.create(table("testCommit").add(column("ColA")).pkey("ColA"));
           testTable.insert(new Row().setString("ColA", "test"));
           testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
@@ -40,7 +40,7 @@ public class TestCreateTransactionForMultipleOperations {
   public void testRollBack() {
     db.tx(
         db -> {
-          Schema schema = db.createSchema("testRollBack");
+          Schema schema = db.dropCreateSchema("testRollBack");
           Table testTable =
               schema.create(table("testRollBack").add(column("ColA")).addUnique("ColA"));
           Row r = new Row().setString("ColA", "test");

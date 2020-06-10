@@ -42,8 +42,8 @@ public class TestWebApi {
     dataSource.setPassword("molgenis");
 
     // setup test schema
-    db = TestDatabaseFactory.getTestDatabase(dataSource);
-    Schema schema = db.createSchema("pet store");
+    db = TestDatabaseFactory.getTestDatabase(dataSource, false);
+    Schema schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 

@@ -124,6 +124,14 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public Schema dropCreateSchema(String name) {
+    if (this.getSchemaNames().contains(name)) {
+      this.dropSchema(name);
+    }
+    return createSchema(name);
+  }
+
+  @Override
   public Collection<String> getSchemaNames() {
     if (this.schemaNames.isEmpty()) {
       this.schemaNames = MetadataUtils.loadSchemaNames(this);
@@ -133,6 +141,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public void addUser(String user) {
+    if (hasUser(user)) return; // idempotent
     long start = System.currentTimeMillis();
     // need elevated privileges, so not as active user
     String currentUser = getActiveUser();

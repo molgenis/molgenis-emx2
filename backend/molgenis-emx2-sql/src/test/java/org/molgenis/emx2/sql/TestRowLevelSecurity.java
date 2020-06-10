@@ -28,7 +28,7 @@ public class TestRowLevelSecurity {
   public void testRls() {
     try {
       // create schema
-      Schema s = database.createSchema(TEST_RLS);
+      Schema s = database.dropCreateSchema(TEST_RLS);
 
       // create two users
       database.addUser(TEST_RLS_HAS_NO_PERMISSION);

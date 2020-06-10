@@ -23,7 +23,7 @@ public class TestSchemaCreateDestroy {
   @Test
   public void schemaCrudTest() {
     try {
-      db.createSchema("");
+      db.dropCreateSchema("");
       fail("Schema createTableIfNotExists should fail on empty name");
     } catch (MolgenisException e) {
       System.out.println("Error correctly:\n" + e);

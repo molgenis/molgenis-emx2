@@ -28,7 +28,7 @@ public class TestLegacyImport {
     File file = new File(classLoader.getResource("bbmri-nl-complete").getFile());
     TableStoreForCsvFilesDirectory store = new TableStoreForCsvFilesDirectory(file.toPath(), ',');
 
-    Schema schema = db.createSchema("testImportLegacyFormat");
+    Schema schema = db.dropCreateSchema("testImportLegacyFormat");
     SchemaImport.executeImport(store, schema);
 
     assertEquals(22, schema.getTableNames().size());

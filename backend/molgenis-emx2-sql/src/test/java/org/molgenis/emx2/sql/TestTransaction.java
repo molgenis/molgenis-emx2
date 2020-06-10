@@ -20,7 +20,7 @@ public class TestTransaction {
 
   @Test
   public void testTransaction() {
-    Schema s = db.createSchema("testTransaction");
+    Schema s = db.dropCreateSchema("testTransaction");
 
     // as long as from same db instance you can use resources in multiple Tx
     try {

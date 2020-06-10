@@ -35,7 +35,7 @@ public class TestBatchRequestsForSpeed {
 
     StopWatch.start("testBatch started");
 
-    Schema schema = db.createSchema("testBatch");
+    Schema schema = db.dropCreateSchema("testBatch");
     Table testBatchTable =
         schema.create(
             table("TestBatchRequestsForSpeed")
@@ -83,7 +83,7 @@ public class TestBatchRequestsForSpeed {
 
     StopWatch.start("");
 
-    Schema schema = db.createSchema("testCreate");
+    Schema schema = db.dropCreateSchema("testCreate");
 
     String PERSON = "Person";
     Table personTable =

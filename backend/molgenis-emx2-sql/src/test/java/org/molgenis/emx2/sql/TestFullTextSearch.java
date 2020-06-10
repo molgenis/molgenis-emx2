@@ -24,7 +24,7 @@ public class TestFullTextSearch {
   public void testSearch() {
 
     // setup
-    Schema schema = db.createSchema("TestFullTextSearch");
+    Schema schema = db.dropCreateSchema("TestFullTextSearch");
     Table aTable =
         schema.create(
             table("TestFullTextSearch")

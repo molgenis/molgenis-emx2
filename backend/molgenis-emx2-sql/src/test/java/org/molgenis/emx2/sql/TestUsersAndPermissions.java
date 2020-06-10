@@ -27,6 +27,7 @@ public class TestUsersAndPermissions {
 
       // add and set user
       String user1 = "Test Active User1";
+      if (database.hasUser(user1)) database.removeUser(user1);
       database.addUser(user1);
       database.setActiveUser(user1);
       assertEquals(user1, database.getActiveUser());
@@ -36,7 +37,7 @@ public class TestUsersAndPermissions {
       assertNull(database.getActiveUser());
 
       // create schema
-      Schema schema1 = database.createSchema("TestActiveUser1");
+      Schema schema1 = database.dropCreateSchema("TestActiveUser1");
 
       // create table without permission should fail
       database.setActiveUser(user1);

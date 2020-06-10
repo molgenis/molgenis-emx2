@@ -25,7 +25,7 @@ public class TestGraphJsonQuery {
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
 
-    schema = db.createSchema("TestJsonQuery");
+    schema = db.dropCreateSchema("TestJsonQuery");
 
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);

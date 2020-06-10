@@ -72,7 +72,7 @@ public class TestCreateForeignKeysArrays {
 
   private void executeTest(ColumnType columnType, Object[] testValues) {
 
-    Schema schema = db.createSchema("TestRefArray" + columnType.toString().toUpperCase());
+    Schema schema = db.dropCreateSchema("TestRefArray" + columnType.toString().toUpperCase());
 
     String aKey = "A" + columnType + "Key";
     Table aTable = schema.create(table("A").add(column(aKey).type(columnType)).pkey(aKey));

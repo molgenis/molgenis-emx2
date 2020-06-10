@@ -58,7 +58,7 @@ public class TestCreateForeignKeysCascadeDelete {
   private void executeTest(ColumnType columnType, Object insertValue, Object updateValue) {
 
     Schema schema =
-        db.createSchema("TestCreateForeignKeysCascade" + columnType.toString().toUpperCase());
+        db.dropCreateSchema("TestCreateForeignKeysCascade" + columnType.toString().toUpperCase());
 
     String fieldName = "AKeyOf" + columnType;
     Table aTable =

@@ -38,7 +38,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     StopWatch.print("testTypes started");
 
     String SCHEMA_NAME = "testTypes";
-    Schema schema = db.createSchema(SCHEMA_NAME);
+    Schema schema = db.dropCreateSchema(SCHEMA_NAME);
 
     // generate TypeTest table, with columns for each type
 
@@ -155,7 +155,7 @@ public class TestCreateBasicDataColumnTypeColumns {
   private void executeTest(ColumnType columnType, Serializable[] values) {
 
     Schema schema =
-        db.createSchema(
+        db.dropCreateSchema(
             "TestCreateBasicDataColumnTypeColumns" + columnType.toString().toUpperCase());
 
     String aKey = columnType + "Key";

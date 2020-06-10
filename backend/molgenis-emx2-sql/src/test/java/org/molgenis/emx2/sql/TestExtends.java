@@ -28,7 +28,7 @@ public class TestExtends {
   @Test
   public void testExtends() {
 
-    Schema s = db.createSchema("TestExtends");
+    Schema s = db.dropCreateSchema("TestExtends");
 
     Table person = s.create(table("Person"));
 

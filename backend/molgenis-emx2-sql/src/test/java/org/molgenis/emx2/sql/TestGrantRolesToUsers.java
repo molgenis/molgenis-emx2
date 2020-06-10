@@ -27,7 +27,7 @@ public class TestGrantRolesToUsers {
   @Test
   public void testGrantRevokeMembership() {
 
-    Schema schema = database.createSchema("testGrantRevokeMembership");
+    Schema schema = database.dropCreateSchema("testGrantRevokeMembership");
     List first = Arrays.asList("Viewer", "Editor", "Manager", "Owner");
     List second = schema.getRoles();
     assertTrue(
@@ -51,7 +51,7 @@ public class TestGrantRolesToUsers {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
-    Schema schema = database.createSchema("testRolePermissions");
+    Schema schema = database.dropCreateSchema("testRolePermissions");
 
     // createColumn test users
     database.addUser("user_testRolePermissions_viewer");
@@ -136,7 +136,7 @@ public class TestGrantRolesToUsers {
   @Test
   public void testRole() {
     try {
-      Schema schema = database.createSchema("testRole");
+      Schema schema = database.dropCreateSchema("testRole");
       database.addUser("testadmin");
       database.addUser("testuser");
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());

@@ -33,7 +33,7 @@ public class TestImportExportEmx2DataAndMetadata {
 
       Path directory = tmp.resolve("test");
       Files.createDirectories(directory);
-      Schema schema1 = database.createSchema(getClass().getSimpleName() + "1");
+      Schema schema1 = database.dropCreateSchema(getClass().getSimpleName() + "1");
 
       StopWatch.print("schema1 created, ready to load the example data");
 
@@ -44,7 +44,7 @@ public class TestImportExportEmx2DataAndMetadata {
 
       SchemaExport.toDirectory(directory, schema1);
       StopWatch.print("export to directory complete");
-      Schema schema2 = database.createSchema(getClass().getSimpleName() + "2");
+      Schema schema2 = database.dropCreateSchema(getClass().getSimpleName() + "2");
       StopWatch.print("schema2 created, ready to reload the exported data");
       SchemaImport.fromDirectory(directory, schema2);
       StopWatch.print("import from directory complete");
@@ -53,7 +53,7 @@ public class TestImportExportEmx2DataAndMetadata {
       Path excelFile = tmp.resolve("test.xlsx");
       SchemaExport.toExcelFile(excelFile, schema1);
       StopWatch.print("export to excel complete");
-      Schema schema3 = database.createSchema(getClass().getSimpleName() + "3");
+      Schema schema3 = database.dropCreateSchema(getClass().getSimpleName() + "3");
       StopWatch.print("schema3 created, ready to reload the exported data");
       SchemaImport.fromExcelFile(excelFile, schema3);
       StopWatch.print("import from excel complete");
@@ -62,7 +62,7 @@ public class TestImportExportEmx2DataAndMetadata {
       Path zipFile = tmp.resolve("test.zip");
       SchemaExport.toZipFile(zipFile, schema1);
       StopWatch.print("export to zipfile complete");
-      Schema schema4 = database.createSchema(getClass().getSimpleName() + "4");
+      Schema schema4 = database.dropCreateSchema(getClass().getSimpleName() + "4");
       StopWatch.print("schema4 created, ready to reload the exported data");
       SchemaImport.fromZipFile(zipFile, schema4);
       StopWatch.print("import from zipfile complete");

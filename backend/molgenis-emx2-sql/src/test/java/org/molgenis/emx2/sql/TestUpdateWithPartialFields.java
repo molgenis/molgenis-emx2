@@ -21,7 +21,7 @@ public class TestUpdateWithPartialFields {
 
   @Test
   public void test() {
-    Schema schema = db.createSchema(TestUpdateWithPartialFields.class.getSimpleName());
+    Schema schema = db.dropCreateSchema(TestUpdateWithPartialFields.class.getSimpleName());
 
     Table test =
         schema.create(

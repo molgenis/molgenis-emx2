@@ -25,7 +25,7 @@ public class TestQueryExpandIntoReferences {
     db = TestDatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
-    Schema schema = db.createSchema("TestQueryWithRefArray");
+    Schema schema = db.dropCreateSchema("TestQueryWithRefArray");
 
     // createColumn some tables with contents
     String PERSON = "Person";

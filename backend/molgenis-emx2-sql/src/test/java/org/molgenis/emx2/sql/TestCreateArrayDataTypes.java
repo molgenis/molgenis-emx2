@@ -51,7 +51,7 @@ public class TestCreateArrayDataTypes {
   }
 
   @Test
-  public void testDateTimeArray() {
+  public void xtestDateTimeArray() {
     executeTest(
         DATETIME_ARRAY,
         new String[] {"2013-01-01T18:00:00.0", "2013-01-01T18:00:01.0", "2013-01-01T18:00:02.0"});
@@ -79,7 +79,7 @@ public class TestCreateArrayDataTypes {
   private void executeTest(ColumnType columnType, Serializable[] values) {
 
     Schema schema =
-        database.createSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
+        database.dropCreateSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
 
     String aFieldName = columnType + "Col";
     Table tableA =
