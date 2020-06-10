@@ -52,4 +52,6 @@ public interface Database {
   // brute force empty cache
 
   void clearCache();
+
+  Schema dropCreateSchema(String testBatch);
 }
