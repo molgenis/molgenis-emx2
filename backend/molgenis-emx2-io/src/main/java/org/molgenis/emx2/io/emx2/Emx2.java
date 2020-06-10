@@ -238,8 +238,11 @@ public class Emx2 {
     for (String tableName : tableNames) {
       TableMetadata table = model.getTableMetadata(tableName);
       writeTableDefinitionRow(table, rows);
-      for (Column column : table.getColumns()) {
-        writeColumnDefinitionRow(column, rows);
+      List<String> columnNames = new ArrayList(table.getColumnNames());
+      // deterministic order (TODO make user define order)
+      Collections.sort(columnNames);
+      for (String column : columnNames) {
+        writeColumnDefinitionRow(table.getColumn(column), rows);
       }
     }
     return rows;

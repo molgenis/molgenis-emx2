@@ -88,7 +88,7 @@ public class TestWebApi {
     String schemaCSV = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store").asString();
 
     // create a new schema for excel
-    db.createSchema("pet store excel");
+    db.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
     byte[] excelContents =
