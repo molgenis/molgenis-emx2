@@ -40,3 +40,4 @@ mvnw.cmd
 release.properties
 tls
 
+yarn_error.log
