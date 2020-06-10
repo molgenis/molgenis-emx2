@@ -64,7 +64,7 @@ public class TestWebApi {
     String schemaCsv = given().accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
-    db.createSchema("pet store zip");
+    db.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
     byte[] zipContents = given().accept(ACCEPT_ZIP).when().get("/api/zip/pet store").asByteArray();
