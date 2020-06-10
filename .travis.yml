@@ -10,6 +10,7 @@ branches:
   except:
     - /^v\d+\.\d+\.\d+$/
 before_install:
+  - yarn global add @vue/cli
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - git fetch
   - git config user.email "m.a.swertz@gmail.com"
