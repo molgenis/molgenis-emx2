@@ -32,7 +32,7 @@ addons:
 jobs:
   include:
     - stage: test
-      script: ./gradlew release shadowJar jib jacocoMergedReport sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info
+      script: ./gradlew release shadowJar jib jacocoMergedReport sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
