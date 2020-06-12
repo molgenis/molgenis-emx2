@@ -2,8 +2,19 @@ apiVersion: v1
 entries:
   emx2:
   - apiVersion: v2
+    appVersion: "1"
+    created: "2020-06-12T22:05:41.995535+02:00"
+    description: Preview of EMX2
+    digest: 031129b3741d31f9071f13e2f73cbdc280bc53f3cfa07b2a5f08225c8fdb6ef9
+    icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
+    name: emx2
+    type: application
+    urls:
+    - http://mswertz.github.io/molgenis-emx2/helm-charts/emx2-0.0.6.tgz
+    version: 0.0.6
+  - apiVersion: v2
     appVersion: 1.0.0-snapshot
-    created: "2020-06-12T21:18:48.500902+02:00"
+    created: "2020-06-12T22:05:41.993155+02:00"
     description: Preview of EMX2
     digest: 7115e4362248012c7a5274f5e8f54c2c108f1cc51fe615cd6e7774297fdddade
     icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
@@ -14,7 +25,7 @@ entries:
     version: 0.0.4
   - apiVersion: v2
     appVersion: 1.0.0-snapshot
-    created: "2020-06-12T21:18:48.499733+02:00"
+    created: "2020-06-12T22:05:41.988826+02:00"
     description: Preview of EMX2
     digest: f9d0004eb53ff8f278efa0d6317c92bfeb64a957de344c3c9ba93cac774afe46
     icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
@@ -25,7 +36,7 @@ entries:
     version: 0.0.3
   - apiVersion: v2
     appVersion: 1.0.0-snapshot
-    created: "2020-06-12T21:18:48.488494+02:00"
+    created: "2020-06-12T22:05:41.988057+02:00"
     description: Preview of EMX2
     digest: 693d777f4aff9de52d19b43458309d864ecfdd13545894630697cc160621f1c7
     icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
@@ -36,7 +47,7 @@ entries:
     version: 0.0.2
   - apiVersion: v2
     appVersion: 1.0.0-snapshot
-    created: "2020-06-12T21:18:48.485032+02:00"
+    created: "2020-06-12T22:05:41.986869+02:00"
     description: Preview of EMX2
     digest: b6f1ad83431d6d4ae0ab98eeb8481d0497b7b50a3df1931aaccb5425bd45f00e
     icon: https://raw.githubusercontent.com/molgenis/molgenis-ops-helm/master/charts/molgenis/catalogIcon-molgenis.png
@@ -45,4 +56,4 @@ entries:
     urls:
     - http://mswertz.github.io/molgenis-emx2/helm-charts/emx2-0.0.1.tgz
     version: 0.0.1
-generated: "2020-06-12T21:18:48.47968+02:00"
+generated: "2020-06-12T22:05:41.984577+02:00"

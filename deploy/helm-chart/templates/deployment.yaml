@@ -19,6 +19,7 @@ spec:
       containers:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
+          imagePullPolicy: Always
           env:
             - name: jdbc
               value: jdbc:postgresql:molgenis
