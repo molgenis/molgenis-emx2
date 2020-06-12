@@ -84,3 +84,7 @@ jib {
 }
 
 //gradle cleanTest test --no-build-cache
+task createHelm(type: Exec) {
+    commandLine 'helm', 'package', 'deploy/helm-chart/', '-d', 'docs/helm-charts/'
+    commandLine 'helm', 'repo', 'index', 'docs/helm-charts', '--url', 'http://mswertz.github.io/molgenis-emx2/helm-charts'
+}

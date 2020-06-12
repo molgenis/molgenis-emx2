@@ -22,6 +22,7 @@ subprojects {
         inputs.files(fileTree('src'))
         inputs.files(fileTree('public'))
         inputs.file('package.json')
+        inputs.files(fileTree('../styleguide/src'))
         inputs.file('vue.config.js')
         outputs.dir("dist")
 
