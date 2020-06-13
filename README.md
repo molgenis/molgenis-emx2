@@ -250,15 +250,17 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ### first
 
-* test if drop schema also removes all roles for this schema
+*  test if drop schema also removes all roles for this schema
+*  implement settings
+*  implement menu setting so we can standardize menu as a default setting
+*  implement JSON data type that we can use in settings (validating form)
 *  simple UI to have happy flow out of the box
 *  ensure columns are retrieved in same order as they were created
 *  add standard an lastUpdated column, as a system column
 *  implement order, default on lastUpdated
-*  set permission on Apps rows so default something is shown
-*  simplest UI for upload
-*  simplest UI for memberships
 *  bug, if I filter on refback column it fails, must now select reback.other column
+*  upload files directly into postgresql
+*  documentation framework so we can start adding some docs
 
 ### later
 *  create plugin system for services (todo: isolation? runtime loading?)
@@ -283,24 +285,22 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  complete metadata mutations
     * delete column
     * rename column, incl triggers
-    * rame table, including triggers
+    * rename table, including triggers
 *  default limit to 10, maximize on 10.000
 *  add a check for maximum limit of identifiers, i.e. 63 characters (Excel limit)
 *  Default values
 *  Store the descriptions
 *  Finish the legacy reader
 *  column/per value validation, tuple/per row validation
-*  do we need computed values?
+*  computed values?
 *  create validation procedure for Schema/Table/Column so we can give complete error messages and remove model checks from from SQL parts
 
 ### someday
 *  throw error when webservice is called with only csv header and no values
 *  update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey then?)
 *  job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
-*  Decide on free table/column names vs sanitized graphql
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
-*  casdcading delete
-*  reduce build+test times back to under a minute
+*  reduce build+test times back to under a minute (LOL)
 *  decide to store both ends of ref; added value might be order of items and query speed
 *  cross-schema foreign keys, do we need/want those?
 *  postgresql queries exposed as readonly tables
