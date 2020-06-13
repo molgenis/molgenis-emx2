@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':backend:molgenis-emx2-webservice')
+    implementation project(':backend:molgenis-emx2-run')
 }
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'

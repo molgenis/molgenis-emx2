@@ -2,7 +2,9 @@ package org.molgenis.emx2.web;
 
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.*;
+import org.junit.Assert;
 import org.junit.Test;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.ColumnType;
@@ -11,33 +13,33 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.TableMetadata.table;
-
 public class TestOpenApi {
 
   @Test
   public void constructApi() throws IOException, URISyntaxException {
     SchemaMetadata schema = new SchemaMetadata("test");
 
-    TableMetadata table = schema.create(table("TypeTest"));
+    TableMetadata table = schema.create(TableMetadata.table("TypeTest"));
     for (ColumnType columnType : ColumnType.values()) {
       if (
       // MREF.equals(columnType) ||
-      REF.equals(columnType) || REF_ARRAY.equals(columnType) || REFBACK.equals(columnType)) {
+      ColumnType.REF.equals(columnType)
+          || ColumnType.REF_ARRAY.equals(columnType)
+          || ColumnType.REFBACK.equals(columnType)) {
         // TODO: outside of test for now
       } else {
-        table.add(column(columnType.toString().toLowerCase() + "Column").type(columnType));
+        table.add(Column.column(columnType.toString().toLowerCase() + "Column").type(columnType));
       }
     }
 
     TableMetadata personTable =
-        schema.create(table("Person").add(column("First Name")).add(column("Last Name")));
+        schema.create(
+            TableMetadata.table("Person")
+                .add(Column.column("First Name"))
+                .add(Column.column("Last Name")));
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
-    assertEquals(1, api.getComponents().getSchemas().size()); // useless test
+    Assert.assertEquals(1, api.getComponents().getSchemas().size()); // useless test
 
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);

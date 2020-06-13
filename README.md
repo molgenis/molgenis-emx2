@@ -17,7 +17,7 @@ Details below.
 
 ### 1. Using docker compose
 
-For local demo and development we recommend Docker. Therefore install [Docker compose](https://docs.docker.com/compose/install/) and download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
+For local demo we recommend Docker. Therefore install [Docker compose](https://docs.docker.com/compose/install/) and download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
 
 To start, in directory with docker-compose.yml run:
 ```
