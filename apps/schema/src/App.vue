@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import Schema from './components/Schema'
+    import Schema from './components/Schema'
 
-export default {
+    export default {
   components: {
     Schema
   }

@@ -52,16 +52,16 @@
 </template>
 
 <script>
-import _baseInput from "../components/_baseInput";
-import InputString from "../components/InputString";
-import InputInt from "../components/InputInt";
-import InputDecimal from "../components/InputDecimal";
-import InputBoolean from "../components/InputBoolean";
-import InputRef from "../components/InputRef";
-import InputDate from "../components/InputDate";
-import InputDateTime from "../components/InputDateTime";
+    import _baseInput from "../components/_baseInput";
+    import InputString from "../components/InputString";
+    import InputInt from "../components/InputInt";
+    import InputDecimal from "../components/InputDecimal";
+    import InputBoolean from "../components/InputBoolean";
+    import InputRef from "../components/InputRef";
+    import InputDate from "../components/InputDate";
+    import InputDateTime from "../components/InputDateTime";
 
-export default {
+    export default {
   extends: _baseInput,
   props: {
     schema: String,

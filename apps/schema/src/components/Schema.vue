@@ -180,26 +180,26 @@ table th:hover .hover {
 </style>
 
 <script>
-import { request } from "graphql-request";
-import Vue from "vue";
-import VScrollLock from "v-scroll-lock";
-import {
-  IconBar,
-  IconAction,
-  IconDanger,
-  Spinner,
-  MessageError,
-  InputBoolean,
-  Molgenis
-} from "@mswertz/emx2-styleguide";
-import ColumnEditModal from "./ColumnEditModal";
-import ColumnDropModal from "./ColumnDropModal";
-import TableEditModal from "./TableEditModal";
-import TableDropModal from "./TableDropModal";
+    import {request} from "graphql-request";
+    import Vue from "vue";
+    import VScrollLock from "v-scroll-lock";
+    import {
+        IconAction,
+        IconBar,
+        IconDanger,
+        InputBoolean,
+        MessageError,
+        Molgenis,
+        Spinner
+    } from "@mswertz/emx2-styleguide";
+    import ColumnEditModal from "./ColumnEditModal";
+    import ColumnDropModal from "./ColumnDropModal";
+    import TableEditModal from "./TableEditModal";
+    import TableDropModal from "./TableDropModal";
 
-import VueScrollTo from "vue-scrollto";
+    import VueScrollTo from "vue-scrollto";
 
-Vue.use(VScrollLock);
+    Vue.use(VScrollLock);
 Vue.use(VueScrollTo);
 
 export default {

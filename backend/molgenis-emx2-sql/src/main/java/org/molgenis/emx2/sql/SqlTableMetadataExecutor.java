@@ -1,15 +1,17 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.Name;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.DefaultRoles;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;

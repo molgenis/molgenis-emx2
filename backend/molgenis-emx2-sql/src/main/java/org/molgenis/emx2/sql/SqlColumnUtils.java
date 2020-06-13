@@ -3,17 +3,17 @@ package org.molgenis.emx2.sql;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayUtils.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackUtils.createRefBackColumnConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefUtils.createRefConstraints;
-import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
-import static org.molgenis.emx2.sql.SqlTypeUtils.*;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
+import static org.molgenis.emx2.sql.SqlTypeUtils.jooqTypeOf;
 import static org.molgenis.emx2.utils.TypeUtils.getNonArrayType;
 
 public class SqlColumnUtils {

@@ -33,18 +33,18 @@
 </template>
 
 <script>
-import LayoutForm from "../components/LayoutForm.vue";
-import LayoutModal from "../components/LayoutModal.vue";
-import MessageError from "../components/MessageError";
-import MessageSuccess from "../components/MessageSuccess";
-import ButtonAction from "../components/ButtonAction.vue";
-import ButtonAlt from "../components/ButtonAlt.vue";
-import SigninForm from "./SigninForm";
-import TableMixin from "../mixins/TableMixin";
-import RowFormInput from "./RowFormInput.vue";
-import { request } from "graphql-request";
+    import LayoutForm from "../components/LayoutForm.vue";
+    import LayoutModal from "../components/LayoutModal.vue";
+    import MessageError from "../components/MessageError";
+    import MessageSuccess from "../components/MessageSuccess";
+    import ButtonAction from "../components/ButtonAction.vue";
+    import ButtonAlt from "../components/ButtonAlt.vue";
+    import SigninForm from "./SigninForm";
+    import TableMixin from "../mixins/TableMixin";
+    import RowFormInput from "./RowFormInput.vue";
+    import {request} from "graphql-request";
 
-export default {
+    export default {
   mixins: [TableMixin],
   data: function() {
     return {

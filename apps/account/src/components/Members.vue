@@ -54,22 +54,22 @@
 </template>
 
 <script>
-import { request } from 'graphql-request'
+    import {request} from 'graphql-request'
 
-import {
-  MessageError,
-  IconAction,
-  DataTable,
-  IconBar,
-  ButtonAction,
-  ButtonAlt,
-  ButtonDanger,
-  LayoutModal,
-  InputString,
-  InputSelect
-} from '@mswertz/molgenis-emx2-lib-elements'
+    import {
+        ButtonAction,
+        ButtonAlt,
+        ButtonDanger,
+        DataTable,
+        IconAction,
+        IconBar,
+        InputSelect,
+        InputString,
+        LayoutModal,
+        MessageError
+    } from '@mswertz/molgenis-emx2-lib-elements'
 
-export default {
+    export default {
   components: {
     MessageError,
     IconAction,

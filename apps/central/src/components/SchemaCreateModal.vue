@@ -55,16 +55,16 @@
     import {request} from 'graphql-request'
 
     import {
-        MessageSuccess,
-        MessageError,
         ButtonAction,
         ButtonAlt,
-        LayoutModal,
+        IconAction,
         InputString,
         InputText,
         LayoutForm,
-        Spinner,
-        IconAction
+        LayoutModal,
+        MessageError,
+        MessageSuccess,
+        Spinner
     } from '@mswertz/emx2-styleguide'
 
     export default {

@@ -39,15 +39,15 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput";
-import TableSearch from "./TableSearch";
-import LayoutModal from "./LayoutModal";
-import MessageError from "./MessageError";
-import FormGroup from "./_formGroup";
-import ButtonAlt from "./ButtonAlt";
-import InputAppend from "./_inputAppend";
+    import _baseInput from "./_baseInput";
+    import TableSearch from "./TableSearch";
+    import LayoutModal from "./LayoutModal";
+    import MessageError from "./MessageError";
+    import FormGroup from "./_formGroup";
+    import ButtonAlt from "./ButtonAlt";
+    import InputAppend from "./_inputAppend";
 
-export default {
+    export default {
   extends: _baseInput,
   data: function() {
     return {

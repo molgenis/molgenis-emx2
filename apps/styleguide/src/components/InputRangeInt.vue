@@ -29,12 +29,12 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput";
-import InputInt from "./InputInt";
-import FormGroup from "./_formGroup";
-import InputAppend from "./_inputAppend";
+    import BaseInput from "./_baseInput";
+    import InputInt from "./InputInt";
+    import FormGroup from "./_formGroup";
+    import InputAppend from "./_inputAppend";
 
-/** Input for integer values */
+    /** Input for integer values */
 export default {
   extends: BaseInput,
   methods: {

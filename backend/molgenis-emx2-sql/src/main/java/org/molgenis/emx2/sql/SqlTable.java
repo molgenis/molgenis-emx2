@@ -1,13 +1,11 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
+import org.jooq.Condition;
+import org.jooq.Field;
+import org.jooq.InsertOnDuplicateSetStep;
+import org.jooq.InsertValuesStepN;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.Operator;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +17,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jooq.impl.DSL.*;
-// import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefArrayColumnType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
+
+// import static org.molgenis.emx2.ColumnType.MREF;
 
 class SqlTable implements Table {
 

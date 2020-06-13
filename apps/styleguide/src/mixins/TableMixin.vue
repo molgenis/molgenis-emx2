@@ -3,10 +3,10 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import TableMetadataMixin from "./TableMetadataMixin";
+    import {request} from "graphql-request";
+    import TableMetadataMixin from "./TableMetadataMixin";
 
-export default {
+    export default {
   mixins: [TableMetadataMixin],
   data: function() {
     return {

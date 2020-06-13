@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import TableMixin from "../mixins/TableMixin";
-import DataTable from "./DataTable";
-import MessageError from "./MessageError";
-import InputSearch from "./InputSearch";
-import Pagination from "./Pagination.vue";
-import Spinner from "./Spinner.vue";
+    import TableMixin from "../mixins/TableMixin";
+    import DataTable from "./DataTable";
+    import MessageError from "./MessageError";
+    import InputSearch from "./InputSearch";
+    import Pagination from "./Pagination.vue";
+    import Spinner from "./Spinner.vue";
 
-export default {
+    export default {
   extends: TableMixin,
   props: {
     defaultValue: Array,

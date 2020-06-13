@@ -4,7 +4,8 @@ import org.jooq.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 
-import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
 import static org.molgenis.emx2.sql.SqlTable.getJooqField;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;

@@ -31,18 +31,18 @@
 </template>
 
 <script>
-import ButtonAction from "../components/ButtonAction";
-import ButtonAlt from "../components/ButtonAlt";
-import InputString from "../components/InputString";
-import InputPassword from "../components/InputPassword";
-import MessageError from "../components/MessageError";
-import MessageSuccess from "../components/MessageSuccess";
-import LayoutForm from "../components/LayoutForm";
-import LayoutModal from "../components/LayoutModal";
-import Spinner from "../components/Spinner";
-import { request } from "graphql-request";
+    import ButtonAction from "../components/ButtonAction";
+    import ButtonAlt from "../components/ButtonAlt";
+    import InputString from "../components/InputString";
+    import InputPassword from "../components/InputPassword";
+    import MessageError from "../components/MessageError";
+    import MessageSuccess from "../components/MessageSuccess";
+    import LayoutForm from "../components/LayoutForm";
+    import LayoutModal from "../components/LayoutModal";
+    import Spinner from "../components/Spinner";
+    import {request} from "graphql-request";
 
-export default {
+    export default {
   components: {
     ButtonAction,
     ButtonAlt,

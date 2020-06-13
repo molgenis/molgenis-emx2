@@ -13,9 +13,9 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput.vue";
+    import _baseInput from "./_baseInput.vue";
 
-/** Input for passwords */
+    /** Input for passwords */
 export default {
   extends: _baseInput
 };

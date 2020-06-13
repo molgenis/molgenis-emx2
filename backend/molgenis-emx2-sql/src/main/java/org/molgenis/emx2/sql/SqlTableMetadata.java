@@ -1,10 +1,10 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.sql.Constants.*;
+import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.SqlColumnUtils.reapplyRefbackContraints;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 

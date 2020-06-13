@@ -7,9 +7,7 @@ import org.molgenis.emx2.beans.TypeTestBean;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.*;
 
 public class TestMapPojoToTable {

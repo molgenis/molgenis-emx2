@@ -1,7 +1,7 @@
 <script>
-import InputRadio from "./InputRadio";
+    import InputRadio from "./InputRadio";
 
-/** Show true/false switch */
+    /** Show true/false switch */
 export default {
   extends: InputRadio,
   props: {

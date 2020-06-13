@@ -2,7 +2,6 @@ package org.molgenis.emx2.io.emx1;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.rowstore.TableStore;
-import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

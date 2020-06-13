@@ -4,10 +4,10 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.emx1.Emx1Import;
 import org.molgenis.emx2.io.emx2.Emx2;
-import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
-import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 import org.molgenis.emx2.io.rowstore.TableStore;
+import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 
 import java.nio.file.Path;
 

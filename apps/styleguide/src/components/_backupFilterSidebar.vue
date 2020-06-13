@@ -77,14 +77,14 @@
 </style>
 
 <script>
-import FilterContainer from "./FilterContainer";
-import InputString from "./InputString";
-import InputRangeInt from "./InputRangeInt";
-import InputRangeDecimal from "./InputRangeDecimal";
-import InputRangeDate from "./InputRangeDecimal";
-import Draggable from "vuedraggable";
+    import FilterContainer from "./FilterContainer";
+    import InputString from "./InputString";
+    import InputRangeInt from "./InputRangeInt";
+    import InputRangeDecimal from "./InputRangeDecimal";
+    import InputRangeDate from "./InputRangeDecimal";
+    import Draggable from "vuedraggable";
 
-export default {
+    export default {
   components: {
     FilterContainer,
     Draggable,

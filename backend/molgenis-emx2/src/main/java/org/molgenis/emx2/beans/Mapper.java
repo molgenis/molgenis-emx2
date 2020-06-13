@@ -1,7 +1,7 @@
 package org.molgenis.emx2.beans;
 
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 

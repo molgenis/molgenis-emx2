@@ -6,13 +6,14 @@ import org.molgenis.emx2.*;
 
 import java.util.List;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestRefBack {
 

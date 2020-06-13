@@ -100,17 +100,17 @@
     import {request} from 'graphql-request'
 
     import {
-        MessageSuccess,
-        MessageError,
         ButtonAction,
         ButtonAlt,
-        LayoutModal,
         InputBoolean,
+        InputSelect,
         InputString,
         InputText,
-        SigninForm,
-        InputSelect,
         LayoutForm,
+        LayoutModal,
+        MessageError,
+        MessageSuccess,
+        SigninForm,
         Spinner
     } from '@mswertz/emx2-styleguide'
 

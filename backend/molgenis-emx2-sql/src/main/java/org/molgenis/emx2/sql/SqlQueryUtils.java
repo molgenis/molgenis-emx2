@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
@@ -23,7 +22,6 @@ import static org.molgenis.emx2.sql.SqlQueryRowHelper.createBackrefSubselect;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
 import static org.molgenis.emx2.utils.TypeUtils.*;
-import static org.molgenis.emx2.utils.TypeUtils.toDateTimeArray;
 
 class SqlQueryUtils {
   static final String QUERY_FAILED = "Query failed";

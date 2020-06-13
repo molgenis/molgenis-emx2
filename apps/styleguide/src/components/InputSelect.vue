@@ -30,11 +30,11 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput.vue";
-import InputAppend from "./_inputAppend";
-import FormGroup from "./_formGroup";
+    import _baseInput from "./_baseInput.vue";
+    import InputAppend from "./_inputAppend";
+    import FormGroup from "./_formGroup";
 
-export default {
+    export default {
   extends: _baseInput,
   components: {
     InputAppend,

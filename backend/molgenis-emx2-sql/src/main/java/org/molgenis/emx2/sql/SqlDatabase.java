@@ -1,23 +1,24 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabaseUtils.*;
-import static org.molgenis.emx2.sql.SqlDatabaseUtils.executeCreateRole;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 public class SqlDatabase implements Database {

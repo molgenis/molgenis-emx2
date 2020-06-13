@@ -13,18 +13,18 @@
 </template>
 
 <script>
-import {
-  ButtonAction,
-  ButtonAlt,
-  InputFile,
-  MessageError,
-  MessageSuccess,
-  Spinner,
-  Molgenis
-} from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+    import {
+        ButtonAction,
+        ButtonAlt,
+        InputFile,
+        MessageError,
+        MessageSuccess,
+        Molgenis,
+        Spinner
+    } from "@mswertz/emx2-styleguide";
+    import {request} from "graphql-request";
 
-/** Data import tool */
+    /** Data import tool */
 export default {
   components: {
     ButtonAction,

@@ -64,20 +64,20 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import {
-  Spinner,
-  MessageError,
-  DataTable,
-  FilterSidebar,
-  FilterWells,
-  IconBar,
-  RowButtonEdit,
-  RowButtonAdd,
-  RowButtonDelete
-} from "@mswertz/emx2-styleguide";
+    import {request} from "graphql-request";
+    import {
+        DataTable,
+        FilterSidebar,
+        FilterWells,
+        IconBar,
+        MessageError,
+        RowButtonAdd,
+        RowButtonDelete,
+        RowButtonEdit,
+        Spinner
+    } from "@mswertz/emx2-styleguide";
 
-export default {
+    export default {
   components: {
     Spinner,
     MessageError,

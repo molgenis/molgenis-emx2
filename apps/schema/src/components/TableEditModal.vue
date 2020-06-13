@@ -37,22 +37,22 @@
 </template>
 
 <script>
-import { request } from 'graphql-request'
+    import {request} from 'graphql-request'
 
-import {
-  MessageSuccess,
-  MessageError,
-  ButtonAction,
-  ButtonAlt,
-  LayoutModal,
-  InputString,
-  InputText,
-  SigninForm,
-  LayoutForm,
-  Spinner
-} from '@mswertz/emx2-styleguide'
+    import {
+        ButtonAction,
+        ButtonAlt,
+        InputString,
+        InputText,
+        LayoutForm,
+        LayoutModal,
+        MessageError,
+        MessageSuccess,
+        SigninForm,
+        Spinner
+    } from '@mswertz/emx2-styleguide'
 
-export default {
+    export default {
   components: {
     MessageSuccess,
     MessageError,

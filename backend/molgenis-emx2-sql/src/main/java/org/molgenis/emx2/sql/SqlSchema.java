@@ -4,7 +4,7 @@ import org.molgenis.emx2.*;
 
 import java.util.*;
 
-import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveConstraints;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;

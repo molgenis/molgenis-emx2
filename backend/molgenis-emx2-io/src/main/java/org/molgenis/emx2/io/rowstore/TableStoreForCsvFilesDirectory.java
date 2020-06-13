@@ -1,10 +1,9 @@
 package org.molgenis.emx2.io.rowstore;
 
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
-
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
-import org.molgenis.emx2.MolgenisException;
 
 import java.io.IOException;
 import java.io.Reader;

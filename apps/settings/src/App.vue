@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import Members from "./components/Members";
+    import Members from "./components/Members";
 
-export default {
+    export default {
   name: "App",
   components: { Members }
 };

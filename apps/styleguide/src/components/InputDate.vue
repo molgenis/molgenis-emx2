@@ -31,12 +31,12 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput.vue";
-import FlatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
-import InputAppend from "./_inputAppend";
+    import _baseInput from "./_baseInput.vue";
+    import FlatPickr from "vue-flatpickr-component";
+    import "flatpickr/dist/flatpickr.css";
+    import InputAppend from "./_inputAppend";
 
-//import '../../../public/css/bootstrap-molgenis-blue.css'
+    //import '../../../public/css/bootstrap-molgenis-blue.css'
 
 /** Show a data input */
 export default {

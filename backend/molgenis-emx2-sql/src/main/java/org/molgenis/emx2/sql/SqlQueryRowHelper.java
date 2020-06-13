@@ -5,8 +5,8 @@ import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.util.postgres.PostgresDSL;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +18,6 @@ import java.util.List;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.sql.SqlColumnUtils.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;

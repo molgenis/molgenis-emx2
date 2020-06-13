@@ -47,23 +47,23 @@
 </template>
 
 <script>
-import {
-  ButtonAction,
-  ButtonAlt,
-  InputFile,
-  DataTable,
-  MessageError,
-  MessageSuccess,
-  Spinner,
-  Molgenis,
-  LayoutCard,
-  InputCheckbox,
-  InputString,
-  InputSelect
-} from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+    import {
+        ButtonAction,
+        ButtonAlt,
+        DataTable,
+        InputCheckbox,
+        InputFile,
+        InputSelect,
+        InputString,
+        LayoutCard,
+        MessageError,
+        MessageSuccess,
+        Molgenis,
+        Spinner
+    } from "@mswertz/emx2-styleguide";
+    import {request} from "graphql-request";
 
-export default {
+    export default {
   components: {
     ButtonAction,
     ButtonAlt,

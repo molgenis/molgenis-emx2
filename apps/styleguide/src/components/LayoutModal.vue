@@ -73,9 +73,9 @@
 </style>
 
 <script>
-import VScrollLock from "v-scroll-lock";
+    import VScrollLock from "v-scroll-lock";
 
-export default {
+    export default {
   directives: {
     VScrollLock
   },

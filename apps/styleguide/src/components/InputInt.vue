@@ -1,7 +1,7 @@
 <script>
-import InputString from "./InputString";
+    import InputString from "./InputString";
 
-/** Input for integer values */
+    /** Input for integer values */
 export default {
   extends: InputString,
   props: {

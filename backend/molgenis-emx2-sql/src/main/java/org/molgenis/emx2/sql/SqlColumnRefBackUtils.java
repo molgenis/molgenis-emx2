@@ -2,12 +2,14 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
 
 import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
 import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
+import static org.molgenis.emx2.sql.SqlColumnUtils.getSchemaName;
 
 class SqlColumnRefBackUtils {
   private SqlColumnRefBackUtils() {

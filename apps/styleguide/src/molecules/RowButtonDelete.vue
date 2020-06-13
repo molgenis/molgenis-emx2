@@ -23,16 +23,16 @@
 </template>
 
 <script>
-import RowButtonAdd from "./RowButtonAdd";
-import LayoutModal from "../components/LayoutModal";
-import IconDanger from "../components/IconDanger";
-import ButtonAlt from "../components/ButtonAlt";
-import ButtonAction from "../components/ButtonAction";
-import MessageError from "../components/MessageError";
-import MessageSuccess from "../components/MessageSuccess";
-import { request } from "graphql-request";
+    import RowButtonAdd from "./RowButtonAdd";
+    import LayoutModal from "../components/LayoutModal";
+    import IconDanger from "../components/IconDanger";
+    import ButtonAlt from "../components/ButtonAlt";
+    import ButtonAction from "../components/ButtonAction";
+    import MessageError from "../components/MessageError";
+    import MessageSuccess from "../components/MessageSuccess";
+    import {request} from "graphql-request";
 
-export default {
+    export default {
   extends: RowButtonAdd,
   data: function() {
     return {

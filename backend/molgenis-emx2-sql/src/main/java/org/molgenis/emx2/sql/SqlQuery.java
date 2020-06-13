@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.QueryBean;
+import org.molgenis.emx2.Row;
 
 import java.util.List;
 

@@ -2,10 +2,11 @@ package org.molgenis.emx2.io.emx2;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

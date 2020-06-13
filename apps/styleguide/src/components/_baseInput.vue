@@ -2,9 +2,9 @@
 guide */
 
 <script>
-import _formGroup from "./_formGroup.vue";
+    import _formGroup from "./_formGroup.vue";
 
-export default {
+    export default {
   components: {
     "form-group": _formGroup
   },

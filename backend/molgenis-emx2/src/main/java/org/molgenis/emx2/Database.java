@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface Database {
 

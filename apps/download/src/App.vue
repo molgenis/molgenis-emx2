@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import Download from "./components/Download";
+    import Download from "./components/Download";
 
-export default {
+    export default {
   name: "App",
   components: { Download }
 };

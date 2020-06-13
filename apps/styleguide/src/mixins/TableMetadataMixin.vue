@@ -3,9 +3,9 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+    import {request} from "graphql-request";
 
-export default {
+    export default {
   props: {
     table: String
   },

@@ -6,10 +6,10 @@
 </template>
 
 <script>
-import RowEditModal from "./RowEditModal.vue";
-import IconAction from "../components/IconAction";
+    import RowEditModal from "./RowEditModal.vue";
+    import IconAction from "../components/IconAction";
 
-export default {
+    export default {
   data: function() {
     return {
       open: false

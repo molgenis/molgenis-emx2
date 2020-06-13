@@ -1,7 +1,7 @@
 <script>
-import InputDate from "./InputDate";
+    import InputDate from "./InputDate";
 
-export default {
+    export default {
   extends: InputDate,
   computed: {
     config() {

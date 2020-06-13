@@ -2,8 +2,8 @@ package org.molgenis.emx2.io.rowstore;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

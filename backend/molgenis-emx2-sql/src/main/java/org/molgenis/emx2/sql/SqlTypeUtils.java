@@ -4,7 +4,6 @@ import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.MolgenisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
