@@ -3,10 +3,11 @@ package org.molgenis.emx2.web;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -14,11 +15,11 @@ import spark.Response;
 import spark.Spark;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.IOException;
 import java.util.Properties;
 
-import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
+import static org.molgenis.emx2.web.Constants.*;
 import static spark.Spark.*;
 
 public class MolgenisWebservice {
@@ -67,7 +68,7 @@ public class MolgenisWebservice {
     get("/api/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // services (matched in order of creation)
-    AppsProxyService.create(new SqlDatabase(ds));
+    // AppsProxyService.create(new SqlDatabase(ds));
     CsvApi.create();
     ZipApi.create();
     ExcelApi.create();

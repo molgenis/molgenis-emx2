@@ -11,7 +11,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;

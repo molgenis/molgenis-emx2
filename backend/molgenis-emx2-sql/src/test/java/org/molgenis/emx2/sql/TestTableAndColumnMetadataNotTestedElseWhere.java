@@ -3,9 +3,9 @@ package org.molgenis.emx2.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.MolgenisException;
 
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Column.column;

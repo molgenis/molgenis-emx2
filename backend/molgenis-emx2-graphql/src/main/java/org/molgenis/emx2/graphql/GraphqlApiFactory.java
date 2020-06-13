@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlAccountFields.*;
-import static org.molgenis.emx2.graphql.GraphqlAccountFields.signupField;
 import static org.molgenis.emx2.graphql.GraphqlManifestField.queryVersionField;
 
 public class GraphqlApiFactory {

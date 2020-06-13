@@ -3,8 +3,6 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.FilterBean;
-import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.sql.SqlQueryGraphHelper;
 
 import java.util.ArrayList;
@@ -12,12 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.schema.GraphQLEnumType.newEnum;
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
-import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
-import static graphql.schema.GraphQLInputObjectType.newInputObject;
-import static graphql.schema.GraphQLObjectType.newObject;
-import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 
 public class GraphqlTableQueryFields {

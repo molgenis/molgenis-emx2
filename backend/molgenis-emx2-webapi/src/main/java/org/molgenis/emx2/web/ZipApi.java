@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
 import static spark.Spark.post;
 

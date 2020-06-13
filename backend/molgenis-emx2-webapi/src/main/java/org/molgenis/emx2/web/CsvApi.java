@@ -24,18 +24,21 @@ import spark.Request;
 import spark.Response;
 
 import javax.servlet.MultipartConfigElement;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static io.swagger.models.ModelImpl.OBJECT;
 import static org.molgenis.emx2.io.emx2.Emx2.loadEmx2File;
-import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.OpenApiYamlGenerator.*;
 import static spark.Spark.*;
-import static spark.Spark.delete;
 
 public class CsvApi {
 

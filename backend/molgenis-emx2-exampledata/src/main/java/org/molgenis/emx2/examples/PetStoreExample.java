@@ -1,6 +1,8 @@
 package org.molgenis.emx2.examples;
 
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;

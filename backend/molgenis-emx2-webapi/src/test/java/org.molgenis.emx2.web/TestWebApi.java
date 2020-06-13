@@ -14,12 +14,10 @@ import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.*;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 
@@ -55,33 +53,26 @@ public class TestWebApi {
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
-    RestAssured.requestSpecification = RestAssured.given().header(MOLGENIS_TOKEN, "admin");
+    RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, "admin");
   }
 
   @Test
   public void test2SchemaDownloadUploadZip() throws IOException {
     // get original schema
-    String schemaCsv = RestAssured.given().accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
+    String schemaCsv = given().accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
     db.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
-    byte[] zipContents =
-        RestAssured.given().accept(ACCEPT_ZIP).when().get("/api/zip/pet store").asByteArray();
+    byte[] zipContents = given().accept(ACCEPT_ZIP).when().get("/api/zip/pet store").asByteArray();
 
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
-    RestAssured.given()
-        .multiPart(zipFile)
-        .when()
-        .post("/api/zip/pet store zip")
-        .then()
-        .statusCode(200);
+    given().multiPart(zipFile).when().post("/api/zip/pet store zip").then().statusCode(200);
 
     // check if schema equal using json representation
-    String schemaCsv2 =
-        RestAssured.given().accept(ACCEPT_CSV).when().get("/api/csv/pet store zip").asString();
+    String schemaCsv2 = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store zip").asString();
     assertEquals(schemaCsv, schemaCsv2);
 
     // delete the new schema
@@ -92,28 +83,22 @@ public class TestWebApi {
   public void test3SchemaDownloadUploadExcel() throws IOException {
 
     // download json schema
-    String schemaCSV =
-        RestAssured.given().accept(ACCEPT_CSV).when().get("/api/csv/pet store").asString();
+    String schemaCSV = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store").asString();
 
     // create a new schema for excel
     db.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
     byte[] excelContents =
-        RestAssured.given().accept(ACCEPT_EXCEL).when().get("/api/excel/pet store").asByteArray();
+        given().accept(ACCEPT_EXCEL).when().get("/api/excel/pet store").asByteArray();
     File excelFile = createTempFile(excelContents, ".xlsx");
 
     // upload excel into new schema
-    RestAssured.given()
-        .multiPart(excelFile)
-        .when()
-        .post("/api/excel/pet store excel")
-        .then()
-        .statusCode(200);
+    given().multiPart(excelFile).when().post("/api/excel/pet store excel").then().statusCode(200);
 
     // check if schema equal using json representation
     String schemaCSV2 =
-        RestAssured.given().accept(ACCEPT_CSV).when().get("/api/csv/pet store excel").asString();
+        given().accept(ACCEPT_CSV).when().get("/api/csv/pet store excel").asString();
 
     // delete a new schema for excel
     db.dropSchema("pet store excel");
@@ -135,11 +120,11 @@ public class TestWebApi {
     String path = "/api/csv/pet store/Tag";
 
     String exp1 = "name\r\nred\r\ngreen\r\n";
-    String result = RestAssured.given().accept(ACCEPT_CSV).when().get(path).asString();
+    String result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
 
     String update = "name\r\nyellow\r\n";
-    RestAssured.given()
+    given()
         .multiPart("file", "test.txt", new ByteArrayInputStream(update.getBytes()))
         .when()
         .patch(path)
@@ -147,17 +132,17 @@ public class TestWebApi {
         .statusCode(200);
 
     String exp2 = "name\r\nred\r\ngreen\r\nyellow\r\n";
-    result = RestAssured.given().accept(ACCEPT_CSV).when().get(path).asString();
+    result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp2, result);
 
-    RestAssured.given()
+    given()
         .multiPart("file", "test.txt", new ByteArrayInputStream(update.getBytes()))
         .when()
         .delete(path)
         .then()
         .statusCode(200);
 
-    result = RestAssured.given().accept(ACCEPT_CSV).when().get(path).asString();
+    result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
   }
 
@@ -165,7 +150,7 @@ public class TestWebApi {
   public void test6SmokeTestGraphql() {
     String path = "/api/graphql";
     String result =
-        RestAssured.given()
+        given()
             .body(
                 "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
             .when()
@@ -174,25 +159,16 @@ public class TestWebApi {
     assertTrue(result.contains("Signed in"));
 
     String schemaPath = "/api/graphql/pet store";
-    result =
-        RestAssured.given()
-            .body("{\"query\":\"{Pet{data{name}}}\"}")
-            .when()
-            .post(schemaPath)
-            .asString();
+    result = given().body("{\"query\":\"{Pet{data{name}}}\"}").when().post(schemaPath).asString();
     assertTrue(result.contains("spike"));
 
     result =
-        RestAssured.given()
-            .body("{\"query\":\"mutation{signout{message}}\"}")
-            .when()
-            .post(path)
-            .asString();
+        given().body("{\"query\":\"mutation{signout{message}}\"}").when().post(path).asString();
     assertTrue(result.contains("signed out"));
 
     // login again to make sure other tests work
     result =
-        RestAssured.given()
+        given()
             .body(
                 "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
             .when()

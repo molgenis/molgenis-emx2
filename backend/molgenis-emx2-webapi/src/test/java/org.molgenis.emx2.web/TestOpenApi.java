@@ -1,13 +1,13 @@
 package org.molgenis.emx2.web;
 
 import io.swagger.util.Yaml;
-import io.swagger.v3.oas.models.*;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.Assert;
 import org.junit.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.ColumnType;
 
 import java.io.IOException;
 import java.io.StringWriter;

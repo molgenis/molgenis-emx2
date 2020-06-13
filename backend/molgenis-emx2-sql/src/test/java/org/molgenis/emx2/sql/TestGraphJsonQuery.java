@@ -2,7 +2,10 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -10,11 +13,11 @@ import static junit.framework.TestCase.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.TRIGRAM_SEARCH;
-import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestGraphJsonQuery {
 

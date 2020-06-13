@@ -8,9 +8,6 @@ import org.molgenis.emx2.utils.TypeUtils;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
-import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
-import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 

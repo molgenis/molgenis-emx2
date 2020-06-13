@@ -1,11 +1,10 @@
 package org.molgenis.emx2.examples.synthetic;
 
-import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.SchemaMetadata;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.ColumnType.DATETIME;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class RefAndRefArrayTestExample {

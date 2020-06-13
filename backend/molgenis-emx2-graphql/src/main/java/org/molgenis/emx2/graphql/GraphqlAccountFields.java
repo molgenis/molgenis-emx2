@@ -1,13 +1,12 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
-import graphql.schema.*;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.GraphQLObjectType;
 import org.molgenis.emx2.Database;
 
 import java.util.Map;
-
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
-import static graphql.schema.GraphQLObjectType.newObject;
 
 public class GraphqlAccountFields {
 

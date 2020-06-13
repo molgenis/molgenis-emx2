@@ -5,7 +5,6 @@ import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.Arrays;

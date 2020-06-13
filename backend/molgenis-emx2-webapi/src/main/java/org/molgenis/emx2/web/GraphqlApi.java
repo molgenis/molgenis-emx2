@@ -6,19 +6,21 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.*;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.post;
 
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call

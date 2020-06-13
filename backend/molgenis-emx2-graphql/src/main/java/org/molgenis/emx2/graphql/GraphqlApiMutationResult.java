@@ -8,8 +8,6 @@ import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
-import static graphql.schema.GraphQLObjectType.newObject;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import graphql.GraphQL;
-
 import org.joda.time.DateTime;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;

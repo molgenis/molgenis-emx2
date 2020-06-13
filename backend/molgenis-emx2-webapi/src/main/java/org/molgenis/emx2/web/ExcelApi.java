@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
 import static spark.Spark.post;
 

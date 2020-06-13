@@ -2,11 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 
 import java.sql.SQLException;
 

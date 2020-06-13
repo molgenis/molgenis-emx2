@@ -3,10 +3,11 @@ package org.molgenis.emx2.sql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.examples.synthetic.*;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.examples.synthetic.ArrayTypeTestExample;
+import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
 
 import static junit.framework.TestCase.fail;
 

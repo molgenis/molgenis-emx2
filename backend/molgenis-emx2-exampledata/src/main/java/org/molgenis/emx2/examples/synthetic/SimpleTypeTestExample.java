@@ -6,7 +6,6 @@ import org.molgenis.emx2.TableMetadata;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.ColumnType.DATETIME;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class SimpleTypeTestExample {
@@ -21,8 +20,7 @@ public class SimpleTypeTestExample {
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (ColumnType columnType : columnTypes) {
-      typeTestTable.add(
-          column("Test_" + columnType.toString().toLowerCase()).type(columnType));
+      typeTestTable.add(column("Test_" + columnType.toString().toLowerCase()).type(columnType));
       typeTestTable.add(
           column("Test_" + columnType.toString().toLowerCase() + "_nillable")
               .type(columnType)

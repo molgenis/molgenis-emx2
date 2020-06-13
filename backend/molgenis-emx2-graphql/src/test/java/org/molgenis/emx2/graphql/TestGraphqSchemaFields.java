@@ -14,8 +14,6 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.IOException;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForSchema;
