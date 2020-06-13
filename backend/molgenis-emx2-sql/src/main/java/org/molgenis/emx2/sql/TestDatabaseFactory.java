@@ -24,7 +24,7 @@ public class TestDatabaseFactory {
     if (db == null) {
 
       // setup local Jooq
-      jooq = DSL.using(source, SQLDialect.POSTGRES_10);
+      jooq = DSL.using(source, SQLDialect.POSTGRES);
 
       // delete all, only for test databases
       if (deleteAll) deleteAll();

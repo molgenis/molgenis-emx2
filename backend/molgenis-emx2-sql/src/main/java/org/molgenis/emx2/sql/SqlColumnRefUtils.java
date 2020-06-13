@@ -18,7 +18,7 @@ public class SqlColumnRefUtils {
     jooq.alterTable(getJooqTable(column.getTable()))
         .dropConstraint(getRefConstraintName(column))
         .execute();
-    jooq.dropIndex(name(getSchemaName(column), getIndexName(column))).execute();
+    jooq.execute("DROP INDEX {0}", name(getSchemaName(column), getIndexName(column)));
   }
 
   static void createRefConstraints(DSLContext jooq, Column column) {

@@ -50,7 +50,7 @@ public class SqlDatabase implements Database {
   public SqlDatabase(DataSource source) {
     this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES_10);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
 
     // setup default stuff
@@ -243,7 +243,7 @@ public class SqlDatabase implements Database {
       DSLContext originalContext = jooq;
       try (Connection conn = source.getConnection()) {
         this.inTx = true;
-        DSL.using(conn, SQLDialect.POSTGRES_10)
+        DSL.using(conn, SQLDialect.POSTGRES)
             .transaction(
                 config -> {
                   DSLContext ctx = DSL.using(config);

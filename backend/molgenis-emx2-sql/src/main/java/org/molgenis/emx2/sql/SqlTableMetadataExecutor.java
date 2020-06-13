@@ -6,10 +6,14 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.sql.SqlColumnUtils.asJooqTable;
 import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveColumn;
 
 class SqlTableMetadataExecutor {
@@ -17,8 +21,9 @@ class SqlTableMetadataExecutor {
 
   static void executeCreateTable(DSLContext jooq, TableMetadata table) {
     // create the table
-    Name tableName = name(table.getSchema().getName(), table.getTableName());
-    jooq.createTable(tableName).columns().execute();
+    Table tableName = asJooqTable(table);
+    jooq.execute("CREATE TABLE {0}()", asJooqTable(table));
+    // jooq.createTable(asJooqTable(table)).columns(new Name[0]).execute();
     MetadataUtils.saveTableMetadata(jooq, table);
 
     // grant rights to schema manager, editor and viewer roles
