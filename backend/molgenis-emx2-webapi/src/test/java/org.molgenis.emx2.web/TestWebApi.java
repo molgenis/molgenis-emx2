@@ -177,13 +177,13 @@ public class TestWebApi {
     assertTrue(result.contains("Signed in"));
   }
 
-  //  @Test
-  //  public void appProxySmokeTest() throws IOException {
-  //    String result = given().when().get("/apps/molgenis-app-reports/dist/index.html").asString();
-  //
-  //    // some unique text content
-  //    assertTrue(result.contains("molgenis-catalogue-templates"));
-  //  }
+  @Test
+  public void appProxySmokeTest() throws IOException {
+    String result = given().when().get("/plugin/molgenis-app-reports/dist/index.html").asString();
+
+    // some unique text content
+    assertTrue(result.contains("molgenis-catalogue-templates"));
+  }
 
   @AfterClass
   public static void after() {
