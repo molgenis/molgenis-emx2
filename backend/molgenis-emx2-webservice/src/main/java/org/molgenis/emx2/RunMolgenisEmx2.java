@@ -2,7 +2,6 @@ package org.molgenis.emx2;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.graphql.GraphqlVersionField;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
 

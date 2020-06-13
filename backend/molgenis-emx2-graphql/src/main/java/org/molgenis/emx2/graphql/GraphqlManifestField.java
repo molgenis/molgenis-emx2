@@ -4,12 +4,10 @@ import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class GraphqlVersionField {
+public class GraphqlManifestField {
 
   public static final String IMPLEMENTATION_VERSION = "ImplementationVersion";
   public static final String SPECIFICATION_VERSION = "SpecificationVersion";
@@ -41,13 +39,13 @@ public class GraphqlVersionField {
   }
 
   private static String getSpecificationVersion() {
-    String result = GraphqlVersionField.class.getPackage().getSpecificationVersion();
+    String result = GraphqlManifestField.class.getPackage().getSpecificationVersion();
     if (result == null) return "DEVELOPMENT";
     return result;
   }
 
   private static String getImplementationVersion() {
-    String result = GraphqlVersionField.class.getPackage().getImplementationVersion();
+    String result = GraphqlManifestField.class.getPackage().getImplementationVersion();
     if (result == null) return "DEVELOPMENT";
     return result;
   }
