@@ -160,11 +160,19 @@ public class CsvApi {
     }
   }
 
-  private static String getOpenApiYaml(Request request, Response response)
+  public static String getOpenApiYaml(Request request, Response response)
       throws JsonProcessingException {
 
     SchemaMetadata schema = getSchema(request).getMetadata();
+    OpenAPI api = getOpenAPI(schema);
+    response.status(200);
+    return Yaml.mapper()
+        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+        .writeValueAsString(api);
+  }
 
+  @NotNull
+  static OpenAPI getOpenAPI(SchemaMetadata schema) {
     OpenAPI api = new OpenAPI();
     api.info(
         new Info()
@@ -211,11 +219,7 @@ public class CsvApi {
           "/api/csv/" + schema.getName() + "/" + table.getTableName(),
           getCsvTableOperations(mutationRequest, mutationResponses, queryResponses, table));
     }
-
-    response.status(200);
-    return Yaml.mapper()
-        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
-        .writeValueAsString(api);
+    return api;
   }
 
   private static RequestBody getCsvRequestBody() {
