@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.graphql.GraphqlVersionField;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
 
@@ -12,6 +13,10 @@ public class RunMolgenisEmx2 {
 
   public static void main(String[] args) throws IOException {
 
+    String version =
+        RunMolgenisEmx2.class.getPackage().getSpecificationVersion()
+            + " "
+            + RunMolgenisEmx2.class.getPackage().getImplementationVersion();
     String url = "jdbc:postgresql:molgenis";
     if (args.length == 1) {
       if (Pattern.matches("[0-9A-Za-z/:]+", args[0])) {
@@ -24,7 +29,8 @@ public class RunMolgenisEmx2 {
       System.out.println(
           "You can pass custom postgresql jdbc url as first parameter as commandline");
     }
-    System.out.println("Starting EMX2 with postgresql url: " + url);
+    System.out.println(
+        "Starting EMX2 " + (version == null ? "" : version) + " with postgresql url: " + url);
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();

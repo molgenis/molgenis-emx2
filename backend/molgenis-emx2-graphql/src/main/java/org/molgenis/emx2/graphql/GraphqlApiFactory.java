@@ -23,6 +23,7 @@ import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlAccountFields.*;
 import static org.molgenis.emx2.graphql.GraphqlAccountFields.signupField;
+import static org.molgenis.emx2.graphql.GraphqlVersionField.queryVersionField;
 
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
@@ -36,6 +37,7 @@ public class GraphqlApiFactory {
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // add login
+    queryBuilder.field(queryVersionField());
     queryBuilder.field(userQueryField(database));
     mutationBuilder.field(signinField(database));
     mutationBuilder.field(signoutField(database));
@@ -59,6 +61,7 @@ public class GraphqlApiFactory {
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // queries
+    queryBuilder.field(queryVersionField());
     queryBuilder.field(GraphqlSchemaFields.schemaQuery(schema));
     queryBuilder.field(userQueryField(schema.getDatabase()));
     for (String tableName : schema.getTableNames()) {
@@ -110,7 +113,7 @@ public class GraphqlApiFactory {
   }
 
   /** bit unfortunate that we have to convert from json to map and back */
-   static Object transform(String json) throws IOException {
+  static Object transform(String json) throws IOException {
     // benchmark shows this only takes a few ms so not a large performance issue
     if (json != null) {
       return new ObjectMapper().readValue(json, Map.class);

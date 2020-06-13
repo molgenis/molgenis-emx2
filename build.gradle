@@ -44,7 +44,6 @@ shadowJar {
     archiveBaseName = 'molgenis-emx2'
 }
 
-
 publishing {
     repositories {
         maven {
@@ -80,6 +79,32 @@ jib {
     container {
         mainClass = mainClassName
         ports = ['8080']
+    }
+}
+
+String getGitHash() {
+    // git hash
+    def command = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+    def result = command.waitFor()
+    if (result != 0) {
+        throw new IOException("Command 'getGitHash()' exited with " + result)
+    }
+
+    String gitCommitHash = command.inputStream.text.trim()
+
+    return gitCommitHash
+}
+
+jar {
+    manifest {
+        attributes(
+                'Specification-Version': project.version.toString(),
+                'Implementation-Version': getGitHash(),
+                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Created-By': "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
     }
 }
 
