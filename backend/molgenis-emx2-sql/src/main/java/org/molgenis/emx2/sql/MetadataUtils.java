@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.CreateSchemaFinalStep;
+import org.jooq.CreateTableColumnStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
@@ -70,58 +71,59 @@ public class MetadataUtils {
     try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
       step.execute();
 
-      jooq.createTableIfNotExists(SCHEMA_METADATA)
-          .columns(TABLE_SCHEMA)
-          .constraint(primaryKey(TABLE_SCHEMA))
-          .execute();
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
+        t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+      }
       // public access
 
-      jooq.createTableIfNotExists(TABLE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PKEY, TABLE_INHERITS, TABLE_DESCRIPTION)
-          .constraints(
-              primaryKey(TABLE_SCHEMA, TABLE_NAME),
-              foreignKey(TABLE_SCHEMA)
-                  .references(SCHEMA_METADATA)
-                  .onUpdateCascade()
-                  .onDeleteCascade())
-          .execute();
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
+        t.columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PKEY, TABLE_INHERITS, TABLE_DESCRIPTION)
+            .constraints(
+                primaryKey(TABLE_SCHEMA, TABLE_NAME),
+                foreignKey(TABLE_SCHEMA)
+                    .references(SCHEMA_METADATA)
+                    .onUpdateCascade()
+                    .onDeleteCascade())
+            .execute();
+      }
 
-      jooq.createTableIfNotExists(COLUMN_METADATA)
-          .columns(
-              TABLE_SCHEMA,
-              TABLE_NAME,
-              COLUMN_NAME,
-              DATA_TYPE,
-              NULLABLE,
-              REF_TABLE,
-              REF_COLUMN,
-              MAPPED_BY,
-              VALIDATION_SCRIPT,
-              INDEXED,
-              CASCADE_DELETE,
-              COLUMN_DESCRIPTION)
-          .constraints(
-              primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-              foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                  .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                  .onUpdateCascade()
-                  .onDeleteCascade())
-          .execute();
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
+        t.columns(
+                TABLE_SCHEMA,
+                TABLE_NAME,
+                COLUMN_NAME,
+                DATA_TYPE,
+                NULLABLE,
+                REF_TABLE,
+                REF_COLUMN,
+                MAPPED_BY,
+                VALIDATION_SCRIPT,
+                INDEXED,
+                CASCADE_DELETE,
+                COLUMN_DESCRIPTION)
+            .constraints(
+                primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
+                foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                    .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                    .onUpdateCascade()
+                    .onDeleteCascade())
+            .execute();
+      }
 
-      jooq.createTableIfNotExists(UNIQUE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-          .constraints(
-              primaryKey(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS),
-              foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                  .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                  .onUpdateCascade()
-                  .onDeleteCascade())
-          .execute();
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(UNIQUE_METADATA)) {
+        t.columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
+            .constraints(
+                primaryKey(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS),
+                foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                    .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                    .onUpdateCascade()
+                    .onDeleteCascade())
+            .execute();
+      }
 
-      jooq.createTableIfNotExists(USERS_METADATA)
-          .columns(USER_NAME, USER_PASS)
-          .constraint(primaryKey(USER_NAME))
-          .execute();
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
+        t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+      }
 
       jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
       jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
