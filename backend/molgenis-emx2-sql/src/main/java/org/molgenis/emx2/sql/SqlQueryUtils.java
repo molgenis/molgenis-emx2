@@ -215,7 +215,7 @@ class SqlQueryUtils {
           // else
           Condition subCondition =
               createFilterCondition(subAlias, column, entry.getKey(), entry.getValue());
-          if (condition != null) condition.and(subCondition);
+          if (condition != null) condition = condition.and(subCondition);
           else condition = subCondition;
         }
       }
