@@ -69,6 +69,7 @@ export default {
         } else {
           this.email = null;
         }
+
         this.loading = false;
         this.$emit("input", this.email);
       })
