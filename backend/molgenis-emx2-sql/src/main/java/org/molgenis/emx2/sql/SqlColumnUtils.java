@@ -9,7 +9,6 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.sql.SqlColumnMrefUtils.createMrefConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayUtils.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackUtils.createRefBackColumnConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefUtils.createRefConstraints;
