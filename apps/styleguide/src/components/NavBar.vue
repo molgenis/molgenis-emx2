@@ -46,14 +46,14 @@ export default {
   data: function() {
     return {
       show: false
-    }
+    };
   },
   methods: {
     toggle() {
-      this.show = !this.show
+      this.show = !this.show;
     }
   }
-}
+};
 </script>
 
 <docs>

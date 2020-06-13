@@ -25,13 +25,13 @@
 </template>
 
 <script>
-import InputString from './InputString.vue'
-import AppendClear from './_appendClear'
+import InputString from "./InputString.vue";
+import AppendClear from "./_appendClear";
 
 export default {
   extends: InputString,
   components: { AppendClear }
-}
+};
 </script>
 
 <docs>

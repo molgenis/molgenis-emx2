@@ -6,9 +6,9 @@
 </template>
 
 <script>
-import RowButtonAdd from './RowButtonAdd'
-import RowEditModal from './RowEditModal.vue'
-import IconAction from '../components/IconAction'
+import RowButtonAdd from "./RowButtonAdd";
+import RowEditModal from "./RowEditModal.vue";
+import IconAction from "../components/IconAction";
 
 export default {
   extends: RowButtonAdd,
@@ -21,10 +21,10 @@ export default {
   },
   computed: {
     title() {
-      return `Update ${this.table}`
+      return `Update ${this.table}`;
     }
   }
-}
+};
 </script>
 
 <docs>

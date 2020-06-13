@@ -17,11 +17,11 @@
 </template>
 
 <script>
-import IconAction from './IconAction'
-import Vue from 'vue'
-import VScrollLock from 'v-scroll-lock'
+import IconAction from "./IconAction";
+import Vue from "vue";
+import VScrollLock from "v-scroll-lock";
 
-Vue.use(VScrollLock)
+Vue.use(VScrollLock);
 
 export default {
   directives: {
@@ -37,22 +37,22 @@ export default {
   data: function() {
     return {
       fullscreen: false
-    }
+    };
   },
   computed: {
     bodyheight() {
       if (this.fullscreen) {
-        let header = this.$refs.header.clientHeight
-        let footer = this.$refs.footer.clientHeight
-        return `height: calc(100vh - ${header + footer}px)`
+        let header = this.$refs.header.clientHeight;
+        let footer = this.$refs.footer.clientHeight;
+        return `height: calc(100vh - ${header + footer}px)`;
       }
-      return ''
+      return "";
     }
     // version () {
     //   return this.$store.state.version
     // }
   }
-}
+};
 </script>
 
 <style scoped>

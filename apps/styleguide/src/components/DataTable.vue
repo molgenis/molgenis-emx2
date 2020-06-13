@@ -56,18 +56,18 @@ export default {
   data: function() {
     return {
       selectedItems: []
-    }
+    };
   },
   watch: {
     selectedItems() {
-      this.$emit('input', this.selectedItems)
+      this.$emit("input", this.selectedItems);
     }
   },
   created() {
     if (this.defaultValue instanceof Array) {
-      this.selectedItems = this.defaultValue
+      this.selectedItems = this.defaultValue;
     } else {
-      this.selectedItems.push(this.defaultValue)
+      this.selectedItems.push(this.defaultValue);
     }
   },
   methods: {
@@ -75,7 +75,7 @@ export default {
       return (
         this.selectedItems != null &&
         this.selectedItems.includes(row[this.selectColumn])
-      )
+      );
     },
     onRowClick(row) {
       if (this.selectColumn) {
@@ -83,19 +83,19 @@ export default {
           /** when a row is deselected */
           this.selectedItems = this.selectedItems.filter(
             item => item !== row[this.selectColumn]
-          )
-          this.$emit('deselect', row[this.selectColumn])
+          );
+          this.$emit("deselect", row[this.selectColumn]);
         } else {
           /** when a row is selected */
-          this.selectedItems.push(row[this.selectColumn])
-          this.$emit('select', row[this.selectColumn])
+          this.selectedItems.push(row[this.selectColumn]);
+          this.$emit("select", row[this.selectColumn]);
         }
       } else {
-        this.$emit('click', row)
+        this.$emit("click", row);
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

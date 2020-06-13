@@ -2,11 +2,11 @@
 guide */
 
 <script>
-import _formGroup from './_formGroup.vue'
+import _formGroup from "./_formGroup.vue";
 
 export default {
   components: {
-    'form-group': _formGroup
+    "form-group": _formGroup
   },
   props: {
     /** value to be shown as placeholder in the input (if possible) */
@@ -48,31 +48,31 @@ export default {
       arrayValue: [],
       /** external visible value you can v-model on */
       value: null
-    }
+    };
   },
   watch: {
     arrayValue() {
-      this.emitValue()
+      this.emitValue();
     }
   },
   // generate automatic id
   mounted() {
     this.id = Math.random()
       .toString(36)
-      .substring(7)
+      .substring(7);
   },
   created() {
     if (this.list) {
       if (this.defaultValue) {
-        this.arrayValue = this.defaultValue
+        this.arrayValue = this.defaultValue;
       }
     } else {
-      this.arrayValue[0] = this.defaultValue
+      this.arrayValue[0] = this.defaultValue;
     }
     if (this.arrayValue === null || this.arrayValue.length == 0) {
-      this.arrayValue = [null]
+      this.arrayValue = [null];
     }
-    this.emitValue()
+    this.emitValue();
   },
   methods: {
     emitValue() {
@@ -80,28 +80,28 @@ export default {
         //else contine
         this.value = this.arrayValue.map(v =>
           !v || v.length === 0 || !String(v).trim() ? null : v
-        )
-        this.value = this.value.filter(el => el != undefined)
+        );
+        this.value = this.value.filter(el => el != undefined);
       } else {
-        this.value = this.arrayValue[0]
+        this.value = this.arrayValue[0];
         if (
           !this.value ||
           this.value.length === 0 ||
           !String(this.value).trim()
         ) {
-          this.value = null
+          this.value = null;
         }
       }
-      this.$emit('input', this.value)
+      this.$emit("input", this.value);
     },
     addRow() {
-      this.arrayValue.push(null)
+      this.arrayValue.push(null);
     },
     clearValue(idx) {
       if (this.arrayValue.length > 1) {
-        this.arrayValue.splice(idx, 1)
+        this.arrayValue.splice(idx, 1);
       } else {
-        this.arrayValue = [null]
+        this.arrayValue = [null];
       }
     },
     showPlus(idx) {
@@ -109,9 +109,9 @@ export default {
         this.list &&
         !this.readonly &&
         this.arrayValue[idx] !== null &&
-        this.arrayValue[idx] !== '' &&
+        this.arrayValue[idx] !== "" &&
         idx === this.arrayValue.length - 1
-      )
+      );
     },
     showClear(idx) {
       return (
@@ -119,8 +119,8 @@ export default {
         this.clear &&
         this.arrayValue !== null &&
         this.arrayValue[idx] !== null
-      )
+      );
     }
   }
-}
+};
 </script>

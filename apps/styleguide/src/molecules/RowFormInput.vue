@@ -52,14 +52,14 @@
 </template>
 
 <script>
-import _baseInput from '../components/_baseInput'
-import InputString from '../components/InputString'
-import InputInt from '../components/InputInt'
-import InputDecimal from '../components/InputDecimal'
-import InputBoolean from '../components/InputBoolean'
-import InputRef from '../components/InputRef'
-import InputDate from '../components/InputDate'
-import InputDateTime from '../components/InputDateTime'
+import _baseInput from "../components/_baseInput";
+import InputString from "../components/InputString";
+import InputInt from "../components/InputInt";
+import InputDecimal from "../components/InputDecimal";
+import InputBoolean from "../components/InputBoolean";
+import InputRef from "../components/InputRef";
+import InputDate from "../components/InputDate";
+import InputDateTime from "../components/InputDateTime";
 
 export default {
   extends: _baseInput,
@@ -81,10 +81,10 @@ export default {
   },
   watch: {
     value() {
-      this.$emit('input', this.value)
+      this.$emit("input", this.value);
     }
   }
-}
+};
 </script>
 
 <docs>

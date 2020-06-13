@@ -1,19 +1,19 @@
 <template>
-    <button type="button" class="btn btn-danger" @click="onClick">
-        <slot/>
-    </button>
+  <button type="button" class="btn btn-danger" @click="onClick">
+    <slot />
+  </button>
 </template>
 
 <script>
-    /** Button that is shown as a primary action */
-    export default {
-        methods: {
-            onClick() {
-                /** emitted on click */
-                this.$emit('click')
-            }
-        }
+/** Button that is shown as a primary action */
+export default {
+  methods: {
+    onClick() {
+      /** emitted on click */
+      this.$emit("click");
     }
+  }
+};
 </script>
 
 <docs>

@@ -30,8 +30,8 @@
         </ButtonAction>
         <p>
           Download all data from schema {{ schema }} as Zip file containing csv
-          files. N.b. can be potentially huge. In addition the Zip will include
-          a 'molgenis.csf' file that defines columns of all other files.
+          files. N.b. can be potentially huge. In addition the Zip includes a
+          'molgenis.csv' file that defines columns of all other files.
         </p>
       </div>
     </div>
@@ -91,6 +91,10 @@ export default {
         {
           label: "GraphQL",
           href: "/api/playground.html?schema=/api/graphql/" + this.schema
+        },
+        {
+          label: "Settings",
+          href: "../settings/"
         }
       ];
     }

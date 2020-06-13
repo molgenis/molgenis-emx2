@@ -10,14 +10,14 @@ export default {
   methods: {
     appendFile() {
       // Removes an element from the document
-      let file = document.createElement('link')
-      file.rel = 'stylesheet'
-      file.href = this.href
-      document.head.appendChild(file)
+      let file = document.createElement("link");
+      file.rel = "stylesheet";
+      file.href = this.href;
+      document.head.appendChild(file);
     }
   },
   mounted() {
-    this.appendFile()
+    this.appendFile();
   }
-}
+};
 </script>

@@ -23,9 +23,9 @@
 </template>
 
 <script>
-import BaseInput from './_baseInput.vue'
-import InputAppend from './_inputAppend'
-import FormGroup from './_formGroup'
+import BaseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend";
+import FormGroup from "./_formGroup";
 
 export default {
   extends: BaseInput,
@@ -35,10 +35,10 @@ export default {
   },
   methods: {
     keyhandler(event) {
-      return event
+      return event;
     }
   }
-}
+};
 </script>
 
 <docs>

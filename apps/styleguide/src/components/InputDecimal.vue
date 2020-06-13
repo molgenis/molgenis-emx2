@@ -1,28 +1,28 @@
 <script>
-import InputString from './InputString'
+import InputString from "./InputString";
 
 /** Input for decimal values */
 export default {
   extends: InputString,
   props: {
     placeholder: {
-      default: 'enter decimal (does not accept A-Za-z,)'
+      default: "enter decimal (does not accept A-Za-z,)"
     }
   },
   methods: {
     keyhandler(event) {
-      if (!this.isDecimal(event)) event.preventDefault()
+      if (!this.isDecimal(event)) event.preventDefault();
     },
     isDecimal(e) {
-      var keyCode = e.which ? e.which : e.keyCode
+      var keyCode = e.which ? e.which : e.keyCode;
       var ret =
         (keyCode >= 48 && keyCode <= 57) ||
         keyCode === 8 ||
-        (keyCode === 46 && !this.value.includes('.'))
-      return ret
+        (keyCode === 46 && !this.value.includes("."));
+      return ret;
     }
   }
-}
+};
 </script>
 
 <docs>

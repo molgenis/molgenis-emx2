@@ -27,12 +27,12 @@
 </template>
 
 <script>
-import TableMixin from '../mixins/TableMixin'
-import DataTable from './DataTable'
-import MessageError from './MessageError'
-import InputSearch from './InputSearch'
-import Pagination from './Pagination.vue'
-import Spinner from './Spinner.vue'
+import TableMixin from "../mixins/TableMixin";
+import DataTable from "./DataTable";
+import MessageError from "./MessageError";
+import InputSearch from "./InputSearch";
+import Pagination from "./Pagination.vue";
+import Spinner from "./Spinner.vue";
 
 export default {
   extends: TableMixin,
@@ -52,56 +52,56 @@ export default {
       selectedItems: [],
       page: 1,
       loading: true
-    }
+    };
   },
   methods: {
     select(value) {
-      this.$emit('select', value)
+      this.$emit("select", value);
     },
     deselect(value) {
-      this.$emit('deselect', value)
+      this.$emit("deselect", value);
     }
   },
   watch: {
     selectedItems() {
-      this.$emit('input', this.selectedItems)
+      this.$emit("input", this.selectedItems);
     },
     page() {
-      this.loading = true
-      this.offset = this.limit * (this.page - 1)
-      this.reload()
+      this.loading = true;
+      this.offset = this.limit * (this.page - 1);
+      this.reload();
     }
   },
   computed: {
     columns() {
       if (this.metadata && this.metadata.columns) {
-        return this.metadata.columns.map(col => col.name)
+        return this.metadata.columns.map(col => col.name);
       }
-      return null
+      return null;
     },
     rows() {
       if (this.data != null) {
         return this.data.map(row => {
-          let result = { ...row }
+          let result = { ...row };
           this.metadata.columns.forEach(col => {
             if (row[col.name]) {
-              if (col.columnType === 'REF') {
-                result[col.name] = row[col.name][col.refColumn]
+              if (col.columnType === "REF") {
+                result[col.name] = row[col.name][col.refColumn];
               } else if (
-                col.columnType === 'REF_ARRAY' ||
-                col.columnType === 'REFBACK'
+                col.columnType === "REF_ARRAY" ||
+                col.columnType === "REFBACK"
               ) {
-                result[col.name] = row[col.name].map(val => val[col.refColumn])
+                result[col.name] = row[col.name].map(val => val[col.refColumn]);
               }
             }
-          })
-          return result
-        })
+          });
+          return result;
+        });
       }
-      return this.data
+      return this.data;
     }
   }
-}
+};
 </script>
 
 <docs>

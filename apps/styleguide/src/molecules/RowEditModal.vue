@@ -33,16 +33,16 @@
 </template>
 
 <script>
-import LayoutForm from '../components/LayoutForm.vue'
-import LayoutModal from '../components/LayoutModal.vue'
-import MessageError from '../components/MessageError'
-import MessageSuccess from '../components/MessageSuccess'
-import ButtonAction from '../components/ButtonAction.vue'
-import ButtonAlt from '../components/ButtonAlt.vue'
-import SigninForm from './SigninForm'
-import TableMixin from '../mixins/TableMixin'
-import RowFormInput from './RowFormInput.vue'
-import { request } from 'graphql-request'
+import LayoutForm from "../components/LayoutForm.vue";
+import LayoutModal from "../components/LayoutModal.vue";
+import MessageError from "../components/MessageError";
+import MessageSuccess from "../components/MessageSuccess";
+import ButtonAction from "../components/ButtonAction.vue";
+import ButtonAlt from "../components/ButtonAlt.vue";
+import SigninForm from "./SigninForm";
+import TableMixin from "../mixins/TableMixin";
+import RowFormInput from "./RowFormInput.vue";
+import { request } from "graphql-request";
 
 export default {
   mixins: [TableMixin],
@@ -53,7 +53,7 @@ export default {
       errorPerColumn: {},
       success: null,
       defaultValue: null
-    }
+    };
   },
   props: {
     /** when updating existing record, this is the primary key value */
@@ -71,69 +71,69 @@ export default {
   },
   methods: {
     loginSuccess() {
-      this.error = null
-      this.success = null
-      this.showLogin = false
+      this.error = null;
+      this.success = null;
+      this.showLogin = false;
     },
     executeCommand() {
-      this.error = null
-      this.success = null
+      this.error = null;
+      this.success = null;
       // todo spinner
-      let name = this.metadata.name
-      let variables = { value: [this.value] }
-      let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`
+      let name = this.metadata.name;
+      let variables = { value: [this.value] };
+      let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
       if (this.pkey) {
-        query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`
+        query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
-      request('graphql', query, variables)
+      request("graphql", query, variables)
         .then(data => {
           if (data.insert) {
-            this.success = data.insert.message
+            this.success = data.insert.message;
           }
           if (data.update) {
-            this.success = data.update.message
+            this.success = data.update.message;
           }
-          this.pkey = this.value[this.metadata.pkey]
-          this.defaultValue = this.value
-          this.$emit('close')
+          this.pkey = this.value[this.metadata.pkey];
+          this.defaultValue = this.value;
+          this.$emit("close");
         })
         .catch(error => {
           if (error.response.status === 403) {
             this.error =
-              "Schema doesn't exist or permission denied. Do you need to Sign In?"
-            this.showLogin = true
+              "Schema doesn't exist or permission denied. Do you need to Sign In?";
+            this.showLogin = true;
           } else {
-            this.error = error
+            this.error = error;
           }
-        })
+        });
     },
     validate() {
       if (this.metadata.columns) {
         this.metadata.columns.forEach(column => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
-            delete this.value[column.name]
+            delete this.value[column.name];
           }
-          delete this.errorPerColumn[column.name]
+          delete this.errorPerColumn[column.name];
           // when empty
           if (this.value[column.name] == null) {
             // when required
             if (column.nullable !== true) {
-              this.errorPerColumn[column.name] = column.name + ' is required '
+              this.errorPerColumn[column.name] = column.name + " is required ";
             }
           } else {
             // when not empty
             // when validation
             if (
-              typeof this.value[column.name] !== 'undefined' &&
-              typeof column.validation !== 'undefined'
+              typeof this.value[column.name] !== "undefined" &&
+              typeof column.validation !== "undefined"
             ) {
-              let value = this.value[column.name] //used for eval, two lines below
-              this.errorPerColumn[column.name] = value //dummy assign
+              let value = this.value[column.name]; //used for eval, two lines below
+              this.errorPerColumn[column.name] = value; //dummy assign
               this.errorPerColumn[column.name] = eval(column.validation) // eslint-disable-line
             }
           }
-        })
+        });
       }
     }
   },
@@ -141,55 +141,55 @@ export default {
     // override from tableMixin
     graphql() {
       // todo: must become a typed variable in the query?
-      return `{${this.table}(filter:{${this.metadata.pkey}:{equals:"${this.pkey}"}}){data_agg{count}data{${this.columnNames}}}}`
+      return `{${this.table}(filter:{${this.metadata.pkey}:{equals:"${this.pkey}"}}){data_agg{count}data{${this.columnNames}}}}`;
     },
     title() {
       if (this.pkey) {
-        return `update ${this.metadata.name}`
+        return `update ${this.metadata.name}`;
       } else {
-        return `insert ${this.metadata.name}`
+        return `insert ${this.metadata.name}`;
       }
     }
   },
   watch: {
     data(val) {
       if (val && val.length > 0) {
-        let data = val[0]
-        let defaultValue = {}
+        let data = val[0];
+        let defaultValue = {};
         this.metadata.columns.forEach(column => {
           if (data[column.name]) {
-            if (column.columnType === 'REF') {
-              defaultValue[column.name] = data[column.name][column.refColumn]
+            if (column.columnType === "REF") {
+              defaultValue[column.name] = data[column.name][column.refColumn];
             } else if (
-              column.columnType.endsWith('ARRAY') ||
-              ['REF_ARRAY', 'REFBACK'].includes(column.columnType)
+              column.columnType.endsWith("ARRAY") ||
+              ["REF_ARRAY", "REFBACK"].includes(column.columnType)
             ) {
-              defaultValue[column.name] = []
+              defaultValue[column.name] = [];
               if (Array.isArray(data[column.name])) {
                 data[column.name].forEach(value =>
                   defaultValue[column.name].push(value[column.refColumn])
-                )
+                );
               }
             } else {
-              defaultValue[column.name] = data[column.name]
+              defaultValue[column.name] = data[column.name];
             }
           }
-        })
-        this.defaultValue = defaultValue
+        });
+        this.defaultValue = defaultValue;
       }
     },
     // validation happens here
     value: {
       handler() {
-        this.validate()
+        this.validate();
       },
       deep: true
     }
   },
   created() {
-    this.validate()
+    this.validate();
   }
-}
+};
 </script>
 
 <!--<docs>-->

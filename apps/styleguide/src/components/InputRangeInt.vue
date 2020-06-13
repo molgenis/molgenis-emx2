@@ -29,10 +29,10 @@
 </template>
 
 <script>
-import BaseInput from './_baseInput'
-import InputInt from './InputInt'
-import FormGroup from './_formGroup'
-import InputAppend from './_inputAppend'
+import BaseInput from "./_baseInput";
+import InputInt from "./InputInt";
+import FormGroup from "./_formGroup";
+import InputAppend from "./_inputAppend";
 
 /** Input for integer values */
 export default {
@@ -40,28 +40,28 @@ export default {
   methods: {
     showPlus(idx) {
       if (this.arrayValue[idx] == undefined) {
-        this.arrayValue = [[null, null]]
+        this.arrayValue = [[null, null]];
       }
       return (
         this.list &&
         idx === this.arrayValue.length - 1 &&
         (this.arrayValue[idx][0] !== null || this.arrayValue[idx][1] !== null)
-      )
+      );
     },
     showClear(idx) {
       if (this.arrayValue[idx] == undefined) {
-        this.arrayValue = [[null, null]]
+        this.arrayValue = [[null, null]];
       }
-      return true
+      return true;
     },
     addRow() {
-      this.arrayValue.push([null, null])
+      this.arrayValue.push([null, null]);
     },
     clearValue(idx) {
       if (this.arrayValue.length > 1) {
-        this.arrayValue.splice(idx, 1)
+        this.arrayValue.splice(idx, 1);
       } else {
-        this.arrayValue = [[null, null]]
+        this.arrayValue = [[null, null]];
       }
     },
     //override from baseinput
@@ -76,25 +76,25 @@ export default {
                   )
                 : null
             )
-          : null
+          : null;
         //filter [null,null] also
         this.value = Array.isArray(this.value)
           ? this.value.filter(
               el => Array.isArray(el) && el.some(v => v != null)
             )
-          : null
+          : null;
       } else {
         this.value = Array.isArray(this.arrayValue[0])
           ? this.arrayValue[0].map(v =>
               !v || v.length === 0 || !v.trim() ? null : v
             )
-          : null
+          : null;
       }
-      this.$emit('input', this.value)
+      this.$emit("input", this.value);
     }
   },
   components: { InputInt, FormGroup, InputAppend }
-}
+};
 </script>
 
 <docs>

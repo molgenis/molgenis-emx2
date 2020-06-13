@@ -29,16 +29,16 @@
 </template>
 
 <script>
-import InputRangeInt from './InputRangeInt'
-import InputDate from './InputDate'
-import FormGroup from './_formGroup'
-import InputAppend from './_inputAppend'
+import InputRangeInt from "./InputRangeInt";
+import InputDate from "./InputDate";
+import FormGroup from "./_formGroup";
+import InputAppend from "./_inputAppend";
 
 /** Input for integer values */
 export default {
   extends: InputRangeInt,
   components: { InputDate, FormGroup, InputAppend }
-}
+};
 </script>
 
 <docs>

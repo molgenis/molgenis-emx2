@@ -23,14 +23,14 @@
 </template>
 
 <script>
-import RowButtonAdd from './RowButtonAdd'
-import LayoutModal from '../components/LayoutModal'
-import IconDanger from '../components/IconDanger'
-import ButtonAlt from '../components/ButtonAlt'
-import ButtonAction from '../components/ButtonAction'
-import MessageError from '../components/MessageError'
-import MessageSuccess from '../components/MessageSuccess'
-import { request } from 'graphql-request'
+import RowButtonAdd from "./RowButtonAdd";
+import LayoutModal from "../components/LayoutModal";
+import IconDanger from "../components/IconDanger";
+import ButtonAlt from "../components/ButtonAlt";
+import ButtonAction from "../components/ButtonAction";
+import MessageError from "../components/MessageError";
+import MessageSuccess from "../components/MessageSuccess";
+import { request } from "graphql-request";
 
 export default {
   extends: RowButtonAdd,
@@ -38,7 +38,7 @@ export default {
     return {
       success: null,
       error: null
-    }
+    };
   },
   components: {
     LayoutModal,
@@ -53,24 +53,24 @@ export default {
   },
   computed: {
     title() {
-      return `Delete from ${this.table}`
+      return `Delete from ${this.table}`;
     }
   },
   methods: {
     executeDelete() {
-      let query = `mutation delete($pkey:[String]){delete(${this.table}:$pkey){message}}`
-      let variables = { pkey: [this.pkey] }
-      request('graphql', query, variables)
+      let query = `mutation delete($pkey:[String]){delete(${this.table}:$pkey){message}}`;
+      let variables = { pkey: [this.pkey] };
+      request("graphql", query, variables)
         .then(data => {
-          this.success = data.delete.message
-          this.$emit('close')
+          this.success = data.delete.message;
+          this.$emit("close");
         })
         .catch(error => {
-          this.error = error.response.errors[0].message
-        })
+          this.error = error.response.errors[0].message;
+        });
     }
   }
-}
+};
 </script>
 
 <docs>

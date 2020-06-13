@@ -30,9 +30,9 @@
 </template>
 
 <script>
-import _baseInput from './_baseInput.vue'
-import InputAppend from './_inputAppend'
-import FormGroup from './_formGroup'
+import _baseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend";
+import FormGroup from "./_formGroup";
 
 export default {
   extends: _baseInput,
@@ -48,13 +48,13 @@ export default {
         this.arrayValue[idx] != undefined &&
         idx === this.arrayValue.length - 1 &&
         this.options.filter(o => !this.arrayValue.includes(o)).length > 0
-      )
+      );
     }
   },
   props: {
     options: Array
   }
-}
+};
 </script>
 
 <docs>

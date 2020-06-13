@@ -44,22 +44,22 @@ export default {
   data: function() {
     return {
       page: 1
-    }
+    };
   },
   computed: {
     offset() {
-      return this.limit * (this.page - 1)
+      return this.limit * (this.page - 1);
     },
     totalPages() {
-      return Math.ceil(this.count / this.limit)
+      return Math.ceil(this.count / this.limit);
     }
   },
   watch: {
     page() {
-      this.$emit('input', this.page)
+      this.$emit("input", this.page);
     }
   }
-}
+};
 </script>
 
 <docs>

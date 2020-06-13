@@ -1,28 +1,28 @@
 <script>
-    import InputString from './InputString'
+import InputString from "./InputString";
 
-    /** Input for integer values */
-    export default {
-        extends: InputString,
-        props: {
-            placeholder: {
-                default: 'Enter integer (does not accept A-Za-z,.)'
-            }
-        },
-        methods: {
-            keyhandler(event) {
-                if (!this.isInt(event)) event.preventDefault()
-            },
-            isInt(e) {
-                var specialKeys = []
-                specialKeys.push(8) // Backspace
-                var keyCode = e.which ? e.which : e.keyCode
-                var ret =
-                    (keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) !== -1
-                return ret
-            }
-        }
+/** Input for integer values */
+export default {
+  extends: InputString,
+  props: {
+    placeholder: {
+      default: "Enter integer (does not accept A-Za-z,.)"
     }
+  },
+  methods: {
+    keyhandler(event) {
+      if (!this.isInt(event)) event.preventDefault();
+    },
+    isInt(e) {
+      var specialKeys = [];
+      specialKeys.push(8); // Backspace
+      var keyCode = e.which ? e.which : e.keyCode;
+      var ret =
+        (keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) !== -1;
+      return ret;
+    }
+  }
+};
 </script>
 
 <docs>

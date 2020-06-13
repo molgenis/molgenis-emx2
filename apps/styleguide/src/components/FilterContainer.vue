@@ -49,7 +49,7 @@
 </style>
 
 <script>
-import IconAction from './IconAction'
+import IconAction from "./IconAction";
 
 export default {
   components: {
@@ -59,7 +59,7 @@ export default {
     title: String,
     collapsed: Boolean
   }
-}
+};
 </script>
 
 <docs>

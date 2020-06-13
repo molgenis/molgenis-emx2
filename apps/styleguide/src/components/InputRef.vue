@@ -39,20 +39,20 @@
 </template>
 
 <script>
-import _baseInput from './_baseInput'
-import TableSearch from './TableSearch'
-import LayoutModal from './LayoutModal'
-import MessageError from './MessageError'
-import FormGroup from './_formGroup'
-import ButtonAlt from './ButtonAlt'
-import InputAppend from './_inputAppend'
+import _baseInput from "./_baseInput";
+import TableSearch from "./TableSearch";
+import LayoutModal from "./LayoutModal";
+import MessageError from "./MessageError";
+import FormGroup from "./_formGroup";
+import ButtonAlt from "./ButtonAlt";
+import InputAppend from "./_inputAppend";
 
 export default {
   extends: _baseInput,
   data: function() {
     return {
       showSelect: false
-    }
+    };
   },
   components: {
     TableSearch,
@@ -69,28 +69,28 @@ export default {
   },
   computed: {
     title() {
-      return 'Select ' + this.refTable
+      return "Select " + this.refTable;
     }
   },
   methods: {
     select(event, idx) {
-      this.showSelect = false
-      this.arrayValue[idx] = event
-      this.emitValue()
+      this.showSelect = false;
+      this.arrayValue[idx] = event;
+      this.emitValue();
     },
     closeSelect() {
-      this.showSelect = false
+      this.showSelect = false;
     },
     openSelect() {
-      this.showSelect = true
+      this.showSelect = true;
     },
     deselect(idx) {
-      this.showSelect = false
-      this.clearValue(idx)
-      this.emitValue()
+      this.showSelect = false;
+      this.clearValue(idx);
+      this.emitValue();
     }
   }
-}
+};
 </script>
 
 <docs>

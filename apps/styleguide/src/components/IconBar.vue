@@ -8,7 +8,7 @@
 
 <script>
 /** Layout multiple icons as a toolbar. */
-export default {}
+export default {};
 </script>
 
 <docs>

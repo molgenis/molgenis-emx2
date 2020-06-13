@@ -111,6 +111,10 @@ export default {
         {
           label: "GraphQL",
           href: "/api/playground.html?schema=/api/graphql/" + this.schema
+        },
+        {
+          label: "Settings",
+          href: "../settings/"
         }
       ];
     }

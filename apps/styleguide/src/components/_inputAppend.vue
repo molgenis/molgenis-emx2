@@ -27,8 +27,8 @@
 </style>
 
 <script>
-import AppendPlus from './_appendPlus'
-import AppendClear from './_appendClear'
+import AppendPlus from "./_appendPlus";
+import AppendClear from "./_appendClear";
 
 export default {
   components: { AppendPlus, AppendClear },
@@ -51,5 +51,5 @@ export default {
       default: false
     }
   }
-}
+};
 </script>

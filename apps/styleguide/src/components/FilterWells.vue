@@ -38,7 +38,7 @@
   </div>
 </template>
 <script>
-import FilterWell from './FilterWell'
+import FilterWell from "./FilterWell";
 
 export default {
   props: {
@@ -49,42 +49,42 @@ export default {
   },
   computed: {
     countFilters() {
-      let count = 0
+      let count = 0;
       if (Array.isArray(this.filters)) {
         this.filters.forEach(column => {
           if (Array.isArray(column.conditions)) {
             column.conditions.forEach(condition => {
               if (Array.isArray(condition)) {
                 if (condition[0] !== null || condition[1] != null) {
-                  count++
+                  count++;
                 }
               } else {
                 if (condition != null) {
-                  count++
+                  count++;
                 }
               }
-            })
+            });
           }
-        })
+        });
       }
-      return count
+      return count;
     }
   },
   methods: {
     remove(idx, idx2) {
-      this.filters[idx].conditions.splice(idx2, 1)
+      this.filters[idx].conditions.splice(idx2, 1);
       //we use updateTime as key to know when to refresh a filter view
-      this.filters[idx].updateTime = new Date().getTime()
+      this.filters[idx].updateTime = new Date().getTime();
     },
     removeAll() {
       this.filters.forEach(column => {
-        column.conditions = []
+        column.conditions = [];
         //we use updateTime as key to know when to refresh a filter view
-        column.updateTime = new Date().getTime()
-      })
+        column.updateTime = new Date().getTime();
+      });
     }
   }
-}
+};
 </script>
 
 <docs>

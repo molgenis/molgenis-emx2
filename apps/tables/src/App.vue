@@ -36,11 +36,15 @@ export default {
         },
         {
           label: "Download",
-          href: "/api/excel/" + this.schema
+          href: "../download/"
         },
         {
           label: "GraphQL",
           href: "/api/playground.html?schema=/api/graphql/" + this.schema
+        },
+        {
+          label: "Settings",
+          href: "../settings/"
         }
       ];
     }

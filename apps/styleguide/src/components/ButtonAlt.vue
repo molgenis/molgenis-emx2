@@ -10,10 +10,10 @@ export default {
   methods: {
     onClick() {
       /** emitted on click */
-      this.$emit('click')
+      this.$emit("click");
     }
   }
-}
+};
 </script>
 
 <docs>

@@ -31,16 +31,16 @@
 </template>
 
 <script>
-import ButtonAction from '../components/ButtonAction'
-import ButtonAlt from '../components/ButtonAlt'
-import InputString from '../components/InputString'
-import InputPassword from '../components/InputPassword'
-import MessageError from '../components/MessageError'
-import MessageSuccess from '../components/MessageSuccess'
-import LayoutForm from '../components/LayoutForm'
-import LayoutModal from '../components/LayoutModal'
-import Spinner from '../components/Spinner'
-import { request } from 'graphql-request'
+import ButtonAction from "../components/ButtonAction";
+import ButtonAlt from "../components/ButtonAlt";
+import InputString from "../components/InputString";
+import InputPassword from "../components/InputPassword";
+import MessageError from "../components/MessageError";
+import MessageSuccess from "../components/MessageSuccess";
+import LayoutForm from "../components/LayoutForm";
+import LayoutModal from "../components/LayoutModal";
+import Spinner from "../components/Spinner";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -61,38 +61,38 @@ export default {
       loading: false,
       error: null,
       success: null
-    }
+    };
   },
   methods: {
     signin() {
       if (this.email == null || this.password == null) {
-        this.error = 'Email and password should be filled in'
+        this.error = "Email and password should be filled in";
       } else {
-        this.error = null
-        this.loading = true
+        this.error = null;
+        this.loading = true;
         request(
-          'graphql',
+          "graphql",
           `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then(data => {
-            if (data.signin.status === 'SUCCESS') {
-              this.success = 'Signed in with ' + this.email
-              this.$emit('signin', this.email)
-            } else this.error = data.signin.message
+            if (data.signin.status === "SUCCESS") {
+              this.success = "Signed in with " + this.email;
+              this.$emit("signin", this.email);
+            } else this.error = data.signin.message;
           })
-          .catch(error => (this.error = 'internal server error' + error))
-        this.loading = false
+          .catch(error => (this.error = "internal server error" + error));
+        this.loading = false;
       }
     },
     cancel() {
       /**
        * when cancel is pushed
        */
-      this.error = null
-      this.$emit('cancel')
+      this.error = null;
+      this.$emit("cancel");
     }
   }
-}
+};
 </script>
 
 <docs>

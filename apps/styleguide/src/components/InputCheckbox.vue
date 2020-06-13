@@ -45,7 +45,7 @@
 </style>
 
 <script>
-import InputSelect from './InputSelect'
+import InputSelect from "./InputSelect";
 
 export default {
   extends: InputSelect,
@@ -54,7 +54,7 @@ export default {
       default: true
     }
   }
-}
+};
 </script>
 
 <docs>

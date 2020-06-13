@@ -22,5 +22,5 @@ export default {
     disabled: Boolean,
     error: String
   }
-}
+};
 </script>

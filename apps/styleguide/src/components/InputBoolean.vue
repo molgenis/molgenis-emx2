@@ -1,5 +1,5 @@
 <script>
-import InputRadio from './InputRadio'
+import InputRadio from "./InputRadio";
 
 /** Show true/false switch */
 export default {
@@ -9,7 +9,7 @@ export default {
       default: () => [true, false]
     }
   }
-}
+};
 </script>
 
 <docs>

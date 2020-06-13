@@ -68,14 +68,14 @@
 </template>
 
 <script>
-import FilterContainer from './FilterContainer'
-import InputCheckbox from './InputCheckbox'
-import InputString from './InputString'
-import InputRangeInt from './InputRangeInt'
-import InputRangeDecimal from './InputRangeDecimal'
-import InputRangeDate from './InputRangeDate'
-import InputRef from './InputRef'
-import Draggable from 'vuedraggable'
+import FilterContainer from "./FilterContainer";
+import InputCheckbox from "./InputCheckbox";
+import InputString from "./InputString";
+import InputRangeInt from "./InputRangeInt";
+import InputRangeDecimal from "./InputRangeDecimal";
+import InputRangeDate from "./InputRangeDate";
+import InputRef from "./InputRef";
+import Draggable from "vuedraggable";
 
 export default {
   components: {
@@ -95,81 +95,81 @@ export default {
   },
   computed: {
     url() {
-      let url = new URL('#')
+      let url = new URL("#");
       this.filters.forEach(column => {
         if (Array.isArray(column.conditions)) {
           column.conditions.forEach(value => {
             if (Array.isArray(value)) {
-              let rangeString = ''
-              if (value[0] !== null) rangeString = value[0]
-              rangeString += '..'
-              if (value[1] !== null) rangeString += value[1]
-              if (rangeString !== '..') {
+              let rangeString = "";
+              if (value[0] !== null) rangeString = value[0];
+              rangeString += "..";
+              if (value[1] !== null) rangeString += value[1];
+              if (rangeString !== "..") {
                 url.searchParams.append(
                   column.name,
                   encodeURIComponent(rangeString)
-                )
+                );
               }
             } else if (value !== null) {
-              url.searchParams.append(column.name, encodeURIComponent(value))
+              url.searchParams.append(column.name, encodeURIComponent(value));
             }
-          })
+          });
         }
-      })
+      });
       if (this.filters.length > 0) {
         url.searchParams.append(
-          '_show',
-          this.filters.map(column => column.name).join('-')
-        )
+          "_show",
+          this.filters.map(column => column.name).join("-")
+        );
       }
       if (this.filters.length > 0) {
         url.searchParams.append(
-          '_collapse',
+          "_collapse",
           this.filters
             .filter(column => column.collapsed)
             .map(column => column.name)
-            .join('-')
-        )
+            .join("-")
+        );
       }
-      return url.searchParams
+      return url.searchParams;
     }
   },
   created() {
     this.filters.forEach(column => {
       //we use updateTime to be able to know when to refresh a view
-      column.updateTime = column.name + new Date().getTime()
-    })
+      column.updateTime = column.name + new Date().getTime();
+    });
   },
   methods: {
     collapseAll() {
       this.filters.forEach(column => {
-        column.collapsed = true
-      })
-      this.timestamp = new Date().getTime()
+        column.collapsed = true;
+      });
+      this.timestamp = new Date().getTime();
     },
     expandAll() {
       this.filters.forEach(column => {
-        column.collapsed = false
-      })
-      this.timestamp = new Date().getTime()
+        column.collapsed = false;
+      });
+      this.timestamp = new Date().getTime();
     },
     collapse(idx) {
-      this.filters[idx].collapsed = true
-      this.timestamp = new Date().getTime()
+      this.filters[idx].collapsed = true;
+      this.timestamp = new Date().getTime();
     },
     uncollapse(idx) {
-      this.filters[idx].collapsed = false
-      this.timestamp = new Date().getTime()
+      this.filters[idx].collapsed = false;
+      this.timestamp = new Date().getTime();
     },
     toggleCollapse(idx) {
       if (this.filters[idx].collapsed) {
-        this.uncollapse(idx)
+        this.uncollapse(idx);
       } else {
-        this.collapse(idx)
+        this.collapse(idx);
       }
     }
   }
-}
+};
 </script>
 
 <docs>

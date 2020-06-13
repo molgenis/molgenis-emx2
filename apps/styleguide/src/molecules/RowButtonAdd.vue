@@ -6,14 +6,14 @@
 </template>
 
 <script>
-import RowEditModal from './RowEditModal.vue'
-import IconAction from '../components/IconAction'
+import RowEditModal from "./RowEditModal.vue";
+import IconAction from "../components/IconAction";
 
 export default {
   data: function() {
     return {
       open: false
-    }
+    };
   },
   components: {
     RowEditModal,
@@ -24,19 +24,19 @@ export default {
   },
   computed: {
     title() {
-      return 'Add new row to table ' + this.table
+      return "Add new row to table " + this.table;
     }
   },
   methods: {
     openForm() {
-      this.open = true
+      this.open = true;
     },
     closeForm() {
-      this.open = false
-      this.$emit('close')
+      this.open = false;
+      this.$emit("close");
     }
   }
-}
+};
 </script>
 
 <docs>

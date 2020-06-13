@@ -30,7 +30,7 @@ export default {
     /** String with error state */
     error: String
   }
-}
+};
 </script>
 
 <style scoped>

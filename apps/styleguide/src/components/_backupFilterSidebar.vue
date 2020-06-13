@@ -77,12 +77,12 @@
 </style>
 
 <script>
-import FilterContainer from './FilterContainer'
-import InputString from './InputString'
-import InputRangeInt from './InputRangeInt'
-import InputRangeDecimal from './InputRangeDecimal'
-import InputRangeDate from './InputRangeDecimal'
-import Draggable from 'vuedraggable'
+import FilterContainer from "./FilterContainer";
+import InputString from "./InputString";
+import InputRangeInt from "./InputRangeInt";
+import InputRangeDecimal from "./InputRangeDecimal";
+import InputRangeDate from "./InputRangeDecimal";
+import Draggable from "vuedraggable";
 
 export default {
   components: {
@@ -108,58 +108,58 @@ export default {
   //   }
   // },
   created() {
-    this.columns.forEach(column => this.value.push(column))
+    this.columns.forEach(column => this.value.push(column));
   },
   computed: {
     url() {
-      let url = new URL('#')
+      let url = new URL("#");
       Object.keys(this.value.conditions).forEach(name => {
         this.value.conditions[name].forEach(value => {
           if (Array.isArray(value)) {
-            let rangeString = ''
-            if (value[0] !== null) rangeString = value[0]
-            rangeString += '..'
-            if (value[1] !== null) rangeString += value[1]
-            if (rangeString !== '..') {
-              url.searchParams.append(name, encodeURIComponent(rangeString))
+            let rangeString = "";
+            if (value[0] !== null) rangeString = value[0];
+            rangeString += "..";
+            if (value[1] !== null) rangeString += value[1];
+            if (rangeString !== "..") {
+              url.searchParams.append(name, encodeURIComponent(rangeString));
             }
           } else if (value !== null) {
-            url.searchParams.append(name, encodeURIComponent(value))
+            url.searchParams.append(name, encodeURIComponent(value));
           }
-        })
-      })
+        });
+      });
       if (this.value.visible.length > 0) {
         url.searchParams.append(
-          '_show',
-          this.value.visible.map(column => column.name).join('-')
-        )
+          "_show",
+          this.value.visible.map(column => column.name).join("-")
+        );
       }
       if (this.value.collapsed.length > 0) {
-        url.searchParams.append('_collapse', this.value.collapsed.join('-'))
+        url.searchParams.append("_collapse", this.value.collapsed.join("-"));
       }
-      return url.searchParams
+      return url.searchParams;
     }
   },
   methods: {
     collapseAll() {
       this.value.visible.forEach(col => {
         if (!this.value.collapsed.includes(col.name))
-          this.value.collapsed.push(col.name)
-      })
+          this.value.collapsed.push(col.name);
+      });
     },
     expandAll() {
-      this.value.collapsed = []
+      this.value.collapsed = [];
     }
   },
   watch: {
     value: {
       deep: true, //needed to pick up deep changes
       handler() {
-        this.$emit('input', this.value)
+        this.$emit("input", this.value);
       }
     }
   }
-}
+};
 </script>
 
 <docs>

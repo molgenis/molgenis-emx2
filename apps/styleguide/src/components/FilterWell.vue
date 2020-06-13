@@ -8,7 +8,7 @@ export default {
   props: {
     label: String
   }
-}
+};
 </script>
 <style scoped>
 .btn i {
