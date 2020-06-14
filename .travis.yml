@@ -28,9 +28,9 @@ addons:
 jobs:
   include:
     - stage: release
-      script: ./gradlew jacocoMergedReport sonarqube
+      script: ./gradlew jacocoMergedReport sonarqube --scan -s
     - # stage name not required, will continue to use `release`
-      script: ./gradlew release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+      script: ./gradlew release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --scan -s
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
