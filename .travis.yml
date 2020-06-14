@@ -16,7 +16,8 @@ before_install:
   - git config user.name "Travis-CI"
   - git config url.https://.insteadOf git://
   - git checkout -qf $TRAVIS_BRANCH
-install: skip
+install:
+  - echo "skip default gradlew assemble"
 before_script:
   - psql -c 'create database molgenis;' -U postgres
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
@@ -38,8 +39,6 @@ cache:
   npm: true
   yarn: true
   directories:
-    - $HOME/.m2/repository
-    - $HOME/.sonar/cache
-    - $HOME/.gradle
-    - .gradle
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 
