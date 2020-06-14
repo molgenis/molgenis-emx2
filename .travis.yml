@@ -16,8 +16,7 @@ before_install:
   - git config user.name "Travis-CI"
   - git config url.https://.insteadOf git://
   - git checkout -qf $TRAVIS_BRANCH
-install:
-  - echo "skip default gradlew assemble"
+install: skip
 before_script:
   - psql -c 'create database molgenis;' -U postgres
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
@@ -29,9 +28,9 @@ addons:
 jobs:
   include:
     - stage: release
-      script: ./gradlew jacocoMergedReport sonarqube --scan
+      script: ./gradlew jacocoMergedReport sonarqube
     - # stage name not required, will continue to use `release`
-      script: ./gradlew release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --scan
+      script: ./gradlew release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
