@@ -3,8 +3,6 @@ os: linux
 dist: bionic
 jdk:
   - openjdk11
-git:
-  depth: false
 services:
   - postgresql
   - docker

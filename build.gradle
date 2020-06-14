@@ -96,6 +96,7 @@ String getGitHash() {
 }
 
 jar {
+    reproducibleFileOrder = true
     manifest {
         attributes(
                 'Specification-Version': project.version.toString(),
