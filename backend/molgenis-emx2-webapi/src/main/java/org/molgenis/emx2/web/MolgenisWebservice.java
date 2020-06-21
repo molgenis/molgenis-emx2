@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.Version;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
@@ -50,8 +51,8 @@ public class MolgenisWebservice {
         "/",
         ACCEPT_HTML,
         (request, response) ->
-            "Welcome to MOLGENIS EMX2 data api service POC version "
-                + version
+            "Welcome to MOLGENIS EMX2 "
+                + Version.getVersion()
                 + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/central/\">/apps/central/</a>");
 
     redirect.get("/api", "/api/");
@@ -122,6 +123,7 @@ public class MolgenisWebservice {
       result.append("</li>");
     }
     result.append("</ul>");
+    result.append("Version: " + Version.getVersion());
     return result.toString();
   }
 

@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
+import org.molgenis.emx2.Version;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +19,8 @@ public class GraphqlManifestField {
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, String> result = new HashMap<>();
-              result.put(IMPLEMENTATION_VERSION, getImplementationVersion());
-              result.put(SPECIFICATION_VERSION, getSpecificationVersion());
+              result.put(IMPLEMENTATION_VERSION, Version.getImplementationVersion());
+              result.put(SPECIFICATION_VERSION, Version.getSpecificationVersion());
               return result;
             })
         .type(
@@ -36,17 +37,5 @@ public class GraphqlManifestField {
                         .type(Scalars.GraphQLString)
                         .build())
                 .build());
-  }
-
-  private static String getSpecificationVersion() {
-    String result = GraphqlManifestField.class.getPackage().getSpecificationVersion();
-    if (result == null) return "DEVELOPMENT";
-    return result;
-  }
-
-  private static String getImplementationVersion() {
-    String result = GraphqlManifestField.class.getPackage().getImplementationVersion();
-    if (result == null) return "DEVELOPMENT";
-    return result;
   }
 }

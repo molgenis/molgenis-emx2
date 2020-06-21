@@ -11,14 +11,6 @@ import java.util.regex.Pattern;
 public class RunMolgenisEmx2 {
 
   public static void main(String[] args) throws IOException {
-
-    String version = "DEVELOPMENT";
-    if (RunMolgenisEmx2.class.getPackage().getSpecificationVersion() != null) {
-      version =
-          RunMolgenisEmx2.class.getPackage().getSpecificationVersion()
-              + " "
-              + RunMolgenisEmx2.class.getPackage().getImplementationVersion();
-    }
     String url = "jdbc:postgresql:molgenis";
     if (args.length == 1) {
       if (Pattern.matches("[0-9A-Za-z/:]+", args[0])) {
@@ -31,7 +23,8 @@ public class RunMolgenisEmx2 {
       System.out.println(
           "You can pass custom postgresql jdbc url as first parameter as commandline");
     }
-    System.out.println("Starting EMX2 " + version + " with postgresql url: " + url);
+    System.out.println(
+        "Starting EMX2 Version=" + Version.getVersion() + " with postgresql url: " + url);
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
