@@ -95,19 +95,6 @@ String getGitHash() {
     return gitCommitHash
 }
 
-jar {
-    reproducibleFileOrder = true
-    manifest {
-        attributes(
-                'Specification-Version': project.version.toString(),
-                'Implementation-Version': getGitHash(),
-                'Created-By': "Gradle ${gradle.gradleVersion}",
-                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
-        )
-    }
-}
-
 //gradle cleanTest test --no-build-cache
 task createHelm(type: Exec) {
     commandLine 'helm', 'package', 'deploy/helm-chart/', '-d', 'docs/helm-charts/'
