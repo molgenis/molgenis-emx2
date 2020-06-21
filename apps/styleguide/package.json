@@ -7,7 +7,8 @@
     "build": "vue-cli-service build --target lib --name @mswertz/emx2-styleguide src/index.js",
     "lint": "vue-cli-service lint",
     "format": "vue-cli-service lint --fix",
-    "styleguide": "vue-cli-service styleguidist"
+    "styleguide": "vue-cli-service styleguidist",
+    "styleguide:build": "vue-cli-service styleguidist:build"
   },
   "dependencies": {
     "core-js": "^3.6.4",
