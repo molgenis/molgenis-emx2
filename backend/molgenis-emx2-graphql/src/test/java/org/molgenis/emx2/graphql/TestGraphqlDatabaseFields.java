@@ -29,7 +29,6 @@ public class TestGraphqlDatabaseFields {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
-    database.dropSchema(schemaName + "B");
     PetStoreExample.create(schema.getMetadata());
     grapql = createGraphqlForDatabase(database);
   }
