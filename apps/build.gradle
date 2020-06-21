@@ -61,7 +61,7 @@ subprojects {
 
 }
 
-/** skip yarn install unless changes*/
+/** skip yarn install unless changes => removed because leads to travis errors*/
 //yarn_install {
 //    inputs.file('package.json')
 //    inputs.file('yarn.lock')
