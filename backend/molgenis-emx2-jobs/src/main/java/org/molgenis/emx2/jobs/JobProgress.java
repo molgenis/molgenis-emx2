@@ -26,12 +26,7 @@ public class JobProgress {
 
   public String toString() {
     if (getTotal() > 0)
-      return getLabel()
-          + ": "
-          + getCount()
-          + "("
-          + Math.round(100 * getCount() / getTotal())
-          + "%)";
+      return getLabel() + ": " + getCount() + "(" + 100 * getCount() / getTotal() + "%)";
     else return getLabel() + ": " + getCount();
   }
 }
