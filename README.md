@@ -6,6 +6,8 @@
 # molgenis-emx2 preview
 This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha'). 
 
+Demo server: https://emx2.test.molgenis.org/
+
 ## How to run
 
 You can run EMX2 as:
