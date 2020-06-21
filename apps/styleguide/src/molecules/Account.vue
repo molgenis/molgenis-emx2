@@ -26,16 +26,16 @@
 </template>
 
 <script>
-    import Spinner from "../components/Spinner";
-    import ButtonAction from "../components/ButtonAction";
-    import ButtonAlt from "../components/ButtonAlt";
+import Spinner from "../components/Spinner";
+import ButtonAction from "../components/ButtonAction";
+import ButtonAlt from "../components/ButtonAlt";
 
-    import SigninForm from "./SigninForm.vue";
-    import SignupForm from "./SignupForm.vue";
+import SigninForm from "./SigninForm.vue";
+import SignupForm from "./SignupForm.vue";
 
-    import {request} from "graphql-request";
+import { request } from "graphql-request";
 
-    /** Element that is supposed to be put in menu holding all controls for user account */
+/** Element that is supposed to be put in menu holding all controls for user account */
 export default {
   components: {
     ButtonAction,
@@ -51,7 +51,8 @@ export default {
       showSignupForm: false,
       error: null,
       loading: false,
-      email: null
+      email: null,
+      version: null
     };
   },
   watch: {

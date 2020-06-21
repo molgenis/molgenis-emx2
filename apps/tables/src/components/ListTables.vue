@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="schema">
     <h1>{{ schema.name }}</h1>
     <p>Tables:</p>
     <MessageError v-if="!schema"
@@ -21,9 +21,9 @@
 </template>
 
 <script>
-    import {DataTable, MessageError} from "@mswertz/emx2-styleguide";
+import { DataTable, MessageError } from "@mswertz/emx2-styleguide";
 
-    export default {
+export default {
   name: "App",
   components: {
     DataTable,

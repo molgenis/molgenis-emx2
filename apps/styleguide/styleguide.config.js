@@ -43,7 +43,7 @@ module.exports = {
       ]
     }
   },
-  styleguideDir: "dist",
+  styleguideDir: "../../docs/styldeguide",
   sections: [
     {
       name: "Introduction",
