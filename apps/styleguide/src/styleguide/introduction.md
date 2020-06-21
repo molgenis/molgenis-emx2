@@ -2,7 +2,3 @@ Welcome to the preview of the MOLGENIS EMX2 design system. Purpose is to provide
 
 For some interactive components you need a EMX2 server.
 Developers please clone and checkout https://github.com/mswertz/molgenis-emx2 
-```
-cd molgenis-emx2/apps
-yarn styleguide
-```

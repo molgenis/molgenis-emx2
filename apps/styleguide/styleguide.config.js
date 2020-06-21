@@ -43,14 +43,14 @@ module.exports = {
       ]
     }
   },
-  styleguideDir: "../../docs/styldeguide",
+  styleguideDir: "docs",
   sections: [
     {
       name: "Introduction",
       content: "src/styleguide/introduction.md"
     },
     {
-      name: "Styleguide",
+      name: "Components",
       components: "src/components/[A-Z]*.vue"
     },
     {
