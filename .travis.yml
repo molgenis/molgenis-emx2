@@ -28,12 +28,8 @@ addons:
     organization: "mswertz-github"
 jobs:
   include:
-    - stage: test
-      script: ./gradlew test
     - stage: release
-      script: ./gradlew jacocoMergedReport sonarqube
-    - # stage name not required, will continue to use `release`
-      script: ./gradlew release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+      script: ./gradlew jacocoMergedReport sonarqube release shadowJar jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
