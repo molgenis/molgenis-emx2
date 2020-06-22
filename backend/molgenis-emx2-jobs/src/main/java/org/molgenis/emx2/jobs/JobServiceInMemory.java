@@ -2,6 +2,7 @@ package org.molgenis.emx2.jobs;
 
 import org.molgenis.emx2.MolgenisException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -24,33 +25,20 @@ public class JobServiceInMemory implements JobService {
   }
 
   @Override
-  public Set<String> getJobs() {
+  public Set<String> getJobIds() {
     return jobs.keySet();
   }
 
   @Override
-  public JobStatus getStatus(String jobId) {
-    check(jobId);
-    return jobs.get(jobId).getStatus();
+  public Job getJob(String id) {
+    return jobs.get(id);
   }
 
   @Override
-  public List<JobProgress> getProgress(String jobId) {
-    check(jobId);
-    return jobs.get(jobId).getProgress();
-  }
-
-  @Override
-  public List<JobProgress> getCompleted(String jobId) {
-    check(jobId);
-    return jobs.get(jobId).getCompleted();
-  }
-
-  @Override
-  public void purge() {
+  public void removeBeforeTime(LocalDateTime before) {
     Set<String> keys = jobs.keySet();
     for (String key : keys) {
-      if (JobStatus.COMPLETED.equals(jobs.get(key).getStatus())) {
+      if (jobs.get(key).getEndTime() != null && jobs.get(key).getEndTime().isBefore(before)) {
         jobs.remove(key);
       }
     }
@@ -60,10 +48,5 @@ public class JobServiceInMemory implements JobService {
   public void shutdown() {
     // todo, kill all jobs first
     executorService.shutdown();
-  }
-
-  private void check(String jobId) {
-    if (jobs.get(jobId) == null)
-      throw new MolgenisException("Job not found", "Job with id " + jobId + " doesn't exist");
   }
 }

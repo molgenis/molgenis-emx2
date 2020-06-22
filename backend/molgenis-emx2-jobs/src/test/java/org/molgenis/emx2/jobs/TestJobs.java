@@ -3,6 +3,8 @@ package org.molgenis.emx2.jobs;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+
 public class TestJobs {
 
   @Test
@@ -15,27 +17,25 @@ public class TestJobs {
     System.out.println("Starting ...");
 
     // purge doesn't change
-    js.purge();
-    Assert.assertEquals(1, js.getJobs().size());
+    js.removeBeforeTime(LocalDateTime.now());
+    Assert.assertEquals(1, js.getJobIds().size());
 
-    while (!JobStatus.COMPLETED.equals(js.getStatus(id))) {
+    while (!JobStatus.COMPLETED.equals(js.getJob(id).getStatus())) {
       Thread.sleep(50);
-      for (JobProgress jp : js.getProgress(id)) {
-        System.out.print(jp);
+      for (JobTask jp : js.getJob(id).getTasks()) {
+        System.out.println(jp);
       }
-      System.out.flush();
-      System.out.print("\r");
     }
     System.out.println("Completed ...");
-    for (JobProgress jp : js.getCompleted(id)) {
+    for (JobTask jp : js.getJob(id).getTasks()) {
       System.out.println(jp);
     }
 
-    Assert.assertEquals(1, js.getJobs().size());
+    Assert.assertEquals(1, js.getJobIds().size());
 
     // purge after complete removes
-    js.purge();
-    Assert.assertEquals(0, js.getJobs().size());
+    js.removeBeforeTime(LocalDateTime.now());
+    Assert.assertEquals(0, js.getJobIds().size());
 
     js.shutdown();
   }

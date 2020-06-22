@@ -1,11 +1,44 @@
 package org.molgenis.emx2.jobs;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
-public interface Job extends Runnable {
-  List<JobProgress> getCompleted();
+public abstract class Job implements Runnable {
+  private Map<String, JobTask> tasks = new LinkedHashMap<>();
+  private LocalDateTime startTime;
+  private LocalDateTime endTime;
+  private JobStatus status;
 
-  List<JobProgress> getProgress();
+  public Collection<JobTask> getTasks() {
+    return Collections.unmodifiableCollection(tasks.values());
+  }
 
-  JobStatus getStatus();
+  public void addTask(JobTask task) {
+    tasks.put(task.getId(), task);
+  }
+
+  public JobTask getTask(String taskId) {
+    return tasks.get(taskId);
+  }
+
+  public LocalDateTime getStartTime() {
+    return startTime;
+  }
+
+  public LocalDateTime getEndTime() {
+    return endTime;
+  }
+
+  public JobStatus getStatus() {
+    return status;
+  }
+
+  protected void start() {
+    this.startTime = LocalDateTime.now();
+  }
+
+  protected void complete() {
+    this.endTime = LocalDateTime.now();
+    this.status = JobStatus.COMPLETED;
+  }
 }
