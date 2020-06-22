@@ -8,6 +8,8 @@ This is a reference implementation of MOLGENIS/EMX2 data service. Status: previe
 
 Demo server: https://emx2.test.molgenis.org/
 
+Design system/styleguide (for app developers): https://mswertz.github.io/molgenis-emx2/
+
 ## How to run
 
 You can run EMX2 as:
