@@ -28,14 +28,13 @@ public class TestRefBack {
   @Test
   public void restRefArrayBack() {
 
-    Table parts = schema.create(table("Parts").add(column("partname")).pkey("partname"));
+    Table parts = schema.create(table("Parts").add(column("partname").pkey()));
 
     Table products =
         schema.create(
             table("Products")
-                .add(column("productname"))
-                .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true))
-                .pkey("productname"));
+                .add(column("productname").pkey())
+                .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true)));
 
     parts
         .getMetadata()
@@ -120,19 +119,13 @@ public class TestRefBack {
   @Test
   public void testRefBack() {
 
-    Table users = schema.create(table("User").add(column("username")).pkey("username"));
+    Table users = schema.create(table("User").add(column("username").pkey()));
 
     Table posts =
         schema.create(
             table("Posts")
-                .add(column("title"))
-                .add(
-                    column("user")
-                        .type(REF)
-                        .refTable(users.getName())
-                        .refColumn("username")
-                        .nullable(true))
-                .pkey("title"));
+                .add(column("title").pkey())
+                .add(column("user").type(REF).refTable(users.getName()).nullable(true)));
 
     users
         .getMetadata()

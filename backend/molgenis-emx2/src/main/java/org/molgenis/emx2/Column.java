@@ -1,7 +1,9 @@
 package org.molgenis.emx2;
 
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.ColumnType.STRING;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.molgenis.emx2.ColumnType.*;
 
 public class Column {
   private TableMetadata table;
@@ -10,18 +12,19 @@ public class Column {
 
   // relationships
   private String refTable;
-  private String refColumn;
   private String mappedBy;
 
   // options
+  private int key = 0;
   private boolean nullable = false;
   private String validationScript = null;
+
   // todo implement below
   private boolean readonly = false;
-  private String description;
-  private String defaultValue;
+  private String description = null;
+  private String defaultValue = null;
   private boolean indexed = false;
-  private boolean cascadeDelete;
+  private boolean cascadeDelete = false;
 
   public Column(Column column) {
     copy(column);
@@ -38,12 +41,12 @@ public class Column {
     columnName = column.columnName;
     columnType = column.columnType;
     nullable = column.nullable;
+    key = column.key;
     readonly = column.readonly;
     description = column.description;
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
-    refColumn = column.refColumn;
     mappedBy = column.mappedBy;
     validationScript = column.validationScript;
     description = column.description;
@@ -54,7 +57,16 @@ public class Column {
     return new Column(name);
   }
 
+  public static Column column(String name, ColumnType type) {
+    return new Column(name).type(type);
+  }
+
   public Column(String columnName) {
+    if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+      throw new MolgenisException(
+          "Invalid column name '" + columnName + "'",
+          "Column must start with a letter or underscore, followed by letters, underscores or numbers");
+    }
     this.columnName = columnName;
   }
 
@@ -75,43 +87,12 @@ public class Column {
     return columnType;
   }
 
-  public String getRefColumnName() {
-    if (this.refColumn == null
-        && getRefTable() != null
-        && getRefTable().getPrimaryKey() != null
-        && getRefTable().getPrimaryKey().length == 1) {
-      return getRefTable().getPrimaryKey()[0];
-    }
-    return this.refColumn;
-  }
-
-  public String getRefColumnNameRaw() {
-    return this.refColumn;
-  }
-
-  public Column getRefColumn() {
-    Column result = null;
-    if (getRefColumnName() != null) {
-      result = getRefTable().getColumn(getRefColumnName());
-    }
-    if (result == null)
-      throw new MolgenisException(
-          "Internal error",
-          "Column.getRefColumn failed for column '"
-              + getName()
-              + "' because refColumn '"
-              + getRefColumnName()
-              + "' could not be found in table '"
-              + getRefTableName()
-              + "'");
-    return result;
+  public List<Column> getRefColumns() {
+    return getRefTable().getPrimaryKeyColumns();
   }
 
   private SchemaMetadata getSchema() {
-    if (getTable() != null) {
-      return getTable().getSchema();
-    }
-    return null;
+    return getTable().getSchema();
   }
 
   public String getRefTableName() {
@@ -145,14 +126,13 @@ public class Column {
     return null;
   }
 
-  public Boolean isUnique() {
-    return getTable().isUnique(getName());
+  public Column key(int key) {
+    this.key = key;
+    return this;
   }
 
-  public Column setUnique(boolean unique) {
-    if (unique) getTable().addUnique(this.getName());
-    else getTable().removeUnique(this.getName());
-    return this;
+  public int getKey() {
+    return this.key;
   }
 
   public Boolean isReadonly() {
@@ -225,9 +205,9 @@ public class Column {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
     if (REF.equals(getColumnType()))
-      builder.append("ref(").append(refTable).append(",").append(refColumn).append(")");
+      builder.append("ref(").append(refTable).append(",").append(")");
     else if (ColumnType.REF_ARRAY.equals(getColumnType()))
-      builder.append("ref_array(").append(refTable).append(",").append(refColumn).append(")");
+      builder.append("ref_array(").append(refTable).append(",").append(")");
     //    else if (ColumnType.MREF.equals(getColumnType()))
     //      builder.append("mref(").append(refTable).append(",").append(refColumn).append(")");
     else builder.append(getColumnType().toString().toLowerCase());
@@ -248,11 +228,6 @@ public class Column {
     return this;
   }
 
-  public Column refColumn(String refColumn) {
-    this.refColumn = refColumn;
-    return this;
-  }
-
   void setTable(TableMetadata table) {
     this.table = table;
   }
@@ -268,6 +243,31 @@ public class Column {
 
   public Column validation(String validationScript) {
     this.validationScript = validationScript;
+    return this;
+  }
+
+  public Column ref(String refTable) {
+    return type(REF).refTable(refTable);
+  }
+
+  public Column pkey() {
+    return this.key(1);
+  }
+
+  public Column removeKey() {
+    this.key = 0;
+    return this;
+  }
+
+  public boolean isCompositeRef() {
+    if (this.columnType == REF || this.columnType == REF_ARRAY || this.columnType == REFBACK) {
+      return getRefColumns().size() > 1;
+    }
+    return false;
+  }
+
+  public Column setName(String columnName) {
+    this.columnName = columnName;
     return this;
   }
 }

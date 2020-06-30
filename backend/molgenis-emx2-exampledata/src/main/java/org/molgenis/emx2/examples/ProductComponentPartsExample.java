@@ -29,19 +29,17 @@ public class ProductComponentPartsExample {
 
   public static void create(SchemaMetadata schema) {
 
-    schema.create(table(PART).add(column(NAME)).add(column(WEIGHT).type(INT)).pkey(NAME));
+    schema.create(table(PART).add(column(NAME).pkey()).add(column(WEIGHT).type(INT)));
 
     schema.create(
         table(COMPONENT)
-            .add(column(NAME))
-            .add(column(PARTS).type(REF_ARRAY).refTable(PART))
-            .pkey(NAME));
+            .add(column(NAME).pkey())
+            .add(column(PARTS).type(REF_ARRAY).refTable(PART)));
 
     schema.create(
         table(PRODUCT)
-            .add(column(NAME))
-            .add(column(COMPONENTS).type(REF_ARRAY).refTable(COMPONENT))
-            .pkey(NAME));
+            .add(column(NAME).pkey())
+            .add(column(COMPONENTS).type(REF_ARRAY).refTable(COMPONENT)));
   }
 
   public static void populate(Schema schema) {

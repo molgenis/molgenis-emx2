@@ -13,6 +13,8 @@ public interface Schema {
 
   Table create(TableMetadata table);
 
+  void create(TableMetadata... table);
+
   Table getTable(String name);
 
   void dropTable(String name);

@@ -12,23 +12,12 @@ import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
-class SqlDatabaseUtils {
-  private SqlDatabaseUtils() {
+class SqlDatabaseExecutor {
+  private SqlDatabaseExecutor() {
     // hide
   }
 
-  static void executeDropSchema(DSLContext jooq, SchemaMetadata schema) {
-    try {
-      jooq.dropSchema(name(schema.getName())).cascade().execute();
-      MetadataUtils.deleteSchema(jooq, schema);
-    } catch (MolgenisException me) {
-      throw new MolgenisException("Drop schema failed", me.getMessage());
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Drop schema failed", dae);
-    }
-  }
-
-  static void executeAddUser(DSLContext jooq, String user) {
+  static void executeCreateUser(DSLContext jooq, String user) {
     try {
       String userName = MG_USER_PREFIX + user;
       List<Record> result =

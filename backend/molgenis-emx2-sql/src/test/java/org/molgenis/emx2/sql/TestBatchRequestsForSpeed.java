@@ -34,10 +34,7 @@ public class TestBatchRequestsForSpeed {
     Schema schema = db.dropCreateSchema("testBatch");
     Table testBatchTable =
         schema.create(
-            table("TestBatchRequestsForSpeed")
-                .add(column("test"))
-                .add(column("testint").type(INT))
-                .pkey("test"));
+            table("TestBatchRequestsForSpeed", column("test").pkey(), column("testint", INT)));
 
     int size = 1000;
     StopWatch.print("Schema created");
@@ -84,26 +81,23 @@ public class TestBatchRequestsForSpeed {
     String PERSON = "Person";
     Table personTable =
         schema.create(
-            table(PERSON)
-                .add(column("ID").type(INT))
-                .add(column("First Name").nullable(false))
-                .add(column("Last Name"))
-                .add(column("Father").type(REF).refTable(PERSON).nullable(true))
-                .pkey("ID")
-                .addUnique("First Name", "Last Name"));
-
+            table(
+                PERSON,
+                column("ID").type(INT).pkey(),
+                column("First_Name").nullable(false).key(2),
+                column("Last_Name").key(2),
+                column("Father").type(REF).refTable(PERSON).nullable(true)));
     // createColumn a fromTable
     // TODO need to optimize the reloading to be more lazy
     for (int i = 0; i < 10; i++) {
       String name = PERSON + i;
       schema.create(
-          table(name)
-              .add(column("ID").type(INT))
-              .add(column("First Name").nullable(false))
-              .add(column("Last Name"))
-              .add(column("Father").type(REF).refTable(name).nullable(true))
-              .pkey("ID")
-              .addUnique("First Name", "Last Name"));
+          table(
+              name,
+              column("ID").type(INT).pkey(),
+              column("First_Name").nullable(false).key(2),
+              column("Last_Name").key(2),
+              column("Father").type(REF).refTable(name).nullable(true)));
     }
     StopWatch.print("Created tables");
 
@@ -123,8 +117,8 @@ public class TestBatchRequestsForSpeed {
       rows.add(
           new Row()
               .setInt("ID", i)
-              .setString("Last Name", "Duck" + i)
-              .setString("First Name", "Donald"));
+              .setString("Last_Name", "Duck" + i)
+              .setString("First_Name", "Donald"));
     }
     System.out.println("Metadata" + personTableReloaded);
     personTableReloaded.insert(rows);
@@ -140,10 +134,10 @@ public class TestBatchRequestsForSpeed {
     StopWatch.print("Delete", count);
 
     assertEquals(0, schema.getTable("Person").getRows().size());
-    assertEquals(1, personTableReloaded.getMetadata().getUniques().size());
-    assertEquals(1, personTable.getMetadata().getUniques().size());
-    personTable.getMetadata().removeUnique("First Name", "Last Name");
-    assertEquals(0, personTable.getMetadata().getUniques().size());
+    assertEquals(2, personTableReloaded.getMetadata().getKeys().size());
+    assertEquals(2, personTable.getMetadata().getKeys().size());
+    personTable.getMetadata().removeKey(2);
+    assertEquals(1, personTable.getMetadata().getKeys().size());
     assertEquals(4, personTable.getMetadata().getColumns().size());
     try {
       personTable.getMetadata().dropColumn("ID");

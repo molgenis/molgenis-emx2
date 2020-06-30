@@ -35,12 +35,11 @@ public class TestGraphJsonQuery {
 
     schema.create(
         table("Person")
-            .add(column("name"))
+            .add(column("name").pkey())
             .add(column("father").type(REF).refTable("Person").nullable(true))
             .add(column("mother").type(REF).refTable("Person").nullable(true))
             .add(column("children").type(REF_ARRAY).refTable("Person"))
-            .add(column("cousins").type(REF_ARRAY).refTable("Person"))
-            .pkey("name"));
+            .add(column("cousins").type(REF_ARRAY).refTable("Person")));
 
     schema
         .getTable("Person")

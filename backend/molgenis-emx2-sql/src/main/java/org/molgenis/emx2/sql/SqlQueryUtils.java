@@ -17,7 +17,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryRowHelper.createBackrefSubselect;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
@@ -29,7 +29,6 @@ class SqlQueryUtils {
       "Operator %s is not support for column '%s'";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
-  static final String ANY_SQL = "{0} = ANY ({1})";
 
   private SqlQueryUtils() {
     // hide
@@ -57,49 +56,63 @@ class SqlQueryUtils {
       String leftAlias,
       SelectColumn select,
       Filter filter) {
+
     // create inheritance joins
     createInheritanceJoin(table, leftAlias, step);
 
     // create ref column joins
     for (Column column : table.getLocalColumns()) {
-      if (isSelectedOrFiltered(column, select, filter)) {
+      ColumnType type = column.getColumnType();
+      // if column of right type, and being used in a subselect of subfilter
+      if (List.of(REF, REF_ARRAY, REFBACK).contains(type)
+              && isSelectedOrFiltered(column, select, filter)
+              && (select != null
+                  && select.has(column.getName())
+                  && !select.get(column.getName()).getColumNames().isEmpty())
+          || (filter != null
+              && filter.has(column.getName())
+              && !filter.getFilter(column.getName()).getSubfilters().isEmpty())) {
         String rightAlias = leftAlias + "/" + column.getName();
-        ColumnType type = column.getColumnType();
-        String refCol = column.getRefColumnName();
-        Condition condition = null;
-
-        if ((select != null
-                && select.has(column.getName())
-                && !select.get(column.getName()).getColumNames().isEmpty())
-            || (filter != null
-                && filter.has(column.getName())
-                && !filter.getFilter(column.getName()).getSubfilters().isEmpty())) {
-          if (REF_ARRAY.equals(type)) {
-            condition =
-                condition(
-                    ANY_SQL,
-                    field(name(rightAlias, refCol)),
-                    field(name(leftAlias, column.getName())));
-          } else if (REF.equals(type)) {
-            condition =
-                field(name(leftAlias, column.getName())).eq(field(name(rightAlias, refCol)));
-          } else if (REFBACK.equals(type)) {
-            Column mappedBy = getMappedByColumn(column);
-            refCol = mappedBy.getRefColumnName();
-            if (REF.equals(mappedBy.getColumnType())) {
-              condition =
-                  field(name(leftAlias, refCol)).eq(field(name(rightAlias, mappedBy.getName())));
-            } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
-              condition =
-                  condition(
-                      ANY_SQL,
-                      field(name(leftAlias, refCol)),
-                      field(name(rightAlias, mappedBy.getName())));
-            }
+        List<Condition> conditions = new ArrayList<>();
+        if (REF_ARRAY.equals(type)) {
+          for (Column ref : column.getRefColumns()) {
+            Field left = field(name(leftAlias, ref.getName()));
+            Field right =
+                field(
+                    name(
+                        rightAlias,
+                        column.getName() + (column.isCompositeRef() ? "-" + ref.getName() : "")));
+            conditions.add(condition("{0} = ANY ({1})", left, right));
           }
+        } else if (REF.equals(type)) {
+          for (Column ref : column.getRefColumns()) {
+            conditions.add(
+                field(
+                        name(
+                            leftAlias,
+                            column.getName()
+                                + (column.isCompositeRef() ? "-" + ref.getName() : "")))
+                    .eq(field(name(rightAlias, ref.getName()))));
+          }
+        } else if (REFBACK.equals(type)) {
+          //          for (Column ref : column.getRefColumns()) {
+          //            Column mappedBy = getMappedByColumn(column);
+          //            if (REF.equals(mappedBy.getColumnType())) {
+          //              conditions.add(field(name(leftAlias, ref)).eq(field(name(rightAlias,
+          // mappedBy.getName()))));
+          //            } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+          //              conditions.add(                  condition(
+          //                      ANY_SQL,
+          //                      field(name(leftAlias, ref)),
+          //                      field(name(rightAlias, mappedBy.getName())));
+          //            }
+          //          }
         }
-        if (condition != null) {
-          step = step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias)).on(condition);
+
+        if (conditions.size() > 0) {
+          step =
+              step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias))
+                  .on(conditions.toArray(new Condition[conditions.size()]));
           createJoins(
               step,
               column.getRefTable(),
@@ -109,6 +122,7 @@ class SqlQueryUtils {
         }
       }
     }
+
     return step;
   }
 

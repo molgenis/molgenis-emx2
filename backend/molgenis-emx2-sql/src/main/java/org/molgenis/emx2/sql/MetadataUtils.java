@@ -13,6 +13,7 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.BOOLEAN;
 import static org.jooq.impl.SQLDataType.VARCHAR;
+import static org.jooq.impl.SQLDataType.INTEGER;
 
 public class MetadataUtils {
 
@@ -22,7 +23,6 @@ public class MetadataUtils {
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
-  private static final org.jooq.Table UNIQUE_METADATA = table(name(MOLGENIS, "unique_metadata"));
   private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
 
   // fields
@@ -39,19 +39,18 @@ public class MetadataUtils {
 
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
+  private static final org.jooq.Field COLUMN_KEY =
+      field(name("column_key"), INTEGER.nullable(true));
   private static final org.jooq.Field COLUMN_DESCRIPTION =
       field(name("column_description"), VARCHAR.nullable(true));
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_COLUMN =
-      field(name("ref_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
   private static final org.jooq.Field VALIDATION_SCRIPT =
       field(name("validationScript"), VARCHAR.nullable(true));
-  private static final org.jooq.Field UNIQUE_COLUMNS =
-      field(name("unique_columns"), VARCHAR.nullable(true).getArrayDataType());
+
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
   private static final org.jooq.Field CASCADE_DELETE =
       field(name("cascade_delete"), BOOLEAN.nullable(true));
@@ -93,9 +92,9 @@ public class MetadataUtils {
                 TABLE_NAME,
                 COLUMN_NAME,
                 DATA_TYPE,
+                COLUMN_KEY,
                 NULLABLE,
                 REF_TABLE,
-                REF_COLUMN,
                 MAPPED_BY,
                 VALIDATION_SCRIPT,
                 INDEXED,
@@ -103,17 +102,6 @@ public class MetadataUtils {
                 COLUMN_DESCRIPTION)
             .constraints(
                 primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-                foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                    .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                    .onUpdateCascade()
-                    .onDeleteCascade())
-            .execute();
-      }
-
-      try (CreateTableColumnStep t = jooq.createTableIfNotExists(UNIQUE_METADATA)) {
-        t.columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-            .constraints(
-                primaryKey(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS),
                 foreignKey(TABLE_SCHEMA, TABLE_NAME)
                     .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
                     .onUpdateCascade()
@@ -129,7 +117,6 @@ public class MetadataUtils {
       jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
       createRowLevelPermissions(jooq, TABLE_METADATA);
       createRowLevelPermissions(jooq, COLUMN_METADATA);
-      createRowLevelPermissions(jooq, UNIQUE_METADATA);
     }
   }
 
@@ -210,8 +197,6 @@ public class MetadataUtils {
     for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
       table.add(c);
     }
-    table.pkey(tableRecord.get(TABLE_PKEY, String[].class));
-    MetadataUtils.loadUniqueMetadata(jooq, table);
   }
 
   protected static void deleteTable(DSLContext jooq, TableMetadata table) {
@@ -227,9 +212,9 @@ public class MetadataUtils {
             TABLE_NAME,
             COLUMN_NAME,
             DATA_TYPE,
+            COLUMN_KEY,
             NULLABLE,
             REF_TABLE,
-            REF_COLUMN,
             MAPPED_BY,
             VALIDATION_SCRIPT,
             INDEXED,
@@ -240,9 +225,9 @@ public class MetadataUtils {
             column.getTable().getTableName(),
             column.getName(),
             column.getColumnType(),
+            column.getKey(),
             column.isNullable(),
             column.getRefTableName(),
-            column.getRefColumnNameRaw(),
             column.getMappedBy(),
             column.getValidation(),
             column.isIndexed(),
@@ -251,9 +236,9 @@ public class MetadataUtils {
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
+        .set(COLUMN_KEY, column.getKey())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
-        .set(REF_COLUMN, column.getRefColumnNameRaw())
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
@@ -271,38 +256,8 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void saveUnique(DSLContext jooq, TableMetadata table, String... columnNames) {
-    jooq.insertInto(UNIQUE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-        .values(table.getSchema().getName(), table.getTableName(), columnNames)
-        .onConflict(TABLE_SCHEMA, TABLE_NAME, UNIQUE_COLUMNS)
-        .doNothing()
-        .execute();
-  }
-
-  protected static void deleteUnique(DSLContext jooq, TableMetadata table, String... columnNames) {
-    jooq.deleteFrom(UNIQUE_METADATA)
-        .where(
-            TABLE_SCHEMA.eq(table.getSchema().getName()),
-            TABLE_NAME.eq(table.getTableName()),
-            UNIQUE_COLUMNS.eq(columnNames))
-        .execute();
-  }
-
   protected static boolean schemaExists(DSLContext jooq, String name) {
     return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
-  }
-
-  protected static void loadUniqueMetadata(DSLContext jooq, TableMetadata table) {
-    List<Record> uniqueRecordList =
-        jooq.selectFrom(UNIQUE_METADATA)
-            .where(
-                TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
-            .fetch();
-
-    for (Record uniqueRecord : uniqueRecordList) {
-      table.addUnique(uniqueRecord.get(UNIQUE_COLUMNS, String[].class));
-    }
   }
 
   protected static List<Column> loadColumnMetadata(DSLContext jooq, TableMetadata table) {
@@ -318,8 +273,8 @@ public class MetadataUtils {
       Column c = new Column(col.get(COLUMN_NAME, String.class));
       c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
       c.nullable(col.get(NULLABLE, Boolean.class));
+      c.key(col.get(COLUMN_KEY, Integer.class));
       c.refTable(col.get(REF_TABLE, String.class));
-      c.refColumn(col.get(REF_COLUMN, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));
       c.validation(col.get(VALIDATION_SCRIPT, String.class));
       c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));

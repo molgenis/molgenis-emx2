@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestMergeAlter {
   private static final String REF_TARGET = "RefTarget";
@@ -44,18 +46,16 @@ public class TestMergeAlter {
       String targetTableName, String refTableName, ColumnType refColumnType, String stringValue) {
     SchemaMetadata newSchema = new SchemaMetadata();
     newSchema
-        .create(new TableMetadata(targetTableName).add(new Column(ID_COLUMN)).pkey(ID_COLUMN))
+        .create(table(targetTableName).add(column(ID_COLUMN).pkey()))
         .add(
-            new Column(REFBACK_COLUMN)
+            column(REFBACK_COLUMN)
                 .type(ColumnType.REFBACK)
                 .refTable(refTableName)
                 .mappedBy(REF_COLUMN));
     newSchema.create(
-        new TableMetadata(refTableName)
-            .add(new Column(ID_COLUMN))
-            .add(
-                new Column(REF_COLUMN).type(refColumnType).refTable(targetTableName).nullable(true))
-            .pkey(ID_COLUMN));
+        table(refTableName)
+            .add(column(ID_COLUMN).pkey())
+            .add(column(REF_COLUMN).type(refColumnType).refTable(targetTableName).nullable(true)));
 
     schema.merge(newSchema);
 

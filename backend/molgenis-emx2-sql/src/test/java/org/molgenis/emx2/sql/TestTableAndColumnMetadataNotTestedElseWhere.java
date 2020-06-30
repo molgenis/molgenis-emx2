@@ -2,10 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Column.column;
@@ -36,36 +33,19 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   @Test
   public void testAlterColumnName() {
     try {
-      SchemaMetadata s = db.dropCreateSchema("testAlterColumnName").getMetadata();
-      TableMetadata t = s.create(table("test").add(column("test")));
+      Schema s = db.dropCreateSchema("testAlterColumnName");
+      Table t = s.create(table("test").add(column("test")));
       System.out.println(t);
 
-      t.alterColumn("test", column("test2"));
-      assertNull(t.getColumn("test"));
-      assertNotNull(t.getColumn("test2"));
+      t.getMetadata().alterColumn("test", column("test2"));
+      assertNull(t.getMetadata().getColumn("test"));
+      assertNotNull(t.getMetadata().getColumn("test2"));
+
+      t.insert(new Row().set("test", "value").set("test2", "value"));
+      assertNull(t.getRows().get(0).getString("test"));
+      assertEquals("value", t.getRows().get(0).getString("test2"));
     } catch (MolgenisException me) {
       System.out.println("Error unexpected:\n" + me);
     }
-  }
-
-  @Test
-  public void testRemoveUnknownUniqueError() {
-    try {
-      SchemaMetadata s = db.dropCreateSchema("testRemoveUnknownUniqueError").getMetadata();
-      TableMetadata t = s.create(table("test").addUnique("test"));
-      fail("should not be able to set unique on not existing column");
-    } catch (MolgenisException me) {
-      System.out.println("Error correctly:\n" + me);
-    }
-  }
-
-  @Test
-  public void testUniques() {
-    SchemaMetadata s = db.dropCreateSchema("testUniques").getMetadata();
-    TableMetadata t = s.create(table("test").add(column("a")).pkey("a").add(column("b")));
-    t.addUnique("a", "b");
-    assertTrue(t.isUnique("b", "a")); // order doesn't matter
-    t.removeUnique("b", "a");
-    assertEquals(0, t.getUniques().size());
   }
 }

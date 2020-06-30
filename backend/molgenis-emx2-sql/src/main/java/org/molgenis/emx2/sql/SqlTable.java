@@ -22,8 +22,6 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefArrayColumnType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
 
-// import static org.molgenis.emx2.ColumnType.MREF;
-
 class SqlTable implements Table {
 
   private SqlDatabase db;
@@ -62,7 +60,7 @@ class SqlTable implements Table {
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
             List<Field> fields = new ArrayList<>();
-            for (Column c : getMetadata().getLocalColumns()) {
+            for (Column c : getMetadata().getMutationColumns()) {
               fieldNames.add(c.getName());
               columns.add(c);
               fields.add(getJooqField(c));
@@ -81,20 +79,6 @@ class SqlTable implements Table {
     log(start, count, "inserted");
 
     return count.get();
-  }
-
-  private void log(long start, AtomicInteger count, String message) {
-    String user = db.getActiveUser();
-    if (user == null) user = "molgenis";
-    if (logger.isInfoEnabled()) {
-      logger.info(
-          "{} {} {} rows into table {} in {}ms",
-          user,
-          message,
-          count.get(),
-          getJooqTable(),
-          (System.currentTimeMillis() - start));
-    }
   }
 
   @Override
@@ -138,16 +122,16 @@ class SqlTable implements Table {
             List<Field> fields = new ArrayList<>();
             for (Row row : rows) {
 
-              // get the fields metadata for this row as far as known in this table
+              // to compare if columns change between rows
               Collection<String> rowFields = new ArrayList<>();
-              for (String name : row.getColumnNames()) {
-                Column c = tableMetadata.getColumn(name);
-                if (tableMetadata.getColumn(name) != null && c.getTableName().equals(getName())) {
-                  rowFields.add(name);
+              for (Column c : tableMetadata.getMutationColumns()) {
+                if (row.getColumnNames().contains(c.getName())) {
+                  rowFields.add(c.getName());
                 }
               }
 
-              // execute the batch if batchSize is reached or fields differ from previous
+              // execute the batch if batchSize is reached
+              // or when rowFields differ from previous FieldNaes
               if (!batch.isEmpty()
                   && (count.get() % batchSize == 0
                       || (fieldNames.containsAll(rowFields)
@@ -162,11 +146,12 @@ class SqlTable implements Table {
 
               // add field metadata if first row of this batch
               if (fieldNames.isEmpty()) {
-                for (String name : rowFields) {
-                  Column c = tableMetadata.getColumn(name);
-                  fieldNames.add(name);
-                  columns.add(c);
-                  fields.add(getJooqField(c));
+                for (Column col : tableMetadata.getMutationColumns()) {
+                  if (row.getColumnNames().contains(col.getName())) {
+                    columns.add(col);
+                    fields.add(getJooqField(col));
+                    fieldNames.add(col.getName());
+                  }
                 }
               }
 
@@ -337,11 +322,6 @@ class SqlTable implements Table {
     return this.query().getRows();
   }
 
-  //  @Override
-  //  public <E> List<E> retrieve(String columnName, Class<E> klazz) {
-  //    return query().retrieve(columnName, klazz);
-  //  }
-
   @Override
   public String getName() {
     return getMetadata().getTableName();
@@ -361,5 +341,19 @@ class SqlTable implements Table {
 
   public static Field getJooqField(Column c) {
     return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
+  }
+
+  private void log(long start, AtomicInteger count, String message) {
+    String user = db.getActiveUser();
+    if (user == null) user = "molgenis";
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "{} {} {} rows into table {} in {}ms",
+          user,
+          message,
+          count.get(),
+          getJooqTable(),
+          (System.currentTimeMillis() - start));
+    }
   }
 }

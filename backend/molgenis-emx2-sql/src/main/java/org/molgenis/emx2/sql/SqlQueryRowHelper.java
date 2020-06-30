@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
@@ -189,25 +188,32 @@ class SqlQueryRowHelper {
 
   static SelectConditionStep createBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = getMappedByColumn(column);
-    switch (mappedBy.getColumnType()) {
-      case REF:
-        return DSL.select(field(name(column.getRefColumnName())))
-            .from(
-                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
-            .where(
-                field(name(mappedBy.getTable().getTableName(), mappedBy.getName()))
-                    .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
-      case REF_ARRAY:
-        return DSL.select(field(name(column.getRefColumnName())))
-            .from(
-                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
-            .where(
-                "{0} = ANY ({1})",
-                field(name(tableAlias, mappedBy.getRefColumnName())),
-                field(name(mappedBy.getTable().getTableName(), mappedBy.getName())));
-      default:
-        throw new MolgenisException(
-            "Internal error", "Refback for type not matched for column " + column.getName());
+    List<Field> selectFields = new ArrayList<>();
+    List<Condition> whereFields = new ArrayList<>();
+    // we follow the reverse foreign key relation, from 'mappedBy' to 'this'.
+    for (Column thisKey : mappedBy.getRefColumns()) {
+      selectFields.add(field(name(thisKey.getName())));
+      Field thisField = field(name(tableAlias, thisKey.getName()));
+      Field mappedByField =
+          field(
+              name(
+                  mappedBy.getTable().getTableName(),
+                  mappedBy.getName() + (mappedBy.isCompositeRef() ? "-" + thisKey.getName() : "")));
+      switch (mappedBy.getColumnType()) {
+        case REF:
+          whereFields.add(mappedByField.eq(thisField));
+          break;
+        case REF_ARRAY:
+          whereFields.add(condition("{0} = ANY ({1})", thisField, mappedByField));
+          break;
+        case MREF:
+        default:
+          throw new MolgenisException(
+              "Internal error", "Refback for type not matched for column " + column.getName());
+      }
     }
+    return DSL.select(selectFields)
+        .from(name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
+        .where(whereFields);
   }
 }

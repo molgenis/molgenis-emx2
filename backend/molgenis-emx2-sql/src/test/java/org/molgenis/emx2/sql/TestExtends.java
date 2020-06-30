@@ -40,14 +40,14 @@ public class TestExtends {
     }
 
     try {
-      s.create(table("Employee").setInherit("fake table"));
+      s.create(table("Employee").setInherit("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     // set pkey and a property
-    person.getMetadata().add(column("fullName")).pkey("fullName");
+    person.getMetadata().add(column("fullName").pkey());
     person.getMetadata().add(column("birthDate").type(DATE).nullable(true));
 
     // create first extended table
@@ -76,12 +76,6 @@ public class TestExtends {
       System.out.println("Errored correctly:\n" + e);
     }
 
-    // try to change primary key
-    try {
-      manager.getMetadata().pkey("salary");
-    } catch (MolgenisException e) {
-      System.out.println("Errored correctly:\n" + e);
-    }
     // create another extended table
     s.create(table("Student").setInherit(person.getName()).add(column("averageGrade").type(INT)));
 

@@ -45,6 +45,12 @@ public class SchemaMetadata {
     return table;
   }
 
+  public void create(TableMetadata... tables) {
+    for (TableMetadata table : tables) {
+      this.create(table);
+    }
+  }
+
   public TableMetadata getTableMetadata(String name) {
     return tableCache.get(name);
   }

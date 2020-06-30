@@ -260,16 +260,24 @@ public class TypeUtils {
   }
 
   public static ColumnType getPrimitiveColumnType(Column column) {
-    if (REF.equals(column.getColumnType())) {
-      return getPrimitiveColumnType(column.getRefColumn());
-    } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
-      ColumnType type = column.getRefColumn().getColumnType();
-      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
-        type = getPrimitiveColumnType(column.getRefColumn());
+    if (REF.equals(column.getColumnType())
+        || REF_ARRAY.equals(column.getColumnType())
+        || REFBACK.equals(column.getColumnType())) {
+      List<Column> fkey = column.getRefTable().getPrimaryKeyColumns();
+      if (fkey.size() != 1) {
+        // in case the ref is of a composite key type, the return compound
+        return null;
+      } else if (REF_ARRAY.equals(column.getColumnType())
+          || REFBACK.equals(column.getColumnType())) {
+        // in case of REF_ARRAY or REFBACK return array of type of pkey
+        return getArrayType(getPrimitiveColumnType(fkey.get(0)));
+        // in case of REF, simply return type of pkey
+      } else {
+        return getPrimitiveColumnType(fkey.get(0));
       }
-      return getArrayType(type);
+    } else {
+      return column.getColumnType();
     }
-    return column.getColumnType();
   }
 
   private static Object[] listToArray(Object object) {

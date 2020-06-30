@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import static org.molgenis.emx2.Constants.*;
 
@@ -28,8 +29,8 @@ public enum ColumnType {
   // RELATIONSHIP
   REF(Object.class),
   REFBACK(Object[].class),
-  REF_ARRAY(Object[].class);
-  // MREF(Object[].class);
+  REF_ARRAY(Object[].class),
+  MREF(Object[].class);
 
   private Class javaType;
   private Operator[] operators;

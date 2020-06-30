@@ -23,11 +23,11 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType sqlColumnType = column.getColumnType();
     switch (sqlColumnType) {
       case REF:
-        return jooqTypeOf(column.getRefColumn());
+        return jooqTypeOf(column.getRefColumns().get(0));
       case REFBACK:
       case REF_ARRAY:
-        //      case MREF:
-        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
+      case MREF:
+        return jooqTypeOf(column.getRefColumns().get(0)).getArrayDataType();
       default:
         return jooqTypeOf(sqlColumnType);
     }
@@ -69,14 +69,18 @@ public class SqlTypeUtils extends TypeUtils {
         return SQLDataType.TIMESTAMP.getArrayDataType();
       default:
         // should never happen
-        throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + columnType);
+        throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type " + columnType);
     }
   }
 
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {
+      if (c.isCompositeRef()) {
+        throw new UnsupportedOperationException();
+      }
       Object value = getTypedValue(row, c);
+
       // validation
       if (value != null && c.getValidation() != null) {
         String error = validateValue(c.getValidation(), value);
@@ -152,7 +156,7 @@ public class SqlTypeUtils extends TypeUtils {
     if (REF.equals(columnType)) {
       columnType = getRefColumnType(column);
     }
-    if (REF_ARRAY.equals(columnType) || REFBACK.equals(columnType)) { // || MREF.equals(columnType)
+    if (REF_ARRAY.equals(columnType) || REFBACK.equals(columnType) || MREF.equals(columnType)) {
       columnType = getRefArrayColumnType(column);
     }
     switch (columnType) {
@@ -199,9 +203,9 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static ColumnType getRefColumnType(Column column) {
     ColumnType columnType;
-    Column refColumn = column.getRefColumn();
+    Column refColumn = column.getRefColumns().get(0);
     while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType())) {
-      refColumn = refColumn.getRefColumn();
+      refColumn = refColumn.getRefColumns().get(0);
       // check self reference
       if (refColumn.getTableName().equals(column.getTableName())
           && refColumn.getName().equals(column.getName())) {

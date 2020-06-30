@@ -1,37 +1,50 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
-import org.jooq.DataType;
+import org.jooq.Field;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
-import static org.molgenis.emx2.sql.SqlColumnRefArrayUtils.createRefArrayConstraints;
-import static org.molgenis.emx2.sql.SqlColumnRefBackUtils.createRefBackColumnConstraints;
-import static org.molgenis.emx2.sql.SqlColumnRefUtils.createRefConstraints;
+import static org.molgenis.emx2.sql.SqlColumnMrefExecutor.createMrefConstraints;
+import static org.molgenis.emx2.sql.SqlColumnMrefExecutor.dropMrefConstraints;
+import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
+import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
+import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
+import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.jooqTypeOf;
 import static org.molgenis.emx2.utils.TypeUtils.getNonArrayType;
 
-public class SqlColumnUtils {
-  private SqlColumnUtils() {
+public class SqlColumnExecutor {
+  private SqlColumnExecutor() {
     // hide
   }
 
   static void executeSetNullable(DSLContext jooq, Column column) {
-    if (column.isNullable()) {
-      jooq.alterTable(asJooqTable(column.getTable()))
-          .alterColumn(asJooqField(column))
-          .dropNotNull()
-          .execute(); // seperate to not interfere with type
-    } else {
-      jooq.alterTable(asJooqTable(column.getTable()))
-          .alterColumn(asJooqField(column))
-          .setNotNull()
-          .execute(); // seperate to not int
+    executeSetNullable(jooq, column, column.isNullable());
+  }
+
+  static void executeSetNullable(DSLContext jooq, Column column, boolean nullable) {
+    for (Field f : asJooqField(column)) {
+      if (nullable) {
+        jooq.alterTable(asJooqTable(column.getTable()))
+            .alterColumn(f)
+            .dropNotNull()
+            .execute(); // seperate to not interfere with type}
+
+      } else {
+        jooq.alterTable(asJooqTable(column.getTable()))
+            .alterColumn(f)
+            .setNotNull()
+            .execute(); // seperate to not int
+      }
     }
   }
 
@@ -40,9 +53,31 @@ public class SqlColumnUtils {
     return table(name(table.getSchema().getName(), table.getTableName()));
   }
 
-  public static org.jooq.Field asJooqField(Column column) {
-    DataType thisType = jooqTypeOf(column);
-    return field(name(column.getName()), thisType);
+  public static List<Field> asJooqField(Column column) {
+    List<Field> result = new ArrayList<>();
+    switch (column.getColumnType()) {
+      case REF:
+        for (Column c : column.getRefColumns()) {
+          result.add(
+              field(
+                  name(column.getName() + (column.isCompositeRef() ? "-" + c.getName() : "")),
+                  jooqTypeOf(c.getColumnType())));
+        }
+        break;
+      case REFBACK:
+      case MREF:
+      case REF_ARRAY:
+        for (Column c : column.getRefColumns()) {
+          result.add(
+              field(
+                  name(column.getName() + (column.isCompositeRef() ? "-" + c.getName() : "")),
+                  jooqTypeOf(c.getColumnType()).getArrayDataType()));
+        }
+        break;
+      default:
+        result.add(field(name(column.getName()), jooqTypeOf(column.getColumnType())));
+    }
+    return result;
   }
 
   public static TableMetadata getRefTable(Column column) {
@@ -64,9 +99,13 @@ public class SqlColumnUtils {
 
     // rename if needed
     if (!oldColumn.getName().equals(newColumn.getName())) {
-      jooq.execute(
-          "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
-          asJooqTable(newColumn.getTable()), asJooqField(oldColumn), asJooqField(newColumn));
+      List<Field> oldField = asJooqField(oldColumn);
+      List<Field> newField = asJooqField(newColumn);
+      for (int i = 0; i < oldField.size(); i++) {
+        jooq.execute(
+            "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+            asJooqTable(newColumn.getTable()), oldField.get(i), newField.get(i));
+      }
       // delete old metadata
       MetadataUtils.deleteColumn(jooq, oldColumn);
     }
@@ -74,37 +113,41 @@ public class SqlColumnUtils {
     // change the raw type
     if (newColumn.getColumnType().getType().isArray()
         && !oldColumn.getColumnType().getType().isArray()) {
-      jooq.execute(
-          "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING array[{1}::{3}]",
-          asJooqTable(newColumn.getTable()),
-          asJooqField(newColumn),
-          keyword(getPsqlType(newColumn)),
-          keyword(getPsqlType(getNonArrayType(TypeUtils.getPrimitiveColumnType(newColumn)))));
+      for (Field f : asJooqField(newColumn)) {
+        jooq.execute(
+            "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING array[{1}::{3}]",
+            asJooqTable(newColumn.getTable()),
+            f,
+            keyword(getPsqlType(newColumn)),
+            keyword(getPsqlType(getNonArrayType(TypeUtils.getPrimitiveColumnType(newColumn)))));
+      }
     } else {
-      jooq.execute(
-          "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING {1}::{2}",
-          asJooqTable(newColumn.getTable()),
-          asJooqField(newColumn),
-          keyword(getPsqlType(newColumn)));
+      for (Field f : asJooqField(newColumn)) {
+        jooq.execute(
+            "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING {1}::{2}",
+            asJooqTable(newColumn.getTable()), f, keyword(getPsqlType(newColumn)));
+      }
     }
 
     // add the new constraints
     switch (newColumn.getColumnType()) {
       case REF:
-        SqlColumnRefUtils.createRefConstraints(jooq, newColumn);
+        SqlColumnRefExecutor.createRefConstraints(jooq, newColumn);
         executeSetNullable(jooq, newColumn);
         break;
       case REF_ARRAY:
-        SqlColumnRefArrayUtils.createRefArrayConstraints(jooq, newColumn);
+        createMrefConstraints(jooq, newColumn);
         executeSetNullable(jooq, newColumn);
         break;
       case REFBACK:
-        SqlColumnRefBackUtils.createRefBackColumnConstraints(jooq, newColumn);
+        SqlColumnRefBackExecutor.createRefBackColumnConstraints(jooq, newColumn);
         executeSetNullable(jooq, newColumn);
         break;
-        //      case MREF:
-        //        SqlColumnMrefUtils.createMrefConstraints(jooq, newColumn);
-        //        break;
+      case MREF:
+        createMrefConstraints(jooq, newColumn);
+        // always nullable, constraint is on mref table
+        executeSetNullable(jooq, newColumn, true);
+        break;
       default:
         executeSetNullable(jooq, newColumn);
         executeRemoveRefback(oldColumn, newColumn);
@@ -139,9 +182,15 @@ public class SqlColumnUtils {
   }
 
   static void executeCreateColumn(DSLContext jooq, Column column) {
-    // create the column
-    jooq.alterTable(asJooqTable(column.getTable())).addColumn(asJooqField(column)).execute();
+    for (Field f : asJooqField(column)) {
+      jooq.alterTable(asJooqTable(column.getTable())).addColumn(f).execute();
+    }
+    // central constraints
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
+    saveColumnMetadata(jooq, column);
+  }
 
+  static void executeSetForeignkeys(DSLContext jooq, Column column) {
     // set constraints
     switch (column.getColumnType()) {
       case REF:
@@ -152,18 +201,17 @@ public class SqlColumnUtils {
         createRefArrayConstraints(jooq, column);
         executeSetNullable(jooq, column);
         break;
+      case MREF:
+        createMrefConstraints(jooq, column);
+        // always null, nullable constraint is on jointable
+        executeSetNullable(jooq, column, true);
+        break;
       case REFBACK:
         createRefBackColumnConstraints(jooq, column);
         break;
-        //      case MREF:
-        //        createMrefConstraints(jooq, column);
-        //        break;
       default:
         executeSetNullable(jooq, column);
     }
-    // central constraints
-    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
-    saveColumnMetadata(jooq, column);
   }
 
   static void executeRemoveColumn(DSLContext jooq, Column column) {
@@ -179,24 +227,26 @@ public class SqlColumnUtils {
     switch (column.getColumnType()) {
       case REF:
         // nothing to do?
-        SqlColumnRefUtils.removeRefConstraints(jooq, column);
+        SqlColumnRefExecutor.removeRefConstraints(jooq, column);
         break;
       case REF_ARRAY:
-        SqlColumnRefArrayUtils.removeRefArrayConstraints(jooq, column);
+        removeRefArrayConstraints(jooq, column);
         break;
       case REFBACK:
-        SqlColumnRefBackUtils.removeRefBackConstraints(jooq, column);
+        SqlColumnRefBackExecutor.removeRefBackConstraints(jooq, column);
         break;
-        //      case MREF:
-        //        throw new MolgenisException("Error", "Alter on MREF field Not yet implemented");
+      case MREF:
+        dropMrefConstraints(jooq, column);
       default:
         // nothing else?
     }
     // remove nullable
-    jooq.alterTable(asJooqTable(column.getTable()))
-        .alterColumn(asJooqField(column))
-        .dropNotNull()
-        .execute(); // seperate to not interfere with type
+    for (Field f : asJooqField(column)) {
+      jooq.alterTable(asJooqTable(column.getTable()))
+          .alterColumn(f)
+          .dropNotNull()
+          .execute(); // seperate to not interfere with type
+    }
   }
 
   static String getSchemaName(Column column) {

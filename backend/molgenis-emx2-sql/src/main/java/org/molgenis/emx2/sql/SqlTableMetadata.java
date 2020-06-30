@@ -8,13 +8,10 @@ import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
-import static org.molgenis.emx2.sql.SqlColumnUtils.reapplyRefbackContraints;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.reapplyRefbackContraints;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 class SqlTableMetadata extends TableMetadata {
@@ -37,58 +34,29 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public Column getColumn(String name) {
-    Column c = super.getColumn(name);
-    if (c == null) {
-      this.load(); // if not cached then try to reload
-    }
-    return super.getColumn(name);
-  }
-
-  @Override
-  public List<Column> getLocalColumns() {
-    List<Column> result = super.getLocalColumns();
-    if (result.isEmpty()) {
-      this.load();
-    }
-    return result;
-  }
-
-  @Override
-  public TableMetadata add(Column... columns) {
+  public TableMetadata add(Column column) {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
-          for (Column column : columns) {
-            if (getColumn(column.getName()) != null) {
-              // check if primary key not yet on local columns
-              boolean found = false;
-              if (isPrimaryKey(column.getName())) {
-                for (Column c : getLocalColumns()) {
-                  if (isPrimaryKey(c.getName())) {
-                    found = true;
-                  }
-                }
-              }
-              // if exists indeed duplicate, otherwise let it happen
-              if (found) {
-                throw new MolgenisException(
-                    "Add column failed",
-                    "Duplicate name; column with name "
-                        + getTableName()
-                        + "."
-                        + column.getName()
-                        + " already exists");
-              }
-            }
-
-            Column result = new Column(this, column);
-            SqlColumnUtils.executeCreateColumn(getJooq(), result);
-            super.add(result);
-            log(start, "added column '" + column.getName() + "' to ");
+          if (getLocalColumn(column.getName()) != null) {
+            throw new MolgenisException(
+                "Add column failed",
+                "Duplicate name; column with name "
+                    + getTableName()
+                    + "."
+                    + column.getName()
+                    + " already exists");
           }
+          Column result = new Column(this, column);
+          SqlColumnExecutor.executeCreateColumn(getJooq(), result);
+          super.add(result);
+          if (column.getKey() > 0) {
+            SqlTableMetadataExecutor.createOrReplaceUnique(
+                getJooq(), this, column.getKey(), asJooqNames(getKeyNames(column.getKey())));
+          }
+          SqlColumnExecutor.executeSetForeignkeys(getJooq(), new Column(this, column));
+          log(start, "added column '" + column.getName() + "' to ");
         });
-
     return this;
   }
 
@@ -103,10 +71,11 @@ class SqlTableMetadata extends TableMetadata {
     db.tx(
         dsl -> {
           Column newColumn = new Column(this, column);
-          SqlColumnUtils.executeAlterColumn(getJooq(), oldColumn, newColumn);
+          SqlColumnExecutor.executeAlterColumn(getJooq(), oldColumn, newColumn);
           super.alterColumn(name, newColumn);
           reapplyRefbackContraints(oldColumn, newColumn);
         });
+
     return this;
   }
 
@@ -116,9 +85,8 @@ class SqlTableMetadata extends TableMetadata {
     if (getColumn(name) == null) return; // return silently, idempotent
     db.tx(
         dsl -> {
-          SqlColumnUtils.executeRemoveColumn(getJooq(), getColumn(name));
+          SqlColumnExecutor.executeRemoveColumn(getJooq(), getColumn(name));
           super.columns.remove(name);
-          SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(getJooq(), this);
         });
     log(start, "removed column '" + name + "' from ");
   }
@@ -160,78 +128,6 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata removeInherit() {
     throw new RuntimeException("removeInherit not yet implemented");
-  }
-
-  @Override
-  public TableMetadata pkey(String... columnNames) {
-    long start = System.currentTimeMillis();
-    if (columnNames == null)
-      throw new MolgenisException("Set primary key failed", "Null was provided");
-    if (isPrimaryKey(columnNames) && this.getInherit() == null) return this;
-    if (getInherit() != null && !isPrimaryKey(columnNames))
-      throw new MolgenisException(
-          "Set primary key failed",
-          "Primary key cannot be set on table '"
-              + getTableName()
-              + "' because inherits its primary key from other table '"
-              + getInherit()
-              + "'");
-    db.tx(
-        dsl -> {
-          SqlTableMetadataExecutor.executeSetPrimaryKey(getJooq(), this, columnNames);
-          super.pkey(columnNames);
-          MetadataUtils.saveTableMetadata(getJooq(), this);
-        });
-    log(start, "set primary key " + List.of(columnNames) + " on ");
-    return this;
-  }
-
-  @Override
-  public TableMetadata addUnique(String... columnNames) {
-    long start = System.currentTimeMillis();
-    if (isUnique(columnNames)) return this; // idempotent, we silently ignore
-    // check if the columns exists
-    for (String columnName : columnNames) {
-      Column c = getColumn(columnName);
-      if (c == null)
-        throw new MolgenisException(
-            "Add unique failed",
-            "Column '" + columnName + "' is not known in table " + getTableName());
-    }
-    // check if already exists
-    db.tx(
-        dsl -> {
-          executeCreateUnique(getJooq(), this, columnNames);
-          super.addUnique(columnNames);
-        });
-    log(start, "added unique '" + List.of(columnNames) + "' to ");
-    return this;
-  }
-
-  @Override
-  public void removeUnique(String... columnNames) {
-    long start = System.currentTimeMillis();
-    // try to find the right unique
-    String[] correctOrderedNames = null;
-    List list1 = Arrays.asList(columnNames);
-    for (String[] unique : getUniques()) {
-      List list2 = Arrays.asList(unique);
-      if (list1.containsAll(list2) && list2.containsAll(list1)) {
-        correctOrderedNames = unique;
-      }
-    }
-    if (correctOrderedNames == null) {
-      throw new MolgenisException(
-          "Remove unique failed",
-          "Unique constraint consisting of columns " + list1 + "could not be found. ");
-    }
-    final String[] finalNames = correctOrderedNames;
-    db.tx(
-        dsl -> {
-          executeRemoveUnique(getJooq(), this, finalNames);
-          super.removeUnique(finalNames);
-        });
-    log(start, "removed unique '" + columnNames + "' to ");
   }
 
   @Override

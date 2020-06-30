@@ -17,7 +17,7 @@ public class ArrayTypeTestExample {
   public static void createSimpleTypeTest(SchemaMetadata schema) {
 
     TableMetadata typeTestTable = schema.create(table("ArrayTypeTest"));
-    typeTestTable.add(column("id")).pkey("id");
+    typeTestTable.add(column("id").pkey());
     ColumnType[] columnTypes =
         new ColumnType[] {
           UUID_ARRAY,

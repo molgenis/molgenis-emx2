@@ -193,7 +193,7 @@ public class TestGetSetAllTypesOnRows {
     for (ColumnType columnType : columnTypes) {
       t.add(column("test" + columnType).type(columnType));
       t.add(column("test" + columnType + "_nullable").type(columnType).nullable(true));
-      t.add(column("test" + columnType + "+readonly").type(columnType).setReadonly(true));
+      t.add(column("test" + columnType + "_readonly").type(columnType).setReadonly(true));
     }
   }
 }

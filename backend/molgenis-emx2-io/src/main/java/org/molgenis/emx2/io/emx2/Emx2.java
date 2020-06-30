@@ -253,7 +253,7 @@ public class Emx2 {
 
     Emx2PropertyList def = new Emx2PropertyList();
     // write multiple key constraints on table level, otherwise this will be done per column
-    for (String[] u : table.getUniques()) {
+    for (String[] u : table.getKeys()) {
       if (u.length > 1) def.add(Emx2PropertyList.UNIQUE, u);
     }
     // write table definition row, but only if not empty
