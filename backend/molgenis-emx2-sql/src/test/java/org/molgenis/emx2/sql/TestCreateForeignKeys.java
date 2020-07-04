@@ -59,9 +59,13 @@ public class TestCreateForeignKeys {
     Schema schema =
         db.dropCreateSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
 
-    // String fieldName = "AKeyOf" + columnType;
-    Table aTable = schema.create(table("A").add(column("ID").type(columnType).pkey()));
-    Row aRow = new Row().set("ID", insertValue);
+    String fieldName = "AKeyOf" + columnType;
+    Table aTable =
+        schema.create(
+            table("A")
+                .add(column("ID").type(INT).pkey())
+                .add(column(fieldName).type(columnType).key(2)));
+    Row aRow = new Row().setInt("ID", 1).set(fieldName, insertValue);
     aTable.insert(aRow);
 
     String refFromBToA = "RefToAKeyOf" + columnType;
@@ -69,7 +73,7 @@ public class TestCreateForeignKeys {
         schema.create(
             table("B")
                 .add(column("ID").type(INT).pkey())
-                .add(column(refFromBToA).type(REF).refTable("A")));
+                .add(column(refFromBToA).type(REF).refTable("A").refColumn(fieldName)));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 
@@ -84,7 +88,7 @@ public class TestCreateForeignKeys {
 
     // and update, should be cascading :-)
     // BIG TODO implement update
-    // aTable.update(aRow.set("ID", updateValue));
+    aTable.update(aRow.set(fieldName, updateValue));
 
     // delete of A should fail
     try {

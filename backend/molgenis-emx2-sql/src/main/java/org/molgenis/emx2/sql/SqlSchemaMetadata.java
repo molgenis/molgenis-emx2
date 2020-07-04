@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

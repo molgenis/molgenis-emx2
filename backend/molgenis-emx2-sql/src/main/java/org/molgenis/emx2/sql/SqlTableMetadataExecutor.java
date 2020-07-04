@@ -90,7 +90,7 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' does not exist");
     }
-    if (other.getPrimaryKey() == null) {
+    if (other.getPrimaryKeys() == null) {
       throw new MolgenisException(
           "Extend failed",
           "Cannot make table '"
@@ -99,7 +99,7 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' because table primary key is null");
     }
-    for (String pkey : other.getPrimaryKey()) {
+    for (String pkey : other.getPrimaryKeys()) {
       table.add(column(pkey).type(REF).refTable(other.getTableName()).pkey());
     }
     MetadataUtils.saveTableMetadata(jooq, table);
@@ -154,7 +154,7 @@ class SqlTableMetadataExecutor {
       Table thisTable = getJooqTable(table);
 
       // remove pkey
-      if (table.getPrimaryKey() != null) {
+      if (table.getPrimaryKeys() != null) {
         jooq.alterTable(thisTable).dropConstraint(getPrimaryKeyContraintName(table)).execute();
       }
 

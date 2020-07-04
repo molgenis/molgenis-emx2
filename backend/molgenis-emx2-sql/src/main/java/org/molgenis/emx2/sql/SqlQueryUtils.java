@@ -29,6 +29,7 @@ class SqlQueryUtils {
       "Operator %s is not support for column '%s'";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
+  static final String ANY_SQL = "{0} = ANY ({1})";
 
   private SqlQueryUtils() {
     // hide
@@ -56,63 +57,49 @@ class SqlQueryUtils {
       String leftAlias,
       SelectColumn select,
       Filter filter) {
-
     // create inheritance joins
     createInheritanceJoin(table, leftAlias, step);
 
     // create ref column joins
     for (Column column : table.getLocalColumns()) {
-      ColumnType type = column.getColumnType();
-      // if column of right type, and being used in a subselect of subfilter
-      if (List.of(REF, REF_ARRAY, REFBACK).contains(type)
-              && isSelectedOrFiltered(column, select, filter)
-              && (select != null
-                  && select.has(column.getName())
-                  && !select.get(column.getName()).getColumNames().isEmpty())
-          || (filter != null
-              && filter.has(column.getName())
-              && !filter.getFilter(column.getName()).getSubfilters().isEmpty())) {
+      if (isSelectedOrFiltered(column, select, filter)) {
         String rightAlias = leftAlias + "/" + column.getName();
-        List<Condition> conditions = new ArrayList<>();
-        if (REF_ARRAY.equals(type)) {
-          for (Column ref : column.getRefColumns()) {
-            Field left = field(name(leftAlias, ref.getName()));
-            Field right =
-                field(
-                    name(
-                        rightAlias,
-                        column.getName() + (column.isCompositeRef() ? "-" + ref.getName() : "")));
-            conditions.add(condition("{0} = ANY ({1})", left, right));
-          }
-        } else if (REF.equals(type)) {
-          for (Column ref : column.getRefColumns()) {
-            conditions.add(
-                field(
-                        name(
-                            leftAlias,
-                            column.getName()
-                                + (column.isCompositeRef() ? "-" + ref.getName() : "")))
-                    .eq(field(name(rightAlias, ref.getName()))));
-          }
-        } else if (REFBACK.equals(type)) {
-          //          for (Column ref : column.getRefColumns()) {
-          //            Column mappedBy = getMappedByColumn(column);
-          //            if (REF.equals(mappedBy.getColumnType())) {
-          //              conditions.add(field(name(leftAlias, ref)).eq(field(name(rightAlias,
-          // mappedBy.getName()))));
-          //            } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
-          //              conditions.add(                  condition(
-          //                      ANY_SQL,
-          //                      field(name(leftAlias, ref)),
-          //                      field(name(rightAlias, mappedBy.getName())));
-          //            }
-          //          }
-        }
+        ColumnType type = column.getColumnType();
+        String refCol = column.getRefColumnName();
+        Condition condition = null;
 
-        if (conditions.size() > 0) {
-          step =
-              step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias))
-                  .on(conditions.toArray(new Condition[conditions.size()]));
+        if ((select != null
+                && select.has(column.getName())
+                && !select.get(column.getName()).getColumNames().isEmpty())
+            || (filter != null
+                && filter.has(column.getName())
+                && !filter.getFilter(column.getName()).getSubfilters().isEmpty())) {
+          if (REF_ARRAY.equals(type)) {
+            condition =
+                condition(
+                    ANY_SQL,
+                    field(name(rightAlias, refCol)),
+                    field(name(leftAlias, column.getName())));
+          } else if (REF.equals(type)) {
+            condition =
+                field(name(leftAlias, column.getName())).eq(field(name(rightAlias, refCol)));
+          } else if (REFBACK.equals(type)) {
+            Column mappedBy = getMappedByColumn(column);
+            refCol = mappedBy.getRefColumnName();
+            if (REF.equals(mappedBy.getColumnType())) {
+              condition =
+                  field(name(leftAlias, refCol)).eq(field(name(rightAlias, mappedBy.getName())));
+            } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+              condition =
+                  condition(
+                      ANY_SQL,
+                      field(name(leftAlias, refCol)),
+                      field(name(rightAlias, mappedBy.getName())));
+            }
+          }
+        }
+        if (condition != null) {
+          step = step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias)).on(condition);
           createJoins(
               step,
               column.getRefTable(),
@@ -122,23 +109,32 @@ class SqlQueryUtils {
         }
       }
     }
-
     return step;
   }
 
   static Condition createSearchCondition(
       SqlTableMetadata fromTable, String fromAlias, SelectColumn select, String[] searchTerms) {
     if (searchTerms != null && searchTerms.length > 0) {
-      if (fromTable.getPrimaryKey() == null) {
+      if (fromTable.getPrimaryKeys() == null) {
         throw new MolgenisException(QUERY_FAILED, "Search failed because no primary key was set");
       }
       // BIG TODO THIS IS NOT CORRECT
-      Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()[0]));
+      List<Field> pkey = new ArrayList<>();
+      for (String pkeyPart : fromTable.getPrimaryKeys()) {
+        pkey.add(field(name(fromAlias, pkeyPart)));
+      }
       // create subquery
       SelectJoinStep sub =
           fromTable.getJooq().select(pkey).from(getJooqTable(fromTable).as(fromAlias));
       sub = createJoins(sub, fromTable, fromAlias, select, null);
-      return pkey.in(sub.where(createFiltersForSearch(fromTable, fromAlias, select, searchTerms)));
+      List<Condition> pkeyConditions = new ArrayList<>();
+      for (Field pkeyField : pkey) {
+        pkeyConditions.add(
+            pkeyField.in(
+                sub.where(createFiltersForSearch(fromTable, fromAlias, select, searchTerms))));
+      }
+
+      return and(pkeyConditions);
     }
     return null;
   }
@@ -200,14 +196,14 @@ class SqlQueryUtils {
     TableMetadata inherit = table.getInheritedTable();
     while (inherit != null) {
       String subTableAlias = tableAlias + "+" + inherit.getTableName();
-
-      Condition[] conditions = new Condition[table.getPrimaryKey().length];
-      for (int i = 0; i < conditions.length; i++) {
-        String pkey = table.getPrimaryKey()[i];
-        conditions[i] = field(name(tableAlias, pkey)).eq(field(name(subTableAlias, pkey)));
+      List<Condition> conditions = new ArrayList<>();
+      for (String pkeyPart : table.getPrimaryKeys()) {
+        conditions.add(field(name(tableAlias, pkeyPart)).eq(field(name(subTableAlias, pkeyPart))));
       }
 
-      from = from.innerJoin(getJooqTable(inherit).as(subTableAlias)).on(conditions);
+      from =
+          from.innerJoin(getJooqTable(inherit).as(subTableAlias))
+              .on(conditions.toArray(new Condition[conditions.size()]));
       inherit = inherit.getInheritedTable();
     }
     return from;

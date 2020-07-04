@@ -32,14 +32,10 @@ public class SqlColumnRefExecutor {
     Name thisTable = getJooqTable(column.getTable()).getQualifiedName();
     List<Name> thisColumns = new ArrayList<>();
     List<Name> otherColumns = new ArrayList<>();
-    for (Column fkey : column.getRefColumns()) {
-      if (column.isCompositeRef()) {
-        thisColumns.add(name(column.getName() + "-" + fkey.getName()));
-      } else {
-        thisColumns.add(name(column.getName()));
-      }
-      otherColumns.add(name(fkey.getName()));
-    }
+
+    thisColumns.add(name(column.getName()));
+    otherColumns.add(name(column.getRefColumnName()));
+
     Name fkeyTable = name(column.getTable().getSchema().getName(), refTableName);
 
     ConstraintForeignKeyOnStep constraint =
@@ -71,7 +67,7 @@ public class SqlColumnRefExecutor {
     }
 
     // check if other end has primary key
-    if (column.getRefTable().getPrimaryKey() == null) {
+    if (column.getRefTable().getPrimaryKeys() == null) {
       throw new MolgenisException(
           "Create column failed",
           "Create of column '"

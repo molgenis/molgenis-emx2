@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.executeCreateColumn;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.reapplyRefbackContraints;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
@@ -38,7 +39,7 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
-          if (getLocalColumn(column.getName()) != null) {
+          if (getLocalColumn(column.getName()) != null)
             throw new MolgenisException(
                 "Add column failed",
                 "Duplicate name; column with name "
@@ -46,9 +47,9 @@ class SqlTableMetadata extends TableMetadata {
                     + "."
                     + column.getName()
                     + " already exists");
-          }
+
           Column result = new Column(this, column);
-          SqlColumnExecutor.executeCreateColumn(getJooq(), result);
+          executeCreateColumn(getJooq(), result);
           super.add(result);
           if (column.getKey() > 0) {
             SqlTableMetadataExecutor.createOrReplaceUnique(
@@ -110,7 +111,7 @@ class SqlTableMetadata extends TableMetadata {
       throw new MolgenisException(
           SET_INHERITANCE_FAILED, "Other table '" + otherTable + "' does not exist in this schema");
 
-    if (other.getPrimaryKey() == null)
+    if (other.getPrimaryKeys() == null)
       throw new MolgenisException(
           SET_INHERITANCE_FAILED,
           "To extend table '" + otherTable + "' it must have primary key set");

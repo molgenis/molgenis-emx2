@@ -82,12 +82,11 @@ public class TestCreateForeignKeysArrays {
     Table bTable =
         schema.create(
             table("B")
-                .add(column("ID").type(INT).pkey())
-                .add(column(refToA).type(REF_ARRAY).refTable("A")));
-    // .add(column(refToA + "Nullable").type(REF_ARRAY).refTable("A").nullable(true)));
+                .add(column(refToA).type(REF_ARRAY).refTable("A"))
+                .add(column(refToA + "Nullable").type(REF_ARRAY).refTable("A").nullable(true)));
 
     // error on insert of faulty fkey
-    Row bErrorRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 3));
+    Row bErrorRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 1, 3));
     try {
       bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
@@ -96,7 +95,7 @@ public class TestCreateForeignKeysArrays {
     }
 
     // okay
-    Row bRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 0, 2));
+    Row bRow = new Row().set(refToA, Arrays.copyOfRange(testValues, 0, 2));
     bTable.insert(bRow);
 
     // delete of A should fail

@@ -79,7 +79,7 @@ public class TableMetadata {
     return Collections.unmodifiableList(result);
   }
 
-  public String[] getPrimaryKey() {
+  public List<String> getPrimaryKeys() {
     List<String> primaryKey = new ArrayList<>();
     for (Column c : columns.values()) {
       if (c.getKey() == 1) {
@@ -87,7 +87,7 @@ public class TableMetadata {
       }
     }
     if (primaryKey.size() == 0) return null;
-    return primaryKey.toArray(new String[primaryKey.size()]);
+    return primaryKey;
   }
 
   public List<Column> getLocalColumns() {
@@ -97,37 +97,6 @@ public class TableMetadata {
       result.add(new Column(c.getTable(), c));
     }
     return result;
-  }
-
-  /** this includes columns 'under water' such as for composite keys */
-  public List<Column> getMutationColumns() {
-    ArrayList<Column> result = new ArrayList<>();
-    for (Column c : columns.values()) {
-      if (c.isCompositeRef()) {
-        for (Column fkey : c.getRefColumns()) {
-          Column c2 = new Column(fkey);
-          c.setName(c.getName() + "-" + fkey.getName());
-        }
-      } else {
-        result.add(c);
-      }
-    }
-    return result;
-  }
-
-  public Column getLocalColumn(String name) {
-    for (Column c : getLocalColumns()) {
-      if (getInherit() != null) {
-        if (c.getName().equals(name) && getInheritedTable().getColumn(name) == null) {
-          return c;
-        }
-      } else {
-        if (c.getName().equals(name)) {
-          return c;
-        }
-      }
-    }
-    return null;
   }
 
   public Collection<String> getColumnNames() {
@@ -144,20 +113,7 @@ public class TableMetadata {
   }
 
   public Column getColumn(String name) {
-    if (columns.containsKey(name)) {
-      return new Column(this, columns.get(name));
-    }
-    // composite ref and ref_array have multiple columns
-    if (name.contains("-")) {
-      Column ref = getColumn(name.split("-")[0]);
-      if (ref != null) {
-        ref = ref.getRefTable().getColumn(name.split("-")[1]);
-        if (ref != null) {
-          Column result = new Column(ref);
-          return result.setName(name);
-        }
-      }
-    }
+    if (columns.containsKey(name)) return new Column(this, columns.get(name));
     if (inherit != null) {
       Column c = getInheritedTable().getColumn(name);
       if (c != null) return new Column(c.getTable(), c);
@@ -180,19 +136,12 @@ public class TableMetadata {
     columns.remove(name);
     // add the new
     columns.put(column.getName(), new Column(this, column));
-    if (this.getPrimaryKey() != null && Arrays.asList(this.getPrimaryKey()).contains(name)) {
-      for (int idx = 0; idx < this.getPrimaryKey().length; idx++) {
-        if (this.getPrimaryKey()[idx].equals(name.trim())) {
-          this.getPrimaryKey()[idx] = column.getName();
-        }
-      }
-    }
     column.setTable(this);
     return this;
   }
 
   public void dropColumn(String name) {
-    if (Arrays.asList(getPrimaryKey()).contains(name))
+    if (Arrays.asList(getPrimaryKeys()).contains(name))
       throw new MolgenisException("Remove column failed", "Column is primary key");
     if (columns.get(name) == null)
       throw new MolgenisException("Remove column failed", "Column '" + name + "' unknown");
@@ -311,5 +260,9 @@ public class TableMetadata {
         c.removeKey();
       }
     }
+  }
+
+  protected Column getLocalColumn(String name) {
+    return columns.get(name);
   }
 }

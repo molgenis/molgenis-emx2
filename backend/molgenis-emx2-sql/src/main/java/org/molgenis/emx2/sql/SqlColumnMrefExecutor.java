@@ -69,9 +69,7 @@ public class SqlColumnMrefExecutor {
   // NEW.{ref_array1} = NULL [, NEW.{ref_array2} = NULL]
   private static String setRefArrayNull(Column column) {
     List<String> items = new ArrayList<>();
-    for (Column fkey : column.getRefColumns()) {
-      items.add("NEW." + fkeyName(column, fkey) + " = NULL");
-    }
+    items.add("NEW." + name(column.getName()) + " = NULL");
     return String.join(",", items);
   }
 
@@ -91,39 +89,31 @@ public class SqlColumnMrefExecutor {
 
     // SELECT ({NEW.{keyfield} as {keyfield}}) AS self
     List<String> items = new ArrayList<>();
-    for (Column pkey : column.getTable().getPrimaryKeyColumns()) {
-      String name = name(pkey.getName()).toString();
-      items.add("NEW." + name + " AS " + name);
+    for (String pkey : column.getTable().getPrimaryKeys()) {
+      items.add("NEW." + name(pkey) + " AS " + name(pkey));
     }
     result.append("SELECT * FROM (SELECT " + String.join(",", items) + ") as self,");
 
     // UNNEST({refFields}) AS other({refFields}
     items = new ArrayList<>();
     List<String> items2 = new ArrayList<>();
-    for (Column fkey : column.getRefColumns()) {
-      items.add("NEW." + fkeyName(column, fkey));
-      items2.add(fkeyName(column, fkey));
-    }
+    Column fkey = column.getRefColumn();
+    items.add("NEW." + name(column.getName()));
+    items2.add(name(column.getName()).toString());
     String refFields = String.join(",", items);
     String asNames = String.join(",", items2);
     result.append("UNNEST(" + refFields + ") as other(" + asNames + ")");
     return result.toString();
   }
 
-  private static String fkeyName(Column column, Column fkey) {
-    return name(column.getName() + (column.isCompositeRef() ? "=" + fkey.getName() : ""))
-        .toString();
-  }
-
   // "key1[,key2],fkey1[,fkey2]"
   private static String joinTableFields(Column column) {
     List<String> items = new ArrayList<>();
-    for (Column pkey : column.getTable().getPrimaryKeyColumns()) {
-      items.add(name(pkey.getName()).toString());
+    for (String pkey : column.getTable().getPrimaryKeys()) {
+      items.add(name(pkey).toString());
     }
-    for (Column fkey : column.getRefColumns()) {
-      items.add(fkeyName(column, fkey));
-    }
+    Column fkey = column.getRefColumn();
+    items.add(name(column.getName()).toString());
     return String.join(",", items);
   }
 
@@ -157,10 +147,9 @@ public class SqlColumnMrefExecutor {
       selfKeyFields.add(name(thisKey.getName()));
     }
 
-    for (Column otherKey : column.getRefColumns()) {
-      otherFields.add(field(fkeyName(column, otherKey), SqlTypeUtils.jooqTypeOf(otherKey)));
-      otherFkeyFields.add(name(otherKey.getName()));
-    }
+    Column otherKey = column.getRefColumn();
+    otherFields.add(field(name(column.getName()), SqlTypeUtils.jooqTypeOf(otherKey)));
+    otherFkeyFields.add(name(otherKey.getName()));
 
     // all fields
     Collection<Field> fields = new ArrayList<>();

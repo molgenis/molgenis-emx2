@@ -30,8 +30,6 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
-  private static final org.jooq.Field TABLE_PKEY =
-      field(name("table_key"), VARCHAR.nullable(true).getArrayDataType());
   private static final org.jooq.Field TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
@@ -47,6 +45,8 @@ public class MetadataUtils {
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
+  private static final org.jooq.Field REF_COLUMN =
+      field(name("ref_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
   private static final org.jooq.Field VALIDATION_SCRIPT =
       field(name("validationScript"), VARCHAR.nullable(true));
@@ -76,7 +76,7 @@ public class MetadataUtils {
       // public access
 
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
-        t.columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PKEY, TABLE_INHERITS, TABLE_DESCRIPTION)
+        t.columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
             .constraints(
                 primaryKey(TABLE_SCHEMA, TABLE_NAME),
                 foreignKey(TABLE_SCHEMA)
@@ -95,6 +95,7 @@ public class MetadataUtils {
                 COLUMN_KEY,
                 NULLABLE,
                 REF_TABLE,
+                REF_COLUMN,
                 MAPPED_BY,
                 VALIDATION_SCRIPT,
                 INDEXED,
@@ -169,16 +170,14 @@ public class MetadataUtils {
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     jooq.insertInto(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_PKEY, TABLE_INHERITS, TABLE_DESCRIPTION)
+        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
         .values(
             table.getSchema().getName(),
             table.getTableName(),
-            table.getPrimaryKey(),
             table.getInherit(),
             table.getDescription())
         .onConflict(TABLE_SCHEMA, TABLE_NAME)
         .doUpdate()
-        .set(TABLE_PKEY, table.getPrimaryKey())
         .set(TABLE_INHERITS, table.getInherit())
         .execute();
   }
@@ -215,6 +214,7 @@ public class MetadataUtils {
             COLUMN_KEY,
             NULLABLE,
             REF_TABLE,
+            REF_COLUMN,
             MAPPED_BY,
             VALIDATION_SCRIPT,
             INDEXED,
@@ -228,6 +228,7 @@ public class MetadataUtils {
             column.getKey(),
             column.isNullable(),
             column.getRefTableName(),
+            column.getRefColumnNameRaw(),
             column.getMappedBy(),
             column.getValidation(),
             column.isIndexed(),
@@ -239,6 +240,7 @@ public class MetadataUtils {
         .set(COLUMN_KEY, column.getKey())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
+        .set(REF_COLUMN, column.getRefColumnNameRaw())
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
@@ -275,6 +277,7 @@ public class MetadataUtils {
       c.nullable(col.get(NULLABLE, Boolean.class));
       c.key(col.get(COLUMN_KEY, Integer.class));
       c.refTable(col.get(REF_TABLE, String.class));
+      c.refColumn(col.get(REF_COLUMN, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));
       c.validation(col.get(VALIDATION_SCRIPT, String.class));
       c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));

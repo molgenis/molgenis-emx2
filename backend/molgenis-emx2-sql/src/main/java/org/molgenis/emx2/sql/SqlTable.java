@@ -60,7 +60,7 @@ class SqlTable implements Table {
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
             List<Field> fields = new ArrayList<>();
-            for (Column c : getMetadata().getMutationColumns()) {
+            for (Column c : getMetadata().getLocalColumns()) {
               fieldNames.add(c.getName());
               columns.add(c);
               fields.add(getJooqField(c));
@@ -95,7 +95,7 @@ class SqlTable implements Table {
   public int update(Iterable<Row> rows) {
     long start = System.currentTimeMillis();
 
-    if (getMetadata().getPrimaryKey() == null)
+    if (getMetadata().getPrimaryKeys() == null)
       throw new MolgenisException(
           "Update failed",
           "Table "
@@ -124,14 +124,15 @@ class SqlTable implements Table {
 
               // to compare if columns change between rows
               Collection<String> rowFields = new ArrayList<>();
-              for (Column c : tableMetadata.getMutationColumns()) {
-                if (row.getColumnNames().contains(c.getName())) {
-                  rowFields.add(c.getName());
+              for (String name : row.getColumnNames()) {
+                Column c = tableMetadata.getColumn(name);
+                if (tableMetadata.getColumn(name) != null && c.getTableName().equals(getName())) {
+                  rowFields.add(name);
                 }
               }
 
               // execute the batch if batchSize is reached
-              // or when rowFields differ from previous FieldNaes
+              // or when rowFields differ from previous FieldNames
               if (!batch.isEmpty()
                   && (count.get() % batchSize == 0
                       || (fieldNames.containsAll(rowFields)
@@ -146,12 +147,11 @@ class SqlTable implements Table {
 
               // add field metadata if first row of this batch
               if (fieldNames.isEmpty()) {
-                for (Column col : tableMetadata.getMutationColumns()) {
-                  if (row.getColumnNames().contains(col.getName())) {
-                    columns.add(col);
-                    fields.add(getJooqField(col));
-                    fieldNames.add(col.getName());
-                  }
+                for (String name : rowFields) {
+                  Column c = tableMetadata.getColumn(name);
+                  fieldNames.add(name);
+                  columns.add(c);
+                  fields.add(getJooqField(c));
                 }
               }
 
@@ -263,17 +263,17 @@ class SqlTable implements Table {
 
   private void deleteBatch(Collection<Row> rows) {
     if (!rows.isEmpty()) {
-      String[] keyNames = getMetadata().getPrimaryKey();
+      List<String> keyNames = getMetadata().getPrimaryKeys();
 
       // in case no primary key is defined, use all columns
-      if (getMetadata().getPrimaryKey() == null) {
-        List<Column> allColumns = getMetadata().getColumns();
-        keyNames = new String[allColumns.size()];
-        for (int i = 0; i < keyNames.length; i++) {
-          keyNames[i] = allColumns.get(i).getName();
+      if (keyNames == null) {
+        keyNames = new ArrayList<>();
+        for (String columnName : getMetadata().getColumnNames()) {
+          keyNames.add(columnName);
         }
       }
-      Condition whereCondition = getWhereConditionForBatchDelete(rows, keyNames);
+      Condition whereCondition =
+          getWhereConditionForBatchDelete(rows, keyNames.toArray(new String[keyNames.size()]));
       db.getJooq().deleteFrom(getJooqTable()).where(whereCondition).execute();
     }
   }
@@ -329,7 +329,7 @@ class SqlTable implements Table {
 
   private List<Field> getPrimaryKeyFields() {
     List<Field> result = new ArrayList<>();
-    for (String name : getMetadata().getPrimaryKey()) {
+    for (String name : getMetadata().getPrimaryKeys()) {
       result.add(getJooqField(getMetadata().getColumn(name)));
     }
     return result;

@@ -23,11 +23,11 @@ public class SqlTypeUtils extends TypeUtils {
     ColumnType sqlColumnType = column.getColumnType();
     switch (sqlColumnType) {
       case REF:
-        return jooqTypeOf(column.getRefColumns().get(0));
+        return jooqTypeOf(column.getRefColumn());
       case REFBACK:
       case REF_ARRAY:
       case MREF:
-        return jooqTypeOf(column.getRefColumns().get(0)).getArrayDataType();
+        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
       default:
         return jooqTypeOf(sqlColumnType);
     }
@@ -76,9 +76,6 @@ public class SqlTypeUtils extends TypeUtils {
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {
-      if (c.isCompositeRef()) {
-        throw new UnsupportedOperationException();
-      }
       Object value = getTypedValue(row, c);
 
       // validation
@@ -203,9 +200,9 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static ColumnType getRefColumnType(Column column) {
     ColumnType columnType;
-    Column refColumn = column.getRefColumns().get(0);
+    Column refColumn = column.getRefColumn();
     while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType())) {
-      refColumn = refColumn.getRefColumns().get(0);
+      refColumn = refColumn.getRefColumn();
       // check self reference
       if (refColumn.getTableName().equals(column.getTableName())
           && refColumn.getName().equals(column.getName())) {

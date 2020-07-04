@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
@@ -85,12 +86,11 @@ class SqlQueryRowHelper {
         if (!select.get(column.getName()).getColumNames().isEmpty()
             && (REF.equals(column.getColumnType())
                 || REF_ARRAY.equals(column.getColumnType())
-                || REFBACK.equals(column.getColumnType()))) {
-          // || MREF.equals(column.getColumnType()))) {
+                || REFBACK.equals(column.getColumnType())
+                || MREF.equals(column.getColumnType()))) {
 
           // check if not primary key that points to the parent table
-          if (table.getInherit() == null
-              || Arrays.asList(table.getPrimaryKey()).contains(column.getName())) {
+          if (table.getInherit() == null || table.getPrimaryKeys().contains(column.getName())) {
             fields.addAll(
                 createSelectFields(
                     column.getRefTable(),
@@ -100,10 +100,9 @@ class SqlQueryRowHelper {
         } else {
           String columnAlias = prefix + column.getName();
 
-          //          if (MREF.equals(column.getColumnType())) {
-          //            fields.add(createMrefSubselect(column, inheritAlias).as(columnAlias));
-          //          } else
-          if (REFBACK.equals(column.getColumnType())) {
+          if (MREF.equals(column.getColumnType())) {
+            fields.add(createMrefSubselect(column, inheritAlias).as(columnAlias));
+          } else if (REFBACK.equals(column.getColumnType())) {
             fields.add(
                 PostgresDSL.array(createBackrefSubselect(column, inheritAlias))
                     .as(column.getName()));
@@ -168,52 +167,46 @@ class SqlQueryRowHelper {
     }
   }
 
-  //  private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
-  //    Column reverseToColumn = column.getTable().getPrimaryKeyColumn();
-  //    // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
-  //    // mappedBy
-  //    for (Column c : column.getRefTable().getColumns()) {
-  //      if (column.getName().equals(c.getMappedBy())) {
-  //        reverseToColumn = c;
-  //        break;
-  //      }
-  //    }
-  //    return PostgresDSL.array(
-  //        DSL.select(field(name(getJoinTableName(column), column.getName())))
-  //            .from(name(column.getTable().getSchema().getName(), getJoinTableName(column)))
-  //            .where(
-  //                field(name(getJoinTableName(column), reverseToColumn.getName()))
-  //                    .eq(field(name(tableAlias, reverseToColumn.getName())))));
-  //  }
+  private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
+    // BIG TODO
+    Column reverseToColumn = column.getTable().getPrimaryKeyColumns().get(0);
+    // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
+    // mappedBy
+    for (Column c : column.getRefTable().getColumns()) {
+      if (column.getName().equals(c.getMappedBy())) {
+        reverseToColumn = c;
+        break;
+      }
+    }
+    return PostgresDSL.array(
+        DSL.select(field(name(getJoinTableName(column), column.getName())))
+            .from(name(column.getTable().getSchema().getName(), getJoinTableName(column)))
+            .where(
+                field(name(getJoinTableName(column), reverseToColumn.getName()))
+                    .eq(field(name(tableAlias, reverseToColumn.getName())))));
+  }
 
   static SelectConditionStep createBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = getMappedByColumn(column);
-    List<Field> selectFields = new ArrayList<>();
-    List<Condition> whereFields = new ArrayList<>();
-    // we follow the reverse foreign key relation, from 'mappedBy' to 'this'.
-    for (Column thisKey : mappedBy.getRefColumns()) {
-      selectFields.add(field(name(thisKey.getName())));
-      Field thisField = field(name(tableAlias, thisKey.getName()));
-      Field mappedByField =
-          field(
-              name(
-                  mappedBy.getTable().getTableName(),
-                  mappedBy.getName() + (mappedBy.isCompositeRef() ? "-" + thisKey.getName() : "")));
-      switch (mappedBy.getColumnType()) {
-        case REF:
-          whereFields.add(mappedByField.eq(thisField));
-          break;
-        case REF_ARRAY:
-          whereFields.add(condition("{0} = ANY ({1})", thisField, mappedByField));
-          break;
-        case MREF:
-        default:
-          throw new MolgenisException(
-              "Internal error", "Refback for type not matched for column " + column.getName());
-      }
+    switch (mappedBy.getColumnType()) {
+      case REF:
+        return DSL.select(field(name(column.getRefColumnName())))
+            .from(
+                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
+            .where(
+                field(name(mappedBy.getTable().getTableName(), mappedBy.getName()))
+                    .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
+      case REF_ARRAY:
+        return DSL.select(field(name(column.getRefColumnName())))
+            .from(
+                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
+            .where(
+                "{0} = ANY ({1})",
+                field(name(tableAlias, mappedBy.getRefColumnName())),
+                field(name(mappedBy.getTable().getTableName(), mappedBy.getName())));
+      default:
+        throw new MolgenisException(
+            "Internal error", "Refback for type not matched for column " + column.getName());
     }
-    return DSL.select(selectFields)
-        .from(name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
-        .where(whereFields);
   }
 }
