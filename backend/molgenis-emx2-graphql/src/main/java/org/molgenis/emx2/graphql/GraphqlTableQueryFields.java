@@ -3,7 +3,7 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlQueryGraphHelper;
+import org.molgenis.emx2.sql.SqlQueryGraphExecutor;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -71,11 +71,11 @@ public class GraphqlTableQueryFields {
         GraphQLObjectType.newObject().name(table.getName() + "Connection");
     connectionBuilder.field(
         GraphQLFieldDefinition.newFieldDefinition()
-            .name(SqlQueryGraphHelper.DATA_AGG_FIELD)
+            .name(SqlQueryGraphExecutor.DATA_AGG_FIELD)
             .type(createTableAggregationType(table)));
     connectionBuilder.field(
         GraphQLFieldDefinition.newFieldDefinition()
-            .name(SqlQueryGraphHelper.DATA_FIELD)
+            .name(SqlQueryGraphExecutor.DATA_FIELD)
             .type(GraphQLList.list(tableType))
             .argument(
                 GraphQLArgument.newArgument()
@@ -171,19 +171,19 @@ public class GraphqlTableQueryFields {
                         .name(table.getName() + "AggregatorFor" + col.getName())
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphHelper.MAX_FIELD)
+                                .name(SqlQueryGraphExecutor.MAX_FIELD)
                                 .type(graphQLTypeOf(col)))
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphHelper.MIN_FIELD)
+                                .name(SqlQueryGraphExecutor.MIN_FIELD)
                                 .type(graphQLTypeOf(col)))
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphHelper.AVG_FIELD)
+                                .name(SqlQueryGraphExecutor.AVG_FIELD)
                                 .type(Scalars.GraphQLFloat))
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphHelper.SUM_FIELD)
+                                .name(SqlQueryGraphExecutor.SUM_FIELD)
                                 .type(graphQLTypeOf(col)))));
       } else {
         // group by options

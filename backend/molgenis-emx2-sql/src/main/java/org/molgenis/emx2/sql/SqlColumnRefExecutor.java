@@ -1,8 +1,11 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
+import org.jooq.ConstraintForeignKeyOnStep;
+import org.jooq.DSLContext;
+import org.jooq.Name;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +36,10 @@ public class SqlColumnRefExecutor {
     List<Name> thisColumns = new ArrayList<>();
     List<Name> otherColumns = new ArrayList<>();
 
-    thisColumns.add(name(column.getName()));
-    otherColumns.add(name(column.getRefColumnName()));
+    for (Reference ref : column.getRefColumns()) {
+      thisColumns.add(name(ref.getName()));
+      otherColumns.add(name(ref.getTo()));
+    }
 
     Name fkeyTable = name(column.getTable().getSchema().getName(), refTableName);
 

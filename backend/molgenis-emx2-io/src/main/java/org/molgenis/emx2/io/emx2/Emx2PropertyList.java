@@ -9,8 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Emx2PropertyList {
-  public static final String UNIQUE = "unique";
-  public static final String PKEY = "pkey";
+  public static final String KEY = "key";
   public static final String NULLABLE = "nullable";
   public static final String VALIDATE = "validate";
   public static final String CASCADE_DELETE = "cascadeDelete";

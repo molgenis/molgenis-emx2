@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
-import static org.molgenis.emx2.sql.SqlTypeUtils.jooqTypeOf;
 
 /**
  * Todo:
@@ -28,7 +26,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.jooqTypeOf;
  * <li>mref
  * <li>inheritance
  */
-public class SqlQueryGraphHelper extends QueryBean {
+public class SqlQueryGraphExecutor extends QueryBean {
   public static final String COUNT_FIELD = "count";
   public static final String DATA_AGG_FIELD = "data_agg";
   public static final String DATA_FIELD = "data";
@@ -43,7 +41,7 @@ public class SqlQueryGraphHelper extends QueryBean {
 
   private static final String ITEM = "item";
 
-  private static Logger logger = LoggerFactory.getLogger(SqlQueryGraphHelper.class);
+  private static Logger logger = LoggerFactory.getLogger(SqlQueryGraphExecutor.class);
 
   public static String getJson(
       SqlTableMetadata table, SelectColumn select, Filter filter, String[] searchTerms) {
@@ -185,7 +183,7 @@ public class SqlQueryGraphHelper extends QueryBean {
                       getFilterForRef(filter, column))
                   .as(column.getName()));
         } else {
-          fields.add(field(name(inheritAlias, column.getName()), jooqTypeOf(column)));
+          fields.add(field(name(inheritAlias, column.getName()), column.getJooqType()));
         }
       }
 
@@ -255,9 +253,9 @@ public class SqlQueryGraphHelper extends QueryBean {
                       MIN_FIELD,
                       min(field(name(col.getName()))),
                       AVG_FIELD,
-                      avg(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))),
+                      avg(field(name(col.getName()), col.getJooqType())),
                       SUM_FIELD,
-                      sum(field(name(col.getName()), SqlTypeUtils.jooqTypeOf(col))))
+                      sum(field(name(col.getName()), col.getJooqType())))
                   .as(col.getName()));
         } else {
           groupBy.add(field(name(tableAlias, col.getName())));
@@ -296,11 +294,13 @@ public class SqlQueryGraphHelper extends QueryBean {
   private static Field createSelectionFieldForRef(
       Column column, String tableAlias, SelectColumn select, Filter filter) {
     if (select == null) select = new SelectColumn(column.getName());
-    String refColumn = column.getRefColumnName();
-    if (!select.has(refColumn)) {
-      select.select(refColumn);
-    }
 
+    // minimally select the key
+    for (String key : column.getRefTable().getPrimaryKeys()) {
+      if (!select.has(key)) {
+        select.select(key);
+      }
+    }
     String subAlias = tableAlias + "/" + column.getName();
     return field(
         createSubselect(
@@ -320,32 +320,42 @@ public class SqlQueryGraphHelper extends QueryBean {
    * relations
    */
   private static Condition getSubFieldCondition(Column column, String tableAlias, String subAlias) {
-    Condition condition = null;
-    String refCol = column.getRefColumnName();
+    List<Condition> conditions = new ArrayList<>();
     if (REF.equals(column.getColumnType())) {
-      condition = field(name(subAlias, refCol)).eq(field(name(tableAlias, column.getName())));
+      for (Reference ref : column.getRefColumns()) {
+        conditions.add(
+            field(name(subAlias, ref.getTo())).eq(field(name(tableAlias, ref.getName()))));
+      }
     } else if (REF_ARRAY.equals(column.getColumnType())) {
-      condition =
-          condition(
-              ANY_SQL, field(name(subAlias, refCol)), field(name(tableAlias, column.getName())));
-    } else if (REFBACK.equals(column.getColumnType())) {
-      Column mappedBy = getMappedByColumn(column);
-      refCol = mappedBy.getRefColumnName();
-      if (REF.equals(mappedBy.getColumnType())) {
-        condition = field(name(subAlias, mappedBy.getName())).eq(field(name(tableAlias, refCol)));
-      } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
-        condition =
+      for (Reference ref : column.getRefColumns()) {
+        conditions.add(
             condition(
                 ANY_SQL,
-                field(name(tableAlias, refCol)),
-                field(name(subAlias, mappedBy.getName())));
+                field(name(subAlias, ref.getTo())),
+                field(name(tableAlias, ref.getName()))));
       }
-    } else {
-      throw new SqlGraphQueryException(
-          "Internal error",
-          "For column " + column.getTable().getTableName() + "." + column.getName());
+    } else if (REFBACK.equals(column.getColumnType())) {
+      Column mappedBy = getMappedByColumn(column);
+      if (REF.equals(mappedBy.getColumnType())) {
+        for (Reference ref : mappedBy.getRefColumns()) {
+          conditions.add(
+              field(name(subAlias, ref.getName())).eq(field(name(tableAlias, ref.getTo()))));
+        }
+      } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+        for (Reference ref : mappedBy.getRefColumns()) {
+          conditions.add(
+              condition(
+                  ANY_SQL,
+                  field(name(tableAlias, ref.getTo())),
+                  field(name(subAlias, ref.getName()))));
+        }
+      } else {
+        throw new SqlGraphQueryException(
+            "Internal error",
+            "For column " + column.getTable().getTableName() + "." + column.getName());
+      }
     }
-    return condition;
+    return and(conditions);
   }
 
   private static Condition createConditionsForRefs(

@@ -1,10 +1,14 @@
 package org.molgenis.emx2.jobs;
 
-import org.molgenis.emx2.MolgenisException;
-
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class JobServiceInMemory implements JobService {
   private ExecutorService executorService;

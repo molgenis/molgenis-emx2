@@ -147,6 +147,13 @@ public class TestCreateBasicDataColumnTypeColumns {
         });
   }
 
+  @Test
+  public void testJSON() {
+    executeTest(
+        JSONB,
+        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
+  }
+
   private void executeTest(ColumnType columnType, Serializable[] values) {
 
     Schema schema =

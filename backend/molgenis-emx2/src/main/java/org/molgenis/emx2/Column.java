@@ -1,6 +1,16 @@
 package org.molgenis.emx2;
 
+import org.jooq.DataType;
+import org.jooq.Field;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
+import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 public class Column {
   private TableMetadata table;
@@ -9,8 +19,6 @@ public class Column {
 
   // relationships
   private String refTable;
-  private String refColumn;
-  private String refCompositeKey;
   private String mappedBy;
 
   // options
@@ -46,7 +54,6 @@ public class Column {
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
-    refColumn = column.refColumn;
     mappedBy = column.mappedBy;
     validationScript = column.validationScript;
     description = column.description;
@@ -62,11 +69,12 @@ public class Column {
   }
 
   public Column(String columnName) {
-    if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "'",
-          "Column must start with a letter or underscore, followed by letters, underscores or numbers");
-    }
+    //    if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+    //      throw new MolgenisException(
+    //          "Invalid column name '" + columnName + "'",
+    //          "Column must start with a letter or underscore, followed by letters, underscores or
+    // numbers");
+    //    }
     this.columnName = columnName;
   }
 
@@ -87,36 +95,28 @@ public class Column {
     return columnType;
   }
 
-  public String getRefColumnName() {
-    if (this.refColumn == null
-        && getRefTable() != null
-        && getRefTable().getPrimaryKeys() != null
-        && getRefTable().getPrimaryKeys().size() == 1) {
-      return getRefTable().getPrimaryKeys().get(0);
-    }
-    return this.refColumn;
-  }
+  public List<Reference> getRefColumns() {
+    List<Reference> refColumns = new ArrayList<>();
+    if (getRefTable() == null) return refColumns;
+    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
+    for (Column keyPart : pkeys) {
+      // todo check for composite keyPart
+      ColumnType type = keyPart.getColumnType();
+      // all but ref is array
+      if (!REF.equals(getColumnType())) {
+        type = getArrayType(type);
+      }
+      // create the ref
+      Reference ref =
+          new Reference(
+              this.getName() + (pkeys.size() > 1 ? "-" + keyPart.getName() : ""),
+              keyPart.getName(),
+              type);
 
-  public String getRefColumnNameRaw() {
-    return this.refColumn;
-  }
-
-  public Column getRefColumn() {
-    Column c = null;
-    if (getRefColumnName() != null) {
-      c = getRefTable().getColumn(getRefColumnName());
+      refColumns.add(ref);
     }
-    if (c == null)
-      throw new MolgenisException(
-          "Internal error",
-          "Column.getRefColumn failed for column '"
-              + getName()
-              + "' because refColumn '"
-              + getRefColumnName()
-              + "' could not be found in table '"
-              + getRefTableName()
-              + "'");
-    return c;
+
+    return refColumns;
   }
 
   private SchemaMetadata getSchema() {
@@ -232,18 +232,12 @@ public class Column {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
-    if (REF.equals(getColumnType()))
+    if (isReference()) {
       builder
-          .append("ref(")
+          .append("" + getColumnType().toString().toLowerCase() + "(")
           .append(refTable)
-          .append(",")
-          .append(String.join(",", refColumn))
           .append(")");
-    else if (ColumnType.REF_ARRAY.equals(getColumnType()))
-      builder.append("ref_array(").append(refTable).append(",").append(refColumn).append(")");
-    //    else if (ColumnType.MREF.equals(getColumnType()))
-    //      builder.append("mref(").append(refTable).append(",").append(refColumn).append(")");
-    else builder.append(getColumnType().toString().toLowerCase());
+    }
     if (Boolean.TRUE.equals(isNullable())) builder.append(" nullable");
     return builder.toString();
   }
@@ -261,13 +255,9 @@ public class Column {
     return this;
   }
 
-  public Column refColumn(String refColumn) {
-    this.refColumn = refColumn;
-    return this;
-  }
-
-  void setTable(TableMetadata table) {
+  public Column setTable(TableMetadata table) {
     this.table = table;
+    return this;
   }
 
   public String getTableName() {
@@ -284,10 +274,6 @@ public class Column {
     return this;
   }
 
-  public Column ref(String refTable) {
-    return type(REF).refTable(refTable);
-  }
-
   public Column pkey() {
     return this.key(1);
   }
@@ -300,5 +286,36 @@ public class Column {
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
+  }
+
+  public Column getMappedByColumn() {
+    return getRefTable().getColumn(getMappedBy());
+  }
+
+  public DataType getJooqType() {
+    return toJooqType(getColumnType());
+  }
+
+  public Field asJooqField() {
+    return field(name(getName()), getJooqType());
+  }
+
+  public org.jooq.Table getJooqTable() {
+    return getTable().asJooqTable();
+  }
+
+  public boolean isReference() {
+    return REF.equals(getColumnType())
+        || MREF.equals(getColumnType())
+        || REF_ARRAY.equals(getColumnType())
+        || REFBACK.equals(getColumnType());
+  }
+
+  public Boolean isPkey() {
+    return this.key == 1;
+  }
+
+  public String getSchemaName() {
+    return getTable().getSchemaName();
   }
 }

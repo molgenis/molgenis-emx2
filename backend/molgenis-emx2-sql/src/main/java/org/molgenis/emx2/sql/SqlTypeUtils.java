@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.jooq.impl.DSL.cast;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.SqlJavascriptValidator.validateValue;
 
 public class SqlTypeUtils extends TypeUtils {
@@ -19,19 +18,19 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static DataType jooqTypeOf(Column column) {
-    ColumnType sqlColumnType = column.getColumnType();
-    switch (sqlColumnType) {
-      case REF:
-        return jooqTypeOf(column.getRefColumn());
-      case REFBACK:
-      case REF_ARRAY:
-      case MREF:
-        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
-      default:
-        return jooqTypeOf(sqlColumnType);
-    }
-  }
+  //  static DataType jooqTypeOf(Column column) {
+  //    ColumnType sqlColumnType = column.getColumnType();
+  //    switch (sqlColumnType) {
+  //      case REF:
+  //        return jooqTypeOf(column.getRefColumn());
+  //      case REFBACK:
+  //      case REF_ARRAY:
+  //      case MREF:
+  //        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
+  //      default:
+  //        return jooqTypeOf(sqlColumnType);
+  //    }
+  //  }
 
   static DataType jooqTypeOf(ColumnType columnType) {
     switch (columnType) {
@@ -67,6 +66,8 @@ public class SqlTypeUtils extends TypeUtils {
         return SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY:
         return SQLDataType.TIMESTAMP.getArrayDataType();
+      case JSONB:
+        return SQLDataType.JSONB;
       default:
         // should never happen
         throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type " + columnType);
@@ -76,7 +77,7 @@ public class SqlTypeUtils extends TypeUtils {
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {
-      Object value = getTypedValue(row, c);
+      Object value = getTypedValue(row, c.getName(), c.getColumnType());
 
       // validation
       if (value != null && c.getValidation() != null) {
@@ -96,16 +97,16 @@ public class SqlTypeUtils extends TypeUtils {
     return values;
   }
 
-  static Object getTypedValue(Object v, Column column) {
-    ColumnType columnType = column.getColumnType();
-    if (REF.equals(columnType)) {
-      columnType = getRefColumnType(column);
-    } else if (REF_ARRAY.equals(columnType)
-        || REFBACK.equals(columnType)) { // /MREF.equals(columnType) ||
-      columnType = getArrayType(getRefColumnType(column));
-    }
-    return getTypedValue(v, columnType);
-  }
+  //  static Object getTypedValue(Object v, Column column) {
+  //    ColumnType columnType = column.getColumnType();
+  //    if (REF.equals(columnType)) {
+  //      columnType = getRefColumnType(column);
+  //    } else if (REF_ARRAY.equals(columnType)
+  //        || REFBACK.equals(columnType)) { // /MREF.equals(columnType) ||
+  //      columnType = getArrayType(getRefColumnType(column));
+  //    }
+  //    return getTypedValue(v, columnType);
+  //  }
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
     switch (columnType) {
@@ -141,77 +142,76 @@ public class SqlTypeUtils extends TypeUtils {
         return TypeUtils.toDateTime(v);
       case DATETIME_ARRAY:
         return TypeUtils.toDateTimeArray(v);
+      case JSONB:
+        return TypeUtils.toJsonb(v);
       default:
         throw new UnsupportedOperationException(
             "Unsupported columnType columnType found:" + columnType);
     }
   }
 
-  static Object getTypedValue(Row row, Column column) {
-    ColumnType columnType = column.getColumnType();
-
-    if (REF.equals(columnType)) {
-      columnType = getRefColumnType(column);
-    }
-    if (REF_ARRAY.equals(columnType) || REFBACK.equals(columnType) || MREF.equals(columnType)) {
-      columnType = getRefArrayColumnType(column);
-    }
-    switch (columnType) {
+  static Object getTypedValue(Row row, String name, ColumnType type) {
+    switch (type) {
       case UUID:
-        return row.getUuid(column.getName());
+        return row.getUuid(name);
       case UUID_ARRAY:
-        return row.getUuidArray(column.getName());
+        return row.getUuidArray(name);
       case STRING:
-        return row.getString(column.getName());
+        return row.getString(name);
       case STRING_ARRAY:
-        return row.getStringArray(column.getName());
+        return row.getStringArray(name);
       case BOOL:
-        return row.getBoolean(column.getName());
+        return row.getBoolean(name);
       case BOOL_ARRAY:
-        return row.getBooleanArray(column.getName());
+        return row.getBooleanArray(name);
       case INT:
-        return row.getInteger(column.getName());
+        return row.getInteger(name);
       case INT_ARRAY:
-        return row.getIntegerArray(column.getName());
+        return row.getIntegerArray(name);
       case DECIMAL:
-        return row.getDecimal(column.getName());
+        return row.getDecimal(name);
       case DECIMAL_ARRAY:
-        return row.getDecimalArray(column.getName());
+        return row.getDecimalArray(name);
       case TEXT:
-        return row.getText(column.getName());
+        return row.getText(name);
       case TEXT_ARRAY:
-        return row.getTextArray(column.getName());
+        return row.getTextArray(name);
       case DATE:
-        return row.getDate(column.getName());
+        return row.getDate(name);
       case DATE_ARRAY:
-        return row.getDateArray(column.getName());
+        return row.getDateArray(name);
       case DATETIME:
-        return row.getDateTime(column.getName());
+        return row.getDateTime(name);
       case DATETIME_ARRAY:
-        return row.getDateTimeArray(column.getName());
+        return row.getDateTimeArray(name);
+      case JSONB:
+        return row.getJsonb(name);
+      case JSONB_ARRAY:
+        return row.getJsonbArray(name);
       default:
-        throw new UnsupportedOperationException("Unsupported columnType found:" + columnType);
+        throw new UnsupportedOperationException("Unsupported columnType found:" + type);
     }
   }
 
-  static ColumnType getRefArrayColumnType(Column column) {
-    return getArrayType(getRefColumnType(column));
-  }
+  //  static ColumnType getRefArrayColumnType(Column column) {
+  //    return getArrayType(getRefColumnType(column));
+  //  }
 
-  public static ColumnType getRefColumnType(Column column) {
-    ColumnType columnType;
-    Column refColumn = column.getRefColumn();
-    while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType())) {
-      refColumn = refColumn.getRefColumn();
-      // check self reference
-      if (refColumn.getTableName().equals(column.getTableName())
-          && refColumn.getName().equals(column.getName())) {
-        return STRING;
-      }
-    }
-    columnType = refColumn.getColumnType();
-    return columnType;
-  }
+  //  public static ColumnType getRefColumnType(Column column) {
+  //    ColumnType columnType;
+  //    Column refColumn = column.getRefColumn();
+  //    while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType()))
+  // {
+  //      refColumn = refColumn.getRefColumn();
+  //      // check self reference
+  //      if (refColumn.getTableName().equals(column.getTableName())
+  //          && refColumn.getName().equals(column.getName())) {
+  //        return STRING;
+  //      }
+  //    }
+  //    columnType = refColumn.getColumnType();
+  //    return columnType;
+  //  }
 
   static TableMetadata getRefTable(Column column) {
     return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
@@ -255,6 +255,8 @@ public class SqlTypeUtils extends TypeUtils {
         return "timestamp without time zone";
       case DATETIME_ARRAY:
         return "timestamp without time zone[]";
+      case JSONB:
+        return "jsonb";
       default:
         throw new MolgenisException(
             "Unknown type", "Internal error: data cannot be mapped to psqlType " + type);

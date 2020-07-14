@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.jooq.impl.DSL.*;
@@ -22,10 +21,10 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
-class SqlQueryRowHelper {
-  private static Logger logger = LoggerFactory.getLogger(SqlQueryRowHelper.class);
+class SqlQueryRowsExecutor {
+  private static Logger logger = LoggerFactory.getLogger(SqlQueryRowsExecutor.class);
 
-  private SqlQueryRowHelper() {
+  private SqlQueryRowsExecutor() {
     // hide constructor
   }
 
@@ -83,11 +82,7 @@ class SqlQueryRowHelper {
         String inheritAlias = getSubclassAlias(table, tableAlias, column);
 
         // check if nested
-        if (!select.get(column.getName()).getColumNames().isEmpty()
-            && (REF.equals(column.getColumnType())
-                || REF_ARRAY.equals(column.getColumnType())
-                || REFBACK.equals(column.getColumnType())
-                || MREF.equals(column.getColumnType()))) {
+        if (!select.get(column.getName()).getColumNames().isEmpty() && column.isReference()) {
 
           // check if not primary key that points to the parent table
           if (table.getInherit() == null || table.getPrimaryKeys().contains(column.getName())) {
@@ -106,10 +101,15 @@ class SqlQueryRowHelper {
             fields.add(
                 PostgresDSL.array(createBackrefSubselect(column, inheritAlias))
                     .as(column.getName()));
+          } else if (REF.equals(column.getColumnType())
+              || REF_ARRAY.equals(column.getColumnType())) {
+            for (Reference ref : column.getRefColumns()) {
+              fields.add(
+                  field(name(inheritAlias, ref.getName()), ref.getJooqType()).as(columnAlias));
+            }
           } else {
             fields.add(
-                field(name(inheritAlias, column.getName()), SqlTypeUtils.jooqTypeOf(column))
-                    .as(columnAlias));
+                field(name(inheritAlias, column.getName()), column.getJooqType()).as(columnAlias));
           }
         }
       }
@@ -129,10 +129,7 @@ class SqlQueryRowHelper {
       if (filter != null && filter.has(column.getName())) {
         ColumnType type = column.getColumnType();
 
-        if ((REF.equals(type)
-                || REF_ARRAY.equals(type)
-                // || MREF.equals(type)
-                || REFBACK.equals(type))
+        if (column.isReference()
             && filter.has(column.getName())
             && !filter.getFilter(column.getName()).getSubfilters().isEmpty()) {
           // filters are on columns of the ref
@@ -188,25 +185,30 @@ class SqlQueryRowHelper {
 
   static SelectConditionStep createBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = getMappedByColumn(column);
-    switch (mappedBy.getColumnType()) {
-      case REF:
-        return DSL.select(field(name(column.getRefColumnName())))
-            .from(
-                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
-            .where(
-                field(name(mappedBy.getTable().getTableName(), mappedBy.getName()))
-                    .eq(field(name(tableAlias, mappedBy.getRefColumnName()))));
-      case REF_ARRAY:
-        return DSL.select(field(name(column.getRefColumnName())))
-            .from(
-                name(mappedBy.getTable().getSchema().getName(), mappedBy.getTable().getTableName()))
-            .where(
-                "{0} = ANY ({1})",
-                field(name(tableAlias, mappedBy.getRefColumnName())),
-                field(name(mappedBy.getTable().getTableName(), mappedBy.getName())));
-      default:
-        throw new MolgenisException(
-            "Internal error", "Refback for type not matched for column " + column.getName());
+    List<Field> select = new ArrayList<>();
+    List<Condition> where = new ArrayList<>();
+    for (Reference ref : mappedBy.getRefColumns()) {
+      select.add(field(name(ref.getTo())));
+      switch (mappedBy.getColumnType()) {
+        case REF:
+          where.add(
+              field(name(mappedBy.getTable().getTableName(), ref.getName()))
+                  .eq(field(name(tableAlias, ref.getTo()))));
+          break;
+        case REF_ARRAY:
+          where.add(
+              condition(
+                  "{0} = ANY ({1})",
+                  field(name(tableAlias, ref.getTo())),
+                  field(name(mappedBy.getTable().getTableName(), ref.getTo()))));
+          break;
+        default:
+          throw new MolgenisException(
+              "Internal error", "Refback for type not matched for column " + column.getName());
+      }
     }
+    return DSL.select(select)
+        .from(name(mappedBy.getTable().getSchemaName(), mappedBy.getTable().getTableName()))
+        .where(where);
   }
 }

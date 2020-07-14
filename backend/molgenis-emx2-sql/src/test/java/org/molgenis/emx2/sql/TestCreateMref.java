@@ -6,6 +6,7 @@ import org.molgenis.emx2.*;
 
 import java.util.Arrays;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
@@ -82,8 +83,8 @@ public class TestCreateMref {
         schema.create(
             table("B")
                 .add(column("ID").type(INT).pkey())
-                .add(column(refToA).type(MREF).refTable("A"))
-                .add(column(refToA + "Nullable").type(REF_ARRAY).refTable("A").nullable(true)));
+                .add(column(refToA).type(MREF).refTable("A")));
+    // .add(column(refToA + "Nullable").type(REF_ARRAY).refTable("A").nullable(true)));
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 3));
@@ -97,6 +98,22 @@ public class TestCreateMref {
     // okay
     Row bRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 0, 2));
     bTable.insert(bRow);
+    System.out.println("========1======");
+    for (Row r : bTable.getRows()) {
+      System.out.println(r);
+    }
+
+    // update should also work
+    bRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 2));
+    bTable.update(bRow);
+    System.out.println("========2======");
+    for (Row r : bTable.getRows()) {
+      System.out.println(r);
+    }
+
+    // return back
+    bRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 0, 2));
+    bTable.update(bRow);
 
     // delete of A should fail
     try {

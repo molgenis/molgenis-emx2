@@ -42,8 +42,9 @@ public class AppsProxyService {
     Schema schema = database.getSchema(SYSTEM);
     if (schema == null) schema = database.createSchema(SYSTEM);
     SchemaMetadata settingsSchema = new SchemaMetadata();
-    settingsSchema.create(
-        new TableMetadata("Apps").add(new Column("path")).add(new Column(SOURCE)).pkey("path"));
+    settingsSchema
+        .create(new TableMetadata("Apps").add(new Column("path").pkey()))
+        .add(new Column(SOURCE));
     schema.merge(settingsSchema);
     // load some defaults
     schema

@@ -8,8 +8,7 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateForeignKeysArrays {
@@ -38,7 +37,7 @@ public class TestCreateForeignKeysArrays {
 
   @Test
   public void testIntRef() {
-    executeTest(INT, new Integer[] {5, 6});
+    executeTest(INT, new Integer[] {5, 6, 7});
   }
 
   @Test
@@ -67,6 +66,13 @@ public class TestCreateForeignKeysArrays {
         });
   }
 
+  @Test
+  public void testJSONRef() {
+    executeTest(
+        ColumnType.JSONB,
+        new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
+  }
+
   private void executeTest(ColumnType columnType, Object[] testValues) {
 
     Schema schema = db.dropCreateSchema("TestRefArray" + columnType.toString().toUpperCase());
@@ -91,7 +97,8 @@ public class TestCreateForeignKeysArrays {
       bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
     } catch (Exception e) {
-      System.out.println("insert exception correct: \n" + e.getMessage());
+      System.out.println(
+          "insert exception correct because value " + testValues[2] + " is missing: \n" + e);
     }
 
     // okay
@@ -103,7 +110,7 @@ public class TestCreateForeignKeysArrays {
       aTable.delete(aRow);
       fail("delete should fail");
     } catch (Exception e) {
-      System.out.println("delete exception correct: \n" + e.getMessage());
+      System.out.println("delete exception correct because of " + testValues[0] + ": \n" + e);
     }
 
     // should be okay

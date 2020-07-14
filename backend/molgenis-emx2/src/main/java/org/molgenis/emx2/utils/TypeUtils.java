@@ -1,5 +1,8 @@
 package org.molgenis.emx2.utils;
 
+import org.jooq.DataType;
+import org.jooq.JSONB;
+import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
@@ -18,8 +21,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.molgenis.emx2.ColumnType.*;
 
 public class TypeUtils {
   private static final String LOOSE_PARSER_FORMAT =
@@ -157,6 +158,23 @@ public class TypeUtils {
     return new LocalDateTime[] {toDateTime(v)};
   }
 
+  public static JSONB toJsonb(Object v) {
+    if (v == null) return null;
+    if (v instanceof String) return org.jooq.JSONB.valueOf((String) v);
+    return (JSONB) v;
+  }
+
+  public static JSONB[] toJsonbArray(Object v) {
+    if (v == null) return new JSONB[0];
+    if (v instanceof JSONB[]) return (JSONB[]) v;
+    if (v instanceof String) v = splitCsvString((String) v);
+    if (v instanceof List) v = listToArray(v);
+    if (v instanceof Object[]) {
+      return Stream.of((Object[]) v).map(TypeUtils::toJsonb).toArray(JSONB[]::new);
+    }
+    return new JSONB[] {toJsonb(v)};
+  }
+
   public static String toText(Object v) {
     return toString(v);
   }
@@ -216,6 +234,8 @@ public class TypeUtils {
         return ColumnType.DATE_ARRAY;
       case DATETIME:
         return ColumnType.DATETIME_ARRAY;
+      case JSONB:
+        return ColumnType.JSONB_ARRAY;
       default:
         throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
     }
@@ -260,14 +280,9 @@ public class TypeUtils {
   }
 
   public static ColumnType getPrimitiveColumnType(Column column) {
-    if (REF.equals(column.getColumnType())) {
-      return getPrimitiveColumnType(column.getRefColumn());
-    } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
-      ColumnType type = column.getRefColumn().getColumnType();
-      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
-        type = getPrimitiveColumnType(column.getRefColumn());
-      }
-      return getArrayType(type);
+    if (column.isReference()) {
+      throw new UnsupportedOperationException(
+          "Cannot apply getPrimitiveColumnType to REF,MREF,REF_ARRAY,REFBACK");
     }
     return column.getColumnType();
   }
@@ -276,5 +291,49 @@ public class TypeUtils {
     List<Object> items = (List<Object>) object;
     Object[] result = new Object[items.size()];
     return items.toArray(result);
+  }
+
+  public static DataType toJooqType(ColumnType type) {
+    switch (type) {
+      case UUID:
+        return SQLDataType.UUID;
+      case UUID_ARRAY:
+        return SQLDataType.UUID.getArrayDataType();
+      case STRING:
+        return SQLDataType.VARCHAR(255);
+      case STRING_ARRAY:
+        return SQLDataType.VARCHAR(255).getArrayDataType();
+      case INT:
+        return SQLDataType.INTEGER;
+      case INT_ARRAY:
+        return SQLDataType.INTEGER.getArrayDataType();
+      case BOOL:
+        return SQLDataType.BOOLEAN;
+      case BOOL_ARRAY:
+        return SQLDataType.BOOLEAN.getArrayDataType();
+      case DECIMAL:
+        return SQLDataType.DOUBLE;
+      case DECIMAL_ARRAY:
+        return SQLDataType.DOUBLE.getArrayDataType();
+      case TEXT:
+        return SQLDataType.VARCHAR;
+      case TEXT_ARRAY:
+        return SQLDataType.VARCHAR.getArrayDataType();
+      case DATE:
+        return SQLDataType.DATE;
+      case DATE_ARRAY:
+        return SQLDataType.DATE.getArrayDataType();
+      case DATETIME:
+        return SQLDataType.TIMESTAMP;
+      case DATETIME_ARRAY:
+        return SQLDataType.TIMESTAMP.getArrayDataType();
+      case JSONB:
+        return SQLDataType.JSONB;
+      case JSONB_ARRAY:
+        return SQLDataType.JSONB.getArrayDataType();
+      default:
+        // should never happen
+        throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
+    }
   }
 }

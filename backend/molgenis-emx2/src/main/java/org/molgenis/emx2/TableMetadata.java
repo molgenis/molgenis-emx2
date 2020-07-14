@@ -1,6 +1,13 @@
 package org.molgenis.emx2;
 
+import org.jooq.Field;
+import org.jooq.impl.DSL;
+
 import java.util.*;
+
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TableMetadata {
 
@@ -90,11 +97,27 @@ public class TableMetadata {
     return primaryKey;
   }
 
+  public List<Column> getMutationColumns() {
+    ArrayList<Column> result = new ArrayList<>();
+    for (Column c : columns.values()) {
+      if (REF.equals(c.getColumnType())
+          || REF_ARRAY.equals(c.getColumnType())
+          || REFBACK.equals(c.getColumnType())
+          || MREF.equals(c.getColumnType())) {
+        for (Reference ref : c.getRefColumns()) {
+          result.add(new Column(ref.getName()).type(ref.getColumnType()).setTable(this));
+        }
+      } else {
+        result.add(c);
+      }
+    }
+    return result;
+  }
+
   public List<Column> getLocalColumns() {
     ArrayList<Column> result = new ArrayList<>();
-    // copy to prevent side effects
     for (Column c : columns.values()) {
-      result.add(new Column(c.getTable(), c));
+      result.add(c);
     }
     return result;
   }
@@ -264,5 +287,26 @@ public class TableMetadata {
 
   protected Column getLocalColumn(String name) {
     return columns.get(name);
+  }
+
+  public org.jooq.Table asJooqTable() {
+    return DSL.table(name(getSchemaName(), getTableName()));
+  }
+
+  public List<Field> getPrimaryKeyFields() {
+
+    List<Field> result = new ArrayList<>();
+    for (Column c : getPrimaryKeyColumns()) {
+      if (c.isReference()) {
+        if (c.getRefColumns().size() != 1)
+          throw new MolgenisException(
+              "Only singulary references can be part of primary key",
+              "column in error: '" + c.getName() + "'");
+        result.add(field(name(c.getName()), c.getRefColumns().get(0).getJooqType()));
+      } else {
+        result.add(field(name(c.getName()), c.getJooqType()));
+      }
+    }
+    return result;
   }
 }

@@ -17,15 +17,8 @@ public class Table {
 
   public Table(TableMetadata tableMetadata) {
     this.name = tableMetadata.getTableName();
-    this.pkey = tableMetadata.getPrimaryKey();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
-    for (String[] u : tableMetadata.getKeys()) {
-      if (u.length > 1) {
-        this.unique.add(u);
-      }
-    }
-    this.unique = tableMetadata.getKeys();
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column));
     }

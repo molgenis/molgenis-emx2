@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -8,17 +9,26 @@ import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeCreateColumn;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.reapplyRefbackContraints;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.asJooqNames;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeSetInherit;
 
 class SqlTableMetadata extends TableMetadata {
   private static final String SET_INHERITANCE_FAILED = "Set inheritance failed";
   private Database db;
   private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
+
+  SqlTableMetadata(Database db, SqlSchemaMetadata schema, String tableName) {
+    super(schema, tableName);
+    this.db = db;
+  }
 
   SqlTableMetadata(Database db, SqlSchemaMetadata schema, TableMetadata metadata) {
     super(schema, metadata);
@@ -55,7 +65,7 @@ class SqlTableMetadata extends TableMetadata {
             SqlTableMetadataExecutor.createOrReplaceUnique(
                 getJooq(), this, column.getKey(), asJooqNames(getKeyNames(column.getKey())));
           }
-          SqlColumnExecutor.executeSetForeignkeys(getJooq(), new Column(this, column));
+          SqlColumnExecutor.executeSetForeignkeys(getJooq(), result);
           log(start, "added column '" + column.getName() + "' to ");
         });
     return this;
@@ -136,12 +146,12 @@ class SqlTableMetadata extends TableMetadata {
     // todo, study if we need different row level security in inherited tables
     this.add(column(MG_EDIT_ROLE).index(true));
 
-    getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable(this));
+    getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", asJooqTable());
     getJooq()
         .execute(
             "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
             name("RLS/" + getSchema().getName() + "/" + getTableName()),
-            getJooqTable(this),
+            asJooqTable(),
             name(MG_EDIT_ROLE));
     // set RLS on the table
     // add policy for 'viewer' and 'editor'.
@@ -174,11 +184,7 @@ class SqlTableMetadata extends TableMetadata {
     if (user == null) user = "molgenis";
     if (logger.isInfoEnabled()) {
       logger.info(
-          "{} {} {} in {}ms",
-          user,
-          message,
-          getJooqTable(this),
-          (System.currentTimeMillis() - start));
+          "{} {} {} in {}ms", user, message, asJooqTable(), (System.currentTimeMillis() - start));
     }
   }
 }

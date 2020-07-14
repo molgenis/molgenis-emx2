@@ -11,9 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.SQLDataType.BOOLEAN;
-import static org.jooq.impl.SQLDataType.VARCHAR;
-import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.SQLDataType.*;
 
 public class MetadataUtils {
 
@@ -45,8 +43,6 @@ public class MetadataUtils {
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_COLUMN =
-      field(name("ref_column"), VARCHAR.nullable(true));
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
   private static final org.jooq.Field VALIDATION_SCRIPT =
       field(name("validationScript"), VARCHAR.nullable(true));
@@ -95,7 +91,6 @@ public class MetadataUtils {
                 COLUMN_KEY,
                 NULLABLE,
                 REF_TABLE,
-                REF_COLUMN,
                 MAPPED_BY,
                 VALIDATION_SCRIPT,
                 INDEXED,
@@ -214,7 +209,6 @@ public class MetadataUtils {
             COLUMN_KEY,
             NULLABLE,
             REF_TABLE,
-            REF_COLUMN,
             MAPPED_BY,
             VALIDATION_SCRIPT,
             INDEXED,
@@ -228,7 +222,6 @@ public class MetadataUtils {
             column.getKey(),
             column.isNullable(),
             column.getRefTableName(),
-            column.getRefColumnNameRaw(),
             column.getMappedBy(),
             column.getValidation(),
             column.isIndexed(),
@@ -240,7 +233,6 @@ public class MetadataUtils {
         .set(COLUMN_KEY, column.getKey())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
-        .set(REF_COLUMN, column.getRefColumnNameRaw())
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
         .set(INDEXED, column.isIndexed())
@@ -277,7 +269,6 @@ public class MetadataUtils {
       c.nullable(col.get(NULLABLE, Boolean.class));
       c.key(col.get(COLUMN_KEY, Integer.class));
       c.refTable(col.get(REF_TABLE, String.class));
-      c.refColumn(col.get(REF_COLUMN, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));
       c.validation(col.get(VALIDATION_SCRIPT, String.class));
       c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));

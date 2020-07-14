@@ -3,13 +3,15 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Reference;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.SqlTable.getJooqField;
+import static org.molgenis.emx2.utils.TypeUtils.getNonArrayType;
+import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 public class SqlColumnMrefExecutor {
 
@@ -33,22 +35,23 @@ public class SqlColumnMrefExecutor {
     // if update, also trigger to delete all not in the array(s) any more
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ BEGIN"
+            // delete all from previous
+            + "\n\tIF TG_OP='UPDATE' THEN DELETE FROM {1} WHERE {2}; END IF;"
             // add all unique references that are in the ref_array(s)
-            + "\n\tINSERT INTO {1} SELECT * FROM ({2}) foo;"
-            // delete all not in the ref_array(s) any more
-            + "\n\tDELETE FROM {1} WHERE ({3}) NOT IN ({2});"
             // NEW.ref_array column(s) = NULL, unless this is INSERT and we can expect ON CONFLICT
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {4} WHERE {5}) THEN {6}; END IF;"
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {4} WHERE {5}) THEN "
+            + "\n\tINSERT INTO {1} (SELECT * FROM ({3}) foo);"
+            + "\n\t{6}; END IF;"
             + "\n\tRETURN NEW;END;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         // 0 name of the trigger
         name(schemaName, insertOrUpdateTrigger),
         // 1 name of the join table
         name(schemaName, getJoinTableName(column)),
-        // 2 subquery to check array contents against jointable content
+        // 2 OLD.id = id
+        keyword(whereOldIdEqualsId(column)),
+        // 3 subquery to check array contents against jointable content
         keyword(subQuery(column)),
-        // 3 all fields of the jointable, i.e. "key1[,key2],fkey1[,fkey2]"
-        keyword(joinTableFields(column)),
         // 4 self tablename
         name(schemaName, column.getTable().getTableName()),
         // 5 filter on 'NEW.key = key' (for each key in composite key)
@@ -61,26 +64,45 @@ public class SqlColumnMrefExecutor {
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2} "
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
         name(insertOrUpdateTrigger),
-        name(column.getName()),
+        keyword(refColumnNames(column)),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
+  }
+
+  private static String whereOldIdEqualsId(Column column) {
+    List<String> items = new ArrayList<>();
+    for (String pkey : column.getTable().getPrimaryKeys()) {
+      String name = name(pkey).toString();
+      items.add("OLD." + name + " = " + name);
+    }
+    return String.join(" AND ", items);
+  }
+
+  private static String refColumnNames(Column column) {
+    List<String> items = new ArrayList<>();
+    for (Reference ref : column.getRefColumns()) {
+      items.add(name(ref.getName()).toString());
+    }
+    return String.join(",", items);
   }
 
   // NEW.{ref_array1} = NULL [, NEW.{ref_array2} = NULL]
   private static String setRefArrayNull(Column column) {
     List<String> items = new ArrayList<>();
-    items.add("NEW." + name(column.getName()) + " = NULL");
+    for (Reference ref : column.getRefColumns()) {
+      items.add("NEW." + name(ref.getName()) + " = NULL");
+    }
     return String.join(",", items);
   }
 
   // key1 = NEW.key1 [, key2 = NEW.key2]
   private static String primaryKeyFilter(Column column) {
     List<String> items = new ArrayList<>();
-    for (Column pkey : column.getTable().getPrimaryKeyColumns()) {
-      String name = name(pkey.getName()).toString();
+    for (String pkey : column.getTable().getPrimaryKeys()) {
+      String name = name(pkey).toString();
       items.add("NEW." + name + " = " + name);
     }
-    return String.join(",", items);
+    return String.join(" AND ", items);
   }
 
   // "SELECT ({NEW.{keyfield} as {keyfield}}) AS self, UNNEST({refFields}) AS other({refFields}
@@ -94,27 +116,18 @@ public class SqlColumnMrefExecutor {
     }
     result.append("SELECT * FROM (SELECT " + String.join(",", items) + ") as self,");
 
-    // UNNEST({refFields}) AS other({refFields}
+    // UNNEST({refFields-name}) AS other({refFields-name}
     items = new ArrayList<>();
     List<String> items2 = new ArrayList<>();
-    Column fkey = column.getRefColumn();
-    items.add("NEW." + name(column.getName()));
-    items2.add(name(column.getName()).toString());
+    for (Reference ref : column.getRefColumns()) {
+      Name name = name(ref.getName());
+      items.add("NEW." + name);
+      items2.add(name(name).toString());
+    }
     String refFields = String.join(",", items);
     String asNames = String.join(",", items2);
     result.append("UNNEST(" + refFields + ") as other(" + asNames + ")");
     return result.toString();
-  }
-
-  // "key1[,key2],fkey1[,fkey2]"
-  private static String joinTableFields(Column column) {
-    List<String> items = new ArrayList<>();
-    for (String pkey : column.getTable().getPrimaryKeys()) {
-      items.add(name(pkey).toString());
-    }
-    Column fkey = column.getRefColumn();
-    items.add(name(column.getName()).toString());
-    return String.join(",", items);
   }
 
   public static void dropMrefConstraints(DSLContext jooq, Column column) {
@@ -142,14 +155,15 @@ public class SqlColumnMrefExecutor {
       throw new MolgenisException(
           "Cannot create ref_array '" + column.getName() + "'", "Primary key not set");
     }
-    for (Column thisKey : column.getTable().getPrimaryKeyColumns()) {
-      selfFields.add(getJooqField(thisKey));
-      selfKeyFields.add(name(thisKey.getName()));
+    for (Field thisKey : column.getTable().getPrimaryKeyFields()) {
+      selfKeyFields.add(thisKey.getQualifiedName());
+      thisKey = field(name(thisKey.getName()), thisKey.getDataType());
+      selfFields.add(thisKey);
     }
-
-    Column otherKey = column.getRefColumn();
-    otherFields.add(field(name(column.getName()), SqlTypeUtils.jooqTypeOf(otherKey)));
-    otherFkeyFields.add(name(otherKey.getName()));
+    for (Reference ref : column.getRefColumns()) {
+      otherFkeyFields.add(name(ref.getTo()));
+      otherFields.add(field(name(ref.getName()), toJooqType(getNonArrayType(ref.getColumnType()))));
+    }
 
     // all fields
     Collection<Field> fields = new ArrayList<>();

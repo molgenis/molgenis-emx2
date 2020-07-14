@@ -134,7 +134,7 @@ public class TestRefBack {
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));
 
-    posts.insert(new Row().set("title", "joes post").set("username", "joe"));
+    posts.insert(new Row().set("title", "joes post").set("user", "joe"));
 
     // now the magic
     users.update(new Row().set("username", "jack").set("posts", "joes post"));
@@ -170,7 +170,10 @@ public class TestRefBack {
             .filter(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("jacks post"));
 
-    query = users.select(s("data_agg", s("count"))).filter(f("posts", EQUALS, "jacks post"));
+    query =
+        users
+            .select(s("data_agg", s("count")))
+            .filter(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading

@@ -1,8 +1,10 @@
 package org.molgenis.emx2;
 
+import org.jooq.JSONB;
+import org.jooq.tools.json.JSONObject;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import static org.molgenis.emx2.Constants.*;
 
@@ -26,6 +28,10 @@ public enum ColumnType {
   DATE_ARRAY(LocalDate[].class, ORDINAL_OPERATORS),
   DATETIME(LocalDateTime.class, ORDINAL_OPERATORS),
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
+  // COMPOSITE
+  JSONB(org.jooq.JSONB.class),
+  JSONB_ARRAY(org.jooq.JSONB[].class),
+
   // RELATIONSHIP
   REF(Object.class),
   REF_ARRAY(Object[].class),

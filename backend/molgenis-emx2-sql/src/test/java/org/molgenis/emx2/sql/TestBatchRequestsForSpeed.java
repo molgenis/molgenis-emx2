@@ -36,7 +36,7 @@ public class TestBatchRequestsForSpeed {
         schema.create(
             table("TestBatchRequestsForSpeed", column("test").pkey(), column("testint", INT)));
 
-    int size = 1000;
+    int size = 10000;
     StopWatch.print("Schema created");
 
     List<Row> rows = new ArrayList<>();
@@ -60,8 +60,14 @@ public class TestBatchRequestsForSpeed {
 
     StopWatch.print("Inserted third batch", 800);
 
+    testBatchTable.insert(rows.subList(1000, 10000));
+
+    StopWatch.print("Inserted forth batch", 9000);
+
     rows = testBatchTable.getRows();
-    assertEquals(1000, rows.size());
+    assertEquals(10000, rows.size());
+    StopWatch.print("Queried all", 10000);
+
     for (Row r : rows) {
       r.setString("test", r.getString("test") + "_updated");
     }

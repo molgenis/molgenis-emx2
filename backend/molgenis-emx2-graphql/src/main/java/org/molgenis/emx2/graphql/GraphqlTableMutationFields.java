@@ -67,8 +67,8 @@ class GraphqlTableMutationFields {
 
     for (String tableName : schema.getTableNames()) {
       // if no pkey is provided, you cannot delete rows
-      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKey() != null
-          && schema.getMetadata().getTableMetadata(tableName).getPrimaryKey().length > 0) {
+      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys() != null
+          && schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(tableName)
@@ -114,11 +114,18 @@ class GraphqlTableMutationFields {
     GraphQLInputObjectType.Builder inputBuilder =
         GraphQLInputObjectType.newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
-      ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
-      GraphQLInputType type = getGraphQLInputType(columnType);
-      // if (col.isPrimaryKey() || !col.isNullable() && !REFBACK.equals(columnType)) {
-      // type = GraphQLNonNull.nonNull(type);
-      // }
+      GraphQLInputType type = null;
+      if (col.isReference()) {
+        if (col.getRefColumns().size() == 1) {
+          ColumnType columnType = col.getRefColumns().get(0).getColumnType();
+          type = getGraphQLInputType(columnType);
+        } else {
+          throw new UnsupportedOperationException("composite column types not yet supported");
+        }
+      } else {
+        ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
+        type = getGraphQLInputType(columnType);
+      }
       inputBuilder.field(
           GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(type));
     }

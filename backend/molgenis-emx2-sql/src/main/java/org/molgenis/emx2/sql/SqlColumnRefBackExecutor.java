@@ -2,13 +2,12 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getSchemaName;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
 
@@ -29,7 +28,6 @@ class SqlColumnRefBackExecutor {
 
       // get the other column
       TableMetadata toTable = column.getRefTable();
-      Column toColumn = column.getRefColumn();
 
       // get the via column which is also in the 'toTable'
       String mappedByColumnName = column.getMappedBy();
@@ -41,7 +39,7 @@ class SqlColumnRefBackExecutor {
                 + "' failed because mappedBy was not set.");
       }
 
-      Column mappedByColumn = getMappedByColumn(column);
+      Column mappedByColumn = column.getMappedByColumn();
       if (mappedByColumn == null) {
         throw new MolgenisException(
             "Create column failed",
@@ -76,7 +74,7 @@ class SqlColumnRefBackExecutor {
         case REF_ARRAY:
           createTriggerForRefArray(jooq, column);
           break;
-          //        case MREF:
+          // todo case MREF:
         default:
           throw new MolgenisException(
               "Create column failed",
@@ -128,26 +126,31 @@ class SqlColumnRefBackExecutor {
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(schemaName, updateTriggerName), // {0} function name
-        keyword(SqlTypeUtils.getPsqlType(column.getRefColumn())), // {1} type of item
+        keyword(
+            SqlTypeUtils.getPsqlType(
+                column.getRefTable().getPrimaryKeyColumns().get(0))), // {1} type of item
         table(name(schemaName, column.getRefTableName())), // {2} toTable table
         field(name(column.getMappedBy())), // {3} mappedBy
         field(
             name(
-                getMappedByColumn(column)
-                    .getRefColumn()
-                    .getName())), // {4} key that mappedBy uses (might not be pkey)
+                column
+                    .getMappedByColumn()
+                    .getRefTable()
+                    .getPrimaryKeys()
+                    .get(0))), // {4} key that mappedBy uses (might not be pkey)
         field(name(column.getName())), // {5} the dummy column that triggers all this
         field(
             name(
                 column
-                    .getRefColumn()
-                    .getName())), // {6} toColumn where fake foreign key dummy points to
+                    .getRefTable()
+                    .getPrimaryKeys()
+                    .get(0))), // {6} toColumn where fake foreign key dummy points to
         table(name(schemaName, column.getTable().getTableName())), // {7} this table
         field(name(column.getTable().getPrimaryKeys().get(0))), // {8} primary key of this table
         inline(column.getTable().getTableName()), // {9} inline table name
         inline(column.getName()), // {10} name
         inline(column.getRefTableName()), // {11} inline table name
-        inline(column.getRefColumn().getName())); // {12} inline table name
+        inline(column.getRefTable().getPrimaryKeys().get(0))); // {12} inline table name
 
     // attach the trigger
 
@@ -178,9 +181,11 @@ class SqlColumnRefBackExecutor {
         field(name(column.getMappedBy())), // {2} mappedBy
         field(
             name(
-                getMappedByColumn(column)
-                    .getRefColumn()
-                    .getName()))); // {3} key that mappedBy uses (might not be pkey)
+                column
+                    .getMappedByColumn()
+                    .getRefTable()
+                    .getPrimaryKeys()
+                    .get(0)))); // {3} key that mappedBy uses (might not be pkey)
 
     // attach trigger
     jooq.execute(
@@ -197,44 +202,62 @@ class SqlColumnRefBackExecutor {
     String schemaName = column.getTable().getSchema().getName();
     // added number because triggers are fired in alphabethical order, thus ensuring that text
     // search indexer fire last
+
+    // create parameters
     String insertOrUpdateTrigger = refbackUpdateTriggerName(column);
-    String deleteTrigger = refbackDeleteTriggerName(column);
+    // String deleteTrigger = refbackDeleteTriggerName(column);
+
+    // create composite key statements
+    List<String> mappedBySetNullList = new ArrayList<>();
+    List<String> mappedByIsOldKeyList = new ArrayList<>();
+    List<String> mappedBySetNewKeyList = new ArrayList<>();
+    List<String> keyIsNewKeyList = new ArrayList<>();
+    List<String> mappedByToList = new ArrayList<>();
+    List<String> refBackColumnList = new ArrayList<>();
+    List<String> setRefBackValuesToNullList = new ArrayList<>();
+    for (Reference ref : column.getRefColumns()) {
+      mappedByToList.add(name(ref.getTo()).toString());
+      refBackColumnList.add("NEW." + name(ref.getName()));
+      setRefBackValuesToNullList.add("NEW." + name(ref.getName()) + "=NULL");
+    }
+    for (Reference ref : column.getMappedByColumn().getRefColumns()) {
+      keyIsNewKeyList.add(name(ref.getTo()) + "=NEW." + name(ref.getTo()));
+      mappedBySetNullList.add(name(ref.getName()) + "=NULL");
+      mappedByIsOldKeyList.add(name(ref.getName()) + "=OLD." + name(ref.getTo()));
+      mappedBySetNewKeyList.add(name(ref.getName()) + "=NEW." + name(ref.getTo()));
+    }
+    String mappedBySetNull = String.join(",", mappedBySetNullList);
+    String mappedByIsOldKey = String.join(" AND ", mappedByIsOldKeyList);
+    String keyIsNewKey = String.join(" AND ", keyIsNewKeyList);
+    String mappedBySetNewKey = String.join(",", mappedBySetNewKeyList);
+    String mappedByTo = String.join(",", mappedByToList);
+    String refBackColumn = String.join(",", refBackColumnList);
+    String setRefBackValuesToNull = String.join(";", setRefBackValuesToNullList);
 
     // insert and update trigger
     jooq.execute(
-        "CREATE FUNCTION {0}() RETURNS trigger AS"
-            + "\n$BODY$"
-            + "\nDECLARE"
-            + "\n\t item {1};"
-            + "\nBEGIN"
+        "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ BEGIN"
             + "\n\tIF TG_OP='UPDATE' THEN"
-            + "\n\t\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
+            // remove reference to old key
+            + "\n\t\tUPDATE {1} set {3} WHERE {4};"
             + "\n\tEND IF;"
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN"
-            + "\n\t\tUPDATE {2} set {3} = NEW.{4} WHERE {6} = ANY (NEW.{5});"
-            + "\n\t\tNEW.{5} = NULL;"
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {2} WHERE {5}) THEN"
+            // update to new key, if in refbackvalues list
+            + "\n\t\tUPDATE {1} set {6} WHERE ({7}) IN (SELECT UNNEST({8}));"
+            + "\n\t\t{9};"
             + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
-            + "\nEND;"
-            + "\n$BODY$ LANGUAGE plpgsql;",
+            + "\nEND; $BODY$ LANGUAGE plpgsql;",
         name(schemaName, insertOrUpdateTrigger), // {0} function name
-        keyword(SqlTypeUtils.getPsqlType(column.getRefColumn())), // {1} type of item
-        table(name(schemaName, column.getRefTableName())), // {2} toTable table
-        field(name(column.getMappedBy())), // {3} mappedBy field
-        field(
-            name(
-                getMappedByColumn(column)
-                    .getRefColumn()
-                    .getName())), // {4} mappedBy reference to 'me' (might not be pkey)
-        field(name(column.getName())), // {5} the dummy column that triggers all this
-        field(
-            name(
-                column
-                    .getRefColumn()
-                    .getName())), // {6} toColumn where fake foreign key dummy points
-        // to
-        table(name(schemaName, column.getTable().getTableName())), // {7} this table
-        field(name(column.getTable().getPrimaryKeys().get(0)))); // {8} primary key of this table
+        table(name(schemaName, column.getRefTableName())), // {1} toTable table
+        table(name(schemaName, column.getTable().getTableName())), // {2} this table
+        keyword(mappedBySetNull), // {3}
+        keyword(mappedByIsOldKey), // 4
+        keyword(keyIsNewKey), // 5
+        keyword(mappedBySetNewKey), // 6
+        keyword(mappedByTo), // 7
+        keyword(refBackColumn), // 8
+        keyword(setRefBackValuesToNull)); // 9
 
     jooq.execute(
         "CREATE TRIGGER {0} "
@@ -245,47 +268,46 @@ class SqlColumnRefBackExecutor {
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
 
-    jooq.execute(
-        "CREATE FUNCTION {0}() RETURNS trigger AS"
-            + "\n$BODY$"
-            + "\nDECLARE"
-            + "\n\t item {1};"
-            + "\nBEGIN"
-            + "\n\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
-            + "\n\tRETURN NEW;"
-            + "\nEND;"
-            + "\n$BODY$ LANGUAGE plpgsql;",
-        name(schemaName, deleteTrigger), // {0} function name
-        keyword(SqlTypeUtils.getPsqlType(column.getRefColumn())), // {1} type of item
-        table(name(schemaName, column.getRefTableName())), // {2} toTable table
-        field(name(column.getMappedBy())), // {3} mappedBy field
-        field(
-            name(
-                getMappedByColumn(column)
-                    .getRefColumn()
-                    .getName()))); // {4} mappedBy reference to 'me' (might not be pkey)
+    // delete trigger
+    //    jooq.execute(
+    //        "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ BEGIN"
+    //            + "\nBEGIN"
+    //            + "\n\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
+    //            + "\n\tRETURN NEW;"
+    //            + "\nEND; $BODY$ LANGUAGE plpgsql;",
+    //        name(schemaName, deleteTrigger), // {0} function name
+    //        keyword(SqlTypeUtils.getPsqlType(column.getRefColumn())), // {1} type of item
+    //        table(name(schemaName, column.getRefTableName())), // {2} toTable table
+    //        field(name(column.getMappedBy())), // {3} mappedBy field
+    //        field(
+    //            name(
+    //                getMappedByColumn(column)
+    //                    .getRefColumn()
+    //                    .getName()))); // {4} mappedBy reference to 'me' (might not be pkey)
 
-    jooq.execute(
-        "CREATE TRIGGER {0} "
-            + "\n\tAFTER DELETE ON {1} "
-            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-        name(deleteTrigger),
-        name(schemaName, column.getTable().getTableName()),
-        name(schemaName, deleteTrigger));
-  }
-
-  private static String refbackDeleteTriggerName(Column column) {
-    return "1" + column.getTable().getTableName() + "_" + column.getName() + "_DELETE";
-  }
-
-  private static String refbackUpdateTriggerName(Column column) {
-    return "1" + column.getTable().getTableName() + "_" + column.getName() + "_UPDATE";
+    //    jooq.execute(
+    //        "CREATE TRIGGER {0} "
+    //            + "\n\tAFTER DELETE ON {1} "
+    //            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
+    //        name(deleteTrigger),
+    //        name(schemaName, column.getTable().getTableName()),
+    //        name(schemaName, deleteTrigger));
   }
 
   static void removeRefBackConstraints(DSLContext jooq, Column column) {
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), refbackDeleteTriggerName(column)));
+        "DROP FUNCTION IF EXISTS {0} CASCADE",
+        name(getSchemaName(column), refbackDeleteTriggerName(column)));
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE", name(getSchemaName(column), refbackUpdateTriggerName(column)));
+        "DROP FUNCTION IF EXISTS {0} CASCADE",
+        name(getSchemaName(column), refbackUpdateTriggerName(column)));
+  }
+
+  private static String refbackDeleteTriggerName(Column column) {
+    return "1" + column.getTable().getTableName() + "-" + column.getName() + "_DELETE";
+  }
+
+  private static String refbackUpdateTriggerName(Column column) {
+    return "1" + column.getTable().getTableName() + "-" + column.getName() + "_UPDATE";
   }
 }

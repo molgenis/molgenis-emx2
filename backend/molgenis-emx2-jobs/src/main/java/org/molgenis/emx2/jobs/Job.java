@@ -1,7 +1,10 @@
 package org.molgenis.emx2.jobs;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class Job implements Runnable {
   private Map<String, JobTask> tasks = new LinkedHashMap<>();

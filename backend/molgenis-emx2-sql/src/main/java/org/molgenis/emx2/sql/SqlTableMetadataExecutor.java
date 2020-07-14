@@ -5,10 +5,7 @@ import org.jooq.Name;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.DefaultRoles;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +16,6 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.asJooqTable;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveColumn;
 
 class SqlTableMetadataExecutor {
@@ -28,21 +24,21 @@ class SqlTableMetadataExecutor {
   static void executeCreateTable(DSLContext jooq, TableMetadata table) {
 
     // create the table
-    Table tableName = asJooqTable(table);
-    jooq.execute("CREATE TABLE {0}()", asJooqTable(table));
+    Table jooqTable = table.asJooqTable();
+    jooq.execute("CREATE TABLE {0}()", jooqTable);
     // jooq.createTable(asJooqTable(table)).columns(new Name[0]).execute();
     MetadataUtils.saveTableMetadata(jooq, table);
 
     // grant rights to schema manager, editor and viewer roles
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
-        tableName, name(getRolePrefix(table) + DefaultRoles.VIEWER.toString()));
+        jooqTable, name(getRolePrefix(table) + DefaultRoles.VIEWER.toString()));
     jooq.execute(
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        tableName, name(getRolePrefix(table) + DefaultRoles.EDITOR.toString()));
+        jooqTable, name(getRolePrefix(table) + DefaultRoles.EDITOR.toString()));
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        tableName, name(getRolePrefix(table) + DefaultRoles.MANAGER.toString()));
+        jooqTable, name(getRolePrefix(table) + DefaultRoles.MANAGER.toString()));
 
     // create columns from primary key of superclass
     if (table.getInherit() != null) {
@@ -70,7 +66,7 @@ class SqlTableMetadataExecutor {
           && table.getInheritedTable().getColumn(column.getName()) != null) {
         // don't create superclass keys, that is already done
       } else {
-        SqlColumnExecutor.executeSetForeignkeys(jooq, new Column(table, column));
+        SqlColumnExecutor.executeSetForeignkeys(jooq, column);
       }
     }
 
@@ -193,9 +189,17 @@ class SqlTableMetadataExecutor {
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getLocalColumns()) {
-      if (!c.getName().startsWith("MG_"))
-        mgSearchVector.append(
-            String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName()));
+      if (!c.getName().startsWith("MG_")) {
+        if (c.isReference()) {
+          for (Reference r : c.getRefColumns()) {
+            mgSearchVector.append(
+                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getName()));
+          }
+        } else {
+          mgSearchVector.append(
+              String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName()));
+        }
+      }
     }
 
     String functionBody =
