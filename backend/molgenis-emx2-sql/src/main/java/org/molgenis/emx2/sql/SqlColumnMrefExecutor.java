@@ -188,12 +188,13 @@ public class SqlColumnMrefExecutor {
             .onUpdateCascade();
 
     // execute
-    jooq.createTable(tableName)
-        .columns(fieldsArray)
-        .constraint(primaryKey)
-        .constraint(selfFkeyConstraint)
-        .constraint(otherFkeyConstraint)
-        .execute();
+    try (CreateTableColumnStep t = jooq.createTable(tableName)) {
+      t.columns(fieldsArray)
+          .constraint(primaryKey)
+          .constraint(selfFkeyConstraint)
+          .constraint(otherFkeyConstraint)
+          .execute();
+    }
 
     jooq.execute(
         "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE", tableName, selfName);

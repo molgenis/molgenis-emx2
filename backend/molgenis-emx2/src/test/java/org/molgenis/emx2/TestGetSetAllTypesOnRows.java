@@ -31,7 +31,7 @@ public class TestGetSetAllTypesOnRows {
 
     // System.out.println("No diff: " + m.diff(m2));
 
-    assertNotNull(m.getTableNames().contains("TypeTest"));
+    assertTrue(m.getTableNames().contains("TypeTest"));
     assertEquals(1, m.getTableNames().size());
 
     // System.out.println("model print: " + m.print());

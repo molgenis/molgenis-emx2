@@ -135,11 +135,7 @@ public class Emx2 {
         if (params.isEmpty() || params.size() > 2) {
           throw new MolgenisException(IMPORT_FAILED, "Ref must have 1 or 2 parameter values");
         }
-        if (params.size() > 1) {
-          table.add(column(columnName).type(REF).refTable(params.get(0)));
-        } else {
-          table.add(column(columnName).type(REF).refTable(params.get(0)));
-        }
+        table.add(column(columnName).type(REF).refTable(params.get(0)));
       } catch (Exception e) {
         messages.add(
             new MolgenisExceptionDetail(line, "Parsing of 'ref' failed. " + e.getMessage()));

@@ -181,7 +181,7 @@ public class Column {
     return this;
   }
 
-  public Boolean isNullable() {
+  public boolean isNullable() {
     return nullable;
   }
 

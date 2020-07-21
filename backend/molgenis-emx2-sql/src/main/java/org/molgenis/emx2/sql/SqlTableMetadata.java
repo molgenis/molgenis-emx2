@@ -88,7 +88,7 @@ class SqlTableMetadata extends TableMetadata {
                 "REF_ARRAY is not supported for composite keys of table "
                     + newColumn.getRefTableName());
           }
-          if ((oldColumn.getRefColumns().size() > 1 || oldColumn.getRefColumns().size() > 1)
+          if ((oldColumn.getRefColumns().size() > 1 || newColumn.getRefColumns().size() > 1)
               && oldColumn.getRefColumns().size() != newColumn.getRefColumns().size()) {
             throw new MolgenisException(
                 "Cannot alter column '" + oldColumn.getName(),
@@ -134,7 +134,7 @@ class SqlTableMetadata extends TableMetadata {
           }
 
           // delete old column if name changed, then save
-          if (!oldColumn.getName().equals(newColumn)) deleteColumn(getJooq(), oldColumn);
+          if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(getJooq(), oldColumn);
           saveColumnMetadata(getJooq(), newColumn);
         });
 
