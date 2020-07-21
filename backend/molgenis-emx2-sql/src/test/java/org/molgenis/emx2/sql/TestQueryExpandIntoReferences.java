@@ -34,20 +34,18 @@ public class TestQueryExpandIntoReferences {
         .getMetadata()
         .create(
             table(PERSON)
-                .add(column("ID").type(INT))
-                .add(column("First Name"))
+                .add(column("ID").type(INT).pkey())
+                .add(column("First_Name").key(2))
                 .add(column("Father").type(REF).refTable(PERSON).nullable(true))
-                .add(column("Last Name"))
-                .addUnique("First Name", "Last Name")
-                .pkey("ID"));
+                .add(column("Last_Name").key(2)));
 
     Row father =
-        new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");
+        new Row().setInt("ID", 1).setString("First_Name", "Donald").setString("Last_Name", "Duck");
     Row child =
         new Row()
             .setInt("ID", 2)
-            .setString("First Name", "Kwik")
-            .setString("Last Name", "Duck")
+            .setString("First_Name", "Kwik")
+            .setString("Last_Name", "Duck")
             .setInt("Father", father.getInteger("ID"));
 
     Table personTable = schema.getTable("Person");
@@ -67,11 +65,11 @@ public class TestQueryExpandIntoReferences {
     Query query1 =
         schema
             .query("Person")
-            .select("First Name")
-            .select("Last Name")
-            .select(s("Father").select("First Name").select("Last Name"))
-            .filter("Last Name", EQUALS, "Duck")
-            .filter("Father", f("Last Name", EQUALS, "Duck"));
+            .select("First_Name")
+            .select("Last_Name")
+            .select(s("Father").select("First_Name").select("Last_Name"))
+            .filter("Last_Name", EQUALS, "Duck")
+            .filter("Father", f("Last_Name", EQUALS, "Duck"));
 
     StopWatch.print("created query");
 
@@ -85,11 +83,11 @@ public class TestQueryExpandIntoReferences {
     query1 =
         schema
             .query("Person")
-            .select("First Name")
-            .select("Last Name")
-            .select(s("Father").select("Last Name").select("First Name"))
-            .filter("Last Name", EQUALS, "Duck")
-            .filter("Father", f("Last Name", EQUALS, "Duck"));
+            .select("First_Name")
+            .select("Last_Name")
+            .select(s("Father").select("Last_Name").select("First_Name"))
+            .filter("Last_Name", EQUALS, "Duck")
+            .filter("Father", f("Last_Name", EQUALS, "Duck"));
 
     rows = query1.getRows();
     for (Row r : rows) System.out.println(r);

@@ -30,7 +30,6 @@ public class Schema {
     SchemaMetadata s = new SchemaMetadata();
     for (Table t : tables) {
       TableMetadata tm = s.create(table(t.getName()));
-      for (String[] u : t.getUnique()) tm.addUnique(u);
       for (Column c : t.getColumns()) {
         tm.add(c.getColumnMetadata(tm));
       }

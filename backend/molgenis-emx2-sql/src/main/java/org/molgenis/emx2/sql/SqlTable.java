@@ -17,15 +17,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getRefArrayColumnType;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
-
-// import static org.molgenis.emx2.ColumnType.MREF;
+import static org.molgenis.emx2.ColumnType.*;
 
 class SqlTable implements Table {
-
   private SqlDatabase db;
   private TableMetadata metadata;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
@@ -62,17 +56,32 @@ class SqlTable implements Table {
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
             List<Field> fields = new ArrayList<>();
-            for (Column c : getMetadata().getLocalColumns()) {
+            for (Column c : getMetadata().getMutationColumns()) {
               fieldNames.add(c.getName());
               columns.add(c);
-              fields.add(getJooqField(c));
+              fields.add(c.asJooqField());
             }
+
+            // keep batchsize smaller to limit memory footprint
+            int batchSize = 1000;
             InsertValuesStepN step =
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+            int i = 0;
             for (Row row : rows) {
               step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
+              i++;
+              // execute batch
+              if (i % batchSize == 0) {
+                count.set(count.get() + step.execute());
+                step =
+                    db.getJooq()
+                        .insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+              }
             }
-            count.set(step.execute());
+            // execute remaining
+            if (i % batchSize != 0) {
+              count.set(count.get() + step.execute());
+            }
           });
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Insert into table '" + getName() + "' failed.", e);
@@ -81,20 +90,6 @@ class SqlTable implements Table {
     log(start, count, "inserted");
 
     return count.get();
-  }
-
-  private void log(long start, AtomicInteger count, String message) {
-    String user = db.getActiveUser();
-    if (user == null) user = "molgenis";
-    if (logger.isInfoEnabled()) {
-      logger.info(
-          "{} {} {} rows into table {} in {}ms",
-          user,
-          message,
-          count.get(),
-          getJooqTable(),
-          (System.currentTimeMillis() - start));
-    }
   }
 
   @Override
@@ -111,7 +106,7 @@ class SqlTable implements Table {
   public int update(Iterable<Row> rows) {
     long start = System.currentTimeMillis();
 
-    if (getMetadata().getPrimaryKey() == null)
+    if (getMetadata().getPrimaryKeys() == null)
       throw new MolgenisException(
           "Update failed",
           "Table "
@@ -138,19 +133,21 @@ class SqlTable implements Table {
             List<Field> fields = new ArrayList<>();
             for (Row row : rows) {
 
-              // get the fields metadata for this row as far as known in this table
+              // to compare if columns change between rows
               Collection<String> rowFields = new ArrayList<>();
-              for (String name : row.getColumnNames()) {
-                Column c = tableMetadata.getColumn(name);
-                if (tableMetadata.getColumn(name) != null && c.getTableName().equals(getName())) {
-                  rowFields.add(name);
+              for (Column c : tableMetadata.getMutationColumns()) {
+                if (c != null
+                    && c.getTableName().equals(getName())
+                    && row.getColumnNames().contains(c.getName())) {
+                  rowFields.add(c.getName());
                 }
               }
 
-              // execute the batch if batchSize is reached or fields differ from previous
+              // execute the batch if batchSize is reached
+              // or when rowFields differ from previous FieldNames
               if (!batch.isEmpty()
                   && (count.get() % batchSize == 0
-                      || (fieldNames.containsAll(rowFields)
+                      || !(fieldNames.containsAll(rowFields)
                           && rowFields.containsAll(fieldNames)))) {
                 updateBatch(
                     batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
@@ -162,11 +159,12 @@ class SqlTable implements Table {
 
               // add field metadata if first row of this batch
               if (fieldNames.isEmpty()) {
-                for (String name : rowFields) {
-                  Column c = tableMetadata.getColumn(name);
-                  fieldNames.add(name);
-                  columns.add(c);
-                  fields.add(getJooqField(c));
+                for (Column c : tableMetadata.getMutationColumns()) {
+                  if (rowFields.contains(c.getName())) {
+                    fields.add(c.asJooqField());
+                    columns.add(c);
+                    fieldNames.add(c.getName());
+                  }
                 }
               }
 
@@ -278,53 +276,54 @@ class SqlTable implements Table {
 
   private void deleteBatch(Collection<Row> rows) {
     if (!rows.isEmpty()) {
-      String[] keyNames = getMetadata().getPrimaryKey();
+      List<String> keyNames = getMetadata().getPrimaryKeys();
 
       // in case no primary key is defined, use all columns
-      if (getMetadata().getPrimaryKey() == null) {
-        List<Column> allColumns = getMetadata().getColumns();
-        keyNames = new String[allColumns.size()];
-        for (int i = 0; i < keyNames.length; i++) {
-          keyNames[i] = allColumns.get(i).getName();
-        }
+      if (keyNames == null) {
+        throw new MolgenisException(
+            "Delete on table " + getName() + " failed: no primary key set", "");
       }
-      Condition whereCondition = getWhereConditionForBatchDelete(rows, keyNames);
+      Condition whereCondition = getWhereConditionForBatchDelete(rows);
       db.getJooq().deleteFrom(getJooqTable()).where(whereCondition).execute();
     }
   }
 
-  private Condition getWhereConditionForBatchDelete(Collection<Row> rows, String[] keyNames) {
-    Condition whereCondition = null;
+  private Condition getWhereConditionForBatchDelete(Collection<Row> rows) {
+    List<Condition> conditions = new ArrayList<>();
     for (Row r : rows) {
-      Condition rowCondition = null;
-      for (String keyName : keyNames) {
-        rowCondition = getRowConditionForBatchDelete(r, rowCondition, keyName);
-      }
-      if (whereCondition == null) {
-        whereCondition = rowCondition;
+      List<Condition> rowCondition = new ArrayList<>();
+      if (getMetadata().getPrimaryKeys() == null) {
+        // when no key, use all columns as id
+        for (Column keyPart : getMetadata().getLocalColumns()) {
+          rowCondition.add(getColumnCondition(r, keyPart));
+        }
       } else {
-        whereCondition = whereCondition.or(rowCondition);
+        for (Column keyPart : getMetadata().getPrimaryKeyColumns()) {
+          rowCondition.add(getColumnCondition(r, keyPart));
+        }
       }
+      conditions.add(and(rowCondition));
     }
-    return whereCondition;
+    return or(conditions);
   }
 
-  private Condition getRowConditionForBatchDelete(Row r, Condition rowCondition, String keyName) {
-    Column key = getMetadata().getColumn(keyName);
-    // consider to move this to helper methods
-    ColumnType columnType = key.getColumnType();
-    if (REF.equals(columnType)) {
-      columnType = getRefColumnType(key);
-    } else if (REF_ARRAY.equals(columnType)) { // || MREF.equals(columnType)) {
-      columnType = getRefArrayColumnType(key);
-    }
-
-    if (rowCondition == null) {
-      return getJooqField(key).eq(cast(r.get(keyName, columnType), getJooqField(key)));
+  private Condition getColumnCondition(Row r, Column key) {
+    List<Condition> columnCondition = new ArrayList<>();
+    if (REF.equals(key.getColumnType())
+        || REF_ARRAY.equals(key.getColumnType())
+        || MREF.equals(key.getColumnType())) {
+      for (Reference ref : key.getRefColumns()) {
+        columnCondition.add(
+            ref.asJooqField()
+                .eq(cast(r.get(key.getName(), ref.getColumnType()), ref.asJooqField())));
+      }
+    } else if (REFBACK.equals(key.getColumnType())) {
+      // do nothing
     } else {
-      return rowCondition.and(
-          getJooqField(key).eq(cast(r.get(keyName, columnType), getJooqField(key))));
+      columnCondition.add(
+          key.asJooqField().eq(cast(r.get(key.getName(), key.getColumnType()), key.asJooqField())));
     }
+    return and(columnCondition);
   }
 
   @Override
@@ -337,29 +336,30 @@ class SqlTable implements Table {
     return this.query().getRows();
   }
 
-  //  @Override
-  //  public <E> List<E> retrieve(String columnName, Class<E> klazz) {
-  //    return query().retrieve(columnName, klazz);
-  //  }
-
   @Override
   public String getName() {
     return getMetadata().getTableName();
   }
 
   private List<Field> getPrimaryKeyFields() {
-    List<Field> result = new ArrayList<>();
-    for (String name : getMetadata().getPrimaryKey()) {
-      result.add(getJooqField(getMetadata().getColumn(name)));
-    }
-    return result;
+    return getMetadata().getPrimaryKeyFields();
   }
 
   protected org.jooq.Table getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
-  public static Field getJooqField(Column c) {
-    return field(name(c.getName()), SqlTypeUtils.jooqTypeOf(c));
+  private void log(long start, AtomicInteger count, String message) {
+    String user = db.getActiveUser();
+    if (user == null) user = "molgenis";
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "{} {} {} rows into table {} in {}ms",
+          user,
+          message,
+          count.get(),
+          getJooqTable(),
+          (System.currentTimeMillis() - start));
+    }
   }
 }

@@ -3,10 +3,10 @@
 </template>
 
 <script>
-    import {request} from "graphql-request";
-    import TableMetadataMixin from "./TableMetadataMixin";
+import { request } from "graphql-request";
+import TableMetadataMixin from "./TableMetadataMixin";
 
-    export default {
+export default {
   mixins: [TableMetadataMixin],
   data: function() {
     return {
@@ -20,7 +20,7 @@
   methods: {
     reload() {
       this.loading = true;
-      request("graphql", this.graphql)
+      request("graphql", this.graphql, { filter: this.filter })
         .then(data => {
           this.error = null;
           this.data = data[this.table]["data"];
@@ -37,25 +37,40 @@
     graphql() {
       let search =
         this.searchTerms != null && this.searchTerms !== ""
-          ? '(search:"' + this.searchTerms + '")'
-          : "";
-      return `{${this.table}${search}{data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}
+          ? '(filter:$filter,search:"' + this.searchTerms + '")'
+          : "(filter:$filter)";
+      return `query($filter:${this.table}Filter){${this.table}${search}{data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}
         }}}`;
+    },
+    //this is in case users of mixin want a filter
+    filter() {
+      return {};
     },
     columnNames() {
       let result = "";
-      this.metadata.columns.forEach(element => {
-        if (["REF", "REF_ARRAY", "REFBACK"].includes(element.columnType)) {
-          result = result + " " + element.name + "{" + element.refColumn + "}";
-        } else {
-          result = result + " " + element.name;
-        }
-      });
+      if (this.metadata.columns) {
+        this.metadata.columns.forEach(element => {
+          if (
+            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(element.columnType)
+          ) {
+            result =
+              result +
+              " " +
+              element.name +
+              "{" +
+              element.refColumns.join(" ") +
+              "}";
+          } else {
+            result = result + " " + element.name;
+          }
+        });
+      }
       return result;
     }
   },
   watch: {
     searchTerms: "reload",
+    filter: "reload",
     metadata: "reload"
   }
 };

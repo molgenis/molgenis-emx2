@@ -99,9 +99,60 @@ public class GraphqlApiFactory {
   static Iterable<Row> convertToRows(List<Map<String, Object>> map) {
     List<Row> rows = new ArrayList<>();
     for (Map<String, Object> row : map) {
-      rows.add(new Row(row));
+      Row r = new Row();
+      for (Map.Entry<String, Object> entry : row.entrySet()) {
+        // map
+        if (entry.getValue() instanceof Map) {
+          convertMapToRow(r, entry);
+        }
+        // list
+        else if (entry.getValue() instanceof List) {
+          List list = (List) entry.getValue();
+          // list of maps becomes map of lists
+          if (list.size() > 0 && list.get(0) instanceof Map) {
+            // map of lists
+            Map<String, List> values = new LinkedHashMap<>();
+            for (Map<String, Object> value : (List<Map<String, Object>>) list) {
+              for (Map.Entry<String, Object> subValue : value.entrySet()) {
+                String key =
+                    value.size() == 1 ? entry.getKey() : entry.getKey() + "-" + subValue.getKey();
+                if (values.get(key) == null) {
+                  values.put(key, new ArrayList<>());
+                }
+                if (subValue.getValue() instanceof List) {
+                  values.get(key).addAll((List) subValue.getValue());
+                } else {
+                  values.get(key).add(subValue.getValue());
+                }
+              }
+            }
+            for (Map.Entry<String, List> value : values.entrySet()) {
+              r.set(value.getKey(), value.getValue());
+            }
+          }
+          // otherwise simply add the list to the key
+          else {
+            r.set(entry.getKey(), list);
+          }
+          // primitive value
+        } else {
+          r.set(entry.getKey(), entry.getValue());
+        }
+      }
+      rows.add(r);
     }
     return rows;
+  }
+
+  private static void convertMapToRow(Row r, Map.Entry<String, Object> entry) {
+    for (Map.Entry<String, Object> ref : ((Map<String, Object>) entry.getValue()).entrySet()) {
+      // only if multiple keys, we will use subkey names
+      String key =
+          ((Map<String, Object>) entry.getValue()).size() == 1
+              ? entry.getKey()
+              : entry.getKey() + "-" + ref.getKey();
+      r.set(key, ref.getValue());
+    }
   }
 
   public static String convertExecutionResultToJson(ExecutionResult executionResult)

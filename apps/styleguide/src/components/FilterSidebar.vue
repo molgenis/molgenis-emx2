@@ -21,7 +21,11 @@
       >
         <InputString
           :list="true"
-          v-if="column.columnType.startsWith('STRING')"
+          v-if="
+            column.columnType.startsWith('STRING') ||
+              column.columnType.startsWith('TEXT') ||
+              column.columnType.startsWith('UUID')
+          "
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
@@ -68,16 +72,16 @@
 </template>
 
 <script>
-    import FilterContainer from "./FilterContainer";
-    import InputCheckbox from "./InputCheckbox";
-    import InputString from "./InputString";
-    import InputRangeInt from "./InputRangeInt";
-    import InputRangeDecimal from "./InputRangeDecimal";
-    import InputRangeDate from "./InputRangeDate";
-    import InputRef from "./InputRef";
-    import Draggable from "vuedraggable";
+import FilterContainer from "./FilterContainer";
+import InputCheckbox from "./InputCheckbox";
+import InputString from "./InputString";
+import InputRangeInt from "./InputRangeInt";
+import InputRangeDecimal from "./InputRangeDecimal";
+import InputRangeDate from "./InputRangeDate";
+import InputRef from "./InputRef";
+import Draggable from "vuedraggable";
 
-    export default {
+export default {
   components: {
     FilterContainer,
     Draggable,

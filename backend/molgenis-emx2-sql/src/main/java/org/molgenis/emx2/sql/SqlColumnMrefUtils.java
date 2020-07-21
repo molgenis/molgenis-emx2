@@ -6,7 +6,6 @@
 //
 // import static org.jooq.impl.DSL.*;
 // import static org.molgenis.emx2.ColumnType.REF;
-// import static org.molgenis.emx2.sql.SqlColumnUtils.getJoinTableName;
 // import static org.molgenis.emx2.sql.SqlTypeUtils.*;
 //
 // class SqlColumnMrefUtils {

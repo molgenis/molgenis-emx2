@@ -22,11 +22,17 @@
 </template>
 
 <script>
-    import {request} from 'graphql-request'
+import { request } from "graphql-request";
 
-    import {ButtonAction, ButtonAlt, LayoutModal, MessageError, MessageSuccess} from '@mswertz/emx2-styleguide'
+import {
+  ButtonAction,
+  ButtonAlt,
+  LayoutModal,
+  MessageError,
+  MessageSuccess
+} from "@mswertz/emx2-styleguide";
 
-    export default {
+export default {
   components: {
     LayoutModal,
     MessageSuccess,
@@ -43,15 +49,15 @@
     return {
       success: null,
       error: null
-    }
+    };
   },
   methods: {
     dropColumn() {
-      this.loading = true
-      this.success = null
-      this.error = null
+      this.loading = true;
+      this.success = null;
+      this.error = null;
       request(
-        'graphql',
+        "graphql",
         `mutation drop($table:String,$column:String){drop(columns:[{table:$table,column:$column}]){message}}`,
         {
           table: this.table,
@@ -59,19 +65,19 @@
         }
       )
         .then(data => {
-          this.success = data.drop.message
-          this.$emit('close')
+          this.success = data.drop.message;
+          this.$emit("close");
         })
         .catch(error => {
           if (error.response && error.response.status === 403) {
-            this.error = 'Forbidden. Do you need to login?'
-            this.showLogin = true
-          } else this.error = error
+            this.error = "Forbidden. Do you need to login?";
+            this.showLogin = true;
+          } else this.error = error;
         })
-        .finally((this.loading = false))
+        .finally((this.loading = false));
     }
   }
-}
+};
 </script>
 
 <docs>

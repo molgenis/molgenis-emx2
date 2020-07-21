@@ -6,11 +6,14 @@ import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
+import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private SqlDatabase db;
@@ -26,17 +29,30 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public TableMetadata create(TableMetadata metadata) {
+  public TableMetadata create(TableMetadata table) {
     long start = System.currentTimeMillis();
     db.tx(
         database -> {
-          TableMetadata result = new SqlTableMetadata(database, this, metadata);
+          TableMetadata result = new SqlTableMetadata(database, this, table);
           executeCreateTable(getJooq(), result);
           super.create(result);
           db.getListener().schemaChanged(getName());
         });
     log(start, "created");
-    return getTableMetadata(metadata.getTableName());
+    return getTableMetadata(table.getTableName());
+  }
+
+  @Override
+  public void create(TableMetadata... tables) {
+    db.tx(
+        database -> {
+          List<TableMetadata> tableList = new ArrayList<>();
+          tableList.addAll(List.of(tables));
+          sortTableByDependency(tableList);
+          for (TableMetadata tm : tableList) {
+            this.create(tm);
+          }
+        });
   }
 
   @Override

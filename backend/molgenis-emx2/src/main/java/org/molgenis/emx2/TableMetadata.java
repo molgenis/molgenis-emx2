@@ -1,6 +1,13 @@
 package org.molgenis.emx2;
 
+import org.jooq.Field;
+import org.jooq.impl.DSL;
+
 import java.util.*;
+
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.ColumnType.*;
 
 public class TableMetadata {
 
@@ -9,8 +16,6 @@ public class TableMetadata {
   protected String inherit = null;
   protected String description = null;
   protected Map<String, Column> columns = new LinkedHashMap<>();
-  private String[] primaryKey = null;
-  private List<String[]> uniques = new ArrayList<>();
 
   public static TableMetadata table(String tableName) {
     return new TableMetadata(tableName);
@@ -25,6 +30,11 @@ public class TableMetadata {
   }
 
   public TableMetadata(String tableName) {
+    if (!tableName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+      throw new MolgenisException(
+          "Invalid table name '" + tableName + "'",
+          "Table name must start with a letter or underscore, followed by letters, underscores or numbers");
+    }
     this.tableName = tableName;
   }
 
@@ -42,10 +52,6 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
-    this.primaryKey = metadata.getPrimaryKey();
-    for (String[] unique : metadata.getUniques()) {
-      this.uniques.add(unique);
-    }
     for (Column c : metadata.getLocalColumns()) {
       this.columns.put(c.getName(), new Column(this, c));
     }
@@ -60,27 +66,6 @@ public class TableMetadata {
     return schema;
   }
 
-  public String[] getPrimaryKey() {
-    if (getInheritedTable() != null) {
-      return getInheritedTable().getPrimaryKey();
-    }
-    return primaryKey;
-  }
-
-  public TableMetadata pkey(String... columnName) {
-    if (columnName != null) {
-      for (String name : columnName) {
-        if (getColumn(name) == null) {
-          throw new MolgenisException(
-              "Set primary key failed",
-              "'Column '" + name + "' unknown in table '" + getTableName() + "'");
-        }
-      }
-    }
-    this.primaryKey = columnName;
-    return this;
-  }
-
   public List<Column> getColumns() {
     ArrayList<Column> result = new ArrayList<>();
     if (inherit != null) {
@@ -90,9 +75,9 @@ public class TableMetadata {
       }
 
       // ignore primary key from child class because that is same as in inheritedTable
-      for (Column c : getLocalColumns()) {
-        if (getInherit() == null || !Arrays.asList(getPrimaryKey()).contains(c.getName())) {
-          result.add(new Column(c.getTable(), c));
+      for (Column col : getLocalColumns()) {
+        if (getInherit() == null || getInheritedTable().getColumn(col.getName()) == null) {
+          result.add(new Column(col.getTable(), col));
         }
       }
     } else {
@@ -101,11 +86,38 @@ public class TableMetadata {
     return Collections.unmodifiableList(result);
   }
 
+  public List<String> getPrimaryKeys() {
+    List<String> primaryKey = new ArrayList<>();
+    for (Column c : columns.values()) {
+      if (c.getKey() == 1) {
+        primaryKey.add(c.getName());
+      }
+    }
+    if (primaryKey.size() == 0) return null;
+    return primaryKey;
+  }
+
+  public List<Column> getMutationColumns() {
+    ArrayList<Column> result = new ArrayList<>();
+    for (Column c : columns.values()) {
+      if (REF.equals(c.getColumnType())
+          || REF_ARRAY.equals(c.getColumnType())
+          || REFBACK.equals(c.getColumnType())
+          || MREF.equals(c.getColumnType())) {
+        for (Reference ref : c.getRefColumns()) {
+          result.add(new Column(ref.getName()).type(ref.getColumnType()).setTable(this));
+        }
+      } else {
+        result.add(c);
+      }
+    }
+    return result;
+  }
+
   public List<Column> getLocalColumns() {
     ArrayList<Column> result = new ArrayList<>();
-    // copy to prevent side effects
     for (Column c : columns.values()) {
-      result.add(new Column(c.getTable(), c));
+      result.add(c);
     }
     return result;
   }
@@ -132,11 +144,9 @@ public class TableMetadata {
     return null;
   }
 
-  public TableMetadata add(Column... column) {
-    for (Column c : column) {
-      columns.put(c.getName(), new Column(this, c));
-      c.setTable(this);
-    }
+  public TableMetadata add(Column column) {
+    columns.put(column.getName(), new Column(this, column));
+    column.setTable(this);
     return this;
   }
 
@@ -145,95 +155,20 @@ public class TableMetadata {
   }
 
   public TableMetadata alterColumn(String name, Column column) {
+    // remove the old
+    columns.remove(name);
     // add the new
     columns.put(column.getName(), new Column(this, column));
-    if (this.primaryKey != null && Arrays.asList(this.getPrimaryKey()).contains(name)) {
-      for (int idx = 0; idx < this.primaryKey.length; idx++) {
-        if (this.primaryKey[idx].equals(name.trim())) {
-          this.primaryKey[idx] = column.getName();
-        }
-      }
-    }
     column.setTable(this);
-
-    // if changed, update any unique constraints involving this column
-    if (!column.getName().equals(name)) {
-      for (String[] unique : getUniques()) {
-        List<String> uniqueList = Arrays.asList(unique);
-        if (uniqueList.contains(name)) {
-          this.removeUnique(unique);
-          uniqueList.set(uniqueList.indexOf(name), column.getName());
-          this.addUnique(uniqueList.toArray(new String[uniqueList.size()]));
-        }
-      }
-
-      // update any refs involving this column
-      for (TableMetadata tm : getSchema().getTables()) {
-        for (Column c : tm.getColumns()) {
-          if (c.getRefTableName() != null
-              && c.getRefTableName().equals(this.getTableName())
-              && c.getRefColumnName().equals(name)) {
-            c.refColumn(column.getName());
-          }
-        }
-      }
-      columns.remove(name);
-    }
     return this;
   }
 
   public void dropColumn(String name) {
-    if (Arrays.asList(getPrimaryKey()).contains(name))
+    if (Arrays.asList(getPrimaryKeys()).contains(name))
       throw new MolgenisException("Remove column failed", "Column is primary key");
     if (columns.get(name) == null)
       throw new MolgenisException("Remove column failed", "Column '" + name + "' unknown");
     columns.remove(name);
-  }
-
-  public Collection<String[]> getUniques() {
-    return Collections.unmodifiableCollection(uniques);
-  }
-
-  public TableMetadata addUnique(String... columnNames) {
-    if (isUnique(columnNames)) return this; // idempotent, we silently ignore
-    for (String name : columnNames) {
-      if (getColumn(name) == null)
-        throw new MolgenisException(
-            "Add unique failed",
-            "Column with name '" + name + "' does not exist in table '" + getTableName() + "'");
-    }
-    uniques.add(columnNames);
-    return this;
-  }
-
-  public boolean isPrimaryKey(String... names) {
-    if (equalContents(this.primaryKey, names)) {
-      return true;
-    }
-
-    if (inherit != null) return getInheritedTable().isPrimaryKey(names);
-    return false;
-  }
-
-  public boolean isUnique(String... names) {
-    for (String[] el : this.uniques) {
-      if (equalContents(el, names)) {
-        return true;
-      }
-    }
-
-    if (inherit != null) return getInheritedTable().isUnique(names);
-    return false;
-  }
-
-  public void removeUnique(String... keys) {
-    for (int i = 0; i < uniques.size(); i++) {
-      if (equalContents(uniques.get(i), keys)) {
-        uniques.remove(i);
-        break;
-      }
-    }
-    // will not delete from inheritedTable
   }
 
   public TableMetadata setInherit(String otherTable) {
@@ -272,16 +207,12 @@ public class TableMetadata {
     for (Column c : getColumns()) {
       builder.append("\n\t").append(c.toString());
     }
-    for (String[] u : getUniques()) {
-      builder.append("\n\t").append(Arrays.toString(u));
-    }
     builder.append("\n}");
     return builder.toString();
   }
 
   public void clearCache() {
     columns = new LinkedHashMap<>();
-    uniques = new ArrayList<>();
     inherit = null;
   }
 
@@ -311,5 +242,71 @@ public class TableMetadata {
     return getSchema().getName();
   }
 
-  public void removePrimaryKey(String name) {}
+  public List<Column> getPrimaryKeyColumns() {
+    return getKey(1);
+  }
+
+  public List<Column> getKey(int key) {
+    List<Column> keyColumns = new ArrayList<>();
+    for (Column c : getColumns()) {
+      if (c.getKey() == key) {
+        keyColumns.add(c);
+      }
+    }
+    return keyColumns;
+  }
+
+  public List<String> getKeyNames(int key) {
+    List<String> result = new ArrayList<>();
+    for (Column c : getKey(key)) {
+      result.add(c.getName());
+    }
+    return result;
+  }
+
+  public Map<Integer, List<String>> getKeys() {
+    Map<Integer, List<String>> keys = new LinkedHashMap<>();
+    for (Column c : columns.values()) {
+      if (c.getKey() > 0) {
+        if (keys.get(c.getKey()) == null) {
+          keys.put(c.getKey(), new ArrayList<>());
+        }
+        keys.get(c.getKey()).add(c.getName());
+      }
+    }
+    return keys;
+  }
+
+  public void removeKey(int key) {
+    for (Column c : this.columns.values()) {
+      if (c.getKey() == key) {
+        c.removeKey();
+      }
+    }
+  }
+
+  protected Column getLocalColumn(String name) {
+    return columns.get(name);
+  }
+
+  public org.jooq.Table getJooqTable() {
+    return DSL.table(name(getSchemaName(), getTableName()));
+  }
+
+  public List<Field> getPrimaryKeyFields() {
+
+    List<Field> result = new ArrayList<>();
+    for (Column c : getPrimaryKeyColumns()) {
+      if (c.isReference()) {
+        if (c.getRefColumns().size() != 1)
+          throw new MolgenisException(
+              "Only singulary references can be part of primary key",
+              "column in error: '" + c.getName() + "'");
+        result.add(field(name(c.getName()), c.getRefColumns().get(0).getJooqType()));
+      } else {
+        result.add(field(name(c.getName()), c.getJooqType()));
+      }
+    }
+    return result;
+  }
 }

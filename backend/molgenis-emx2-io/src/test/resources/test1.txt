@@ -27,16 +27,21 @@ typeTest, defaultBool, bool default(true)
 typeTest, defaultText, text default(hello world)
 typeTest, defaultDate, date default(01-01-2018)
 typeTest, defaultDateTime, datetime default(01-01-2018 13:03:03)
-table A, ,"unique(column AA,column AB)"
-table A, column AA,"nillable ref(table B,column B)"
-table A, column AB,
-table B, column B,
+table_A, ,
+table_A, column_AA,nillable ref(table_B.column_B) key(1)
+table_A, column_AB key(1)
+table_B, column_B,
 person,Display tableName,unique
-person,First tableName,
-person,Last tableName,
+person,First tableName, key1
+person,Last tableName, key1
 person, birthDate, nillable date
 person, weight, nillable int
-person, birthPlace, "ref(cities,tableName)"
+person, birthPlace, ref(cities)
 cities, tableName, unique
-person,,"unique(First tableName,Last tableName)"
+compositeTarget, pkey1a, key(1)
+compositeTarget, pkey1b, key(1)
+compositeTarget, pkey2a, key(2)
+compositeTarget, pkey2b, key(2)
+compositeRef, fkey, ref(compositeTarget)
+
 

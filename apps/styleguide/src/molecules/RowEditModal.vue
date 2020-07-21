@@ -9,19 +9,25 @@
         <span v-for="column in metadata.columns" :key="column.name">
           <RowFormInput
             v-model="value[column.name]"
-            :schema="schema"
             :label="column.name"
             :columnType="column.columnType"
             :refTable="column.refTable"
-            :refColumn="column.refColumn"
             :nullable="column.nullable"
             :defaultValue="defaultValue ? defaultValue[column.name] : undefined"
             :error="errorPerColumn[column.name]"
-            :readonly="column.readonly || (pkey && column.pkey)"
+            :readonly="column.readonly || (pkey && column.key == 1)"
           />
         </span>
       </LayoutForm>
-      {{ JSON.stringify(value) }}
+      defaultValue={{ JSON.stringify(defaultValue) }}
+      <br />
+      value={{ JSON.stringify(value) }}
+      <br />
+      data={{ JSON.stringify(data) }}
+      <br />
+      graphql = {{ JSON.stringify(graphql) }}
+      <br />
+      filter = {{ JSON.stringify(filter) }}
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -33,18 +39,18 @@
 </template>
 
 <script>
-    import LayoutForm from "../components/LayoutForm.vue";
-    import LayoutModal from "../components/LayoutModal.vue";
-    import MessageError from "../components/MessageError";
-    import MessageSuccess from "../components/MessageSuccess";
-    import ButtonAction from "../components/ButtonAction.vue";
-    import ButtonAlt from "../components/ButtonAlt.vue";
-    import SigninForm from "./SigninForm";
-    import TableMixin from "../mixins/TableMixin";
-    import RowFormInput from "./RowFormInput.vue";
-    import {request} from "graphql-request";
+import LayoutForm from "../components/LayoutForm.vue";
+import LayoutModal from "../components/LayoutModal.vue";
+import MessageError from "../components/MessageError";
+import MessageSuccess from "../components/MessageSuccess";
+import ButtonAction from "../components/ButtonAction.vue";
+import ButtonAlt from "../components/ButtonAlt.vue";
+import SigninForm from "./SigninForm";
+import TableMixin from "../mixins/TableMixin";
+import RowFormInput from "./RowFormInput.vue";
+import { request } from "graphql-request";
 
-    export default {
+export default {
   mixins: [TableMixin],
   data: function() {
     return {
@@ -57,7 +63,7 @@
   },
   props: {
     /** when updating existing record, this is the primary key value */
-    pkey: String
+    pkey: Object
   },
   components: {
     LayoutForm,
@@ -93,7 +99,6 @@
           if (data.update) {
             this.success = data.update.message;
           }
-          this.pkey = this.value[this.metadata.pkey];
           this.defaultValue = this.value;
           this.$emit("close");
         })
@@ -112,7 +117,7 @@
         this.metadata.columns.forEach(column => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
-            delete this.value[column.name];
+            //this.value[column.name] = undefined;
           }
           delete this.errorPerColumn[column.name];
           // when empty
@@ -130,7 +135,7 @@
             ) {
               let value = this.value[column.name]; //used for eval, two lines below
               this.errorPerColumn[column.name] = value; //dummy assign
-              this.errorPerColumn[column.name] = eval(column.validation) // eslint-disable-line
+              this.errorPerColumn[column.name] = eval(column.validation); // eslint-disable-line
             }
           }
         });
@@ -139,9 +144,14 @@
   },
   computed: {
     // override from tableMixin
-    graphql() {
-      // todo: must become a typed variable in the query?
-      return `{${this.table}(filter:{${this.metadata.pkey}:{equals:"${this.pkey}"}}){data_agg{count}data{${this.columnNames}}}}`;
+    filter() {
+      let result = {};
+      if (this.metadata.columns && this.pkey) {
+        this.metadata.columns
+          .filter(c => c.key == 1)
+          .map(c => (result[c.name] = { equals: this.pkey[c.name] }));
+      }
+      return result;
     },
     title() {
       if (this.pkey) {
@@ -158,21 +168,7 @@
         let defaultValue = {};
         this.metadata.columns.forEach(column => {
           if (data[column.name]) {
-            if (column.columnType === "REF") {
-              defaultValue[column.name] = data[column.name][column.refColumn];
-            } else if (
-              column.columnType.endsWith("ARRAY") ||
-              ["REF_ARRAY", "REFBACK"].includes(column.columnType)
-            ) {
-              defaultValue[column.name] = [];
-              if (Array.isArray(data[column.name])) {
-                data[column.name].forEach(value =>
-                  defaultValue[column.name].push(value[column.refColumn])
-                );
-              }
-            } else {
-              defaultValue[column.name] = data[column.name];
-            }
+            defaultValue[column.name] = data[column.name];
           }
         });
         this.defaultValue = defaultValue;
@@ -191,82 +187,3 @@
   }
 };
 </script>
-
-<!--<docs>-->
-<!--    Example-->
-<!--    ```-->
-<!--    <RowEditModal schema="pet store" table="Pet"/>-->
-
-<!--    ```-->
-<!--    Example with lazy load based on pkey-->
-<!--    ```-->
-<!--    <RowEditModal schema="pet store" table="Pet" pkey="spike"/>-->
-<!--    ```-->
-
-<!--    Example with default value explicityly set-->
-<!--    ```-->
-<!--    <template>-->
-<!--        <div>-->
-<!--            <RowEditModal schema="pet store" table="Pet" v-model="value" :defaultValue="value"/>-->
-<!--            {{JSON.stringify(object,null,2)}}-->
-<!--        </div>-->
-<!--    </template>-->
-
-<!--    <script>-->
-<!--        export default {-->
-<!--            data: function () {-->
-<!--                return {-->
-<!--                    value: {-->
-<!--                        name: "spike",-->
-<!--                        tags: ["red", "green"],-->
-<!--                        status: "sold",-->
-<!--                        orders: ["2"]-->
-<!--                    },-->
-<!--                    metadata: {-->
-<!--                        name: "Pet",-->
-<!--                        pkey: "name",-->
-<!--                        columns: [-->
-<!--                            {-->
-<!--                                name: "name",-->
-<!--                                columnType: "STRING",-->
-<!--                                pkey: true-->
-<!--                            },-->
-<!--                            {-->
-<!--                                name: "category",-->
-<!--                                columnType: "REF",-->
-<!--                                refTable: "Category",-->
-<!--                                refColumn: "name"-->
-<!--                            },-->
-<!--                            {-->
-<!--                                name: "photoUrls",-->
-<!--                                columnType: "STRING_ARRAY"-->
-<!--                            },-->
-<!--                            {-->
-<!--                                name: "status",-->
-<!--                                columnType: "STRING"-->
-<!--                            },-->
-<!--                            {-->
-<!--                                name: "tags",-->
-<!--                                columnType: "REF_ARRAY",-->
-<!--                                refTable: "Tag",-->
-<!--                                refColumn: "name"-->
-<!--                            },-->
-<!--                            {-->
-<!--                                name: "weight",-->
-<!--                                columnType: "DECIMAL"-->
-<!--                            },-->
-<!--                            {-->
-<!--                                name: "orders",-->
-<!--                                columnType: "REFBACK",-->
-<!--                                refTable: "Order",-->
-<!--                                refColumn: "orderId",-->
-<!--                                mappedBy: "pet"-->
-<!--                            }-->
-<!--                        ]-->
-<!--                    }-->
-<!--                };-->
-<!--            }-->
-<!--        };-->
-<!--    </script>-->
-<!--    ```-->
-<!--</docs>-->

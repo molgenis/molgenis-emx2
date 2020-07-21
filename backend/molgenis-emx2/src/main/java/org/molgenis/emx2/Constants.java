@@ -5,7 +5,7 @@ import static org.molgenis.emx2.Operator.*;
 public class Constants {
 
   public static final String REF_TABLE_NAME = "refTable";
-  public static final String REF_COLUMN_NAME = "refColumn";
+  public static final String REF_COLUMN_NAMES = "refColumns";
   public static final String MAPPED_BY = "mappedBy";
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";
@@ -13,7 +13,7 @@ public class Constants {
   public static final String DESCRIPTION = "description";
   public static final String DEFINITION = "definition";
   public static final String ROLE = "role";
-  public static final String PKEY = "pkey";
+  public static final String KEY = "key";
 
   private Constants() {
     // hide constructor

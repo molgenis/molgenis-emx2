@@ -7,7 +7,8 @@ module.exports = {
         target: "http://localhost:8080/api/graphql/pet%20store",
         pathRewrite: { "^/graphql": "" }
       },
-      "/api": { target: "http://localhost:8080" }
+      "/api": { target: "http://localhost:8080" },
+      "/apps": { target: "http://localhost:8080" }
     }
   }
 };

@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.jooq.impl.DSL.cast;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.SqlJavascriptValidator.validateValue;
 
 public class SqlTypeUtils extends TypeUtils {
@@ -19,19 +18,19 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static DataType jooqTypeOf(Column column) {
-    ColumnType sqlColumnType = column.getColumnType();
-    switch (sqlColumnType) {
-      case REF:
-        return jooqTypeOf(column.getRefColumn());
-      case REFBACK:
-      case REF_ARRAY:
-        //      case MREF:
-        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
-      default:
-        return jooqTypeOf(sqlColumnType);
-    }
-  }
+  //  static DataType jooqTypeOf(Column column) {
+  //    ColumnType sqlColumnType = column.getColumnType();
+  //    switch (sqlColumnType) {
+  //      case REF:
+  //        return jooqTypeOf(column.getRefColumn());
+  //      case REFBACK:
+  //      case REF_ARRAY:
+  //      case MREF:
+  //        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
+  //      default:
+  //        return jooqTypeOf(sqlColumnType);
+  //    }
+  //  }
 
   static DataType jooqTypeOf(ColumnType columnType) {
     switch (columnType) {
@@ -67,16 +66,19 @@ public class SqlTypeUtils extends TypeUtils {
         return SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY:
         return SQLDataType.TIMESTAMP.getArrayDataType();
+      case JSONB:
+        return SQLDataType.JSONB;
       default:
         // should never happen
-        throw new IllegalArgumentException("addColumn(name,type) : unsupported type " + columnType);
+        throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type " + columnType);
     }
   }
 
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {
-      Object value = getTypedValue(row, c);
+      Object value = getTypedValue(row, c.getName(), c.getColumnType());
+
       // validation
       if (value != null && c.getValidation() != null) {
         String error = validateValue(c.getValidation(), value);
@@ -95,122 +97,79 @@ public class SqlTypeUtils extends TypeUtils {
     return values;
   }
 
-  static Object getTypedValue(Object v, Column column) {
-    ColumnType columnType = column.getColumnType();
-    if (REF.equals(columnType)) {
-      columnType = getRefColumnType(column);
-    } else if (REF_ARRAY.equals(columnType)
-        || REFBACK.equals(columnType)) { // /MREF.equals(columnType) ||
-      columnType = getArrayType(getRefColumnType(column));
-    }
-    return getTypedValue(v, columnType);
-  }
+  //  static Object getTypedValue(Object v, Column column) {
+  //    ColumnType columnType = column.getColumnType();
+  //    if (REF.equals(columnType)) {
+  //      columnType = getRefColumnType(column);
+  //    } else if (REF_ARRAY.equals(columnType)
+  //        || REFBACK.equals(columnType)) { // /MREF.equals(columnType) ||
+  //      columnType = getArrayType(getRefColumnType(column));
+  //    }
+  //    return getTypedValue(v, columnType);
+  //  }
 
-  public static Object getTypedValue(Object v, ColumnType columnType) {
-    switch (columnType) {
+  public static Object getTypedValue(Row row, String name, ColumnType type) {
+    switch (type) {
       case UUID:
-        return TypeUtils.toUuid(v);
+        return row.getUuid(name);
       case UUID_ARRAY:
-        return TypeUtils.toUuidArray(v);
+        return row.getUuidArray(name);
       case STRING:
-        return TypeUtils.toString(v);
+        return row.getString(name);
       case STRING_ARRAY:
-        return TypeUtils.toStringArray(v);
+        return row.getStringArray(name);
       case BOOL:
-        return TypeUtils.toBool(v);
+        return row.getBoolean(name);
       case BOOL_ARRAY:
-        return TypeUtils.toBoolArray(v);
+        return row.getBooleanArray(name);
       case INT:
-        return TypeUtils.toInt(v);
+        return row.getInteger(name);
       case INT_ARRAY:
-        return TypeUtils.toIntArray(v);
+        return row.getIntegerArray(name);
       case DECIMAL:
-        return TypeUtils.toDecimal(v);
+        return row.getDecimal(name);
       case DECIMAL_ARRAY:
-        return TypeUtils.toDecimalArray(v);
+        return row.getDecimalArray(name);
       case TEXT:
-        return cast(TypeUtils.toText(v), SQLDataType.VARCHAR);
+        return row.getText(name);
       case TEXT_ARRAY:
-        return cast(TypeUtils.toTextArray(v), SQLDataType.VARCHAR.getArrayDataType());
+        return row.getTextArray(name);
       case DATE:
-        return TypeUtils.toDate(v);
+        return row.getDate(name);
       case DATE_ARRAY:
-        return TypeUtils.toDateArray(v);
+        return row.getDateArray(name);
       case DATETIME:
-        return TypeUtils.toDateTime(v);
+        return row.getDateTime(name);
       case DATETIME_ARRAY:
-        return TypeUtils.toDateTimeArray(v);
+        return row.getDateTimeArray(name);
+      case JSONB:
+        return row.getJsonb(name);
+      case JSONB_ARRAY:
+        return row.getJsonbArray(name);
       default:
-        throw new UnsupportedOperationException(
-            "Unsupported columnType columnType found:" + columnType);
+        throw new UnsupportedOperationException("Unsupported columnType found:" + type);
     }
   }
 
-  static Object getTypedValue(Row row, Column column) {
-    ColumnType columnType = column.getColumnType();
+  //  static ColumnType getRefArrayColumnType(Column column) {
+  //    return getArrayType(getRefColumnType(column));
+  //  }
 
-    if (REF.equals(columnType)) {
-      columnType = getRefColumnType(column);
-    }
-    if (REF_ARRAY.equals(columnType) || REFBACK.equals(columnType)) { // || MREF.equals(columnType)
-      columnType = getRefArrayColumnType(column);
-    }
-    switch (columnType) {
-      case UUID:
-        return row.getUuid(column.getName());
-      case UUID_ARRAY:
-        return row.getUuidArray(column.getName());
-      case STRING:
-        return row.getString(column.getName());
-      case STRING_ARRAY:
-        return row.getStringArray(column.getName());
-      case BOOL:
-        return row.getBoolean(column.getName());
-      case BOOL_ARRAY:
-        return row.getBooleanArray(column.getName());
-      case INT:
-        return row.getInteger(column.getName());
-      case INT_ARRAY:
-        return row.getIntegerArray(column.getName());
-      case DECIMAL:
-        return row.getDecimal(column.getName());
-      case DECIMAL_ARRAY:
-        return row.getDecimalArray(column.getName());
-      case TEXT:
-        return row.getText(column.getName());
-      case TEXT_ARRAY:
-        return row.getTextArray(column.getName());
-      case DATE:
-        return row.getDate(column.getName());
-      case DATE_ARRAY:
-        return row.getDateArray(column.getName());
-      case DATETIME:
-        return row.getDateTime(column.getName());
-      case DATETIME_ARRAY:
-        return row.getDateTimeArray(column.getName());
-      default:
-        throw new UnsupportedOperationException("Unsupported columnType found:" + columnType);
-    }
-  }
-
-  static ColumnType getRefArrayColumnType(Column column) {
-    return getArrayType(getRefColumnType(column));
-  }
-
-  public static ColumnType getRefColumnType(Column column) {
-    ColumnType columnType;
-    Column refColumn = column.getRefColumn();
-    while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType())) {
-      refColumn = refColumn.getRefColumn();
-      // check self reference
-      if (refColumn.getTableName().equals(column.getTableName())
-          && refColumn.getName().equals(column.getName())) {
-        return STRING;
-      }
-    }
-    columnType = refColumn.getColumnType();
-    return columnType;
-  }
+  //  public static ColumnType getRefColumnType(Column column) {
+  //    ColumnType columnType;
+  //    Column refColumn = column.getRefColumn();
+  //    while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType()))
+  // {
+  //      refColumn = refColumn.getRefColumn();
+  //      // check self reference
+  //      if (refColumn.getTableName().equals(column.getTableName())
+  //          && refColumn.getName().equals(column.getName())) {
+  //        return STRING;
+  //      }
+  //    }
+  //    columnType = refColumn.getColumnType();
+  //    return columnType;
+  //  }
 
   static TableMetadata getRefTable(Column column) {
     return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
@@ -254,6 +213,8 @@ public class SqlTypeUtils extends TypeUtils {
         return "timestamp without time zone";
       case DATETIME_ARRAY:
         return "timestamp without time zone[]";
+      case JSONB:
+        return "jsonb";
       default:
         throw new MolgenisException(
             "Unknown type", "Internal error: data cannot be mapped to psqlType " + type);

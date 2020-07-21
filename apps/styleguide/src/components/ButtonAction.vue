@@ -17,10 +17,10 @@ export default {
 </script>
 
 <docs>
-Example
+    Example
 
-```jsx
-<ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
-```
+    ```jsx
+    <ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
+    ```
 
 </docs>

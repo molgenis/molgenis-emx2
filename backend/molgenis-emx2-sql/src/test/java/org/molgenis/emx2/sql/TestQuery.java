@@ -32,45 +32,43 @@ public class TestQuery {
     Table person =
         schema.create(
             table(PERSON)
-                .add(column("ID").type(INT))
-                .add(column("First Name"))
-                .add(column("Last Name"))
+                .add(column("ID").type(INT).pkey())
+                .add(column("First_Name").key(2))
+                .add(column("Last_Name").key(2))
                 .add(column("Father").type(REF).refTable(PERSON).nullable(true))
-                .add(column("Mother").type(REF).refTable(PERSON).nullable(true))
-                .addUnique("First Name", "Last Name")
-                .pkey("ID"));
+                .add(column("Mother").type(REF).refTable(PERSON).nullable(true)));
 
     Row donald =
-        new Row().setInt("ID", 1).setString("First Name", "Donald").setString("Last Name", "Duck");
+        new Row().setInt("ID", 1).setString("First_Name", "Donald").setString("Last_Name", "Duck");
     Row katrien =
-        new Row().setInt("ID", 2).setString("First Name", "Katrien").setString("Last Name", "Duck");
+        new Row().setInt("ID", 2).setString("First_Name", "Katrien").setString("Last_Name", "Duck");
 
     Row kwik =
         new Row()
             .setInt("ID", 3)
-            .setString("First Name", "Kwik")
-            .setString("Last Name", "Duck")
+            .setString("First_Name", "Kwik")
+            .setString("Last_Name", "Duck")
             .setInt("Father", 1)
             .setInt("Mother", 2);
     Row kwek =
         new Row()
             .setInt("ID", 4)
-            .setString("First Name", "Kwek")
-            .setString("Last Name", "Duck")
+            .setString("First_Name", "Kwek")
+            .setString("Last_Name", "Duck")
             .setInt("Father", 1)
             .setInt("Mother", 2);
     Row kwak =
         new Row()
             .setInt("ID", 5)
-            .setString("First Name", "Kwak")
-            .setString("Last Name", "Duck")
+            .setString("First_Name", "Kwak")
+            .setString("Last_Name", "Duck")
             .setInt("Father", 1)
             .setInt("Mother", 2);
 
     Row mickey =
-        new Row().setInt("ID", 6).setString("First Name", "Mickey").setString("Last Name", "Mouse");
+        new Row().setInt("ID", 6).setString("First_Name", "Mickey").setString("Last_Name", "Mouse");
     Row minie =
-        new Row().setInt("ID", 7).setString("First Name", "Minie").setString("Last Name", "Mouse");
+        new Row().setInt("ID", 7).setString("First_Name", "Minie").setString("Last_Name", "Mouse");
 
     person.insert(donald, katrien, kwik, kwek, kwak);
   }
@@ -85,8 +83,8 @@ public class TestQuery {
     StopWatch.print("got schema");
 
     Query q = s.getTable("Person").query();
-    q.select(s("First Name"), s("Last Name"), s("Father", s("First Name"), s("Last Name")));
-    q.filter("Last Name", EQUALS, "Duck").filter("Father", f("First Name", EQUALS, "Donald"));
+    q.select(s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name")));
+    q.filter("Last_Name", EQUALS, "Duck").filter("Father", f("First_Name", EQUALS, "Donald"));
 
     StopWatch.print("created query");
 
@@ -101,10 +99,10 @@ public class TestQuery {
     StopWatch.print("query complete");
 
     q = s.getTable("Person").query();
-    q.select("First Name")
-        .select("Last Name")
-        .select(s("Father").select("Last Name").select("First Name"));
-    q.filter("Last Name", EQUALS, "Duck").filter("Father", f("First Name", EQUALS, "Donald"));
+    q.select("First_Name")
+        .select("Last_Name")
+        .select(s("Father").select("Last_Name").select("First_Name"));
+    q.filter("Last_Name", EQUALS, "Duck").filter("Father", f("First_Name", EQUALS, "Donald"));
 
     rows = q.getRows();
     assertEquals(3, rows.size());
@@ -119,9 +117,9 @@ public class TestQuery {
             .getTable(PERSON)
             .select(
                 s("ID"),
-                s("First Name"),
-                s("Last Name"),
-                s("Mother", s("ID"), s("First Name"), s("Last Name")))
+                s("First_Name"),
+                s("Last_Name"),
+                s("Mother", s("ID"), s("First_Name"), s("Last_Name")))
             .filter(f("Mother", f("ID", EQUALS, 2)))
             .setLimit(1)
             .setOffset(1)

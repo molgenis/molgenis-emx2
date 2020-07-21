@@ -33,11 +33,11 @@
 </template>
 
 <script>
-    import NavBar from "../components/NavBar";
-    import Account from "./Account";
-    import Theme from "../components/Theme";
+import NavBar from "../components/NavBar";
+import Account from "./Account";
+import Theme from "../components/Theme";
 
-    /**
+/**
      Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
      */
 export default {

@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.emx2;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.utils.MolgenisExceptionDetail;
+import org.molgenis.emx2.utils.TypeUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,12 +87,6 @@ public class Emx2 {
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
       switch (term) {
-        case Emx2PropertyList.UNIQUE:
-          table.addUnique(def.getParameterArray(term));
-          break;
-        case Emx2PropertyList.PKEY:
-          table.pkey(def.getParamterValue(term));
-          break;
         default:
           messages.add(new MolgenisExceptionDetail(line, "term " + term + " not supported"));
       }
@@ -141,7 +136,7 @@ public class Emx2 {
           throw new MolgenisException(IMPORT_FAILED, "Ref must have 1 or 2 parameter values");
         }
         if (params.size() > 1) {
-          table.add(column(columnName).type(REF).refTable(params.get(0)).refColumn(params.get(1)));
+          table.add(column(columnName).type(REF).refTable(params.get(0)));
         } else {
           table.add(column(columnName).type(REF).refTable(params.get(0)));
         }
@@ -156,7 +151,7 @@ public class Emx2 {
       if (def.getParameterList(REF_ARRAY).size() > 1) {
         refColumn = def.getParameterList(REF_ARRAY).get(1);
       }
-      table.add(column(columnName).type(REF_ARRAY).refTable(refTable).refColumn(refColumn));
+      table.add(column(columnName).type(REF_ARRAY).refTable(refTable));
     } else if (REFBACK.equals(columnType)) {
       // should have 2 or 3 parameters
       String refTable = def.getParameterList(REFBACK).get(0);
@@ -172,23 +167,15 @@ public class Emx2 {
             new MolgenisExceptionDetail(
                 line, "Parsing of 'refback' failed, wrong number of parameters."));
       }
-      table.add(
-          column(columnName)
-              .type(REFBACK)
-              .refTable(refTable)
-              .refColumn(refColumn)
-              .mappedBy(mappedBy));
+      table.add(column(columnName).type(REFBACK).refTable(refTable).mappedBy(mappedBy));
     } else {
       table.add(column(columnName).type(columnType));
     }
 
     // other properties
     Column column = table.getColumn(columnName);
-    if (def.contains(Emx2PropertyList.UNIQUE)) {
-      column.setUnique(true);
-    }
-    if (def.contains(Emx2PropertyList.PKEY)) {
-      table.pkey(column.getName());
+    if (def.contains(Emx2PropertyList.KEY)) {
+      column.key(TypeUtils.toInt(def.getParamterValue(Emx2PropertyList.KEY)));
     }
     if (def.contains(Emx2PropertyList.NULLABLE)) {
       column.nullable(true);
@@ -252,10 +239,6 @@ public class Emx2 {
   private static void writeTableDefinitionRow(TableMetadata table, List<Emx2FileRow> rows) {
 
     Emx2PropertyList def = new Emx2PropertyList();
-    // write multiple key constraints on table level, otherwise this will be done per column
-    for (String[] u : table.getUniques()) {
-      if (u.length > 1) def.add(Emx2PropertyList.UNIQUE, u);
-    }
     // write table definition row, but only if not empty
     if (!def.getTerms().isEmpty() || table.getDescription() != null)
       rows.add(new Emx2FileRow(table.getTableName(), "", def.toString(), table.getDescription()));
@@ -270,30 +253,14 @@ public class Emx2 {
         break;
       case REF:
       case REF_ARRAY:
-        if (column.getRefColumnName() != null
-            && !column.getRefTable().isPrimaryKey(column.getRefColumnName())) {
-          def.add(
-              column.getColumnType().toString().toLowerCase(),
-              column.getRefTableName(),
-              column.getRefColumnName());
-        } else {
-          def.add(column.getColumnType().toString().toLowerCase(), column.getRefTableName());
-        }
+      case MREF:
+        def.add(column.getColumnType().toString().toLowerCase(), column.getRefTableName());
         break;
       case REFBACK:
-        if (column.getRefColumnName() != null
-            && !column.getRefTable().isPrimaryKey(column.getRefColumnName())) {
-          def.add(
-              column.getColumnType().toString().toLowerCase(),
-              column.getRefTableName(),
-              column.getRefColumnName(),
-              column.getMappedBy());
-        } else {
-          def.add(
-              column.getColumnType().toString().toLowerCase(),
-              column.getRefTableName(),
-              column.getMappedBy());
-        }
+        def.add(
+            column.getColumnType().toString().toLowerCase(),
+            column.getRefTableName(),
+            column.getMappedBy());
         break;
       default:
         def.add(column.getColumnType().toString().toLowerCase());
@@ -301,8 +268,7 @@ public class Emx2 {
     if (Boolean.TRUE.equals(column.isNullable())) def.add("nullable");
     if (Boolean.TRUE.equals(column.isReadonly())) def.add("readonly");
     if (Boolean.TRUE.equals(column.isCascadeDelete())) def.add("cascadeDelete");
-    if (Boolean.TRUE.equals(column.getTable().isPrimaryKey(column.getName()))) def.add("pkey");
-    if (Boolean.TRUE.equals(column.isUnique())) def.add("unique");
+    if (column.getKey() > 0) def.add("key", "" + column.getKey());
     if (column.getValidation() != null) def.add(Emx2PropertyList.VALIDATE, column.getValidation());
     if (column.getDefaultValue() != null) def.add("default", column.getDefaultValue());
 

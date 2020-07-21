@@ -70,6 +70,13 @@ public class TestCreateArrayDataTypes {
         });
   }
 
+  @Test
+  public void testJSON() {
+    executeTest(
+        JSONB_ARRAY,
+        new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
+  }
+
   //  @Test
   //  public void testBool()  {
   //    executeTest(BOOL_ARRAY, new Boolean[] {null, true, false});
@@ -81,8 +88,7 @@ public class TestCreateArrayDataTypes {
         database.dropCreateSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
 
     String aFieldName = columnType + "Col";
-    Table tableA =
-        schema.create(table("A").add(column(aFieldName).type(columnType)).pkey(aFieldName));
+    Table tableA = schema.create(table("A", column(aFieldName).type(columnType).pkey()));
 
     Row aRow = new Row().set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);

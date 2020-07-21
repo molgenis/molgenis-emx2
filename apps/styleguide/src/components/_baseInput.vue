@@ -2,9 +2,9 @@
 guide */
 
 <script>
-    import _formGroup from "./_formGroup.vue";
+import _formGroup from "./_formGroup.vue";
 
-    export default {
+export default {
   components: {
     "form-group": _formGroup
   },
@@ -77,7 +77,7 @@ guide */
   methods: {
     emitValue() {
       if (this.list) {
-        //else contine
+        //else continue
         this.value = this.arrayValue.map(v =>
           !v || v.length === 0 || !String(v).trim() ? null : v
         );
@@ -92,6 +92,7 @@ guide */
           this.value = null;
         }
       }
+      console.log("EMITVALUE: " + JSON.stringify(this.value));
       this.$emit("input", this.value);
     },
     addRow() {
@@ -101,7 +102,11 @@ guide */
       if (this.arrayValue.length > 1) {
         this.arrayValue.splice(idx, 1);
       } else {
-        this.arrayValue = [null];
+        if (this.list) {
+          this.arrayValue = [[null]];
+        } else {
+          this.arrayValue = [null];
+        }
       }
     },
     showPlus(idx) {

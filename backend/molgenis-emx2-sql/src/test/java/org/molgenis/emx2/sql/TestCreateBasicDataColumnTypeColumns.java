@@ -147,6 +147,13 @@ public class TestCreateBasicDataColumnTypeColumns {
         });
   }
 
+  @Test
+  public void testJSON() {
+    executeTest(
+        JSONB,
+        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
+  }
+
   private void executeTest(ColumnType columnType, Serializable[] values) {
 
     Schema schema =
@@ -158,9 +165,8 @@ public class TestCreateBasicDataColumnTypeColumns {
     Table aTable =
         schema.create(
             table("A")
-                .add(column(aKey).type(columnType))
-                .add(column(aColumn).type(columnType))
-                .pkey(aKey));
+                .add(column(aKey).type(columnType).pkey())
+                .add(column(aColumn).type(columnType)));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);

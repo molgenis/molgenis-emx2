@@ -4,7 +4,6 @@ import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.SelectJoinStep;
-import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -17,10 +16,8 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.SqlColumnUtils.getMappedByColumn;
-import static org.molgenis.emx2.sql.SqlQueryRowHelper.createBackrefSubselect;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getRefColumnType;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 class SqlQueryUtils {
@@ -65,8 +62,7 @@ class SqlQueryUtils {
       if (isSelectedOrFiltered(column, select, filter)) {
         String rightAlias = leftAlias + "/" + column.getName();
         ColumnType type = column.getColumnType();
-        String refCol = column.getRefColumnName();
-        Condition condition = null;
+        List<Condition> conditions = new ArrayList<>();
 
         if ((select != null
                 && select.has(column.getName())
@@ -75,31 +71,40 @@ class SqlQueryUtils {
                 && filter.has(column.getName())
                 && !filter.getFilter(column.getName()).getSubfilters().isEmpty())) {
           if (REF_ARRAY.equals(type)) {
-            condition =
-                condition(
-                    ANY_SQL,
-                    field(name(rightAlias, refCol)),
-                    field(name(leftAlias, column.getName())));
-          } else if (REF.equals(type)) {
-            condition =
-                field(name(leftAlias, column.getName())).eq(field(name(rightAlias, refCol)));
-          } else if (REFBACK.equals(type)) {
-            Column mappedBy = getMappedByColumn(column);
-            refCol = mappedBy.getRefColumnName();
-            if (REF.equals(mappedBy.getColumnType())) {
-              condition =
-                  field(name(leftAlias, refCol)).eq(field(name(rightAlias, mappedBy.getName())));
-            } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
-              condition =
+            for (Reference ref : column.getRefColumns()) {
+              conditions.add(
                   condition(
                       ANY_SQL,
-                      field(name(leftAlias, refCol)),
-                      field(name(rightAlias, mappedBy.getName())));
+                      field(name(rightAlias, ref.getTo())),
+                      field(name(leftAlias, ref.getName()))));
+            }
+          } else if (REF.equals(type)) {
+            for (Reference ref : column.getRefColumns()) {
+              conditions.add(
+                  field(name(leftAlias, ref.getName())).eq(field(name(rightAlias, ref.getTo()))));
+            }
+          } else if (REFBACK.equals(type)) {
+            Column mappedBy = getMappedByColumn(column);
+            if (REF.equals(mappedBy.getColumnType())) {
+              for (Reference ref : mappedBy.getRefColumns()) {
+                conditions.add(
+                    field(name(leftAlias, ref.getTo())).eq(field(name(rightAlias, ref.getName()))));
+              }
+            } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+              for (Reference ref : mappedBy.getRefColumns()) {
+                conditions.add(
+                    condition(
+                        ANY_SQL,
+                        field(name(leftAlias, ref.getTo())),
+                        field(name(rightAlias, ref.getName()))));
+              }
             }
           }
         }
-        if (condition != null) {
-          step = step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias)).on(condition);
+        if (conditions.size() > 0) {
+          step =
+              step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias))
+                  .on(conditions.toArray(new Condition[conditions.size()]));
           createJoins(
               step,
               column.getRefTable(),
@@ -115,16 +120,26 @@ class SqlQueryUtils {
   static Condition createSearchCondition(
       SqlTableMetadata fromTable, String fromAlias, SelectColumn select, String[] searchTerms) {
     if (searchTerms != null && searchTerms.length > 0) {
-      if (fromTable.getPrimaryKey() == null) {
+      if (fromTable.getPrimaryKeys() == null) {
         throw new MolgenisException(QUERY_FAILED, "Search failed because no primary key was set");
       }
       // BIG TODO THIS IS NOT CORRECT
-      Field pkey = field(name(fromAlias, fromTable.getPrimaryKey()[0]));
+      List<Field> pkey = new ArrayList<>();
+      for (String pkeyPart : fromTable.getPrimaryKeys()) {
+        pkey.add(field(name(fromAlias, pkeyPart)));
+      }
       // create subquery
       SelectJoinStep sub =
           fromTable.getJooq().select(pkey).from(getJooqTable(fromTable).as(fromAlias));
       sub = createJoins(sub, fromTable, fromAlias, select, null);
-      return pkey.in(sub.where(createFiltersForSearch(fromTable, fromAlias, select, searchTerms)));
+      List<Condition> pkeyConditions = new ArrayList<>();
+      for (Field pkeyField : pkey) {
+        pkeyConditions.add(
+            pkeyField.in(
+                sub.where(createFiltersForSearch(fromTable, fromAlias, select, searchTerms))));
+      }
+
+      return and(pkeyConditions);
     }
     return null;
   }
@@ -186,14 +201,14 @@ class SqlQueryUtils {
     TableMetadata inherit = table.getInheritedTable();
     while (inherit != null) {
       String subTableAlias = tableAlias + "+" + inherit.getTableName();
-
-      Condition[] conditions = new Condition[table.getPrimaryKey().length];
-      for (int i = 0; i < conditions.length; i++) {
-        String pkey = table.getPrimaryKey()[i];
-        conditions[i] = field(name(tableAlias, pkey)).eq(field(name(subTableAlias, pkey)));
+      List<Condition> conditions = new ArrayList<>();
+      for (String pkeyPart : table.getPrimaryKeys()) {
+        conditions.add(field(name(tableAlias, pkeyPart)).eq(field(name(subTableAlias, pkeyPart))));
       }
 
-      from = from.innerJoin(getJooqTable(inherit).as(subTableAlias)).on(conditions);
+      from =
+          from.innerJoin(getJooqTable(inherit).as(subTableAlias))
+              .on(conditions.toArray(new Condition[conditions.size()]));
       inherit = inherit.getInheritedTable();
     }
     return from;
@@ -211,8 +226,31 @@ class SqlQueryUtils {
           // check if inherited
           String subAlias = getSubclassAlias(table, tableAlias, column);
           // else
-          Condition subCondition =
-              createFilterCondition(subAlias, column, entry.getKey(), entry.getValue());
+
+          Condition subCondition = null;
+          if (column.isReference()) {
+            List<Reference> refs = column.getRefColumns();
+            if (refs.size() > 1) {
+              throw new MolgenisException(
+                  "Cannot use subquery here", "composite key " + column.getName());
+            }
+            subCondition =
+                createFilterCondition(
+                    subAlias,
+                    refs.get(0).getName(),
+                    refs.get(0).getColumnType(),
+                    entry.getKey(),
+                    entry.getValue());
+
+          } else {
+            subCondition =
+                createFilterCondition(
+                    tableAlias,
+                    column.getName(),
+                    column.getColumnType(),
+                    entry.getKey(),
+                    entry.getValue());
+          }
           if (condition != null) condition = condition.and(subCondition);
           else condition = subCondition;
         }
@@ -232,12 +270,12 @@ class SqlQueryUtils {
   }
 
   private static Condition createFilterCondition(
-      String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
-    Name name = name(tableAlias, column.getName());
-    ColumnType type = column.getColumnType();
-    if (REF_ARRAY.equals(type) || REF.equals(type)) {
-      type = getRefColumnType(column);
-    }
+      String tableAlias,
+      String columnName,
+      ColumnType type,
+      org.molgenis.emx2.Operator operator,
+      Object[] values) {
+    Name name = name(tableAlias, columnName);
     switch (type) {
       case TEXT:
       case STRING:
@@ -246,6 +284,8 @@ class SqlQueryUtils {
         return createEqualsFilter(name, operator, toBoolArray(values));
       case UUID:
         return createEqualsFilter(name, operator, toUuidArray(values));
+      case JSONB:
+        return createEqualsFilter(name, operator, toJsonbArray(values));
       case INT:
         return createOrdinalFilter(name, operator, toIntArray(values));
       case DECIMAL:
@@ -257,7 +297,7 @@ class SqlQueryUtils {
         // todo improve filters for arrays
       case STRING_ARRAY:
       case TEXT_ARRAY:
-        return createArrayEqualsFilter(name, operator, toStringArray(values));
+        return createTextArrayFilter(name, operator, toStringArray(values));
       case BOOL_ARRAY:
         return createArrayEqualsFilter(name, operator, toBoolArray(values));
       case UUID_ARRAY:
@@ -270,22 +310,8 @@ class SqlQueryUtils {
         return createArrayEqualsFilter(name, operator, toDateArray(values));
       case DATETIME_ARRAY:
         return createArrayEqualsFilter(name, operator, toDateTimeArray(values));
-      case REFBACK:
-        if (!EQUALS.equals(operator)) {
-          throw new MolgenisException(QUERY_FAILED, "Only EQUALS is implemented for REFBACK");
-        }
-        Column mappedBy = getMappedByColumn(column);
-        if (REF.equals(mappedBy.getColumnType())) {
-          // subselect on on the other table with link to this
-          return condition(
-              "{0} && {1}",
-              SqlTypeUtils.getTypedValue(values, column),
-              field(PostgresDSL.array(createBackrefSubselect(column, tableAlias))));
-        } else {
-          return condition("FAILED");
-        }
-        //      case MREF:
-        //        return null;
+      case JSONB_ARRAY:
+        return createArrayEqualsFilter(name, operator, toJsonbArray(values));
       default:
         throw new SqlGraphQueryException(
             QUERY_FAILED,
@@ -294,7 +320,7 @@ class SqlQueryUtils {
                 + " failed: operator "
                 + operator
                 + " not supported for type "
-                + column.getColumnType());
+                + type);
     }
   }
 
@@ -330,6 +356,53 @@ class SqlQueryUtils {
     else return or(conditions);
   }
 
+  private static Condition createTextArrayFilter(
+      Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
+    List<Condition> conditions = new ArrayList<>();
+    boolean not = false;
+    for (String value : values) {
+      switch (operator) {
+        case EQUALS:
+          conditions.add(condition("{0} = ANY({1})", value, field(columnName)));
+          break;
+        case NOT_EQUALS:
+          not = true;
+          conditions.add(condition("{0} = ANY({1})", value, field(columnName)));
+          break;
+        case NOT_LIKE:
+          not = true;
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE {0})",
+                  "%" + value + "%", field(columnName)));
+          break;
+        case LIKE:
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE {0})",
+                  "%" + value + "%", field(columnName)));
+          break;
+        case TRIGRAM_SEARCH:
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
+                  value, field(columnName)));
+          break;
+        case TEXT_SEARCH:
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
+                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
+          break;
+        default:
+          throw new SqlGraphQueryException(
+              QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
+      }
+    }
+    if (not) return not(or(conditions));
+    else return or(conditions);
+  }
+
   private static Condition createTextFilter(
       Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
     List<Condition> conditions = new ArrayList<>();
@@ -351,13 +424,13 @@ class SqlQueryUtils {
           conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
           break;
         case TRIGRAM_SEARCH:
-          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, columnName));
+          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, field(columnName)));
           break;
         case TEXT_SEARCH:
           conditions.add(
               condition(
                   "to_tsquery({0}) @@ to_tsvector({1})",
-                  value.trim().replaceAll("\\s+", ":* & ") + ":*", columnName));
+                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
           break;
         default:
           throw new SqlGraphQueryException(

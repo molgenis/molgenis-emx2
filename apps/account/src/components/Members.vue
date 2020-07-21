@@ -54,22 +54,22 @@
 </template>
 
 <script>
-    import {request} from 'graphql-request'
+import { request } from "graphql-request";
 
-    import {
-        ButtonAction,
-        ButtonAlt,
-        ButtonDanger,
-        DataTable,
-        IconAction,
-        IconBar,
-        InputSelect,
-        InputString,
-        LayoutModal,
-        MessageError
-    } from '@mswertz/molgenis-emx2-lib-elements'
+import {
+  ButtonAction,
+  ButtonAlt,
+  ButtonDanger,
+  DataTable,
+  IconAction,
+  IconBar,
+  InputSelect,
+  InputString,
+  LayoutModal,
+  MessageError
+} from "@mswertz/molgenis-emx2-lib-elements";
 
-    export default {
+export default {
   components: {
     MessageError,
     IconAction,
@@ -87,48 +87,48 @@
   },
   data: function() {
     return {
-      view: 'list',
+      view: "list",
       currentMember: {},
-      roles: ['Owner', 'Manager', 'Editor', 'Viewer'],
+      roles: ["Owner", "Manager", "Editor", "Viewer"],
       members: null,
       error: null
-    }
+    };
   },
   computed: {
     endpoint() {
-      return '/api/graphql/' + this.schema
+      return "/api/graphql/" + this.schema;
     },
     account() {
-      return this.$store.state.account.email
+      return this.$store.state.account.email;
     }
   },
   watch: {
     account() {
-      this.loadMembers()
+      this.loadMembers();
     }
   },
   created() {
-    this.loadMembers()
+    this.loadMembers();
   },
   methods: {
     showAdd() {
-      this.view = 'add'
+      this.view = "add";
     },
     showEdit(row) {
-      this.currentMember = row
-      this.view = 'edit'
+      this.currentMember = row;
+      this.view = "edit";
     },
     loadMembers() {
-      this.error = false
-      this.members = []
+      this.error = false;
+      this.members = [];
       request(this.endpoint, `{_meta{members{user,role}}}`)
         .then(data => {
-          this.members = data._meta.members
+          this.members = data._meta.members;
         })
-        .catch(error => (this.error = error.response.error))
+        .catch(error => (this.error = error.response.error));
     }
   }
-}
+};
 </script>
 
 <docs>

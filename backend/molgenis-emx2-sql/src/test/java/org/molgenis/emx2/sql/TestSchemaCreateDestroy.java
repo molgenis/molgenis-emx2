@@ -29,7 +29,7 @@ public class TestSchemaCreateDestroy {
       System.out.println("Error correctly:\n" + e);
     }
 
-    Schema schema = db.createSchema(getClass().getSimpleName());
+    Schema schema = db.dropCreateSchema(getClass().getSimpleName());
 
     try {
       db.createSchema(getClass().getSimpleName());

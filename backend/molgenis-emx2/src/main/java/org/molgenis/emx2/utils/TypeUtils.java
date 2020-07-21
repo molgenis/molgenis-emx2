@@ -1,9 +1,14 @@
 package org.molgenis.emx2.utils;
 
+import org.jooq.DataType;
+import org.jooq.JSONB;
+import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 
+import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -12,14 +17,13 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.molgenis.emx2.ColumnType.*;
+import static org.jooq.impl.DSL.cast;
 
 public class TypeUtils {
   private static final String LOOSE_PARSER_FORMAT =
@@ -31,28 +35,20 @@ public class TypeUtils {
 
   public static UUID toUuid(Object v) {
     if (v == null) return null;
-    if (v instanceof String) return java.util.UUID.fromString((String) v);
+    if (v instanceof String) {
+      if (((String) v).trim().equals(""))
+        throw new MolgenisException("Cannot cast \"\" to UUID", "");
+      return java.util.UUID.fromString((String) v);
+    }
     return (UUID) v;
   }
 
   public static UUID[] toUuidArray(Object v) {
-    if (v == null) return new UUID[0];
-    if (v instanceof UUID[]) return (UUID[]) v;
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[]) {
-      return Stream.of((Object[]) v).map(TypeUtils::toUuid).toArray(UUID[]::new);
-    }
-    return new UUID[] {toUuid(v)};
+    return (UUID[]) processArray(v, TypeUtils::toUuid, UUID[]::new, UUID.class);
   }
 
   public static String[] toStringArray(Object v) {
-    if (v == null) return new String[0];
-    if (v instanceof String[]) return (String[]) v;
-    if (v instanceof String) v = splitCsvString((String) v);
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[])
-      return Stream.of((Object[]) v).map(TypeUtils::toString).toArray(String[]::new);
-    return new String[] {v.toString()};
+    return (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
   }
 
   public static String toString(Object v) {
@@ -64,19 +60,33 @@ public class TypeUtils {
   }
 
   public static Integer toInt(Object v) {
-    if (v instanceof String) return Integer.parseInt((String) v);
+    if (v == null) return null;
+    if (v instanceof String) {
+      return Integer.parseInt(((String) v).trim());
+    }
     if (v instanceof Double) return (int) Math.round((Double) v);
     return (Integer) v;
   }
 
   public static Integer[] toIntArray(Object v) {
-    if (v == null) return new Integer[0];
-    if (v instanceof Integer[]) return (Integer[]) v;
-    if (v instanceof String) v = splitCsvString((String) v);
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[])
-      return Stream.of((Object[]) v).map(TypeUtils::toInt).toArray(Integer[]::new);
-    return new Integer[] {toInt(v)};
+    return (Integer[]) processArray(v, TypeUtils::toInt, Integer[]::new, Integer.class);
+  }
+
+  private static Object[] processArray(
+      Object v, Function<Object, Object> f, IntFunction<Object[]> m, Class c) {
+    if (v == null) return null;
+    else if (v.getClass().equals(c.arrayType())) return (Object[]) v;
+    else if (v instanceof String) {
+      if (((String) v).trim().equals(""))
+        throw new MolgenisException("Cannot cast \"\" to " + c.getSimpleName() + "[], ", "");
+      v = splitCsvString((String) v);
+    } else if (v.getClass().isArray()) v = Arrays.asList((Object[]) v);
+    if (v instanceof List) {
+      return ((List<Object>) v).stream().map(f).toArray(m);
+    }
+    Object result = Array.newInstance(c, 1);
+    Array.set(result, 0, f.apply(v));
+    return (Object[]) result;
   }
 
   public static Boolean toBool(Object v) {
@@ -89,13 +99,7 @@ public class TypeUtils {
   }
 
   public static Boolean[] toBoolArray(Object v) {
-    if (v == null) return new Boolean[0];
-    if (v instanceof Boolean[]) return (Boolean[]) v;
-    if (v instanceof String) v = splitCsvString((String) v);
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[])
-      return Stream.of((Object[]) v).map(TypeUtils::toBool).toArray(Boolean[]::new);
-    return new Boolean[] {toBool(v)};
+    return (Boolean[]) processArray(v, TypeUtils::toBool, Boolean[]::new, Boolean.class);
   }
 
   public static Double toDecimal(Object v) {
@@ -105,13 +109,7 @@ public class TypeUtils {
   }
 
   public static Double[] toDecimalArray(Object v) {
-    if (v == null) return new Double[0];
-    if (v instanceof Double[]) return (Double[]) v;
-    if (v instanceof String) v = splitCsvString((String) v);
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[])
-      return Stream.of((Object[]) v).map(TypeUtils::toDecimal).toArray(Double[]::new);
-    return new Double[] {toDecimal(v)};
+    return (Double[]) processArray(v, TypeUtils::toDecimal, Double[]::new, Double.class);
   }
 
   public static LocalDate toDate(Object v) {
@@ -122,14 +120,7 @@ public class TypeUtils {
   }
 
   public static LocalDate[] toDateArray(Object v) {
-
-    if (v == null) return new LocalDate[0];
-    if (v instanceof LocalDate[]) return (LocalDate[]) v;
-    if (v instanceof String) v = splitCsvString((String) v);
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[])
-      return Stream.of((Object[]) v).map(TypeUtils::toDate).toArray(LocalDate[]::new);
-    return new LocalDate[] {toDate(v)};
+    return (LocalDate[]) processArray(v, TypeUtils::toDate, LocalDate[]::new, LocalDate.class);
   }
 
   public static LocalDateTime toDateTime(Object v) {
@@ -147,14 +138,32 @@ public class TypeUtils {
   }
 
   public static LocalDateTime[] toDateTimeArray(Object v) {
-    if (v == null) return new LocalDateTime[0];
-    if (v instanceof LocalDateTime[]) return (LocalDateTime[]) v;
-    if (v instanceof String) v = splitCsvString((String) v);
-    if (v instanceof List) v = listToArray(v);
-    if (v instanceof Object[]) {
-      return Stream.of((Object[]) v).map(TypeUtils::toDateTime).toArray(LocalDateTime[]::new);
+    return (LocalDateTime[])
+        processArray(v, TypeUtils::toDateTime, LocalDateTime[]::new, LocalDateTime.class);
+  }
+
+  public static JSONB toJsonb(Object v) {
+    if (v == null) return null;
+    if (v instanceof String) return org.jooq.JSONB.valueOf((String) v);
+    return (JSONB) v;
+  }
+
+  public static JSONB[] toJsonbArray(Object v) {
+    // non standard so not using the generic function
+    if (v == null) return null;
+    if (v instanceof String) {
+      if (((String) v).trim().equals(""))
+        throw new MolgenisException("Cannot cast \"\" to JSONB[]", "");
+      v = List.of(JSONB.valueOf((String) v));
     }
-    return new LocalDateTime[] {toDateTime(v)};
+    if (v instanceof String[]) {
+      v = List.of((String[]) v);
+    }
+    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
+    if (v instanceof List) {
+      return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
+    }
+    return (JSONB[]) v;
   }
 
   public static String toText(Object v) {
@@ -216,6 +225,8 @@ public class TypeUtils {
         return ColumnType.DATE_ARRAY;
       case DATETIME:
         return ColumnType.DATETIME_ARRAY;
+      case JSONB:
+        return ColumnType.JSONB_ARRAY;
       default:
         throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
     }
@@ -233,7 +244,7 @@ public class TypeUtils {
         .collect(Collectors.joining(","));
   }
 
-  private static String[] splitCsvString(String value) {
+  private static List<String> splitCsvString(String value) {
     // thanks stackoverflow
     ArrayList<String> result = new ArrayList<>();
     boolean notInsideComma = true;
@@ -247,7 +258,7 @@ public class TypeUtils {
     }
     String v = trimQuotes(value.substring(start));
     if (!"".equals(v)) result.add(v);
-    return result.toArray(new String[result.size()]);
+    return result;
   }
 
   private static String trimQuotes(String value) {
@@ -260,14 +271,9 @@ public class TypeUtils {
   }
 
   public static ColumnType getPrimitiveColumnType(Column column) {
-    if (REF.equals(column.getColumnType())) {
-      return getPrimitiveColumnType(column.getRefColumn());
-    } else if (REF_ARRAY.equals(column.getColumnType()) || REFBACK.equals(column.getColumnType())) {
-      ColumnType type = column.getRefColumn().getColumnType();
-      if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
-        type = getPrimitiveColumnType(column.getRefColumn());
-      }
-      return getArrayType(type);
+    if (column.isReference()) {
+      throw new UnsupportedOperationException(
+          "Cannot apply getPrimitiveColumnType to REF,MREF,REF_ARRAY,REFBACK");
     }
     return column.getColumnType();
   }
@@ -276,5 +282,93 @@ public class TypeUtils {
     List<Object> items = (List<Object>) object;
     Object[] result = new Object[items.size()];
     return items.toArray(result);
+  }
+
+  public static DataType toJooqType(ColumnType type) {
+    switch (type) {
+      case UUID:
+        return SQLDataType.UUID;
+      case UUID_ARRAY:
+        return SQLDataType.UUID.getArrayDataType();
+      case STRING:
+        return SQLDataType.VARCHAR(255);
+      case STRING_ARRAY:
+        return SQLDataType.VARCHAR(255).getArrayDataType();
+      case INT:
+        return SQLDataType.INTEGER;
+      case INT_ARRAY:
+        return SQLDataType.INTEGER.getArrayDataType();
+      case BOOL:
+        return SQLDataType.BOOLEAN;
+      case BOOL_ARRAY:
+        return SQLDataType.BOOLEAN.getArrayDataType();
+      case DECIMAL:
+        return SQLDataType.DOUBLE;
+      case DECIMAL_ARRAY:
+        return SQLDataType.DOUBLE.getArrayDataType();
+      case TEXT:
+        return SQLDataType.VARCHAR;
+      case TEXT_ARRAY:
+        return SQLDataType.VARCHAR.getArrayDataType();
+      case DATE:
+        return SQLDataType.DATE;
+      case DATE_ARRAY:
+        return SQLDataType.DATE.getArrayDataType();
+      case DATETIME:
+        return SQLDataType.TIMESTAMP;
+      case DATETIME_ARRAY:
+        return SQLDataType.TIMESTAMP.getArrayDataType();
+      case JSONB:
+        return SQLDataType.JSONB;
+      case JSONB_ARRAY:
+        return SQLDataType.JSONB.getArrayDataType();
+      default:
+        // should never happen
+        throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
+    }
+  }
+
+  public static Object getTypedValue(Object v, ColumnType columnType) {
+    switch (columnType) {
+      case UUID:
+        return TypeUtils.toUuid(v);
+      case UUID_ARRAY:
+        return TypeUtils.toUuidArray(v);
+      case STRING:
+        return TypeUtils.toString(v);
+      case STRING_ARRAY:
+        return TypeUtils.toStringArray(v);
+      case BOOL:
+        return TypeUtils.toBool(v);
+      case BOOL_ARRAY:
+        return TypeUtils.toBoolArray(v);
+      case INT:
+        return TypeUtils.toInt(v);
+      case INT_ARRAY:
+        return TypeUtils.toIntArray(v);
+      case DECIMAL:
+        return TypeUtils.toDecimal(v);
+      case DECIMAL_ARRAY:
+        return TypeUtils.toDecimalArray(v);
+      case TEXT:
+        return cast(TypeUtils.toText(v), SQLDataType.VARCHAR);
+      case TEXT_ARRAY:
+        return cast(TypeUtils.toTextArray(v), SQLDataType.VARCHAR.getArrayDataType());
+      case DATE:
+        return TypeUtils.toDate(v);
+      case DATE_ARRAY:
+        return TypeUtils.toDateArray(v);
+      case DATETIME:
+        return TypeUtils.toDateTime(v);
+      case DATETIME_ARRAY:
+        return TypeUtils.toDateTimeArray(v);
+      case JSONB:
+        return TypeUtils.toJsonb(v);
+      case JSONB_ARRAY:
+        return TypeUtils.toJsonbArray(v);
+      default:
+        throw new UnsupportedOperationException(
+            "Unsupported columnType columnType found:" + columnType);
+    }
   }
 }

@@ -5,7 +5,7 @@ import org.molgenis.emx2.*;
 import java.util.*;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.sql.SqlColumnUtils.executeRemoveConstraints;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefAndNotNullConstraints;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -86,6 +86,11 @@ public class SqlSchema implements Schema {
   public Table create(TableMetadata metadata) {
     getMetadata().create(metadata);
     return getTable(metadata.getTableName());
+  }
+
+  @Override
+  public void create(TableMetadata... metadata) {
+    getMetadata().create(metadata);
   }
 
   @Override
@@ -211,13 +216,9 @@ public class SqlSchema implements Schema {
               } else if (!newColumn.getColumnType().equals(oldColumn.getColumnType())) {
 
                 // if column exist but type has changed remove triggers
-                executeRemoveConstraints(getMetadata().getJooq(), oldColumn);
+                executeRemoveRefAndNotNullConstraints(getMetadata().getJooq(), oldColumn);
               }
             }
-
-            // update unique constraints if not yet exist
-            if (newTable.getPrimaryKey() != null) oldTable.pkey(newTable.getPrimaryKey());
-            for (String[] unique : newTable.getUniques()) oldTable.addUnique(unique);
           }
 
           // second pass, update to the new types, reconnect refback

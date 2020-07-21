@@ -5,9 +5,11 @@ import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
@@ -67,8 +69,8 @@ class GraphqlTableMutationFields {
 
     for (String tableName : schema.getTableNames()) {
       // if no pkey is provided, you cannot delete rows
-      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKey() != null
-          && schema.getMetadata().getTableMetadata(tableName).getPrimaryKey().length > 0) {
+      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys() != null
+          && schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(tableName)
@@ -110,15 +112,35 @@ class GraphqlTableMutationFields {
     };
   }
 
+  static Map<String, GraphQLInputObjectType> refTypes = new LinkedHashMap<>();
+
   private static GraphQLInputObjectType rowInputType(Table table) {
     GraphQLInputObjectType.Builder inputBuilder =
         GraphQLInputObjectType.newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
-      ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
-      GraphQLInputType type = getGraphQLInputType(columnType);
-      // if (col.isPrimaryKey() || !col.isNullable() && !REFBACK.equals(columnType)) {
-      // type = GraphQLNonNull.nonNull(type);
-      // }
+      GraphQLInputType type = null;
+      if (col.isReference()) {
+        String name = col.getRefTableName() + "RefInput";
+        if (refTypes.get(name) == null) {
+          GraphQLInputObjectType.Builder refTypeBuilder =
+              GraphQLInputObjectType.newInputObject().name(name);
+          for (Reference ref : col.getRefColumns()) {
+            ColumnType columnType = ref.getColumnType();
+            type = getGraphQLInputType(columnType);
+            refTypeBuilder.field(
+                GraphQLInputObjectField.newInputObjectField().name(ref.getTo()).type(type));
+          }
+          refTypes.put(name, refTypeBuilder.build());
+        }
+        if (REF.equals(col.getColumnType())) {
+          type = refTypes.get(name);
+        } else {
+          type = GraphQLList.list(refTypes.get(name));
+        }
+      } else {
+        ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
+        type = getGraphQLInputType(columnType);
+      }
       inputBuilder.field(
           GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(type));
     }

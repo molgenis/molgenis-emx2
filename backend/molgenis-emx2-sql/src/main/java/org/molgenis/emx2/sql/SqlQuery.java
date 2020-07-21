@@ -15,11 +15,11 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> getRows() {
-    return SqlQueryRowHelper.getRows(table, getSelect(), getFilter(), getSearchTerms());
+    return SqlQueryRowsExecutor.getRows(table, getSelect(), getFilter(), getSearchTerms());
   }
 
   @Override
   public String retrieveJSON() {
-    return SqlQueryGraphHelper.getJson(table, getSelect(), getFilter(), getSearchTerms());
+    return SqlQueryGraphExecutor.getJson(table, getSelect(), getFilter(), getSearchTerms());
   }
 }

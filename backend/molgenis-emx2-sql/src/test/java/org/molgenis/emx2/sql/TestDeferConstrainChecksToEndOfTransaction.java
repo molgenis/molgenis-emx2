@@ -25,14 +25,13 @@ public class TestDeferConstrainChecksToEndOfTransaction {
   public void runTestCase(Database db) {
     Schema schema = db.dropCreateSchema("TestDeffered");
 
-    Table subjectTable = schema.create(table("Subject").add(column("ID").type(INT)).pkey("ID"));
+    Table subjectTable = schema.create(table("Subject").add(column("ID").type(INT).pkey()));
 
     Table sampleTable =
         schema.create(
             table("Sample")
-                .add(column("ID").type(INT))
-                .add(column("subject").type(REF).refTable("Subject"))
-                .pkey("ID"));
+                .add(column("ID").type(INT).pkey())
+                .add(column("subject").type(REF).refTable("Subject")));
 
     StopWatch.print("schema created");
 

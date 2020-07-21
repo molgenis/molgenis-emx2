@@ -73,9 +73,9 @@
 </style>
 
 <script>
-    import VScrollLock from "v-scroll-lock";
+import VScrollLock from "v-scroll-lock";
 
-    export default {
+export default {
   directives: {
     VScrollLock
   },
@@ -110,7 +110,7 @@
     <template>
         <div>
             <ButtonAction @click="toggle">Toggle modal</ButtonAction>
-            <LayoutModal title="My first modal" @close="toggle" :show="show">
+            <LayoutModal title="My first modal" @close="toggle" :show="false">
                 <template v-slot:body>
                     Here is the contents
                 </template>

@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import org.jooq.JSONB;
+import org.jooq.tools.json.JSONObject;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.time.LocalDate;
@@ -82,6 +84,14 @@ public class Row {
 
   public LocalDateTime[] getDateTimeArray(String name) {
     return TypeUtils.toDateTimeArray(values.get(name));
+  }
+
+  public JSONB getJsonb(String name) {
+    return TypeUtils.toJsonb(values.get(name));
+  }
+
+  public JSONB[] getJsonbArray(String name) {
+    return TypeUtils.toJsonbArray(values.get(name));
   }
 
   public Row setString(String name, String value) {
@@ -205,6 +215,10 @@ public class Row {
         return (T) getString(name);
       case "String[]":
         return (T) getStringArray(name);
+      case "JSONB":
+        return (T) getJsonb(name);
+      case "JSONB[]":
+        return (T) getJsonbArray(name);
       case "Integer":
         return (T) getInteger(name);
       case "Integer[]":

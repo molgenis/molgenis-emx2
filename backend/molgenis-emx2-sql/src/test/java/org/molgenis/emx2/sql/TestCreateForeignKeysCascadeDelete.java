@@ -61,29 +61,17 @@ public class TestCreateForeignKeysCascadeDelete {
         db.dropCreateSchema("TestCreateForeignKeysCascade" + columnType.toString().toUpperCase());
 
     String fieldName = "AKeyOf" + columnType;
-    Table aTable =
-        schema.create(
-            table("A")
-                .add(column("ID").type(INT))
-                .add(column(fieldName).type(columnType))
-                .addUnique(fieldName)
-                .pkey("ID"));
-    Row aRow = new Row().setInt("ID", 1).set(fieldName, insertValue);
+    Table aTable = schema.create(table("A").add(column(fieldName).type(columnType).pkey()));
+    Row aRow = new Row().set(fieldName, insertValue);
     aTable.insert(aRow);
 
     String refFromBToA = "RefToAKeyOf" + columnType;
     Table bTable =
         schema.create(
             table("B")
-                .add(column("ID").type(INT))
-                // only differen with other test
-                .add(
-                    column(refFromBToA)
-                        .type(REF)
-                        .refTable("A")
-                        .refColumn(fieldName)
-                        .cascadeDelete(true))
-                .pkey("ID"));
+                .add(column("ID").type(INT).pkey())
+                // only difference with other test
+                .add(column(refFromBToA).type(REF).refTable("A").cascadeDelete(true).pkey()));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 
@@ -97,7 +85,7 @@ public class TestCreateForeignKeysCascadeDelete {
     }
 
     // and update, should be cascading :-)
-    aTable.update(aRow.set(fieldName, updateValue));
+    // aTable.update(aRow.set(fieldName, updateValue));
 
     // delete of A should cascade
     try {

@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<style scoped>
+<style>
 .input-group-append .input-append-show {
   display: none;
 }
@@ -27,10 +27,10 @@
 </style>
 
 <script>
-    import AppendPlus from "./_appendPlus";
-    import AppendClear from "./_appendClear";
+import AppendPlus from "./_appendPlus";
+import AppendClear from "./_appendClear";
 
-    export default {
+export default {
   components: { AppendPlus, AppendClear },
   props: {
     readonly: {

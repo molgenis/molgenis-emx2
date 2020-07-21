@@ -2,7 +2,6 @@ package org.molgenis.emx2.jobs;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /** Immutable */
 public class JobTask {

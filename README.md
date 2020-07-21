@@ -254,11 +254,11 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ### first
 
+*  composite foreign key
 *  test if drop schema also removes all roles for this schema
 *  implement settings
 *  implement menu setting so we can standardize menu as a default setting
 *  implement JSON data type that we can use in settings (validating form)
-*  simple UI to have happy flow out of the box
 *  ensure columns are retrieved in same order as they were created
 *  add standard an lastUpdated column, as a system column
 *  implement order, default on lastUpdated

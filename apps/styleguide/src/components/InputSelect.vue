@@ -8,7 +8,11 @@
       :showPlus="showPlus(idx)"
       @add="addRow"
     >
-      <select :id="id" v-model="arrayValue[idx]" class="custom-select">
+      <select
+        :id="id"
+        v-model="arrayValue[idx]"
+        :class="{ 'form-control': true, 'is-invalid': error }"
+      >
         <option
           v-if="!list || el == undefined"
           :selected="el === undefined"
@@ -30,11 +34,11 @@
 </template>
 
 <script>
-    import _baseInput from "./_baseInput.vue";
-    import InputAppend from "./_inputAppend";
-    import FormGroup from "./_formGroup";
+import _baseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend";
+import FormGroup from "./_formGroup";
 
-    export default {
+export default {
   extends: _baseInput,
   components: {
     InputAppend,

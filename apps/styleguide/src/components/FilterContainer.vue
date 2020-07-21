@@ -49,9 +49,9 @@
 </style>
 
 <script>
-    import IconAction from "./IconAction";
+import IconAction from "./IconAction";
 
-    export default {
+export default {
   components: {
     IconAction
   },

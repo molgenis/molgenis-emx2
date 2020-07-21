@@ -31,24 +31,23 @@ public class PetStoreExample {
 
   public static void create(SchemaMetadata schema) {
 
-    schema.create(table(CATEGORY).add(column(NAME)).pkey(NAME));
+    schema.create(table(CATEGORY).add(column(NAME).pkey()));
 
-    schema.create(table(TAG).add(column(NAME)).pkey(NAME));
+    schema.create(table(TAG).add(column(NAME).pkey()));
 
     schema.create(
         table(PET)
-            .add(column(NAME).setDescription("the name"))
+            .add(column(NAME).setDescription("the name").pkey())
             .add(column(CATEGORY_COLUMN).type(REF).refTable(CATEGORY))
             .add(column("photoUrls").type(STRING_ARRAY).nullable(true))
             .add(column(STATUS)) // todo enum: available, pending, sold
             .add(column("tags").type(REF_ARRAY).refTable(TAG).nullable(true))
             .add(column(WEIGHT).type(DECIMAL))
-            .pkey(NAME)
             .setDescription("My pet store example table"));
 
     schema.create(
         table(ORDER)
-            .add(column(ORDER_ID))
+            .add(column(ORDER_ID).pkey())
             .add(column("pet").type(REF).refTable(PET).nullable(true))
             .add(
                 column(QUANTITY)
@@ -59,8 +58,7 @@ public class PetStoreExample {
                     .type(DECIMAL)
                     .validation("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
             .add(column(COMPLETE).type(BOOL)) // todo: default false
-            .add(column(STATUS))
-            .pkey(ORDER_ID)); // todo enum: placed, approved, delivered
+            .add(column(STATUS))); // todo enum: placed, approved, delivered
 
     // refback
     schema
@@ -69,7 +67,7 @@ public class PetStoreExample {
 
     schema.create(
         table(USER)
-            .add(column("username"))
+            .add(column("username").pkey())
             .add(column("firstName").nullable(true))
             .add(column("lastName").nullable(true))
             .add(
@@ -80,8 +78,7 @@ public class PetStoreExample {
             .add(column("password").nullable(true)) // todo: password type
             .add(column("phone").nullable(true)) // todo: validation phone
             .add(column("userStatus").type(INT).nullable(true))
-            .add(column("pets").type(REF_ARRAY).refTable(PET).nullable(true))
-            .pkey("username"));
+            .add(column("pets").type(REF_ARRAY).refTable(PET).nullable(true)));
   }
 
   public static void populate(Schema schema) {

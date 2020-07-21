@@ -3,14 +3,15 @@ package org.molgenis.emx2.json;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
+import java.util.List;
+
 public class Column {
   private String table;
   private String name;
-  private Boolean unique = false;
-  private Boolean pkey = false;
+  private Integer key = 0;
   private Boolean nullable = false;
   private String refTable = null;
-  private String refColumn = null;
+  private List<String> refColumns = null;
 
   private Boolean cascadeDelete = false;
   private String mappedBy = null;
@@ -23,10 +24,10 @@ public class Column {
   public Column(org.molgenis.emx2.Column column) {
     this.table = column.getTableName();
     this.name = column.getName();
-    this.unique = column.isUnique();
+    this.key = column.getKey();
     this.columnType = column.getColumnType();
     this.refTable = column.getRefTableName();
-    this.refColumn = column.getRefColumnName();
+    this.refColumns = column.getRefColumnNames();
     this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validation = column.getValidation();
@@ -37,10 +38,9 @@ public class Column {
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.type(columnType);
-    if (tm != null) c.setUnique(unique);
     c.nullable(nullable);
     c.refTable(refTable);
-    c.refColumn(refColumn);
+    c.key(key);
     c.cascadeDelete(cascadeDelete);
     c.mappedBy(mappedBy);
     c.validation(validation);
@@ -64,20 +64,12 @@ public class Column {
     this.name = name;
   }
 
-  public Boolean getUnique() {
-    return unique;
+  public Integer getKey() {
+    return key;
   }
 
-  public void setUnique(Boolean unique) {
-    this.unique = unique;
-  }
-
-  public Boolean getPkey() {
-    return pkey;
-  }
-
-  public void setPkey(Boolean pkey) {
-    this.pkey = pkey;
+  public void setKey(Integer key) {
+    this.key = key;
   }
 
   public Boolean getNullable() {
@@ -96,12 +88,8 @@ public class Column {
     this.refTable = refTable;
   }
 
-  public String getRefColumn() {
-    return refColumn;
-  }
-
-  public void setRefColumn(String refColumn) {
-    this.refColumn = refColumn;
+  public List<String> getRefColumns() {
+    return refColumns;
   }
 
   public Boolean getCascadeDelete() {

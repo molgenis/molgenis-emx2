@@ -28,14 +28,13 @@ public class TestRefBack {
   @Test
   public void restRefArrayBack() {
 
-    Table parts = schema.create(table("Parts").add(column("partname")).pkey("partname"));
+    Table parts = schema.create(table("Parts").add(column("partname").pkey()));
 
     Table products =
         schema.create(
             table("Products")
-                .add(column("productname"))
-                .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true))
-                .pkey("productname"));
+                .add(column("productname").pkey())
+                .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true)));
 
     parts
         .getMetadata()
@@ -55,19 +54,25 @@ public class TestRefBack {
     // refback entry update, i.e. via 'products'
     products.insert(new Row().set("productname", "bigphone"));
 
-    // update
+    // update,   bigphone should have bigsreen+battery, smallphone should have battery added
+    // part, i.e.
     parts.update(
         new Row().set("partname", "bigscreen").set("products", "bigphone"),
         new Row()
             .set("partname", "battery")
             .set("products", new String[] {"smallphone", "bigphone"}));
 
-    // via insert
+    // via insert, bigphone and smallphone products should now have headphones as part, i.e.
+    // bigphone=bigscreen,battery,headphone,
+    // smallphone=battery+headphone+smallscreen+smallbutton
     parts.update(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
 
     List<Row> pTest = products.getRows();
     assertEquals(2, pTest.size());
     assertEquals("smallphone", pTest.get(0).getString("productname"));
+    assertEquals(4, pTest.get(0).getStringArray("parts").length);
+    assertEquals("bigphone", pTest.get(1).getString("productname"));
+    assertEquals(3, pTest.get(1).getStringArray("parts").length);
     assertEquals(4, products.getRows().get(0).getStringArray("parts").length);
 
     Query query =
@@ -120,19 +125,13 @@ public class TestRefBack {
   @Test
   public void testRefBack() {
 
-    Table users = schema.create(table("User").add(column("username")).pkey("username"));
+    Table users = schema.create(table("User").add(column("username").pkey()));
 
     Table posts =
         schema.create(
             table("Posts")
-                .add(column("title"))
-                .add(
-                    column("user")
-                        .type(REF)
-                        .refTable(users.getName())
-                        .refColumn("username")
-                        .nullable(true))
-                .pkey("title"));
+                .add(column("title").pkey())
+                .add(column("user").type(REF).refTable(users.getName()).nullable(true)));
 
     users
         .getMetadata()
@@ -141,7 +140,7 @@ public class TestRefBack {
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));
 
-    posts.insert(new Row().set("title", "joes post").set("username", "joe"));
+    posts.insert(new Row().set("title", "joes post").set("user", "joe"));
 
     // now the magic
     users.update(new Row().set("username", "jack").set("posts", "joes post"));
@@ -177,7 +176,10 @@ public class TestRefBack {
             .filter(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("jacks post"));
 
-    query = users.select(s("data_agg", s("count"))).filter(f("posts", EQUALS, "jacks post"));
+    query =
+        users
+            .select(s("data_agg", s("count")))
+            .filter(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading

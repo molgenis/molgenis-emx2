@@ -59,9 +59,9 @@
 </style>
 
 <script>
-    import _baseInput from "./_baseInput.vue";
+import _baseInput from "./_baseInput.vue";
 
-    export default {
+export default {
   extends: _baseInput,
   computed: {
     filename() {

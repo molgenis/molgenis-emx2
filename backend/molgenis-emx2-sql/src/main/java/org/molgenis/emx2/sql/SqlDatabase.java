@@ -18,7 +18,7 @@ import java.util.Map;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
-import static org.molgenis.emx2.sql.SqlDatabaseUtils.*;
+import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 public class SqlDatabase implements Database {
@@ -117,7 +117,7 @@ public class SqlDatabase implements Database {
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
     Schema schema = getSchema(name);
-    tx(d -> executeDropSchema(getJooq(), schema.getMetadata()));
+    tx(d -> SqlSchemaMetadataExecutor.executeDropSchema(getJooq(), schema.getMetadata()));
     schemaCache.remove(name);
     schemaNames.remove(name);
     listener.schemaRemoved(name);
@@ -148,7 +148,7 @@ public class SqlDatabase implements Database {
     String currentUser = getActiveUser();
     try {
       clearActiveUser();
-      tx(d -> executeAddUser(getJooq(), user));
+      tx(d -> executeCreateUser(getJooq(), user));
     } finally {
       if (currentUser != null) {
         setActiveUser(currentUser);

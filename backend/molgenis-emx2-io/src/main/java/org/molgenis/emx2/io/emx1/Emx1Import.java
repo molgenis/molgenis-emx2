@@ -133,11 +133,13 @@ public class Emx1Import {
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
-        table.add(column(attribute.getName()).type(type).nullable(attribute.getNillable()));
+        Column column = column(attribute.getName()).type(type).nullable(attribute.getNillable());
 
+        // pkey
         if (attribute.getIdAttribute()) {
-          table.pkey(attribute.getName());
+          column.key(1);
         }
+        table.add(column);
 
         line++;
       }

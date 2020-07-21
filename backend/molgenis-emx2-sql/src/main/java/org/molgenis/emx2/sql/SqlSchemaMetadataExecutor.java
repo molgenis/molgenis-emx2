@@ -174,4 +174,15 @@ class SqlSchemaMetadataExecutor {
     }
     return result;
   }
+
+  static void executeDropSchema(DSLContext jooq, SchemaMetadata schema) {
+    try {
+      jooq.dropSchema(name(schema.getName())).cascade().execute();
+      MetadataUtils.deleteSchema(jooq, schema);
+    } catch (MolgenisException me) {
+      throw new MolgenisException("Drop schema failed", me.getMessage());
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("Drop schema failed", dae);
+    }
+  }
 }
