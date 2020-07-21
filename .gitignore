@@ -5,7 +5,6 @@ build/
 out
 dist
 
-gradle
 .DS_Store
 .idea
 target/
