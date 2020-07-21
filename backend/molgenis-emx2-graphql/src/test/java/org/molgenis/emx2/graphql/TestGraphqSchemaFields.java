@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -39,9 +40,8 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals("pooky", execute("{Pet{data{name}}}").at("/Pet/data/0/name").textValue());
 
     // simple ref
-    TestCase.assertEquals(
-        "cat",
-        execute("{Pet{data{name,category{name}}}}").at("/Pet/data/0/category/name").textValue());
+    JsonNode result = execute("{Pet{data{name,category{name}}}}");
+    TestCase.assertEquals("cat", result.at("/Pet/data/0/category/name").textValue());
 
     // equals text
     TestCase.assertEquals(
@@ -208,7 +208,16 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // add table
-    execute("mutation{create(tables:[{name:\"blaat\",columns:[{name:\"col1\"}]}]){message}}");
+    execute(
+        "mutation{create(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1}]}]){message}}");
+
+    JsonNode node = execute("{_schema{tables{name,columns{name,key}}}}");
+
+    TestCase.assertEquals(
+        1,
+        execute("{_schema{tables{name,columns{name,key}}}}")
+            .at("/_schema/tables/0/columns/0/key")
+            .intValue());
     TestCase.assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // drop
@@ -218,6 +227,10 @@ public class TestGraphqSchemaFields {
 
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));
+    JsonNode node = new ObjectMapper().readTree(result);
+    if (node.get("errors") != null) {
+      throw new MolgenisException(node.get("errors").get(0).get("message").asText(), "");
+    }
     return new ObjectMapper().readTree(result).get("data");
   }
 
@@ -239,9 +252,11 @@ public class TestGraphqSchemaFields {
     execute("mutation{create(columns:{table:\"Pet\",name:\"test\", nullable:true}){message}}");
     TestCase.assertNotNull(
         database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
-
     execute(
-        "mutation{alter(columns:{table:\"Pet\", name:\"test\", definition:{name:\"test2\", nullable:true, columnType:\"INT\"}}){message}}");
+        "mutation{alter(columns:{table:\"Pet\", name:\"test\", definition:{name:\"test2\", key:3, nullable:true, columnType:\"INT\"}}){message}}");
+
+    database.clearCache();
+
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
     TestCase.assertEquals(
         ColumnType.INT,

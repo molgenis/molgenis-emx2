@@ -16,7 +16,6 @@
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
-        v-on="$listeners"
         @keypress="keyhandler"
       />
       <AppendClear @clear="clearValue(0)" />
@@ -25,10 +24,10 @@
 </template>
 
 <script>
-    import InputString from "./InputString.vue";
-    import AppendClear from "./_appendClear";
+import InputString from "./InputString.vue";
+import AppendClear from "./_appendClear";
 
-    export default {
+export default {
   extends: InputString,
   components: { AppendClear }
 };

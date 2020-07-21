@@ -142,26 +142,12 @@ public class TestGetSetAllTypesOnRows {
   public void rowCanGetSetArrayTypeColumns() {
     Row r = new Row();
 
-    // null should return in empty array
-    assertTrue(r.getUuidArray("test") instanceof UUID[]);
-    assertTrue(r.getStringArray("test") instanceof String[]);
-    assertTrue(r.getIntegerArray("test") instanceof Integer[]);
-    assertTrue(r.getBooleanArray("test") instanceof Boolean[]);
-    assertTrue(r.getDecimalArray("test") instanceof Double[]);
-    assertTrue(r.getDateArray("test") instanceof LocalDate[]);
-    assertTrue(r.getDateTimeArray("test") instanceof LocalDateTime[]);
-    assertTrue(r.getTextArray("test") instanceof String[]);
-
     // cast UUID[1] from some Object
     r.setString("test", "cfb11a12-dad6-4b98-a48b-9a32f60a742f");
     assertEquals(
         new java.util.UUID[] {java.util.UUID.fromString("cfb11a12-dad6-4b98-a48b-9a32f60a742f")}
             [0].toString(),
         r.getUuidArray("test")[0].toString());
-
-    // cast String[] from some object
-    r.setInt("test", 9);
-    assertEquals("9", r.getStringArray("test")[0]);
 
     // cast int from some object
     r.setString("test", "blaat");

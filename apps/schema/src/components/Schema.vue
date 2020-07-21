@@ -33,7 +33,13 @@
                 <h1 :id="table.name">
                   {{ table.name }}
                   <IconBar class="hover">
-                    <IconAction icon="edit" />
+                    <!--IconAction
+                                                      icon="edit"
+                                                      @click="
+                                                        currentTable = table;
+                                                        tableAdd = true;
+                                                      "
+                                                    /-->
                     <IconDanger
                       icon="trash"
                       @click="
@@ -60,6 +66,7 @@
                 />
               </th>
               <th scope="col">type</th>
+              <th scope="col">key</th>
               <th scope="col">description</th>
             </tr>
             <tr v-for="column in table.columns" :key="column.name">
@@ -92,6 +99,7 @@
                 <span v-if="column.nullable">nullable&nbsp;</span>
                 <span v-if="column.cascadeDelete">cascadeDelete&nbsp;</span>
               </td>
+              <td>{{ column.key }}</td>
               <td>{{ column.description }}</td>
             </tr>
           </tbody>
@@ -180,26 +188,26 @@ table th:hover .hover {
 </style>
 
 <script>
-    import {request} from "graphql-request";
-    import Vue from "vue";
-    import VScrollLock from "v-scroll-lock";
-    import {
-        IconAction,
-        IconBar,
-        IconDanger,
-        InputBoolean,
-        MessageError,
-        Molgenis,
-        Spinner
-    } from "@mswertz/emx2-styleguide";
-    import ColumnEditModal from "./ColumnEditModal";
-    import ColumnDropModal from "./ColumnDropModal";
-    import TableEditModal from "./TableEditModal";
-    import TableDropModal from "./TableDropModal";
+import { request } from "graphql-request";
+import Vue from "vue";
+import VScrollLock from "v-scroll-lock";
+import {
+  IconAction,
+  IconBar,
+  IconDanger,
+  InputBoolean,
+  MessageError,
+  Molgenis,
+  Spinner
+} from "@mswertz/emx2-styleguide";
+import ColumnEditModal from "./ColumnEditModal";
+import ColumnDropModal from "./ColumnDropModal";
+import TableEditModal from "./TableEditModal";
+import TableDropModal from "./TableDropModal";
 
-    import VueScrollTo from "vue-scrollto";
+import VueScrollTo from "vue-scrollto";
 
-    Vue.use(VScrollLock);
+Vue.use(VScrollLock);
 Vue.use(VueScrollTo);
 
 export default {
@@ -242,7 +250,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_schema{name, tables{name,pkey,description,columns{name,columnType,pkey,refTable,refColumn,cascadeDelete,nullable,description}}}}"
+        "{_schema{name, tables{name,description,columns{name,columnType,key,refTable,mappedBy,cascadeDelete,nullable,description}}}}"
       )
         .then(data => {
           this.schema = data._schema.name;

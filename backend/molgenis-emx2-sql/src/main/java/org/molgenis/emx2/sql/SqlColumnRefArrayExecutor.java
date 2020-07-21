@@ -8,6 +8,7 @@ import org.molgenis.emx2.Column;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
 
 class SqlColumnRefArrayExecutor {
   private SqlColumnRefArrayExecutor() {
@@ -29,7 +30,7 @@ class SqlColumnRefArrayExecutor {
     //          "CREATE INDEX {0} ON {1} USING GIN({2})",
     //          name(r.getName() + "-idx"), column.getJooqTable(), r.asJooqField());
     //    }
-
+    validateRef(column);
     createReferenceExistsCheck(jooq, column);
     createDeleteOrUpdateReferedCheck(jooq, column);
     // createUpdateReferedCheck(jooq, column);
@@ -37,14 +38,18 @@ class SqlColumnRefArrayExecutor {
 
   static void removeRefArrayConstraints(DSLContext jooq, Column column) {
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE",
-        name(SqlColumnExecutor.getSchemaName(column), getDeleteTriggerName(column)));
+        "DROP TRIGGER {0} ON {1}",
+        name(getDeleteTriggerName(column)), column.getRefTable().getJooqTable());
     //    jooq.execute(
-    //        "DROP FUNCTION {0} CASCADE",
-    //        name(SqlColumnExecutor.getSchemaName(column), getUpdateTriggerName(column)));
+    //        "DROP TRIGGER {0} ON {1}", name(getUpdateTriggerName(column)),
+    // column.getRefTable().asJooqTable());
     jooq.execute(
-        "DROP FUNCTION {0} CASCADE ",
-        name(SqlColumnExecutor.getSchemaName(column), getUpdateCheckName(column)));
+        "DROP TRIGGER {0} ON {1}", name(getUpdateCheckName(column)), column.getJooqTable());
+    jooq.execute("DROP FUNCTION {0}", name(column.getSchemaName(), getDeleteTriggerName(column)));
+    //    jooq.execute(
+    //        "DROP FUNCTION {0}",
+    //        name(SqlColumnExecutor.getSchemaName(column), getUpdateTriggerName(column)));
+    jooq.execute("DROP FUNCTION {0} ", name(column.getSchemaName(), getUpdateCheckName(column)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
@@ -61,7 +66,7 @@ class SqlColumnRefArrayExecutor {
 
     // in case of update of other end cascade
     jooq.execute(
-        "CREATE FUNCTION {0}() RETURNS trigger AS"
+        "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
             + "\n\tBEGIN"
             + "\n\tUPDATE {1} SET {3}=ARRAY_REPLACE({3}, OLD.{2}, NEW.{2}) WHERE OLD.{2} != NEW.{2} AND OLD.{2} = ANY ({3});"
@@ -91,8 +96,6 @@ class SqlColumnRefArrayExecutor {
 
   private static void createDeleteOrUpdateReferedCheck(DSLContext jooq, Column column) {
     String deleteTrigger = getDeleteTriggerName(column);
-
-    Table toTable = column.getRefTable().asJooqTable();
 
     String unnestRefs =
         column.getRefColumns().stream()
@@ -195,7 +198,7 @@ class SqlColumnRefArrayExecutor {
             + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(deleteTrigger),
-        toTable,
+        column.getRefTable().getJooqTable(),
         name(column.getTable().getSchema().getName(), deleteTrigger),
         keyword(keyColumns));
   }
@@ -224,7 +227,7 @@ class SqlColumnRefArrayExecutor {
     Name thisTable =
         name(column.getTable().getSchema().getName(), column.getTable().getTableName());
 
-    Name functionName = name(SqlColumnExecutor.getSchemaName(column), getUpdateCheckName(column));
+    String functionName = getUpdateCheckName(column);
 
     String newFromColumns =
         column.getRefColumns().stream()
@@ -245,7 +248,7 @@ class SqlColumnRefArrayExecutor {
 
     String errorColumns =
         column.getRefColumns().stream()
-            .map(r -> "|| error_row." + name(r.getTo()).toString())
+            .map(r -> "error_row." + name(r.getTo()).toString())
             .collect(Collectors.joining("||','||"));
 
     jooq.execute(
@@ -254,12 +257,12 @@ class SqlColumnRefArrayExecutor {
             + "\nBEGIN"
             + "\n\tFOR error_row IN SELECT * FROM UNNEST({1}) AS t({2}) EXCEPT SELECT {2} FROM {3} LOOP"
             + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'insert or update on table \"'||{9}||'\" violates foreign key constraint'"
-            + " , DETAIL = 'Key ('||{6}||')=('{5} ||') is not present in table \"'||{7}||'\", column(s)('||{8}||')';"
+            + " , DETAIL = 'Key ('||{6}||')=('|| {5} ||') is not present in table \"'||{7}||'\", column(s)('||{8}||')';"
             + "\n\tEND LOOP;"
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;",
         // 0
-        functionName,
+        name(SqlColumnExecutor.getSchemaName(column), functionName),
         // 1
         keyword(newFromColumns),
         // 2
@@ -318,11 +321,11 @@ class SqlColumnRefArrayExecutor {
             + "\n\tAFTER INSERT OR UPDATE OF {1} ON {2} FROM {3}"
             + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {4}()",
-        name(column.getTable().getTableName() + "_" + column.getName()),
+        name(functionName),
         keyword(fromColumns),
         thisTable,
         toTable,
-        functionName);
+        name(column.getTable().getSchema().getName(), functionName));
   }
 
   private static String getUpdateCheckName(Column column) {

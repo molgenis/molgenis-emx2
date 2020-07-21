@@ -16,25 +16,28 @@
           <label>{{ count }} records found</label>
         </div>
         <FilterWells v-if="table" :filters="table.columns" />
-        <DataTable :columns="columns" :rows="rows" class="table-responsive">
+        <MolgenisTable
+          :metadata="table"
+          :data="data"
+          class="table-responsive"
+          :key="JSON.stringify(table.columns)"
+        >
           <template v-slot:colheader>
             <RowButtonAdd :table="tableName" @close="reload" />
           </template>
           <template v-slot:rowheader="slotProps">
-            <IconBar>
-              <RowButtonEdit
-                :table="tableName"
-                :pkey="slotProps.row[table.pkey]"
-                @close="reload"
-              />
-              <RowButtonDelete
-                :table="tableName"
-                :pkey="slotProps.row[table.pkey]"
-                @close="reload"
-              />
-            </IconBar>
+            <RowButtonEdit
+              :table="tableName"
+              :pkey="pkey(slotProps.row)"
+              @close="reload"
+            />
+            <RowButtonDelete
+              :table="tableName"
+              :pkey="pkey(slotProps.row)"
+              @close="reload"
+            />
           </template>
-        </DataTable>
+        </MolgenisTable>
       </div>
     </div>
 
@@ -50,9 +53,11 @@
     <br />
     graphql={{ JSON.stringify(graphql) }}
     <br />
+    graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
+    <br />
     columnNames = {{ columnNames }}
     <br />
-    rows = {{ rows }}
+    rows = {{ data }}
     <br />
     filters = {{ filters }}
     <br />
@@ -66,7 +71,7 @@
 <script>
 import { request } from "graphql-request";
 import {
-  DataTable,
+  MolgenisTable,
   FilterSidebar,
   FilterWells,
   IconBar,
@@ -81,7 +86,7 @@ export default {
   components: {
     Spinner,
     MessageError,
-    DataTable,
+    MolgenisTable,
     FilterSidebar,
     FilterWells,
     RowButtonEdit,
@@ -108,7 +113,7 @@ export default {
   },
   computed: {
     graphql() {
-      return `query ${this.tableName}($filter:${this.tableName}filter) {${this.tableName}(filter:$filter){data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}}}}`;
+      return `query ${this.tableName}($filter:${this.tableName}Filter) {${this.tableName}(filter:$filter){data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}}}}`;
     },
     graphqlFilter() {
       let filter = {};
@@ -123,9 +128,12 @@ export default {
             } else if (col.columnType.startsWith("BOOL")) {
               filter[col.name] = { equals: col.conditions };
             } else if (col.columnType.startsWith("REF")) {
-              //TODO should instead use REF TYPE!
-              filter[col.name] = {};
-              filter[col.name][col.refColumn] = { equals: conditions };
+              col.refColumns.forEach(ref => {
+                filter[col.name] = {};
+                filter[col.name][ref] = {
+                  equals: col.conditions.map(cond => cond[ref])
+                };
+              });
             } else if (
               [
                 "DECIMAL",
@@ -160,8 +168,11 @@ export default {
       let result = "";
       if (this.table != null) {
         this.table.columns.forEach(col => {
-          if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
-            result = result + " " + col.name + "{" + col.refColumn + "}";
+          if (
+            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
+          ) {
+            result =
+              result + " " + col.name + "{" + col.refColumns.join(",") + "}";
           } else {
             result = result + " " + col.name;
           }
@@ -174,27 +185,6 @@ export default {
         return this.table.columns.map(col => col.name);
       }
       return null;
-    },
-    rows() {
-      if (this.data != null && this.table != null) {
-        return this.data.map(row => {
-          let result = { ...row };
-          this.table.columns.forEach(col => {
-            if (row[col.name]) {
-              if (col.columnType === "REF") {
-                result[col.name] = row[col.name][col.refColumn];
-              } else if (
-                col.columnType === "REF_ARRAY" ||
-                col.columnType === "REFBACK"
-              ) {
-                result[col.name] = row[col.name].map(val => val[col.refColumn]);
-              }
-            }
-          });
-          return result;
-        });
-      }
-      return this.data;
     }
   },
   methods: {
@@ -215,6 +205,17 @@ export default {
           this.error = "internal server error" + error;
         })
         .finally((this.loading = false));
+    },
+    pkey(row) {
+      let result = {};
+      if (this.table != null) {
+        this.table.columns.forEach(col => {
+          if (col.key == 1) {
+            result[col.name] = row[col.name];
+          }
+        });
+      }
+      return result;
     }
   },
   watch: {

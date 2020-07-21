@@ -108,49 +108,7 @@ public class SqlTypeUtils extends TypeUtils {
   //    return getTypedValue(v, columnType);
   //  }
 
-  public static Object getTypedValue(Object v, ColumnType columnType) {
-    switch (columnType) {
-      case UUID:
-        return TypeUtils.toUuid(v);
-      case UUID_ARRAY:
-        return TypeUtils.toUuidArray(v);
-      case STRING:
-        return TypeUtils.toString(v);
-      case STRING_ARRAY:
-        return TypeUtils.toStringArray(v);
-      case BOOL:
-        return TypeUtils.toBool(v);
-      case BOOL_ARRAY:
-        return TypeUtils.toBoolArray(v);
-      case INT:
-        return TypeUtils.toInt(v);
-      case INT_ARRAY:
-        return TypeUtils.toIntArray(v);
-      case DECIMAL:
-        return TypeUtils.toDecimal(v);
-      case DECIMAL_ARRAY:
-        return TypeUtils.toDecimalArray(v);
-      case TEXT:
-        return cast(TypeUtils.toText(v), SQLDataType.VARCHAR);
-      case TEXT_ARRAY:
-        return cast(TypeUtils.toTextArray(v), SQLDataType.VARCHAR.getArrayDataType());
-      case DATE:
-        return TypeUtils.toDate(v);
-      case DATE_ARRAY:
-        return TypeUtils.toDateArray(v);
-      case DATETIME:
-        return TypeUtils.toDateTime(v);
-      case DATETIME_ARRAY:
-        return TypeUtils.toDateTimeArray(v);
-      case JSONB:
-        return TypeUtils.toJsonb(v);
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported columnType columnType found:" + columnType);
-    }
-  }
-
-  static Object getTypedValue(Row row, String name, ColumnType type) {
+  public static Object getTypedValue(Row row, String name, ColumnType type) {
     switch (type) {
       case UUID:
         return row.getUuid(name);

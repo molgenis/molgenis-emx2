@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -9,16 +8,14 @@ import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.executeCreateColumn;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.reapplyRefbackContraints;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.asJooqNames;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeSetInherit;
+import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
+import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 class SqlTableMetadata extends TableMetadata {
   private static final String SET_INHERITANCE_FAILED = "Set inheritance failed";
@@ -62,10 +59,10 @@ class SqlTableMetadata extends TableMetadata {
           executeCreateColumn(getJooq(), result);
           super.add(result);
           if (column.getKey() > 0) {
-            SqlTableMetadataExecutor.createOrReplaceUnique(
-                getJooq(), this, column.getKey(), asJooqNames(getKeyNames(column.getKey())));
+            SqlTableMetadataExecutor.createOrReplaceKey(
+                getJooq(), this, column.getKey(), getKeyNames(column.getKey()));
           }
-          SqlColumnExecutor.executeSetForeignkeys(getJooq(), result);
+          SqlColumnExecutor.executeCreateRefAndNotNullConstraints(getJooq(), result);
           log(start, "added column '" + column.getName() + "' to ");
         });
     return this;
@@ -82,9 +79,63 @@ class SqlTableMetadata extends TableMetadata {
     db.tx(
         dsl -> {
           Column newColumn = new Column(this, column);
-          SqlColumnExecutor.executeAlterColumn(getJooq(), oldColumn, newColumn);
+
+          // check if reference and of different size
+          if (REF_ARRAY.equals(newColumn.getColumnType())
+              && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
+            throw new MolgenisException(
+                "Alter column of '" + oldColumn.getName() + " failed",
+                "REF_ARRAY is not supported for composite keys of table "
+                    + newColumn.getRefTableName());
+          }
+          if ((oldColumn.getRefColumns().size() > 1 || oldColumn.getRefColumns().size() > 1)
+              && oldColumn.getRefColumns().size() != newColumn.getRefColumns().size()) {
+            throw new MolgenisException(
+                "Cannot alter column '" + oldColumn.getName(),
+                "New column '"
+                    + newColumn.getName()
+                    + "' has different number of reference multiplicity then '"
+                    + oldColumn.getName()
+                    + "'");
+          }
+
+          // drop old key, if touched
+          if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
+            executeDropKey(getJooq(), oldColumn.getTable(), oldColumn.getKey());
+          }
+
+          // drop referential constraints around this column
+          executeRemoveRefAndNotNullConstraints(getJooq(), oldColumn);
+
+          // remove refbacks if exist
+          executeRemoveRefback(oldColumn, newColumn);
+
+          // rename and retype if needed
+          executeAlterNameAndType(getJooq(), oldColumn, newColumn);
+
+          // (re)apply foreign keys
+          executeCreateRefAndNotNullConstraints(getJooq(), newColumn);
+
+          // change nullable?
+          if (oldColumn.isNullable() != newColumn.isNullable()) {
+            executeSetNullable(getJooq(), newColumn);
+          }
+
+          // update the metadata so we can use it for new keys and references
           super.alterColumn(name, newColumn);
+
+          // check if refback constraints need updating
           reapplyRefbackContraints(oldColumn, newColumn);
+
+          // create/update key, if touched
+          if (newColumn.getKey() != oldColumn.getKey()) {
+            createOrReplaceKey(
+                getJooq(), this, newColumn.getKey(), getKeyNames(newColumn.getKey()));
+          }
+
+          // delete old column if name changed, then save
+          if (!oldColumn.getName().equals(newColumn)) deleteColumn(getJooq(), oldColumn);
+          saveColumnMetadata(getJooq(), newColumn);
         });
 
     return this;
@@ -146,12 +197,12 @@ class SqlTableMetadata extends TableMetadata {
     // todo, study if we need different row level security in inherited tables
     this.add(column(MG_EDIT_ROLE).index(true));
 
-    getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", asJooqTable());
+    getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
     getJooq()
         .execute(
             "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
             name("RLS/" + getSchema().getName() + "/" + getTableName()),
-            asJooqTable(),
+            getJooqTable(),
             name(MG_EDIT_ROLE));
     // set RLS on the table
     // add policy for 'viewer' and 'editor'.
@@ -184,7 +235,7 @@ class SqlTableMetadata extends TableMetadata {
     if (user == null) user = "molgenis";
     if (logger.isInfoEnabled()) {
       logger.info(
-          "{} {} {} in {}ms", user, message, asJooqTable(), (System.currentTimeMillis() - start));
+          "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));
     }
   }
 }

@@ -3,9 +3,9 @@
 </template>
 
 <script>
-    import {request} from "graphql-request";
+import { request } from "graphql-request";
 
-    export default {
+export default {
   props: {
     table: String
   },
@@ -21,7 +21,7 @@
       this.loading = true;
       request(
         "graphql",
-        "{_schema{tables{name,pkey,columns{name,columnType,pkey,refTable,refColumn,cascadeDelete,nullable}}}}"
+        "{_schema{tables{name,columns{name,columnType,key,refTable,refColumns,cascadeDelete,nullable}}}}"
       )
         .then(data => {
           data._schema.tables.forEach(element => {

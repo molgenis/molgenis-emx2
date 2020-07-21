@@ -16,6 +16,8 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlAccountFields.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlConstants.COLUMN_TYPE;
+import static org.molgenis.emx2.graphql.GraphqlConstants.NULLABLE;
 
 public class GraphqlSchemaFields {
 
@@ -61,21 +63,16 @@ public class GraphqlSchemaFields {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("columnType")
+                  .name(COLUMN_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(PKEY).type(Scalars.GraphQLBoolean))
+          .field(GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLInt))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("nullable")
+                  .name(NULLABLE)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(REF_TABLE_NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_COLUMN_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -99,18 +96,12 @@ public class GraphqlSchemaFields {
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(PKEY).type(Scalars.GraphQLString))
-          .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("unique")
-                  .type(GraphQLList.list(GraphQLList.list(Scalars.GraphQLString))))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name("columns")
+                  .name(GraphqlConstants.COLUMNS)
                   .type(GraphQLList.list(inputColumnMetadataType)))
           .build();
 
@@ -342,13 +333,12 @@ public class GraphqlSchemaFields {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("columnType")
+                  .name(COLUMN_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(PKEY).type(Scalars.GraphQLBoolean))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLInt))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("nullable")
+                  .name(NULLABLE)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -356,8 +346,8 @@ public class GraphqlSchemaFields {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_COLUMN_NAME)
-                  .type(Scalars.GraphQLString))
+                  .name(REF_COLUMN_NAMES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(CASCADE_DELETE)
@@ -368,7 +358,7 @@ public class GraphqlSchemaFields {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("validation")
+                  .name(GraphqlConstants.VALIDATION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -383,18 +373,13 @@ public class GraphqlSchemaFields {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(PKEY).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("unique")
-                  .type(GraphQLList.list(GraphQLList.list(Scalars.GraphQLString))))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name("columns")
+                  .name(GraphqlConstants.COLUMNS)
                   .type(GraphQLList.list(outputColumnMetadataType)))
           .build();
 

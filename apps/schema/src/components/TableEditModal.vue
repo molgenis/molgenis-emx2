@@ -37,22 +37,22 @@
 </template>
 
 <script>
-    import {request} from 'graphql-request'
+import { request } from "graphql-request";
 
-    import {
-        ButtonAction,
-        ButtonAlt,
-        InputString,
-        InputText,
-        LayoutForm,
-        LayoutModal,
-        MessageError,
-        MessageSuccess,
-        SigninForm,
-        Spinner
-    } from '@mswertz/emx2-styleguide'
+import {
+  ButtonAction,
+  ButtonAlt,
+  InputString,
+  InputText,
+  LayoutForm,
+  LayoutModal,
+  MessageError,
+  MessageSuccess,
+  SigninForm,
+  Spinner
+} from "@mswertz/emx2-styleguide";
 
-    export default {
+export default {
   components: {
     MessageSuccess,
     MessageError,
@@ -81,29 +81,29 @@
       error: null,
       success: null,
       showLogin: false
-    }
+    };
   },
   computed: {
     title() {
       if (this.create) {
-        return `Create table`
+        return `Create table`;
       } else {
-        return `Alter table '${this.tableName}'`
+        return `Alter table '${this.tableName}'`;
       }
     },
     action() {
-      if (this.create) return `Create table`
-      else return `Alter table`
+      if (this.create) return `Create table`;
+      else return `Alter table`;
     }
   },
   methods: {
     executeCommand() {
-      this.loading = true
-      this.error = null
-      this.success = null
-      let command = this.create ? 'create' : 'alter'
+      this.loading = true;
+      this.error = null;
+      this.success = null;
+      let command = this.create ? "create" : "alter";
       request(
-        'graphql',
+        "graphql",
         `mutation ${command}($name:String){${command}(tables:[{name:$name}]){message}}`,
         {
           name: this.tableName
@@ -111,20 +111,20 @@
       )
         .then(data => {
           if (this.create) {
-            this.success = `Table ${this.tableName} created`
+            this.success = `Table ${this.tableName} created`;
           } else {
-            this.success = `Table ${this.table.name} altered`
+            this.success = `Table ${this.table.name} altered`;
           }
-          this.$emit('close')
+          this.$emit("close");
         })
         .catch(error => {
           if (error.response.status === 403) {
-            this.error = 'Forbidden. Do you need to login?'
-            this.showLogin = true
-          } else this.error = error
-        })
-      this.loading = false
+            this.error = "Forbidden. Do you need to login?";
+            this.showLogin = true;
+          } else this.error = error;
+        });
+      this.loading = false;
     }
   }
-}
+};
 </script>

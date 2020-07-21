@@ -66,19 +66,20 @@ class SqlTable implements Table {
             int batchSize = 1000;
             InsertValuesStepN step =
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+            int i = 0;
             for (Row row : rows) {
               step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
-              count.set(count.get() + 1);
+              i++;
               // execute batch
-              if (count.get() % batchSize == 0) {
-                step.execute();
+              if (i % batchSize == 0) {
+                count.set(count.get() + step.execute());
                 step =
                     db.getJooq()
                         .insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
               }
             }
             // execute remaining
-            if (count.get() % batchSize != 0) {
+            if (i % batchSize != 0) {
               count.set(count.get() + step.execute());
             }
           });
@@ -279,10 +280,8 @@ class SqlTable implements Table {
 
       // in case no primary key is defined, use all columns
       if (keyNames == null) {
-        keyNames = new ArrayList<>();
-        for (String columnName : getMetadata().getColumnNames()) {
-          keyNames.add(columnName);
-        }
+        throw new MolgenisException(
+            "Delete on table " + getName() + " failed: no primary key set", "");
       }
       Condition whereCondition = getWhereConditionForBatchDelete(rows);
       db.getJooq().deleteFrom(getJooqTable()).where(whereCondition).execute();

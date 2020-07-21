@@ -1,5 +1,5 @@
 <template>
-  <button class="btn text-danger" style="width: 40px" @click="onClick">
+  <button class="btn text-danger pl-1 pr-1" @click="onClick">
     <i :class="'fa fa-' + icon"></i>
   </button>
 </template>
@@ -20,10 +20,10 @@ export default {
 </script>
 
 <docs>
-Example
+    Example
 
-```jsx
-<IconDanger icon="times"/>
-```
+    ```jsx
+    <IconDanger icon="times"/>
+    ```
 
 </docs>

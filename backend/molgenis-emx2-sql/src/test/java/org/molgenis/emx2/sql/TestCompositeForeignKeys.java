@@ -32,7 +32,9 @@ public class TestCompositeForeignKeys {
             "Person",
             column("firstName").pkey(),
             column("lastName").pkey(),
-            column("cousins", REF_ARRAY).refTable("Person"))); // .with("lastName", "lastName")));
+            column("cousins", REF_ARRAY)
+                .refTable("Person")
+                .nullable(true))); // .with("lastName", "lastName")));
 
     Table p = schema.getTable("Person");
 

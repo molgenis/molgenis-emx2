@@ -25,7 +25,7 @@
           <span v-else>
             <FilterWell
               @click="remove(idx, idx2)"
-              :label="column.name + ' = ' + value"
+              :label="column.name + ' = ' + renderValue(value)"
             />
           </span>
         </span>
@@ -38,9 +38,9 @@
   </div>
 </template>
 <script>
-    import FilterWell from "./FilterWell";
+import FilterWell from "./FilterWell";
 
-    export default {
+export default {
   props: {
     filters: Array
   },
@@ -71,6 +71,13 @@
     }
   },
   methods: {
+    renderValue(value) {
+      if (typeof value === "object" && value !== null) {
+        return Object.values(value).join(" ");
+      } else {
+        return value;
+      }
+    },
     remove(idx, idx2) {
       this.filters[idx].conditions.splice(idx2, 1);
       //we use updateTime as key to know when to refresh a filter view
@@ -124,7 +131,7 @@
                             },
                             {
                                 name: "status",
-                                conditions: ["test"]
+                                conditions: [{name: "status", second: " true"}]
                             },
                             {
                                 name: "birthday",

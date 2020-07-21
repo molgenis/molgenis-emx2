@@ -6,6 +6,7 @@ import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getSchemaName;
@@ -23,8 +24,7 @@ class SqlColumnRefBackExecutor {
 
     try {
       // get ref table
-      String refTableName = column.getRefTableName();
-      validateRef(column, refTableName);
+      validateRef(column);
 
       // get the other column
       TableMetadata toTable = column.getRefTable();
@@ -98,59 +98,153 @@ class SqlColumnRefBackExecutor {
     String schemaName = column.getTable().getSchema().getName();
     String updateTriggerName = refbackUpdateTriggerName(column);
 
-    // on insert and update trigger
+    // ref
+    String ref =
+        column.getRefColumns().stream()
+            .map(r -> name(r.getName()).toString())
+            .collect(Collectors.joining(","));
+    String newRef =
+        column.getRefColumns().stream()
+            .map(r -> "NEW." + name(r.getName()))
+            .collect(Collectors.joining(","));
+    String refTo =
+        column.getRefColumns().stream()
+            .map(r -> name(r.getTo()).toString())
+            .collect(Collectors.joining(","));
+    String oldRefTo =
+        column.getRefColumns().stream()
+            .map(r -> "OLD." + name(r.getTo()))
+            .collect(Collectors.joining(","));
+    String errorColumns =
+        column.getRefColumns().stream()
+            .map(r -> "error_row." + name(r.getTo()).toString())
+            .collect(Collectors.joining("||','||"));
+
+    Column mappedBy = column.getMappedByColumn();
+
+    // mappedBy.to
+    String mappedByTo =
+        mappedBy.getRefColumns().stream()
+            .map(r -> name(r.getTo()).toString())
+            .collect(Collectors.joining(","));
+    String oldMappedByTo =
+        mappedBy.getRefColumns().stream()
+            .map(r -> "OLD." + name(r.getTo()))
+            .collect(Collectors.joining(","));
+    String newMappedByTo =
+        mappedBy.getRefColumns().stream()
+            .map(r -> "NEW." + name(r.getTo()) + " AS " + name(r.getTo()))
+            .collect(Collectors.joining(","));
+    String mappedByToEqualsNewKey =
+        mappedBy.getRefColumns().stream()
+            .map(r -> name(r.getTo()) + "=NEW." + name(r.getTo()))
+            .collect(Collectors.joining(" AND "));
+    String mappedByToEqualsOldKey =
+        mappedBy.getRefColumns().stream()
+            .map(r -> name(r.getTo()) + "=OLD." + name(r.getTo()))
+            .collect(Collectors.joining(" AND "));
+
+    String updateFilter =
+        column.getRefColumns().stream()
+            .map(r -> "t." + name(r.getTo()) + "=error_row." + name(r.getTo()))
+            .collect(Collectors.joining(" AND "));
+
+    String mappedByFrom =
+        mappedBy.getRefColumns().stream()
+            .map(r -> name(r.getName()).toString())
+            .collect(Collectors.joining(","));
+
+    String mappedByFromErrorRow =
+        mappedBy.getRefColumns().stream()
+            .map(r -> "error_row." + name(r.getName()).toString())
+            .collect(Collectors.joining(","));
+    String setterUpdate =
+        mappedBy.getRefColumns().stream()
+            .map(r -> name(r.getName()) + "=t3." + name(r.getName()))
+            .collect(Collectors.joining(","));
+    String arrayAgg =
+        mappedBy.getRefColumns().stream()
+            .map(r -> "array_agg(" + name(r.getTo()) + ") as " + name(r.getName()))
+            .collect(Collectors.joining(","));
+    String setRefToNull =
+        column.getRefColumns().stream()
+            .map(r -> "NEW." + name(r.getName()) + "=NULL")
+            .collect(Collectors.joining(";"));
 
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
-            + "\nDECLARE"
-            + "\n\t item {1};"
+            + "\nDECLARE error_row RECORD;"
             + "\nBEGIN"
-            // check no dangling foreign keys
-            + "\n\tIF EXISTS (SELECT * from unnest(NEW.{5}) as {5} WHERE {5} NOT IN (SELECT {6} FROM {2})) THEN RAISE EXCEPTION USING ERRCODE='23503', "
-            + "\n\t\tMESSAGE = 'update or delete on table '||{9}||' violates foreign key constraint'"
-            + "\n\t\t, DETAIL = 'Key ('||{10}||')=('|| array_to_string(NEW.{5},',') ||') is not present in table '||{11}||', column '||{12};"
-            // remove all mappedBy references to 'me' that are not valid anymore
-            + "\n\tEND IF;"
-            + "\n\tIF TG_OP = 'UPDATE' THEN"
-            + "\n\t\tUPDATE {2} set {3} = array_remove({3}, OLD.{4}) WHERE OLD.{4} = ANY ({3}) AND {6} != ANY (NEW.{5});"
-            + "\n\tEND IF;"
-            // add all new mappedBy references to 'me' for all values in NEW.{this column},
-            // check for on conflict update via not exists
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN"
-            // SET THAT THE OTHER POINTS TO new 'ME'
-            + "\n\t\tUPDATE {2} SET {3} = array_append({3},NEW.{4}) WHERE ({3} = '{}' OR NEW.{4} != ANY ({3})) AND {6} = ANY (NEW.{5});"
-            + "\n\tEND IF;"
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8} = NEW.{8}) THEN NEW.{5} = NULL; END IF;"
+            // for first refColumn value that does not in refTable key values raise error
+            + "\n\tFOR error_row IN SELECT * FROM UNNEST({5}) as t({6}) EXCEPT (SELECT {6} FROM {2}) LOOP"
+            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', "
+            + "\n\t\tMESSAGE = 'update or delete on table '||{9}||' violates foreign key constraint',"
+            + "\n\t\tDETAIL = 'Key ('||{10}||')=('|| {13} ||') is not present in table '||{11}||', column '||{12};"
+            + "\n\tEND LOOP;"
+            // check for on conflict update via 'not exists ...'
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8}) THEN "
+            + "\n\t\tFOR error_row IN SELECT {19},{3} FROM {2} "
+            + "\n\t\t\tWHERE ({6}) IN (SELECT * FROM UNNEST({5}) as t({6}))"
+            + "\n\t\t\tOR ({4}) IN (SELECT * FROM UNNEST({3}) as t({21}))  LOOP"
+            + "\n\t\tUPDATE {2} AS t SET {1} FROM ("
+            + "\n\t\t\tSELECT {17} FROM ("
+            // cop previous value, remove old key (if exist), and union the new key
+            + "\n\t\t\t\tSELECT * FROM UNNEST({20}) AS t1({21}) EXCEPT(SElECT {4}) UNION (SELECT {14})"
+            + "\n\t\t\t) AS t2"
+            + "\n\t\t) AS t3 WHERE {18};"
+            + "\n\tEND LOOP; END IF;"
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8}) THEN {15}; END IF;"
             + "\n\tRETURN NEW;"
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
-        name(schemaName, updateTriggerName), // {0} function name
-        keyword(
-            SqlTypeUtils.getPsqlType(
-                column.getRefTable().getPrimaryKeyColumns().get(0))), // {1} type of item
-        table(name(schemaName, column.getRefTableName())), // {2} toTable table
-        field(name(column.getMappedBy())), // {3} mappedBy
-        field(
-            name(
-                column
-                    .getMappedByColumn()
-                    .getRefTable()
-                    .getPrimaryKeys()
-                    .get(0))), // {4} key that mappedBy uses (might not be pkey)
-        field(name(column.getName())), // {5} the dummy column that triggers all this
-        field(
-            name(
-                column
-                    .getRefTable()
-                    .getPrimaryKeys()
-                    .get(0))), // {6} toColumn where fake foreign key dummy points to
-        table(name(schemaName, column.getTable().getTableName())), // {7} this table
-        field(name(column.getTable().getPrimaryKeys().get(0))), // {8} primary key of this table
-        inline(column.getTable().getTableName()), // {9} inline table name
-        inline(column.getName()), // {10} name
-        inline(column.getRefTableName()), // {11} inline table name
-        inline(column.getRefTable().getPrimaryKeys().get(0))); // {12} inline table name
+
+        // {0} function name
+        name(schemaName, updateTriggerName),
+        // {1} to replace old mappedBy array(s) with new array(s)
+        keyword(setterUpdate),
+        // {2} refTable
+        table(name(schemaName, column.getRefTableName())),
+        // {3} mappedBy
+        keyword(mappedByFrom),
+        // {4} key that mappedBy uses (might not be pkey)
+        keyword(oldMappedByTo),
+        // {5} the column, in case of composite decomposed
+        keyword(newRef),
+        // {6} toColumn where fake foreign key dummy points to
+        keyword(refTo),
+        // {7} this table
+        table(name(schemaName, column.getTable().getTableName())),
+        // {8} check if pkey in new.pkey (i.e. if insert or update)
+        keyword(mappedByToEqualsNewKey),
+        // {9} inline table name
+        inline(column.getTable().getTableName()),
+        // {10} name
+        inline(column.getName()),
+        // {11} inline refTable name
+        inline(column.getRefTableName()),
+        // {12} inline refTable key column names
+        inline(refTo),
+        // {13} columns concat for errors
+        keyword(errorColumns),
+        // {14} new key
+        keyword(newMappedByTo),
+        // {15} set new.ref to null
+        keyword(setRefToNull),
+        // {16} keyEqualsOldKey
+        keyword(mappedByToEqualsOldKey),
+        // {17}
+        keyword(arrayAgg),
+        // {18}
+        keyword(updateFilter),
+        // {19}
+        keyword(refTo),
+        // {20}
+        keyword(mappedByFromErrorRow),
+        // {21}
+        keyword(mappedByTo),
+        // {22}
+        keyword(oldRefTo));
 
     // attach the trigger
 
@@ -159,7 +253,7 @@ class SqlColumnRefBackExecutor {
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
         name(column.getName() + "_UPDATE"),
-        name(column.getName()),
+        keyword(ref),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, updateTriggerName));
 

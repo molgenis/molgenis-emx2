@@ -38,6 +38,7 @@ import LayoutNavTabs from "./components/LayoutNavTabs";
 import MessageSuccess from "./components/MessageSuccess";
 import MessageError from "./components/MessageError";
 import Molgenis from "./molecules/Molgenis";
+import MolgenisTable from "./components/MolgenisTable";
 
 import NavBar from "./components/NavBar";
 import Pagination from "./components/Pagination";
@@ -83,6 +84,7 @@ export {
   MessageError,
   MessageSuccess,
   Molgenis,
+  MolgenisTable,
   NavBar,
   Pagination,
   RowButtonEdit,

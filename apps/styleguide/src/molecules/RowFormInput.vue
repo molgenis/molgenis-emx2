@@ -37,7 +37,11 @@
     />
     <InputRef
       :list="true"
-      v-else-if="columnType === 'REF_ARRAY' || columnType === 'REFBACK'"
+      v-else-if="
+        columnType === 'REF_ARRAY' ||
+          columnType === 'REFBACK' ||
+          columnType === 'MREF'
+      "
       v-bind="$props"
       v-model="value"
     />
@@ -52,23 +56,23 @@
 </template>
 
 <script>
-    import _baseInput from "../components/_baseInput";
-    import InputString from "../components/InputString";
-    import InputInt from "../components/InputInt";
-    import InputDecimal from "../components/InputDecimal";
-    import InputBoolean from "../components/InputBoolean";
-    import InputRef from "../components/InputRef";
-    import InputDate from "../components/InputDate";
-    import InputDateTime from "../components/InputDateTime";
+import _baseInput from "../components/_baseInput";
+import InputString from "../components/InputString";
+import InputInt from "../components/InputInt";
+import InputDecimal from "../components/InputDecimal";
+import InputBoolean from "../components/InputBoolean";
+import InputRef from "../components/InputRef";
+import InputDate from "../components/InputDate";
+import InputDateTime from "../components/InputDateTime";
 
-    export default {
+export default {
   extends: _baseInput,
   props: {
     schema: String,
     columnType: String,
     refTable: String,
     refColumn: String,
-    defaultValue: String
+    defaultValue: [String, Number, Object, Array]
   },
   components: {
     InputString,
@@ -90,9 +94,12 @@
 <docs>
     Example:
     ```
-    <RowFormInput columnType="STRING" label="Test String"/>
-    <RowFormInput columnType="REF" label="Test ref" schema="pet store" refTable="Pet" refColumn="name"/>
-    <RowFormInput columnType="DATE" label="Test Date"/>
-
+    <div>
+        <RowFormInput columnType="STRING" label="Test String"/>
+        <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
+        <RowFormInput columnType="REF" label="Test ref" refTable="Pet"/>
+        <RowFormInput columnType="REF_ARRAY" label="Test ref" refTable="Pet" :defaultValue="[{name:'spike'}]"/>
+        <RowFormInput columnType="DATE" label="Test Date"/>
+    </div>
     ```
 </docs>

@@ -297,7 +297,7 @@ class SqlQueryUtils {
         // todo improve filters for arrays
       case STRING_ARRAY:
       case TEXT_ARRAY:
-        return createArrayEqualsFilter(name, operator, toStringArray(values));
+        return createTextArrayFilter(name, operator, toStringArray(values));
       case BOOL_ARRAY:
         return createArrayEqualsFilter(name, operator, toBoolArray(values));
       case UUID_ARRAY:
@@ -356,6 +356,53 @@ class SqlQueryUtils {
     else return or(conditions);
   }
 
+  private static Condition createTextArrayFilter(
+      Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
+    List<Condition> conditions = new ArrayList<>();
+    boolean not = false;
+    for (String value : values) {
+      switch (operator) {
+        case EQUALS:
+          conditions.add(condition("{0} = ANY({1})", value, field(columnName)));
+          break;
+        case NOT_EQUALS:
+          not = true;
+          conditions.add(condition("{0} = ANY({1})", value, field(columnName)));
+          break;
+        case NOT_LIKE:
+          not = true;
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE {0})",
+                  "%" + value + "%", field(columnName)));
+          break;
+        case LIKE:
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE {0})",
+                  "%" + value + "%", field(columnName)));
+          break;
+        case TRIGRAM_SEARCH:
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
+                  value, field(columnName)));
+          break;
+        case TEXT_SEARCH:
+          conditions.add(
+              condition(
+                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
+                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
+          break;
+        default:
+          throw new SqlGraphQueryException(
+              QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
+      }
+    }
+    if (not) return not(or(conditions));
+    else return or(conditions);
+  }
+
   private static Condition createTextFilter(
       Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
     List<Condition> conditions = new ArrayList<>();
@@ -377,13 +424,13 @@ class SqlQueryUtils {
           conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
           break;
         case TRIGRAM_SEARCH:
-          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, columnName));
+          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, field(columnName)));
           break;
         case TEXT_SEARCH:
           conditions.add(
               condition(
                   "to_tsquery({0}) @@ to_tsvector({1})",
-                  value.trim().replaceAll("\\s+", ":* & ") + ":*", columnName));
+                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
           break;
         default:
           throw new SqlGraphQueryException(

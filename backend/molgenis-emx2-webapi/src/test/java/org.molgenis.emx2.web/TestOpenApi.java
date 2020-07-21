@@ -11,12 +11,11 @@ import org.molgenis.emx2.TableMetadata;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
 
 public class TestOpenApi {
 
   @Test
-  public void constructApi() throws IOException, URISyntaxException {
+  public void constructApi() throws IOException {
     SchemaMetadata schema = new SchemaMetadata("test");
 
     TableMetadata table = schema.create(TableMetadata.table("TypeTest"));

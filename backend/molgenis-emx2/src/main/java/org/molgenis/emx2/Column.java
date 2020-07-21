@@ -101,19 +101,28 @@ public class Column {
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
     for (Column keyPart : pkeys) {
       // todo check for composite keyPart
-      ColumnType type = keyPart.getColumnType();
-      // all but ref is array
-      if (!REF.equals(getColumnType())) {
-        type = getArrayType(type);
-      }
-      // create the ref
-      Reference ref =
-          new Reference(
-              this.getName() + (pkeys.size() > 1 ? "-" + keyPart.getName() : ""),
-              keyPart.getName(),
-              type);
+      if (keyPart.isReference()) {
+        for (Reference ref : keyPart.getRefColumns()) {
+          refColumns.add(
+              new Reference(
+                  this.getName() + "-" + ref.getName(), ref.getTo(), ref.getColumnType()));
+        }
 
-      refColumns.add(ref);
+      } else {
+        ColumnType type = keyPart.getColumnType();
+        // all but ref is array
+        if (!REF.equals(getColumnType())) {
+          type = getArrayType(type);
+        }
+        // create the ref
+        Reference ref =
+            new Reference(
+                this.getName() + (pkeys.size() > 1 ? "-" + keyPart.getName() : ""),
+                keyPart.getName(),
+                type);
+
+        refColumns.add(ref);
+      }
     }
 
     return refColumns;
@@ -238,6 +247,9 @@ public class Column {
           .append(refTable)
           .append(")");
     }
+    if (getKey() > 0) {
+      builder.append(" key" + getKey());
+    }
     if (Boolean.TRUE.equals(isNullable())) builder.append(" nullable");
     return builder.toString();
   }
@@ -301,7 +313,7 @@ public class Column {
   }
 
   public org.jooq.Table getJooqTable() {
-    return getTable().asJooqTable();
+    return getTable().getJooqTable();
   }
 
   public boolean isReference() {
@@ -311,11 +323,15 @@ public class Column {
         || REFBACK.equals(getColumnType());
   }
 
-  public Boolean isPkey() {
-    return this.key == 1;
-  }
-
   public String getSchemaName() {
     return getTable().getSchemaName();
+  }
+
+  public List<String> getRefColumnNames() {
+    List<String> result = new ArrayList<>();
+    for (Reference r : getRefColumns()) {
+      result.add(r.getTo());
+    }
+    return result;
   }
 }

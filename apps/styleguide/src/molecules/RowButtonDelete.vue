@@ -6,7 +6,7 @@
         <MessageError v-else-if="error">{{ error }}</MessageError>
         <div v-else>
           Delete
-          <strong>{{ table }}({{ pkey }})</strong>
+          <strong>{{ table }}({{ pkeyAsString }})</strong>
           <br />Are you sure?
           <br />
         </div>
@@ -23,16 +23,16 @@
 </template>
 
 <script>
-    import RowButtonAdd from "./RowButtonAdd";
-    import LayoutModal from "../components/LayoutModal";
-    import IconDanger from "../components/IconDanger";
-    import ButtonAlt from "../components/ButtonAlt";
-    import ButtonAction from "../components/ButtonAction";
-    import MessageError from "../components/MessageError";
-    import MessageSuccess from "../components/MessageSuccess";
-    import {request} from "graphql-request";
+import RowButtonAdd from "./RowButtonAdd";
+import LayoutModal from "../components/LayoutModal";
+import IconDanger from "../components/IconDanger";
+import ButtonAlt from "../components/ButtonAlt";
+import ButtonAction from "../components/ButtonAction";
+import MessageError from "../components/MessageError";
+import MessageSuccess from "../components/MessageSuccess";
+import { request } from "graphql-request";
 
-    export default {
+export default {
   extends: RowButtonAdd,
   data: function() {
     return {
@@ -49,16 +49,19 @@
     MessageError
   },
   props: {
-    pkey: String
+    pkey: Object
   },
   computed: {
     title() {
       return `Delete from ${this.table}`;
+    },
+    pkeyAsString() {
+      return Object.values(this.pkey).join(" ");
     }
   },
   methods: {
     executeDelete() {
-      let query = `mutation delete($pkey:[String]){delete(${this.table}:$pkey){message}}`;
+      let query = `mutation delete($pkey:[${this.table}Input]){delete(${this.table}:$pkey){message}}`;
       let variables = { pkey: [this.pkey] };
       request("graphql", query, variables)
         .then(data => {
@@ -76,6 +79,6 @@
 <docs>
     Example
     ```
-    <RowButtonDelete table="Pet" pkey="spike"/>
+    <RowButtonDelete table="Pet" :pkey="{name:'MyPet4'}"/>
     ```
 </docs>

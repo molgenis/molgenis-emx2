@@ -9,49 +9,53 @@
       :showClear="showClear(idx)"
       @add="addRow"
     >
-      <select class="custom-select" :id="id" @click="openSelect">
+      <select
+        :id="id"
+        @click="openSelect(idx)"
+        :class="{ 'form-control': true, 'is-invalid': error }"
+      >
         <option
           v-if="arrayValue[idx] && !showSelect"
           :value="arrayValue[idx]"
           selected
         >
-          {{ arrayValue[idx] }}
+          {{ Object.values(arrayValue[idx]).join(" ") }}
         </option>
       </select>
-      <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
-        <template v-slot:body>
-          <MessageError v-if="error">{{ error }}</MessageError>
-          <TableSearch
-            :schema="schema"
-            :table="refTable"
-            :selectColumn="refColumn"
-            :defaultValue="[arrayValue[idx]]"
-            @select="select($event, idx)"
-            @deselect="deselect(idx)"
-          />
-        </template>
-        <template v-slot:footer>
-          <ButtonAlt @click="closeSelect">Close</ButtonAlt>
-        </template>
-      </LayoutModal>
     </InputAppend>
+    <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
+      <template v-slot:body>
+        <MessageError v-if="error">{{ error }}</MessageError>
+        <TableSearch
+          :schema="schema"
+          :table="refTable"
+          :defaultValue="[arrayValue[selectIdx]]"
+          @select="select($event, selectIdx)"
+          @deselect="deselect(selectIdx)"
+        />
+      </template>
+      <template v-slot:footer>
+        <ButtonAlt @click="closeSelect">Close</ButtonAlt>
+      </template>
+    </LayoutModal>
   </FormGroup>
 </template>
 
 <script>
-    import _baseInput from "./_baseInput";
-    import TableSearch from "./TableSearch";
-    import LayoutModal from "./LayoutModal";
-    import MessageError from "./MessageError";
-    import FormGroup from "./_formGroup";
-    import ButtonAlt from "./ButtonAlt";
-    import InputAppend from "./_inputAppend";
+import _baseInput from "./_baseInput";
+import TableSearch from "./TableSearch";
+import LayoutModal from "./LayoutModal";
+import MessageError from "./MessageError";
+import FormGroup from "./_formGroup";
+import ButtonAlt from "./ButtonAlt";
+import InputAppend from "./_inputAppend";
 
-    export default {
+export default {
   extends: _baseInput,
   data: function() {
     return {
-      showSelect: false
+      showSelect: false,
+      selectIdx: null
     };
   },
   components: {
@@ -64,8 +68,7 @@
   },
   props: {
     schema: String,
-    refTable: String,
-    refColumn: String
+    refTable: String
   },
   computed: {
     title() {
@@ -73,16 +76,17 @@
     }
   },
   methods: {
-    select(event, idx) {
+    select(event) {
       this.showSelect = false;
-      this.arrayValue[idx] = event;
+      this.arrayValue[this.selectIdx] = event;
       this.emitValue();
     },
     closeSelect() {
       this.showSelect = false;
     },
-    openSelect() {
+    openSelect(idx) {
       this.showSelect = true;
+      this.selectIdx = idx;
     },
     deselect(idx) {
       this.showSelect = false;
@@ -98,7 +102,7 @@
     ```
     <template>
         <div>
-            <InputRef v-model="value" schema="pet store" refTable="Pet" refColumn="name"/>
+            <InputRef v-model="value" schema="pet store" refTable="Pet"/>
             Selection: {{value}}
         </div>
     </template>
@@ -120,7 +124,6 @@
                     v-model="value"
                     schema="pet store"
                     refTable="Pet"
-                    refColumn="name"
                     :defaultValue="value"
             />
             Selection: {{value}}
@@ -130,7 +133,7 @@
         export default {
             data: function () {
                 return {
-                    value: 'spike'
+                    value: {name: 'spike'}
                 };
             }
         };
@@ -142,10 +145,8 @@
         <div>
             <InputRef :list="true"
                       v-model="value"
-                      schema="pet store"
                       refTable="Pet"
-                      refColumn="name"
-                      :defaultValue="value"
+                      :defaultValue="[{name:'spike'},{name:'pooky'}]"
             />
             Selection: {{value}}
         </div>

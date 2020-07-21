@@ -30,7 +30,7 @@ public class GraphqlCustomExceptionHandler implements DataFetcherExceptionHandle
 
             @Override
             public String getMessage() {
-              return exception.getMessage();
+              return exception.toString();
             }
 
             @Override

@@ -40,8 +40,8 @@ public class SqlColumnMrefExecutor {
             // add all unique references that are in the ref_array(s)
             // NEW.ref_array column(s) = NULL, unless this is INSERT and we can expect ON CONFLICT
             + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {4} WHERE {5}) THEN "
-            + "\n\tINSERT INTO {1} (SELECT * FROM ({3}) foo);"
-            + "\n\t{6}; END IF;"
+            + "\n\t\tINSERT INTO {1} (SELECT * FROM ({3}) foo);"
+            + "\n\t\t{6}; END IF;"
             + "\n\tRETURN NEW;END;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         // 0 name of the trigger
@@ -92,7 +92,7 @@ public class SqlColumnMrefExecutor {
     for (Reference ref : column.getRefColumns()) {
       items.add("NEW." + name(ref.getName()) + " = NULL");
     }
-    return String.join(",", items);
+    return String.join(";", items);
   }
 
   // key1 = NEW.key1 [, key2 = NEW.key2]
@@ -114,7 +114,7 @@ public class SqlColumnMrefExecutor {
     for (String pkey : column.getTable().getPrimaryKeys()) {
       items.add("NEW." + name(pkey) + " AS " + name(pkey));
     }
-    result.append("SELECT * FROM (SELECT " + String.join(",", items) + ") as self,");
+    result.append("SELECT " + String.join(",", items) + ",  other.* FROM ");
 
     // UNNEST({refFields-name}) AS other({refFields-name}
     items = new ArrayList<>();

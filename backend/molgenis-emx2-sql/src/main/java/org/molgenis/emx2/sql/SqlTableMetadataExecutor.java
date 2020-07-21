@@ -24,7 +24,7 @@ class SqlTableMetadataExecutor {
   static void executeCreateTable(DSLContext jooq, TableMetadata table) {
 
     // create the table
-    Table jooqTable = table.asJooqTable();
+    Table jooqTable = table.getJooqTable();
     jooq.execute("CREATE TABLE {0}()", jooqTable);
     // jooq.createTable(asJooqTable(table)).columns(new Name[0]).execute();
     MetadataUtils.saveTableMetadata(jooq, table);
@@ -56,9 +56,7 @@ class SqlTableMetadataExecutor {
     }
 
     // then create unique
-    for (Map.Entry<Integer, List<String>> key : table.getKeys().entrySet()) {
-      createOrReplaceUnique(jooq, table, key.getKey(), asJooqNames(key.getValue()));
-    }
+    createOrReplaceKeys(jooq, table);
 
     // then create foreign keys etc
     for (Column column : table.getLocalColumns()) {
@@ -66,11 +64,29 @@ class SqlTableMetadataExecutor {
           && table.getInheritedTable().getColumn(column.getName()) != null) {
         // don't create superclass keys, that is already done
       } else {
-        SqlColumnExecutor.executeSetForeignkeys(jooq, column);
+        SqlColumnExecutor.executeCreateRefAndNotNullConstraints(jooq, column);
       }
     }
 
     executeEnableSearch(jooq, table);
+  }
+
+  static void createOrReplaceKeys(DSLContext jooq, TableMetadata table) {
+    for (Map.Entry<Integer, List<String>> key : table.getKeys().entrySet()) {
+      createOrReplaceKey(jooq, table, key.getKey(), key.getValue());
+    }
+  }
+
+  static void dropKeys(DSLContext jooq, TableMetadata table) {
+    for (Map.Entry<Integer, List<String>> key : table.getKeys().entrySet()) {
+      executeDropKey(jooq, table, key.getKey());
+    }
+  }
+
+  static void executeDropKey(DSLContext jooq, TableMetadata table, Integer key) {
+    jooq.alterTable(table.getJooqTable())
+        .dropConstraint(name(table.getTableName() + "_KEY" + key))
+        .execute();
   }
 
   static void executeSetInherit(DSLContext jooq, TableMetadata table, TableMetadata other) {
@@ -101,16 +117,6 @@ class SqlTableMetadataExecutor {
     MetadataUtils.saveTableMetadata(jooq, table);
   }
 
-  static void executeSetPrimaryKey(DSLContext jooq, TableMetadata table, Name[] columnNames) {
-    // drop previous primary key if exists
-    jooq.execute(
-        "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}",
-        getJooqTable(table), getPrimaryKeyContraintName(table));
-
-    // create the new one
-    jooq.alterTable(getJooqTable(table)).add(constraint().primaryKey(columnNames)).execute();
-  }
-
   static Name[] asJooqNames(List<String> strings) {
     List<Name> names = new ArrayList<>();
     for (String string : strings) {
@@ -119,40 +125,25 @@ class SqlTableMetadataExecutor {
     return names.toArray(new Name[names.size()]);
   }
 
-  private static Name getPrimaryKeyContraintName(TableMetadata table) {
-    return name(table.getTableName() + "_pkey");
-  }
-
   // helper methods
   static org.jooq.Table getJooqTable(TableMetadata table) {
     return DSL.table(name(table.getSchema().getName(), table.getTableName()));
   }
 
-  static void createOrReplaceUnique(
-      DSLContext jooq, TableMetadata table, Integer index, Name[] columnNames) {
+  static void createOrReplaceKey(
+      DSLContext jooq, TableMetadata table, Integer index, List<String> keyFieldNames) {
 
     Name uniqueName = name(table.getTableName() + "_KEY" + index);
-
-    // drop previous unique if exists
-    if (index == 1) {
-      executeSetPrimaryKey(jooq, table, columnNames);
-    } else {
-      jooq.execute(
-          "ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}", getJooqTable(table), uniqueName);
-      jooq.alterTable(getJooqTable(table))
-          .add(constraint(name(uniqueName)).unique(columnNames))
-          .execute();
-    }
+    jooq.execute("ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}", getJooqTable(table), uniqueName);
+    jooq.alterTable(getJooqTable(table))
+        .add(constraint(name(uniqueName)).unique(asJooqNames(keyFieldNames)))
+        .execute();
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
-      Table thisTable = getJooqTable(table);
-
-      // remove pkey
-      if (table.getPrimaryKeys() != null) {
-        jooq.alterTable(thisTable).dropConstraint(getPrimaryKeyContraintName(table)).execute();
-      }
+      // remove keys
+      dropKeys(jooq, table);
 
       // drop search trigger
       jooq.execute(
@@ -221,11 +212,6 @@ class SqlTableMetadataExecutor {
 
   private static String getSearchTriggerName(TableMetadata table) {
     return table.getTableName() + "search_vector_trigger";
-  }
-
-  static void executeRemoveUnique(DSLContext jooq, TableMetadata table, String[] unique) {
-    String uniqueName = table.getTableName() + "_" + String.join("_", unique) + "_UNIQUE";
-    jooq.alterTable(getJooqTable(table)).dropConstraint(name(uniqueName)).execute();
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {

@@ -1,5 +1,5 @@
 <template>
-  <button class="btn text-primary" style="width: 40px" @click="onClick">
+  <button class="btn text-primary pl-1 pr-1" @click="onClick">
     <i :class="'fa fa-' + icon"></i>
   </button>
 </template>

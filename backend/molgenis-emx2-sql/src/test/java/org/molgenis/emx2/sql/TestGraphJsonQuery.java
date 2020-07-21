@@ -38,8 +38,8 @@ public class TestGraphJsonQuery {
             .add(column("name").pkey())
             .add(column("father").type(REF).refTable("Person").nullable(true))
             .add(column("mother").type(REF).refTable("Person").nullable(true))
-            .add(column("children").type(REF_ARRAY).refTable("Person"))
-            .add(column("cousins").type(REF_ARRAY).refTable("Person")));
+            .add(column("children").type(REF_ARRAY).refTable("Person").nullable(true))
+            .add(column("cousins").type(REF_ARRAY).refTable("Person").nullable(true)));
 
     schema
         .getTable("Person")
@@ -62,6 +62,19 @@ public class TestGraphJsonQuery {
                 .set("mother", "oma1")
                 .set("children", "kind"),
             new Row().set("name", "kind").set("father", "pa").set("mother", "ma"));
+
+    /*
+    <pre>
+    name | father | mother | children | cousins
+    opa1 |        |        | ma,pa    | opa2
+    opa2
+    oma1
+    oma2
+    ma   | opa2   | oma2   | kind
+    pa   | opa1   | opa1   | kind
+    kind | pa     | ma
+    </pre>
+     */
   }
 
   @Test

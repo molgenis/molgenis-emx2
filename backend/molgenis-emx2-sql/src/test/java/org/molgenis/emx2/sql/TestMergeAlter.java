@@ -148,6 +148,15 @@ public class TestMergeAlter {
   }
 
   @Test
+  public void testAlterKeys() {
+    Table t = schema.create(table("TestAlterKeys", column("ID").key(1), column("Name")));
+
+    t.getMetadata().alterColumn("Name", column("Name").key(2));
+
+    assertEquals(2, t.getMetadata().getColumn("Name").getKey());
+  }
+
+  @Test
   public void testSimpleTypes() {
 
     // simple

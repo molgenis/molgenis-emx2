@@ -5,9 +5,11 @@ import graphql.schema.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
@@ -110,17 +112,30 @@ class GraphqlTableMutationFields {
     };
   }
 
+  static Map<String, GraphQLInputObjectType> refTypes = new LinkedHashMap<>();
+
   private static GraphQLInputObjectType rowInputType(Table table) {
     GraphQLInputObjectType.Builder inputBuilder =
         GraphQLInputObjectType.newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
       GraphQLInputType type = null;
       if (col.isReference()) {
-        if (col.getRefColumns().size() == 1) {
-          ColumnType columnType = col.getRefColumns().get(0).getColumnType();
-          type = getGraphQLInputType(columnType);
+        String name = col.getRefTableName() + "RefInput";
+        if (refTypes.get(name) == null) {
+          GraphQLInputObjectType.Builder refTypeBuilder =
+              GraphQLInputObjectType.newInputObject().name(name);
+          for (Reference ref : col.getRefColumns()) {
+            ColumnType columnType = ref.getColumnType();
+            type = getGraphQLInputType(columnType);
+            refTypeBuilder.field(
+                GraphQLInputObjectField.newInputObjectField().name(ref.getTo()).type(type));
+          }
+          refTypes.put(name, refTypeBuilder.build());
+        }
+        if (REF.equals(col.getColumnType())) {
+          type = refTypes.get(name);
         } else {
-          throw new UnsupportedOperationException("composite column types not yet supported");
+          type = GraphQLList.list(refTypes.get(name));
         }
       } else {
         ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);

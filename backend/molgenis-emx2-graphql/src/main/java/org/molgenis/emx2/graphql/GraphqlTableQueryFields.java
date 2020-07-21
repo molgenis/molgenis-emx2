@@ -36,7 +36,7 @@ public class GraphqlTableQueryFields {
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.FILTER)
+                .name(GraphqlConstants.FILTER_ARGUMENT)
                 .type(createTableFilterInputObjectType(table.getMetadata()))
                 .build())
         .argument(
@@ -51,10 +51,10 @@ public class GraphqlTableQueryFields {
       Table table = aTable;
       Query q = table.query();
       q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
-      if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER) != null) {
+      if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.filter(
             convertMapToFilterArray(
-                table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER)));
+                table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
       if (search != null && !search.trim().equals("")) {
@@ -99,6 +99,39 @@ public class GraphqlTableQueryFields {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
     for (Column col : table.getMetadata().getColumns())
       switch (col.getColumnType()) {
+        case BOOL:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(Scalars.GraphQLBoolean));
+          break;
+        case BOOL_ARRAY:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(GraphQLList.list(Scalars.GraphQLBoolean)));
+          break;
+        case STRING:
+        case TEXT:
+        case UUID:
+        case DATE:
+        case DATETIME:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(Scalars.GraphQLString));
+          break;
+        case STRING_ARRAY:
+        case TEXT_ARRAY:
+        case DATE_ARRAY:
+        case DATETIME_ARRAY:
+        case UUID_ARRAY:
+        case JSONB_ARRAY:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(GraphQLList.list(Scalars.GraphQLString)));
+          break;
         case DECIMAL:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -119,6 +152,7 @@ public class GraphqlTableQueryFields {
           break;
         case REF_ARRAY:
         case REFBACK:
+        case MREF:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName())
@@ -146,10 +180,8 @@ public class GraphqlTableQueryFields {
                   .type(GraphQLTypeReference.typeRef(col.getRefTableName() + "Aggregate")));
           break;
         default:
-          tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getName())
-                  .type(Scalars.GraphQLString));
+          throw new UnsupportedOperationException(
+              "Not yet implemented type " + col.getColumnType());
       }
     return tableBuilder.build();
   }
@@ -266,22 +298,24 @@ public class GraphqlTableQueryFields {
       case DECIMAL:
       case DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
-      case DATE_ARRAY:
       case DATE:
       case DATETIME:
-      case DATETIME_ARRAY:
       case STRING:
       case TEXT:
+      case UUID:
+      case DATE_ARRAY:
+      case DATETIME_ARRAY:
       case STRING_ARRAY:
       case TEXT_ARRAY:
-      case UUID:
       case UUID_ARRAY:
-      case REF:
+        return Scalars.GraphQLString;
       case REF_ARRAY:
+      case REF:
       case REFBACK:
-        //     case MREF:
+      case MREF:
+      default:
+        throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
     }
-    return Scalars.GraphQLString;
   }
 
   private static FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {

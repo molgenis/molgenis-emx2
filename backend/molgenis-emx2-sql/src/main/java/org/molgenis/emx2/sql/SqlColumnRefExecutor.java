@@ -28,8 +28,7 @@ public class SqlColumnRefExecutor {
   }
 
   static void createRefConstraints(DSLContext jooq, Column column) {
-    String refTableName = column.getRefTableName();
-    validateRef(column, refTableName);
+    validateRef(column);
 
     Name fkeyConstraintName = name(getRefConstraintName(column));
     Name thisTable = getJooqTable(column.getTable()).getQualifiedName();
@@ -41,7 +40,7 @@ public class SqlColumnRefExecutor {
       otherColumns.add(name(ref.getTo()));
     }
 
-    Name fkeyTable = name(column.getTable().getSchema().getName(), refTableName);
+    Name fkeyTable = name(column.getTable().getSchema().getName(), column.getRefTableName());
 
     ConstraintForeignKeyOnStep constraint =
         constraint(fkeyConstraintName)
@@ -63,7 +62,9 @@ public class SqlColumnRefExecutor {
         .execute();
   }
 
-  public static void validateRef(Column column, String refTableName) {
+  public static void validateRef(Column column) {
+    String refTableName = column.getRefTableName();
+
     // check if refTable exists
     if (refTableName == null) {
       throw new MolgenisException(

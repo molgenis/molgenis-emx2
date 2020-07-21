@@ -5,13 +5,11 @@
       <InputSearch v-if="table" v-model="searchTerms" />
       <Pagination v-model="page" :limit="limit" :count="count" />
       <Spinner v-if="loading" />
-      <DataTable
+      <MolgenisTable
         v-else
         v-model="selectedItems"
-        :columns="columns"
-        :rows="rows"
-        :selectColumn="selectColumn"
-        :defaultValue="defaultValue"
+        :metadata="metadata"
+        :data="data"
         @select="select"
         @deselect="deselect"
       >
@@ -21,27 +19,28 @@
         <template v-slot:rowheader="slotProps">
           <slot name="rowheader" :row="slotProps.row" :metadata="metadata" />
         </template>
-      </DataTable>
+      </MolgenisTable>
     </div>
+    {{ data }}
   </div>
 </template>
 
 <script>
-    import TableMixin from "../mixins/TableMixin";
-    import DataTable from "./DataTable";
-    import MessageError from "./MessageError";
-    import InputSearch from "./InputSearch";
-    import Pagination from "./Pagination.vue";
-    import Spinner from "./Spinner.vue";
+import TableMixin from "../mixins/TableMixin";
+import MolgenisTable from "./MolgenisTable";
+import MessageError from "./MessageError";
+import InputSearch from "./InputSearch";
+import Pagination from "./Pagination.vue";
+import Spinner from "./Spinner.vue";
 
-    export default {
+export default {
   extends: TableMixin,
   props: {
     defaultValue: Array,
     selectColumn: String
   },
   components: {
-    DataTable,
+    MolgenisTable,
     MessageError,
     InputSearch,
     Pagination,
@@ -71,35 +70,6 @@
       this.offset = this.limit * (this.page - 1);
       this.reload();
     }
-  },
-  computed: {
-    columns() {
-      if (this.metadata && this.metadata.columns) {
-        return this.metadata.columns.map(col => col.name);
-      }
-      return null;
-    },
-    rows() {
-      if (this.data != null) {
-        return this.data.map(row => {
-          let result = { ...row };
-          this.metadata.columns.forEach(col => {
-            if (row[col.name]) {
-              if (col.columnType === "REF") {
-                result[col.name] = row[col.name][col.refColumn];
-              } else if (
-                col.columnType === "REF_ARRAY" ||
-                col.columnType === "REFBACK"
-              ) {
-                result[col.name] = row[col.name].map(val => val[col.refColumn]);
-              }
-            }
-          });
-          return result;
-        });
-      }
-      return this.data;
-    }
   }
 };
 </script>
@@ -107,7 +77,7 @@
 <docs>
     Example:
     ```
-    <TableSearch schema="pet%20store" table="Pet" pkey="name">
+    <TableSearch schema="pet%20store" table="Pet">
         <template v-model="selectedItems" v-slot:rowheader="props">my row action {{props.row.name}}</template>
     </TableSearch>
 
@@ -120,8 +90,6 @@
                     v-model="selectedItems"
                     schema="pet%20store"
                     table="Pet"
-                    pkey="name"
-                    selectColumn="name"
                     :defaultValue="['pooky']"
             >
                 <template v-slot:rowheader="props">my row action {{props.row.name}}</template>

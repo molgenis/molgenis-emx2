@@ -289,7 +289,7 @@ public class TableMetadata {
     return columns.get(name);
   }
 
-  public org.jooq.Table asJooqTable() {
+  public org.jooq.Table getJooqTable() {
     return DSL.table(name(getSchemaName(), getTableName()));
   }
 

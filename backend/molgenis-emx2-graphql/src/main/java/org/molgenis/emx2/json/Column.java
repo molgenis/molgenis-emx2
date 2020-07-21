@@ -3,12 +3,15 @@ package org.molgenis.emx2.json;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
+import java.util.List;
+
 public class Column {
   private String table;
   private String name;
   private Integer key = 0;
   private Boolean nullable = false;
   private String refTable = null;
+  private List<String> refColumns = null;
 
   private Boolean cascadeDelete = false;
   private String mappedBy = null;
@@ -24,6 +27,7 @@ public class Column {
     this.key = column.getKey();
     this.columnType = column.getColumnType();
     this.refTable = column.getRefTableName();
+    this.refColumns = column.getRefColumnNames();
     this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validation = column.getValidation();
@@ -82,6 +86,10 @@ public class Column {
 
   public void setRefTable(String refTable) {
     this.refTable = refTable;
+  }
+
+  public List<String> getRefColumns() {
+    return refColumns;
   }
 
   public Boolean getCascadeDelete() {

@@ -6,18 +6,18 @@
 </template>
 
 <script>
-    import RowButtonAdd from "./RowButtonAdd";
-    import RowEditModal from "./RowEditModal.vue";
-    import IconAction from "../components/IconAction";
+import RowButtonAdd from "./RowButtonAdd";
+import RowEditModal from "./RowEditModal.vue";
+import IconAction from "../components/IconAction";
 
-    export default {
+export default {
   extends: RowButtonAdd,
   components: {
     RowEditModal,
     IconAction
   },
   props: {
-    pkey: String
+    pkey: Object
   },
   computed: {
     title() {
@@ -30,6 +30,6 @@
 <docs>
     Example
     ```
-    <RowButtonEdit schema="pet store" table="Pet" pkey="spike"/>
+    <RowButtonEdit table="Pet" :pkey="{'name':'spike'}"/>
     ```
 </docs>

@@ -41,9 +41,9 @@
 </style>
 
 <script>
-    import InputSelect from "./InputSelect";
+import InputSelect from "./InputSelect";
 
-    export default {
+export default {
   extends: InputSelect
 };
 </script>

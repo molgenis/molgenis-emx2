@@ -2,13 +2,17 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.*;
 import org.jooq.conf.ParamType;
+import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
@@ -229,7 +233,13 @@ public class SqlQueryGraphExecutor extends QueryBean {
     subSelect.select(table.getPrimaryKeys());
 
     if (select.has(COUNT_FIELD)) {
-      fields.add(field(count(field(name(table.getPrimaryKeys())))).as(COUNT_FIELD));
+      fields.add(
+          field(
+                  "count({0})",
+                  table.getPrimaryKeyFields().stream()
+                      .map(f -> f.getName().toString())
+                      .collect(Collectors.joining(",")))
+              .as(COUNT_FIELD));
     }
     if (select.has(GROUPBY_FIELD)) {
       // todo
@@ -327,13 +337,28 @@ public class SqlQueryGraphExecutor extends QueryBean {
             field(name(subAlias, ref.getTo())).eq(field(name(tableAlias, ref.getName()))));
       }
     } else if (REF_ARRAY.equals(column.getColumnType())) {
-      for (Reference ref : column.getRefColumns()) {
-        conditions.add(
-            condition(
-                ANY_SQL,
-                field(name(subAlias, ref.getTo())),
-                field(name(tableAlias, ref.getName()))));
-      }
+      String refs =
+          column.getRefColumns().stream()
+              .map(ref -> name(tableAlias, ref.getName()).toString())
+              .collect(Collectors.joining(","));
+      String to =
+          column.getRefColumns().stream()
+              .map(ref -> name(subAlias, ref.getTo()).toString())
+              .collect(Collectors.joining(","));
+      String as =
+          column.getRefColumns().stream()
+              .map(ref -> name(ref.getName()).toString())
+              .collect(Collectors.joining(","));
+      conditions.add(
+          condition(
+              "({0}) IN (SELECT * FROM UNNEST({1}) AS t({2}))",
+              keyword(to), keyword(refs), keyword(as)));
+      // keep this, may be faster for single column ref_array?
+      //            condition(
+      //                ANY_SQL,
+      //                field(name(subAlias, ref.getTo())),
+      //                field(name(tableAlias, ref.getName()))));
+
     } else if (REFBACK.equals(column.getColumnType())) {
       Column mappedBy = getMappedByColumn(column);
       if (REF.equals(mappedBy.getColumnType())) {
@@ -349,11 +374,23 @@ public class SqlQueryGraphExecutor extends QueryBean {
                   field(name(tableAlias, ref.getTo())),
                   field(name(subAlias, ref.getName()))));
         }
-      } else {
-        throw new SqlGraphQueryException(
-            "Internal error",
-            "For column " + column.getTable().getTableName() + "." + column.getName());
       }
+    } else if (MREF.equals(column.getColumnType())) {
+      String joinTable = column.getTableName() + "-" + column.getName();
+      List<Condition> where = new ArrayList<>();
+      // MTM table should match on the remote key
+      for (Reference ref : column.getRefColumns()) {
+        where.add(field(name(subAlias, ref.getTo())).eq(field(name(joinTable, ref.getName()))));
+      }
+      // MTM table should match on primary key
+      for (Column key : column.getTable().getPrimaryKeyColumns()) {
+        where.add(field(name(tableAlias, key.getName())).eq(field(name(joinTable, key.getName()))));
+      }
+      conditions.add(exists(selectFrom(name(column.getSchemaName(), joinTable)).where(where)));
+    } else {
+      throw new SqlGraphQueryException(
+          "Internal error",
+          "For column " + column.getTable().getTableName() + "." + column.getName());
     }
     return and(conditions);
   }
@@ -366,7 +403,10 @@ public class SqlQueryGraphExecutor extends QueryBean {
       Filter f = getFilterForRef(filter, column);
       if (f != null) {
         ColumnType type = column.getColumnType();
-        if (REF.equals(type) || REF_ARRAY.equals(type) || REFBACK.equals(type)) {
+        if (REF.equals(type)
+            || REF_ARRAY.equals(type)
+            || REFBACK.equals(type)
+            || MREF.equals(type)) {
           // check that subtree exists
           condition =
               mergeConditions(condition, field(name(tableAlias, column.getName())).isNotNull());
