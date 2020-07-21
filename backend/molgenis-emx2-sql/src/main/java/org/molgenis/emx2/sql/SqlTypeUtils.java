@@ -17,62 +17,6 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  //  static DataType jooqTypeOf(Column column) {
-  //    ColumnType sqlColumnType = column.getColumnType();
-  //    switch (sqlColumnType) {
-  //      case REF:
-  //        return jooqTypeOf(column.getRefColumn());
-  //      case REFBACK:
-  //      case REF_ARRAY:
-  //      case MREF:
-  //        return jooqTypeOf(column.getRefColumn()).getArrayDataType();
-  //      default:
-  //        return jooqTypeOf(sqlColumnType);
-  //    }
-  //  }
-
-  static DataType jooqTypeOf(ColumnType columnType) {
-    switch (columnType) {
-      case UUID:
-        return SQLDataType.UUID;
-      case UUID_ARRAY:
-        return SQLDataType.UUID.getArrayDataType();
-      case STRING:
-        return SQLDataType.VARCHAR(255);
-      case STRING_ARRAY:
-        return SQLDataType.VARCHAR(255).getArrayDataType();
-      case INT:
-        return SQLDataType.INTEGER;
-      case INT_ARRAY:
-        return SQLDataType.INTEGER.getArrayDataType();
-      case BOOL:
-        return SQLDataType.BOOLEAN;
-      case BOOL_ARRAY:
-        return SQLDataType.BOOLEAN.getArrayDataType();
-      case DECIMAL:
-        return SQLDataType.DOUBLE;
-      case DECIMAL_ARRAY:
-        return SQLDataType.DOUBLE.getArrayDataType();
-      case TEXT:
-        return SQLDataType.VARCHAR;
-      case TEXT_ARRAY:
-        return SQLDataType.VARCHAR.getArrayDataType();
-      case DATE:
-        return SQLDataType.DATE;
-      case DATE_ARRAY:
-        return SQLDataType.DATE.getArrayDataType();
-      case DATETIME:
-        return SQLDataType.TIMESTAMP;
-      case DATETIME_ARRAY:
-        return SQLDataType.TIMESTAMP.getArrayDataType();
-      case JSONB:
-        return SQLDataType.JSONB;
-      default:
-        // should never happen
-        throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type " + columnType);
-    }
-  }
-
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
     Collection<Object> values = new ArrayList<>();
     for (Column c : columns) {

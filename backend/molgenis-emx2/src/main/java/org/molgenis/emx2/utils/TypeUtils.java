@@ -278,12 +278,6 @@ public class TypeUtils {
     return column.getColumnType();
   }
 
-  private static Object[] listToArray(Object object) {
-    List<Object> items = (List<Object>) object;
-    Object[] result = new Object[items.size()];
-    return items.toArray(result);
-  }
-
   public static DataType toJooqType(ColumnType type) {
     switch (type) {
       case UUID:
