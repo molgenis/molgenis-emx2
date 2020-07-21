@@ -76,13 +76,13 @@ public class Emx2 {
       if (!"".equals(tableName) && "".equals(columnName.trim())) {
         TableMetadata table = model.getTableMetadata(tableName);
         table.setDescription(description);
-        extractTableDefinition(line, row, table, messages);
+        extractTableDefinition(line, row, messages);
       }
     }
   }
 
   private static void extractTableDefinition(
-      int line, Emx2FileRow row, TableMetadata table, List<MolgenisExceptionDetail> messages) {
+      int line, Emx2FileRow row, List<MolgenisExceptionDetail> messages) {
 
     Emx2PropertyList def = new Emx2PropertyList(row.getProperties());
     for (String term : def.getTerms()) {
@@ -143,18 +143,12 @@ public class Emx2 {
       }
     } else if (REF_ARRAY.equals(columnType)) {
       String refTable = def.getParameterList(REF_ARRAY).get(0);
-      String refColumn = null;
-      if (def.getParameterList(REF_ARRAY).size() > 1) {
-        refColumn = def.getParameterList(REF_ARRAY).get(1);
-      }
       table.add(column(columnName).type(REF_ARRAY).refTable(refTable));
     } else if (REFBACK.equals(columnType)) {
       // should have 2 or 3 parameters
       String refTable = def.getParameterList(REFBACK).get(0);
-      String refColumn = null;
       String mappedBy = null;
       if (def.getParameterList(REFBACK).size() == 3) {
-        refColumn = def.getParameterList(REFBACK).get(1);
         mappedBy = def.getParameterList(REFBACK).get(2);
       } else if (def.getParameterList(REFBACK).size() == 2) {
         mappedBy = def.getParameterList(REFBACK).get(1);
@@ -215,14 +209,14 @@ public class Emx2 {
 
   private static List<Emx2FileRow> convertModelToMolgenisFileRows(SchemaMetadata model) {
     List<Emx2FileRow> rows = new ArrayList<>();
-    List<String> tableNames = new ArrayList();
+    List<String> tableNames = new ArrayList<>();
     // deterministic order (TODO make user define order)
     tableNames.addAll(model.getTableNames());
     Collections.sort(tableNames);
     for (String tableName : tableNames) {
       TableMetadata table = model.getTableMetadata(tableName);
       writeTableDefinitionRow(table, rows);
-      List<String> columnNames = new ArrayList(table.getColumnNames());
+      List<String> columnNames = new ArrayList<>(table.getColumnNames());
       // deterministic order (TODO make user define order)
       Collections.sort(columnNames);
       for (String column : columnNames) {

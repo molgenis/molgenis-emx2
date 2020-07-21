@@ -8,7 +8,8 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateForeignKeysArrays {

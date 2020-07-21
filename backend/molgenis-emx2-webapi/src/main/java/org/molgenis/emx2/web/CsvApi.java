@@ -48,7 +48,7 @@ public class CsvApi {
   private static final String CSV_OUTPUT = "csvOutputType";
   private static final String META = "_meta";
 
-  private CsvApi() throws IOException {
+  private CsvApi() {
     // hide constructor
   }
 

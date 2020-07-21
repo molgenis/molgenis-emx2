@@ -78,11 +78,11 @@ public class Emx1Attribute {
     return description;
   }
 
-  public Boolean getNillable() {
+  public boolean getNillable() {
     return nillable;
   }
 
-  public Boolean getIdAttribute() {
+  public boolean getIdAttribute() {
     return idAttribute;
   }
 

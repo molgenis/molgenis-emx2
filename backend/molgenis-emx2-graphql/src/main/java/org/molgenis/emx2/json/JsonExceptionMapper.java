@@ -15,13 +15,13 @@ public class JsonExceptionMapper {
   }
 
   public static String molgenisExceptionToJson(MolgenisException e) {
-    Map map = new LinkedHashMap();
+    Map<String, String> map = new LinkedHashMap<>();
     map.put("message", e.getMessage());
 
-    List errorList = new ArrayList<>();
+    List<Map> errorList = new ArrayList<>();
     errorList.add(map);
 
-    Map error = new LinkedHashMap();
+    Map<String, List> error = new LinkedHashMap<>();
     error.put("errors", errorList);
 
     try {

@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 
 import static org.jooq.impl.DSL.*;
 

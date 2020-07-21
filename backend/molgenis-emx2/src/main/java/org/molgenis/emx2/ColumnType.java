@@ -1,8 +1,5 @@
 package org.molgenis.emx2;
 
-import org.jooq.JSONB;
-import org.jooq.tools.json.JSONObject;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -46,7 +43,7 @@ public enum ColumnType {
     this.operators = operators;
   }
 
-  public Class getType() {
+  public Class<?> getType() {
     return this.javaType;
   }
 

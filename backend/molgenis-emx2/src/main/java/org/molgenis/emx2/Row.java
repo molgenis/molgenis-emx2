@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import org.jooq.JSONB;
-import org.jooq.tools.json.JSONObject;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.time.LocalDate;

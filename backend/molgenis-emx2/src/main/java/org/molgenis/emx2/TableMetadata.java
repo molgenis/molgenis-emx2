@@ -93,7 +93,7 @@ public class TableMetadata {
         primaryKey.add(c.getName());
       }
     }
-    if (primaryKey.size() == 0) return null;
+    if (primaryKey.isEmpty()) return null;
     return primaryKey;
   }
 
@@ -214,15 +214,6 @@ public class TableMetadata {
   public void clearCache() {
     columns = new LinkedHashMap<>();
     inherit = null;
-  }
-
-  private boolean equalContents(String[] a, String[] b) {
-    if (a == null && b != null) return false;
-    if (a != null && b == null) return false;
-    if (a == b) return true;
-    ArrayList<String> one = new ArrayList<>(Arrays.asList(a));
-    ArrayList<String> two = new ArrayList<>(Arrays.asList(b));
-    return one.containsAll(two) && two.containsAll(one) && one.size() == two.size();
   }
 
   public boolean exists() {

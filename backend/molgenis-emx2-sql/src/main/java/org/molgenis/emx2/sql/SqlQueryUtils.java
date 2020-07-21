@@ -101,7 +101,7 @@ class SqlQueryUtils {
             }
           }
         }
-        if (conditions.size() > 0) {
+        if (!conditions.isEmpty()) {
           step =
               step.leftJoin(getJooqTable(column.getRefTable()).as(rightAlias))
                   .on(conditions.toArray(new Condition[conditions.size()]));

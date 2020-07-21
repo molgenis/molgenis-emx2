@@ -6,10 +6,10 @@ import org.molgenis.emx2.*;
 
 import java.util.Arrays;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestCreateMref {

@@ -2,16 +2,13 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.*;
 import org.jooq.conf.ParamType;
-import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;

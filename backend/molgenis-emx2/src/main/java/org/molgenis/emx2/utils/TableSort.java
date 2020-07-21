@@ -10,6 +10,10 @@ import static org.molgenis.emx2.ColumnType.REFBACK;
 
 public class TableSort {
 
+  private TableSort() {
+    // hide constructor
+  }
+
   public static void sortTableByDependency(List<TableMetadata> tableList) {
     ArrayList<TableMetadata> result = new ArrayList<>();
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);

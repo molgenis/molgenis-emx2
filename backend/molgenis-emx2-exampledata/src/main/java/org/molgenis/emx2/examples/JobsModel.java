@@ -7,6 +7,11 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class JobsModel {
+
+  private JobsModel() {
+    // hide constructor
+  }
+
   public static void create(SchemaMetadata schema) {
 
     schema.create(table("Jobs", column("id").pkey(), column("owner"), column("group")));

@@ -4,7 +4,6 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Table;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.TableMetadata;
 

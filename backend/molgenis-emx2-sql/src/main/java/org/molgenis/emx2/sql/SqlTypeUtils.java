@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.jooq.impl.DSL.cast;
 import static org.molgenis.emx2.sql.SqlJavascriptValidator.validateValue;
 
 public class SqlTypeUtils extends TypeUtils {

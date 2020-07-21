@@ -16,8 +16,7 @@ public class JobServiceInMemory implements JobService {
 
   public JobServiceInMemory() {
     executorService =
-        new ThreadPoolExecutor(
-            1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
   }
 
   @Override

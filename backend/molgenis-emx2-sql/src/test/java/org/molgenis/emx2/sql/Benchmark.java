@@ -1,6 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.StopWatch;
 
 import java.util.ArrayList;
