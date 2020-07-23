@@ -13,10 +13,6 @@ public class FilterBean implements Filter {
     return new FilterBean(field, filters);
   }
 
-  public static Filter f(String field, Operator equals, Object values) {
-    return new FilterBean(field).add(equals, values);
-  }
-
   public static Filter f(String field, Operator equals, Object... values) {
     return new FilterBean(field).add(equals, values);
   }
