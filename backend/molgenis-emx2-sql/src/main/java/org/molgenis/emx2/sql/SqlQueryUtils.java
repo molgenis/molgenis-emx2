@@ -9,7 +9,6 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
@@ -70,7 +69,7 @@ class SqlQueryUtils {
                 && !select.get(column.getName()).getColumNames().isEmpty())
             || (filter != null
                 && filter.has(column.getName())
-                && !filter.getColumnFilter(column.getName()).getColumnFilters().isEmpty())) {
+                && !filter.getSubfilter(column.getName()).getSubfilter().isEmpty())) {
           if (REF_ARRAY.equals(type)) {
             for (Reference ref : column.getRefColumns()) {
               conditions.add(
@@ -232,40 +231,37 @@ class SqlQueryUtils {
     for (Column column : table.getColumns()) {
       Filter f = getFilterForRef(filter, column);
       // we only filter on fields, not if the relationships
-      if (f != null && f.getColumnFilters().isEmpty()) {
+      if (f != null && f.getSubfilter().isEmpty()) {
         // add the column filter(s)
-        for (Map.Entry<org.molgenis.emx2.Operator, Object[]> entry : f.getConditions().entrySet()) {
-          // check if inherited
-          String subAlias = getSubclassAlias(table, tableAlias, column);
-          // else
+        // check if inherited
+        String subAlias = getSubclassAlias(table, tableAlias, column);
 
-          Condition subCondition = null;
-          if (column.isReference()) {
-            List<Reference> refs = column.getRefColumns();
-            if (refs.size() > 1) {
-              throw new MolgenisException(
-                  "Cannot use subquery here", "composite key " + column.getName());
-            }
-            subCondition =
-                createFilterCondition(
-                    subAlias,
-                    refs.get(0).getName(),
-                    refs.get(0).getColumnType(),
-                    entry.getKey(),
-                    entry.getValue());
-
-          } else {
-            subCondition =
-                createFilterCondition(
-                    tableAlias,
-                    column.getName(),
-                    column.getColumnType(),
-                    entry.getKey(),
-                    entry.getValue());
+        Condition subCondition = null;
+        if (column.isReference()) {
+          List<Reference> refs = column.getRefColumns();
+          if (refs.size() > 1) {
+            throw new MolgenisException(
+                "Cannot use subquery here", "composite key " + column.getName());
           }
-          if (condition != null) condition = condition.and(subCondition);
-          else condition = subCondition;
+          subCondition =
+              createFilterCondition(
+                  subAlias,
+                  refs.get(0).getName(),
+                  refs.get(0).getColumnType(),
+                  f.getOperator(),
+                  f.getValues());
+
+        } else {
+          subCondition =
+              createFilterCondition(
+                  tableAlias,
+                  column.getName(),
+                  column.getColumnType(),
+                  f.getOperator(),
+                  f.getValues());
         }
+        if (condition != null) condition = condition.and(subCondition);
+        else condition = subCondition;
       }
     }
     return condition;
@@ -277,7 +273,7 @@ class SqlQueryUtils {
   }
 
   static Filter getFilterForRef(Filter filter, Column column) {
-    if (filter != null) return filter.getColumnFilter(column.getName());
+    if (filter != null) return filter.getSubfilter(column.getName());
     return null;
   }
 
@@ -503,7 +499,7 @@ class SqlQueryUtils {
 
   static void validateFilter(TableMetadata table, Filter filter) {
     if (filter != null) {
-      for (Filter subFilter : filter.getColumnFilters()) {
+      for (Filter subFilter : filter.getSubfilter()) {
         if (table.getColumn(subFilter.getColumn()) == null) {
           throw new MolgenisException(
               QUERY_FAILED,

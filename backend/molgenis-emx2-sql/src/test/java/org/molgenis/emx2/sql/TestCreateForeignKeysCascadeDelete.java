@@ -90,7 +90,7 @@ public class TestCreateForeignKeysCascadeDelete {
     // delete of A should cascade
     try {
       aTable.delete(aRow);
-      assertEquals(0, bTable.query().getRows().size());
+      assertEquals(0, bTable.query().retrieveRows().size());
     } catch (Exception e) {
       fail("delete should cascade because cascadeDelete was set");
     }

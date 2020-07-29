@@ -247,21 +247,20 @@ class SqlTable implements Table {
   }
 
   @Override
-  public Query select(String... path) {
-    return query().select(path);
-  }
-
-  @Override
   public Query select(SelectColumn... columns) {
     return query().select(columns);
   }
 
-  @Override
-  public Query filter(String path, Operator operator, Object... values) {
-    return query().filter(path, operator, values);
+  //  @Override
+  //  public Query filter(String path, Operator operator, Object... values) {
+  //    return query().where(path, operator, values);
+  //  }
+
+  public Query where(Filter... filters) {
+    return query().where(filters);
   }
 
-  @Override
+  // @Override
   public Query search(String terms) {
     return query().search(terms);
   }
@@ -331,7 +330,7 @@ class SqlTable implements Table {
 
   @Override
   public List<Row> getRows() {
-    return this.query().getRows();
+    return this.query().retrieveRows();
   }
 
   @Override

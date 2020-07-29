@@ -15,6 +15,7 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -177,10 +178,10 @@ public class TestCreateBasicDataColumnTypeColumns {
     aTable.update(aRow);
 
     // check query
-    List<Row> result = aTable.query().filter(aColumn, EQUALS, values[0]).getRows();
+    List<Row> result = aTable.query().where(f(aColumn, EQUALS, values[0])).retrieveRows();
     assertEquals(0, result.size());
 
-    result = aTable.query().filter(aColumn, EQUALS, values[2]).getRows();
+    result = aTable.query().where(f(aColumn, EQUALS, values[2])).retrieveRows();
     assertEquals(1, result.size());
     for (Row r : result) {
       System.out.println(r);

@@ -65,15 +65,12 @@ public class TestQueryExpandIntoReferences {
     Query query1 =
         schema
             .query("Person")
-            .select("First_Name")
-            .select("Last_Name")
-            .select(s("Father").select("First_Name").select("Last_Name"))
-            .filter("Last_Name", EQUALS, "Duck")
-            .filter("Father", f("Last_Name", EQUALS, "Duck"));
+            .select(s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name")))
+            .where(f("Last_Name", EQUALS, "Duck"), f("Father", f("Last_Name", EQUALS, "Duck")));
 
     StopWatch.print("created query");
 
-    List<Row> rows = query1.getRows();
+    List<Row> rows = query1.retrieveRows();
     for (Row r : rows) {
       System.out.println(r);
     }
@@ -83,13 +80,14 @@ public class TestQueryExpandIntoReferences {
     query1 =
         schema
             .query("Person")
-            .select("First_Name")
-            .select("Last_Name")
-            .select(s("Father").select("Last_Name").select("First_Name"))
-            .filter("Last_Name", EQUALS, "Duck")
-            .filter("Father", f("Last_Name", EQUALS, "Duck"));
+            .select(
+                s("First_Name"),
+                s("Last_Name"),
+                s("Father").select("Last_Name").select("First_Name"))
+            .where(f("Last_Name", EQUALS, "Duck"))
+            .where(f("Father", f("Last_Name", EQUALS, "Duck")));
 
-    rows = query1.getRows();
+    rows = query1.retrieveRows();
     for (Row r : rows) System.out.println(r);
     assertEquals(1, rows.size());
 
@@ -108,9 +106,9 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("tables created");
 
     Query q = schema.query("Product");
-    q.select("name").select(s("components").select("name").select(s("parts").select("name")));
+    q.select(s("name"), s("components", s("name"), s("parts", s("name"))));
 
-    List<Row> rows = q.getRows();
+    List<Row> rows = q.retrieveRows();
     assertEquals(3, rows.size());
     for (Row r : rows) {
       System.out.println(r);
@@ -126,14 +124,14 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("cleared cache");
 
     Query q2 = schema.query("Product");
-    q2.select("name").select(s("components").select("name").select(s("parts").select("name")));
+    q2.select(s("name"), s("components", s("name"), s("parts", s("name"))));
 
     // todo query expansion! q2.where("components", "parts",
     // "weight").eq(50).and("name").eq("explorer", "navigator");
 
     StopWatch.print("created query (needed to get metadata from disk)");
 
-    List<Row> rows2 = q2.getRows();
+    List<Row> rows2 = q2.retrieveRows();
     assertEquals(3, rows2.size());
     for (Row r : rows2) {
       System.out.println(r);

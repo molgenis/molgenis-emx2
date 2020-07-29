@@ -96,7 +96,7 @@ public class TestCompositeForeignKeys {
             .query("Student")
             .select(
                 s("data")
-                    .select(
+                    .subselect(
                         s("firstName"),
                         s("lastName"),
                         s("uncle", s("firstName"), s("lastName")),
@@ -108,15 +108,12 @@ public class TestCompositeForeignKeys {
     //    result =
     //        schema
     //            .query("Student")
-    //            .select(s("data").select(s("firstName"), s("lastName")))
+    //            .select(s("data").subselect(s("firstName"), s("lastName")))
     //            // composite filter, should result in 'donald duck' OR 'mickey mouse'
-    //            .filter(
+    //            .where(
     //                f("uncle")
-    //                    .addCondition("firstName", EQUALS, "Donald")
-    //                    .addCondition("lastName", EQUALS, "Duck"),
-    //                f("uncle")
-    //                    .addCondition("firstName", EQUALS, "Mickey")
-    //                    .addCondition("lastName", EQUALS, "Mouse"))
+    //                        .has(f("firstName", EQUALS, "Donald",f("lastName", EQUALS, "Duck"))
+    //                        .or(f("firstName", EQUALS, "Mickey"),f("lastName", EQUALS, "Mouse")))
     //            .retrieveJSON();
 
     System.out.println(result);

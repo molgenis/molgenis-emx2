@@ -52,13 +52,13 @@ public class TestFullTextSearch {
             .setInt("year", 1977));
 
     // search in one table
-    assertEquals(1, aTable.query().search("test").getRows().size());
+    assertEquals(1, aTable.query().search("test").retrieveRows().size());
 
-    assertEquals(1, aTable.query().search("another").getRows().size());
+    assertEquals(1, aTable.query().search("another").retrieveRows().size());
 
-    assertEquals(0, aTable.query().search("test").search("another").getRows().size());
+    assertEquals(0, aTable.query().search("test").search("another").retrieveRows().size());
 
-    assertEquals(1, aTable.query().search("c.19239T>G").getRows().size());
+    assertEquals(1, aTable.query().search("c.19239T>G").retrieveRows().size());
 
     // match by position
     // assertEquals(1, aTable.query().search("19239").retrieve().size());
@@ -66,7 +66,7 @@ public class TestFullTextSearch {
     // assertEquals(1, aTable.query().search("c.19239").retrieve().size());
 
     // match by mutation
-    assertEquals(1, aTable.query().search("T>G").getRows().size());
+    assertEquals(1, aTable.query().search("T>G").retrieveRows().size());
 
     // don't match other mutation
     // assertEquals(0, aTable.query().search("c.19239T>C").getRows().size());

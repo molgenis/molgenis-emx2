@@ -1,33 +1,39 @@
 package org.molgenis.emx2;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class FilterBean implements Filter {
   private String column;
-  private Map<Operator, Object[]> conditions = new LinkedHashMap<>();
-  private Map<String, Filter> childFilters = new LinkedHashMap<>();
+  private Operator operator;
+  private Object[] values;
+  private Map<String, Filter> subFilters = new LinkedHashMap<>();
 
   public static Filter f(String columnName, Filter... filters) {
     return new FilterBean(columnName, filters);
   }
 
   public static Filter f(String columnName, Operator operator, Object... values) {
-    return new FilterBean(columnName).addCondition(operator, values);
+    return new FilterBean(columnName, operator, values);
   }
 
   public static Filter f(String columnName, Operator operator, List<Object> values) {
-    return new FilterBean(columnName).addCondition(operator, values);
+    return new FilterBean(columnName, operator, values.toArray());
+  }
+
+  public FilterBean(String columnName, Operator operator, Object[] values) {
+    this.column = columnName;
+    this.operator = operator;
+    this.values = values;
   }
 
   public FilterBean(String columnName, Filter... childFilters) {
     this.column = columnName;
     for (Filter f : childFilters) {
-      if (columnName != null && this.childFilters.get(f.getColumn()) != null) {
+      if (columnName != null && this.subFilters.get(f.getColumn()) != null) {
         throw new MolgenisException(
             "Invalid filter", "already created filter for field " + f.getColumn());
       }
-      this.childFilters.put(f.getColumn(), f);
+      this.subFilters.put(f.getColumn(), f);
     }
   }
 
@@ -37,62 +43,35 @@ public class FilterBean implements Filter {
   }
 
   @Override
-  public Filter getColumnFilter(String column) {
-    return this.childFilters.get(column);
+  public Filter getSubfilter(String column) {
+    return this.subFilters.get(column);
   }
 
   @Override
-  public Map<Operator, Object[]> getConditions() {
-    return Collections.unmodifiableMap(conditions);
-  }
-
-  @Override
-  public Filter filter(Filter... filters) {
-    for (Filter f : filters) {
-      this.childFilters.put(f.getColumn(), f);
+  public Filter subfilter(Filter... subfilters) {
+    for (Filter f : subfilters) {
+      this.subFilters.put(f.getColumn(), f);
     }
     return this;
-  }
-
-  @Override
-  public Filter filter(String columnName, Operator operator, Object... values) {
-    if (this.childFilters.get(columnName) == null) {
-      this.filter(f(columnName, operator, values));
-    } else {
-      Map<Operator, Object[]> con = this.childFilters.get(columnName).getConditions();
-      if (con.containsKey(operator)) {
-        con.put(operator, Stream.of(con.get(operator), values).flatMap(Stream::of).toArray());
-      } else {
-        this.childFilters.get(columnName).addCondition(operator, values);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public Filter filter(String columnName, Filter... subcolumnFilters) {
-    return this.filter(f(columnName, subcolumnFilters));
   }
 
   @Override
   public boolean has(String columnName) {
-    return this.childFilters.containsKey(columnName);
+    return this.subFilters.containsKey(columnName);
   }
 
   @Override
-  public Filter addCondition(Operator operator, Object... values) {
-    this.conditions.put(operator, values);
-    return this;
+  public Collection<Filter> getSubfilter() {
+    return subFilters.values();
   }
 
   @Override
-  public Filter addCondition(Operator operator, List<?> values) {
-    this.conditions.put(operator, values.toArray());
-    return this;
+  public Operator getOperator() {
+    return operator;
   }
 
   @Override
-  public Collection<Filter> getColumnFilters() {
-    return childFilters.values();
+  public Object[] getValues() {
+    return values;
   }
 }

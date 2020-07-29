@@ -84,11 +84,11 @@ public class TestQuery {
 
     Query q = s.getTable("Person").query();
     q.select(s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name")));
-    q.filter("Last_Name", EQUALS, "Duck").filter("Father", f("First_Name", EQUALS, "Donald"));
+    q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
     StopWatch.print("created query");
 
-    List<Row> rows = q.getRows();
+    List<Row> rows = q.retrieveRows();
     for (Row r : rows) {
       System.out.println(r);
     }
@@ -99,11 +99,10 @@ public class TestQuery {
     StopWatch.print("query complete");
 
     q = s.getTable("Person").query();
-    q.select("First_Name", "Last_Name")
-        .select(s("Father").select("Last_Name").select("First_Name"));
-    q.filter("Last_Name", EQUALS, "Duck").filter("Father", f("First_Name", EQUALS, "Donald"));
+    q.select(s("First_Name"), s("Last_Name"), s("Father", s("Last_Name"), s("First_Name")));
+    q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
-    rows = q.getRows();
+    rows = q.retrieveRows();
     assertEquals(3, rows.size());
 
     StopWatch.print("created query second time, to check caching effects");
@@ -119,10 +118,10 @@ public class TestQuery {
                 s("First_Name"),
                 s("Last_Name"),
                 s("Mother").select("ID", "First_Name", "Last_Name"))
-            .filter("Mother", f("ID", EQUALS, 2))
-            .setLimit(1)
-            .setOffset(1)
-            .getRows();
+            .where(f("Mother", f("ID", EQUALS, 2)))
+            .limit(1)
+            .offset(1)
+            .retrieveRows();
 
     assertEquals(1, rows.size());
     assertEquals((Integer) 2, rows.get(0).getInteger("Mother/ID"));

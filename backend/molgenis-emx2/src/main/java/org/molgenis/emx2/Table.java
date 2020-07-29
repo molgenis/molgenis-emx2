@@ -22,11 +22,11 @@ public interface Table {
 
   int delete(Iterable<Row> rows);
 
-  Query select(String... columns);
-
   Query select(SelectColumn... columns);
 
-  Query filter(String path, Operator operator, Object... values);
+  //  Query filter(String path, Operator operator, Object... values);
+
+  Query where(Filter... filters);
 
   Query search(String searchTerms);
 

@@ -1,6 +1,5 @@
 package org.molgenis.emx2;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -17,51 +16,18 @@ public class QueryBean implements Query {
 
   @Override
   public Query select(SelectColumn... columns) {
-    this.select.select(columns);
+    this.select.subselect(columns);
     return this;
   }
 
   @Override
-  public Query select(String... columns) {
-    this.select.select(columns);
+  public Query where(Filter... filters) {
+    this.filter.subfilter(filters);
     return this;
   }
 
   @Override
-  public String getColumn() {
-    return null;
-  }
-
-  @Override
-  public Map<Operator, Object[]> getConditions() {
-    return filter.getConditions();
-  }
-
-  @Override
-  public Filter getColumnFilter(String column) {
-    return filter.getColumnFilter(column);
-  }
-
-  @Override
-  public Query filter(Filter... filters) {
-    this.filter.filter(filters);
-    return this;
-  }
-
-  @Override
-  public Query filter(String columnName, Operator operator, Object... values) {
-    this.filter.filter(columnName, operator, values);
-    return this;
-  }
-
-  @Override
-  public Query filter(String name, Filter... filters) {
-    this.filter.filter(name, filters);
-    return this;
-  }
-
-  @Override
-  public List<Row> getRows() {
+  public List<Row> retrieveRows() {
     throw new UnsupportedOperationException();
   }
 
@@ -70,24 +36,9 @@ public class QueryBean implements Query {
     throw new UnsupportedOperationException();
   }
 
-  @Override
+  //  @Override
   public boolean has(String columnName) {
     return this.filter.has(columnName);
-  }
-
-  @Override
-  public Filter addCondition(Operator operator, Object... values) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Filter addCondition(Operator operator, List<?> values) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Collection<Filter> getColumnFilters() {
-    return this.filter.getColumnFilters();
   }
 
   @Override
@@ -102,18 +53,13 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public Query select(Collection<String> columns) {
-    return this.select(columns.toArray(new String[0]));
-  }
-
-  @Override
-  public Query setLimit(int limit) {
+  public Query limit(int limit) {
     this.select.setLimit(limit);
     return this;
   }
 
   @Override
-  public Query setOffset(int offset) {
+  public Query offset(int offset) {
     this.select.setOffset(offset);
     return this;
   }
@@ -134,7 +80,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public void setOrderBy(Map<String, Order> values) {
+  public void orderBy(Map<String, Order> values) {
     this.select.setOrderBy(values);
   }
 

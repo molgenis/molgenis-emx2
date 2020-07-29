@@ -133,7 +133,7 @@ public class TestBatchRequestsForSpeed {
 
     // queryOld
     Query q = schema.getTable(PERSON).query();
-    StopWatch.print("QueryOld ", q.getRows().size());
+    StopWatch.print("QueryOld ", q.retrieveRows().size());
 
     // delete
     personTableReloaded.delete(rows);

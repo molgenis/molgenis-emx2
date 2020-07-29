@@ -110,17 +110,17 @@ public class TestExtends {
         (Integer) 1000000,
         employeeTable
             .query()
-            .select("salary")
-            .filter("fullName", EQUALS, "Dagobert Duck")
-            .getRows()
+            .select(s("salary"))
+            .where(f("fullName", EQUALS, "Dagobert Duck"))
+            .retrieveRows()
             .get(0)
             .getInteger("salary"));
 
     // TODO test RLS
 
     // test search
-    assertEquals(1, personTable.search("Dagobert").getRows().size());
-    assertEquals(1, employeeTable.search("Dagobert").getRows().size());
+    assertEquals(1, personTable.search("Dagobert").retrieveRows().size());
+    assertEquals(1, employeeTable.search("Dagobert").retrieveRows().size());
 
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));
@@ -143,7 +143,7 @@ public class TestExtends {
     result =
         ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
-            .filter(f("directs", f("fullName", LIKE, "Pietje")))
+            .where(f("directs", f("fullName", LIKE, "Pietje")))
             .retrieveJSON();
     System.out.println(result);
     assertFalse(result.contains("Katrien"));
@@ -151,7 +151,7 @@ public class TestExtends {
     result =
         ceoTable
             .select(s("data", s("fullName"), s("salary"), s("directs", s("fullName"))))
-            .filter(f("directs", f("fullName", LIKE, "Katrien")))
+            .where(f("directs", f("fullName", LIKE, "Katrien")))
             .retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlTableMutationFields.getPrimaryKeyInput;
 
@@ -53,7 +54,7 @@ public class GraphqlTableQueryFields {
       Query q = table.query();
       q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
-        q.filter(
+        q.where(
             convertMapToFilterArray(
                 table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
@@ -337,7 +338,7 @@ public class GraphqlTableQueryFields {
           || ColumnType.REF_ARRAY.equals(type)
           || ColumnType.REFBACK.equals(type)) {
         subFilters.add(
-            FilterBean.f(
+            f(
                 c.getName(),
                 convertMapToFilterArray(
                     table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
@@ -356,16 +357,19 @@ public class GraphqlTableQueryFields {
   }
 
   private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {
-    Filter f = FilterBean.f(name);
+    int count = 0;
     for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
+      count++;
+      if (count > 1)
+        throw new MolgenisException("Can only have one operator, found multiple for " + name, "");
       Operator op = Operator.fromAbbreviation(entry2.getKey());
       if (entry2.getValue() instanceof List) {
-        f.addCondition(op, (List) entry2.getValue());
+        return f(name, op, (List) entry2.getValue());
       } else {
-        f.addCondition(op, entry2.getValue());
+        return f(name, op, entry2.getValue());
       }
     }
-    return f;
+    return null;
   }
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */

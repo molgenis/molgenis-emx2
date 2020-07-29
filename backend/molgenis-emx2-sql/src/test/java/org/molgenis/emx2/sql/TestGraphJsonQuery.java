@@ -127,7 +127,7 @@ public class TestGraphJsonQuery {
 
     StopWatch.print("complete");
 
-    s.filter(
+    s.where(
         f("name", EQUALS, "opa1"),
         f("children", f("children", f("name", EQUALS, "kind")), f("name", EQUALS, "ma")));
 
@@ -135,7 +135,7 @@ public class TestGraphJsonQuery {
     System.out.println(result);
     assertTrue(result.contains("opa1"));
 
-    s.filter(f("children", f("children", f("name", EQUALS, "kind"))));
+    s.where(f("children", f("children", f("name", EQUALS, "kind"))));
     result = s.retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("kind"));
@@ -162,7 +162,7 @@ public class TestGraphJsonQuery {
 
     s = schema.getTable("Person").query();
     s.select(s("data", s("name")));
-    s.filter(f("name", TRIGRAM_SEARCH, "opa"));
+    s.where(f("name", TRIGRAM_SEARCH, "opa"));
 
     result = s.retrieveJSON();
     System.out.println();

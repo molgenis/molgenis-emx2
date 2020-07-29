@@ -8,23 +8,16 @@ public interface Filter {
 
   String getColumn();
 
-  Map<Operator, Object[]> getConditions();
+  Operator getOperator();
 
-  Filter getColumnFilter(String column);
+  /** will be 'or' for each value * */
+  Object[] getValues();
 
-  Collection<Filter> getColumnFilters();
+  Filter getSubfilter(String column);
 
-  // Filter addCondition(String refColumn, Operator operator, Object... values);
+  Collection<Filter> getSubfilter();
 
-  Filter addCondition(Operator operator, Object... values);
-
-  Filter addCondition(Operator operator, List<?> values);
-
-  Filter filter(Filter... filters);
-
-  Filter filter(String refColumnName, Operator operator, Object... values);
-
-  Filter filter(String refColumnName, Filter... refFilters);
+  Filter subfilter(Filter... subfilters);
 
   boolean has(String columnName);
 }

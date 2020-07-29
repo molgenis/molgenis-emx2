@@ -97,14 +97,14 @@ public class TestRefBack {
     query =
         products
             .select(s("data", s("parts_agg", s("count"))))
-            .filter(f("productname").addCondition(EQUALS, "bigphone"));
+            .where(f("productname", EQUALS, "bigphone"));
 
     assertTrue(query.retrieveJSON().contains("\"count\":3"));
 
     query =
         parts
             .select(s("data", s("products_agg", s("count"))))
-            .filter(f("partname").addCondition(EQUALS, "battery"));
+            .where(f("partname", EQUALS, "battery"));
 
     assertTrue(query.retrieveJSON().contains("\"count\":2"));
 
@@ -146,7 +146,7 @@ public class TestRefBack {
     users.update(new Row().set("username", "jack").set("posts", "joes post"));
 
     // check via query we have now post for jack
-    assertEquals(1, posts.query().filter("user", EQUALS, "jack").getRows().size());
+    assertEquals(1, posts.query().where(f("user", EQUALS, "jack")).retrieveRows().size());
 
     // add another post for jack, now the 'posts' should be updated also
     posts.insert(new Row().set("title", "jacks post").set("user", "jack"));
@@ -156,15 +156,15 @@ public class TestRefBack {
         2,
         users
             .query()
-            .filter("username", EQUALS, "jack")
-            .getRows()
+            .where(f("username", EQUALS, "jack"))
+            .retrieveRows()
             .get(0)
             .getStringArray("posts")
             .length);
 
     // check filter on posts
     assertEquals(
-        1, users.query().filter("posts", f("title", EQUALS, "jacks post")).getRows().size());
+        1, users.query().where(f("posts", f("title", EQUALS, "jacks post"))).retrieveRows().size());
 
     // check graph query
     Query query = users.select(s("data_agg", s("count")));
@@ -173,13 +173,11 @@ public class TestRefBack {
     query =
         users
             .select(s("data", s("username"), s("posts", s("title"))))
-            .filter(f("posts", f("title", EQUALS, "jacks post")));
+            .where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("jacks post"));
 
     query =
-        users
-            .select(s("data_agg", s("count")))
-            .filter(f("posts", f("title", EQUALS, "jacks post")));
+        users.select(s("data_agg", s("count"))).where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("\"count\":1"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading
@@ -199,8 +197,8 @@ public class TestRefBack {
         1,
         users
             .query()
-            .filter("username", EQUALS, "jack")
-            .getRows()
+            .where(f("username", EQUALS, "jack"))
+            .retrieveRows()
             .get(0)
             .getStringArray("posts")
             .length);

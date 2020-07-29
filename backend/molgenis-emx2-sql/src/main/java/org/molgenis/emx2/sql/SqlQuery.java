@@ -14,7 +14,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public List<Row> getRows() {
+  public List<Row> retrieveRows() {
     return SqlQueryRowsExecutor.getRows(table, getSelect(), getFilter(), getSearchTerms());
   }
 

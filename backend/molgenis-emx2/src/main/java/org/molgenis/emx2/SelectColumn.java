@@ -82,7 +82,7 @@ public class SelectColumn {
     return orderBy;
   }
 
-  public SelectColumn select(SelectColumn... selects) {
+  public SelectColumn subselect(SelectColumn... selects) {
     for (SelectColumn select : selects) {
       this.children.put(select.getColumn(), select);
     }

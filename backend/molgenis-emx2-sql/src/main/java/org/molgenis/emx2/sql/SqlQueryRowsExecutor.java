@@ -128,7 +128,7 @@ class SqlQueryRowsExecutor {
       if (filter != null
           && column.isReference()
           && filter.has(column.getName())
-          && !filter.getColumnFilter(column.getName()).getColumnFilters().isEmpty()) {
+          && !filter.getSubfilter(column.getName()).getSubfilter().isEmpty()) {
         // filters are on columns of the ref
         condition =
             mergeConditions(

@@ -11,6 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -98,7 +99,7 @@ public class TestCreateArrayDataTypes {
     tableA.update(aRow);
 
     // check query
-    List<Row> result = tableA.query().filter(aFieldName, EQUALS, values[0]).getRows();
+    List<Row> result = tableA.query().where(f(aFieldName, EQUALS, values[0])).retrieveRows();
     assertEquals(1, result.size());
     for (Row r : result) {
       if (DATETIME_ARRAY.equals(columnType)) {

@@ -4,40 +4,29 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface Query extends Filter {
+public interface Query { // extends Filter {
 
   Query select(SelectColumn... columns);
 
-  Query select(String... columns);
-
-  Query select(Collection<String> columns);
+  Query where(Filter... filters);
 
   Query search(String... terms);
 
-  @Override
-  Query filter(Filter... filters);
+  Query limit(int limit);
 
-  @Override
-  Query filter(String columName, Filter... subfilters);
+  Query offset(int offset);
 
-  @Override
-  Query filter(String columnName, Operator operator, Object... values);
+  void orderBy(Map<String, Order> values);
 
-  List<Row> getRows();
+  List<Row> retrieveRows();
 
   String retrieveJSON();
-
-  Query setLimit(int limit);
-
-  Query setOffset(int offset);
 
   Filter getFilter();
 
   SelectColumn getSelect();
 
   String[] getSearchTerms();
-
-  void setOrderBy(Map<String, Order> values);
 
   Map<String, Order> getOrderBy();
 }
