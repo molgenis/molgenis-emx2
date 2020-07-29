@@ -140,7 +140,7 @@ td {
         };
     </script>
     ```
-    Example using simple click
+    Example using simple click (no selection)
     ```
     <template>
         <div>
@@ -151,16 +151,10 @@ td {
                     :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
                     @click="click"
             />
-            SelectedItems: {{selectedItems}}
         </div>
     </template>
     <script>
         export default {
-            data: function () {
-                return {
-                    selectedItems: []
-                };
-            },
             methods: {
                 click(value) {
                     alert("click " + JSON.stringify(value));

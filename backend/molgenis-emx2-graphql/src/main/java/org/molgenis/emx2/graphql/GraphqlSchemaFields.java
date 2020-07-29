@@ -375,6 +375,10 @@ public class GraphqlSchemaFields {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INHERIT)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(

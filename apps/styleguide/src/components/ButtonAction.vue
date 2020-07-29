@@ -19,8 +19,19 @@ export default {
 <docs>
     Example
 
-    ```jsx
-    <ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
+    ```
+    <template>
+        <ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
+    </template>
+    <script>
+        export default {
+            methods: {
+                alert(text) {
+                    alert(text);
+                }
+            }
+        }
+    </script>
     ```
 
 </docs>

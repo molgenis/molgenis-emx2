@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
+import static org.molgenis.emx2.graphql.GraphqlTableMutationFields.getPrimaryKeyInput;
 
 public class GraphqlTableQueryFields {
 
@@ -230,6 +231,11 @@ public class GraphqlTableQueryFields {
     GraphQLInputObjectType.Builder filterBuilder =
         GraphQLInputObjectType.newInputObject()
             .name(table.getTableName() + GraphqlConstants.FILTER);
+    filterBuilder.field(
+        GraphQLInputObjectField.newInputObjectField()
+            .name("_byPrimaryKey")
+            .type(GraphQLList.list(getPrimaryKeyInput(table)))
+            .build());
     for (Column col : table.getColumns()) {
       ColumnType type = col.getColumnType();
       if (ColumnType.REF.equals(type)
@@ -354,9 +360,9 @@ public class GraphqlTableQueryFields {
     for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
       Operator op = Operator.fromAbbreviation(entry2.getKey());
       if (entry2.getValue() instanceof List) {
-        f.add(op, (List) entry2.getValue());
+        f.addCondition(op, (List) entry2.getValue());
       } else {
-        f.add(op, entry2.getValue());
+        f.addCondition(op, entry2.getValue());
       }
     }
     return f;

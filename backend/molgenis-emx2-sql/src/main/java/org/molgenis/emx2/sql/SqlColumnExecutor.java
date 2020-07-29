@@ -5,7 +5,6 @@ import org.jooq.Field;
 import org.jooq.Table;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Reference;
-import org.molgenis.emx2.TableMetadata;
 
 import java.util.List;
 
@@ -48,24 +47,17 @@ public class SqlColumnExecutor {
       case MREF:
       case REFBACK:
         for (Reference ref : column.getRefColumns()) {
-          executeSetNullable(jooq, column.getJooqTable(), ref.asJooqField(), isNullable);
+          executeSetNullable(
+              jooq, column.getJooqTable(), ref.asJooqField(), ref.isNullable() || isNullable);
         }
         break;
       default:
-        executeSetNullable(jooq, column.getJooqTable(), column.asJooqField(), isNullable);
+        executeSetNullable(jooq, column.getJooqTable(), column.getJooqField(), isNullable);
     }
-  }
-
-  public static TableMetadata getRefTable(Column column) {
-    return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
   }
 
   public static String getJoinTableName(Column column) {
     return column.getTable().getTableName() + "-" + column.getName();
-  }
-
-  protected static Column getMappedByColumn(Column column) {
-    return getRefTable(column).getColumn(column.getMappedBy());
   }
 
   static void executeAlterNameAndType(DSLContext jooq, Column oldColumn, Column newColumn) {
@@ -83,19 +75,19 @@ public class SqlColumnExecutor {
         }
       } else if (oldColumn.isReference()) {
         Field oldField = oldColumn.getRefColumns().get(0).asJooqField();
-        alterField(jooq, table, oldField, newColumn.asJooqField(), getPsqlType(newColumn));
+        alterField(jooq, table, oldField, newColumn.getJooqField(), getPsqlType(newColumn));
       } else {
         Field newField = newColumn.getRefColumns().get(0).asJooqField();
         String postgresType = getPsqlType(newColumn.getRefColumns().get(0).getColumnType());
-        alterField(jooq, table, oldColumn.asJooqField(), newField, postgresType);
+        alterField(jooq, table, oldColumn.getJooqField(), newField, postgresType);
       }
     } else {
       alterField(
-          jooq, table, oldColumn.asJooqField(), newColumn.asJooqField(), getPsqlType(newColumn));
+          jooq, table, oldColumn.getJooqField(), newColumn.getJooqField(), getPsqlType(newColumn));
     }
   }
 
-  private static void alterField(
+  static void alterField(
       DSLContext jooq, Table table, Field oldField, Field newField, String postgresType) {
     // change name
     if (!oldField.getName().equals(newField.getName())) {
@@ -118,7 +110,7 @@ public class SqlColumnExecutor {
     }
   }
 
-  public static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
+  static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
     if ((REF.equals(oldColumn.getColumnType()) || REF_ARRAY.equals(oldColumn.getColumnType()))
         && (REF.equals(newColumn.getColumnType()) || REF_ARRAY.equals(newColumn.getColumnType()))) {
       for (Column check : oldColumn.getRefTable().getColumns()) {
@@ -151,7 +143,7 @@ public class SqlColumnExecutor {
         jooq.alterTable(column.getJooqTable()).addColumn(ref.asJooqField()).execute();
       }
     } else {
-      jooq.alterTable(column.getJooqTable()).addColumn(column.asJooqField()).execute();
+      jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
     }
     // create the column
 
@@ -209,9 +201,5 @@ public class SqlColumnExecutor {
       default:
     }
     executeSetNullable(jooq, column, true);
-  }
-
-  static String getSchemaName(Column column) {
-    return column.getTable().getSchema().getName();
   }
 }

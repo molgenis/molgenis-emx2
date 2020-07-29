@@ -14,8 +14,8 @@
       </li>
       <li class="page-item">
         <a class="page-link" href="#"
-          >{{ (page - 1) * limit + 1 }} -
-          {{ Math.min(count, page * limit + 1) }} of {{ count }}</a
+          >{{ (page - 1) * limit + 1 }} - {{ Math.min(count, page * limit) }} of
+          {{ count }}</a
         >
       </li>
       <li class="page-item">
@@ -32,6 +32,7 @@
         >
       </li>
     </ul>
+    {{ page }}
   </nav>
 </template>
 
@@ -39,7 +40,8 @@
 export default {
   props: {
     count: Number,
-    limit: { type: Number, default: 10 }
+    limit: { type: Number, default: 10 },
+    defaultValue: { type: Number, default: 1 }
   },
   data: function() {
     return {
@@ -58,13 +60,51 @@ export default {
     page() {
       this.$emit("input", this.page);
     }
+  },
+  created() {
+    if (this.defaultValue) {
+      this.page = this.defaultValue;
+    }
+    this.$emit("input", this.page);
   }
 };
 </script>
 
 <docs>
-Example
-```
-<Pagination :count="29"/>
-```
+    Example
+    ```
+    <template>
+        <div>
+            <Pagination v-model="page" :count="29"/>
+            page = {{page}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    page: null
+                }
+            }
+        }
+    </script>
+    ```
+    Example with default and limit
+    ```
+    <template>
+        <div>
+            <Pagination v-model="page" :count="29" :limit="5" :defaultValue="page"/>
+            page = {{page}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    page: 3
+                }
+            }
+        }
+    </script>
+    ```
 </docs>

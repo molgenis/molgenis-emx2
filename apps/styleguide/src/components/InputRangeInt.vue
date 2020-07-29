@@ -86,7 +86,7 @@ export default {
       } else {
         this.value = Array.isArray(this.arrayValue[0])
           ? this.arrayValue[0].map(v =>
-              !v || v.length === 0 || !v.trim() ? null : v
+              !v || v.length === 0 || !String(v).trim() ? null : v
             )
           : null;
       }
@@ -102,6 +102,42 @@ export default {
     ```
     <template>
         <div>
+            <InputRangeInt v-model="value"/>
+            {{JSON.stringify(value)}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    value: null
+                }
+            }
+        }
+    </script>
+    ```
+    Example with default
+    ```
+    <template>
+        <div>
+            <InputRangeInt v-model="value"/>
+            {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    value: [1, 2]
+                }
+            }
+        }
+    </script>
+    ```
+    Example list
+    ```
+    <template>
+        <div>
             <InputRangeInt :list="true" v-model="value"/>
             {{value}}
         </div>
@@ -110,13 +146,13 @@ export default {
         export default {
             data() {
                 return {
-                    value: []
+                    value: null
                 }
             }
         }
     </script>
     ```
-    Example with default
+    Example with list and default
     ```
     <template>
         <div>

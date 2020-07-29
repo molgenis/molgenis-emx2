@@ -17,7 +17,6 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
@@ -126,21 +125,18 @@ class SqlQueryRowsExecutor {
 
     // create filters for nested filters into join
     for (Column column : table.getColumns()) {
-      if (filter != null && filter.has(column.getName())) {
-        ColumnType type = column.getColumnType();
-
-        if (column.isReference()
-            && filter.has(column.getName())
-            && !filter.getFilter(column.getName()).getSubfilters().isEmpty()) {
-          // filters are on columns of the ref
-          condition =
-              mergeConditions(
-                  condition,
-                  createWheres(
-                      column.getRefTable(),
-                      tableAlias + "/" + column.getName(),
-                      getFilterForRef(filter, column)));
-        }
+      if (filter != null
+          && column.isReference()
+          && filter.has(column.getName())
+          && !filter.getColumnFilter(column.getName()).getColumnFilters().isEmpty()) {
+        // filters are on columns of the ref
+        condition =
+            mergeConditions(
+                condition,
+                createWheres(
+                    column.getRefTable(),
+                    tableAlias + "/" + column.getName(),
+                    getFilterForRef(filter, column)));
       }
     }
     return condition;
@@ -165,7 +161,6 @@ class SqlQueryRowsExecutor {
   }
 
   private static Field<Object[]> createMrefSubselect(Column column, String tableAlias) {
-    // BIG TODO
     Column reverseToColumn = column.getTable().getPrimaryKeyColumns().get(0);
     // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
     // mappedBy
@@ -184,7 +179,7 @@ class SqlQueryRowsExecutor {
   }
 
   static SelectConditionStep createBackrefSubselect(Column column, String tableAlias) {
-    Column mappedBy = getMappedByColumn(column);
+    Column mappedBy = column.getMappedByColumn();
     List<Field> select = new ArrayList<>();
     List<Condition> where = new ArrayList<>();
     for (Reference ref : mappedBy.getRefColumns()) {

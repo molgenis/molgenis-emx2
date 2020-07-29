@@ -16,3 +16,9 @@
 <script>
 export default {};
 </script>
+
+<docs>
+    ```
+    <Footer/>
+    ```
+</docs>

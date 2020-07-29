@@ -73,10 +73,23 @@ export default {
   methods: {
     renderValue(value) {
       if (typeof value === "object" && value !== null) {
-        return Object.values(value).join(" ");
+        return this.flattenObject(value);
       } else {
         return value;
       }
+    },
+    flattenObject(object) {
+      let result = "";
+      Object.keys(object).forEach(key => {
+        if (object[key] === null) {
+          //nothing
+        } else if (typeof object[key] === "object") {
+          result += this.flattenObject(object[key]);
+        } else {
+          result += " " + object[key];
+        }
+      });
+      return result;
     },
     remove(idx, idx2) {
       this.filters[idx].conditions.splice(idx2, 1);

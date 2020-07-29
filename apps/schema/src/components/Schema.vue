@@ -29,17 +29,17 @@
         <table class="table table-hover">
           <tbody v-for="table in tables" :key="table.name">
             <tr>
-              <td colspan="3">
+              <td colspan="4">
                 <h1 :id="table.name">
                   {{ table.name }}
                   <IconBar class="hover">
                     <!--IconAction
-                                                      icon="edit"
-                                                      @click="
-                                                        currentTable = table;
-                                                        tableAdd = true;
-                                                      "
-                                                    /-->
+                                                                                                                      icon="edit"
+                                                                                                                      @click="
+                                                                                                                        currentTable = table;
+                                                                                                                        tableAdd = true;
+                                                                                                                      "
+                                                                                                                    /-->
                     <IconDanger
                       icon="trash"
                       @click="
@@ -250,7 +250,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_schema{name, tables{name,description,columns{name,columnType,key,refTable,mappedBy,cascadeDelete,nullable,description}}}}"
+        "{_schema{name,tables{name,inherit,description,columns{name,columnType,key,refTable,mappedBy,cascadeDelete,nullable,description}}}}"
       )
         .then(data => {
           this.schema = data._schema.name;
@@ -298,7 +298,11 @@ export default {
       let res = "http://yuml.me/diagram/scruffy;dir:lr/class/";
       // classes
       this.tables.forEach(table => {
+        if (table.inherit) {
+          res += `[${table.inherit}]^-`;
+        }
         res += `[${table.name}`;
+
         if (Array.isArray(table.columns) && this.showAttributes) {
           res += "|";
           table.columns.forEach(column => {

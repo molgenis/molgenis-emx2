@@ -15,7 +15,21 @@ export default {
 <docs>
     Example
     ```
-    <InputBoolean label="My first boolean" help="do you need some boolean help?"/>
+    <template>
+        <div>
+            <InputBoolean v-model="value" label="My first boolean" help="do you need some boolean help?"/>
+            value: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    value: null
+                }
+            }
+        }
+    </script>
     ```
     Example with defaultValue
     ```
@@ -30,7 +44,7 @@ export default {
         export default {
             data() {
                 return {
-                    value: false
+                    value: true
                 }
             }
         }

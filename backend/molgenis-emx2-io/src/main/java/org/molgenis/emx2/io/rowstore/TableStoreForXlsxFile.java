@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
+import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
@@ -151,34 +152,44 @@ public class TableStoreForXlsxFile implements TableStore {
                 + name
                 + " failed: column index "
                 + cell.getColumnIndex()
-                + " has no column name and contains value "
-                + cell.getStringCellValue());
+                + " has no column name and contains value '"
+                + cell.getStringCellValue()
+                + "'");
       }
 
-      switch (cell.getCellType()) {
-        case STRING:
-          row.set(colName, cell.getRichStringCellValue().getString());
-          break;
-        case NUMERIC:
-          if (DateUtil.isCellDateFormatted(cell)) {
-            row.setDate(
-                colName,
-                cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-          } else {
-            row.setDecimal(colName, cell.getNumericCellValue());
-          }
-          break;
-        case BOOLEAN:
-          row.setBool(colName, cell.getBooleanCellValue());
-          break;
-        case FORMULA:
-          throw new IOException("formula's not supported");
-        case BLANK:
-          break;
-        default:
+      if (cell.getCellType().equals(FORMULA)) {
+        convertCellToRowValue(row, cell, cell.getCachedFormulaResultType(), colName);
+      } else {
+        convertCellToRowValue(row, cell, cell.getCellType(), colName);
       }
     }
     return row;
+  }
+
+  private void convertCellToRowValue(Row row, Cell cell, CellType cellType, String colName) {
+    switch (cellType) {
+      case STRING:
+        row.set(colName, cell.getRichStringCellValue().getString());
+        break;
+      case NUMERIC:
+        if (DateUtil.isCellDateFormatted(cell)) {
+          row.setDate(
+              colName,
+              cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        } else {
+          row.setDecimal(colName, cell.getNumericCellValue());
+        }
+        break;
+      case BOOLEAN:
+        row.setBool(colName, cell.getBooleanCellValue());
+        break;
+      case FORMULA:
+        throw new UnsupportedOperationException(
+            "Found formula in Excel file; should not happen in this function");
+      case BLANK:
+        row.set(colName, null);
+        break;
+    }
   }
 
   @Override

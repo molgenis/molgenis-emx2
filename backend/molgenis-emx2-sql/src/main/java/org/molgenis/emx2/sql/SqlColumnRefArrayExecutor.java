@@ -248,7 +248,7 @@ class SqlColumnRefArrayExecutor {
 
     String errorColumns =
         column.getRefColumns().stream()
-            .map(r -> "error_row." + name(r.getTo()).toString())
+            .map(r -> "COALESCE(error_row." + name(r.getTo()).toString() + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 
     jooq.execute(
@@ -262,7 +262,7 @@ class SqlColumnRefArrayExecutor {
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;",
         // 0
-        name(SqlColumnExecutor.getSchemaName(column), functionName),
+        name(column.getSchemaName(), functionName),
         // 1
         keyword(newFromColumns),
         // 2

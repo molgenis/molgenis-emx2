@@ -20,7 +20,7 @@ export default {
       type: Boolean,
       default: false
     },
-    /** wheter input is readonly (default: false) */
+    /** whether input is readonly (default: false) */
     readonly: {
       type: Boolean,
       default: false
@@ -38,7 +38,9 @@ export default {
     clear: {
       type: Boolean,
       default: true
-    }
+    },
+    /** parse function, such as parseInt to type value*/
+    parser: Function
   },
   data() {
     return {
@@ -76,12 +78,17 @@ export default {
   },
   methods: {
     emitValue() {
+      //list type
       if (this.list) {
         //else continue
         this.value = this.arrayValue.map(v =>
           !v || v.length === 0 || !String(v).trim() ? null : v
         );
         this.value = this.value.filter(el => el != undefined);
+        if (this.parser != null) {
+          this.value = this.value.map(v => this.parser(v));
+        }
+        //singular value
       } else {
         this.value = this.arrayValue[0];
         if (
@@ -91,8 +98,10 @@ export default {
         ) {
           this.value = null;
         }
+        if (this.parser != null) {
+          this.value = this.parser(this.value);
+        }
       }
-      console.log("EMITVALUE: " + JSON.stringify(this.value));
       this.$emit("input", this.value);
     },
     addRow() {

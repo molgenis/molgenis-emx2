@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class TestGrantRolesToUsers {
   private static Database database;
 
   @BeforeClass
-  public static void setUp() throws SQLException {
+  public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
   }
 

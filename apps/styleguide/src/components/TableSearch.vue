@@ -8,7 +8,7 @@
       <MolgenisTable
         v-else
         v-model="selectedItems"
-        :metadata="metadata"
+        :metadata="tableMetadata"
         :data="data"
         @select="select"
         @deselect="deselect"
@@ -21,7 +21,21 @@
         </template>
       </MolgenisTable>
     </div>
-    {{ data }}
+    <ShowMore title="debug info">
+      <pre>
+graphql =
+{{ graphql }}
+
+selectedItems =
+{{ selectedItems }}
+
+data =
+{{ data }}
+          
+schema =
+{{ schema }}
+      </pre>
+    </ShowMore>
   </div>
 </template>
 
@@ -32,14 +46,16 @@ import MessageError from "./MessageError";
 import InputSearch from "./InputSearch";
 import Pagination from "./Pagination.vue";
 import Spinner from "./Spinner.vue";
+import ShowMore from "./ShowMore";
 
 export default {
-  extends: TableMixin,
+  mixins: [TableMixin],
   props: {
     defaultValue: Array,
     selectColumn: String
   },
   components: {
+    ShowMore,
     MolgenisTable,
     MessageError,
     InputSearch,
@@ -77,9 +93,10 @@ export default {
 <docs>
     Example:
     ```
-    <TableSearch schema="pet%20store" table="Pet">
+    <TableSearch table="Code">
         <template v-model="selectedItems" v-slot:rowheader="props">my row action {{props.row.name}}</template>
     </TableSearch>
+    Selected: {{selectedItems}}
 
     ```
     Example with select and default value
@@ -88,7 +105,6 @@ export default {
         <div>
             <TableSearch
                     v-model="selectedItems"
-                    schema="pet%20store"
                     table="Pet"
                     :defaultValue="['pooky']"
             >

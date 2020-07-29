@@ -14,10 +14,20 @@ export default {};
 <docs>
     Example
     ```
-    <IconBar>
-        <IconDanger icon="trash
-    "/>
-        <IconAction icon="edit"/>
-    </IconBar>
+    <template>
+        <IconBar>
+            <IconDanger icon="trash" @click="alert('clicked trash')"/>
+            <IconAction icon="edit" @click="alert('clicked edit')"/>
+        </IconBar>
+    </template>
+    <script>
+        export default {
+            methods: {
+                alert(text) {
+                    alert(text)
+                }
+            }
+        }
+    </script>
     ```
 </docs>

@@ -4,12 +4,10 @@ import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.InsertOnDuplicateSetStep;
 import org.jooq.InsertValuesStepN;
-import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,10 +19,10 @@ import static org.molgenis.emx2.ColumnType.*;
 
 class SqlTable implements Table {
   private SqlDatabase db;
-  private TableMetadata metadata;
+  private SqlTableMetadata metadata;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
-  SqlTable(SqlDatabase db, TableMetadata metadata) {
+  SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
     this.db = db;
     this.metadata = metadata;
   }
@@ -35,7 +33,7 @@ class SqlTable implements Table {
   }
 
   @Override
-  public TableMetadata getMetadata() {
+  public SqlTableMetadata getMetadata() {
     return metadata;
   }
 
@@ -59,7 +57,7 @@ class SqlTable implements Table {
             for (Column c : getMetadata().getMutationColumns()) {
               fieldNames.add(c.getName());
               columns.add(c);
-              fields.add(c.asJooqField());
+              fields.add(c.getJooqField());
             }
 
             // keep batchsize smaller to limit memory footprint
@@ -83,7 +81,7 @@ class SqlTable implements Table {
               count.set(count.get() + step.execute());
             }
           });
-    } catch (DataAccessException e) {
+    } catch (Exception e) {
       throw new SqlMolgenisException("Insert into table '" + getName() + "' failed.", e);
     }
 
@@ -136,9 +134,7 @@ class SqlTable implements Table {
               // to compare if columns change between rows
               Collection<String> rowFields = new ArrayList<>();
               for (Column c : tableMetadata.getMutationColumns()) {
-                if (c != null
-                    && c.getTableName().equals(getName())
-                    && row.getColumnNames().contains(c.getName())) {
+                if (c != null && row.containsName(c.getName())) {
                   rowFields.add(c.getName());
                 }
               }
@@ -161,7 +157,7 @@ class SqlTable implements Table {
               if (fieldNames.isEmpty()) {
                 for (Column c : tableMetadata.getMutationColumns()) {
                   if (rowFields.contains(c.getName())) {
-                    fields.add(c.asJooqField());
+                    fields.add(c.getJooqField());
                     columns.add(c);
                     fieldNames.add(c.getName());
                   }
@@ -176,7 +172,7 @@ class SqlTable implements Table {
             // execute the remaining batch
             updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
           });
-    } catch (DataAccessException e) {
+    } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
 
@@ -241,7 +237,7 @@ class SqlTable implements Table {
             }
             deleteBatch(batch);
           });
-    } catch (DataAccessException e) {
+    } catch (Exception e) {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
     }
 
@@ -261,10 +257,11 @@ class SqlTable implements Table {
   }
 
   @Override
-  public Query filter(String path, Operator operator, Serializable... values) {
+  public Query filter(String path, Operator operator, Object... values) {
     return query().filter(path, operator, values);
   }
 
+  @Override
   public Query search(String terms) {
     return query().search(terms);
   }
@@ -321,14 +318,15 @@ class SqlTable implements Table {
       // do nothing
     } else {
       columnCondition.add(
-          key.asJooqField().eq(cast(r.get(key.getName(), key.getColumnType()), key.asJooqField())));
+          key.getJooqField()
+              .eq(cast(r.get(key.getName(), key.getColumnType()), key.getJooqField())));
     }
     return and(columnCondition);
   }
 
   @Override
   public Query query() {
-    return new SqlQuery((SqlTableMetadata) this.getMetadata());
+    return new SqlQuery(this.getMetadata());
   }
 
   @Override

@@ -22,8 +22,19 @@ export default {
 <docs>
     Example
 
-    ```jsx
-    <IconAction icon="times"/>
+    ```
+    <template>
+        <IconAction icon="times" @click="alert('clicked')"/>
+    </template>
+    <script>
+        export default {
+            methods: {
+                alert(text) {
+                    alert(text)
+                }
+            }
+        }
+    </script>
     ```
 
 </docs>

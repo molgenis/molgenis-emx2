@@ -7,6 +7,13 @@ export default {
   props: {
     placeholder: {
       default: "Enter integer (does not accept A-Za-z,.)"
+    },
+    parser: {
+      default() {
+        return value => {
+          return parseInt(value);
+        };
+      }
     }
   },
   methods: {
@@ -34,7 +41,28 @@ export default {
                 <InputInt v-model="value" label="My int input label" help="Some help needed?"/>
             </LayoutForm>
             <br/>
-            You typed: {{value}}
+            You typed: {{JSON.stringify(value)}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: null
+                };
+            }
+        };
+    </script>
+    ```
+    Example list
+    ```
+    <template>
+        <div>
+            <LayoutForm>
+                <InputInt :list="true" v-model="value" label="My int input label" help="Some help needed?"/>
+            </LayoutForm>
+            <br/>
+            You typed: {{JSON.stringify(value)}}
         </div>
     </template>
     <script>

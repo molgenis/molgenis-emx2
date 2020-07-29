@@ -33,7 +33,6 @@ export default {
     },
     closeForm() {
       this.open = false;
-      alert("close emit");
       this.$emit("close");
     }
   }
@@ -43,6 +42,6 @@ export default {
 <docs>
     Example
     ```
-    <RowButtonAdd table="Pet"/>
+    <RowButtonAdd table="Code"/>
     ```
 </docs>

@@ -10,13 +10,13 @@ import org.molgenis.emx2.utils.TypeUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
@@ -54,6 +54,7 @@ class SqlQueryUtils {
       String leftAlias,
       SelectColumn select,
       Filter filter) {
+
     // create inheritance joins
     createInheritanceJoin(table, leftAlias, step);
 
@@ -69,7 +70,7 @@ class SqlQueryUtils {
                 && !select.get(column.getName()).getColumNames().isEmpty())
             || (filter != null
                 && filter.has(column.getName())
-                && !filter.getFilter(column.getName()).getSubfilters().isEmpty())) {
+                && !filter.getColumnFilter(column.getName()).getColumnFilters().isEmpty())) {
           if (REF_ARRAY.equals(type)) {
             for (Reference ref : column.getRefColumns()) {
               conditions.add(
@@ -84,7 +85,7 @@ class SqlQueryUtils {
                   field(name(leftAlias, ref.getName())).eq(field(name(rightAlias, ref.getTo()))));
             }
           } else if (REFBACK.equals(type)) {
-            Column mappedBy = getMappedByColumn(column);
+            Column mappedBy = column.getMappedByColumn();
             if (REF.equals(mappedBy.getColumnType())) {
               for (Reference ref : mappedBy.getRefColumns()) {
                 conditions.add(
@@ -123,23 +124,27 @@ class SqlQueryUtils {
       if (fromTable.getPrimaryKeys() == null) {
         throw new MolgenisException(QUERY_FAILED, "Search failed because no primary key was set");
       }
-      // BIG TODO THIS IS NOT CORRECT
-      List<Field> pkey = new ArrayList<>();
-      for (String pkeyPart : fromTable.getPrimaryKeys()) {
-        pkey.add(field(name(fromAlias, pkeyPart)));
-      }
-      // create subquery
-      SelectJoinStep sub =
-          fromTable.getJooq().select(pkey).from(getJooqTable(fromTable).as(fromAlias));
-      sub = createJoins(sub, fromTable, fromAlias, select, null);
-      List<Condition> pkeyConditions = new ArrayList<>();
-      for (Field pkeyField : pkey) {
-        pkeyConditions.add(
-            pkeyField.in(
-                sub.where(createFiltersForSearch(fromTable, fromAlias, select, searchTerms))));
-      }
 
-      return and(pkeyConditions);
+      // select primary keys
+      List<Field> pkey =
+          fromTable.getPrimaryKeyFields().stream()
+              .map(f -> field(name(fromAlias, f.getName())))
+              .collect(Collectors.toList());
+      SelectJoinStep subselect =
+          fromTable.getJooq().select(pkey).from(getJooqTable(fromTable).as(fromAlias));
+
+      // join to other tables involved
+      subselect = createJoins(subselect, fromTable, fromAlias, select, null);
+
+      // add the filter clause
+      subselect.where(createFiltersForSearch(fromTable, fromAlias, select, searchTerms));
+
+      // return as filter that ids must be in this subselect
+      String in =
+          pkey.stream()
+              .map(f -> name(fromAlias, f.getName()).toString())
+              .collect(Collectors.joining(","));
+      return condition("({0}) IN ({1})", keyword(in), subselect);
     }
     return null;
   }
@@ -163,10 +168,6 @@ class SqlQueryUtils {
                   "word_similarity({0},{1}) > 0.6",
                   subTerm, field(name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME))));
         }
-        //          condition(
-        //              "to_tsvector({0}) @@ to_tsquery('" + term.trim() + ":*')",
-        //              name(tableAlias, MG_TEXT_SEARCH_COLUMN_NAME)));
-        //    }
       }
     }
     Condition searchCondition = and(local);
@@ -202,8 +203,19 @@ class SqlQueryUtils {
     while (inherit != null) {
       String subTableAlias = tableAlias + "+" + inherit.getTableName();
       List<Condition> conditions = new ArrayList<>();
-      for (String pkeyPart : table.getPrimaryKeys()) {
-        conditions.add(field(name(tableAlias, pkeyPart)).eq(field(name(subTableAlias, pkeyPart))));
+      // we only join on pkey we have in common with parent!
+      for (Column pkeyPart : table.getInheritedTable().getPrimaryKeyColumns()) {
+        if (pkeyPart.isReference()) {
+          for (Reference ref : pkeyPart.getRefColumns()) {
+            conditions.add(
+                field(name(tableAlias, ref.getName()))
+                    .eq(field(name(subTableAlias, ref.getName()))));
+          }
+        } else {
+          conditions.add(
+              field(name(tableAlias, pkeyPart.getName()))
+                  .eq(field(name(subTableAlias, pkeyPart.getName()))));
+        }
       }
 
       from =
@@ -220,7 +232,7 @@ class SqlQueryUtils {
     for (Column column : table.getColumns()) {
       Filter f = getFilterForRef(filter, column);
       // we only filter on fields, not if the relationships
-      if (f != null && f.getSubfilters().isEmpty()) {
+      if (f != null && f.getColumnFilters().isEmpty()) {
         // add the column filter(s)
         for (Map.Entry<org.molgenis.emx2.Operator, Object[]> entry : f.getConditions().entrySet()) {
           // check if inherited
@@ -265,7 +277,7 @@ class SqlQueryUtils {
   }
 
   static Filter getFilterForRef(Filter filter, Column column) {
-    if (filter != null) return filter.getFilter(column.getName());
+    if (filter != null) return filter.getColumnFilter(column.getName());
     return null;
   }
 
@@ -294,7 +306,6 @@ class SqlQueryUtils {
         return createOrdinalFilter(name, operator, toDateArray(values));
       case DATETIME:
         return createOrdinalFilter(name, operator, toDateTimeArray(values));
-        // todo improve filters for arrays
       case STRING_ARRAY:
       case TEXT_ARRAY:
         return createTextArrayFilter(name, operator, toStringArray(values));
@@ -313,7 +324,7 @@ class SqlQueryUtils {
       case JSONB_ARRAY:
         return createArrayEqualsFilter(name, operator, toJsonbArray(values));
       default:
-        throw new SqlGraphQueryException(
+        throw new SqlQueryGraphException(
             QUERY_FAILED,
             "Filter of '"
                 + name
@@ -331,7 +342,7 @@ class SqlQueryUtils {
     } else if (NOT_EQUALS.equals(operator)) {
       return not(field(columnName).in(values));
     } else {
-      throw new SqlGraphQueryException(
+      throw new SqlQueryGraphException(
           QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
     }
   }
@@ -349,7 +360,7 @@ class SqlQueryUtils {
         conditions.add(condition("{0} && {1}", values, field(columnName)));
         break;
       default:
-        throw new SqlGraphQueryException(
+        throw new SqlQueryGraphException(
             QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
     }
     if (not) return not(or(conditions));
@@ -395,7 +406,7 @@ class SqlQueryUtils {
                   value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
           break;
         default:
-          throw new SqlGraphQueryException(
+          throw new SqlQueryGraphException(
               QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
@@ -433,7 +444,7 @@ class SqlQueryUtils {
                   value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
           break;
         default:
-          throw new SqlGraphQueryException(
+          throw new SqlQueryGraphException(
               QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
@@ -453,7 +464,7 @@ class SqlQueryUtils {
         case NOT_BETWEEN:
           not = true;
           if (i + 1 > values.length)
-            throw new SqlGraphQueryException(
+            throw new SqlQueryGraphException(
                 QUERY_FAILED, BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           if (values[i] != null && values[i + 1] != null) {
             conditions.add(field(columnName).notBetween(values[i], values[i + 1]));
@@ -468,7 +479,7 @@ class SqlQueryUtils {
           break;
         case BETWEEN:
           if (i + 1 > values.length)
-            throw new SqlGraphQueryException(
+            throw new SqlQueryGraphException(
                 QUERY_FAILED, BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           if (values[i] != null && values[i + 1] != null) {
             conditions.add(field(columnName).between(values[i], values[i + 1]));
@@ -482,7 +493,7 @@ class SqlQueryUtils {
           i++; // NOSONAR
           break;
         default:
-          throw new SqlGraphQueryException(
+          throw new SqlQueryGraphException(
               QUERY_FAILED, OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, operator, columnName);
       }
     }
@@ -492,12 +503,12 @@ class SqlQueryUtils {
 
   static void validateFilter(TableMetadata table, Filter filter) {
     if (filter != null) {
-      for (Filter subFilter : filter.getSubfilters()) {
-        if (table.getColumn(subFilter.getField()) == null) {
+      for (Filter subFilter : filter.getColumnFilters()) {
+        if (table.getColumn(subFilter.getColumn()) == null) {
           throw new MolgenisException(
               QUERY_FAILED,
               "Filter column '"
-                  + subFilter.getField()
+                  + subFilter.getColumn()
                   + "' unknown in table '"
                   + table.getTableName()
                   + "'");

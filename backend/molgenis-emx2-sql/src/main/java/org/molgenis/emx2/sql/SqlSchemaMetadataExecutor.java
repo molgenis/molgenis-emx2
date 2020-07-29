@@ -94,7 +94,6 @@ class SqlSchemaMetadataExecutor {
       }
 
       // give god powers if 'owner'
-      // todo would like not to have give god owners, instead use elevated privileges of some sort
       if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
         jooq.execute("ALTER ROLE {0} CREATEROLE", name(username));
       }

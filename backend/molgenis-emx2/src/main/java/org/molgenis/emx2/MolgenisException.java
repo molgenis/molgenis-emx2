@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** compatible with https://tools.ietf.org/html/rfc7807 but we use 'message' in stead of 'detail' */
 public class MolgenisException extends RuntimeException {
   private final String title;
   private final String message;

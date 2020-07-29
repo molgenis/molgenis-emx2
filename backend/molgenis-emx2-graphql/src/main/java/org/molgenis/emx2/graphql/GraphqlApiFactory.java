@@ -7,10 +7,7 @@ import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.graphql.GraphqlAccountFields.*;
 import static org.molgenis.emx2.graphql.GraphqlManifestField.queryVersionField;
 
@@ -96,62 +94,67 @@ public class GraphqlApiFactory {
     return result;
   }
 
-  static Iterable<Row> convertToRows(List<Map<String, Object>> map) {
+  static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
     List<Row> rows = new ArrayList<>();
-    for (Map<String, Object> row : map) {
-      Row r = new Row();
-      for (Map.Entry<String, Object> entry : row.entrySet()) {
-        // map
-        if (entry.getValue() instanceof Map) {
-          convertMapToRow(r, entry);
-        }
-        // list
-        else if (entry.getValue() instanceof List) {
-          List list = (List) entry.getValue();
-          // list of maps becomes map of lists
-          if (list.size() > 0 && list.get(0) instanceof Map) {
-            // map of lists
-            Map<String, List> values = new LinkedHashMap<>();
-            for (Map<String, Object> value : (List<Map<String, Object>>) list) {
-              for (Map.Entry<String, Object> subValue : value.entrySet()) {
-                String key =
-                    value.size() == 1 ? entry.getKey() : entry.getKey() + "-" + subValue.getKey();
-                if (values.get(key) == null) {
-                  values.put(key, new ArrayList<>());
-                }
-                if (subValue.getValue() instanceof List) {
-                  values.get(key).addAll((List) subValue.getValue());
-                } else {
-                  values.get(key).add(subValue.getValue());
-                }
-              }
-            }
-            for (Map.Entry<String, List> value : values.entrySet()) {
-              r.set(value.getKey(), value.getValue());
-            }
+    for (Map<String, Object> object : map) {
+      Row row = new Row();
+      for (Column column : metadata.getColumns()) {
+        if (object.containsKey(column.getName())) {
+          if (column.isReference() && REF.equals(column.getColumnType())) {
+            convertRefToRow(
+                (Map<String, Object>) object.get(column.getName()), row, column, column.getName());
+          } else if (column.isReference()) {
+            convertRefArrayToRow(
+                (List<Map<String, Object>>) object.get(column.getName()),
+                row,
+                column,
+                column.getName());
+          } else {
+            row.set(column.getName(), object.get(column.getName()));
           }
-          // otherwise simply add the list to the key
-          else {
-            r.set(entry.getKey(), list);
-          }
-          // primitive value
-        } else {
-          r.set(entry.getKey(), entry.getValue());
         }
       }
-      rows.add(r);
+      rows.add(row);
     }
     return rows;
   }
 
-  private static void convertMapToRow(Row r, Map.Entry<String, Object> entry) {
-    for (Map.Entry<String, Object> ref : ((Map<String, Object>) entry.getValue()).entrySet()) {
-      // only if multiple keys, we will use subkey names
-      String key =
-          ((Map<String, Object>) entry.getValue()).size() == 1
-              ? entry.getKey()
-              : entry.getKey() + "-" + ref.getKey();
-      r.set(key, ref.getValue());
+  private static void convertRefArrayToRow(
+      List<Map<String, Object>> list, Row row, Column column, String prefix) {
+    List<Column> fkeys = column.getRefTable().getPrimaryKeyColumns();
+
+    for (Map<String, Object> value : list) {
+      for (Column fkey : fkeys) {
+        String name = prefix + (fkeys.size() > 1 ? "-" + fkey.getName() : "");
+        // create lists if missing
+        if (row.getValueMap().get(name) == null) {
+          row.getValueMap().put(name, new ArrayList<>());
+        }
+        // add value or null if missing
+        if (value.get(fkey.getName()) == null) {
+          ((List) row.getValueMap().get(name)).add(null);
+        }
+        if (fkey.isReference()) {
+          throw new UnsupportedOperationException("TODO");
+        } else {
+          ((List) row.getValueMap().get(name)).add(value.get(fkey.getName()));
+        }
+      }
+    }
+  }
+
+  private static void convertRefToRow(
+      Map<String, Object> value, Row row, Column column, String prefix) {
+    List<Column> fkeys = column.getRefTable().getPrimaryKeyColumns();
+    for (Column fkey : fkeys) {
+      String name = prefix + (fkeys.size() > 1 ? "-" + fkey.getName() : "");
+      if (value == null) {
+        row.set(name, null);
+      } else if (fkey.isReference()) {
+        convertRefToRow((Map<String, Object>) value.get(fkey.getName()), row, fkey, name);
+      } else {
+        row.set(name, value.get(fkey.getName()));
+      }
     }
   }
 

@@ -16,7 +16,7 @@ module.exports = {
   webpackConfig: {
     devServer: {
       proxy: {
-        "/graphql": "http://localhost:8080/pet%20store"
+        "/graphql": "http://localhost:8080/TestCohortCatalogue"
       }
     }
   },
@@ -56,6 +56,10 @@ module.exports = {
     {
       name: "Molecules",
       components: "src/molecules/[A-Z]*.vue"
+    },
+    {
+      name: "Mixins",
+      components: "src/mixins/[A-Z]*.vue"
     }
     // {
     //   name: 'Organisms',

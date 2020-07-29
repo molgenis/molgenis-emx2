@@ -39,6 +39,9 @@ public class TestGraphqSchemaFields {
     // simple
     TestCase.assertEquals("pooky", execute("{Pet{data{name}}}").at("/Pet/data/0/name").textValue());
 
+    TestCase.assertEquals(
+        "pooky", execute("{Pet{data{name}data_agg{count}}}").at("/Pet/data/0/name").textValue());
+
     // simple ref
     JsonNode result = execute("{Pet{data{name,category{name}}}}");
     TestCase.assertEquals("cat", result.at("/Pet/data/0/category/name").textValue());

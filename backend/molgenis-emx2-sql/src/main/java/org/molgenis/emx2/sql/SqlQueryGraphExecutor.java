@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getMappedByColumn;
 import static org.molgenis.emx2.sql.SqlQueryUtils.*;
 
 /**
@@ -172,10 +171,13 @@ public class SqlQueryGraphExecutor extends QueryBean {
 
         // if a relationship but NOT the inheritance relationship (pkey)
         if ((REF.equals(column.getColumnType())
-                || REF_ARRAY.equals(column.getColumnType())
-                || REFBACK.equals(column.getColumnType())
-                || MREF.equals(column.getColumnType()))
-            && (table.getInherit() == null || !table.getPrimaryKeys().contains(column.getName()))) {
+            || REF_ARRAY.equals(column.getColumnType())
+            || REFBACK.equals(column.getColumnType())
+            || MREF.equals(column.getColumnType()))
+        //            && (table.getInherit() == null
+        //                || !(table.getPrimaryKeys().contains(column.getName()))
+        //                    && column.getRefTable().equals(column.getTable().getInherit()))
+        ) {
           fields.add(
               createSelectionFieldForRef(
                       column,
@@ -230,13 +232,7 @@ public class SqlQueryGraphExecutor extends QueryBean {
     subSelect.select(table.getPrimaryKeys());
 
     if (select.has(COUNT_FIELD)) {
-      fields.add(
-          field(
-                  "count({0})",
-                  table.getPrimaryKeyFields().stream()
-                      .map(f -> f.getName().toString())
-                      .collect(Collectors.joining(",")))
-              .as(COUNT_FIELD));
+      fields.add(count().as(COUNT_FIELD));
     }
     if (select.has(GROUPBY_FIELD)) {
       // todo
@@ -357,7 +353,7 @@ public class SqlQueryGraphExecutor extends QueryBean {
       //                field(name(tableAlias, ref.getName()))));
 
     } else if (REFBACK.equals(column.getColumnType())) {
-      Column mappedBy = getMappedByColumn(column);
+      Column mappedBy = column.getMappedByColumn();
       if (REF.equals(mappedBy.getColumnType())) {
         for (Reference ref : mappedBy.getRefColumns()) {
           conditions.add(
@@ -385,7 +381,7 @@ public class SqlQueryGraphExecutor extends QueryBean {
       }
       conditions.add(exists(selectFrom(name(column.getSchemaName(), joinTable)).where(where)));
     } else {
-      throw new SqlGraphQueryException(
+      throw new SqlQueryGraphException(
           "Internal error",
           "For column " + column.getTable().getTableName() + "." + column.getName());
     }

@@ -264,4 +264,12 @@ public class Row {
     builder.append(")");
     return builder.toString();
   }
+
+  public boolean containsName(String columnName) {
+    return values.containsKey(columnName);
+  }
+
+  public boolean notNull(String columnName) {
+    return values.get(columnName) != null;
+  }
 }

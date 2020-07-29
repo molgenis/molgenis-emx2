@@ -5,8 +5,8 @@
   </div>
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="metadata && (pkey == null || defaultValue)">
-        <span v-for="column in metadata.columns" :key="column.name">
+      <LayoutForm v-if="tableMetadata && (pkey == null || defaultValue)">
+        <span v-for="column in tableMetadata.columns" :key="column.name">
           <RowFormInput
             v-model="value[column.name]"
             :label="column.name"
@@ -19,15 +19,19 @@
           />
         </span>
       </LayoutForm>
-      defaultValue={{ JSON.stringify(defaultValue) }}
-      <br />
-      value={{ JSON.stringify(value) }}
-      <br />
-      data={{ JSON.stringify(data) }}
-      <br />
-      graphql = {{ JSON.stringify(graphql) }}
-      <br />
-      filter = {{ JSON.stringify(filter) }}
+      <ShowMore title="debug">
+        <pre>
+defaultValue={{ JSON.stringify(defaultValue) }}
+
+value={{ JSON.stringify(value) }}
+
+data={{ JSON.stringify(data) }}
+
+graphql = {{ JSON.stringify(graphql) }}
+
+filter = {{ JSON.stringify(filter) }}
+        </pre>
+      </ShowMore>
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -48,10 +52,11 @@ import ButtonAlt from "../components/ButtonAlt.vue";
 import SigninForm from "./SigninForm";
 import TableMixin from "../mixins/TableMixin";
 import RowFormInput from "./RowFormInput.vue";
+import ShowMore from "../components/ShowMore";
 import { request } from "graphql-request";
 
 export default {
-  mixins: [TableMixin],
+  extends: TableMixin,
   data: function() {
     return {
       showLogin: false,
@@ -73,7 +78,8 @@ export default {
     LayoutModal,
     MessageError,
     MessageSuccess,
-    SigninForm
+    SigninForm,
+    ShowMore
   },
   methods: {
     loginSuccess() {
@@ -85,7 +91,7 @@ export default {
       this.error = null;
       this.success = null;
       // todo spinner
-      let name = this.metadata.name;
+      let name = this.table;
       let variables = { value: [this.value] };
       let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
       if (this.pkey) {
@@ -113,8 +119,8 @@ export default {
         });
     },
     validate() {
-      if (this.metadata.columns) {
-        this.metadata.columns.forEach(column => {
+      if (this.tableMetadata) {
+        this.tableMetadata.columns.forEach(column => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
             //this.value[column.name] = undefined;
@@ -146,8 +152,8 @@ export default {
     // override from tableMixin
     filter() {
       let result = {};
-      if (this.metadata.columns && this.pkey) {
-        this.metadata.columns
+      if (this.tableMetadata && this.pkey) {
+        this.tableMetadata.columns
           .filter(c => c.key == 1)
           .map(c => (result[c.name] = { equals: this.pkey[c.name] }));
       }
@@ -155,9 +161,9 @@ export default {
     },
     title() {
       if (this.pkey) {
-        return `update ${this.metadata.name}`;
+        return `update ${this.table}`;
       } else {
-        return `insert ${this.metadata.name}`;
+        return `insert ${this.table}`;
       }
     }
   },
@@ -166,7 +172,7 @@ export default {
       if (val && val.length > 0) {
         let data = val[0];
         let defaultValue = {};
-        this.metadata.columns.forEach(column => {
+        this.tableMetadata.columns.forEach(column => {
           if (data[column.name]) {
             defaultValue[column.name] = data[column.name];
           }

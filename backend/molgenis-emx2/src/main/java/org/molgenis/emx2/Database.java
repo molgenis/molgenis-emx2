@@ -4,23 +4,17 @@ import java.util.Collection;
 
 public interface Database {
 
-  // transactions
-
   void tx(Transaction transaction);
-
-  // schema management
 
   Schema createSchema(String name);
 
-  /* get Schema names without retrieving all schema contents*/
-  Collection<String> getSchemaNames();
-
-  Schema getSchema(String name);
+  Schema dropCreateSchema(String testBatch);
 
   void dropSchema(String name);
 
-  // user management
-  // todo might needs its own interface
+  Collection<String> getSchemaNames();
+
+  Schema getSchema(String name);
 
   void addUser(String name);
 
@@ -32,8 +26,6 @@ public interface Database {
 
   void removeUser(String name);
 
-  // session management
-
   void setActiveUser(String username);
 
   String getActiveUser();
@@ -42,15 +34,9 @@ public interface Database {
 
   void grantCreateSchema(String user);
 
-  // change listener
-
   void setListener(DatabaseListener listener);
 
   DatabaseListener getListener();
 
-  // brute force empty cache
-
   void clearCache();
-
-  Schema dropCreateSchema(String testBatch);
 }

@@ -10,6 +10,10 @@ public class SqlMolgenisException extends MolgenisException {
     super(getTitle(dae), getDetail(dae), dae);
   }
 
+  public SqlMolgenisException(String title, Exception e) {
+    super(title, e);
+  }
+
   public SqlMolgenisException(String title, DataAccessException dae) {
     super(title, getTitle(dae) + "." + getDetail(dae), dae);
   }

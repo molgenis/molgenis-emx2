@@ -10,7 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
 
 public class TestTypeUtils {
 
@@ -40,11 +41,6 @@ public class TestTypeUtils {
         (Object[]) TypeUtils.getTypedValue(new String[] {b[0].toString(), b[1].toString()}, type));
     assertArrayEquals(c, (Object[]) TypeUtils.getTypedValue(c, type));
     assertNull((Object[]) TypeUtils.getTypedValue(null, type));
-    try {
-      Object value = TypeUtils.getTypedValue("", type);
-      fail("should have thrown exception, instead found: " + value);
-    } catch (Exception e) {
-      // aok
-    }
+    assertNull(TypeUtils.getTypedValue("", type));
   }
 }

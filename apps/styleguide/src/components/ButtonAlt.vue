@@ -17,10 +17,21 @@ export default {
 </script>
 
 <docs>
-Example
+    Example
 
-```
-<ButtonAlt v-on:click="action('cancel')">Cancel</ButtonAlt>
-```
+    ```
+    <template>
+        <ButtonAlt v-on:click="alert('cancel clicked')">Cancel</ButtonAlt>
+    </template>
+    <script>
+        export default {
+            methods: {
+                alert(text) {
+                    alert(text);
+                }
+            }
+        }
+    </script>
+    ```
 
 </docs>

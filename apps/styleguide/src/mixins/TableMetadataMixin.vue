@@ -1,17 +1,19 @@
 <template>
-  <div>nothing</div>
+  <ShowMore>
+    <pre>error = {{ error }}</pre>
+    <pre>user = {{ user }}</pre>
+    <pre>schema = {{ schema }}</pre>
+  </ShowMore>
 </template>
 
 <script>
 import { request } from "graphql-request";
 
 export default {
-  props: {
-    table: String
-  },
   data: function() {
     return {
-      metadata: {},
+      user: null,
+      schema: null,
       loading: true,
       error: null
     };
@@ -21,14 +23,11 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_schema{tables{name,columns{name,columnType,key,refTable,refColumns,cascadeDelete,nullable}}}}"
+        "{_user{email}_schema{name,tables{name,columns{name,columnType,key,refTable,cascadeDelete,nullable}}}}"
       )
         .then(data => {
-          data._schema.tables.forEach(element => {
-            if (element.name === this.table) {
-              this.metadata = element;
-            }
-          });
+          this.user = data._user;
+          this.schema = data._schema;
           this.loading = false;
         })
         .catch(error => {
@@ -37,11 +36,14 @@ export default {
         });
     }
   },
-  watch: {
-    table: "reloadMetadata"
-  },
   created() {
     this.reloadMetadata();
   }
 };
 </script>
+
+<docs>
+    ```
+    <TableMetadataMixin/>
+    ```
+</docs>

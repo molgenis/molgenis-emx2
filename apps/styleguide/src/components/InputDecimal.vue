@@ -7,6 +7,14 @@ export default {
   props: {
     placeholder: {
       default: "enter decimal (does not accept A-Za-z,)"
+    },
+    //for outputing not string but floats
+    parser: {
+      default() {
+        return value => {
+          return parseFloat(value);
+        };
+      }
     }
   },
   methods: {

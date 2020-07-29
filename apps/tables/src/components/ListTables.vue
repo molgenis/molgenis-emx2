@@ -5,12 +5,21 @@
     <MessageError v-if="!schema"
       >No tables found. Might you need to login?
     </MessageError>
-    <DataTable
-      v-else
-      :columns="['name', 'description']"
-      :rows="schema.tables"
-      @click="open"
-    />
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+        </tr>
+      </thead>
+      <tr v-for="table in schema.tables" :key="table.name">
+        <td>
+          <router-link :to="table.name">{{ table.name }}</router-link>
+        </td>
+        <td>{{ table.description }}</td>
+      </tr>
+    </table>
+
     STATE FOR DEBUG<br />
     molgenis =
     {{ JSON.stringify(molgenis) }}
@@ -28,11 +37,6 @@ export default {
   components: {
     DataTable,
     MessageError
-  },
-  methods: {
-    open(value) {
-      this.$router.push(value.name);
-    }
   },
   props: {
     molgenis: Object,

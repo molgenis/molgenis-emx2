@@ -1,6 +1,5 @@
 package org.molgenis.emx2;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -16,17 +15,20 @@ public class QueryBean implements Query {
     this.filter = new FilterBean(null);
   }
 
-  public Query select(SelectColumn... select) {
-    this.select.select(select);
+  @Override
+  public Query select(SelectColumn... columns) {
+    this.select.select(columns);
     return this;
   }
 
-  public Query select(String... select) {
-    this.select.select(select);
+  @Override
+  public Query select(String... columns) {
+    this.select.select(columns);
     return this;
   }
 
-  public String getField() {
+  @Override
+  public String getColumn() {
     return null;
   }
 
@@ -35,20 +37,24 @@ public class QueryBean implements Query {
     return filter.getConditions();
   }
 
-  public Filter getFilter(String name) {
-    return filter.getFilter(name);
+  @Override
+  public Filter getColumnFilter(String column) {
+    return filter.getColumnFilter(column);
   }
 
+  @Override
   public Query filter(Filter... filters) {
     this.filter.filter(filters);
     return this;
   }
 
-  public Query filter(String columnName, Operator operator, Serializable... values) {
+  @Override
+  public Query filter(String columnName, Operator operator, Object... values) {
     this.filter.filter(columnName, operator, values);
     return this;
   }
 
+  @Override
   public Query filter(String name, Filter... filters) {
     this.filter.filter(name, filters);
     return this;
@@ -64,28 +70,27 @@ public class QueryBean implements Query {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public boolean has(String columnName) {
     return this.filter.has(columnName);
   }
 
-  public Filter add(Operator operator, Object... values) {
-    throw new UnsupportedOperationException();
-  }
-
-  public Filter add(Operator operator, List<?> values) {
+  @Override
+  public Filter addCondition(Operator operator, Object... values) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Filter filter(String columnName, Map<Operator, Object[]> conditions) {
-    return this.filter.filter(columnName, conditions);
+  public Filter addCondition(Operator operator, List<?> values) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public Collection<Filter> getSubfilters() {
-    return this.filter.getSubfilters();
+  public Collection<Filter> getColumnFilters() {
+    return this.filter.getColumnFilters();
   }
 
+  @Override
   public Query search(String... terms) {
     if (this.searchTerms == null || this.searchTerms.length == 0) {
       this.searchTerms = terms;
@@ -96,15 +101,18 @@ public class QueryBean implements Query {
     return this;
   }
 
-  public Query select(Collection<String> columnNames) {
-    return this.select(columnNames.toArray(new String[0]));
+  @Override
+  public Query select(Collection<String> columns) {
+    return this.select(columns.toArray(new String[0]));
   }
 
+  @Override
   public Query setLimit(int limit) {
     this.select.setLimit(limit);
     return this;
   }
 
+  @Override
   public Query setOffset(int offset) {
     this.select.setOffset(offset);
     return this;

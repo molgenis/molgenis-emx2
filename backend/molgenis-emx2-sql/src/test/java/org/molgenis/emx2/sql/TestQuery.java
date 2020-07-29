@@ -99,8 +99,7 @@ public class TestQuery {
     StopWatch.print("query complete");
 
     q = s.getTable("Person").query();
-    q.select("First_Name")
-        .select("Last_Name")
+    q.select("First_Name", "Last_Name")
         .select(s("Father").select("Last_Name").select("First_Name"));
     q.filter("Last_Name", EQUALS, "Duck").filter("Father", f("First_Name", EQUALS, "Donald"));
 
@@ -119,8 +118,8 @@ public class TestQuery {
                 s("ID"),
                 s("First_Name"),
                 s("Last_Name"),
-                s("Mother", s("ID"), s("First_Name"), s("Last_Name")))
-            .filter(f("Mother", f("ID", EQUALS, 2)))
+                s("Mother").select("ID", "First_Name", "Last_Name"))
+            .filter("Mother", f("ID", EQUALS, 2))
             .setLimit(1)
             .setOffset(1)
             .getRows();

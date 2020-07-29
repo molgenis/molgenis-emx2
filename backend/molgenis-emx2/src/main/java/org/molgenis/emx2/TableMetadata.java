@@ -52,7 +52,7 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
-    for (Column c : metadata.getLocalColumns()) {
+    for (Column c : metadata.columns.values()) {
       this.columns.put(c.getName(), new Column(this, c));
     }
     this.inherit = metadata.getInherit();
@@ -67,28 +67,27 @@ public class TableMetadata {
   }
 
   public List<Column> getColumns() {
-    ArrayList<Column> result = new ArrayList<>();
+    Map<String, Column> result = new LinkedHashMap<>();
     if (inherit != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
-        result.add(new Column(col.getTable(), col));
+        result.put(col.getName(), new Column(col.getTable(), col));
       }
-
-      // ignore primary key from child class because that is same as in inheritedTable
-      for (Column col : getLocalColumns()) {
-        if (getInherit() == null || getInheritedTable().getColumn(col.getName()) == null) {
-          result.add(new Column(col.getTable(), col));
-        }
-      }
-    } else {
-      return getLocalColumns();
     }
-    return Collections.unmodifiableList(result);
+
+    // ignore primary key from child class because that is same as in inheritedTable
+    for (Column col : getLocalColumns()) {
+      if (!result.containsKey(col.getName())) {
+        result.put(col.getName(), new Column(col.getTable(), col));
+      }
+    }
+
+    return new ArrayList<>(result.values());
   }
 
   public List<String> getPrimaryKeys() {
     List<String> primaryKey = new ArrayList<>();
-    for (Column c : columns.values()) {
+    for (Column c : getColumns()) {
       if (c.getKey() == 1) {
         primaryKey.add(c.getName());
       }
@@ -99,7 +98,7 @@ public class TableMetadata {
 
   public List<Column> getMutationColumns() {
     ArrayList<Column> result = new ArrayList<>();
-    for (Column c : columns.values()) {
+    for (Column c : getLocalColumns()) {
       if (REF.equals(c.getColumnType())
           || REF_ARRAY.equals(c.getColumnType())
           || REFBACK.equals(c.getColumnType())
@@ -115,11 +114,20 @@ public class TableMetadata {
   }
 
   public List<Column> getLocalColumns() {
-    ArrayList<Column> result = new ArrayList<>();
-    for (Column c : columns.values()) {
-      result.add(c);
+    Map<String, Column> result = new LinkedHashMap<>();
+    // get primary key from parent
+    if (getInherit() != null) {
+      for (Column pkey : getInheritedTable().getPrimaryKeyColumns()) {
+        result.put(pkey.getName(), pkey);
+      }
     }
-    return result;
+    // get all implemented columns (keep superclass because of type)
+    for (Column c : columns.values()) {
+      if (!result.containsKey(c.getName())) {
+        result.put(c.getName(), c);
+      }
+    }
+    return new ArrayList<>(result.values());
   }
 
   public Collection<String> getColumnNames() {
@@ -203,7 +211,11 @@ public class TableMetadata {
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("TABLE(").append(getTableName()).append("){");
+    String tableName = getTableName();
+    if (getInherit() != null) {
+      tableName += " extends " + getInherit();
+    }
+    builder.append("TABLE(").append(tableName).append("){");
     for (Column c : getColumns()) {
       builder.append("\n\t").append(c.toString());
     }
@@ -239,7 +251,7 @@ public class TableMetadata {
 
   public List<Column> getKey(int key) {
     List<Column> keyColumns = new ArrayList<>();
-    for (Column c : getColumns()) {
+    for (Column c : getLocalColumns()) {
       if (c.getKey() == key) {
         keyColumns.add(c);
       }
@@ -250,14 +262,20 @@ public class TableMetadata {
   public List<String> getKeyNames(int key) {
     List<String> result = new ArrayList<>();
     for (Column c : getKey(key)) {
-      result.add(c.getName());
+      if (c.isReference()) {
+        for (Reference ref : c.getRefColumns()) {
+          result.add(ref.getName());
+        }
+      } else {
+        result.add(c.getName());
+      }
     }
     return result;
   }
 
   public Map<Integer, List<String>> getKeys() {
     Map<Integer, List<String>> keys = new LinkedHashMap<>();
-    for (Column c : columns.values()) {
+    for (Column c : getLocalColumns()) {
       if (c.getKey() > 0) {
         if (keys.get(c.getKey()) == null) {
           keys.put(c.getKey(), new ArrayList<>());
@@ -269,7 +287,7 @@ public class TableMetadata {
   }
 
   public void removeKey(int key) {
-    for (Column c : this.columns.values()) {
+    for (Column c : this.getLocalColumns()) {
       if (c.getKey() == key) {
         c.removeKey();
       }
@@ -285,15 +303,12 @@ public class TableMetadata {
   }
 
   public List<Field> getPrimaryKeyFields() {
-
     List<Field> result = new ArrayList<>();
     for (Column c : getPrimaryKeyColumns()) {
       if (c.isReference()) {
-        if (c.getRefColumns().size() != 1)
-          throw new MolgenisException(
-              "Only singulary references can be part of primary key",
-              "column in error: '" + c.getName() + "'");
-        result.add(field(name(c.getName()), c.getRefColumns().get(0).getJooqType()));
+        for (Reference r : c.getRefColumns()) {
+          result.add(field(name(r.getName()), r.getJooqType()));
+        }
       } else {
         result.add(field(name(c.getName()), c.getJooqType()));
       }

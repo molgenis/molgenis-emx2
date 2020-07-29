@@ -110,7 +110,7 @@ export default {
     <template>
         <div>
             <ButtonAction @click="toggle">Toggle modal</ButtonAction>
-            <LayoutModal title="My first modal" @close="toggle" :show="false">
+            <LayoutModal title="My first modal" @close="toggle" :show="show">
                 <template v-slot:body>
                     Here is the contents
                 </template>

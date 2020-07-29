@@ -19,7 +19,7 @@
           :value="arrayValue[idx]"
           selected
         >
-          {{ Object.values(arrayValue[idx]).join(" ") }}
+          {{ flattenObject(arrayValue[idx]) }}
         </option>
       </select>
     </InputAppend>
@@ -27,7 +27,6 @@
       <template v-slot:body>
         <MessageError v-if="error">{{ error }}</MessageError>
         <TableSearch
-          :schema="schema"
           :table="refTable"
           :defaultValue="[arrayValue[selectIdx]]"
           @select="select($event, selectIdx)"
@@ -67,7 +66,6 @@ export default {
     InputAppend
   },
   props: {
-    schema: String,
     refTable: String
   },
   computed: {
@@ -92,6 +90,19 @@ export default {
       this.showSelect = false;
       this.clearValue(idx);
       this.emitValue();
+    },
+    flattenObject(object) {
+      let result = "";
+      Object.keys(object).forEach(key => {
+        if (object[key] === null) {
+          //nothing
+        } else if (typeof object[key] === "object") {
+          result += this.flattenObject(object[key]);
+        } else {
+          result += " " + object[key];
+        }
+      });
+      return result;
     }
   }
 };
@@ -102,7 +113,7 @@ export default {
     ```
     <template>
         <div>
-            <InputRef v-model="value" schema="pet store" refTable="Pet"/>
+            <InputRef v-model="value" refTable="Pet"/>
             Selection: {{value}}
         </div>
     </template>
@@ -122,7 +133,6 @@ export default {
         <div>
             <InputRef
                     v-model="value"
-                    schema="pet store"
                     refTable="Pet"
                     :defaultValue="value"
             />

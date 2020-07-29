@@ -13,10 +13,8 @@ import java.util.Map;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveColumn;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 class SqlTableMetadataExecutor {
   private SqlTableMetadataExecutor() {}
@@ -26,7 +24,6 @@ class SqlTableMetadataExecutor {
     // create the table
     Table jooqTable = table.getJooqTable();
     jooq.execute("CREATE TABLE {0}()", jooqTable);
-    // jooq.createTable(asJooqTable(table)).columns(new Name[0]).execute();
     MetadataUtils.saveTableMetadata(jooq, table);
 
     // grant rights to schema manager, editor and viewer roles
@@ -51,7 +48,7 @@ class SqlTableMetadataExecutor {
           && table.getInheritedTable().getColumn(column.getName()) != null) {
         // don't create superclass keys, that is already done
       } else {
-        SqlColumnExecutor.executeCreateColumn(jooq, new Column(table, column));
+        executeCreateColumn(jooq, new Column(table, column));
       }
     }
 
@@ -90,7 +87,6 @@ class SqlTableMetadataExecutor {
   }
 
   static void executeSetInherit(DSLContext jooq, TableMetadata table, TableMetadata other) {
-    // todo remove old inherit
     if (other == null) {
       throw new MolgenisException(
           "Extend failed",
@@ -111,10 +107,13 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' because table primary key is null");
     }
-    for (String pkey : other.getPrimaryKeys()) {
-      table.add(column(pkey).type(REF).refTable(other.getTableName()).pkey());
+    for (Column pkey : other.getPrimaryKeyColumns()) {
+      // same as parent table, except table name
+      Column copy = new Column(table, pkey);
+      executeCreateColumn(jooq, copy);
+      executeSetNullable(jooq, copy);
     }
-    MetadataUtils.saveTableMetadata(jooq, table);
+    createOrReplaceKey(jooq, table, 1, other.getKeyNames(1));
   }
 
   static Name[] asJooqNames(List<String> strings) {

@@ -155,7 +155,6 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setInherit(String otherTable) {
-    // todo split first inherit from change
     long start = System.currentTimeMillis();
     if (getInherit() != null)
       throw new MolgenisException(
@@ -181,7 +180,8 @@ class SqlTableMetadata extends TableMetadata {
           // extends means we copy primary key column from parent to child, make it foreign key to
           // parent, and make it primary key of this table also.
           executeSetInherit(getJooq(), this, other);
-          super.inherit = otherTable;
+          super.setInherit(otherTable);
+          MetadataUtils.saveTableMetadata(getJooq(), this);
         });
     log(start, "set inherit on ");
     return this;
@@ -194,7 +194,6 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public void enableRowLevelSecurity() {
-    // todo, study if we need different row level security in inherited tables
     this.add(column(MG_EDIT_ROLE).index(true));
 
     getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());

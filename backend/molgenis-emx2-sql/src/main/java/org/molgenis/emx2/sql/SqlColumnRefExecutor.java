@@ -12,7 +12,6 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getSchemaName;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
 public class SqlColumnRefExecutor {
@@ -24,7 +23,7 @@ public class SqlColumnRefExecutor {
     jooq.alterTable(getJooqTable(column.getTable()))
         .dropConstraint(getRefConstraintName(column))
         .execute();
-    jooq.execute("DROP INDEX {0}", name(getSchemaName(column), getIndexName(column)));
+    jooq.execute("DROP INDEX {0}", name(column.getSchemaName(), getIndexName(column)));
   }
 
   static void createRefConstraints(DSLContext jooq, Column column) {

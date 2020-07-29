@@ -1,7 +1,7 @@
 <template>
   <div :key="timestamp">
     <Draggable
-      v-model="filters"
+      :list="filters"
       handle=".filter-drag-icon"
       ghost-class="border-primary"
     >
@@ -9,6 +9,7 @@
         <label>Filters: </label>&nbsp;
         <a href="#" @click.prevent="collapseAll">collapse</a>&nbsp;
         <a href="#" @click.prevent="expandAll">expand</a>
+        filterOrder = {{ filterOrder }}
       </div>
       <FilterContainer
         v-for="(column, idx) in filters"
@@ -57,17 +58,18 @@
         <InputRef
           :list="true"
           v-if="column.columnType.startsWith('REF')"
-          :schema="schema"
           :refTable="column.refTable"
-          :refColumn="column.refColumn"
           v-model="column.conditions"
           :defaultValue="column.conditions"
         />
       </FilterContainer>
     </Draggable>
-    <br />
-    <br />
-    url = {{ url }}
+    <ShowMore title="debug">
+      <pre>
+url = {{ url }}
+filters = {{ filters }}
+      </pre>
+    </ShowMore>
   </div>
 </template>
 
@@ -79,6 +81,7 @@ import InputRangeInt from "./InputRangeInt";
 import InputRangeDecimal from "./InputRangeDecimal";
 import InputRangeDate from "./InputRangeDate";
 import InputRef from "./InputRef";
+import ShowMore from "./ShowMore";
 import Draggable from "vuedraggable";
 
 export default {
@@ -90,10 +93,10 @@ export default {
     InputRangeInt,
     InputRangeDecimal,
     InputRangeDate,
-    InputRef
+    InputRef,
+    ShowMore
   },
   props: {
-    schema: String,
     timestamp: Number,
     filters: Array
   },
@@ -103,6 +106,7 @@ export default {
       this.filters.forEach(column => {
         if (Array.isArray(column.conditions)) {
           column.conditions.forEach(value => {
+            //range filters are nested arrays
             if (Array.isArray(value)) {
               let rangeString = "";
               if (value[0] !== null) rangeString = value[0];
@@ -115,7 +119,19 @@ export default {
                 );
               }
             } else if (value !== null) {
-              url.searchParams.append(column.name, encodeURIComponent(value));
+              //refs are objects
+              if (typeof value === "object") {
+                let flatten = this.flatten(value, column.name);
+                Object.keys(flatten).forEach(key => {
+                  url.searchParams.append(
+                    key,
+                    encodeURIComponent(flatten[key])
+                  );
+                });
+                //otherwise treat as primitive
+              } else {
+                url.searchParams.append(column.name, encodeURIComponent(value));
+              }
             }
           });
         }
@@ -171,6 +187,21 @@ export default {
       } else {
         this.collapse(idx);
       }
+    },
+    flatten(obj, keyName) {
+      let result = {};
+      Object.keys(obj).forEach(key => {
+        var newKey = `${keyName}-${key}`;
+        if (typeof obj[key] === "object") {
+          result = {
+            ...result,
+            ...this.flatten(obj[key], newKey)
+          };
+        } else {
+          result[newKey] = obj[key];
+        }
+      });
+      return result;
     }
   }
 };
@@ -183,14 +214,12 @@ export default {
         <div>
             <div class="row">
                 <div class="col col-lg-5">
-                    <FilterSidebar :filters="filters" :schema="schema"/>
+                    <FilterSidebar :filters="filters"/>
                 </div>
                 <div class="col">
                     <FilterWells :filters="filters"/>
                 </div>
             </div>
-            State:
-            <pre>{{JSON.stringify(filters,null, 2)}}</pre>
         </div>
 
 
@@ -200,17 +229,15 @@ export default {
         export default {
             data: function () {
                 return {
-                    schema: "pet%20store",
                     filters: [{
                         "name": "orderId",
                         "pkey": true,
                         "columnType": "STRING"
                     },
                         {
-                            "name": "pet",
+                            "name": "code",
                             "columnType": "REF",
-                            "refTable": "Pet",
-                            "refColumn": "name"
+                            "refTable": "Code",
                         },
                         {
                             "name": "quantity",

@@ -29,10 +29,9 @@ public class TableSort {
           }
         }
         if (!depends)
-          for (Column c : current.getLocalColumns()) {
+          for (Column c : current.getColumns()) {
             if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
               for (int j = 0; j < todo.size(); j++) {
-                // if depends on on in todo, than skip to next
                 if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
                   depends = true;
                   break;

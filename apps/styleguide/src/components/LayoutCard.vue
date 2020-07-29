@@ -6,7 +6,7 @@
       <IconAction
         class="card-fullscreen-icon"
         :icon="fullscreen ? 'compress' : 'expand'"
-        @click="fullscreen = !fullscreen"
+        @click="toggle"
       />
     </div>
     <div v-scroll-lock="fullscreen" class="card-body" :style="bodyheight">
@@ -39,18 +39,21 @@ export default {
       fullscreen: false
     };
   },
+  methods: {
+    toggle() {
+      alert("toggle " + this.fullscreen);
+      this.fullscreen = !this.fullscreen;
+    }
+  },
   computed: {
     bodyheight() {
-      if (this.fullscreen) {
+      if (this.$refs.header && this.fullscreen) {
         let header = this.$refs.header.clientHeight;
         let footer = this.$refs.footer.clientHeight;
         return `height: calc(100vh - ${header + footer}px)`;
       }
       return "";
     }
-    // version () {
-    //   return this.$store.state.version
-    // }
   }
 };
 </script>

@@ -46,6 +46,24 @@ export default {
     ```
     <template>
         <div>
+            <InputRangeDate v-model="value"/>
+            {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    value: []
+                }
+            }
+        }
+    </script>
+    ```
+    Example with list
+    ```
+    <template>
+        <div>
             <InputRangeDate :list="true" v-model="value"
             />
             {{value}}
@@ -61,7 +79,7 @@ export default {
         }
     </script>
     ```
-    Example with default
+    Example with list and default
     ```
     <template>
         <div>

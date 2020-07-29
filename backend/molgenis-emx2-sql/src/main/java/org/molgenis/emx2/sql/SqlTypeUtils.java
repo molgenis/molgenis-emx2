@@ -1,7 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DataType;
-import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -18,38 +16,31 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
-    Collection<Object> values = new ArrayList<>();
-    for (Column c : columns) {
-      Object value = getTypedValue(row, c.getName(), c.getColumnType());
+    try {
+      Collection<Object> values = new ArrayList<>();
+      for (Column c : columns) {
+        Object value = getTypedValue(row, c.getName(), c.getColumnType());
 
-      // validation
-      if (value != null && c.getValidation() != null) {
-        String error = validateValue(c.getValidation(), value);
-        if (error != null)
-          throw new MolgenisException(
-              "Validation error on column '" + c.getName() + "'",
-              error + ". Instead found value '" + value + "'");
+        // validation
+        if (value != null && c.getValidation() != null) {
+          String error = validateValue(c.getValidation(), value);
+          if (error != null)
+            throw new MolgenisException(
+                "Validation error on column '" + c.getName() + "'",
+                error + ". Instead found value '" + value + "'");
+        }
+        // get value
+        if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
+          values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
+        } else {
+          values.add(value);
+        }
       }
-      // get value
-      if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
-        values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      } else {
-        values.add(value);
-      }
+      return values;
+    } catch (MolgenisException me) {
+      throw new MolgenisException("Parsing of row failed: " + row.toString(), me);
     }
-    return values;
   }
-
-  //  static Object getTypedValue(Object v, Column column) {
-  //    ColumnType columnType = column.getColumnType();
-  //    if (REF.equals(columnType)) {
-  //      columnType = getRefColumnType(column);
-  //    } else if (REF_ARRAY.equals(columnType)
-  //        || REFBACK.equals(columnType)) { // /MREF.equals(columnType) ||
-  //      columnType = getArrayType(getRefColumnType(column));
-  //    }
-  //    return getTypedValue(v, columnType);
-  //  }
 
   public static Object getTypedValue(Row row, String name, ColumnType type) {
     switch (type) {
@@ -93,26 +84,6 @@ public class SqlTypeUtils extends TypeUtils {
         throw new UnsupportedOperationException("Unsupported columnType found:" + type);
     }
   }
-
-  //  static ColumnType getRefArrayColumnType(Column column) {
-  //    return getArrayType(getRefColumnType(column));
-  //  }
-
-  //  public static ColumnType getRefColumnType(Column column) {
-  //    ColumnType columnType;
-  //    Column refColumn = column.getRefColumn();
-  //    while (REF.equals(refColumn.getColumnType()) || REF_ARRAY.equals(refColumn.getColumnType()))
-  // {
-  //      refColumn = refColumn.getRefColumn();
-  //      // check self reference
-  //      if (refColumn.getTableName().equals(column.getTableName())
-  //          && refColumn.getName().equals(column.getName())) {
-  //        return STRING;
-  //      }
-  //    }
-  //    columnType = refColumn.getColumnType();
-  //    return columnType;
-  //  }
 
   static TableMetadata getRefTable(Column column) {
     return column.getTable().getSchema().getTableMetadata(column.getRefTableName());

@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class SelectColumn {
   private String column;
+  private Map<String, SelectColumn> children = new LinkedHashMap<>();
   private int limit = 0;
   private int offset = 0;
-  private Map<String, SelectColumn> children = new LinkedHashMap<>();
   private Map<String, Order> orderBy = new LinkedHashMap<>();
 
   public SelectColumn(String column) {

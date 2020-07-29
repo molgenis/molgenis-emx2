@@ -20,7 +20,18 @@ export default {
     Example
 
     ```jsx
-    <ButtonDanger v-on:click="alert('hello');">Dangerous actions</ButtonDanger>
+    <template>
+        <ButtonDanger v-on:click="alert('danger clicked');">Dangerous actions</ButtonDanger>
+    </template>
+    <script>
+        export default {
+            methods: {
+                alert(text) {
+                    alert(text);
+                }
+            }
+        }
+    </script>
     ```
 
 </docs>

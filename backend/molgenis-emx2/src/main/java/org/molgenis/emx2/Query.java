@@ -1,37 +1,18 @@
 package org.molgenis.emx2;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public interface Query extends Filter {
 
-  Query select(SelectColumn... select);
+  Query select(SelectColumn... columns);
 
-  Query select(String... select);
+  Query select(String... columns);
 
-  Query select(Collection<String> columnNames);
-
-  @Override
-  boolean has(String columnName);
-
-  @Override
-  Filter add(Operator operator, Object... values);
-
-  @Override
-  Filter add(Operator operator, List<?> values);
+  Query select(Collection<String> columns);
 
   Query search(String... terms);
-
-  @Override
-  String getField();
-
-  @Override
-  Map<Operator, Object[]> getConditions();
-
-  @Override
-  Filter getFilter(String name);
 
   @Override
   Query filter(Filter... filters);
@@ -40,7 +21,7 @@ public interface Query extends Filter {
   Query filter(String columName, Filter... subfilters);
 
   @Override
-  Query filter(String columnName, Operator operator, Serializable... values);
+  Query filter(String columnName, Operator operator, Object... values);
 
   List<Row> getRows();
 

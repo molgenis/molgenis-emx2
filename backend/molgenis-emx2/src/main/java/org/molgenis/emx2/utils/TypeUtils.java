@@ -53,7 +53,10 @@ public class TypeUtils {
 
   public static String toString(Object v) {
     if (v == null) return null;
-    if (v instanceof String) return (String) v;
+    if (v instanceof String) {
+      if (((String) v).trim().equals("")) return null;
+      return (String) v;
+    }
     if (v instanceof Object[]) return joinCsvString((Object[]) v);
     if (v instanceof Collection) return joinCsvString(((Collection) v).toArray());
     return v.toString();
@@ -62,6 +65,7 @@ public class TypeUtils {
   public static Integer toInt(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
+      if (((String) v).trim().equals("")) return null;
       return Integer.parseInt(((String) v).trim());
     }
     if (v instanceof Double) return (int) Math.round((Double) v);
@@ -77,8 +81,7 @@ public class TypeUtils {
     if (v == null) return null;
     else if (v.getClass().equals(c.arrayType())) return (Object[]) v;
     else if (v instanceof String) {
-      if (((String) v).trim().equals(""))
-        throw new MolgenisException("Cannot cast \"\" to " + c.getSimpleName() + "[], ", "");
+      if (((String) v).trim().equals("")) return null;
       v = splitCsvString((String) v);
     } else if (v.getClass().isArray()) v = Arrays.asList((Object[]) v);
     if (v instanceof List) {
@@ -152,14 +155,14 @@ public class TypeUtils {
     // non standard so not using the generic function
     if (v == null) return null;
     if (v instanceof String) {
-      if (((String) v).trim().equals(""))
-        throw new MolgenisException("Cannot cast \"\" to JSONB[]", "");
+      if (((String) v).trim().equals("")) return null;
       v = List.of(JSONB.valueOf((String) v));
     }
     if (v instanceof String[]) {
       v = List.of((String[]) v);
     }
     if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
+    if (v instanceof Object[]) v = List.of((Object[]) v);
     if (v instanceof List) {
       return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
     }

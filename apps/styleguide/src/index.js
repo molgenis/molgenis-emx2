@@ -48,6 +48,10 @@ import RowButtonEdit from "./molecules/RowButtonEdit";
 import RowButtonDelete from "./molecules/RowButtonDelete";
 
 import Spinner from "./components/Spinner";
+import ShowMore from "./components/ShowMore";
+
+import TableMixin from "./mixins/TableMixin";
+import TableMetadataMixin from "./mixins/TableMetadataMixin";
 
 export {
   ButtonAction,
@@ -90,5 +94,8 @@ export {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
-  Spinner
+  Spinner,
+  ShowMore,
+  TableMixin,
+  TableMetadataMixin
 };

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getSchemaName;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
 
 class SqlColumnRefBackExecutor {
@@ -391,10 +390,10 @@ class SqlColumnRefBackExecutor {
   static void removeRefBackConstraints(DSLContext jooq, Column column) {
     jooq.execute(
         "DROP FUNCTION IF EXISTS {0} CASCADE",
-        name(getSchemaName(column), refbackDeleteTriggerName(column)));
+        name(column.getSchemaName(), refbackDeleteTriggerName(column)));
     jooq.execute(
         "DROP FUNCTION IF EXISTS {0} CASCADE",
-        name(getSchemaName(column), refbackUpdateTriggerName(column)));
+        name(column.getSchemaName(), refbackUpdateTriggerName(column)));
   }
 
   private static String refbackDeleteTriggerName(Column column) {

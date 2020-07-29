@@ -44,8 +44,6 @@
         </tr>
       </tbody>
     </table>
-    {{ JSON.stringify(selectedItems) }}
-    {{ JSON.stringify(metadata) }}
   </div>
 </template>
 
@@ -70,12 +68,25 @@ export default {
         return [];
       }
       if (col.columnType == "REF_ARRAY" || col.columnType == "REFBACK") {
-        return row[col.name].map(v => col.refColumns.map(r => v[r]).join(" "));
+        return row[col.name].map(v => this.flattenObject(v));
       } else if (col.columnType == "REF") {
-        return [col.refColumns.map(r => row[col.name][r]).join(" ")];
+        return [this.flattenObject(row[col.name])];
       } else {
         return [row[col.name]];
       }
+    },
+    flattenObject(object) {
+      let result = "";
+      Object.keys(object).forEach(key => {
+        if (object[key] === null) {
+          //nothing
+        } else if (typeof object[key] === "object") {
+          result += this.flattenObject(object[key]);
+        } else {
+          result += " " + object[key];
+        }
+      });
+      return result;
     },
     getKey(row) {
       let result = {};
@@ -137,12 +148,12 @@ td {
                     <RowButtonEdit
                             table="Pet"
                             :pkey="{name:'spike'}"
-                            @close="reload"
+                            @close="click"
                     />
                     <RowButtonDelete
                             table="Pet"
                             :pkey="{name:'spike'}"
-                            @close="reload"
+                            @close="click"
                     />
                 </template>
             </MolgenisTable>

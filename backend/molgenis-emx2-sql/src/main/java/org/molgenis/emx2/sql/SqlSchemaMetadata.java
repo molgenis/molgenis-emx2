@@ -56,10 +56,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public TableMetadata getTableMetadata(String name) {
+  public SqlTableMetadata getTableMetadata(String name) {
     SqlTableMetadata metadata = (SqlTableMetadata) super.getTableMetadata(name);
     if (metadata != null) {
-      return super.getTableMetadata(name);
+      return metadata;
     } else {
       // else retrieve from database
       SqlTableMetadata table = new SqlTableMetadata(db, this, table(name));
@@ -68,7 +68,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         super.tableCache.put(name, table);
       }
     }
-    return super.getTableMetadata(name);
+    return (SqlTableMetadata) super.getTableMetadata(name);
   }
 
   @Override

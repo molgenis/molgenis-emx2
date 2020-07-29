@@ -8,8 +8,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SqlJavascriptValidator {
+
+  private SqlJavascriptValidator() {
+    // hide constructor
+  }
+
   private static ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-  // todo bindings not typesafe
   private static Bindings rowBindings = engine.createBindings();
   private static Bindings valueBindings = engine.createBindings();
 

@@ -15,13 +15,14 @@ import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 public class SqlColumnMrefExecutor {
 
+  private SqlColumnMrefExecutor() {
+    // hide constructor
+  }
+
   public static void createMrefConstraints(DSLContext jooq, Column column) {
-    createArrayColumn(jooq, column);
     createJoinTable(jooq, column);
     createUpdateTrigger(jooq, column);
   }
-
-  private static void createArrayColumn(DSLContext jooq, Column column) {}
 
   private static void createUpdateTrigger(DSLContext jooq, Column column) {
 
@@ -105,9 +106,10 @@ public class SqlColumnMrefExecutor {
     return String.join(" AND ", items);
   }
 
-  // "SELECT ({NEW.{keyfield} as {keyfield}}) AS self, UNNEST({refFields}) AS other({refFields}
+  /* create "SELECT ({NEW.{keyfield} as {keyfield}}) AS self, UNNEST({refFields}) AS other({refFields}
+   */
   private static String subQuery(Column column) {
-    StringBuffer result = new StringBuffer();
+    StringBuilder result = new StringBuilder();
 
     // SELECT ({NEW.{keyfield} as {keyfield}}) AS self
     List<String> items = new ArrayList<>();
@@ -151,7 +153,7 @@ public class SqlColumnMrefExecutor {
     List<Name> otherFkeyFields = new ArrayList<>();
 
     // define the columns
-    if (column.getTable().getPrimaryKeyColumns().size() == 0) {
+    if (column.getTable().getPrimaryKeyColumns().isEmpty()) {
       throw new MolgenisException(
           "Cannot create ref_array '" + column.getName() + "'", "Primary key not set");
     }

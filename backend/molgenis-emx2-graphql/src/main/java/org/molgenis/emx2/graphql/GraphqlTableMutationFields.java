@@ -92,15 +92,21 @@ class GraphqlTableMutationFields {
           int count = 0;
           switch (mutationType) {
             case UPDATE:
-              count = table.update(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
+              count =
+                  table.update(
+                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("updated " + count + " records to " + tableName + "\n");
               break;
             case INSERT:
-              count = table.insert(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
+              count =
+                  table.insert(
+                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
             case DELETE:
-              count = table.delete(GraphqlApiFactory.convertToRows(rowsAslistOfMaps));
+              count =
+                  table.delete(
+                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("delete " + count + " records from " + tableName + "\n");
               break;
           }
@@ -118,24 +124,12 @@ class GraphqlTableMutationFields {
     GraphQLInputObjectType.Builder inputBuilder =
         GraphQLInputObjectType.newInputObject().name(table.getName() + "Input");
     for (Column col : table.getMetadata().getColumns()) {
-      GraphQLInputType type = null;
+      GraphQLInputType type;
       if (col.isReference()) {
-        String name = col.getRefTableName() + "RefInput";
-        if (refTypes.get(name) == null) {
-          GraphQLInputObjectType.Builder refTypeBuilder =
-              GraphQLInputObjectType.newInputObject().name(name);
-          for (Reference ref : col.getRefColumns()) {
-            ColumnType columnType = ref.getColumnType();
-            type = getGraphQLInputType(columnType);
-            refTypeBuilder.field(
-                GraphQLInputObjectField.newInputObjectField().name(ref.getTo()).type(type));
-          }
-          refTypes.put(name, refTypeBuilder.build());
-        }
         if (REF.equals(col.getColumnType())) {
-          type = refTypes.get(name);
+          type = getPrimaryKeyInput(col.getRefTable());
         } else {
-          type = GraphQLList.list(refTypes.get(name));
+          type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
         }
       } else {
         ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
@@ -145,6 +139,27 @@ class GraphqlTableMutationFields {
           GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(type));
     }
     return inputBuilder.build();
+  }
+
+  public static GraphQLInputObjectType getPrimaryKeyInput(TableMetadata table) {
+    GraphQLInputType type;
+    String name = table.getTableName() + "PKEY";
+    if (refTypes.get(name) == null) {
+      GraphQLInputObjectType.Builder refTypeBuilder =
+          GraphQLInputObjectType.newInputObject().name(name);
+      for (Column ref : table.getPrimaryKeyColumns()) {
+        ColumnType columnType = ref.getColumnType();
+        if (ref.isReference()) {
+          type = getPrimaryKeyInput(ref.getRefTable());
+        } else {
+          type = getGraphQLInputType(columnType);
+        }
+        refTypeBuilder.field(
+            GraphQLInputObjectField.newInputObjectField().name(ref.getName()).type(type));
+      }
+      refTypes.put(name, refTypeBuilder.build());
+    }
+    return refTypes.get(name);
   }
 
   private static GraphQLInputType getGraphQLInputType(ColumnType columnType) {

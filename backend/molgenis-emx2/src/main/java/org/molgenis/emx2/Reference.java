@@ -11,11 +11,13 @@ public class Reference {
   private String fromColumn;
   private String toColumn;
   private ColumnType type;
+  private boolean nullable;
 
-  public Reference(String fromColumn, String toColumn, ColumnType type) {
+  public Reference(String fromColumn, String toColumn, ColumnType type, boolean nullable) {
     this.fromColumn = fromColumn;
     this.toColumn = toColumn;
     this.type = type;
+    this.nullable = nullable;
   }
 
   public String getName() {
@@ -32,6 +34,10 @@ public class Reference {
 
   public DataType getJooqType() {
     return toJooqType(getColumnType());
+  }
+
+  public boolean isNullable() {
+    return nullable;
   }
 
   public Field asJooqField() {

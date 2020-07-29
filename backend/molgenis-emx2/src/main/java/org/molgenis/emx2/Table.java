@@ -1,6 +1,5 @@
 package org.molgenis.emx2;
 
-import java.io.Serializable;
 import java.util.List;
 
 public interface Table {
@@ -27,7 +26,7 @@ public interface Table {
 
   Query select(SelectColumn... columns);
 
-  Query filter(String path, Operator operator, Serializable... values);
+  Query filter(String path, Operator operator, Object... values);
 
   Query search(String searchTerms);
 

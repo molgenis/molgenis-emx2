@@ -20,7 +20,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public SqlTable getTable(String name) {
-    TableMetadata tableMetadata = getMetadata().getTableMetadata(name);
+    SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
     if (tableMetadata == null) return null;
     if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
     else return null;
@@ -76,7 +76,6 @@ public class SqlSchema implements Schema {
     if (user == null) return null;
     user = user.trim();
     for (Member m : getMembers()) {
-      // todo can become expensive with many users
       if (m.getUser().equals(user)) return m.getRole();
     }
     return null;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <InputString
-      v-if="columnType === 'STRING'"
+      v-if="columnType === 'STRING' || columnType === 'TEXT'"
       v-bind="$props"
       v-model="value"
     />
@@ -46,7 +46,7 @@
       v-model="value"
     />
     <InputString
-      v-else-if="columnType === 'STRING_ARRAY'"
+      v-else-if="columnType === 'STRING_ARRAY' || columnType === 'TEXT_ARRAY'"
       :list="true"
       v-bind="$props"
       v-model="value"
@@ -71,7 +71,6 @@ export default {
     schema: String,
     columnType: String,
     refTable: String,
-    refColumn: String,
     defaultValue: [String, Number, Object, Array]
   },
   components: {

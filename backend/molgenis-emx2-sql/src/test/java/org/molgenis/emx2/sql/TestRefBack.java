@@ -97,14 +97,14 @@ public class TestRefBack {
     query =
         products
             .select(s("data", s("parts_agg", s("count"))))
-            .filter(f("productname").add(EQUALS, "bigphone"));
+            .filter(f("productname").addCondition(EQUALS, "bigphone"));
 
     assertTrue(query.retrieveJSON().contains("\"count\":3"));
 
     query =
         parts
             .select(s("data", s("products_agg", s("count"))))
-            .filter(f("partname").add(EQUALS, "battery"));
+            .filter(f("partname").addCondition(EQUALS, "battery"));
 
     assertTrue(query.retrieveJSON().contains("\"count\":2"));
 

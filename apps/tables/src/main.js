@@ -16,7 +16,7 @@ const router = new VueRouter({
       props: true
     },
     {
-      path: "/:tableName",
+      path: "/:table",
       component: ViewTable,
       props: true
     }

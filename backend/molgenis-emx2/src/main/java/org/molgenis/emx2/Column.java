@@ -99,15 +99,23 @@ public class Column {
     List<Reference> refColumns = new ArrayList<>();
     if (getRefTable() == null) return refColumns;
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
+    boolean multiple = pkeys.size() > 1;
     for (Column keyPart : pkeys) {
       // todo check for composite keyPart
       if (keyPart.isReference()) {
+        if (!multiple) multiple = keyPart.getRefTable().getPrimaryKeyColumns().size() > 1;
         for (Reference ref : keyPart.getRefColumns()) {
+          ColumnType type = ref.getColumnType();
+          if (!REF.equals(getColumnType())) {
+            type = getArrayType(type);
+          }
           refColumns.add(
               new Reference(
-                  this.getName() + "-" + ref.getName(), ref.getTo(), ref.getColumnType()));
+                  this.getName() + (multiple ? "-" + ref.getName() : ""),
+                  ref.getName(),
+                  type,
+                  ref.isNullable() || this.isNullable()));
         }
-
       } else {
         ColumnType type = keyPart.getColumnType();
         // all but ref is array
@@ -115,20 +123,19 @@ public class Column {
           type = getArrayType(type);
         }
         // create the ref
-        Reference ref =
+        refColumns.add(
             new Reference(
-                this.getName() + (pkeys.size() > 1 ? "-" + keyPart.getName() : ""),
+                this.getName() + (multiple ? "-" + keyPart.getName() : ""),
                 keyPart.getName(),
-                type);
-
-        refColumns.add(ref);
+                type,
+                keyPart.isNullable() || this.isNullable()));
       }
     }
 
     return refColumns;
   }
 
-  private SchemaMetadata getSchema() {
+  public SchemaMetadata getSchema() {
     return getTable().getSchema();
   }
 
@@ -308,7 +315,7 @@ public class Column {
     return toJooqType(getColumnType());
   }
 
-  public Field asJooqField() {
+  public Field getJooqField() {
     return field(name(getName()), getJooqType());
   }
 
@@ -325,13 +332,5 @@ public class Column {
 
   public String getSchemaName() {
     return getTable().getSchemaName();
-  }
-
-  public List<String> getRefColumnNames() {
-    List<String> result = new ArrayList<>();
-    for (Reference r : getRefColumns()) {
-      result.add(r.getTo());
-    }
-    return result;
   }
 }
