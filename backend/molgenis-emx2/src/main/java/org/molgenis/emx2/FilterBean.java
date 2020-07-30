@@ -48,7 +48,7 @@ public class FilterBean implements Filter {
   }
 
   @Override
-  public Filter subfilter(Filter... subfilters) {
+  public Filter addSubfilters(Filter... subfilters) {
     for (Filter f : subfilters) {
       this.subFilters.put(f.getColumn(), f);
     }
@@ -56,12 +56,7 @@ public class FilterBean implements Filter {
   }
 
   @Override
-  public boolean has(String columnName) {
-    return this.subFilters.containsKey(columnName);
-  }
-
-  @Override
-  public Collection<Filter> getSubfilter() {
+  public Collection<Filter> getSubfilters() {
     return subFilters.values();
   }
 

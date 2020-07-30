@@ -74,6 +74,22 @@ public class TestQuery {
   }
 
   @Test
+  public void testQuery0() {
+    StopWatch.start("testQuery1");
+
+    Schema s = database.getSchema("TestQuery");
+
+    StopWatch.print("got schema");
+
+    Query q = s.getTable("Person").query();
+    q.select(
+        s("data", s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name"))));
+    q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
+
+    System.out.println(q.retrieveJSON());
+  }
+
+  @Test
   public void testQuery1() {
 
     StopWatch.start("testQuery1");

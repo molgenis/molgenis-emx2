@@ -15,9 +15,7 @@ public interface Filter {
 
   Filter getSubfilter(String column);
 
-  Collection<Filter> getSubfilter();
+  Collection<Filter> getSubfilters();
 
-  Filter subfilter(Filter... subfilters);
-
-  boolean has(String columnName);
+  Filter addSubfilters(Filter... subfilters);
 }

@@ -42,7 +42,7 @@ public class SelectColumn {
     return new SelectColumn(column, sub);
   }
 
-  String getColumn() {
+  public String getColumn() {
     return column;
   }
 
@@ -50,8 +50,12 @@ public class SelectColumn {
     return children.containsKey(name);
   }
 
-  public SelectColumn get(String name) {
+  public SelectColumn getSubselect(String name) {
     return children.get(name);
+  }
+
+  public Collection<SelectColumn> getSubselect() {
+    return children.values();
   }
 
   public Collection<String> getColumNames() {

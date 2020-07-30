@@ -108,7 +108,7 @@ public class TestRefBack {
 
     assertTrue(query.retrieveJSON().contains("\"count\":2"));
 
-    query = products.select(s("data", s("parts", s("name"))));
+    query = products.select(s("data", s("parts", s("partname"))));
     System.out.println(query.retrieveJSON());
 
     // delete

@@ -96,8 +96,9 @@ public class TestGraphJsonQuery {
             s("name"),
             s("father", s("name"), s("father", s("name")), s("mother", s("name"))),
             s("mother", s("name"), s("father", s("name")), s("mother", s("name"))),
-            s("children", s("count"), s("items", s("name"), s("children", s("items", s("name"))))),
-            s("cousins", s("items", s("name"), s("cousins", s("items", s("name")))))));
+            s("children", s("name"), s("children", s("name"))),
+            s("children_agg", s("count")),
+            s("cousins", s("name"), s("cousins", s("name")))));
 
     result = s.retrieveJSON();
     System.out.println(result);
@@ -118,7 +119,12 @@ public class TestGraphJsonQuery {
     assertTrue(result.contains("opa"));
 
     s = schema.getTable("Person").query();
-    s.select(s("data", s("name"), s("children", s("name")), s("father", s("name"))));
+    s.select(
+        s(
+            "data",
+            s("name"),
+            s("children", s("name"), s("children", s("name"))),
+            s("father", s("name"))));
     s.search("opa");
 
     result = s.retrieveJSON();

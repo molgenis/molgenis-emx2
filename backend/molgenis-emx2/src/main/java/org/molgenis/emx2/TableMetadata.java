@@ -302,8 +302,8 @@ public class TableMetadata {
     return DSL.table(name(getSchemaName(), getTableName()));
   }
 
-  public List<Field> getPrimaryKeyFields() {
-    List<Field> result = new ArrayList<>();
+  public List<Field<?>> getPrimaryKeyFields() {
+    List<Field<?>> result = new ArrayList<>();
     for (Column c : getPrimaryKeyColumns()) {
       if (c.isReference()) {
         for (Reference r : c.getRefColumns()) {

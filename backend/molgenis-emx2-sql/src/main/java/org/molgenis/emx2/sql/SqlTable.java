@@ -1,10 +1,10 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.Condition;
-import org.jooq.Field;
-import org.jooq.InsertOnDuplicateSetStep;
-import org.jooq.InsertValuesStepN;
+import org.jooq.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ class SqlTable implements Table {
             // get metadata
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
-            List<Field> fields = new ArrayList<>();
+            List<Field<?>> fields = new ArrayList<>();
             for (Column c : getMetadata().getMutationColumns()) {
               fieldNames.add(c.getName());
               columns.add(c);
@@ -62,7 +62,7 @@ class SqlTable implements Table {
 
             // keep batchsize smaller to limit memory footprint
             int batchSize = 1000;
-            InsertValuesStepN step =
+            InsertValuesStepN<Record> step =
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
             int i = 0;
             for (Row row : rows) {
@@ -114,8 +114,7 @@ class SqlTable implements Table {
     AtomicInteger count = new AtomicInteger(0);
     try {
       db.tx(
-          db2 -> {
-            // first update superclass
+          db2 -> { // first update superclass
             if (getMetadata().getInherit() != null) {
               getSchema().getTable(getMetadata().getInherit()).update(rows);
             }
@@ -128,7 +127,7 @@ class SqlTable implements Table {
             List<Row> batch = new ArrayList<>();
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
-            List<Field> fields = new ArrayList<>();
+            List<Field<?>> fields = new ArrayList<>();
             for (Row row : rows) {
 
               // to compare if columns change between rows
@@ -183,23 +182,24 @@ class SqlTable implements Table {
 
   private void updateBatch(
       Collection<Row> rows,
-      org.jooq.Table t,
+      org.jooq.Table<Record> t,
       List<String> fieldNames,
       List<Column> columns,
-      List<Field> fields,
-      List<Field> keyField) {
+      List<Field<?>> fields,
+      List<Field<?>> keyField) {
 
     if (!rows.isEmpty()) {
 
       // createColumn multi-value insert
-      InsertValuesStepN step = db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
+      InsertValuesStepN<Record> step =
+          db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
 
       for (Row row : rows) {
         step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
       }
 
       // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep step2 = step.onConflict(keyField).doUpdate();
+      InsertOnDuplicateSetStep<Record> step2 = step.onConflict(keyField).doUpdate();
       for (String name : fieldNames) {
         step2 =
             step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
@@ -250,11 +250,6 @@ class SqlTable implements Table {
   public Query select(SelectColumn... columns) {
     return query().select(columns);
   }
-
-  //  @Override
-  //  public Query filter(String path, Operator operator, Object... values) {
-  //    return query().where(path, operator, values);
-  //  }
 
   public Query where(Filter... filters) {
     return query().where(filters);
@@ -338,11 +333,11 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
-  private List<Field> getPrimaryKeyFields() {
+  private List<Field<?>> getPrimaryKeyFields() {
     return getMetadata().getPrimaryKeyFields();
   }
 
-  protected org.jooq.Table getJooqTable() {
+  protected org.jooq.Table<Record> getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 

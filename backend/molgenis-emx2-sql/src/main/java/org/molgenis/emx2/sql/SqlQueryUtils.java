@@ -66,10 +66,10 @@ class SqlQueryUtils {
 
         if ((select != null
                 && select.has(column.getName())
-                && !select.get(column.getName()).getColumNames().isEmpty())
+                && !select.getSubselect(column.getName()).getColumNames().isEmpty())
             || (filter != null
-                && filter.has(column.getName())
-                && !filter.getSubfilter(column.getName()).getSubfilter().isEmpty())) {
+                && filter.getSubfilter(column.getName()) != null
+                && !filter.getSubfilter(column.getName()).getSubfilters().isEmpty())) {
           if (REF_ARRAY.equals(type)) {
             for (Reference ref : column.getRefColumns()) {
               conditions.add(
@@ -109,7 +109,7 @@ class SqlQueryUtils {
               step,
               column.getRefTable(),
               rightAlias,
-              select.get(column.getName()),
+              select.getSubselect(column.getName()),
               getFilterForRef(filter, column));
         }
       }
@@ -176,12 +176,15 @@ class SqlQueryUtils {
       if (select != null && select.has(column.getName())) {
         String nextAlias = tableAlias + "/" + column.getName();
         ColumnType type = column.getColumnType();
-        if (!select.get(column.getName()).getColumNames().isEmpty()
+        if (!select.getSubselect(column.getName()).getColumNames().isEmpty()
             && (REF_ARRAY.equals(type) || REF.equals(type) || REFBACK.equals(type))) {
           searchCondition =
               searchCondition.or(
                   createFiltersForSearch(
-                      column.getRefTable(), nextAlias, select.get(column.getName()), searchTerms));
+                      column.getRefTable(),
+                      nextAlias,
+                      select.getSubselect(column.getName()),
+                      searchTerms));
         }
       }
     }
@@ -231,7 +234,7 @@ class SqlQueryUtils {
     for (Column column : table.getColumns()) {
       Filter f = getFilterForRef(filter, column);
       // we only filter on fields, not if the relationships
-      if (f != null && f.getSubfilter().isEmpty()) {
+      if (f != null && f.getSubfilters().isEmpty()) {
         // add the column filter(s)
         // check if inherited
         String subAlias = getSubclassAlias(table, tableAlias, column);
@@ -269,7 +272,7 @@ class SqlQueryUtils {
 
   static boolean isSelectedOrFiltered(Column column, SelectColumn select, Filter filter) {
     return (select != null && select.has(column.getName()))
-        || filter != null && filter.has(column.getName());
+        || filter != null && filter.getSubfilter(column.getName()) != null;
   }
 
   static Filter getFilterForRef(Filter filter, Column column) {
@@ -277,7 +280,7 @@ class SqlQueryUtils {
     return null;
   }
 
-  private static Condition createFilterCondition(
+  static Condition createFilterCondition(
       String tableAlias,
       String columnName,
       ColumnType type,
@@ -499,7 +502,7 @@ class SqlQueryUtils {
 
   static void validateFilter(TableMetadata table, Filter filter) {
     if (filter != null) {
-      for (Filter subFilter : filter.getSubfilter()) {
+      for (Filter subFilter : filter.getSubfilters()) {
         if (table.getColumn(subFilter.getColumn()) == null) {
           throw new MolgenisException(
               QUERY_FAILED,

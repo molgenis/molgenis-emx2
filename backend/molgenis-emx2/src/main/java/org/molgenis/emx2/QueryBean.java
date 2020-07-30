@@ -22,7 +22,7 @@ public class QueryBean implements Query {
 
   @Override
   public Query where(Filter... filters) {
-    this.filter.subfilter(filters);
+    this.filter.addSubfilters(filters);
     return this;
   }
 
@@ -34,11 +34,6 @@ public class QueryBean implements Query {
   @Override
   public String retrieveJSON() {
     throw new UnsupportedOperationException();
-  }
-
-  //  @Override
-  public boolean has(String columnName) {
-    return this.filter.has(columnName);
   }
 
   @Override

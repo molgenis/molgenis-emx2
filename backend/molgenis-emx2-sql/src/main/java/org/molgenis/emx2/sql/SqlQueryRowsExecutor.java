@@ -81,7 +81,8 @@ class SqlQueryRowsExecutor {
         String inheritAlias = getSubclassAlias(table, tableAlias, column);
 
         // check if nested
-        if (!select.get(column.getName()).getColumNames().isEmpty() && column.isReference()) {
+        if (!select.getSubselect(column.getName()).getColumNames().isEmpty()
+            && column.isReference()) {
 
           // check if not primary key that points to the parent table
           if (table.getInherit() == null || table.getPrimaryKeys().contains(column.getName())) {
@@ -89,7 +90,7 @@ class SqlQueryRowsExecutor {
                 createSelectFields(
                     column.getRefTable(),
                     tableAlias + "/" + column.getName(),
-                    select != null ? select.get(column.getName()) : null));
+                    select != null ? select.getSubselect(column.getName()) : null));
           }
         } else {
           String columnAlias = prefix + column.getName();
@@ -127,8 +128,8 @@ class SqlQueryRowsExecutor {
     for (Column column : table.getColumns()) {
       if (filter != null
           && column.isReference()
-          && filter.has(column.getName())
-          && !filter.getSubfilter(column.getName()).getSubfilter().isEmpty()) {
+          && filter.getSubfilter(column.getName()) != null
+          && !filter.getSubfilter(column.getName()).getSubfilters().isEmpty()) {
         // filters are on columns of the ref
         condition =
             mergeConditions(
