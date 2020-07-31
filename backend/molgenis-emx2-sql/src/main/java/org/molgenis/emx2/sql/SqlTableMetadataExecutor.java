@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.Constants.MG_TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.sql.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 class SqlTableMetadataExecutor {
@@ -200,13 +200,17 @@ class SqlTableMetadataExecutor {
                 + "\treturn new;\n"
                 + "end\n"
                 + "$$ LANGUAGE plpgsql;",
-            triggerfunction, name(MG_TEXT_SEARCH_COLUMN_NAME), mgSearchVector);
+            triggerfunction, name(searchColumnName(table)), mgSearchVector);
 
     jooq.execute(functionBody);
     jooq.execute(
         "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
         name(getRolePrefix(table) + DefaultRoles.MANAGER.toString()));
     return triggerfunction;
+  }
+
+  static String searchColumnName(TableMetadata table) {
+    return table.getTableName() + TEXT_SEARCH_COLUMN_NAME;
   }
 
   private static String getSearchTriggerName(TableMetadata table) {
@@ -216,7 +220,7 @@ class SqlTableMetadataExecutor {
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {
 
     Table jooqTable = getJooqTable(table);
-    Name searchColumnName = name(MG_TEXT_SEARCH_COLUMN_NAME);
+    Name searchColumnName = name(searchColumnName(table));
     Name searchIndexName = name(table.getTableName() + "_search_idx");
 
     // also add text search  column

@@ -3,7 +3,6 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlQueryGraphExecutor;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,6 +12,7 @@ import java.util.Map;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlTableMutationFields.getPrimaryKeyInput;
+import static org.molgenis.emx2.sql.SqlQuery.*;
 
 public class GraphqlTableQueryFields {
 
@@ -73,11 +73,11 @@ public class GraphqlTableQueryFields {
         GraphQLObjectType.newObject().name(table.getName() + "Connection");
     connectionBuilder.field(
         GraphQLFieldDefinition.newFieldDefinition()
-            .name(SqlQueryGraphExecutor.DATA_AGG_FIELD)
+            .name(DATA_AGG_FIELD)
             .type(createTableAggregationType(table)));
     connectionBuilder.field(
         GraphQLFieldDefinition.newFieldDefinition()
-            .name(SqlQueryGraphExecutor.DATA_FIELD)
+            .name(DATA_FIELD)
             .type(GraphQLList.list(tableType))
             .argument(
                 GraphQLArgument.newArgument()
@@ -205,19 +205,19 @@ public class GraphqlTableQueryFields {
                         .name(table.getName() + "AggregatorFor" + col.getName())
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphExecutor.MAX_FIELD)
+                                .name(MAX_FIELD)
                                 .type(graphQLTypeOf(col)))
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphExecutor.MIN_FIELD)
+                                .name(MIN_FIELD)
                                 .type(graphQLTypeOf(col)))
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphExecutor.AVG_FIELD)
+                                .name(AVG_FIELD)
                                 .type(Scalars.GraphQLFloat))
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SqlQueryGraphExecutor.SUM_FIELD)
+                                .name(SUM_FIELD)
                                 .type(graphQLTypeOf(col)))));
       } else {
         // group by options

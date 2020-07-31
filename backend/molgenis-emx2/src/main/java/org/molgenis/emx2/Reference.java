@@ -32,7 +32,7 @@ public class Reference {
     return type;
   }
 
-  public DataType getJooqType() {
+  public DataType<?> getJooqType() {
     return toJooqType(getColumnType());
   }
 

@@ -65,6 +65,7 @@ public class TestExtends {
     // try to add column that already exists in parent
     try {
       employee.getMetadata().add(column("birthDate").type(DATE));
+      fail("should fail: cannot add column to subclass that already exists in superclass");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
@@ -72,6 +73,7 @@ public class TestExtends {
     // try to extend twice
     try {
       manager.getMetadata().setInherit("Student");
+      fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }

@@ -46,7 +46,7 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
-          if (getLocalColumn(column.getName()) != null)
+          if (getColumn(column.getName()) != null)
             throw new MolgenisException(
                 "Add column failed",
                 "Duplicate name; column with name "
