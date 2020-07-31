@@ -139,7 +139,6 @@ public class TestRefBack {
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));
-
     posts.insert(new Row().set("title", "joes post").set("user", "joe"));
 
     // now the magic

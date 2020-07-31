@@ -81,11 +81,7 @@ public class SqlQuery extends QueryBean {
     from = refJoins(table, tableAlias, from, filter, select);
 
     // where
-    Condition searchCondition = filterConditionSearch(table, tableAlias, searchTerms);
-    Condition condition =
-        searchCondition != null
-            ? and(searchCondition, filterConditions(table, table.getTableName(), filter))
-            : filterConditions(table, table.getTableName(), filter);
+    Condition condition = filter(table, tableAlias, filter, searchTerms);
 
     SelectConnectByStep<Record> where = condition != null ? from.where(condition) : from;
     SelectConnectByStep<Record> query = limitOffsetOrderBy(select, where);
@@ -102,7 +98,7 @@ public class SqlQuery extends QueryBean {
       }
       return result;
     } catch (DataAccessException | SQLException e) {
-      throw new MolgenisException("Query failed", e);
+      throw new MolgenisException(QUERY_FAILED, e);
     }
   }
 
@@ -125,7 +121,8 @@ public class SqlQuery extends QueryBean {
       } else if (MREF.equals(column.getColumnType())) {
         fields.add(rowMrefSubselect(column, tableAlias).as(columnAlias));
       } else if (REFBACK.equals(column.getColumnType())) {
-        fields.add(array(rowBackrefSubselect(column, tableAlias)).as(column.getName()));
+        fields.add(
+            field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
       } else if (REF.equals(column.getColumnType()) || REF_ARRAY.equals(column.getColumnType())) {
         fields.addAll(
             column.getRefColumns().stream()
@@ -166,10 +163,8 @@ public class SqlQuery extends QueryBean {
 
   private static SelectConditionStep<Record> rowBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = column.getMappedByColumn();
-    List<Field<?>> select = new ArrayList<>();
     List<Condition> where = new ArrayList<>();
     for (Reference ref : mappedBy.getRefColumns()) {
-      select.add(field(name(ref.getTo())));
       switch (mappedBy.getColumnType()) {
         case REF:
           where.add(
@@ -179,7 +174,7 @@ public class SqlQuery extends QueryBean {
         case REF_ARRAY:
           where.add(
               condition(
-                  "{0} = ANY ({1})",
+                  ANY_SQL,
                   field(name(tableAlias, ref.getTo())),
                   field(name(mappedBy.getTable().getTableName(), ref.getTo()))));
           break;
@@ -188,7 +183,7 @@ public class SqlQuery extends QueryBean {
               "Internal error", "Refback for type not matched for column " + column.getName());
       }
     }
-    return DSL.select(select)
+    return DSL.select(column.getRefTable().getPrimaryKeyFields())
         .from(name(mappedBy.getTable().getSchemaName(), mappedBy.getTable().getTableName()))
         .where(where);
   }
@@ -256,12 +251,7 @@ public class SqlQuery extends QueryBean {
     subquery = refJoins(table, table.getTableName(), subquery, filter, null);
 
     // where
-    Condition searchCondition = filterConditionSearch(table, tableAlias, searchTerms);
-    Condition condition =
-        searchCondition != null
-            ? and(searchCondition, filterConditions(table, table.getTableName(), filter))
-            : filterConditions(table, table.getTableName(), filter);
-
+    Condition condition = filter(table, tableAlias, filter, searchTerms);
     return condition != null ? subquery.where(condition) : subquery;
   }
 
@@ -520,6 +510,22 @@ public class SqlQuery extends QueryBean {
           "For column " + column.getTable().getTableName() + "." + column.getName());
     }
     return and(foreignKeyMatch);
+  }
+
+  private static Condition filter(
+      TableMetadata table, String tableAlias, Filter filter, String[] searchTerms) {
+    Condition searchCondition = filterConditionSearch(table, tableAlias, searchTerms);
+    Condition filterCondition = filterConditions(table, tableAlias, filter);
+
+    if (searchCondition != null && filterCondition != null) {
+      return and(searchCondition, filterCondition);
+    } else if (searchCondition != null) {
+      return searchCondition;
+    } else if (filterCondition != null) {
+      return filterCondition;
+    } else {
+      return null;
+    }
   }
 
   private static Condition filterConditions(
@@ -794,7 +800,9 @@ public class SqlQuery extends QueryBean {
         }
       }
       table = table.getInheritedTable();
-      searchConditions.add(and(subConditions));
+      if (!subConditions.isEmpty()) {
+        searchConditions.add(and(subConditions));
+      }
     }
     return searchConditions.isEmpty() ? null : or(searchConditions);
   }
