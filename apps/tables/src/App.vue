@@ -23,6 +23,10 @@ export default {
       if (this.schema) return this.schema.name + " / Tables";
       return "Tables";
     },
+    schemaName() {
+      if (this.schema) return this.schema.name;
+      return null;
+    },
     menuItems() {
       return [
         { label: "Tables", href: "../tables/" },
@@ -40,7 +44,7 @@ export default {
         },
         {
           label: "GraphQL",
-          href: "/api/playground.html?schema=/api/graphql/" + this.schema
+          href: "/api/playground.html?schema=/api/graphql/" + this.schemaName
         },
         {
           label: "Settings",

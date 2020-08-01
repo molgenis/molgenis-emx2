@@ -1,27 +1,42 @@
 <template>
-  <Molgenis :menuItems="menuItems" :title="'Schema ' + schema" id="__top">
+  <Molgenis :menuItems="menuItems" id="__top">
     <Spinner v-if="loading" />
     <MessageError v-else-if="error">{{ error }}</MessageError>
-    <div v-else>
-      <InputBoolean
-        v-model="showAttributes"
-        label="show attributes"
-        :defaultValue="showAttributes"
-      />
-      <div style="overflow: auto; text-align:center">
-        <Spinner v-if="loadingYuml" />
-        <img
-          :style="{ visibility: loadingYuml ? 'hidden' : 'visible' }"
-          :src="yuml"
-          :key="showAttributes"
-          @load="loadingYuml = false"
+    <div v-else :class="{ 'img-fullscreen': imgFullscreen }">
+      <div>
+        <IconAction
+          v-if="!loadingYuml"
+          class="fullscreen-icon"
+          :icon="imgFullscreen ? 'compress' : 'expand'"
+          @click="imgFullscreen = !imgFullscreen"
         />
+        <h1>Schema: {{ schema }}</h1>
+        <InputBoolean
+          v-model="showAttributes"
+          label="show attributes"
+          :defaultValue="showAttributes"
+        />
+        <Spinner v-if="loadingYuml" />
+        <div
+          style="text-align:center; overflow: auto;"
+          v-scroll-lock="imgFullscreen"
+        >
+          <img
+            :style="{
+              visibility: loadingYuml ? 'hidden' : 'visible',
+              'max-width': imgFullscreen ? 'none' : '100%'
+            }"
+            @load="loadingYuml = false"
+            :src="yuml"
+            :key="showAttributes"
+            alt="Small"
+          />
+        </div>
       </div>
-      <div></div>
-      <span v-for="table in tables" :key="table.name">
-        <a href="." v-scroll-to="'#' + table.name">{{ table.name }}</a> |
-      </span>
     </div>
+    <span v-for="table in tables" :key="table.name">
+      <a href="." v-scroll-to="'#' + table.name">{{ table.name }}</a> |
+    </span>
     <div>
       {{ count }} tables found
       <IconAction icon="plus" @click="tableAdd = true" />
@@ -29,17 +44,17 @@
         <table class="table table-hover">
           <tbody v-for="table in tables" :key="table.name">
             <tr>
-              <td colspan="4">
+              <td colspan="3">
                 <h1 :id="table.name">
                   {{ table.name }}
                   <IconBar class="hover">
                     <!--IconAction
-                                                                                                                      icon="edit"
-                                                                                                                      @click="
-                                                                                                                        currentTable = table;
-                                                                                                                        tableAdd = true;
-                                                                                                                      "
-                                                                                                                    /-->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      icon="edit"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @click="
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        currentTable = table;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        tableAdd = true;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      "
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    /-->
                     <IconDanger
                       icon="trash"
                       @click="
@@ -49,9 +64,8 @@
                     />
                   </IconBar>
                 </h1>
-                <br />
-                <a href="." v-scroll-to="'#__top'">back to top</a>
               </td>
+              <td><a href="." v-scroll-to="'#__top'">back to top</a></td>
             </tr>
             <tr>
               <th scope="col">
@@ -72,15 +86,14 @@
             <tr v-for="column in table.columns" :key="column.name">
               <td>
                 {{ column.name }}
-                <IconBar class="hover">
-                  <IconAction
+                <span class="hover"
+                  ><IconAction
                     icon="edit"
                     @click="
                       currentTable = table;
                       currentColumn = column;
                       columnAlter = true;
-                    "
-                  />
+                    "/>
                   <IconDanger
                     icon="trash"
                     @click="
@@ -88,8 +101,7 @@
                       currentColumn = column;
                       columnDrop = true;
                     "
-                  />
-                </IconBar>
+                /></span>
               </td>
               <td>
                 <span>{{ column.columnType }}</span>
@@ -185,6 +197,23 @@ table tr:hover .hover {
 table th:hover .hover {
   opacity: 1;
 }
+
+.img-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  overflow: auto;
+  background: rgb(250, 250, 250);
+}
+
+.fullscreen-icon {
+  float: right;
+  top: 0px;
+  right: 0px;
+}
 </style>
 
 <script>
@@ -211,9 +240,6 @@ Vue.use(VScrollLock);
 Vue.use(VueScrollTo);
 
 export default {
-  props: {
-    schema: String
-  },
   components: {
     IconBar,
     IconAction,
@@ -229,6 +255,7 @@ export default {
   },
   data: function() {
     return {
+      schema: null,
       showAttributes: false,
       loading: false,
       loadingYuml: false,
@@ -240,7 +267,8 @@ export default {
       columnAdd: false,
       columnDrop: false,
       tableAdd: false,
-      tableDrop: false
+      tableDrop: false,
+      imgFullscreen: false
     };
   },
   methods: {

@@ -33,7 +33,6 @@
       <a href="#" @click.prevent="removeAll">
         remove all filters
       </a>
-      <hr />
     </span>
   </div>
 </template>

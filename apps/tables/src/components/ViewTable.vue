@@ -11,10 +11,10 @@
         <Spinner />
       </div>
       <div v-else class="col">
+        <FilterWells v-if="table" :filters="tableMetadata.columns" />
         <div>
           <label>{{ count }} records found</label>
         </div>
-        <FilterWells v-if="table" :filters="tableMetadata.columns" />
         <MolgenisTable
           :metadata="tableMetadata"
           :data="data"

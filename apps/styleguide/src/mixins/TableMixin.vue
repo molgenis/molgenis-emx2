@@ -65,9 +65,9 @@ export default {
     reload() {
       if (this.tableMetadata != undefined) {
         this.loading = true;
+        this.error = null;
         request("graphql", this.graphql, { filter: this.graphqlFilter })
           .then(data => {
-            this.error = null;
             this.data = data[this.table]["data"];
             this.count = data[this.table]["data_agg"]["count"];
             this.loading = false;
@@ -98,9 +98,9 @@ export default {
             result = element;
           }
         });
+        this.error = "Table " + table + " not found";
       }
       if (result) return result;
-      this.error = "Table " + table + " not found";
     }
   },
   watch: {
