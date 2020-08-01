@@ -505,7 +505,7 @@ public class SqlQuery extends QueryBean {
               selectFrom(table(name(column.getSchemaName(), joinTable)).as(joinTableAlias))
                   .where(where)));
     } else {
-      throw new SqlQueryGraphException(
+      throw new SqlQueryException(
           "Internal error",
           "For column " + column.getTable().getTableName() + "." + column.getName());
     }
@@ -593,7 +593,7 @@ public class SqlQuery extends QueryBean {
       case JSONB_ARRAY:
         return filterCondtionArrayEquals(name, operator, toJsonbArray(values));
       default:
-        throw new SqlQueryGraphException(
+        throw new SqlQueryException(
             SqlQuery.QUERY_FAILED,
             "Filter of '"
                 + name
@@ -611,7 +611,7 @@ public class SqlQuery extends QueryBean {
     } else if (NOT_EQUALS.equals(operator)) {
       return not(field(columnName).in(values));
     } else {
-      throw new SqlQueryGraphException(
+      throw new SqlQueryException(
           SqlQuery.QUERY_FAILED, SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
     }
   }
@@ -629,7 +629,7 @@ public class SqlQuery extends QueryBean {
         conditions.add(condition("{0} && {1}", values, field(columnName)));
         break;
       default:
-        throw new SqlQueryGraphException(
+        throw new SqlQueryException(
             SqlQuery.QUERY_FAILED,
             SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
             operator,
@@ -678,7 +678,7 @@ public class SqlQuery extends QueryBean {
                   value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
           break;
         default:
-          throw new SqlQueryGraphException(
+          throw new SqlQueryException(
               SqlQuery.QUERY_FAILED,
               SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
               operator,
@@ -719,7 +719,7 @@ public class SqlQuery extends QueryBean {
                   value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
           break;
         default:
-          throw new SqlQueryGraphException(
+          throw new SqlQueryException(
               SqlQuery.QUERY_FAILED,
               SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
               operator,
@@ -742,7 +742,7 @@ public class SqlQuery extends QueryBean {
         case NOT_BETWEEN:
           not = true;
           if (i + 1 > values.length)
-            throw new SqlQueryGraphException(
+            throw new SqlQueryException(
                 SqlQuery.QUERY_FAILED, SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           if (values[i] != null && values[i + 1] != null) {
             conditions.add(field(columnName).notBetween(values[i], values[i + 1]));
@@ -757,7 +757,7 @@ public class SqlQuery extends QueryBean {
           break;
         case BETWEEN:
           if (i + 1 > values.length)
-            throw new SqlQueryGraphException(
+            throw new SqlQueryException(
                 SqlQuery.QUERY_FAILED, SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
           if (values[i] != null && values[i + 1] != null) {
             conditions.add(field(columnName).between(values[i], values[i + 1]));
@@ -771,7 +771,7 @@ public class SqlQuery extends QueryBean {
           i++; // NOSONAR
           break;
         default:
-          throw new SqlQueryGraphException(
+          throw new SqlQueryException(
               SqlQuery.QUERY_FAILED,
               SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
               operator,
