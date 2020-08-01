@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.molgenis.emx2.Operator.AND;
+
 public class QueryBean implements Query {
   private SelectColumn select;
   private Filter filter;
@@ -11,7 +13,7 @@ public class QueryBean implements Query {
 
   public QueryBean() {
     this.select = new SelectColumn(null);
-    this.filter = new FilterBean(null);
+    this.filter = new FilterBean(AND);
   }
 
   @Override

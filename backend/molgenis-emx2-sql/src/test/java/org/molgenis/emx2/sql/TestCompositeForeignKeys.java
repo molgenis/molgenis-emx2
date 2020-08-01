@@ -7,10 +7,12 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
+import static graphql.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -104,19 +106,51 @@ public class TestCompositeForeignKeys {
             .retrieveJSON();
     System.out.println(result);
 
-    // composite key filter
-    //    result =
-    //        schema
-    //            .query("Student")
-    //            .select(s("data").subselect(s("firstName"), s("lastName")))
-    //            // composite filter, should result in 'donald duck' OR 'mickey mouse'
-    //            .where(
-    //                f("uncle")
-    //                        .has(f("firstName", EQUALS, "Donald",f("lastName", EQUALS, "Duck"))
-    //                        .or(f("firstName", EQUALS, "Mickey"),f("lastName", EQUALS, "Mouse")))
-    //            .retrieveJSON();
+    result =
+        schema
+            .query("Student")
+            .select(s("data").subselect(s("firstName"), s("lastName")))
+            .where(
+                or(
+                    and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
+                    and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse"))))
+            .retrieveJSON();
 
     System.out.println(result);
+    assertTrue(result.toString().contains("Mouse"));
+    assertFalse(result.toString().contains("Duck"));
+
+    result =
+        schema
+            .query("Person")
+            .select(s("data").subselect(s("firstName"), s("lastName")))
+            .where(
+                or(
+                    and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
+                    and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse"))))
+            .retrieveJSON();
+
+    System.out.println(result);
+    assertTrue(result.toString().contains("Mouse"));
+    assertTrue(result.toString().contains("Duck"));
+
+    // composite key filter
+    result =
+        schema
+            .query("Person")
+            .select(s("data").subselect(s("firstName"), s("lastName")))
+            // composite filter, should result in 'donald duck' OR 'mickey mouse'
+            .where(
+                f(
+                    "uncle",
+                    or(
+                        and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
+                        and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse")))))
+            .retrieveJSON();
+
+    System.out.println(result);
+    assertTrue(result.toString().contains("Kwik"));
+    assertFalse(result.toString().contains("Mouse"));
   }
 
   @Test

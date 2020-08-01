@@ -7,6 +7,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -22,8 +23,7 @@ import java.util.stream.Collectors;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.Operator.NOT_EQUALS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -81,8 +81,7 @@ public class SqlQuery extends QueryBean {
     from = refJoins(table, tableAlias, from, filter, select);
 
     // where
-    Condition condition = filter(table, tableAlias, filter, searchTerms);
-
+    Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<Record> where = condition != null ? from.where(condition) : from;
     SelectConnectByStep<Record> query = limitOffsetOrderBy(select, where);
 
@@ -251,7 +250,7 @@ public class SqlQuery extends QueryBean {
     subquery = refJoins(table, table.getTableName(), subquery, filter, null);
 
     // where
-    Condition condition = filter(table, tableAlias, filter, searchTerms);
+    Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     return condition != null ? subquery.where(condition) : subquery;
   }
 
@@ -391,19 +390,23 @@ public class SqlQuery extends QueryBean {
     // filter based joins
     if (filters != null) {
       for (Filter filter : filters.getSubfilters()) {
-        Column column = isValidColumn(table, filter.getColumn());
-        if (column.isReference() && !filter.getSubfilters().isEmpty()) {
-          String subAlias = tableAlias + "-" + column.getName();
-          join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(subAlias))
-              .on(refJoinCondition(column, tableAlias, subAlias));
-          // recurse
-          join =
-              refJoins(
-                  column.getRefTable(),
-                  subAlias,
-                  join,
-                  filter,
-                  selection != null ? selection.getSubselect(column.getName()) : null);
+        if (OR.equals(filter.getOperator()) || AND.equals(filter.getOperator())) {
+          join = refJoins(table, tableAlias, join, filter, selection);
+        } else {
+          Column column = isValidColumn(table, filter.getColumn());
+          if (column.isReference() && !filter.getSubfilters().isEmpty()) {
+            String subAlias = tableAlias + "-" + column.getName();
+            join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(subAlias))
+                .on(refJoinCondition(column, tableAlias, subAlias));
+            // recurse
+            join =
+                refJoins(
+                    column.getRefTable(),
+                    subAlias,
+                    join,
+                    filter,
+                    selection != null ? selection.getSubselect(column.getName()) : null);
+          }
         }
       }
     }
@@ -512,10 +515,10 @@ public class SqlQuery extends QueryBean {
     return and(foreignKeyMatch);
   }
 
-  private static Condition filter(
+  private static Condition whereConditions(
       TableMetadata table, String tableAlias, Filter filter, String[] searchTerms) {
-    Condition searchCondition = filterConditionSearch(table, tableAlias, searchTerms);
-    Condition filterCondition = filterConditions(table, tableAlias, filter);
+    Condition searchCondition = whereConditionSearch(table, tableAlias, searchTerms);
+    Condition filterCondition = whereConditionsFilter(table, tableAlias, filter);
 
     if (searchCondition != null && filterCondition != null) {
       return and(searchCondition, filterCondition);
@@ -528,29 +531,43 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private static Condition filterConditions(
+  private static Condition whereConditionsFilter(
       TableMetadata table, String tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
     for (Filter filter : filters.getSubfilters()) {
-      Column column = table.getColumn(filter.getColumn());
-
-      if (column.isReference()) {
+      if (Operator.OR.equals(filter.getOperator())) {
         conditions.add(
-            filterConditions(column.getRefTable(), tableAlias + "-" + column.getName(), filter));
+            or(
+                filter.getSubfilters().stream()
+                    .map(f -> whereConditionsFilter(table, tableAlias, f))
+                    .collect(Collectors.toList())));
+      } else if (Operator.AND.equals(filter.getOperator())) {
+        conditions.add(
+            and(
+                filter.getSubfilters().stream()
+                    .map(f -> whereConditionsFilter(table, tableAlias, f))
+                    .collect(Collectors.toList())));
       } else {
-        conditions.add(
-            filterCondition(
-                tableAlias,
-                column.getName(),
-                column.getColumnType(),
-                filter.getOperator(),
-                filter.getValues()));
+        Column column = isValidColumn(table, filter.getColumn());
+        if (column.isReference()) {
+          conditions.add(
+              whereConditionsFilter(
+                  column.getRefTable(), tableAlias + "-" + column.getName(), filter));
+        } else {
+          conditions.add(
+              whereCondition(
+                  tableAlias,
+                  column.getName(),
+                  column.getColumnType(),
+                  filter.getOperator(),
+                  filter.getValues()));
+        }
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
   }
 
-  private static Condition filterCondition(
+  private static Condition whereCondition(
       String tableAlias,
       String columnName,
       ColumnType type,
@@ -560,38 +577,38 @@ public class SqlQuery extends QueryBean {
     switch (type) {
       case TEXT:
       case STRING:
-        return filterConditionText(name, operator, toStringArray(values));
+        return whereConditionText(name, operator, toStringArray(values));
       case BOOL:
-        return filterConditionEquals(name, operator, toBoolArray(values));
+        return whereConditionEquals(name, operator, toBoolArray(values));
       case UUID:
-        return filterConditionEquals(name, operator, toUuidArray(values));
+        return whereConditionEquals(name, operator, toUuidArray(values));
       case JSONB:
-        return filterConditionEquals(name, operator, toJsonbArray(values));
+        return whereConditionEquals(name, operator, toJsonbArray(values));
       case INT:
-        return filterConditionOrdinal(name, operator, toIntArray(values));
+        return whereConditionOrdinal(name, operator, toIntArray(values));
       case DECIMAL:
-        return filterConditionOrdinal(name, operator, toDecimalArray(values));
+        return whereConditionOrdinal(name, operator, toDecimalArray(values));
       case DATE:
-        return filterConditionOrdinal(name, operator, toDateArray(values));
+        return whereConditionOrdinal(name, operator, toDateArray(values));
       case DATETIME:
-        return filterConditionOrdinal(name, operator, toDateTimeArray(values));
+        return whereConditionOrdinal(name, operator, toDateTimeArray(values));
       case STRING_ARRAY:
       case TEXT_ARRAY:
-        return filterConditionTextArray(name, operator, toStringArray(values));
+        return whereConditionTextArray(name, operator, toStringArray(values));
       case BOOL_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toBoolArray(values));
+        return whereCondtionArrayEquals(name, operator, toBoolArray(values));
       case UUID_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toUuidArray(values));
+        return whereCondtionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toIntArray(values));
+        return whereCondtionArrayEquals(name, operator, toIntArray(values));
       case DECIMAL_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toDecimalArray(values));
+        return whereCondtionArrayEquals(name, operator, toDecimalArray(values));
       case DATE_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toDateArray(values));
+        return whereCondtionArrayEquals(name, operator, toDateArray(values));
       case DATETIME_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toDateTimeArray(values));
+        return whereCondtionArrayEquals(name, operator, toDateTimeArray(values));
       case JSONB_ARRAY:
-        return filterCondtionArrayEquals(name, operator, toJsonbArray(values));
+        return whereCondtionArrayEquals(name, operator, toJsonbArray(values));
       default:
         throw new SqlQueryException(
             SqlQuery.QUERY_FAILED,
@@ -604,7 +621,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private static Condition filterConditionEquals(
+  private static Condition whereConditionEquals(
       Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     if (EQUALS.equals(operator)) {
       return field(columnName).in(values);
@@ -616,7 +633,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private static Condition filterCondtionArrayEquals(
+  private static Condition whereCondtionArrayEquals(
       Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
@@ -639,7 +656,7 @@ public class SqlQuery extends QueryBean {
     else return or(conditions);
   }
 
-  private static Condition filterConditionTextArray(
+  private static Condition whereConditionTextArray(
       Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
@@ -689,7 +706,7 @@ public class SqlQuery extends QueryBean {
     else return or(conditions);
   }
 
-  private static Condition filterConditionText(
+  private static Condition whereConditionText(
       Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
@@ -730,7 +747,7 @@ public class SqlQuery extends QueryBean {
     else return or(conditions);
   }
 
-  private static Condition filterConditionOrdinal(
+  private static Condition whereConditionOrdinal(
       Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
@@ -738,7 +755,7 @@ public class SqlQuery extends QueryBean {
       switch (operator) {
         case EQUALS:
         case NOT_EQUALS:
-          return filterConditionEquals(columnName, operator, values);
+          return whereConditionEquals(columnName, operator, values);
         case NOT_BETWEEN:
           not = true;
           if (i + 1 > values.length)
@@ -782,7 +799,7 @@ public class SqlQuery extends QueryBean {
     else return or(conditions);
   }
 
-  private static Condition filterConditionSearch(
+  private static Condition whereConditionSearch(
       TableMetadata table, String tableAlias, String[] searchTerms) {
     List<Condition> searchConditions = new ArrayList<>();
     while (table != null) {

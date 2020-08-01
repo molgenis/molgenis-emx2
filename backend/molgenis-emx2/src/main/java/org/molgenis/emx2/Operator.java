@@ -1,6 +1,9 @@
 package org.molgenis.emx2;
 
 public enum Operator {
+  // in case of a nested query
+  OR("or", "Used to define  complex subqueries that should be combined using OR operator"),
+  AND("and", "Used to define  complex subqueries that should be combined using AND operator"),
   // equality
   EQUALS("equals", "Uses '=' operator. In case of arrays '= ANY'"),
   NOT_EQUALS("not_equals", "Uses != operator. In case of array 'NOT (= ANY)'"),
