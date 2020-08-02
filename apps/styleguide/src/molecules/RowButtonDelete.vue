@@ -56,7 +56,7 @@ export default {
       return `Delete from ${this.table}`;
     },
     pkeyAsString() {
-      return Object.values(this.pkey).join(" ");
+      return this.flattenObject(this.pkey);
     }
   },
   methods: {
@@ -71,6 +71,19 @@ export default {
         .catch(error => {
           this.error = error.response.errors[0].message;
         });
+    }, //duplicated code from MolgenisTable, think of util lib
+    flattenObject(object) {
+      let result = "";
+      Object.keys(object).forEach(key => {
+        if (object[key] === null) {
+          //nothing
+        } else if (typeof object[key] === "object") {
+          result += this.flattenObject(object[key]);
+        } else {
+          result += " " + object[key];
+        }
+      });
+      return result;
     }
   }
 };
