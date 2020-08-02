@@ -93,12 +93,14 @@ export default {
     getTable(table) {
       let result = undefined;
       if (this.schema != null && this.schema.tables != null) {
-        this.schema.tables.forEach(element => {
-          if (element.name === table) {
-            result = element;
+        this.schema.tables.forEach(t => {
+          if (t.name == table) {
+            result = t;
           }
         });
-        this.error = "Table " + table + " not found";
+        if (!result) {
+          this.error = "Table " + table + " not found";
+        }
       }
       if (result) return result;
     }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service styleguidist",
     "build": "vue-cli-service build --target lib --name @mswertz/emx2-styleguide src/index.js",
     "lint": "vue-cli-service lint",
     "format": "vue-cli-service lint --fix",

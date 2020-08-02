@@ -105,7 +105,7 @@ export default {
             } else if (col.columnType.startsWith("BOOL")) {
               filter[col.name] = { equals: col.conditions };
             } else if (col.columnType.startsWith("REF")) {
-              filter[col.name] = { _byPrimaryKey: col.conditions };
+              filter[col.name] = { equals: col.conditions };
             } else if (
               [
                 "DECIMAL",
