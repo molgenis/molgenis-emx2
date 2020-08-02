@@ -12,8 +12,16 @@ public class FilterBean implements Filter {
     return new FilterBean(Operator.OR, filters);
   }
 
+  public static Filter or(List<Filter> filters) {
+    return new FilterBean(Operator.OR, filters.toArray(new Filter[filters.size()]));
+  }
+
   public static Filter and(Filter... filters) {
     return new FilterBean(Operator.AND, filters);
+  }
+
+  public static Filter and(List<Filter> filters) {
+    return new FilterBean(Operator.AND, filters.toArray(new Filter[filters.size()]));
   }
 
   public static Filter f(String columnName, Filter... filters) {
@@ -55,7 +63,7 @@ public class FilterBean implements Filter {
       if (columnName != null
           && this.subFilters.stream().filter(c -> c.getColumn().equals(columnName)).count() > 0) {
         throw new MolgenisException(
-            "Invalid filter", "already created filter for field " + f.getColumn());
+            "Invalid filter", "already created filter for field '" + f.getColumn() + "'");
       }
       this.subFilters.add(f);
     }

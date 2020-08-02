@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
+import static org.molgenis.emx2.graphql.GraphqlConstants.EQUALS;
+import static org.molgenis.emx2.graphql.GraphqlConstants.FILTER;
 import static org.molgenis.emx2.graphql.GraphqlTableMutationFields.getPrimaryKeyInput;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
@@ -230,11 +233,10 @@ public class GraphqlTableQueryFields {
 
   private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {
     GraphQLInputObjectType.Builder filterBuilder =
-        GraphQLInputObjectType.newInputObject()
-            .name(table.getTableName() + GraphqlConstants.FILTER);
+        GraphQLInputObjectType.newInputObject().name(table.getTableName() + FILTER);
     filterBuilder.field(
         GraphQLInputObjectField.newInputObjectField()
-            .name("_byPrimaryKey")
+            .name(EQUALS)
             .type(GraphQLList.list(getPrimaryKeyInput(table)))
             .build());
     for (Column col : table.getColumns()) {
@@ -245,7 +247,7 @@ public class GraphqlTableQueryFields {
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
                 .name(col.getName())
-                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + GraphqlConstants.FILTER))
+                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER))
                 .build());
       } else {
         filterBuilder.field(
@@ -281,8 +283,7 @@ public class GraphqlTableQueryFields {
       String typeName = type.toString().toLowerCase();
       typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
       GraphQLInputObjectType.Builder builder =
-          GraphQLInputObjectType.newInputObject()
-              .name("Molgenis" + typeName + GraphqlConstants.FILTER);
+          GraphQLInputObjectType.newInputObject().name("Molgenis" + typeName + FILTER);
       for (Operator operator : type.getOperators()) {
         builder.field(
             GraphQLInputObjectField.newInputObjectField()
@@ -328,32 +329,53 @@ public class GraphqlTableQueryFields {
   private static FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
-      Column c = table.getMetadata().getColumn(entry.getKey());
-      if (c == null)
-        throw new GraphqlException(
-            "Graphql API error",
-            "Column " + entry.getKey() + " unknown in table " + table.getName());
-      ColumnType type = c.getColumnType();
-      if (ColumnType.REF.equals(type)
-          || ColumnType.REF_ARRAY.equals(type)
-          || ColumnType.REFBACK.equals(type)) {
+      if (entry.getKey().equals(EQUALS)) {
+        //  complex filter, should be an list of maps per graphql contract
         subFilters.add(
-            f(
-                c.getName(),
-                convertMapToFilterArray(
-                    table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
+            or(
+                ((List<Map<String, Object>>) entry.getValue())
+                    .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
       } else {
-        if (entry.getValue() instanceof Map) {
-          subFilters.add(
-              convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
-        } else {
+        Column c = table.getMetadata().getColumn(entry.getKey());
+        if (c == null)
           throw new GraphqlException(
               "Graphql API error",
-              "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
+              "Column " + entry.getKey() + " unknown in table " + table.getName());
+        ColumnType type = c.getColumnType();
+        if (ColumnType.REF.equals(type)
+            || ColumnType.REF_ARRAY.equals(type)
+            || ColumnType.REFBACK.equals(type)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  convertMapToFilterArray(
+                      table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
+        } else {
+          if (entry.getValue() instanceof Map) {
+            subFilters.add(
+                convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
+          } else {
+            throw new GraphqlException(
+                "Graphql API error",
+                "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
+          }
         }
       }
     }
     return subFilters.toArray(new FilterBean[subFilters.size()]);
+  }
+
+  private static Filter createKeyFilter(Map<String, Object> map) {
+
+    List<Filter> result = new ArrayList<>();
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
+      if (entry.getValue() instanceof Map) {
+        result.add(f(entry.getKey(), createKeyFilter((Map<String, Object>) entry.getValue())));
+      } else {
+        result.add(f(entry.getKey(), Operator.EQUALS, entry.getValue()));
+      }
+    }
+    return and(result);
   }
 
   private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {

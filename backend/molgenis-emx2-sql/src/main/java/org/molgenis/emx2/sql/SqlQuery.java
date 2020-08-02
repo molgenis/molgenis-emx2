@@ -78,7 +78,7 @@ public class SqlQuery extends QueryBean {
             .from(tableWithInheritanceJoin(table).as(tableAlias));
 
     // joins, only filtered tables
-    from = refJoins(table, tableAlias, from, filter, select);
+    from = refJoins(table, tableAlias, from, filter, select, new ArrayList<>());
 
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
@@ -247,7 +247,8 @@ public class SqlQuery extends QueryBean {
             .from(tableWithInheritanceJoin(table).as(tableAlias));
 
     // joins, only filtered tables
-    subquery = refJoins(table, table.getTableName(), subquery, filter, null);
+    subquery =
+        refJoins(table, table.getTableName(), subquery, filter, null, new ArrayList<String>());
 
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
@@ -385,17 +386,48 @@ public class SqlQuery extends QueryBean {
       String tableAlias,
       SelectJoinStep<Record> join,
       Filter filters,
-      SelectColumn selection) {
+      SelectColumn selection,
+      List<String> aliasList) {
 
     // filter based joins
     if (filters != null) {
       for (Filter filter : filters.getSubfilters()) {
         if (OR.equals(filter.getOperator()) || AND.equals(filter.getOperator())) {
-          join = refJoins(table, tableAlias, join, filter, selection);
+          join = refJoins(table, tableAlias, join, filter, selection, aliasList);
         } else {
           Column column = isValidColumn(table, filter.getColumn());
           if (column.isReference() && !filter.getSubfilters().isEmpty()) {
             String subAlias = tableAlias + "-" + column.getName();
+            if (!aliasList.contains(subAlias)) {
+              // to ensure only join once
+              aliasList.add(subAlias);
+              // the join
+              join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(subAlias))
+                  .on(refJoinCondition(column, tableAlias, subAlias));
+              // recurse
+              join =
+                  refJoins(
+                      column.getRefTable(),
+                      subAlias,
+                      join,
+                      filter,
+                      selection != null ? selection.getSubselect(column.getName()) : null,
+                      aliasList);
+            }
+          }
+        }
+      }
+    }
+    // add missing selection joins, only used for row based queries
+    if (selection != null) {
+      for (SelectColumn select : selection.getSubselect()) {
+        // then do same as above
+        Column column = isValidColumn(table, select.getColumn());
+        if (column.isReference()) {
+          String subAlias = tableAlias + "-" + column.getName();
+          // only join if subselection extists
+          if (!aliasList.contains(subAlias) && !select.getSubselect().isEmpty()) {
+            aliasList.add(subAlias);
             join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(subAlias))
                 .on(refJoinCondition(column, tableAlias, subAlias));
             // recurse
@@ -404,37 +436,10 @@ public class SqlQuery extends QueryBean {
                     column.getRefTable(),
                     subAlias,
                     join,
-                    filter,
-                    selection != null ? selection.getSubselect(column.getName()) : null);
+                    filters != null ? filters.getSubfilter(column.getName()) : null,
+                    select,
+                    aliasList);
           }
-        }
-      }
-    }
-    // add missing selection joins, only used for row based queries
-    if (selection != null) {
-      for (SelectColumn select : selection.getSubselect()) {
-
-        // only if not already joined because of filters
-        // also skip if there is no subselection
-        if (filters != null && filters.getSubfilter(select.getColumn()) != null
-            || select.getSubselect().isEmpty()) {
-          continue;
-        }
-
-        // then do same as above
-        Column column = isValidColumn(table, select.getColumn());
-        if (column.isReference()) {
-          String subAlias = tableAlias + "-" + column.getName();
-          join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(subAlias))
-              .on(refJoinCondition(column, tableAlias, subAlias));
-          // recurse
-          join =
-              refJoins(
-                  column.getRefTable(),
-                  subAlias,
-                  join,
-                  filters != null ? filters.getSubfilter(column.getName()) : null,
-                  select);
         }
       }
     }

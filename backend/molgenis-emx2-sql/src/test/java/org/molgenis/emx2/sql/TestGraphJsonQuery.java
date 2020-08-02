@@ -135,7 +135,7 @@ public class TestGraphJsonQuery {
 
     s.where(
         f("name", EQUALS, "opa1"),
-        f("children", f("children", f("name", EQUALS, "kind")), f("name", EQUALS, "ma")));
+        f("children", f("name", EQUALS, "ma"), f("children", f("name", EQUALS, "kind"))));
 
     result = s.retrieveJSON();
     System.out.println(result);

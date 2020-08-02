@@ -59,7 +59,7 @@ public class TestGraphQLCompositeKeys {
             + "  }\n"
             + "}");
 
-    // add refback (unfortunately cannot yet do that in one go)
+    // add refback (TODO unfortunately cannot yet do that in one call)
     execute(
         "mutation {create(columns: [{table: \"TargetTable\" name: \"refbacks\" columnType:"
             + " \"REFBACK\" refTable: \"RefTable\"mappedBy: \"ref\"}]) {message}}");
@@ -92,14 +92,40 @@ public class TestGraphQLCompositeKeys {
     assertEquals("Donald", result.at("/RefTable/data/0/ref/0/firstName").asText());
     assertEquals("Duck", result.at("/RefTable/data/0/ref/0/lastName").asText());
 
-    // update via refback
+    // update via refback, only id1=3,id2=1 should now refer to Donald,Duck
     execute(
         "mutation{update(TargetTable:[{firstName:\"Donald\",lastName:\"Duck\", refbacks:[{id1:3,id2:\"a\"}]}]){message}}");
 
-    result = execute("{RefTable{data{id1,id2,ref{firstName,lastName}}}}");
+    result =
+        execute(
+            "{RefTable(filter:{ref:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}}){data{id1,id2,ref{firstName,lastName}}data_agg{count}}}");
     System.out.println(result.toPrettyString());
-    assertEquals("Donald", result.at("/RefTable/data/2/ref/1/firstName").asText());
-    assertEquals("Duck", result.at("/RefTable/data/2/ref/1/lastName").asText());
+    assertEquals(1, result.at("/RefTable/data_agg/count").asInt());
+    assertEquals("Donald", result.at("/RefTable/data/0/ref/1/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable/data/0/ref/1/lastName").asText());
+
+    result =
+        execute(
+            "{TargetTable(filter:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}){data{firstName,lastName}}}");
+    System.out.println(result.toPrettyString());
+    assertEquals("Donald", result.at("/TargetTable/data/0/firstName").asText());
+    assertEquals("Duck", result.at("/TargetTable/data/0/lastName").asText());
+
+    result =
+        execute(
+            "{TargetTable(filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]}){data{firstName,lastName},data_agg{count}}}");
+    System.out.println(result.toPrettyString());
+    assertEquals("Katrien", result.at("/TargetTable/data/0/firstName").asText());
+    assertEquals("Mouse", result.at("/TargetTable/data/0/lastName").asText());
+    assertEquals("Donald", result.at("/TargetTable/data/1/firstName").asText());
+    assertEquals("Duck", result.at("/TargetTable/data/1/lastName").asText());
+    assertEquals(2, result.at("/TargetTable/data_agg/count").asInt());
+
+    result =
+        execute(
+            "{RefTable(filter:{ref:{equals:[{firstName:\"Donald\",lastName:\"Duck\"}]}}){data{id1,id2,ref{firstName,lastName}}data_agg{count}}}");
+    System.out.println(result.toPrettyString());
+    assertEquals(1, result.at("/RefTable/data_agg/count").asInt());
   }
 
   @Test
@@ -157,6 +183,10 @@ public class TestGraphQLCompositeKeys {
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText(), "");
+    } else {
+      if (node.get("data") != null && node.get("data").get("message") != null) {
+        System.out.println("MUTATION MESSAGE: " + node.get("data").get("message").asText());
+      }
     }
     return new ObjectMapper().readTree(result).get("data");
   }

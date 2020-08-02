@@ -132,7 +132,7 @@ class SqlColumnRefBackExecutor {
             .collect(Collectors.joining(","));
     String newMappedByTo =
         mappedBy.getRefColumns().stream()
-            .map(r -> "NEW." + name(r.getTo()) + " AS " + name(r.getTo()))
+            .map(r -> "NEW." + name(r.getTo())) // + " AS " + name(r.getTo()))
             .collect(Collectors.joining(","));
     String mappedByToEqualsNewKey =
         mappedBy.getRefColumns().stream()
@@ -176,23 +176,38 @@ class SqlColumnRefBackExecutor {
             + "\nDECLARE error_row RECORD;"
             + "\nBEGIN"
             // for first refColumn value that does not in refTable key values raise error
-            + "\n\tFOR error_row IN SELECT * FROM UNNEST({5}) as t({6}) EXCEPT (SELECT {6} FROM {2}) LOOP"
+            + "\n\tFOR error_row IN SELECT * FROM UNNEST({5}) as u({6}) EXCEPT (SELECT {6} FROM {2}) LOOP"
             + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', "
             + "\n\t\tMESSAGE = 'update or delete on table '||{9}||' violates foreign key constraint',"
             + "\n\t\tDETAIL = 'Key ('||{10}||')=('|| {13} ||') is not present in table '||{11}||', column '||{12};"
             + "\n\tEND LOOP;"
             // check for on conflict update via 'not exists ...'
             + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8}) THEN "
+            // === (1) remove references that are not needed
             + "\n\t\tFOR error_row IN SELECT {19},{3} FROM {2} "
-            + "\n\t\t\tWHERE ({6}) IN (SELECT * FROM UNNEST({5}) as t({6}))"
-            + "\n\t\t\tOR ({4}) IN (SELECT * FROM UNNEST({3}) as t({21}))  LOOP"
-            + "\n\t\tUPDATE {2} AS t SET {1} FROM ("
+            // where OLD ids in the list
+            + "\n\t\t\tWHERE ({4}) IN (SELECT * FROM UNNEST({3}) as u({21}))"
+            // but not in the refback
+            + "\n\t\t\tAND ({6}) NOT IN (SELECT * FROM UNNEST({5}) as u({6})) "
+            + "\n\t\tLOOP UPDATE {2} AS t SET {1} FROM ("
             + "\n\t\t\tSELECT {17} FROM ("
-            // cop previous value, remove old key (if exist), and union the new key
-            + "\n\t\t\t\tSELECT * FROM UNNEST({20}) AS t1({21}) EXCEPT(SElECT {4}) UNION (SELECT {14})"
+            // set copy of previous ref_array values except the values that need removal
+            + "\n\t\t\t\tSELECT * FROM UNNEST({20}) AS t1({21}) EXCEPT (SElECT {4})"
             + "\n\t\t\t) AS t2"
-            + "\n\t\t) AS t3 WHERE {18};"
-            + "\n\tEND LOOP; END IF;"
+            + "\n\t\t) AS t3 WHERE {18}; END LOOP;"
+            // === (2) add missing refs
+            + "\n\t\tFOR error_row IN SELECT {19},{3} FROM {2} "
+            // in the refback
+            + "\n\t\t\tWHERE ({6}) IN (SELECT * FROM UNNEST({5}) as u({6})) "
+            // and not yet in the ref_array
+            + "\n\t\t\t AND ({14}) NOT IN (SELECT * FROM UNNEST({3}) as u({21})) "
+            // update arrays to include the new refback
+            + "\n\t\tLOOP UPDATE {2} AS t SET {1} FROM ("
+            + "\n\t\t\tSELECT {17} FROM ("
+            + "\n\t\t\t\tSELECT * FROM UNNEST({20}) AS t1({21}) UNION (SELECT {14})"
+            + "\n\t\t\t) AS t2"
+            + "\n\t\t) AS t3 WHERE {18}; END LOOP;"
+            + "\n\tEND IF;"
             + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {7} WHERE {8}) THEN {15}; END IF;"
             + "\n\tRETURN NEW;"
             + "\nEND;"

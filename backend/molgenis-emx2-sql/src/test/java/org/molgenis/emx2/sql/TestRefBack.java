@@ -6,8 +6,7 @@ import org.molgenis.emx2.*;
 
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
@@ -28,17 +27,15 @@ public class TestRefBack {
   @Test
   public void restRefArrayBack() {
 
+    // Table Parts(partname)
     Table parts = schema.create(table("Parts").add(column("partname").pkey()));
 
+    // Table Products(productname, parts->ref(Parts))
     Table products =
         schema.create(
             table("Products")
                 .add(column("productname").pkey())
                 .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true)));
-
-    parts
-        .getMetadata()
-        .add(column("products").type(REFBACK).refTable("Products").mappedBy("parts"));
 
     parts.insert(new Row().set("partname", "smallscreen"));
     parts.insert(new Row().set("partname", "bigscreen"));
@@ -46,16 +43,58 @@ public class TestRefBack {
     parts.insert(new Row().set("partname", "battery"));
 
     // ref_array entry via 'products', business as usual
+    products.insert(new Row().set("productname", "bigphone"));
     products.insert(
         new Row()
             .set("productname", "smallphone")
             .set("parts", new String[] {"smallscreen", "smallbutton"}));
 
-    // refback entry update, i.e. via 'products'
-    products.insert(new Row().set("productname", "bigphone"));
+    // add refback, Table Parts(partname,products->refback(product))
+    parts
+        .getMetadata()
+        .add(column("products").type(REFBACK).refTable("Products").mappedBy("parts"));
 
-    // update,   bigphone should have bigsreen+battery, smallphone should have battery added
-    // part, i.e.
+    // use refback to update indirectly
+    parts.update(new Row().set("partname", "bigscreen").set("products", "bigphone"));
+
+    // so now bigphone.parts = [bigscreen]
+    assertEquals(
+        "bigscreen",
+        products
+            .query()
+            .where(f("productname", EQUALS, "bigphone"))
+            .retrieveRows()
+            .get(0)
+            .getStringArray("parts")[0]);
+
+    // if reback is not updated then nothing happens
+    parts.update(new Row().set("partname", "bigscreen"));
+
+    // so now bigphone.parts = [bigscreen]
+    assertEquals(
+        "bigscreen",
+        products
+            .query()
+            .where(f("productname", EQUALS, "bigphone"))
+            .retrieveRows()
+            .get(0)
+            .getStringArray("parts")[0]);
+
+    // if refback is set to null all are remove
+    parts.update(new Row().set("partname", "bigscreen").set("products", null));
+
+    // so now bigphone.parts = [] or null
+    assertNull(
+        "bigscreen",
+        products
+            .query()
+            .where(f("productname", EQUALS, "bigphone"))
+            .retrieveRows()
+            .get(0)
+            .getStringArray("parts"));
+
+    // now multiple
+
     parts.update(
         new Row().set("partname", "bigscreen").set("products", "bigphone"),
         new Row()
@@ -68,6 +107,7 @@ public class TestRefBack {
     parts.update(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
 
     List<Row> pTest = products.getRows();
+
     assertEquals(2, pTest.size());
     assertEquals("smallphone", pTest.get(0).getString("productname"));
     assertEquals(4, pTest.get(0).getStringArray("parts").length);
