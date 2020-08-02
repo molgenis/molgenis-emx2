@@ -59,6 +59,11 @@ subprojects {
         project.delete(files("node_modules"))
     }
 
+    sonarqube {
+        properties {
+            property "sonar.sources", "src"
+        }
+    }
 }
 
 /** skip yarn install unless changes => removed because leads to travis errors*/
