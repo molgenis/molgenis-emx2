@@ -95,21 +95,19 @@ public class TestCompositeForeignKeys {
 
     String result =
         schema
-            .query("Student")
-            .select(
-                s("data")
-                    .subselect(
-                        s("firstName"),
-                        s("lastName"),
-                        s("uncle", s("firstName"), s("lastName")),
-                        s("uncle", s("firstName"), s("lastName"))))
+            .query(
+                "Student",
+                s("firstName"),
+                s("lastName"),
+                s("uncle", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
             .retrieveJSON();
     System.out.println(result);
 
     result =
         schema
             .query("Student")
-            .select(s("data").subselect(s("firstName"), s("lastName")))
+            .select(s("firstName"), s("lastName"))
             .where(
                 or(
                     and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
@@ -123,7 +121,7 @@ public class TestCompositeForeignKeys {
     result =
         schema
             .query("Person")
-            .select(s("data").subselect(s("firstName"), s("lastName")))
+            .select(s("firstName"), s("lastName"))
             .where(
                 or(
                     and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
@@ -138,7 +136,7 @@ public class TestCompositeForeignKeys {
     result =
         schema
             .query("Person")
-            .select(s("data").subselect(s("firstName"), s("lastName")))
+            .select(s("firstName"), s("lastName"))
             // composite filter, should result in 'donald duck' OR 'mickey mouse'
             .where(
                 f(
@@ -197,12 +195,7 @@ public class TestCompositeForeignKeys {
     String result =
         schema
             .query("Student")
-            .select(
-                s(
-                    "data",
-                    s("firstName"),
-                    s("lastName"),
-                    s("cousins", s("firstName"), s("lastName"))))
+            .select(s("firstName"), s("lastName"), s("cousins", s("firstName"), s("lastName")))
             .retrieveJSON();
 
     System.out.println(result);

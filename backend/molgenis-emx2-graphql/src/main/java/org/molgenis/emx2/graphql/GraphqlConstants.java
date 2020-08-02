@@ -12,9 +12,6 @@ public class GraphqlConstants {
     // hide constructor
   }
 
-  public static final String ACCEPT_JSON = "application/json";
-  public static final String CONTENT_TYPE = "Content-type";
-
   public static final String NAME = "name";
   public static final String INHERIT = "inherit";
   public static final String FILTER = "Filter";

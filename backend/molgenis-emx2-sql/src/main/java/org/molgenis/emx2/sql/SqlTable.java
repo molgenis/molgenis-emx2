@@ -251,6 +251,11 @@ class SqlTable implements Table {
     return query().select(columns);
   }
 
+  @Override
+  public Query agg(SelectColumn columns) {
+    return agg().select(columns);
+  }
+
   public Query where(Filter... filters) {
     return query().where(filters);
   }
@@ -320,7 +325,13 @@ class SqlTable implements Table {
 
   @Override
   public Query query() {
-    return new SqlQuery(this.getMetadata());
+    return new SqlQuery((SqlSchemaMetadata) this.getMetadata().getSchema(), this.getName());
+  }
+
+  @Override
+  public Query agg() {
+    return new SqlQuery(
+        (SqlSchemaMetadata) this.getMetadata().getSchema(), this.getName() + "_agg");
   }
 
   @Override

@@ -26,11 +26,15 @@ public interface Table {
 
   //  Query filter(String path, Operator operator, Object... values);
 
+  Query agg(SelectColumn columns);
+
   Query where(Filter... filters);
 
   Query search(String searchTerms);
 
   Query query();
+
+  Query agg();
 
   List<Row> getRows();
 }

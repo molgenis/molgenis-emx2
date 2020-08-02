@@ -37,148 +37,133 @@ public class TestGraphqSchemaFields {
   @Test
   public void testTableQueries() throws IOException {
     // simple
-    TestCase.assertEquals("pooky", execute("{Pet{data{name}}}").at("/Pet/data/0/name").textValue());
+    TestCase.assertEquals("pooky", execute("{Pet{name}}").at("/Pet/0/name").textValue());
 
     TestCase.assertEquals(
-        "pooky", execute("{Pet{data{name}data_agg{count}}}").at("/Pet/data/0/name").textValue());
+        "pooky", execute("{Pet{name}Pet_agg{count}}").at("/Pet/0/name").textValue());
 
     // simple ref
-    JsonNode result = execute("{Pet{data{name,category{name}}}}");
-    TestCase.assertEquals("cat", result.at("/Pet/data/0/category/name").textValue());
+    JsonNode result = execute("{Pet{name,category{name}}}");
+    TestCase.assertEquals("cat", result.at("/Pet/0/category/name").textValue());
 
     // equals text
     TestCase.assertEquals(
         "spike",
-        execute("{Pet(filter:{name:{equals:\"spike\"}}){data{name}}}")
-            .at("/Pet/data/0/name")
-            .textValue());
+        execute("{Pet(filter:{name:{equals:\"spike\"}}){name}}").at("/Pet/0/name").textValue());
 
     // not equals text
     TestCase.assertEquals(
         "pooky",
-        execute("{Pet(filter:{name:{not_equals:\"spike\"}}){data{name}}}")
-            .at("/Pet/data/0/name")
-            .textValue());
+        execute("{Pet(filter:{name:{not_equals:\"spike\"}}){name}}").at("/Pet/0/name").textValue());
 
     // like text
     TestCase.assertEquals(
         "pooky",
-        execute("{Pet(filter:{name:{like:\"oky\"}}){data{name}}}")
-            .at("/Pet/data/0/name")
-            .textValue());
+        execute("{Pet(filter:{name:{like:\"oky\"}}){name}}").at("/Pet/0/name").textValue());
     // not like text
     TestCase.assertEquals(
         "spike",
-        execute("{Pet(filter:{name:{not_like:\"oky\"}}){data{name}}}")
-            .at("/Pet/data/0/name")
-            .textValue());
+        execute("{Pet(filter:{name:{not_like:\"oky\"}}){name}}").at("/Pet/0/name").textValue());
 
     // trigram
     TestCase.assertEquals(
         "pooky",
-        execute("{Pet(filter:{name:{trigram_search:\"pook\"}}){data{name}}}")
-            .at("/Pet/data/0/name")
+        execute("{Pet(filter:{name:{trigram_search:\"pook\"}}){name}}")
+            .at("/Pet/0/name")
             .textValue());
 
     // textsearch
     TestCase.assertEquals(
         "pooky",
-        execute("{Pet(filter:{name:{text_search:\"pook\"}}){data{name}}}")
-            .at("/Pet/data/0/name")
-            .textValue());
+        execute("{Pet(filter:{name:{text_search:\"pook\"}}){name}}").at("/Pet/0/name").textValue());
 
     // equals int
     TestCase.assertEquals(
         "pooky",
-        execute("{Order(filter:{quantity:{equals:1}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{quantity:{equals:1}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // not equals int
     TestCase.assertEquals(
         "spike",
-        execute("{Order(filter:{quantity:{not_equals:1}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{quantity:{not_equals:1}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // between int
     TestCase.assertEquals(
         "pooky",
-        execute("{Order(filter:{quantity:{between:[1,3]}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{quantity:{between:[1,3]}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // between int one sided
     TestCase.assertEquals(
         "spike",
-        execute("{Order(filter:{quantity:{between:[3,null]}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{quantity:{between:[3,null]}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // between int one sided
     TestCase.assertEquals(
         "pooky",
-        execute("{Order(filter:{quantity:{not_between:[null,3]}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{quantity:{not_between:[null,3]}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // equal bool
     TestCase.assertEquals(
         "pooky",
-        execute("{Order(filter:{complete:{equals:true}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{complete:{equals:true}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // not equal bool
     TestCase.assertEquals(
         "spike",
-        execute("{Order(filter:{complete:{equals:false}}){data{quantity,pet{name}}}}")
-            .at("/Order/data/0/pet/name")
+        execute("{Order(filter:{complete:{equals:false}}){quantity,pet{name}}}")
+            .at("/Order/0/pet/name")
             .textValue());
 
     // search
     TestCase.assertEquals(
         "spike",
-        execute("{Pet(search:\"spike\"){data{name,category{name},tags{name}}}}")
-            .at("/Pet/data/0/name")
+        execute("{Pet(search:\"spike\"){name,category{name},tags{name}}}")
+            .at("/Pet/0/name")
             .textValue());
 
     // offset
-    TestCase.assertEquals(
-        "spike", execute("{Pet{data(offset:1){name}}}").at("/Pet/data/0/name").textValue());
+    TestCase.assertEquals("spike", execute("{Pet(offset:1){name}}").at("/Pet/0/name").textValue());
 
     // limit
-    TestCase.assertEquals(1, execute("{Pet{data(limit:1){name}}}").at("/Pet/data").size());
+    TestCase.assertEquals(1, execute("{Pet(limit:1){name}}").at("/Pet").size());
 
     // orderby asc
     TestCase.assertEquals(
-        "pooky",
-        execute("{Pet{data(orderby:{name:ASC}){name}}}").at("/Pet/data/0/name").textValue());
+        "pooky", execute("{Pet(orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
 
     // order by desc
     TestCase.assertEquals(
-        "spike",
-        execute("{Pet{data(orderby:{name:DESC}){name}}}").at("/Pet/data/0/name").textValue());
+        "spike", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
     // filter nested
     TestCase.assertEquals(
         "red",
-        execute("{Pet(filter:{tags:{name:{equals:\"red\"}}}){data{name,tags{name}}}}")
-            .at("/Pet/data/0/tags/0/name")
+        execute("{Pet(filter:{tags:{name:{equals:\"red\"}}}){name,tags{name}}}")
+            .at("/Pet/0/tags/0/name")
             .textValue());
 
     // root agg
     TestCase.assertEquals(
         7,
-        execute("{Order{data_agg{quantity{max,min,sum,avg}}}}")
-            .at("/Order/data_agg/quantity/max")
-            .intValue());
+        execute("{Order_agg{quantity{max,min,sum,avg}}}").at("/Order_agg/quantity/max").intValue());
 
     // nested agg
     TestCase.assertEquals(
         15.7d,
-        execute("{User{data{pets_agg{count,weight{max,min,sum,avg}}}}}")
-            .at("/User/data/0/pets_agg/weight/max")
+        execute("{User{pets_agg{count,weight{max,min,sum,avg}}}}")
+            .at("/User/0/pets_agg/weight/max")
             .doubleValue(),
         0.0f);
   }
@@ -239,15 +224,13 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void saveAndDeleteRows() throws IOException {
-    int count = execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue();
+    int count = execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue();
     // insert should increase count
     execute("mutation{insert(Tag:{name:\"blaat\"}){message}}");
-    TestCase.assertEquals(
-        count + 1, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
+    TestCase.assertEquals(count + 1, execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue());
     // delete
     execute("mutation{delete(Tag:{name:\"blaat\"}){message}}");
-    TestCase.assertEquals(
-        count, execute("{Tag{data_agg{count}}}").at("/Tag/data_agg/count").intValue());
+    TestCase.assertEquals(count, execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue());
   }
 
   @Test

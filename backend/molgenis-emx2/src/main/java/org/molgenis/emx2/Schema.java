@@ -21,6 +21,8 @@ public interface Schema {
 
   Query query(String tableName);
 
+  Query query(String field, SelectColumn... selection);
+
   void tx(Transaction transaction);
 
   void merge(SchemaMetadata from);

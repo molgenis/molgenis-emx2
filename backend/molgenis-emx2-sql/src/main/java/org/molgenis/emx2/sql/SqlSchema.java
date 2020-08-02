@@ -113,6 +113,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public Query query(String field, SelectColumn... selection) {
+    return new SqlQuery(this.getMetadata(), field, selection);
+  }
+
+  @Override
   public void tx(Transaction transaction) {
     db.tx(transaction);
   }

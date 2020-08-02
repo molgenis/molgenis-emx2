@@ -82,50 +82,62 @@ public class TestGraphQLCompositeKeys {
             + "]){message}}");
 
     // test query
-    JsonNode result = execute("{RefTable{data{id1,id2,ref{firstName,lastName}}}}");
+    JsonNode result = execute("{RefTable{id1,id2,ref{firstName,lastName}}}");
     System.out.println(result.toPrettyString());
 
-    assertEquals(2, result.at("/RefTable/data/0/ref").size());
+    assertEquals(2, result.at("/RefTable/0/ref").size());
     // order is determined by TargetTable unfortunately
-    assertEquals("Katrien", result.at("/RefTable/data/0/ref/1/firstName").asText());
-    assertEquals("Mouse", result.at("/RefTable/data/0/ref/1/lastName").asText());
-    assertEquals("Donald", result.at("/RefTable/data/0/ref/0/firstName").asText());
-    assertEquals("Duck", result.at("/RefTable/data/0/ref/0/lastName").asText());
+    assertEquals("Katrien", result.at("/RefTable/0/ref/1/firstName").asText());
+    assertEquals("Mouse", result.at("/RefTable/0/ref/1/lastName").asText());
+    assertEquals("Donald", result.at("/RefTable/0/ref/0/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable/0/ref/0/lastName").asText());
 
     // update via refback, only id1=3,id2=1 should now refer to Donald,Duck
     execute(
         "mutation{update(TargetTable:[{firstName:\"Donald\",lastName:\"Duck\", refbacks:[{id1:3,id2:\"a\"}]}]){message}}");
 
+    String filter = "(filter:{ref:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}})";
     result =
         execute(
-            "{RefTable(filter:{ref:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}}){data{id1,id2,ref{firstName,lastName}}data_agg{count}}}");
+            "{RefTable"
+                + filter
+                + "{id1,id2,ref{firstName,lastName}}RefTable_agg"
+                + filter
+                + "{count}}");
     System.out.println(result.toPrettyString());
-    assertEquals(1, result.at("/RefTable/data_agg/count").asInt());
-    assertEquals("Donald", result.at("/RefTable/data/0/ref/1/firstName").asText());
-    assertEquals("Duck", result.at("/RefTable/data/0/ref/1/lastName").asText());
+    assertEquals(1, result.at("/RefTable_agg/count").asInt());
+    assertEquals("Donald", result.at("/RefTable/0/ref/1/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable/0/ref/1/lastName").asText());
 
     result =
         execute(
-            "{TargetTable(filter:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}){data{firstName,lastName}}}");
+            "{TargetTable(filter:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}){firstName,lastName}}");
     System.out.println(result.toPrettyString());
-    assertEquals("Donald", result.at("/TargetTable/data/0/firstName").asText());
-    assertEquals("Duck", result.at("/TargetTable/data/0/lastName").asText());
+    assertEquals("Donald", result.at("/TargetTable/0/firstName").asText());
+    assertEquals("Duck", result.at("/TargetTable/0/lastName").asText());
 
+    filter =
+        "(filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]})";
     result =
         execute(
-            "{TargetTable(filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]}){data{firstName,lastName},data_agg{count}}}");
+            "{TargetTable" + filter + "{firstName,lastName},TargetTable_agg" + filter + "{count}}");
     System.out.println(result.toPrettyString());
-    assertEquals("Katrien", result.at("/TargetTable/data/0/firstName").asText());
-    assertEquals("Mouse", result.at("/TargetTable/data/0/lastName").asText());
-    assertEquals("Donald", result.at("/TargetTable/data/1/firstName").asText());
-    assertEquals("Duck", result.at("/TargetTable/data/1/lastName").asText());
-    assertEquals(2, result.at("/TargetTable/data_agg/count").asInt());
+    assertEquals("Katrien", result.at("/TargetTable/0/firstName").asText());
+    assertEquals("Mouse", result.at("/TargetTable/0/lastName").asText());
+    assertEquals("Donald", result.at("/TargetTable/1/firstName").asText());
+    assertEquals("Duck", result.at("/TargetTable/1/lastName").asText());
+    assertEquals(2, result.at("/TargetTable_agg/count").asInt());
 
+    filter = "(filter:{ref:{equals:[{firstName:\"Donald\",lastName:\"Duck\"}]}})";
     result =
         execute(
-            "{RefTable(filter:{ref:{equals:[{firstName:\"Donald\",lastName:\"Duck\"}]}}){data{id1,id2,ref{firstName,lastName}}data_agg{count}}}");
+            "{RefTable"
+                + filter
+                + "{id1,id2,ref{firstName,lastName}}RefTable_agg"
+                + filter
+                + "{count}}");
     System.out.println(result.toPrettyString());
-    assertEquals(1, result.at("/RefTable/data_agg/count").asInt());
+    assertEquals(1, result.at("/RefTable_agg/count").asInt());
   }
 
   @Test
@@ -167,15 +179,15 @@ public class TestGraphQLCompositeKeys {
             + "]){message}}");
 
     // test query
-    JsonNode result = execute("{RefTable2{data{id,ref{firstName,lastName}}}}");
+    JsonNode result = execute("{RefTable2{id,ref{firstName,lastName}}}");
     System.out.println(result.toPrettyString());
 
-    assertEquals(2, result.at("/RefTable2/data/0/ref").size());
+    assertEquals(2, result.at("/RefTable2/0/ref").size());
     // order is determined by TargetTable unfortunately
-    assertEquals("Katrien", result.at("/RefTable2/data/0/ref/1/firstName").asText());
-    assertEquals("Mouse", result.at("/RefTable2/data/0/ref/1/lastName").asText());
-    assertEquals("Donald", result.at("/RefTable2/data/0/ref/0/firstName").asText());
-    assertEquals("Duck", result.at("/RefTable2/data/0/ref/0/lastName").asText());
+    assertEquals("Katrien", result.at("/RefTable2/0/ref/1/firstName").asText());
+    assertEquals("Mouse", result.at("/RefTable2/0/ref/1/lastName").asText());
+    assertEquals("Donald", result.at("/RefTable2/0/ref/0/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable2/0/ref/0/lastName").asText());
   }
 
   private static JsonNode execute(String query) throws IOException {

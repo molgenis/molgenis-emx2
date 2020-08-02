@@ -16,6 +16,11 @@ public class QueryBean implements Query {
     this.filter = new FilterBean(AND);
   }
 
+  public QueryBean(String field) {
+    this.select = new SelectColumn(field);
+    this.filter = new FilterBean(AND);
+  }
+
   @Override
   public Query select(SelectColumn... columns) {
     this.select.subselect(columns);

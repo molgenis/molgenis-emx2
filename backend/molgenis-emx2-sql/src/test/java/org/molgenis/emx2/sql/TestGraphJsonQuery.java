@@ -83,7 +83,7 @@ public class TestGraphJsonQuery {
     StopWatch.print("begin");
 
     Query s = schema.getTable("Pet").query();
-    s.select(s("data", s("name"), s("status"), s("category", s("name"))));
+    s.select(s("name"), s("status"), s("category", s("name")));
     String result = s.retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("spike"));
@@ -91,14 +91,12 @@ public class TestGraphJsonQuery {
     s = schema.getTable("Person").query();
 
     s.select(
-        s(
-            "data",
-            s("name"),
-            s("father", s("name"), s("father", s("name")), s("mother", s("name"))),
-            s("mother", s("name"), s("father", s("name")), s("mother", s("name"))),
-            s("children", s("name"), s("children", s("name"))),
-            s("children_agg", s("count")),
-            s("cousins", s("name"), s("cousins", s("name")))));
+        s("name"),
+        s("father", s("name"), s("father", s("name")), s("mother", s("name"))),
+        s("mother", s("name"), s("father", s("name")), s("mother", s("name"))),
+        s("children", s("name"), s("children", s("name"))),
+        s("children_agg", s("count")),
+        s("cousins", s("name"), s("cousins", s("name"))));
 
     result = s.retrieveJSON();
     System.out.println(result);
@@ -111,7 +109,7 @@ public class TestGraphJsonQuery {
   public void testSearch() {
 
     Query s = schema.getTable("Person").query();
-    s.select(s("data", s("name")));
+    s.select(s("name"));
     s.search("opa");
 
     String result = s.retrieveJSON();
@@ -119,12 +117,8 @@ public class TestGraphJsonQuery {
     assertTrue(result.contains("opa"));
 
     s = schema.getTable("Person").query();
-    s.select(
-        s(
-            "data",
-            s("name"),
-            s("children", s("name"), s("children", s("name"))),
-            s("father", s("name"))));
+    s.select(s("name"), s("children", s("name"), s("children", s("name"))), s("father", s("name")));
+
     s.search("opa");
 
     result = s.retrieveJSON();
@@ -166,8 +160,8 @@ public class TestGraphJsonQuery {
 
     StopWatch.print("complete");
 
-    s = schema.getTable("Person").query();
-    s.select(s("data", s("name")));
+    s = schema.query("Person");
+    s.select(s("name"));
     s.where(f("name", TRIGRAM_SEARCH, "opa"));
 
     result = s.retrieveJSON();

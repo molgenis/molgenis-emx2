@@ -38,9 +38,11 @@ export default {
       }
       let search =
         this.searchTerms != null && this.searchTerms !== ""
-          ? '(filter:$filter,search:"' + this.searchTerms + '")'
-          : "(filter:$filter)";
-      return `query ${this.table}($filter:${this.table}Filter){${this.table}${search}{data_agg{count},data(limit:${this.limit},offset:${this.offset}){${this.columnNames}}}}`;
+          ? ',search:"' + this.searchTerms + '")'
+          : "";
+      return `query ${this.table}($filter:${this.table}Filter){
+              ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search}){${this.columnNames}}
+              ${this.table}_agg(filter:$filter${search}){count}}`;
     },
     tableMetadata() {
       return this.getTable(this.table);
@@ -68,8 +70,8 @@ export default {
         this.error = null;
         request("graphql", this.graphql, { filter: this.graphqlFilter })
           .then(data => {
-            this.data = data[this.table]["data"];
-            this.count = data[this.table]["data_agg"]["count"];
+            this.data = data[this.table];
+            this.count = data[this.table + "_agg"]["count"];
             this.loading = false;
           })
           .catch(error => {

@@ -25,6 +25,7 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -32,8 +33,6 @@ import static org.molgenis.emx2.utils.TypeUtils.toJsonbArray;
 
 public class SqlQuery extends QueryBean {
   public static final String COUNT_FIELD = "count";
-  public static final String DATA_AGG_FIELD = "data_agg";
-  public static final String DATA_FIELD = "data";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
@@ -51,11 +50,17 @@ public class SqlQuery extends QueryBean {
 
   private static Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
-  private SqlTableMetadata table;
+  private SqlSchemaMetadata schema;
 
-  public SqlQuery(SqlTableMetadata table) {
-    super();
-    this.table = table;
+  public SqlQuery(SqlSchemaMetadata schema, String field) {
+    super(field);
+    this.schema = schema;
+  }
+
+  public SqlQuery(SqlSchemaMetadata schema, String field, SelectColumn[] selection) {
+    super(field);
+    this.schema = schema;
+    this.select(selection);
   }
 
   @Override
@@ -63,6 +68,16 @@ public class SqlQuery extends QueryBean {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
+
+    SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
+    if (table == null) {
+      throw new MolgenisException(
+          "Query failed",
+          "Field "
+              + select.getColumn()
+              + " unknown for retrieve rows in schema "
+              + schema.getName());
+    }
     String tableAlias = "root-" + table.getTableName();
 
     // if empty selection, we will add the default selection here
@@ -194,35 +209,45 @@ public class SqlQuery extends QueryBean {
     String[] searchTerms = getSearchTerms();
 
     List<Field<Object>> fields = new ArrayList<>();
-    DSLContext sql = table.getJooq();
+    DSLContext sql = schema.getJooq();
+
+    // get the table from root select
+    SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
+    if (table == null & select.getColumn().endsWith("_agg")) {
+      table =
+          schema.getTableMetadata(select.getColumn().substring(0, select.getColumn().length() - 4));
+    }
+    if (table == null) {
+      throw new MolgenisException(
+          "RetrieveJSON failed",
+          "Field "
+              + select.getColumn()
+              + " unknown for JSON queries in schema "
+              + schema.getName());
+    }
 
     // root query
     CommonTableExpression<Record> with =
         name(table.getTableName()).as(jsonRootQuery(table, filter, searchTerms));
 
-    if (select.has(DATA_FIELD)) {
+    if (!select.getColumn().endsWith("_agg")) {
       // get the selected fields
-      Collection<Field<?>> selectFields =
-          jsonSubselectFields(table, table.getTableName(), select.getSubselect(DATA_FIELD));
+      Collection<Field<?>> selectFields = jsonSubselectFields(table, table.getTableName(), select);
       // create query
       Table<Record> query =
-          limitOffsetOrderBy(
-                  select.getSubselect(DATA_FIELD),
-                  sql.select(selectFields).from(name(table.getTableName())))
+          limitOffsetOrderBy(select, sql.select(selectFields).from(name(table.getTableName())))
               .asTable(ITEM);
       // limit/offset
 
       // aggregate into json
-      fields.add(field(sql.select(field(JSON_AGG_SQL)).from(query)).as(DATA_FIELD));
-    }
-    if (select.has(DATA_AGG_FIELD)) {
+      fields.add(field(sql.select(field(JSON_AGG_SQL)).from(query)).as(select.getColumn()));
+    } else {
       // get the selected fields
-      Collection<Field<?>> aggFields =
-          jsonAggregateFields(table, table.getTableName(), select.getSubselect(DATA_AGG_FIELD));
+      Collection<Field<?>> aggFields = jsonAggregateFields(table, table.getTableName(), select);
       // create query
       Table<Record> query = sql.select(aggFields).from(name(table.getTableName())).asTable(ITEM);
       // aggregate into json
-      fields.add(field(sql.select(field(ROW_TO_JSON_SQL)).from(query)).as(DATA_AGG_FIELD));
+      fields.add(field(sql.select(field(ROW_TO_JSON_SQL)).from(query)).as(select.getColumn()));
     }
 
     // asemble final query
@@ -847,7 +872,7 @@ public class SqlQuery extends QueryBean {
     Column column = table.getColumn(columnName);
     if (column == null) {
       throw new MolgenisException(
-          "Query failed", "Column " + column + " is unknown in table " + table.getTableName());
+          "Query failed", "Column '" + column + "' is unknown in table " + table.getTableName());
     }
     return column;
   }

@@ -159,7 +159,7 @@ public class TestWebApi {
     assertTrue(result.contains("Signed in"));
 
     String schemaPath = "/api/graphql/pet store";
-    result = given().body("{\"query\":\"{Pet{data{name}}}\"}").when().post(schemaPath).asString();
+    result = given().body("{\"query\":\"{Pet{name}}\"}").when().post(schemaPath).asString();
     assertTrue(result.contains("spike"));
 
     result =

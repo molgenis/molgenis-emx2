@@ -32,12 +32,42 @@ public class GraphqlTableQueryFields {
 
   public static GraphQLFieldDefinition.Builder tableQueryField(Table table) {
     GraphQLObjectType tableType = GraphqlTableQueryFields.createTableObjectType(table);
-    GraphQLObjectType connection =
-        GraphqlTableQueryFields.createTableableConnectionObjectType(table, tableType);
 
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getName())
-        .type(connection)
+        .type(GraphQLList.list(tableType))
+        .dataFetcher(fetcherForTableQueryField(table))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.FILTER_ARGUMENT)
+                .type(createTableFilterInputObjectType(table.getMetadata()))
+                .build())
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.SEARCH)
+                .type(Scalars.GraphQLString)
+                .build())
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.LIMIT)
+                .type(Scalars.GraphQLInt)
+                .build())
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.OFFSET)
+                .type(Scalars.GraphQLInt)
+                .build())
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ORDERBY)
+                .type(createTableOrderByInputObjectType(table))
+                .build());
+  }
+
+  public static GraphQLFieldDefinition.Builder tableAggField(Table table) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(table.getName() + "_agg")
+        .type(createTableAggregationType(table))
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
@@ -55,49 +85,37 @@ public class GraphqlTableQueryFields {
     return dataFetchingEnvironment -> {
       Table table = aTable;
       Query q = table.query();
+      String fieldName = dataFetchingEnvironment.getField().getName();
+      if (fieldName.endsWith("_agg")) {
+        q = table.agg();
+      }
       q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
+      Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
             convertMapToFilterArray(
                 table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
+      if (args.containsKey(GraphqlConstants.LIMIT)) {
+        q.limit((int) args.get(GraphqlConstants.LIMIT));
+      }
+      if (args.containsKey(GraphqlConstants.OFFSET)) {
+        q.offset((int) args.get(GraphqlConstants.OFFSET));
+      }
+      if (args.containsKey(GraphqlConstants.ORDERBY)) {
+        q.orderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
+      }
+
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
       if (search != null && !search.trim().equals("")) {
         q.search(search);
       }
 
-      return transform(q.retrieveJSON());
+      Object result = transform(q.retrieveJSON());
+      // bit silly, we have to remove root field here. Some refactoring makes this look nicer
+      if (result != null) return ((Map<String, Object>) result).get(fieldName);
+      return null;
     };
-  }
-
-  private static GraphQLObjectType createTableableConnectionObjectType(
-      Table table, GraphQLObjectType tableType) {
-    GraphQLObjectType.Builder connectionBuilder =
-        GraphQLObjectType.newObject().name(table.getName() + "Connection");
-    connectionBuilder.field(
-        GraphQLFieldDefinition.newFieldDefinition()
-            .name(DATA_AGG_FIELD)
-            .type(createTableAggregationType(table)));
-    connectionBuilder.field(
-        GraphQLFieldDefinition.newFieldDefinition()
-            .name(DATA_FIELD)
-            .type(GraphQLList.list(tableType))
-            .argument(
-                GraphQLArgument.newArgument()
-                    .name(GraphqlConstants.LIMIT)
-                    .type(Scalars.GraphQLInt)
-                    .build())
-            .argument(
-                GraphQLArgument.newArgument()
-                    .name(GraphqlConstants.OFFSET)
-                    .type(Scalars.GraphQLInt)
-                    .build())
-            .argument(
-                GraphQLArgument.newArgument()
-                    .name(GraphqlConstants.ORDERBY)
-                    .type(createTableOrderByInputObjectType(table))
-                    .build()));
-    return connectionBuilder.build();
   }
 
   private static GraphQLObjectType createTableObjectType(Table table) {
@@ -231,33 +249,38 @@ public class GraphqlTableQueryFields {
     return builder.build();
   }
 
+  private static Map<String, GraphQLInputObjectType> tableFilterInputTypes = new LinkedHashMap<>();
+
   private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {
-    GraphQLInputObjectType.Builder filterBuilder =
-        GraphQLInputObjectType.newInputObject().name(table.getTableName() + FILTER);
-    filterBuilder.field(
-        GraphQLInputObjectField.newInputObjectField()
-            .name(EQUALS)
-            .type(GraphQLList.list(getPrimaryKeyInput(table)))
-            .build());
-    for (Column col : table.getColumns()) {
-      ColumnType type = col.getColumnType();
-      if (ColumnType.REF.equals(type)
-          || ColumnType.REF_ARRAY.equals(type)
-          || ColumnType.REFBACK.equals(type)) {
-        filterBuilder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(col.getName())
-                .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER))
-                .build());
-      } else {
-        filterBuilder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(col.getName())
-                .type(createColumnFilterInputObjectType(col))
-                .build());
+    if (!tableFilterInputTypes.containsKey(table.getTableName())) {
+      GraphQLInputObjectType.Builder filterBuilder =
+          GraphQLInputObjectType.newInputObject().name(table.getTableName() + FILTER);
+      filterBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name(EQUALS)
+              .type(GraphQLList.list(getPrimaryKeyInput(table)))
+              .build());
+      for (Column col : table.getColumns()) {
+        ColumnType type = col.getColumnType();
+        if (ColumnType.REF.equals(type)
+            || ColumnType.REF_ARRAY.equals(type)
+            || ColumnType.REFBACK.equals(type)) {
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(col.getName())
+                  .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER))
+                  .build());
+        } else {
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(col.getName())
+                  .type(createColumnFilterInputObjectType(col))
+                  .build());
+        }
       }
+      tableFilterInputTypes.put(table.getTableName(), filterBuilder.build());
     }
-    return filterBuilder.build();
+    return tableFilterInputTypes.get(table.getTableName());
   }
 
   private static GraphQLInputObjectType createTableOrderByInputObjectType(Table table) {
@@ -274,12 +297,12 @@ public class GraphqlTableQueryFields {
   }
 
   // cache so we can reuse filter input types between tables
-  static Map<ColumnType, GraphQLInputObjectType> filterInputTypes = new LinkedHashMap<>();
+  static Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
 
   private static GraphQLInputObjectType createColumnFilterInputObjectType(Column column) {
     ColumnType type = column.getColumnType();
     // singleton
-    if (filterInputTypes.get(type) == null) {
+    if (columnFilterInputTypes.get(type) == null) {
       String typeName = type.toString().toLowerCase();
       typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
       GraphQLInputObjectType.Builder builder =
@@ -290,9 +313,9 @@ public class GraphqlTableQueryFields {
                 .name(operator.getName())
                 .type(GraphQLList.list(graphQLTypeOf(column))));
       }
-      filterInputTypes.put(type, builder.build());
+      columnFilterInputTypes.put(type, builder.build());
     }
-    return filterInputTypes.get(type);
+    return columnFilterInputTypes.get(type);
   }
 
   private static GraphQLScalarType graphQLTypeOf(Column col) {

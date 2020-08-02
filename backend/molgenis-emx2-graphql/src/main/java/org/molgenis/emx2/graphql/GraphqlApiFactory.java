@@ -64,6 +64,7 @@ public class GraphqlApiFactory {
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       queryBuilder.field(GraphqlTableQueryFields.tableQueryField(table));
+      queryBuilder.field(GraphqlTableQueryFields.tableAggField(table));
     }
 
     // mutations
@@ -171,7 +172,7 @@ public class GraphqlApiFactory {
     if (json != null) {
       return new ObjectMapper().readValue(json, Map.class);
     } else {
-      return new LinkedHashMap<>();
+      return null;
     }
   }
 }
