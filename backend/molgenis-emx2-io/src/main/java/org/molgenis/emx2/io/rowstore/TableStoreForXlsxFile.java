@@ -17,7 +17,6 @@ import java.util.*;
 
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import static org.apache.poi.ss.usermodel.CellType.FORMULA;
-import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
@@ -56,33 +55,42 @@ public class TableStoreForXlsxFile implements TableStore {
         }
       }
     } catch (IOException ioe) {
-      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
     }
   }
 
   private void writeRowsToSheet(String name, List<Row> rows, Workbook wb) {
 
+    // get the row columns
+    Set<String> columnNames = new HashSet<>();
+    for (Row row : rows) {
+      columnNames.addAll(row.getColumnNames());
+    }
+
+    // create the sheet
     Sheet sheet = wb.createSheet(name);
-    Map<String, Integer> columNames = new LinkedHashMap<>();
+    Map<String, Integer> columnNameIndexMap = new LinkedHashMap<>();
     int rowNum = 0;
+
+    // write the data
     for (Row row : rows) {
       // create header row
       if (rowNum == 0) {
         int columnIndex = 0;
         // define the column indexes
-        for (String columnName : row.getColumnNames()) {
-          columNames.put(columnName, columnIndex++);
+        for (String columnName : columnNames) {
+          columnNameIndexMap.put(columnName, columnIndex++);
         }
         // write a header row
         org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
-        for (Map.Entry<String, Integer> entry : columNames.entrySet()) {
+        for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
           excelRow.createCell(entry.getValue()).setCellValue(entry.getKey());
         }
         rowNum++;
       }
       // write a contents row
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
-      for (Map.Entry<String, Integer> entry : columNames.entrySet()) {
+      for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         excelRow.createCell(entry.getValue()).setCellValue(row.getString(entry.getKey()));
       }
       rowNum++;
@@ -121,7 +129,7 @@ public class TableStoreForXlsxFile implements TableStore {
         this.cache.put(sheetName, result);
       }
     } catch (IOException ioe) {
-      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
     }
     if (logger.isInfoEnabled()) {
       logger.info("Excel file loaded into memory in {}ms", (System.currentTimeMillis() - start));
@@ -135,7 +143,7 @@ public class TableStoreForXlsxFile implements TableStore {
     }
     if (!this.cache.containsKey(name)) {
       throw new MolgenisException(
-          IMPORT_FAILED, "Table with name " + name + " not found in Excel file");
+          "Import failed", "Table with name " + name + " not found in Excel file");
     }
     return this.cache.get(name);
   }

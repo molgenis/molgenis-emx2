@@ -5,9 +5,7 @@ import org.simpleflatmapper.csv.CsvWriter;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CsvTableWriter {
 
@@ -20,12 +18,14 @@ public class CsvTableWriter {
 
     if (rows.isEmpty()) return;
 
+    // get most extensive headers
+    Set<String> columnNames = new HashSet<>();
+    for (Row r : rows) {
+      columnNames.addAll(r.getColumnNames());
+    }
+
     CsvWriter.CsvWriterDSL<Map> writerDsl =
-        CsvWriter.from(Map.class)
-            .columns(
-                rows.get(0)
-                    .getColumnNames()
-                    .toArray(new String[rows.get(0).getColumnNames().size()]));
+        CsvWriter.from(Map.class).columns(columnNames.toArray(new String[columnNames.size()]));
 
     CsvWriter<Map> csvWriter = writerDsl.separator(seperator).to(writer);
     for (Row r : rows) {

@@ -57,7 +57,6 @@ public class ExcelApi {
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
       SchemaExport.toExcelFile(excelFile, schema);
-      outputStream.write(Files.readAllBytes(excelFile));
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",
@@ -65,6 +64,7 @@ public class ExcelApi {
               + schema.getMetadata().getName()
               + System.currentTimeMillis()
               + ".xlsx");
+      outputStream.write(Files.readAllBytes(excelFile));
       return "Export success";
     }
   }

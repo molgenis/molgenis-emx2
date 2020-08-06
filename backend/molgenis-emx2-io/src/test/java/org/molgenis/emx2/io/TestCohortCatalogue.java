@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.io.emx2b.Emx3;
+import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
@@ -33,7 +33,7 @@ public class TestCohortCatalogue {
 
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(file);
 
-    SchemaMetadata cohortSchema = Emx3.readSchema(store.readTable("molgenis"));
+    SchemaMetadata cohortSchema = Emx2.fromRowList(store.readTable("molgenis"));
 
     System.out.println(cohortSchema);
 

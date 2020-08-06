@@ -41,7 +41,6 @@ public class TestImportExportEmx2DataAndMetadata {
       ProductComponentPartsExample.populate(schema1);
 
       StopWatch.print("example schema loaded");
-
       SchemaExport.toDirectory(directory, schema1);
       StopWatch.print("export to directory complete");
       Schema schema2 = database.dropCreateSchema(getClass().getSimpleName() + "2");

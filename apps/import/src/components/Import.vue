@@ -88,7 +88,6 @@ export default {
       this.success = null;
       this.loading = true;
       let formData = new FormData();
-      alert("file: " + this.file.name);
       formData.append("file", this.file);
       let url = "/api/excel/" + this.schema;
       fetch(url, {
@@ -96,7 +95,6 @@ export default {
         body: formData
       })
         .then(response => {
-          alert("response " + JSON.stringify(response));
           if (response.ok) {
             // todo make proper json
             response.text().then(success => {
@@ -111,7 +109,6 @@ export default {
           }
         })
         .catch(error => {
-          alert("error" + JSON.stringify(error));
           this.error = error;
         })
         .finally(() => {

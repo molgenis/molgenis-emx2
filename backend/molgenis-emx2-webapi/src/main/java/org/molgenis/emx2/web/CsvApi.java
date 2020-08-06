@@ -33,7 +33,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static io.swagger.models.ModelImpl.OBJECT;
-import static org.molgenis.emx2.io.emx2.Emx2.loadEmx2File;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
@@ -73,14 +72,14 @@ public class CsvApi {
   }
 
   private static String discardMetadata(Request request, Response response) throws IOException {
-    SchemaMetadata schema = loadEmx2File(getUploadedFile(request), getSeperator(request));
+    SchemaMetadata schema = Emx2.loadEmx2File(getUploadedFile(request), getSeperator(request));
     getSchema(request).discard(schema);
     response.status(200);
     return "remove metadata items success";
   }
 
   static String mergeMetadata(Request request, Response response) throws IOException {
-    SchemaMetadata schema = loadEmx2File(getUploadedFile(request), getSeperator(request));
+    SchemaMetadata schema = Emx2.loadEmx2File(getUploadedFile(request), getSeperator(request));
     getSchema(request).merge(schema);
     response.status(200);
     return "add/update metadata success";

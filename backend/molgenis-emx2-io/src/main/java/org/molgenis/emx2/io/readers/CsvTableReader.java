@@ -4,17 +4,12 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.molgenis.emx2.io.emx2.Emx2.IMPORT_FAILED;
 
 public class CsvTableReader {
 
@@ -28,6 +23,14 @@ public class CsvTableReader {
 
   public static Iterable<Row> read(File f, Character separator) throws IOException {
     return read(new FileReader(f), separator);
+  }
+
+  public static List<Row> readList(File file, Character separator) throws FileNotFoundException {
+    List<Row> result = new ArrayList<>();
+    for (Row r : read(new FileReader(file), separator)) {
+      result.add(r);
+    }
+    return result;
   }
 
   public static List<Row> readList(Reader in, Character separator) {
@@ -54,7 +57,7 @@ public class CsvTableReader {
                 return it.hasNext();
               } catch (Exception e) {
                 throw new MolgenisException(
-                    IMPORT_FAILED,
+                    "Import failed",
                     e.getClass().getName()
                         + ": "
                         + e.getMessage()
@@ -75,7 +78,7 @@ public class CsvTableReader {
             }
           };
     } catch (IOException ioe) {
-      throw new MolgenisException(IMPORT_FAILED, ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
     }
   }
 }

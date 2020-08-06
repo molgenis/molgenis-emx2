@@ -46,6 +46,10 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
+          if (column.getName() == null) {
+            throw new MolgenisException("Add column failed", "Column name cannot be null");
+          }
+
           if (getColumn(column.getName()) != null)
             throw new MolgenisException(
                 "Add column failed",
