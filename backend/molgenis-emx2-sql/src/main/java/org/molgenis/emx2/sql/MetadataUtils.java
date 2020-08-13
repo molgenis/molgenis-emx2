@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.CreateSchemaFinalStep;
-import org.jooq.CreateTableColumnStep;
-import org.jooq.DSLContext;
-import org.jooq.Record;
+import org.jooq.*;
 import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
@@ -37,6 +34,7 @@ public class MetadataUtils {
       field(name("column_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field COLUMN_KEY =
       field(name("column_key"), INTEGER.nullable(true));
+  private static final org.jooq.Field COLUMN_POSITION = field(name("column_position"), INTEGER);
   private static final org.jooq.Field COLUMN_DESCRIPTION =
       field(name("column_description"), VARCHAR.nullable(true));
 
@@ -46,6 +44,10 @@ public class MetadataUtils {
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
   private static final org.jooq.Field VALIDATION_SCRIPT =
       field(name("validationScript"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COMPUTE_SCRIPT =
+      field(name("computeScript"), VARCHAR.nullable(true));
+  private static final org.jooq.Field REF_CONSTRAINT =
+      field(name("refConstraint"), VARCHAR.nullable(true));
 
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
   private static final org.jooq.Field CASCADE_DELETE =
@@ -60,60 +62,65 @@ public class MetadataUtils {
 
   protected static void createMetadataSchemaIfNotExists(DSLContext jooq) {
 
-    // if exists then skip
-    if (!jooq.meta().getSchemas(MOLGENIS).isEmpty()) return;
-
     try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
       step.execute();
-
-      try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-        t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
-      }
-      // public access
-
-      try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
-        t.columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
-            .constraints(
-                primaryKey(TABLE_SCHEMA, TABLE_NAME),
-                foreignKey(TABLE_SCHEMA)
-                    .references(SCHEMA_METADATA)
-                    .onUpdateCascade()
-                    .onDeleteCascade())
-            .execute();
-      }
-
-      try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
-        t.columns(
-                TABLE_SCHEMA,
-                TABLE_NAME,
-                COLUMN_NAME,
-                DATA_TYPE,
-                COLUMN_KEY,
-                NULLABLE,
-                REF_TABLE,
-                MAPPED_BY,
-                VALIDATION_SCRIPT,
-                INDEXED,
-                CASCADE_DELETE,
-                COLUMN_DESCRIPTION)
-            .constraints(
-                primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-                foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                    .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                    .onUpdateCascade()
-                    .onDeleteCascade())
-            .execute();
-      }
-
-      try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
-        t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
-      }
-
-      jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-      jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-      createRowLevelPermissions(jooq, TABLE_METADATA);
-      createRowLevelPermissions(jooq, COLUMN_METADATA);
     }
+
+    try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
+      t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+    }
+    // public access
+    try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
+      int result =
+          t.columns(TABLE_SCHEMA, TABLE_NAME)
+              .constraints(
+                  primaryKey(TABLE_SCHEMA, TABLE_NAME),
+                  foreignKey(TABLE_SCHEMA)
+                      .references(SCHEMA_METADATA)
+                      .onUpdateCascade()
+                      .onDeleteCascade())
+              .execute();
+      if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
+    }
+
+    try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
+      int result =
+          t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
+              .constraints(
+                  primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
+                  foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                      .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                      .onUpdateCascade()
+                      .onDeleteCascade())
+              .execute();
+      if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
+    }
+
+    // this way robuster for non-breaking changes
+    for (Field field :
+        new Field[] {
+          DATA_TYPE,
+          COLUMN_KEY,
+          COLUMN_POSITION,
+          NULLABLE,
+          REF_TABLE,
+          REF_CONSTRAINT,
+          MAPPED_BY,
+          VALIDATION_SCRIPT,
+          COMPUTE_SCRIPT,
+          INDEXED,
+          CASCADE_DELETE,
+          COLUMN_DESCRIPTION
+        }) {
+      jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
+    }
+
+    try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
+      t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+    }
+
+    jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+    jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
   }
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
@@ -207,10 +214,13 @@ public class MetadataUtils {
             COLUMN_NAME,
             DATA_TYPE,
             COLUMN_KEY,
+            COLUMN_POSITION,
             NULLABLE,
             REF_TABLE,
+            REF_CONSTRAINT,
             MAPPED_BY,
             VALIDATION_SCRIPT,
+            COMPUTE_SCRIPT,
             INDEXED,
             CASCADE_DELETE,
             COLUMN_DESCRIPTION)
@@ -220,10 +230,13 @@ public class MetadataUtils {
             column.getName(),
             column.getColumnType(),
             column.getKey(),
+            column.getPosition(),
             column.isNullable(),
             column.getRefTableName(),
+            column.getRefContraint(),
             column.getMappedBy(),
             column.getValidation(),
+            column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription())
@@ -231,10 +244,13 @@ public class MetadataUtils {
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
         .set(COLUMN_KEY, column.getKey())
+        .set(COLUMN_POSITION, column.getPosition())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
+        .set(REF_CONSTRAINT, column.getRefContraint())
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidation())
+        .set(COMPUTE_SCRIPT, column.getComputed())
         .set(INDEXED, column.isIndexed())
         .set(CASCADE_DELETE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
@@ -268,9 +284,11 @@ public class MetadataUtils {
       c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
       c.nullable(col.get(NULLABLE, Boolean.class));
       c.key(col.get(COLUMN_KEY, Integer.class));
+      c.position(col.get(COLUMN_POSITION, Integer.class));
       c.refTable(col.get(REF_TABLE, String.class));
       c.mappedBy(col.get(MAPPED_BY, String.class));
       c.validation(col.get(VALIDATION_SCRIPT, String.class));
+      c.computed(col.get(COMPUTE_SCRIPT, String.class));
       c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
       c.cascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
       columnList.add(new Column(table, c));

@@ -1,5 +1,7 @@
 dependencies {
     implementation 'org.postgresql:postgresql:42.2.14'
+    implementation 'org.graalvm.js:js:20.1.0'
+    implementation 'org.graalvm.js:js-scriptengine:20.1.0'
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-exampledata')
 }

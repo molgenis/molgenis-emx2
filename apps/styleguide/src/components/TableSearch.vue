@@ -23,8 +23,9 @@
     </div>
     <ShowMore title="debug info">
       <pre>
-graphql =
-{{ graphql }}
+graphql = {{ graphql }}
+
+filter = {{ filter }}
 
 selectedItems =
 {{ selectedItems }}
@@ -52,7 +53,8 @@ export default {
   mixins: [TableMixin],
   props: {
     defaultValue: Array,
-    selectColumn: String
+    selectColumn: String,
+    filter: { type: Object, defaultValue: {} }
   },
   components: {
     ShowMore,
@@ -123,5 +125,13 @@ export default {
             }
         };
     </script>
+    ```
+    Example with filter:
+    ```
+    <TableSearch table="Variable" :filter="{collection:{equals:{name:'LifeCycle'}}}">
+        <template v-model="selectedItems" v-slot:rowheader="props">my row action {{props.row.name}}</template>
+    </TableSearch>
+    Selected: {{selectedItems}}
+
     ```
 </docs>

@@ -34,7 +34,7 @@ public class SqlColumnRefExecutor {
     List<Name> thisColumns = new ArrayList<>();
     List<Name> otherColumns = new ArrayList<>();
 
-    for (Reference ref : column.getRefColumns()) {
+    for (Reference ref : column.getReferences()) {
       thisColumns.add(name(ref.getName()));
       otherColumns.add(name(ref.getTo()));
     }

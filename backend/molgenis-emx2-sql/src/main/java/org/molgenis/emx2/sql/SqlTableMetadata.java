@@ -60,6 +60,7 @@ class SqlTableMetadata extends TableMetadata {
                     + " already exists");
 
           Column result = new Column(this, column);
+          updatePositions(result, this);
           executeCreateColumn(getJooq(), result);
           super.add(result);
           if (column.getKey() > 0) {
@@ -92,8 +93,8 @@ class SqlTableMetadata extends TableMetadata {
                 "REF_ARRAY is not supported for composite keys of table "
                     + newColumn.getRefTableName());
           }
-          if ((oldColumn.getRefColumns().size() > 1 || newColumn.getRefColumns().size() > 1)
-              && oldColumn.getRefColumns().size() != newColumn.getRefColumns().size()) {
+          if ((oldColumn.getReferences().size() > 1 || newColumn.getReferences().size() > 1)
+              && oldColumn.getReferences().size() != newColumn.getReferences().size()) {
             throw new MolgenisException(
                 "Cannot alter column '" + oldColumn.getName(),
                 "New column '"
@@ -101,6 +102,11 @@ class SqlTableMetadata extends TableMetadata {
                     + "' has different number of reference multiplicity then '"
                     + oldColumn.getName()
                     + "'");
+          }
+
+          // change positions if needed
+          if (!oldColumn.getPosition().equals(newColumn.getPosition())) {
+            updatePositions(newColumn, this);
           }
 
           // drop old key, if touched

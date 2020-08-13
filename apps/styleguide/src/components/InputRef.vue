@@ -29,6 +29,7 @@
         <TableSearch
           :table="refTable"
           :defaultValue="[arrayValue[selectIdx]]"
+          :filter="filter"
           @select="select($event, selectIdx)"
           @deselect="deselect(selectIdx)"
         />
@@ -66,7 +67,8 @@ export default {
     InputAppend
   },
   props: {
-    refTable: String
+    refTable: String,
+    filter: Object
   },
   computed: {
     title() {
@@ -134,6 +136,29 @@ export default {
             <InputRef
                     v-model="value"
                     refTable="Pet"
+                    :defaultValue="value"
+            />
+            Selection: {{value}}
+        </div>
+    </template>
+    <script>
+        export default {
+            data: function () {
+                return {
+                    value: {name: 'spike'}
+                };
+            }
+        };
+    </script>
+    ```
+    Example with filter
+    ```
+    <template>
+        <div>
+            <InputRef
+                    v-model="value"
+                    refTable="Pet"
+                    :filter="{category:{name:'dog'}}"
                     :defaultValue="value"
             />
             Selection: {{value}}

@@ -20,23 +20,26 @@
       </tr>
     </table>
 
-    STATE FOR DEBUG<br />
-    molgenis =
-    {{ JSON.stringify(molgenis) }}
-    <br />
-    schema =
-    <pre>{{ JSON.stringify(schema, null, "\t") }}</pre>
+    <ShowMore title="debug">
+      STATE FOR DEBUG<br />
+      molgenis =
+      {{ JSON.stringify(molgenis) }}
+      <br />
+      schema =
+      <pre>{{ JSON.stringify(schema, null, "\t") }}</pre>
+    </ShowMore>
   </div>
 </template>
 
 <script>
-import { DataTable, MessageError } from "@mswertz/emx2-styleguide";
+import { DataTable, MessageError, ShowMore } from "@mswertz/emx2-styleguide";
 
 export default {
   name: "App",
   components: {
     DataTable,
-    MessageError
+    MessageError,
+    ShowMore
   },
   props: {
     molgenis: Object,

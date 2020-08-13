@@ -36,16 +36,14 @@ public class SchemaImport {
           // read emx1 metadata, if available (to be removed in future versions)
           if (store.containsTable("attributes")) {
             Emx1Import.uploadFromStoreToSchema(store, schema);
-          } else {
-            if (store.containsTable("molgenis")) {
-              SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
-              schema.merge(emx2Schema);
-            } else {
-              // read data
-              for (String tableName : schema.getTableNames()) {
-                if (store.containsTable(tableName))
-                  schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
-              }
+          } else if (store.containsTable("molgenis")) {
+            SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
+            schema.merge(emx2Schema);
+          }
+          // read data
+          for (String tableName : schema.getTableNames()) {
+            if (store.containsTable(tableName)) {
+              schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
             }
           }
         });

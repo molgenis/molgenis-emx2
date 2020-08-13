@@ -98,38 +98,38 @@ class SqlColumnRefArrayExecutor {
     String deleteTrigger = getDeleteTriggerName(column);
 
     String unnestRefs =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "UNNEST(" + name(r.getName()) + ") AS " + name(r.getTo()))
             .collect(Collectors.joining(","));
     Table fromTable = column.getJooqTable();
 
     String anyFilter =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "OLD." + name(r.getTo()) + "=ANY(" + name(r.getName()) + ")")
             .collect(Collectors.joining(" AND "));
 
     String keyColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> name(r.getTo()).toString())
             .collect(Collectors.joining(","));
 
     String oldValues =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "OLD." + name(r.getTo()) + "= " + name(r.getTo()))
             .collect(Collectors.joining(" AND "));
 
     String oldValuesAsString =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "OLD." + name(r.getTo()))
             .collect(Collectors.joining("||','||"));
 
     String toColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> name(r.getName()).toString())
             .collect(Collectors.joining(","));
 
     String newNotEqualsOld =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "OLD." + name(r.getTo()) + " <> NEW." + name(r.getTo()))
             .collect(Collectors.joining(" AND "));
 
@@ -230,24 +230,24 @@ class SqlColumnRefArrayExecutor {
     String functionName = getUpdateCheckName(column);
 
     String newFromColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "NEW." + name(r.getName()).toString())
             .collect(Collectors.joining(","));
 
     String fromColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> name(r.getName()).toString())
             .collect(Collectors.joining(","));
 
     String toColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> name(r.getTo()).toString())
             .collect(Collectors.joining(","));
 
     Name toTable = name(column.getTable().getSchema().getName(), column.getRefTableName());
 
     String errorColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "COALESCE(error_row." + name(r.getTo()).toString() + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 

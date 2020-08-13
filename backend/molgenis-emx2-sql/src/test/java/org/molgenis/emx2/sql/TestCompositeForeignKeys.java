@@ -8,8 +8,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
 import static graphql.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
@@ -214,5 +213,47 @@ public class TestCompositeForeignKeys {
             column("father", REF).refTable("Person2"),
             column("mother", REF).refTable("Person2"),
             column("children", MREF).refTable("Person2"))); // .with("lastName", "lastName")));
+  }
+
+  @Test
+  public void testCompositeRefWithLinkToOtherColumn() {
+    Schema schema =
+        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "LinkedRef");
+
+    schema.create(table("Collection", column("name").pkey()));
+    schema.create(
+        table("Table", column("name").pkey(), column("collection").refTable("Collection").pkey()));
+    schema.create(
+        table(
+            "Variable",
+            column("name").pkey(),
+            column("collection").type(REF).refTable("Collection"),
+            column("table").type(REF).refTable("Table").refConstraint("collection=collection")));
+
+    schema.getTable("Collection").insert(new Row().set("name", "LifeCycle"));
+    schema.getTable("Table").insert(new Row().set("name", "Table1").set("collection", "LifeCycle"));
+    schema
+        .getTable("Variable")
+        .insert(
+            new Row()
+                .set("name", "Variable1")
+                .set("collection", "LifeCycle")
+                .set("table", "Table1"));
+
+    try {
+      schema
+          .getTable("Variable")
+          .insert(
+              new Row()
+                  .set("name", "Variable1")
+                  .set("collection", "LifeCycle")
+                  .set("table", "Table2"));
+      fail("should have failed");
+    } catch (Exception e) {
+      System.out.println("Error correct: " + e.getMessage());
+    }
+
+    assertEquals(
+        "Table1", schema.getTable("Variable").query().retrieveRows().get(0).getString("table"));
   }
 }

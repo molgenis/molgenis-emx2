@@ -51,14 +51,14 @@ public class TestDeferConstrainChecksToEndOfTransaction {
           db -> {
             Schema schema = db.dropCreateSchema("TestDeffered3");
 
-            Table subjectTable = schema.create(table("Subject"));
+            Table subjectTable = schema.create(table("Subject", column("id").pkey()));
 
             Table sampleTable =
                 schema.create(table("Sample").add(column("subject").type(REF).refTable("Subject")));
 
             StopWatch.print("schema created");
 
-            Row subject1 = new Row();
+            Row subject1 = new Row().set("id", UUID.randomUUID());
             Row sample1 = new Row().setUuid("subject", UUID.randomUUID());
             Row sample2 = new Row().setUuid("subject", UUID.randomUUID());
 

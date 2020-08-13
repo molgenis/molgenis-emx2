@@ -9,7 +9,6 @@
         <label>Filters: </label>&nbsp;
         <a href="#" @click.prevent="collapseAll">collapse</a>&nbsp;
         <a href="#" @click.prevent="expandAll">expand</a>
-        filterOrder = {{ filterOrder }}
       </div>
       <FilterContainer
         v-for="(column, idx) in filters"

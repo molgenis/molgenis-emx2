@@ -308,7 +308,7 @@ class SqlTable implements Table {
     if (REF.equals(key.getColumnType())
         || REF_ARRAY.equals(key.getColumnType())
         || MREF.equals(key.getColumnType())) {
-      for (Reference ref : key.getRefColumns()) {
+      for (Reference ref : key.getReferences()) {
         columnCondition.add(
             ref.asJooqField()
                 .eq(cast(r.get(key.getName(), ref.getColumnType()), ref.asJooqField())));

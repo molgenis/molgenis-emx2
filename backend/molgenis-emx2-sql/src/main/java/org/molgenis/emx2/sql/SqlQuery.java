@@ -139,7 +139,8 @@ public class SqlQuery extends QueryBean {
             field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
       } else if (REF.equals(column.getColumnType()) || REF_ARRAY.equals(column.getColumnType())) {
         fields.addAll(
-            column.getRefColumns().stream()
+            column.getReferences().stream()
+                .filter(ref -> !ref.isExisting())
                 .map(
                     ref ->
                         field(name(tableAlias, ref.getName()), ref.getJooqType()).as(columnAlias))
@@ -178,7 +179,7 @@ public class SqlQuery extends QueryBean {
   private static SelectConditionStep<Record> rowBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = column.getMappedByColumn();
     List<Condition> where = new ArrayList<>();
-    for (Reference ref : mappedBy.getRefColumns()) {
+    for (Reference ref : mappedBy.getReferences()) {
       switch (mappedBy.getColumnType()) {
         case REF:
           where.add(
@@ -476,22 +477,22 @@ public class SqlQuery extends QueryBean {
 
     if (REF.equals(column.getColumnType())) {
       foreignKeyMatch.addAll(
-          column.getRefColumns().stream()
+          column.getReferences().stream()
               .map(
                   ref ->
                       field(name(subAlias, ref.getTo())).eq(field(name(tableAlias, ref.getName()))))
               .collect(Collectors.toList()));
     } else if (REF_ARRAY.equals(column.getColumnType())) {
       String refs =
-          column.getRefColumns().stream()
+          column.getReferences().stream()
               .map(ref -> name(tableAlias, ref.getName()).toString())
               .collect(Collectors.joining(","));
       String to =
-          column.getRefColumns().stream()
+          column.getReferences().stream()
               .map(ref -> name(subAlias, ref.getTo()).toString())
               .collect(Collectors.joining(","));
       String as =
-          column.getRefColumns().stream()
+          column.getReferences().stream()
               .map(ref -> name(ref.getName()).toString())
               .collect(Collectors.joining(","));
       foreignKeyMatch.add(
@@ -502,7 +503,7 @@ public class SqlQuery extends QueryBean {
       Column mappedBy = column.getMappedByColumn();
       if (REF.equals(mappedBy.getColumnType())) {
         foreignKeyMatch.addAll(
-            mappedBy.getRefColumns().stream()
+            mappedBy.getReferences().stream()
                 .map(
                     ref ->
                         field(name(subAlias, ref.getName()))
@@ -510,7 +511,7 @@ public class SqlQuery extends QueryBean {
                 .collect(Collectors.toList()));
       } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
         foreignKeyMatch.addAll(
-            mappedBy.getRefColumns().stream()
+            mappedBy.getReferences().stream()
                 .map(
                     ref ->
                         condition(
@@ -524,7 +525,7 @@ public class SqlQuery extends QueryBean {
       String joinTableAlias = "joinTable";
       List<Condition> where = new ArrayList<>();
       // MTM table should match on the remote key
-      for (Reference ref : column.getRefColumns()) {
+      for (Reference ref : column.getReferences()) {
         where.add(
             field(name(subAlias, ref.getTo())).eq(field(name(joinTableAlias, ref.getName()))));
       }

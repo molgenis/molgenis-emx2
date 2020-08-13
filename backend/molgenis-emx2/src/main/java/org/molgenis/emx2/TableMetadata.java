@@ -103,7 +103,7 @@ public class TableMetadata {
           || REF_ARRAY.equals(c.getColumnType())
           || REFBACK.equals(c.getColumnType())
           || MREF.equals(c.getColumnType())) {
-        for (Reference ref : c.getRefColumns()) {
+        for (Reference ref : c.getReferences()) {
           result.add(new Column(ref.getName()).type(ref.getColumnType()).setTable(this));
         }
       } else {
@@ -122,7 +122,9 @@ public class TableMetadata {
       }
     }
     // get all implemented columns (keep superclass because of type)
-    for (Column c : columns.values()) {
+    List<Column> columnList = new ArrayList<>(columns.values());
+    columnList.sort(Comparator.comparing(Column::getPosition));
+    for (Column c : columnList) {
       if (!result.containsKey(c.getName())) {
         result.put(c.getName(), c);
       }
@@ -130,8 +132,8 @@ public class TableMetadata {
     return new ArrayList<>(result.values());
   }
 
-  public Collection<String> getColumnNames() {
-    Set<String> result = new HashSet<>();
+  public List<String> getColumnNames() {
+    List<String> result = new ArrayList<>();
     if (inherit != null) {
       result.addAll(getInheritedTable().getColumnNames());
     }
@@ -139,8 +141,12 @@ public class TableMetadata {
     return result;
   }
 
-  public Set<String> getLocalColumnNames() {
-    return columns.keySet();
+  public List<String> getLocalColumnNames() {
+    List<String> result = new ArrayList<>();
+    for (Column c : getLocalColumns()) {
+      result.add(c.getName());
+    }
+    return result;
   }
 
   public Column getColumn(String name) {
@@ -153,6 +159,9 @@ public class TableMetadata {
   }
 
   public TableMetadata add(Column column) {
+    if (column.getPosition() == null) {
+      column.position(columns.size());
+    }
     columns.put(column.getName(), new Column(this, column));
     column.setTable(this);
     return this;
@@ -163,6 +172,10 @@ public class TableMetadata {
   }
 
   public TableMetadata alterColumn(String name, Column column) {
+    // retain position
+    if (column.getPosition() == null) {
+      column.position(columns.get(name).getPosition());
+    }
     // remove the old
     columns.remove(name);
     // add the new
@@ -263,7 +276,7 @@ public class TableMetadata {
     List<String> result = new ArrayList<>();
     for (Column c : getKey(key)) {
       if (c.isReference()) {
-        for (Reference ref : c.getRefColumns()) {
+        for (Reference ref : c.getReferences()) {
           result.add(ref.getName());
         }
       } else {
@@ -306,7 +319,7 @@ public class TableMetadata {
     List<Field<?>> result = new ArrayList<>();
     for (Column c : getPrimaryKeyColumns()) {
       if (c.isReference()) {
-        for (Reference r : c.getRefColumns()) {
+        for (Reference r : c.getReferences()) {
           result.add(field(name(r.getName()), r.getJooqType()));
         }
       } else {

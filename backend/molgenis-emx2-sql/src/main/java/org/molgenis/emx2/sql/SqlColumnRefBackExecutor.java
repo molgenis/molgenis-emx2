@@ -99,23 +99,23 @@ class SqlColumnRefBackExecutor {
 
     // ref
     String ref =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> name(r.getName()).toString())
             .collect(Collectors.joining(","));
     String newRef =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "NEW." + name(r.getName()))
             .collect(Collectors.joining(","));
     String refTo =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> name(r.getTo()).toString())
             .collect(Collectors.joining(","));
     String oldRefTo =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "OLD." + name(r.getTo()))
             .collect(Collectors.joining(","));
     String errorColumns =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "error_row." + name(r.getTo()).toString())
             .collect(Collectors.joining("||','||"));
 
@@ -123,50 +123,50 @@ class SqlColumnRefBackExecutor {
 
     // mappedBy.to
     String mappedByTo =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> name(r.getTo()).toString())
             .collect(Collectors.joining(","));
     String oldMappedByTo =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> "OLD." + name(r.getTo()))
             .collect(Collectors.joining(","));
     String newMappedByTo =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> "NEW." + name(r.getTo())) // + " AS " + name(r.getTo()))
             .collect(Collectors.joining(","));
     String mappedByToEqualsNewKey =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> name(r.getTo()) + "=NEW." + name(r.getTo()))
             .collect(Collectors.joining(" AND "));
     String mappedByToEqualsOldKey =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> name(r.getTo()) + "=OLD." + name(r.getTo()))
             .collect(Collectors.joining(" AND "));
 
     String updateFilter =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "t." + name(r.getTo()) + "=error_row." + name(r.getTo()))
             .collect(Collectors.joining(" AND "));
 
     String mappedByFrom =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> name(r.getName()).toString())
             .collect(Collectors.joining(","));
 
     String mappedByFromErrorRow =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> "error_row." + name(r.getName()).toString())
             .collect(Collectors.joining(","));
     String setterUpdate =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> name(r.getName()) + "=t3." + name(r.getName()))
             .collect(Collectors.joining(","));
     String arrayAgg =
-        mappedBy.getRefColumns().stream()
+        mappedBy.getReferences().stream()
             .map(r -> "array_agg(" + name(r.getTo()) + ") as " + name(r.getName()))
             .collect(Collectors.joining(","));
     String setRefToNull =
-        column.getRefColumns().stream()
+        column.getReferences().stream()
             .map(r -> "NEW." + name(r.getName()) + "=NULL")
             .collect(Collectors.joining(";"));
 
@@ -323,12 +323,12 @@ class SqlColumnRefBackExecutor {
     List<String> mappedByToList = new ArrayList<>();
     List<String> refBackColumnList = new ArrayList<>();
     List<String> setRefBackValuesToNullList = new ArrayList<>();
-    for (Reference ref : column.getRefColumns()) {
+    for (Reference ref : column.getReferences()) {
       mappedByToList.add(name(ref.getTo()).toString());
       refBackColumnList.add("NEW." + name(ref.getName()));
       setRefBackValuesToNullList.add("NEW." + name(ref.getName()) + "=NULL");
     }
-    for (Reference ref : column.getMappedByColumn().getRefColumns()) {
+    for (Reference ref : column.getMappedByColumn().getReferences()) {
       keyIsNewKeyList.add(name(ref.getTo()) + "=NEW." + name(ref.getTo()));
       mappedBySetNullList.add(name(ref.getName()) + "=NULL");
       mappedByIsOldKeyList.add(name(ref.getName()) + "=OLD." + name(ref.getTo()));

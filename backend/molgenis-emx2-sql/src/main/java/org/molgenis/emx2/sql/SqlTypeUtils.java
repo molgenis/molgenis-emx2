@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.molgenis.emx2.sql.SqlJavascriptValidator.validateValue;
+import static org.molgenis.emx2.sql.SqlJavascriptGraal.executeJavascriptOnRow;
+import static org.molgenis.emx2.sql.SqlJavascriptGraal.executeJavascriptOnValue;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -19,16 +20,28 @@ public class SqlTypeUtils extends TypeUtils {
     try {
       Collection<Object> values = new ArrayList<>();
       for (Column c : columns) {
-        Object value = getTypedValue(row, c.getName(), c.getColumnType());
+        Object value = null;
+
+        // refConstraint == computed field
+        if (c.getComputed() != null) {
+          if (row.getValueMap().containsKey(c.getComputed())) {
+            value = row.getValueMap().get(c.getComputed());
+          } else {
+            value = executeJavascriptOnRow(c.getComputed(), row);
+          }
+        } else {
+          value = getTypedValue(row, c.getName(), c.getColumnType());
+        }
 
         // validation
         if (value != null && c.getValidation() != null) {
-          String error = validateValue(c.getValidation(), value);
+          String error = executeJavascriptOnValue(c.getValidation(), value);
           if (error != null)
             throw new MolgenisException(
                 "Validation error on column '" + c.getName() + "'",
                 error + ". Instead found value '" + value + "'");
         }
+
         // get value
         if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
           values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));

@@ -12,6 +12,8 @@ public class Reference {
   private String toColumn;
   private ColumnType type;
   private boolean nullable;
+  // use when reference actually links to another column
+  private boolean existing;
 
   public Reference(String fromColumn, String toColumn, ColumnType type, boolean nullable) {
     this.fromColumn = fromColumn;
@@ -42,5 +44,17 @@ public class Reference {
 
   public Field asJooqField() {
     return field(name(getName()), getJooqType());
+  }
+
+  public boolean isExisting() {
+    return existing;
+  }
+
+  public void setExisting(boolean existing) {
+    this.existing = existing;
+  }
+
+  public void setName(String name) {
+    this.fromColumn = name;
   }
 }

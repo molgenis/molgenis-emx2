@@ -43,7 +43,10 @@ class SqlTableMetadataExecutor {
     }
 
     // then create columns (use super to prevent side effects)
+    int position = 0;
     for (Column column : table.getLocalColumns()) {
+      // we force position based on order
+      column.position(position++);
       if (table.getInherit() != null
           && table.getInheritedTable().getColumn(column.getName()) != null) {
         // don't create superclass keys, that is already done
@@ -181,7 +184,7 @@ class SqlTableMetadataExecutor {
     for (Column c : table.getLocalColumns()) {
       if (!c.getName().startsWith("MG_")) {
         if (c.isReference()) {
-          for (Reference r : c.getRefColumns()) {
+          for (Reference r : c.getReferences()) {
             mgSearchVector.append(
                 String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getName()));
           }

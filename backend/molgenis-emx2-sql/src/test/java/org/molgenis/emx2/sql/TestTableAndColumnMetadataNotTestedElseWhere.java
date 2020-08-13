@@ -4,6 +4,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
 
+import java.util.ArrayList;
+
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -47,5 +49,26 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
     } catch (MolgenisException me) {
       System.out.println("Error unexpected:\n" + me);
     }
+  }
+
+  @Test
+  public void testColumnPosition() {
+    Schema s = db.dropCreateSchema("testColumnPosition");
+    TableMetadata t = s.create(table("test", column("col1"), column("col2"))).getMetadata();
+
+    assertEquals("col1", new ArrayList<>(t.getColumnNames()).get(0));
+    t.add(column("col3"));
+    assertEquals((Integer) 2, t.getColumn("col3").getPosition());
+    db.clearCache();
+
+    t = db.getSchema("testColumnPosition").getTable("test").getMetadata();
+    assertEquals("col1", new ArrayList<>(t.getColumnNames()).get(0));
+    assertEquals((Integer) 2, t.getColumn("col3").getPosition());
+
+    t.alterColumn("col2", column("col2").position(0));
+    assertEquals(new ArrayList<>(t.getColumnNames()).get(0), "col2");
+    db.clearCache();
+    t = db.getSchema("testColumnPosition").getTable("test").getMetadata();
+    assertEquals(new ArrayList<>(t.getColumnNames()).get(0), "col2");
   }
 }

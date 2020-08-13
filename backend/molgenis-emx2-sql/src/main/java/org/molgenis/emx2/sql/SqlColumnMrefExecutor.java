@@ -81,7 +81,7 @@ public class SqlColumnMrefExecutor {
 
   private static String refColumnNames(Column column) {
     List<String> items = new ArrayList<>();
-    for (Reference ref : column.getRefColumns()) {
+    for (Reference ref : column.getReferences()) {
       items.add(name(ref.getName()).toString());
     }
     return String.join(",", items);
@@ -90,7 +90,7 @@ public class SqlColumnMrefExecutor {
   // NEW.{ref_array1} = NULL [, NEW.{ref_array2} = NULL]
   private static String setRefArrayNull(Column column) {
     List<String> items = new ArrayList<>();
-    for (Reference ref : column.getRefColumns()) {
+    for (Reference ref : column.getReferences()) {
       items.add("NEW." + name(ref.getName()) + " = NULL");
     }
     return String.join(";", items);
@@ -121,7 +121,7 @@ public class SqlColumnMrefExecutor {
     // UNNEST({refFields-name}) AS other({refFields-name}
     items = new ArrayList<>();
     List<String> items2 = new ArrayList<>();
-    for (Reference ref : column.getRefColumns()) {
+    for (Reference ref : column.getReferences()) {
       Name name = name(ref.getName());
       items.add("NEW." + name);
       items2.add(name(name).toString());
@@ -162,7 +162,7 @@ public class SqlColumnMrefExecutor {
       thisKey = field(name(thisKey.getName()), thisKey.getDataType());
       selfFields.add(thisKey);
     }
-    for (Reference ref : column.getRefColumns()) {
+    for (Reference ref : column.getReferences()) {
       otherFkeyFields.add(name(ref.getTo()));
       otherFields.add(field(name(ref.getName()), toJooqType(getNonArrayType(ref.getColumnType()))));
     }

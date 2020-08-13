@@ -93,10 +93,7 @@ public class Emx2 {
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
 
-      // deterministic order (TODO make user define order)
       List<String> columnNames = new ArrayList<>(t.getColumnNames());
-      Collections.sort(columnNames);
-
       for (String columnName : columnNames) {
 
         Column c = t.getColumn(columnName);
@@ -109,7 +106,7 @@ public class Emx2 {
           row.setString(COLUMN_NAME, c.getName());
           if (!c.getColumnType().equals(STRING))
             row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-          if (c.isNullable() == true) row.setBool(NULLABLE, c.isNullable());
+          if (c.isNullable()) row.setBool(NULLABLE, c.isNullable());
           if (c.getKey() > 0) row.setInt(KEY, c.getKey());
           if (c.getRefTableName() != null) row.setString(REF, c.getRefTableName());
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
