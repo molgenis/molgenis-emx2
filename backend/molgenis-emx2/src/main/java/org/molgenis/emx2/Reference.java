@@ -42,7 +42,7 @@ public class Reference {
     return nullable;
   }
 
-  public Field asJooqField() {
+  public Field getJooqField() {
     return field(name(getName()), getJooqType());
   }
 

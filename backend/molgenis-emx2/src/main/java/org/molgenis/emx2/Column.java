@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import org.jooq.DataType;
 import org.jooq.Field;
+import org.jooq.impl.SQLDataType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -410,5 +411,13 @@ public class Column {
   public Column position(Integer position) {
     this.position = position;
     return this;
+  }
+
+  public List<Field> getJooqFileFields() {
+    return List.of(
+        field(name(getName() + "-mimetype"), SQLDataType.VARCHAR),
+        field(name(getName() + "-extension"), SQLDataType.VARCHAR),
+        field(name(getName() + "-size"), SQLDataType.INTEGER),
+        field(name(getName() + "-contents"), SQLDataType.BINARY));
   }
 }

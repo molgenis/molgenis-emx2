@@ -1,9 +1,11 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
+import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.Table;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.TableMetadata;
 
@@ -49,7 +51,12 @@ public class SqlColumnExecutor {
       case REFBACK:
         for (Reference ref : column.getReferences()) {
           executeSetNullable(
-              jooq, column.getJooqTable(), ref.asJooqField(), ref.isNullable() || isNullable);
+              jooq, column.getJooqTable(), ref.getJooqField(), ref.isNullable() || isNullable);
+        }
+        break;
+      case BINARY:
+        for (Field f : column.getJooqFileFields()) {
+          executeSetNullable(jooq, column.getJooqTable(), f, column.isNullable());
         }
         break;
       default:
@@ -61,52 +68,137 @@ public class SqlColumnExecutor {
     return column.getTable().getTableName() + "-" + column.getName();
   }
 
-  static void executeAlterNameAndType(DSLContext jooq, Column oldColumn, Column newColumn) {
+  static void executeAlterName(DSLContext jooq, Column oldColumn, Column newColumn) {
+    // asumes validated before
+    if (!oldColumn.getName().equals(newColumn.getName())) {
+      if (BINARY.equals(newColumn.getColumnType())) {
+        for (String suffix : new String[] {"-ext", "-size", "-contents", "-mimetype"}) {
+          jooq.execute(
+              "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+              newColumn.getJooqTable(),
+              field(name(oldColumn.getName() + suffix)),
+              field(name(newColumn.getName() + suffix)));
+        }
+      } else if (newColumn.isReference()) {
+        List<Reference> oldRef = oldColumn.getReferences();
+        List<Reference> newRef = newColumn.getReferences();
+        for (int i = 0; i < oldRef.size(); i++) {
+          jooq.execute(
+              "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+              newColumn.getJooqTable(),
+              field(name(oldRef.get(i).getName())),
+              field(name(newRef.get(i).getName())));
+        }
+      } else {
+        jooq.execute(
+            "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+            newColumn.getJooqTable(),
+            field(name(oldColumn.getName())),
+            field(name(newColumn.getName())));
+      }
+    }
+  }
+
+  static void executeAlterType(DSLContext jooq, Column oldColumn, Column newColumn) {
     Table table = newColumn.getTable().getJooqTable();
+
+    if (oldColumn.getColumnType().equals(newColumn.getColumnType())) {
+      return; // nothing to do
+    }
+
+    if (BINARY.equals(oldColumn.getColumnType()) && !BINARY.equals(newColumn.getColumnType())
+        || !BINARY.equals(oldColumn.getColumnType()) && BINARY.equals(newColumn.getColumnType())) {
+      throw new MolgenisException(
+          "Alter type for column '" + newColumn.getName() + "' failed",
+          "Cannot convert from or to binary");
+    }
 
     if (oldColumn.isReference() || newColumn.isReference()) {
       if (oldColumn.isReference() && newColumn.isReference()) {
-        List<Reference> oldRefs = oldColumn.getReferences();
-        List<Reference> newRefs = newColumn.getReferences();
-        for (int i = 0; i < oldRefs.size(); i++) {
-          Field oldField = oldRefs.get(i).asJooqField();
-          Field newField = newRefs.get(i).asJooqField();
-          String postgresType = getPsqlType(newRefs.get(i).getColumnType());
-          alterField(jooq, table, oldField, newField, postgresType);
+        if (oldColumn.getReferences().size() != newColumn.getReferences().size()) {
+          throw new MolgenisException(
+              "Alter type for column '" + newColumn.getName() + "' failed",
+              "Reference has different multiplicity");
+        } else {
+          List<Reference> oldRefs = oldColumn.getReferences();
+          List<Reference> newRefs = newColumn.getReferences();
+          for (int i = 0; i < oldRefs.size(); i++) {
+            Field oldField = oldRefs.get(i).getJooqField();
+            Field newField = newRefs.get(i).getJooqField();
+            String postgresType = getPsqlType(newRefs.get(i).getColumnType());
+            alterField(
+                jooq,
+                table,
+                oldField.getName(),
+                oldField.getDataType(),
+                newField.getDataType(),
+                postgresType);
+          }
         }
       } else if (oldColumn.isReference()) {
-        Field oldField = oldColumn.getReferences().get(0).asJooqField();
-        alterField(jooq, table, oldField, newColumn.getJooqField(), getPsqlType(newColumn));
+        if (oldColumn.getReferences().size() > 1) {
+          throw new MolgenisException(
+              "Alter type for column '" + newColumn.getName() + "' failed",
+              "Reference is composite relation and cannot be changed to "
+                  + newColumn.getColumnType());
+        }
+        Field oldField = oldColumn.getReferences().get(0).getJooqField();
+        alterField(
+            jooq,
+            table,
+            oldField.getName(),
+            oldField.getDataType(),
+            newColumn.getJooqField().getDataType(),
+            getPsqlType(newColumn));
       } else {
-        Field newField = newColumn.getReferences().get(0).asJooqField();
+        if (newColumn.getReferences().size() > 1) {
+          throw new MolgenisException(
+              "Alter type for column '" + newColumn.getName() + "' failed",
+              "Reference is composite relation and cannot be changed to "
+                  + newColumn.getColumnType());
+        }
+        Field newField = newColumn.getReferences().get(0).getJooqField();
         String postgresType = getPsqlType(newColumn.getReferences().get(0).getColumnType());
-        alterField(jooq, table, oldColumn.getJooqField(), newField, postgresType);
+        alterField(
+            jooq,
+            table,
+            oldColumn.getName(),
+            oldColumn.getJooqField().getDataType(),
+            newField.getDataType(),
+            postgresType);
       }
     } else {
       alterField(
-          jooq, table, oldColumn.getJooqField(), newColumn.getJooqField(), getPsqlType(newColumn));
+          jooq,
+          table,
+          oldColumn.getName(),
+          oldColumn.getJooqField().getDataType(),
+          newColumn.getJooqField().getDataType(),
+          getPsqlType(newColumn));
     }
   }
 
   static void alterField(
-      DSLContext jooq, Table table, Field oldField, Field newField, String postgresType) {
-    // change name
-    if (!oldField.getName().equals(newField.getName())) {
-      jooq.execute("ALTER TABLE {0} RENAME COLUMN {1} TO {2}", table, oldField, newField);
-    }
+      DSLContext jooq,
+      Table table,
+      String columnName,
+      DataType oldType,
+      DataType newType,
+      String postgresType) {
+
     // change the raw type
-    if (!newField.getDataType().equals(oldField.getDataType())) {
-      if (newField.getDataType().isArray() && !oldField.getDataType().isArray()) {
+    if (!newType.equals(oldType)) {
+      if (newType.isArray() && !oldType.isArray()) {
         jooq.execute(
             "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING array[{1}::{3}]",
             table,
-            newField,
+            name(columnName),
             keyword(postgresType),
             keyword(postgresType.replace("[]", ""))); // non-array type needed
       } else {
         jooq.execute(
             "ALTER TABLE {0} ALTER COLUMN {1} TYPE {2} USING {1}::{2}",
-            table, newField, keyword(postgresType));
+            table, name(columnName), keyword(postgresType));
       }
     }
   }
@@ -142,8 +234,12 @@ public class SqlColumnExecutor {
     if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         if (!ref.isExisting()) {
-          jooq.alterTable(column.getJooqTable()).addColumn(ref.asJooqField()).execute();
+          jooq.alterTable(column.getJooqTable()).addColumn(ref.getJooqField()).execute();
         }
+      }
+    } else if (BINARY.equals(column.getColumnType())) {
+      for (Field f : column.getJooqFileFields()) {
+        jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
       }
     } else {
       jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
@@ -180,9 +276,17 @@ public class SqlColumnExecutor {
 
   static void executeRemoveColumn(DSLContext jooq, Column column) {
     executeRemoveRefAndNotNullConstraints(jooq, column);
-    jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
-        .dropColumn(field(name(column.getName())))
-        .execute();
+    if (BINARY.equals(column.getColumnType())) {
+      for (Field f : column.getJooqFileFields()) {
+        jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
+            .dropColumn(f)
+            .execute();
+      }
+    } else {
+      jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
+          .dropColumn(field(name(column.getName())))
+          .execute();
+    }
     MetadataUtils.deleteColumn(jooq, column);
   }
 
@@ -201,6 +305,7 @@ public class SqlColumnExecutor {
       case MREF:
         dropMrefConstraints(jooq, column);
       default:
+        // nothing to do
     }
     executeSetNullable(jooq, column, true);
   }

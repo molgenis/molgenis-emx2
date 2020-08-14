@@ -3,10 +3,9 @@ package org.molgenis.emx2.utils;
 import org.jooq.DataType;
 import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 
+import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -68,6 +67,9 @@ public class TypeUtils {
       if (((String) v).trim().equals("")) return null;
       return Integer.parseInt(((String) v).trim());
     }
+    if (v instanceof Long) {
+      return ((Long) v).intValue();
+    }
     if (v instanceof Double) return (int) Math.round((Double) v);
     return (Integer) v;
   }
@@ -90,6 +92,11 @@ public class TypeUtils {
     Object result = Array.newInstance(c, 1);
     Array.set(result, 0, f.apply(v));
     return (Object[]) result;
+  }
+
+  public static byte[] toBinary(Object v) {
+    if (v == null) return null;
+    return (byte[]) v;
   }
 
   public static Boolean toBool(Object v) {
@@ -283,6 +290,8 @@ public class TypeUtils {
 
   public static DataType toJooqType(ColumnType type) {
     switch (type) {
+      case BINARY:
+        return SQLDataType.BINARY;
       case UUID:
         return SQLDataType.UUID;
       case UUID_ARRAY:

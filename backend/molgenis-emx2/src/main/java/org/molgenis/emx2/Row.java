@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import org.jooq.JSONB;
 import org.molgenis.emx2.utils.TypeUtils;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,7 +34,9 @@ public class Row {
 
   public Row(Map<String, ?> values) {
     this();
-    this.values.putAll(values);
+    for (Map.Entry<String, ?> entry : values.entrySet()) {
+      this.set(entry.getKey(), entry.getValue());
+    }
   }
 
   public UUID getUuid(String name) {
@@ -58,6 +61,10 @@ public class Row {
 
   public Integer[] getIntegerArray(String name) {
     return TypeUtils.toIntArray(values.get(name));
+  }
+
+  public byte[] getBinary(String name) {
+    return TypeUtils.toBinary(values.get(name));
   }
 
   public Boolean getBoolean(String name) {
@@ -138,6 +145,15 @@ public class Row {
     return this;
   }
 
+  public Row setBinary(String name, File value) {
+    BinaryFileWrapper w = new BinaryFileWrapper(value);
+    this.values.put(name + "-extension", w.getExtension());
+    this.values.put(name + "-mimetype", w.getMimeType());
+    this.values.put(name + "-size", w.getSize());
+    this.values.put(name + "-contents", w.getContents());
+    return this;
+  }
+
   public Row setBool(String columnId, Boolean value) {
     this.values.put(columnId, value);
     return this;
@@ -206,7 +222,11 @@ public class Row {
   }
 
   public Row set(String name, Object value) {
-    this.values.put(name, value);
+    if (value instanceof File) {
+      this.setBinary(name, (File) value);
+    } else {
+      this.values.put(name, value);
+    }
     return this;
   }
 

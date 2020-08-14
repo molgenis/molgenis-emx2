@@ -123,7 +123,21 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn select : selection.getSubselect()) {
       Column column = isValidColumn(table, select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
-      if (column.isReference()
+      if (BINARY.equals(column.getColumnType())) {
+        // check what they want to get, contents, mimetype, size and/or extension
+        if (select.has("contents")) {
+          fields.add(field(name(column.getName() + "-contents")));
+        }
+        if (select.has("size")) {
+          fields.add(field(name(column.getName() + "-size")));
+        }
+        if (select.has("mimetype")) {
+          fields.add(field(name(column.getName() + "-mimetype")));
+        }
+        if (select.has("extension")) {
+          fields.add(field(name(column.getName() + "-extension")));
+        }
+      } else if (column.isReference()
           // if subselection, then we will add it as subselect
           && !select.getSubselect().isEmpty()) {
         fields.addAll(
@@ -269,7 +283,7 @@ public class SqlQuery extends QueryBean {
     SelectJoinStep<Record> subquery =
         table
             .getJooq()
-            .select(List.of(field("{0}.*", name(tableAlias))))
+            .select(List.of(field("{0}.*", name(tableAlias)))) // expensive for binary data!!!
             .from(tableWithInheritanceJoin(table).as(tableAlias));
 
     // joins, only filtered tables
@@ -325,7 +339,18 @@ public class SqlQuery extends QueryBean {
       }
 
       // add the fields, using subselects for references
-      if (column.isReference() && select.getColumn().endsWith("_agg")) {
+      if (BINARY.equals(column.getColumnType())) {
+        DSLContext jooq = ((SqlTableMetadata) table).getJooq();
+        List<Field> subFields = new ArrayList<>();
+        for (String ext : new String[] {"contents", "size", "extension", "mimetype"}) {
+          if (select.has(ext)) {
+            subFields.add(field(name(tableAlias, column.getName() + "-" + ext)));
+          }
+        }
+        fields.add(
+            field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
+                .as(select.getColumn()));
+      } else if (column.isReference() && select.getColumn().endsWith("_agg")) {
         // aggregation
         fields.add(
             jsonAggregateSelect(

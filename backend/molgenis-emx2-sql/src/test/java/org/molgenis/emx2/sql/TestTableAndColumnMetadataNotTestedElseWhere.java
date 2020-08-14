@@ -19,20 +19,6 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   }
 
   @Test
-  public void testDuplicateColumnError() {
-    try {
-      SchemaMetadata s = db.dropCreateSchema("testDuplicateColumnError").getMetadata();
-      TableMetadata t = s.create(table("test").add(column("test")));
-      System.out.println(t);
-
-      t.add(column("test"));
-      fail("should not be able to add same column twice");
-    } catch (MolgenisException me) {
-      System.out.println("Error correctly:\n" + me);
-    }
-  }
-
-  @Test
   public void testAlterColumnName() {
     try {
       Schema s = db.dropCreateSchema("testAlterColumnName");

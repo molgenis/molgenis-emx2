@@ -310,8 +310,8 @@ class SqlTable implements Table {
         || MREF.equals(key.getColumnType())) {
       for (Reference ref : key.getReferences()) {
         columnCondition.add(
-            ref.asJooqField()
-                .eq(cast(r.get(key.getName(), ref.getColumnType()), ref.asJooqField())));
+            ref.getJooqField()
+                .eq(cast(r.get(key.getName(), ref.getColumnType()), ref.getJooqField())));
       }
     } else if (REFBACK.equals(key.getColumnType())) {
       // do nothing

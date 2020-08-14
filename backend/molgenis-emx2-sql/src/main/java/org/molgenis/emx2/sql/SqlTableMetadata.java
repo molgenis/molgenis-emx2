@@ -49,7 +49,6 @@ class SqlTableMetadata extends TableMetadata {
           if (column.getName() == null) {
             throw new MolgenisException("Add column failed", "Column name cannot be null");
           }
-
           if (getColumn(column.getName()) != null) {
             alterColumn(column);
           } else {
@@ -116,7 +115,8 @@ class SqlTableMetadata extends TableMetadata {
           executeRemoveRefback(oldColumn, newColumn);
 
           // rename and retype if needed
-          executeAlterNameAndType(getJooq(), oldColumn, newColumn);
+          executeAlterType(getJooq(), oldColumn, newColumn);
+          executeAlterName(getJooq(), oldColumn, newColumn);
 
           // (re)apply foreign keys
           executeCreateRefAndNotNullConstraints(getJooq(), newColumn);

@@ -99,13 +99,15 @@ public class TableMetadata {
   public List<Column> getMutationColumns() {
     ArrayList<Column> result = new ArrayList<>();
     for (Column c : getLocalColumns()) {
-      if (REF.equals(c.getColumnType())
-          || REF_ARRAY.equals(c.getColumnType())
-          || REFBACK.equals(c.getColumnType())
-          || MREF.equals(c.getColumnType())) {
+      if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
           result.add(new Column(ref.getName()).type(ref.getColumnType()).setTable(this));
         }
+      } else if (BINARY.equals(c.getColumnType())) {
+        result.add(new Column(c.getName() + "-contents").type(BINARY));
+        result.add(new Column(c.getName() + "-mimetype"));
+        result.add(new Column(c.getName() + "-extension"));
+        result.add(new Column(c.getName() + "-size").type(INT));
       } else {
         result.add(c);
       }
