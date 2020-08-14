@@ -13,6 +13,7 @@ import org.molgenis.emx2.utils.StopWatch;
 import java.io.File;
 import java.nio.file.Path;
 
+/** representative import file for testing */
 public class TestCohortCatalogue {
 
   static Database database;
@@ -41,16 +42,26 @@ public class TestCohortCatalogue {
 
     database.tx(
         db -> {
-          schema.merge(cohortSchema);
-
-          StopWatch.print("creation of tables complete, now starting import data");
-
-          for (String tableName : schema.getTableNames()) {
-            if (store.containsTable(tableName))
-              schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
-          }
-
+          runImportProcedure(store, cohortSchema);
           StopWatch.print("import of data complete");
         });
+
+    // repeat for idempotency test (should not change anything)
+    database.tx(
+        db -> {
+          runImportProcedure(store, cohortSchema);
+          StopWatch.print("import of data complete");
+        });
+  }
+
+  private void runImportProcedure(TableStoreForXlsxFile store, SchemaMetadata cohortSchema) {
+    schema.merge(cohortSchema);
+
+    StopWatch.print("creation of tables complete, now starting import data");
+
+    for (String tableName : schema.getTableNames()) {
+      if (store.containsTable(tableName))
+        schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
+    }
   }
 }

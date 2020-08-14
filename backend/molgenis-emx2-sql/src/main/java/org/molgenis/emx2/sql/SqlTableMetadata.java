@@ -50,25 +50,20 @@ class SqlTableMetadata extends TableMetadata {
             throw new MolgenisException("Add column failed", "Column name cannot be null");
           }
 
-          if (getColumn(column.getName()) != null)
-            throw new MolgenisException(
-                "Add column failed",
-                "Duplicate name; column with name "
-                    + getTableName()
-                    + "."
-                    + column.getName()
-                    + " already exists");
-
-          Column result = new Column(this, column);
-          updatePositions(result, this);
-          executeCreateColumn(getJooq(), result);
-          super.add(result);
-          if (column.getKey() > 0) {
-            SqlTableMetadataExecutor.createOrReplaceKey(
-                getJooq(), this, column.getKey(), getKeyNames(column.getKey()));
+          if (getColumn(column.getName()) != null) {
+            alterColumn(column);
+          } else {
+            Column result = new Column(this, column);
+            updatePositions(result, this);
+            executeCreateColumn(getJooq(), result);
+            super.add(result);
+            if (column.getKey() > 0) {
+              SqlTableMetadataExecutor.createOrReplaceKey(
+                  getJooq(), this, column.getKey(), getKeyNames(column.getKey()));
+            }
+            SqlColumnExecutor.executeCreateRefAndNotNullConstraints(getJooq(), result);
+            log(start, "added column '" + column.getName() + "' to ");
           }
-          SqlColumnExecutor.executeCreateRefAndNotNullConstraints(getJooq(), result);
-          log(start, "added column '" + column.getName() + "' to ");
         });
     return this;
   }
@@ -166,16 +161,21 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata setInherit(String otherTable) {
     long start = System.currentTimeMillis();
-    if (getInherit() != null)
-      throw new MolgenisException(
-          SET_INHERITANCE_FAILED,
-          "Table '"
-              + getTableName()
-              + "'can only extend one table. Therefore it cannot extend '"
-              + otherTable
-              + "' because it already extends other table '"
-              + getInherit()
-              + "'");
+    if (getInherit() != null) {
+      if (getInherit().equals(otherTable)) {
+        return this; // nothing to do
+      } else {
+        throw new MolgenisException(
+            SET_INHERITANCE_FAILED,
+            "Table '"
+                + getTableName()
+                + "'can only extend one table. Therefore it cannot extend '"
+                + otherTable
+                + "' because it already extends other table '"
+                + getInherit()
+                + "'");
+      }
+    }
     TableMetadata other = getSchema().getTableMetadata(otherTable);
     if (other == null)
       throw new MolgenisException(
