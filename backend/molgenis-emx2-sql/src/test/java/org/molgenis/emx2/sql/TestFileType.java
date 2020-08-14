@@ -51,7 +51,7 @@ public class TestFileType {
   @Test
   public void testRowWithFileType() {
     Row r = new Row("image", getFile());
-    assertEquals("png", r.getBinary("image"));
+    assertEquals("png", r.getString("image-extension"));
   }
 
   private File getFile() {
