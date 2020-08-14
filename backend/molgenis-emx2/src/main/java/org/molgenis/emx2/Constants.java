@@ -19,6 +19,7 @@ public class Constants {
     // hide constructor
   }
 
+  protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
   protected static final Operator[] STRING_OPERATORS = {
     EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH
