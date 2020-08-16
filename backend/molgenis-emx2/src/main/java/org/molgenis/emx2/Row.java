@@ -12,13 +12,14 @@ public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();
 
   public Row(Object... nameValuePairs) {
+    if (nameValuePairs == null) return;
     if (nameValuePairs != null && nameValuePairs.length % 2 == 1) {
       throw new MolgenisException(
           "Row nameValue constructor should even number of parameters representing name-value pairs",
           "Received " + nameValuePairs.length + " values");
     }
     for (int i = 0; i < nameValuePairs.length; i = i + 2) {
-      if (nameValuePairs[i] == null || !(nameValuePairs[i] instanceof String)) {
+      if (!(nameValuePairs[i] instanceof String)) {
         throw new MolgenisException(
             "Row names should be not null string", "found " + nameValuePairs[i]);
       }
