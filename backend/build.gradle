@@ -73,3 +73,9 @@ task jacocoMergedReport(type: JacocoReport) {
         html.enabled false
     }
 }
+
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}
