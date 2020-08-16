@@ -83,6 +83,11 @@ public class MetadataUtils {
       if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
     }
 
+    // this way more robust for non breaking changes
+    for (Field field : new Field[] {TABLE_INHERITS, TABLE_DESCRIPTION}) {
+      jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
+    }
+
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
       int result =
           t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
@@ -96,7 +101,7 @@ public class MetadataUtils {
       if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
     }
 
-    // this way robuster for non-breaking changes
+    // this way more robust for non-breaking changes
     for (Field field :
         new Field[] {
           DATA_TYPE,
