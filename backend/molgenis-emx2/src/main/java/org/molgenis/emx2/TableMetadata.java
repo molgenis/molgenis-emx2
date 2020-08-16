@@ -103,8 +103,9 @@ public class TableMetadata {
         for (Reference ref : c.getReferences()) {
           result.add(new Column(ref.getName()).type(ref.getColumnType()).setTable(this));
         }
-      } else if (BINARY.equals(c.getColumnType())) {
-        result.add(new Column(c.getName() + "-contents").type(BINARY));
+      } else if (FILE.equals(c.getColumnType())) {
+        result.add(new Column(c.getName() + "-id"));
+        result.add(new Column(c.getName() + "-contents").type(FILE));
         result.add(new Column(c.getName() + "-mimetype"));
         result.add(new Column(c.getName() + "-extension"));
         result.add(new Column(c.getName() + "-size").type(INT));

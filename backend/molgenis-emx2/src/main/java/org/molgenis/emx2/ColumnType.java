@@ -12,8 +12,7 @@ public enum ColumnType {
   BOOL_ARRAY(Boolean[].class, EQUALITY_OPERATORS),
   UUID(java.util.UUID.class, EQUALITY_OPERATORS),
   UUID_ARRAY(java.util.UUID[].class, EQUALITY_OPERATORS),
-  BINARY(byte[].class, EXISTS_OPERATIONS),
-  BINARY_ARRAY(byte[].class, EXISTS_OPERATIONS),
+  FILE(byte[].class, EXISTS_OPERATIONS),
 
   // STRING
   STRING(String.class, STRING_OPERATORS),

@@ -5,7 +5,6 @@ import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 
-import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -290,7 +289,7 @@ public class TypeUtils {
 
   public static DataType toJooqType(ColumnType type) {
     switch (type) {
-      case BINARY:
+      case FILE:
         return SQLDataType.BINARY;
       case UUID:
         return SQLDataType.UUID;

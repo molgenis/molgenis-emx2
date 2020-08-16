@@ -51,7 +51,12 @@
       v-bind="$props"
       v-model="value"
     />
-    <div v-else>UNSUPPORTED TYPE {{ columnType }}</div>
+    <InputFile
+      v-else-if="columnType === 'FILE'"
+      v-bind="$props"
+      v-model="value"
+    />
+    <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
 </template>
 
@@ -64,6 +69,7 @@ import InputBoolean from "../components/InputBoolean";
 import InputRef from "../components/InputRef";
 import InputDate from "../components/InputDate";
 import InputDateTime from "../components/InputDateTime";
+import InputFile from "../components/InputFile";
 
 export default {
   extends: _baseInput,
@@ -80,7 +86,8 @@ export default {
     InputBoolean,
     InputRef,
     InputDate,
-    InputDateTime
+    InputDateTime,
+    InputFile
   },
   watch: {
     value() {

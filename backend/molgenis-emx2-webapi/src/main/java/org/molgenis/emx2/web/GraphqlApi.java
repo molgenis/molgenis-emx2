@@ -7,16 +7,28 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.Part;
+import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
@@ -71,28 +83,38 @@ public class GraphqlApi {
           + "' not found or permission denied.\"}]}";
     }
 
+    // download hack on same endpoint
+    if ("GET".equals(request.requestMethod()) && request.queryParams("download") != null) {
+      String tableName = request.queryParams("table");
+      String columnName = request.queryParams("column");
+      String id = request.queryParams("download");
+      Table t = getSchema(request).getTable(tableName);
+      if (t == null) {
+        throw new MolgenisException("Download failed", "Table '" + tableName + "' not found");
+      }
+      List<Row> result =
+          t.query()
+              .select(s(columnName, s("contents"), s("mimetype"), s("extension")))
+              .where(f(columnName, f("id", EQUALS, id)))
+              .retrieveRows();
+      if (result.size() != 1) {
+        throw new MolgenisException("Download failed", "Id '" + id + "' not found");
+      }
+      String ext = result.get(0).getString(columnName + "-extension");
+      String mimetype = result.get(0).getString(columnName + "-mimetype");
+      byte[] contents = result.get(0).getBinary(columnName + "-contents");
+      response.status(200);
+      response.header("Content-Disposition", "attachment; filename=download." + ext);
+      response.type(mimetype);
+      response.raw().getOutputStream().write(contents);
+    }
+
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);
     return executeQuery(graphqlForSchema, request);
   }
 
-  private static Map<String, Object> getVariablesFromRequest(Request request) {
-    if ("POST".equals(request.requestMethod())) {
-      try {
-        Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
-        return (Map<String, Object>) node.get("variables");
-      } catch (Exception e) {
-        throw new MolgenisException(
-            "Parsing of grahpql variables failed. Should be an object with each graphql variable a key. "
-                + e.getMessage(),
-            e);
-      }
-    }
-    return null;
-  }
-
   private static String executeQuery(GraphQL g, Request request) throws IOException {
-
     String query = getQueryFromRequest(request);
     Map<String, Object> variables = getVariablesFromRequest(request);
 
@@ -129,8 +151,17 @@ public class GraphqlApi {
   private static String getQueryFromRequest(Request request) throws IOException {
     String query = null;
     if ("POST".equals(request.requestMethod())) {
-      ObjectNode node = new ObjectMapper().readValue(request.body(), ObjectNode.class);
-      query = node.get("query").asText();
+      if (request.headers("Content-Type").startsWith("multipart/form-data")) {
+        File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
+        tempFile.deleteOnExit();
+        request.attribute(
+            "org.eclipse.jetty.multipartConfig",
+            new MultipartConfigElement(tempFile.getAbsolutePath()));
+        query = request.queryParams("query");
+      } else {
+        ObjectNode node = new ObjectMapper().readValue(request.body(), ObjectNode.class);
+        query = node.get("query").asText();
+      }
     } else {
       query =
           request.queryParamOrDefault(
@@ -144,6 +175,55 @@ public class GraphqlApi {
                   + "}");
     }
     return query;
+  }
+
+  private static Map<String, Object> getVariablesFromRequest(Request request) {
+    if ("POST".equals(request.requestMethod())) {
+      try {
+        if (request.headers("Content-Type").startsWith("multipart/form-data")) {
+          Map<String, Object> variables =
+              new ObjectMapper().readValue(request.queryParams("variables"), Map.class);
+          // now replace each part id with the part
+          putPartsIntoMap(
+              variables,
+              request.raw().getParts().stream()
+                  .filter(p -> !p.getName().equals("variables") && !p.getName().equals("query"))
+                  .collect(Collectors.toList()));
+          //
+          return variables;
+        } else {
+          Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
+          return (Map<String, Object>) node.get("variables");
+        }
+      } catch (Exception e) {
+        throw new MolgenisException(
+            "Parsing of graphql variables failed. Should be an object with each graphql variable a key. "
+                + e.getMessage(),
+            e);
+      }
+    }
+    return null;
+  }
+
+  private static void putPartsIntoMap(Map<String, Object> variables, Collection<Part> parts) {
+    // check the part links
+    for (Map.Entry<String, Object> entry : variables.entrySet()) {
+      if (entry.getValue() instanceof String) {
+        for (Part part : parts) {
+          if (part.getName().equals(entry.getValue())) {
+            entry.setValue(part);
+          }
+        }
+      } else if (entry.getValue() instanceof Map) {
+        putPartsIntoMap((java.util.Map<String, Object>) entry.getValue(), parts);
+      } else if (entry.getValue() instanceof List) {
+        for (Object element : (List) entry.getValue()) {
+          if (element instanceof Map) {
+            putPartsIntoMap((java.util.Map<String, Object>) element, parts);
+          }
+        }
+      }
+    }
   }
 
   static Map<String, String> resultMessage(String detail) {

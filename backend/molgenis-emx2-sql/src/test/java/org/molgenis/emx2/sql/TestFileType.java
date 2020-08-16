@@ -8,7 +8,7 @@ import java.io.File;
 
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.BINARY;
+import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -24,7 +24,7 @@ public class TestFileType {
 
   @Test
   public void test3() {
-    Table t = schema.create(table("test1", column("id").pkey(), column("image").type(BINARY)));
+    Table t = schema.create(table("test1", column("id").pkey(), column("image").type(FILE)));
     File image = getFile();
     t.insert(new Row("id", 1, "image", image));
 

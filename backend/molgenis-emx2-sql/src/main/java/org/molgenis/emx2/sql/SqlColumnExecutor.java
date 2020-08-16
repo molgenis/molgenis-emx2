@@ -54,7 +54,7 @@ public class SqlColumnExecutor {
               jooq, column.getJooqTable(), ref.getJooqField(), ref.isNullable() || isNullable);
         }
         break;
-      case BINARY:
+      case FILE:
         for (Field f : column.getJooqFileFields()) {
           executeSetNullable(jooq, column.getJooqTable(), f, column.isNullable());
         }
@@ -71,8 +71,9 @@ public class SqlColumnExecutor {
   static void executeAlterName(DSLContext jooq, Column oldColumn, Column newColumn) {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
-      if (BINARY.equals(newColumn.getColumnType())) {
-        for (String suffix : new String[] {"-ext", "-size", "-contents", "-mimetype"}) {
+      if (FILE.equals(newColumn.getColumnType())) {
+        for (String suffix :
+            new String[] {"-id", "-extension", "-size", "-contents", "-mimetype"}) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
@@ -106,8 +107,8 @@ public class SqlColumnExecutor {
       return; // nothing to do
     }
 
-    if (BINARY.equals(oldColumn.getColumnType()) && !BINARY.equals(newColumn.getColumnType())
-        || !BINARY.equals(oldColumn.getColumnType()) && BINARY.equals(newColumn.getColumnType())) {
+    if (FILE.equals(oldColumn.getColumnType()) && !FILE.equals(newColumn.getColumnType())
+        || !FILE.equals(oldColumn.getColumnType()) && FILE.equals(newColumn.getColumnType())) {
       throw new MolgenisException(
           "Alter type for column '" + newColumn.getName() + "' failed",
           "Cannot convert from or to binary");
@@ -237,7 +238,7 @@ public class SqlColumnExecutor {
           jooq.alterTable(column.getJooqTable()).addColumn(ref.getJooqField()).execute();
         }
       }
-    } else if (BINARY.equals(column.getColumnType())) {
+    } else if (FILE.equals(column.getColumnType())) {
       for (Field f : column.getJooqFileFields()) {
         jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
       }
@@ -276,7 +277,7 @@ public class SqlColumnExecutor {
 
   static void executeRemoveColumn(DSLContext jooq, Column column) {
     executeRemoveRefAndNotNullConstraints(jooq, column);
-    if (BINARY.equals(column.getColumnType())) {
+    if (FILE.equals(column.getColumnType())) {
       for (Field f : column.getJooqFileFields()) {
         jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
             .dropColumn(f)

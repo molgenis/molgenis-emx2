@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.molgenis.emx2.ColumnType.BINARY;
 import static org.molgenis.emx2.sql.SqlJavascriptGraal.executeJavascriptOnRow;
 import static org.molgenis.emx2.sql.SqlJavascriptGraal.executeJavascriptOnValue;
 
@@ -58,7 +57,7 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static Object getTypedValue(Row row, String name, ColumnType type) {
     switch (type) {
-      case BINARY:
+      case FILE:
         return row.getBinary(name);
       case UUID:
         return row.getUuid(name);

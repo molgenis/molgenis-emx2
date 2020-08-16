@@ -415,6 +415,7 @@ public class Column {
 
   public List<Field> getJooqFileFields() {
     return List.of(
+        field(name(getName() + "-id"), SQLDataType.VARCHAR),
         field(name(getName() + "-mimetype"), SQLDataType.VARCHAR),
         field(name(getName() + "-extension"), SQLDataType.VARCHAR),
         field(name(getName() + "-size"), SQLDataType.INTEGER),

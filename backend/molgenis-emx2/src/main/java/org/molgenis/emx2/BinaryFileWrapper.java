@@ -6,40 +6,71 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 
 public class BinaryFileWrapper implements Binary {
+  // we use either file or byte[] for the contents
   File file;
+  byte[] contents;
+  // these we calculate on construction
+  String mimetype;
+  String extension = "";
 
   public BinaryFileWrapper(File file) {
     this.file = file;
+    this.mimetype = URLConnection.getFileNameMap().getContentTypeFor(file.getName());
+    this.extension = deriveExtension(file.getName());
   }
 
-  @Override
-  public String getMimeType() {
-    FileNameMap fileNameMap = URLConnection.getFileNameMap();
-    return fileNameMap.getContentTypeFor(file.getName());
+  public BinaryFileWrapper(String contentType, String fileName, byte[] contents) {
+    this.contents = contents;
+    this.mimetype = contentType;
+    this.extension = deriveExtension(fileName);
   }
 
-  @Override
-  public String getExtension() {
-    if (file.getName().endsWith("tar.gz")) {
+  private String deriveExtension(String fileName) {
+    if (fileName == null) {
+      return "";
+    }
+    if (fileName.endsWith("tar.gz")) {
       return "tar.gz";
     }
-    if (file.getName().contains(".")) {
-      return file.getName().substring(file.getName().lastIndexOf('.') + 1);
+    if (fileName.contains(".")) {
+      return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
     return "";
   }
 
   @Override
-  public long getSize() {
-    return file.length();
+  public String getMimeType() {
+    return mimetype;
   }
 
   @Override
-  public byte[] getContents() {
-    try {
-      return Files.readAllBytes(file.toPath());
-    } catch (Exception e) {
-      throw new MolgenisException("file error", e);
+  public String getExtension() {
+    return extension;
+  }
+
+  @Override
+  public long getSize() {
+    if (contents != null) {
+      return contents.length;
     }
+    if (file != null) {
+      return file.length();
+    }
+    return 0;
+  }
+
+  @Override
+  public byte[] getContents() { // would like to see bytestream here instead of byte[]
+    if (contents != null) {
+      return contents;
+    }
+    if (file != null) {
+      try {
+        return Files.readAllBytes(file.toPath());
+      } catch (Exception e) {
+        throw new MolgenisException("file error", e);
+      }
+    }
+    return null;
   }
 }

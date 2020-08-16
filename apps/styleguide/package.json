@@ -15,7 +15,9 @@
     "vue": "^2.6.11",
     "vue-flatpickr-component": "^8.1.5",
     "vuedraggable": "^2.23.2",
-    "graphql-request": "^1.8.2"
+    "graphql-request": "^1.8.2",
+    "recursive-iterator": "^3.3.0",
+    "object-path": "^0.11.4"
   },
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "devDependencies": {

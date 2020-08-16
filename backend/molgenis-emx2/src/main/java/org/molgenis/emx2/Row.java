@@ -146,11 +146,16 @@ public class Row {
   }
 
   public Row setBinary(String name, File value) {
-    BinaryFileWrapper w = new BinaryFileWrapper(value);
-    this.values.put(name + "-extension", w.getExtension());
-    this.values.put(name + "-mimetype", w.getMimeType());
-    this.values.put(name + "-size", w.getSize());
-    this.values.put(name + "-contents", w.getContents());
+    this.setBinary(name, new BinaryFileWrapper(value));
+    return this;
+  }
+
+  public Row setBinary(String name, BinaryFileWrapper value) {
+    this.values.put(name + "-id", UUID.randomUUID().toString().replace("-", ""));
+    this.values.put(name + "-extension", value.getExtension());
+    this.values.put(name + "-mimetype", value.getMimeType());
+    this.values.put(name + "-size", value.getSize());
+    this.values.put(name + "-contents", value.getContents());
     return this;
   }
 
@@ -224,6 +229,8 @@ public class Row {
   public Row set(String name, Object value) {
     if (value instanceof File) {
       this.setBinary(name, (File) value);
+    } else if (value instanceof BinaryFileWrapper) {
+      this.setBinary(name, (BinaryFileWrapper) value);
     } else {
       this.values.put(name, value);
     }

@@ -51,12 +51,13 @@ import ButtonAction from "../components/ButtonAction.vue";
 import ButtonAlt from "../components/ButtonAlt.vue";
 import SigninForm from "./SigninForm";
 import TableMixin from "../mixins/TableMixin";
+import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
 import ShowMore from "../components/ShowMore";
-import { request } from "graphql-request";
 
 export default {
   extends: TableMixin,
+  mixins: [GraphqlRequestMixin],
   data: function() {
     return {
       showLogin: false,
@@ -97,8 +98,9 @@ export default {
       if (this.pkey) {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
-      request("graphql", query, variables)
+      this.requestMultipart("graphql", query, variables)
         .then(data => {
+          alert("data:" + JSON.stringify(data));
           if (data.insert) {
             this.success = data.insert.message;
           }
@@ -109,12 +111,13 @@ export default {
           this.$emit("close");
         })
         .catch(error => {
-          if (error.response.status === 403) {
+          alert("error: " + JSON.stringify(error));
+          if (error.status === 403) {
             this.error =
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
             this.showLogin = true;
           } else {
-            this.error = error;
+            this.error = error.errors;
           }
         });
     },

@@ -164,6 +164,8 @@ class GraphqlTableMutationFields {
 
   private static GraphQLInputType getGraphQLInputType(ColumnType columnType) {
     switch (columnType) {
+      case FILE:
+        return GraphqlCustomTypes.GraphQLFileUpload;
       case BOOL:
         return Scalars.GraphQLBoolean;
       case INT:

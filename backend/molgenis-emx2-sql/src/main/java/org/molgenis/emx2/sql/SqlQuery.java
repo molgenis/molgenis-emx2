@@ -123,8 +123,11 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn select : selection.getSubselect()) {
       Column column = isValidColumn(table, select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
-      if (BINARY.equals(column.getColumnType())) {
+      if (FILE.equals(column.getColumnType())) {
         // check what they want to get, contents, mimetype, size and/or extension
+        if (select.has("id")) {
+          fields.add(field(name(column.getName() + "-id")));
+        }
         if (select.has("contents")) {
           fields.add(field(name(column.getName() + "-contents")));
         }
@@ -339,12 +342,12 @@ public class SqlQuery extends QueryBean {
       }
 
       // add the fields, using subselects for references
-      if (BINARY.equals(column.getColumnType())) {
+      if (FILE.equals(column.getColumnType())) {
         DSLContext jooq = ((SqlTableMetadata) table).getJooq();
         List<Field> subFields = new ArrayList<>();
-        for (String ext : new String[] {"contents", "size", "extension", "mimetype"}) {
+        for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype"}) {
           if (select.has(ext)) {
-            subFields.add(field(name(tableAlias, column.getName() + "-" + ext)));
+            subFields.add(field(name(tableAlias, column.getName() + "-" + ext)).as(ext));
           }
         }
         fields.add(
@@ -609,6 +612,14 @@ public class SqlQuery extends QueryBean {
           conditions.add(
               whereConditionsFilter(
                   column.getRefTable(), tableAlias + "-" + column.getName(), filter));
+        } else if (FILE.equals(column.getColumnType())) {
+          Filter sub = filter.getSubfilter("id");
+          // todo expand properly
+          if (sub != null && EQUALS.equals(sub.getOperator())) {
+            conditions.add(field(name(column.getName() + "-id")).in(sub.getValues()));
+          } else {
+            throw new MolgenisException("Invalid filter for file", "");
+          }
         } else {
           conditions.add(
               whereCondition(

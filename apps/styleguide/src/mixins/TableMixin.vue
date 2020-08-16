@@ -38,7 +38,7 @@ export default {
       }
       let search =
         this.searchTerms != null && this.searchTerms !== ""
-          ? ',search:"' + this.searchTerms + '")'
+          ? ',search:"' + this.searchTerms + '"'
           : "";
       return `query ${this.table}($filter:${this.table}Filter){
               ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search}){${this.columnNames}}
@@ -55,6 +55,8 @@ export default {
             ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
           ) {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
+          } else if (col.columnType == "FILE") {
+            result = result + " " + col.name + "{id,size,extension}";
           } else {
             result = result + " " + col.name;
           }

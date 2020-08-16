@@ -34,11 +34,27 @@
             @click="onRowClick(row)"
             style="cursor: pointer"
           >
-            <div
-              v-for="(value, idx2) in renderValue(row, col)"
-              :key="idx + col + idx2"
-            >
-              {{ value }}
+            <div v-if="'FILE' === col.columnType">
+              <a
+                :href="
+                  'graphql?table=' +
+                    metadata.name +
+                    '&column=' +
+                    col.name +
+                    '&download=' +
+                    row[col.name].id
+                "
+                >download.{{ row[col.name].extension }}</a
+              >
+              ({{ renderNumber(row[col.name].size) }}b)
+            </div>
+            <div v-else>
+              <div
+                v-for="(value, idx2) in renderValue(row, col)"
+                :key="idx + col + idx2"
+              >
+                {{ value }}
+              </div>
             </div>
           </td>
         </tr>
@@ -120,6 +136,25 @@ export default {
       } else {
         this.$emit("click", this.getKey(row));
       }
+    },
+    renderNumber(number) {
+      var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
+
+      // what tier? (determines SI symbol)
+      var tier = (Math.log10(number) / 3) | 0;
+
+      // if zero, we don't need a suffix
+      if (tier == 0) return number;
+
+      // get suffix and determine scale
+      var suffix = SI_SYMBOL[tier];
+      var scale = Math.pow(10, tier * 3);
+
+      // scale the number
+      var scaled = number / scale;
+
+      // format number and add suffix
+      return scaled.toFixed(1) + suffix;
     }
   },
   watch: {

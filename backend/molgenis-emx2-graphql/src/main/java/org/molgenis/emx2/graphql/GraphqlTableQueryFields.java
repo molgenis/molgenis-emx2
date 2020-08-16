@@ -118,10 +118,25 @@ public class GraphqlTableQueryFields {
     };
   }
 
+  private static GraphQLObjectType fileDownload =
+      GraphQLObjectType.newObject()
+          .name("MolgenisFileDownload")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name("id").type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name("size").type(Scalars.GraphQLInt))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("extension")
+                  .type(Scalars.GraphQLString))
+          .build();
+
   private static GraphQLObjectType createTableObjectType(Table table) {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
     for (Column col : table.getMetadata().getColumns())
       switch (col.getColumnType()) {
+        case FILE:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition().name(col.getName()).type(fileDownload));
+          break;
         case BOOL:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
