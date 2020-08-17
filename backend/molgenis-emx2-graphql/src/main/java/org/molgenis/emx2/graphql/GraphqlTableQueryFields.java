@@ -40,7 +40,7 @@ public class GraphqlTableQueryFields {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.FILTER_ARGUMENT)
-                .type(createTableFilterInputObjectType(table.getMetadata()))
+                .type(getTableFilterInputObjectType(table.getMetadata()))
                 .build())
         .argument(
             GraphQLArgument.newArgument()
@@ -72,7 +72,7 @@ public class GraphqlTableQueryFields {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.FILTER_ARGUMENT)
-                .type(createTableFilterInputObjectType(table.getMetadata()))
+                .type(getTableFilterInputObjectType(table.getMetadata()))
                 .build())
         .argument(
             GraphQLArgument.newArgument()
@@ -266,7 +266,7 @@ public class GraphqlTableQueryFields {
 
   private static Map<String, GraphQLInputObjectType> tableFilterInputTypes = new LinkedHashMap<>();
 
-  private static GraphQLInputObjectType createTableFilterInputObjectType(TableMetadata table) {
+  private static GraphQLInputObjectType getTableFilterInputObjectType(TableMetadata table) {
     if (!tableFilterInputTypes.containsKey(table.getTableName())) {
       GraphQLInputObjectType.Builder filterBuilder =
           GraphQLInputObjectType.newInputObject().name(table.getTableName() + FILTER);
@@ -289,7 +289,7 @@ public class GraphqlTableQueryFields {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(col.getName())
-                  .type(createColumnFilterInputObjectType(col))
+                  .type(getColumnFilterInputObjectType(col))
                   .build());
         }
       }
@@ -314,7 +314,7 @@ public class GraphqlTableQueryFields {
   // cache so we can reuse filter input types between tables
   static Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
 
-  private static GraphQLInputObjectType createColumnFilterInputObjectType(Column column) {
+  private static GraphQLInputObjectType getColumnFilterInputObjectType(Column column) {
     ColumnType type = column.getColumnType();
     // singleton
     if (columnFilterInputTypes.get(type) == null) {

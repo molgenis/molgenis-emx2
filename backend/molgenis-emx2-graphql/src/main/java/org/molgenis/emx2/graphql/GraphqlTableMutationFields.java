@@ -143,7 +143,7 @@ class GraphqlTableMutationFields {
 
   public static GraphQLInputObjectType getPrimaryKeyInput(TableMetadata table) {
     GraphQLInputType type;
-    String name = table.getTableName() + "PKEY";
+    String name = table.getTableName() + "PkeyInput";
     if (refTypes.get(name) == null) {
       GraphQLInputObjectType.Builder refTypeBuilder =
           GraphQLInputObjectType.newInputObject().name(name);
