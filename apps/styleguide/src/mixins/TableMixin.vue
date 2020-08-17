@@ -70,7 +70,7 @@ export default {
       if (this.tableMetadata != undefined) {
         this.loading = true;
         this.error = null;
-        request("graphql", this.graphql, { filter: this.graphqlFilter })
+        request(this.graphqlURL, this.graphql, { filter: this.graphqlFilter })
           .then(data => {
             this.data = data[this.table];
             this.count = data[this.table + "_agg"]["count"];
@@ -126,6 +126,7 @@ export default {
 
 <docs>
     ```
-    <TableMixin table="Code"/>
+    <!-- normally you don't need provide graphqlURL because default 'graphql' just works -->
+    <TableMixin table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
     ```
 </docs>

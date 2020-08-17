@@ -16,7 +16,8 @@ module.exports = {
   webpackConfig: {
     devServer: {
       proxy: {
-        "/graphql": "http://localhost:8080/TestCohortCatalogue"
+        "/graphql": "http://localhost:8080/api",
+        "**/graphql": "http://localhost:8080/"
       }
     }
   },

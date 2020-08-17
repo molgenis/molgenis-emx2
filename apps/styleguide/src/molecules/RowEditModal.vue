@@ -16,6 +16,7 @@
             :defaultValue="defaultValue ? defaultValue[column.name] : undefined"
             :error="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
+            :graphqlURL="graphqlURL"
           />
         </span>
       </LayoutForm>
@@ -98,9 +99,8 @@ export default {
       if (this.pkey) {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
-      this.requestMultipart("graphql", query, variables)
+      this.requestMultipart(this.graphqlURL, query, variables)
         .then(data => {
-          alert("data:" + JSON.stringify(data));
           if (data.insert) {
             this.success = data.insert.message;
           }
@@ -111,7 +111,6 @@ export default {
           this.$emit("close");
         })
         .catch(error => {
-          alert("error: " + JSON.stringify(error));
           if (error.status === 403) {
             this.error =
               "Schema doesn't exist or permission denied. Do you need to Sign In?";

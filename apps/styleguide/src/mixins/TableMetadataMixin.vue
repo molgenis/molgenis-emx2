@@ -10,6 +10,12 @@
 import { request } from "graphql-request";
 
 export default {
+  props: {
+    graphqlURL: {
+      defaultValue: "graphql",
+      type: String
+    }
+  },
   data: function() {
     return {
       user: null,
@@ -22,7 +28,7 @@ export default {
     reloadMetadata() {
       this.loading = true;
       request(
-        "graphql",
+        this.graphqlURL,
         "{_user{email}_schema{name,tables{name,columns{name,columnType,key,refTable,cascadeDelete,nullable}}}}"
       )
         .then(data => {
@@ -43,7 +49,9 @@ export default {
 </script>
 
 <docs>
+    Normally you would not instantiate a mixin component, so this is only for quick testing
     ```
-    <TableMetadataMixin/>
+    <!-- in normal use you don't need graphqlURL prop -->
+    <TableMetadataMixin graphqlURL="/pet store/graphql"/>
     ```
 </docs>

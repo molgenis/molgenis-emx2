@@ -101,6 +101,7 @@ export default {
     <template>
         <div>
             <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
+            <!-- normally you don't need graphqlURL because that is available in apps context-->
             <SigninForm v-else @login="signinTest" @cancel="display = false"/>
         </div>
     </template>

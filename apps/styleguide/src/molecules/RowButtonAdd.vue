@@ -1,6 +1,11 @@
 <template>
   <div>
-    <RowEditModal v-if="open" :table="table" @close="closeForm" />
+    <RowEditModal
+      v-if="open"
+      :table="table"
+      @close="closeForm"
+      :graphqlURL="graphqlURL"
+    />
     <IconAction v-else icon="plus" @click="openForm" />
   </div>
 </template>
@@ -20,7 +25,11 @@ export default {
     IconAction
   },
   props: {
-    table: String
+    table: String,
+    graphqlURL: {
+      defaultValue: "graphql",
+      type: String
+    }
   },
   computed: {
     title() {
@@ -42,6 +51,7 @@ export default {
 <docs>
     Example
     ```
-    <RowButtonAdd table="Code"/>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <RowButtonAdd table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
     ```
 </docs>

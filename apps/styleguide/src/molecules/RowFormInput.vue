@@ -44,6 +44,7 @@
       "
       v-bind="$props"
       v-model="value"
+      :graphqlURL="graphqlURL"
     />
     <InputString
       v-else-if="columnType === 'STRING_ARRAY' || columnType === 'TEXT_ARRAY'"
@@ -77,7 +78,11 @@ export default {
     schema: String,
     columnType: String,
     refTable: String,
-    defaultValue: [String, Number, Object, Array]
+    defaultValue: [String, Number, Object, Array],
+    graphqlURL: {
+      defaultValue: "graphql",
+      type: String
+    }
   },
   components: {
     InputString,

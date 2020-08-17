@@ -32,6 +32,7 @@
           :filter="filter"
           @select="select($event, selectIdx)"
           @deselect="deselect(selectIdx)"
+          :graphqlURL="graphqlURL"
         />
       </template>
       <template v-slot:footer>
@@ -67,6 +68,11 @@ export default {
     InputAppend
   },
   props: {
+    /** change if graphql URL != 'graphql'*/
+    graphqlURL: {
+      defaultValue: "graphql",
+      type: String
+    },
     refTable: String,
     filter: Object
   },
@@ -115,7 +121,8 @@ export default {
     ```
     <template>
         <div>
-            <InputRef v-model="value" refTable="Pet"/>
+            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+            <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
             Selection: {{value}}
         </div>
     </template>
@@ -133,10 +140,12 @@ export default {
     ```
     <template>
         <div>
+            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
             <InputRef
                     v-model="value"
                     refTable="Pet"
                     :defaultValue="value"
+                    graphqlURL="/pet store/graphql"
             />
             Selection: {{value}}
         </div>
@@ -155,11 +164,13 @@ export default {
     ```
     <template>
         <div>
+            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
             <InputRef
                     v-model="value"
                     refTable="Pet"
                     :filter="{category:{name:'dog'}}"
                     :defaultValue="value"
+                    graphqlURL="/pet store/graphql"
             />
             Selection: {{value}}
         </div>
@@ -178,10 +189,12 @@ export default {
     ```
     <template>
         <div>
+            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
             <InputRef :list="true"
                       v-model="value"
                       refTable="Pet"
                       :defaultValue="[{name:'spike'},{name:'pooky'}]"
+                      graphqlURL="/pet store/graphql"
             />
             Selection: {{value}}
         </div>

@@ -92,6 +92,7 @@ export default {
 <docs>
     Example
     ```
-    <RowButtonDelete table="Pet" :pkey="{name:'MyPet4'}"/>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <RowButtonDelete table="Pet" :pkey="{name:'MyPet4'}" graphqlURL="/pet store/graphql"/>
     ```
 </docs>
