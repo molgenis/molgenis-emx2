@@ -22,6 +22,10 @@ export default {
         {
           label: "GraphQL API",
           href: "/api/playground.html?schema=/api/graphql"
+        },
+        {
+          label: "Styleguide",
+          href: "/apps/styleguide/"
         }
       ]
     };
