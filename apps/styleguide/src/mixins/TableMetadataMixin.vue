@@ -12,7 +12,7 @@ import { request } from "graphql-request";
 export default {
   props: {
     graphqlURL: {
-      defaultValue: "graphql",
+      default: "graphql",
       type: String
     }
   },

@@ -80,7 +80,7 @@ export default {
     refTable: String,
     defaultValue: [String, Number, Object, Array],
     graphqlURL: {
-      defaultValue: "graphql",
+      default: "graphql",
       type: String
     }
   },

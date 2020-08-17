@@ -70,7 +70,7 @@ export default {
   props: {
     /** change if graphql URL != 'graphql'*/
     graphqlURL: {
-      defaultValue: "graphql",
+      default: "graphql",
       type: String
     },
     refTable: String,
