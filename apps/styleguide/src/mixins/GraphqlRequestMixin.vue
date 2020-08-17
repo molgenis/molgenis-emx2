@@ -27,12 +27,10 @@ export default {
             if (response.ok) {
               response.json().then(result => {
                 if (!result.errors && result.data) {
-                  alert("success");
                   resolve({
                     data: result.data
                   });
                 } else {
-                  alert("error");
                   {
                     reject({
                       errors: result.errors
@@ -41,7 +39,6 @@ export default {
                 }
               });
             } else {
-              alert("not ok");
               response.json().then(result => {
                 reject({ errors: result.errors });
               });
