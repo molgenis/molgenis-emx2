@@ -24,8 +24,6 @@ subprojects {
         inputs.file('package.json')
         inputs.files(fileTree('../styleguide/src'))
         inputs.file('vue.config.js')
-        outputs.dir("dist")
-
         outputs.dir('dist')
 
         // tell gradle to apply the build cache
@@ -35,12 +33,12 @@ subprojects {
             dependsOn ":apps:styleguide:build"
         }
 
+        //first install the workspace
         dependsOn parent.yarn_install
         args = ['run', 'build']
-        delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-        copy {
 
-        }
+        //remove the folder with copy of all build materials
+        delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
     task copyDistFiles(type: Copy, dependsOn: build) {
@@ -80,7 +78,7 @@ subprojects {
 //    outputs.cacheIf { true }
 //}
 
-/* convert build files into one jar*/
+/* convert build files into one apps.jar that we can use as a dependency in the java part */
 task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
     baseName 'apps'
     extension 'jar'
