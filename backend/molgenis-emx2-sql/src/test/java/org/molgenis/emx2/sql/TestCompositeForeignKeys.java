@@ -7,6 +7,8 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
+import java.util.List;
+
 import static graphql.Assert.assertTrue;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
@@ -84,8 +86,8 @@ public class TestCompositeForeignKeys {
     }
 
     schema.create(table("Student").setInherit("Person"));
-    p = schema.getTable("Student");
-    p.insert(
+    Table s = schema.getTable("Student");
+    s.insert(
         new Row()
             .setString("firstName", "Mickey")
             .setString("lastName", "Mouse")
@@ -114,8 +116,8 @@ public class TestCompositeForeignKeys {
             .retrieveJSON();
 
     System.out.println(result);
-    assertTrue(result.toString().contains("Mouse"));
-    assertFalse(result.toString().contains("Duck"));
+    assertTrue(result.contains("Mouse"));
+    assertFalse(result.contains("Duck"));
 
     result =
         schema
@@ -128,8 +130,8 @@ public class TestCompositeForeignKeys {
             .retrieveJSON();
 
     System.out.println(result);
-    assertTrue(result.toString().contains("Mouse"));
-    assertTrue(result.toString().contains("Duck"));
+    assertTrue(result.contains("Mouse"));
+    assertTrue(result.contains("Duck"));
 
     // composite key filter
     result =
@@ -146,8 +148,48 @@ public class TestCompositeForeignKeys {
             .retrieveJSON();
 
     System.out.println(result);
-    assertTrue(result.toString().contains("Kwik"));
-    assertFalse(result.toString().contains("Mouse"));
+    assertTrue(result.contains("Kwik"));
+    assertFalse(result.contains("Mouse"));
+
+    // refback
+    schema
+        .getTable("Person")
+        .getMetadata()
+        .add(column("nephew").type(REFBACK).refTable("Person").mappedBy("uncle"));
+
+    s.insert(
+        new Row()
+            .setString("firstName", "Katrien")
+            .setString("lastName", "Duck")
+            .setString("nephew-firstName", "Kwik")
+            .setString("nephew-lastName", "Duck")); // I know, not true
+
+    assertTrue(
+        List.of(
+                s.query()
+                    .select(
+                        s("firstName"),
+                        s("lastName"),
+                        s("nephew", s("firstName"), s("lastName")),
+                        s("uncle", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Katrien"))
+                    .retrieveRows()
+                    .get(0)
+                    .getStringArray("nephew-firstName"))
+            .contains("Kwik"));
+    assertTrue(
+        List.of(
+                p.query()
+                    .select(
+                        s("firstName"),
+                        s("lastName"),
+                        s("nephew", s("firstName"), s("lastName")),
+                        s("uncle", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Kwik"))
+                    .retrieveRows()
+                    .get(0)
+                    .getStringArray("uncle-firstName"))
+            .contains("Katrien"));
   }
 
   @Test

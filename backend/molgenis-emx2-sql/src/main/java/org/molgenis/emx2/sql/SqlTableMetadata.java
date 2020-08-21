@@ -22,23 +22,9 @@ class SqlTableMetadata extends TableMetadata {
   private Database db;
   private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
 
-  SqlTableMetadata(Database db, SqlSchemaMetadata schema, String tableName) {
-    super(schema, tableName);
-    this.db = db;
-  }
-
   SqlTableMetadata(Database db, SqlSchemaMetadata schema, TableMetadata metadata) {
     super(schema, metadata);
     this.db = db;
-  }
-
-  void load() {
-    long start = System.currentTimeMillis();
-    clearCache();
-    TableMetadata temp = new TableMetadata(getSchema(), getTableName());
-    MetadataUtils.loadTableMetadata(getJooq(), temp);
-    this.copy(temp);
-    log(start, "RELOAD");
   }
 
   @Override

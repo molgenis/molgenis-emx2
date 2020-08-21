@@ -7,8 +7,7 @@ import java.util.*;
 public class SchemaMetadata {
 
   private String name;
-  protected Collection<String> tableNames = new ArrayList<>();
-  protected Map<String, TableMetadata> tableCache = new LinkedHashMap<>();
+  protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
 
   public SchemaMetadata() {}
 
@@ -26,12 +25,12 @@ public class SchemaMetadata {
     this.name = name;
   }
 
-  public Collection<String> getTableNames() {
-    return Collections.unmodifiableCollection(tableNames);
+  public Set<String> getTableNames() {
+    return this.tables.keySet();
   }
 
   public TableMetadata create(TableMetadata table) {
-    if (tableCache.get(table.getTableName()) != null)
+    if (tables.get(table.getTableName()) != null)
       throw new MolgenisException(
           "Create table failed",
           "Table with name '"
@@ -39,8 +38,7 @@ public class SchemaMetadata {
               + "'already exists in schema '"
               + getName()
               + "'");
-    this.tableCache.put(table.getTableName(), table);
-    this.tableNames.add(table.getTableName());
+    this.tables.put(table.getTableName(), table);
     table.setSchema(this);
     return table;
   }
@@ -52,18 +50,17 @@ public class SchemaMetadata {
   }
 
   public TableMetadata getTableMetadata(String name) {
-    return tableCache.get(name);
+    return tables.get(name);
   }
 
   public void drop(String tableId) {
-    tableCache.remove(tableId);
-    tableNames.remove(tableId);
+    tables.remove(tableId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (TableMetadata t : tableCache.values()) {
+    for (TableMetadata t : tables.values()) {
       sb.append(t);
     }
     return sb.toString();

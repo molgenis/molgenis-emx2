@@ -25,9 +25,6 @@ class SqlColumnRefBackExecutor {
       // get ref table
       validateRef(column);
 
-      // get the other column
-      TableMetadata toTable = column.getRefTable();
-
       // get the via column which is also in the 'toTable'
       String mappedByColumnName = column.getMappedBy();
       if (mappedByColumnName == null) {
@@ -342,8 +339,7 @@ class SqlColumnRefBackExecutor {
     String refBackColumn = String.join(",", refBackColumnList);
     String setRefBackValuesToNull = String.join(";", setRefBackValuesToNullList);
 
-    // insert and update trigger
-    jooq.execute(
+    String sql =
         "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ BEGIN"
             + "\n\tIF TG_OP='UPDATE' THEN"
             // remove reference to old key
@@ -351,11 +347,29 @@ class SqlColumnRefBackExecutor {
             + "\n\tEND IF;"
             + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {2} WHERE {5}) THEN"
             // update to new key, if in refbackvalues list
-            + "\n\t\tUPDATE {1} set {6} WHERE ({7}) IN (SELECT UNNEST({8}));"
+            + "\n\t\tUPDATE {1} set {6} WHERE ({7}) IN (SELECT * FROM UNNEST({8}));"
             + "\n\t\t{9};"
             + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
-            + "\nEND; $BODY$ LANGUAGE plpgsql;",
+            + "\nEND; $BODY$ LANGUAGE plpgsql;";
+
+    System.out.println(
+        jooq.query(
+                sql,
+                name(schemaName, insertOrUpdateTrigger), // {0} function name
+                table(name(schemaName, column.getRefTableName())), // {1} toTable table
+                table(name(schemaName, column.getTable().getTableName())), // {2} this table
+                keyword(mappedBySetNull), // {3}
+                keyword(mappedByIsOldKey), // 4
+                keyword(keyIsNewKey), // 5
+                keyword(mappedBySetNewKey), // 6
+                keyword(mappedByTo), // 7
+                keyword(refBackColumn), // 8
+                keyword(setRefBackValuesToNull))
+            .getSQL());
+    // insert and update trigger
+    jooq.execute(
+        sql,
         name(schemaName, insertOrUpdateTrigger), // {0} function name
         table(name(schemaName, column.getRefTableName())), // {1} toTable table
         table(name(schemaName, column.getTable().getTableName())), // {2} this table
@@ -367,12 +381,16 @@ class SqlColumnRefBackExecutor {
         keyword(refBackColumn), // 8
         keyword(setRefBackValuesToNull)); // 9
 
+    String ref =
+        column.getReferences().stream()
+            .map(r -> name(r.getName()).toString())
+            .collect(Collectors.joining(","));
     jooq.execute(
         "CREATE TRIGGER {0} "
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
         name(insertOrUpdateTrigger),
-        name(column.getName()),
+        keyword(ref),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
 

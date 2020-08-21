@@ -3,14 +3,13 @@ package org.molgenis.emx2.sql;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.utils.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
@@ -21,6 +20,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(name);
+    StopWatch.start("loading schema '" + name + "'");
+    for (TableMetadata t : MetadataUtils.loadTables(db.getJooq(), this)) {
+      super.create(new SqlTableMetadata(db, this, t));
+    }
+    StopWatch.print("loading schema '" + name + "'complete");
     this.db = db;
   }
 
@@ -43,6 +47,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
+  public SqlTableMetadata getTableMetadata(String name) {
+    return (SqlTableMetadata) super.getTableMetadata(name);
+  }
+
+  @Override
   public void create(TableMetadata... tables) {
     db.tx(
         database -> {
@@ -53,32 +62,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             this.create(tm);
           }
         });
-  }
-
-  @Override
-  public SqlTableMetadata getTableMetadata(String name) {
-    SqlTableMetadata metadata = (SqlTableMetadata) super.getTableMetadata(name);
-    if (metadata != null) {
-      return metadata;
-    } else {
-      // else retrieve from database
-      SqlTableMetadata table = new SqlTableMetadata(db, this, table(name));
-      table.load();
-      if (table.exists()) {
-        super.tableCache.put(name, table);
-      }
-    }
-    return (SqlTableMetadata) super.getTableMetadata(name);
-  }
-
-  @Override
-  public Collection<String> getTableNames() {
-    Collection<String> result = super.getTableNames();
-    if (result.isEmpty()) {
-      result = MetadataUtils.loadTableNames(getJooq(), this); // try to load
-      super.tableNames = result;
-    }
-    return result;
   }
 
   @Override

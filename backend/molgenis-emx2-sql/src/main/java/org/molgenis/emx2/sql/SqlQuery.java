@@ -909,7 +909,8 @@ public class SqlQuery extends QueryBean {
     Column column = table.getColumn(columnName);
     if (column == null) {
       throw new MolgenisException(
-          "Query failed", "Column '" + column + "' is unknown in table " + table.getTableName());
+          "Query failed",
+          "Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
   }

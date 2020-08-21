@@ -3,9 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.molgenis.emx2.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
@@ -168,13 +166,6 @@ public class MetadataUtils {
     jooq.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
   }
 
-  protected static Collection<String> loadTableNames(DSLContext jooq, SchemaMetadata sqlSchema) {
-    return jooq.selectFrom(TABLE_METADATA)
-        .where(TABLE_SCHEMA.eq(sqlSchema.getName()))
-        .fetch()
-        .getValues(TABLE_NAME, String.class);
-  }
-
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     jooq.insertInto(TABLE_METADATA)
         .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
@@ -187,6 +178,30 @@ public class MetadataUtils {
         .doUpdate()
         .set(TABLE_INHERITS, table.getInherit())
         .execute();
+  }
+
+  protected static Collection<TableMetadata> loadTables(DSLContext jooq, SchemaMetadata schema) {
+    Map<String, TableMetadata> result = new LinkedHashMap<>();
+    // tables
+    List<Record> tableRecords =
+        jooq.selectFrom(TABLE_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetch();
+    for (Record r : tableRecords) {
+      TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
+      table.setInherit(r.get(TABLE_INHERITS, String.class));
+      table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
+      result.put(table.getTableName(), table);
+    }
+    // columns
+    List<Record> columnRecords =
+        jooq.selectFrom(COLUMN_METADATA)
+            .where(TABLE_SCHEMA.eq(schema.getName()))
+            .orderBy(COLUMN_POSITION)
+            .fetch();
+    for (Record r : columnRecords) {
+      result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));
+    }
+
+    return result.values();
   }
 
   protected static void loadTableMetadata(DSLContext jooq, TableMetadata table) {
@@ -285,20 +300,24 @@ public class MetadataUtils {
             .fetch();
 
     for (Record col : columnRecords) {
-      Column c = new Column(col.get(COLUMN_NAME, String.class));
-      c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
-      c.nullable(col.get(NULLABLE, Boolean.class));
-      c.key(col.get(COLUMN_KEY, Integer.class));
-      c.position(col.get(COLUMN_POSITION, Integer.class));
-      c.refTable(col.get(REF_TABLE, String.class));
-      c.mappedBy(col.get(MAPPED_BY, String.class));
-      c.validation(col.get(VALIDATION_SCRIPT, String.class));
-      c.computed(col.get(COMPUTE_SCRIPT, String.class));
-      c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
-      c.cascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
-      columnList.add(new Column(table, c));
+      columnList.add(new Column(table, recordToColumn(col)));
     }
     return columnList;
+  }
+
+  private static Column recordToColumn(Record col) {
+    Column c = new Column(col.get(COLUMN_NAME, String.class));
+    c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
+    c.nullable(col.get(NULLABLE, Boolean.class));
+    c.key(col.get(COLUMN_KEY, Integer.class));
+    c.position(col.get(COLUMN_POSITION, Integer.class));
+    c.refTable(col.get(REF_TABLE, String.class));
+    c.mappedBy(col.get(MAPPED_BY, String.class));
+    c.validation(col.get(VALIDATION_SCRIPT, String.class));
+    c.computed(col.get(COMPUTE_SCRIPT, String.class));
+    c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
+    c.cascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
+    return c;
   }
 
   public static void setUserPassword(DSLContext jooq, String user, String password) {
