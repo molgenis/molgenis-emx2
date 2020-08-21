@@ -225,8 +225,8 @@ public class TestCompositeForeignKeys {
     }
 
     schema.create(table("Student").setInherit("Person"));
-    p = schema.getTable("Student");
-    p.insert(
+    Table s = schema.getTable("Student");
+    s.insert(
         new Row()
             .setString("firstName", "Mickey")
             .setString("lastName", "Mouse")
@@ -240,6 +240,46 @@ public class TestCompositeForeignKeys {
             .retrieveJSON();
 
     System.out.println(result);
+
+    // refback
+    schema
+        .getTable("Person")
+        .getMetadata()
+        .add(column("uncles").type(REFBACK).refTable("Person").mappedBy("cousins"));
+
+    s.insert(
+        new Row()
+            .setString("firstName", "Kwok") // doesn't exist
+            .setString("lastName", "Duck")
+            .setString("uncles-firstName", "Donald")
+            .setString("uncles-lastName", "Duck"));
+
+    assertTrue(
+        List.of(
+                s.query()
+                    .select(
+                        s("firstName"),
+                        s("lastName"),
+                        s("uncles", s("firstName"), s("lastName")),
+                        s("cousins", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Kwok"))
+                    .retrieveRows()
+                    .get(0)
+                    .getStringArray("uncles-firstName"))
+            .contains("Donald"));
+    assertTrue(
+        List.of(
+                p.query()
+                    .select(
+                        s("firstName"),
+                        s("lastName"),
+                        s("cousins", s("firstName"), s("lastName")),
+                        s("uncles", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Donald"))
+                    .retrieveRows()
+                    .get(1) //
+                    .getStringArray("cousins-firstName")) // TODO should be array?
+            .contains("Kwok"));
   }
 
   @Test
