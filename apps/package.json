@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "styleguide",
+    "cohorts",
     "settings",
     "central",
     "schema",
