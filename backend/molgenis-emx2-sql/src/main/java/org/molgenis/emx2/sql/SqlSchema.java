@@ -27,6 +27,17 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public List<Table> getTablesSorted() {
+    List<TableMetadata> tableMetadata = getMetadata().getTables();
+    sortTableByDependency(tableMetadata);
+    List<Table> result = new ArrayList<>();
+    for (TableMetadata tm : tableMetadata) {
+      result.add(new SqlTable(db, (SqlTableMetadata) tm));
+    }
+    return result;
+  }
+
+  @Override
   public void dropTable(String name) {
     getMetadata().drop(name);
   }

@@ -2,6 +2,7 @@ package org.molgenis.emx2.io;
 
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1Import;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStore;
@@ -41,9 +42,9 @@ public class SchemaImport {
             schema.merge(emx2Schema);
           }
           // read data
-          for (String tableName : schema.getTableNames()) {
-            if (store.containsTable(tableName)) {
-              schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
+          for (Table table : schema.getTablesSorted()) {
+            if (store.containsTable(table.getName())) {
+              table.update(store.readTable(table.getName())); // actually upsert
             }
           }
         });

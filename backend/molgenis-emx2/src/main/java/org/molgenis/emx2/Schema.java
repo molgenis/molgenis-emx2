@@ -17,6 +17,8 @@ public interface Schema {
 
   Table getTable(String name);
 
+  List<Table> getTablesSorted();
+
   void dropTable(String name);
 
   Query query(String tableName);
