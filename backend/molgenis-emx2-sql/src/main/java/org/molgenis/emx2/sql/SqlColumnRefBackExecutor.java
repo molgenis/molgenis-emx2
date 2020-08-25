@@ -172,7 +172,7 @@ class SqlColumnRefBackExecutor {
             + "\n$BODY$"
             + "\nDECLARE error_row RECORD;"
             + "\nBEGIN"
-            // for first refColumn value that does not in refTable key values raise error
+            + "\n-- raise error for first refColumn value that does not in refTable key values "
             + "\n\tFOR error_row IN SELECT * FROM UNNEST({5}) as u({6}) EXCEPT (SELECT {6} FROM {2}) LOOP"
             + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', "
             + "\n\t\tMESSAGE = 'update or delete on table '||{9}||' violates foreign key constraint',"
@@ -304,94 +304,180 @@ class SqlColumnRefBackExecutor {
 
   private static void createTriggerForRef(DSLContext jooq, Column column) {
 
-    String schemaName = column.getTable().getSchema().getName();
-    // added number because triggers are fired in alphabethical order, thus ensuring that text
-    // search indexer fire last
-
-    // create parameters
-    String insertOrUpdateTrigger = refbackUpdateTriggerName(column);
-    // String deleteTrigger = refbackDeleteTriggerName(column);
-
-    // create composite key statements
-    List<String> mappedBySetNullList = new ArrayList<>();
-    List<String> mappedByIsOldKeyList = new ArrayList<>();
-    List<String> mappedBySetNewKeyList = new ArrayList<>();
-    List<String> keyIsNewKeyList = new ArrayList<>();
-    List<String> mappedByToList = new ArrayList<>();
-    List<String> refBackColumnList = new ArrayList<>();
-    List<String> setRefBackValuesToNullList = new ArrayList<>();
-    for (Reference ref : column.getReferences()) {
-      mappedByToList.add(name(ref.getTo()).toString());
-      refBackColumnList.add("NEW." + name(ref.getName()));
-      setRefBackValuesToNullList.add("NEW." + name(ref.getName()) + "=NULL");
-    }
-    for (Reference ref : column.getMappedByColumn().getReferences()) {
-      keyIsNewKeyList.add(name(ref.getTo()) + "=NEW." + name(ref.getTo()));
-      mappedBySetNullList.add(name(ref.getName()) + "=NULL");
-      mappedByIsOldKeyList.add(name(ref.getName()) + "=OLD." + name(ref.getTo()));
-      mappedBySetNewKeyList.add(name(ref.getName()) + "=NEW." + name(ref.getTo()));
-    }
-    String mappedBySetNull = String.join(",", mappedBySetNullList);
-    String mappedByIsOldKey = String.join(" AND ", mappedByIsOldKeyList);
-    String keyIsNewKey = String.join(" AND ", keyIsNewKeyList);
-    String mappedBySetNewKey = String.join(",", mappedBySetNewKeyList);
-    String mappedByTo = String.join(",", mappedByToList);
-    String refBackColumn = String.join(",", refBackColumnList);
-    String setRefBackValuesToNull = String.join(";", setRefBackValuesToNullList);
+    // check if any refback array has non-existing pkey
+    // remove refs from other table if not any more in refback array
+    // update refs from other table to new identifier ( automatic via cascade , nothing to
+    // do here)
+    // add refs from other table if new in refback array
 
     String sql =
-        "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ BEGIN"
+        "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ "
+            + "\nDECLARE error_row RECORD;"
+            + "\nBEGIN"
+            + "\n\t-- raise error for first refColumn value that does not in refTable key values "
+            + "\n\tFOR error_row IN SELECT * FROM UNNEST({1}) as u({2}) EXCEPT (SELECT {2} FROM {3}) LOOP"
+            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', "
+            + "\n\t\tMESSAGE = 'update or delete on table '||{4}||' violates foreign key constraint',"
+            + "\n\t\tDETAIL = 'Key ('||{5}||')=('|| {6} ||') is not present in table '||{7}||', column '||{8};"
+            + "\n\tEND LOOP;"
             + "\n\tIF TG_OP='UPDATE' THEN"
-            // remove reference to old key
-            + "\n\t\tUPDATE {1} set {3} WHERE {4};"
+            + "\n\t-- remove ref to 'old'.key if not anymore in refarray"
+            + "\n\t\tUPDATE {3} set {9} WHERE {10};"
             + "\n\tEND IF;"
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {2} WHERE {5}) THEN"
-            // update to new key, if in refbackvalues list
-            + "\n\t\tUPDATE {1} set {6} WHERE ({7}) IN (SELECT * FROM UNNEST({8}));"
-            + "\n\t\t{9};"
+            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT * FROM {13} WHERE {14}) THEN"
+            + "\n\t-- set to ref to 'new'.key if in refbackvalues list"
+            + "\n\t\tUPDATE {3} set {11} WHERE ({2}) IN (SELECT * FROM UNNEST({1}) as u({2}));"
+            + "\n\t\t-- set new refback to NULL so it doesn't get stored"
+            + "\n\t\t{12};"
             + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;";
 
+    String schemaName = column.getTable().getSchema().getName();
+    String insertOrUpdateTrigger = refbackUpdateTriggerName(column);
+
     System.out.println(
         jooq.query(
                 sql,
-                name(schemaName, insertOrUpdateTrigger), // {0} function name
-                table(name(schemaName, column.getRefTableName())), // {1} toTable table
-                table(name(schemaName, column.getTable().getTableName())), // {2} this table
-                keyword(mappedBySetNull), // {3}
-                keyword(mappedByIsOldKey), // 4
-                keyword(keyIsNewKey), // 5
-                keyword(mappedBySetNewKey), // 6
-                keyword(mappedByTo), // 7
-                keyword(refBackColumn), // 8
-                keyword(setRefBackValuesToNull))
+                // 0 function name
+                name(schemaName, insertOrUpdateTrigger),
+                // 1 NEW.refback column(s) names
+                keyword(
+                    column.getReferences().stream()
+                        .map(r -> "NEW." + name(r.getName()))
+                        .collect(Collectors.joining(","))),
+                // 2 foreign key column names refback refers to
+                keyword(
+                    column.getReferences().stream()
+                        .map(r -> name(r.getTo()).toString())
+                        .collect(Collectors.joining(","))),
+                // 3 refTable
+                table(name(schemaName, column.getRefTableName())),
+                // 4 inline string of table for debug message
+                inline(column.getTable().getTableName()),
+                // 5 inline columns
+                keyword(
+                    column.getReferences().stream()
+                        .map(r -> inline(r.getName()).toString())
+                        .collect(Collectors.joining("||','||"))),
+                // 6 concat of the error column values
+                keyword(
+                    column.getReferences().stream()
+                        .map(r -> "COALESCE(error_row." + name(r.getTo()).toString() + ",'NULL')")
+                        .collect(Collectors.joining("||','||"))),
+                // 7 inline refTable
+                inline(column.getRefTable().getTableName()),
+                // 8 inline toColumns
+                keyword(
+                    column.getReferences().stream()
+                        .map(r -> inline(r.getTo()).toString())
+                        .collect(Collectors.joining("||','||"))),
+                // 9 set mappedBy to null
+                keyword(
+                    column.getMappedByColumn().getReferences().stream()
+                        .map(r -> name(r.getName()) + "=NULL")
+                        .collect(Collectors.joining(","))),
+                // 10 where references old key and not new key
+                keyword(
+                    column.getMappedByColumn().getReferences().stream()
+                        .map(r -> name(r.getName()) + "=OLD." + name(r.getTo()))
+                        .collect(Collectors.joining(" AND "))),
+                // 11 set to point to this.key(s)
+                keyword(
+                    column.getMappedByColumn().getReferences().stream()
+                        .map(r -> name(r.getName()) + "=NEW." + name(r.getTo()))
+                        .collect(Collectors.joining(","))),
+                // 12 set NEW.refback columns to null so they don't get saved
+                keyword(
+                    column.getReferences().stream()
+                        .map(r -> "NEW." + name(r.getName()) + "=NULL")
+                        .collect(Collectors.joining(";"))),
+                // 13 this table
+                table(name(schemaName, column.getTableName())),
+                // 14 where this keys
+                keyword(
+                    column.getMappedByColumn().getReferences().stream()
+                        .map(r -> name(r.getTo()) + "=NEW." + name(r.getTo()))
+                        .collect(Collectors.joining(" AND "))))
             .getSQL());
-    // insert and update trigger
+
     jooq.execute(
         sql,
-        name(schemaName, insertOrUpdateTrigger), // {0} function name
-        table(name(schemaName, column.getRefTableName())), // {1} toTable table
-        table(name(schemaName, column.getTable().getTableName())), // {2} this table
-        keyword(mappedBySetNull), // {3}
-        keyword(mappedByIsOldKey), // 4
-        keyword(keyIsNewKey), // 5
-        keyword(mappedBySetNewKey), // 6
-        keyword(mappedByTo), // 7
-        keyword(refBackColumn), // 8
-        keyword(setRefBackValuesToNull)); // 9
+        // 0 function name
+        name(schemaName, insertOrUpdateTrigger),
+        // 1 NEW.refback column(s) names
+        keyword(
+            column.getReferences().stream()
+                .map(r -> "NEW." + name(r.getName()))
+                .collect(Collectors.joining(","))),
+        // 2 foreign key column names refback refers to
+        keyword(
+            column.getReferences().stream()
+                .map(r -> name(r.getTo()).toString())
+                .collect(Collectors.joining(","))),
+        // 3 refTable
+        table(name(schemaName, column.getRefTableName())),
+        // 4 inline string of table for debug message
+        inline(column.getTable().getTableName()),
+        // 5 inline columns
+        keyword(
+            column.getReferences().stream()
+                .map(r -> inline(r.getName()).toString())
+                .collect(Collectors.joining("||','||"))),
+        // 6 concat of the error column values
+        keyword(
+            column.getReferences().stream()
+                .map(r -> "COALESCE(error_row." + name(r.getTo()).toString() + ",'NULL')")
+                .collect(Collectors.joining("||','||"))),
+        // 7 inline refTable
+        inline(column.getRefTable().getTableName()),
+        // 8 inline toColumns
+        keyword(
+            column.getReferences().stream()
+                .map(r -> inline(r.getTo()).toString())
+                .collect(Collectors.joining("||','||"))),
+        // 9 set mappedBy to null
+        keyword(
+            column.getMappedByColumn().getReferences().stream()
+                .map(r -> name(r.getName()) + "=NULL")
+                .collect(Collectors.joining(","))),
+        // 10 where references old key and not new key
+        keyword(
+            column.getMappedByColumn().getReferences().stream()
+                .map(r -> name(r.getName()) + "=OLD." + name(r.getTo()))
+                .collect(Collectors.joining(" AND "))),
+        // 11 set to point to this.key(s)
+        keyword(
+            column.getMappedByColumn().getReferences().stream()
+                .map(r -> name(r.getName()) + "=NEW." + name(r.getTo()))
+                .collect(Collectors.joining(","))),
+        // 12 set NEW.refback columns to null so they don't get saved
+        keyword(
+            column.getReferences().stream()
+                .map(r -> "NEW." + name(r.getName()) + "=NULL")
+                .collect(Collectors.joining(";"))),
+        // 13 this table
+        table(name(schemaName, column.getTableName())),
+        // 14 where this keys
+        keyword(
+            column.getMappedByColumn().getReferences().stream()
+                .map(r -> name(r.getTo()) + "=NEW." + name(r.getTo()))
+                .collect(Collectors.joining(" AND "))));
 
-    String ref =
-        column.getReferences().stream()
-            .map(r -> name(r.getName()).toString())
-            .collect(Collectors.joining(","));
     jooq.execute(
         "CREATE TRIGGER {0} "
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+        // 0 name of the trigger
         name(insertOrUpdateTrigger),
-        keyword(ref),
+        // 1 the columns of the refback that should be set to trigger the trigger
+        keyword(
+            column.getReferences().stream()
+                .map(r -> name(r.getName()).toString())
+                .collect(Collectors.joining(","))),
+        // name of the table
         name(schemaName, column.getTable().getTableName()),
+        // reference to the trigger function
         name(schemaName, insertOrUpdateTrigger));
 
     // delete trigger

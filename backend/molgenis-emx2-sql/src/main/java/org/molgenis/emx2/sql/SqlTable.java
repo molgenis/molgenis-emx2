@@ -168,7 +168,7 @@ class SqlTable implements Table {
               count.set(count.get() + 1);
             }
 
-            // execute the remaining batch
+            // execute the remaining batch, if any
             updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
           });
     } catch (Exception e) {

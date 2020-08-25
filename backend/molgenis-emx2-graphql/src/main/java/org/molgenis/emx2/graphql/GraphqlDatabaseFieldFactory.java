@@ -14,13 +14,13 @@ import java.util.Map;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 
-public class GraphqlDatabaseFields {
+public class GraphqlDatabaseFieldFactory {
 
-  private GraphqlDatabaseFields() {
+  public GraphqlDatabaseFieldFactory() {
     // no instances
   }
 
-  public static GraphQLFieldDefinition.Builder deleteSchemaField(Database database) {
+  public GraphQLFieldDefinition.Builder deleteSchemaField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")
         .type(typeForMutationResult)
@@ -34,7 +34,7 @@ public class GraphqlDatabaseFields {
             });
   }
 
-  public static GraphQLFieldDefinition.Builder createSchemaField(Database database) {
+  public GraphQLFieldDefinition.Builder createSchemaField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")
         .type(typeForMutationResult)
@@ -48,7 +48,7 @@ public class GraphqlDatabaseFields {
             });
   }
 
-  public static GraphQLFieldDefinition.Builder querySchemasField(Database database) {
+  public GraphQLFieldDefinition.Builder querySchemasField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("Schemas")
         .dataFetcher(

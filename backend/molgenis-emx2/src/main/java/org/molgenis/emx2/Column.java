@@ -122,9 +122,11 @@ public class Column {
           if (!REF.equals(getColumnType())) {
             type = getArrayType(type);
           }
+          List<String> path = ref.getPath();
+          path.add(0, keyPart.getName());
           refColumns.add(
               new Reference(
-                  ref.getName(), ref.getName(), type, ref.isNullable() || this.isNullable()));
+                  ref.getName(), ref.getName(), type, ref.isNullable() || this.isNullable(), path));
         }
       } else {
         ColumnType type = keyPart.getColumnType();
@@ -138,7 +140,8 @@ public class Column {
                 keyPart.getName(),
                 keyPart.getName(),
                 type,
-                keyPart.isNullable() || this.isNullable()));
+                keyPart.isNullable() || this.isNullable(),
+                new ArrayList(List.of(keyPart.getName()))));
       }
     }
 

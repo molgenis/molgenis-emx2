@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForSchema;
 
 public class TestGraphQLCompositeKeys {
 
@@ -30,7 +29,7 @@ public class TestGraphQLCompositeKeys {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
-    grapql = createGraphqlForSchema(schema);
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 
   @Test
@@ -66,7 +65,9 @@ public class TestGraphQLCompositeKeys {
 
     // have to reload graphql
     grapql =
-        createGraphqlForSchema(database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+        new GraphqlApiFactory()
+            .createGraphqlForSchema(
+                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(
@@ -163,7 +164,9 @@ public class TestGraphQLCompositeKeys {
 
     // have to reload graphql
     grapql =
-        createGraphqlForSchema(database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+        new GraphqlApiFactory()
+            .createGraphqlForSchema(
+                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(

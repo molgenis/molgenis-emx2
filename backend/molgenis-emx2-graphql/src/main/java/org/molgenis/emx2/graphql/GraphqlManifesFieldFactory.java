@@ -8,12 +8,12 @@ import org.molgenis.emx2.Version;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GraphqlManifestField {
+public class GraphqlManifesFieldFactory {
 
   public static final String IMPLEMENTATION_VERSION = "ImplementationVersion";
   public static final String SPECIFICATION_VERSION = "SpecificationVersion";
 
-  public static GraphQLFieldDefinition.Builder queryVersionField() {
+  public GraphQLFieldDefinition queryVersionField() {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_manifest")
         .dataFetcher(
@@ -36,6 +36,7 @@ public class GraphqlManifestField {
                         .name(SPECIFICATION_VERSION)
                         .type(Scalars.GraphQLString)
                         .build())
-                .build());
+                .build())
+        .build();
   }
 }

@@ -68,7 +68,9 @@ public class MolgenisSessionManager implements DatabaseListener {
           database.setListener(this);
           database.setActiveUser(user);
           logger.info("Initializing session for user: {}", database.getActiveUser());
-          return new MolgenisSession(database);
+          MolgenisSession session = new MolgenisSession(database);
+          logger.info("Initializing session complete");
+          return session;
         });
   }
 
@@ -105,6 +107,7 @@ public class MolgenisSessionManager implements DatabaseListener {
 
   @Override
   public void schemaRemoved(String schemaName) {
+    logger.debug("Schema changed/removed, clearing from caches: " + schemaName);
     for (MolgenisSession session : sessions.values()) {
       session.clearSchemaCache(schemaName);
     }

@@ -13,26 +13,26 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphqlAccountFields.EMAIL;
+import static org.molgenis.emx2.graphql.GraphqlAccountFieldFactory.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.COLUMN_TYPE;
 import static org.molgenis.emx2.graphql.GraphqlConstants.NULLABLE;
 
-public class GraphqlSchemaFields {
+public class GraphqlSchemaFieldFactory {
 
-  private GraphqlSchemaFields() {
+  public GraphqlSchemaFieldFactory() {
     // hide constructor
   }
 
-  public static GraphQLFieldDefinition.Builder schemaQuery(Schema schema) {
+  public GraphQLFieldDefinition.Builder schemaQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
         .type(outputMetadataType)
-        .dataFetcher(GraphqlSchemaFields.queryFetcher(schema));
+        .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 
-  public static GraphQLFieldDefinition createMutation(Schema schema) {
+  public GraphQLFieldDefinition createMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("create")
         .type(typeForMutationResult)
@@ -52,7 +52,7 @@ public class GraphqlSchemaFields {
         .build();
   }
 
-  private static GraphQLInputObjectType inputColumnMetadataType =
+  private GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisColumnInput")
           .field(
@@ -88,7 +88,7 @@ public class GraphqlSchemaFields {
                   .type(Scalars.GraphQLString))
           .build();
 
-  private static final GraphQLInputObjectType inputTableMetadataType =
+  private final GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisTableInput")
           .field(
@@ -105,7 +105,7 @@ public class GraphqlSchemaFields {
                   .type(GraphQLList.list(inputColumnMetadataType)))
           .build();
 
-  private static final GraphQLInputObjectType inputMembersMetadataType =
+  private final GraphQLInputObjectType inputMembersMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisMembersInput")
           .field(
@@ -114,7 +114,7 @@ public class GraphqlSchemaFields {
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .build();
 
-  private static DataFetcher<?> createFetcher(Schema schema) {
+  private DataFetcher<?> createFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       schema.tx(
           db -> {
@@ -159,7 +159,7 @@ public class GraphqlSchemaFields {
     };
   }
 
-  public static GraphQLFieldDefinition alterMutation(Schema schema) {
+  public GraphQLFieldDefinition alterMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("alter")
         .type(typeForMutationResult)
@@ -179,7 +179,7 @@ public class GraphqlSchemaFields {
         .build();
   }
 
-  private static final GraphQLInputObjectType inputAlterTableType =
+  private final GraphQLInputObjectType inputAlterTableType =
       new GraphQLInputObjectType.Builder()
           .name("AlterTableInput")
           .field(
@@ -192,7 +192,7 @@ public class GraphqlSchemaFields {
                   .type(inputTableMetadataType))
           .build();
 
-  private static final GraphQLInputObjectType inputAlterColumnType =
+  private final GraphQLInputObjectType inputAlterColumnType =
       new GraphQLInputObjectType.Builder()
           .name("AlterColumnInput")
           .field(
@@ -207,7 +207,7 @@ public class GraphqlSchemaFields {
                   .type(inputColumnMetadataType))
           .build();
 
-  private static DataFetcher<?> alterFetcher(Schema schema) {
+  private DataFetcher<?> alterFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       schema.tx(
           db -> {
@@ -254,7 +254,7 @@ public class GraphqlSchemaFields {
     };
   }
 
-  public static GraphQLFieldDefinition dropMutation(Schema schema) {
+  public GraphQLFieldDefinition dropMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("drop")
         .type(typeForMutationResult)

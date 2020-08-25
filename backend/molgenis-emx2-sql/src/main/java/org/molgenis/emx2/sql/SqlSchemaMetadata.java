@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +19,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(name);
-    StopWatch.start("loading schema '" + name + "'");
-    for (TableMetadata t : MetadataUtils.loadTables(db.getJooq(), this)) {
-      super.create(new SqlTableMetadata(db, this, t));
+    logger.info("loading schema '" + name + "' as user " + db.getActiveUser());
+    long start = System.currentTimeMillis();
+    for (TableMetadata table : MetadataUtils.loadTables(db.getJooq(), this)) {
+      super.create(new SqlTableMetadata(db, this, table));
     }
-    StopWatch.print("loading schema '" + name + "'complete");
+    logger.info(
+        "loading schema '" + name + "'complete in " + (System.currentTimeMillis() - start) + "ms");
     this.db = db;
   }
 
@@ -33,16 +34,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public TableMetadata create(TableMetadata table) {
-    long start = System.currentTimeMillis();
-    db.tx(
-        database -> {
-          TableMetadata result = new SqlTableMetadata(database, this, table);
-          executeCreateTable(getJooq(), result);
-          super.create(result);
-          db.getListener().schemaChanged(getName());
-        });
-    log(start, "created");
+  public SqlTableMetadata create(TableMetadata table) {
+    // delete to batch creator
+    this.create(new TableMetadata[] {table});
     return getTableMetadata(table.getTableName());
   }
 
@@ -57,11 +51,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         database -> {
           List<TableMetadata> tableList = new ArrayList<>();
           tableList.addAll(List.of(tables));
-          sortTableByDependency(tableList);
-          for (TableMetadata tm : tableList) {
-            this.create(tm);
+          if (tableList.size() > 1) sortTableByDependency(tableList);
+          for (TableMetadata table : tableList) {
+            SqlTableMetadata result = new SqlTableMetadata(database, this, table);
+            executeCreateTable(getJooq(), result);
+            super.create(result);
           }
         });
+    db.getListener().schemaChanged(getName());
   }
 
   @Override
@@ -71,8 +68,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         dsl -> {
           executeDropTable(getJooq(), getTableMetadata(tableName));
           super.drop(tableName);
-          db.getListener().schemaChanged(getName());
         });
+    db.getListener().schemaChanged(getName());
     log(start, "dropped");
   }
 

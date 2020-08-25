@@ -40,8 +40,8 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed";
   private static final String ANY_SQL = "{0} = ANY ({1})";
-  private static final String JSON_AGG_SQL = "json_strip_nulls(json_agg(item))";
-  private static final String ROW_TO_JSON_SQL = "json_strip_nulls(row_to_json(item))";
+  private static final String JSON_AGG_SQL = "json_agg(item)";
+  private static final String ROW_TO_JSON_SQL = "row_to_json(item)";
   private static final String ITEM = "item";
   private static final String OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE =
       "Operator %s is not support for column '%s'";
@@ -325,13 +325,6 @@ public class SqlQuery extends QueryBean {
       TableMetadata table, String tableAlias, SelectColumn selection) {
     List<Field<?>> fields = new ArrayList<>();
 
-    // include primary key
-    for (Field<?> pkey : table.getPrimaryKeyFields()) {
-      if (!selection.has(pkey.getName())) {
-        fields.add(field(name(tableAlias, pkey.getName())));
-      }
-    }
-
     for (SelectColumn select : selection.getSubselect()) {
       Column column = table.getColumn(select.getColumn());
 
@@ -504,12 +497,27 @@ public class SqlQuery extends QueryBean {
     List<Condition> foreignKeyMatch = new ArrayList<>();
 
     if (REF.equals(column.getColumnType())) {
-      foreignKeyMatch.addAll(
-          column.getReferences().stream()
-              .map(
-                  ref ->
-                      field(name(subAlias, ref.getTo())).eq(field(name(tableAlias, ref.getName()))))
-              .collect(Collectors.toList()));
+      if (column.getReferences().size() == 1) {
+        foreignKeyMatch.add(
+            field(name(subAlias, column.getReferences().get(0).getTo()))
+                .eq(field(name(tableAlias, column.getReferences().get(0).getName()))));
+      } else {
+        foreignKeyMatch.add(
+            and(
+                // at least one column not null
+                or(
+                    column.getReferences().stream()
+                        .map(ref -> field(name(tableAlias, ref.getName())).isNotNull())
+                        .collect(Collectors.toList())),
+                // and matches on values or nulls
+                and(
+                    column.getReferences().stream()
+                        .map(
+                            ref ->
+                                field(name(subAlias, ref.getTo()))
+                                    .eq(field(name(tableAlias, ref.getName()))))
+                        .collect(Collectors.toList()))));
+      }
     } else if (REF_ARRAY.equals(column.getColumnType())) {
       String refs =
           column.getReferences().stream()

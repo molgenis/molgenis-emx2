@@ -8,16 +8,16 @@ import org.molgenis.emx2.Database;
 
 import java.util.Map;
 
-public class GraphqlAccountFields {
+public class GraphqlAccountFieldFactory {
 
   public static final String EMAIL = "email";
   private static final String PASSWORD = "password"; // NOSONAR
 
-  private GraphqlAccountFields() {
+  public GraphqlAccountFieldFactory() {
     // no instance
   }
 
-  public static GraphQLFieldDefinition signoutField(Database database) {
+  public GraphQLFieldDefinition signoutField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
         .type(GraphqlApiMutationResult.typeForMutationResult)
@@ -31,7 +31,7 @@ public class GraphqlAccountFields {
         .build();
   }
 
-  public static GraphQLFieldDefinition signupField(Database database) {
+  public GraphQLFieldDefinition signupField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signup")
         .type(GraphqlApiMutationResult.typeForMutationResult)
@@ -60,7 +60,7 @@ public class GraphqlAccountFields {
         .build();
   }
 
-  public static GraphQLFieldDefinition signinField(Database database) {
+  public GraphQLFieldDefinition signinField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResult.typeForMutationResult)
@@ -86,7 +86,7 @@ public class GraphqlAccountFields {
         .build();
   }
 
-  public static GraphQLFieldDefinition userQueryField(Database database) {
+  public GraphQLFieldDefinition userQueryField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_user")
         .type(

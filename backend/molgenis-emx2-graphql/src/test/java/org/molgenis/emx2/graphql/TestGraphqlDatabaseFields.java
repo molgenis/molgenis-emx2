@@ -17,7 +17,6 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForDatabase;
 
 public class TestGraphqlDatabaseFields {
 
@@ -30,7 +29,7 @@ public class TestGraphqlDatabaseFields {
     database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
-    grapql = createGraphqlForDatabase(database);
+    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database);
   }
 
   @Test

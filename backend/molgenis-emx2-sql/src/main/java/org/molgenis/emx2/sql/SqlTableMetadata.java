@@ -50,6 +50,7 @@ class SqlTableMetadata extends TableMetadata {
             log(start, "added column '" + column.getName() + "' to ");
           }
         });
+    db.getListener().schemaChanged(getSchemaName());
     return this;
   }
 
@@ -128,6 +129,7 @@ class SqlTableMetadata extends TableMetadata {
           if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(getJooq(), oldColumn);
           saveColumnMetadata(getJooq(), newColumn);
         });
+    db.getListener().schemaChanged(getSchemaName());
 
     return this;
   }
@@ -141,6 +143,7 @@ class SqlTableMetadata extends TableMetadata {
           SqlColumnExecutor.executeRemoveColumn(getJooq(), getColumn(name));
           super.columns.remove(name);
         });
+    db.getListener().schemaChanged(getSchemaName());
     log(start, "removed column '" + name + "' from ");
   }
 
@@ -179,6 +182,7 @@ class SqlTableMetadata extends TableMetadata {
           super.setInherit(otherTable);
           MetadataUtils.saveTableMetadata(getJooq(), this);
         });
+    db.getListener().schemaChanged(getSchemaName());
     log(start, "set inherit on ");
     return this;
   }

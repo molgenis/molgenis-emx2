@@ -14,35 +14,37 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.graphql.GraphqlAccountFields.*;
-import static org.molgenis.emx2.graphql.GraphqlManifestField.queryVersionField;
 
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
-  private GraphqlApiFactory() {
-    // hide constructor
-  }
+  public GraphqlApiFactory() {}
 
-  public static GraphQL createGraphqlForDatabase(Database database) {
+  public GraphQL createGraphqlForDatabase(Database database) {
+
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // add login
-    queryBuilder.field(queryVersionField());
-    queryBuilder.field(userQueryField(database));
-    mutationBuilder.field(signinField(database));
-    mutationBuilder.field(signoutField(database));
-    mutationBuilder.field(signupField(database));
+    // all the same between schemas
+    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
 
-    queryBuilder.field(GraphqlDatabaseFields.querySchemasField(database));
-    mutationBuilder.field(GraphqlDatabaseFields.createSchemaField(database));
-    mutationBuilder.field(GraphqlDatabaseFields.deleteSchemaField(database));
+    // acount operations
+    GraphqlAccountFieldFactory user = new GraphqlAccountFieldFactory();
+    queryBuilder.field(user.userQueryField(database));
+    mutationBuilder.field(user.signinField(database));
+    mutationBuilder.field(user.signoutField(database));
+    mutationBuilder.field(user.signupField(database));
+
+    // database operations
+    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
+    queryBuilder.field(db.querySchemasField(database));
+    mutationBuilder.field(db.createSchemaField(database));
+    mutationBuilder.field(db.deleteSchemaField(database));
 
     // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
@@ -51,46 +53,58 @@ public class GraphqlApiFactory {
         .build();
   }
 
-  public static GraphQL createGraphqlForSchema(Schema schema) {
+  public GraphQL createGraphqlForSchema(Schema schema) {
     long start = System.currentTimeMillis();
+    logger.info("creating graphql for schema: " + schema.getMetadata().getName());
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // queries
-    queryBuilder.field(queryVersionField());
-    queryBuilder.field(GraphqlSchemaFields.schemaQuery(schema));
-    queryBuilder.field(userQueryField(schema.getDatabase()));
+    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
+
+    // account operations
+    GraphqlAccountFieldFactory accountFactory = new GraphqlAccountFieldFactory();
+    queryBuilder.field(accountFactory.userQueryField(schema.getDatabase()));
+    mutationBuilder.field(accountFactory.signinField(schema.getDatabase()));
+    mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
+    mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
+
+    // table
+    GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      queryBuilder.field(GraphqlTableQueryFields.tableQueryField(table));
-      queryBuilder.field(GraphqlTableQueryFields.tableAggField(table));
+      queryBuilder.field(tableField.tableQueryField(table));
+      queryBuilder.field(tableField.tableAggField(table));
     }
+    mutationBuilder.field(tableField.insertMutation(schema));
+    mutationBuilder.field(tableField.updateMutation(schema));
+    mutationBuilder.field(tableField.deleteMutation(schema));
 
-    // mutations
-    mutationBuilder.field(GraphqlTableMutationFields.insertMutation(schema));
-    mutationBuilder.field(GraphqlTableMutationFields.updateMutation(schema));
-    mutationBuilder.field(GraphqlTableMutationFields.deleteMutation(schema));
-    mutationBuilder.field(GraphqlSchemaFields.createMutation(schema));
-    mutationBuilder.field(GraphqlSchemaFields.alterMutation(schema));
-    mutationBuilder.field(GraphqlSchemaFields.dropMutation(schema));
-
-    mutationBuilder.field(signinField(schema.getDatabase()));
-    mutationBuilder.field(signoutField(schema.getDatabase()));
-    mutationBuilder.field(signupField(schema.getDatabase()));
+    // schema
+    GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
+    queryBuilder.field(schemaFields.schemaQuery(schema));
+    mutationBuilder.field(schemaFields.createMutation(schema));
+    mutationBuilder.field(schemaFields.alterMutation(schema));
+    mutationBuilder.field(schemaFields.dropMutation(schema));
 
     // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+                GraphQLSchema.newSchema()
+                    .query(queryBuilder.build())
+                    .mutation(mutationBuilder.build())
+                    .build())
             .mutationExecutionStrategy(
                 new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();
 
-    // log timing so we dont forget to add caching later
-    if (logger.isInfoEnabled())
-      logger.info(
-          "todo: create cache schema loading, it takes {}ms", (System.currentTimeMillis() - start));
+    logger.info(
+        "creation graphql for schema: "
+            + schema.getMetadata().getName()
+            + " completed in "
+            + (System.currentTimeMillis() - start)
+            + "ms");
 
     return result;
   }
@@ -105,6 +119,7 @@ public class GraphqlApiFactory {
             convertRefToRow(
                 (Map<String, Object>) object.get(column.getName()), row, column, column.getName());
           } else if (column.isReference()) {
+            // REFBACK, REF_ARRAY
             convertRefArrayToRow(
                 (List<Map<String, Object>>) object.get(column.getName()),
                 row,
@@ -122,25 +137,43 @@ public class GraphqlApiFactory {
 
   private static void convertRefArrayToRow(
       List<Map<String, Object>> list, Row row, Column column, String prefix) {
-    List<Column> fkeys = column.getRefTable().getPrimaryKeyColumns();
 
-    for (Map<String, Object> value : list) {
-      for (Column fkey : fkeys) {
-        String name = prefix + (fkeys.size() > 1 ? "-" + fkey.getName() : "");
-        // create lists if missing
-        if (row.getValueMap().get(name) == null) {
-          row.getValueMap().put(name, new ArrayList<>());
-        }
-        // add value or null if missing
-        if (value.get(fkey.getName()) == null) {
-          ((List) row.getValueMap().get(name)).add(null);
-        }
-        if (fkey.isReference()) {
-          throw new UnsupportedOperationException("TODO");
-        } else {
-          ((List) row.getValueMap().get(name)).add(value.get(fkey.getName()));
+    List<Reference> refs = column.getReferences();
+    if (list.size() > 0) {
+      for (Map<String, Object> value : list) {
+        for (Reference ref : refs) {
+          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
         }
       }
+    } else {
+      for (Reference ref : refs) {
+        row.set(ref.getName(), new ArrayList<>());
+      }
+    }
+  }
+
+  private static List<Object> getRefValueFromList(
+      List<String> path, List<Map<String, Object>> list) {
+    List<Object> result = new ArrayList<>();
+    for (Map map : list) {
+      Object value = getRefValueFromMap(path, map);
+      if (value != null) {
+        result.add(value);
+      }
+    }
+    return result;
+  }
+
+  private static Object getRefValueFromMap(List<String> path, Map<String, Object> map) {
+    if (path.size() == 1) {
+      return map.get(path.get(0));
+    } else {
+      // should be > 1 and value should be of type map
+      Object value = map.get(path.get(0));
+      if (value != null) {
+        return getRefValueFromMap(path.subList(1, path.size()), (Map<String, Object>) value);
+      }
+      return null;
     }
   }
 

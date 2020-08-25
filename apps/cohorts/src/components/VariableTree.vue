@@ -18,17 +18,11 @@
         </ul>
       </div>
       <div class="col-sm-8">
-        <LayoutCard
+        <VariablePanel
           v-for="variable in variables"
           :key="variable.name"
-          :title="variable.name"
-        >
-          <pre>
-              Name: {{ variable.name }}
-              Type: {{ variable.type.name }} Description:
-          {{ variable.description }}
-          </pre>
-        </LayoutCard>
+          :variable="variable"
+        />
       </div>
     </div>
     <ShowMore title="debug">
@@ -44,6 +38,7 @@
 
 <script>
 import TreeNode from "./TreeNode.vue";
+import VariablePanel from "./VariablePanel";
 import {
   ButtonAction,
   ButtonAlt,
@@ -78,7 +73,8 @@ export default {
     InputCheckbox,
     InputString,
     InputSelect,
-    ShowMore
+    ShowMore,
+    VariablePanel
   },
   data: function() {
     return {
@@ -142,7 +138,7 @@ export default {
           "graphql",
           '{Variable(filter:{topic:{name:{equals:"' +
             this.selectedTopic +
-            '"}}}){name,type{name},description,unit{name}}}'
+            '"}}}){name,table{name},type{name},description,unit{name},harmonisations{sourceCollection{name}}}}'
         )
           .then(data => {
             this.variables = data.Variable;

@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.createGraphqlForSchema;
 
 public class TestGraphqSchemaFields {
 
@@ -31,7 +30,7 @@ public class TestGraphqSchemaFields {
     Schema schema = database.dropCreateSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
-    grapql = createGraphqlForSchema(schema);
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 
   @Test
@@ -241,7 +240,7 @@ public class TestGraphqSchemaFields {
     execute(
         "mutation{alter(columns:{table:\"Pet\", name:\"test\", definition:{name:\"test2\", key:3, nullable:true, columnType:\"INT\"}}){message}}");
 
-    database.clearCache();
+    database.clearCache(); // cannot know here, server clears caches
 
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
     TestCase.assertEquals(
@@ -254,6 +253,9 @@ public class TestGraphqSchemaFields {
             .getColumnType());
 
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+
+    database.clearCache(); // cannot know here, server clears caches
+
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
   }
 }

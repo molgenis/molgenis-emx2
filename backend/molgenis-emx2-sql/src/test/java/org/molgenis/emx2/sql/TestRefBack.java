@@ -170,18 +170,20 @@ public class TestRefBack {
     users.insert(new Row().set("username", "joe"));
     posts.insert(new Row().set("title", "joes post").set("user", "joe"));
 
-    // now the magic
+    // now the magic, using refback update posts.user => 'jack'
     users.update(new Row().set("username", "jack").set("posts", "joes post"));
 
     // check via query we have now post for jack
-    assertEquals(1, posts.query().where(f("user", EQUALS, "jack")).retrieveRows().size());
+    assertEquals(
+        "joes post",
+        posts.query().where(f("user", EQUALS, "jack")).retrieveRows().get(0).getString("title"));
 
-    // add another post for jack, now the 'posts' should be updated also
+    // add another post for jack, should result in 'posts(user=jack,title=jacks post)
     posts.insert(new Row().set("title", "jacks post").set("user", "jack"));
 
     // check select on posts
     assertEquals(
-        2,
+        2, // expect two posts, 'joes post' and 'jacks post'
         users
             .query()
             .where(f("username", EQUALS, "jack"))

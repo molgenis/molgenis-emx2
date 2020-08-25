@@ -40,23 +40,24 @@
       </div>
     </div>
     <ShowMore title="debug">
-      <br />DEBUG
-      <br />
+      <pre>
       graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
-      <br />
+
       columns = {{ JSON.stringify(columns) }}
-      <br />
+
       table = {{ table }} }
-      <br />
+
       graphql={{ JSON.stringify(graphql) }}
-      <br />
+
       columnNames = {{ columnNames }}
-      <br />
+
       rows = {{ data }}
-      <br />
-      <pre>tableMetadata={{ JSON.stringify(tableMetadata, null, "\t") }}</pre>
-      <br />
-      <pre>data={{ JSON.stringify(data, null, "\t") }}</pre>
+
+      tableMetadata={{ JSON.stringify(tableMetadata, null, "\t") }}
+
+    data={{ JSON.stringify(data, null, "\t") }}
+    </pre
+      >
     </ShowMore>
   </div>
 </template>

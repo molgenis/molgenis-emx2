@@ -26,7 +26,7 @@ public class SqlDatabase implements Database {
   private DataSource source;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
-  private Map<String, SchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
@@ -104,11 +104,15 @@ public class SqlDatabase implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
-    SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
-    if (metadata.exists()) {
-      SqlSchema schema = new SqlSchema(this, metadata);
-      schemaCache.put(name, metadata); // cache
-      return schema;
+    if (schemaCache.containsKey(name)) {
+      return new SqlSchema(this, schemaCache.get(name));
+    } else {
+      SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
+      if (metadata.exists()) {
+        SqlSchema schema = new SqlSchema(this, metadata);
+        schemaCache.put(name, metadata); // cache
+        return schema;
+      }
     }
     return null;
   }
