@@ -186,6 +186,7 @@ public class TestRefBack {
         2, // expect two posts, 'joes post' and 'jacks post'
         users
             .query()
+            .select(s("username"), s("posts"))
             .where(f("username", EQUALS, "jack"))
             .retrieveRows()
             .get(0)
@@ -226,6 +227,7 @@ public class TestRefBack {
         1,
         users
             .query()
+            .select(s("username"), s("posts"))
             .where(f("username", EQUALS, "jack"))
             .retrieveRows()
             .get(0)
