@@ -48,7 +48,7 @@ public class TestGraphQLCompositeKeys {
             + "      { name: \"RefTable\"\n"
             + "        columns: [\n"
             + "          { name: \"id1\", columnType: \"INT\", key: 1 }\n"
-            + "          { name: \"id2\", key: 1, nullable:true }\n"
+            + "          { name: \"id2\", key: 1}\n"
             + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\", nullable:true }\n"
             + "        ]\n"
             + "      }\n"
@@ -78,7 +78,7 @@ public class TestGraphQLCompositeKeys {
             + "\n{firstName:\"Donald\",lastName:\"Mouse\"}"
             + "\n], RefTable:["
             + "\n{id1:1,id2:\"a\", ref:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}"
-            + "\n{id1:2, ref:[{firstName:\"Katrien\",lastName:\"Duck\"},{firstName:\"Donald\",lastName:\"Mouse\"}]}"
+            + "\n{id1:2,id2:\"a\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"},{firstName:\"Donald\",lastName:\"Mouse\"}]}"
             + "\n{id1:3,id2:\"a\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"}]}"
             + "]){message}}");
 

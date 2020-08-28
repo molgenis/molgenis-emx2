@@ -43,6 +43,11 @@ class SqlTableMetadata extends TableMetadata {
             executeCreateColumn(getJooq(), result);
             super.add(result);
             if (column.getKey() > 0) {
+              if (getKeyNames(column.getKey()).size() > 1 && column.isNullable()) {
+                throw new MolgenisException(
+                    "unique on column '" + column.getName() + "' failed",
+                    "When key spans multiple columns, none of the columns can be nullable");
+              }
               SqlTableMetadataExecutor.createOrReplaceKey(
                   getJooq(), this, column.getKey(), getKeyNames(column.getKey()));
             }
@@ -92,6 +97,11 @@ class SqlTableMetadata extends TableMetadata {
 
           // drop old key, if touched
           if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
+            if (getKeyNames(newColumn.getKey()).size() > 1 && newColumn.isNullable()) {
+              throw new MolgenisException(
+                  "unique on column '" + newColumn.getName() + "' failed",
+                  "When key spans multiple columns, none of the columns can be nullable");
+            }
             executeDropKey(getJooq(), oldColumn.getTable(), oldColumn.getKey());
           }
 
@@ -121,6 +131,7 @@ class SqlTableMetadata extends TableMetadata {
 
           // create/update key, if touched
           if (newColumn.getKey() != oldColumn.getKey()) {
+
             createOrReplaceKey(
                 getJooq(), this, newColumn.getKey(), getKeyNames(newColumn.getKey()));
           }

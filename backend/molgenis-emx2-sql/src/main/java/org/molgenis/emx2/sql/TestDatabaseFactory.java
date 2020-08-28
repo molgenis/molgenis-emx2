@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 
 import javax.sql.DataSource;
 import java.util.List;

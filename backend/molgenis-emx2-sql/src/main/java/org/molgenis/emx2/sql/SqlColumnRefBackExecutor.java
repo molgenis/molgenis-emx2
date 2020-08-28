@@ -48,17 +48,18 @@ class SqlColumnRefBackExecutor {
                 + "'");
       }
 
-      if (!mappedByColumn.isNullable()) {
-        throw new MolgenisException(
-            "Create column failed",
-            "Create of column refack '"
-                + column.getName()
-                + "' failed because mappedBy column '"
-                + mappedByColumn.getTableName()
-                + "."
-                + mappedByColumn.getName()
-                + "' is not nullable. Bi directional relations both ends must be nullable.");
-      }
+      //      if (!mappedByColumn.isNullable()) {
+      //        throw new MolgenisException(
+      //            "Create column failed",
+      //            "Create of column refack '"
+      //                + column.getName()
+      //                + "' failed because mappedBy column '"
+      //                + mappedByColumn.getTableName()
+      //                + "."
+      //                + mappedByColumn.getName()
+      //                + "' is not nullable. Bi directional relations both ends must be
+      // nullable.");
+      //      }
 
       // create the trigger so that insert/update/delete on REFBACK column updates the
       // relationship
