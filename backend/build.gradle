@@ -74,8 +74,9 @@ task jacocoMergedReport(type: JacocoReport) {
     }
 }
 
+/* show full details on error */
 test {
     testLogging {
-        showStandardStreams = true
+        exceptionFormat = 'full'
     }
 }
