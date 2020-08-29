@@ -99,7 +99,7 @@ public class TestCreateMref {
     Row bRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 0, 2));
     bTable.insert(bRow);
     System.out.println("========1======");
-    for (Row r : bTable.getRows()) {
+    for (Row r : bTable.retrieveRows()) {
       System.out.println(r);
     }
 
@@ -107,7 +107,7 @@ public class TestCreateMref {
     bRow = new Row().set("ID", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 2));
     bTable.update(bRow);
     System.out.println("========2======");
-    for (Row r : bTable.getRows()) {
+    for (Row r : bTable.retrieveRows()) {
       System.out.println(r);
     }
 

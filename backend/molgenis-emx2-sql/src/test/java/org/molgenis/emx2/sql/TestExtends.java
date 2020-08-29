@@ -102,10 +102,10 @@ public class TestExtends {
     ceoTable.insert(managerRow);
 
     Table personTable = s.getTable("Person");
-    assertEquals(3, personTable.getRows().size());
-    assertEquals(1, studentTable.getRows().size());
-    assertEquals(2, employeeTable.getRows().size());
-    assertEquals(1, ceoTable.getRows().size());
+    assertEquals(3, personTable.retrieveRows().size());
+    assertEquals(1, studentTable.retrieveRows().size());
+    assertEquals(2, employeeTable.retrieveRows().size());
+    assertEquals(1, ceoTable.retrieveRows().size());
 
     // retrieve
     assertEquals(
@@ -127,7 +127,7 @@ public class TestExtends {
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));
     ceoTable.update(managerRow);
-    assertEquals(LocalDate.of(1900, 12, 01), ceoTable.getRows().get(0).getDate("birthDate"));
+    assertEquals(LocalDate.of(1900, 12, 01), ceoTable.retrieveRows().get(0).getDate("birthDate"));
 
     // test graph query
     // simple
@@ -158,9 +158,9 @@ public class TestExtends {
 
     // delete
     ceoTable.delete(managerRow);
-    assertEquals(2, personTable.getRows().size());
-    assertEquals(1, studentTable.getRows().size());
-    assertEquals(1, employeeTable.getRows().size());
-    assertEquals(0, ceoTable.getRows().size());
+    assertEquals(2, personTable.retrieveRows().size());
+    assertEquals(1, studentTable.retrieveRows().size());
+    assertEquals(1, employeeTable.retrieveRows().size());
+    assertEquals(0, ceoTable.retrieveRows().size());
   }
 }

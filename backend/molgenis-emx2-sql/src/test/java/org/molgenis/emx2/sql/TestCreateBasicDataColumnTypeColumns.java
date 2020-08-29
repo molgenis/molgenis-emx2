@@ -82,7 +82,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     StopWatch.print("inserted rows");
 
     // check queryOld and test getters
-    List<Row> result = schema.getTable("TypeTest").getRows();
+    List<Row> result = schema.getTable("TypeTest").retrieveRows();
     for (Row res : result) {
       assert (res.getDate("Test_date") instanceof LocalDate);
       assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);
@@ -98,7 +98,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     StopWatch.print("checked getters");
 
-    StopWatch.print("complete", schema.getTable("TypeTest").getRows().size());
+    StopWatch.print("complete", schema.getTable("TypeTest").retrieveRows().size());
   }
 
   @Test
@@ -189,6 +189,6 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // delete
     aTable.delete(aRow, aRow2);
-    assertEquals(0, aTable.getRows().size());
+    assertEquals(0, aTable.retrieveRows().size());
   }
 }

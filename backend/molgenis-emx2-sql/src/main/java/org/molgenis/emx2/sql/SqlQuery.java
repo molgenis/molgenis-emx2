@@ -82,20 +82,17 @@ public class SqlQuery extends QueryBean {
 
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
-      List<String> columns = new ArrayList<>();
       for (Column c : table.getColumns()) {
         if (c.isReference() && REFBACK.equals(c.getColumnType())) {
           // nothing
         } else if (c.isReference()) {
           for (Reference ref : c.getReferences()) {
-            columns.add(ref.getName());
+            select.select(ref.getName());
           }
         } else if (!FILE.equals(c.getColumnType())) {
-          columns.add(c.getName());
+          select.select(c.getName());
         }
       }
-
-      select = new SelectColumn(table.getTableName(), columns);
     }
 
     // basequery

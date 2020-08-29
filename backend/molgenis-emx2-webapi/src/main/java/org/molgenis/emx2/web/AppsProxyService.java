@@ -65,7 +65,7 @@ public class AppsProxyService {
     // todo, cache
     Database database = sessionManager.getSession(req).getDatabase();
     Map<String, String> apps = new LinkedHashMap<>();
-    for (Row r : database.getSchema(SYSTEM).getTable("Apps").getRows()) {
+    for (Row r : database.getSchema(SYSTEM).getTable("Apps").retrieveRows()) {
       apps.put(r.getString("path"), r.getString(SOURCE));
     }
 

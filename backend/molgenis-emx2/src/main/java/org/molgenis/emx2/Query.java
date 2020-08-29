@@ -16,7 +16,11 @@ public interface Query { // extends Filter {
 
   Query offset(int offset);
 
-  void orderBy(Map<String, Order> values);
+  Query orderBy(Map<String, Order> values);
+
+  Query orderBy(String column);
+
+  Query orderBy(String column, Order order);
 
   List<Row> retrieveRows();
 

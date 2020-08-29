@@ -106,14 +106,15 @@ public class TestRefBack {
     // smallphone=battery+headphone+smallscreen+smallbutton
     parts.update(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
 
-    List<Row> pTest = products.getRows();
+    List<Row> pTest = products.query().orderBy("productname").retrieveRows();
 
     assertEquals(2, pTest.size());
-    assertEquals("smallphone", pTest.get(1).getString("productname"));
-    assertEquals(4, pTest.get(1).getStringArray("parts").length);
+
     assertEquals("bigphone", pTest.get(0).getString("productname"));
     assertEquals(3, pTest.get(0).getStringArray("parts").length);
-    assertEquals(4, products.getRows().get(1).getStringArray("parts").length);
+
+    assertEquals("smallphone", pTest.get(1).getString("productname"));
+    assertEquals(4, pTest.get(1).getStringArray("parts").length);
 
     Query query =
         products.select(s("productname"), s("parts", s("partname")), s("parts_agg", s("count")));
@@ -142,13 +143,13 @@ public class TestRefBack {
 
     // delete
     parts.delete(new Row().set("partname", "headphones"));
-    assertEquals(3, products.getRows().get(1).getStringArray("parts").length);
+    assertEquals(3, products.retrieveRows().get(1).getStringArray("parts").length);
 
     // delete
     products.delete(new Row().set("productname", "bigphone"));
 
     // check
-    assertEquals(1, products.getRows().size());
+    assertEquals(1, products.retrieveRows().size());
   }
 
   @Test

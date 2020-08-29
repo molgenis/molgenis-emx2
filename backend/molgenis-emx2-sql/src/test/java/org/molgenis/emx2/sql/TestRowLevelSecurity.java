@@ -77,14 +77,14 @@ public class TestRowLevelSecurity {
       database.setActiveUser("testrls2");
       database.tx(
           db -> {
-            assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).getRows().size());
+            assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
           });
 
       // have RLS user query and see one row
       database.setActiveUser(TESTRLS_HAS_RLS_VIEW);
       database.tx(
           db -> {
-            assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).getRows().size());
+            assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
           });
 
       database.clearActiveUser();

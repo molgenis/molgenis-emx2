@@ -35,8 +35,8 @@ public class TestUpdateWithPartialFields {
 
     // now if we update then val2 should be kept
     test.update(new Row().set("keycol", "row1").set("col1", "val_other"));
-    assertEquals("val_other", test.getRows().get(0).getString("col1"));
-    assertEquals("val21", test.getRows().get(0).getString("col2"));
+    assertEquals("val_other", test.retrieveRows().get(0).getString("col1"));
+    assertEquals("val21", test.retrieveRows().get(0).getString("col2"));
 
     // now if we add more cols in sec row
     test.insert(

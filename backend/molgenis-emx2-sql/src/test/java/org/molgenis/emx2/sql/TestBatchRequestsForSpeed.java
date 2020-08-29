@@ -64,7 +64,7 @@ public class TestBatchRequestsForSpeed {
 
     StopWatch.print("Inserted forth batch", 9000);
 
-    rows = testBatchTable.getRows();
+    rows = testBatchTable.retrieveRows();
     assertEquals(10000, rows.size());
     StopWatch.print("Queried all", 10000);
 
@@ -74,7 +74,8 @@ public class TestBatchRequestsForSpeed {
     testBatchTable.update(rows);
     StopWatch.print("Batch update ", rows.size());
 
-    StopWatch.print("Retrieved", schema.getTable("TestBatchRequestsForSpeed").getRows().size());
+    StopWatch.print(
+        "Retrieved", schema.getTable("TestBatchRequestsForSpeed").retrieveRows().size());
   }
 
   @Test
@@ -139,7 +140,7 @@ public class TestBatchRequestsForSpeed {
     personTableReloaded.delete(rows);
     StopWatch.print("Delete", count);
 
-    assertEquals(0, schema.getTable("Person").getRows().size());
+    assertEquals(0, schema.getTable("Person").retrieveRows().size());
     assertEquals(2, personTableReloaded.getMetadata().getKeys().size());
     assertEquals(2, personTable.getMetadata().getKeys().size());
     personTable.getMetadata().removeKey(2);

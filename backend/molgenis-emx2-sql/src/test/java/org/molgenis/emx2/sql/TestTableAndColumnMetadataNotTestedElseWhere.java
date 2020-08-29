@@ -30,8 +30,8 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
       assertNotNull(t.getMetadata().getColumn("test2"));
 
       t.insert(new Row().set("test", "value").set("test2", "value"));
-      assertNull(t.getRows().get(0).getString("test"));
-      assertEquals("value", t.getRows().get(0).getString("test2"));
+      assertNull(t.retrieveRows().get(0).getString("test"));
+      assertEquals("value", t.retrieveRows().get(0).getString("test2"));
     } catch (MolgenisException me) {
       System.out.println("Error unexpected:\n" + me);
     }

@@ -119,7 +119,7 @@ public class TestGrantRolesToUsers {
             StopWatch.print("getting Table");
             Table t = db.getSchema("testRolePermissions").getTable("Test");
             StopWatch.print("got table");
-            t.getRows();
+            t.retrieveRows();
             StopWatch.print("completed query");
           });
     } catch (Exception e) {

@@ -335,7 +335,7 @@ class SqlTable implements Table {
   }
 
   @Override
-  public List<Row> getRows() {
+  public List<Row> retrieveRows() {
     return this.query().retrieveRows();
   }
 

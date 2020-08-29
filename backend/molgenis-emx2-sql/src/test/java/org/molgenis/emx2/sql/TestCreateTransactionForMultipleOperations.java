@@ -29,7 +29,7 @@ public class TestCreateTransactionForMultipleOperations {
           testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });
     db.clearCache();
-    assertEquals(2, db.getSchema("testCommit").getTable("testCommit").getRows().size());
+    assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieveRows().size());
   }
 
   @Test(expected = MolgenisException.class)

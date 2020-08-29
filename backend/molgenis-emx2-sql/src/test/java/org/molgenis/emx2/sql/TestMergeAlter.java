@@ -143,7 +143,8 @@ public class TestMergeAlter {
       schema
           .getTable(targetTableName)
           .update(new Row().set(ID_COLUMN, "target1").setStringArray(REFBACK_COLUMN, "ref1"));
-      assertEquals("target1", schema.getTable(refTableName).getRows().get(0).getString(REF_COLUMN));
+      assertEquals(
+          "target1", schema.getTable(refTableName).retrieveRows().get(0).getString(REF_COLUMN));
     }
   }
 
@@ -201,10 +202,11 @@ public class TestMergeAlter {
     if (toVal instanceof Object[]) {
       assertArrayEquals(
           (Object[]) toVal,
-          (Object[]) schema.getTable(tableName).getRows().get(0).get("col1", toVal.getClass()));
+          (Object[])
+              schema.getTable(tableName).retrieveRows().get(0).get("col1", toVal.getClass()));
     } else {
       assertEquals(
-          toVal, schema.getTable(tableName).getRows().get(0).get("col1", toVal.getClass()));
+          toVal, schema.getTable(tableName).retrieveRows().get(0).get("col1", toVal.getClass()));
     }
     // also when converted back?
     if (roundtrip) {
@@ -213,10 +215,12 @@ public class TestMergeAlter {
       if (fromVal instanceof Object[]) {
         assertArrayEquals(
             (Object[]) fromVal,
-            (Object[]) schema.getTable(tableName).getRows().get(0).get("col1", fromVal.getClass()));
+            (Object[])
+                schema.getTable(tableName).retrieveRows().get(0).get("col1", fromVal.getClass()));
       } else {
         assertEquals(
-            fromVal, schema.getTable(tableName).getRows().get(0).get("col1", fromVal.getClass()));
+            fromVal,
+            schema.getTable(tableName).retrieveRows().get(0).get("col1", fromVal.getClass()));
       }
     }
   }

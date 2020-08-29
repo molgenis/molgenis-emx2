@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -82,8 +83,22 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public void orderBy(Map<String, Order> values) {
+  public Query orderBy(Map<String, Order> values) {
     this.select.setOrderBy(values);
+    return this;
+  }
+
+  @Override
+  public Query orderBy(String column) {
+    return this.orderBy(column, Order.ASC);
+  }
+
+  @Override
+  public Query orderBy(String column, Order order) {
+    Map<String, Order> orderBy = new LinkedHashMap<>();
+    orderBy.put(column, order);
+    this.select.setOrderBy(orderBy);
+    return this;
   }
 
   @Override

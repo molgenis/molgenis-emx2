@@ -36,5 +36,5 @@ public interface Table {
 
   Query agg();
 
-  List<Row> getRows();
+  List<Row> retrieveRows();
 }
