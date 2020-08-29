@@ -143,13 +143,21 @@ public class TestRefBack {
 
     // delete
     parts.delete(new Row().set("partname", "headphones"));
-    assertEquals(3, products.retrieveRows().get(1).getStringArray("parts").length);
+    assertEquals(
+        3,
+        products
+            .query()
+            .orderBy("productname")
+            .retrieveRows()
+            .get(1)
+            .getStringArray("parts")
+            .length);
 
     // delete
     products.delete(new Row().set("productname", "bigphone"));
 
     // check
-    assertEquals(1, products.retrieveRows().size());
+    assertEquals(1, products.query().orderBy("productname").retrieveRows().size());
   }
 
   @Test
