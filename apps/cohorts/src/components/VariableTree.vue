@@ -138,7 +138,7 @@ export default {
           "graphql",
           '{Variable(filter:{topic:{name:{equals:"' +
             this.selectedTopic +
-            '"}}}){name,table{name},type{name},description,unit{name},harmonisations{sourceCollection{name}}}}'
+            '"}}}){name,table{name},format{name},description,unit{name},harmonisations{sourceCollection{name}},codeList{name,codes{codeLabel,codeValue}}}}'
         )
           .then(data => {
             this.variables = data.Variable;
