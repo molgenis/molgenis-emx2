@@ -52,7 +52,9 @@ public class TypeUtils {
   public static String toString(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) return null;
+      if (((String) v).trim().equals("")) {
+        return null;
+      }
       return (String) v;
     }
     if (v instanceof Object[]) return joinCsvString((Object[]) v);

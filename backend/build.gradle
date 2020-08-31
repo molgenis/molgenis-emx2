@@ -73,10 +73,3 @@ task jacocoMergedReport(type: JacocoReport) {
         html.enabled false
     }
 }
-
-/* show full details on error */
-test {
-    testLogging {
-        exceptionFormat = 'full'
-    }
-}

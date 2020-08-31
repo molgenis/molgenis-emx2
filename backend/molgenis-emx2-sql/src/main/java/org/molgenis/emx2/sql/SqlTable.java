@@ -116,7 +116,12 @@ class SqlTable implements Table {
       db.tx(
           db2 -> { // first update superclass
             if (getMetadata().getInherit() != null) {
-              getSchema().getTable(getMetadata().getInherit()).update(rows);
+              try {
+                getSchema().getTable(getMetadata().getInherit()).update(rows);
+              } catch (MolgenisException e) {
+                throw new MolgenisException(
+                    "Update of table '" + getName() + "' failed", e.getMessage());
+              }
             }
 
             // keep batchsize smaller to limit memory footprint
@@ -195,7 +200,14 @@ class SqlTable implements Table {
           db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
 
       for (Row row : rows) {
-        step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
+        // ignore total null rows
+        Collection<Object> values = SqlTypeUtils.getValuesAsCollection(row, columns);
+        boolean hasNotNull = values.stream().anyMatch(v -> v != null);
+        if (hasNotNull) {
+          step.values(values);
+        } else {
+          logger.debug("skipping empty row: " + row);
+        }
       }
 
       // on duplicate key update using same record via "excluded" keyword in postgres

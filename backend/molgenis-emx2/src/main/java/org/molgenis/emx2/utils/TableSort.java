@@ -1,10 +1,12 @@
 package org.molgenis.emx2.utils;
 
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
 
@@ -19,6 +21,7 @@ public class TableSort {
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
 
     while (!todo.isEmpty()) {
+      int size = todo.size();
       for (int i = 0; i < todo.size(); i++) {
         TableMetadata current = todo.get(i);
         boolean depends = false;
@@ -43,6 +46,13 @@ public class TableSort {
           result.add(todo.get(i));
           todo.remove(i);
         }
+      }
+      // check for circular relationship
+      if (size == todo.size()) {
+        throw new MolgenisException(
+            "circular dependency",
+            "following tables have circular dependency: "
+                + todo.stream().map(t -> t.getTableName()).collect(Collectors.joining(",")));
       }
     }
     tableList.clear();
