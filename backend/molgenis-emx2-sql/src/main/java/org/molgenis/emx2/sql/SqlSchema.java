@@ -79,7 +79,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<String> getRoles() {
-    return executeGetRoles(getMetadata().getJooq(), this);
+    return executeGetRoles(getMetadata().getJooq(), this.getMetadata());
   }
 
   @Override
