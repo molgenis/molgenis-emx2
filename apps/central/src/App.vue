@@ -1,7 +1,11 @@
 <template>
   <div id="app">
-    <Molgenis title="Welcome to MOLGENIS central" :menuItems="menuItems">
-      <Groups />
+    <Molgenis
+      title="Welcome to MOLGENIS central"
+      :menuItems="menuItems"
+      v-model="account"
+    >
+      <Groups :account="account" :key="account" />
     </Molgenis>
   </div>
 </template>
@@ -17,6 +21,7 @@ export default {
   },
   data: function() {
     return {
+      account: {},
       menuItems: [
         { label: "Central", href: ".", active: true },
         {

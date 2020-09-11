@@ -24,6 +24,7 @@
       @close="closeDeleteSchema"
       :schemaName="showDeleteSchema"
     />
+    <ShowMore title="debug">account = {{ account }}</ShowMore>
   </div>
 </template>
 
@@ -37,7 +38,8 @@ import {
   IconAction,
   IconBar,
   IconDanger,
-  Spinner
+  Spinner,
+  ShowMore
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -48,7 +50,11 @@ export default {
     SchemaDeleteModal,
     IconBar,
     IconAction,
-    IconDanger
+    IconDanger,
+    ShowMore
+  },
+  props: {
+    account: Object
   },
   data: function() {
     return {
