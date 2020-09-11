@@ -22,7 +22,7 @@ public class Benchmark {
     Schema schema = database.dropCreateSchema(Benchmark.class.getSimpleName());
 
     int aSize = 50;
-    int bSize = 10000;
+    int bSize = 100000;
 
     Table a = schema.create(table("TableA").add(column("ID").pkey()));
     List<String> values = new ArrayList<>();

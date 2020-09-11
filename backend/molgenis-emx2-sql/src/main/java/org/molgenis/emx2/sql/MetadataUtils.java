@@ -7,6 +7,7 @@ import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
+import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
 public class MetadataUtils {
 
@@ -67,6 +68,15 @@ public class MetadataUtils {
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
       t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
     }
+    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
+    jooq.execute(
+        "DROP POLICY IF EXISTS {0} ON {1}",
+        name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
+    jooq.execute(
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
+        name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA, MG_ROLE_PREFIX, TABLE_SCHEMA);
+    // rowlevel secur the schema table
+
     // public access
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
       int result =
@@ -136,7 +146,7 @@ public class MetadataUtils {
             + "', 'member'))",
         name("TABLE_RLS_" + DefaultRoles.MANAGER),
         table,
-        Constants.MG_ROLE_PREFIX,
+        MG_ROLE_PREFIX,
         TABLE_SCHEMA);
 
     jooq.execute(
@@ -145,7 +155,7 @@ public class MetadataUtils {
             + "', 'member'))",
         name("TABLE_RLS_" + DefaultRoles.VIEWER),
         table,
-        Constants.MG_ROLE_PREFIX,
+        MG_ROLE_PREFIX,
         TABLE_SCHEMA);
   }
 

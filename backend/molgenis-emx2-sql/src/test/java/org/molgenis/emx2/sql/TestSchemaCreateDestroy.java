@@ -16,7 +16,7 @@ public class TestSchemaCreateDestroy {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() throws SQLException {
+  public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 

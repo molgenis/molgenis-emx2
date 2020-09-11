@@ -11,6 +11,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -69,8 +70,8 @@ public class TestGrantRolesToUsers {
       database.tx(
           db -> {
             db.getSchema("testRolePermissions").create(table("Test"));
-            fail("role(viewers) should not be able to createColumn tables"); // should not
-            // happen
+            fail("role(viewers) should not be able to createColumn tables");
+            // should not happen
           });
       database.clearActiveUser();
     } catch (Exception e) {
@@ -83,8 +84,8 @@ public class TestGrantRolesToUsers {
       database.tx(
           db -> {
             db.getSchema("testRolePermissions").create(table("Test"));
-            fail("role(editors) should not be able to createColumn tables"); // should not
-            // happen
+            fail("role(editors) should not be able to createColumn tables");
+            // should not happen
           });
       database.clearActiveUser();
     } catch (Exception e) {
@@ -137,6 +138,17 @@ public class TestGrantRolesToUsers {
       Schema schema = database.dropCreateSchema("testRole");
       database.addUser("testadmin");
       database.addUser("testuser");
+
+      // should not be able to see as user, until permission (later)
+      database.setActiveUser("testuser");
+      try {
+        assertEquals(0, database.getSchemaNames().size());
+        assertNull(database.getSchema("testRole"));
+      } catch (Exception e) {
+        System.out.println("erorred correclty:\n" + e);
+      }
+      database.clearActiveUser();
+
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());
       assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
 

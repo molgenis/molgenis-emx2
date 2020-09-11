@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
@@ -215,6 +212,7 @@ public class SqlDatabase implements Database {
         throw new SqlMolgenisException("Set active user failed", dae);
       }
     } else {
+      clearCache();
       this.connectionProvider.setActiveUser(username);
     }
     listener.userChanged();
