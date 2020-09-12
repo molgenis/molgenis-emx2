@@ -61,14 +61,14 @@ public class Benchmark {
     StopWatch.print("inserted ref_array", bSize);
     bRows.clear();
 
-    List<Row> cRows = new ArrayList<>();
-    for (int i = 0; i < 1000; i++) {
-      cRows.add(new Row().set("ID", "row" + i).set("ref", values));
-    }
-    StopWatch.start("benchmark3 started");
-    c.insert(cRows);
-    StopWatch.print("inserted mref", 1000);
-    cRows.clear();
+    //    List<Row> cRows = new ArrayList<>();
+    //    for (int i = 0; i < bSize; i++) {
+    //      cRows.add(new Row().set("ID", "row" + i).set("ref", values));
+    //    }
+    //    StopWatch.start("benchmark3 started");
+    //    c.insert(cRows);
+    //    StopWatch.print("inserted mref", bSize);
+    //    cRows.clear();
 
     // StopWatch.print("inserted mref", bSize);
 

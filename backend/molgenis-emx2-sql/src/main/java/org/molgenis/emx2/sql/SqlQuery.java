@@ -282,11 +282,16 @@ public class SqlQuery extends QueryBean {
     SelectJoinStep<Record1<Object>> query =
         sql.with(with).select(field(ROW_TO_JSON_SQL)).from(table(sql.select(fields)).as(ITEM));
 
+    long start = System.currentTimeMillis();
+    String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
-      logger.info(query.getSQL(ParamType.INLINED));
+      logger.info(
+          "query in "
+              + (System.currentTimeMillis() - start)
+              + "ms: "
+              + query.getSQL(ParamType.INLINED));
     }
-
-    return query.fetchOne().get(0, String.class);
+    return result;
   }
 
   private static SelectConnectByStep<Record> jsonRootQuery(
@@ -529,22 +534,31 @@ public class SqlQuery extends QueryBean {
                         .collect(Collectors.toList()))));
       }
     } else if (REF_ARRAY.equals(column.getColumnType())) {
-      String refs =
-          column.getReferences().stream()
-              .map(ref -> name(tableAlias, ref.getName()).toString())
-              .collect(Collectors.joining(","));
-      String to =
-          column.getReferences().stream()
-              .map(ref -> name(subAlias, ref.getTo()).toString())
-              .collect(Collectors.joining(","));
-      String as =
-          column.getReferences().stream()
-              .map(ref -> name(ref.getName()).toString())
-              .collect(Collectors.joining(","));
-      foreignKeyMatch.add(
-          condition(
-              "({0}) IN (SELECT * FROM UNNEST({1}) AS t({2}))",
-              keyword(to), keyword(refs), keyword(as)));
+      if (column.getReferences().size() == 1) {
+        Reference ref = column.getReferences().get(0);
+        // simple array comparison
+        foreignKeyMatch.add(
+            condition(
+                "{0} = ANY({1})", name(subAlias, ref.getTo()), name(tableAlias, ref.getName())));
+      } else {
+        // expensive 'in' query to enable join on all fields
+        String refs =
+            column.getReferences().stream()
+                .map(ref -> name(tableAlias, ref.getName()).toString())
+                .collect(Collectors.joining(","));
+        String to =
+            column.getReferences().stream()
+                .map(ref -> name(subAlias, ref.getTo()).toString())
+                .collect(Collectors.joining(","));
+        String as =
+            column.getReferences().stream()
+                .map(ref -> name(ref.getName()).toString())
+                .collect(Collectors.joining(","));
+        foreignKeyMatch.add(
+            condition(
+                "({0}) IN (SELECT * FROM UNNEST({1}) AS t({2}))",
+                keyword(to), keyword(refs), keyword(as)));
+      }
     } else if (REFBACK.equals(column.getColumnType())) {
       Column mappedBy = column.getMappedByColumn();
       if (REF.equals(mappedBy.getColumnType())) {

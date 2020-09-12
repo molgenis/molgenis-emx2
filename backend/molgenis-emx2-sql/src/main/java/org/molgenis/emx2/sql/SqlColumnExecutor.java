@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DSLContext;
-import org.jooq.DataType;
-import org.jooq.Field;
-import org.jooq.Table;
+import org.jooq.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
@@ -124,9 +121,11 @@ public class SqlColumnExecutor {
           List<Reference> oldRefs = oldColumn.getReferences();
           List<Reference> newRefs = newColumn.getReferences();
           for (int i = 0; i < oldRefs.size(); i++) {
+
             Field oldField = oldRefs.get(i).getJooqField();
             Field newField = newRefs.get(i).getJooqField();
             String postgresType = getPsqlType(newRefs.get(i).getColumnType());
+
             alterField(
                 jooq,
                 table,
@@ -142,6 +141,17 @@ public class SqlColumnExecutor {
               "Alter type for column '" + newColumn.getName() + "' failed",
               "Reference is composite relation and cannot be changed to "
                   + newColumn.getColumnType());
+        }
+        // if ref_array drop the index
+        if (REF_ARRAY.equals(oldColumn.getColumnType())) {
+          for (Reference ref : oldColumn.getReferences()) {
+            //            if (!ref.isExisting()) {
+            //              jooq.execute(
+            //                  "DROP INDEX {0}",
+            //                  name(oldColumn.getSchemaName(), table.getName() + "/" +
+            // ref.getName()));
+            //            }
+          }
         }
         Field oldField = oldColumn.getReferences().get(0).getJooqField();
         alterField(
@@ -167,6 +177,15 @@ public class SqlColumnExecutor {
             oldColumn.getJooqField().getDataType(),
             newField.getDataType(),
             postgresType);
+
+        // if ref_array create the index
+        //        if (REF_ARRAY.equals(newColumn.getColumnType())) {
+        //          for (Reference ref : newColumn.getReferences()) {
+        //            if (!ref.isExisting()) {
+        //              executeCreateRefArrayIndex(jooq, table, ref);
+        //            }
+        //          }
+        //        }
       }
     } else {
       alterField(
@@ -236,6 +255,11 @@ public class SqlColumnExecutor {
       for (Reference ref : column.getReferences()) {
         if (!ref.isExisting()) {
           jooq.alterTable(column.getJooqTable()).addColumn(ref.getJooqField()).execute();
+          // if ref_array to a string field we should index
+          // doesn't seem to speed up
+          //          if (REF_ARRAY.equals(column.getColumnType())) {
+          //            executeCreateRefArrayIndex(jooq, column.getJooqTable(), ref);
+          //          }
         }
       }
     } else if (FILE.equals(column.getColumnType())) {
@@ -249,6 +273,12 @@ public class SqlColumnExecutor {
     // central constraints
     SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
     saveColumnMetadata(jooq, column);
+  }
+
+  private static void executeCreateRefArrayIndex(DSLContext jooq, Table table, Reference ref) {
+    jooq.execute(
+        "CREATE INDEX {0} ON {1} USING GIN( {2} )",
+        name(table.getName() + "/" + ref.getName()), table, name(ref.getName()));
   }
 
   static void executeCreateRefAndNotNullConstraints(DSLContext jooq, Column column) {
