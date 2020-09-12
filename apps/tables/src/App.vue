@@ -1,6 +1,6 @@
 <template>
   <Molgenis :menuItems="menuItems" id="__top" v-model="molgenis">
-    <router-view :molgenis="molgenis" :schema="schema" />
+    <router-view :session="session" :schema="schema" />
   </Molgenis>
 </template>
 
@@ -14,7 +14,7 @@ export default {
   },
   data() {
     return {
-      molgenis: null,
+      session: null,
       schema: null
     };
   },

@@ -34,6 +34,21 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
+  public void testSession() throws IOException {
+    try {
+      TestCase.assertEquals(0, execute("{_session{email,roles}}").at("/_session/roles").size());
+
+      // first become other user
+      database.setActiveUser("shopmanager");
+
+      TestCase.assertEquals(
+          "Manager", execute("{_session{email,roles}}").at("/_session/roles/0").textValue());
+    } finally {
+      database.clearActiveUser();
+    }
+  }
+
+  @Test
   public void testTableQueries() throws IOException {
     // simple
     TestCase.assertEquals("pooky", execute("{Pet{name}}").at("/Pet/0/name").textValue());

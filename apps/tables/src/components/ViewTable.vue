@@ -22,15 +22,30 @@
           :key="JSON.stringify(tableMetadata.columns)"
         >
           <template v-slot:colheader>
-            <RowButtonAdd :table="table" @close="reload" />
+            <RowButtonAdd
+              v-if="
+                session.roles.includes('Editor') ||
+                  session.roles.includes('Manager')
+              "
+              :table="table"
+              @close="reload"
+            />
           </template>
           <template v-slot:rowheader="slotProps">
             <RowButtonEdit
+              v-if="
+                session.roles.includes('Editor') ||
+                  session.roles.includes('Manager')
+              "
               :table="table"
               :pkey="pkey(slotProps.row)"
               @close="reload"
             />
             <RowButtonDelete
+              v-if="
+                session.roles.includes('Editor') ||
+                  session.roles.includes('Manager')
+              "
               :table="table"
               :pkey="pkey(slotProps.row)"
               @close="reload"
@@ -42,6 +57,8 @@
     <ShowMore title="debug">
       <pre>
       graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
+
+      session = {{ session }}
 
       columns = {{ JSON.stringify(columns) }}
 

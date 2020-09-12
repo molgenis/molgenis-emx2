@@ -23,7 +23,7 @@
     <ShowMore title="debug">
       STATE FOR DEBUG<br />
       molgenis =
-      {{ JSON.stringify(molgenis) }}
+      {{ JSON.stringify(session) }}
       <br />
       schema =
       <pre>{{ JSON.stringify(schema, null, "\t") }}</pre>
@@ -42,7 +42,7 @@ export default {
     ShowMore
   },
   props: {
-    molgenis: Object,
+    session: Object,
     schema: Object
   }
 };
