@@ -86,7 +86,7 @@ export default {
         this.error = null;
         this.loading = true;
         request(
-          "graphql",
+          "/api/graphql",
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status}}`
         )
           .then(data => {

@@ -22,33 +22,17 @@
           :key="JSON.stringify(tableMetadata.columns)"
         >
           <template v-slot:colheader>
-            <RowButtonAdd
-              v-if="
-                session.email == 'admin' ||
-                  session.roles.includes('Editor') ||
-                  session.roles.includes('Manager')
-              "
-              :table="table"
-              @close="reload"
-            />
+            <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
           </template>
           <template v-slot:rowheader="slotProps">
             <RowButtonEdit
-              v-if="
-                session.email == 'admin' ||
-                  session.roles.includes('Editor') ||
-                  session.roles.includes('Manager')
-              "
+              v-if="canEdit"
               :table="table"
               :pkey="pkey(slotProps.row)"
               @close="reload"
             />
             <RowButtonDelete
-              v-if="
-                session.email == 'admin' ||
-                  session.roles.includes('Editor') ||
-                  session.roles.includes('Manager')
-              "
+              v-if="canEdit"
               :table="table"
               :pkey="pkey(slotProps.row)"
               @close="reload"
@@ -151,6 +135,12 @@ export default {
         return this.tableMetadata.columns.map(col => col.name);
       }
       return null;
+    },
+    canEdit() {
+      return;
+      session.email == "admin" ||
+        session.roles.includes("Editor") ||
+        session.roles.includes("Manager");
     }
   },
   methods: {
