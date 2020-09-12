@@ -89,6 +89,7 @@ export default {
     },
     changed() {
       this.reload();
+      this.showSigninForm = false;
       this.$emit("input", this.session);
     },
     closeSigninForm() {
@@ -101,6 +102,7 @@ export default {
     },
     signout() {
       this.loading = true;
+      this.showSigninForm = false;
       request("graphql", `mutation{signout{status}}`)
         .then(data => {
           if (data.signout.status === "SUCCESS") {
