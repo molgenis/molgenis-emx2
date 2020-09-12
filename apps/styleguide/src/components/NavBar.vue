@@ -12,7 +12,7 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a v-if="logo" class="navbar-brand" href="#">
+    <a v-if="logo" class="navbar-brand" href="/">
       <img :src="logo" alt="brand-logo" class="molgenis-navbar-logo" />
     </a>
     <div

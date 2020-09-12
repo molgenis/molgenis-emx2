@@ -33,7 +33,11 @@
           @select="select($event, selectIdx)"
           @deselect="deselect(selectIdx)"
           :graphqlURL="graphqlURL"
-        />
+        >
+          <template v-slot:rowheader="slotProps">
+            <ButtonAction @click="select(slotProps.row)">Select</ButtonAction>
+          </template>
+        </TableSearch>
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="closeSelect">Close</ButtonAlt>
@@ -50,6 +54,7 @@ import MessageError from "./MessageError";
 import FormGroup from "./_formGroup";
 import ButtonAlt from "./ButtonAlt";
 import InputAppend from "./_inputAppend";
+import ButtonAction from "./ButtonAction";
 
 export default {
   extends: _baseInput,
@@ -64,6 +69,7 @@ export default {
     MessageError,
     LayoutModal,
     FormGroup,
+    ButtonAction,
     ButtonAlt,
     InputAppend
   },

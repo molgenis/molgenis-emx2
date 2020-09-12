@@ -16,9 +16,8 @@
         <tr v-for="(row, idx) in data" :key="JSON.stringify(row)">
           <td>
             <div style="display: flex;">
-              <div class="form-check form-check-inline mr-1">
+              <div v-if="select" class="form-check form-check-inline mr-1">
                 <input
-                  v-if="select"
                   type="checkbox"
                   class="form-check-input position-static"
                   :checked="isSelected(row)"
@@ -68,7 +67,7 @@ export default {
   props: {
     select: {
       type: Boolean,
-      default: true
+      default: false
     },
     metadata: Object,
     data: Array
