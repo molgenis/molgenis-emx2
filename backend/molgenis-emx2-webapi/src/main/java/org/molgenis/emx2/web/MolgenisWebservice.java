@@ -54,6 +54,7 @@ public class MolgenisWebservice {
             "Welcome to MOLGENIS EMX2 "
                 + Version.getVersion()
                 + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/central/\">/apps/central/</a>");
+    redirect.get("/", "/apps/central/");
 
     redirect.get("/api", "/api/");
     get(
