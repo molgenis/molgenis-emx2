@@ -12,7 +12,7 @@
       active="My search"
       :items="menuItems"
     >
-      <Account v-model="account" />
+      <Session v-model="session" />
     </NavBar>
     <div style="background: #fafafa">
       <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
@@ -34,26 +34,26 @@
 
 <script>
 import NavBar from "../components/NavBar";
-import Account from "./Account";
+import Session from "./Session";
 import Theme from "../components/Theme";
 
 /**
      Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
      */
 export default {
-  components: { Account, NavBar, Theme },
+  components: { Session, NavBar, Theme },
   props: {
     menuItems: Array,
     title: String
   },
   data: function() {
     return {
-      account: null
+      session: null
     };
   },
   watch: {
-    account() {
-      this.$emit("input", { account: this.account });
+    session() {
+      this.$emit("input", this.session);
     }
   },
   methods: {}

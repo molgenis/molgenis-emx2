@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphqlAccountFieldFactory.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.COLUMN_TYPE;
 import static org.molgenis.emx2.graphql.GraphqlConstants.NULLABLE;
+import static org.molgenis.emx2.graphql.GraphqlSessionFieldFactory.EMAIL;
 
 public class GraphqlSchemaFieldFactory {
 

@@ -34,8 +34,8 @@ public class GraphqlApiFactory {
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
 
     // acount operations
-    GraphqlAccountFieldFactory user = new GraphqlAccountFieldFactory();
-    queryBuilder.field(user.userQueryField(database));
+    GraphqlSessionFieldFactory user = new GraphqlSessionFieldFactory();
+    queryBuilder.field(user.userQueryField(database, null));
     mutationBuilder.field(user.signinField(database));
     mutationBuilder.field(user.signoutField(database));
     mutationBuilder.field(user.signupField(database));
@@ -64,8 +64,8 @@ public class GraphqlApiFactory {
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
 
     // account operations
-    GraphqlAccountFieldFactory accountFactory = new GraphqlAccountFieldFactory();
-    queryBuilder.field(accountFactory.userQueryField(schema.getDatabase()));
+    GraphqlSessionFieldFactory accountFactory = new GraphqlSessionFieldFactory();
+    queryBuilder.field(accountFactory.userQueryField(schema.getDatabase(), schema));
     mutationBuilder.field(accountFactory.signinField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));

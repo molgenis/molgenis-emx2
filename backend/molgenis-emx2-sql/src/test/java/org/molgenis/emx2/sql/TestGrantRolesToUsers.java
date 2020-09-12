@@ -141,16 +141,18 @@ public class TestGrantRolesToUsers {
 
       // should not be able to see as user, until permission (later)
       database.setActiveUser("testuser");
-      try {
-        assertEquals(0, database.getSchemaNames().size());
-        assertNull(database.getSchema("testRole"));
-      } catch (Exception e) {
-        System.out.println("erorred correclty:\n" + e);
-      }
+      assertNull(schema.getRoleForActiveUser()); // should have no role in this schema
+      assertEquals(0, database.getSchemaNames().size()); // should see no schema
+      assertNull(database.getSchema("testRole"));
+
       database.clearActiveUser();
 
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());
       assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
+
+      database.setActiveUser("testadmin");
+      assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForActiveUser());
+      database.clearActiveUser();
 
       schema.create(
           table("Person")

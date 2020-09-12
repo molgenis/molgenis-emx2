@@ -3,17 +3,22 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-public class GraphqlAccountFieldFactory {
+public class GraphqlSessionFieldFactory {
 
   public static final String EMAIL = "email";
   private static final String PASSWORD = "password"; // NOSONAR
+  private static final String ROLES = "roles";
 
-  public GraphqlAccountFieldFactory() {
+  public GraphqlSessionFieldFactory() {
     // no instance
   }
 
@@ -86,21 +91,33 @@ public class GraphqlAccountFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition userQueryField(Database database) {
+  public GraphQLFieldDefinition userQueryField(Database database, Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_user")
+        .name("_session")
         .type(
             GraphQLObjectType.newObject()
-                .name("MolgenisUser")
+                .name("MolgenisSession")
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(EMAIL)
-                        .type(Scalars.GraphQLString)))
+                        .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(ROLES)
+                        .type(GraphQLList.list(Scalars.GraphQLString))))
         .dataFetcher(
-            dataFetchingEnvironment ->
-                database.getActiveUser() != null
-                    ? Map.of(EMAIL, database.getActiveUser())
-                    : Map.of(EMAIL, "none"))
+            dataFetchingEnvironment -> {
+              Map<String, Object> result = new LinkedHashMap<>();
+              result.put(
+                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "none");
+              if (schema != null) {
+                String role = schema.getRoleForActiveUser();
+                if (role != null) {
+                  result.put(ROLES, List.of(schema.getRoleForActiveUser()));
+                }
+              }
+              return result;
+            })
         .build();
   }
 }

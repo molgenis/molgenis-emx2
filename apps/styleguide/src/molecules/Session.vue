@@ -2,8 +2,8 @@
   <Spinner v-if="loading" />
   <div v-else>
     <div>
-      <span v-if="email">
-        Hi {{ email }}
+      <span v-if="session.email">
+        Hi {{ session.email }}
         <ButtonAction @click="signout">Sign out</ButtonAction>
       </span>
       <span v-else>
@@ -51,7 +51,7 @@ export default {
       showSignupForm: false,
       error: null,
       loading: false,
-      email: null,
+      session: null,
       version: null
     };
   },
@@ -61,32 +61,35 @@ export default {
       this.showSignupForm = false;
     }
   },
-  created: function() {
-    this.loading = true;
-    request("graphql", `{_user{email}}`)
-      .then(data => {
-        if (data._user.email !== "anonymous") {
-          this.email = data._user.email;
-        } else {
-          this.email = null;
-        }
-
-        this.loading = false;
-        this.$emit("input", this.email);
-      })
-      .catch(error => {
-        if (error.response.status === 504) {
-          this.error = "Error. Server cannot be reached.";
-        } else {
-          this.error = "internal server error " + error;
-        }
-        this.loading = false;
-      });
+  created() {
+    this.reload();
   },
   methods: {
-    changed(email) {
-      this.email = email;
-      this.$emit("input", this.email);
+    reload() {
+      this.loading = true;
+      request("graphql", `{_session{email,roles}}`)
+        .then(data => {
+          if (data._session.email !== "anonymous") {
+            this.session = data._session;
+          } else {
+            this.session = {};
+          }
+
+          this.loading = false;
+          this.$emit("input", this.session);
+        })
+        .catch(error => {
+          if (error.response.status === 504) {
+            this.error = "Error. Server cannot be reached.";
+          } else {
+            this.error = "internal server error " + error;
+          }
+          this.loading = false;
+        });
+    },
+    changed() {
+      this.reload();
+      this.$emit("input", this.session);
     },
     closeSigninForm() {
       this.showSigninForm = false;
@@ -101,12 +104,12 @@ export default {
       request("graphql", `mutation{signout{status}}`)
         .then(data => {
           if (data.signout.status === "SUCCESS") {
-            this.email = null;
+            this.session = {};
           } else {
             this.error = "sign out failed";
           }
           this.loading = false;
-          this.$emit("input", this.email);
+          this.$emit("input", this.session);
         })
         .catch(error => (this.error = "internal server error" + error));
     }
@@ -117,6 +120,20 @@ export default {
 <docs>
     Example
     ```
-    <Account/>
+    <template>
+        <div>
+            <Session v-model="session"/>
+            <ShowMore title="debug">sesionn = {{session}}</ShowMore>
+        </div>
+    </template>
+    <script>
+        export default {
+            data() {
+                return {
+                    session: null
+                }
+            }
+        }
+    </script>
     ```
 </docs>

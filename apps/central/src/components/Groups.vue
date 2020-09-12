@@ -3,7 +3,11 @@
   <div v-else>
     <IconBar
       ><label>{{ count }} schemas found</label>
-      <IconAction icon="plus" @click="openCreateSchema" />
+      <IconAction
+        v-if="session && session.email == 'admin'"
+        icon="plus"
+        @click="openCreateSchema"
+      />
     </IconBar>
     <DataTable
       :columns="['name', 'description']"
@@ -24,7 +28,7 @@
       @close="closeDeleteSchema"
       :schemaName="showDeleteSchema"
     />
-    <ShowMore title="debug">account = {{ account }}</ShowMore>
+    <ShowMore title="debug">session = {{ session }}</ShowMore>
   </div>
 </template>
 
@@ -54,7 +58,7 @@ export default {
     ShowMore
   },
   props: {
-    account: Object
+    session: Object
   },
   data: function() {
     return {
@@ -92,7 +96,7 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("/api/graphql", "{Schemas{name}}")
+      request("graphql", "{Schemas{name}}")
         .then(data => {
           this.schemas = data.Schemas;
           this.loading = false;

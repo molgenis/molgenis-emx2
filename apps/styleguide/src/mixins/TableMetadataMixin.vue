@@ -1,7 +1,7 @@
 <template>
   <ShowMore>
     <pre>error = {{ error }}</pre>
-    <pre>user = {{ user }}</pre>
+    <pre>session = {    { session }}</pre>
     <pre>schema = {{ schema }}</pre>
   </ShowMore>
 </template>
@@ -18,7 +18,7 @@ export default {
   },
   data: function() {
     return {
-      user: null,
+      session: null,
       schema: null,
       loading: true,
       error: null
@@ -29,10 +29,10 @@ export default {
       this.loading = true;
       request(
         this.graphqlURL,
-        "{_user{email}_schema{name,tables{name,columns{name,columnType,key,refTable,cascadeDelete,nullable}}}}"
+        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,cascadeDelete,nullable}}}}"
       )
         .then(data => {
-          this.user = data._user;
+          this.session = data._session;
           this.schema = data._schema;
           this.loading = false;
         })

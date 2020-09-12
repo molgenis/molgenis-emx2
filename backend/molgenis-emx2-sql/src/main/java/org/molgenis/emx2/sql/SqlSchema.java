@@ -93,6 +93,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public String getRoleForActiveUser() {
+    return getRoleForUser(db.getActiveUser());
+  }
+
+  @Override
   public Table create(TableMetadata metadata) {
     getMetadata().create(metadata);
     return getTable(metadata.getTableName());

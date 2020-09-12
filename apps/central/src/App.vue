@@ -3,9 +3,9 @@
     <Molgenis
       title="Welcome to MOLGENIS central"
       :menuItems="menuItems"
-      v-model="account"
+      v-model="session"
     >
-      <Groups :account="account" :key="account" />
+      <Groups :session="session" :key="session" />
     </Molgenis>
   </div>
 </template>
@@ -21,7 +21,7 @@ export default {
   },
   data: function() {
     return {
-      account: {},
+      session: {},
       menuItems: [
         { label: "Central", href: ".", active: true },
         {

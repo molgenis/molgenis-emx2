@@ -48,4 +48,6 @@ public interface Schema {
   List<String> getRoles();
 
   String getRoleForUser(String user);
+
+  String getRoleForActiveUser();
 }
