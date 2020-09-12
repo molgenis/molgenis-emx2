@@ -22,7 +22,7 @@ public class RunWebApi {
 
     // setup
     Database db = TestDatabaseFactory.getTestDatabase();
-    Schema schema = db.createSchema("pet store");
+    Schema schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 

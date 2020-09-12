@@ -34,7 +34,9 @@ class SqlSchemaMetadataExecutor {
       // make editor also member
       db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
       // make manager also editor and member
-      db.getJooq().execute("GRANT {0},{1} TO {2}", name(member), name(editor), name(manager));
+      db.getJooq()
+          .execute(
+              "GRANT {0},{1} TO {2} WITH ADMIN OPTION", name(member), name(editor), name(manager));
       // make owner also editor, manager, member
       db.getJooq()
           .execute(

@@ -1,48 +1,56 @@
 <template>
-  <Molgenis :title="'Settings for ' + schema" :menuItems="menuItems">
+  <Molgenis
+    :title="'Settings for ' + schema"
+    :menuItems="menuItems"
+    v-model="session"
+  >
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
-    Edit settings below.
     <h2>Members</h2>
-    <form class="form-inline">
+    <form v-if="canEdit" class="form-inline">
       <InputString
+        class="mb-2 mr-sm-2"
         v-model="editMember['email']"
         placeholder="email address"
         label="Email:"
       />
       <InputSelect
+        class="mb-2 mr-sm-2"
         v-model="editMember['role']"
         :options="roles"
         placeholder="role"
         label="Role:"
       />
-      <ButtonAction @click="updateMember">
+      <ButtonAction @click="updateMember" class="mb-2 mr-sm-2">
         Add/update
       </ButtonAction>
     </form>
     <DataTable
       v-model="selectedItems"
-      selectColumn="email"
       :defaultValue="selectedItems"
       :rows="members"
       :columns="['email', 'role']"
-    />
+    >
+      <template v-slot:rowheader="slotProps">
+        <ButtonAction v-if="canEdit" @click="removeMember(slotProps.row)">
+          Remove
+        </ButtonAction>
+      </template>
+    </DataTable>
 
-    <ButtonAction @click="removeSelectedMembers">
-      Remove selected members
-    </ButtonAction>
-
-    <br />
-    members: {{ JSON.stringify(members) }}
-    <br />
-    roles: {{ JSON.stringify(roles) }}
-    <br />
-    selectedItems: {{ JSON.stringify(selectedItems) }}
-    <br />
-    editMember: {{ JSON.stringify(editMember) }}
+    <ShowMore title="debug">
+      <br />
+      members: {{ JSON.stringify(members) }}
+      <br />
+      roles: {{ JSON.stringify(roles) }}
+      <br />
+      selectedItems: {{ JSON.stringify(selectedItems) }}
+      <br />
+      editMember: {{ JSON.stringify(editMember) }}
+    </ShowMore>
   </Molgenis>
 </template>
 
@@ -59,7 +67,8 @@ import {
   MessageError,
   MessageSuccess,
   Molgenis,
-  Spinner
+  Spinner,
+  ShowMore
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
@@ -76,10 +85,12 @@ export default {
     LayoutCard,
     InputCheckbox,
     InputString,
-    InputSelect
+    InputSelect,
+    ShowMore
   },
   data: function() {
     return {
+      session: null,
       schema: null,
       members: [],
       selectedItems: [],
@@ -93,6 +104,13 @@ export default {
   },
 
   computed: {
+    canEdit() {
+      return (
+        this.session != null &&
+        (this.session.email == "admin" ||
+          this.session.roles.includes("Manager"))
+      );
+    },
     menuItems() {
       return [
         { label: "Tables", href: "../tables/" },
@@ -120,17 +138,15 @@ export default {
     }
   },
   methods: {
-    removeSelectedMembers() {
-      let remove = this.members
-        .filter(m => this.selectedItems.includes(m.email))
-        .map(m => m.email);
+    removeMember(row) {
+      let name = [row.email];
       this.loading = true;
       this.error = null;
       this.success = null;
       request(
         "graphql",
-        `mutation drop($members:[String]){drop(members:$members){message}}`,
-        { members: remove }
+        `mutation drop($member:[String]){drop(members:$member){message}}`,
+        { member: name }
       )
         .then(data => {
           this.loadSchema();
