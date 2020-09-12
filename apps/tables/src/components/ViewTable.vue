@@ -24,7 +24,8 @@
           <template v-slot:colheader>
             <RowButtonAdd
               v-if="
-                session.roles.includes('Editor') ||
+                session.email == 'admin' ||
+                  session.roles.includes('Editor') ||
                   session.roles.includes('Manager')
               "
               :table="table"
@@ -34,7 +35,8 @@
           <template v-slot:rowheader="slotProps">
             <RowButtonEdit
               v-if="
-                session.roles.includes('Editor') ||
+                session.email == 'admin' ||
+                  session.roles.includes('Editor') ||
                   session.roles.includes('Manager')
               "
               :table="table"
@@ -43,7 +45,8 @@
             />
             <RowButtonDelete
               v-if="
-                session.roles.includes('Editor') ||
+                session.email == 'admin' ||
+                  session.roles.includes('Editor') ||
                   session.roles.includes('Manager')
               "
               :table="table"
