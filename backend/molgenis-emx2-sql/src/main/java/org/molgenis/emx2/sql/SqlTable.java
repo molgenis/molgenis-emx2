@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
@@ -284,7 +285,10 @@ class SqlTable implements Table {
 
   private void deleteBatch(Collection<Row> rows) {
     if (!rows.isEmpty()) {
-      List<String> keyNames = getMetadata().getPrimaryKeys();
+      List<String> keyNames =
+          getMetadata().getPrimaryKeyFields().stream()
+              .map(f -> f.getName())
+              .collect(Collectors.toList());
 
       // in case no primary key is defined, use all columns
       if (keyNames == null) {
@@ -323,7 +327,7 @@ class SqlTable implements Table {
       for (Reference ref : key.getReferences()) {
         columnCondition.add(
             ref.getJooqField()
-                .eq(cast(r.get(key.getName(), ref.getColumnType()), ref.getJooqField())));
+                .eq(cast(r.get(ref.getName(), ref.getColumnType()), ref.getJooqField())));
       }
     } else if (REFBACK.equals(key.getColumnType())) {
       // do nothing
