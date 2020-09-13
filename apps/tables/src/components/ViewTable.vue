@@ -137,10 +137,12 @@ export default {
       return null;
     },
     canEdit() {
-      return;
-      session.email == "admin" ||
-        session.roles.includes("Editor") ||
-        session.roles.includes("Manager");
+      return (
+        this.session.email == "admin" ||
+        (this.session.roles &&
+          (this.session.roles.includes("Editor") ||
+            this.session.roles.includes("Manager")))
+      );
     }
   },
   methods: {
