@@ -59,8 +59,8 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Member> getMembers() {
-    // only members can see, other users cannot
-    if (getRoleForActiveUser() != null) {
+    // only admin or other members can see
+    if (db.getActiveUser() == null || getRoleForActiveUser() != null) {
       return executeGetMembers(getMetadata().getJooq(), getMetadata());
     } else {
       return new ArrayList<>();

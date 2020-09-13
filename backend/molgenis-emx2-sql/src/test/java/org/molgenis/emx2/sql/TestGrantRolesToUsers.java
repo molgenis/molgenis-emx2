@@ -50,6 +50,7 @@ public class TestGrantRolesToUsers {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
+    database.clearActiveUser();
     Schema schema = database.dropCreateSchema("testRolePermissions");
 
     // createColumn test users
