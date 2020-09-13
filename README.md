@@ -21,7 +21,9 @@ Details below.
 
 ### 1. Using docker compose
 
-For local demo we recommend Docker. Therefore install [Docker compose](https://docs.docker.com/compose/install/) and download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
+Install [Docker compose](https://docs.docker.com/compose/install/).
+Download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
+To use a particular version in docker-compose.yml change 'mswertz/emx2' to 'mswertz/emx2-snapshot:1.0.27-SNAPSHOT-ba8f51b'
 
 To start, in directory with docker-compose.yml run:
 ```
@@ -95,7 +97,6 @@ We use the following:
 Major thanks to all these companies!
 
 N.B. snapshot docker images can be found at [Docker hub](https://hub.docker.com/repository/docker/mswertz/emx2-snapshot)
-To use particular version in docker-compose.yml change 'mswertz/emx2' to 'mswertz/emx2-snapshot:1.0.27-SNAPSHOT-ba8f51b'
 
 ### Code organisation
 
@@ -192,14 +193,6 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ### Feature list (mostly in POC or 'walking skeleton' state)
 *  simplified EMX '2.0' format 
-    - only one 'molgenis.csv' metadata file (instead of now multiple for package, entity, attribute)
-    - reducing the width of spreadsheet to only 5 columns: schema, table, column, properties, description
-    - the 'properties' column is where all the constraints happen
-        - using simple tags as 'int'
-        - or parameterised properties as 'ref(otherTable,aColumn)'
-    - properties can be defined for schema, table, or column
-    - format is designed to be extensible with properties not known in backend
-    - rudimentary convertor from EMX1 to EMX2
 *  support for multiple schemas
     - schemas probably should be called 'groups'
     - each project/group can get their own schema 
@@ -252,14 +245,20 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ## Todo and open issues
 
-### first
+### Done
 
 *  composite foreign key
-*  test if drop schema also removes all roles for this schema
-*  implement settings
+*  fix if drop schema also removes all roles for this schema
+*  show only schemas in navigator if anonymous or logged in user can view
+*  ensure columns are retrieved in same order as they were created
+*  remove 'plus' from central if you don't have permission
+
+
+### first
+*  implement settings to point to custom bootstrap css URL
 *  implement menu setting so we can standardize menu as a default setting
 *  implement JSON data type that we can use in settings (validating form)
-*  ensure columns are retrieved in same order as they were created
+*  ENSURE PASSWORD IS NOT IN THE LOGS
 *  add standard an lastUpdated column, as a system column
 *  implement order, default on lastUpdated
 *  bug, if I filter on refback column it fails, must now select reback.other column
@@ -269,9 +268,9 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ### later
 *  create plugin system for services (todo: isolation? runtime loading?)
 *  known bug: if I set refback for refarray to 'null' then ref is not updated!
-*  validation on queries such that illegal fields are errored (though grahpql prevents this)
 *  performance test
 *  custom roles
+*  user interface for row level security
 *  more filter option s for array types (now only 'equals')
 *  improve error titles and messages
 *  seperate upsert from update
