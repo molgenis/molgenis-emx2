@@ -16,6 +16,7 @@
     >
       <template v-slot:rowheader="slotProps">
         <IconDanger
+          v-if="session && session.email == 'admin'"
           icon="trash"
           @click="openDeleteSchema(slotProps.row.name)"
           :key="slotProps.row.name"
