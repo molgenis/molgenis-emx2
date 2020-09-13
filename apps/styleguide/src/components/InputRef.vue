@@ -35,7 +35,9 @@
           :graphqlURL="graphqlURL"
         >
           <template v-slot:rowheader="slotProps">
-            <ButtonAction @click="select(slotProps.row)">Select</ButtonAction>
+            <ButtonAction @click="select(slotProps.rowkey)"
+              >Select</ButtonAction
+            >
           </template>
         </TableSearch>
       </template>

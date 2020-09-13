@@ -24,7 +24,12 @@
                   @click="onRowClick(row)"
                 />
               </div>
-              <slot name="rowheader" :row="row" />
+              <slot
+                name="rowheader"
+                :row="row"
+                :metadata="metadata"
+                :rowkey="getKey(row)"
+              />
             </div>
           </td>
           <td
