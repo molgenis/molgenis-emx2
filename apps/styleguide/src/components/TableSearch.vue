@@ -17,7 +17,7 @@
           <slot name="colheader" />
         </template>
         <template v-slot:rowheader="slotProps">
-          <slot name="rowheader" :row="slotProps.row" :metadata="metadata" />
+          <slot name="rowheader" :row="slotProps.row" :schema="schema" />
         </template>
       </MolgenisTable>
     </div>

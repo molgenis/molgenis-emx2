@@ -82,7 +82,9 @@ export default {
       if (this.list) {
         //else continue
         this.value = this.arrayValue.map(v =>
-          !v || v.length === 0 || !String(v).trim() ? null : v
+          v === undefined || (v && v.length === 0) || !String(v).trim()
+            ? null
+            : v
         );
         this.value = this.value.filter(el => el != undefined);
         if (this.parser != null) {
@@ -91,9 +93,10 @@ export default {
         //singular value
       } else {
         this.value = this.arrayValue[0];
+        //console.log("value: " + this.value);
         if (
-          !this.value ||
-          this.value.length === 0 ||
+          this.value === undefined ||
+          (this.value && this.value.length === 0) ||
           !String(this.value).trim()
         ) {
           this.value = null;
@@ -101,6 +104,7 @@ export default {
         if (this.parser != null) {
           this.value = this.parser(this.value);
         }
+        //console.log("final value: " + this.value);
       }
       this.$emit("input", this.value);
     },
