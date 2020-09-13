@@ -31,6 +31,12 @@ data={{ JSON.stringify(data) }}
 graphql = {{ JSON.stringify(graphql) }}
 
 filter = {{ JSON.stringify(filter) }}
+
+errorPerColumn = {{ JSON.stringify(errorPerColumn) }}
+
+schema = {{ JSON.stringify(schema) }}
+
+
         </pre>
       </ShowMore>
     </template>
@@ -125,11 +131,18 @@ export default {
         this.tableMetadata.columns.forEach(column => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
-            //this.value[column.name] = undefined;
+            //this.value[column.name] = null;
           }
           delete this.errorPerColumn[column.name];
+          console.log(
+            "column test: " + column.name + " value " + this.value[column.name]
+          );
           // when empty
-          if (this.value[column.name] == null) {
+          if (
+            this.value[column.name] == null ||
+            (typeof this.value[column.name] === "number" &&
+              isNaN(this.value[column.name]))
+          ) {
             // when required
             if (column.nullable !== true) {
               this.errorPerColumn[column.name] = column.name + " is required ";
