@@ -59,7 +59,12 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Member> getMembers() {
-    return executeGetMembers(getMetadata().getJooq(), getMetadata());
+    // only members can see, other users cannot
+    if (getRoleForActiveUser() != null) {
+      return executeGetMembers(getMetadata().getJooq(), getMetadata());
+    } else {
+      return new ArrayList<>();
+    }
   }
 
   @Override
@@ -86,7 +91,7 @@ public class SqlSchema implements Schema {
   public String getRoleForUser(String user) {
     if (user == null) return null;
     user = user.trim();
-    for (Member m : getMembers()) {
+    for (Member m : executeGetMembers(getMetadata().getJooq(), getMetadata())) {
       if (m.getUser().equals(user)) return m.getRole();
     }
     return null;

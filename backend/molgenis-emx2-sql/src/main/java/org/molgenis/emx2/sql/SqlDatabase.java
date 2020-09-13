@@ -19,7 +19,10 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 public class SqlDatabase implements Database {
-  private static final String ADMIN = "admin";
+  public static final String ADMIN = "admin";
+  public static final String ANONYMOUS = "anonymous";
+  public static final String USER = "user";
+
   private DataSource source;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
@@ -54,12 +57,16 @@ public class SqlDatabase implements Database {
     // setup default stuff
     this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
     this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
-    if (!hasUser("anonymous")) {
-      this.addUser("anonymous");
+    if (!hasUser(ANONYMOUS)) {
+      this.addUser(ANONYMOUS); // used when not logged in
+    }
+    if (!hasUser(USER)) {
+      this.addUser(USER); // used as role to identify all users except anonymous
     }
     if (!hasUser(ADMIN)) {
       this.addUser(ADMIN);
-      this.setUserPassword(ADMIN, ADMIN);
+      this.setUserPassword(
+          ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
       this.jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
     }
   }
