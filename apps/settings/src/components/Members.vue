@@ -9,37 +9,42 @@
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
-    <h2>Members</h2>
-    <form v-if="canEdit" class="form-inline">
-      <InputString
-        class="mb-2 mr-sm-2"
-        v-model="editMember['email']"
-        placeholder="email address"
-        label="Email:"
-      />
-      <InputSelect
-        class="mb-2 mr-sm-2"
-        v-model="editMember['role']"
-        :options="roles"
-        placeholder="role"
-        label="Role:"
-      />
-      <ButtonAction @click="updateMember" class="mb-2 mr-sm-2">
-        Add/update
-      </ButtonAction>
-    </form>
-    <DataTable
-      v-model="selectedItems"
-      :defaultValue="selectedItems"
-      :rows="members"
-      :columns="['email', 'role']"
-    >
-      <template v-slot:rowheader="slotProps">
-        <ButtonAction v-if="canEdit" @click="removeMember(slotProps.row)">
-          Remove
+    <div v-if="session && session.roles.length > 0">
+      <h2>Members</h2>
+      <form v-if="canEdit" class="form-inline">
+        <InputString
+          class="mb-2 mr-sm-2"
+          v-model="editMember['email']"
+          placeholder="email address"
+          label="Email:"
+        />
+        <InputSelect
+          class="mb-2 mr-sm-2"
+          v-model="editMember['role']"
+          :options="roles"
+          placeholder="role"
+          label="Role:"
+        />
+        <ButtonAction @click="updateMember" class="mb-2 mr-sm-2">
+          Add/update
         </ButtonAction>
-      </template>
-    </DataTable>
+      </form>
+      <DataTable
+        v-model="selectedItems"
+        :defaultValue="selectedItems"
+        :rows="members"
+        :columns="['email', 'role']"
+      >
+        <template v-slot:rowheader="slotProps">
+          <ButtonAction v-if="canEdit" @click="removeMember(slotProps.row)">
+            Remove
+          </ButtonAction>
+        </template>
+      </DataTable>
+    </div>
+    <div v-else>
+      Not a member, cannot see settings
+    </div>
 
     <ShowMore title="debug">
       <br />
@@ -50,6 +55,8 @@
       selectedItems: {{ JSON.stringify(selectedItems) }}
       <br />
       editMember: {{ JSON.stringify(editMember) }}
+      <br />
+      session: {{ JSON.stringify(session) }}
     </ShowMore>
   </Molgenis>
 </template>
