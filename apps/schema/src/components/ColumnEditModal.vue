@@ -44,7 +44,7 @@
             column.columnType == 'REF' ||
               column.columnType == 'REF_ARRAY' ||
               column.columnType == 'MREF' ||
-              'REFBACK'
+              column.columnType == 'REFBACK'
           "
           v-model="column.refTable"
           label="Referenced table"
