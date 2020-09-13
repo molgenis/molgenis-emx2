@@ -11,7 +11,7 @@
     "core-js": "^3.6.4",
     "vue": "^2.6.11",
     "@mswertz/emx2-styleguide": "*",
-    "graphql-request": "^1.8.2"
+    "graphql-request": "^2.0.0"
   },
   "eslintConfig": {
     "root": true,
