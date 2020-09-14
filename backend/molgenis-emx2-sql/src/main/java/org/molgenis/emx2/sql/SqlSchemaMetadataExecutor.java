@@ -21,10 +21,11 @@ class SqlSchemaMetadataExecutor {
     try (CreateSchemaFinalStep step = db.getJooq().createSchema(schema.getName())) {
       step.execute();
 
-      String member = getRolePrefix(schema) + VIEWER;
-      String editor = getRolePrefix(schema) + EDITOR;
-      String manager = getRolePrefix(schema) + MANAGER;
-      String owner = getRolePrefix(schema) + DefaultRoles.OWNER;
+      String schemaName = schema.getName();
+      String member = getRolePrefix(schemaName) + VIEWER;
+      String editor = getRolePrefix(schemaName) + EDITOR;
+      String manager = getRolePrefix(schemaName) + MANAGER;
+      String owner = getRolePrefix(schemaName) + DefaultRoles.OWNER;
 
       db.addRole(member);
       db.addRole(editor);
@@ -72,7 +73,7 @@ class SqlSchemaMetadataExecutor {
               + currentRoles);
     }
     String username = Constants.MG_USER_PREFIX + member.getUser();
-    String roleprefix = getRolePrefix(schema.getMetadata());
+    String roleprefix = getRolePrefix(schema.getMetadata().getName());
     String rolename = roleprefix + member.getRole();
 
     // execute updates database
@@ -109,7 +110,8 @@ class SqlSchemaMetadataExecutor {
       for (Member old : currentMembers) {
         if (old.getUser().equals(m.getUser())) {
           jooq.execute(
-              "REVOKE {0} FROM {1}", name(getRolePrefix(schema) + old.getRole()), name(username));
+              "REVOKE {0} FROM {1}",
+              name(getRolePrefix(schema.getName()) + old.getRole()), name(username));
         }
       }
 
@@ -120,15 +122,15 @@ class SqlSchemaMetadataExecutor {
     }
   }
 
-  static String getRolePrefix(SchemaMetadata schema) {
-    return Constants.MG_ROLE_PREFIX + schema.getName().toUpperCase() + "/";
+  static String getRolePrefix(String name) {
+    return Constants.MG_ROLE_PREFIX + name.toUpperCase() + "/";
   }
 
   static List<Member> executeGetMembers(DSLContext jooq, SchemaMetadata schema) {
     List<Member> members = new ArrayList<>();
 
     // retrieve all role members
-    String roleFilter = getRolePrefix(schema);
+    String roleFilter = getRolePrefix(schema.getName());
     String userFilter = Constants.MG_USER_PREFIX;
     List<Record> result =
         jooq.fetch(
@@ -153,7 +155,7 @@ class SqlSchemaMetadataExecutor {
       for (Member m : members) usernames.add(m.getUser());
 
       String userprefix = Constants.MG_USER_PREFIX;
-      String roleprefix = getRolePrefix(schema.getMetadata());
+      String roleprefix = getRolePrefix(schema.getMetadata().getName());
 
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
@@ -168,25 +170,25 @@ class SqlSchemaMetadataExecutor {
     }
   }
 
-  static List<String> executeGetRoles(DSLContext jooq, SqlSchemaMetadata schema) {
+  static List<String> executeGetRoles(DSLContext jooq, String schemaName) {
     List<String> result = new ArrayList<>();
     for (Record r :
         jooq.fetch(
             "select rolname from pg_catalog.pg_roles where rolname LIKE {0}",
-            getRolePrefix(schema) + "%")) {
-      result.add(r.getValue("rolname", String.class).substring(getRolePrefix(schema).length()));
+            getRolePrefix(schemaName) + "%")) {
+      result.add(r.getValue("rolname", String.class).substring(getRolePrefix(schemaName).length()));
     }
     return result;
   }
 
-  static void executeDropSchema(SqlDatabase db, SqlSchemaMetadata schema) {
+  static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
-      db.getJooq().dropSchema(name(schema.getName())).cascade().execute();
+      db.getJooq().dropSchema(name(schemaName)).cascade().execute();
       // TODO if there are custom roles
-      for (String role : executeGetRoles(db.getJooq(), schema)) {
-        db.getJooq().execute("DROP ROLE {0}", name(getRolePrefix(schema) + role));
+      for (String role : executeGetRoles(db.getJooq(), schemaName)) {
+        db.getJooq().execute("DROP ROLE {0}", name(getRolePrefix(schemaName) + role));
       }
-      MetadataUtils.deleteSchema(db.getJooq(), schema);
+      MetadataUtils.deleteSchema(db.getJooq(), schemaName);
     } catch (MolgenisException me) {
       throw new MolgenisException("Drop schema failed", me.getMessage());
     } catch (DataAccessException dae) {

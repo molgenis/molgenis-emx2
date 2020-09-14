@@ -7,6 +7,7 @@ public class GraphqlConstants {
   public static final String COLUMN_TYPE = "columnType";
   public static final String VALIDATION = "validation";
   public static final String FILTER_ARGUMENT = "filter";
+  public static final String KEY = "key";
 
   private GraphqlConstants() {
     // hide constructor

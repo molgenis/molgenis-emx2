@@ -3,7 +3,6 @@ package org.molgenis.emx2.graphql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
-import org.apache.logging.log4j.core.config.Property;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
@@ -309,7 +309,7 @@ public class GraphqlSchemaFieldFactory {
           .name("MolgenisSettingsType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.NAME)
+                  .name(GraphqlConstants.KEY)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -378,6 +378,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.COLUMNS)
                   .type(GraphQLList.list(outputColumnMetadataType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SETTINGS)
+                  .type(GraphQLList.list(outputSettingsMetadataType)))
           .build();
 
   private static final GraphQLObjectType outputMetadataType =
@@ -427,11 +431,11 @@ public class GraphqlSchemaFieldFactory {
       result.put("roles", roles);
 
       // add settings
-      Map<String, String> settings = new LinkedHashMap<>();
-      for (Setting setting : schema.getSettings()) {
-        settings.put(setting.getKey(), setting.getValue());
-      }
-      result.put("settings", settings);
+      result.put(
+          GraphqlConstants.SETTINGS,
+          schema.getMetadata().getSettings().entrySet().stream()
+              .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
+              .collect(Collectors.toList()));
 
       result.put("name", schema.getMetadata().getName());
       return result;

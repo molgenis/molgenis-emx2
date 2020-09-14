@@ -54,6 +54,7 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
+    this.settings = metadata.getSettings();
     for (Column c : metadata.columns.values()) {
       this.columns.put(c.getName(), new Column(this, c));
     }
@@ -334,14 +335,13 @@ public class TableMetadata {
     return result;
   }
 
-  public List<Setting> getSettings() {
-    return settings.entrySet().stream()
-        .map(entry -> new Setting(entry.getKey(), entry.getValue()))
-        .collect(Collectors.toList());
+  public Map<String, String> getSettings() {
+    return settings;
   }
 
-  public TableMetadata putSetting(String key, String value) {
-    this.settings.put(key, value);
+  public TableMetadata setSettings(Map<String, String> settings) {
+    if (settings == null) return this;
+    this.settings = settings;
     return this;
   }
 }

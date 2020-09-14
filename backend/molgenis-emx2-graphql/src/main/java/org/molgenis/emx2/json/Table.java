@@ -1,9 +1,12 @@
 package org.molgenis.emx2.json;
 
+import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Table {
   private String name;
@@ -12,6 +15,7 @@ public class Table {
   private String description;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
+  private List<Setting> settings = new ArrayList<>();
 
   public Table() {}
 
@@ -19,6 +23,10 @@ public class Table {
     this.name = tableMetadata.getTableName();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
+    this.settings =
+        tableMetadata.getSettings().entrySet().stream()
+            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column));
     }
@@ -70,5 +78,13 @@ public class Table {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public List<Setting> getSettings() {
+    return settings;
+  }
+
+  public void setSettings(List<Setting> settings) {
+    this.settings = settings;
   }
 }

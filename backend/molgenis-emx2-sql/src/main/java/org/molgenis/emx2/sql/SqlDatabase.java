@@ -124,20 +124,19 @@ public class SqlDatabase implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    SqlSchema schema = getSchema(name);
     tx(
         d -> {
-          SqlSchemaMetadataExecutor.executeDropSchema(this, schema.getMetadata());
+          SqlSchemaMetadataExecutor.executeDropSchema(this, name);
         });
     schemaCache.remove(name);
     schemaNames.remove(name);
     listener.schemaRemoved(name);
-    log(start, "dropped schema " + schema.getMetadata().getName());
+    log(start, "dropped schema " + name);
   }
 
   @Override
   public Schema dropCreateSchema(String name) {
-    if (this.getSchemaNames().contains(name)) {
+    if (getSchemaNames().contains(name)) {
       this.dropSchema(name);
     }
     return createSchema(name);

@@ -82,6 +82,7 @@ public class SchemaMetadata {
   }
 
   public SchemaMetadata setSettings(Map<String, String> settings) {
+    if (settings == null) return this;
     this.settings = settings;
     return this;
   }

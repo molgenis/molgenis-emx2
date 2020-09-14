@@ -103,7 +103,7 @@ public class MetadataUtils {
     }
 
     // this way more robust for non breaking changes
-    for (Field field : new Field[] {TABLE_INHERITS, TABLE_DESCRIPTION}) {
+    for (Field field : new Field[] {TABLE_INHERITS, TABLE_DESCRIPTION, SETTINGS}) {
       jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
     }
 
@@ -195,71 +195,96 @@ public class MetadataUtils {
     if (tableRecord == null) {
       return schema;
     }
-    try {
-      schema.setSettings(jsonMapper.readValue(tableRecord.get(SETTINGS, String.class), Map.class));
-    } catch (Exception e) {
-      throw new MolgenisException("load of schema metadata failed", e);
+    if (tableRecord.get(SETTINGS, String.class) != null) {
+      try {
+        schema.setSettings(
+            jsonMapper.readValue(tableRecord.get(SETTINGS, String.class), Map.class));
+      } catch (Exception e) {
+        throw new MolgenisException("load of schema metadata failed", e);
+      }
     }
     return schema;
   }
 
-  protected static void deleteSchema(DSLContext jooq, SchemaMetadata schema) {
-    jooq.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).execute();
+  protected static void deleteSchema(DSLContext jooq, String schemaName) {
+    jooq.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schemaName)).execute();
   }
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
-    jooq.insertInto(TABLE_METADATA)
-        .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION)
-        .values(
-            table.getSchema().getName(),
-            table.getTableName(),
-            table.getInherit(),
-            table.getDescription())
-        .onConflict(TABLE_SCHEMA, TABLE_NAME)
-        .doUpdate()
-        .set(TABLE_INHERITS, table.getInherit())
-        .execute();
+    try {
+      String settings = jsonMapper.writeValueAsString(table.getSettings());
+      jooq.insertInto(TABLE_METADATA)
+          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION, SETTINGS)
+          .values(
+              table.getSchema().getName(),
+              table.getTableName(),
+              table.getInherit(),
+              table.getDescription(),
+              settings)
+          .onConflict(TABLE_SCHEMA, TABLE_NAME)
+          .doUpdate()
+          .set(TABLE_INHERITS, table.getInherit())
+          .set(TABLE_DESCRIPTION, table.getDescription())
+          .set(SETTINGS, settings)
+          .execute();
+    } catch (Exception e) {
+      throw new MolgenisException("save of table metadata failed", e);
+    }
   }
 
   protected static Collection<TableMetadata> loadTables(DSLContext jooq, SchemaMetadata schema) {
-    Map<String, TableMetadata> result = new LinkedHashMap<>();
-    // tables
-    List<Record> tableRecords =
-        jooq.selectFrom(TABLE_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetch();
-    for (Record r : tableRecords) {
-      TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-      table.setInherit(r.get(TABLE_INHERITS, String.class));
-      table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
-      result.put(table.getTableName(), table);
-    }
-    // columns
-    List<Record> columnRecords =
-        jooq.selectFrom(COLUMN_METADATA)
-            .where(TABLE_SCHEMA.eq(schema.getName()))
-            .orderBy(COLUMN_POSITION)
-            .fetch();
-    for (Record r : columnRecords) {
-      result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));
-    }
-
-    return result.values();
-  }
-
-  protected static void loadTableMetadata(DSLContext jooq, TableMetadata table) {
-    Record tableRecord =
-        jooq.selectFrom(TABLE_METADATA)
-            .where(
-                TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
-            .fetchOne();
-    if (tableRecord == null) {
-      return;
-    }
-    table.setInherit(tableRecord.get(TABLE_INHERITS, String.class));
-    table.setDescription(tableRecord.get(TABLE_DESCRIPTION, String.class));
-    for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
-      table.add(c);
+    try {
+      Map<String, TableMetadata> result = new LinkedHashMap<>();
+      // tables
+      List<Record> tableRecords =
+          jooq.selectFrom(TABLE_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetch();
+      for (Record r : tableRecords) {
+        TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
+        table.setInherit(r.get(TABLE_INHERITS, String.class));
+        table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
+        if (r.get(SETTINGS, String.class) != null) {
+          table.setSettings(jsonMapper.readValue(r.get(SETTINGS, String.class), Map.class));
+        }
+        result.put(table.getTableName(), table);
+      }
+      // columns
+      List<Record> columnRecords =
+          jooq.selectFrom(COLUMN_METADATA)
+              .where(TABLE_SCHEMA.eq(schema.getName()))
+              .orderBy(COLUMN_POSITION)
+              .fetch();
+      for (Record r : columnRecords) {
+        result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));
+      }
+      return result.values();
+    } catch (Exception e) {
+      throw new MolgenisException("load of table metadata failed", e);
     }
   }
+
+  // not used, due to remove
+  //  protected static void loadTableMetadata(DSLContext jooq, TableMetadata table) {
+  //    try {
+  //      Record tableRecord =
+  //          jooq.selectFrom(TABLE_METADATA)
+  //              .where(
+  //                  TABLE_SCHEMA.eq(table.getSchema().getName()),
+  //                  (TABLE_NAME).eq(table.getTableName()))
+  //              .fetchOne();
+  //      if (tableRecord == null) {
+  //        return;
+  //      }
+  //      table.setInherit(tableRecord.get(TABLE_INHERITS, String.class));
+  //      table.setDescription(tableRecord.get(TABLE_DESCRIPTION, String.class));
+  //      table.setSettings(jsonMapper.readValue(tableRecord.get(SETTINGS, String.class),
+  // Map.class));
+  //      for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
+  //        table.add(c);
+  //      }
+  //    } catch (Exception e) {
+  //      throw new MolgenisException("load of table metadata failed", e);
+  //    }
+  //  }
 
   protected static void deleteTable(DSLContext jooq, TableMetadata table) {
     jooq.deleteFrom(TABLE_METADATA)

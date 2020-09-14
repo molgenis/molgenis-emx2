@@ -166,7 +166,7 @@ class SqlTableMetadataExecutor {
   }
 
   private static String getRolePrefix(TableMetadata table) {
-    return SqlSchemaMetadataExecutor.getRolePrefix(table.getSchema());
+    return SqlSchemaMetadataExecutor.getRolePrefix(table.getSchema().getName());
   }
 
   static String updateSearchIndexTriggerFunction(DSLContext jooq, TableMetadata table) {
