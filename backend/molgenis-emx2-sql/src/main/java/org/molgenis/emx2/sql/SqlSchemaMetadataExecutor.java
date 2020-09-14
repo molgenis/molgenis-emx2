@@ -57,29 +57,33 @@ class SqlSchemaMetadataExecutor {
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
-  static void executeAddMembers(DSLContext jooq, Schema schema, List<Member> members) {
+  static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
     List<String> currentRoles = schema.getRoles();
     List<Member> currentMembers = schema.getMembers();
 
-    for (Member m : members) {
-      if (!currentRoles.contains(m.getRole()))
-        throw new MolgenisException(
-            "Add member(s) failed",
-            "Role '"
-                + m.getRole()
-                + " doesn't exist in schema '"
-                + schema.getMetadata().getName()
-                + "'. Existing roles are: "
-                + currentRoles);
-
-      String username = Constants.MG_USER_PREFIX + m.getUser();
-      String roleprefix = getRolePrefix(schema.getMetadata());
-      String rolename = roleprefix + m.getRole();
-
-      // execute updates database
-      updateMembershipForUser(
-          jooq, schema.getDatabase(), schema.getMetadata(), currentMembers, m, username, rolename);
+    if (!currentRoles.contains(member.getRole())) {
+      throw new MolgenisException(
+          "Add member(s) failed",
+          "Role '"
+              + member.getRole()
+              + " doesn't exist in schema '"
+              + schema.getMetadata().getName()
+              + "'. Existing roles are: "
+              + currentRoles);
     }
+    String username = Constants.MG_USER_PREFIX + member.getUser();
+    String roleprefix = getRolePrefix(schema.getMetadata());
+    String rolename = roleprefix + member.getRole();
+
+    // execute updates database
+    updateMembershipForUser(
+        jooq,
+        schema.getDatabase(),
+        schema.getMetadata(),
+        currentMembers,
+        member,
+        username,
+        rolename);
   }
 
   private static void updateMembershipForUser(

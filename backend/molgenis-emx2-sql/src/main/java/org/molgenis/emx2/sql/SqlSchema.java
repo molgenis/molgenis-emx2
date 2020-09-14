@@ -43,18 +43,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void addMembers(Member... members) {
-    this.addMembers(Arrays.asList(members));
-  }
-
-  @Override
   public void addMember(String user, String role) {
-    this.addMembers(new Member(user, role));
-  }
-
-  @Override
-  public void addMembers(List<Member> members) {
-    tx(database -> executeAddMembers(getMetadata().getJooq(), this, members));
+    executeAddMembers(getMetadata().getJooq(), this, new Member(user, role));
   }
 
   @Override

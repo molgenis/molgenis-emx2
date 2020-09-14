@@ -31,10 +31,6 @@ public interface Schema {
 
   void discard(SchemaMetadata schema);
 
-  void addMembers(List<Member> members);
-
-  void addMembers(Member... members);
-
   void addMember(String user, String role);
 
   List<Member> getMembers();
