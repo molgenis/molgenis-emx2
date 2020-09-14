@@ -75,7 +75,6 @@ export default {
       this.$emit("input", this.value);
     },
     clearInput() {
-      alert("clear");
       this.$refs.file.value = "";
       this.value = null;
       this.$emit("input", this.value);
