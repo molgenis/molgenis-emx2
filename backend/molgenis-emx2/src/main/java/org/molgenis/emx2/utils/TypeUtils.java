@@ -1,5 +1,6 @@
 package org.molgenis.emx2.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jooq.DataType;
 import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;

@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
+import org.apache.logging.log4j.core.config.Property;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 
@@ -312,14 +313,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.TYPE)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.VALUE)
                   .type(Scalars.GraphQLString))
           .build();
@@ -432,10 +425,15 @@ public class GraphqlSchemaFieldFactory {
         roles.add(Map.of(GraphqlConstants.NAME, role));
       }
       result.put("roles", roles);
-      result.put("name", schema.getMetadata().getName());
 
       // add settings
+      Map<String, String> settings = new LinkedHashMap<>();
+      for (Setting setting : schema.getSettings()) {
+        settings.put(setting.getKey(), setting.getValue());
+      }
+      result.put("settings", settings);
 
+      result.put("name", schema.getMetadata().getName());
       return result;
     };
   }

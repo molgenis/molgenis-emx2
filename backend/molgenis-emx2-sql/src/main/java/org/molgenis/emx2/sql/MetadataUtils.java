@@ -1,5 +1,7 @@
 package org.molgenis.emx2.sql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jooq.*;
 import org.molgenis.emx2.*;
 
@@ -12,6 +14,7 @@ import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 public class MetadataUtils {
 
   private static final String MOLGENIS = "MOLGENIS";
+  private static ObjectMapper jsonMapper = new ObjectMapper();
 
   // tables
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
@@ -55,6 +58,8 @@ public class MetadataUtils {
   private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
   private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
 
+  private static final org.jooq.Field SETTINGS = field(name("settings"), VARCHAR);
+
   private MetadataUtils() {
     // to hide the public constructor
   }
@@ -68,6 +73,12 @@ public class MetadataUtils {
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
       t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
     }
+
+    // this way more robust for non breaking changes
+    for (Field field : new Field[] {SETTINGS}) {
+      jooq.alterTable(SCHEMA_METADATA).addColumnIfNotExists(field).execute();
+    }
+
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
     jooq.execute(
         "DROP POLICY IF EXISTS {0} ON {1}",
@@ -160,16 +171,36 @@ public class MetadataUtils {
   }
 
   protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
-    sql.insertInto(SCHEMA_METADATA)
-        .columns(TABLE_SCHEMA)
-        .values(schema.getName())
-        .onConflict(TABLE_SCHEMA)
-        .doNothing()
-        .execute();
+    try {
+      String settings = jsonMapper.writeValueAsString(schema.getSettings());
+      sql.insertInto(SCHEMA_METADATA)
+          .columns(TABLE_SCHEMA, SETTINGS)
+          .values(schema.getName(), settings)
+          .onConflict(TABLE_SCHEMA)
+          .doUpdate()
+          .set(SETTINGS, settings)
+          .execute();
+    } catch (Exception e) {
+      throw new MolgenisException("save of schema metadata failed", e);
+    }
   }
 
   protected static Collection<String> loadSchemaNames(SqlDatabase db) {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
+  }
+
+  protected static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
+    Record tableRecord =
+        jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
+    if (tableRecord == null) {
+      return schema;
+    }
+    try {
+      schema.setSettings(jsonMapper.readValue(tableRecord.get(SETTINGS, String.class), Map.class));
+    } catch (Exception e) {
+      throw new MolgenisException("load of schema metadata failed", e);
+    }
+    return schema;
   }
 
   protected static void deleteSchema(DSLContext jooq, SchemaMetadata schema) {

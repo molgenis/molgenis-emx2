@@ -8,6 +8,7 @@ public class SchemaMetadata {
 
   private String name;
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
+  protected Map<String, String> settings = new LinkedHashMap<>();
 
   public SchemaMetadata() {}
 
@@ -15,6 +16,11 @@ public class SchemaMetadata {
     if (name == null || name.isEmpty())
       throw new MolgenisException("Create schema failed", "Schema name was null or empty");
     this.name = name;
+  }
+
+  public SchemaMetadata(SchemaMetadata schema) {
+    this.name = schema.getName();
+    this.settings = schema.getSettings();
   }
 
   public String getName() {
@@ -73,5 +79,14 @@ public class SchemaMetadata {
     }
     TableSort.sortTableByDependency(tables);
     return tables;
+  }
+
+  public SchemaMetadata setSettings(Map<String, String> settings) {
+    this.settings = settings;
+    return this;
+  }
+
+  public Map<String, String> getSettings() {
+    return this.settings;
   }
 }

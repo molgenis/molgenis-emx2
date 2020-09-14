@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
@@ -18,7 +19,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
-    super(name);
+    super(MetadataUtils.loadSchemaMetadata(db.getJooq(), new SchemaMetadata(name)));
     logger.info("loading schema '" + name + "' as user " + db.getActiveUser());
     long start = System.currentTimeMillis();
     for (TableMetadata table : MetadataUtils.loadTables(db.getJooq(), this)) {
@@ -71,6 +72,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         });
     db.getListener().schemaChanged(getName());
     log(start, "dropped");
+  }
+
+  @Override
+  public SqlSchemaMetadata setSettings(Map<String, String> settings) {
+    super.setSettings(settings);
+    MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
+    db.getListener().schemaChanged(getName());
+    return this;
   }
 
   protected DSLContext getJooq() {

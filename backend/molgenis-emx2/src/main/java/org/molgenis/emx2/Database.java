@@ -8,7 +8,7 @@ public interface Database {
 
   Schema createSchema(String name);
 
-  Schema dropCreateSchema(String testBatch);
+  Schema dropCreateSchema(String name);
 
   void dropSchema(String name);
 

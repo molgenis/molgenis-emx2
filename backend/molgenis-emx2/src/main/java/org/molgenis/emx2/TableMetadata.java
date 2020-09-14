@@ -4,6 +4,7 @@ import org.jooq.Field;
 import org.jooq.impl.DSL;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
@@ -16,6 +17,7 @@ public class TableMetadata {
   protected String inherit = null;
   protected String description = null;
   protected Map<String, Column> columns = new LinkedHashMap<>();
+  protected Map<String, String> settings = new LinkedHashMap<>();
 
   public static TableMetadata table(String tableName) {
     return new TableMetadata(tableName);
@@ -330,5 +332,16 @@ public class TableMetadata {
       }
     }
     return result;
+  }
+
+  public List<Setting> getSettings() {
+    return settings.entrySet().stream()
+        .map(entry -> new Setting(entry.getKey(), entry.getValue()))
+        .collect(Collectors.toList());
+  }
+
+  public TableMetadata putSetting(String key, String value) {
+    this.settings.put(key, value);
+    return this;
   }
 }
