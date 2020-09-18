@@ -277,7 +277,7 @@ public class GraphqlSchemaFieldFactory {
                 // convert from  {key:xx,value:yy} to {xx:yy}, merge with old settings
                 settings.forEach(
                     entry -> {
-                      if (entry.get("value").equals(null) || entry.get("value").trim().equals("")) {
+                      if (entry.get("value") == null || entry.get("value").trim().equals("")) {
                         // remove the key
                         settingsMap.remove(entry.get("key"));
                       } else {
