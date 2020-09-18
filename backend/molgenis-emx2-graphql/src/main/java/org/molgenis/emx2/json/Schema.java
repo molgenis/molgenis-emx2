@@ -37,6 +37,10 @@ public class Schema {
     s.setSettings(settings.stream().collect(Collectors.toMap(Setting::getKey, Setting::getValue)));
     for (Table t : tables) {
       TableMetadata tm = s.create(table(t.getName()));
+      Map<String, String> tableSettings = new LinkedHashMap<>();
+      t.getSettings().stream()
+          .forEach(entry -> tableSettings.put(entry.getKey(), entry.getValue()));
+      tm.setSettings(tableSettings);
       for (Column c : t.getColumns()) {
         tm.add(c.getColumnMetadata(tm));
       }

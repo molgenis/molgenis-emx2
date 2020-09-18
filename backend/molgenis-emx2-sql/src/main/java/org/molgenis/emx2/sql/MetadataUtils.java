@@ -6,6 +6,7 @@ import org.jooq.*;
 import org.molgenis.emx2.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
@@ -212,7 +213,8 @@ public class MetadataUtils {
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     try {
-      String settings = jsonMapper.writeValueAsString(table.getSettings());
+
+      String settings = jsonMapper.writeValueAsString(table.getSettings()); // strip empty
       jooq.insertInto(TABLE_METADATA)
           .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION, SETTINGS)
           .values(

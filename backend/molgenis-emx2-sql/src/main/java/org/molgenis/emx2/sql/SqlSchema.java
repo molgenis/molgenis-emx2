@@ -220,6 +220,9 @@ public class SqlSchema implements Schema {
               oldTable.removeInherit();
             }
 
+            // update settings
+            oldTable.setSettings(newTable.getSettings());
+
             // add missing (except refback), remove triggers if existing column if type changed
             for (Column newColumn : newTable.getLocalColumns()) {
               Column oldColumn = oldTable.getColumn(newColumn.getName());
@@ -255,5 +258,7 @@ public class SqlSchema implements Schema {
             }
           }
         });
+
+    db.getListener().schemaChanged(this.metadata.getName());
   }
 }

@@ -17,7 +17,9 @@ public class Table {
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
 
-  public Table() {}
+  public Table() {
+    // for json serialisation
+  }
 
   public Table(TableMetadata tableMetadata) {
     this.name = tableMetadata.getTableName();

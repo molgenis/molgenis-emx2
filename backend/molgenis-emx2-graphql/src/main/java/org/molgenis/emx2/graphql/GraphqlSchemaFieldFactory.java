@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.COLUMN_TYPE;
-import static org.molgenis.emx2.graphql.GraphqlConstants.NULLABLE;
+import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSessionFieldFactory.EMAIL;
+import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 
 public class GraphqlSchemaFieldFactory {
 
@@ -66,7 +66,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLInt))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.KEY)
+                  .type(Scalars.GraphQLInt))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(NULLABLE)
@@ -125,7 +128,7 @@ public class GraphqlSchemaFieldFactory {
               if (tables != null) {
                 Map tableMap = Map.of("tables", tables);
                 String json = JsonUtil.getWriter().writeValueAsString(tableMap);
-                SchemaMetadata otherSchema = JsonUtil.jsonToSchema(json);
+                SchemaMetadata otherSchema = jsonToSchema(json);
                 schema.merge(otherSchema);
               }
               // members
@@ -177,8 +180,23 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)
                 .type(GraphQLList.list(inputAlterColumnType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.SETTINGS)
+                .type(GraphQLList.list(inputAlterSettingType)))
         .build();
   }
+
+  private final GraphQLInputObjectType inputAlterSettingType =
+      new GraphQLInputObjectType.Builder()
+          .name("AlterSettingInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.KEY)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
+          .build();
 
   private final GraphQLInputObjectType inputAlterTableType =
       new GraphQLInputObjectType.Builder()
@@ -191,6 +209,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(DEFINITION)
                   .type(inputTableMetadataType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SETTINGS)
+                  .type(GraphQLList.list(inputAlterSettingType)))
           .build();
 
   private final GraphQLInputObjectType inputAlterColumnType =
@@ -217,10 +239,10 @@ public class GraphqlSchemaFieldFactory {
 
               // tables
               if (tables != null) {
-                //                Map tableMap = Map.of("tables", tables);
-                //                String json = JsonApi.getWriter().writeValueAsString(tableMap);
-                //                SchemaMetadata otherSchema = jsonToSchema(json);
-                //                schema.merge(otherSchema);
+                Map tableMap = Map.of("tables", tables);
+                String json = JsonUtil.getWriter().writeValueAsString(tableMap);
+                SchemaMetadata otherSchema = jsonToSchema(json);
+                schema.merge(otherSchema);
               }
               // members
               List<Map<String, String>> members =
@@ -246,6 +268,23 @@ public class GraphqlSchemaFieldFactory {
 
                   tm.alterColumn(columnName, columnDefinition);
                 }
+              }
+              // schema settings
+              List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
+              if (settings != null) {
+                // get the old settings
+                Map<String, String> settingsMap = schema.getMetadata().getSettings();
+                // convert from  {key:xx,value:yy} to {xx:yy}, merge with old settings
+                settings.forEach(
+                    entry -> {
+                      if (entry.get("value").equals(null) || entry.get("value").trim().equals("")) {
+                        // remove the key
+                        settingsMap.remove(entry.get("key"));
+                      } else {
+                        settingsMap.put(entry.get("key"), entry.get("value"));
+                      }
+                    });
+                schema.getMetadata().setSettings(settingsMap);
               }
             } catch (IOException e) {
               throw new GraphqlException("Save metadata failed", e);
@@ -328,7 +367,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLInt))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(Constants.KEY)
+                  .type(Scalars.GraphQLInt))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(NULLABLE)

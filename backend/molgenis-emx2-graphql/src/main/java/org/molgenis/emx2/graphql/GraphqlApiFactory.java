@@ -70,6 +70,13 @@ public class GraphqlApiFactory {
     mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
 
+    // schema
+    GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
+    queryBuilder.field(schemaFields.schemaQuery(schema));
+    mutationBuilder.field(schemaFields.createMutation(schema));
+    mutationBuilder.field(schemaFields.alterMutation(schema));
+    mutationBuilder.field(schemaFields.dropMutation(schema));
+
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
     for (String tableName : schema.getTableNames()) {
@@ -80,13 +87,6 @@ public class GraphqlApiFactory {
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
     mutationBuilder.field(tableField.deleteMutation(schema));
-
-    // schema
-    GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
-    queryBuilder.field(schemaFields.schemaQuery(schema));
-    mutationBuilder.field(schemaFields.createMutation(schema));
-    mutationBuilder.field(schemaFields.alterMutation(schema));
-    mutationBuilder.field(schemaFields.dropMutation(schema));
 
     // assemble and return
     GraphQL result =

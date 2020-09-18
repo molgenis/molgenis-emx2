@@ -341,7 +341,11 @@ public class TableMetadata {
 
   public TableMetadata setSettings(Map<String, String> settings) {
     if (settings == null) return this;
-    this.settings = settings;
+    this.settings =
+        settings.entrySet().stream()
+            .filter(e -> e.getValue() != null && e.getValue().trim().length() > 0)
+            .collect(
+                Collectors.toMap(e -> e.getKey(), e -> e.getValue())); // strip null and "" values
     return this;
   }
 }

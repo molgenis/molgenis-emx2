@@ -15,6 +15,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
@@ -22,7 +23,7 @@ public class TestGraphqSchemaFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = "TestGraphqSchemaFields";
+  private static final String schemaName = "TestGraphqlSchemaFields";
 
   @BeforeClass
   public static void setup() {
@@ -46,6 +47,41 @@ public class TestGraphqSchemaFields {
     } finally {
       database.clearActiveUser();
     }
+  }
+
+  @Test
+  public void testSchemaSettings() throws IOException {
+    // add value
+    execute("mutation{alter(settings:{key:\"test\",value:\"testval\"}){message}}");
+
+    assertEquals(
+        "testval",
+        execute("{_schema{settings{key,value}}}").at("/_schema/settings/0/value").textValue());
+
+    // remove value
+    execute("mutation{alter(settings:{key:\"test\",value:\"\"}){message}}");
+
+    assertEquals(0, execute("{_schema{settings{key,value}}}").at("/_schema/settings").size());
+  }
+
+  @Test
+  public void testTableSettings() throws IOException {
+    // add value
+    execute(
+        "mutation{alter(tables:[{name:\"Pet\",settings:{key:\"test\",value:\"testval\"}}]){message}}");
+
+    assertEquals(
+        "testval",
+        execute("{_schema{tables{settings{key,value}}}}")
+            .at("/_schema/tables/2/settings/0/value")
+            .textValue());
+
+    // remove value
+    execute("mutation{alter(tables:[{name:\"Pet\",settings:{key:\"test\",value:\"\"}}]){message}}");
+
+    assertEquals(
+        0,
+        execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
   }
 
   @Test
