@@ -3,7 +3,6 @@
     <MessageError v-if="error">{{ error }}</MessageError>
     <Spinner v-if="loading" />
     <div v-else>
-      <h2>Settings</h2>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <InputString
         label="cssURL"
@@ -37,10 +36,10 @@ import { request } from "graphql-request";
 export default {
   components: {
     InputString,
-    ShowMore,
     ButtonAction,
     MessageError,
-    MessageSuccess
+    MessageSuccess,
+    ShowMore
   },
   props: {
     session: Object

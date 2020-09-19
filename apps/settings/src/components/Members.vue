@@ -12,7 +12,6 @@
             (session.roles && session.roles.length > 0))
       "
     >
-      <h2>Members</h2>
       <form v-if="canEdit" class="form-inline">
         <InputString
           class="mb-2 mr-sm-2"
@@ -153,7 +152,7 @@ export default {
       )
         .then(() => {
           this.selectedItems = [];
-          this.loadSchema();
+          this.loadMembers();
         })
         .catch(error => {
           this.error = error.response.errors[0].message;
