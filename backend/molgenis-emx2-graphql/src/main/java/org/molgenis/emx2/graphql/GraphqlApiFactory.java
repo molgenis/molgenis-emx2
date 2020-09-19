@@ -42,9 +42,12 @@ public class GraphqlApiFactory {
 
     // database operations
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.querySchemasField(database));
-    mutationBuilder.field(db.createSchemaField(database));
-    mutationBuilder.field(db.deleteSchemaField(database));
+    queryBuilder.field(db.settingsQueryField(database));
+    queryBuilder.field(db.schemasQuery(database));
+
+    mutationBuilder.field(db.createMutation(database));
+    mutationBuilder.field(db.alterMutation(database));
+    mutationBuilder.field(db.deleteMutation(database));
 
     // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
@@ -73,6 +76,7 @@ public class GraphqlApiFactory {
     // schema
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
     queryBuilder.field(schemaFields.schemaQuery(schema));
+    queryBuilder.field(schemaFields.settingsQuery(schema));
     mutationBuilder.field(schemaFields.createMutation(schema));
     mutationBuilder.field(schemaFields.alterMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));

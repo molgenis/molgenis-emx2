@@ -6,6 +6,7 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputAlterSettingType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -20,7 +23,7 @@ public class GraphqlDatabaseFieldFactory {
     // no instances
   }
 
-  public GraphQLFieldDefinition.Builder deleteSchemaField(Database database) {
+  public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")
         .type(typeForMutationResult)
@@ -34,7 +37,7 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
-  public GraphQLFieldDefinition.Builder createSchemaField(Database database) {
+  public GraphQLFieldDefinition.Builder createMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")
         .type(typeForMutationResult)
@@ -48,7 +51,28 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
-  public GraphQLFieldDefinition.Builder querySchemasField(Database database) {
+  public GraphQLFieldDefinition.Builder settingsQueryField(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_settings")
+        .type(GraphQLList.list(outputSettingsMetadataType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              return new ArrayList(); //
+            });
+  }
+
+  public GraphQLFieldDefinition alterMutation(Database schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("alter")
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument()
+                .name("settings")
+                .type(GraphQLList.list(inputAlterSettingType)))
+        .build();
+  }
+
+  public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("Schemas")
         .dataFetcher(

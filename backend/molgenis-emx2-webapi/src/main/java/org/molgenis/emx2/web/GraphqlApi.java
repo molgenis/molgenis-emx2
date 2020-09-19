@@ -77,10 +77,7 @@ public class GraphqlApi {
 
     // todo, really check permissions
     if (getSchema(request) == null) {
-      response.status(403);
-      return "{\"errors\":[{\"message\":\"Schema '"
-          + schemaName
-          + "' not found or permission denied.\"}]}";
+      return handleDatabaseRequests(request, response);
     }
 
     // download hack on same endpoint

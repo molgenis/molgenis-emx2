@@ -18,7 +18,6 @@ public class GraphqlConstants {
   public static final String FILTER = "Filter";
   public static final String TABLES = "tables";
   public static final String MEMBERS = "members";
-  public static final String SETTINGS = "settings";
   public static final String TYPE = "type";
   public static final String VALUE = "value";
   public static final String EQUALS = "equals";

@@ -54,14 +54,12 @@ public class TestGraphqSchemaFields {
     // add value
     execute("mutation{alter(settings:{key:\"test\",value:\"testval\"}){message}}");
 
-    assertEquals(
-        "testval",
-        execute("{_schema{settings{key,value}}}").at("/_schema/settings/0/value").textValue());
+    assertEquals("testval", execute("{_settings{key,value}}").at("/_settings/0/value").textValue());
 
     // remove value
     execute("mutation{alter(settings:{key:\"test\",value:\"\"}){message}}");
 
-    assertEquals(0, execute("{_schema{settings{key,value}}}").at("/_schema/settings").size());
+    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
   }
 
   @Test

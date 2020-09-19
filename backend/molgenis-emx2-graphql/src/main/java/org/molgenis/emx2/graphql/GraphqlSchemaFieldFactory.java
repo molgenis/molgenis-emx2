@@ -33,6 +33,19 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 
+  public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_settings")
+        .type(GraphQLList.list(outputSettingsMetadataType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              // add settings
+              return schema.getMetadata().getSettings().entrySet().stream()
+                  .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
+                  .collect(Collectors.toList());
+            });
+  }
+
   public GraphQLFieldDefinition createMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("create")
@@ -182,12 +195,12 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputAlterColumnType)))
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.SETTINGS)
+                .name("settings")
                 .type(GraphQLList.list(inputAlterSettingType)))
         .build();
   }
 
-  private final GraphQLInputObjectType inputAlterSettingType =
+  static final GraphQLInputObjectType inputAlterSettingType =
       new GraphQLInputObjectType.Builder()
           .name("AlterSettingInput")
           .field(
@@ -211,7 +224,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(inputTableMetadataType))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(SETTINGS)
+                  .name("settings")
                   .type(GraphQLList.list(inputAlterSettingType)))
           .build();
 
@@ -270,7 +283,7 @@ public class GraphqlSchemaFieldFactory {
                 }
               }
               // schema settings
-              List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
+              List<Map<String, String>> settings = dataFetchingEnvironment.getArgument("settings");
               if (settings != null) {
                 // get the old settings
                 Map<String, String> settingsMap = schema.getMetadata().getSettings();
@@ -343,7 +356,7 @@ public class GraphqlSchemaFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
           .build();
 
-  private static final GraphQLType outputSettingsMetadataType =
+  static final GraphQLType outputSettingsMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSettingsType")
           .field(
@@ -422,7 +435,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputColumnMetadataType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.SETTINGS)
+                  .name("settings")
                   .type(GraphQLList.list(outputSettingsMetadataType)))
           .build();
 
@@ -441,10 +454,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.MEMBERS)
                   .type(GraphQLList.list(outputMembersMetadataType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.SETTINGS)
-                  .type(GraphQLList.list(outputSettingsMetadataType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name("roles")
@@ -471,13 +480,6 @@ public class GraphqlSchemaFieldFactory {
         roles.add(Map.of(GraphqlConstants.NAME, role));
       }
       result.put("roles", roles);
-
-      // add settings
-      result.put(
-          GraphqlConstants.SETTINGS,
-          schema.getMetadata().getSettings().entrySet().stream()
-              .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
-              .collect(Collectors.toList()));
 
       result.put("name", schema.getMetadata().getName());
       return result;

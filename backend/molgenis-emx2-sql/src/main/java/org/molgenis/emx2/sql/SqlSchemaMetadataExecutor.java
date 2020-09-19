@@ -11,6 +11,8 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.DefaultRoles.*;
+import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 
 class SqlSchemaMetadataExecutor {
   private SqlSchemaMetadataExecutor() {
@@ -34,10 +36,12 @@ class SqlSchemaMetadataExecutor {
 
       // make editor also member
       db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
+
       // make manager also editor and member
       db.getJooq()
           .execute(
               "GRANT {0},{1} TO {2} WITH ADMIN OPTION", name(member), name(editor), name(manager));
+
       // make owner also editor, manager, member
       db.getJooq()
           .execute(
