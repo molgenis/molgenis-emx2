@@ -2,6 +2,9 @@
   <Spinner v-if="loading" />
   <div v-else>
     <div>
+      <span v-if="error">
+        <MessageError>{{ error }}</MessageError>
+      </span>
       <span v-if="session.email">
         Hi {{ session.email }}
         <ButtonAction @click="signout">Sign out</ButtonAction>
@@ -29,6 +32,7 @@
 import Spinner from "../components/Spinner";
 import ButtonAction from "../components/ButtonAction";
 import ButtonAlt from "../components/ButtonAlt";
+import MessageError from "../components/MessageError";
 
 import SigninForm from "./SigninForm.vue";
 import SignupForm from "./SignupForm.vue";
@@ -42,7 +46,14 @@ export default {
     SigninForm,
     SignupForm,
     Spinner,
-    ButtonAlt
+    ButtonAlt,
+    MessageError
+  },
+  props: {
+    graphql: {
+      default: "graphql",
+      type: String
+    }
   },
   data: function() {
     return {
@@ -51,7 +62,7 @@ export default {
       showSignupForm: false,
       error: null,
       loading: false,
-      session: null,
+      session: {},
       version: null
     };
   },
@@ -67,13 +78,25 @@ export default {
   methods: {
     reload() {
       this.loading = true;
-      request("graphql", `{_session{email,roles}}`)
+      request(this.graphql, `{_session{email,roles},_settings{key,value}}`)
         .then(data => {
-          if (data._session.email !== "anonymous") {
+          if (
+            data._session != undefined &&
+            data._session.email !== "anonymous"
+          ) {
             this.session = data._session;
           } else {
             this.session = {};
           }
+          //convert settings to object
+          this.session.settings = {};
+          data._settings.forEach(
+            s =>
+              (this.session.settings[s.key] =
+                s.value.startsWith("[") || s.value.startsWith("{")
+                  ? this.parseJson(s.value)
+                  : s.value)
+          );
 
           this.loading = false;
           this.$emit("input", this.session);
@@ -86,6 +109,14 @@ export default {
           }
           this.loading = false;
         });
+    },
+    parseJson(value) {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        this.error = "Parsing of settings failed: " + e + ". value: " + value;
+        return null;
+      }
     },
     changed() {
       this.reload();
@@ -124,8 +155,8 @@ export default {
     ```
     <template>
         <div>
-            <Session v-model="session"/>
-            <ShowMore title="debug">sesionn = {{session}}</ShowMore>
+            <Session v-model="session" graphql="/graphql/pet store"/>
+            <ShowMore title="debug">session = {{session}}</ShowMore>
         </div>
     </template>
     <script>

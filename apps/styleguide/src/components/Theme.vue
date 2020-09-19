@@ -9,7 +9,6 @@ export default {
   },
   methods: {
     appendFile() {
-      // Removes an element from the document
       let file = document.createElement("link");
       file.rel = "stylesheet";
       file.href = this.href;
@@ -18,6 +17,11 @@ export default {
   },
   mounted() {
     this.appendFile();
+  },
+  watch: {
+    href() {
+      this.appendFile();
+    }
   }
 };
 </script>

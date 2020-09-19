@@ -472,7 +472,7 @@ public class GraphqlSchemaFieldFactory {
       for (Member m : schema.getMembers()) {
         members.add(Map.of("email", m.getUser(), "role", m.getRole()));
       }
-      result.put(GraphqlConstants.MEMBERS, members);
+      result.put(MEMBERS, members);
 
       // add roles
       List<Map<String, String>> roles = new ArrayList<>();

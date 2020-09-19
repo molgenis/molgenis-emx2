@@ -1,14 +1,14 @@
 <template>
   <div id="app">
-    <Members />
+    <Settings />
   </div>
 </template>
 
 <script>
-import Members from "./components/Members";
+import Settings from "./components/Settings";
 
 export default {
   name: "App",
-  components: { Members }
+  components: { Settings }
 };
 </script>

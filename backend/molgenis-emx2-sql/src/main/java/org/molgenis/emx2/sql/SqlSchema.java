@@ -6,6 +6,7 @@ import java.util.*;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefAndNotNullConstraints;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -50,7 +51,9 @@ public class SqlSchema implements Schema {
   @Override
   public List<Member> getMembers() {
     // only admin or other members can see
-    if (db.getActiveUser() == null || getRoleForActiveUser() != null) {
+    if (db.getActiveUser() == null
+        || ADMIN.equals(db.getActiveUser())
+        || getRoleForActiveUser() != null) {
       return executeGetMembers(getMetadata().getJooq(), getMetadata());
     } else {
       return new ArrayList<>();

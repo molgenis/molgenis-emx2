@@ -1,15 +1,17 @@
 <template>
-  <Molgenis
-    :title="'Settings for ' + schema"
-    :menuItems="menuItems"
-    v-model="session"
-  >
+  <div>
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
-    <div v-if="session && session.roles.length > 0">
+    <div
+      v-if="
+        session &&
+          (session.email == 'admin' ||
+            (session.roles && session.roles.length > 0))
+      "
+    >
       <h2>Members</h2>
       <form v-if="canEdit" class="form-inline">
         <InputString
@@ -58,7 +60,7 @@
       <br />
       session: {{ JSON.stringify(session) }}
     </ShowMore>
-  </Molgenis>
+  </div>
 </template>
 
 <script>
@@ -73,7 +75,6 @@ import {
   LayoutCard,
   MessageError,
   MessageSuccess,
-  Molgenis,
   Spinner,
   ShowMore
 } from "@mswertz/emx2-styleguide";
@@ -88,16 +89,17 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
-    Molgenis,
     LayoutCard,
     InputCheckbox,
     InputString,
     InputSelect,
     ShowMore
   },
+  props: {
+    session: Object
+  },
   data: function() {
     return {
-      session: null,
       schema: null,
       members: [],
       selectedItems: [],
@@ -117,31 +119,6 @@ export default {
         (this.session.email == "admin" ||
           this.session.roles.includes("Manager"))
       );
-    },
-    menuItems() {
-      return [
-        { label: "Tables", href: "../tables/" },
-        {
-          label: "Schema",
-          href: "../schema/"
-        },
-        {
-          label: "Upload",
-          href: "../import/"
-        },
-        {
-          label: "Download",
-          href: "../download/"
-        },
-        {
-          label: "GraphQL",
-          href: "/api/playground.html?schema=/api/graphql/" + this.schema
-        },
-        {
-          label: "Settings",
-          href: "../settings/"
-        }
-      ];
     }
   },
   methods: {
@@ -156,7 +133,7 @@ export default {
         { member: name }
       )
         .then(data => {
-          this.loadSchema();
+          this.loadMembers();
         })
         .catch(error => {
           this.error = error.response.errors[0].message;
@@ -183,7 +160,7 @@ export default {
         })
         .finally((this.loading = false));
     },
-    loadSchema() {
+    loadMembers() {
       this.loading = true;
       request("graphql", "{_schema{name,members{email,role}roles{name}}}")
         .then(data => {
@@ -198,15 +175,15 @@ export default {
     }
   },
   created() {
-    this.loadSchema();
+    this.loadMembers();
   }
 };
 </script>
 
 <docs>
-    Example
-    ```
-    <Download schema="pet store"/>
+Example
+```
+<Download schema="pet store"/>
 
-    ```
+```
 </docs>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Theme href="/apps/schema/css/bootstrap-molgenis-blue.css" />
+    <Theme :href="cssURL" />
     <Theme
       href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
     />
@@ -29,6 +29,13 @@
         </div>
       </div>
     </div>
+    <ShowMore title="debug">
+      <pre>
+cssURL = {{ cssURL }}
+
+session = {{ session }}
+      </pre>
+    </ShowMore>
   </div>
 </template>
 
@@ -38,8 +45,8 @@ import Session from "./Session";
 import Theme from "../components/Theme";
 
 /**
-     Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
-     */
+ Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
+ */
 export default {
   components: { Session, NavBar, Theme },
   props: {
@@ -48,12 +55,22 @@ export default {
   },
   data: function() {
     return {
-      session: null
+      session: null,
+      cssURL:
+        "/public_html/apps/styleguide/assets/css/bootstrap-molgenis-blue.css"
     };
   },
   watch: {
-    session() {
-      this.$emit("input", this.session);
+    session: {
+      deep: true,
+      handler() {
+        console.log("handler");
+        if (this.session != undefined && this.session.settings.cssURL) {
+          console.log("changed url " + this.session.settings.cssURL);
+          this.cssURL = this.session.settings.cssURL;
+        }
+        this.$emit("input", this.session);
+      }
     }
   },
   methods: {}
@@ -61,26 +78,26 @@ export default {
 </script>
 
 <docs>
-    ```
-    <template>
-        <Molgenis :menuItems="[
+```
+<template>
+  <Molgenis :menuItems="[
         {label:'Home',href:'/'},
         {label:'My search',href:'http://google.com'},
         {label:'My movies',href:'http://youtube.com'}
      ]" title="My title" v-model="molgenis">
-            <template>
-                <p>Some contents and I can see the molgenis state via v-model = {{JSON.stringify(molgenis)}}</p>
-            </template>
-        </Molgenis>
+    <template>
+      <p>Some contents and I can see the molgenis state via v-model = {{ JSON.stringify(molgenis) }}</p>
     </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    molgenis: null
-                }
-            }
-        }
-    </script>
-    ```
+  </Molgenis>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        molgenis: null
+      }
+    }
+  }
+</script>
+```
 </docs>
