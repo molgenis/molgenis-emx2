@@ -10,7 +10,7 @@
     <NavBar
       logo="https://master.dev.molgenis.org/img/Logo_Blue_Small.png"
       active="My search"
-      :items="menuItems"
+      :items="menu"
     >
       <Session v-model="session" />
     </NavBar>
@@ -43,12 +43,13 @@ session = {{ session }}
 import NavBar from "../components/NavBar";
 import Session from "./Session";
 import Theme from "../components/Theme";
+import ShowMore from "../components/ShowMore";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { Session, NavBar, Theme },
+  components: { Session, NavBar, Theme, ShowMore },
   props: {
     menuItems: Array,
     title: String
@@ -59,6 +60,15 @@ export default {
       cssURL:
         "/public_html/apps/styleguide/assets/css/bootstrap-molgenis-blue.css"
     };
+  },
+  computed: {
+    menu() {
+      if (this.session && this.session.settings && this.session.settings.menu) {
+        return this.session.settings.menu;
+      } else {
+        return this.menuItems;
+      }
+    }
   },
   watch: {
     session: {

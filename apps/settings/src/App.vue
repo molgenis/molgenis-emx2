@@ -2,7 +2,10 @@
   <div id="app">
     selected: {{ selected }}
     <Molgenis title="Settings" :menuItems="menuItems" v-model="session">
-      <div class="card">
+      <div v-if="session.email == undefined">
+        You have to be logged in with right permissionsto see settings
+      </div>
+      <div v-if="session.email" v-else class="card">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">
@@ -21,10 +24,17 @@
                 >Layout
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link"
+                to="menu"
+                :class="{ active: selected == 'Menu' }"
+                >Menu
+              </router-link>
+            </li>
           </ul>
         </div>
         <div class="card-body">
-          <h5 class="card-title">{{ selected }}</h5>
           <router-view :session="session" />
         </div>
       </div>

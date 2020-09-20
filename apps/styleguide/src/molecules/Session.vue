@@ -138,6 +138,7 @@ export default {
         .then(data => {
           if (data.signout.status === "SUCCESS") {
             this.session = {};
+            console.log("signed out");
           } else {
             this.error = "sign out failed";
           }
@@ -151,22 +152,22 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <Session v-model="session" graphql="/graphql/pet store"/>
-            <ShowMore title="debug">session = {{session}}</ShowMore>
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    session: null
-                }
-            }
-        }
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <Session v-model="session" graphql="/graphql/pet store"/>
+    <ShowMore title="debug">session = {{ session }}</ShowMore>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        session: null
+      }
+    }
+  }
+</script>
+```
 </docs>

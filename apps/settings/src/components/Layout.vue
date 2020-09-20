@@ -3,6 +3,8 @@
     <MessageError v-if="error">{{ error }}</MessageError>
     <Spinner v-if="loading" />
     <div v-else>
+      <h5 class="card-title">Manage layout settings</h5>
+      <p>Use settings below to change look and feel of your group:</p>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <InputString
         label="cssURL"

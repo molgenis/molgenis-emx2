@@ -12,15 +12,17 @@
             (session.roles && session.roles.length > 0))
       "
     >
+      <h5 class="card-title">Manage members</h5>
+      <p>Use table below to add, edit or remove members</p>
       <form v-if="canEdit" class="form-inline">
         <InputString
-          class="mb-2 mr-sm-2"
+          class="mb-2 mr-sm-4"
           v-model="editMember['email']"
           placeholder="email address"
           label="Email:"
         />
         <InputSelect
-          class="mb-2 mr-sm-2"
+          class="mb-2 mr-sm-4"
           v-model="editMember['role']"
           :options="roles"
           placeholder="role"
