@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    selected: {{ selected }}
     <Molgenis title="Settings" :menuItems="menuItems" v-model="session">
       <div v-if="session.email == undefined">
         You have to be logged in with right permissionsto see settings
