@@ -4,6 +4,7 @@ import App from "./App.vue";
 import Members from "./components/Members";
 import Layout from "./components/Layout";
 import MenuManager from "./components/MenuManager";
+import PageManager from "./components/PageManager";
 
 Vue.config.productionTip = false;
 
@@ -26,6 +27,11 @@ const router = new VueRouter({
       name: "Menu",
       path: "/Menu",
       component: MenuManager
+    },
+    {
+      name: "Pages",
+      path: "/Pages",
+      component: PageManager
     },
     {
       path: "/",

@@ -5,7 +5,7 @@
       <div v-if="session.email == undefined">
         You have to be logged in with right permissionsto see settings
       </div>
-      <div v-if="session.email" v-else class="card">
+      <div v-if="session.email" class="card">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">
@@ -30,6 +30,14 @@
                 to="menu"
                 :class="{ active: selected == 'Menu' }"
                 >Menu
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link"
+                to="pages"
+                :class="{ active: selected == 'Pages' }"
+                >Pages
               </router-link>
             </li>
           </ul>
