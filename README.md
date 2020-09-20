@@ -252,15 +252,17 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  show only schemas in navigator if anonymous or logged in user can view
 *  ensure columns are retrieved in same order as they were created
 *  remove 'plus' from central if you don't have permission
+*  implement settings to point to custom bootstrap css URL
+*  implement menu setting so we can standardize menu as a default setting
 
 
 ### first
-*  implement settings to point to custom bootstrap css URL
-*  implement menu setting so we can standardize menu as a default setting
-*  implement JSON data type that we can use in settings (validating form)
+*  enable user role based menu visibility
 *  ENSURE PASSWORD IS NOT IN THE LOGS
-*  add standard an lastUpdated column, as a system column
-*  implement order, default on lastUpdated
+*  add audit trail
+*  implement order by in table view, default on lastUpdated
+*  implement show/hide of columns
+*  implement order of columns in table view, default on lastUpdated
 *  bug, if I filter on refback column it fails, must now select reback.other column
 *  upload files directly into postgresql
 *  documentation framework so we can start adding some docs
