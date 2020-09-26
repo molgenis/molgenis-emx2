@@ -100,3 +100,11 @@ task createHelm(type: Exec) {
     commandLine 'helm', 'package', 'deploy/helm-chart/', '-d', 'docs/helm-charts/'
     commandLine 'helm', 'repo', 'index', 'docs/helm-charts', '--url', 'http://mswertz.github.io/molgenis-emx2/helm-charts'
 }
+
+ext {
+    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
+}
+
+application {
+    mainClassName = javaMainClass
+}
