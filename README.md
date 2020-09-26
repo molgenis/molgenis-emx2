@@ -254,15 +254,15 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  remove 'plus' from central if you don't have permission
 *  implement settings to point to custom bootstrap css URL
 *  implement menu setting so we can standardize menu as a default setting
-
+*  implement show/hide of columns
+*  implement order of columns in table view,
 
 ### first
 *  enable user role based menu visibility
 *  ENSURE PASSWORD IS NOT IN THE LOGS
 *  add audit trail
 *  implement order by in table view, default on lastUpdated
-*  implement show/hide of columns
-*  implement order of columns in table view, default on lastUpdated
+*  default on lastUpdated
 *  bug, if I filter on refback column it fails, must now select reback.other column
 *  upload files directly into postgresql
 *  documentation framework so we can start adding some docs
