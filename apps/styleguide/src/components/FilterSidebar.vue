@@ -1,21 +1,21 @@
 <template>
   <div>
+    <div slot="header">
+      <label>
+        <ShowHide
+          v-model="filters"
+          checkAttribute="showFilter"
+          @input="updateTimestamp"
+          >Filters
+        </ShowHide>
+      </label>
+    </div>
     <div :key="timestamp">
       <Draggable
         :list="filters"
         handle=".card-header "
         ghost-class="border-primary"
       >
-        <div slot="header">
-          <label>
-            <ShowHide
-              v-model="filters"
-              checkAttribute="showFilter"
-              @input="updateTimestamp"
-              >Filters
-            </ShowHide>
-          </label>
-        </div>
         <FilterContainer
           v-for="(column, idx) in filters"
           :title="column.name"

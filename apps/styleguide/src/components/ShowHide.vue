@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown" :class="{ show: display }" :key="timestamp">
+  <div class="dropdown" :class="{ show: display }">
     <button
       class=" btn btn-link dropdown-toggle"
       type="button"
@@ -16,7 +16,7 @@
       :class="{ show: display }"
       v-click-outside="toggle"
     >
-      <div class="form-group dropdown-item">
+      <div class="form-group dropdown-item" :key="timestamp">
         <div class="form-check" v-for="col in value" :key="col.name">
           <input
             class="form-check-input"
@@ -65,12 +65,10 @@ export default {
     hideAll() {
       this.value.forEach(c => (c[this.checkAttribute] = false));
       this.emitValue();
-      this.timestamp = new Date().getTime();
     },
     showAll() {
       this.value.forEach(c => (c[this.checkAttribute] = true));
       this.emitValue();
-      this.timestamp = new Date().getTime();
     }
   }
 };
