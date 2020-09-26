@@ -78,7 +78,10 @@ export default {
   methods: {
     reload() {
       this.loading = true;
-      request(this.graphql, `{_session{email,roles},_settings{key,value}}`)
+      request(
+        this.graphql,
+        `{_session{email,roles},_settings{key,value},_manifest{ImplementationVersion,SpecificationVersion}}`
+      )
         .then(data => {
           if (
             data._session != undefined &&
@@ -97,7 +100,8 @@ export default {
                   ? this.parseJson(s.value)
                   : s.value)
           );
-
+          this.session.manifest = data._manifest;
+          console.log(JSON.stringify(data));
           this.loading = false;
           this.$emit("input", this.session);
         })

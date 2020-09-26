@@ -25,7 +25,18 @@
       </div>
       <div class="row justify-content-md-center">
         <div class="col-md-auto">
-          <Footer />
+          <Footer
+            ><span v-if="session && session.manifest"
+              >version:
+              <a
+                :href="
+                  'https://github.com/mswertz/molgenis-emx2/releases/tag/v' +
+                    session.manifest.SpecificationVersion
+                "
+                >{{ session.manifest.SpecificationVersion }}</a
+              ></span
+            >
+          </Footer>
         </div>
       </div>
     </div>
@@ -44,12 +55,13 @@ import NavBar from "../components/NavBar";
 import Session from "./Session";
 import Theme from "../components/Theme";
 import ShowMore from "../components/ShowMore";
+import Footer from "./Footer";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { Session, NavBar, Theme, ShowMore },
+  components: { Session, NavBar, Footer, Theme, ShowMore },
   props: {
     menuItems: Array,
     title: String

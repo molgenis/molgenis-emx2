@@ -1,7 +1,8 @@
 <template>
   <p class="text-center">
-    This database was created using the open source MOLGENIS software.
-    <br />Please cite
+    This database was created using the open source MOLGENIS
+    <slot />
+    . <br />Please cite
     <a href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
       >Van der Velde et al (2018)</a
     >
@@ -18,7 +19,7 @@ export default {};
 </script>
 
 <docs>
-    ```
-    <Footer/>
-    ```
+```
+<Footer/>
+```
 </docs>
