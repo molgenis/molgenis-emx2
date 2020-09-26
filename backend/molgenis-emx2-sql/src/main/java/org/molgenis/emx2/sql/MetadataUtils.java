@@ -1,12 +1,10 @@
 package org.molgenis.emx2.sql;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jooq.*;
 import org.molgenis.emx2.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
@@ -40,6 +38,8 @@ public class MetadataUtils {
   private static final org.jooq.Field COLUMN_POSITION = field(name("column_position"), INTEGER);
   private static final org.jooq.Field COLUMN_DESCRIPTION =
       field(name("column_description"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_RDF_TEMPLATE =
+      field(name("column_rdf_template"), VARCHAR.nullable(true));
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
@@ -135,7 +135,8 @@ public class MetadataUtils {
           COMPUTE_SCRIPT,
           INDEXED,
           CASCADE_DELETE,
-          COLUMN_DESCRIPTION
+          COLUMN_DESCRIPTION,
+          COLUMN_RDF_TEMPLATE
         }) {
       jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
     }
@@ -311,7 +312,8 @@ public class MetadataUtils {
             COMPUTE_SCRIPT,
             INDEXED,
             CASCADE_DELETE,
-            COLUMN_DESCRIPTION)
+            COLUMN_DESCRIPTION,
+            COLUMN_RDF_TEMPLATE)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -327,7 +329,8 @@ public class MetadataUtils {
             column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
-            column.getDescription())
+            column.getDescription(),
+            column.getRdfTemplate())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
@@ -342,6 +345,7 @@ public class MetadataUtils {
         .set(INDEXED, column.isIndexed())
         .set(CASCADE_DELETE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
+        .set(COLUMN_RDF_TEMPLATE, column.getRdfTemplate())
         .execute();
   }
 
@@ -385,6 +389,7 @@ public class MetadataUtils {
     c.computed(col.get(COMPUTE_SCRIPT, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.cascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
+    c.rdfTemplate(col.get(COLUMN_RDF_TEMPLATE, String.class));
     return c;
   }
 

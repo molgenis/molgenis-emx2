@@ -87,6 +87,11 @@
           label="Description"
           :default-value="defaultValue ? defaultValue.description : undefined"
         />
+        <InputText
+          v-model="column.rdfTemplate"
+          label="RDF template"
+          :default-value="defaultValue ? defaultValue.rdfTemplate : undefined"
+        />
       </LayoutForm>
     </template>
     <template v-slot:footer>
@@ -274,31 +279,31 @@ export default {
 </script>
 
 <docs>
-    Example:
-    ```
-    <template>
-        <div>
-            <ButtonAction v-if="!show" @click="show = true">Show</ButtonAction>
-            <ColumnEditModal v-else v-model="column" @close="close"/>
-            <br/>
-            Value: {{column}}
-        </div>
-    </template>
+Example:
+```
+<template>
+  <div>
+    <ButtonAction v-if="!show" @click="show = true">Show</ButtonAction>
+    <ColumnEditModal v-else v-model="column" @close="close"/>
+    <br/>
+    Value: {{ column }}
+  </div>
+</template>
 
-    <script>
-        export default {
-            data: function () {
-                return {
-                    show: false,
-                    column: {}
-                };
-            },
-            methods: {
-                close() {
-                    this.show = false;
-                }
-            }
-        };
-    </script>
-    ```
+<script>
+  export default {
+    data: function () {
+      return {
+        show: false,
+        column: {}
+      };
+    },
+    methods: {
+      close() {
+        this.show = false;
+      }
+    }
+  };
+</script>
+```
 </docs>

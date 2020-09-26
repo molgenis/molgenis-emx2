@@ -1,5 +1,7 @@
 dependencies {
-    implementation 'org.postgresql:postgresql:42.2.14'
     implementation project(':backend:molgenis-emx2')
+    testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-exampledata')
+    testImplementation project(':backend:molgenis-emx2-io')
+
 }

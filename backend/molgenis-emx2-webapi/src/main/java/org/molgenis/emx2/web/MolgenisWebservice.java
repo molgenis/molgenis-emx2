@@ -75,6 +75,9 @@ public class MolgenisWebservice {
     ZipApi.create();
     ExcelApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
+    LinkedDataFragmentsApi.create(sessionManager);
+
+    // greedy proxy stuff, always put last!
     GroupPathMapper.create();
 
     // schema members operations

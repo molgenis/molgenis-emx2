@@ -29,7 +29,7 @@ export default {
       this.loading = true;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,cascadeDelete,nullable}}}}"
+        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,cascadeDelete,nullable,rdfTemplate}}}}"
       )
         .then(data => {
           this.session = data._session;
@@ -49,9 +49,9 @@ export default {
 </script>
 
 <docs>
-    Normally you would not instantiate a mixin component, so this is only for quick testing
-    ```
-    <!-- in normal use you don't need graphqlURL prop -->
-    <TableMetadataMixin graphqlURL="/pet store/graphql"/>
-    ```
+Normally you would not instantiate a mixin component, so this is only for quick testing
+```
+<!-- in normal use you don't need graphqlURL prop -->
+<TableMetadataMixin graphqlURL="/pet store/graphql"/>
+```
 </docs>

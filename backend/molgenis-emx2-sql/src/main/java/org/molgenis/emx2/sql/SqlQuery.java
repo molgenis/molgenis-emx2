@@ -150,7 +150,8 @@ public class SqlQuery extends QueryBean {
         if (select.has("extension")) {
           fields.add(field(name(column.getName() + "-extension")));
         }
-      } else if (column.isReference()
+      }
+      if (column.isReference()
           // if subselection, then we will add it as subselect
           && !select.getSubselect().isEmpty()) {
         fields.addAll(
@@ -159,7 +160,8 @@ public class SqlQuery extends QueryBean {
                 tableAlias + "-" + column.getName(),
                 columnAlias,
                 selection.getSubselect(column.getName())));
-      } else if (MREF.equals(column.getColumnType())) {
+      }
+      if (MREF.equals(column.getColumnType())) {
         fields.add(rowMrefSubselect(column, tableAlias).as(columnAlias));
       } else if (REFBACK.equals(column.getColumnType())) {
         fields.add(

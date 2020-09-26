@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.molgenis.emx2.sql.SqlJavascriptGraal.executeJavascriptOnRow;
-import static org.molgenis.emx2.sql.SqlJavascriptGraal.executeJavascriptOnValue;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnValue;
 
 public class SqlTypeUtils extends TypeUtils {
 

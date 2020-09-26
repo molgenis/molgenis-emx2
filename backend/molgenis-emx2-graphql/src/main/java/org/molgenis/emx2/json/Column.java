@@ -15,6 +15,7 @@ public class Column {
   private String validation = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
+  private String rdfTemplate = null;
 
   public Column() {}
 
@@ -29,6 +30,7 @@ public class Column {
     this.validation = column.getValidation();
     this.nullable = column.isNullable();
     this.description = column.getDescription();
+    this.rdfTemplate = column.getRdfTemplate();
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
@@ -41,6 +43,7 @@ public class Column {
     c.mappedBy(mappedBy);
     c.validation(validation);
     c.setDescription(description);
+    c.rdfTemplate(rdfTemplate);
     return c;
   }
 
@@ -122,5 +125,13 @@ public class Column {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getRdfTemplate() {
+    return rdfTemplate;
+  }
+
+  public void setRdfTemplate(String rdfTemplate) {
+    this.rdfTemplate = rdfTemplate;
   }
 }

@@ -27,6 +27,7 @@ public class Emx2 {
   public static final String MAPPED_BY = "mappedBy";
   public static final String NULLABLE = "nullable";
   private static final String VALIDATION = "validation";
+  private static final String RDF_TEMPLATE = "rdfTemplate";
 
   public static SchemaMetadata fromRowList(List<Row> rows) {
 
@@ -68,6 +69,7 @@ public class Emx2 {
         if (r.notNull(NULLABLE)) column.nullable(r.getBoolean(NULLABLE));
         if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
         if (r.notNull(VALIDATION)) column.validation(r.getString(VALIDATION));
+        if (r.notNull(RDF_TEMPLATE)) column.rdfTemplate(r.getString(RDF_TEMPLATE));
 
         schema.getTableMetadata(tableName).add(column);
       }

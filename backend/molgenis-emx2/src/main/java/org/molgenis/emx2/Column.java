@@ -32,6 +32,16 @@ public class Column {
   private String validationScript = null;
   private String computed = null;
 
+  public String getRdfTemplate() {
+    return rdfTemplate;
+  }
+
+  public void rdfTemplate(String rdfTemplate) {
+    this.rdfTemplate = rdfTemplate;
+  }
+
+  private String rdfTemplate = null;
+
   // todo implement below
   private boolean readonly = false;
   private String description = null;
@@ -67,6 +77,7 @@ public class Column {
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
+    rdfTemplate = column.rdfTemplate;
   }
 
   public static Column column(String name) {
@@ -423,5 +434,9 @@ public class Column {
         field(name(getName() + "-extension"), SQLDataType.VARCHAR),
         field(name(getName() + "-size"), SQLDataType.INTEGER),
         field(name(getName() + "-contents"), SQLDataType.BINARY));
+  }
+
+  public boolean isArray() {
+    return this.columnType.toString().endsWith("ARRAY") || this.columnType.equals(REFBACK);
   }
 }

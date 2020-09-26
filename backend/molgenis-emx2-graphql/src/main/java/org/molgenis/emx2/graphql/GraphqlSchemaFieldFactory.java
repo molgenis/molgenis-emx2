@@ -103,6 +103,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(RDF_TEMPLATE)
+                  .type(Scalars.GraphQLString))
           .build();
 
   private final GraphQLInputObjectType inputTableMetadataType =
@@ -411,6 +415,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(RDF_TEMPLATE)
                   .type(Scalars.GraphQLString))
           .build();
 

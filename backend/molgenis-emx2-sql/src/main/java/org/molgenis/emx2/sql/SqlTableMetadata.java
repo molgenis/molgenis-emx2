@@ -136,7 +136,7 @@ class SqlTableMetadata extends TableMetadata {
                 getJooq(), this, newColumn.getKey(), getKeyNames(newColumn.getKey()));
           }
 
-          // delete old column if name changed, then save
+          // delete old column if name changed, then save any other metadata changes
           if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(getJooq(), oldColumn);
           saveColumnMetadata(getJooq(), newColumn);
         });

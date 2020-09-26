@@ -4,12 +4,19 @@ import org.jooq.JSONB;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.io.File;
+import java.security.KeyStore;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();
+
+  public Row(Row row) {
+    for (Map.Entry<String, Object> e : row.getValueMap().entrySet()) {
+      values.put(e.getKey(), e.getValue());
+    }
+  }
 
   public Row(Object... nameValuePairs) {
     if (nameValuePairs == null) return;
