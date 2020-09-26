@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Theme :href="cssURL" />
+    <Theme :href="css" />
     <Theme
       href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
     />
@@ -57,11 +57,15 @@ export default {
   data: function() {
     return {
       session: null,
-      cssURL:
-        "/public_html/apps/styleguide/assets/css/bootstrap-molgenis-blue.css"
+      cssURL: null
     };
   },
   computed: {
+    css() {
+      if (this.cssURL) return this.cssURL;
+      else
+        return "/public_html/apps/styleguide/assets/css/bootstrap-molgenis-blue.css";
+    },
     menu() {
       if (this.session && this.session.settings && this.session.settings.menu) {
         return this.session.settings.menu;
@@ -75,7 +79,11 @@ export default {
       deep: true,
       handler() {
         console.log("handler");
-        if (this.session != undefined && this.session.settings.cssURL) {
+        if (
+          this.session != undefined &&
+          this.session.settings &&
+          this.session.settings.cssURL
+        ) {
           console.log("changed url " + this.session.settings.cssURL);
           this.cssURL = this.session.settings.cssURL;
         }

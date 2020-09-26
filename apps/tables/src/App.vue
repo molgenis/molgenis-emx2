@@ -1,6 +1,10 @@
 <template>
-  <Molgenis :menuItems="menuItems" id="__top" v-model="molgenis">
-    <router-view :session="session" :schema="schema" />
+  <Molgenis :menuItems="menuItems" id="__top" v-model="session">
+    <router-view
+      v-if="session && session.email"
+      :session="session"
+      :schema="schema"
+    />
   </Molgenis>
 </template>
 
@@ -74,11 +78,6 @@ export default {
   },
   created() {
     this.loadSchema();
-  },
-  watch: {
-    molgenis() {
-      this.loadSchema();
-    }
   }
 };
 </script>
