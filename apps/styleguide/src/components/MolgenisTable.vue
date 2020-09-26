@@ -1,16 +1,42 @@
 <template>
   <div class="table-responsive">
+    <ShowHide
+      v-model="metadata.columns"
+      checkAttribute="showColumn"
+      @input="updateTimestamp"
+    >
+      <slot name="header"></slot>
+    </ShowHide>
     <table
       class="table table-bordered table-condensed"
       :class="{ 'table-hover': select }"
+      :key="timestamp"
     >
       <thead>
-        <th scope="col" style="width: 1px;">
-          <slot name="colheader" />
-        </th>
-        <th v-for="col in metadata.columns" :key="col.name" scope="col">
-          <b>{{ col.name }}</b>
-        </th>
+        <Draggable
+          :list="metadata.columns"
+          handle=".column-drag-header"
+          ghost-class="border-primary"
+          tag="tr"
+        >
+          <th slot="header" scope="col" style="width: 1px;">
+            <slot name="colheader" />
+          </th>
+          <th
+            v-for="(col, idx) in metadata.columns"
+            :key="col.name + col.showColumn"
+            scope="col"
+            class="column-drag-header"
+            :style="col.showColumn ? '' : 'display: none'"
+          >
+            <b>{{ col.name }}</b>
+            <IconAction
+              @click="hideColumn(idx)"
+              icon="times"
+              class="column-remove"
+            />
+          </th>
+        </Draggable>
       </thead>
       <tbody>
         <tr v-for="(row, idx) in data" :key="JSON.stringify(row)">
@@ -37,6 +63,7 @@
             :key="idx + col.name"
             @click="onRowClick(row)"
             style="cursor: pointer"
+            :style="col.showColumn ? '' : 'display: none'"
           >
             <div v-if="'FILE' === col.columnType">
               <a
@@ -64,11 +91,49 @@
         </tr>
       </tbody>
     </table>
+    <ShowMore title="debug">
+      <pre>
+metadata = {{ JSON.stringify(metadata) }}
+
+timestamp = {{ timestamp }}
+     </pre
+      >
+    </ShowMore>
   </div>
 </template>
 
+<style scoped>
+th,
+td {
+  text-align: left;
+}
+
+.column-drag-header:hover {
+  cursor: grab;
+}
+
+.column-remove {
+  float: right;
+  top: 0px;
+  right: 0px;
+  margin: 0px;
+  padding: 0px;
+  visibility: hidden;
+}
+
+.column-drag-header:hover .column-remove {
+  visibility: visible;
+}
+</style>
+
 <script>
+import Draggable from "vuedraggable";
+import ShowMore from "./ShowMore";
+import IconAction from "./IconAction";
+import ShowHide from "./ShowHide";
+
 export default {
+  components: { Draggable, ShowMore, IconAction, ShowHide },
   props: {
     select: {
       type: Boolean,
@@ -79,10 +144,18 @@ export default {
   },
   data: () => {
     return {
-      selectedItems: []
+      selectedItems: [],
+      timestamp: 0
     };
   },
   methods: {
+    updateTimestamp() {
+      this.timestamp = new Date().getTime();
+    },
+    hideColumn(idx) {
+      this.metadata.columns[idx].showColumn = false;
+      this.updateTimestamp();
+    },
     renderValue(row, col) {
       if (row[col.name] === undefined) {
         return [];
@@ -164,71 +237,76 @@ export default {
   watch: {
     selectedItems() {
       this.$emit("input", this.selectedItems);
+    },
+    metadata: {
+      deep: true,
+      handler() {
+        this.updateTimestamp();
+      }
     }
+  },
+  created() {
+    this.metadata.columns.forEach(c => {
+      if (c["showColumn"] === undefined) c.showColumn = true;
+    });
   }
 };
 </script>
 
-<style>
-th,
-td {
-  text-align: left;
-}
-</style>
-
 <docs>
-    example
-    ```
-    <template>
-        <div>
-            <MolgenisTable v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click"
-                           @click="click">
-                <template v-slot:rowheader="slotProps">
-                    <RowButtonEdit
-                            table="Pet"
-                            :pkey="{name:'spike'}"
-                            @close="click"
-                    />
-                    <RowButtonDelete
-                            table="Pet"
-                            :pkey="{name:'spike'}"
-                            @close="click"
-                    />
-                </template>
-            </MolgenisTable>
-            selected: {{ JSON.stringify(selected) }}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    selected: [],
-                    metadata: {
-                        columns: [{name: 'col1', columnType: "STRING", key: 1}, {
-                            name: 'ref1',
-                            columnType: "REF",
-                            refColumns: ['firstName', 'lastName']
-                        }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
-                    },
-                    data: [{
-                        col1: "row1",
-                        ref1: {firstName: 'katrien', lastName: 'duck'},
-                        ref_arr1: [{firstName: 'kwik', lastName: 'duck'}, {
-                            firstName: 'kwek',
-                            lastName: 'duck'
-                        }, {firstName: 'kwak', lastName: 'duck'}]
-                    }, {
-                        col1: "row2"
-                    }]
-                }
-            },
-            methods: {
-                click(value) {
-                    alert("click " + JSON.stringify(value));
-                }
-            }
-        };
-    </script>
-    ```
+example
+```
+<template>
+  <div>
+    <MolgenisTable v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click"
+                   @click="click">
+      <template v-slot:header>columns</template>
+      <template v-slot:rowheader="slotProps">
+        <RowButtonEdit
+            table="Pet"
+            :pkey="{name:'spike'}"
+            @close="click"
+        />
+        <RowButtonDelete
+            table="Pet"
+            :pkey="{name:'spike'}"
+            @close="click"
+        />
+      </template>
+    </MolgenisTable>
+    selected: {{ JSON.stringify(selected) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        selected: [],
+        metadata: {
+          columns: [{name: 'col1', columnType: "STRING", key: 1}, {
+            name: 'ref1',
+            columnType: "REF",
+            refColumns: ['firstName', 'lastName']
+          }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
+        },
+        data: [{
+          col1: "row1",
+          ref1: {firstName: 'katrien', lastName: 'duck'},
+          ref_arr1: [{firstName: 'kwik', lastName: 'duck'}, {
+            firstName: 'kwek',
+            lastName: 'duck'
+          }, {firstName: 'kwak', lastName: 'duck'}]
+        }, {
+          col1: "row2"
+        }]
+      }
+    },
+    methods: {
+      click(value) {
+        alert("click " + JSON.stringify(value));
+      }
+    }
+  };
+</script>
+```
 </docs>

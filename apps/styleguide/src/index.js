@@ -49,6 +49,7 @@ import RowButtonDelete from "./molecules/RowButtonDelete";
 
 import Spinner from "./components/Spinner";
 import ShowMore from "./components/ShowMore";
+import ShowHide from "./components/ShowHide";
 
 import TableMixin from "./mixins/TableMixin";
 import TableMetadataMixin from "./mixins/TableMetadataMixin";
@@ -96,6 +97,7 @@ export {
   RowButtonDelete,
   Spinner,
   ShowMore,
+  ShowHide,
   TableMixin,
   TableMetadataMixin
 };

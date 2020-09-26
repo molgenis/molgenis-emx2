@@ -12,15 +12,15 @@
       </div>
       <div v-else class="col">
         <FilterWells v-if="table" :filters="tableMetadata.columns" />
-        <div>
-          <label>{{ count }} records found</label>
-        </div>
         <MolgenisTable
           :metadata="tableMetadata"
           :data="data"
           class="table-responsive"
           :key="JSON.stringify(tableMetadata.columns)"
         >
+          <template v-slot:header
+            ><label>{{ count }} records found</label></template
+          >
           <template v-slot:colheader>
             <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
           </template>

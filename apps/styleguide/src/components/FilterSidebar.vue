@@ -1,74 +1,80 @@
 <template>
-  <div :key="timestamp">
-    <Draggable
-      :list="filters"
-      handle=".filter-drag-icon"
-      ghost-class="border-primary"
-    >
-      <div slot="header">
-        <label>Filters: </label>&nbsp;
-        <a href="#" @click.prevent="collapseAll">collapse</a>&nbsp;
-        <a href="#" @click.prevent="expandAll">expand</a>
-      </div>
-      <FilterContainer
-        v-for="(column, idx) in filters"
-        :title="column.name"
-        :key="column.name + column.updateTime + column.collapsed"
-        :collapsed="column.collapsed"
-        @click="toggleCollapse(idx)"
-        @collapse="collapse(idx)"
-        @uncollapse="uncollapse(idx)"
+  <div>
+    <div :key="timestamp">
+      <Draggable
+        :list="filters"
+        handle=".card-header "
+        ghost-class="border-primary"
       >
-        <InputString
-          :list="true"
-          v-if="
-            column.columnType.startsWith('STRING') ||
-              column.columnType.startsWith('TEXT') ||
-              column.columnType.startsWith('UUID')
-          "
-          v-model="column.conditions"
-          :defaultValue="column.conditions"
-        />
-        <InputRangeInt
-          :list="true"
-          v-if="column.columnType.startsWith('INT')"
-          v-model="column.conditions"
-          :defaultValue="column.conditions"
-        />
-        <InputRangeDecimal
-          :list="true"
-          v-if="column.columnType.startsWith('DECIMAL')"
-          v-model="column.conditions"
-          :defaultValue="column.conditions"
-        />
-        <InputRangeDate
-          :list="true"
-          v-if="column.columnType.startsWith('DATE')"
-          v-model="column.conditions"
-          :defaultValue="column.conditions"
-        />
-        <InputCheckbox
-          :list="true"
-          v-if="column.columnType.startsWith('BOOL')"
-          :options="['true', 'false']"
-          v-model="column.conditions"
-          :defaultValue="column.conditions"
-        />
-        <InputRef
-          :list="true"
-          v-if="column.columnType.startsWith('REF')"
-          :refTable="column.refTable"
-          v-model="column.conditions"
-          :defaultValue="column.conditions"
-        />
-      </FilterContainer>
-    </Draggable>
-    <ShowMore title="debug">
-      <pre>
+        <div slot="header">
+          <label>
+            <ShowHide
+              v-model="filters"
+              checkAttribute="showFilter"
+              @input="updateTimestamp"
+              >Filters
+            </ShowHide>
+          </label>
+        </div>
+        <FilterContainer
+          v-for="(column, idx) in filters"
+          :title="column.name"
+          :visible="column.showFilter"
+          :key="column.name + column.updateTime"
+          @remove="hideFilter(idx)"
+        >
+          <InputString
+            :list="true"
+            v-if="
+              column.columnType.startsWith('STRING') ||
+                column.columnType.startsWith('TEXT') ||
+                column.columnType.startsWith('UUID')
+            "
+            v-model="column.conditions"
+            :defaultValue="column.conditions"
+          />
+          <InputRangeInt
+            :list="true"
+            v-if="column.columnType.startsWith('INT')"
+            v-model="column.conditions"
+            :defaultValue="column.conditions"
+          />
+          <InputRangeDecimal
+            :list="true"
+            v-if="column.columnType.startsWith('DECIMAL')"
+            v-model="column.conditions"
+            :defaultValue="column.conditions"
+          />
+          <InputRangeDate
+            :list="true"
+            v-if="column.columnType.startsWith('DATE')"
+            v-model="column.conditions"
+            :defaultValue="column.conditions"
+          />
+          <InputCheckbox
+            :list="true"
+            v-if="column.columnType.startsWith('BOOL')"
+            :options="['true', 'false']"
+            v-model="column.conditions"
+            :defaultValue="column.conditions"
+          />
+          <InputRef
+            :list="true"
+            v-if="column.columnType.startsWith('REF')"
+            :refTable="column.refTable"
+            v-model="column.conditions"
+            :defaultValue="column.conditions"
+          />
+        </FilterContainer>
+      </Draggable>
+      <ShowMore title="debug">
+        <pre>
 url = {{ url }}
 filters = {{ filters }}
-      </pre>
-    </ShowMore>
+      </pre
+        >
+      </ShowMore>
+    </div>
   </div>
 </template>
 
@@ -81,6 +87,7 @@ import InputRangeDecimal from "./InputRangeDecimal";
 import InputRangeDate from "./InputRangeDate";
 import InputRef from "./InputRef";
 import ShowMore from "./ShowMore";
+import ShowHide from "./ShowHide";
 import Draggable from "vuedraggable";
 
 export default {
@@ -93,11 +100,16 @@ export default {
     InputRangeDecimal,
     InputRangeDate,
     InputRef,
-    ShowMore
+    ShowMore,
+    ShowHide
   },
   props: {
-    timestamp: Number,
     filters: Array
+  },
+  data() {
+    return {
+      timestamp: 0
+    };
   },
   computed: {
     url() {
@@ -141,15 +153,6 @@ export default {
           this.filters.map(column => column.name).join("-")
         );
       }
-      if (this.filters.length > 0) {
-        url.searchParams.append(
-          "_collapse",
-          this.filters
-            .filter(column => column.collapsed)
-            .map(column => column.name)
-            .join("-")
-        );
-      }
       return url.searchParams;
     }
   },
@@ -157,35 +160,17 @@ export default {
     this.filters.forEach(column => {
       //we use updateTime to be able to know when to refresh a view
       column.updateTime = column.name + new Date().getTime();
+      column.showFilter = true;
     });
   },
   methods: {
-    collapseAll() {
-      this.filters.forEach(column => {
-        column.collapsed = true;
-      });
+    updateTimestamp() {
       this.timestamp = new Date().getTime();
     },
-    expandAll() {
-      this.filters.forEach(column => {
-        column.collapsed = false;
-      });
-      this.timestamp = new Date().getTime();
-    },
-    collapse(idx) {
-      this.filters[idx].collapsed = true;
-      this.timestamp = new Date().getTime();
-    },
-    uncollapse(idx) {
-      this.filters[idx].collapsed = false;
-      this.timestamp = new Date().getTime();
-    },
-    toggleCollapse(idx) {
-      if (this.filters[idx].collapsed) {
-        this.uncollapse(idx);
-      } else {
-        this.collapse(idx);
-      }
+    hideFilter(idx) {
+      this.filters[idx].showFilter = false;
+      this.updateTimestamp();
+      console.log("hide " + idx);
     },
     flatten(obj, keyName) {
       let result = {};
@@ -207,61 +192,61 @@ export default {
 </script>
 
 <docs>
-    examples
-    ```
-    <template>
-        <div>
-            <div class="row">
-                <div class="col col-lg-5">
-                    <FilterSidebar :filters="filters"/>
-                </div>
-                <div class="col">
-                    <FilterWells :filters="filters"/>
-                </div>
-            </div>
-        </div>
+examples
+```
+<template>
+  <div>
+    <div class="row">
+      <div class="col col-lg-5">
+        <FilterSidebar :filters="filters"/>
+      </div>
+      <div class="col">
+        <FilterWells :filters="filters"/>
+      </div>
+    </div>
+  </div>
 
 
-    </template>
+</template>
 
-    <script>
-        export default {
-            data: function () {
-                return {
-                    filters: [{
-                        "name": "orderId",
-                        "pkey": true,
-                        "columnType": "STRING"
-                    },
-                        {
-                            "name": "code",
-                            "columnType": "REF",
-                            "refTable": "Code",
-                        },
-                        {
-                            "name": "quantity",
-                            "columnType": "INT"
-                        },
-                        {
-                            "name": "price",
-                            "columnType": "DECIMAL"
-                        },
-                        {
-                            "name": "complete",
-                            "columnType": "BOOL"
-                        },
-                        {
-                            "name": "status",
-                            "columnType": "STRING"
-                        },
-                        {
-                            "name": "birthday",
-                            "columnType": "DATE"
-                        }]
-                }
-            }
-        }
-    </script>
-    ```
+<script>
+  export default {
+    data: function () {
+      return {
+        filters: [{
+          "name": "orderId",
+          "pkey": true,
+          "columnType": "STRING"
+        },
+          {
+            "name": "code",
+            "columnType": "REF",
+            "refTable": "Code",
+          },
+          {
+            "name": "quantity",
+            "columnType": "INT"
+          },
+          {
+            "name": "price",
+            "columnType": "DECIMAL"
+          },
+          {
+            "name": "complete",
+            "columnType": "BOOL"
+          },
+          {
+            "name": "status",
+            "columnType": "STRING"
+          },
+          {
+            "name": "birthday",
+            "columnType": "DATE"
+          }]
+      }
+    }
+  }
+</script>
+```
 
 </docs>

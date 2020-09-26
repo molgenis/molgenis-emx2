@@ -1,16 +1,11 @@
 <template>
-  <div class="card mb-3">
-    <div ref="header" class="card-header text-center" @click="$emit('click')">
-      <IconAction class="filter-drag-icon" icon="ellipsis-v" />
-      <h6 @click="$emit('click')">{{ title }}</h6>
+  <div class="card mb-3" v-if="visible">
+    <div ref="header" class="card-header text-center">
+      <h6>{{ title }}</h6>
+      <IconAction icon="times" class="filter-remove" @click="$emit('remove')" />
       <slot name="header" />
-      <IconAction
-        class="filter-collapse-icon"
-        :icon="collapsed ? 'caret-down' : 'caret-up'"
-        @click="collapsed ? $emit('uncollapse') : $emit('collapse')"
-      />
     </div>
-    <div v-if="!collapsed" class="card-body">
+    <div class="card-body">
       <!-- @slot Use this slot to place the filter box content -->
       <slot />
     </div>
@@ -18,24 +13,15 @@
 </template>
 
 <style>
-.filter-drag-icon {
-  float: left;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  visibility: hidden;
-}
-
-.card-header:hover .filter-drag-icon:hover {
+.card-header:hover {
   cursor: move;
 }
 
-.card-header:hover .filter-drag-icon,
-.card-header:hover .filter-collapse-icon {
+.card-header:hover .filter-remove {
   visibility: visible;
 }
 
-.filter-collapse-icon {
+.filter-remove {
   float: right;
   position: absolute;
   top: 0px;
@@ -57,31 +43,21 @@ export default {
   },
   props: {
     title: String,
-    collapsed: Boolean
+    visible: Boolean
   }
 };
 </script>
 
 <docs>
 
-    Example
+Example
 
-    ```jsx
-    <template>
-        <FilterContainer title="My filter" :collapsed="collapsed" @collapse="collapsed=true"
-                         @uncollapse="collapsed=false">
-            some contents
-        </FilterContainer>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    collapsed: false
-                }
-            }
-        }
-    </script>
-    ```
+```jsx
+<template>
+  <FilterContainer title="My filter">
+    some contents
+  </FilterContainer>
+</template>
+```
 
 </docs>
