@@ -16,7 +16,7 @@
             <slot name="colheader" />
           </th>
           <th
-            v-for="(col, idx) in metadata.columns"
+            v-for="col in metadata.columns"
             :key="col.name + col.showColumn"
             scope="col"
             class="column-drag-header"
@@ -119,12 +119,11 @@ td {
 
 <script>
 import Draggable from "vuedraggable";
-import IconAction from "../forms/IconAction";
 import ShowMore from "../layout/ShowMore";
 import ReadMore from "../layout/ReadMore";
 
 export default {
-  components: { Draggable, ShowMore, IconAction, ReadMore },
+  components: { Draggable, ShowMore, ReadMore },
   props: {
     select: {
       type: Boolean,
