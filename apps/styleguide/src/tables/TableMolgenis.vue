@@ -1,12 +1,5 @@
 <template>
   <div class="table-responsive">
-    <ShowHide
-      v-model="metadata.columns"
-      checkAttribute="showColumn"
-      @input="updateTimestamp"
-    >
-      <slot name="header"></slot>
-    </ShowHide>
     <table
       class="table table-bordered table-condensed"
       :class="{ 'table-hover': select }"
@@ -30,11 +23,6 @@
             :style="col.showColumn ? '' : 'display: none'"
           >
             <b>{{ col.name }}</b>
-            <IconAction
-              @click="hideColumn(idx)"
-              icon="times"
-              class="column-remove"
-            />
           </th>
         </Draggable>
       </thead>
@@ -84,7 +72,10 @@
                 v-for="(value, idx2) in renderValue(row, col)"
                 :key="idx + col + idx2"
               >
-                {{ value }}
+                <div v-if="'TEXT' === col.columnType">
+                  <ReadMore :text="value" />
+                </div>
+                <span v-else> {{ value }}</span>
               </div>
             </div>
           </td>
@@ -128,12 +119,12 @@ td {
 
 <script>
 import Draggable from "vuedraggable";
-import ShowMore from "./ShowMore";
-import IconAction from "./IconAction";
-import ShowHide from "./ShowHide";
+import IconAction from "../forms/IconAction";
+import ShowMore from "../layout/ShowMore";
+import ReadMore from "../layout/ReadMore";
 
 export default {
-  components: { Draggable, ShowMore, IconAction, ShowHide },
+  components: { Draggable, ShowMore, IconAction, ReadMore },
   props: {
     select: {
       type: Boolean,
@@ -151,10 +142,6 @@ export default {
   methods: {
     updateTimestamp() {
       this.timestamp = new Date().getTime();
-    },
-    hideColumn(idx) {
-      this.metadata.columns[idx].showColumn = false;
-      this.updateTimestamp();
     },
     renderValue(row, col) {
       if (row[col.name] === undefined) {

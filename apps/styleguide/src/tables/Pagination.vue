@@ -32,7 +32,6 @@
         >
       </li>
     </ul>
-    {{ page }}
   </nav>
 </template>
 
@@ -59,6 +58,12 @@ export default {
   watch: {
     page() {
       this.$emit("input", this.page);
+    },
+    count() {
+      //reset page to within range in case count changes
+      if (this.page > this.totalPages) {
+        this.page = 1;
+      }
     }
   },
   created() {
@@ -71,40 +76,40 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <Pagination v-model="page" :count="29"/>
-            page = {{page}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    page: null
-                }
-            }
-        }
-    </script>
-    ```
-    Example with default and limit
-    ```
-    <template>
-        <div>
-            <Pagination v-model="page" :count="29" :limit="5" :defaultValue="page"/>
-            page = {{page}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    page: 3
-                }
-            }
-        }
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <Pagination v-model="page" :count="29"/>
+    page = {{ page }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        page: null
+      }
+    }
+  }
+</script>
+```
+Example with default and limit
+```
+<template>
+  <div>
+    <Pagination v-model="page" :count="29" :limit="5" :defaultValue="page"/>
+    page = {{ page }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        page: 3
+      }
+    }
+  }
+</script>
+```
 </docs>

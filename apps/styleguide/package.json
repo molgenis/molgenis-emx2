@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service styleguidist",
-    "build": "vue-cli-service styleguidist:build --no-clean && vue-cli-service build --target lib --name @mswertz/emx2-styleguide src/index.js --no-clean",
+    "build": "vue-cli-service styleguidist:build && vue-cli-service build --target lib --name @mswertz/emx2-styleguide src/index.js --no-clean",
     "lint": "vue-cli-service lint",
     "format": "vue-cli-service lint --fix",
     "styleguide": "vue-cli-service styleguidist",

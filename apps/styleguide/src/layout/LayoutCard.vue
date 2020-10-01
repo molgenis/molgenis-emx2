@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import IconAction from "./IconAction";
+import IconAction from "../forms/IconAction";
 import Vue from "vue";
 import VScrollLock from "v-scroll-lock";
 
@@ -41,7 +41,6 @@ export default {
   },
   methods: {
     toggle() {
-      alert("toggle " + this.fullscreen);
       this.fullscreen = !this.fullscreen;
     }
   },
@@ -86,13 +85,13 @@ export default {
 
 <docs>
 
-    Example
+Example
 
-    ```jsx
-    <LayoutCard title="My first card">
-        Hello world
-        <ButtonAction>Hello</ButtonAction>
-    </LayoutCard>
-    ```
+```jsx
+<LayoutCard title="My first card">
+  Hello world
+  <ButtonAction>Hello</ButtonAction>
+</LayoutCard>
+```
 
 </docs>

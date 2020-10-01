@@ -1,55 +1,56 @@
-import ButtonAction from "./components/ButtonAction";
-import ButtonAlt from "./components/ButtonAlt";
-import ButtonDanger from "./components/ButtonDanger";
+import ButtonAction from "./forms/ButtonAction";
+import ButtonAlt from "./forms/ButtonAlt";
+import ButtonDanger from "./forms/ButtonDanger";
 
-import DataTable from "./components/DataTable";
+import DataTable from "./tables/TableSimple";
 
-import Footer from "./molecules/Footer";
-import FilterSidebar from "./components/FilterSidebar";
-import FilterWells from "./components/FilterWells";
+import Footer from "./signin/MolgenisFooter";
+import FilterSidebar from "./tables/FilterSidebar";
+import FilterWells from "./tables/FilterWells";
 
-import IconAction from "./components/IconAction";
-import IconBar from "./components/IconBar";
-import IconDanger from "./components/IconDanger";
+import IconAction from "./forms/IconAction";
+import IconBar from "./forms/IconBar";
+import IconDanger from "./forms/IconDanger";
 
-import InputBoolean from "./components/InputBoolean";
-import InputDate from "./components/InputDate";
-import InputDateTime from "./components/InputDateTime";
-import InputDecimal from "./components/InputDecimal";
-import InputCheckbox from "./components/InputCheckbox";
-import InputFile from "./components/InputFile";
-import InputInt from "./components/InputInt";
-import InputPassword from "./components/InputPassword";
-import InputRadio from "./components/InputRadio";
-import InputRef from "./components/InputRef";
-import InputRangeDate from "./components/InputRangeDate";
-import InputRangeDecimal from "./components/InputRangeDecimal";
-import InputRangeInt from "./components/InputRangeInt";
-import InputSearch from "./components/InputSearch";
-import InputSelect from "./components/InputSelect";
-import InputString from "./components/InputString";
-import InputText from "./components/InputText";
+import InputBoolean from "./forms/InputBoolean";
+import InputDate from "./forms/InputDate";
+import InputDateTime from "./forms/InputDateTime";
+import InputDecimal from "./forms/InputDecimal";
+import InputCheckbox from "./forms/InputCheckbox";
+import InputFile from "./forms/InputFile";
+import InputInt from "./forms/InputInt";
+import InputPassword from "./forms/InputPassword";
+import InputRadio from "./forms/InputRadio";
+import InputRef from "./forms/InputRef";
+import InputRangeDate from "./forms/InputRangeDate";
+import InputRangeDecimal from "./forms/InputRangeDecimal";
+import InputRangeInt from "./forms/InputRangeInt";
+import InputSearch from "./forms/InputSearch";
+import InputSelect from "./forms/InputSelect";
+import InputString from "./forms/InputString";
+import InputText from "./forms/InputText";
 
-import LayoutCard from "./components/LayoutCard";
-import LayoutForm from "./components/LayoutForm";
-import LayoutModal from "./components/LayoutModal";
-import LayoutNavTabs from "./components/LayoutNavTabs";
+import LayoutCard from "./layout/LayoutCard";
+import LayoutForm from "./layout/LayoutForm";
+import LayoutModal from "./layout/LayoutModal";
+import LayoutNavTabs from "./layout/NavTabs";
 
-import MessageSuccess from "./components/MessageSuccess";
-import MessageError from "./components/MessageError";
-import Molgenis from "./molecules/Molgenis";
-import MolgenisTable from "./components/MolgenisTable";
+import MessageSuccess from "./forms/MessageSuccess";
+import MessageError from "./forms/MessageError";
+import Molgenis from "./signin/Molgenis";
+import TableMolgenis from "./tables/TableMolgenis";
+import TableExplorer from "./tables/TableExplorer";
 
-import NavBar from "./components/NavBar";
-import Pagination from "./components/Pagination";
+import NavBar from "./layout/NavBar";
+import Pagination from "./tables/Pagination";
 
-import RowButtonAdd from "./molecules/RowButtonAdd";
-import RowButtonEdit from "./molecules/RowButtonEdit";
-import RowButtonDelete from "./molecules/RowButtonDelete";
+import RowButtonAdd from "./tables/RowButtonAdd";
+import RowButtonEdit from "./tables/RowButtonEdit";
+import RowButtonDelete from "./tables/RowButtonDelete";
 
-import Spinner from "./components/Spinner";
-import ShowMore from "./components/ShowMore";
-import ShowHide from "./components/ShowHide";
+import Spinner from "./layout/Spinner";
+import ShowMore from "./layout/ShowMore";
+import ShowHide from "./tables/ShowHide";
 
 import TableMixin from "./mixins/TableMixin";
 import TableMetadataMixin from "./mixins/TableMetadataMixin";
@@ -89,7 +90,6 @@ export {
   MessageError,
   MessageSuccess,
   Molgenis,
-  MolgenisTable,
   NavBar,
   Pagination,
   RowButtonEdit,
@@ -99,5 +99,7 @@ export {
   ShowMore,
   ShowHide,
   TableMixin,
-  TableMetadataMixin
+  TableMetadataMixin,
+  TableMolgenis,
+  TableExplorer
 };

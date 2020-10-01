@@ -1,14 +1,15 @@
 <template>
   <div class="dropdown" :class="{ show: display }">
     <button
-      class=" btn btn-link dropdown-toggle"
+      class=" btn btn-link"
       type="button"
       data-toggle="dropdown"
       aria-haspopup="true"
       aria-expanded="false"
       @click="toggle"
     >
-      <slot />
+      <span v-if="label">{{ label }} </span>
+      <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg'"></span>
     </button>
     <div
       v-if="display"
@@ -37,7 +38,7 @@
 </template>
 
 <script>
-import ButtonAlt from "./ButtonAlt";
+import ButtonAlt from "../forms/ButtonAlt";
 import vClickOutside from "v-click-outside";
 
 export default {
@@ -47,6 +48,8 @@ export default {
   },
   props: {
     value: {},
+    label: String,
+    icon: String,
     checkAttribute: String
   },
   data() {
@@ -59,15 +62,20 @@ export default {
     toggle() {
       this.display = !this.display;
     },
+    updateTimestamp() {
+      this.timestamp = new Date().getTime();
+    },
     emitValue() {
       this.$emit("input", this.value);
     },
     hideAll() {
       this.value.forEach(c => (c[this.checkAttribute] = false));
+      this.updateTimestamp();
       this.emitValue();
     },
     showAll() {
       this.value.forEach(c => (c[this.checkAttribute] = true));
+      this.updateTimestamp();
       this.emitValue();
     }
   }

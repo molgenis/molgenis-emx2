@@ -29,13 +29,13 @@
 </template>
 
 <script>
-import Spinner from "../components/Spinner";
-import ButtonAction from "../components/ButtonAction";
-import ButtonAlt from "../components/ButtonAlt";
-import MessageError from "../components/MessageError";
+import Spinner from "../layout/Spinner";
+import ButtonAction from "../forms/ButtonAction";
+import ButtonAlt from "../forms/ButtonAlt";
+import MessageError from "../forms/MessageError";
 
-import SigninForm from "./SigninForm.vue";
-import SignupForm from "./SignupForm.vue";
+import SigninForm from "./MolgenisSignin.vue";
+import SignupForm from "./MolgenisSignup.vue";
 
 import { request } from "graphql-request";
 

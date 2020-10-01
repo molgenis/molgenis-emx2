@@ -62,15 +62,15 @@
 </template>
 
 <script>
-import _baseInput from "../components/_baseInput";
-import InputString from "../components/InputString";
-import InputInt from "../components/InputInt";
-import InputDecimal from "../components/InputDecimal";
-import InputBoolean from "../components/InputBoolean";
-import InputRef from "../components/InputRef";
-import InputDate from "../components/InputDate";
-import InputDateTime from "../components/InputDateTime";
-import InputFile from "../components/InputFile";
+import _baseInput from "../forms/_baseInput";
+import InputString from "../forms/InputString";
+import InputInt from "../forms/InputInt";
+import InputDecimal from "../forms/InputDecimal";
+import InputBoolean from "../forms/InputBoolean";
+import InputRef from "../forms/InputRef";
+import InputDate from "../forms/InputDate";
+import InputDateTime from "../forms/InputDateTime";
+import InputFile from "../forms/InputFile";
 
 export default {
   extends: _baseInput,
@@ -103,14 +103,14 @@ export default {
 </script>
 
 <docs>
-    Example:
-    ```
-    <div>
-        <RowFormInput columnType="STRING" label="Test String"/>
-        <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
-        <RowFormInput columnType="REF" label="Test ref" refTable="Pet"/>
-        <RowFormInput columnType="REF_ARRAY" label="Test ref" refTable="Pet" :defaultValue="[{name:'spike'}]"/>
-        <RowFormInput columnType="DATE" label="Test Date"/>
-    </div>
-    ```
+Example:
+```
+<div>
+  <RowFormInput columnType="STRING" label="Test String"/>
+  <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
+  <RowFormInput columnType="REF" label="Test ref" refTable="Pet"/>
+  <RowFormInput columnType="REF_ARRAY" label="Test ref" refTable="Pet" :defaultValue="[{name:'spike'}]"/>
+  <RowFormInput columnType="DATE" label="Test Date"/>
+</div>
+```
 </docs>

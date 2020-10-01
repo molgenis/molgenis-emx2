@@ -36,8 +36,8 @@
         >
           <template v-slot:rowheader="slotProps">
             <ButtonAction @click="select(slotProps.rowkey)"
-              >Select</ButtonAction
-            >
+              >Select
+            </ButtonAction>
           </template>
         </TableSearch>
       </template>
@@ -50,8 +50,8 @@
 
 <script>
 import _baseInput from "./_baseInput";
-import TableSearch from "./TableSearch";
-import LayoutModal from "./LayoutModal";
+import TableSearch from "../tables/TableSearch";
+import LayoutModal from "../layout/LayoutModal";
 import MessageError from "./MessageError";
 import FormGroup from "./_formGroup";
 import ButtonAlt from "./ButtonAlt";
@@ -125,96 +125,96 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-            <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
-            Selection: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example with default value
-    ```
-    <template>
-        <div>
-            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-            <InputRef
-                    v-model="value"
-                    refTable="Pet"
-                    :defaultValue="value"
-                    graphqlURL="/pet store/graphql"
-            />
-            Selection: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: {name: 'spike'}
-                };
-            }
-        };
-    </script>
-    ```
-    Example with filter
-    ```
-    <template>
-        <div>
-            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-            <InputRef
-                    v-model="value"
-                    refTable="Pet"
-                    :filter="{category:{name:'dog'}}"
-                    :defaultValue="value"
-                    graphqlURL="/pet store/graphql"
-            />
-            Selection: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: {name: 'spike'}
-                };
-            }
-        };
-    </script>
-    ```
-    Example with list
-    ```
-    <template>
-        <div>
-            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-            <InputRef :list="true"
-                      v-model="value"
-                      refTable="Pet"
-                      :defaultValue="[{name:'spike'},{name:'pooky'}]"
-                      graphqlURL="/pet store/graphql"
-            />
-            Selection: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: ['spike']
-                };
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
+    Selection: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+Example with default value
+```
+<template>
+  <div>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <InputRef
+        v-model="value"
+        refTable="Pet"
+        :defaultValue="value"
+        graphqlURL="/pet store/graphql"
+    />
+    Selection: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: {name: 'spike'}
+      };
+    }
+  };
+</script>
+```
+Example with filter
+```
+<template>
+  <div>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <InputRef
+        v-model="value"
+        refTable="Pet"
+        :filter="{category:{name:'dog'}}"
+        :defaultValue="value"
+        graphqlURL="/pet store/graphql"
+    />
+    Selection: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: {name: 'spike'}
+      };
+    }
+  };
+</script>
+```
+Example with list
+```
+<template>
+  <div>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <InputRef :list="true"
+              v-model="value"
+              refTable="Pet"
+              :defaultValue="[{name:'spike'},{name:'pooky'}]"
+              graphqlURL="/pet store/graphql"
+    />
+    Selection: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: ['spike']
+      };
+    }
+  };
+</script>
+```
 </docs>

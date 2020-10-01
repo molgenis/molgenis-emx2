@@ -24,12 +24,12 @@
 
 <script>
 import RowButtonAdd from "./RowButtonAdd";
-import LayoutModal from "../components/LayoutModal";
-import IconDanger from "../components/IconDanger";
-import ButtonAlt from "../components/ButtonAlt";
-import ButtonAction from "../components/ButtonAction";
-import MessageError from "../components/MessageError";
-import MessageSuccess from "../components/MessageSuccess";
+import LayoutModal from "../layout/LayoutModal";
+import IconDanger from "../forms/IconDanger";
+import ButtonAlt from "../forms/ButtonAlt";
+import ButtonAction from "../forms/ButtonAction";
+import MessageError from "../forms/MessageError";
+import MessageSuccess from "../forms/MessageSuccess";
 import { request } from "graphql-request";
 
 export default {
@@ -90,9 +90,9 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <RowButtonDelete table="Pet" :pkey="{name:'MyPet4'}" graphqlURL="/pet store/graphql"/>
-    ```
+Example
+```
+<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+<RowButtonDelete table="Pet" :pkey="{name:'MyPet4'}" graphqlURL="/pet store/graphql"/>
+```
 </docs>

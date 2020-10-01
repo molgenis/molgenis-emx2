@@ -15,9 +15,17 @@
       <Session v-model="session" />
     </NavBar>
     <div style="background: #fafafa">
-      <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+      <div
+        :class="fullscreen ? 'container-fluid' : 'container'"
+        :style="fullscreen ? '' : 'padding-top: 60px; padding-bottom: 60px;'"
+      >
         <div class="row">
           <div class="col-md-12">
+            <IconAction
+              class="fullscreen-icon"
+              :icon="fullscreen ? 'compress' : 'expand'"
+              @click="toggle"
+            />
             <h1 v-if="title">{{ title }}</h1>
             <slot />
           </div>
@@ -50,18 +58,28 @@ session = {{ session }}
   </div>
 </template>
 
+<style>
+.fullscreen-icon {
+  float: right;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+</style>
+
 <script>
-import NavBar from "../components/NavBar";
-import Session from "./Session";
-import Theme from "../components/Theme";
-import ShowMore from "../components/ShowMore";
-import Footer from "./Footer";
+import NavBar from "../layout/NavBar";
+import Session from "./MolgenisSession";
+import Theme from "../layout/Theme";
+import ShowMore from "../layout/ShowMore";
+import Footer from "./MolgenisFooter";
+import IconAction from "../forms/IconAction";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { Session, NavBar, Footer, Theme, ShowMore },
+  components: { Session, NavBar, Footer, Theme, ShowMore, IconAction },
   props: {
     menuItems: Array,
     title: String
@@ -69,7 +87,8 @@ export default {
   data: function() {
     return {
       session: null,
-      cssURL: null
+      cssURL: null,
+      fullscreen: false
     };
   },
   computed: {
@@ -103,7 +122,11 @@ export default {
       }
     }
   },
-  methods: {}
+  methods: {
+    toggle() {
+      this.fullscreen = !this.fullscreen;
+    }
+  }
 };
 </script>
 

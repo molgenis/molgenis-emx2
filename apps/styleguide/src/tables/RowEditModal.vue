@@ -50,17 +50,17 @@ schema = {{ JSON.stringify(schema) }}
 </template>
 
 <script>
-import LayoutForm from "../components/LayoutForm.vue";
-import LayoutModal from "../components/LayoutModal.vue";
-import MessageError from "../components/MessageError";
-import MessageSuccess from "../components/MessageSuccess";
-import ButtonAction from "../components/ButtonAction.vue";
-import ButtonAlt from "../components/ButtonAlt.vue";
-import SigninForm from "./SigninForm";
+import LayoutForm from "../layout/LayoutForm.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import MessageError from "../forms/MessageError";
+import MessageSuccess from "../forms/MessageSuccess";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import SigninForm from "../signin/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
-import ShowMore from "../components/ShowMore";
+import ShowMore from "../layout/ShowMore";
 
 export default {
   extends: TableMixin,

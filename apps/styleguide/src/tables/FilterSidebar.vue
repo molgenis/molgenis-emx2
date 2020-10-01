@@ -1,15 +1,5 @@
 <template>
   <div>
-    <div slot="header">
-      <label>
-        <ShowHide
-          v-model="filters"
-          checkAttribute="showFilter"
-          @input="updateTimestamp"
-          >Filters
-        </ShowHide>
-      </label>
-    </div>
     <div :key="timestamp">
       <Draggable
         :list="filters"
@@ -80,14 +70,13 @@ filters = {{ filters }}
 
 <script>
 import FilterContainer from "./FilterContainer";
-import InputCheckbox from "./InputCheckbox";
-import InputString from "./InputString";
-import InputRangeInt from "./InputRangeInt";
-import InputRangeDecimal from "./InputRangeDecimal";
-import InputRangeDate from "./InputRangeDate";
-import InputRef from "./InputRef";
-import ShowMore from "./ShowMore";
-import ShowHide from "./ShowHide";
+import InputCheckbox from "../forms/InputCheckbox";
+import InputString from "../forms/InputString";
+import InputRangeInt from "../forms/InputRangeInt";
+import InputRangeDecimal from "../forms/InputRangeDecimal";
+import InputRangeDate from "../forms/InputRangeDate";
+import InputRef from "../forms/InputRef";
+import ShowMore from "../layout/ShowMore";
 import Draggable from "vuedraggable";
 
 export default {
@@ -100,8 +89,7 @@ export default {
     InputRangeDecimal,
     InputRangeDate,
     InputRef,
-    ShowMore,
-    ShowHide
+    ShowMore
   },
   props: {
     filters: Array
@@ -158,9 +146,11 @@ export default {
   },
   created() {
     this.filters.forEach(column => {
-      //we use updateTime to be able to know when to refresh a view
-      column.updateTime = column.name + new Date().getTime();
-      column.showFilter = true;
+      if (column.showFilter == "undefined") {
+        //we use updateTime to be able to know when to refresh a view
+        column.updateTime = column.name + new Date().getTime();
+        column.showFilter = true;
+      }
     });
   },
   methods: {

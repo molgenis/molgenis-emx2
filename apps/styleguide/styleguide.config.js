@@ -22,6 +22,7 @@ module.exports = {
       }
     }
   },
+  tocMode: "collapse",
   exampleMode: "collapse",
   template: {
     head: {
@@ -52,25 +53,24 @@ module.exports = {
       content: "src/styleguide/introduction.md"
     },
     {
-      name: "Components",
-      components: "src/components/[A-Z]*.vue"
+      name: "Sign in",
+      components: "src/signin/[A-Z]*.vue"
     },
     {
-      name: "Molecules",
-      components: "src/molecules/[A-Z]*.vue"
+      name: "Form",
+      components: "src/forms/[A-Z]*.vue"
+    },
+    {
+      name: "Table",
+      components: "src/tables/[A-Z]*.vue"
+    },
+    {
+      name: "Layout",
+      components: "src/layout/[A-Z]*.vue"
     },
     {
       name: "Mixins",
       components: "src/mixins/[A-Z]*.vue"
     }
-    // {
-    //   name: 'Organisms',
-    //   content: 'src/styleguide/organisms.md',
-    //   components: 'src/components/organisms/[A-Z]*.vue'
-    // },
-    // {
-    //   name: 'Pages',
-    //   components: 'src/components/pages/[A-Z]*.vue'
-    // }
   ]
 };

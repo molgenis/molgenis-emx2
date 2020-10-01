@@ -31,15 +31,15 @@
 </template>
 
 <script>
-import ButtonAction from "../components/ButtonAction";
-import ButtonAlt from "../components/ButtonAlt";
-import InputString from "../components/InputString";
-import InputPassword from "../components/InputPassword";
-import MessageError from "../components/MessageError";
-import MessageSuccess from "../components/MessageSuccess";
-import LayoutForm from "../components/LayoutForm";
-import LayoutModal from "../components/LayoutModal";
-import Spinner from "../components/Spinner";
+import ButtonAction from "../forms/ButtonAction";
+import ButtonAlt from "../forms/ButtonAlt";
+import InputString from "../forms/InputString";
+import InputPassword from "../forms/InputPassword";
+import MessageError from "../forms/MessageError";
+import MessageSuccess from "../forms/MessageSuccess";
+import LayoutForm from "../layout/LayoutForm";
+import LayoutModal from "../layout/LayoutModal";
+import Spinner from "../layout/Spinner";
 import { request } from "graphql-request";
 
 export default {
@@ -96,31 +96,31 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
-            <!-- normally you don't need graphqlURL because that is available in apps context-->
-            <SigninForm v-else @login="signinTest" @cancel="display = false"/>
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    display: false,
-                    email: null
-                };
-            },
-            methods: {
-                signinTest(email, password) {
-                    alert("login with email " + email + " and password " + password);
-                    this.email = email;
-                }
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
+    <!-- normally you don't need graphqlURL because that is available in apps context-->
+    <SigninForm v-else @login="signinTest" @cancel="display = false"/>
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        display: false,
+        email: null
+      };
+    },
+    methods: {
+      signinTest(email, password) {
+        alert("login with email " + email + " and password " + password);
+        this.email = email;
+      }
+    }
+  };
+</script>
+```
 
 </docs>

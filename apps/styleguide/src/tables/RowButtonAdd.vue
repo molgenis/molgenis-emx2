@@ -12,7 +12,7 @@
 
 <script>
 import RowEditModal from "./RowEditModal.vue";
-import IconAction from "../components/IconAction";
+import IconAction from "../forms/IconAction";
 
 export default {
   data: function() {
@@ -49,9 +49,9 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <RowButtonAdd table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
-    ```
+Example
+```
+<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+<RowButtonAdd table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
+```
 </docs>

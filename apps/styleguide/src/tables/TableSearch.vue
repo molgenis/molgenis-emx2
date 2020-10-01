@@ -5,7 +5,7 @@
       <InputSearch v-if="table" v-model="searchTerms" />
       <Pagination v-model="page" :limit="limit" :count="count" />
       <Spinner v-if="loading" />
-      <MolgenisTable
+      <TableMolgenis
         v-else
         v-model="selectedItems"
         :metadata="tableMetadata"
@@ -24,7 +24,7 @@
             :rowkey="slotProps.rowkey"
           />
         </template>
-      </MolgenisTable>
+      </TableMolgenis>
     </div>
     <ShowMore title="debug info">
       <pre>
@@ -47,12 +47,12 @@ schema =
 
 <script>
 import TableMixin from "../mixins/TableMixin";
-import MolgenisTable from "./MolgenisTable";
-import MessageError from "./MessageError";
-import InputSearch from "./InputSearch";
+import TableMolgenis from "./TableMolgenis";
+import MessageError from "../forms/MessageError";
+import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
-import Spinner from "./Spinner.vue";
-import ShowMore from "./ShowMore";
+import Spinner from "../layout/Spinner.vue";
+import ShowMore from "../layout/ShowMore";
 
 export default {
   mixins: [TableMixin],
@@ -63,7 +63,7 @@ export default {
   },
   components: {
     ShowMore,
-    MolgenisTable,
+    TableMolgenis,
     MessageError,
     InputSearch,
     Pagination,
@@ -98,50 +98,50 @@ export default {
 </script>
 
 <docs>
-    Example:
-    ```
+Example:
+```
+<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+<TableSearch table="Code" graphqlURL="/TestCohortCatalogue/graphql">
+  <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
+</TableSearch>
+Selected: {{ selectedItems }}
+
+```
+Example with select and default value
+```
+<template>
+  <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <TableSearch table="Code" graphqlURL="/TestCohortCatalogue/graphql">
-        <template v-model="selectedItems" v-slot:rowheader="props">my row action {{props.row.name}}</template>
+    <TableSearch
+        v-model="selectedItems"
+        table="Pet"
+        :defaultValue="['pooky']"
+        graphqlURL="/pet store/graphql"
+    >
+      <template v-slot:rowheader="props">my row action {{ props.row.name }}</template>
     </TableSearch>
-    Selected: {{selectedItems}}
+    Selected: {{ selectedItems }}
+  </div>
+</template>
 
-    ```
-    Example with select and default value
-    ```
-    <template>
-        <div>
-            <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-            <TableSearch
-                    v-model="selectedItems"
-                    table="Pet"
-                    :defaultValue="['pooky']"
-                    graphqlURL="/pet store/graphql"
-            >
-                <template v-slot:rowheader="props">my row action {{props.row.name}}</template>
-            </TableSearch>
-            Selected: {{selectedItems}}
-        </div>
-    </template>
+<script>
+  export default {
+    data: function () {
+      return {
+        selectedItems: []
+      };
+    }
+  };
+</script>
+```
+Example with filter:
+```
+<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+<TableSearch table="Variable" :filter="{collection:{equals:{name:'LifeCycle'}}}"
+             graphqlURL="/TestCohortCatalogue/graphql">
+  <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
+</TableSearch>
+Selected: {{ selectedItems }}
 
-    <script>
-        export default {
-            data: function () {
-                return {
-                    selectedItems: []
-                };
-            }
-        };
-    </script>
-    ```
-    Example with filter:
-    ```
-    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <TableSearch table="Variable" :filter="{collection:{equals:{name:'LifeCycle'}}}"
-                 graphqlURL="/TestCohortCatalogue/graphql">
-        <template v-model="selectedItems" v-slot:rowheader="props">my row action {{props.row.name}}</template>
-    </TableSearch>
-    Selected: {{selectedItems}}
-
-    ```
+```
 </docs>

@@ -35,7 +35,7 @@
 </style>
 
 <script>
-import IconAction from "./IconAction";
+import IconAction from "../forms/IconAction";
 
 export default {
   components: {

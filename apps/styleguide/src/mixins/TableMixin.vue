@@ -21,7 +21,7 @@ export default {
       data: [],
       count: 0,
       offset: 0,
-      limit: 100,
+      limit: 20,
       searchTerms: null
     };
   },
@@ -115,7 +115,6 @@ export default {
       deep: true,
       handler() {
         this.reload();
-        console.log(this.graphqlFilter);
       }
     },
     table: "reload",
@@ -125,8 +124,8 @@ export default {
 </script>
 
 <docs>
-    ```
-    <!-- normally you don't need provide graphqlURL because default 'graphql' just works -->
-    <TableMixin table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
-    ```
+```
+<!-- normally you don't need provide graphqlURL because default 'graphql' just works -->
+<TableMixin table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
+```
 </docs>
