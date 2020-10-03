@@ -2,10 +2,10 @@
   <div>
     <div v-if="tableMetadata">
       <div class="navbar navbar-expand-lg">
-        <h1 class="mr-4">
+        <h1>
           {{ table }}
         </h1>
-        <InputSearch class="navbar-nav" v-model="searchTerms" />
+        <InputSearch class="navbar-nav ml-auto" v-model="searchTerms" />
         <ShowHide
           class="navbar-nav "
           v-model="tableMetadata.columns"
