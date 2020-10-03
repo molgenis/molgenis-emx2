@@ -41,7 +41,7 @@ import Molgenis from "./layout/Molgenis";
 import TableMolgenis from "./tables/TableMolgenis";
 import TableExplorer from "./tables/TableExplorer";
 
-import NavBar from "./layout/NavBar";
+import NavBar from "./layout/MolgenisMenu";
 import Pagination from "./tables/Pagination";
 
 import RowButtonAdd from "./tables/RowButtonAdd";

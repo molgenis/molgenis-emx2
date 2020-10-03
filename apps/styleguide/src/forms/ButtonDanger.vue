@@ -5,33 +5,30 @@
 </template>
 
 <script>
+import ButtonAction from "./ButtonAction";
+
 /** Button that is shown as a primary action */
 export default {
-  methods: {
-    onClick() {
-      /** emitted on click */
-      this.$emit("click");
-    }
-  }
+  extends: ButtonAction
 };
 </script>
 
 <docs>
-    Example
+Example
 
-    ```jsx
-    <template>
-        <ButtonDanger v-on:click="alert('danger clicked');">Dangerous actions</ButtonDanger>
-    </template>
-    <script>
-        export default {
-            methods: {
-                alert(text) {
-                    alert(text);
-                }
-            }
-        }
-    </script>
-    ```
+```jsx
+<template>
+  <ButtonDanger v-on:click="alert('danger clicked');">Dangerous actions</ButtonDanger>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      }
+    }
+  }
+</script>
+```
 
 </docs>

@@ -76,7 +76,7 @@ session = {{ session }}
 </style>
 
 <script>
-import NavBar from "./NavBar";
+import NavBar from "./MolgenisMenu";
 import Session from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import ShowMore from "./ShowMore";

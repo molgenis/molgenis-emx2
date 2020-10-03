@@ -16,6 +16,12 @@
           <div class="d-inline">{{ item.label }}</div>
         </div>
         <InputString v-model="item.label" :defaultValue="item.label" />
+        <InputSelect
+          v-model="item.role"
+          :defaultValue="item.role"
+          :options="['Viewer', 'Editor', 'Manager']"
+          nullable="false"
+        />
         <InputString v-model="item.href" :defaultValue="item.href" />
         <IconDanger icon="trash" @click="items.splice(idx, 1)" />
       </form>
@@ -26,14 +32,20 @@
 
 <script>
 import Draggable from "vuedraggable";
-import { IconAction, InputString, IconDanger } from "@mswertz/emx2-styleguide";
+import {
+  IconAction,
+  InputString,
+  IconDanger,
+  InputSelect
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
     Draggable,
     IconAction,
     InputString,
-    IconDanger
+    IconDanger,
+    InputSelect
   },
   props: {
     items: Array

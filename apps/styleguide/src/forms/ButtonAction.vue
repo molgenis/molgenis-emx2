@@ -7,31 +7,38 @@
 <script>
 /** Button that is shown as a primary action */
 export default {
+  props: {
+    href: String
+  },
   methods: {
     onClick() {
-      /** emitted on click */
-      this.$emit("click");
+      if (this.href) {
+        window.open(this.href);
+      } else {
+        /** emitted on click */
+        this.$emit("click");
+      }
     }
   }
 };
 </script>
 
 <docs>
-    Example
+Example
 
-    ```
-    <template>
-        <ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
-    </template>
-    <script>
-        export default {
-            methods: {
-                alert(text) {
-                    alert(text);
-                }
-            }
-        }
-    </script>
-    ```
+```
+<template>
+  <ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      }
+    }
+  }
+</script>
+```
 
 </docs>

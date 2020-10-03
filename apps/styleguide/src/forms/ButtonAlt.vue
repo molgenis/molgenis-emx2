@@ -6,32 +6,29 @@
 
 <script>
 /** Cancel button */
+import ButtonAction from "./ButtonAction";
+
 export default {
-  methods: {
-    onClick() {
-      /** emitted on click */
-      this.$emit("click");
-    }
-  }
+  extends: ButtonAction
 };
 </script>
 
 <docs>
-    Example
+Example
 
-    ```
-    <template>
-        <ButtonAlt v-on:click="alert('cancel clicked')">Cancel</ButtonAlt>
-    </template>
-    <script>
-        export default {
-            methods: {
-                alert(text) {
-                    alert(text);
-                }
-            }
-        }
-    </script>
-    ```
+```
+<template>
+  <ButtonAlt v-on:click="alert('cancel clicked')">Cancel</ButtonAlt>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      }
+    }
+  }
+</script>
+```
 
 </docs>

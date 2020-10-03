@@ -24,6 +24,10 @@
           icon="filter"
           :key="JSON.stringify(tableMetadata.columns)"
         />
+        <ButtonDropdown icon="download">
+          <ButtonAlt :href="'../api/zip/' + table">Download zip</ButtonAlt>
+          <ButtonAlt :href="'../api/excel/' + table">Download Excel</ButtonAlt>
+        </ButtonDropdown>
         <Pagination
           class="navbar-nav"
           v-model="page"
@@ -117,6 +121,8 @@ import ShowMore from "../layout/ShowMore";
 import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
+import ButtonDropdown from "../forms/ButtonDropdown";
+import ButtonAlt from "../forms/ButtonAlt";
 
 export default {
   extends: TableMixin,
@@ -132,7 +138,9 @@ export default {
     ShowMore,
     ShowHide,
     InputSearch,
-    Pagination
+    Pagination,
+    ButtonDropdown,
+    ButtonAlt
   },
   data() {
     return {

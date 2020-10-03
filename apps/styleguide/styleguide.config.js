@@ -17,6 +17,7 @@ module.exports = {
     devServer: {
       proxy: {
         "/graphql": "http://localhost:8080/pet store/graphql",
+        "/api": "http://localhost:8080/pet store/api",
         "**/graphql": "http://localhost:8080/",
         apps: "http://localhost:8080/"
       }
