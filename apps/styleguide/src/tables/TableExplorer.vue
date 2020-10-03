@@ -1,28 +1,27 @@
 <template>
   <div>
     <div v-if="tableMetadata">
-      <div class="d-flex">
-        <h1>
+      <div class="navbar navbar-expand-lg">
+        <h1 class="mr-4">
           {{ table }}
         </h1>
-      </div>
-      <div class="d-flex">
-        <InputSearch v-model="searchTerms" />
-        <div class="btn-group">
-          <ShowHide
-            v-model="tableMetadata.columns"
-            checkAttribute="showColumn"
-            @input="updateTimestamp"
-            icon="columns"
-          />
-          <ShowHide
-            v-model="tableMetadata.columns"
-            checkAttribute="showFilter"
-            @input="updateTimestamp"
-            icon="filter"
-          />
-        </div>
+        <InputSearch class="navbar-nav" v-model="searchTerms" />
+        <ShowHide
+          class="navbar-nav "
+          v-model="tableMetadata.columns"
+          checkAttribute="showColumn"
+          @input="updateTimestamp"
+          icon="columns"
+        />
+        <ShowHide
+          class="navbar-nav "
+          v-model="tableMetadata.columns"
+          checkAttribute="showFilter"
+          @input="updateTimestamp"
+          icon="filter"
+        />
         <Pagination
+          class="navbar-nav"
           v-model="page"
           :limit="limit"
           :count="count"
@@ -38,7 +37,7 @@
         <div v-if="loading" class="col-9">
           <Spinner />
         </div>
-        <div v-else class="col-9">
+        <div v-else :class="{ 'col-9': showFilters, 'col-12': !showFilters }">
           <FilterWells v-if="table" :filters="tableMetadata.columns" />
           <TableMolgenis
             :metadata="tableMetadata"

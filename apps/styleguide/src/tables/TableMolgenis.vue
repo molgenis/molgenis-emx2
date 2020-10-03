@@ -94,6 +94,16 @@ timestamp = {{ timestamp }}
 </template>
 
 <style scoped>
+table {
+  position: relative;
+}
+
+th {
+  /*sticky header*/
+  position: sticky;
+  top: 0;
+}
+
 th,
 td {
   text-align: left;

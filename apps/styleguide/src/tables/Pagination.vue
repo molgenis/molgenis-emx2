@@ -1,19 +1,24 @@
 <template>
   <nav aria-label="Pagination">
-    <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-center mb-0">
       <li class="page-item">
-        <a class="page-link" href="#" @click.prevent="page = 1">First</a>
+        <a class="page-link" href="#" @click.prevent="page = 1">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">First</span></a
+        >
       </li>
       <li class="page-item">
         <a
           class="page-link"
           href="#"
           @click.prevent="page = Math.max(page - 1, 1)"
-          >Previous</a
         >
+          <span aria-hidden="true">&lsaquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
       </li>
       <li class="page-item">
-        <a class="page-link" href="#"
+        <a class="page-link text-nowrap" href="#"
           >{{ (page - 1) * limit + 1 }} - {{ Math.min(count, page * limit) }} of
           {{ count }}</a
         >
@@ -23,12 +28,15 @@
           class="page-link"
           href="#"
           @click.prevent="page = Math.min(page + 1, totalPages)"
-          >Next</a
+        >
+          <span aria-hidden="true">&rsaquo;</span>
+          <span class="sr-only">Next</span></a
         >
       </li>
       <li class="page-item">
-        <a class="page-link" href="#" @click.prevent="page = totalPages"
-          >Last</a
+        <a class="page-link" href="#" @click.prevent="page = totalPages">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Last</span></a
         >
       </li>
     </ul>

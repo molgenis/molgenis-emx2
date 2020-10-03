@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-link to="/">< Back to {{ schema.name }}</router-link>
-    <TableExplorer :table="table" />
+    <TableExplorer :table="table" class="sticky-top" />
   </div>
 </template>
 
