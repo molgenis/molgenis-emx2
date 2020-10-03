@@ -87,34 +87,6 @@ export default {
       variables: []
     };
   },
-
-  computed: {
-    menuItems() {
-      return [
-        { label: "Tables", href: "../tables/" },
-        {
-          label: "Schema",
-          href: "../schema/"
-        },
-        {
-          label: "Upload",
-          href: "../import/"
-        },
-        {
-          label: "Download",
-          href: "../download/"
-        },
-        {
-          label: "GraphQL",
-          href: "/api/playground.html?schema=/api/graphql/" + this.schema
-        },
-        {
-          label: "Settings",
-          href: "../settings/"
-        }
-      ];
-    }
-  },
   methods: {
     load() {
       request(

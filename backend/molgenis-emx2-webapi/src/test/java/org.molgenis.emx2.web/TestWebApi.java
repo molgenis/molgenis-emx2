@@ -25,7 +25,7 @@ import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestWebApi {
 
-  public static final String DATA_PET_STORE = "/api/csv/pet store";
+  public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   private static Database db;
 
@@ -65,14 +65,14 @@ public class TestWebApi {
     db.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
-    byte[] zipContents = given().accept(ACCEPT_ZIP).when().get("/api/zip/pet store").asByteArray();
+    byte[] zipContents = given().accept(ACCEPT_ZIP).when().get("/pet store/api/zip").asByteArray();
 
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
-    given().multiPart(zipFile).when().post("/api/zip/pet store zip").then().statusCode(200);
+    given().multiPart(zipFile).when().post("/pet store zip/api/zip").then().statusCode(200);
 
     // check if schema equal using json representation
-    String schemaCsv2 = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store zip").asString();
+    String schemaCsv2 = given().accept(ACCEPT_CSV).when().get("/pet store zip/api/csv").asString();
     assertEquals(schemaCsv, schemaCsv2);
 
     // delete the new schema
@@ -83,22 +83,22 @@ public class TestWebApi {
   public void test3SchemaDownloadUploadExcel() throws IOException {
 
     // download json schema
-    String schemaCSV = given().accept(ACCEPT_CSV).when().get("/api/csv/pet store").asString();
+    String schemaCSV = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
 
     // create a new schema for excel
     db.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
     byte[] excelContents =
-        given().accept(ACCEPT_EXCEL).when().get("/api/excel/pet store").asByteArray();
+        given().accept(ACCEPT_EXCEL).when().get("/pet store/api/excel").asByteArray();
     File excelFile = createTempFile(excelContents, ".xlsx");
 
     // upload excel into new schema
-    given().multiPart(excelFile).when().post("/api/excel/pet store excel").then().statusCode(200);
+    given().multiPart(excelFile).when().post("/pet store excel/api/excel").then().statusCode(200);
 
     // check if schema equal using json representation
     String schemaCSV2 =
-        given().accept(ACCEPT_CSV).when().get("/api/csv/pet store excel").asString();
+        given().accept(ACCEPT_CSV).when().get("/pet store excel/api/csv").asString();
 
     // delete a new schema for excel
     db.dropSchema("pet store excel");
@@ -117,7 +117,7 @@ public class TestWebApi {
   @Test
   public void test5TableGetPostDeleteCSV() {
 
-    String path = "/api/csv/pet store/Tag";
+    String path = "/pet store/api/csv/Tag";
 
     String exp1 = "name\r\nred\r\ngreen\r\n";
     String result = given().accept(ACCEPT_CSV).when().get(path).asString();
@@ -158,7 +158,7 @@ public class TestWebApi {
             .asString();
     assertTrue(result.contains("Signed in"));
 
-    String schemaPath = "/api/graphql/pet store";
+    String schemaPath = "/pet store/api/graphql";
     result = given().body("{\"query\":\"{Pet{name}}\"}").when().post(schemaPath).asString();
     assertTrue(result.contains("spike"));
 

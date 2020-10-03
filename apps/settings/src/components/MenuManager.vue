@@ -17,7 +17,7 @@
           "
         />
       </div>
-      <MenuDesign :items="draft" :key="key" />
+      <MenuDesign :items="draft" :key="key" @change="sanitizeDraft" />
       <br />
       <div class="row float-right">
         <ButtonAlt @click="reset">Reset</ButtonAlt>
@@ -44,7 +44,9 @@ import {
   ShowMore,
   IconAction,
   ButtonAlt,
-  ButtonAction
+  ButtonAction,
+  MessageSuccess,
+  MessageError
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
@@ -54,7 +56,9 @@ export default {
     ShowMore,
     IconAction,
     ButtonAlt,
-    ButtonAction
+    ButtonAction,
+    MessageSuccess,
+    MessageError
   },
   props: {
     session: {},
@@ -124,10 +128,27 @@ export default {
           this.error = error.response.errors[0].message;
         })
         .finally((this.loading = false));
+    },
+    sanitizeDraft() {
+      if (this.draft) {
+        this.draft.forEach(item => {
+          //give random keys so we can monitor moves
+          item.key = Math.random()
+            .toString(36)
+            .substring(7);
+          //give empty submenu so we can drag-nest
+          if (item.submenu == undefined) {
+            item.submenu = [];
+          } else {
+            item.submenu.forEach(sub => delete sub.submenu);
+          }
+        });
+      }
     }
   },
   created() {
     this.reset();
+    this.sanitizeDraft();
   }
 };
 </script>

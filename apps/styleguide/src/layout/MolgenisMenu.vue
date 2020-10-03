@@ -15,7 +15,7 @@
       <img :src="logo" alt="brand-logo" class="molgenis-navbar-logo" />
     </a>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav" v-if="items">
         <li
           v-for="item in items.filter(i => permitted(i))"
           :key="item.label"
@@ -27,7 +27,7 @@
         >
           <ButtonDropdown
             class="nav-item"
-            v-if="item.submenu"
+            v-if="item.submenu && item.submenu.length > 0"
             :label="item.label"
             icon="caret-down"
           >
@@ -75,24 +75,18 @@ export default {
         console.log("no check needed");
         return true;
       }
-      console.log(" check needed " + Object.keys(this.session));
+      console.log(" check needed ");
       //user admin
       if (this.session) {
-        if (this.session.email === "admin") return true;
+        console.log(" checking session ");
+        if (this.session.email == "admin") {
+          console.log("found admin");
+          return true;
+        }
         //todo, smarter roles system, should have all roles user has than this is peanuts
         if (Array.isArray(this.session.roles)) {
           console.log("checking roles");
-          if (item.role == "Viewer") return true;
-          else if (
-            (item.role == "Editor" && this.session.roles.includes("Editor")) ||
-            this.session.roles.includes("Manager")
-          )
-            return true;
-          else if (
-            item.role == "Manager" &&
-            this.session.roles.includes("Manager")
-          )
-            return true;
+          return this.session.roles.includes(item.role);
         }
       }
       return false;
@@ -119,7 +113,7 @@ Example with submenu
         {label:'My sub',href:'http://youtube.com', submenu:
           [{label:'My other search',href:'http://bing.com'}]
         }
-     ]" :session="{roles:['Manager']}">Something in the slot
+     ]" :session="{roles:['Viewer']}">Something in the slot
 </MolgenisMenu>
 ```
 </docs>

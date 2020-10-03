@@ -111,10 +111,7 @@ public class GraphqlSessionFieldFactory {
               result.put(
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "none");
               if (schema != null) {
-                String role = schema.getRoleForActiveUser();
-                if (role != null) {
-                  result.put(ROLES, List.of(schema.getRoleForActiveUser()));
-                }
+                result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
               return result;
             })

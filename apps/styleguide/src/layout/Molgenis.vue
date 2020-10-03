@@ -82,12 +82,14 @@ import MolgenisTheme from "./MolgenisTheme";
 import ShowMore from "./ShowMore";
 import Footer from "./MolgenisFooter";
 import IconAction from "../forms/IconAction";
+import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
   components: { Session, NavBar, Footer, MolgenisTheme, ShowMore, IconAction },
+  mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
     title: String
@@ -108,8 +110,10 @@ export default {
     menu() {
       if (this.session && this.session.settings && this.session.settings.menu) {
         return this.session.settings.menu;
-      } else {
+      } else if (this.menuItems) {
         return this.menuItems;
+      } else {
+        return this.defaultMenu;
       }
     }
   },

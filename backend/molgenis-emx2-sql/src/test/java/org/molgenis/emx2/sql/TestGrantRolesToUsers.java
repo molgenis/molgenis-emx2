@@ -151,6 +151,10 @@ public class TestGrantRolesToUsers {
       schema.addMember("testadmin", DefaultRoles.OWNER.toString());
       assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
 
+      assertTrue(
+          schema.getInheritedRolesForUser("testadmin").contains(DefaultRoles.OWNER.toString()));
+      assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
+
       database.setActiveUser("testadmin");
       assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForActiveUser());
       database.clearActiveUser();

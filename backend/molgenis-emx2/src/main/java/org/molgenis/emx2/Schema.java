@@ -11,6 +11,8 @@ public interface Schema {
 
   Collection<String> getTableNames();
 
+  List<String> getInheritedRolesForActiveUser();
+
   Table create(TableMetadata table);
 
   void create(TableMetadata... table);
@@ -44,6 +46,8 @@ public interface Schema {
   List<String> getRoles();
 
   String getRoleForUser(String user);
+
+  List<String> getInheritedRolesForUser(String user);
 
   String getRoleForActiveUser();
 }

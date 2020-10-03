@@ -30,31 +30,6 @@ export default {
     schemaName() {
       if (this.schema) return this.schema.name;
       return null;
-    },
-    menuItems() {
-      return [
-        { label: "Tables", href: "../tables/" },
-        {
-          label: "Schema",
-          href: "../schema/"
-        },
-        {
-          label: "Upload",
-          href: "../import/"
-        },
-        {
-          label: "Download",
-          href: "../download/"
-        },
-        {
-          label: "GraphQL",
-          href: "/api/playground.html?schema=/api/graphql/" + this.schemaName
-        },
-        {
-          label: "Settings",
-          href: "../settings/"
-        }
-      ];
     }
   },
   methods: {

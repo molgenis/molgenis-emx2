@@ -1,10 +1,13 @@
 <template>
   <div id="app">
-    <Molgenis title="Settings" :menuItems="menuItems" v-model="session">
-      <div v-if="session.email == undefined">
-        You have to be logged in with right permissionsto see settings
-      </div>
-      <div v-if="session.email" class="card">
+    <Molgenis title="Settings" v-model="session">
+      <div
+        v-if="
+          session.email == 'admin' ||
+            (session.roles && session.roles.includes('Manager'))
+        "
+        class="card"
+      >
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
             <li
@@ -29,6 +32,9 @@
           <router-view :session="session" />
         </div>
       </div>
+      <div v-else>
+        You have to be logged in with right permissionsto see settings
+      </div>
     </Molgenis>
   </div>
 </template>
@@ -48,31 +54,6 @@ export default {
   computed: {
     selected() {
       return this.$route.name;
-    },
-    menuItems() {
-      return [
-        { label: "Tables", href: "../tables/" },
-        {
-          label: "Schema",
-          href: "../schema/"
-        },
-        {
-          label: "Upload",
-          href: "../import/"
-        },
-        {
-          label: "Download",
-          href: "../download/"
-        },
-        {
-          label: "GraphQL",
-          href: "/api/playground.html?schema=/api/graphql/" + this.schema
-        },
-        {
-          label: "Settings",
-          href: "../settings/"
-        }
-      ];
     }
   }
 };

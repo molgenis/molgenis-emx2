@@ -4,10 +4,11 @@
     handle=".menu-drag-icon"
     ghost-class="border-primary"
     :group="{ name: 'g1' }"
+    @move="$emit('change')"
   >
     <div
       v-for="(item, idx) in items"
-      :key="item.key + item.submenu.length"
+      :key="item.key + (item.submenu ? item.submenu.length : '')"
       class="flex-nowrap"
     >
       <form class="form-inline flex-nowrap ">
@@ -20,7 +21,6 @@
           v-model="item.role"
           :defaultValue="item.role"
           :options="['Viewer', 'Editor', 'Manager']"
-          nullable="false"
         />
         <InputString v-model="item.href" :defaultValue="item.href" />
         <IconDanger icon="trash" @click="items.splice(idx, 1)" />
@@ -50,18 +50,6 @@ export default {
   props: {
     items: Array
   },
-  name: "MenuManager",
-  created() {
-    this.items.forEach(item => {
-      //give random keys so we can monitor moves
-      item.key = Math.random()
-        .toString(36)
-        .substring(7);
-      //give empty submenu so we can drag-nest
-      if (item.submenu == undefined) {
-        item.submenu = [];
-      }
-    });
-  }
+  name: "MenuManager"
 };
 </script>

@@ -43,7 +43,7 @@ public class TestGraphqSchemaFields {
       database.setActiveUser("shopmanager");
 
       TestCase.assertEquals(
-          "Manager", execute("{_session{email,roles}}").at("/_session/roles/0").textValue());
+          "Manager", execute("{_session{email,roles}}").at("/_session/roles/2").textValue());
     } finally {
       database.clearActiveUser();
     }

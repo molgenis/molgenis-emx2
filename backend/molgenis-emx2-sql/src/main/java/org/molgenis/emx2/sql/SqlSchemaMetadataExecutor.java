@@ -8,6 +8,7 @@ import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.DefaultRoles.*;
@@ -128,6 +129,17 @@ class SqlSchemaMetadataExecutor {
 
   static String getRolePrefix(String name) {
     return Constants.MG_ROLE_PREFIX + name.toUpperCase() + "/";
+  }
+
+  static List<String> getInheritedRoleForUser(DSLContext jooq, String schemaName, String user) {
+    String roleFilter = getRolePrefix(schemaName);
+    List<Record> roles =
+        jooq.fetch(
+            "SELECT a.oid, a.rolname FROM pg_authid a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname ILIKE {1}",
+            Constants.MG_USER_PREFIX + user, roleFilter + "%");
+    return roles.stream()
+        .map(r -> r.get("rolname", String.class).substring(roleFilter.length()))
+        .collect(Collectors.toList());
   }
 
   static List<Member> executeGetMembers(DSLContext jooq, SchemaMetadata schema) {

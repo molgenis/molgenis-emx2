@@ -55,11 +55,14 @@ import ShowHide from "./tables/ShowHide";
 import TableMixin from "./mixins/TableMixin";
 import TableMetadataMixin from "./mixins/TableMetadataMixin";
 
+import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
+
 export {
   ButtonAction,
   ButtonAlt,
   ButtonDanger,
   DataTable,
+  DefaultMenuMixin,
   Footer,
   FilterSidebar,
   FilterWells,
