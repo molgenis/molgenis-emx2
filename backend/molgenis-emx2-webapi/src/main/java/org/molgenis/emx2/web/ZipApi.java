@@ -34,12 +34,12 @@ public class ZipApi {
 
   public static void create() {
     // schema level operations
-    final String schemaPath = "/api/zip/:schema"; // NOSONAR
+    final String schemaPath = "/:schema/api/zip"; // NOSONAR
     get(schemaPath, ZipApi::getZip);
     post(schemaPath, ZipApi::postZip);
 
     // table level operations
-    final String tablePath = "/api/zip/:schema/:table"; // NOSONAR
+    final String tablePath = "/:schema/api/zip/:table"; // NOSONAR
     get(tablePath, ZipApi::getZipTable);
   }
 

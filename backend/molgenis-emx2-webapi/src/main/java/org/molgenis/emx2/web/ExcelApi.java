@@ -32,12 +32,12 @@ public class ExcelApi {
 
   public static void create() {
     // schema level operations
-    final String schemaPath = "/api/excel/:schema"; // NOSONAR
+    final String schemaPath = "/:schema/api/excel"; // NOSONAR
     get(schemaPath, ExcelApi::getExcel);
     post(schemaPath, ExcelApi::postExcel);
 
     // table level operations
-    final String tablePath = "/api/excel/:schema/:table"; // NOSONAR
+    final String tablePath = ":schema/api/excel/:table"; // NOSONAR
     get(tablePath, ExcelApi::getExcelTable);
   }
 

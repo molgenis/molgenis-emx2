@@ -52,24 +52,20 @@ public class OpenApiYamlGenerator {
 
     // api/zip/:schema
     String zipType = "Zip";
-    String zipPrefix = "/api/zip/";
+    String zipPrefix = "/" + schema.getName() + "/api/zip";
     PathItem zipPath = getSchemaOperations(zipType, ACCEPT_ZIP);
-    paths.addPathItem(zipPrefix + schema.getName(), zipPath);
+    paths.addPathItem(zipPrefix, zipPath);
 
     // api/excel/:schema
     String excelType = "Excel";
-    String excelPrefix = "/api/excel/";
+    String excelPrefix = "/" + schema.getName() + "/api/excel/";
     PathItem excelPath = getSchemaOperations(excelType, ACCEPT_EXCEL);
-    paths.addPathItem(excelPrefix + schema.getName(), excelPath);
+    paths.addPathItem(excelPrefix, excelPath);
 
     // table paths
     for (TableMetadata table : schema.getTables()) {
-      paths.addPathItem(
-          excelPrefix + schema.getName() + "/" + table.getTableName(),
-          getExcelTableOperations(excelType));
-      paths.addPathItem(
-          zipPrefix + schema.getName() + "/" + table.getTableName(),
-          getExcelTableOperations(zipType));
+      paths.addPathItem(excelPrefix + table.getTableName(), getExcelTableOperations(excelType));
+      paths.addPathItem(zipPrefix + table.getTableName(), getExcelTableOperations(zipType));
     }
 
     // api/csv/:schema
