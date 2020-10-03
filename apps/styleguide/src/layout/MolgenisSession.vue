@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import Spinner from "../layout/Spinner";
+import Spinner from "./Spinner";
 import ButtonAction from "../forms/ButtonAction";
 import ButtonAlt from "../forms/ButtonAlt";
 import MessageError from "../forms/MessageError";

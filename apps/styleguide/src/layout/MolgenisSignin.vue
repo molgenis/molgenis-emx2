@@ -4,34 +4,28 @@
     <MessageSuccess>{{ success }}</MessageSuccess>
     <ButtonAlt @click="cancel">Close</ButtonAlt>
   </div>
-  <LayoutModal v-else title="Sign up" :show="true">
+  <LayoutModal v-else title="Sign in" :show="true" @close="cancel">
     <template v-slot:body>
       <LayoutForm>
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
           v-model="email"
-          label="Email address"
-          placeholder="Enter valid email address"
-          help="Please enter your email address"
+          label="Email"
+          placeholder="Enter email adress"
+          help="Please enter the provided email address"
         />
         <InputPassword
           v-model="password"
           label="Password"
           placeholder="Enter password"
-          help="Please enter the password"
-        />
-        <InputPassword
-          v-model="password2"
-          label="Password Repeat"
-          placeholder="Enter password"
-          help="Please enter the password again"
-          @keyup.enter="signup"
+          help="Please enter the provided password"
+          @keyup.enter="signin"
         />
       </LayoutForm>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="signup">Sign up</ButtonAction>
+      <ButtonAction @click="signin">Sign in</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -43,10 +37,9 @@ import InputString from "../forms/InputString";
 import InputPassword from "../forms/InputPassword";
 import MessageError from "../forms/MessageError";
 import MessageSuccess from "../forms/MessageSuccess";
-import LayoutForm from "../layout/LayoutForm";
-import Spinner from "../layout/Spinner";
-import LayoutModal from "../layout/LayoutModal";
-
+import LayoutForm from "./LayoutForm";
+import LayoutModal from "./LayoutModal";
+import Spinner from "./Spinner";
 import { request } from "graphql-request";
 
 export default {
@@ -58,45 +51,36 @@ export default {
     MessageError,
     MessageSuccess,
     LayoutForm,
-    Spinner,
-    LayoutModal
+    LayoutModal,
+    Spinner
   },
   data: function() {
     return {
       email: null,
       password: null,
-      password2: null,
       loading: false,
       error: null,
       success: null
     };
   },
   methods: {
-    signup() {
-      if (
-        this.email == null ||
-        this.password == null ||
-        this.password2 == null
-      ) {
-        this.error =
-          "Error: valid email address and password should be filled in";
-      } else if (this.password !== this.password2) {
-        this.error = "Error: Passwords entered must be the same";
+    signin() {
+      if (this.email == null || this.password == null) {
+        this.error = "Email and password should be filled in";
       } else {
         this.error = null;
         this.loading = true;
         request(
           "/api/graphql",
-          `mutation{signup(email: "${this.email}", password: "${this.password}"){status}}`
+          `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then(data => {
-            if (data.signup.status === "SUCCESS") {
-              this.success = "Success. Signed up with email: " + this.email;
-            } else this.error = "Signup failed: " + data.signup.message;
+            if (data.signin.status === "SUCCESS") {
+              this.success = "Signed in with " + this.email;
+              this.$emit("signin", this.email);
+            } else this.error = data.signin.message;
           })
-          .catch(
-            error => (this.error = "Sign up failed: " + error.response.message)
-          );
+          .catch(error => (this.error = "internal server error" + error));
         this.loading = false;
       }
     },
@@ -117,7 +101,8 @@ Example
 <template>
   <div>
     <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
-    <SignupForm v-else @signup="SignupTest" @cancel="display = false"/>
+    <!-- normally you don't need graphqlURL because that is available in apps context-->
+    <SigninForm v-else @login="signinTest" @cancel="display = false"/>
   </div>
 </template>
 <script>
@@ -129,8 +114,8 @@ Example
       };
     },
     methods: {
-      SignupTest(email, password) {
-        alert("sign up with email " + email + " and password " + password);
+      signinTest(email, password) {
+        alert("login with email " + email + " and password " + password);
         this.email = email;
       }
     }

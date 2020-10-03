@@ -1,10 +1,10 @@
 <template>
   <div>
-    <Theme :href="css" />
-    <Theme
+    <MolgenisTheme :href="css" />
+    <MolgenisTheme
       href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
     />
-    <Theme
+    <MolgenisTheme
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <NavBar
@@ -16,17 +16,25 @@
     </NavBar>
     <div style="background: #fafafa">
       <div
-        :class="fullscreen ? 'container-fluid' : 'container'"
-        :style="fullscreen ? '' : 'padding-top: 60px; padding-bottom: 60px;'"
+        :class="fullscreen ? 'container-xl' : 'container'"
+        style="background: #fafafa"
+        @keydown.esc="toggle"
+        :style="
+          fullscreen
+            ? 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index:1000'
+            : 'padding-top: 60px; padding-bottom: 60px;'
+        "
       >
-        <div class="row">
-          <div class="col-md-12">
+        <div class="col-md-12">
+          <div class="row">
             <IconAction
               class="fullscreen-icon"
               :icon="fullscreen ? 'compress' : 'expand'"
               @click="toggle"
             />
             <h1 v-if="title">{{ title }}</h1>
+          </div>
+          <div>
             <slot />
           </div>
         </div>
@@ -68,10 +76,10 @@ session = {{ session }}
 </style>
 
 <script>
-import NavBar from "../layout/NavBar";
+import NavBar from "./NavBar";
 import Session from "./MolgenisSession";
-import Theme from "../layout/Theme";
-import ShowMore from "../layout/ShowMore";
+import MolgenisTheme from "./MolgenisTheme";
+import ShowMore from "./ShowMore";
 import Footer from "./MolgenisFooter";
 import IconAction from "../forms/IconAction";
 
@@ -79,7 +87,7 @@ import IconAction from "../forms/IconAction";
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { Session, NavBar, Footer, Theme, ShowMore, IconAction },
+  components: { Session, NavBar, Footer, MolgenisTheme, ShowMore, IconAction },
   props: {
     menuItems: Array,
     title: String

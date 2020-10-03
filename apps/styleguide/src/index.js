@@ -4,7 +4,7 @@ import ButtonDanger from "./forms/ButtonDanger";
 
 import DataTable from "./tables/TableSimple";
 
-import Footer from "./signin/MolgenisFooter";
+import Footer from "./layout/MolgenisFooter";
 import FilterSidebar from "./tables/FilterSidebar";
 import FilterWells from "./tables/FilterWells";
 
@@ -37,7 +37,7 @@ import LayoutNavTabs from "./layout/NavTabs";
 
 import MessageSuccess from "./forms/MessageSuccess";
 import MessageError from "./forms/MessageError";
-import Molgenis from "./signin/Molgenis";
+import Molgenis from "./layout/Molgenis";
 import TableMolgenis from "./tables/TableMolgenis";
 import TableExplorer from "./tables/TableExplorer";
 
