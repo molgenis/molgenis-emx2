@@ -8,14 +8,18 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static javax.servlet.RequestDispatcher.ERROR_MESSAGE;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.CsvApi.SUCCESS_MESSAGE;
 
 public class OpenApiYamlGenerator {
 
@@ -45,19 +49,28 @@ public class OpenApiYamlGenerator {
     components.addSecuritySchemes("ApiKeyAuth", securityScheme());
     components.addSchemas(PROBLEM, problemSchema());
     components.addResponses(PROBLEM, problemResponse());
-    // components.addSchemas(SCHEMA, schemaSchema());
 
     // api/zip/:schema
-    PathItem zipPath = new PathItem();
-    zipPath.post(postFileOperation("Zip"));
-    zipPath.get(getFileOperation("Zip", ACCEPT_ZIP));
-    paths.addPathItem("/api/zip/" + schema.getName(), zipPath);
+    String zipType = "Zip";
+    String zipPrefix = "/api/zip/";
+    PathItem zipPath = getSchemaOperations(zipType, ACCEPT_ZIP);
+    paths.addPathItem(zipPrefix + schema.getName(), zipPath);
 
     // api/excel/:schema
-    PathItem excelPath = new PathItem();
-    excelPath.post(postFileOperation("Excel"));
-    excelPath.get(getFileOperation("Excel", ACCEPT_EXCEL));
-    paths.addPathItem("/api/excel/" + schema.getName(), excelPath);
+    String excelType = "Excel";
+    String excelPrefix = "/api/excel/";
+    PathItem excelPath = getSchemaOperations(excelType, ACCEPT_EXCEL);
+    paths.addPathItem(excelPrefix + schema.getName(), excelPath);
+
+    // table paths
+    for (TableMetadata table : schema.getTables()) {
+      paths.addPathItem(
+          excelPrefix + schema.getName() + "/" + table.getTableName(),
+          getExcelTableOperations(excelType));
+      paths.addPathItem(
+          zipPrefix + schema.getName() + "/" + table.getTableName(),
+          getExcelTableOperations(zipType));
+    }
 
     // api/csv/:schema
 
@@ -65,6 +78,28 @@ public class OpenApiYamlGenerator {
     api.setPaths(paths);
     api.setComponents(components);
     return api;
+  }
+
+  @NotNull
+  private static PathItem getSchemaOperations(String tag, String mimeType) {
+    PathItem excelPath = new PathItem();
+    excelPath.post(postFileOperation(tag));
+    excelPath.get(getFileOperation(tag, mimeType));
+    return excelPath;
+  }
+
+  @NotNull
+  private static PathItem getExcelTableOperations(String type) {
+    PathItem tablePath = new PathItem();
+    String mimeType = ACCEPT_EXCEL;
+
+    tablePath.get(
+        new Operation()
+            .addTagsItem(type)
+            .summary("Get table rows in " + type + " format")
+            .responses(getResponses(mimeType)));
+
+    return tablePath;
   }
 
   private static SecurityScheme securityScheme() {
@@ -115,16 +150,19 @@ public class OpenApiYamlGenerator {
     return new Operation()
         .summary("Get complete schema metadata as " + type)
         .addTagsItem(type)
-        .responses(
-            new ApiResponses()
-                .addApiResponse(
-                    OK,
-                    new ApiResponse()
-                        .content(
-                            new Content()
-                                .addMediaType(
-                                    mimeType,
-                                    new MediaType().schema(new StringSchema().format("binary"))))));
+        .responses(getResponses(mimeType));
+  }
+
+  private static ApiResponses getResponses(String mimeType) {
+    return new ApiResponses()
+        .addApiResponse(
+            OK,
+            new ApiResponse()
+                .content(
+                    new Content()
+                        .addMediaType(
+                            mimeType,
+                            new MediaType().schema(new StringSchema().format("binary")))));
   }
 
   private static Operation postFileOperation(String type) {
@@ -176,24 +214,5 @@ public class OpenApiYamlGenerator {
                 .addMediaType(
                     ACCEPT_JSON,
                     new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)))));
-  }
-
-  private static Schema schemaSchema() {
-
-    // column
-    Schema columnMetadata = new Schema();
-    columnMetadata.addProperties("name", new StringSchema());
-    columnMetadata.addProperties("type", new StringSchema());
-
-    // table
-    Schema tableMetadata = new Schema();
-    tableMetadata.addProperties("name", new StringSchema());
-    tableMetadata.addProperties("columns", new ArraySchema().items(columnMetadata));
-
-    // schema
-    Schema metadataSchema = new Schema();
-    metadataSchema.addProperties("tables", new ArraySchema().items(tableMetadata));
-
-    return metadataSchema;
   }
 }

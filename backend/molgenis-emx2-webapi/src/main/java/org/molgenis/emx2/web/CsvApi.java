@@ -41,11 +41,11 @@ import static spark.Spark.*;
 
 public class CsvApi {
 
-  private static final String MUTATION_REQUEST = "mutationRequestType";
-  private static final String ERROR_MESSAGE = "errorMessageType";
-  private static final String SUCCESS_MESSAGE = "successMessageType";
-  private static final String CSV_OUTPUT = "csvOutputType";
-  private static final String META = "_meta";
+  public static final String MUTATION_REQUEST = "mutationRequestType";
+  public static final String ERROR_MESSAGE = "errorMessageType";
+  public static final String SUCCESS_MESSAGE = "successMessageType";
+  public static final String CSV_OUTPUT = "csvOutputType";
+  public static final String META = "_meta";
 
   private CsvApi() {
     // hide constructor
@@ -54,21 +54,21 @@ public class CsvApi {
   public static void create() {
 
     // schema level operations
-    final String schemaPath = "/api/csv/:schema";
+    final String schemaPath = "/:schema/api/csv";
     get(schemaPath, CsvApi::getMetadata);
     patch(schemaPath, CsvApi::mergeMetadata);
     delete(schemaPath, CsvApi::discardMetadata);
 
     // table level operations
-    final String tablePath = "/api/csv/:schema/:table";
+    final String tablePath = "/:schema/api/csv/:table";
     get(tablePath, CsvApi::tableRetrieve);
     post(tablePath, CsvApi::tableInsert);
     patch(tablePath, CsvApi::tableUpdate);
     delete(tablePath, CsvApi::tableDelete);
 
     // open api
-    get("/openapi/csv/:schema", OpenApiUiFactory::getOpenApiUserInterface);
-    get("/openapi/csv/:schema/openapi.yaml", CsvApi::getOpenApiYaml);
+    get("/:schema/api/openapi/csv", OpenApiUiFactory::getOpenApiUserInterface);
+    get("/:schema/api/openapi/csv/openapi.yaml", CsvApi::getOpenApiYaml);
   }
 
   private static String discardMetadata(Request request, Response response) throws IOException {

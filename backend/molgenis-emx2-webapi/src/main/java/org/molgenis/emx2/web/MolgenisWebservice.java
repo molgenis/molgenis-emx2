@@ -66,11 +66,19 @@ public class MolgenisWebservice {
 
     // documentation operations
     get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
-    get("/api/openapi/:schema", OpenApiUiFactory::getOpenApiUserInterface);
-    get("/api/openapi/:schema/openapi.yaml", MolgenisWebservice::openApiYaml);
+    // docs per schema
+    get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
+    get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // services (matched in order of creation)
     AppsProxyService.create(new SqlDatabase(ds));
+
+    get(
+        "/:schema/api",
+        (request, response) -> {
+          return "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>";
+        });
+
     CsvApi.create();
     ZipApi.create();
     ExcelApi.create();
@@ -117,13 +125,13 @@ public class MolgenisWebservice {
     result.append("<p/>Schema APIs:<ul>");
     for (String name : sessionManager.getSession(request).getDatabase().getSchemaNames()) {
       result.append("<li>" + name);
-      result.append(" <a href=\"/api/openapi/" + name + "\">openapi</a>");
+      result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
-          " graphql: <a href=\"/api/graphql/"
+          " graphql: <a href=\"/"
               + name
-              + "\">endpoint</a> <a href=\"/api/playground.html?schema=/api/graphql/"
+              + "/graphql\">endpoint</a> <a href=\"/api/playground.html?schema=/"
               + name
-              + "\">playground</a>");
+              + "/graphql\">playground</a>");
       result.append("</li>");
     }
     result.append("</ul>");
@@ -147,11 +155,13 @@ public class MolgenisWebservice {
   /** get database either from session or based on token */
   // helper method used in multiple places
   public static Table getTable(Request request) {
-    return sessionManager
-        .getSession(request)
-        .getDatabase()
-        .getSchema(sanitize(request.params(SCHEMA)))
-        .getTable(sanitize(request.params(TABLE)));
+    String schemaName = request.params(SCHEMA);
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
+    if (schema == null) {
+      throw new MolgenisException("Schema " + schemaName + " unknown or access denied", "");
+    }
+    return schema.getTable(sanitize(request.params(TABLE)));
   }
 
   public static Schema getSchema(Request request) {

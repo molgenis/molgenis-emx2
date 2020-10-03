@@ -1,8 +1,11 @@
 package org.molgenis.emx2.web;
 
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.SchemaExport;
 import org.molgenis.emx2.io.SchemaImport;
+import org.molgenis.emx2.io.TableExport;
 import spark.Request;
 import spark.Response;
 
@@ -18,7 +21,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -32,6 +37,10 @@ public class ZipApi {
     final String schemaPath = "/api/zip/:schema"; // NOSONAR
     get(schemaPath, ZipApi::getZip);
     post(schemaPath, ZipApi::postZip);
+
+    // table level operations
+    final String tablePath = "/api/zip/:schema/:table"; // NOSONAR
+    get(tablePath, ZipApi::getZipTable);
   }
 
   static String getZip(Request request, Response response) throws IOException {
@@ -86,5 +95,31 @@ public class ZipApi {
 
     response.status(200);
     return "Import success";
+  }
+
+  static String getZipTable(Request request, Response response) throws IOException {
+    Table table = getTable(request);
+    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    tempDir.toFile().deleteOnExit();
+    try (OutputStream outputStream = response.raw().getOutputStream()) {
+      Path zipFile = tempDir.resolve("download.zip");
+      TableExport.toZipFile(zipFile, table.query());
+      outputStream.write(Files.readAllBytes(zipFile));
+      response.type("application/zip");
+      response.header(
+          "Content-Disposition",
+          "attachment; filename="
+              + table.getSchema().getMetadata().getName()
+              + "_"
+              + table.getName()
+              + System.currentTimeMillis()
+              + ".zip");
+      return "Export success";
+    } finally {
+      try (Stream<Path> files = Files.walk(tempDir)) {
+        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
+    }
   }
 }

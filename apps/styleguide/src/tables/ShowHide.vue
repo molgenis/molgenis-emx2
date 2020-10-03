@@ -8,7 +8,6 @@
       aria-expanded="false"
       @click="toggle"
     >
-      <span v-if="label">{{ label }} </span>
       <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg'"></span>
     </button>
     <div
@@ -18,6 +17,8 @@
       v-click-outside="toggle"
     >
       <div class="form-group dropdown-item" :key="timestamp">
+        <ButtonAlt @click="showAll">show all {{ label }}</ButtonAlt>
+        <ButtonAlt @click="hideAll">hide all {{ label }}</ButtonAlt>
         <div class="form-check" v-for="col in value" :key="col.name">
           <input
             class="form-check-input"
@@ -30,8 +31,6 @@
             {{ col.name }}
           </label>
         </div>
-        <ButtonAlt @click="showAll">show all</ButtonAlt>
-        <ButtonAlt @click="hideAll">hide all</ButtonAlt>
       </div>
     </div>
   </div>

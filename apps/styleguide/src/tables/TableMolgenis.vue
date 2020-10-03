@@ -1,7 +1,7 @@
 <template>
   <div class="table-responsive">
     <table
-      class="table table-bordered table-condensed"
+      class="table table-bordered table-sm"
       :class="{ 'table-hover': select }"
       :key="timestamp"
     >

@@ -5,6 +5,9 @@
     <MessageError v-if="!schema"
       >No tables found. Might you need to login?
     </MessageError>
+    Download:
+    <a href="../api/zip"> zip</a>
+    <a href="../api/excel"> Excel</a>
     <table class="table">
       <thead>
         <tr>

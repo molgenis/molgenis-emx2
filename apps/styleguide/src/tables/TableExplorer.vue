@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="tableMetadata">
-      <div class="navbar navbar-expand-lg">
+      <div class="navbar shadow-none navbar-expand-lg">
         <h1>
           {{ table }}
         </h1>
@@ -11,6 +11,7 @@
           v-model="tableMetadata.columns"
           checkAttribute="showColumn"
           @input="updateTimestamp"
+          label="columns"
           icon="columns"
         />
         <ShowHide
@@ -18,6 +19,7 @@
           v-model="tableMetadata.columns"
           checkAttribute="showFilter"
           @input="updateTimestamp"
+          label="filters"
           icon="filter"
         />
         <Pagination

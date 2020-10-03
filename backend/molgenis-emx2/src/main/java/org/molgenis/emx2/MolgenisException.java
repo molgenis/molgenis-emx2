@@ -7,36 +7,40 @@ import java.util.Collections;
 import java.util.List;
 
 public class MolgenisException extends RuntimeException {
-  private final String title;
   private final String message;
   private final Class type;
   private final List<MolgenisExceptionDetail> details = new ArrayList<>();
 
-  public MolgenisException(String title, Exception cause) {
+  public MolgenisException(String message, Exception cause) {
     super(cause);
     this.type = getClass();
-    this.title = title;
-    this.message = cause.getMessage();
+    this.message = message + ": " + cause.getMessage();
   }
 
-  public MolgenisException(String title, String message) {
+  public MolgenisException(String message) {
     this.type = getClass();
-    this.title = title;
     this.message = message;
   }
 
+  @Deprecated
+  public MolgenisException(String title, String message) {
+    this.type = getClass();
+    this.message = title + ": " + message;
+  }
+
+  @Deprecated
   public MolgenisException(String title, String message, Exception e) {
     super(e);
     this.type = getClass();
-    this.title = title;
-    this.message = message;
+    this.message = title + ": " + message;
+    ;
   }
 
+  @Deprecated
   public MolgenisException(String title, String message, List<MolgenisExceptionDetail> details) {
     super(message + "\nSee getMessages() for list of error messages");
     this.type = getClass();
-    this.title = title;
-    this.message = message;
+    this.message = title + ": " + message;
     this.details.addAll(details);
   }
 
@@ -53,11 +57,7 @@ public class MolgenisException extends RuntimeException {
     return null;
   }
 
-  public String getTitle() {
-    return title;
-  }
-
   public String toString() {
-    return "Title: " + getTitle() + "\nMessage: " + getMessage();
+    return getMessage();
   }
 }

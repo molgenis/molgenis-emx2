@@ -28,7 +28,7 @@ public class OpenApiUiFactory {
             + "      // Begin Swagger UI call region\n"
             + "      const ui = SwaggerUIBundle({\n"
             + "        \"dom_id\": \"#swagger\",\n"
-            + "        url: \"%s/openapi.yaml\",\n"
+            + "        url: \"openapi.yaml\",\n"
             + "        deepLinking: true,\n"
             + "        presets: [\n"
             + "          SwaggerUIBundle.presets.apis,\n"

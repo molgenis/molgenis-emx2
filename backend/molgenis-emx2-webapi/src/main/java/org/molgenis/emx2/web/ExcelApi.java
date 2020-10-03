@@ -1,8 +1,11 @@
 package org.molgenis.emx2.web;
 
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.SchemaExport;
 import org.molgenis.emx2.io.SchemaImport;
+import org.molgenis.emx2.io.TableExport;
 import spark.Request;
 import spark.Response;
 
@@ -16,7 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -30,6 +35,10 @@ public class ExcelApi {
     final String schemaPath = "/api/excel/:schema"; // NOSONAR
     get(schemaPath, ExcelApi::getExcel);
     post(schemaPath, ExcelApi::postExcel);
+
+    // table level operations
+    final String tablePath = "/api/excel/:schema/:table"; // NOSONAR
+    get(tablePath, ExcelApi::getExcelTable);
   }
 
   static String postExcel(Request request, Response response) throws IOException, ServletException {
@@ -62,6 +71,28 @@ public class ExcelApi {
           "Content-Disposition",
           "attachment; filename="
               + schema.getMetadata().getName()
+              + System.currentTimeMillis()
+              + ".xlsx");
+      outputStream.write(Files.readAllBytes(excelFile));
+      return "Export success";
+    }
+  }
+
+  static String getExcelTable(Request request, Response response) throws IOException {
+    Table table = getTable(request);
+    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    tempDir.toFile().deleteOnExit();
+    try (OutputStream outputStream = response.raw().getOutputStream()) {
+      Path excelFile = tempDir.resolve("download.xlsx");
+      TableExport.toExcelFile(excelFile, table.query());
+      response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      response.header(
+          "Content-Disposition",
+          "attachment; filename="
+              + table.getSchema().getMetadata().getName()
+              + "_"
+              + table.getName()
               + System.currentTimeMillis()
               + ".xlsx");
       outputStream.write(Files.readAllBytes(excelFile));

@@ -33,7 +33,7 @@ public class GroupPathMapper {
     // return index.html file when in root
     get("/*/:appname/", GroupPathMapper::returnIndexFile);
 
-    // redirect  js/css assets so they get cached between schemas
+    // redirect  js/css assets so they get cached between schemas (VERY GREEDY, SHOULD BE LAST CALL)
     get("/:schema/:appname/*", GroupPathMapper::redirectAssets);
   }
 

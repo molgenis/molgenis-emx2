@@ -54,7 +54,7 @@ public class GraphqlApi {
     post(databasePath, GraphqlApi::handleDatabaseRequests);
 
     // per schema graphql
-    final String schemaPath = "/api/graphql/:schema"; // NOSONAR
+    final String schemaPath = "/:schema/graphql"; // NOSONAR
     get(schemaPath, GraphqlApi::handleSchemaRequests);
     post(schemaPath, GraphqlApi::handleSchemaRequests);
   }
