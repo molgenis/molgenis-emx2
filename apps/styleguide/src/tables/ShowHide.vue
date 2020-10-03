@@ -1,25 +1,14 @@
 <template>
-  <div class="dropdown" :class="{ show: display }">
-    <button
-      class=" btn btn-link"
-      type="button"
-      data-toggle="dropdown"
-      aria-haspopup="true"
-      aria-expanded="false"
-      @click="toggle"
-    >
-      <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg'"></span>
-    </button>
-    <div
-      v-if="display"
-      class="dropdown-menu"
-      :class="{ show: display }"
-      v-click-outside="toggle"
-    >
-      <div class="form-group dropdown-item" :key="timestamp">
-        <ButtonAlt @click="showAll">show all {{ label }}</ButtonAlt>
-        <ButtonAlt @click="hideAll">hide all {{ label }}</ButtonAlt>
-        <div class="form-check" v-for="col in value" :key="col.name">
+  <ButtonDropdown :icon="icon">
+    <div>
+      <ButtonAlt @click="showAll">show all {{ label }}</ButtonAlt>
+      <ButtonAlt @click="hideAll">hide all {{ label }}</ButtonAlt>
+      <div>
+        <div
+          class="form-check"
+          v-for="col in value"
+          :key="col.name + col[checkAttribute]"
+        >
           <input
             class="form-check-input"
             type="checkbox"
@@ -33,18 +22,15 @@
         </div>
       </div>
     </div>
-  </div>
+  </ButtonDropdown>
 </template>
 
 <script>
 import ButtonAlt from "../forms/ButtonAlt";
-import vClickOutside from "v-click-outside";
+import ButtonDropdown from "../forms/ButtonDropdown";
 
 export default {
-  components: { ButtonAlt },
-  directives: {
-    clickOutside: vClickOutside.directive
-  },
+  components: { ButtonAlt, ButtonDropdown },
   props: {
     value: {},
     label: String,
@@ -53,14 +39,10 @@ export default {
   },
   data() {
     return {
-      display: false,
       timestamp: 0
     };
   },
   methods: {
-    toggle() {
-      this.display = !this.display;
-    },
     updateTimestamp() {
       this.timestamp = new Date().getTime();
     },

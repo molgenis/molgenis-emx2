@@ -13,6 +13,7 @@
           @input="updateTimestamp"
           label="columns"
           icon="columns"
+          :key="JSON.stringify(tableMetadata.columns)"
         />
         <ShowHide
           class="navbar-nav "
@@ -21,6 +22,7 @@
           @input="updateTimestamp"
           label="filters"
           icon="filter"
+          :key="JSON.stringify(tableMetadata.columns)"
         />
         <Pagination
           class="navbar-nav"
