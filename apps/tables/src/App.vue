@@ -78,6 +78,11 @@ export default {
   },
   created() {
     this.loadSchema();
+  },
+  watch: {
+    session() {
+      this.loadSchema();
+    }
   }
 };
 </script>
