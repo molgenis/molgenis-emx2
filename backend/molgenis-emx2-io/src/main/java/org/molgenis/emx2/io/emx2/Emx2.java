@@ -128,6 +128,6 @@ public class Emx2 {
 
   public static void toCsv(SchemaMetadata model, Writer writer, Character separator)
       throws IOException {
-    CsvTableWriter.rowsToCsv(toRowList(model), writer, separator);
+    CsvTableWriter.write(toRowList(model), writer, separator);
   }
 }

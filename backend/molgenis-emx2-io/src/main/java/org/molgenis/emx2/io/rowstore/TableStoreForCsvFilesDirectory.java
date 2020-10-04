@@ -34,7 +34,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);
-      CsvTableWriter.rowsToCsv(rows, writer, separator);
+      CsvTableWriter.write(rows, writer, separator);
       writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("Impoart failed", ioe.getMessage(), ioe);

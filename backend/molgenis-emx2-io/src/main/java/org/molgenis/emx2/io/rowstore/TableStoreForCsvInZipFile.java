@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.rowstore;
 
-import org.apache.commons.compress.archivers.zip.ZipExtraField;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class TableStoreForCsvInZipFile implements TableStore {
@@ -62,7 +60,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       try (FileSystem zipfs = open()) {
         Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
         Writer writer = Files.newBufferedWriter(pathInZipfile);
-        CsvTableWriter.rowsToCsv(rows, writer, separator);
+        CsvTableWriter.write(rows, writer, separator);
         writer.close();
       } catch (IOException ioe) {
         throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
@@ -95,7 +93,10 @@ public class TableStoreForCsvInZipFile implements TableStore {
   private ZipEntry getEntry(ZipFile zf, String name) {
     List<ZipEntry> result =
         zf.stream()
-            .filter(e -> e.getName().endsWith(File.separator + name + CSV_EXTENSION))
+            .filter(
+                e ->
+                    e.getName().equals(name + CSV_EXTENSION)
+                        || e.getName().endsWith(File.separator + name + CSV_EXTENSION))
             .collect(Collectors.toList());
     if (result.size() > 1) {
       throw new MolgenisException(

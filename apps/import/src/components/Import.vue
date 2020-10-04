@@ -5,8 +5,11 @@
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <InputFile v-model="file" />
-      <ButtonAction @click="upload" :disabled="file == undefined">
-        Import
+      <ButtonAction @click="upload('excel')" :disabled="file == undefined">
+        Import Excel
+      </ButtonAction>
+      <ButtonAction @click="upload('zip')" :disabled="file == undefined">
+        Import Zip
       </ButtonAction>
     </div>
   </Molgenis>
@@ -56,13 +59,13 @@ export default {
         })
         .finally((this.loading = false));
     },
-    upload() {
+    upload(type) {
       this.error = null;
       this.success = null;
       this.loading = true;
       let formData = new FormData();
       formData.append("file", this.file);
-      let url = "/api/excel/" + this.schema;
+      let url = "/" + this.schema + "/api/" + type;
       fetch(url, {
         method: "POST",
         body: formData

@@ -13,8 +13,7 @@ public class CsvTableWriter {
     // hide constructor
   }
 
-  public static void rowsToCsv(List<Row> rows, Writer writer, Character seperator)
-      throws IOException {
+  public static void write(List<Row> rows, Writer writer, Character seperator) throws IOException {
 
     if (rows.isEmpty()) return;
 

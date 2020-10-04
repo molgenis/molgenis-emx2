@@ -24,7 +24,7 @@ public class TableExport {
   public static void toCsvFile(Path csvFile, Query query) {
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
-      CsvTableWriter.rowsToCsv(query.retrieveRows(), writer, ',');
+      CsvTableWriter.write(query.retrieveRows(), writer, ',');
       writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("Export failed", ioe.getMessage(), ioe);
