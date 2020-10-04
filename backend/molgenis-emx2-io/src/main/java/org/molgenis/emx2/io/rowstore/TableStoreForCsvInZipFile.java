@@ -1,14 +1,12 @@
 package org.molgenis.emx2.io.rowstore;
 
+import org.apache.commons.compress.archivers.zip.ZipExtraField;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -17,6 +15,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 public class TableStoreForCsvInZipFile implements TableStore {
   static final String CSV_EXTENSION = ".csv";
@@ -25,7 +27,6 @@ public class TableStoreForCsvInZipFile implements TableStore {
 
   public TableStoreForCsvInZipFile(Path zipFilePath, Character separator) {
     this.zipFilePath = zipFilePath;
-    this.create();
     this.separator = separator;
   }
 
@@ -55,6 +56,9 @@ public class TableStoreForCsvInZipFile implements TableStore {
   @Override
   public void writeTable(String name, List<Row> rows) {
     if (!rows.isEmpty()) {
+      if (!Files.exists(zipFilePath)) {
+        create();
+      }
       try (FileSystem zipfs = open()) {
         Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
         Writer writer = Files.newBufferedWriter(pathInZipfile);
@@ -68,23 +72,38 @@ public class TableStoreForCsvInZipFile implements TableStore {
 
   @Override
   public List<Row> readTable(String name) {
-    try (FileSystem zipfs = open()) {
-      Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
-      Reader reader = Files.newBufferedReader(pathInZipfile);
+    try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
+      ZipEntry entry = getEntry(zf, name);
+      Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       return CsvTableReader.readList(reader, separator);
-    } catch (IOException ioe) {
-      throw new MolgenisException(
-          "Import failed", "Table '" + name + "' not found in file. " + ioe.getMessage(), ioe);
+    } catch (Exception e) {
+      throw new MolgenisException("Import failed: Table '" + name + "' not found in file. ", e);
     }
   }
 
   @Override
   public boolean containsTable(String name) {
-    try (FileSystem zipfs = open()) {
-      Path path = zipfs.getPath(File.separator + name + CSV_EXTENSION);
-      return Files.exists(path);
+    try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
+      ZipEntry entry = getEntry(zf, name);
+      return entry != null;
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed: ", ioe);
     }
+  }
+
+  // magic functiont to allow file in subfolder
+  private ZipEntry getEntry(ZipFile zf, String name) {
+    List<ZipEntry> result =
+        zf.stream()
+            .filter(e -> e.getName().endsWith(File.separator + name + CSV_EXTENSION))
+            .collect(Collectors.toList());
+    if (result.size() > 1) {
+      throw new MolgenisException(
+          "Import failed, contains multiple files of name " + name + " in different subfolders");
+    }
+    if (result.size() == 1) {
+      return result.get(0);
+    }
+    return null;
   }
 }

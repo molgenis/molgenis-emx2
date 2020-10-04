@@ -68,33 +68,37 @@ public class ZipApi {
   }
 
   static String postZip(Request request, Response response) throws IOException, ServletException {
+    Long start = System.currentTimeMillis();
     Schema schema = getSchema(request);
     // get uploaded file
-    File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
-    tempFile.deleteOnExit();
-    request.attribute(
-        "org.eclipse.jetty.multipartConfig",
-        new MultipartConfigElement(tempFile.getAbsolutePath()));
-    try (InputStream input = request.raw().getPart("file").getInputStream()) {
-      Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    File tempFile = File.createTempFile("temp_", ".tmp");
+    try {
+      request.attribute(
+          "org.eclipse.jetty.multipartConfig",
+          new MultipartConfigElement(tempFile.getAbsolutePath()));
+      try (InputStream input = request.raw().getPart("file").getInputStream()) {
+        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      }
+
+      // depending on file extension use proper importer
+      String fileName = request.raw().getPart("file").getSubmittedFileName();
+
+      if (fileName.endsWith(".zip")) {
+        SchemaImport.fromZipFile(tempFile.toPath(), schema);
+      } else if (fileName.endsWith(".xlsx")) {
+        SchemaImport.fromExcelFile(tempFile.toPath(), schema);
+      } else {
+        throw new IOException(
+            "File upload failed: extension "
+                + fileName.substring(fileName.lastIndexOf('.'))
+                + " not supported");
+      }
+
+      response.status(200);
+      return "Import success in " + (System.currentTimeMillis() - start) + "ms";
+    } finally {
+      tempFile.delete();
     }
-
-    // depending on file extension use proper importer
-    String fileName = request.raw().getPart("file").getSubmittedFileName();
-
-    if (fileName.endsWith(".zip")) {
-      SchemaImport.fromZipFile(tempFile.toPath(), schema);
-    } else if (fileName.endsWith(".xlsx")) {
-      SchemaImport.fromExcelFile(tempFile.toPath(), schema);
-    } else {
-      throw new IOException(
-          "File upload failed: extension "
-              + fileName.substring(fileName.lastIndexOf('.'))
-              + " not supported");
-    }
-
-    response.status(200);
-    return "Import success";
   }
 
   static String getZipTable(Request request, Response response) throws IOException {
