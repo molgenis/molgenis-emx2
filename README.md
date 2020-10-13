@@ -256,33 +256,32 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  implement menu setting so we can standardize menu as a default setting
 *  implement show/hide of columns
 *  implement order of columns in table view,
+*  enable user role based menu visibility
+*  ensure all roles of current user in current schema are returned
+*  upload files directly into postgresql
 
 ### first
-*  enable user role based menu visibility
+*  test large data
+*  upload and download settings and members (bacisally 'all')
 *  ENSURE PASSWORD IS NOT IN THE LOGS
-*  add audit trail
 *  implement order by in table view, default on lastUpdated
-*  default on lastUpdated
-*  bug, if I filter on refback column it fails, must now select reback.other column
-*  upload files directly into postgresql
+*  custom roles
+*  long running downloads as jobs
+*  add audit trail
 *  documentation framework so we can start adding some docs
 
 ### later
+*  bug, if I filter on refback column it fails, must now select reback.other column
 *  create plugin system for services (todo: isolation? runtime loading?)
 *  known bug: if I set refback for refarray to 'null' then ref is not updated!
-*  performance test
-*  custom roles
 *  user interface for row level security
 *  more filter option s for array types (now only 'equals')
 *  improve error titles and messages
-*  seperate upsert from update
 *  merge Schema and SchemaMetadata and Table and TableMetadata
-*  check that 64char identifier limit doesn't break query aliases that get damn long
 *  column level permissions
 *  flattened result in graphql for tables, including group by
     *  sorting on nested fields in graphql; showing graphql as flat table
     *  csv result field for that flattened result
-*  test and fix the openapi so all the docs just work
 *  Search should work on refback columns
 *  group by
 *  graph mutation next to flat mutation
@@ -300,7 +299,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  computed values?
 *  create validation procedure for Schema/Table/Column so we can give complete error messages and remove model checks from from SQL parts
 
-### someday
+### someday maybe
 *  throw error when webservice is called with only csv header and no values
 *  update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey then?)
 *  job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
