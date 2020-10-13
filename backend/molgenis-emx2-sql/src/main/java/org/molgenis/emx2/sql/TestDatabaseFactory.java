@@ -15,6 +15,7 @@ public class TestDatabaseFactory {
 
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
+  private static HikariDataSource dataSource = null;
 
   private TestDatabaseFactory() {
     // to hide the public constructor
@@ -44,10 +45,12 @@ public class TestDatabaseFactory {
     String url = "jdbc:postgresql:molgenis";
 
     // createColumn data source
-    HikariDataSource dataSource = new HikariDataSource();
-    dataSource.setJdbcUrl(url);
-    dataSource.setUsername("molgenis");
-    dataSource.setPassword("molgenis");
+    if (dataSource == null) {
+      dataSource = new HikariDataSource();
+      dataSource.setJdbcUrl(url);
+      dataSource.setUsername("molgenis");
+      dataSource.setPassword("molgenis");
+    }
 
     return getTestDatabase(dataSource, deleteAll);
   }

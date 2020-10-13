@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static junit.framework.TestCase.fail;
 
@@ -115,7 +117,9 @@ public class TestReadWriteStores {
 
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    List<Row> rows2 = store.readTable("test2");
+    List<Row> rows2 =
+        StreamSupport.stream(store.readTable("test2").spliterator(), false)
+            .collect(Collectors.toList());
     // for (Row r : rows2) System.out.println(r);
     StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
@@ -126,7 +130,9 @@ public class TestReadWriteStores {
     store.writeTable("test3", rows);
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
-    rows2 = store.readTable("test3");
+    rows2 =
+        StreamSupport.stream(store.readTable("test3").spliterator(), false)
+            .collect(Collectors.toList());
     // for (Row r : rows2) System.out.println(r);
     StopWatch.print("fromReader them back from " + store.getClass().getSimpleName(), count);
 
@@ -136,7 +142,7 @@ public class TestReadWriteStores {
 
     // test that reading store that doesn't exist errors properly
     try {
-      rows = store.readTable("fake");
+      store.readTable("fake");
       fail("should have failed");
     } catch (MolgenisException me) {
       System.out.println("errored correctly:" + me);

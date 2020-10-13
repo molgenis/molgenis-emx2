@@ -29,7 +29,7 @@ public class Emx2 {
   private static final String VALIDATION = "validation";
   private static final String RDF_TEMPLATE = "rdfTemplate";
 
-  public static SchemaMetadata fromRowList(List<Row> rows) {
+  public static SchemaMetadata fromRowList(Iterable<Row> rows) {
 
     SchemaMetadata schema = new SchemaMetadata();
     int lineNo = 1;
@@ -123,7 +123,7 @@ public class Emx2 {
   }
 
   public static SchemaMetadata loadEmx2File(File file, Character separator) throws IOException {
-    return fromRowList(CsvTableReader.readList(file, separator));
+    return fromRowList(CsvTableReader.read(file, separator));
   }
 
   public static void toCsv(SchemaMetadata model, Writer writer, Character separator)

@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface TableStore {
 
-  void writeTable(String name, List<Row> rows);
+  void writeTable(String name, Iterable<Row> rows);
 
-  List<Row> readTable(String name);
+  Iterable<Row> readTable(String name);
+
+  void processTable(String name, RowProcessor processor);
 
   boolean containsTable(String name);
 }

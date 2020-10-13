@@ -123,10 +123,10 @@ public class TestGraphQLCompositeKeys {
         execute(
             "{TargetTable" + filter + "{firstName,lastName},TargetTable_agg" + filter + "{count}}");
     System.out.println(result.toPrettyString());
-    assertEquals("Katrien", result.at("/TargetTable/0/firstName").asText());
-    assertEquals("Mouse", result.at("/TargetTable/0/lastName").asText());
-    assertEquals("Donald", result.at("/TargetTable/1/firstName").asText());
-    assertEquals("Duck", result.at("/TargetTable/1/lastName").asText());
+    assertEquals("Donald", result.at("/TargetTable/0/firstName").asText());
+    assertEquals("Duck", result.at("/TargetTable/0/lastName").asText());
+    assertEquals("Katrien", result.at("/TargetTable/1/firstName").asText());
+    assertEquals("Mouse", result.at("/TargetTable/1/lastName").asText());
     assertEquals(2, result.at("/TargetTable_agg/count").asInt());
 
     filter = "(filter:{ref:{equals:[{firstName:\"Donald\",lastName:\"Duck\"}]}})";

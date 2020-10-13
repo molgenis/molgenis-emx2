@@ -251,11 +251,16 @@ class SqlColumnRefArrayExecutor {
             .map(r -> "COALESCE(error_row." + name(r.getTo()).toString() + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 
+    String exceptFilter =
+        column.getReferences().stream()
+            .map(r -> name(r.getTo()) + " = ANY (NEW." + name(r.getName()) + ")")
+            .collect(Collectors.joining(" AND "));
+
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
             + "\nDECLARE error_row RECORD;"
             + "\nBEGIN"
-            + "\n\tFOR error_row IN SELECT * FROM UNNEST({1}) AS t({2}) EXCEPT SELECT {2} FROM {3} LOOP"
+            + "\n\tFOR error_row IN SELECT * FROM UNNEST({1}) AS t({2}) EXCEPT SELECT {2} FROM {3} WHERE {10} LOOP"
             + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'insert or update on table \"'||{9}||'\" violates foreign key constraint'"
             + " , DETAIL = 'Key ('||{6}||')=('|| {5} ||') is not present in table \"'||{7}||'\", column(s)('||{8}||')';"
             + "\n\tEND LOOP;"
@@ -280,7 +285,9 @@ class SqlColumnRefArrayExecutor {
         // 8
         inline(toColumns),
         // 9
-        inline(column.getTableName()));
+        inline(column.getTableName()),
+        // 10
+        keyword(exceptFilter));
 
     // check foreign key exists
     //    jooq.execute(

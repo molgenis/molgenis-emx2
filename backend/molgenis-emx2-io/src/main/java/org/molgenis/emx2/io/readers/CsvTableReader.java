@@ -5,10 +5,8 @@ import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CsvTableReader {
@@ -21,24 +19,8 @@ public class CsvTableReader {
     return read(new FileReader(f), ',');
   }
 
-  public static Iterable<Row> read(File f, Character separator) throws IOException {
-    return read(new FileReader(f), separator);
-  }
-
-  public static List<Row> readList(File file, Character separator) throws FileNotFoundException {
-    List<Row> result = new ArrayList<>();
-    for (Row r : read(new FileReader(file), separator)) {
-      result.add(r);
-    }
-    return result;
-  }
-
-  public static List<Row> readList(Reader in, Character separator) {
-    List<Row> result = new ArrayList<>();
-    for (Row r : read(in, separator)) {
-      result.add(r);
-    }
-    return result;
+  public static Iterable<Row> read(File file, Character separator) throws FileNotFoundException {
+    return read(new FileReader(file), separator);
   }
 
   public static Iterable<Row> read(Reader in, Character separator) {
@@ -48,7 +30,7 @@ public class CsvTableReader {
           CsvParser.dsl().separator(separator).trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
 
       return () ->
-          new Iterator<Row>() {
+          new Iterator<>() {
             final Iterator<LinkedHashMap> it = iterator;
             final AtomicInteger line = new AtomicInteger(1);
 
@@ -78,7 +60,7 @@ public class CsvTableReader {
             }
           };
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe);
     }
   }
 }

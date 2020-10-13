@@ -5,18 +5,20 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.postgresql.copy.CopyManager;
+import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.io.*;
+import java.sql.Connection;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 class SqlTable implements Table {
   private SqlDatabase db;
@@ -36,6 +38,76 @@ class SqlTable implements Table {
   @Override
   public SqlTableMetadata getMetadata() {
     return metadata;
+  }
+
+  public void copyOut(Writer writer) {
+    db.getJooq()
+        .connection(
+            connection -> {
+              try {
+                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
+                String selectQuery =
+                    "select "
+                        + this.getMetadata().getLocalColumnNames().stream()
+                            .map(c -> "\"" + c + "\"")
+                            .collect(Collectors.joining(","))
+                        + " from \""
+                        + getSchema().getMetadata().getName()
+                        + "\".\""
+                        + getName()
+                        + "\"";
+                cm.copyOut(
+                    "COPY (" + selectQuery + " ) TO STDOUT WITH (FORMAT CSV,HEADER )", writer);
+              } catch (Exception e) {
+                throw new MolgenisException("copyOut failed: ", e);
+              }
+            });
+  }
+
+  public void copyIn(Iterable<Row> rows) {
+    db.getJooq()
+        .connection(
+            connection -> {
+              try {
+                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
+
+                // must be batched
+                StringBuffer tmp = new StringBuffer();
+                tmp.append(
+                    this.getMetadata().getLocalColumnNames().stream()
+                            .map(c -> "\"" + c + "\"")
+                            .collect(Collectors.joining(","))
+                        + "\n");
+                for (Row row : rows) {
+                  StringBuffer line = new StringBuffer();
+                  for (Column c : this.getMetadata().getLocalColumns()) {
+                    if (!row.containsName(c.getName())) {
+                      line.append(",");
+                    } else {
+                      Object value = getTypedValue(row, c.getName(), c.getColumnType());
+                      line.append(value + ",");
+                    }
+                  }
+                  tmp.append(line.toString().substring(0, line.length() - 1) + "\n");
+                }
+
+                String tableName =
+                    "\"" + getSchema().getMetadata().getName() + "\".\"" + getName() + "\"";
+                // System.out.println(tmp.toString());
+
+                String columnNames =
+                    "("
+                        + this.getMetadata().getLocalColumnNames().stream()
+                            .map(c -> "\"" + c + "\"")
+                            .collect(Collectors.joining(","))
+                        + ")";
+                String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
+                System.out.println(sql);
+                cm.copyIn(sql, new StringReader(tmp.toString()));
+              } catch (Exception e) {
+                throw new MolgenisException("copyOut failed: ", e);
+              }
+            });
   }
 
   public int insert(Iterable<Row> rows) {
@@ -68,6 +140,7 @@ class SqlTable implements Table {
             int i = 0;
             for (Row row : rows) {
               step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
+              // step.values(row.getValueMap());
               i++;
               // execute batch
               if (i % batchSize == 0) {
@@ -126,7 +199,7 @@ class SqlTable implements Table {
             }
 
             // keep batchsize smaller to limit memory footprint
-            int batchSize = 1000;
+            int batchSize = 100000;
 
             // execute in batches (batch by size or because columns set change)
             TableMetadata tableMetadata = getMetadata();

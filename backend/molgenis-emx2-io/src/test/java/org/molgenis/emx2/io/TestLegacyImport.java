@@ -40,7 +40,7 @@ public class TestLegacyImport {
 
     ClassLoader classLoader = getClass().getClassLoader();
     File file = new File(classLoader.getResource("bbmri-nl-complete.zip").getFile());
-    TableStore store = new TableStoreForCsvInZipFile(file.toPath(), ',');
+    TableStore store = new TableStoreForCsvInZipFile(file.toPath());
 
     Schema schema = db.dropCreateSchema("testImportLegacyFormatZip");
     executeTest(store, schema);

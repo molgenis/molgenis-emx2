@@ -145,12 +145,11 @@ public class SqlColumnExecutor {
         // if ref_array drop the index
         if (REF_ARRAY.equals(oldColumn.getColumnType())) {
           for (Reference ref : oldColumn.getReferences()) {
-            //            if (!ref.isExisting()) {
-            //              jooq.execute(
-            //                  "DROP INDEX {0}",
-            //                  name(oldColumn.getSchemaName(), table.getName() + "/" +
-            // ref.getName()));
-            //            }
+            if (!ref.isExisting()) {
+              jooq.execute(
+                  "DROP INDEX {0}",
+                  name(oldColumn.getSchemaName(), table.getName() + "/" + ref.getName()));
+            }
           }
         }
         Field oldField = oldColumn.getReferences().get(0).getJooqField();
@@ -179,13 +178,13 @@ public class SqlColumnExecutor {
             postgresType);
 
         // if ref_array create the index
-        //        if (REF_ARRAY.equals(newColumn.getColumnType())) {
-        //          for (Reference ref : newColumn.getReferences()) {
-        //            if (!ref.isExisting()) {
-        //              executeCreateRefArrayIndex(jooq, table, ref);
-        //            }
-        //          }
-        //        }
+        if (REF_ARRAY.equals(newColumn.getColumnType())) {
+          for (Reference ref : newColumn.getReferences()) {
+            if (!ref.isExisting()) {
+              executeCreateRefArrayIndex(jooq, table, ref);
+            }
+          }
+        }
       }
     } else {
       alterField(
@@ -256,10 +255,9 @@ public class SqlColumnExecutor {
         if (!ref.isExisting()) {
           jooq.alterTable(column.getJooqTable()).addColumn(ref.getJooqField()).execute();
           // if ref_array to a string field we should index
-          // doesn't seem to speed up
-          //          if (REF_ARRAY.equals(column.getColumnType())) {
-          //            executeCreateRefArrayIndex(jooq, column.getJooqTable(), ref);
-          //          }
+          if (REF_ARRAY.equals(column.getColumnType())) {
+            executeCreateRefArrayIndex(jooq, column.getJooqTable(), ref);
+          }
         }
       }
     } else if (FILE.equals(column.getColumnType())) {

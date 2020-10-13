@@ -13,48 +13,7 @@
           :key="column.name + column.updateTime"
           @remove="hideFilter(idx)"
         >
-          <InputString
-            :list="true"
-            v-if="
-              column.columnType.startsWith('STRING') ||
-                column.columnType.startsWith('TEXT') ||
-                column.columnType.startsWith('UUID')
-            "
-            v-model="column.conditions"
-            :defaultValue="column.conditions"
-          />
-          <InputRangeInt
-            :list="true"
-            v-if="column.columnType.startsWith('INT')"
-            v-model="column.conditions"
-            :defaultValue="column.conditions"
-          />
-          <InputRangeDecimal
-            :list="true"
-            v-if="column.columnType.startsWith('DECIMAL')"
-            v-model="column.conditions"
-            :defaultValue="column.conditions"
-          />
-          <InputRangeDate
-            :list="true"
-            v-if="column.columnType.startsWith('DATE')"
-            v-model="column.conditions"
-            :defaultValue="column.conditions"
-          />
-          <InputCheckbox
-            :list="true"
-            v-if="column.columnType.startsWith('BOOL')"
-            :options="['true', 'false']"
-            v-model="column.conditions"
-            :defaultValue="column.conditions"
-          />
-          <InputRef
-            :list="true"
-            v-if="column.columnType.startsWith('REF')"
-            :refTable="column.refTable"
-            v-model="column.conditions"
-            :defaultValue="column.conditions"
-          />
+          <FilterInput :column="column" />
         </FilterContainer>
       </Draggable>
       <ShowMore title="debug">
@@ -70,25 +29,15 @@ filters = {{ filters }}
 
 <script>
 import FilterContainer from "./FilterContainer";
-import InputCheckbox from "../forms/InputCheckbox";
-import InputString from "../forms/InputString";
-import InputRangeInt from "../forms/InputRangeInt";
-import InputRangeDecimal from "../forms/InputRangeDecimal";
-import InputRangeDate from "../forms/InputRangeDate";
-import InputRef from "../forms/InputRef";
+import FilterInput from "./FilterInput";
 import ShowMore from "../layout/ShowMore";
 import Draggable from "vuedraggable";
 
 export default {
   components: {
+    FilterInput,
     FilterContainer,
     Draggable,
-    InputCheckbox,
-    InputString,
-    InputRangeInt,
-    InputRangeDecimal,
-    InputRangeDate,
-    InputRef,
     ShowMore
   },
   props: {
@@ -206,32 +155,32 @@ examples
         filters: [{
           "name": "orderId",
           "pkey": true,
-          "columnType": "STRING"
+          "columnType": "STRING", showFilter: true
         },
           {
             "name": "code",
             "columnType": "REF",
-            "refTable": "Code",
+            "refTable": "Code", showFilter: true
           },
           {
             "name": "quantity",
-            "columnType": "INT"
+            "columnType": "INT", showFilter: true
           },
           {
             "name": "price",
-            "columnType": "DECIMAL"
+            "columnType": "DECIMAL", showFilter: true
           },
           {
             "name": "complete",
-            "columnType": "BOOL"
+            "columnType": "BOOL", showFilter: true
           },
           {
             "name": "status",
-            "columnType": "STRING"
+            "columnType": "STRING", showFilter: true
           },
           {
             "name": "birthday",
-            "columnType": "DATE"
+            "columnType": "DATE", showFilter: true
           }]
       }
     }

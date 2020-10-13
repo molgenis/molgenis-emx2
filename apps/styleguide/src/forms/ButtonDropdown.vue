@@ -1,7 +1,12 @@
 <template>
   <div class="dropdown" :class="{ show: display }">
     <button
-      class=" btn btn-link"
+      class=" btn"
+      :class="{
+        'btn-outline-primary': !icon,
+        'dropdown-toggle': !icon,
+        'btn-link': icon
+      }"
       type="button"
       data-toggle="dropdown"
       aria-haspopup="true"

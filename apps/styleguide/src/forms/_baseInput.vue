@@ -34,6 +34,11 @@ export default {
       type: Boolean,
       default: false
     },
+    /** whether this should be rendered as filter option**/
+    filter: {
+      type: Boolean,
+      default: false
+    },
     /** whether to show clear buttons */
     clear: {
       type: Boolean,

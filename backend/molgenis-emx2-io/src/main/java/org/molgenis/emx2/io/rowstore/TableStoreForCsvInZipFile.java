@@ -15,21 +15,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class TableStoreForCsvInZipFile implements TableStore {
   static final String CSV_EXTENSION = ".csv";
+  static final String TSV_EXTENSION = ".tsv";
   private Path zipFilePath;
-  private Character separator;
-
-  public TableStoreForCsvInZipFile(Path zipFilePath, Character separator) {
-    this.zipFilePath = zipFilePath;
-    this.separator = separator;
-  }
+  private final Character CSV_SEPARATOR = ',';
+  private final Character TSV_SEPARATOR = '\t';
 
   public TableStoreForCsvInZipFile(Path zipFilePath) {
-    this(zipFilePath, ',');
+    this.zipFilePath = zipFilePath;
   }
 
   private void create() {
@@ -52,28 +50,57 @@ public class TableStoreForCsvInZipFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, List<Row> rows) {
-    if (!rows.isEmpty()) {
-      if (!Files.exists(zipFilePath)) {
-        create();
-      }
-      try (FileSystem zipfs = open()) {
-        Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
-        Writer writer = Files.newBufferedWriter(pathInZipfile);
-        CsvTableWriter.write(rows, writer, separator);
-        writer.close();
-      } catch (IOException ioe) {
-        throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
-      }
+  public void writeTable(String name, Iterable<Row> rows) {
+    if (!Files.exists(zipFilePath)) {
+      create();
+    }
+    try (FileSystem zipfs = open()) {
+      Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
+      Writer writer = Files.newBufferedWriter(pathInZipfile);
+      CsvTableWriter.write(rows, writer, CSV_SEPARATOR);
+      writer.close();
+    } catch (IOException ioe) {
+      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
     }
   }
 
   @Override
-  public List<Row> readTable(String name) {
+  public void processTable(String name, RowProcessor processor) {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
-      return CsvTableReader.readList(reader, separator);
+      if (entry.getName().endsWith(CSV_EXTENSION)) {
+        processor.process(CsvTableReader.read(reader, CSV_SEPARATOR).iterator());
+      } else if (entry.getName().endsWith(TSV_EXTENSION)) {
+        processor.process(CsvTableReader.read(reader, TSV_SEPARATOR).iterator());
+      } else {
+        throw new MolgenisException(
+            "Import failed: Table '"
+                + name
+                + "' has unsupported extension (should be .csv or .tsv)");
+      }
+    } catch (IOException e) {
+      throw new MolgenisException("Import failed: Table '" + name + "' not found in file. ", e);
+    }
+  }
+
+  @Override
+  public Iterable<Row> readTable(String name) {
+    try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
+      ZipEntry entry = getEntry(zf, name);
+      Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
+      if (entry.getName().endsWith(CSV_EXTENSION)) {
+        return StreamSupport.stream(CsvTableReader.read(reader, CSV_SEPARATOR).spliterator(), false)
+            .collect(Collectors.toList());
+      } else if (entry.getName().endsWith(TSV_EXTENSION)) {
+        return StreamSupport.stream(CsvTableReader.read(reader, TSV_SEPARATOR).spliterator(), false)
+            .collect(Collectors.toList());
+      } else {
+        throw new MolgenisException(
+            "Import failed: Table '"
+                + name
+                + "' has unsupported extension (should be .csv or .tsv)");
+      }
     } catch (Exception e) {
       throw new MolgenisException("Import failed: Table '" + name + "' not found in file. ", e);
     }
@@ -96,7 +123,9 @@ public class TableStoreForCsvInZipFile implements TableStore {
             .filter(
                 e ->
                     e.getName().equals(name + CSV_EXTENSION)
-                        || e.getName().endsWith(File.separator + name + CSV_EXTENSION))
+                        || e.getName().endsWith(File.separator + name + CSV_EXTENSION)
+                        || e.getName().equals(name + TSV_EXTENSION)
+                        || e.getName().endsWith(File.separator + name + TSV_EXTENSION))
             .collect(Collectors.toList());
     if (result.size() > 1) {
       throw new MolgenisException(

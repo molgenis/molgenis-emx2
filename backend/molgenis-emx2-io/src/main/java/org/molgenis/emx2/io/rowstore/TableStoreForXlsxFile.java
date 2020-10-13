@@ -29,8 +29,7 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, List<Row> rows) {
-    if (rows.isEmpty()) return;
+  public void writeTable(String name, Iterable<Row> rows) {
     try {
       if (name.length() > 30)
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
@@ -59,7 +58,7 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeRowsToSheet(String name, List<Row> rows, Workbook wb) {
+  private void writeRowsToSheet(String name, Iterable<Row> rows, Workbook wb) {
 
     // get the row columns
     Set<String> columnNames = new HashSet<>();
@@ -146,6 +145,11 @@ public class TableStoreForXlsxFile implements TableStore {
           "Import failed", "Table with name " + name + " not found in Excel file");
     }
     return this.cache.get(name);
+  }
+
+  @Override
+  public void processTable(String name, RowProcessor processor) {
+    processor.process(readTable(name).iterator());
   }
 
   private Row convertRow(

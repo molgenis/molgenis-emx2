@@ -13,9 +13,8 @@ public class CsvTableWriter {
     // hide constructor
   }
 
-  public static void write(List<Row> rows, Writer writer, Character seperator) throws IOException {
-
-    if (rows.isEmpty()) return;
+  public static void write(Iterable<Row> rows, Writer writer, Character seperator)
+      throws IOException {
 
     // get most extensive headers
     Set<String> columnNames = new HashSet<>();

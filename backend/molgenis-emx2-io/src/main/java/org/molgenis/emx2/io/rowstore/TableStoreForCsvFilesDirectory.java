@@ -29,8 +29,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, List<Row> rows) {
-    if (rows.isEmpty()) return;
+  public void writeTable(String name, Iterable<Row> rows) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);
@@ -53,6 +52,11 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
           "Table not found. File with name '" + name + "' doesn't exist. " + ioe.getMessage(),
           ioe);
     }
+  }
+
+  @Override
+  public void processTable(String name, RowProcessor processor) {
+    processor.process(readTable(name).iterator());
   }
 
   @Override

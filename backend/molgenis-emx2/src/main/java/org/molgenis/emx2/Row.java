@@ -9,6 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnValue;
+
 public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();
 
@@ -36,6 +39,10 @@ public class Row {
 
   public static Row row() {
     return new Row();
+  }
+
+  public static Row row(Object... nameValuePairs) {
+    return new Row(nameValuePairs);
   }
 
   public Row() {}
@@ -321,5 +328,38 @@ public class Row {
 
   public boolean notNull(String columnName) {
     return values.get(columnName) != null;
+  }
+
+  public void sanitize(List<Column> columns) {
+    List<String> colNames = new ArrayList<>();
+    // get type correct
+    for (Column c : columns) {
+      if (this.values.get(c.getName()) != null) {
+        this.values.put(
+            c.getName(), TypeUtils.getTypedValue(this.values.get(c.getName()), c.getColumnType()));
+        colNames.add(c.getName());
+      }
+    }
+    // validation
+    for (Column c : columns) {
+      Object value = this.values.get(c.getName());
+      if (value != null && c.getValidation() != null) {
+        String error = executeJavascriptOnValue(c.getValidation(), value);
+        if (error != null)
+          throw new MolgenisException(
+              "Validation error on column '"
+                  + c.getName()
+                  + "': "
+                  + error
+                  + ". Instead found value '"
+                  + value
+                  + "'");
+      }
+    }
+    for (String key : this.values.keySet()) {
+      if (!colNames.contains(key)) {
+        this.values.remove(key);
+      }
+    }
   }
 }

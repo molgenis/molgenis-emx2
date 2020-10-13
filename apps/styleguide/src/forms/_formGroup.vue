@@ -28,7 +28,9 @@ export default {
     /** if optional */
     nullable: Boolean,
     /** String with error state */
-    error: String
+    error: String,
+    /** If should be rendered as a filter*/
+    filter: Boolean
   }
 };
 </script>
