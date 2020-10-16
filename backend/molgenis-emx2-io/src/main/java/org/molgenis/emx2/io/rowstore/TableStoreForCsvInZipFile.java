@@ -69,9 +69,9 @@ public class TableStoreForCsvInZipFile implements TableStore {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
-      if (entry.getName().endsWith(CSV_EXTENSION)) {
+      if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
         processor.process(CsvTableReader.read(reader, CSV_SEPARATOR).iterator());
-      } else if (entry.getName().endsWith(TSV_EXTENSION)) {
+      } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
         processor.process(CsvTableReader.read(reader, TSV_SEPARATOR).iterator());
       } else {
         throw new MolgenisException(
@@ -89,10 +89,10 @@ public class TableStoreForCsvInZipFile implements TableStore {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
-      if (entry.getName().endsWith(CSV_EXTENSION)) {
+      if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
         return StreamSupport.stream(CsvTableReader.read(reader, CSV_SEPARATOR).spliterator(), false)
             .collect(Collectors.toList());
-      } else if (entry.getName().endsWith(TSV_EXTENSION)) {
+      } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
         return StreamSupport.stream(CsvTableReader.read(reader, TSV_SEPARATOR).spliterator(), false)
             .collect(Collectors.toList());
       } else {
