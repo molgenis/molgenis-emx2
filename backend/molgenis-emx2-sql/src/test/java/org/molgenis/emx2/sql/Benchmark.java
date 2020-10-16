@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -14,12 +15,12 @@ import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.TableMetadata.table;
 
-public class Benchmark {
+public class TestCopyInOut {
 
-  public static void main(String[] args) {
+  public void testCopyInAndOut() {
 
     Database database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(Benchmark.class.getSimpleName());
+    Schema schema = database.dropCreateSchema(TestCopyInOut.class.getSimpleName());
 
     int aSize = 50;
     int bSize = 100000;
