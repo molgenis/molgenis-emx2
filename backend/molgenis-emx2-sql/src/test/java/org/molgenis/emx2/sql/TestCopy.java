@@ -6,10 +6,8 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.utils.StopWatch;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.molgenis.emx2.Column.column;

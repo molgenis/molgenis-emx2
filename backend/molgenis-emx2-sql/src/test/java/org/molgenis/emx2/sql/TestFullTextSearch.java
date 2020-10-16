@@ -7,8 +7,6 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
-import java.sql.SQLException;
-
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
@@ -19,7 +17,7 @@ public class TestFullTextSearch {
   private static Database db;
 
   @BeforeClass
-  public static void setUp() throws SQLException {
+  public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 
