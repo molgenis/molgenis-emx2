@@ -97,7 +97,7 @@ public class ZipApi {
       response.status(200);
       return "Import success in " + (System.currentTimeMillis() - start) + "ms";
     } finally {
-      tempFile.delete();
+      Files.delete(tempFile.toPath());
     }
   }
 
