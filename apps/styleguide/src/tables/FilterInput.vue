@@ -38,7 +38,7 @@
     />
     <InputRef
       :list="true"
-      v-if="column.columnType.startsWith('REF')"
+      v-if="column.columnType.startsWith('REF') || column.columnType == 'MREF'"
       :refTable="column.refTable"
       v-model="column.conditions"
       :defaultValue="column.conditions"

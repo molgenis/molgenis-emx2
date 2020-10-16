@@ -182,7 +182,8 @@ public class TestGraphqSchemaFields {
             .textValue());
 
     // offset
-    TestCase.assertEquals("spike", execute("{Pet(offset:1){name}}").at("/Pet/0/name").textValue());
+    TestCase.assertEquals(
+        "spike", execute("{Pet(offset:1,orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
 
     // limit
     TestCase.assertEquals(1, execute("{Pet(limit:1){name}}").at("/Pet").size());

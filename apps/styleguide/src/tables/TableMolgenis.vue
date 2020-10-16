@@ -156,7 +156,11 @@ export default {
       if (row[col.name] === undefined) {
         return [];
       }
-      if (col.columnType == "REF_ARRAY" || col.columnType == "REFBACK") {
+      if (
+        col.columnType == "REF_ARRAY" ||
+        col.columnType == "MREF" ||
+        col.columnType == "REFBACK"
+      ) {
         return row[col.name].map(v => this.flattenObject(v));
       } else if (col.columnType == "REF") {
         return [this.flattenObject(row[col.name])];

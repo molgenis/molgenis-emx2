@@ -26,7 +26,6 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -49,7 +48,7 @@ public class SqlQuery extends QueryBean {
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
 
-  private static Logger logger = LoggerFactory.getLogger(SqlQuery.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
   private SqlSchemaMetadata schema;
 
@@ -73,8 +72,7 @@ public class SqlQuery extends QueryBean {
     SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
     if (table == null) {
       throw new MolgenisException(
-          "Query failed",
-          "Field "
+          "Query failed: Field "
               + select.getColumn()
               + " unknown for retrieve rows in schema "
               + schema.getName());
@@ -234,15 +232,11 @@ public class SqlQuery extends QueryBean {
   @Override
   public String retrieveJSON() {
     SelectColumn select = getSelect();
-    Filter filter = getFilter();
-    String[] searchTerms = getSearchTerms();
-
-    List<Field<Object>> fields = new ArrayList<>();
+    List<Field<?>> fields = new ArrayList<>();
     DSLContext sql = schema.getJooq();
-
     // get the table from root select
     SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
-    if (table == null & select.getColumn().endsWith("_agg")) {
+    if (table == null && select.getColumn().endsWith("_agg")) {
       table =
           schema.getTableMetadata(select.getColumn().substring(0, select.getColumn().length() - 4));
     }
@@ -254,34 +248,18 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
-
-    // root query
-    CommonTableExpression<Record> with =
-        name(table.getTableName()).as(jsonRootQuery(table, filter, searchTerms));
-
-    if (!select.getColumn().endsWith("_agg")) {
-      // get the selected fields
-      Collection<Field<?>> selectFields = jsonSubselectFields(table, table.getTableName(), select);
-      // create query
-      Table<Record> query =
-          limitOffsetOrderBy(select, sql.select(selectFields).from(name(table.getTableName())))
-              .asTable(ITEM);
-      // limit/offset
-
-      // aggregate into json
-      fields.add(field(sql.select(field(JSON_AGG_SQL)).from(query)).as(select.getColumn()));
+    if (select.getColumn().endsWith("_agg")) {
+      fields.add(
+          jsonAggregateSelect(
+              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     } else {
-      // get the selected fields
-      Collection<Field<?>> aggFields = jsonAggregateFields(table, table.getTableName(), select);
-      // create query
-      Table<Record> query = sql.select(aggFields).from(name(table.getTableName())).asTable(ITEM);
-      // aggregate into json
-      fields.add(field(sql.select(field(ROW_TO_JSON_SQL)).from(query)).as(select.getColumn()));
+      fields.add(
+          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     }
 
     // asemble final query
     SelectJoinStep<Record1<Object>> query =
-        sql.with(with).select(field(ROW_TO_JSON_SQL)).from(table(sql.select(fields)).as(ITEM));
+        sql.select(field(ROW_TO_JSON_SQL)).from(table(sql.select(fields)).as(ITEM));
 
     long start = System.currentTimeMillis();
     String result = query.fetchOne().get(0, String.class);
@@ -295,46 +273,246 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
-  private static SelectConnectByStep<Record> jsonRootQuery(
-      SqlTableMetadata table, Filter filter, String[] searchTerms) {
-    String tableAlias = table.getTableName();
-
-    SelectJoinStep<Record> subquery =
-        table
-            .getJooq()
-            .select(List.of(field("{0}.*", name(tableAlias)))) // expensive for binary data!!!
-            .from(tableWithInheritanceJoin(table).as(tableAlias));
-
-    // joins, only filtered tables
-    subquery =
-        refJoins(table, table.getTableName(), subquery, filter, null, new ArrayList<String>());
-
-    // where
-    Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
-    return condition != null ? subquery.where(condition) : subquery;
-  }
-
   private static Field<?> jsonSubselect(
-      SqlTableMetadata table, Column column, String tableAlias, SelectColumn select) {
+      SqlTableMetadata table,
+      Column column,
+      String tableAlias,
+      SelectColumn select,
+      Filter filters,
+      String[] searchTerms) {
 
     // in case the root subselect then column == null
     DSLContext jooq = table.getJooq();
-    String subAlias = tableAlias + "-" + column.getName();
+    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
-    SelectConditionStep<Record> from =
-        jooq
-            // select
-            .select(jsonSubselectFields(table, subAlias, select))
-            // from
-            .from(tableWithInheritanceJoin(table).as(subAlias))
-            // where
-            .where(refJoinCondition(column, tableAlias, subAlias));
+    SelectJoinStep<Record> from =
+        jooq.select(jsonSubselectFields(table, subAlias, select))
+            .from(tableWithInheritanceJoin(table).as(subAlias));
 
-    from = (SelectConditionStep<Record>) limitOffsetOrderBy(select, from);
+    List<Condition> conditions = new ArrayList<>();
+    Select<Record> filterQuery =
+        limitOffsetOrderBy(
+            select, jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms));
+    if (filters != null
+        || searchTerms.length > 0
+        || select.getLimit() > 0
+        || select.getOffset() > 0) {
+      conditions.add(row(table.getPrimaryKeyFields()).in(filterQuery));
+    }
+    if (column != null) {
+      conditions.add(refJoinCondition(column, tableAlias, subAlias));
+    }
+    if (conditions.size() > 0) {
+      from = (SelectJoinStep<Record>) from.where(conditions);
+    }
 
-    String agg = REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL;
+    String agg =
+        column != null && REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL;
 
-    return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
+    return field(jooq.select(field(agg)).from(orderBy(select, from).asTable(ITEM)))
+        .as(select.getColumn());
+  }
+
+  private static SelectConditionStep<Record> jsonFilterQuery(
+      SqlTableMetadata table,
+      Column column,
+      String tableAlias,
+      String subAlias,
+      Filter filters,
+      String[] searchTerms) {
+
+    List<Condition> conditions = new ArrayList<>();
+    if (filters != null) {
+      conditions.addAll(
+          jsonFilterQueryConditions(table, column, tableAlias, subAlias, filters, searchTerms));
+    }
+    if (searchTerms.length > 0) {
+      conditions.add(jsonSearchConditions(table, searchTerms));
+    }
+
+    // create the subquery
+    if (conditions.size() > 0) {
+      return table
+          .getJooq()
+          .select(table.getPrimaryKeyFields())
+          .from(tableWithInheritanceJoin(table))
+          .where(conditions);
+    } else {
+      return (SelectConditionStep<Record>)
+          table.getJooq().select(table.getPrimaryKeyFields()).from(tableWithInheritanceJoin(table));
+    }
+  }
+
+  private static List<Condition> jsonFilterQueryConditions(
+      SqlTableMetadata table,
+      Column column,
+      String tableAlias,
+      String subAlias,
+      Filter filters,
+      String[] searchTerms) {
+    List<Condition> conditions = new ArrayList<>();
+    DSLContext jooq = table.getJooq();
+    if (filters != null) {
+      for (Filter f : filters.getSubfilters()) {
+        if (OR.equals(f.getOperator())) {
+          conditions.add(
+              or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
+        } else if (Operator.AND.equals(f.getOperator())) {
+          conditions.add(
+              and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
+        } else {
+          Column c = isValidColumn(table, f.getColumn());
+          if (c.isReference()) {
+            // add subfilter where reference is in tuples from subquery
+            // todo, if filter is on pkey we don't even need subquery!
+            SelectConditionStep<Record> subQuery =
+                jsonFilterQuery(
+                    (SqlTableMetadata) c.getRefTable(),
+                    column,
+                    tableAlias,
+                    subAlias,
+                    f,
+                    new String[0]);
+            if (subQuery != null) {
+              if (REF_ARRAY.equals(c.getColumnType())) {
+                // if not composite it is simple array overlap
+                if (c.getReferences().size() == 1) {
+                  conditions.add(condition("{0} && ARRAY({1})", name(c.getName()), subQuery));
+                } else {
+                  // otherwise exists(unnest(ref_array) natural join (filterQuery))
+                  String refs =
+                      c.getReferences().stream()
+                          .map(ref -> name(ref.getName()).toString())
+                          .collect(Collectors.joining(","));
+                  String as =
+                      c.getRefTable().getPrimaryKeyColumns().stream()
+                          .map(key -> name(key.getName()).toString())
+                          .collect(Collectors.joining(","));
+                  conditions.add(
+                      exists(
+                          selectFrom(
+                              "UNNEST({0}) as t({1}) NATURAL JOIN ({2}) as t2",
+                              keyword(refs), keyword(as), subQuery)));
+                }
+              } else if (MREF.equals(c.getColumnType())
+                  || (REFBACK.equals(c.getColumnType())
+                      && MREF.equals(c.getMappedByColumn().getColumnType()))) {
+                // (pkey) in (junctionTable natural join filterQuery)
+                List<Field> pkey =
+                    c.getTable().getPrimaryKeyColumns().stream()
+                        .map(pk -> pk.getJooqField())
+                        .collect(Collectors.toList());
+                Table joinTable = table(name(column.getTableName() + "-" + column.getName()));
+                if (REFBACK.equals(c.getColumnType())) {
+                  joinTable = table(name(c.getRefTableName() + "-" + c.getMappedBy()));
+                }
+                conditions.add(
+                    row(pkey)
+                        .in(table.getJooq().select(pkey).from(joinTable).naturalJoin(subQuery)));
+              } else if (REFBACK.equals(c.getColumnType())) {
+                Column mappedBy = c.getMappedByColumn();
+                List<Field> pkey =
+                    c.getTable().getPrimaryKeyColumns().stream()
+                        .map(pk -> pk.getJooqField())
+                        .collect(Collectors.toList());
+                List<Field> backRef =
+                    c.getMappedByColumn().getReferences().stream()
+                        .map(pk -> pk.getJooqField())
+                        .collect(Collectors.toList());
+                List<Field> backRefKey =
+                    c.getMappedByColumn().getTable().getPrimaryKeyColumns().stream()
+                        .map(pk -> pk.getJooqField())
+                        .collect(Collectors.toList());
+                // can be ref, ref_array (mref is checked above)
+                if (REF.equals(mappedBy.getColumnType())) {
+                  // pkey in (backref from mappedByTable where backrefKey in subquery)
+                  conditions.add(
+                      row(pkey)
+                          .in(
+                              jooq.select(backRef)
+                                  .from(c.getRefTable().getJooqTable())
+                                  .where(row(backRefKey).in(subQuery))));
+                } else {
+                  // ref_array
+                  // pkey in (unnest(backref) from mappedByTable where backrefKey in subquery)
+                  conditions.add(
+                      row(pkey)
+                          .in(
+                              jooq.select(
+                                      backRef.stream()
+                                          .map(bf -> field("SELECT * FROM UNNEST({0})", bf))
+                                          .collect(Collectors.toList()))
+                                  .from(c.getRefTable().getJooqTable())
+                                  .where(row(backRefKey).in(subQuery))));
+                }
+              } else {
+                // normal ref
+                List<Field> refs =
+                    c.getReferences().stream()
+                        .map(r -> r.getJooqField())
+                        .collect(Collectors.toList());
+                conditions.add(row(refs).in(subQuery));
+              }
+            }
+          } else {
+            // simple filter
+            conditions.add(
+                whereCondition(
+                    c.getTableName(),
+                    c.getName(),
+                    c.getColumnType(),
+                    f.getOperator(),
+                    f.getValues()));
+          }
+        }
+      }
+    }
+    return conditions;
+  }
+
+  private static Condition jsonSearchConditions(SqlTableMetadata table, String[] searchTerms) {
+    // create search
+    List<Condition> search = new ArrayList<>();
+    for (String term : searchTerms) {
+      search.add(
+          field(name(table.getTableName(), searchColumnName(table)))
+              .likeIgnoreCase("%" + term + "%"));
+      TableMetadata parent = table.getInheritedTable();
+      while (parent != null) {
+        search.add(
+            field(name(parent.getTableName(), searchColumnName(parent)))
+                .likeIgnoreCase("%" + term + "%"));
+        parent = table.getInheritedTable();
+      }
+    }
+    return or(search);
+  }
+
+  private static SelectJoinStep<Record> applySubselectFilters(
+      SqlTableMetadata table,
+      Column column,
+      String tableAlias,
+      Filter filters,
+      String subAlias,
+      SelectJoinStep<Record> from,
+      String[] searchTerms) {
+
+    // get joins for filters
+    from = refJoins(table, table.getTableName(), from, filters, null, new ArrayList<>());
+
+    // get where conditions
+    Collection<Condition> where = new ArrayList<>();
+    if (filters != null || searchTerms.length > 0) {
+      where.add(whereConditions(table, tableAlias, filters, searchTerms));
+    }
+    if (column != null) {
+      where.add(refJoinCondition(column, tableAlias, subAlias));
+    }
+
+    if (where.size() > 0) {
+      from = (SelectJoinStep<Record>) from.where(where);
+    }
+    return from;
   }
 
   private static Collection<Field<?>> jsonSubselectFields(
@@ -352,25 +530,27 @@ public class SqlQuery extends QueryBean {
 
       // add the fields, using subselects for references
       if (FILE.equals(column.getColumnType())) {
-        DSLContext jooq = ((SqlTableMetadata) table).getJooq();
-        List<Field> subFields = new ArrayList<>();
-        for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype"}) {
-          if (select.has(ext)) {
-            subFields.add(field(name(tableAlias, column.getName() + "-" + ext)).as(ext));
-          }
-        }
-        fields.add(
-            field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
-                .as(select.getColumn()));
+        fields.add(jsonFileField((SqlTableMetadata) table, tableAlias, select, column));
       } else if (column.isReference() && select.getColumn().endsWith("_agg")) {
-        // aggregation
+        // aggregation subselect
         fields.add(
             jsonAggregateSelect(
-                (SqlTableMetadata) column.getRefTable(), column, tableAlias, select));
+                (SqlTableMetadata) column.getRefTable(),
+                column,
+                tableAlias,
+                select,
+                null,
+                new String[0]));
       } else if (column.isReference()) {
-        // ref subselect
+        // normal subselect
         fields.add(
-            jsonSubselect((SqlTableMetadata) column.getRefTable(), column, tableAlias, select));
+            jsonSubselect(
+                (SqlTableMetadata) column.getRefTable(),
+                column,
+                tableAlias,
+                select,
+                null,
+                new String[0]));
       } else {
         // primitive fields
         fields.add(field(name(tableAlias, column.getName())));
@@ -379,52 +559,116 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
+  private static Field<Object> jsonFileField(
+      SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
+    DSLContext jooq = table.getJooq();
+    List<Field> subFields = new ArrayList<>();
+    for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype"}) {
+      if (select.has(ext)) {
+        subFields.add(field(name(tableAlias, column.getName() + "-" + ext)).as(ext));
+      }
+    }
+    Field<Object> fieldSelect =
+        field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
+            .as(select.getColumn());
+    return fieldSelect;
+  }
+
   private static Field<?> jsonAggregateSelect(
-      SqlTableMetadata table, Column column, String tableAlias, SelectColumn select) {
-    String subAlias = tableAlias + "-" + column.getName() + "_agg";
-    return field(
-            table
-                .getJooq()
-                .select(field(ROW_TO_JSON_SQL))
-                .from(
-                    table(
-                            table
-                                .getJooq()
-                                .select(jsonAggregateFields(table, subAlias, select))
-                                .from(tableWithInheritanceJoin(table).as(subAlias))
-                                // where
-                                .where(refJoinCondition(column, tableAlias, subAlias)))
-                        .as(ITEM)))
+      SqlTableMetadata table,
+      Column column,
+      String tableAlias,
+      SelectColumn select,
+      Filter filters,
+      String[] searchTerms) {
+    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+
+    SelectSelectStep<Record> from =
+        table
+            .getJooq()
+            .select(
+                jsonAggregateFields(
+                    table, column, tableAlias, subAlias, select, filters, searchTerms));
+
+    return field(table.getJooq().select(field(ROW_TO_JSON_SQL)).from(table(from).as(ITEM)))
         .as(select.getColumn());
   }
 
   private static Collection<Field<?>> jsonAggregateFields(
-      SqlTableMetadata table, String tableAlias, SelectColumn select) {
+      SqlTableMetadata table,
+      Column column,
+      String tableAlias,
+      String subAlias,
+      SelectColumn select,
+      Filter filter,
+      String[] searchTerms) {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
 
+      // count only uses the filter query to count
       if (COUNT_FIELD.equals(field.getColumn())) {
-        fields.add(count().as(COUNT_FIELD));
+        if (column != null) {
+          List<Condition> conditions = new ArrayList<>();
+          if (filter != null || searchTerms.length > 1) {
+            conditions.add(
+                row(table.getPrimaryKeyFields())
+                    .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms)));
+          }
+          conditions.add(refJoinCondition(column, tableAlias, subAlias));
+          fields.add(
+              field(
+                      table
+                          .getJooq()
+                          .select(count())
+                          .from(tableWithInheritanceJoin(table).as(subAlias))
+                          .where(conditions))
+                  .as(COUNT_FIELD));
+        } else {
+          fields.add(
+              field(
+                      table
+                          .getJooq()
+                          .select(count())
+                          .from(
+                              jsonFilterQuery(
+                                  table, column, tableAlias, subAlias, filter, searchTerms)))
+                  .as(COUNT_FIELD));
+        }
       } else {
-        Column column = isValidColumn(table, field.getColumn());
+        Column c = isValidColumn(table, field.getColumn());
         if (field.has(MAX_FIELD)
             || field.has(MIN_FIELD)
             || field.has(AVG_FIELD)
             || field.has(SUM_FIELD)) {
+
           // add to subselect as input for agg functions
           // add the agg functions
-          fields.add(
+
+          Field aggField =
               field(
-                      "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
-                      MAX_FIELD,
-                      max(field(name(tableAlias, column.getName()))),
-                      MIN_FIELD,
-                      min(field(name(tableAlias, column.getName()))),
-                      AVG_FIELD,
-                      avg(field(name(tableAlias, column.getName()), column.getJooqType())),
-                      SUM_FIELD,
-                      sum(field(name(tableAlias, column.getName()), column.getJooqType())))
-                  .as(field.getColumn()));
+                  "json_build_object({0},{1},{2},{3},{4},{5},{6},{7})",
+                  MAX_FIELD,
+                  max(field(name(tableAlias, c.getName()))),
+                  MIN_FIELD,
+                  min(field(name(tableAlias, c.getName()))),
+                  AVG_FIELD,
+                  avg(field(name(tableAlias, c.getName()), c.getJooqType())),
+                  SUM_FIELD,
+                  sum(field(name(tableAlias, c.getName()), c.getJooqType())));
+
+          SelectJoinStep aggQuery =
+              table.getJooq().select(aggField).from(tableWithInheritanceJoin(table).as(tableAlias));
+
+          // filter on any filter settings
+          if (column != null || filter != null || searchTerms.length > 1) {
+            Condition condition =
+                row(table.getPrimaryKeyFields())
+                    .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms));
+            aggQuery = (SelectJoinStep) aggQuery.where(condition);
+          }
+
+          // add as sub filed
+          fields.add(field(aggQuery).as(field.getColumn()));
         }
       }
     }
@@ -432,6 +676,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Table<Record> tableWithInheritanceJoin(TableMetadata table) {
+
     Table<Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
     while (inheritedTable != null) {
@@ -441,6 +686,7 @@ public class SqlQuery extends QueryBean {
               .using(inheritedTable.getPrimaryKeyFields());
       inheritedTable = inheritedTable.getInheritedTable();
     }
+
     return result;
   }
 
@@ -651,7 +897,7 @@ public class SqlQuery extends QueryBean {
           if (sub != null && EQUALS.equals(sub.getOperator())) {
             conditions.add(field(name(column.getName() + "-id")).in(sub.getValues()));
           } else {
-            throw new MolgenisException("Invalid filter for file", "");
+            throw new MolgenisException("Invalid filter for file");
           }
         } else {
           conditions.add(
@@ -696,19 +942,19 @@ public class SqlQuery extends QueryBean {
       case TEXT_ARRAY:
         return whereConditionTextArray(name, operator, toStringArray(values));
       case BOOL_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toBoolArray(values));
+        return whereConditionArrayEquals(name, operator, toBoolArray(values));
       case UUID_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toUuidArray(values));
+        return whereConditionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toIntArray(values));
+        return whereConditionArrayEquals(name, operator, toIntArray(values));
       case DECIMAL_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toDecimalArray(values));
+        return whereConditionArrayEquals(name, operator, toDecimalArray(values));
       case DATE_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toDateArray(values));
+        return whereConditionArrayEquals(name, operator, toDateArray(values));
       case DATETIME_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toDateTimeArray(values));
+        return whereConditionArrayEquals(name, operator, toDateTimeArray(values));
       case JSONB_ARRAY:
-        return whereCondtionArrayEquals(name, operator, toJsonbArray(values));
+        return whereConditionArrayEquals(name, operator, toJsonbArray(values));
       default:
         throw new SqlQueryException(
             SqlQuery.QUERY_FAILED,
@@ -733,7 +979,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private static Condition whereCondtionArrayEquals(
+  private static Condition whereConditionArrayEquals(
       Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
@@ -910,10 +1156,10 @@ public class SqlQuery extends QueryBean {
           subTerm = subTerm.trim();
           Field<Object> field = field(name(tableAlias, searchColumnName(table)));
           // short terms with 'like', longer with trigram
-          if (subTerm.length() <= 3) subConditions.add(field.likeIgnoreCase("%" + subTerm + "%"));
-          else {
-            subConditions.add(condition("word_similarity({0},{1}) > 0.6", subTerm, field));
-          }
+          subConditions.add(field.likeIgnoreCase("%" + subTerm + "%"));
+          //          else {
+          //            subConditions.add(condition("{0} <% {1}", subTerm, field));
+          //          }
         }
       }
       table = table.getInheritedTable();
@@ -924,17 +1170,22 @@ public class SqlQuery extends QueryBean {
     return searchConditions.isEmpty() ? null : or(searchConditions);
   }
 
-  private static SelectConnectByStep<Record> limitOffsetOrderBy(
+  private static SelectJoinStep<Record> limitOffsetOrderBy(
       SelectColumn select, SelectConnectByStep<Record> query) {
-    for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
-      if (ASC.equals(col.getValue())) {
-        query = (SelectConditionStep) query.orderBy(field(name(col.getKey())).asc());
-      } else {
-        query = (SelectConditionStep) query.orderBy(field(name(col.getKey())).desc());
-      }
-    }
+    query = orderBy(select, (SelectJoinStep) query);
     if (select.getLimit() > 0) query = (SelectConditionStep) query.limit(select.getLimit());
     if (select.getOffset() > 0) query = (SelectConditionStep) query.offset(select.getOffset());
+    return (SelectJoinStep<Record>) query;
+  }
+
+  private static SelectJoinStep<Record> orderBy(SelectColumn select, SelectJoinStep<Record> query) {
+    for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
+      if (ASC.equals(col.getValue())) {
+        query = (SelectJoinStep<Record>) query.orderBy(field(name(col.getKey())).asc());
+      } else {
+        query = (SelectJoinStep<Record>) query.orderBy(field(name(col.getKey())).desc());
+      }
+    }
     return query;
   }
 

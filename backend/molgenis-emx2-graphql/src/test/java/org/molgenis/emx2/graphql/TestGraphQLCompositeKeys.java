@@ -117,11 +117,16 @@ public class TestGraphQLCompositeKeys {
     assertEquals("Donald", result.at("/TargetTable/0/firstName").asText());
     assertEquals("Duck", result.at("/TargetTable/0/lastName").asText());
 
-    filter =
-        "(filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]})";
+    String filter_agg =
+        "filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]}";
+    filter = "orderby:{firstName:ASC}" + filter_agg;
     result =
         execute(
-            "{TargetTable" + filter + "{firstName,lastName},TargetTable_agg" + filter + "{count}}");
+            "{TargetTable("
+                + filter
+                + "){firstName,lastName},TargetTable_agg("
+                + filter_agg
+                + "){count}}");
     System.out.println(result.toPrettyString());
     assertEquals("Donald", result.at("/TargetTable/0/firstName").asText());
     assertEquals("Duck", result.at("/TargetTable/0/lastName").asText());
@@ -197,7 +202,7 @@ public class TestGraphQLCompositeKeys {
     String result = convertExecutionResultToJson(grapql.execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
-      throw new MolgenisException(node.get("errors").get(0).get("message").asText(), "");
+      throw new MolgenisException(node.get("errors").get(0).get("message").asText());
     } else {
       if (node.get("data") != null && node.get("data").get("message") != null) {
         System.out.println("MUTATION MESSAGE: " + node.get("data").get("message").asText());

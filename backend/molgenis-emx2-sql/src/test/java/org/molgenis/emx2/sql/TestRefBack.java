@@ -25,7 +25,16 @@ public class TestRefBack {
   }
 
   @Test
-  public void restRefArrayBack() {
+  public void testRefArrayBack() {
+    execute(REF_ARRAY);
+  }
+
+  //  @Test
+  //  public void testMrefBack() {
+  //    execute(MREF);
+  //  }
+
+  public void execute(ColumnType refArrayOrMref) {
 
     // Table Parts(partname)
     Table parts = schema.create(table("Parts").add(column("partname").pkey()));
@@ -35,7 +44,7 @@ public class TestRefBack {
         schema.create(
             table("Products")
                 .add(column("productname").pkey())
-                .add(column("parts").type(REF_ARRAY).refTable("Parts").nullable(true)));
+                .add(column("parts").type(refArrayOrMref).refTable("Parts").nullable(true)));
 
     parts.insert(new Row().set("partname", "smallscreen"));
     parts.insert(new Row().set("partname", "bigscreen"));

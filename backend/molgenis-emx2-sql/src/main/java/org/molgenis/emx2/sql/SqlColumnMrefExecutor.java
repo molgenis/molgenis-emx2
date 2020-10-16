@@ -21,10 +21,10 @@ public class SqlColumnMrefExecutor {
 
   public static void createMrefConstraints(DSLContext jooq, Column column) {
     createJoinTable(jooq, column);
-    createUpdateTrigger(jooq, column);
+    createInsertUpdateTrigger(jooq, column);
   }
 
-  private static void createUpdateTrigger(DSLContext jooq, Column column) {
+  private static void createInsertUpdateTrigger(DSLContext jooq, Column column) {
 
     //  parameters
     String schemaName = column.getTable().getSchema().getName();
@@ -40,17 +40,16 @@ public class SqlColumnMrefExecutor {
             + "\n\tIF TG_OP='UPDATE' THEN DELETE FROM {1} WHERE {2}; END IF;"
             // add all unique references that are in the ref_array(s)
             // NEW.ref_array column(s) = NULL, unless this is INSERT and we can expect ON CONFLICT
-            + "\n\tIF TG_OP='UPDATE' OR NOT EXISTS (SELECT 1 FROM {4} WHERE {5}) THEN "
-            + "\n\t\tINSERT INTO {1} (SELECT * FROM ({3}) foo);"
-            + "\n\t\t{6}; END IF;"
-            + "\n\tRETURN NEW;END;"
+            + "\n\tINSERT INTO {1} ({3}) ON CONFLICT DO NOTHING;"
+            + "\n\tRETURN NULL;"
+            + "\n\tEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         // 0 name of the trigger
         name(schemaName, insertOrUpdateTrigger),
         // 1 name of the join table
         name(schemaName, getJoinTableName(column)),
-        // 2 OLD.id = id
-        keyword(whereOldIdEqualsId(column)),
+        // 2 id IN (oldtab.ID)
+        keyword(whereIdInNewtabId(column)),
         // 3 subquery to check array contents against jointable content
         keyword(subQuery(column)),
         // 4 self tablename
@@ -62,19 +61,30 @@ public class SqlColumnMrefExecutor {
 
     jooq.execute(
         "CREATE TRIGGER {0} "
-            + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2} "
-            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-        name(insertOrUpdateTrigger),
+            + "\n\tAFTER INSERT ON {2} "
+            + "\n\tREFERENCING NEW TABLE AS newtab "
+            + "\n\tFOR EACH STATEMENT EXECUTE PROCEDURE {3}()",
+        name(insertOrUpdateTrigger + "_ins"),
+        keyword(refColumnNames(column)),
+        name(schemaName, column.getTable().getTableName()),
+        name(schemaName, insertOrUpdateTrigger));
+
+    jooq.execute(
+        "CREATE TRIGGER {0} "
+            + "\n\tAFTER UPDATE ON {2} "
+            + "\n\tREFERENCING NEW TABLE AS newtab "
+            + "\n\tFOR EACH STATEMENT EXECUTE PROCEDURE {3}()",
+        name(insertOrUpdateTrigger + "_upd"),
         keyword(refColumnNames(column)),
         name(schemaName, column.getTable().getTableName()),
         name(schemaName, insertOrUpdateTrigger));
   }
 
-  private static String whereOldIdEqualsId(Column column) {
+  private static String whereIdInNewtabId(Column column) {
     List<String> items = new ArrayList<>();
     for (String pkey : column.getTable().getPrimaryKeys()) {
       String name = name(pkey).toString();
-      items.add("OLD." + name + " = " + name);
+      items.add(name + " IN (SELECT " + name + " FROM newtab)");
     }
     return String.join(" AND ", items);
   }
@@ -91,7 +101,7 @@ public class SqlColumnMrefExecutor {
   private static String setRefArrayNull(Column column) {
     List<String> items = new ArrayList<>();
     for (Reference ref : column.getReferences()) {
-      items.add("NEW." + name(ref.getName()) + " = NULL");
+      items.add("newtab." + name(ref.getName()) + " = NULL");
     }
     return String.join(";", items);
   }
@@ -101,7 +111,7 @@ public class SqlColumnMrefExecutor {
     List<String> items = new ArrayList<>();
     for (String pkey : column.getTable().getPrimaryKeys()) {
       String name = name(pkey).toString();
-      items.add("NEW." + name + " = " + name);
+      items.add("newtab." + name + " = " + name);
     }
     return String.join(" AND ", items);
   }
@@ -114,21 +124,19 @@ public class SqlColumnMrefExecutor {
     // SELECT ({NEW.{keyfield} as {keyfield}}) AS self
     List<String> items = new ArrayList<>();
     for (String pkey : column.getTable().getPrimaryKeys()) {
-      items.add("NEW." + name(pkey) + " AS " + name(pkey));
+      items.add(name(pkey).toString());
     }
-    result.append("SELECT " + String.join(",", items) + ",  other.* FROM ");
+    result.append("SELECT " + String.join(",", items) + ", ");
 
     // UNNEST({refFields-name}) AS other({refFields-name}
     items = new ArrayList<>();
     List<String> items2 = new ArrayList<>();
     for (Reference ref : column.getReferences()) {
       Name name = name(ref.getName());
-      items.add("NEW." + name);
-      items2.add(name(name).toString());
+      items.add("UNNEST(newtab." + name + ")");
     }
-    String refFields = String.join(",", items);
-    String asNames = String.join(",", items2);
-    result.append("UNNEST(" + refFields + ") as other(" + asNames + ")");
+    result.append(String.join(",", items));
+    result.append(" FROM newtab");
     return result.toString();
   }
 

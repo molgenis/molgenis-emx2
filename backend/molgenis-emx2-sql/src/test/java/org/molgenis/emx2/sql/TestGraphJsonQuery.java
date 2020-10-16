@@ -102,6 +102,10 @@ public class TestGraphJsonQuery {
     System.out.println(result);
     assertTrue(result.contains("\"children\":[{\"name\":\"kind\"}]}"));
 
+    // smoke test limit offset
+    s = schema.getTable("Person").query();
+    s.limit(2).offset(1).retrieveJSON();
+
     StopWatch.print("complete");
   }
 

@@ -199,7 +199,7 @@ class SqlTable implements Table {
             }
 
             // keep batchsize smaller to limit memory footprint
-            int batchSize = 100000;
+            int batchSize = 10000;
 
             // execute in batches (batch by size or because columns set change)
             TableMetadata tableMetadata = getMetadata();
@@ -266,6 +266,7 @@ class SqlTable implements Table {
       List<Column> columns,
       List<Field<?>> fields,
       List<Field<?>> keyField) {
+    long start = System.currentTimeMillis();
 
     if (!rows.isEmpty()) {
 
@@ -290,7 +291,10 @@ class SqlTable implements Table {
         step2 =
             step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
       }
+      log(start, new AtomicInteger(rows.size()), "update batch ready");
+      start = System.currentTimeMillis();
       step.execute();
+      log(start, new AtomicInteger(rows.size()), "update batch executed");
     }
   }
 

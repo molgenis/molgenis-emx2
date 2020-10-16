@@ -34,7 +34,7 @@ public class SchemaImport {
   }
 
   static void executeImport(TableStore store, Schema schema) {
-
+    long start = System.currentTimeMillis();
     schema.tx(
         db -> {
           // read emx1 metadata, if available (to be removed in future versions)
@@ -59,6 +59,7 @@ public class SchemaImport {
             }
           }
         });
+    logger.info("Import transaction completed in " + (System.currentTimeMillis() - start) + "ms");
   }
 
   /** validates foreign keys against table */
