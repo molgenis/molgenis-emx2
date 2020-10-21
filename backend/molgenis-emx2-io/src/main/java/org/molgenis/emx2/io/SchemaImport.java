@@ -49,7 +49,7 @@ public class SchemaImport {
             if (store.containsTable(table.getName())) {
 
               // validation of fkeys
-              store.processTable(table.getName(), new ValidationProcessor(table));
+              // store.processTable(table.getName(), new ValidationProcessor(table));
 
               // batching here to not blow memory,
               // and in strategy class so reader can close file
@@ -84,6 +84,8 @@ public class SchemaImport {
         Row row = iterator.next();
         count++;
         for (Column c : columns) {
+          // todo will fail on indirect circular refs; should make this optional?
+          // instead, we should make trigger return list of errors instead of only first
           if (REF.equals(c.getColumnType())) {
             for (Reference ref : c.getReferences()) {
               if (keys.get(ref.getName()) == null) {

@@ -98,12 +98,6 @@ table {
   position: relative;
 }
 
-th {
-  /*sticky header*/
-  position: sticky;
-  top: 0;
-}
-
 th,
 td {
   text-align: left;
@@ -111,15 +105,6 @@ td {
 
 .column-drag-header:hover {
   cursor: grab;
-}
-
-.column-remove {
-  float: right;
-  top: 0px;
-  right: 0px;
-  margin: 0px;
-  padding: 0px;
-  visibility: hidden;
 }
 
 .column-drag-header:hover .column-remove {
