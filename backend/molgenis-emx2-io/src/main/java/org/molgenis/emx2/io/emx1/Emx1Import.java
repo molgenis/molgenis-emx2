@@ -73,18 +73,22 @@ public class Emx1Import {
         }
 
         TableMetadata table =
-            schema.getTableMetadata(entities.get(attribute.getEntity()).getName());
+            schema.getTableMetadata(getTableName(entities, attribute.getEntity()));
 
-        String refTableName =
-            entities.get(attribute.getRefEntity()) != null
-                ? entities.get(attribute.getRefEntity()).getName()
-                : attribute.getRefEntity();
+        String refTableName = getTableName(entities, attribute.getRefEntity());
 
         Column c = table.getColumn(attribute.getName()).refTable(refTableName);
-        table.alterColumn(c);
+        if (attribute.getDataType().contains("onetomany") && attribute.getMappedBy() == null) {
+          throw new MolgenisException(
+              "mappedBy missing for attribute "
+                  + attribute.getEntity()
+                  + "."
+                  + attribute.getName());
+        }
         if (attribute.getMappedBy() != null) {
           c.mappedBy(attribute.getMappedBy());
         }
+        table.alterColumn(c);
       }
     }
   }
@@ -124,8 +128,7 @@ public class Emx1Import {
 
         // create the table, if needed
         String entityName = attribute.getEntity();
-        String tableName =
-            entities.get(entityName) != null ? entities.get(entityName).getName() : entityName;
+        String tableName = getTableName(entities, entityName);
         TableMetadata table = schema.getTableMetadata(tableName);
         if (table == null) {
           table = schema.create(table(tableName));
@@ -148,6 +151,10 @@ public class Emx1Import {
           EMX_1_IMPORT_FAILED, me.getMessage() + ". See 'attributes' line " + line, me);
     }
     return attributes;
+  }
+
+  private static String getTableName(Map<String, Emx1Entity> entities, String entityName) {
+    return entities.get(entityName) != null ? entities.get(entityName).getName() : entityName;
   }
 
   private static Map<String, Emx1Entity> loadTables(TableStore store, SchemaMetadata schema) {
