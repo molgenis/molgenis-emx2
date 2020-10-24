@@ -1,6 +1,11 @@
 package org.molgenis.emx2.io.emx1;
 
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
+
+import java.lang.reflect.Field;
+
+import static org.molgenis.emx2.ColumnType.REF;
 
 public class Emx1Attribute {
   private String entity;
@@ -22,6 +27,16 @@ public class Emx1Attribute {
   private String mappedBy;
   private Integer rangeMin;
   private Integer rangeMax;
+
+  public Emx1Attribute(Column c) {
+    this.setName(c.getName());
+    this.setEntity(c.getTableName());
+    this.setDataType(getEmx1Type(c));
+    this.setIdAttribute(c.getKey() == 1);
+    this.setRefEntity(c.getRefTableName());
+    this.setMappedBy(c.getMappedBy());
+    this.setNillable(c.isNullable());
+  }
 
   public Emx1Attribute(Row row) {
     this.entity = get(row, "entity");
@@ -132,5 +147,146 @@ public class Emx1Attribute {
 
   public String getMappedBy() {
     return mappedBy;
+  }
+
+  public void setEntity(String entity) {
+    this.entity = entity;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public void setDataType(String dataType) {
+    this.dataType = dataType;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setNillable(Boolean nillable) {
+    this.nillable = nillable;
+  }
+
+  public void setIdAttribute(Boolean idAttribute) {
+    this.idAttribute = idAttribute;
+  }
+
+  public void setAggregateable(Boolean aggregateable) {
+    this.aggregateable = aggregateable;
+  }
+
+  public void setLabelAttribute(Boolean labelAttribute) {
+    this.labelAttribute = labelAttribute;
+  }
+
+  public void setReadonly(Boolean readonly) {
+    this.readonly = readonly;
+  }
+
+  public void setValidationExpression(String validationExpression) {
+    this.validationExpression = validationExpression;
+  }
+
+  public void setVisibleExpression(String visibleExpression) {
+    this.visibleExpression = visibleExpression;
+  }
+
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
+
+  public void setPartOfAttribute(String partOfAttribute) {
+    this.partOfAttribute = partOfAttribute;
+  }
+
+  public void setRefEntity(String refEntity) {
+    this.refEntity = refEntity;
+  }
+
+  public void setExpression(String expression) {
+    this.expression = expression;
+  }
+
+  public void setMappedBy(String mappedBy) {
+    this.mappedBy = mappedBy;
+  }
+
+  public void setRangeMin(Integer rangeMin) {
+    this.rangeMin = rangeMin;
+  }
+
+  public void setRangeMax(Integer rangeMax) {
+    this.rangeMax = rangeMax;
+  }
+
+  public Row toRow() {
+    Row r = new Row();
+    r.set("entity", entity);
+    r.set("name", name);
+    r.set("label", label); // not supported by design
+    r.set("dataType", dataType);
+    r.set("refEntity", refEntity);
+    r.set("mappedBy", mappedBy);
+    r.set("idAttribute", idAttribute); // different by design
+    r.set("nillable", nillable);
+    r.set("readonly", readonly);
+    r.set("partOfAttribute", partOfAttribute); // not supported by design
+    r.set("labelAttribute", labelAttribute); // not supported by design
+    r.set("defaultValue", defaultValue);
+    r.set("expression", expression);
+    r.set("validationExpression", validationExpression);
+    r.set("visibleExpression", visibleExpression);
+    r.set("rangeMin", rangeMin); // not supported by design
+    r.set("rangeMax", rangeMax); // not supported by design
+    return r;
+  }
+
+  private static String getEmx1Type(Column c) {
+    switch (c.getColumnType()) {
+      case BOOL:
+        return "bool";
+      case FILE:
+        return "file";
+      case STRING:
+      case UUID:
+        return "varchar";
+      case TEXT:
+      case JSONB:
+        return "text";
+      case INT:
+        return "int";
+      case DECIMAL:
+        return "decimal";
+      case DATE:
+        return "date";
+      case DATETIME:
+        return "datetime";
+      case REF:
+        return "xref";
+      case REF_ARRAY:
+      case MREF:
+        return "mref";
+      case REFBACK:
+        if (REF.equals(c.getMappedByColumn().getColumnType())) return "one_to_many";
+        else return "refback unsupported in emx1";
+      case BOOL_ARRAY:
+      case UUID_ARRAY:
+      case STRING_ARRAY:
+      case TEXT_ARRAY:
+      case INT_ARRAY:
+      case DATE_ARRAY:
+      case DATETIME_ARRAY:
+      case JSONB_ARRAY:
+      case DECIMAL_ARRAY:
+        return "array types unsupported in emx1: " + c.getColumnType();
+      default:
+        return "unknown type in emx1: " + c.getColumnType();
+    }
   }
 }

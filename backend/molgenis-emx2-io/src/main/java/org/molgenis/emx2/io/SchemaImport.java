@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.emx1.Emx1Import;
+import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.*;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class SchemaImport {
         db -> {
           // read emx1 metadata, if available (to be removed in future versions)
           if (store.containsTable("attributes")) {
-            Emx1Import.uploadFromStoreToSchema(store, schema);
+            Emx1.uploadFromStoreToSchema(store, schema);
           } else if (store.containsTable("molgenis")) {
             SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
             schema.merge(emx2Schema);
@@ -52,10 +52,10 @@ public class SchemaImport {
               // store.processTable(table.getName(), new ValidationProcessor(table));
 
               // batching here to not blow memory,
-              // and in strategy class so reader can close file
-              store.processTable(table.getName(), new ImportProcessor(table));
+              // and in strategy class so reader can close filet store.processTable(table.getName(),
+              // new ImportProcessor(table));
 
-              logger.info("Import of " + table.getName() + " completed");
+              logger.info("Import of table '" + table.getName() + "' completed");
             }
           }
         });

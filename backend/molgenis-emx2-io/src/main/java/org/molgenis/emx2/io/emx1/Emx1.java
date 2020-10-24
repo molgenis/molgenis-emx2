@@ -2,6 +2,7 @@ package org.molgenis.emx2.io.emx1;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.rowstore.TableStore;
+import org.simpleflatmapper.csv.impl.writer.CellSeparatorAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,11 +15,11 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-public class Emx1Import {
+public class Emx1 {
   static final String EMX_1_IMPORT_FAILED = "EMX1 import failed";
-  private static Logger logger = LoggerFactory.getLogger(Emx1Import.class);
+  private static Logger logger = LoggerFactory.getLogger(Emx1.class);
 
-  private Emx1Import() {
+  private Emx1() {
     // hide constructor
   }
 
@@ -221,5 +222,25 @@ public class Emx1Import {
       default:
         return STRING;
     }
+  }
+
+  public static List<Row> getEmx1Entities(SchemaMetadata schema) {
+    List<Row> result = new ArrayList<>();
+    for (TableMetadata table : schema.getTables()) {
+      Emx1Entity e = new Emx1Entity(table);
+      result.add(e.toRow());
+    }
+    return result;
+  }
+
+  public static List<Row> getEmx1Attributes(SchemaMetadata schema) {
+    List<Row> rows = new ArrayList<>();
+    for (TableMetadata table : schema.getTables()) {
+      for (Column c : table.getLocalColumns()) {
+        Emx1Attribute a = new Emx1Attribute(c);
+        rows.add(a.toRow());
+      }
+    }
+    return rows;
   }
 }

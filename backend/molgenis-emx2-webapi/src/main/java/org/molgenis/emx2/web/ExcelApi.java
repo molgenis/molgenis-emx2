@@ -61,11 +61,17 @@ public class ExcelApi {
 
   static String getExcel(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
+
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      SchemaExport.toExcelFile(excelFile, schema);
+      if (request.queryParams("emx1") != null) {
+        SchemaExport.toEmx1ExcelFile(excelFile, schema);
+      } else {
+        SchemaExport.toExcelFile(excelFile, schema);
+      }
+
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",

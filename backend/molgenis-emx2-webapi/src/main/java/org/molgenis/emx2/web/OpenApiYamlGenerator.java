@@ -59,14 +59,15 @@ public class OpenApiYamlGenerator {
 
     // api/excel/:schema
     String excelType = "Excel";
-    String excelPrefix = "/" + schema.getName() + "/api/excel/";
+    String excelPrefix = "/" + schema.getName() + "/api/excel";
     PathItem excelPath = getSchemaOperations(excelType, ACCEPT_EXCEL);
     paths.addPathItem(excelPrefix, excelPath);
 
     // table paths
     for (TableMetadata table : schema.getTables()) {
-      paths.addPathItem(excelPrefix + table.getTableName(), getExcelTableOperations(excelType));
-      paths.addPathItem(zipPrefix + table.getTableName(), getExcelTableOperations(zipType));
+      paths.addPathItem(
+          excelPrefix + "/" + table.getTableName(), getExcelTableOperations(excelType));
+      paths.addPathItem(zipPrefix + "/" + table.getTableName(), getExcelTableOperations(zipType));
     }
 
     // api/csv/:schema
@@ -147,6 +148,7 @@ public class OpenApiYamlGenerator {
     return new Operation()
         .summary("Get complete schema metadata as " + type)
         .addTagsItem(type)
+        .addParametersItem(new Parameter().name("emx1").in("query").schema(new BooleanSchema()))
         .responses(getResponses(mimeType));
   }
 

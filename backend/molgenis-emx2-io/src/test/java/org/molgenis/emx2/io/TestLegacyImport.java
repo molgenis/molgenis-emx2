@@ -5,12 +5,16 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
+import org.molgenis.emx2.io.rowstore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
@@ -44,6 +48,23 @@ public class TestLegacyImport {
 
     Schema schema = db.dropCreateSchema("testImportLegacyFormatZip");
     executeTest(store, schema);
+  }
+
+  @Test
+  public void testExportImportEmx1() throws IOException {
+
+    Schema schema = db.dropCreateSchema("testExm1ExportImport");
+    PetStoreExample.create(schema.getMetadata());
+
+    File temp = File.createTempFile("exm1", ".xlsx");
+    // delete the file, we will create
+    temp.delete();
+    SchemaExport.toEmx1ExcelFile(temp.toPath(), schema);
+
+    schema = db.dropCreateSchema("testExm1ExportImport");
+    SchemaImport.fromExcelFile(temp.toPath(), schema);
+
+    schema.getTableNames().contains("Pet");
   }
 
   private void executeTest(TableStore store, Schema schema) {
