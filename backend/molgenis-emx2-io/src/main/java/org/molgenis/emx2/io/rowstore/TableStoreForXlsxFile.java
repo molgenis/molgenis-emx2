@@ -61,7 +61,7 @@ public class TableStoreForXlsxFile implements TableStore {
   private void writeRowsToSheet(String name, Iterable<Row> rows, Workbook wb) {
 
     // get the row columns
-    Set<String> columnNames = new HashSet<>();
+    Set<String> columnNames = new LinkedHashSet<>();
     for (Row row : rows) {
       columnNames.addAll(row.getColumnNames());
     }
