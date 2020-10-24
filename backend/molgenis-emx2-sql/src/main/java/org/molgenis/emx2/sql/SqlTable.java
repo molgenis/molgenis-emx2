@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.sql.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 class SqlTable implements Table {
@@ -111,6 +112,10 @@ class SqlTable implements Table {
   }
 
   public int insert(Iterable<Row> rows) {
+    return this.insert(rows, null);
+  }
+
+  private int insert(Iterable<Row> rows, String mgTableClass) {
     long start = System.currentTimeMillis();
 
     AtomicInteger count = new AtomicInteger(0);
@@ -120,7 +125,8 @@ class SqlTable implements Table {
 
             // first update superclass
             if (getMetadata().getInherit() != null) {
-              getSchema().getTable(getMetadata().getInherit()).insert(rows);
+              ((SqlTable) getSchema().getTable(getMetadata().getInherit()))
+                  .insert(rows, getMetadata().getTableName());
             }
 
             // get metadata
@@ -139,6 +145,9 @@ class SqlTable implements Table {
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
             int i = 0;
             for (Row row : rows) {
+              if (mgTableClass != null) {
+                row.set(MG_TABLECLASS, mgTableClass);
+              }
               step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
               // step.values(row.getValueMap());
               i++;

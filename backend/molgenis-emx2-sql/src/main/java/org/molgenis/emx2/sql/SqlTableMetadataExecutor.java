@@ -13,11 +13,13 @@ import java.util.Map;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.sql.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 class SqlTableMetadataExecutor {
+
   private SqlTableMetadataExecutor() {}
 
   static void executeCreateTable(DSLContext jooq, TableMetadata table) {
@@ -27,7 +29,7 @@ class SqlTableMetadataExecutor {
     jooq.execute("CREATE TABLE {0}()", jooqTable);
     MetadataUtils.saveTableMetadata(jooq, table);
 
-    // grant rights to schema manager, editor and viewer roles
+    // grant rights to schema manager, editor and viewer rol
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + DefaultRoles.VIEWER.toString()));
@@ -116,6 +118,14 @@ class SqlTableMetadataExecutor {
       Column copy = new Column(table, pkey);
       executeCreateColumn(jooq, copy);
       executeSetNullable(jooq, copy);
+    }
+    // add column to root superclass table
+    TableMetadata root = other;
+    while (root.getInherit() != null) {
+      root = root.getInheritedTable();
+    }
+    if (root.getColumn(Constants.MG_TABLECLASS) == null) {
+      root.add(column(Constants.MG_TABLECLASS).setReadonly(true)); // should not be user editable
     }
     createOrReplaceKey(jooq, table, 1, other.getKeyNames(1));
   }
