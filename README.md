@@ -261,7 +261,15 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  upload files directly into postgresql
 
 ### first
-*  test large data
+*  change password via ui possible
+*  
+*  class column in superclass so that can filter on type on export and query
+*  oicd integration
+*  test large data => remove 'offset' and replace with 'after' so large offset doesn't slow down
+*  change graphql to have pageInfo{first,prev,next,last} pointers returned'
+*  run 'count' in parallel from the 'select'
+*  postgresql cube index feature for aggregation views
+*  explore if we can have materialized view with count / group by info
 *  upload and download settings and members (bacisally 'all')
 *  ENSURE PASSWORD IS NOT IN THE LOGS
 *  implement order by in table view, default on lastUpdated
