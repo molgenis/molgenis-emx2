@@ -112,7 +112,7 @@ class SqlTable implements Table {
   }
 
   public int insert(Iterable<Row> rows) {
-    return this.insert(rows, null);
+    return this.insert(rows, getMetadata().getTableName());
   }
 
   private int insert(Iterable<Row> rows, String mgTableClass) {
@@ -145,9 +145,8 @@ class SqlTable implements Table {
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
             int i = 0;
             for (Row row : rows) {
-              if (mgTableClass != null) {
-                row.set(MG_TABLECLASS, mgTableClass);
-              }
+              row.set(MG_TABLECLASS, mgTableClass);
+
               step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
               // step.values(row.getValueMap());
               i++;
@@ -185,6 +184,10 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
+    return this.update(rows, getMetadata().getTableName());
+  }
+
+  private int update(Iterable<Row> rows, String mgTableClass) {
     long start = System.currentTimeMillis();
 
     if (getMetadata().getPrimaryKeys() == null)
@@ -200,7 +203,8 @@ class SqlTable implements Table {
           db2 -> { // first update superclass
             if (getMetadata().getInherit() != null) {
               try {
-                getSchema().getTable(getMetadata().getInherit()).update(rows);
+                ((SqlTable) getSchema().getTable(getMetadata().getInherit()))
+                    .update(rows, mgTableClass);
               } catch (MolgenisException e) {
                 throw new MolgenisException(
                     "Update of table '" + getName() + "' failed", e.getMessage());
@@ -217,6 +221,7 @@ class SqlTable implements Table {
             List<Column> columns = new ArrayList<>();
             List<Field<?>> fields = new ArrayList<>();
             for (Row row : rows) {
+              row.set(MG_TABLECLASS, mgTableClass);
 
               // to compare if columns change between rows
               Collection<String> rowFields = new ArrayList<>();
@@ -233,7 +238,13 @@ class SqlTable implements Table {
                       || !(fieldNames.containsAll(rowFields)
                           && rowFields.containsAll(fieldNames)))) {
                 updateBatch(
-                    batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
+                    batch,
+                    getJooqTable(),
+                    fieldNames,
+                    columns,
+                    fields,
+                    getPrimaryKeyFields(),
+                    mgTableClass);
                 batch.clear();
                 fieldNames.clear();
                 fields.clear();
@@ -257,7 +268,14 @@ class SqlTable implements Table {
             }
 
             // execute the remaining batch, if any
-            updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
+            updateBatch(
+                batch,
+                getJooqTable(),
+                fieldNames,
+                columns,
+                fields,
+                getPrimaryKeyFields(),
+                mgTableClass);
           });
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
@@ -274,7 +292,8 @@ class SqlTable implements Table {
       List<String> fieldNames,
       List<Column> columns,
       List<Field<?>> fields,
-      List<Field<?>> keyField) {
+      List<Field<?>> keyField,
+      String mgTableClass) {
     long start = System.currentTimeMillis();
 
     if (!rows.isEmpty()) {
@@ -286,7 +305,7 @@ class SqlTable implements Table {
       for (Row row : rows) {
         // ignore total null rows
         Collection<Object> values = SqlTypeUtils.getValuesAsCollection(row, columns);
-        boolean hasNotNull = values.stream().anyMatch(v -> v != null);
+        boolean hasNotNull = values.stream().anyMatch(v -> v != null && !mgTableClass.equals(v));
         if (hasNotNull) {
           step.values(values);
         } else {
