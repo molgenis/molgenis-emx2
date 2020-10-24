@@ -1192,9 +1192,13 @@ public class SqlQuery extends QueryBean {
   private static Column isValidColumn(TableMetadata table, String columnName) {
     Column column = table.getColumn(columnName);
     if (column == null) {
-      throw new MolgenisException(
-          "Query failed",
-          "Column '" + columnName + "' is unknown in table " + table.getTableName());
+      if (columnName.contains("-")) {
+        column = table.getColumn(columnName.split("-")[0]);
+      }
+      if (column == null)
+        throw new MolgenisException(
+            "Query failed",
+            "Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
   }
