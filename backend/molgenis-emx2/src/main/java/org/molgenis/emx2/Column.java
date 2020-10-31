@@ -5,9 +5,8 @@ import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
@@ -22,7 +21,9 @@ public class Column {
 
   // relationships
   private String refTable;
-  private String refContraint; // only for composite keys
+  private String refColumn;
+  private String refName; // bundles multiple columns into one reference in UI and graphql
+  private String[] refLink;
   private String mappedBy;
 
   // options
@@ -36,7 +37,7 @@ public class Column {
     return rdfTemplate;
   }
 
-  public void rdfTemplate(String rdfTemplate) {
+  public void setRdfTemplate(String rdfTemplate) {
     this.rdfTemplate = rdfTemplate;
   }
 
@@ -71,7 +72,9 @@ public class Column {
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
-    refContraint = column.refContraint;
+    refColumn = column.refColumn;
+    refName = column.refName;
+    refLink = column.refLink;
     mappedBy = column.mappedBy;
     validationScript = column.validationScript;
     computed = column.computed;
@@ -85,16 +88,16 @@ public class Column {
   }
 
   public static Column column(String name, ColumnType type) {
-    return new Column(name).type(type);
+    return new Column(name).setType(type);
   }
 
   public Column(String columnName) {
-    //    if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-    //      throw new MolgenisException(
-    //          "Invalid column name '" + columnName + "'",
-    //          "Column must start with a letter or underscore, followed by letters, underscores or
-    // numbers");
-    //    }
+    if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+      throw new MolgenisException(
+          "Invalid column name '"
+              + columnName
+              + "': Column must start with a letter or underscore, followed by letters, underscores or numbers");
+    }
     this.columnName = columnName;
   }
 
@@ -115,91 +118,16 @@ public class Column {
     return columnType;
   }
 
-  public List<Reference> getReferences() {
-    List<Reference> refColumns = new ArrayList<>();
-    if (getRefTable() == null) return refColumns;
-    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
-    if (pkeys.size() == 0) {
-      throw new MolgenisException(
-          "Error in column '" + getName() + "'",
-          "Reference to " + getRefTableName() + " fails because that table has no primary key");
-    }
-
-    // first create
-    for (Column keyPart : pkeys) {
-      if (keyPart.isReference()) {
-        for (Reference ref : keyPart.getReferences()) {
-          ColumnType type = ref.getColumnType();
-          if (!REF.equals(getColumnType())) {
-            type = getArrayType(type);
-          }
-          List<String> path = ref.getPath();
-          path.add(0, keyPart.getName());
-          refColumns.add(
-              new Reference(
-                  ref.getName(), ref.getName(), type, ref.isNullable() || this.isNullable(), path));
-        }
-      } else {
-        ColumnType type = keyPart.getColumnType();
-        // all but ref is array
-        if (!REF.equals(getColumnType())) {
-          type = getArrayType(type);
-        }
-        // create the ref
-        refColumns.add(
-            new Reference(
-                keyPart.getName(),
-                keyPart.getName(),
-                type,
-                keyPart.isNullable() || this.isNullable(),
-                new ArrayList(List.of(keyPart.getName()))));
-      }
-    }
-
-    // check if maps to existing, otherwise count to see if we need prefixing
-    int prefixCount = 0;
-    for (Reference ref : refColumns) {
-      if (getRefContraintMap().containsKey(ref.getName())) {
-        ref.setName(getRefContraintMap().get(ref.getName()));
-        ref.setExisting(true);
-      } else {
-        // if not existing, we might need to prefix if more than one reference
-        prefixCount++;
-      }
-    }
-
-    // if multiple, prefix with column name, otherwise rename to column name
-    // (ignore if maps to existing column)
-    if (prefixCount > 1) {
-      for (Reference ref : refColumns) {
-        // don't touch 'existing'
-        if (!ref.isExisting()) {
-          ref.setName(getName() + "-" + ref.getName());
-        }
-      }
-    } else {
-      for (Reference ref : refColumns) {
-        // don't touch 'existing'
-        if (!ref.isExisting()) {
-          refColumns.get(0).setName(getName());
-        }
-      }
-    }
-
-    return refColumns;
-  }
-
-  private Map<String, String> getRefContraintMap() {
-    Map<String, String> result = new LinkedHashMap<>();
-    if (getRefContraint() != null) {
-      for (String part : getRefContraint().split(",")) {
-        String key = part.substring(0, part.indexOf("=")).trim();
-        String value = part.substring(part.indexOf("=") + 1).trim();
-        result.put(key, value);
-      }
-    }
-    return result;
-  }
+  //  public List<Reference> getReferences() {
+  //    List<Reference> refColumns = new ArrayList<>();
+  //    for (int i = 0; i < refFrom.length; i++) {
+  //      refColumns.add(
+  //          new Reference(
+  //              refFrom.get(i), refTo.get(i), refType.get(i), refNullable.get(i), new
+  // ArrayList<>()));
+  //    }
+  //    return refColumns;
+  //  }
 
   public SchemaMetadata getSchema() {
     return getTable().getSchema();
@@ -236,7 +164,7 @@ public class Column {
     return null;
   }
 
-  public Column key(int key) {
+  public Column setKey(int key) {
     this.key = key;
     return this;
   }
@@ -262,7 +190,7 @@ public class Column {
     return cascadeDelete;
   }
 
-  public Column nullable(boolean nillable) {
+  public Column setNullable(boolean nillable) {
     this.nullable = nillable;
     return this;
   }
@@ -280,25 +208,26 @@ public class Column {
     return defaultValue;
   }
 
-  public void setDefaultValue(String defaultValue) {
+  public Column setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
+    return this;
   }
 
   public String getMappedBy() {
     return mappedBy;
   }
 
-  public Column mappedBy(String columnName) {
+  public Column setMappedBy(String columnName) {
     this.mappedBy = columnName;
     return this;
   }
 
-  public Column index(boolean indexed) {
+  public Column setIndex(boolean indexed) {
     this.indexed = indexed;
     return this;
   }
 
-  public Column cascadeDelete(boolean cascadeDelete) {
+  public Column setCascadeDelete(boolean cascadeDelete) {
     if (cascadeDelete && !REF.equals(this.columnType)) {
       throw new MolgenisException(
           "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
@@ -327,7 +256,7 @@ public class Column {
     return builder.toString();
   }
 
-  public Column type(ColumnType type) {
+  public Column setType(ColumnType type) {
     if (type == null) {
       throw new MolgenisException("Add column failed", "Type was null for column " + getName());
     }
@@ -335,7 +264,7 @@ public class Column {
     return this;
   }
 
-  public Column refTable(String refTable) {
+  public Column setRefTable(String refTable) {
     this.refTable = refTable;
     return this;
   }
@@ -350,17 +279,17 @@ public class Column {
     return null;
   }
 
-  public String getValidation() {
+  public String getValidationScript() {
     return validationScript;
   }
 
-  public Column validation(String validationScript) {
+  public Column setValidationScript(String validationScript) {
     this.validationScript = validationScript;
     return this;
   }
 
-  public Column pkey() {
-    return this.key(1);
+  public Column setPkey() {
+    return this.setKey(1);
   }
 
   public Column removeKey() {
@@ -378,7 +307,7 @@ public class Column {
   }
 
   public DataType getJooqType() {
-    return toJooqType(getColumnType());
+    return toJooqType(getPrimitiveColumnType());
   }
 
   public Field getJooqField() {
@@ -404,17 +333,17 @@ public class Column {
     return computed;
   }
 
-  public Column computed(String computed) {
+  public Column setComputed(String computed) {
     this.computed = computed;
     return this;
   }
 
-  public String getRefContraint() {
-    return this.refContraint;
+  public String[] getRefLink() {
+    return this.refLink;
   }
 
-  public Column refConstraint(String refConstraint) {
-    this.refContraint = refConstraint;
+  public Column setRefLink(String[] refLink) {
+    this.refLink = refLink;
     return this;
   }
 
@@ -422,21 +351,90 @@ public class Column {
     return position;
   }
 
-  public Column position(Integer position) {
+  public Column setPosition(Integer position) {
     this.position = position;
+    return this;
+  }
+
+  public String getRefColumnName() {
+    // if not set, it will default to singular primary key of refTable.
+    if (getRefTable() != null && getRefTable().getPrimaryKeyColumns().size() == 1) {
+      return getRefTable().getPrimaryKeyColumns().get(0).getName();
+    }
+    return refColumn;
+  }
+
+  public Column getRefColumn() {
+    return getRefTable().getColumn(getRefColumnName());
+  }
+
+  public Column setRefColumn(String refColumn) {
+    this.refColumn = refColumn;
+    return this;
+  }
+
+  public String getRefName() {
+    return refName;
+  }
+
+  public Column setRefName(String refName) {
+    this.refName = refName;
     return this;
   }
 
   public List<Field> getJooqFileFields() {
     return List.of(
-        field(name(getName() + "-id"), SQLDataType.VARCHAR),
-        field(name(getName() + "-mimetype"), SQLDataType.VARCHAR),
-        field(name(getName() + "-extension"), SQLDataType.VARCHAR),
-        field(name(getName() + "-size"), SQLDataType.INTEGER),
-        field(name(getName() + "-contents"), SQLDataType.BINARY));
+        field(name(getName() + "_id"), SQLDataType.VARCHAR),
+        field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
+        field(name(getName() + "_extension"), SQLDataType.VARCHAR),
+        field(name(getName() + "_size"), SQLDataType.INTEGER),
+        field(name(getName() + "_contents"), SQLDataType.BINARY));
   }
 
   public boolean isArray() {
     return this.columnType.toString().endsWith("ARRAY") || this.columnType.equals(REFBACK);
+  }
+
+  public ColumnType getPrimitiveColumnType() {
+    if (isReference()) {
+      Column refColumn = getRefColumn();
+      ColumnType type = refColumn.getColumnType();
+      // if itself is reference, recurse
+      if (refColumn.isReference()) {
+        type = refColumn.getPrimitiveColumnType();
+      }
+      if (REF_ARRAY.equals(getColumnType())
+          || MREF.equals(getColumnType())
+          || REFBACK.equals(getColumnType())) {
+        // return array version of primitive type in case of ref_array
+        return getArrayType(type);
+      } else {
+        return type;
+      }
+    } else return getColumnType();
+  }
+
+  /** will return self in case of single, and multiple in case of composite key wrapper */
+  public Collection<Column> getComposedRefs() {
+    if (!isReference()) {
+      return new ArrayList<>();
+    }
+    if (getRefName() != null) {
+      // composite key
+      List<Column> result = new ArrayList<>();
+      for (Column c : getTable().getColumns()) {
+        if (getRefName().equals(c.getRefName())) {
+          result.add(c);
+        }
+      }
+      return result;
+    } else {
+      // otherwise return 'self'
+      return List.of(this);
+    }
+  }
+
+  public boolean isCompositeRef() {
+    return getRefName() != null;
   }
 }

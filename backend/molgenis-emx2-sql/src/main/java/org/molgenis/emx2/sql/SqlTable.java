@@ -85,7 +85,7 @@ class SqlTable implements Table {
                     if (!row.containsName(c.getName())) {
                       line.append(",");
                     } else {
-                      Object value = getTypedValue(row, c.getName(), c.getColumnType());
+                      Object value = getTypedValue(row, c);
                       line.append(value + ",");
                     }
                   }
@@ -429,11 +429,9 @@ class SqlTable implements Table {
     if (REF.equals(key.getColumnType())
         || REF_ARRAY.equals(key.getColumnType())
         || MREF.equals(key.getColumnType())) {
-      for (Reference ref : key.getReferences()) {
-        columnCondition.add(
-            ref.getJooqField()
-                .eq(cast(r.get(ref.getName(), ref.getColumnType()), ref.getJooqField())));
-      }
+      columnCondition.add(
+          key.getJooqField()
+              .eq(cast(r.get(key.getName(), key.getPrimitiveColumnType()), key.getJooqField())));
     } else if (REFBACK.equals(key.getColumnType())) {
       // do nothing
     } else {

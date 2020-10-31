@@ -48,24 +48,28 @@ public class TestInherits {
     }
 
     // set pkey and a property
-    person.getMetadata().add(column("fullName").pkey());
-    person.getMetadata().add(column("birthDate").type(DATE).nullable(true));
+    person.getMetadata().add(column("fullName").setPkey());
+    person.getMetadata().add(column("birthDate").setType(DATE).setNullable(true));
 
     // create first extended table
     Table employee =
-        s.create(table("Employee").setInherit(person.getName()).add(column("salary").type(INT)));
+        s.create(table("Employee").setInherit(person.getName()).add(column("salary").setType(INT)));
 
     Table manager =
         s.create(
             table("Manager")
                 .setInherit("Employee")
-                .add(column("directs").type(REF_ARRAY).refTable("Employee").nullable(true)));
+                .add(
+                    column("directs")
+                        .setType(REF_ARRAY)
+                        .setRefTable("Employee")
+                        .setNullable(true)));
 
     Table ceo = s.create(table("CEO").setInherit("Manager"));
 
     // try to add column that already exists in parent
     try {
-      employee.getMetadata().add(column("birthDate").type(DATE));
+      employee.getMetadata().add(column("birthDate").setType(DATE));
       fail("should fail: cannot add column to subclass that already exists in superclass");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -80,7 +84,8 @@ public class TestInherits {
     }
 
     // create another extended table
-    s.create(table("Student").setInherit(person.getName()).add(column("averageGrade").type(INT)));
+    s.create(
+        table("Student").setInherit(person.getName()).add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");

@@ -33,7 +33,7 @@ public class TestCopy {
             row("A", "a1", "B", List.of("b\"11\"", "b1,2")),
             row("A", "a2", "B", List.of("b21", "b22")));
 
-    schema.create(table("test", column("A"), column("B").type(ColumnType.STRING_ARRAY)));
+    schema.create(table("test", column("A"), column("B").setType(ColumnType.STRING_ARRAY)));
 
     // copyOut
     SqlTable table = (SqlTable) schema.getTable("test");

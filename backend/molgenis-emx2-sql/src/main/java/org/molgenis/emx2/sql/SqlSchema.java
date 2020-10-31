@@ -5,7 +5,7 @@ import org.molgenis.emx2.*;
 import java.util.*;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefAndNotNullConstraints;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
@@ -257,7 +257,7 @@ public class SqlSchema implements Schema {
               } else if (!newColumn.getColumnType().equals(oldColumn.getColumnType())) {
 
                 // if column exist but type has changed remove triggers
-                executeRemoveRefAndNotNullConstraints(getMetadata().getJooq(), oldColumn);
+                executeRemoveRefConstraints(getMetadata().getJooq(), oldColumn);
               }
             }
           }

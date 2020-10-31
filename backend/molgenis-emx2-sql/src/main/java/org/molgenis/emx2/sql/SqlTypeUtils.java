@@ -30,12 +30,12 @@ public class SqlTypeUtils extends TypeUtils {
             value = executeJavascriptOnRow(c.getComputed(), row);
           }
         } else {
-          value = getTypedValue(row, c.getName(), c.getColumnType());
+          value = getTypedValue(row, c);
         }
 
         // validation
-        if (value != null && c.getValidation() != null) {
-          String error = executeJavascriptOnValue(c.getValidation(), value);
+        if (value != null && c.getValidationScript() != null) {
+          String error = executeJavascriptOnValue(c.getValidationScript(), value);
           if (error != null)
             throw new MolgenisException(
                 "Validation error on column '" + c.getName() + "'",
@@ -55,8 +55,9 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static Object getTypedValue(Row row, String name, ColumnType type) {
-    switch (type) {
+  public static Object getTypedValue(Row row, Column c) {
+    String name = c.getName();
+    switch (c.getPrimitiveColumnType()) {
       case FILE:
         return row.getBinary(name);
       case UUID:
@@ -96,16 +97,13 @@ public class SqlTypeUtils extends TypeUtils {
       case JSONB_ARRAY:
         return row.getJsonbArray(name);
       default:
-        throw new UnsupportedOperationException("Unsupported columnType found:" + type);
+        throw new UnsupportedOperationException(
+            "Unsupported columnType found:" + c.getColumnType());
     }
   }
 
-  static TableMetadata getRefTable(Column column) {
-    return column.getTable().getSchema().getTableMetadata(column.getRefTableName());
-  }
-
   static String getPsqlType(Column column) {
-    return getPsqlType(getPrimitiveColumnType(column));
+    return getPsqlType(column.getPrimitiveColumnType());
   }
 
   static String getPsqlType(ColumnType type) {

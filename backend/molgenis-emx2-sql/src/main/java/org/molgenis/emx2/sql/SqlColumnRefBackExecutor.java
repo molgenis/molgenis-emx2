@@ -19,33 +19,35 @@ class SqlColumnRefBackExecutor {
   // will create a dummy array column matching the toColumn we will link to
   // will create a before insert trigger to update all REF instances in the other table that needs
   // updating
-  static void createRefBackColumnConstraints(DSLContext jooq, Column column) {
+  static void createRefBackColumnConstraints(DSLContext jooq, Column... column) {
 
     try {
       // get ref table
       validateRef(column);
+      String columNames =
+          List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
 
       // get the via column which is also in the 'toTable'
-      String mappedByColumnName = column.getMappedBy();
+      String mappedByColumnName = column[0].getMappedBy();
       if (mappedByColumnName == null) {
         throw new MolgenisException(
             "Create column failed",
-            "Create of REFBACK column '"
-                + column.getName()
+            "Create of REFBACK column(s) '"
+                + columNames
                 + "' failed because mappedBy was not set.");
       }
 
-      Column mappedByColumn = column.getMappedByColumn();
-      if (mappedByColumn == null) {
-        throw new MolgenisException(
-            "Create column failed",
-            "Could not create column '"
-                + column.getName()
-                + "' because could not find mappedBy column '"
-                + mappedByColumnName
-                + "' in refTable '"
-                + column.getRefTableName()
-                + "'");
+      for (Column c : column) {
+        if (c.getRefTable().getColumn(c.getMappedBy()) == null) {
+          throw new MolgenisException(
+              "Create column failed: Could not create column '"
+                  + columNames
+                  + "' because could not find mappedBy column '"
+                  + c.getMappedBy()
+                  + "' in refTable '"
+                  + c.getRefTableName()
+                  + "'");
+        }
       }
 
       //      if (!mappedByColumn.isNullable()) {
@@ -63,7 +65,7 @@ class SqlColumnRefBackExecutor {
 
       // create the trigger so that insert/update/delete on REFBACK column updates the
       // relationship
-      ColumnType mappedByType = mappedByColumn.getColumnType();
+      ColumnType mappedByType = column[0].getMappedByColumn().getColumnType();
       switch (mappedByType) {
         case REF:
           createTriggerForRef(jooq, column);
@@ -75,96 +77,104 @@ class SqlColumnRefBackExecutor {
         default:
           throw new MolgenisException(
               "Create column failed",
-              "Create of REFBACK column '"
-                  + column.getName()
+              "Create of REFBACK column(s) '"
+                  + getNames(column)
                   + "' failed because mappedBy was not of type REF, REF_ARRAY");
       }
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(
-          "REFBACK '"
-              + column.getName()
+          "REFBACK column(s) '"
+              + getNames(column)
               + "' could not be created in table '"
-              + column.getTable().getTableName()
+              + column[0].getTableName()
               + "'",
           dae);
     }
   }
 
-  private static void createTriggerForRefArray(DSLContext jooq, Column column) {
+  private static void createTriggerForRefArray(DSLContext jooq, Column... column) {
 
-    String schemaName = column.getTable().getSchema().getName();
+    String schemaName = column[0].getTable().getSchema().getName();
     String updateTriggerName = refbackUpdateTriggerName(column);
+    List<Column> columns = List.of(column);
 
     // ref
     String ref =
-        column.getReferences().stream()
-            .map(r -> name(r.getName()).toString())
-            .collect(Collectors.joining(","));
+        columns.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
     String newRef =
-        column.getReferences().stream()
-            .map(r -> "NEW." + name(r.getName()))
-            .collect(Collectors.joining(","));
+        columns.stream().map(r -> "NEW." + name(r.getName())).collect(Collectors.joining(","));
     String refTo =
-        column.getReferences().stream()
-            .map(r -> name(r.getTo()).toString())
+        columns.stream()
+            .map(r -> name(r.getRefColumnName()).toString())
             .collect(Collectors.joining(","));
     String oldRefTo =
-        column.getReferences().stream()
-            .map(r -> "OLD." + name(r.getTo()))
+        columns.stream()
+            .map(r -> "OLD." + name(r.getRefColumnName()))
             .collect(Collectors.joining(","));
     String errorColumns =
-        column.getReferences().stream()
-            .map(r -> "error_row." + name(r.getTo()).toString())
+        columns.stream()
+            .map(r -> "error_row." + name(r.getRefColumnName()).toString())
             .collect(Collectors.joining("||','||"));
-
-    Column mappedBy = column.getMappedByColumn();
 
     // mappedBy.to
     String mappedByTo =
-        mappedBy.getReferences().stream()
-            .map(r -> name(r.getTo()).toString())
+        columns.stream()
+            .map(r -> name(r.getMappedByColumn().getRefColumnName()).toString())
             .collect(Collectors.joining(","));
     String oldMappedByTo =
-        mappedBy.getReferences().stream()
-            .map(r -> "OLD." + name(r.getTo()))
+        columns.stream()
+            .map(r -> "OLD." + name(r.getMappedByColumn().getRefColumnName()))
             .collect(Collectors.joining(","));
     String newMappedByTo =
-        mappedBy.getReferences().stream()
-            .map(r -> "NEW." + name(r.getTo())) // + " AS " + name(r.getTo()))
+        columns.stream()
+            .map(
+                r ->
+                    "NEW."
+                        + name(
+                            r.getMappedByColumn()
+                                .getRefColumnName())) // + " AS " + name(r.getTo()))
             .collect(Collectors.joining(","));
     String mappedByToEqualsNewKey =
-        mappedBy.getReferences().stream()
-            .map(r -> name(r.getTo()) + "=NEW." + name(r.getTo()))
+        columns.stream()
+            .map(s -> s.getMappedByColumn().getRefColumnName())
+            .map(r -> name(r) + "=NEW." + name(r))
             .collect(Collectors.joining(" AND "));
     String mappedByToEqualsOldKey =
-        mappedBy.getReferences().stream()
-            .map(r -> name(r.getTo()) + "=OLD." + name(r.getTo()))
+        columns.stream()
+            .map(s -> s.getMappedByColumn().getRefColumnName())
+            .map(r -> name(r) + "=OLD." + name(r))
             .collect(Collectors.joining(" AND "));
 
     String updateFilter =
-        column.getReferences().stream()
-            .map(r -> "t." + name(r.getTo()) + "=error_row." + name(r.getTo()))
+        columns.stream()
+            .map(s -> s.getRefColumnName())
+            .map(r -> "t." + name(r) + "=error_row." + name(r))
             .collect(Collectors.joining(" AND "));
 
     String mappedByFrom =
-        mappedBy.getReferences().stream()
-            .map(r -> name(r.getName()).toString())
+        columns.stream()
+            .map(r -> name(r.getMappedBy()).toString())
             .collect(Collectors.joining(","));
 
     String mappedByFromErrorRow =
-        mappedBy.getReferences().stream()
-            .map(r -> "error_row." + name(r.getName()).toString())
+        columns.stream()
+            .map(r -> "error_row." + name(r.getMappedBy()).toString())
             .collect(Collectors.joining(","));
     String setterUpdate =
-        mappedBy.getReferences().stream()
-            .map(r -> name(r.getName()) + "=t3." + name(r.getName()))
+        columns.stream()
+            .map(r -> name(r.getMappedBy()) + "=t3." + name(r.getMappedBy()))
             .collect(Collectors.joining(","));
     String arrayAgg =
-        mappedBy.getReferences().stream()
-            .map(r -> "array_agg(" + name(r.getTo()) + ") as " + name(r.getName()))
+        columns.stream()
+            .map(
+                r ->
+                    "array_agg("
+                        + name(r.getMappedByColumn().getRefColumnName())
+                        + ") as "
+                        + name(r.getMappedBy()))
             .collect(Collectors.joining(","));
     String setRefToNull =
-        column.getReferences().stream()
+        columns.stream()
             .map(r -> "NEW." + name(r.getName()) + "=NULL")
             .collect(Collectors.joining(";"));
 
@@ -216,7 +226,7 @@ class SqlColumnRefBackExecutor {
         // {1} to replace old mappedBy array(s) with new array(s)
         keyword(setterUpdate),
         // {2} refTable
-        table(name(schemaName, column.getRefTableName())),
+        table(name(schemaName, column[0].getRefTableName())),
         // {3} mappedBy
         keyword(mappedByFrom),
         // {4} key that mappedBy uses (might not be pkey)
@@ -226,15 +236,15 @@ class SqlColumnRefBackExecutor {
         // {6} toColumn where fake foreign key dummy points to
         keyword(refTo),
         // {7} this table
-        table(name(schemaName, column.getTable().getTableName())),
+        table(name(schemaName, column[0].getTable().getTableName())),
         // {8} check if pkey in new.pkey (i.e. if insert or update)
         keyword(mappedByToEqualsNewKey),
         // {9} inline table name
-        inline(column.getTable().getTableName()),
+        inline(column[0].getTable().getTableName()),
         // {10} name
-        inline(column.getName()),
+        inline(getNames(column)),
         // {11} inline refTable name
-        inline(column.getRefTableName()),
+        inline(column[0].getRefTableName()),
         // {12} inline refTable key column names
         inline(refTo),
         // {13} columns concat for errors
@@ -264,15 +274,14 @@ class SqlColumnRefBackExecutor {
         "CREATE TRIGGER {0} "
             + "\n\tBEFORE INSERT OR UPDATE OF {1} ON {2}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
-        name(column.getName() + "_UPDATE"),
+        name(updateTriggerName),
         keyword(ref),
-        name(schemaName, column.getTable().getTableName()),
+        name(schemaName, column[0].getTableName()),
         name(schemaName, updateTriggerName));
 
     // delete and truncate trigger
 
     String deleteTriggerName = refbackDeleteTriggerName(column);
-
     jooq.execute(
         "CREATE FUNCTION {0}() RETURNS trigger AS"
             + "\n$BODY$"
@@ -283,11 +292,12 @@ class SqlColumnRefBackExecutor {
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(schemaName, deleteTriggerName), // {0} function name
-        table(name(schemaName, column.getRefTableName())), // {1} this table
-        field(name(column.getMappedBy())), // {2} mappedBy
+        table(name(schemaName, column[0].getRefTableName())), // {1} this table
+        // todo: composite refback test
+        field(name(column[0].getMappedBy())), // {2} mappedBy
         field(
             name(
-                column
+                column[0]
                     .getMappedByColumn()
                     .getRefTable()
                     .getPrimaryKeys()
@@ -298,12 +308,12 @@ class SqlColumnRefBackExecutor {
         "CREATE TRIGGER {0} "
             + "\n\tAFTER DELETE ON {1}"
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-        name(column.getName() + "_DELETE"),
-        name(schemaName, column.getTable().getTableName()),
+        name(deleteTriggerName),
+        name(schemaName, column[0].getTableName()),
         name(schemaName, deleteTriggerName));
   }
 
-  private static void createTriggerForRef(DSLContext jooq, Column column) {
+  private static void createTriggerForRef(DSLContext jooq, Column... column) {
 
     // check if any refback array has non-existing pkey
     // remove refs from other table if not any more in refback array
@@ -334,8 +344,10 @@ class SqlColumnRefBackExecutor {
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;";
 
-    String schemaName = column.getTable().getSchema().getName();
+    String schemaName = column[0].getTable().getSchema().getName();
     String insertOrUpdateTrigger = refbackUpdateTriggerName(column);
+
+    List<Column> columns = List.of(column);
 
     jooq.execute(
         sql,
@@ -343,61 +355,69 @@ class SqlColumnRefBackExecutor {
         name(schemaName, insertOrUpdateTrigger),
         // 1 NEW.refback column(s) names
         keyword(
-            column.getReferences().stream()
-                .map(r -> "NEW." + name(r.getName()))
-                .collect(Collectors.joining(","))),
+            columns.stream().map(r -> "NEW." + name(r.getName())).collect(Collectors.joining(","))),
         // 2 foreign key column names refback refers to
         keyword(
-            column.getReferences().stream()
-                .map(r -> name(r.getTo()).toString())
+            columns.stream()
+                .map(r -> name(r.getRefColumnName()).toString())
                 .collect(Collectors.joining(","))),
         // 3 refTable
-        table(name(schemaName, column.getRefTableName())),
+        table(name(schemaName, column[0].getRefTableName())),
         // 4 inline string of table for debug message
-        inline(column.getTable().getTableName()),
+        inline(column[0].getTable().getTableName()),
         // 5 inline columns
         keyword(
-            column.getReferences().stream()
+            columns.stream()
                 .map(r -> inline(r.getName()).toString())
                 .collect(Collectors.joining("||','||"))),
         // 6 concat of the error column values
         keyword(
-            column.getReferences().stream()
-                .map(r -> "COALESCE(error_row." + name(r.getTo()).toString() + ",'NULL')")
+            columns.stream()
+                .map(
+                    r -> "COALESCE(error_row." + name(r.getRefColumnName()).toString() + ",'NULL')")
                 .collect(Collectors.joining("||','||"))),
         // 7 inline refTable
-        inline(column.getRefTable().getTableName()),
+        inline(column[0].getRefTable().getTableName()),
         // 8 inline toColumns
         keyword(
-            column.getReferences().stream()
-                .map(r -> inline(r.getTo()).toString())
+            columns.stream()
+                .map(r -> inline(r.getRefColumnName()).toString())
                 .collect(Collectors.joining("||','||"))),
         // 9 set mappedBy to null
         keyword(
-            column.getMappedByColumn().getReferences().stream()
-                .map(r -> name(r.getName()) + "=NULL")
+            columns.stream()
+                .map(r -> name(r.getMappedBy()) + "=NULL")
                 .collect(Collectors.joining(","))),
         // 10 where references old key and not new key
         keyword(
-            column.getMappedByColumn().getReferences().stream()
-                .map(r -> name(r.getName()) + "=OLD." + name(r.getTo()))
+            columns.stream()
+                .map(
+                    r ->
+                        name(r.getMappedBy())
+                            + "=OLD."
+                            + name(r.getMappedByColumn().getRefColumnName()))
                 .collect(Collectors.joining(" AND "))),
         // 11 set to point to this.key(s)
         keyword(
-            column.getMappedByColumn().getReferences().stream()
-                .map(r -> name(r.getName()) + "=NEW." + name(r.getTo()))
+            columns.stream()
+                .map(
+                    r ->
+                        name(r.getMappedBy())
+                            + "=NEW."
+                            + name(r.getMappedByColumn().getRefColumnName()))
                 .collect(Collectors.joining(","))),
         // 12 set NEW.refback columns to null so they don't get saved
         keyword(
-            column.getReferences().stream()
+            columns.stream()
                 .map(r -> "NEW." + name(r.getName()) + "=NULL")
                 .collect(Collectors.joining(";"))),
         // 13 this table
-        table(name(schemaName, column.getTableName())),
+        table(name(schemaName, column[0].getTableName())),
         // 14 where this keys
         keyword(
-            column.getMappedByColumn().getReferences().stream()
-                .map(r -> name(r.getTo()) + "=NEW." + name(r.getTo()))
+            columns.stream()
+                .map(r -> r.getMappedByColumn().getRefColumnName())
+                .map(s -> name(s) + "=NEW." + name(s))
                 .collect(Collectors.joining(" AND "))));
 
     jooq.execute(
@@ -408,11 +428,11 @@ class SqlColumnRefBackExecutor {
         name(insertOrUpdateTrigger),
         // 1 the columns of the refback that should be set to trigger the trigger
         keyword(
-            column.getReferences().stream()
+            columns.stream()
                 .map(r -> name(r.getName()).toString())
                 .collect(Collectors.joining(","))),
         // name of the table
-        name(schemaName, column.getTable().getTableName()),
+        name(schemaName, column[0].getTable().getTableName()),
         // reference to the trigger function
         name(schemaName, insertOrUpdateTrigger));
 
@@ -451,11 +471,15 @@ class SqlColumnRefBackExecutor {
         name(column.getSchemaName(), refbackUpdateTriggerName(column)));
   }
 
-  private static String refbackDeleteTriggerName(Column column) {
-    return "1" + column.getTable().getTableName() + "-" + column.getName() + "_DELETE";
+  private static String refbackDeleteTriggerName(Column... column) {
+    return "1" + column[0].getTable().getTableName() + "-" + getNames(column) + "_DELETE";
   }
 
-  private static String refbackUpdateTriggerName(Column column) {
-    return "1" + column.getTable().getTableName() + "-" + column.getName() + "_UPDATE";
+  private static String getNames(Column... column) {
+    return List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+  }
+
+  private static String refbackUpdateTriggerName(Column... column) {
+    return "1" + column[0].getTable().getTableName() + "-" + getNames(column) + "_UPDATE";
   }
 }

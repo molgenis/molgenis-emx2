@@ -5,11 +5,11 @@ import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
@@ -28,32 +28,43 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata add(Column column) {
+  public TableMetadata add(Column... column) {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
-          if (column.getName() == null) {
-            throw new MolgenisException("Add column failed", "Column name cannot be null");
-          }
-          if (getColumn(column.getName()) != null) {
-            alterColumn(column);
-          } else {
-            Column result = new Column(this, column);
-            updatePositions(result, this);
-            executeCreateColumn(getJooq(), result);
-            super.add(result);
-            if (column.getKey() > 0) {
-              if (getKeyNames(column.getKey()).size() > 1 && column.isNullable()) {
-                throw new MolgenisException(
-                    "unique on column '" + column.getName() + "' failed",
-                    "When key spans multiple columns, none of the columns can be nullable");
+          Set<String> compositeRefs = new LinkedHashSet<>();
+
+          // first per-column actions, then multi-column action such as composite keys/refs
+          for (Column c : column) {
+            if (getColumn(c.getName()) != null) {
+              alterColumn(c);
+            } else {
+              Column newColumn = new Column(this, c);
+              validateColumn(newColumn);
+              updatePositions(newColumn, this);
+              executeCreateColumn(getJooq(), newColumn);
+              super.add(newColumn);
+              validateColumn(newColumn);
+              if (newColumn.getKey() > 0) {
+                createOrReplaceKey(
+                    getJooq(), this, newColumn.getKey(), getKeyNames(newColumn.getKey()));
               }
-              SqlTableMetadataExecutor.createOrReplaceKey(
-                  getJooq(), this, column.getKey(), getKeyNames(column.getKey()));
+              executeCreateRefConstraints(
+                  getJooq(), newColumn); // todo, in case of composite this should not happen
+              log(start, "added column '" + newColumn.getName() + "' to table " + getTableName());
             }
-            SqlColumnExecutor.executeCreateRefAndNotNullConstraints(getJooq(), result);
-            log(start, "added column '" + column.getName() + "' to ");
           }
+
+          // finally, foreign key relations spanning multiple tables
+          for (String compositeRef : compositeRefs) {
+            // TODO
+          }
+          // if (getKeyNames(column.getKey()).size() > 1 && column.isNullable()) {
+          //                throw new MolgenisException(
+          //                    "unique on column '" + column.getName() + "' failed",
+          //                    "When key spans multiple columns, none of the columns can be
+          // nullable");
+          //              }
         });
     db.getListener().schemaChanged(getSchemaName());
     return this;
@@ -64,8 +75,11 @@ class SqlTableMetadata extends TableMetadata {
     Column oldColumn = getColumn(name);
     if (oldColumn == null) {
       throw new MolgenisException(
-          "Alter column failed",
-          "Column  '" + getTableName() + "." + column.getName() + "' does not exist");
+          "Alter column failed: Column  '"
+              + getTableName()
+              + "."
+              + column.getName()
+              + "' does not exist");
     }
     db.tx(
         dsl -> {
@@ -79,15 +93,10 @@ class SqlTableMetadata extends TableMetadata {
                 "REF_ARRAY is not supported for composite keys of table "
                     + newColumn.getRefTableName());
           }
-          if ((oldColumn.getReferences().size() > 1 || newColumn.getReferences().size() > 1)
-              && oldColumn.getReferences().size() != newColumn.getReferences().size()) {
-            throw new MolgenisException(
-                "Cannot alter column '" + oldColumn.getName(),
-                "New column '"
-                    + newColumn.getName()
-                    + "' has different number of reference multiplicity then '"
-                    + oldColumn.getName()
-                    + "'");
+
+          // if changing 'ref' then check if not refback exists
+          if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
+            checkNotRefback(name, oldColumn);
           }
 
           // change positions if needed
@@ -106,7 +115,7 @@ class SqlTableMetadata extends TableMetadata {
           }
 
           // drop referential constraints around this column
-          executeRemoveRefAndNotNullConstraints(getJooq(), oldColumn);
+          executeRemoveRefConstraints(getJooq(), oldColumn);
 
           // remove refbacks if exist
           executeRemoveRefback(oldColumn, newColumn);
@@ -114,9 +123,7 @@ class SqlTableMetadata extends TableMetadata {
           // rename and retype if needed
           executeAlterType(getJooq(), oldColumn, newColumn);
           executeAlterName(getJooq(), oldColumn, newColumn);
-
-          // (re)apply foreign keys
-          executeCreateRefAndNotNullConstraints(getJooq(), newColumn);
+          executeSetNullable(getJooq(), newColumn);
 
           // change nullable?
           if (oldColumn.isNullable() != newColumn.isNullable()) {
@@ -145,8 +152,33 @@ class SqlTableMetadata extends TableMetadata {
     return this;
   }
 
+  private void checkNotRefback(String name, Column oldColumn) {
+    if (oldColumn.isReference()) {
+      for (Column c : oldColumn.getRefTable().getColumns()) {
+        if (REFBACK.equals(c.getColumnType())
+            && c.getRefTableName().equals(oldColumn.getTableName())
+            && oldColumn.getName().equals(c.getMappedBy())) {
+          throw new MolgenisException(
+              "Drop/alter column '"
+                  + name
+                  + "' failed: cannot remove reference while refback for it exists ("
+                  + c.getTableName()
+                  + "."
+                  + c.getMappedByColumn());
+        }
+      }
+    }
+  }
+
   @Override
   public void dropColumn(String name) {
+    Column column = getColumn(name);
+    if (column == null) {
+      throw new MolgenisException("Drop column " + name + " failed: column does not exist");
+    }
+    // if changing 'ref' then check if not refback exists
+    checkNotRefback(name, column);
+
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
     db.tx(
@@ -213,7 +245,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public void enableRowLevelSecurity() {
-    this.add(column(MG_EDIT_ROLE).index(true));
+    this.add(column(MG_EDIT_ROLE).setIndex(true));
 
     getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
     getJooq()

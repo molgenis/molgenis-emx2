@@ -51,7 +51,7 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
     assertEquals("col1", new ArrayList<>(t.getColumnNames()).get(0));
     assertEquals((Integer) 2, t.getColumn("col3").getPosition());
 
-    t.alterColumn("col2", column("col2").position(0));
+    t.alterColumn("col2", column("col2").setPosition(0));
     assertEquals(new ArrayList<>(t.getColumnNames()).get(0), "col2");
     db.clearCache();
     t = db.getSchema("testColumnPosition").getTable("test").getMetadata();

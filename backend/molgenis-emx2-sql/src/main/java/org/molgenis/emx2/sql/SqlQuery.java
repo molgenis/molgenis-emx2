@@ -82,13 +82,8 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
-        if (c.isReference() && REFBACK.equals(c.getColumnType())) {
-          // nothing
-        } else if (c.isReference()) {
-          for (Reference ref : c.getReferences()) {
-            select.select(ref.getName());
-          }
-        } else if (!FILE.equals(c.getColumnType())) {
+        // don't include refback or files
+        if (!REFBACK.equals(c.getColumnType()) && !FILE.equals(c.getColumnType())) {
           select.select(c.getName());
         }
       }
@@ -135,19 +130,19 @@ public class SqlQuery extends QueryBean {
       if (FILE.equals(column.getColumnType())) {
         // check what they want to get, contents, mimetype, size and/or extension
         if (select.has("id")) {
-          fields.add(field(name(column.getName() + "-id")));
+          fields.add(field(name(column.getName() + "_id")));
         }
         if (select.has("contents")) {
-          fields.add(field(name(column.getName() + "-contents")));
+          fields.add(field(name(column.getName() + "_contents")));
         }
         if (select.has("size")) {
-          fields.add(field(name(column.getName() + "-size")));
+          fields.add(field(name(column.getName() + "_size")));
         }
         if (select.has("mimetype")) {
-          fields.add(field(name(column.getName() + "-mimetype")));
+          fields.add(field(name(column.getName() + "_mimetype")));
         }
         if (select.has("extension")) {
-          fields.add(field(name(column.getName() + "-extension")));
+          fields.add(field(name(column.getName() + "_extension")));
         }
       } else if (column.isReference()
           // if subselection, then we will add it as subselect
@@ -163,14 +158,6 @@ public class SqlQuery extends QueryBean {
       } else if (REFBACK.equals(column.getColumnType())) {
         fields.add(
             field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
-      } else if (REF.equals(column.getColumnType()) || REF_ARRAY.equals(column.getColumnType())) {
-        fields.addAll(
-            column.getReferences().stream()
-                .filter(ref -> !ref.isExisting())
-                .map(
-                    ref ->
-                        field(name(tableAlias, ref.getName()), ref.getJooqType()).as(columnAlias))
-                .collect(Collectors.toList()));
       } else {
         fields.add(field(name(tableAlias, column.getName()), column.getJooqType()).as(columnAlias));
       }
@@ -205,19 +192,21 @@ public class SqlQuery extends QueryBean {
   private static SelectConditionStep<Record> rowBackrefSubselect(Column column, String tableAlias) {
     Column mappedBy = column.getMappedByColumn();
     List<Condition> where = new ArrayList<>();
-    for (Reference ref : mappedBy.getReferences()) {
+
+    // might be composite
+    for (Column ref : mappedBy.getTable().getCompositeRef(mappedBy)) {
       switch (mappedBy.getColumnType()) {
         case REF:
           where.add(
               field(name(mappedBy.getTable().getTableName(), ref.getName()))
-                  .eq(field(name(tableAlias, ref.getTo()))));
+                  .eq(field(name(tableAlias, ref.getRefColumnName()))));
           break;
         case REF_ARRAY:
           where.add(
               condition(
                   ANY_SQL,
-                  field(name(tableAlias, ref.getTo())),
-                  field(name(mappedBy.getTable().getTableName(), ref.getTo()))));
+                  field(name(tableAlias, ref.getRefColumnName())),
+                  field(name(mappedBy.getTable().getTableName(), ref.getRefColumnName()))));
           break;
         default:
           throw new MolgenisException(
@@ -242,8 +231,7 @@ public class SqlQuery extends QueryBean {
     }
     if (table == null) {
       throw new MolgenisException(
-          "RetrieveJSON failed",
-          "Field "
+          "RetrieveJSON failed: Field "
               + select.getColumn()
               + " unknown for JSON queries in schema "
               + schema.getName());
@@ -376,12 +364,12 @@ public class SqlQuery extends QueryBean {
             if (subQuery != null) {
               if (REF_ARRAY.equals(c.getColumnType())) {
                 // if not composite it is simple array overlap
-                if (c.getReferences().size() == 1) {
+                if (c.getRefName() == null) {
                   conditions.add(condition("{0} && ARRAY({1})", name(c.getName()), subQuery));
                 } else {
                   // otherwise exists(unnest(ref_array) natural join (filterQuery))
                   String refs =
-                      c.getReferences().stream()
+                      c.getComposedRefs().stream()
                           .map(ref -> name(ref.getName()).toString())
                           .collect(Collectors.joining(","));
                   String as =
@@ -416,7 +404,7 @@ public class SqlQuery extends QueryBean {
                         .map(pk -> pk.getJooqField())
                         .collect(Collectors.toList());
                 List<Field> backRef =
-                    c.getMappedByColumn().getReferences().stream()
+                    c.getMappedByColumn().getComposedRefs().stream()
                         .map(pk -> pk.getJooqField())
                         .collect(Collectors.toList());
                 List<Field> backRefKey =
@@ -448,7 +436,7 @@ public class SqlQuery extends QueryBean {
               } else {
                 // normal ref
                 List<Field> refs =
-                    c.getReferences().stream()
+                    c.getComposedRefs().stream()
                         .map(r -> r.getJooqField())
                         .collect(Collectors.toList());
                 conditions.add(row(refs).in(subQuery));
@@ -520,13 +508,10 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
 
     for (SelectColumn select : selection.getSubselect()) {
-      Column column = table.getColumn(select.getColumn());
-
-      // validate that column exists
-      if (column == null) {
-        // aggregation column?
-        column = isValidColumn(table, select.getColumn().replace("_agg", ""));
-      }
+      Column column =
+          select.getColumn().endsWith("_agg")
+              ? isValidColumn(table, select.getColumn().replace("_agg", ""))
+              : isValidColumn(table, select.getColumn());
 
       // add the fields, using subselects for references
       if (FILE.equals(column.getColumnType())) {
@@ -565,7 +550,7 @@ public class SqlQuery extends QueryBean {
     List<Field> subFields = new ArrayList<>();
     for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype"}) {
       if (select.has(ext)) {
-        subFields.add(field(name(tableAlias, column.getName() + "-" + ext)).as(ext));
+        subFields.add(field(name(tableAlias, column.getName() + "_" + ext)).as(ext));
       }
     }
     Field<Object> fieldSelect =
@@ -759,46 +744,46 @@ public class SqlQuery extends QueryBean {
     List<Condition> foreignKeyMatch = new ArrayList<>();
 
     if (REF.equals(column.getColumnType())) {
-      if (column.getReferences().size() == 1) {
+      if (column.getRefName() == null) {
         foreignKeyMatch.add(
-            field(name(subAlias, column.getReferences().get(0).getTo()))
-                .eq(field(name(tableAlias, column.getReferences().get(0).getName()))));
+            field(name(subAlias, column.getRefColumnName()))
+                .eq(field(name(tableAlias, column.getName()))));
       } else {
         foreignKeyMatch.add(
             and(
                 // at least one column not null
                 or(
-                    column.getReferences().stream()
+                    column.getComposedRefs().stream()
                         .map(ref -> field(name(tableAlias, ref.getName())).isNotNull())
                         .collect(Collectors.toList())),
                 // and matches on values or nulls
                 and(
-                    column.getReferences().stream()
+                    column.getComposedRefs().stream()
                         .map(
                             ref ->
-                                field(name(subAlias, ref.getTo()))
+                                field(name(subAlias, ref.getRefColumnName()))
                                     .eq(field(name(tableAlias, ref.getName()))))
                         .collect(Collectors.toList()))));
       }
     } else if (REF_ARRAY.equals(column.getColumnType())) {
-      if (column.getReferences().size() == 1) {
-        Reference ref = column.getReferences().get(0);
+      if (column.getRefName() == null) {
         // simple array comparison
         foreignKeyMatch.add(
             condition(
-                "{0} = ANY({1})", name(subAlias, ref.getTo()), name(tableAlias, ref.getName())));
+                "{0} = ANY({1})",
+                name(subAlias, column.getRefColumnName()), name(tableAlias, column.getName())));
       } else {
         // expensive 'in' query to enable join on all fields
         String refs =
-            column.getReferences().stream()
+            column.getComposedRefs().stream()
                 .map(ref -> name(tableAlias, ref.getName()).toString())
                 .collect(Collectors.joining(","));
         String to =
-            column.getReferences().stream()
-                .map(ref -> name(subAlias, ref.getTo()).toString())
+            column.getComposedRefs().stream()
+                .map(ref -> name(subAlias, ref.getRefColumnName()).toString())
                 .collect(Collectors.joining(","));
         String as =
-            column.getReferences().stream()
+            column.getComposedRefs().stream()
                 .map(ref -> name(ref.getName()).toString())
                 .collect(Collectors.joining(","));
         foreignKeyMatch.add(
@@ -810,20 +795,20 @@ public class SqlQuery extends QueryBean {
       Column mappedBy = column.getMappedByColumn();
       if (REF.equals(mappedBy.getColumnType())) {
         foreignKeyMatch.addAll(
-            mappedBy.getReferences().stream()
+            mappedBy.getComposedRefs().stream()
                 .map(
                     ref ->
                         field(name(subAlias, ref.getName()))
-                            .eq(field(name(tableAlias, ref.getTo()))))
+                            .eq(field(name(tableAlias, ref.getRefColumnName()))))
                 .collect(Collectors.toList()));
       } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
         foreignKeyMatch.addAll(
-            mappedBy.getReferences().stream()
+            mappedBy.getComposedRefs().stream()
                 .map(
                     ref ->
                         condition(
                             ANY_SQL,
-                            field(name(tableAlias, ref.getTo())),
+                            field(name(tableAlias, ref.getRefColumnName())),
                             field(name(subAlias, ref.getName()))))
                 .collect(Collectors.toList()));
       }
@@ -832,9 +817,10 @@ public class SqlQuery extends QueryBean {
       String joinTableAlias = "joinTable";
       List<Condition> where = new ArrayList<>();
       // MTM table should match on the remote key
-      for (Reference ref : column.getReferences()) {
+      for (Column ref : column.getComposedRefs()) {
         where.add(
-            field(name(subAlias, ref.getTo())).eq(field(name(joinTableAlias, ref.getName()))));
+            field(name(subAlias, ref.getRefColumnName()))
+                .eq(field(name(joinTableAlias, ref.getName()))));
       }
       // MTM table should match on primary key
       for (Column key : column.getTable().getPrimaryKeyColumns()) {
@@ -895,7 +881,7 @@ public class SqlQuery extends QueryBean {
           Filter sub = filter.getSubfilter("id");
           // todo expand properly
           if (sub != null && EQUALS.equals(sub.getOperator())) {
-            conditions.add(field(name(column.getName() + "-id")).in(sub.getValues()));
+            conditions.add(field(name(column.getName() + "_id")).in(sub.getValues()));
           } else {
             throw new MolgenisException("Invalid filter for file");
           }
@@ -1192,13 +1178,20 @@ public class SqlQuery extends QueryBean {
   private static Column isValidColumn(TableMetadata table, String columnName) {
     Column column = table.getColumn(columnName);
     if (column == null) {
-      if (columnName.contains("-")) {
-        column = table.getColumn(columnName.split("-")[0]);
+      // check if not a refName
+      for (Column c : table.getColumns()) {
+        if (columnName.equals(c.getRefName())) {
+          // create dummy reference column
+          return new Column(c.getTable(), c.getRefName())
+              .setType(c.getColumnType())
+              .setRefTable(c.getRefTableName())
+              .setRefName(c.getRefName())
+              .setMappedBy(c.getMappedBy());
+        }
       }
-      if (column == null)
-        throw new MolgenisException(
-            "Query failed",
-            "Column '" + columnName + "' is unknown in table " + table.getTableName());
+      // if still null
+      throw new MolgenisException(
+          "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
   }

@@ -44,8 +44,15 @@ public class MetadataUtils {
 
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
+
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
+  private static final org.jooq.Field REF_COLUMN =
+      field(name("ref_column"), VARCHAR.nullable(true));
+  private static final org.jooq.Field REF_NAME = field(name("ref_name"), VARCHAR.nullable(true));
+  private static final org.jooq.Field REF_LINK =
+      field(name("ref_link"), VARCHAR.getArrayDataType().nullable(true));
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
+
   private static final org.jooq.Field VALIDATION_SCRIPT =
       field(name("validationScript"), VARCHAR.nullable(true));
   private static final org.jooq.Field COMPUTE_SCRIPT =
@@ -130,7 +137,9 @@ public class MetadataUtils {
           COLUMN_POSITION,
           NULLABLE,
           REF_TABLE,
-          REF_CONSTRAINT,
+          REF_COLUMN,
+          REF_NAME,
+          REF_LINK,
           MAPPED_BY,
           VALIDATION_SCRIPT,
           COMPUTE_SCRIPT,
@@ -307,7 +316,9 @@ public class MetadataUtils {
             COLUMN_POSITION,
             NULLABLE,
             REF_TABLE,
-            REF_CONSTRAINT,
+            REF_COLUMN,
+            REF_NAME,
+            REF_LINK,
             MAPPED_BY,
             VALIDATION_SCRIPT,
             COMPUTE_SCRIPT,
@@ -324,9 +335,11 @@ public class MetadataUtils {
             column.getPosition(),
             column.isNullable(),
             column.getRefTableName(),
-            column.getRefContraint(),
+            column.getRefColumnName(),
+            column.getRefName(),
+            column.getRefLink(),
             column.getMappedBy(),
-            column.getValidation(),
+            column.getValidationScript(),
             column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
@@ -339,9 +352,11 @@ public class MetadataUtils {
         .set(COLUMN_POSITION, column.getPosition())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
-        .set(REF_CONSTRAINT, column.getRefContraint())
+        .set(REF_COLUMN, column.getRefColumnName())
+        .set(REF_NAME, column.getRefName())
+        .set(REF_LINK, column.getRefLink())
         .set(MAPPED_BY, column.getMappedBy())
-        .set(VALIDATION_SCRIPT, column.getValidation())
+        .set(VALIDATION_SCRIPT, column.getValidationScript())
         .set(COMPUTE_SCRIPT, column.getComputed())
         .set(INDEXED, column.isIndexed())
         .set(CASCADE_DELETE, column.isCascadeDelete())
@@ -380,19 +395,103 @@ public class MetadataUtils {
 
   private static Column recordToColumn(Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
-    c.type(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
-    c.nullable(col.get(NULLABLE, Boolean.class));
-    c.key(col.get(COLUMN_KEY, Integer.class));
-    c.position(col.get(COLUMN_POSITION, Integer.class));
-    c.refTable(col.get(REF_TABLE, String.class));
-    c.mappedBy(col.get(MAPPED_BY, String.class));
-    c.validation(col.get(VALIDATION_SCRIPT, String.class));
-    c.computed(col.get(COMPUTE_SCRIPT, String.class));
+    c.setType(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
+    c.setNullable(col.get(NULLABLE, Boolean.class));
+    c.setKey(col.get(COLUMN_KEY, Integer.class));
+    c.setPosition(col.get(COLUMN_POSITION, Integer.class));
+    c.setRefTable(col.get(REF_TABLE, String.class));
+    c.setMappedBy(col.get(MAPPED_BY, String.class));
+    c.setValidationScript(col.get(VALIDATION_SCRIPT, String.class));
+    c.setComputed(col.get(COMPUTE_SCRIPT, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
-    c.cascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
-    c.rdfTemplate(col.get(COLUMN_RDF_TEMPLATE, String.class));
+    c.setCascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
+    c.setRdfTemplate(col.get(COLUMN_RDF_TEMPLATE, String.class));
     return c;
   }
+
+  //  public static todo() {
+  //    if (getRefTable() == null) return refColumns;
+  //    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
+  //    if (pkeys.size() == 0) {
+  //      throw new MolgenisException(
+  //          "Error in column '" + getName() + "'",
+  //          "Reference to " + getRefTableName() + " fails because that table has no primary key");
+  //    }
+  //
+  //    // first create
+  //    for (Column keyPart : pkeys) {
+  //      if (keyPart.isReference()) {
+  //        for (Reference ref : keyPart.getReferences()) {
+  //          ColumnType type = ref.getColumnType();
+  //          if (!REF.equals(getColumnType())) {
+  //            type = getArrayType(type);
+  //          }
+  //          List<String> path = ref.getPath();
+  //          path.add(0, keyPart.getName());
+  //          refColumns.add(
+  //              new Reference(
+  //                  ref.getName(), ref.getName(), type, ref.isNullable() || this.isNullable(),
+  // path));
+  //        }
+  //      } else {
+  //        ColumnType type = keyPart.getColumnType();
+  //        // all but ref is array
+  //        if (!REF.equals(getColumnType())) {
+  //          type = getArrayType(type);
+  //        }
+  //        // create the ref
+  //        refColumns.add(
+  //            new Reference(
+  //                keyPart.getName(),
+  //                keyPart.getName(),
+  //                type,
+  //                keyPart.isNullable() || this.isNullable(),
+  //                new ArrayList(List.of(keyPart.getName()))));
+  //      }
+  //    }
+  //
+  //    // check if maps to existing, otherwise count to see if we need prefixing
+  //    int prefixCount = 0;
+  //    for (Reference ref : refColumns) {
+  //      if (getRefContraintMap().containsKey(ref.getName())) {
+  //        ref.setName(getRefContraintMap().get(ref.getName()));
+  //        ref.setExisting(true);
+  //      } else {
+  //        // if not existing, we might need to prefix if more than one reference
+  //        prefixCount++;
+  //      }
+  //    }
+  //
+  //    // if multiple, prefix with column name, otherwise rename to column name
+  //    // (ignore if maps to existing column)
+  //    if (prefixCount > 1) {
+  //      for (Reference ref : refColumns) {
+  //        // don't touch 'existing'
+  //        if (!ref.isExisting()) {
+  //          ref.setName(getName() + "-" + ref.getName());
+  //        }
+  //      }
+  //    } else {
+  //      for (Reference ref : refColumns) {
+  //        // don't touch 'existing'
+  //        if (!ref.isExisting()) {
+  //          refColumns.get(0).setName(getName());
+  //        }
+  //      }
+  //    }
+  //  }
+  //
+  //  private Map<String, String> getRefContraintMap() {
+  //    Map<String, String> result = new LinkedHashMap<>();
+  //    if (getRefLink() != null) {
+  //      for (String part : getRefLink().split(",")) {
+  //        String key = part.substring(0, part.indexOf("=")).trim();
+  //        String value = part.substring(part.indexOf("=") + 1).trim();
+  //        result.put(key, value);
+  //      }
+  //    }
+  //    return result;
+  //  }
 
   public static void setUserPassword(DSLContext jooq, String user, String password) {
     jooq.insertInto(USERS_METADATA)

@@ -27,7 +27,8 @@ public class TestOpenApi {
           || ColumnType.REFBACK.equals(columnType)) {
         // TODO: outside of test for now
       } else {
-        table.add(Column.column(columnType.toString().toLowerCase() + "Column").type(columnType));
+        table.add(
+            Column.column(columnType.toString().toLowerCase() + "Column").setType(columnType));
       }
     }
 

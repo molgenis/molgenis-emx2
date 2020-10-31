@@ -65,7 +65,7 @@ public class TestCreateForeignKeys {
         db.dropCreateSchema("TestCreateForeignKeys" + columnType.toString().toUpperCase());
 
     String fieldName = "AKeyOf" + columnType;
-    Table aTable = schema.create(table("A").add(column(fieldName).type(columnType).pkey()));
+    Table aTable = schema.create(table("A").add(column(fieldName).setType(columnType).setPkey()));
     Row aRow = new Row().set(fieldName, insertValue);
     aTable.insert(aRow);
 
@@ -73,8 +73,8 @@ public class TestCreateForeignKeys {
     Table bTable =
         schema.create(
             table("B")
-                .add(column("ID").type(INT).pkey())
-                .add(column(refFromBToA).type(REF).refTable("A")));
+                .add(column("ID").setType(INT).setPkey())
+                .add(column(refFromBToA).setType(REF).setRefTable("A")));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 

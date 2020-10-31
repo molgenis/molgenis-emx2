@@ -79,7 +79,7 @@ public class TestCreateForeignKeysArrays {
     Schema schema = db.dropCreateSchema("TestRefArray" + columnType.toString().toUpperCase());
 
     String aKey = "A" + columnType + "Key";
-    Table aTable = schema.create(table("A").add(column(aKey).type(columnType).pkey()));
+    Table aTable = schema.create(table("A").add(column(aKey).setType(columnType).setPkey()));
 
     Row aRow = new Row().set(aKey, testValues[0]);
     Row aRow2 = new Row().set(aKey, testValues[1]);
@@ -89,9 +89,13 @@ public class TestCreateForeignKeysArrays {
     Table bTable =
         schema.create(
             table("B")
-                .add(column("id").pkey())
-                .add(column(refToA).type(REF_ARRAY).refTable("A"))
-                .add(column(refToA + "Nullable").type(REF_ARRAY).refTable("A").nullable(true)));
+                .add(column("id").setPkey())
+                .add(column(refToA).setType(REF_ARRAY).setRefTable("A"))
+                .add(
+                    column(refToA + "Nullable")
+                        .setType(REF_ARRAY)
+                        .setRefTable("A")
+                        .setNullable(true)));
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set("id", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 3));

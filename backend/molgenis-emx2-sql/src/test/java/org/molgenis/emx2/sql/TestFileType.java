@@ -24,13 +24,13 @@ public class TestFileType {
 
   @Test
   public void test3() {
-    Table t = schema.create(table("test1", column("id").pkey(), column("image").type(FILE)));
+    Table t = schema.create(table("test1", column("id").setPkey(), column("image").setType(FILE)));
     File image = getFile();
     t.insert(new Row("id", 1, "image", image));
 
     assertEquals(
         (Integer) 37458,
-        t.query().select(s("image", s("size"))).retrieveRows().get(0).getInteger("image-size"));
+        t.query().select(s("image", s("size"))).retrieveRows().get(0).getInteger("image_size"));
 
     String result =
         t.query().select(s("image", s("size"), s("extension"), s("mimetype"))).retrieveJSON();
@@ -51,7 +51,7 @@ public class TestFileType {
   @Test
   public void testRowWithFileType() {
     Row r = new Row("image", getFile());
-    assertEquals("png", r.getString("image-extension"));
+    assertEquals("png", r.getString("image_extension"));
   }
 
   private File getFile() {

@@ -72,7 +72,7 @@ public class TestCreateMref {
     Schema schema = db.dropCreateSchema("TestMref" + columnType.toString().toUpperCase());
 
     String aKey = "A" + columnType + "Key";
-    Table aTable = schema.create(table("A").add(column(aKey).type(columnType).pkey()));
+    Table aTable = schema.create(table("A").add(column(aKey).setType(columnType).setPkey()));
 
     Row aRow = new Row().set(aKey, testValues[0]);
     Row aRow2 = new Row().set(aKey, testValues[1]);
@@ -82,8 +82,8 @@ public class TestCreateMref {
     Table bTable =
         schema.create(
             table("B")
-                .add(column("ID").type(INT).pkey())
-                .add(column(refToA).type(MREF).refTable("A")));
+                .add(column("ID").setType(INT).setPkey())
+                .add(column(refToA).setType(MREF).setRefTable("A")));
     // .add(column(refToA + "Nullable").type(REF_ARRAY).refTable("A").nullable(true)));
 
     // error on insert of faulty fkey

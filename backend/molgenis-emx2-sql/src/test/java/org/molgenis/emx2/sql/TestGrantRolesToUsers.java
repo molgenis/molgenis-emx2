@@ -161,7 +161,7 @@ public class TestGrantRolesToUsers {
 
       schema.create(
           table("Person")
-              .add(column("id").pkey())
+              .add(column("id").setPkey())
               .add(column("FirstName"))
               .add(column("LastName")));
 

@@ -14,25 +14,25 @@ public class JobsModel {
 
   public static void create(SchemaMetadata schema) {
 
-    schema.create(table("Jobs", column("id").pkey(), column("owner"), column("group")));
+    schema.create(table("Jobs", column("id").setPkey(), column("owner"), column("group")));
 
     schema.create(
         table(
             "Steps",
-            column("id").pkey(),
-            column("job").type(REF).refTable("Jobs").key(2),
-            column("step").type(INT).key(2),
+            column("id").setPkey(),
+            column("job").setType(REF).setRefTable("Jobs").setKey(2),
+            column("step").setType(INT).setKey(2),
             column("label"),
-            column("scheduled").type(DATETIME),
-            column("started").type(DATETIME).nullable(true),
-            column("completed").type(DATETIME).nullable(true),
+            column("scheduled").setType(DATETIME),
+            column("started").setType(DATETIME).setNullable(true),
+            column("completed").setType(DATETIME).setNullable(true),
             column("error"),
             column("success"),
-            column("count").type(INT)));
+            column("count").setType(INT)));
 
     // refback
     schema
         .getTableMetadata("Jobs")
-        .add(column("steps").type(REFBACK).refTable("Steps").mappedBy("job"));
+        .add(column("steps").setType(REFBACK).setRefTable("Steps").setMappedBy("job"));
   }
 }

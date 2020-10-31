@@ -8,6 +8,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,30 +46,37 @@ class SqlTableMetadataExecutor {
       executeSetInherit(jooq, table, table.getInheritedTable());
     }
 
-    // then create columns (use super to prevent side effects)
+    // then create columns
+    Map<String, List> compositeKeysAtEnd = new LinkedHashMap<>();
     int position = 0;
     for (Column column : table.getLocalColumns()) {
+      // check if column adheres to all rules
+      validateColumn(column);
       // we force position based on order
-      column.position(position++);
+      column.setPosition(position++);
       if (table.getInherit() != null
           && table.getInheritedTable().getColumn(column.getName()) != null) {
         // don't create superclass keys, that is already done
       } else {
         executeCreateColumn(jooq, new Column(table, column));
       }
+      if (column.isReference()
+          && (table.getInherit() == null
+              || table.getInheritedTable().getColumn(column.getName()) == null)) {
+        compositeKeysAtEnd
+            .computeIfAbsent(
+                column.getRefName() != null ? column.getRefName() : column.getName(),
+                k -> new ArrayList())
+            .add(column);
+      }
     }
 
     // then create unique
     createOrReplaceKeys(jooq, table);
 
-    // then create foreign keys etc
-    for (Column column : table.getLocalColumns()) {
-      if (table.getInherit() != null
-          && table.getInheritedTable().getColumn(column.getName()) != null) {
-        // don't create superclass keys, that is already done
-      } else {
-        SqlColumnExecutor.executeCreateRefAndNotNullConstraints(jooq, column);
-      }
+    // then create (composite) foreign keys
+    for (List<Column> key : compositeKeysAtEnd.values()) {
+      SqlColumnExecutor.executeCreateRefConstraints(jooq, key.toArray(new Column[key.size()]));
     }
 
     executeEnableSearch(jooq, table);
@@ -125,7 +133,10 @@ class SqlTableMetadataExecutor {
       root = root.getInheritedTable();
     }
     if (root.getColumn(Constants.MG_TABLECLASS) == null) {
-      root.add(column(Constants.MG_TABLECLASS).setReadonly(true)); // should not be user editable
+      root.add(
+          column(Constants.MG_TABLECLASS)
+              .setReadonly(true)
+              .setDefaultValue(root.getTableName())); // should not be user editable
     }
     createOrReplaceKey(jooq, table, 1, other.getKeyNames(1));
   }
@@ -193,12 +204,7 @@ class SqlTableMetadataExecutor {
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getLocalColumns()) {
       if (!c.getName().startsWith("MG_")) {
-        if (c.isReference()) {
-          for (Reference r : c.getReferences()) {
-            mgSearchVector.append(
-                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getName()));
-          }
-        } else if (FILE.equals(c.getColumnType())) {
+        if (FILE.equals(c.getColumnType())) {
           // do nothing for now
         } else {
           mgSearchVector.append(

@@ -2,7 +2,6 @@ package org.molgenis.emx2.io.emx1;
 
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.rowstore.TableStore;
-import org.simpleflatmapper.csv.impl.writer.CellSeparatorAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +77,7 @@ public class Emx1 {
 
         String refTableName = getTableName(entities, attribute.getRefEntity());
 
-        Column c = table.getColumn(attribute.getName()).refTable(refTableName);
+        Column c = table.getColumn(attribute.getName()).setRefTable(refTableName);
         if (attribute.getDataType().contains("onetomany") && attribute.getMappedBy() == null) {
           throw new MolgenisException(
               "mappedBy missing for attribute "
@@ -87,7 +86,7 @@ public class Emx1 {
                   + attribute.getName());
         }
         if (attribute.getMappedBy() != null) {
-          c.mappedBy(attribute.getMappedBy());
+          c.setMappedBy(attribute.getMappedBy());
         }
         table.alterColumn(c);
       }
@@ -137,11 +136,12 @@ public class Emx1 {
 
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
-        Column column = column(attribute.getName()).type(type).nullable(attribute.getNillable());
+        Column column =
+            column(attribute.getName()).setType(type).setNullable(attribute.getNillable());
 
         // pkey
         if (attribute.getIdAttribute()) {
-          column.key(1);
+          column.setKey(1);
         }
         table.add(column);
 

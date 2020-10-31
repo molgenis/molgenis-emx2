@@ -102,16 +102,12 @@ public class TableMetadata {
   public List<Column> getMutationColumns() {
     ArrayList<Column> result = new ArrayList<>();
     for (Column c : getLocalColumns()) {
-      if (c.isReference()) {
-        for (Reference ref : c.getReferences()) {
-          result.add(new Column(ref.getName()).type(ref.getColumnType()).setTable(this));
-        }
-      } else if (FILE.equals(c.getColumnType())) {
-        result.add(new Column(c.getName() + "-id"));
-        result.add(new Column(c.getName() + "-contents").type(FILE));
-        result.add(new Column(c.getName() + "-mimetype"));
-        result.add(new Column(c.getName() + "-extension"));
-        result.add(new Column(c.getName() + "-size").type(INT));
+      if (FILE.equals(c.getColumnType())) {
+        result.add(new Column(c.getName() + "_id"));
+        result.add(new Column(c.getName() + "_contents").setType(FILE));
+        result.add(new Column(c.getName() + "_mimetype"));
+        result.add(new Column(c.getName() + "_extension"));
+        result.add(new Column(c.getName() + "_size").setType(INT));
       } else {
         result.add(c);
       }
@@ -164,12 +160,14 @@ public class TableMetadata {
     return null;
   }
 
-  public TableMetadata add(Column column) {
-    if (column.getPosition() == null) {
-      column.position(columns.size());
+  public TableMetadata add(Column... column) {
+    for (Column c : column) {
+      if (c.getPosition() == null) {
+        c.setPosition(columns.size());
+      }
+      columns.put(c.getName(), new Column(this, c));
+      c.setTable(this);
     }
-    columns.put(column.getName(), new Column(this, column));
-    column.setTable(this);
     return this;
   }
 
@@ -180,7 +178,7 @@ public class TableMetadata {
   public TableMetadata alterColumn(String name, Column column) {
     // retain position
     if (column.getPosition() == null) {
-      column.position(columns.get(name).getPosition());
+      column.setPosition(columns.get(name).getPosition());
     }
     // remove the old
     columns.remove(name);
@@ -279,17 +277,7 @@ public class TableMetadata {
   }
 
   public List<String> getKeyNames(int key) {
-    List<String> result = new ArrayList<>();
-    for (Column c : getKey(key)) {
-      if (c.isReference()) {
-        for (Reference ref : c.getReferences()) {
-          result.add(ref.getName());
-        }
-      } else {
-        result.add(c.getName());
-      }
-    }
-    return result;
+    return getKey(key).stream().map(c -> c.getName()).collect(Collectors.toList());
   }
 
   public Map<Integer, List<String>> getKeys() {
@@ -324,13 +312,7 @@ public class TableMetadata {
   public List<Field<?>> getPrimaryKeyFields() {
     List<Field<?>> result = new ArrayList<>();
     for (Column c : getPrimaryKeyColumns()) {
-      if (c.isReference()) {
-        for (Reference r : c.getReferences()) {
-          result.add(field(name(r.getName()), r.getJooqType()));
-        }
-      } else {
-        result.add(field(name(c.getName()), c.getJooqType()));
-      }
+      result.add(field(name(c.getName()), c.getJooqType()));
     }
     return result;
   }
@@ -347,5 +329,24 @@ public class TableMetadata {
             .collect(
                 Collectors.toMap(e -> e.getKey(), e -> e.getValue())); // strip null and "" values
     return this;
+  }
+
+  public List<Column> getCompositeRef(Column column) {
+    if (column.isReference()) {
+      // is composite?
+      if (column.getRefName() != null) {
+        List<Column> result = new ArrayList<>();
+        for (Column c : getColumns()) {
+          if (column.getRefName().equals(c.getRefName())) {
+            result.add(c);
+          }
+        }
+        return result;
+      } // not composite
+      else {
+        return List.of(column);
+      }
+    }
+    return new ArrayList<>();
   }
 }

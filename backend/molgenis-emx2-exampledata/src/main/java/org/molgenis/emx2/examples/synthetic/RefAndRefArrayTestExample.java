@@ -21,7 +21,7 @@ public class RefAndRefArrayTestExample {
 
       String aTableName = columnType.toString() + "_A";
       String fieldName = "AKeyOf" + columnType;
-      schema.create(table(aTableName).add(column(fieldName).type(columnType).pkey()));
+      schema.create(table(aTableName).add(column(fieldName).setType(columnType).setPkey()));
 
       String bTableName = columnType.toString() + "_B";
       String refFromBToA = "RefToAKeyOf" + columnType;
@@ -29,8 +29,8 @@ public class RefAndRefArrayTestExample {
 
       schema.create(
           table(bTableName)
-              .add(column(refFromBToA).type(REF).refTable(aTableName))
-              .add(column(refArrayFromBToA).type(REF_ARRAY).refTable(aTableName)));
+              .add(column(refFromBToA).setType(REF).setRefTable(aTableName))
+              .add(column(refArrayFromBToA).setType(REF_ARRAY).setRefTable(aTableName)));
     }
   }
 }

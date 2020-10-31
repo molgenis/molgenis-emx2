@@ -27,7 +27,7 @@ public class Column {
     this.refTable = column.getRefTableName();
     this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
-    this.validation = column.getValidation();
+    this.validation = column.getValidationScript();
     this.nullable = column.isNullable();
     this.description = column.getDescription();
     this.rdfTemplate = column.getRdfTemplate();
@@ -35,15 +35,15 @@ public class Column {
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
-    c.type(columnType);
-    c.nullable(nullable);
-    c.refTable(refTable);
-    c.key(key);
-    c.cascadeDelete(cascadeDelete);
-    c.mappedBy(mappedBy);
-    c.validation(validation);
+    c.setType(columnType);
+    c.setNullable(nullable);
+    c.setRefTable(refTable);
+    c.setKey(key);
+    c.setCascadeDelete(cascadeDelete);
+    c.setMappedBy(mappedBy);
+    c.setValidationScript(validation);
     c.setDescription(description);
-    c.rdfTemplate(rdfTemplate);
+    c.setRdfTemplate(rdfTemplate);
     return c;
   }
 

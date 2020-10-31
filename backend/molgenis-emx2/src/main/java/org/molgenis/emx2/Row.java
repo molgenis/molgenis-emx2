@@ -4,12 +4,10 @@ import org.jooq.JSONB;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.io.File;
-import java.security.KeyStore;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnValue;
 
 public class Row {
@@ -166,11 +164,11 @@ public class Row {
   }
 
   public Row setBinary(String name, BinaryFileWrapper value) {
-    this.values.put(name + "-id", UUID.randomUUID().toString().replace("-", ""));
-    this.values.put(name + "-extension", value.getExtension());
-    this.values.put(name + "-mimetype", value.getMimeType());
-    this.values.put(name + "-size", value.getSize());
-    this.values.put(name + "-contents", value.getContents());
+    this.values.put(name + "_id", UUID.randomUUID().toString().replace("-", ""));
+    this.values.put(name + "_extension", value.getExtension());
+    this.values.put(name + "_mimetype", value.getMimeType());
+    this.values.put(name + "_size", value.getSize());
+    this.values.put(name + "_contents", value.getContents());
     return this;
   }
 
@@ -343,8 +341,8 @@ public class Row {
     // validation
     for (Column c : columns) {
       Object value = this.values.get(c.getName());
-      if (value != null && c.getValidation() != null) {
-        String error = executeJavascriptOnValue(c.getValidation(), value);
+      if (value != null && c.getValidationScript() != null) {
+        String error = executeJavascriptOnValue(c.getValidationScript(), value);
         if (error != null)
           throw new MolgenisException(
               "Validation error on column '"

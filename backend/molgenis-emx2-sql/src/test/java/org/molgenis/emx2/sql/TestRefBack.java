@@ -37,14 +37,18 @@ public class TestRefBack {
   public void execute(ColumnType refArrayOrMref) {
 
     // Table Parts(partname)
-    Table parts = schema.create(table("Parts").add(column("partname").pkey()));
+    Table parts = schema.create(table("Parts").add(column("partname").setPkey()));
 
     // Table Products(productname, parts->ref(Parts))
     Table products =
         schema.create(
             table("Products")
-                .add(column("productname").pkey())
-                .add(column("parts").type(refArrayOrMref).refTable("Parts").nullable(true)));
+                .add(column("productname").setPkey())
+                .add(
+                    column("parts")
+                        .setType(refArrayOrMref)
+                        .setRefTable("Parts")
+                        .setNullable(true)));
 
     parts.insert(new Row().set("partname", "smallscreen"));
     parts.insert(new Row().set("partname", "bigscreen"));
@@ -61,7 +65,12 @@ public class TestRefBack {
     // add refback, Table Parts(partname,products->refback(product))
     parts
         .getMetadata()
-        .add(column("products").type(REFBACK).refTable("Products").mappedBy("parts"));
+        .add(
+            column("products")
+                .setType(REFBACK)
+                .setRefTable("Products")
+                .setMappedBy("parts")
+                .setNullable(true));
 
     // use refback to update indirectly
     parts.update(new Row().set("partname", "bigscreen").set("products", "bigphone"));
@@ -172,17 +181,22 @@ public class TestRefBack {
   @Test
   public void testRefBack() {
 
-    Table users = schema.create(table("User").add(column("username").pkey()));
+    Table users = schema.create(table("User").add(column("username").setPkey()));
 
     Table posts =
         schema.create(
             table("Posts")
-                .add(column("title").pkey())
-                .add(column("user").type(REF).refTable(users.getName()).nullable(true)));
+                .add(column("title").setPkey())
+                .add(column("user").setType(REF).setRefTable(users.getName()).setNullable(true)));
 
     users
         .getMetadata()
-        .add(column("posts").type(REFBACK).refTable(posts.getName()).mappedBy("user"));
+        .add(
+            column("posts")
+                .setType(REFBACK)
+                .setRefTable(posts.getName())
+                .setMappedBy("user")
+                .setNullable(true));
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));

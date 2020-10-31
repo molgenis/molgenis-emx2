@@ -37,9 +37,18 @@ public class TestCompositeForeignKeys {
     schema.create(
         table(
             "Person",
-            column("firstName").pkey(),
-            column("lastName").pkey(),
-            column("uncle", REF).refTable("Person").nullable(true)));
+            column("firstName").setPkey(),
+            column("lastName").setPkey(),
+            column("uncle_firstName", REF)
+                .setRefTable("Person")
+                .setRefColumn("firstName")
+                .setRefName("uncle")
+                .setNullable(true),
+            column("uncle_lastName", REF)
+                .setRefTable("Person")
+                .setRefColumn("lastName")
+                .setRefName("uncle")
+                .setNullable(true)));
 
     Table p = schema.getTable("Person");
 
@@ -50,8 +59,8 @@ public class TestCompositeForeignKeys {
           new Row()
               .setString("firstName", "Kwik")
               .setString("lastName", "Duck")
-              .setString("uncle-firstName", "Donald")
-              .setString("uncle-lastName", "MISSING"));
+              .setString("uncle_firstName", "Donald")
+              .setString("uncle_lastName", "MISSING"));
       fail("should have failed on missing foreign key");
     } catch (Exception e) {
       System.out.println("errored correctly: " + e);
@@ -61,22 +70,22 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Kwik")
             .setString("lastName", "Duck")
-            .setString("uncle-firstName", "Donald")
-            .setString("uncle-lastName", "Duck"));
+            .setString("uncle_firstName", "Donald")
+            .setString("uncle_lastName", "Duck"));
 
     p.insert(
         new Row()
             .setString("firstName", "Kwek")
             .setString("lastName", "Duck")
-            .setString("uncle-firstName", "Donald")
-            .setString("uncle-lastName", "Duck"));
+            .setString("uncle_firstName", "Donald")
+            .setString("uncle_lastName", "Duck"));
 
     p.insert(
         new Row()
             .setString("firstName", "Kwak")
             .setString("lastName", "Duck")
-            .setString("uncle-firstName", "Donald")
-            .setString("uncle-lastName", "Duck"));
+            .setString("uncle_firstName", "Donald")
+            .setString("uncle_lastName", "Duck"));
 
     try {
       p.delete(new Row().setString("firstName", "Donald").setString("lastName", "Duck"));
@@ -91,8 +100,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Mickey")
             .setString("lastName", "Mouse")
-            .setString("uncle-firstName", "Kwik")
-            .setString("uncle-lastName", "Duck"));
+            .setString("uncle_firstName", "Kwik")
+            .setString("uncle_lastName", "Duck"));
 
     String result =
         schema
@@ -155,14 +164,26 @@ public class TestCompositeForeignKeys {
     schema
         .getTable("Person")
         .getMetadata()
-        .add(column("nephew").type(REFBACK).refTable("Person").mappedBy("uncle"));
+        .add(
+            column("nephew_firstName")
+                .setType(REFBACK)
+                .setRefTable("Person")
+                .setRefColumn("firstName")
+                .setMappedBy("uncle_firstName")
+                .setRefName("nephew"),
+            column("nephew_lastName")
+                .setType(REFBACK)
+                .setRefTable("Person")
+                .setRefColumn("lastName")
+                .setMappedBy("uncle_lastName")
+                .setRefName("nephew"));
 
     s.insert(
         new Row()
             .setString("firstName", "Katrien")
             .setString("lastName", "Duck")
-            .setString("nephew-firstName", "Kwik")
-            .setString("nephew-lastName", "Duck")); // I know, not true
+            .setString("nephew_firstName", "Kwik")
+            .setString("nephew_lastName", "Duck")); // I know, not true
 
     assertTrue(
         List.of(
@@ -200,11 +221,18 @@ public class TestCompositeForeignKeys {
     schema.create(
         table(
             "Person",
-            column("firstName").pkey(),
-            column("lastName").pkey(),
-            column("cousins", REF_ARRAY)
-                .refTable("Person")
-                .nullable(true))); // .with("lastName", "lastName")));
+            column("firstName").setPkey(),
+            column("lastName").setPkey(),
+            column("cousins_firstName", REF_ARRAY)
+                .setRefName("cousins")
+                .setRefTable("Person")
+                .setRefColumn("firstName")
+                .setNullable(true),
+            column("cousins_lastName", REF_ARRAY)
+                .setRefName("cousins")
+                .setRefTable("Person")
+                .setRefColumn("lastName")
+                .setNullable(true)));
 
     Table p = schema.getTable("Person");
 
@@ -214,8 +242,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Donald")
             .setString("lastName", "Duck")
-            .setString("cousins-firstName", "Kwik")
-            .setString("cousins-lastName", "Duck"));
+            .setString("cousins_firstName", "Kwik")
+            .setString("cousins_lastName", "Duck"));
 
     try {
       p.delete(new Row().setString("firstName", "Kwik").setString("lastName", "Duck"));
@@ -230,8 +258,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Mickey")
             .setString("lastName", "Mouse")
-            .setString("cousins-firstName", "Kwik")
-            .setString("cousins-lastName", "Duck"));
+            .setString("cousins_firstName", "Kwik")
+            .setString("cousins_lastName", "Duck"));
 
     String result =
         schema
@@ -245,14 +273,26 @@ public class TestCompositeForeignKeys {
     schema
         .getTable("Person")
         .getMetadata()
-        .add(column("uncles").type(REFBACK).refTable("Person").mappedBy("cousins"));
+        .add(
+            column("uncles_firstName")
+                .setType(REFBACK)
+                .setRefTable("Person")
+                .setRefColumn("firstName")
+                .setRefName("uncles")
+                .setMappedBy("cousins_firstName"),
+            column("uncles_lastName")
+                .setType(REFBACK)
+                .setRefTable("Person")
+                .setRefColumn("lastName")
+                .setRefName("uncles")
+                .setMappedBy("cousins_lastName"));
 
     s.insert(
         new Row()
             .setString("firstName", "Kwok") // doesn't exist
             .setString("lastName", "Duck")
-            .setString("uncles-firstName", "Donald")
-            .setString("uncles-lastName", "Duck"));
+            .setString("uncles_firstName", "Donald")
+            .setString("uncles_lastName", "Duck"));
 
     assertTrue(
         List.of(
@@ -265,7 +305,7 @@ public class TestCompositeForeignKeys {
                     .where(f("firstName", EQUALS, "Kwok"))
                     .retrieveRows()
                     .get(0)
-                    .getStringArray("uncles-firstName"))
+                    .getStringArray("uncles_firstName"))
             .contains("Donald"));
     assertTrue(
         List.of(
@@ -278,7 +318,7 @@ public class TestCompositeForeignKeys {
                     .where(f("firstName", EQUALS, "Donald"))
                     .retrieveRows()
                     .get(1) //
-                    .getStringArray("cousins-firstName")) // TODO should be array?
+                    .getStringArray("cousins_firstName")) // TODO should be array?
             .contains("Kwok"));
   }
 
@@ -290,11 +330,32 @@ public class TestCompositeForeignKeys {
     schema.create(
         table(
             "Person2",
-            column("firstName").pkey(),
-            column("lastName").pkey(),
-            column("father", REF).refTable("Person2"),
-            column("mother", REF).refTable("Person2"),
-            column("children", MREF).refTable("Person2"))); // .with("lastName", "lastName")));
+            column("firstName").setPkey(),
+            column("lastName").setPkey(),
+            column("father_firstName", REF)
+                .setRefTable("Person2")
+                .setRefColumn("firstName")
+                .setRefName("father"),
+            column("father_lastName", REF)
+                .setRefTable("Person2")
+                .setRefColumn("lastName")
+                .setRefName("father"),
+            column("mother_firstName", REF)
+                .setRefTable("Person2")
+                .setRefColumn("firstName")
+                .setRefName("mother"),
+            column("mother_lastName", REF)
+                .setRefTable("Person2")
+                .setRefColumn("lastName")
+                .setRefName("mother"),
+            column("children_firstName", MREF)
+                .setRefTable("Person2")
+                .setRefName("children")
+                .setRefColumn("firstName"),
+            column("children_lastName", MREF)
+                .setRefTable("Person2")
+                .setRefName("children")
+                .setRefColumn("lastName"))); // .with("lastName", "lastName")));
   }
 
   @Test
@@ -302,15 +363,27 @@ public class TestCompositeForeignKeys {
     Schema schema =
         database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "LinkedRef");
 
-    schema.create(table("Collection", column("name").pkey()));
+    schema.create(table("Collection", column("name").setPkey()));
     schema.create(
-        table("Table", column("name").pkey(), column("collection").refTable("Collection").pkey()));
+        table(
+            "Table",
+            column("name").setPkey(),
+            column("collection").setRefTable("Collection").setPkey()));
     schema.create(
         table(
             "Variable",
-            column("name").pkey(),
-            column("collection").type(REF).refTable("Collection"),
-            column("table").type(REF).refTable("Table").refConstraint("collection=collection")));
+            column("name").setPkey(),
+            column("collection")
+                .setType(REF)
+                .setRefTable("Table")
+                .setRefColumn("table")
+                .setRefName("table"),
+            column("table")
+                .setType(REF)
+                .setRefTable("Table")
+                .setRefColumn("name")
+                .setRefName("table")
+                .setRefLink(new String[] {"collection"})));
 
     schema.getTable("Collection").insert(new Row().set("name", "LifeCycle"));
     schema.getTable("Table").insert(new Row().set("name", "Table1").set("collection", "LifeCycle"));

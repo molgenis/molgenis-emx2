@@ -7,9 +7,7 @@ import org.molgenis.emx2.io.readers.CsvTableWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -23,7 +21,10 @@ public class Emx2 {
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
   public static final String KEY = "key";
-  public static final String REF = "ref";
+  public static final String REF_NAME = "refName";
+  public static final String REF_TABLE = "refTable";
+  public static final String REF_COLUMN = "refColumn";
+  public static final String REF_LINK = "refColumn";
   public static final String MAPPED_BY = "mappedBy";
   public static final String NULLABLE = "nullable";
   private static final String VALIDATION = "validation";
@@ -62,20 +63,31 @@ public class Emx2 {
 
         Column column = column(r.getString(COLUMN_NAME));
         if (r.notNull(COLUMN_TYPE))
-          column.type(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
-        if (r.notNull(KEY)) column.key(r.getInteger(KEY));
-        if (r.notNull(REF)) column.refTable(r.getString(REF));
-        if (r.notNull(MAPPED_BY)) column.mappedBy(r.getString(MAPPED_BY));
-        if (r.notNull(NULLABLE)) column.nullable(r.getBoolean(NULLABLE));
+          column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
+        if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
+        if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
+        if (r.notNull(REF_COLUMN)) column.setRefColumn(r.getString(REF_COLUMN));
+        if (r.notNull(REF_NAME)) column.setRefColumn(r.getString(REF_NAME));
+        if (r.notNull(REF_LINK)) column.setRefLink(r.getStringArray(REF_LINK));
+        if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
+        if (r.notNull(NULLABLE)) column.setNullable(r.getBoolean(NULLABLE));
         if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
-        if (r.notNull(VALIDATION)) column.validation(r.getString(VALIDATION));
-        if (r.notNull(RDF_TEMPLATE)) column.rdfTemplate(r.getString(RDF_TEMPLATE));
+        if (r.notNull(VALIDATION)) column.setValidationScript(r.getString(VALIDATION));
+        if (r.notNull(RDF_TEMPLATE)) column.setRdfTemplate(r.getString(RDF_TEMPLATE));
 
         schema.getTableMetadata(tableName).add(column);
       }
       lineNo++;
     }
     return schema;
+  }
+
+  private static Set<String> parseRefTo(Row r) {
+    String name = r.getString(COLUMN_NAME);
+    if (name.contains("(")) {
+      return Set.of(name.split("\\(")[1].replace(")", "").split(","));
+    }
+    return new LinkedHashSet<>();
   }
 
   public static List<Row> toRowList(SchemaMetadata schema) {
@@ -110,10 +122,13 @@ public class Emx2 {
             row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
           if (c.isNullable()) row.setBool(NULLABLE, c.isNullable());
           if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-          if (c.getRefTableName() != null) row.setString(REF, c.getRefTableName());
+          if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
+          if (c.getRefColumnName() != null) row.setString(REF_COLUMN, c.getRefColumnName());
+          if (c.getRefName() != null) row.setString(REF_NAME, c.getRefName());
+          if (c.getRefLink() != null) row.setStringArray(REF_LINK, c.getRefLink());
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-          if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+          if (c.getValidationScript() != null) row.set(VALIDATION, c.getValidationScript());
 
           result.add(row);
         }

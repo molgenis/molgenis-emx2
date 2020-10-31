@@ -9,48 +9,48 @@ import org.molgenis.emx2.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
+/** Create ref constraints. Might be composite key so therefore using Column...column parameters. */
 public class SqlColumnRefExecutor {
   private SqlColumnRefExecutor() {
     // hide
   }
 
-  static void removeRefConstraints(DSLContext jooq, Column column) {
-    jooq.alterTable(getJooqTable(column.getTable()))
+  static void removeRefConstraints(DSLContext jooq, Column... column) {
+    Column column1 = column[0];
+    jooq.alterTable(getJooqTable(column1.getTable()))
         .dropConstraint(getRefConstraintName(column))
         .execute();
-    jooq.execute("DROP INDEX {0}", name(column.getSchemaName(), getIndexName(column)));
+    jooq.execute("DROP INDEX {0}", name(column1.getSchemaName(), getIndexName(column)));
   }
 
-  static void createRefConstraints(DSLContext jooq, Column column) {
+  static void createRefConstraints(DSLContext jooq, Column... column) {
     validateRef(column);
-
+    Column column1 = column[0];
     Name fkeyConstraintName = name(getRefConstraintName(column));
-    Name thisTable = getJooqTable(column.getTable()).getQualifiedName();
-    List<Name> thisColumns = new ArrayList<>();
-    List<Name> otherColumns = new ArrayList<>();
+    Name thisTable = getJooqTable(column1.getTable()).getQualifiedName();
+    List<Name> thisColumns =
+        List.of(column).stream().map(c -> name(c.getName())).collect(Collectors.toList());
+    List<Name> otherColumns =
+        List.of(column).stream().map(c -> name(c.getRefColumnName())).collect(Collectors.toList());
 
-    for (Reference ref : column.getReferences()) {
-      thisColumns.add(name(ref.getName()));
-      otherColumns.add(name(ref.getTo()));
-    }
-
-    Name fkeyTable = name(column.getTable().getSchema().getName(), column.getRefTableName());
+    Name fkeyTable = name(column1.getTable().getSchema().getName(), column1.getRefTableName());
 
     ConstraintForeignKeyOnStep constraint =
         constraint(fkeyConstraintName)
             .foreignKey(thisColumns.toArray(new Name[thisColumns.size()]))
             .references(fkeyTable, otherColumns.toArray(new Name[otherColumns.size()]))
             .onUpdateCascade();
-    if (column.isCascadeDelete()) {
+    if (List.of(column).stream().anyMatch(c -> c.isCascadeDelete())) {
       constraint = constraint.onDeleteCascade();
     }
 
-    jooq.alterTable(getJooqTable(column.getTable())).add(constraint).execute();
+    jooq.alterTable(getJooqTable(column1.getTable())).add(constraint).execute();
 
     jooq.execute(
         "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE",
@@ -61,35 +61,43 @@ public class SqlColumnRefExecutor {
         .execute();
   }
 
-  public static void validateRef(Column column) {
-    String refTableName = column.getRefTableName();
+  public static void validateRef(Column... column) {
+    Column column1 = column[0];
+    String refTableName = column1.getRefTableName();
+    String columnNames =
+        List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
 
     // check if refTable exists
     if (refTableName == null) {
       throw new MolgenisException(
           "Create column failed",
-          "Create of column '" + column.getName() + "' failed because RefTableName was not set");
+          "Create of column(s) '" + columnNames + "' failed because RefTableName was not set");
     }
 
     // check if other end has primary key
-    if (column.getRefTable().getPrimaryKeys() == null) {
+    if (column1.getRefTable().getPrimaryKeys() == null) {
       throw new MolgenisException(
           "Create column failed",
           "Create of column '"
-              + column.getName()
+              + columnNames
               + "' failed because other table has no primary key set");
     }
   }
 
-  private static String getIndexName(Column column) {
-    return column.getTable().getTableName() + "_" + column.getName() + "_FKINDEX";
+  private static String getIndexName(Column... column) {
+    Column column1 = column[0];
+    return column1.getTable().getTableName()
+        + "_"
+        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","))
+        + "_FKINDEX";
   }
 
-  private static String getRefConstraintName(Column column) {
-    return column.getTable().getTableName()
+  private static String getRefConstraintName(Column... column) {
+    Column column1 = column[0];
+    return column1.getTable().getTableName()
         + "."
-        + column.getName()
+        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","))
         + " REFERENCES "
-        + column.getRefTableName();
+        + column1.getRefTableName();
   }
 }

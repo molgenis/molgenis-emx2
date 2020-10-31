@@ -31,54 +31,61 @@ public class PetStoreExample {
 
   public static void create(SchemaMetadata schema) {
 
-    schema.create(table(CATEGORY).add(column(NAME).pkey()));
+    schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
-    schema.create(table(TAG).add(column(NAME).pkey()));
+    schema.create(table(TAG).add(column(NAME).setPkey()));
 
     schema.create(
         table(PET)
-            .add(column(NAME).setDescription("the name").pkey())
-            .add(column(CATEGORY_COLUMN).type(REF).refTable(CATEGORY))
-            .add(column("photoUrls").type(STRING_ARRAY).nullable(true))
+            .add(column(NAME).setDescription("the name").setPkey())
+            .add(column(CATEGORY_COLUMN).setType(REF).setRefTable(CATEGORY))
+            .add(column("photoUrls").setType(STRING_ARRAY).setNullable(true))
             .add(column(STATUS)) // todo enum: available, pending, sold
-            .add(column("tags").type(REF_ARRAY).refTable(TAG).nullable(true))
-            .add(column(WEIGHT).type(DECIMAL))
+            .add(column("tags").setType(REF_ARRAY).setRefTable(TAG).setNullable(true))
+            .add(column(WEIGHT).setType(DECIMAL))
             .setDescription("My pet store example table"));
 
     schema.create(
         table(ORDER)
-            .add(column(ORDER_ID).pkey())
-            .add(column("pet").type(REF).refTable(PET).nullable(true))
+            .add(column(ORDER_ID).setPkey())
+            .add(column("pet").setType(REF).setRefTable(PET).setNullable(true))
             .add(
                 column(QUANTITY)
-                    .type(INT)
-                    .validation("if(value<1)'Must be larger than 1'")) // todo: validation >=1
+                    .setType(INT)
+                    .setValidationScript(
+                        "if(value<1)'Must be larger than 1'")) // todo: validation >=1
             .add(
                 column(PRICE)
-                    .type(DECIMAL)
-                    .validation("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
-            .add(column(COMPLETE).type(BOOL)) // todo: default false
+                    .setType(DECIMAL)
+                    .setValidationScript(
+                        "if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
+            .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
     // refback
     schema
         .getTableMetadata(PET)
-        .add(column("orders").type(REFBACK).refTable(ORDER).mappedBy("pet"));
+        .add(
+            column("orders")
+                .setType(REFBACK)
+                .setRefTable(ORDER)
+                .setMappedBy("pet")
+                .setNullable(true));
 
     schema.create(
         table(USER)
-            .add(column("username").pkey())
-            .add(column("firstName").nullable(true))
-            .add(column("lastName").nullable(true))
+            .add(column("username").setPkey())
+            .add(column("firstName").setNullable(true))
+            .add(column("lastName").setNullable(true))
             .add(
                 column(EMAIL)
-                    .nullable(true)
-                    .validation(
+                    .setNullable(true)
+                    .setValidationScript(
                         "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
-            .add(column("password").nullable(true)) // todo: password type
-            .add(column("phone").nullable(true)) // todo: validation phone
-            .add(column("userStatus").type(INT).nullable(true))
-            .add(column("pets").type(REF_ARRAY).refTable(PET).nullable(true)));
+            .add(column("password").setNullable(true)) // todo: password type
+            .add(column("phone").setNullable(true)) // todo: validation phone
+            .add(column("userStatus").setType(INT).setNullable(true))
+            .add(column("pets").setType(REF_ARRAY).setRefTable(PET).setNullable(true)));
   }
 
   public static void populate(Schema schema) {

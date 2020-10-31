@@ -166,8 +166,8 @@ public class TestCreateBasicDataColumnTypeColumns {
     Table aTable =
         schema.create(
             table("A")
-                .add(column(aKey).type(columnType).pkey())
-                .add(column(aColumn).type(columnType)));
+                .add(column(aKey).setType(columnType).setPkey())
+                .add(column(aColumn).setType(columnType)));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);

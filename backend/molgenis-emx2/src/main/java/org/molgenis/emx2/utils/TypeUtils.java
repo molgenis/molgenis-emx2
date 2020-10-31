@@ -282,13 +282,13 @@ public class TypeUtils {
     return value;
   }
 
-  public static ColumnType getPrimitiveColumnType(Column column) {
-    if (column.isReference()) {
-      throw new UnsupportedOperationException(
-          "Cannot apply getPrimitiveColumnType to REF,MREF,REF_ARRAY,REFBACK");
-    }
-    return column.getColumnType();
-  }
+  //  public static ColumnType getPrimitiveColumnType(Column column) {
+  //    if (column.isReference()) {
+  //      throw new UnsupportedOperationException(
+  //          "Cannot apply getPrimitiveColumnType to REF,MREF,REF_ARRAY,REFBACK");
+  //    }
+  //    return column.getColumnType();
+  //  }
 
   public static DataType toJooqType(ColumnType type) {
     switch (type) {

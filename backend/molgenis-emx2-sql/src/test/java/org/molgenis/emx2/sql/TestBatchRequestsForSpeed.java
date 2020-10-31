@@ -34,7 +34,7 @@ public class TestBatchRequestsForSpeed {
     Schema schema = db.dropCreateSchema("testBatch");
     Table testBatchTable =
         schema.create(
-            table("TestBatchRequestsForSpeed", column("test").pkey(), column("testint", INT)));
+            table("TestBatchRequestsForSpeed", column("test").setPkey(), column("testint", INT)));
 
     int size = 10000;
     StopWatch.print("Schema created");
@@ -90,21 +90,20 @@ public class TestBatchRequestsForSpeed {
         schema.create(
             table(
                 PERSON,
-                column("ID").type(INT).pkey(),
-                column("First_Name").nullable(false).key(2),
-                column("Last_Name").key(2),
-                column("Father").type(REF).refTable(PERSON).nullable(true)));
-    // createColumn a fromTable
-    // TODO need to optimize the reloading to be more lazy
+                column("ID").setType(INT).setPkey(),
+                column("First_Name").setNullable(false).setKey(2),
+                column("Last_Name").setKey(2),
+                column("Father").setType(REF).setRefTable(PERSON).setNullable(true)));
+
     for (int i = 0; i < 10; i++) {
       String name = PERSON + i;
       schema.create(
           table(
               name,
-              column("ID").type(INT).pkey(),
-              column("First_Name").nullable(false).key(2),
-              column("Last_Name").key(2),
-              column("Father").type(REF).refTable(name).nullable(true)));
+              column("ID").setType(INT).setPkey(),
+              column("First_Name").setNullable(false).setKey(2),
+              column("Last_Name").setKey(2),
+              column("Father").setType(REF).setRefTable(name).setNullable(true)));
     }
     StopWatch.print("Created tables");
 

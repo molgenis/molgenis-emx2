@@ -89,7 +89,7 @@ public class TestCreateArrayDataTypes {
         database.dropCreateSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
 
     String aFieldName = columnType + "Col";
-    Table tableA = schema.create(table("A", column(aFieldName).type(columnType).pkey()));
+    Table tableA = schema.create(table("A", column(aFieldName).setType(columnType).setPkey()));
 
     Row aRow = new Row().set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);

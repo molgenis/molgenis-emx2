@@ -62,10 +62,10 @@ public class Mapper {
     Field[] fields = klazz.getDeclaredFields();
     for (Field f : fields) {
       if (!f.getName().contains("jacoco")) {
-        Column col = column(f.getName()).type(TypeUtils.typeOf(f.getType()));
+        Column col = column(f.getName()).setType(TypeUtils.typeOf(f.getType()));
         if (f.isAnnotationPresent(ColumnAnnotation.class)) {
           ColumnAnnotation cm = f.getAnnotation(ColumnAnnotation.class);
-          col.nullable(cm.nullable());
+          col.setNullable(cm.nullable());
           col.setDescription(cm.description());
         }
         t.add(col);
