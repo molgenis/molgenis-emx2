@@ -120,15 +120,11 @@ public class GraphqlApiFactory {
       for (Column column : metadata.getColumns()) {
         if (object.containsKey(column.getName())) {
           if (column.isReference() && REF.equals(column.getColumnType())) {
-            convertRefToRow(
-                (Map<String, Object>) object.get(column.getName()), row, column, column.getName());
+            convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getName()),
-                row,
-                column,
-                column.getName());
+                (List<Map<String, Object>>) object.get(column.getName()), row, column);
           } else {
             row.set(column.getName(), object.get(column.getName()));
           }
@@ -139,15 +135,12 @@ public class GraphqlApiFactory {
     return rows;
   }
 
-  private static void convertRefArrayToRow(
-      List<Map<String, Object>> list, Row row, Column column, String prefix) {
+  private static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
 
     List<Reference> refs = column.getReferences();
     if (list.size() > 0) {
-      for (Map<String, Object> value : list) {
-        for (Reference ref : refs) {
-          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
-        }
+      for (Reference ref : refs) {
+        row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
       }
     } else {
       for (Reference ref : refs) {
@@ -181,17 +174,17 @@ public class GraphqlApiFactory {
     }
   }
 
-  private static void convertRefToRow(
-      Map<String, Object> value, Row row, Column column, String prefix) {
-    List<Column> fkeys = column.getRefTable().getPrimaryKeyColumns();
-    for (Column fkey : fkeys) {
-      String name = prefix + (fkeys.size() > 1 ? "-" + fkey.getName() : "");
+  private static void convertRefToRow(Map<String, Object> value, Row row, Column column) {
+    for (Reference fkey : column.getReferences()) {
+      String name = fkey.getName();
       if (value == null) {
         row.set(name, null);
-      } else if (fkey.isReference()) {
-        convertRefToRow((Map<String, Object>) value.get(fkey.getName()), row, fkey, name);
       } else {
-        row.set(name, value.get(fkey.getName()));
+        Object val = value;
+        for (String path : fkey.getPath()) {
+          val = ((Map) val).get(path);
+        }
+        row.set(name, val);
       }
     }
   }

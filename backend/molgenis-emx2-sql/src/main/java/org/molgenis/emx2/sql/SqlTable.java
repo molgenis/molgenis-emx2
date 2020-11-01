@@ -192,8 +192,7 @@ class SqlTable implements Table {
 
     if (getMetadata().getPrimaryKeys() == null)
       throw new MolgenisException(
-          "Update failed",
-          "Table "
+          "Update failed: Table "
               + getName()
               + " cannot process row update requests because no primary key is defined");
 
@@ -281,8 +280,6 @@ class SqlTable implements Table {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
 
-    log(start, count, "updated");
-
     return count.get();
   }
 
@@ -319,10 +316,8 @@ class SqlTable implements Table {
         step2 =
             step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
       }
-      log(start, new AtomicInteger(rows.size()), "update batch ready");
-      start = System.currentTimeMillis();
       step.execute();
-      log(start, new AtomicInteger(rows.size()), "update batch executed");
+      log(start, new AtomicInteger(rows.size()), "updated ");
     }
   }
 

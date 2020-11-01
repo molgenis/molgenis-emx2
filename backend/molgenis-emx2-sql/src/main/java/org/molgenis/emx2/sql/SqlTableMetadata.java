@@ -32,8 +32,6 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     db.tx(
         dsl -> {
-          Set<String> compositeRefs = new LinkedHashSet<>();
-
           // first per-column actions, then multi-column action such as composite keys/refs
           for (Column c : column) {
             if (getColumn(c.getName()) != null) {
@@ -44,27 +42,17 @@ class SqlTableMetadata extends TableMetadata {
               updatePositions(newColumn, this);
               executeCreateColumn(getJooq(), newColumn);
               super.add(newColumn);
-              validateColumn(newColumn);
               if (newColumn.getKey() > 0) {
                 createOrReplaceKey(
-                    getJooq(), this, newColumn.getKey(), getKeyNames(newColumn.getKey()));
+                    getJooq(),
+                    newColumn.getTable(),
+                    newColumn.getKey(),
+                    newColumn.getTable().getKeyFields(newColumn.getKey()));
               }
-              executeCreateRefConstraints(
-                  getJooq(), newColumn); // todo, in case of composite this should not happen
+              executeCreateRefConstraints(getJooq(), newColumn);
               log(start, "added column '" + newColumn.getName() + "' to table " + getTableName());
             }
           }
-
-          // finally, foreign key relations spanning multiple tables
-          for (String compositeRef : compositeRefs) {
-            // TODO
-          }
-          // if (getKeyNames(column.getKey()).size() > 1 && column.isNullable()) {
-          //                throw new MolgenisException(
-          //                    "unique on column '" + column.getName() + "' failed",
-          //                    "When key spans multiple columns, none of the columns can be
-          // nullable");
-          //              }
         });
     db.getListener().schemaChanged(getSchemaName());
     return this;
@@ -89,8 +77,9 @@ class SqlTableMetadata extends TableMetadata {
           if (REF_ARRAY.equals(newColumn.getColumnType())
               && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
             throw new MolgenisException(
-                "Alter column of '" + oldColumn.getName() + " failed",
-                "REF_ARRAY is not supported for composite keys of table "
+                "Alter column of '"
+                    + oldColumn.getName()
+                    + " failed: REF_ARRAY is not supported for composite keys of table "
                     + newColumn.getRefTableName());
           }
 
@@ -106,11 +95,6 @@ class SqlTableMetadata extends TableMetadata {
 
           // drop old key, if touched
           if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
-            if (getKeyNames(newColumn.getKey()).size() > 1 && newColumn.isNullable()) {
-              throw new MolgenisException(
-                  "unique on column '" + newColumn.getName() + "' failed",
-                  "When key spans multiple columns, none of the columns can be nullable");
-            }
             executeDropKey(getJooq(), oldColumn.getTable(), oldColumn.getKey());
           }
 
@@ -140,7 +124,7 @@ class SqlTableMetadata extends TableMetadata {
           if (newColumn.getKey() != oldColumn.getKey()) {
 
             createOrReplaceKey(
-                getJooq(), this, newColumn.getKey(), getKeyNames(newColumn.getKey()));
+                getJooq(), this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
           }
 
           // delete old column if name changed, then save any other metadata changes
@@ -198,7 +182,6 @@ class SqlTableMetadata extends TableMetadata {
         return this; // nothing to do
       } else {
         throw new MolgenisException(
-            SET_INHERITANCE_FAILED,
             "Table '"
                 + getTableName()
                 + "'can only extend one table. Therefore it cannot extend '"
@@ -211,12 +194,13 @@ class SqlTableMetadata extends TableMetadata {
     TableMetadata other = getSchema().getTableMetadata(otherTable);
     if (other == null)
       throw new MolgenisException(
-          SET_INHERITANCE_FAILED, "Other table '" + otherTable + "' does not exist in this schema");
+          "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
 
     if (other.getPrimaryKeys() == null)
       throw new MolgenisException(
-          SET_INHERITANCE_FAILED,
-          "To extend table '" + otherTable + "' it must have primary key set");
+          "Set inheritance failed: To extend table '"
+              + otherTable
+              + "' it must have primary key set");
     db.tx(
         tdb -> {
           // extends means we copy primary key column from parent to child, make it foreign key to

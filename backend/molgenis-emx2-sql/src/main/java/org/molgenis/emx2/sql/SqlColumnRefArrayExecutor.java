@@ -2,10 +2,10 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
 import org.jooq.Name;
-import org.jooq.Table;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Reference;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,28 +21,26 @@ class SqlColumnRefArrayExecutor {
     // hide
   }
 
-  static void createRefArrayConstraints(DSLContext jooq, Column... column) {
+  static void createRefArrayConstraints(DSLContext jooq, Column column) {
     validateRef(column);
     createReferenceExistsCheck(jooq, column);
     createDeleteOrUpdateReferedCheck(jooq, column);
     // createUpdateReferedCheck(jooq, column);
   }
 
-  static void removeRefArrayConstraints(DSLContext jooq, Column... column) {
-    Column column1 = column[0];
+  static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
         "DROP TRIGGER {0} ON {1}",
-        name(getDeleteTriggerName(column)), column1.getRefTable().getJooqTable());
+        name(getDeleteTriggerName(ref)), ref.getRefTable().getJooqTable());
     //    jooq.execute(
     //        "DROP TRIGGER {0} ON {1}", name(getUpdateTriggerName(column)),
     // column.getRefTable().asJooqTable());
-    jooq.execute(
-        "DROP TRIGGER {0} ON {1}", name(getUpdateCheckName(column)), column1.getJooqTable());
-    jooq.execute("DROP FUNCTION {0}", name(column1.getSchemaName(), getDeleteTriggerName(column)));
+    jooq.execute("DROP TRIGGER {0} ON {1}", name(getUpdateCheckName(ref)), ref.getJooqTable());
+    jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getDeleteTriggerName(ref)));
     //    jooq.execute(
     //        "DROP FUNCTION {0}",
     //        name(SqlColumnExecutor.getSchemaName(column), getUpdateTriggerName(column)));
-    jooq.execute("DROP FUNCTION {0} ", name(column1.getSchemaName(), getUpdateCheckName(column)));
+    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getUpdateCheckName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
@@ -88,34 +86,31 @@ class SqlColumnRefArrayExecutor {
   }
 
   /** update check; in case of composite key this consists of multiple Column */
-  private static void createDeleteOrUpdateReferedCheck(DSLContext jooq, Column... column) {
-    List<Column> columns = List.of(column);
-    Column column1 = column[0];
-    String deleteTrigger = getDeleteTriggerName(column1);
+  private static void createDeleteOrUpdateReferedCheck(DSLContext jooq, Column ref) {
+    String deleteTrigger = getDeleteTriggerName(ref);
+    Collection<Reference> columns = ref.getReferences();
 
     String unnestRefs =
         columns.stream()
-            .map(r -> "UNNEST(" + name(r.getName()) + ") AS " + name(r.getRefColumnName()))
+            .map(r -> "UNNEST(" + name(r.getName()) + ") AS " + name(r.getRefTo()))
             .collect(Collectors.joining(","));
 
     String oldEqualsAnyRef =
         columns.stream()
-            .map(r -> "OLD." + name(r.getRefColumnName()) + "=ANY(" + name(r.getName()) + ")")
+            .map(r -> "OLD." + name(r.getRefTo()) + "=ANY(" + name(r.getName()) + ")")
             .collect(Collectors.joining(" AND "));
 
     String keyColumns =
-        columns.stream()
-            .map(r -> name(r.getRefColumnName()).toString())
-            .collect(Collectors.joining(","));
+        columns.stream().map(r -> name(r.getRefTo()).toString()).collect(Collectors.joining(","));
 
     String oldEqualsTo =
         columns.stream()
-            .map(r -> "OLD." + name(r.getRefColumnName()) + "= " + name(r.getRefColumnName()))
+            .map(r -> "OLD." + name(r.getRefTo()) + "= " + name(r.getRefTo()))
             .collect(Collectors.joining(" AND "));
 
     String oldValuesAsString =
         columns.stream()
-            .map(r -> "OLD." + name(r.getRefColumnName()))
+            .map(r -> "OLD." + name(r.getRefTo()))
             .collect(Collectors.joining("||','||"));
 
     String toColumns =
@@ -123,7 +118,7 @@ class SqlColumnRefArrayExecutor {
 
     String newNotEqualsOld =
         columns.stream()
-            .map(r -> "OLD." + name(r.getRefColumnName()) + " <> NEW." + name(r.getRefColumnName()))
+            .map(r -> "OLD." + name(r.getRefTo()) + " <> NEW." + name(r.getRefTo()))
             .collect(Collectors.joining(" AND "));
 
     jooq.execute(
@@ -136,23 +131,23 @@ class SqlColumnRefArrayExecutor {
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;",
         // 0 trigger name
-        name(column1.getTable().getSchemaName(), deleteTrigger),
+        name(ref.getTable().getSchemaName(), deleteTrigger),
         // 1
         inline(toColumns),
         // 2
         keyword(unnestRefs),
         // 3
-        column1.getJooqTable(),
+        ref.getJooqTable(),
         // 4 anyFilter
         keyword(oldEqualsAnyRef),
         // 5 toTable
-        inline(column1.getRefTableName()),
+        inline(ref.getRefTableName()),
         // 6 toColumns
         inline(keyColumns),
         // 7 old.toColumnValues
         keyword(oldValuesAsString),
         // 8 inline fromTable
-        inline(column1.getTableName()),
+        inline(ref.getTableName()),
         // 9
         keyword(oldEqualsTo),
         // 10
@@ -164,8 +159,8 @@ class SqlColumnRefArrayExecutor {
             + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(deleteTrigger),
-        column1.getRefTable().getJooqTable(),
-        name(column1.getTable().getSchema().getName(), deleteTrigger),
+        ref.getRefTable().getJooqTable(),
+        name(ref.getTable().getSchema().getName(), deleteTrigger),
         keyword(keyColumns));
   }
 
@@ -194,13 +189,12 @@ class SqlColumnRefArrayExecutor {
    * trigger on this column to check if foreign key exists. Might be composite key, i.e., list of
    * columns
    */
-  private static void createReferenceExistsCheck(DSLContext jooq, Column... column) {
-    List<Column> columns = List.of(column);
-    Column column1 = columns.get(0);
-    String schemaName = column1.getSchema().getName();
-    Name thisTable = name(schemaName, column1.getTable().getTableName());
-    Name toTable = name(schemaName, column1.getRefTableName());
-    String functionName = getUpdateCheckName(column1);
+  private static void createReferenceExistsCheck(DSLContext jooq, Column column) {
+    String schemaName = column.getSchema().getName();
+    Name thisTable = name(schemaName, column.getTable().getTableName());
+    Name toTable = name(schemaName, column.getRefTableName());
+    String functionName = getUpdateCheckName(column);
+    List<Reference> columns = column.getReferences();
 
     String newFromColumns =
         columns.stream()
@@ -211,18 +205,16 @@ class SqlColumnRefArrayExecutor {
         columns.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
 
     String toColumns =
-        columns.stream()
-            .map(r -> name(r.getRefColumnName()).toString())
-            .collect(Collectors.joining(","));
+        columns.stream().map(r -> name(r.getRefTo()).toString()).collect(Collectors.joining(","));
 
     String errorColumns =
         columns.stream()
-            .map(r -> "COALESCE(error_row." + name(r.getRefColumnName()).toString() + ",'NULL')")
+            .map(r -> "COALESCE(error_row." + name(r.getRefTo()).toString() + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 
     String exceptFilter =
         columns.stream()
-            .map(r -> name(r.getRefColumnName()) + " = ANY (NEW." + name(r.getName()) + ")")
+            .map(r -> name(r.getRefTo()) + " = ANY (NEW." + name(r.getName()) + ")")
             .collect(Collectors.joining(" AND "));
 
     jooq.execute(
@@ -250,11 +242,11 @@ class SqlColumnRefArrayExecutor {
         // 6
         inline(fromColumns),
         // 7
-        inline(column1.getRefTableName()),
+        inline(column.getRefTableName()),
         // 8
         inline(toColumns),
         // 9
-        inline(column1.getTableName()),
+        inline(column.getTableName()),
         // 10
         keyword(exceptFilter));
 
@@ -268,7 +260,7 @@ class SqlColumnRefArrayExecutor {
         keyword(fromColumns),
         thisTable,
         toTable,
-        name(column1.getTable().getSchema().getName(), functionName));
+        name(column.getTable().getSchema().getName(), functionName));
   }
 
   private static String getUpdateCheckName(Column... column) {

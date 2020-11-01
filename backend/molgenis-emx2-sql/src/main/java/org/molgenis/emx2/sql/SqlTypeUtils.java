@@ -20,7 +20,8 @@ public class SqlTypeUtils extends TypeUtils {
     try {
       Collection<Object> values = new ArrayList<>();
       for (Column c : columns) {
-        Object value = null;
+
+        Object value;
 
         // refConstraint == computed field
         if (c.getComputed() != null) {

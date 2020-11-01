@@ -46,11 +46,11 @@ public class MetadataUtils {
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
 
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_COLUMN =
-      field(name("ref_column"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_NAME = field(name("ref_name"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_LINK =
-      field(name("ref_link"), VARCHAR.getArrayDataType().nullable(true));
+  private static final org.jooq.Field REF_FROM =
+      field(name("ref_from"), VARCHAR.getArrayDataType().nullable(true));
+  private static final org.jooq.Field REF_TO =
+      field(name("ref_to"), VARCHAR.getArrayDataType().nullable(true));
+
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
 
   private static final org.jooq.Field VALIDATION_SCRIPT =
@@ -137,9 +137,8 @@ public class MetadataUtils {
           COLUMN_POSITION,
           NULLABLE,
           REF_TABLE,
-          REF_COLUMN,
-          REF_NAME,
-          REF_LINK,
+          REF_TO,
+          REF_FROM,
           MAPPED_BY,
           VALIDATION_SCRIPT,
           COMPUTE_SCRIPT,
@@ -316,9 +315,8 @@ public class MetadataUtils {
             COLUMN_POSITION,
             NULLABLE,
             REF_TABLE,
-            REF_COLUMN,
-            REF_NAME,
-            REF_LINK,
+            REF_FROM,
+            REF_TO,
             MAPPED_BY,
             VALIDATION_SCRIPT,
             COMPUTE_SCRIPT,
@@ -335,9 +333,8 @@ public class MetadataUtils {
             column.getPosition(),
             column.isNullable(),
             column.getRefTableName(),
-            column.getRefColumnName(),
-            column.getRefName(),
-            column.getRefLink(),
+            column.getRefFrom(),
+            column.getRefTo(),
             column.getMappedBy(),
             column.getValidationScript(),
             column.getComputed(),
@@ -352,9 +349,8 @@ public class MetadataUtils {
         .set(COLUMN_POSITION, column.getPosition())
         .set(NULLABLE, column.isNullable())
         .set(REF_TABLE, column.getRefTableName())
-        .set(REF_COLUMN, column.getRefColumnName())
-        .set(REF_NAME, column.getRefName())
-        .set(REF_LINK, column.getRefLink())
+        .set(REF_FROM, column.getRefFrom())
+        .set(REF_TO, column.getRefTo())
         .set(MAPPED_BY, column.getMappedBy())
         .set(VALIDATION_SCRIPT, column.getValidationScript())
         .set(COMPUTE_SCRIPT, column.getComputed())
@@ -400,6 +396,8 @@ public class MetadataUtils {
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
     c.setRefTable(col.get(REF_TABLE, String.class));
+    c.setRefFrom(col.get(REF_FROM, String[].class));
+    c.setRefTo(col.get(REF_TO, String[].class));
     c.setMappedBy(col.get(MAPPED_BY, String.class));
     c.setValidationScript(col.get(VALIDATION_SCRIPT, String.class));
     c.setComputed(col.get(COMPUTE_SCRIPT, String.class));

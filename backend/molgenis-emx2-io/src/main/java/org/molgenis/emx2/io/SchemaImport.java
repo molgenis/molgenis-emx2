@@ -129,12 +129,14 @@ public class SchemaImport {
                     .getSchema()
                     .getTable(c.getRefTableName())
                     .query()
-                    .where(f(ref.getTo(), Operator.EQUALS, keys.get(ref.getName()).toArray()))
+                    .where(f(ref.getRefTo(), Operator.EQUALS, keys.get(ref.getName()).toArray()))
                     .retrieveRows();
             for (Row r : result) {
               keys.get(ref.getName())
                   .remove(
-                      r.get(ref.getTo(), c.getRefTable().getColumn(ref.getTo()).getColumnType()));
+                      r.get(
+                          ref.getRefTo(),
+                          c.getRefTable().getColumn(ref.getRefTo()).getColumnType()));
             }
           }
         }

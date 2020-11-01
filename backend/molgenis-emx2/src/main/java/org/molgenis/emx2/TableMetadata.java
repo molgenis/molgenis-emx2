@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
 
 public class TableMetadata {
 
@@ -45,7 +46,7 @@ public class TableMetadata {
     this.schema = schema;
   }
 
-  protected TableMetadata(SchemaMetadata schema, TableMetadata metadata) {
+  public TableMetadata(SchemaMetadata schema, TableMetadata metadata) {
     this.clearCache();
     this.schema = schema;
     this.copy(metadata);
@@ -100,19 +101,29 @@ public class TableMetadata {
   }
 
   public List<Column> getMutationColumns() {
-    ArrayList<Column> result = new ArrayList<>();
+    Map<String, Column> result =
+        new LinkedHashMap<>(); // overlapping references can lead to duplicates
     for (Column c : getLocalColumns()) {
       if (FILE.equals(c.getColumnType())) {
-        result.add(new Column(c.getName() + "_id"));
-        result.add(new Column(c.getName() + "_contents").setType(FILE));
-        result.add(new Column(c.getName() + "_mimetype"));
-        result.add(new Column(c.getName() + "_extension"));
-        result.add(new Column(c.getName() + "_size").setType(INT));
+        result.put(
+            c.getName() + "_contents",
+            new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
+        result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
+        result.put(
+            c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
+        result.put(
+            c.getName() + "_size", new Column(c.getTable(), c.getName() + "_size").setType(INT));
+      } else if (c.isReference()) {
+        for (Reference ref : c.getReferences()) {
+          result.put(
+              ref.getName(),
+              new Column(c.getTable(), ref.getName()).setType(ref.getPrimitiveType()));
+        }
       } else {
-        result.add(c);
+        result.put(c.getName(), c);
       }
     }
-    return result;
+    return new ArrayList<>(result.values());
   }
 
   public List<Column> getLocalColumns() {
@@ -276,8 +287,19 @@ public class TableMetadata {
     return keyColumns;
   }
 
-  public List<String> getKeyNames(int key) {
-    return getKey(key).stream().map(c -> c.getName()).collect(Collectors.toList());
+  public List<Field<?>> getKeyFields(int key) {
+    // references might be overlapping so need to deduplicate via this map
+    Map<String, Field<?>> result = new LinkedHashMap<>();
+    for (Column c : getKey(key)) {
+      if (c.isReference()) {
+        for (Reference ref : c.getReferences()) {
+          result.put(ref.getName(), ref.getJooqField());
+        }
+      } else {
+        result.put(c.getName(), c.getJooqField());
+      }
+    }
+    return new ArrayList<>(result.values());
   }
 
   public Map<Integer, List<String>> getKeys() {
@@ -310,11 +332,7 @@ public class TableMetadata {
   }
 
   public List<Field<?>> getPrimaryKeyFields() {
-    List<Field<?>> result = new ArrayList<>();
-    for (Column c : getPrimaryKeyColumns()) {
-      result.add(field(name(c.getName()), c.getJooqType()));
-    }
-    return result;
+    return getKeyFields(1);
   }
 
   public Map<String, String> getSettings() {
@@ -331,22 +349,26 @@ public class TableMetadata {
     return this;
   }
 
-  public List<Column> getCompositeRef(Column column) {
-    if (column.isReference()) {
-      // is composite?
-      if (column.getRefName() != null) {
-        List<Column> result = new ArrayList<>();
-        for (Column c : getColumns()) {
-          if (column.getRefName().equals(c.getRefName())) {
-            result.add(c);
+  public ColumnType getPrimitiveColumnType(String referenceName) {
+    for (Column c : getColumns()) {
+      if (c.isReference()) {
+        for (Reference ref : c.getReferences()) {
+          if (ref.getName().equals(referenceName)) {
+            ColumnType type = c.getRefTable().getPrimitiveColumnType(ref.getRefTo());
+            if (REF_ARRAY.equals(c.getColumnType())
+                || MREF.equals(c.getColumnType())
+                || REFBACK.equals(c.getColumnType())) {
+              // return array version of primitive type in case of ref_array
+              return getArrayType(type);
+            } else {
+              return type;
+            }
           }
         }
-        return result;
-      } // not composite
-      else {
-        return List.of(column);
+      } else if (c.getName().equals(referenceName)) {
+        return c.getColumnType();
       }
     }
-    return new ArrayList<>();
+    return null;
   }
 }

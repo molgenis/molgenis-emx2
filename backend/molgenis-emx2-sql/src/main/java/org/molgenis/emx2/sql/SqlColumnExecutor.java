@@ -3,7 +3,11 @@ package org.molgenis.emx2.sql;
 import org.jooq.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.TableMetadata;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
@@ -35,7 +39,7 @@ public class SqlColumnExecutor {
         break;
       case REF:
       case REF_ARRAY:
-        isNullable = column.getRefColumn().isNullable() || isNullable;
+        isNullable = column.getReferences().stream().anyMatch(c -> c.isNullable()) || isNullable;
         break;
       case MREF:
         // nullability checked on the jointable
@@ -56,11 +60,16 @@ public class SqlColumnExecutor {
       for (Field f : column.getJooqFileFields()) {
         executeSetNullable(jooq, column.getJooqTable(), f, column.isNullable());
       }
-
     }
     // simply add set nullability
     else {
-      executeSetNullable(jooq, column.getJooqTable(), column.getJooqField(), isNullable);
+      if (column.isReference()) {
+        for (Reference ref : column.getReferences()) {
+          executeSetNullable(jooq, column.getJooqTable(), ref.getJooqField(), isNullable);
+        }
+      } else {
+        executeSetNullable(jooq, column.getJooqTable(), column.getJooqField(), isNullable);
+      }
     }
   }
 
@@ -133,7 +142,7 @@ public class SqlColumnExecutor {
 
     // post changes
     if (REF_ARRAY.equals(newColumn.getColumnType())) {
-      executeCreateRefArrayIndex(jooq, table, newColumn);
+      executeCreateRefArrayIndex(jooq, table, newColumn.getJooqField());
     }
   }
 
@@ -189,24 +198,42 @@ public class SqlColumnExecutor {
   }
 
   static void executeCreateColumn(DSLContext jooq, Column column) {
-    // create the column
-    if (column.isReference()) {
-      jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
-      if (REF_ARRAY.equals(column.getColumnType())) {
-        executeCreateRefArrayIndex(jooq, column.getJooqTable(), column);
+    String current = column.getName(); // for composite ref errors
+    try {
+      // create the column
+      if (column.isReference()) {
+        for (Reference ref : column.getReferences()) {
+          current = ref.getName();
+          // check if reference name already exists, composite ref may reuse columns
+          // either other column, or a part of a reference
+          if (!column.getTable().getColumns().stream()
+              .filter(c -> !c.getName().equals(column.getName()))
+              .anyMatch(
+                  c ->
+                      c.getName().equals(ref.getName())
+                          || c.getReferences().stream()
+                              .anyMatch(c2 -> c2.getName().equals(ref.getName())))) {
+            jooq.alterTable(column.getJooqTable()).addColumn(ref.getJooqField()).execute();
+            if (REF_ARRAY.equals(column.getColumnType())) {
+              executeCreateRefArrayIndex(jooq, column.getJooqTable(), ref.getJooqField());
+            }
+          }
+        }
+      } else if (FILE.equals(column.getColumnType())) {
+        for (Field f : column.getJooqFileFields()) {
+          jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
+        }
+      } else {
+        jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
+        executeSetDefaultValue(jooq, column);
+        executeSetNullable(jooq, column);
       }
-    } else if (FILE.equals(column.getColumnType())) {
-      for (Field f : column.getJooqFileFields()) {
-        jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
-      }
-    } else {
-      jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
-      executeSetDefaultValue(jooq, column);
-      executeSetNullable(jooq, column);
+      // central constraints
+      SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
+      saveColumnMetadata(jooq, column);
+    } catch (Exception e) {
+      throw new MolgenisException("Create column '" + current + "' failed", e);
     }
-    // central constraints
-    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
-    saveColumnMetadata(jooq, column);
   }
 
   static void validateColumn(Column c) {
@@ -214,7 +241,7 @@ public class SqlColumnExecutor {
       throw new MolgenisException("Add column failed", "Column name cannot be null");
     }
     if (c.getKey() > 0) {
-      if (c.getTable().getKeyNames(c.getKey()).size() > 1 && c.isNullable()) {
+      if (c.getTable().getKeyFields(c.getKey()).size() > 1 && c.isNullable()) {
         throw new MolgenisException(
             "unique on column '" + c.getName() + "' failed",
             "When key spans multiple columns, none of the columns can be nullable");
@@ -224,44 +251,61 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           "Add column '"
               + c.getName()
-              + "' failed: for columns of type ref, ref_array, refback and mref 'refTable' ");
+              + "' failed: 'refTable' required for columns of type ref, ref_array, refback and mref  ");
     }
     if (c.isReference() && c.getRefTable().getPrimaryKeyColumns().size() > 1) {
-      if (c.getRefColumnName() == null) {
+      if (c.getRefFrom() == null || c.getRefTo() == null) {
         throw new MolgenisException(
             "Add column '"
+                + c.getTableName()
+                + "."
                 + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refColumn' must be provided");
+                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be provided mapping to pkey of refTable");
       }
-      if (c.getRefName() == null) {
+      if (c.getRefFrom().length != c.getRefTo().length) {
         throw new MolgenisException(
             "Add column '"
+                + c.getTableName()
+                + "."
                 + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refName' must be provided");
+                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be of same length");
+      }
+
+      if (c.getRefTable().getPrimaryKeyFields().stream()
+          .anyMatch(f -> !List.of(c.getRefTo()).contains(f.getName()))) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' must contain all primary key fields (incl subkeys): "
+                + c.getRefTable().getPrimaryKeyFields().stream()
+                    .map(f -> f.getName())
+                    .collect(Collectors.joining(",")));
       }
     }
   }
 
-  private static void executeCreateRefArrayIndex(DSLContext jooq, Table table, Column ref) {
+  private static void executeCreateRefArrayIndex(DSLContext jooq, Table table, Field field) {
     jooq.execute(
         "CREATE INDEX {0} ON {1} USING GIN( {2} )",
-        name(table.getName() + "/" + ref.getName()), table, name(ref.getName()));
+        name(table.getName() + "/" + field.getName()), table, field);
   }
 
-  static void executeCreateRefConstraints(DSLContext jooq, Column... columns) {
+  static void executeCreateRefConstraints(DSLContext jooq, Column column) {
     // set constraints
-    switch (columns[0].getColumnType()) {
+    switch (column.getColumnType()) {
       case REF:
-        createRefConstraints(jooq, columns);
+        createRefConstraints(jooq, column);
         break;
       case REF_ARRAY:
-        createRefArrayConstraints(jooq, columns);
+        createRefArrayConstraints(jooq, column);
         break;
       case MREF:
-        createMrefConstraints(jooq, columns);
+        createMrefConstraints(jooq, column);
         break;
       case REFBACK:
-        createRefBackColumnConstraints(jooq, columns);
+        createRefBackColumnConstraints(jooq, column);
         break;
       default:
         break;

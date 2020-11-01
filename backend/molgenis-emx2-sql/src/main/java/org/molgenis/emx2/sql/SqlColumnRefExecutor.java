@@ -5,9 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Reference;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,47 +19,49 @@ public class SqlColumnRefExecutor {
     // hide
   }
 
-  static void removeRefConstraints(DSLContext jooq, Column... column) {
-    Column column1 = column[0];
+  public static void removeRefConstraints(DSLContext jooq, Column column) {
+    Column[] columns = new Column[] {column};
+    Column column1 = columns[0];
     jooq.alterTable(getJooqTable(column1.getTable()))
-        .dropConstraint(getRefConstraintName(column))
+        .dropConstraint(getRefConstraintName(columns))
         .execute();
-    jooq.execute("DROP INDEX {0}", name(column1.getSchemaName(), getIndexName(column)));
+    jooq.execute("DROP INDEX {0}", name(column1.getSchemaName(), getIndexName(columns)));
   }
 
-  static void createRefConstraints(DSLContext jooq, Column... column) {
-    validateRef(column);
-    Column column1 = column[0];
-    Name fkeyConstraintName = name(getRefConstraintName(column));
-    Name thisTable = getJooqTable(column1.getTable()).getQualifiedName();
+  public static void createRefConstraints(DSLContext jooq, Column refColumn) {
+    validateRef(refColumn);
+    Name fkeyConstraintName = name(getRefConstraintName(refColumn));
+    Name thisTable = getJooqTable(refColumn.getTable()).getQualifiedName();
     List<Name> thisColumns =
-        List.of(column).stream().map(c -> name(c.getName())).collect(Collectors.toList());
+        refColumn.getReferences().stream().map(c -> name(c.getName())).collect(Collectors.toList());
     List<Name> otherColumns =
-        List.of(column).stream().map(c -> name(c.getRefColumnName())).collect(Collectors.toList());
+        refColumn.getReferences().stream()
+            .map(c -> name(c.getRefTo()))
+            .collect(Collectors.toList());
 
-    Name fkeyTable = name(column1.getTable().getSchema().getName(), column1.getRefTableName());
+    Name fkeyTable = name(refColumn.getTable().getSchema().getName(), refColumn.getRefTableName());
 
     ConstraintForeignKeyOnStep constraint =
         constraint(fkeyConstraintName)
             .foreignKey(thisColumns.toArray(new Name[thisColumns.size()]))
             .references(fkeyTable, otherColumns.toArray(new Name[otherColumns.size()]))
             .onUpdateCascade();
-    if (List.of(column).stream().anyMatch(c -> c.isCascadeDelete())) {
+    if (refColumn.isCascadeDelete()) {
       constraint = constraint.onDeleteCascade();
     }
 
-    jooq.alterTable(getJooqTable(column1.getTable())).add(constraint).execute();
+    jooq.alterTable(getJooqTable(refColumn.getTable())).add(constraint).execute();
 
     jooq.execute(
         "ALTER TABLE {0} ALTER CONSTRAINT {1} DEFERRABLE INITIALLY IMMEDIATE",
         thisTable, fkeyConstraintName);
 
-    jooq.createIndex(getIndexName(column))
+    jooq.createIndex(getIndexName(refColumn))
         .on(thisTable, thisColumns.toArray(new Name[thisColumns.size()]))
         .execute();
   }
 
-  public static void validateRef(Column... column) {
+  static void validateRef(Column... column) {
     Column column1 = column[0];
     String refTableName = column1.getRefTableName();
     String columnNames =

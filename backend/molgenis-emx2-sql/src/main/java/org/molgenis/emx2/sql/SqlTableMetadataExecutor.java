@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Name;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
@@ -8,7 +9,6 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +23,7 @@ class SqlTableMetadataExecutor {
 
   private SqlTableMetadataExecutor() {}
 
-  static void executeCreateTable(DSLContext jooq, TableMetadata table) {
+  static void executeCreateTable(DSLContext jooq, SqlTableMetadata table) {
 
     // create the table
     Table jooqTable = table.getJooqTable();
@@ -47,27 +47,15 @@ class SqlTableMetadataExecutor {
     }
 
     // then create columns
-    Map<String, List> compositeKeysAtEnd = new LinkedHashMap<>();
     int position = 0;
     for (Column column : table.getLocalColumns()) {
       // check if column adheres to all rules
       validateColumn(column);
       // we force position based on order
-      column.setPosition(position++);
-      if (table.getInherit() != null
-          && table.getInheritedTable().getColumn(column.getName()) != null) {
-        // don't create superclass keys, that is already done
-      } else {
-        executeCreateColumn(jooq, new Column(table, column));
-      }
-      if (column.isReference()
-          && (table.getInherit() == null
-              || table.getInheritedTable().getColumn(column.getName()) == null)) {
-        compositeKeysAtEnd
-            .computeIfAbsent(
-                column.getRefName() != null ? column.getRefName() : column.getName(),
-                k -> new ArrayList())
-            .add(column);
+      if (table.getInherit() == null
+          || table.getInheritedTable().getColumn(column.getName()) == null) {
+        column.setPosition(position++);
+        executeCreateColumn(jooq, column);
       }
     }
 
@@ -75,16 +63,19 @@ class SqlTableMetadataExecutor {
     createOrReplaceKeys(jooq, table);
 
     // then create (composite) foreign keys
-    for (List<Column> key : compositeKeysAtEnd.values()) {
-      SqlColumnExecutor.executeCreateRefConstraints(jooq, key.toArray(new Column[key.size()]));
+    for (Column column : table.getLocalColumns()) {
+      if ((table.getInherit() == null
+              || table.getInheritedTable().getColumn(column.getName()) == null)
+          && column.isReference()) {
+        SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
+      }
     }
-
     executeEnableSearch(jooq, table);
   }
 
-  static void createOrReplaceKeys(DSLContext jooq, TableMetadata table) {
-    for (Map.Entry<Integer, List<String>> key : table.getKeys().entrySet()) {
-      createOrReplaceKey(jooq, table, key.getKey(), key.getValue());
+  static void createOrReplaceKeys(DSLContext jooq, SqlTableMetadata table) {
+    for (Integer key : table.getKeys().keySet()) {
+      createOrReplaceKey(jooq, table, key, table.getKeyFields(key));
     }
   }
 
@@ -121,11 +112,13 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' because table primary key is null");
     }
+    TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     for (Column pkey : other.getPrimaryKeyColumns()) {
       // same as parent table, except table name
-      Column copy = new Column(table, pkey);
+      Column copy = new Column(copyTm, pkey);
       executeCreateColumn(jooq, copy);
       executeSetNullable(jooq, copy);
+      copyTm.add(copy);
     }
     // add column to root superclass table
     TableMetadata root = other;
@@ -138,7 +131,7 @@ class SqlTableMetadataExecutor {
               .setReadonly(true)
               .setDefaultValue(root.getTableName())); // should not be user editable
     }
-    createOrReplaceKey(jooq, table, 1, other.getKeyNames(1));
+    createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
   }
 
   static Name[] asJooqNames(List<String> strings) {
@@ -155,11 +148,11 @@ class SqlTableMetadataExecutor {
   }
 
   static void createOrReplaceKey(
-      DSLContext jooq, TableMetadata table, Integer index, List<String> keyFieldNames) {
+      DSLContext jooq, TableMetadata table, Integer index, List<Field<?>> keyFields) {
     Name uniqueName = name(table.getTableName() + "_KEY" + index);
     jooq.execute("ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}", getJooqTable(table), uniqueName);
     jooq.alterTable(getJooqTable(table))
-        .add(constraint(name(uniqueName)).unique(asJooqNames(keyFieldNames)))
+        .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
         .execute();
   }
 
@@ -206,6 +199,11 @@ class SqlTableMetadataExecutor {
       if (!c.getName().startsWith("MG_")) {
         if (FILE.equals(c.getColumnType())) {
           // do nothing for now
+        } else if (c.isReference()) {
+          for (Reference r : c.getReferences()) {
+            mgSearchVector.append(
+                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getName()));
+          }
         } else {
           mgSearchVector.append(
               String.format(" || coalesce(new.\"%s\"::text,'') || ' '", c.getName()));

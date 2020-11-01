@@ -5,8 +5,9 @@ import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
@@ -21,9 +22,10 @@ public class Column {
 
   // relationships
   private String refTable;
-  private String refColumn;
-  private String refName; // bundles multiple columns into one reference in UI and graphql
-  private String[] refLink;
+  // for composite key
+  private String[] refFrom = new String[0];
+  private String[] refTo = new String[0];
+  // for refback
   private String mappedBy;
 
   // options
@@ -72,9 +74,8 @@ public class Column {
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
-    refColumn = column.refColumn;
-    refName = column.refName;
-    refLink = column.refLink;
+    refTo = column.refTo;
+    refFrom = column.refFrom;
     mappedBy = column.mappedBy;
     validationScript = column.validationScript;
     computed = column.computed;
@@ -338,12 +339,12 @@ public class Column {
     return this;
   }
 
-  public String[] getRefLink() {
-    return this.refLink;
+  public String[] getRefFrom() {
+    return this.refFrom;
   }
 
-  public Column setRefLink(String[] refLink) {
-    this.refLink = refLink;
+  public Column setRefFrom(String... refFrom) {
+    this.refFrom = refFrom;
     return this;
   }
 
@@ -356,29 +357,12 @@ public class Column {
     return this;
   }
 
-  public String getRefColumnName() {
-    // if not set, it will default to singular primary key of refTable.
-    if (getRefTable() != null && getRefTable().getPrimaryKeyColumns().size() == 1) {
-      return getRefTable().getPrimaryKeyColumns().get(0).getName();
-    }
-    return refColumn;
+  public String[] getRefTo() {
+    return refTo;
   }
 
-  public Column getRefColumn() {
-    return getRefTable().getColumn(getRefColumnName());
-  }
-
-  public Column setRefColumn(String refColumn) {
-    this.refColumn = refColumn;
-    return this;
-  }
-
-  public String getRefName() {
-    return refName;
-  }
-
-  public Column setRefName(String refName) {
-    this.refName = refName;
+  public Column setRefTo(String... refTo) {
+    this.refTo = refTo;
     return this;
   }
 
@@ -395,46 +379,105 @@ public class Column {
     return this.columnType.toString().endsWith("ARRAY") || this.columnType.equals(REFBACK);
   }
 
+  /** will return self in case of single, and multiple in case of composite key wrapper */
+  public List<Reference> getReferences() {
+
+    // no ref
+    if (getRefTable() == null) return new ArrayList<>();
+
+    Map<String, Reference> refColumns =
+        new LinkedHashMap<>(); // overlapping keys may lead to duplicates
+
+    // check if primary key exists
+    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
+    if (pkeys.size() == 0) {
+      throw new MolgenisException(
+          "Error in column '"
+              + getName()
+              + "': Reference to "
+              + getRefTableName()
+              + " fails because that table has no primary key");
+    }
+
+    // create name map
+    Map<String, String> nameLookup = new LinkedHashMap<>();
+    if (refTo != null && refFrom != null && refTo.length > 0 && refTo.length == refFrom.length) {
+      for (int i = 0; i < refTo.length; i++) {
+        nameLookup.put(refTo[i], refFrom[i]);
+      }
+    } else {
+      nameLookup.put(getRefTable().getPrimaryKeys().get(0), getName());
+    }
+
+    // create the refs
+    for (Column keyPart : pkeys) {
+      if (keyPart.isReference()) {
+        for (Reference ref : keyPart.getReferences()) {
+          ColumnType type = ref.getPrimitiveType();
+          if (!REF.equals(getColumnType())) {
+            type = getArrayType(type);
+          }
+
+          List<String> path = ref.getPath();
+          path.add(0, keyPart.getName());
+
+          String name = nameLookup.get(ref.getName());
+          if (name == null)
+            throw new MolgenisException(
+                "get references failed: no name mapping for ref " + ref.getName());
+
+          refColumns.put(
+              name,
+              new Reference(
+                  name,
+                  ref.getName(),
+                  getColumnType(),
+                  type,
+                  ref.isNullable() || this.isNullable(),
+                  path));
+        }
+      } else {
+        ColumnType type = keyPart.getColumnType();
+
+        // all but ref is array
+        if (!REF.equals(getColumnType())) {
+          type = getArrayType(type);
+        }
+
+        String name = nameLookup.get(keyPart.getName());
+        if (name == null)
+          throw new MolgenisException(
+              "get references failed: no name mapping for ref " + keyPart.getName());
+
+        // create the ref
+        refColumns.put(
+            name,
+            new Reference(
+                name,
+                keyPart.getName(),
+                getColumnType(),
+                type,
+                keyPart.isNullable() || this.isNullable(),
+                new ArrayList(List.of(keyPart.getName()))));
+      }
+    }
+
+    return new ArrayList<>(refColumns.values());
+  }
+
   public ColumnType getPrimitiveColumnType() {
     if (isReference()) {
-      Column refColumn = getRefColumn();
-      ColumnType type = refColumn.getColumnType();
-      // if itself is reference, recurse
-      if (refColumn.isReference()) {
-        type = refColumn.getPrimitiveColumnType();
-      }
-      if (REF_ARRAY.equals(getColumnType())
-          || MREF.equals(getColumnType())
-          || REFBACK.equals(getColumnType())) {
-        // return array version of primitive type in case of ref_array
-        return getArrayType(type);
+      List<Reference> refs = getReferences();
+      if (refs.size() == 1) {
+        return refs.get(0).getPrimitiveType();
       } else {
-        return type;
+        throw new MolgenisException(
+            "Cannot get columnType for column '"
+                + getTableName()
+                + "."
+                + getName()
+                + "': composite key");
       }
     } else return getColumnType();
-  }
-
-  /** will return self in case of single, and multiple in case of composite key wrapper */
-  public Collection<Column> getComposedRefs() {
-    if (!isReference()) {
-      return new ArrayList<>();
-    }
-    if (getRefName() != null) {
-      // composite key
-      List<Column> result = new ArrayList<>();
-      for (Column c : getTable().getColumns()) {
-        if (getRefName().equals(c.getRefName())) {
-          result.add(c);
-        }
-      }
-      return result;
-    } else {
-      // otherwise return 'self'
-      return List.of(this);
-    }
-  }
-
-  public boolean isCompositeRef() {
-    return getRefName() != null;
   }
 }

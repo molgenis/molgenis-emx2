@@ -3,7 +3,6 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -565,7 +564,7 @@ public class GraphqlTableFieldFactory {
           type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
         }
       } else {
-        ColumnType columnType = TypeUtils.getPrimitiveColumnType(col);
+        ColumnType columnType = col.getPrimitiveColumnType();
         type = getGraphQLInputType(columnType);
       }
       inputBuilder.field(

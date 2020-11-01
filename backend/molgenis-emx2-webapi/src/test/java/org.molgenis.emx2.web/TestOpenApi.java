@@ -35,8 +35,8 @@ public class TestOpenApi {
     TableMetadata personTable =
         schema.create(
             TableMetadata.table("Person")
-                .add(Column.column("First Name"))
-                .add(Column.column("Last Name")));
+                .add(Column.column("First_Name"))
+                .add(Column.column("Last_Name")));
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
     Assert.assertEquals(1, api.getComponents().getSchemas().size()); // useless test

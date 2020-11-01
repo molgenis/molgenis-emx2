@@ -9,6 +9,8 @@ public class Column {
   private Integer key = 0;
   private Boolean nullable = false;
   private String refTable = null;
+  private String[] refFrom = new String[0];
+  private String[] refTo = new String[0];
 
   private Boolean cascadeDelete = false;
   private String mappedBy = null;
@@ -25,6 +27,8 @@ public class Column {
     this.key = column.getKey();
     this.columnType = column.getColumnType();
     this.refTable = column.getRefTableName();
+    this.refFrom = column.getRefFrom();
+    this.refTo = column.getRefTo();
     this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validation = column.getValidationScript();
@@ -38,6 +42,8 @@ public class Column {
     c.setType(columnType);
     c.setNullable(nullable);
     c.setRefTable(refTable);
+    c.setRefFrom(refFrom);
+    c.setRefTo(refTo);
     c.setKey(key);
     c.setCascadeDelete(cascadeDelete);
     c.setMappedBy(mappedBy);
@@ -133,5 +139,21 @@ public class Column {
 
   public void setRdfTemplate(String rdfTemplate) {
     this.rdfTemplate = rdfTemplate;
+  }
+
+  public String[] getRefFrom() {
+    return refFrom;
+  }
+
+  public void setRefFrom(String[] refFrom) {
+    this.refFrom = refFrom;
+  }
+
+  public String[] getRefTo() {
+    return refTo;
+  }
+
+  public void setRefTo(String[] refTo) {
+    this.refTo = refTo;
   }
 }
