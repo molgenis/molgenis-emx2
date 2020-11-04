@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
-import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
+import static org.molgenis.emx2.utils.TypeUtils.*;
 
 public class Column {
   private TableMetadata table;
@@ -25,6 +25,7 @@ public class Column {
   // for composite key
   private String[] refFrom = new String[0];
   private String[] refTo = new String[0];
+  private String refJsTemplate;
   // for refback
   private String mappedBy;
 
@@ -429,6 +430,7 @@ public class Column {
           refColumns.put(
               name,
               new Reference(
+                  this,
                   name,
                   ref.getName(),
                   getColumnType(),
@@ -453,6 +455,7 @@ public class Column {
         refColumns.put(
             name,
             new Reference(
+                this,
                 name,
                 keyPart.getName(),
                 getColumnType(),
@@ -479,5 +482,24 @@ public class Column {
                 + "': composite key");
       }
     } else return getColumnType();
+  }
+
+  public String getRefJsTemplate() {
+    if (refJsTemplate == null) {
+      // we concat all columns unless already shown in another column
+      String result = "";
+      for (Reference ref : getReferences()) {
+        if (!ref.isOverlapping()) {
+          result += ".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}";
+        }
+      }
+      return result.replaceFirst(".", "");
+    }
+    return refJsTemplate;
+  }
+
+  public Column setRefJsTemplate(String refJsTemplate) {
+    this.refJsTemplate = refJsTemplate;
+    return this;
   }
 }

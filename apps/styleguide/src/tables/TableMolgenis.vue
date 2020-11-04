@@ -148,9 +148,30 @@ export default {
       ) {
         return row[col.name].map(v => this.flattenObject(v));
       } else if (col.columnType == "REF") {
-        return [this.flattenObject(row[col.name])];
+        if (col.refJsTemplate) {
+          return [this.applyJsTemplate(col.refJsTemplate, row[col.name])];
+        } else {
+          return [this.flattenObject(row[col.name])];
+        }
       } else {
         return [row[col.name]];
+      }
+    },
+    applyJsTemplate(template, object) {
+      const names = Object.keys(object);
+      const vals = Object.values(object);
+      try {
+        return new Function(...names, "return `" + template + "`;")(...vals);
+      } catch (err) {
+        return (
+          err.message +
+          " we got keys:" +
+          JSON.stringify(names) +
+          " vals:" +
+          JSON.stringify(vals) +
+          " and template: " +
+          template
+        );
       }
     },
     flattenObject(object) {
@@ -161,10 +182,10 @@ export default {
         } else if (typeof object[key] === "object") {
           result += this.flattenObject(object[key]);
         } else {
-          result += " " + object[key];
+          result += "." + object[key];
         }
       });
-      return result;
+      return result.replace(/^\./, "");
     },
     getKey(row) {
       let result = {};

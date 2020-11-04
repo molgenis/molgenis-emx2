@@ -10,6 +10,7 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 public class Reference {
+  private Column column;
   private String fromColumn;
   private String toColumn;
   private List<String> path;
@@ -21,16 +22,16 @@ public class Reference {
   private ColumnType type;
   private ColumnType primitiveType;
   private boolean nullable;
-  // use when reference actually links to another column
-  private boolean existing;
 
   public Reference(
+      Column column,
       String fromColumn,
       String toColumn,
       ColumnType type,
       ColumnType primitiveType,
       boolean nullable,
       List<String> path) {
+    this.column = column;
     this.fromColumn = fromColumn;
     this.toColumn = toColumn;
     this.type = type;
@@ -63,19 +64,23 @@ public class Reference {
     return field(name(getName()), getJooqType());
   }
 
-  public boolean isExisting() {
-    return existing;
-  }
-
-  public void setExisting(boolean existing) {
-    this.existing = existing;
-  }
-
   public void setName(String name) {
     this.fromColumn = name;
   }
 
   public ColumnType getPrimitiveType() {
     return this.primitiveType;
+  }
+
+  public boolean isOverlapping() {
+    // if there is a column with same name
+    // or if there is a composite reference this one is overlapping with
+    return column.getTable().getColumns().stream()
+        .filter(c -> !c.getName().equals(column.getName())) // exclude 'self'
+        .anyMatch(
+            c ->
+                c.getName().equals(this.getName())
+                    || c.getReferences().stream()
+                        .anyMatch(c2 -> c2.getName().equals(this.getName())));
   }
 }

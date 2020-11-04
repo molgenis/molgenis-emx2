@@ -11,6 +11,7 @@ public class Column {
   private String refTable = null;
   private String[] refFrom = new String[0];
   private String[] refTo = new String[0];
+  private String refJsTemplate;
 
   private Boolean cascadeDelete = false;
   private String mappedBy = null;
@@ -29,6 +30,7 @@ public class Column {
     this.refTable = column.getRefTableName();
     this.refFrom = column.getRefFrom();
     this.refTo = column.getRefTo();
+    this.refJsTemplate = column.getRefJsTemplate();
     this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validation = column.getValidationScript();
@@ -44,6 +46,7 @@ public class Column {
     c.setRefTable(refTable);
     c.setRefFrom(refFrom);
     c.setRefTo(refTo);
+    c.setRefJsTemplate(refJsTemplate);
     c.setKey(key);
     c.setCascadeDelete(cascadeDelete);
     c.setMappedBy(mappedBy);
@@ -155,5 +158,13 @@ public class Column {
 
   public void setRefTo(String[] refTo) {
     this.refTo = refTo;
+  }
+
+  public String getRefJsTemplate() {
+    return refJsTemplate;
+  }
+
+  public void setRefJsTemplate(String refJsTemplate) {
+    this.refJsTemplate = refJsTemplate;
   }
 }

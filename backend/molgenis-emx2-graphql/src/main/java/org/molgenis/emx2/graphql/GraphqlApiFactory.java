@@ -138,13 +138,13 @@ public class GraphqlApiFactory {
   private static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
 
     List<Reference> refs = column.getReferences();
-    if (list.size() > 0) {
-      for (Reference ref : refs) {
-        row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
-      }
-    } else {
-      for (Reference ref : refs) {
-        row.set(ref.getName(), new ArrayList<>());
+    for (Reference ref : refs) {
+      if (row.get(ref.getName(), ref.getPrimitiveType()) == null) {
+        if (list.size() > 0) {
+          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
+        } else {
+          row.set(ref.getName(), new ArrayList<>());
+        }
       }
     }
   }
@@ -174,17 +174,15 @@ public class GraphqlApiFactory {
     }
   }
 
-  private static void convertRefToRow(Map<String, Object> value, Row row, Column column) {
-    for (Reference fkey : column.getReferences()) {
-      String name = fkey.getName();
-      if (value == null) {
-        row.set(name, null);
-      } else {
-        Object val = value;
-        for (String path : fkey.getPath()) {
-          val = ((Map) val).get(path);
+  private static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
+    for (Reference ref : column.getReferences()) {
+      if (row.get(ref.getName(), ref.getPrimitiveType()) == null) {
+        String name = ref.getName();
+        if (map == null) {
+          row.set(name, null);
+        } else {
+          row.set(ref.getName(), getRefValueFromMap(ref.getPath(), map));
         }
-        row.set(name, val);
       }
     }
   }

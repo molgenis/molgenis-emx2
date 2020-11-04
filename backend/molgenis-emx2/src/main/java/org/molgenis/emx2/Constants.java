@@ -7,6 +7,7 @@ public class Constants {
   public static final String REF_TABLE_NAME = "refTable";
   public static final String REF_FROM = "refFrom";
   public static final String REF_TO = "refTo";
+  public static final String REF_JS_TEMPLATE = "refJsTemplate";
   public static final String MAPPED_BY = "mappedBy";
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";

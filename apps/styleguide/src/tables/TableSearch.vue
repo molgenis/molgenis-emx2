@@ -101,7 +101,7 @@ export default {
 Example:
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<TableSearch table="Code" graphqlURL="/TestCohortCatalogue/graphql">
+<TableSearch table="AbstractVariable" graphqlURL="/TestCohortCatalogue/graphql">
   <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
 </TableSearch>
 Selected: {{ selectedItems }}
@@ -137,7 +137,7 @@ Example with select and default value
 Example with filter:
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<TableSearch table="Variable" :filter="{collection:{equals:{name:'LifeCycle'}}}"
+<TableSearch table="Code" :filter="{collection:{equals:{name:'LifeCycle'}}}"
              graphqlURL="/TestCohortCatalogue/graphql">
   <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
 </TableSearch>

@@ -206,13 +206,7 @@ public class SqlColumnExecutor {
           current = ref.getName();
           // check if reference name already exists, composite ref may reuse columns
           // either other column, or a part of a reference
-          if (!column.getTable().getColumns().stream()
-              .filter(c -> !c.getName().equals(column.getName()))
-              .anyMatch(
-                  c ->
-                      c.getName().equals(ref.getName())
-                          || c.getReferences().stream()
-                              .anyMatch(c2 -> c2.getName().equals(ref.getName())))) {
+          if (!ref.isOverlapping()) {
             jooq.alterTable(column.getJooqTable()).addColumn(ref.getJooqField()).execute();
             if (REF_ARRAY.equals(column.getColumnType())) {
               executeCreateRefArrayIndex(jooq, column.getJooqTable(), ref.getJooqField());

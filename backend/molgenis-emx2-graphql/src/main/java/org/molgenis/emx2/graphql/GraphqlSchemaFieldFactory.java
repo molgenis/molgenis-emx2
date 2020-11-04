@@ -414,6 +414,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_JS_TEMPLATE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(CASCADE_DELETE)
                   .type(Scalars.GraphQLBoolean))
           .field(
