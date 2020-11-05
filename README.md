@@ -259,26 +259,28 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  enable user role based menu visibility
 *  ensure all roles of current user in current schema are returned
 *  upload files directly into postgresql
+*  class column in superclass so that can filter on type on export and query
+*  simplify multiple reference so better understandable how data looks like
 
 ### first
+*  in schema editor, only show local attributes for subclass, not all
+*  collection level permissions (based on rule)
+*  implement order by in table view, default on lastUpdated
 *  change password via ui possible
-*  
-*  class column in superclass so that can filter on type on export and query
 *  oicd integration
 *  test large data => remove 'offset' and replace with 'after' so large offset doesn't slow down
 *  change graphql to have pageInfo{first,prev,next,last} pointers returned'
 *  run 'count' in parallel from the 'select'
 *  postgresql cube index feature for aggregation views
-*  explore if we can have materialized view with count / group by info
-*  upload and download settings and members (bacisally 'all')
+*  roundtrip settings and members (bacisally 'all')
 *  ENSURE PASSWORD IS NOT IN THE LOGS
-*  implement order by in table view, default on lastUpdated
 *  custom roles
 *  long running downloads as jobs
 *  add audit trail
 *  documentation framework so we can start adding some docs
 
 ### later
+*  consider parquet as import/export format
 *  bug, if I filter on refback column it fails, must now select reback.other column
 *  create plugin system for services (todo: isolation? runtime loading?)
 *  known bug: if I set refback for refarray to 'null' then ref is not updated!
