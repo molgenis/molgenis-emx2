@@ -73,14 +73,23 @@ public class Reference {
   }
 
   public boolean isOverlapping() {
-    // if there is a column with same name
-    // or if there is a composite reference this one is overlapping with
-    return column.getTable().getColumns().stream()
-        .filter(c -> !c.getName().equals(column.getName())) // exclude 'self'
-        .anyMatch(
-            c ->
-                c.getName().equals(this.getName())
-                    || c.getReferences().stream()
-                        .anyMatch(c2 -> c2.getName().equals(this.getName())));
+    boolean beforeThisColumn = true;
+    for (Column c : column.getTable().getColumns()) {
+      // if column is 'self'
+      if (c.getName().equals(column.getName())) {
+        beforeThisColumn = false;
+      } else {
+        // if there is a column with same name
+        // or if there is a composite reference this one is overlapping with
+        // BEFORE this one
+        if (c.getName().equals(getName())
+            || (beforeThisColumn
+                && c.getReferences().stream()
+                    .anyMatch(c2 -> c2.getName().equals(this.getName())))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

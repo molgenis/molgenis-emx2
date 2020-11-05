@@ -159,9 +159,7 @@ public class SqlQuery extends QueryBean {
         fields.add(
             field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
       } else {
-        for (Reference ref : column.getReferences()) {
-          fields.add(field(name(tableAlias, ref.getName()), ref.getJooqType()).as(columnAlias));
-        }
+        fields.add(field(name(tableAlias, column.getName()), column.getJooqType()).as(columnAlias));
       }
     }
     if (fields.isEmpty()) {

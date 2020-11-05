@@ -139,7 +139,7 @@ public class GraphqlApiFactory {
 
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
-      if (row.get(ref.getName(), ref.getPrimitiveType()) == null) {
+      if (!ref.isOverlapping()) {
         if (list.size() > 0) {
           row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
         } else {
@@ -176,7 +176,7 @@ public class GraphqlApiFactory {
 
   private static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
     for (Reference ref : column.getReferences()) {
-      if (row.get(ref.getName(), ref.getPrimitiveType()) == null) {
+      if (!ref.isOverlapping()) {
         String name = ref.getName();
         if (map == null) {
           row.set(name, null);

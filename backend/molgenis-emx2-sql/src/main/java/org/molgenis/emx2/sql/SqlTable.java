@@ -424,9 +424,13 @@ class SqlTable implements Table {
     if (REF.equals(key.getColumnType())
         || REF_ARRAY.equals(key.getColumnType())
         || MREF.equals(key.getColumnType())) {
-      columnCondition.add(
-          key.getJooqField()
-              .eq(cast(r.get(key.getName(), key.getPrimitiveColumnType()), key.getJooqField())));
+      for (Reference ref : key.getReferences()) {
+        if (!ref.isOverlapping()) {
+          columnCondition.add(
+              ref.getJooqField()
+                  .eq(cast(r.get(ref.getName(), ref.getPrimitiveType()), ref.getJooqField())));
+        }
+      }
     } else if (REFBACK.equals(key.getColumnType())) {
       // do nothing
     } else {
