@@ -9,6 +9,7 @@
         <span v-for="column in tableMetadata.columns" :key="column.name">
           <RowFormInput
             v-model="value[column.name]"
+            v-if="column.name != 'mg_tableclass'"
             :label="column.name"
             :columnType="column.columnType"
             :refTable="column.refTable"
