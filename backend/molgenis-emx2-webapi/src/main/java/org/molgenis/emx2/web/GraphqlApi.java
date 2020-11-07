@@ -117,8 +117,14 @@ public class GraphqlApi {
 
     long start = System.currentTimeMillis();
 
-    if (logger.isInfoEnabled())
-      logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+    // we don't log password calls
+    if (logger.isInfoEnabled()) {
+      if (query.contains("password")) {
+        logger.info("query: obfuscated because contains parameter with name 'password'");
+      } else {
+        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+      }
+    }
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = null;
