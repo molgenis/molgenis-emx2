@@ -476,32 +476,32 @@ public class SqlQuery extends QueryBean {
     return or(search);
   }
 
-  private static SelectJoinStep<Record> applySubselectFilters(
-      SqlTableMetadata table,
-      Column column,
-      String tableAlias,
-      Filter filters,
-      String subAlias,
-      SelectJoinStep<Record> from,
-      String[] searchTerms) {
-
-    // get joins for filters
-    from = refJoins(table, table.getTableName(), from, filters, null, new ArrayList<>());
-
-    // get where conditions
-    Collection<Condition> where = new ArrayList<>();
-    if (filters != null || searchTerms.length > 0) {
-      where.add(whereConditions(table, tableAlias, filters, searchTerms));
-    }
-    if (column != null) {
-      where.add(refJoinCondition(column, tableAlias, subAlias));
-    }
-
-    if (where.size() > 0) {
-      from = (SelectJoinStep<Record>) from.where(where);
-    }
-    return from;
-  }
+  //  private static SelectJoinStep<Record> applySubselectFilters(
+  //      SqlTableMetadata table,
+  //      Column column,
+  //      String tableAlias,
+  //      Filter filters,
+  //      String subAlias,
+  //      SelectJoinStep<Record> from,
+  //      String[] searchTerms) {
+  //
+  //    // get joins for filters
+  //    from = refJoins(table, table.getTableName(), from, filters, null, new ArrayList<>());
+  //
+  //    // get where conditions
+  //    Collection<Condition> where = new ArrayList<>();
+  //    if (filters != null || searchTerms.length > 0) {
+  //      where.add(whereConditions(table, tableAlias, filters, searchTerms));
+  //    }
+  //    if (column != null) {
+  //      where.add(refJoinCondition(column, tableAlias, subAlias));
+  //    }
+  //
+  //    if (where.size() > 0) {
+  //      from = (SelectJoinStep<Record>) from.where(where);
+  //    }
+  //    return from;
+  //  }
 
   private static Collection<Field<?>> jsonSubselectFields(
       TableMetadata table, String tableAlias, SelectColumn selection) {
