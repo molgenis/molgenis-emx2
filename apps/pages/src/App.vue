@@ -1,5 +1,5 @@
 <template>
-  <Molgenis :menuItems="menuItems" id="__top" v-model="session">
+  <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" />
   </Molgenis>
 </template>

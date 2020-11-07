@@ -261,9 +261,10 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  upload files directly into postgresql
 *  class column in superclass so that can filter on type on export and query
 *  simplify multiple reference so better understandable how data looks like
+*  in schema editor, only show local attributes for subclass, not all
 
 ### first
-*  in schema editor, only show local attributes for subclass, not all
+*  fix graphql link in menu
 *  collection level permissions (based on rule)
 *  implement order by in table view, default on lastUpdated
 *  change password via ui possible

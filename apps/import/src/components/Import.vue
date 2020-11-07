@@ -1,5 +1,5 @@
 <template>
-  <Molgenis :title="'Import into ' + schema" :menuItems="menuItems">
+  <Molgenis :title="'Import into ' + schema">
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="error">{{ error }}</MessageError>

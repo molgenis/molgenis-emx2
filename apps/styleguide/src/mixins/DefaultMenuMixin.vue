@@ -18,7 +18,7 @@ export default {
         },
         {
           label: "GraphQL",
-          href: "/api/playground.html?schema=graphql"
+          href: "../graphql-playground/"
         },
         {
           label: "Settings",

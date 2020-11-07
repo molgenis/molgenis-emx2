@@ -1,5 +1,5 @@
 <template>
-  <Molgenis title="Variables" :menuItems="menuItems">
+  <Molgenis title="Variables">
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="error">{{ error }}</MessageError>

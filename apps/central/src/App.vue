@@ -26,7 +26,7 @@ export default {
         { label: "Central", href: ".", active: true },
         {
           label: "GraphQL API",
-          href: "/api/playground.html?schema=/api/graphql"
+          href: "/apps/graphql-playground/"
         },
         {
           label: "Styleguide",
