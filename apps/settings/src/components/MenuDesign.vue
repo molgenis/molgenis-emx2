@@ -32,12 +32,7 @@
 
 <script>
 import Draggable from "vuedraggable";
-import {
-  IconAction,
-  InputString,
-  IconDanger,
-  InputSelect
-} from "@mswertz/emx2-styleguide";
+import {IconAction, IconDanger, InputSelect, InputString} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {

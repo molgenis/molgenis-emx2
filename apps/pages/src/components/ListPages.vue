@@ -29,7 +29,7 @@ session = {{ session }}
 </template>
 
 <script>
-import { ShowMore } from "@mswertz/emx2-styleguide";
+import {ShowMore} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {

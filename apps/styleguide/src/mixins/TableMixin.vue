@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 import TableMetadataMixin from "./TableMetadataMixin";
 
 export default {

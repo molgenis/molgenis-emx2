@@ -47,7 +47,7 @@ import LayoutForm from "./LayoutForm";
 import Spinner from "./Spinner";
 import LayoutModal from "./LayoutModal";
 
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 export default {
   components: {

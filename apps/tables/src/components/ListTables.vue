@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { DataTable, MessageError, ShowMore } from "@mswertz/emx2-styleguide";
+import {DataTable, MessageError, ShowMore} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "App",

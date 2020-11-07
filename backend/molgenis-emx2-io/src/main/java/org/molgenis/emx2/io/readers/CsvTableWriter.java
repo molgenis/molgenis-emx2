@@ -5,7 +5,10 @@ import org.simpleflatmapper.csv.CsvWriter;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class CsvTableWriter {
 

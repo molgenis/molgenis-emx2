@@ -1,6 +1,9 @@
 package org.molgenis.emx2.io;
 
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.*;
@@ -8,11 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.FilterBean.f;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class SchemaImport {
   private static Logger logger = LoggerFactory.getLogger(SchemaImport.class.getName());

@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {Molgenis} from "@mswertz/emx2-styleguide";
+import {request} from "graphql-request";
 
 export default {
   components: {

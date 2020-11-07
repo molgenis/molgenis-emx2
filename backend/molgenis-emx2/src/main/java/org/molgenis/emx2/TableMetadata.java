@@ -6,10 +6,9 @@ import org.jooq.impl.DSL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
+import static org.molgenis.emx2.ColumnType.FILE;
+import static org.molgenis.emx2.ColumnType.INT;
 
 public class TableMetadata {
 

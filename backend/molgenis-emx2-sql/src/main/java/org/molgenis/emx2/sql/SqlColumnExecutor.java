@@ -1,6 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.DataType;
+import org.jooq.Field;
+import org.jooq.Table;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;

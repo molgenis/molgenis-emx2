@@ -26,14 +26,8 @@ settings: {{ settings }}
 </template>
 
 <script>
-import {
-  InputString,
-  ShowMore,
-  ButtonAction,
-  MessageError,
-  MessageSuccess
-} from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {ButtonAction, InputString, MessageError, MessageSuccess, ShowMore} from "@mswertz/emx2-styleguide";
+import {request} from "graphql-request";
 
 export default {
   components: {

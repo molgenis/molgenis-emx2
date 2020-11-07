@@ -3,8 +3,6 @@ package org.molgenis.emx2.io.emx1;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 
-import java.lang.reflect.Field;
-
 import static org.molgenis.emx2.ColumnType.REF;
 
 public class Emx1Attribute {

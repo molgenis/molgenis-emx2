@@ -21,11 +21,7 @@
 </template>
 
 <script>
-import {
-  IconAction,
-  ButtonAction,
-  InputString
-} from "@mswertz/emx2-styleguide";
+import {ButtonAction, IconAction, InputString} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {

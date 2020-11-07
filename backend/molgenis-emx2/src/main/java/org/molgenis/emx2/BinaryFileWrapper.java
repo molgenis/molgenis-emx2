@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import java.io.File;
-import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.nio.file.Files;
 

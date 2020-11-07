@@ -110,15 +110,15 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 import {
   ButtonAction,
   ButtonAlt,
   InputBoolean,
+  InputInt,
   InputSelect,
   InputString,
-  InputInt,
   InputText,
   LayoutForm,
   LayoutModal,

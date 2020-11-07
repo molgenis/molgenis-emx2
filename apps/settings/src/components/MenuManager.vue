@@ -40,15 +40,8 @@ session = {{ session }}
 
 <script>
 import MenuDesign from "./MenuDesign";
-import {
-  ShowMore,
-  IconAction,
-  ButtonAlt,
-  ButtonAction,
-  MessageSuccess,
-  MessageError
-} from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {ButtonAction, ButtonAlt, IconAction, MessageError, MessageSuccess, ShowMore} from "@mswertz/emx2-styleguide";
+import {request} from "graphql-request";
 
 export default {
   components: {

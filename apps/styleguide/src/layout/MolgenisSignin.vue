@@ -40,7 +40,7 @@ import MessageSuccess from "../forms/MessageSuccess";
 import LayoutForm from "./LayoutForm";
 import LayoutModal from "./LayoutModal";
 import Spinner from "./Spinner";
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 export default {
   components: {

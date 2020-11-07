@@ -27,14 +27,8 @@ session = {{ session }}
 
 <script>
 import CKEditor from "ckeditor4-vue";
-import {
-  ButtonAction,
-  ButtonAlt,
-  ShowMore,
-  MessageSuccess,
-  MessageError
-} from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {ButtonAction, ButtonAlt, MessageError, MessageSuccess, ShowMore} from "@mswertz/emx2-styleguide";
+import {request} from "graphql-request";
 
 export default {
   components: {

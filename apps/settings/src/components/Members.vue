@@ -76,10 +76,10 @@ import {
   LayoutCard,
   MessageError,
   MessageSuccess,
-  Spinner,
-  ShowMore
+  ShowMore,
+  Spinner
 } from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 export default {
   components: {

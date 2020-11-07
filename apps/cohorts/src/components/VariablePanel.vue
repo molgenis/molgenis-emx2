@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { LayoutCard } from "@mswertz/emx2-styleguide";
+import {LayoutCard} from "@mswertz/emx2-styleguide";
 
 export default {
   props: {

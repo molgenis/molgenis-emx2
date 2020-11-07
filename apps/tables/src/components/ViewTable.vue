@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { TableExplorer } from "@mswertz/emx2-styleguide";
+import {TableExplorer} from "@mswertz/emx2-styleguide";
 
 export default {
   props: {

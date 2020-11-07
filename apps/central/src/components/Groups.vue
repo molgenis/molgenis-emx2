@@ -34,18 +34,11 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 import SchemaCreateModal from "./SchemaCreateModal";
 import SchemaDeleteModal from "./SchemaDeleteModal";
-import {
-  DataTable,
-  IconAction,
-  IconBar,
-  IconDanger,
-  Spinner,
-  ShowMore
-} from "@mswertz/emx2-styleguide";
+import {DataTable, IconAction, IconBar, IconDanger, ShowMore, Spinner} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {

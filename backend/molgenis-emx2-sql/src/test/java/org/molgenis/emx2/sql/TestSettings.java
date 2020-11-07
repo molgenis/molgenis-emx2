@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
 
 import java.util.Map;
 

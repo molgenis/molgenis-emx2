@@ -3,7 +3,8 @@ package org.molgenis.emx2.utils;
 import org.jooq.DataType;
 import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;

@@ -30,7 +30,7 @@ import ButtonAlt from "../forms/ButtonAlt";
 import ButtonAction from "../forms/ButtonAction";
 import MessageError from "../forms/MessageError";
 import MessageSuccess from "../forms/MessageSuccess";
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 export default {
   extends: RowButtonAdd,

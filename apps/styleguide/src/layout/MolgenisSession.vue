@@ -45,7 +45,7 @@ import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import ChangePasswordForm from "./MolgenisAccount";
 
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {

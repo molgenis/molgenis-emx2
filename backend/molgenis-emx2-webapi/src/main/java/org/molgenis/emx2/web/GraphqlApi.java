@@ -228,10 +228,4 @@ public class GraphqlApi {
       }
     }
   }
-
-  static Map<String, String> resultMessage(String detail) {
-    Map<String, String> message = new LinkedHashMap<>();
-    message.put(DETAIL, detail);
-    return message;
-  }
 }

@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.DefaultRoles.*;
-import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 
 class SqlSchemaMetadataExecutor {
   private SqlSchemaMetadataExecutor() {

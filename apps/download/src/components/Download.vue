@@ -49,7 +49,7 @@ import {
   Molgenis,
   Spinner
 } from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
 /** Data import tool */
 export default {

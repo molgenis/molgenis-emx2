@@ -5,11 +5,9 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
-import org.molgenis.emx2.io.rowstore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 

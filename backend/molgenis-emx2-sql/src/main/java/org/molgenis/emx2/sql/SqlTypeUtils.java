@@ -1,6 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 
 import java.util.ArrayList;

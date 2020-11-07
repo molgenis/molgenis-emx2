@@ -7,7 +7,6 @@ import org.molgenis.emx2.io.readers.CsvTableWriter;
 
 import java.io.*;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TableStoreForCsvInMemory implements TableStore {

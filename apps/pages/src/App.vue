@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
+import {Molgenis} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
