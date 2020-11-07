@@ -30,7 +30,7 @@ public class Table {
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
-      this.columns.add(new Column(column));
+      this.columns.add(new Column(column, tableMetadata));
     }
   }
 

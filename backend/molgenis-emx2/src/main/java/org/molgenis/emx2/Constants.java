@@ -17,6 +17,7 @@ public class Constants {
   public static final String DEFINITION = "definition";
   public static final String ROLE = "role";
   public static final String KEY = "key";
+  public static final String INHERITED = "inherited";
 
   private Constants() {
     // hide constructor

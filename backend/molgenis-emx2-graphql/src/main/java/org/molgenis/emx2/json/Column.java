@@ -1,6 +1,7 @@
 package org.molgenis.emx2.json;
 
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -20,9 +21,11 @@ public class Column {
   private ColumnType columnType = ColumnType.STRING;
   private String rdfTemplate = null;
 
+  private boolean inherited = false;
+
   public Column() {}
 
-  public Column(org.molgenis.emx2.Column column) {
+  public Column(org.molgenis.emx2.Column column, TableMetadata table) {
     this.table = column.getTableName();
     this.name = column.getName();
     this.key = column.getKey();
@@ -37,6 +40,12 @@ public class Column {
     this.nullable = column.isNullable();
     this.description = column.getDescription();
     this.rdfTemplate = column.getRdfTemplate();
+
+    // calculated field
+    this.inherited =
+        table.getInherit() != null
+            ? table.getInheritedTable().getColumnNames().contains(column.getName())
+            : false;
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
@@ -53,6 +62,7 @@ public class Column {
     c.setValidationScript(validation);
     c.setDescription(description);
     c.setRdfTemplate(rdfTemplate);
+    // ignore inherited
     return c;
   }
 
@@ -166,5 +176,13 @@ public class Column {
 
   public void setRefJsTemplate(String refJsTemplate) {
     this.refJsTemplate = refJsTemplate;
+  }
+
+  public boolean isInherited() {
+    return inherited;
+  }
+
+  public void setInherited(boolean inherited) {
+    this.inherited = inherited;
   }
 }

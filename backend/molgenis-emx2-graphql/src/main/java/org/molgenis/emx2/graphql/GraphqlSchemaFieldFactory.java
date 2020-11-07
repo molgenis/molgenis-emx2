@@ -436,6 +436,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(RDF_TEMPLATE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(INHERITED)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   private static final GraphQLObjectType outputTableMetadataType =
