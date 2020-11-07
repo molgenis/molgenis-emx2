@@ -262,12 +262,14 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  class column in superclass so that can filter on type on export and query
 *  simplify multiple reference so better understandable how data looks like
 *  in schema editor, only show local attributes for subclass, not all
+*  fix graphql link in menu
+
 
 ### first
-*  fix graphql link in menu
+*  change password via ui possible
+*  enable overlapping composite foreign key for ref_array (trigger difficult!)
 *  collection level permissions (based on rule)
 *  implement order by in table view, default on lastUpdated
-*  change password via ui possible
 *  oicd integration
 *  test large data => remove 'offset' and replace with 'after' so large offset doesn't slow down
 *  change graphql to have pageInfo{first,prev,next,last} pointers returned'

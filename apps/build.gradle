@@ -37,7 +37,7 @@ subprojects {
         dependsOn parent.yarn_install
         args = ['run', 'build']
 
-        //remove the folder with copy of all build materials
+        //remove the target folder with copy of all build materials
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 

@@ -493,7 +493,7 @@ public class Column {
           result += ".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}";
         }
       }
-      return result.replaceFirst(".", "");
+      return result.replaceFirst("[.]", "");
     }
     return refJsTemplate;
   }
