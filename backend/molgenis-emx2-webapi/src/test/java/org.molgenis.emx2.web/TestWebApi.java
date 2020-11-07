@@ -148,6 +148,7 @@ public class TestWebApi {
 
   @Test
   public void test6SmokeTestGraphql() {
+    db.setUserPassword("admin", "admin");
     String path = "/api/graphql";
     String result =
         given()

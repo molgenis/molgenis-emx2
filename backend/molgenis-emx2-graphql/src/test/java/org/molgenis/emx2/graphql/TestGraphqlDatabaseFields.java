@@ -50,6 +50,7 @@ public class TestGraphqlDatabaseFields {
 
     // todo: default user should be anonymous?
     assertNull(database.getActiveUser());
+    database.setUserPassword("admin", "admin");
 
     // login is admin
     execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
