@@ -1,10 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
-import graphql.schema.GraphQLArgument;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLList;
-import graphql.schema.GraphQLObjectType;
+import graphql.schema.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
@@ -14,6 +11,7 @@ import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputAlterSettingType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
@@ -59,17 +57,6 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               return new ArrayList(); //
             });
-  }
-
-  public GraphQLFieldDefinition alterMutation(Database schema) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("alter")
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument()
-                .name("settings")
-                .type(GraphQLList.list(inputAlterSettingType)))
-        .build();
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {

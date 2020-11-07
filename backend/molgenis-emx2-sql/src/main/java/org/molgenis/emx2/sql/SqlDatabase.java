@@ -174,9 +174,15 @@ public class SqlDatabase implements Database {
 
   @Override
   public void setUserPassword(String user, String password) {
+    // can only as admin or as own user
+    if (getActiveUser() != null
+        && !getActiveUser().equals("admin")
+        && !user.equals(getActiveUser())) {
+      throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
+    }
     long start = System.currentTimeMillis();
     tx(d -> MetadataUtils.setUserPassword(getJooq(), user, password));
-    log(start, "set password for user" + user);
+    log(start, "set password for user '" + user + "'");
   }
 
   @Override

@@ -17,7 +17,7 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.graphql.GraphqlSessionFieldFactory.EMAIL;
+
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 
 public class GraphqlSchemaFieldFactory {

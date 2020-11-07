@@ -1,10 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
-import graphql.schema.GraphQLArgument;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLList;
-import graphql.schema.GraphQLObjectType;
+import graphql.schema.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
@@ -12,10 +9,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlConstants.EMAIL;
+import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputAlterSettingType;
+
 public class GraphqlSessionFieldFactory {
 
-  public static final String EMAIL = "email";
-  private static final String PASSWORD = "password"; // NOSONAR
   private static final String ROLES = "roles";
 
   public GraphqlSessionFieldFactory() {
@@ -47,12 +49,10 @@ public class GraphqlSessionFieldFactory {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (passWord == null) {
-                return new GraphqlApiMutationResult(
-                    GraphqlApiMutationResult.Status.FAILED, "Password cannot be not null");
+                return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
               }
               if (passWord.length() < 8) {
-                return new GraphqlApiMutationResult(
-                    GraphqlApiMutationResult.Status.FAILED, "Password too short");
+                return new GraphqlApiMutationResult(FAILED, "Password too short");
               }
               database.tx(
                   db -> {
@@ -76,16 +76,13 @@ public class GraphqlSessionFieldFactory {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
 
-              // todo, fake password for now
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 database.setActiveUser(userName);
                 return new GraphqlApiMutationResult(
                     GraphqlApiMutationResult.Status.SUCCESS, "Signed in as '%s'", userName);
               } else {
                 return new GraphqlApiMutationResult(
-                    GraphqlApiMutationResult.Status.FAILED,
-                    "Sign in as '%s' failed: user or password unknown",
-                    userName);
+                    FAILED, "Sign in as '%s' failed: user or password unknown", userName);
               }
             })
         .build();
@@ -114,6 +111,25 @@ public class GraphqlSessionFieldFactory {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
               return result;
+            })
+        .build();
+  }
+
+  public GraphQLFieldDefinition changePasswordField(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("changePassword")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String password = dataFetchingEnvironment.getArgument(PASSWORD);
+              if (password != null) {
+                String username = database.getActiveUser();
+                database.setUserPassword(username, password);
+                return new GraphqlApiMutationResult(SUCCESS, "Password changed");
+              } else {
+                return new GraphqlApiMutationResult(FAILED, "Password not changed: empty");
+              }
             })
         .build();
   }

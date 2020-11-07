@@ -34,11 +34,12 @@ public class GraphqlApiFactory {
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
 
     // acount operations
-    GraphqlSessionFieldFactory user = new GraphqlSessionFieldFactory();
-    queryBuilder.field(user.userQueryField(database, null));
-    mutationBuilder.field(user.signinField(database));
-    mutationBuilder.field(user.signoutField(database));
-    mutationBuilder.field(user.signupField(database));
+    GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
+    queryBuilder.field(session.userQueryField(database, null));
+    mutationBuilder.field(session.signinField(database));
+    mutationBuilder.field(session.signoutField(database));
+    mutationBuilder.field(session.signupField(database));
+    mutationBuilder.field(session.changePasswordField(database));
 
     // database operations
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
@@ -46,7 +47,6 @@ public class GraphqlApiFactory {
     queryBuilder.field(db.schemasQuery(database));
 
     mutationBuilder.field(db.createMutation(database));
-    mutationBuilder.field(db.alterMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
 
     // notice we here add custom exception handler for mutations
@@ -72,6 +72,7 @@ public class GraphqlApiFactory {
     mutationBuilder.field(accountFactory.signinField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
+    mutationBuilder.field(accountFactory.changePasswordField(schema.getDatabase()));
 
     // schema
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();

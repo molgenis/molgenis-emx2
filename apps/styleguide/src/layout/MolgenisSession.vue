@@ -6,7 +6,14 @@
         <MessageError>{{ error }}</MessageError>
       </span>
       <span v-if="session.email">
-        Hi {{ session.email }}
+        <a href="#" @click.prevent="showChangePasswordForm = true">
+          Hi {{ session.email }}</a
+        >&nbsp;
+        <ChangePasswordForm
+          v-if="showChangePasswordForm"
+          :error="error"
+          @cancel="showChangePasswordForm = false"
+        />
         <ButtonAction @click="signout">Sign out</ButtonAction>
       </span>
       <span v-else>
@@ -36,6 +43,7 @@ import MessageError from "../forms/MessageError";
 
 import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
+import ChangePasswordForm from "./MolgenisAccount";
 
 import { request } from "graphql-request";
 
@@ -45,6 +53,7 @@ export default {
     ButtonAction,
     SigninForm,
     SignupForm,
+    ChangePasswordForm,
     Spinner,
     ButtonAlt,
     MessageError
@@ -60,6 +69,7 @@ export default {
       /** @ignore */
       showSigninForm: false,
       showSignupForm: false,
+      showChangePasswordForm: false,
       error: null,
       loading: false,
       session: {},

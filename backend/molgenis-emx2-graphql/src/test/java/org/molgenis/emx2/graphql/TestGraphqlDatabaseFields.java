@@ -14,8 +14,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 public class TestGraphqlDatabaseFields {
@@ -57,7 +56,8 @@ public class TestGraphqlDatabaseFields {
     Assert.assertEquals("admin", database.getActiveUser());
 
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
-    Assert.assertTrue(database.hasUser("pietje"));
+    assertTrue(database.hasUser("pietje"));
+    assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
     TestCase.assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
@@ -72,6 +72,13 @@ public class TestGraphqlDatabaseFields {
             .textValue()
             .contains("Signed in"));
     Assert.assertEquals("pietje", database.getActiveUser());
+
+    TestCase.assertTrue(
+        execute("mutation{changePassword(password:\"blaat124\"){message}}")
+            .at("/data/changePassword/message")
+            .textValue()
+            .contains("Password changed"));
+    assertTrue(database.checkUserPassword("pietje", "blaat124"));
 
     execute("mutation{signout{message}}");
     Assert.assertEquals("anonymous", database.getActiveUser());

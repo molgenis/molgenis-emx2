@@ -1,5 +1,5 @@
 <template>
-  <Molgenis id="__top" v-model="session">
+  <Molgenis :menuItems="menuItems" id="__top" v-model="session">
     <router-view
       v-if="session && session.email"
       :session="session"

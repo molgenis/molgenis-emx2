@@ -8,6 +8,8 @@ public class GraphqlConstants {
   public static final String VALIDATION = "validation";
   public static final String FILTER_ARGUMENT = "filter";
   public static final String KEY = "key";
+  public static final String PASSWORD = "password";
+  public static final String EMAIL = "email";
 
   private GraphqlConstants() {
     // hide constructor
