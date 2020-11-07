@@ -348,27 +348,4 @@ public class TableMetadata {
                 Collectors.toMap(e -> e.getKey(), e -> e.getValue())); // strip null and "" values
     return this;
   }
-
-  public ColumnType getPrimitiveColumnType(String referenceName) {
-    for (Column c : getColumns()) {
-      if (c.isReference()) {
-        for (Reference ref : c.getReferences()) {
-          if (ref.getName().equals(referenceName)) {
-            ColumnType type = c.getRefTable().getPrimitiveColumnType(ref.getRefTo());
-            if (REF_ARRAY.equals(c.getColumnType())
-                || MREF.equals(c.getColumnType())
-                || REFBACK.equals(c.getColumnType())) {
-              // return array version of primitive type in case of ref_array
-              return getArrayType(type);
-            } else {
-              return type;
-            }
-          }
-        }
-      } else if (c.getName().equals(referenceName)) {
-        return c.getColumnType();
-      }
-    }
-    return null;
-  }
 }
