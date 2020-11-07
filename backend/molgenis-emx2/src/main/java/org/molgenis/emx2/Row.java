@@ -328,36 +328,37 @@ public class Row {
     return values.get(columnName) != null;
   }
 
-  public void sanitize(List<Column> columns) {
-    List<String> colNames = new ArrayList<>();
-    // get type correct
-    for (Column c : columns) {
-      if (this.values.get(c.getName()) != null) {
-        this.values.put(
-            c.getName(), TypeUtils.getTypedValue(this.values.get(c.getName()), c.getColumnType()));
-        colNames.add(c.getName());
-      }
-    }
-    // validation
-    for (Column c : columns) {
-      Object value = this.values.get(c.getName());
-      if (value != null && c.getValidationScript() != null) {
-        String error = executeJavascriptOnValue(c.getValidationScript(), value);
-        if (error != null)
-          throw new MolgenisException(
-              "Validation error on column '"
-                  + c.getName()
-                  + "': "
-                  + error
-                  + ". Instead found value '"
-                  + value
-                  + "'");
-      }
-    }
-    for (String key : this.values.keySet()) {
-      if (!colNames.contains(key)) {
-        this.values.remove(key);
-      }
-    }
-  }
+  //  public void sanitize(List<Column> columns) {
+  //    List<String> colNames = new ArrayList<>();
+  //    // get type correct
+  //    for (Column c : columns) {
+  //      if (this.values.get(c.getName()) != null) {
+  //        this.values.put(
+  //            c.getName(), TypeUtils.getTypedValue(this.values.get(c.getName()),
+  // c.getColumnType()));
+  //        colNames.add(c.getName());
+  //      }
+  //    }
+  //    // validation
+  //    for (Column c : columns) {
+  //      Object value = this.values.get(c.getName());
+  //      if (value != null && c.getValidationScript() != null) {
+  //        String error = executeJavascriptOnValue(c.getValidationScript(), value);
+  //        if (error != null)
+  //          throw new MolgenisException(
+  //              "Validation error on column '"
+  //                  + c.getName()
+  //                  + "': "
+  //                  + error
+  //                  + ". Instead found value '"
+  //                  + value
+  //                  + "'");
+  //      }
+  //    }
+  //    for (String key : this.values.keySet()) {
+  //      if (!colNames.contains(key)) {
+  //        this.values.remove(key);
+  //      }
+  //    }
+  //  }
 }
