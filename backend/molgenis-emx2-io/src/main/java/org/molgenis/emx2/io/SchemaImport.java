@@ -53,8 +53,8 @@ public class SchemaImport {
               // store.processTable(table.getName(), new ValidationProcessor(table));
 
               // batching here to not blow memory,
-              // and in strategy class so reader can close filet store.processTable(table.getName(),
-              // new ImportProcessor(table));
+              // and in strategy class so reader can close file
+              store.processTable(table.getName(), new ImportProcessor(table));
 
               logger.info("Import of table '" + table.getName() + "' completed");
             }
