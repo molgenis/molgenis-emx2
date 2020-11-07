@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 
 import java.util.*;
