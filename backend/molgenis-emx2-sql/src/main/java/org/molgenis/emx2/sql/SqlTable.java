@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
