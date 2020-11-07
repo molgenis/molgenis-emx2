@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.jooq.Table;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
