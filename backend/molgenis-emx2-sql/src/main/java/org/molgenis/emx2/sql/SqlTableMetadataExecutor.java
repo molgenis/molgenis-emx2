@@ -103,10 +103,9 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' does not exist");
     }
-    if (other.getPrimaryKeys() == null) {
+    if (other.getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
-          "Extend failed",
-          "Cannot make table '"
+          "Extend failed: Cannot make table '"
               + table.getTableName()
               + "' extend table '"
               + table.getInherit()
@@ -148,7 +147,7 @@ class SqlTableMetadataExecutor {
   }
 
   static void createOrReplaceKey(
-      DSLContext jooq, TableMetadata table, Integer index, List<Field<?>> keyFields) {
+      DSLContext jooq, TableMetadata table, Integer index, List<Field> keyFields) {
     Name uniqueName = name(table.getTableName() + "_KEY" + index);
     jooq.execute("ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}", getJooqTable(table), uniqueName);
     jooq.alterTable(getJooqTable(table))

@@ -15,7 +15,7 @@ import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.EQUALS;
+import static org.molgenis.emx2.graphql.GraphqlConstants.FILTER_EQUALS;
 import static org.molgenis.emx2.graphql.GraphqlConstants.FILTER;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
@@ -245,7 +245,7 @@ public class GraphqlTableFieldFactory {
           GraphQLInputObjectType.newInputObject().name(table.getTableName() + FILTER);
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
-              .name(EQUALS)
+              .name(FILTER_EQUALS)
               .type(GraphQLList.list(getPrimaryKeyInput(table)))
               .build());
       for (Column col : table.getColumns()) {
@@ -332,7 +332,7 @@ public class GraphqlTableFieldFactory {
   private FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
-      if (entry.getKey().equals(EQUALS)) {
+      if (entry.getKey().equals(FILTER_EQUALS)) {
         //  complex filter, should be an list of maps per graphql contract
         subFilters.add(
             or(
@@ -503,8 +503,7 @@ public class GraphqlTableFieldFactory {
 
     for (String tableName : schema.getTableNames()) {
       // if no pkey is provided, you cannot delete rows
-      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys() != null
-          && schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys().size() > 0) {
+      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(tableName)

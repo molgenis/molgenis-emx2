@@ -77,14 +77,14 @@ class SqlTable implements Table {
                 CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
 
                 // must be batched
-                StringBuffer tmp = new StringBuffer();
+                StringBuilder tmp = new StringBuilder();
                 tmp.append(
                     this.getMetadata().getLocalColumnNames().stream()
                             .map(c -> "\"" + c + "\"")
                             .collect(Collectors.joining(","))
                         + "\n");
                 for (Row row : rows) {
-                  StringBuffer line = new StringBuffer();
+                  StringBuilder line = new StringBuilder();
                   for (Column c : this.getMetadata().getLocalColumns()) {
                     if (!row.containsName(c.getName())) {
                       line.append(",");
@@ -93,12 +93,11 @@ class SqlTable implements Table {
                       line.append(value + ",");
                     }
                   }
-                  tmp.append(line.toString().substring(0, line.length() - 1) + "\n");
+                  tmp.append(line.substring(0, line.length() - 1) + "\n");
                 }
 
                 String tableName =
                     "\"" + getSchema().getMetadata().getName() + "\".\"" + getName() + "\"";
-                // System.out.println(tmp.toString());
 
                 String columnNames =
                     "("
@@ -107,7 +106,6 @@ class SqlTable implements Table {
                             .collect(Collectors.joining(","))
                         + ")";
                 String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
-                System.out.println(sql);
                 cm.copyIn(sql, new StringReader(tmp.toString()));
               } catch (Exception e) {
                 throw new MolgenisException("copyOut failed: ", e);
@@ -152,7 +150,6 @@ class SqlTable implements Table {
               row.set(MG_TABLECLASS, mgTableClass);
 
               step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
-              // step.values(row.getValueMap());
               i++;
               // execute batch
               if (i % batchSize == 0) {
@@ -192,9 +189,7 @@ class SqlTable implements Table {
   }
 
   private int update(Iterable<Row> rows, String mgTableClass) {
-    long start = System.currentTimeMillis();
-
-    if (getMetadata().getPrimaryKeys() == null)
+    if (getMetadata().getPrimaryKeys().isEmpty())
       throw new MolgenisException(
           "Update failed: Table "
               + getName()
@@ -209,8 +204,7 @@ class SqlTable implements Table {
                 ((SqlTable) getSchema().getTable(getMetadata().getInherit()))
                     .update(rows, mgTableClass);
               } catch (MolgenisException e) {
-                throw new MolgenisException(
-                    "Update of table '" + getName() + "' failed", e.getMessage());
+                throw new MolgenisException("Update of table '" + getName() + "' failed", e);
               }
             }
 
@@ -222,7 +216,7 @@ class SqlTable implements Table {
             List<Row> batch = new ArrayList<>();
             List<String> fieldNames = new ArrayList<>();
             List<Column> columns = new ArrayList<>();
-            List<Field<?>> fields = new ArrayList<>();
+            List<Field> fields = new ArrayList<>();
             for (Row row : rows) {
               row.set(MG_TABLECLASS, mgTableClass);
 
@@ -292,8 +286,8 @@ class SqlTable implements Table {
       org.jooq.Table<Record> t,
       List<String> fieldNames,
       List<Column> columns,
-      List<Field<?>> fields,
-      List<Field<?>> keyField,
+      List<Field> fields,
+      List<Field> keyField,
       String mgTableClass) {
     long start = System.currentTimeMillis();
 
@@ -310,12 +304,13 @@ class SqlTable implements Table {
         if (hasNotNull) {
           step.values(values);
         } else {
-          logger.debug("skipping empty row: " + row);
+          logger.debug("skipping empty row: {0}", row);
         }
       }
 
       // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep<Record> step2 = step.onConflict(keyField).doUpdate();
+      InsertOnDuplicateSetStep<Record> step2 =
+          step.onConflict(keyField.toArray(new Field<?>[keyField.size()])).doUpdate();
       for (String name : fieldNames) {
         step2 =
             step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
@@ -391,13 +386,12 @@ class SqlTable implements Table {
     if (!rows.isEmpty()) {
       List<String> keyNames =
           getMetadata().getPrimaryKeyFields().stream()
-              .map(f -> f.getName())
+              .map(Field::getName)
               .collect(Collectors.toList());
 
       // in case no primary key is defined, use all columns
       if (keyNames == null) {
-        throw new MolgenisException(
-            "Delete on table " + getName() + " failed: no primary key set", "");
+        throw new MolgenisException("Delete on table " + getName() + " failed: no primary key set");
       }
       Condition whereCondition = getWhereConditionForBatchDelete(rows);
       db.getJooq().deleteFrom(getJooqTable()).where(whereCondition).execute();
@@ -408,7 +402,7 @@ class SqlTable implements Table {
     List<Condition> conditions = new ArrayList<>();
     for (Row r : rows) {
       List<Condition> rowCondition = new ArrayList<>();
-      if (getMetadata().getPrimaryKeys() == null) {
+      if (getMetadata().getPrimaryKeys().isEmpty()) {
         // when no key, use all columns as id
         for (Column keyPart : getMetadata().getLocalColumns()) {
           rowCondition.add(getColumnCondition(r, keyPart));
@@ -466,7 +460,7 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
-  private List<Field<?>> getPrimaryKeyFields() {
+  private List<Field> getPrimaryKeyFields() {
     return getMetadata().getPrimaryKeyFields();
   }
 

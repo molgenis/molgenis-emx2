@@ -115,9 +115,16 @@ public class TableMetadata {
             c.getName() + "_size", new Column(c.getTable(), c.getName() + "_size").setType(INT));
       } else if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
-          result.put(
-              ref.getName(),
-              new Column(c.getTable(), ref.getName()).setType(ref.getPrimitiveType()));
+          if (ref.isOverlapping()) {
+            result.put(
+                ref.getName(),
+                new Column(c.getTable(), ref.getName())
+                    .setType(ref.getOverlapping().getPrimitiveType()));
+          } else {
+            result.put(
+                ref.getName(),
+                new Column(c.getTable(), ref.getName()).setType(ref.getPrimitiveType()));
+          }
         }
       } else {
         result.put(c.getName(), c);

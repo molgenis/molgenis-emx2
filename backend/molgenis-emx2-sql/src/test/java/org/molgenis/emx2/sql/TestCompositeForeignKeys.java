@@ -322,6 +322,8 @@ public class TestCompositeForeignKeys {
                 .setRefTable("Person2")
                 .setRefFrom("children_firstName", "children_lastName")
                 .setRefTo("firstName", "lastName"))); // .with("lastName", "lastName")));
+
+    assertEquals(1, schema.getTableNames().size());
   }
 
   //  @Test

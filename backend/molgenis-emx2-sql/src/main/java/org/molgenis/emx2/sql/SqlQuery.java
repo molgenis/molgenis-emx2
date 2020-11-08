@@ -25,6 +25,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -80,9 +81,15 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
-        // don't include refback or files
         if (!REFBACK.equals(c.getColumnType()) && !FILE.equals(c.getColumnType())) {
-          select.select(c.getName());
+          if (c.isReference()) {
+            for (Reference ref : c.getReferences()) {
+              select.select(ref.getName());
+            }
+          } else {
+            // don't include refback or files
+            select.select(c.getName());
+          }
         }
       }
     }
@@ -118,6 +125,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
+  // todo: allow query expansion accross tables?
   private static List<Field<?>> rowSelectFields(
       TableMetadata table, String tableAlias, String prefix, SelectColumn selection) {
 
@@ -156,15 +164,25 @@ public class SqlQuery extends QueryBean {
       } else if (REFBACK.equals(column.getColumnType())) {
         fields.add(
             field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
+      } else if (column.isReference()) { // REF and REF_ARRAY
+        // might be composite column with same name
+        Reference ref = null;
+        for (Reference r : column.getReferences()) {
+          if (r.getName().equals(column.getName())) {
+            ref = r;
+          }
+        }
+        if (ref == null) {
+          throw new MolgenisException(
+              "Select of column '"
+                  + column.getName()
+                  + "' failed: composite foreign key requires subselection or explicit naming of underlying fields");
+        } else {
+          fields.add(field(name(tableAlias, column.getName()), ref.getJooqType()).as(columnAlias));
+        }
       } else {
         fields.add(field(name(tableAlias, column.getName()), column.getJooqType()).as(columnAlias));
       }
-    }
-    if (fields.isEmpty()) {
-      fields.addAll(
-          table.getColumnNames().stream()
-              .map(c -> field(name(tableAlias, c)))
-              .collect(Collectors.toList()));
     }
     return fields;
   }
@@ -366,19 +384,19 @@ public class SqlQuery extends QueryBean {
                   conditions.add(condition("{0} && ARRAY({1})", name(c.getName()), subQuery));
                 } else {
                   // otherwise exists(unnest(ref_array) natural join (filterQuery))
-                  String refs =
+                  List<Field> unnest =
                       c.getReferences().stream()
-                          .map(ref -> name(ref.getName()).toString())
-                          .collect(Collectors.joining(","));
-                  String as =
-                      c.getRefTable().getPrimaryKeyColumns().stream()
-                          .map(key -> name(key.getName()).toString())
-                          .collect(Collectors.joining(","));
+                          .map(
+                              ref ->
+                                  ref.isOverlapping()
+                                          && ref.getOverlapping().getColumnType().equals(REF)
+                                      ? field(name(ref.getName())).as(name(ref.getRefTo()))
+                                      : field("UNNEST({0})", name(ref.getName()))
+                                          .as(name(ref.getRefTo())))
+                          .collect(Collectors.toCollection(ArrayList::new));
+
                   conditions.add(
-                      exists(
-                          selectFrom(
-                              "UNNEST({0}) as t({1}) NATURAL JOIN ({2}) as t2",
-                              keyword(refs), keyword(as), subQuery)));
+                      exists(selectFrom(jooq.select(unnest).asTable().naturalJoin(subQuery))));
                 }
               } else if (MREF.equals(c.getColumnType())
                   || (REFBACK.equals(c.getColumnType())
@@ -425,8 +443,16 @@ public class SqlQuery extends QueryBean {
                       row(pkey)
                           .in(
                               jooq.select(
-                                      backRef.stream()
-                                          .map(bf -> field("SELECT * FROM UNNEST({0})", bf))
+                                      c.getMappedByColumn().getReferences().stream()
+                                          .map(
+                                              bref ->
+                                                  bref.isOverlapping()
+                                                          && bref.getOverlapping()
+                                                              .getColumnType()
+                                                              .equals(REF)
+                                                      ? field(name(bref.getName()))
+                                                      : field("UNNEST({0})", name(bref.getName()))
+                                                          .as(name(bref.getName())))
                                           .collect(Collectors.toList()))
                                   .from(c.getRefTable().getJooqTable())
                                   .where(row(backRefKey).in(subQuery))));
@@ -504,6 +530,16 @@ public class SqlQuery extends QueryBean {
   private static Collection<Field<?>> jsonSubselectFields(
       TableMetadata table, String tableAlias, SelectColumn selection) {
     List<Field<?>> fields = new ArrayList<>();
+
+    // if no subselect, we will select primary keys
+    if (selection.getSubselect().isEmpty()) {
+      selection =
+          s(
+              selection.getColumn(),
+              table.getPrimaryKeyColumns().stream()
+                  .map(key -> s(key.getName()))
+                  .toArray(SelectColumn[]::new));
+    }
 
     for (SelectColumn select : selection.getSubselect()) {
       Column column =
@@ -666,7 +702,10 @@ public class SqlQuery extends QueryBean {
       result =
           result
               .leftJoin(inheritedTable.getJooqTable())
-              .using(inheritedTable.getPrimaryKeyFields());
+              .using(
+                  inheritedTable
+                      .getPrimaryKeyFields()
+                      .toArray(new Field<?>[inheritedTable.getPrimaryKeyFields().size()]));
       inheritedTable = inheritedTable.getInheritedTable();
     }
 
@@ -772,22 +811,20 @@ public class SqlQuery extends QueryBean {
                 "{0} = ANY({1})", name(subAlias, ref.getRefTo()), name(tableAlias, ref.getName())));
       } else {
         // expensive 'in' query to enable join on all fields
-        String refs =
+        List<Field> to =
             column.getReferences().stream()
-                .map(ref -> name(tableAlias, ref.getName()).toString())
-                .collect(Collectors.joining(","));
-        String to =
+                .map(ref -> field(name(subAlias, ref.getRefTo()).toString()))
+                .collect(Collectors.toList());
+
+        List<Field> unnest =
             column.getReferences().stream()
-                .map(ref -> name(subAlias, ref.getRefTo()).toString())
-                .collect(Collectors.joining(","));
-        String as =
-            column.getReferences().stream()
-                .map(ref -> name(ref.getName()).toString())
-                .collect(Collectors.joining(","));
-        foreignKeyMatch.add(
-            condition(
-                "({0}) IN (SELECT * FROM UNNEST({1}) AS t({2}))",
-                keyword(to), keyword(refs), keyword(as)));
+                .map(
+                    r ->
+                        r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)
+                            ? field(name(r.getName()))
+                            : field("UNNEST({0})", name(r.getName())))
+                .collect(Collectors.toList());
+        foreignKeyMatch.add(row(to).in(DSL.select(unnest)));
       }
     } else if (REFBACK.equals(column.getColumnType())) {
       Column mappedBy = column.getMappedByColumn();
@@ -1175,6 +1212,14 @@ public class SqlQuery extends QueryBean {
   private static Column isValidColumn(TableMetadata table, String columnName) {
     Column column = table.getColumn(columnName);
     if (column == null) {
+      for (Column c : table.getColumns()) {
+        for (Reference ref : c.getReferences()) {
+          // can also request composite reference columns, can only be used on row level queries
+          if (ref.getName().equals(columnName)) {
+            return new Column(table, columnName).setType(ref.getPrimitiveType());
+          }
+        }
+      }
       throw new MolgenisException(
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }

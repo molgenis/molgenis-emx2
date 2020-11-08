@@ -339,6 +339,7 @@ public class SqlColumnExecutor {
         break;
       case MREF:
         dropMrefConstraints(jooq, column);
+        break;
       default:
         // nothing to do
     }

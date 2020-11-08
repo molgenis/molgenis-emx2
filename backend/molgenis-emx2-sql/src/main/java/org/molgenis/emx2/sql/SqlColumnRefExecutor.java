@@ -75,7 +75,7 @@ public class SqlColumnRefExecutor {
     }
 
     // check if other end has primary key
-    if (column1.getRefTable().getPrimaryKeys() == null) {
+    if (column1.getRefTable().getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
           "Create column failed",
           "Create of column '"

@@ -199,7 +199,7 @@ class SqlTableMetadata extends TableMetadata {
       throw new MolgenisException(
           "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
 
-    if (other.getPrimaryKeys() == null)
+    if (other.getPrimaryKeys().isEmpty())
       throw new MolgenisException(
           "Set inheritance failed: To extend table '"
               + otherTable

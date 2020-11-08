@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -63,6 +64,8 @@ public class TestLegacyImport {
     SchemaImport.fromExcelFile(temp.toPath(), schema);
 
     schema.getTableNames().contains("Pet");
+
+    Assert.assertEquals(5, schema.getTableNames().size());
   }
 
   private void executeTest(TableStore store, Schema schema) {
@@ -93,5 +96,7 @@ public class TestLegacyImport {
     for (Row r : schema.getTable("biobanks").search("rotterdam").retrieveRows()) {
       System.out.println(r.getString("name"));
     }
+
+    Assert.assertEquals(22, schema.getTableNames().size());
   }
 }

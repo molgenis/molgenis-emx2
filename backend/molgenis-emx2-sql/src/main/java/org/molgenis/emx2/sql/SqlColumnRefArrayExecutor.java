@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Reference;
 
 import java.util.Collection;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
 
 /**
@@ -88,38 +90,56 @@ class SqlColumnRefArrayExecutor {
   /** update check; in case of composite key this consists of multiple Column */
   private static void createDeleteOrUpdateReferedCheck(DSLContext jooq, Column ref) {
     String deleteTrigger = getDeleteTriggerName(ref);
-    Collection<Reference> columns = ref.getReferences();
+    Collection<Reference> references = ref.getReferences();
 
     String unnestRefs =
-        columns.stream()
-            .map(r -> "UNNEST(" + name(r.getName()) + ") AS " + name(r.getRefTo()))
+        references.stream()
+            .map(
+                r -> {
+                  // can be overlapping with non_array reference
+                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                    return name(r.getName()) + " AS " + name(r.getRefTo());
+                  } else {
+                    return "UNNEST(" + name(r.getName()) + ") AS " + name(r.getRefTo());
+                  }
+                })
             .collect(Collectors.joining(","));
 
     String oldEqualsAnyRef =
-        columns.stream()
-            .map(r -> "OLD." + name(r.getRefTo()) + "=ANY(" + name(r.getName()) + ")")
+        references.stream()
+            .map(
+                r -> {
+                  // can be overlapping with non_array reference
+                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                    return "OLD." + name(r.getRefTo()) + "=" + name(r.getName());
+                  } else {
+                    return "OLD." + name(r.getRefTo()) + "=ANY(" + name(r.getName()) + ")";
+                  }
+                })
             .collect(Collectors.joining(" AND "));
 
     String keyColumns =
-        columns.stream().map(r -> name(r.getRefTo()).toString()).collect(Collectors.joining(","));
+        references.stream()
+            .map(r -> name(r.getRefTo()).toString())
+            .collect(Collectors.joining(","));
 
     String oldEqualsTo =
-        columns.stream()
+        references.stream()
             .map(r -> "OLD." + name(r.getRefTo()) + "= " + name(r.getRefTo()))
             .collect(Collectors.joining(" AND "));
 
     String oldValuesAsString =
-        columns.stream()
+        references.stream()
             .map(r -> "OLD." + name(r.getRefTo()))
             .collect(Collectors.joining("||','||"));
 
     String toColumns =
-        columns.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
+        references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
 
     String newNotEqualsOld =
-        columns.stream()
+        references.stream()
             .map(r -> "OLD." + name(r.getRefTo()) + " <> NEW." + name(r.getRefTo()))
-            .collect(Collectors.joining(" AND "));
+            .collect(Collectors.joining(" OR "));
 
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
@@ -194,35 +214,57 @@ class SqlColumnRefArrayExecutor {
     Name thisTable = name(schemaName, column.getTable().getTableName());
     Name toTable = name(schemaName, column.getRefTableName());
     String functionName = getUpdateCheckName(column);
-    List<Reference> columns = column.getReferences();
+    List<Reference> references = column.getReferences();
 
     String newFromColumns =
-        columns.stream()
+        references.stream()
             .map(r -> "NEW." + name(r.getName()).toString())
             .collect(Collectors.joining(","));
 
     String fromColumns =
-        columns.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
+        references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
 
     String toColumns =
-        columns.stream().map(r -> name(r.getRefTo()).toString()).collect(Collectors.joining(","));
+        references.stream()
+            .map(r -> name(r.getRefTo()).toString())
+            .collect(Collectors.joining(","));
 
     String errorColumns =
-        columns.stream()
+        references.stream()
             .map(r -> "COALESCE(error_row." + name(r.getRefTo()).toString() + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 
     String exceptFilter =
-        columns.stream()
-            .map(r -> name(r.getRefTo()) + " = ANY (NEW." + name(r.getName()) + ")")
+        references.stream()
+            .map(
+                r -> {
+                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                    return name(r.getRefTo()) + " = NEW." + name(r.getName());
+                  } else {
+                    return name(r.getRefTo()) + " = ANY (NEW." + name(r.getName()) + ")";
+                  }
+                })
             .collect(Collectors.joining(" AND "));
+
+    String unnestRefs =
+        references.stream()
+            .map(
+                r -> {
+                  // can be overlapping with non_array reference
+                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                    return "NEW." + name(r.getName()) + " AS " + name(r.getRefTo());
+                  } else {
+                    return "UNNEST(NEW." + name(r.getName()) + ") AS " + name(r.getRefTo());
+                  }
+                })
+            .collect(Collectors.joining(","));
 
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
             + "\nDECLARE error_row RECORD;"
             + "\nBEGIN"
-            + "\n\tFOR error_row IN SELECT * FROM UNNEST({1}) AS t({2}) EXCEPT SELECT {2} FROM {3} WHERE {10} LOOP"
-            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'insert or update on table \"'||{9}||'\" violates foreign key constraint'"
+            + "\n\tFOR error_row IN SELECT {1} EXCEPT SELECT {2} FROM {3} WHERE {10} LOOP"
+            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'insert or update on table \"'||{9}||'\" violates foreign key (ref_array) constraint'"
             + " , DETAIL = 'Key ('||{6}||')=('|| {5} ||') is not present in table \"'||{7}||'\", column(s)('||{8}||')';"
             + "\n\tEND LOOP;"
             + "\n\tRETURN NEW;"
@@ -230,7 +272,7 @@ class SqlColumnRefArrayExecutor {
         // 0
         name(schemaName, functionName),
         // 1
-        keyword(newFromColumns),
+        keyword(unnestRefs),
         // 2
         keyword(toColumns),
         // 3

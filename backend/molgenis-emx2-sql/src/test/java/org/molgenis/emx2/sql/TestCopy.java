@@ -10,6 +10,7 @@ import org.molgenis.emx2.Schema;
 import java.io.StringWriter;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -52,6 +53,8 @@ public class TestCopy {
     writer = new StringWriter();
     table.copyOut(writer);
     System.out.println(writer);
+
+    assertEquals(2, schema.getTable("test2").retrieveRows().size());
   }
 
   //  @Test

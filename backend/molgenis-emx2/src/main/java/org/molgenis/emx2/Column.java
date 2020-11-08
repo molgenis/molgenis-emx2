@@ -376,7 +376,8 @@ public class Column {
     // no ref
     if (getRefTable() == null) return new ArrayList<>();
 
-    List<Reference> refColumns = new ArrayList<>();
+    Map<String, Reference> refColumns =
+        new LinkedHashMap<>(); // overlapping keys may lead to duplicates
 
     // check if primary key exists
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
@@ -416,7 +417,8 @@ public class Column {
             throw new MolgenisException(
                 "get references failed: no name mapping for ref " + ref.getName());
 
-          refColumns.add(
+          refColumns.put(
+              name,
               new Reference(
                   this,
                   name,
@@ -440,7 +442,8 @@ public class Column {
               "get references failed: no name mapping for ref " + keyPart.getName());
 
         // create the ref
-        refColumns.add(
+        refColumns.put(
+            name,
             new Reference(
                 this,
                 name,
@@ -452,7 +455,7 @@ public class Column {
       }
     }
 
-    return refColumns;
+    return new ArrayList<>(refColumns.values());
   }
 
   public ColumnType getPrimitiveColumnType() {

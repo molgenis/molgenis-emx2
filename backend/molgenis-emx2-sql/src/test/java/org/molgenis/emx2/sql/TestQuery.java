@@ -8,6 +8,7 @@ import org.molgenis.emx2.utils.StopWatch;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
@@ -90,6 +91,8 @@ public class TestQuery {
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
     System.out.println(q.retrieveJSON());
+
+    assertEquals(3, q.retrieveRows().size());
   }
 
   @Test

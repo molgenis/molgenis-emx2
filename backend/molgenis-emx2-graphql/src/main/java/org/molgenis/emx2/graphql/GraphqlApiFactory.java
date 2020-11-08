@@ -22,8 +22,6 @@ import static org.molgenis.emx2.ColumnType.REF;
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
-  public GraphqlApiFactory() {}
-
   public GraphQL createGraphqlForDatabase(Database database) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");

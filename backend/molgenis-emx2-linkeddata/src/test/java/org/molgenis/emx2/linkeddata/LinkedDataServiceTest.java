@@ -15,6 +15,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 
+import static org.junit.Assert.assertEquals;
+
 public class LinkedDataServiceTest {
 
   static Database database;
@@ -52,6 +54,8 @@ public class LinkedDataServiceTest {
     LinkedDataService.dump(schema, new PrintWriter(sw));
 
     System.out.println("result\r" + sw.getBuffer().toString());
+
+    assertEquals(2, schema.getTableNames().size());
   }
 
   private void runImportProcedure(TableStoreForXlsxFile store, SchemaMetadata cohortSchema) {
