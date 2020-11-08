@@ -15,8 +15,7 @@ import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.FILTER_EQUALS;
-import static org.molgenis.emx2.graphql.GraphqlConstants.FILTER;
+import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 public class GraphqlTableFieldFactory {
@@ -26,8 +25,6 @@ public class GraphqlTableFieldFactory {
     UPDATE,
     DELETE
   }
-
-  public GraphqlTableFieldFactory() {}
 
   // static types
   private static final GraphQLEnumType orderByEnum =
@@ -342,8 +339,10 @@ public class GraphqlTableFieldFactory {
         Column c = table.getMetadata().getColumn(entry.getKey());
         if (c == null)
           throw new GraphqlException(
-              "Graphql API error",
-              "Column " + entry.getKey() + " unknown in table " + table.getName());
+              "Graphql API error: Column "
+                  + entry.getKey()
+                  + " unknown in table "
+                  + table.getName());
         ColumnType type = c.getColumnType();
         if (ColumnType.REF.equals(type)
             || ColumnType.REF_ARRAY.equals(type)
@@ -359,8 +358,10 @@ public class GraphqlTableFieldFactory {
                 convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
           } else {
             throw new GraphqlException(
-                "Graphql API error",
-                "unknown filter expression " + entry.getValue() + " for column " + entry.getKey());
+                "Graphql API error: unknown filter expression "
+                    + entry.getValue()
+                    + " for column "
+                    + entry.getKey());
           }
         }
       }
@@ -385,7 +386,7 @@ public class GraphqlTableFieldFactory {
     for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
       count++;
       if (count > 1)
-        throw new MolgenisException("Can only have one operator, found multiple for " + name, "");
+        throw new MolgenisException("Can only have one operator, found multiple for " + name);
       Operator op = Operator.fromAbbreviation(entry2.getKey());
       if (entry2.getValue() instanceof List) {
         return f(name, op, (List) entry2.getValue());
@@ -489,7 +490,7 @@ public class GraphqlTableFieldFactory {
           GraphQLArgument.newArgument()
               .name(tableName)
               // reuse same input as insert
-              .type(GraphQLList.list(GraphQLTypeReference.typeRef(table.getName() + "Input"))));
+              .type(GraphQLList.list(GraphQLTypeReference.typeRef(table.getName() + INPUT))));
     }
     return fieldBuilder.build();
   }
@@ -503,12 +504,12 @@ public class GraphqlTableFieldFactory {
 
     for (String tableName : schema.getTableNames()) {
       // if no pkey is provided, you cannot delete rows
-      if (schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys().size() > 0) {
+      if (!schema.getMetadata().getTableMetadata(tableName).getPrimaryKeys().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(tableName)
                 // reuse same input as insert
-                .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableName + "Input"))));
+                .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableName + INPUT))));
       }
     }
     return fieldBuilder.build();
@@ -546,14 +547,14 @@ public class GraphqlTableFieldFactory {
           any = true;
         }
       }
-      if (!any) throw new MolgenisException("Error with save", "no data provided");
+      if (!any) throw new MolgenisException("Error with save: no data provided");
       return new GraphqlApiMutationResult(SUCCESS, result.toString());
     };
   }
 
   private GraphQLInputObjectType rowInputType(Table table) {
     GraphQLInputObjectType.Builder inputBuilder =
-        GraphQLInputObjectType.newInputObject().name(table.getName() + "Input");
+        GraphQLInputObjectType.newInputObject().name(table.getName() + INPUT);
     for (Column col : table.getMetadata().getColumns()) {
       GraphQLInputType type;
       if (col.isReference()) {
@@ -625,7 +626,7 @@ public class GraphqlTableFieldFactory {
         return GraphQLList.list(Scalars.GraphQLString);
       default:
         throw new MolgenisException(
-            "Internal error", "Type " + columnType + " not expected at this place");
+            "Internal error: Type " + columnType + " not expected at this place");
     }
   }
 }

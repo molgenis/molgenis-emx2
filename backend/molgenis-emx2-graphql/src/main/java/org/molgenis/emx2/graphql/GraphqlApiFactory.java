@@ -56,7 +56,7 @@ public class GraphqlApiFactory {
 
   public GraphQL createGraphqlForSchema(Schema schema) {
     long start = System.currentTimeMillis();
-    logger.info("creating graphql for schema: " + schema.getMetadata().getName());
+    logger.info("creating graphql for schema: {0}", schema.getMetadata().getName());
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -102,12 +102,14 @@ public class GraphqlApiFactory {
                 new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();
 
-    logger.info(
-        "creation graphql for schema: "
-            + schema.getMetadata().getName()
-            + " completed in "
-            + (System.currentTimeMillis() - start)
-            + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "creation graphql for schema: "
+              + schema.getMetadata().getName()
+              + " completed in "
+              + (System.currentTimeMillis() - start)
+              + "ms");
+    }
 
     return result;
   }
@@ -139,7 +141,7 @@ public class GraphqlApiFactory {
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
           row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
         } else {
           row.set(ref.getName(), new ArrayList<>());
@@ -151,7 +153,7 @@ public class GraphqlApiFactory {
   private static List<Object> getRefValueFromList(
       List<String> path, List<Map<String, Object>> list) {
     List<Object> result = new ArrayList<>();
-    for (Map map : list) {
+    for (Map<String, Object> map : list) {
       Object value = getRefValueFromMap(path, map);
       if (value != null) {
         result.add(value);

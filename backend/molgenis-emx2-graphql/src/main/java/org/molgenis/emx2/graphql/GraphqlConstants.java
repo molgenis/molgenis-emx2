@@ -1,8 +1,15 @@
 package org.molgenis.emx2.graphql;
 
 public class GraphqlConstants {
+  public static final String INPUT = "Input";
+
+  private GraphqlConstants() {
+    // hide constructor
+  }
+
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";
+  public static final String SETTINGS = "settings";
   public static final String NULLABLE = "nullable";
   public static final String COLUMN_TYPE = "columnType";
   public static final String VALIDATION = "validation";
@@ -10,11 +17,6 @@ public class GraphqlConstants {
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
   public static final String EMAIL = "email";
-
-  private GraphqlConstants() {
-    // hide constructor
-  }
-
   public static final String NAME = "name";
   public static final String INHERIT = "inherit";
   public static final String FILTER = "Filter";
@@ -23,7 +25,6 @@ public class GraphqlConstants {
   public static final String TYPE = "type";
   public static final String VALUE = "value";
   public static final String FILTER_EQUALS = "equals";
-
   public static final String DETAIL = "detail";
   static final String COUNT = "count";
   public static final String LIMIT = "limit";

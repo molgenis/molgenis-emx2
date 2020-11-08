@@ -38,12 +38,11 @@ public class GraphqlSchemaFieldFactory {
         .name("_settings")
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
-            dataFetchingEnvironment -> {
-              // add settings
-              return schema.getMetadata().getSettings().entrySet().stream()
-                  .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
-                  .collect(Collectors.toList());
-            });
+            dataFetchingEnvironment ->
+                // add settings
+                schema.getMetadata().getSettings().entrySet().stream()
+                    .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue()))
+                    .collect(Collectors.toList()));
   }
 
   public GraphQLFieldDefinition createMutation(Schema schema) {
@@ -148,44 +147,57 @@ public class GraphqlSchemaFieldFactory {
       schema.tx(
           db -> {
             try {
-              Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-              // tables
-              if (tables != null) {
-                Map tableMap = Map.of("tables", tables);
-                String json = JsonUtil.getWriter().writeValueAsString(tableMap);
-                SchemaMetadata otherSchema = jsonToSchema(json);
-                schema.merge(otherSchema);
-              }
-              // members
-              List<Map<String, String>> members =
-                  dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-              if (members != null) {
-                for (Map<String, String> m : members) {
-                  schema.addMember(m.get(EMAIL), m.get(ROLE));
-                }
-              }
-              // columns
-              List<Map<String, String>> columns =
-                  dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
-              if (columns != null) {
-                for (Map<String, String> c : columns) {
-                  String tableName = c.get(TABLE);
-                  TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
-                  if (tm == null) {
-                    throw new GraphqlException("", "Table '" + tableName + "' not found");
-                  }
-                  String json = JsonUtil.getWriter().writeValueAsString(c);
-                  Column column = JsonUtil.jsonToColumn(json);
-
-                  tm.add(column);
-                }
-              }
+              createTables(schema, dataFetchingEnvironment);
+              createMembers(schema, dataFetchingEnvironment);
+              createColumns(schema, dataFetchingEnvironment);
             } catch (IOException e) {
               throw new GraphqlException("Save metadata failed", e);
             }
           });
       return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
     };
+  }
+
+  private void createColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+      throws IOException {
+    List<Map<String, String>> columns =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
+    if (columns != null) {
+      for (Map<String, String> c : columns) {
+        String tableName = c.get(TABLE);
+        TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
+        if (tm == null) {
+          throw new GraphqlException("Table '" + tableName + "' not found");
+        }
+        String json = JsonUtil.getWriter().writeValueAsString(c);
+        Column column = JsonUtil.jsonToColumn(json);
+
+        tm.add(column);
+      }
+    }
+  }
+
+  private void createMembers(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+    // members
+    List<Map<String, String>> members =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
+    if (members != null) {
+      for (Map<String, String> m : members) {
+        schema.addMember(m.get(EMAIL), m.get(ROLE));
+      }
+    }
+  }
+
+  private void createTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+      throws IOException {
+    Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
+    // tables
+    if (tables != null) {
+      Map tableMap = Map.of("tables", tables);
+      String json = JsonUtil.getWriter().writeValueAsString(tableMap);
+      SchemaMetadata otherSchema = jsonToSchema(json);
+      schema.merge(otherSchema);
+    }
   }
 
   public GraphQLFieldDefinition alterMutation(Schema schema) {
@@ -207,7 +219,7 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputAlterColumnType)))
         .argument(
             GraphQLArgument.newArgument()
-                .name("settings")
+                .name(SETTINGS)
                 .type(GraphQLList.list(inputAlterSettingType)))
         .build();
   }
@@ -236,7 +248,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(inputTableMetadataType))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("settings")
+                  .name(SETTINGS)
                   .type(GraphQLList.list(inputAlterSettingType)))
           .build();
 
@@ -260,63 +272,55 @@ public class GraphqlSchemaFieldFactory {
       schema.tx(
           db -> {
             try {
-              Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-
-              // tables
-              if (tables != null) {
-                Map tableMap = Map.of("tables", tables);
-                String json = JsonUtil.getWriter().writeValueAsString(tableMap);
-                SchemaMetadata otherSchema = jsonToSchema(json);
-                schema.merge(otherSchema);
-              }
-              // members
-              List<Map<String, String>> members =
-                  dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-              if (members != null) {
-                for (Map<String, String> m : members) {
-                  schema.addMember(m.get(EMAIL), m.get(ROLE));
-                }
-              }
-              // columns {table,name,definition}
-              List<Map<String, String>> columns =
-                  dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
-              if (columns != null) {
-                for (Map<String, String> c : columns) {
-                  String tableName = c.get(TABLE);
-                  String columnName = c.get(GraphqlConstants.NAME);
-                  String json = JsonUtil.getWriter().writeValueAsString(c.get(DEFINITION));
-                  Column columnDefinition = JsonUtil.jsonToColumn(json);
-                  TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
-                  if (tm == null) {
-                    throw new GraphqlException("", "Table '" + tableName + "' not found");
-                  }
-
-                  tm.alterColumn(columnName, columnDefinition);
-                }
-              }
-              // schema settings
-              List<Map<String, String>> settings = dataFetchingEnvironment.getArgument("settings");
-              if (settings != null) {
-                // get the old settings
-                Map<String, String> settingsMap = schema.getMetadata().getSettings();
-                // convert from  {key:xx,value:yy} to {xx:yy}, merge with old settings
-                settings.forEach(
-                    entry -> {
-                      if (entry.get("value") == null || entry.get("value").trim().equals("")) {
-                        // remove the key
-                        settingsMap.remove(entry.get("key"));
-                      } else {
-                        settingsMap.put(entry.get("key"), entry.get("value"));
-                      }
-                    });
-                schema.getMetadata().setSettings(settingsMap);
-              }
+              createTables(schema, dataFetchingEnvironment);
+              createMembers(schema, dataFetchingEnvironment);
+              alterColumns(schema, dataFetchingEnvironment);
+              createSettings(schema, dataFetchingEnvironment);
             } catch (IOException e) {
               throw new GraphqlException("Save metadata failed", e);
             }
           });
       return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
     };
+  }
+
+  private void createSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+    List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
+    if (settings != null) {
+      // get the old settings
+      Map<String, String> settingsMap = schema.getMetadata().getSettings();
+      // convert from  {key:xx,value:yy} to {xx:yy}, merge with old settings
+      settings.forEach(
+          entry -> {
+            if (entry.get(VALUE) == null || entry.get(VALUE).trim().equals("")) {
+              // remove the key
+              settingsMap.remove(entry.get("key"));
+            } else {
+              settingsMap.put(entry.get("key"), entry.get(VALUE));
+            }
+          });
+      schema.getMetadata().setSettings(settingsMap);
+    }
+  }
+
+  private void alterColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+      throws IOException {
+    List<Map<String, String>> columns =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
+    if (columns != null) {
+      for (Map<String, String> c : columns) {
+        String tableName = c.get(TABLE);
+        String columnName = c.get(GraphqlConstants.NAME);
+        String json = JsonUtil.getWriter().writeValueAsString(c.get(DEFINITION));
+        Column columnDefinition = JsonUtil.jsonToColumn(json);
+        TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
+        if (tm == null) {
+          throw new GraphqlException("Table '" + tableName + "' not found");
+        }
+
+        tm.alterColumn(columnName, columnDefinition);
+      }
+    }
   }
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {
@@ -463,7 +467,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputColumnMetadataType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("settings")
+                  .name(SETTINGS)
                   .type(GraphQLList.list(outputSettingsMetadataType)))
           .build();
 
@@ -516,36 +520,52 @@ public class GraphqlSchemaFieldFactory {
 
   private static DataFetcher<?> dropFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      StringBuffer message = new StringBuffer();
+      StringBuilder message = new StringBuilder();
       schema.tx(
           db -> {
-            List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-            if (tables != null) {
-              for (String tableName : tables) {
-                schema.dropTable(tableName);
-                message.append("Dropped table '" + tableName + "'\n");
-              }
-            }
-            List<String> members = dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-            if (members != null) {
-              for (String name : members) {
-                schema.removeMember(name);
-                message.append("Dropped member '" + name + "'\n");
-              }
-            }
-            List<Map> columns = dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
-            if (columns != null) {
-              for (Map col : columns) {
-                schema
-                    .getMetadata()
-                    .getTableMetadata((String) col.get(TABLE))
-                    .dropColumn((String) col.get(COLUMN));
-              }
-            }
+            dropTables(schema, dataFetchingEnvironment, message);
+            dropMembers(schema, dataFetchingEnvironment, message);
+            dropColumns(schema, dataFetchingEnvironment, message);
           });
       Map result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
       return result;
     };
+  }
+
+  private static void dropColumns(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<Map> columns = dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
+    if (columns != null) {
+      for (Map col : columns) {
+        schema
+            .getMetadata()
+            .getTableMetadata((String) col.get(TABLE))
+            .dropColumn((String) col.get(COLUMN));
+        message.append("Dropped column '" + col.get(TABLE) + "." + col.get(COLUMN) + "'\n");
+      }
+    }
+  }
+
+  private static void dropMembers(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<String> members = dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
+    if (members != null) {
+      for (String name : members) {
+        schema.removeMember(name);
+        message.append("Dropped member '" + name + "'\n");
+      }
+    }
+  }
+
+  private static void dropTables(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
+    if (tables != null) {
+      for (String tableName : tables) {
+        schema.dropTable(tableName);
+        message.append("Dropped table '" + tableName + "'\n");
+      }
+    }
   }
 }

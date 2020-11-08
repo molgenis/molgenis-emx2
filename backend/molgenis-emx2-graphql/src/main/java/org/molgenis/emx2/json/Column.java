@@ -1,7 +1,6 @@
 package org.molgenis.emx2.json;
 
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -42,10 +41,8 @@ public class Column {
     this.rdfTemplate = column.getRdfTemplate();
 
     // calculated field
-    this.inherited =
-        table.getInherit() != null
-            ? table.getInheritedTable().getColumnNames().contains(column.getName())
-            : false;
+    if (table.getInherit() != null)
+      this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {

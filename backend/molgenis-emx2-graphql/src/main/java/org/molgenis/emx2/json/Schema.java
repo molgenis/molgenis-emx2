@@ -1,6 +1,5 @@
 package org.molgenis.emx2.json;
 
-import org.jooq.conf.Settings;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
@@ -12,7 +11,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 public class Schema {
   private List<Table> tables = new ArrayList<>();
-  private List<Setting> settings = new ArrayList();
+  private List<Setting> settings = new ArrayList<>();
 
   public Schema() {
     // for json serialization

@@ -18,7 +18,7 @@ public class JsonExceptionMapper {
     Map<String, String> map = new LinkedHashMap<>();
     map.put("message", e.getMessage());
 
-    List<Map> errorList = new ArrayList<>();
+    List<Map<String, String>> errorList = new ArrayList<>();
     errorList.add(map);
 
     Map<String, List> error = new LinkedHashMap<>();

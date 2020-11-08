@@ -6,7 +6,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
@@ -14,7 +13,6 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputAlterSettingType;
 
 public class GraphqlSessionFieldFactory {
 

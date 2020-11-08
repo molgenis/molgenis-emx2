@@ -3,16 +3,12 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.*;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputAlterSettingType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 public class GraphqlDatabaseFieldFactory {
@@ -54,9 +50,8 @@ public class GraphqlDatabaseFieldFactory {
         .name("_settings")
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
-            dataFetchingEnvironment -> {
-              return new ArrayList(); //
-            });
+            dataFetchingEnvironment -> new ArrayList() // big todo
+            );
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {

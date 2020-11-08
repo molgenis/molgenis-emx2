@@ -15,6 +15,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 public class JsonUtil {
+
+  private JsonUtil() {
+    // hide constructor
+  }
+
   private static ObjectWriter writer;
 
   public static org.molgenis.emx2.Column jsonToColumn(String json) throws IOException {

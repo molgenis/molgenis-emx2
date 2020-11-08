@@ -8,6 +8,10 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 public class SettingsDataModel {
 
+  private SettingsDataModel() {
+    // hide constructor
+  }
+
   public static void create(Schema schema) {
     TableMetadata tm = table("Settings");
     tm.add(column("schema").setKey(1));
