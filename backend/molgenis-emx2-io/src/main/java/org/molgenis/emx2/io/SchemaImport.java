@@ -60,7 +60,9 @@ public class SchemaImport {
             }
           }
         });
-    logger.info("Import transaction completed in " + (System.currentTimeMillis() - start) + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info("Import transaction completed in {0}ms", System.currentTimeMillis() - start);
+    }
   }
 
   /** validates foreign keys against table */
@@ -190,13 +192,13 @@ public class SchemaImport {
         if (batch.size() >= 100000) {
           table.update(batch);
           batch.clear();
-          logger.info("Imported " + count + " into " + table.getName());
+          logger.info("Imported {0} into {1}", count, table.getName());
         }
       }
       // remaining
-      if (batch.size() > 0) {
+      if (!batch.isEmpty()) {
         table.update(batch);
-        logger.info("Imported " + count + " into " + table.getName());
+        logger.info("Imported {0} into {1}", count, table.getName());
       }
     }
   }

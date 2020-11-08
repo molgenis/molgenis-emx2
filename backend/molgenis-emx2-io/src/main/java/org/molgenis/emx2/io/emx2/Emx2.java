@@ -29,6 +29,10 @@ public class Emx2 {
   private static final String VALIDATION = "validation";
   private static final String RDF_TEMPLATE = "rdfTemplate";
 
+  private Emx2() {
+    // hidden
+  }
+
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {
 
     SchemaMetadata schema = new SchemaMetadata();
@@ -38,8 +42,10 @@ public class Emx2 {
       String tableName = r.getString(TABLE_NAME);
       if (tableName == null) {
         throw new MolgenisException(
-            "Parsing of sheet molgenis failed",
-            "Required column " + TABLE_NAME + " is empty on line " + lineNo);
+            "Parsing of sheet molgenis failed: Required column "
+                + TABLE_NAME
+                + " is empty on line "
+                + lineNo);
       }
 
       if (schema.getTableMetadata(tableName) == null) {
@@ -56,8 +62,10 @@ public class Emx2 {
       else {
         if (r.getString(TABLE_EXTENDS) != null) {
           throw new MolgenisException(
-              "Parsing of sheet molgenis failed",
-              "Column " + TABLE_EXTENDS + " not supported for columns at " + lineNo);
+              "Parsing of sheet molgenis failed: Column "
+                  + TABLE_EXTENDS
+                  + " not supported for columns at "
+                  + lineNo);
         }
 
         Column column = column(r.getString(COLUMN_NAME));
@@ -78,14 +86,6 @@ public class Emx2 {
       lineNo++;
     }
     return schema;
-  }
-
-  private static Set<String> parseRefTo(Row r) {
-    String name = r.getString(COLUMN_NAME);
-    if (name.contains("(")) {
-      return Set.of(name.split("\\(")[1].replace(")", "").split(","));
-    }
-    return new LinkedHashSet<>();
   }
 
   public static List<Row> toRowList(SchemaMetadata schema) {

@@ -29,7 +29,7 @@ public class TableStoreForCsvInMemory implements TableStore {
       bufferedWriter.close();
       store.put(name, existing + writer.toString());
     } catch (IOException ioe) {
-      throw new MolgenisException("import failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("import failed", ioe);
     }
   }
 

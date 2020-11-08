@@ -15,7 +15,8 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 public class Emx1 {
-  static final String EMX_1_IMPORT_FAILED = "EMX1 import failed";
+  static final String EMX_1_IMPORT_FAILED = "EMX1 import failed: ";
+  public static final String ONETOMANY = "onetomany";
   private static Logger logger = LoggerFactory.getLogger(Emx1.class);
 
   private Emx1() {
@@ -60,12 +61,12 @@ public class Emx1 {
     for (Emx1Attribute attribute : attributes) {
       if (attribute.getDataType().contains("ref")
           || attribute.getDataType().contains("categorical")
-          || attribute.getDataType().contains("onetomany")) {
+          || attribute.getDataType().contains(ONETOMANY)) {
 
         if (attribute.getRefEntity() == null) {
           throw new MolgenisException(
-              EMX_1_IMPORT_FAILED,
-              "Adding reference '"
+              EMX_1_IMPORT_FAILED
+                  + "Adding reference '"
                   + attribute.getEntity()
                   + "'.'"
                   + attribute.getName()
@@ -78,7 +79,7 @@ public class Emx1 {
         String refTableName = getTableName(entities, attribute.getRefEntity());
 
         Column c = table.getColumn(attribute.getName()).setRefTable(refTableName);
-        if (attribute.getDataType().contains("onetomany") && attribute.getMappedBy() == null) {
+        if (attribute.getDataType().contains(ONETOMANY) && attribute.getMappedBy() == null) {
           throw new MolgenisException(
               "mappedBy missing for attribute "
                   + attribute.getEntity()
@@ -107,7 +108,7 @@ public class Emx1 {
       }
     } catch (MolgenisException me) {
       throw new MolgenisException(
-          EMX_1_IMPORT_FAILED, me.getMessage() + "See 'entities' line " + line, me);
+          EMX_1_IMPORT_FAILED + me.getMessage() + "See 'entities' line " + line, me);
     }
   }
 
@@ -149,7 +150,7 @@ public class Emx1 {
       }
     } catch (MolgenisException me) {
       throw new MolgenisException(
-          EMX_1_IMPORT_FAILED, me.getMessage() + ". See 'attributes' line " + line, me);
+          EMX_1_IMPORT_FAILED + me.getMessage() + ". See 'attributes' line " + line, me);
     }
     return attributes;
   }
@@ -182,7 +183,7 @@ public class Emx1 {
       }
     } catch (MolgenisException me) {
       throw new MolgenisException(
-          EMX_1_IMPORT_FAILED, me.getMessage() + ". See 'entities' line " + line, me);
+          EMX_1_IMPORT_FAILED + me.getMessage() + ". See 'entities' line " + line, me);
     }
     return entities;
   }
@@ -213,7 +214,7 @@ public class Emx1 {
       case "xref":
       case "categorical":
         return REF;
-      case "onetomany":
+      case ONETOMANY:
         return REFBACK;
       case "mref":
       case "categorical_mref":

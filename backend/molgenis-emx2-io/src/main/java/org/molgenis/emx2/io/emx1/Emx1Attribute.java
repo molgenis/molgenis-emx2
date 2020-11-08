@@ -6,6 +6,7 @@ import org.molgenis.emx2.Row;
 import static org.molgenis.emx2.ColumnType.REF;
 
 public class Emx1Attribute {
+  public static final String ID_ATTRIBUTE = "idAttribute";
   private String entity;
   private String name;
   private String label;
@@ -44,9 +45,9 @@ public class Emx1Attribute {
     this.description = get(row, "description");
     this.nillable = row.getBoolean("nillable");
     this.idAttribute =
-        get(row, "idAttribute") != null
-            && ("AUTO".equalsIgnoreCase(row.getString("idAttribute"))
-                || row.getBoolean("idAttribute"));
+        get(row, ID_ATTRIBUTE) != null
+            && ("AUTO".equalsIgnoreCase(row.getString(ID_ATTRIBUTE))
+                || row.getBoolean(ID_ATTRIBUTE));
     this.aggregateable = row.getBoolean("aggregatable");
     this.labelAttribute = row.getBoolean("labelAttribute");
     this.readonly = row.getBoolean("readonly");
@@ -231,7 +232,7 @@ public class Emx1Attribute {
     r.set("dataType", dataType);
     r.set("refEntity", refEntity);
     r.set("mappedBy", mappedBy);
-    r.set("idAttribute", idAttribute); // different by design
+    r.set(ID_ATTRIBUTE, idAttribute); // different by design
     r.set("nillable", nillable);
     r.set("readonly", readonly);
     r.set("partOfAttribute", partOfAttribute); // not supported by design

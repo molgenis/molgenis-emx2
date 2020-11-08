@@ -39,8 +39,8 @@ public class CsvTableReader {
                 return it.hasNext();
               } catch (Exception e) {
                 throw new MolgenisException(
-                    "Import failed",
-                    e.getClass().getName()
+                    "Import failed: "
+                        + e.getClass().getName()
                         + ": "
                         + e.getMessage()
                         + ". Error at line "

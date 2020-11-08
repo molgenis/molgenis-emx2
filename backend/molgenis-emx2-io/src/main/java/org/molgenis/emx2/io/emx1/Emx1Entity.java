@@ -22,7 +22,7 @@ public class Emx1Entity {
   public Emx1Entity(Row row) {
     this.name = row.getString("name");
     if (this.name == null) {
-      throw new MolgenisException(EMX_1_IMPORT_FAILED, "attribute name cannot be null");
+      throw new MolgenisException(EMX_1_IMPORT_FAILED + "attribute name cannot be null");
     }
     this.extnds = row.getString("extends");
     this.packageName = row.getString("package");

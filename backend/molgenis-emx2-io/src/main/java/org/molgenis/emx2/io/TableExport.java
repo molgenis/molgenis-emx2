@@ -13,6 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class TableExport {
+
+  private TableExport() {
+    // hidden
+  }
+
   public static void toZipFile(Path zipFile, Query query) {
     executeExport(new TableStoreForCsvInZipFile(zipFile), query);
   }
@@ -27,7 +32,7 @@ public class TableExport {
       CsvTableWriter.write(query.retrieveRows(), writer, ',');
       writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("Export failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Export failed", ioe);
     }
   }
 

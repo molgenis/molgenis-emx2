@@ -20,7 +20,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   public TableStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
     if (!directoryPath.toFile().exists())
-      throw new MolgenisException("Import failed", "Directory " + directoryPath + " doesn't exist");
+      throw new MolgenisException("Import failed: Directory " + directoryPath + " doesn't exist");
     this.separator = separator;
   }
 
@@ -36,7 +36,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
       CsvTableWriter.write(rows, writer, separator);
       writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("Impoart failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Impoart failed", ioe);
     }
   }
 
@@ -48,8 +48,10 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
       return RowReaderJackson.readList(reader, separator);
     } catch (IOException ioe) {
       throw new MolgenisException(
-          "Import failed",
-          "Table not found. File with name '" + name + "' doesn't exist. " + ioe.getMessage(),
+          "Import failed: Table not found. File with name '"
+              + name
+              + "' doesn't exist. "
+              + ioe.getMessage(),
           ioe);
     }
   }

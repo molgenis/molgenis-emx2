@@ -54,7 +54,7 @@ public class TableStoreForXlsxFile implements TableStore {
         }
       }
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe);
     }
   }
 
@@ -128,7 +128,7 @@ public class TableStoreForXlsxFile implements TableStore {
         this.cache.put(sheetName, result);
       }
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe);
     }
     if (logger.isInfoEnabled()) {
       logger.info("Excel file loaded into memory in {}ms", (System.currentTimeMillis() - start));
@@ -142,7 +142,7 @@ public class TableStoreForXlsxFile implements TableStore {
     }
     if (!this.cache.containsKey(name)) {
       throw new MolgenisException(
-          "Import failed", "Table with name " + name + " not found in Excel file");
+          "Import failed: Table with name " + name + " not found in Excel file");
     }
     return this.cache.get(name);
   }
@@ -201,6 +201,11 @@ public class TableStoreForXlsxFile implements TableStore {
       case BLANK:
         row.set(colName, null);
         break;
+      default:
+        throw new UnsupportedOperationException(
+            "Found unknown type "
+                + cellType
+                + " in Excel file; should not happen in this function");
     }
   }
 

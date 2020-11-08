@@ -22,9 +22,9 @@ import java.util.zip.ZipFile;
 public class TableStoreForCsvInZipFile implements TableStore {
   static final String CSV_EXTENSION = ".csv";
   static final String TSV_EXTENSION = ".tsv";
-  private Path zipFilePath;
-  private final Character CSV_SEPARATOR = ',';
-  private final Character TSV_SEPARATOR = '\t';
+  private final Path zipFilePath;
+  private static final Character comma = ',';
+  private static final Character tab = '\t';
 
   public TableStoreForCsvInZipFile(Path zipFilePath) {
     this.zipFilePath = zipFilePath;
@@ -57,10 +57,10 @@ public class TableStoreForCsvInZipFile implements TableStore {
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Writer writer = Files.newBufferedWriter(pathInZipfile);
-      CsvTableWriter.write(rows, writer, CSV_SEPARATOR);
+      CsvTableWriter.write(rows, writer, comma);
       writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe.getMessage(), ioe);
+      throw new MolgenisException("Import failed", ioe);
     }
   }
 
@@ -70,9 +70,9 @@ public class TableStoreForCsvInZipFile implements TableStore {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader, CSV_SEPARATOR).iterator());
+        processor.process(CsvTableReader.read(reader, comma).iterator());
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader, TSV_SEPARATOR).iterator());
+        processor.process(CsvTableReader.read(reader, tab).iterator());
       } else {
         throw new MolgenisException(
             "Import failed: Table '"
@@ -90,10 +90,10 @@ public class TableStoreForCsvInZipFile implements TableStore {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader, CSV_SEPARATOR).spliterator(), false)
+        return StreamSupport.stream(CsvTableReader.read(reader, comma).spliterator(), false)
             .collect(Collectors.toList());
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader, TSV_SEPARATOR).spliterator(), false)
+        return StreamSupport.stream(CsvTableReader.read(reader, tab).spliterator(), false)
             .collect(Collectors.toList());
       } else {
         throw new MolgenisException(
