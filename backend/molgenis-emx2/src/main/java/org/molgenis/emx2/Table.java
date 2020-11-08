@@ -24,8 +24,6 @@ public interface Table {
 
   Query select(SelectColumn... columns);
 
-  //  Query filter(String path, Operator operator, Object... values);
-
   Query agg(SelectColumn columns);
 
   Query where(Filter... filters);

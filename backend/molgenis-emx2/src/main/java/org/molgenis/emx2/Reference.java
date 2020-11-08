@@ -52,7 +52,7 @@ public class Reference {
     return type;
   }
 
-  public DataType<?> getJooqType() {
+  public DataType getJooqType() {
     return toJooqType(getPrimitiveType());
   }
 
@@ -72,24 +72,24 @@ public class Reference {
     return this.primitiveType;
   }
 
-  public boolean isOverlapping() {
-    boolean beforeThisColumn = true;
+  public Reference getOverlapping() {
     for (Column c : column.getTable().getColumns()) {
-      // if column is 'self'
       if (c.getName().equals(column.getName())) {
-        beforeThisColumn = false;
+        return null; // should be before this one
+      } else if (c.getName().equals(getName())) {
+        return c.getReferences().get(0);
       } else {
-        // if there is a column with same name
-        // or if there is a composite reference this one is overlapping with
-        // BEFORE this one
-        if (c.getName().equals(getName())
-            || (beforeThisColumn
-                && c.getReferences().stream()
-                    .anyMatch(c2 -> c2.getName().equals(this.getName())))) {
-          return true;
+        for (Reference ref : c.getReferences()) {
+          if (ref.getName().equals(this.getName())) {
+            return ref;
+          }
         }
       }
     }
-    return false;
+    return null;
+  }
+
+  public boolean isOverlapping() {
+    return getOverlapping() != null;
   }
 }

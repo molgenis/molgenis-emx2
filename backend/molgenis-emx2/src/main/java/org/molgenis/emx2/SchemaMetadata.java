@@ -14,7 +14,7 @@ public class SchemaMetadata {
 
   public SchemaMetadata(String name) {
     if (name == null || name.isEmpty())
-      throw new MolgenisException("Create schema failed", "Schema name was null or empty");
+      throw new MolgenisException("Create schema failed: Schema name was null or empty");
     this.name = name;
   }
 
@@ -72,12 +72,12 @@ public class SchemaMetadata {
   }
 
   public List<TableMetadata> getTables() {
-    List<TableMetadata> tables = new ArrayList<>();
-    for (String name : getTableNames()) {
-      tables.add(getTableMetadata(name));
+    List<TableMetadata> result = new ArrayList<>();
+    for (String tableName : getTableNames()) {
+      result.add(getTableMetadata(tableName));
     }
-    TableSort.sortTableByDependency(tables);
-    return tables;
+    TableSort.sortTableByDependency(result);
+    return result;
   }
 
   public SchemaMetadata setSettings(Map<String, String> settings) {

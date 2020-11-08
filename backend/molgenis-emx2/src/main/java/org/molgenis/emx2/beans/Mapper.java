@@ -24,7 +24,7 @@ public class Mapper {
       throws InvocationTargetException, IllegalAccessException {
     ArrayList<Row> rows = new ArrayList<>();
     for (Object b : beans) {
-      Class c = b.getClass();
+      Class<?> c = b.getClass();
       Method[] methods = c.getDeclaredMethods();
       Map<String, Object> values = new LinkedHashMap<>();
 
@@ -56,7 +56,7 @@ public class Mapper {
     return e;
   }
 
-  public static TableMetadata map(Class klazz) {
+  public static TableMetadata map(Class<?> klazz) {
     TableMetadata t = new TableMetadata(klazz.getSimpleName());
 
     Field[] fields = klazz.getDeclaredFields();

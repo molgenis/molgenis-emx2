@@ -21,15 +21,16 @@ public class Row {
 
   public Row(Object... nameValuePairs) {
     if (nameValuePairs == null) return;
-    if (nameValuePairs != null && nameValuePairs.length % 2 == 1) {
+    if (nameValuePairs.length % 2 == 1) {
       throw new MolgenisException(
-          "Row nameValue constructor should even number of parameters representing name-value pairs",
-          "Received " + nameValuePairs.length + " values");
+          "Row nameValue constructor should even number of parameters representing name-value pairs: Received "
+              + nameValuePairs.length
+              + " values");
     }
     for (int i = 0; i < nameValuePairs.length; i = i + 2) {
       if (!(nameValuePairs[i] instanceof String)) {
         throw new MolgenisException(
-            "Row names should be not null string", "found " + nameValuePairs[i]);
+            "Row names should be not null string: found " + nameValuePairs[i]);
       }
       this.set((String) nameValuePairs[i], nameValuePairs[i + 1]);
     }
@@ -227,7 +228,7 @@ public class Row {
     return this;
   }
 
-  public List values(String... columns) {
+  public List<Object> values(String... columns) {
     List<Object> result = new ArrayList<>();
     for (String name : columns) {
       result.add(values.get(name));
@@ -299,8 +300,7 @@ public class Row {
         return (T) getUuidArray(name);
       default:
         throw new MolgenisException(
-            "Unknown type",
-            "Cannot cast column to java columnType"
+            "Unknown type: Cannot cast column to java columnType"
                 + "Row.get(Class,name) not implemented for Class = "
                 + type.getCanonicalName());
     }
@@ -327,38 +327,4 @@ public class Row {
   public boolean notNull(String columnName) {
     return values.get(columnName) != null;
   }
-
-  //  public void sanitize(List<Column> columns) {
-  //    List<String> colNames = new ArrayList<>();
-  //    // get type correct
-  //    for (Column c : columns) {
-  //      if (this.values.get(c.getName()) != null) {
-  //        this.values.put(
-  //            c.getName(), TypeUtils.getTypedValue(this.values.get(c.getName()),
-  // c.getColumnType()));
-  //        colNames.add(c.getName());
-  //      }
-  //    }
-  //    // validation
-  //    for (Column c : columns) {
-  //      Object value = this.values.get(c.getName());
-  //      if (value != null && c.getValidationScript() != null) {
-  //        String error = executeJavascriptOnValue(c.getValidationScript(), value);
-  //        if (error != null)
-  //          throw new MolgenisException(
-  //              "Validation error on column '"
-  //                  + c.getName()
-  //                  + "': "
-  //                  + error
-  //                  + ". Instead found value '"
-  //                  + value
-  //                  + "'");
-  //      }
-  //    }
-  //    for (String key : this.values.keySet()) {
-  //      if (!colNames.contains(key)) {
-  //        this.values.remove(key);
-  //      }
-  //    }
-  //  }
 }

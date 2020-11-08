@@ -4,6 +4,10 @@ public class Version {
 
   public static final String DEVELOPMENT = "DEVELOPMENT";
 
+  private Version() {
+    // hide constructor
+  }
+
   public static String getSpecificationVersion() {
     String result = Version.class.getPackage().getSpecificationVersion();
     if (result == null) return DEVELOPMENT;

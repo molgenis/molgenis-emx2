@@ -121,17 +121,6 @@ public class Column {
     return columnType;
   }
 
-  //  public List<Reference> getReferences() {
-  //    List<Reference> refColumns = new ArrayList<>();
-  //    for (int i = 0; i < refFrom.length; i++) {
-  //      refColumns.add(
-  //          new Reference(
-  //              refFrom.get(i), refTo.get(i), refType.get(i), refNullable.get(i), new
-  // ArrayList<>()));
-  //    }
-  //    return refColumns;
-  //  }
-
   public SchemaMetadata getSchema() {
     return getTable().getSchema();
   }
@@ -387,8 +376,7 @@ public class Column {
     // no ref
     if (getRefTable() == null) return new ArrayList<>();
 
-    Map<String, Reference> refColumns =
-        new LinkedHashMap<>(); // overlapping keys may lead to duplicates
+    List<Reference> refColumns = new ArrayList<>();
 
     // check if primary key exists
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
@@ -428,8 +416,7 @@ public class Column {
             throw new MolgenisException(
                 "get references failed: no name mapping for ref " + ref.getName());
 
-          refColumns.put(
-              name,
+          refColumns.add(
               new Reference(
                   this,
                   name,
@@ -453,8 +440,7 @@ public class Column {
               "get references failed: no name mapping for ref " + keyPart.getName());
 
         // create the ref
-        refColumns.put(
-            name,
+        refColumns.add(
             new Reference(
                 this,
                 name,
@@ -462,11 +448,11 @@ public class Column {
                 getColumnType(),
                 type,
                 keyPart.isNullable() || this.isNullable(),
-                new ArrayList(List.of(keyPart.getName()))));
+                new ArrayList<>(List.of(keyPart.getName()))));
       }
     }
 
-    return new ArrayList<>(refColumns.values());
+    return refColumns;
   }
 
   public ColumnType getPrimitiveColumnType() {
@@ -488,13 +474,13 @@ public class Column {
   public String getRefJsTemplate() {
     if (refJsTemplate == null) {
       // we concat all columns unless already shown in another column
-      String result = "";
+      StringBuilder result = new StringBuilder();
       for (Reference ref : getReferences()) {
         if (!ref.isOverlapping()) {
-          result += ".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}";
+          result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
         }
       }
-      return result.replaceFirst("[.]", "");
+      return result.toString().replaceFirst("[.]", "");
     }
     return refJsTemplate;
   }

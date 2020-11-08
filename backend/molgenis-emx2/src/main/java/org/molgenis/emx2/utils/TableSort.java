@@ -50,9 +50,8 @@ public class TableSort {
       // check for circular relationship
       if (size == todo.size()) {
         throw new MolgenisException(
-            "circular dependency",
-            "following tables have circular dependency: "
-                + todo.stream().map(t -> t.getTableName()).collect(Collectors.joining(",")));
+            "circular dependency error: following tables have circular dependency: "
+                + todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
       }
     }
     tableList.clear();

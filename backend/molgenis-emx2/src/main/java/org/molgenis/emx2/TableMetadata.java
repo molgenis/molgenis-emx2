@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 
 import java.util.*;
@@ -34,8 +35,9 @@ public class TableMetadata {
   public TableMetadata(String tableName) {
     if (!tableName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
       throw new MolgenisException(
-          "Invalid table name '" + tableName + "'",
-          "Table name must start with a letter or underscore, followed by letters, underscores or numbers");
+          "Invalid table name '"
+              + tableName
+              + "': Table name must start with a letter or underscore, followed by letters, underscores or numbers");
     }
     this.tableName = tableName;
   }
@@ -95,7 +97,6 @@ public class TableMetadata {
         primaryKey.add(c.getName());
       }
     }
-    if (primaryKey.isEmpty()) return null;
     return primaryKey;
   }
 
@@ -200,9 +201,9 @@ public class TableMetadata {
 
   public void dropColumn(String name) {
     if (Arrays.asList(getPrimaryKeys()).contains(name))
-      throw new MolgenisException("Remove column failed", "Column is primary key");
+      throw new MolgenisException("Remove column failed: Column is primary key");
     if (columns.get(name) == null)
-      throw new MolgenisException("Remove column failed", "Column '" + name + "' unknown");
+      throw new MolgenisException("Remove column failed: Column '" + name + "' unknown");
     columns.remove(name);
   }
 
@@ -233,16 +234,15 @@ public class TableMetadata {
 
   public void enableRowLevelSecurity() {
     throw new UnsupportedOperationException();
-    // todo decide if RLS is default on
   }
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    String tableName = getTableName();
+    String name = getTableName();
     if (getInherit() != null) {
-      tableName += " extends " + getInherit();
+      name += " extends " + getInherit();
     }
-    builder.append("TABLE(").append(tableName).append("){");
+    builder.append("TABLE(").append(name).append("){");
     for (Column c : getColumns()) {
       builder.append("\n\t").append(c.toString());
     }
@@ -286,7 +286,7 @@ public class TableMetadata {
     return keyColumns;
   }
 
-  public List<Field<?>> getKeyFields(int key) {
+  public List<Field> getKeyFields(int key) {
     // references might be overlapping so need to deduplicate via this map
     Map<String, Field<?>> result = new LinkedHashMap<>();
     for (Column c : getKey(key)) {
@@ -326,11 +326,11 @@ public class TableMetadata {
     return columns.get(name);
   }
 
-  public org.jooq.Table getJooqTable() {
+  public org.jooq.Table<Record> getJooqTable() {
     return DSL.table(name(getSchemaName(), getTableName()));
   }
 
-  public List<Field<?>> getPrimaryKeyFields() {
+  public List<Field> getPrimaryKeyFields() {
     return getKeyFields(1);
   }
 
@@ -344,7 +344,8 @@ public class TableMetadata {
         settings.entrySet().stream()
             .filter(e -> e.getValue() != null && e.getValue().trim().length() > 0)
             .collect(
-                Collectors.toMap(e -> e.getKey(), e -> e.getValue())); // strip null and "" values
+                Collectors.toMap(
+                    Map.Entry::getKey, Map.Entry::getValue)); // strip null and "" values
     return this;
   }
 }

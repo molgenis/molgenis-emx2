@@ -52,8 +52,7 @@ public class FilterBean implements Filter {
     this.operator = operator;
     if (!Operator.OR.equals(operator) && !Operator.AND.equals(operator))
       throw new MolgenisException(
-          "Invalid filter",
-          "subquery filters without column name should have operator OR or AND. Other operators not yet supported");
+          "Invalid filter: subquery filters without column name should have operator OR or AND. Other operators not yet supported");
     for (Filter f : childFilters) {
       this.subFilters.add(f);
     }
@@ -65,7 +64,7 @@ public class FilterBean implements Filter {
       if (columnName != null
           && this.subFilters.stream().filter(c -> c.getColumn().equals(columnName)).count() > 0) {
         throw new MolgenisException(
-            "Invalid filter", "already created filter for field '" + f.getColumn() + "'");
+            "Invalid filter: already created filter for field '" + f.getColumn() + "'");
       }
       this.subFilters.add(f);
     }

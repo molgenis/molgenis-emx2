@@ -70,6 +70,6 @@ public class BinaryFileWrapper implements Binary {
         throw new MolgenisException("file error", e);
       }
     }
-    return null;
+    return new byte[0];
   }
 }

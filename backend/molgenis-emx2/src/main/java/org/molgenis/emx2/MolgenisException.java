@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MolgenisException extends RuntimeException {
   private final String message;
-  private final Class type;
+  private final Class<?> type;
   private final List<MolgenisExceptionDetail> details = new ArrayList<>();
 
   public MolgenisException(String message, Exception cause) {
@@ -33,7 +33,6 @@ public class MolgenisException extends RuntimeException {
     super(e);
     this.type = getClass();
     this.message = title + ": " + message;
-    ;
   }
 
   @Deprecated
@@ -48,6 +47,7 @@ public class MolgenisException extends RuntimeException {
     return Collections.unmodifiableList(this.details);
   }
 
+  @Override
   public String getMessage() {
     return message;
   }
@@ -57,6 +57,7 @@ public class MolgenisException extends RuntimeException {
     return null;
   }
 
+  @Override
   public String toString() {
     return getMessage();
   }

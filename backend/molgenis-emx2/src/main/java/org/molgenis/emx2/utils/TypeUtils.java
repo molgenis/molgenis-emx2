@@ -17,8 +17,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,8 +35,7 @@ public class TypeUtils {
   public static UUID toUuid(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
-      if (((String) v).trim().equals(""))
-        throw new MolgenisException("Cannot cast \"\" to UUID", "");
+      if (((String) v).trim().equals("")) throw new MolgenisException("Cannot cast \"\" to UUID");
       return java.util.UUID.fromString((String) v);
     }
     return (UUID) v;
@@ -81,11 +80,11 @@ public class TypeUtils {
   }
 
   private static Object[] processArray(
-      Object v, Function<Object, Object> f, IntFunction<Object[]> m, Class c) {
-    if (v == null) return null;
+      Object v, UnaryOperator<Object> f, IntFunction<Object[]> m, Class<?> c) {
+    if (v == null) return null; // NOSONAR
     else if (v.getClass().equals(c.arrayType())) return (Object[]) v;
     else if (v instanceof String) {
-      if (((String) v).trim().equals("")) return null;
+      if (((String) v).trim().equals("")) return null; // NOSONAR
       v = splitCsvString((String) v);
     } else if (v.getClass().isArray()) v = Arrays.asList((Object[]) v);
     if (v instanceof List) {
@@ -97,12 +96,12 @@ public class TypeUtils {
   }
 
   public static byte[] toBinary(Object v) {
-    if (v == null) return null;
+    if (v == null) return null; // NOSONAR
     return (byte[]) v;
   }
 
   public static Boolean toBool(Object v) {
-    if (v == null) return null;
+    if (v == null) return null; // NOSONAR
     if (v instanceof String) {
       if ("true".equalsIgnoreCase((String) v)) return true;
       if ("false".equalsIgnoreCase((String) v)) return false;
@@ -162,9 +161,9 @@ public class TypeUtils {
 
   public static JSONB[] toJsonbArray(Object v) {
     // non standard so not using the generic function
-    if (v == null) return null;
+    if (v == null) return null; // NOSONAR
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) return null;
+      if (((String) v).trim().equals("")) return null; // NOSONAR
       v = List.of(JSONB.valueOf((String) v));
     }
     if (v instanceof String[]) {
@@ -186,13 +185,12 @@ public class TypeUtils {
     return toStringArray(v);
   }
 
-  public static ColumnType typeOf(Class klazz) {
+  public static ColumnType typeOf(Class<?> klazz) {
     for (ColumnType t : ColumnType.values()) {
       if (t.getType().equals(klazz)) return t;
     }
     throw new MolgenisException(
-        "Unknown type",
-        "Can not determine typeOf(Class). No MOLGENIS type is defined to match "
+        "Unknown type: Can not determine typeOf(Class). No MOLGENIS type is defined to match "
             + klazz.getCanonicalName());
   }
 
@@ -281,14 +279,6 @@ public class TypeUtils {
     }
     return value;
   }
-
-  //  public static ColumnType getPrimitiveColumnType(Column column) {
-  //    if (column.isReference()) {
-  //      throw new UnsupportedOperationException(
-  //          "Cannot apply getPrimitiveColumnType to REF,MREF,REF_ARRAY,REFBACK");
-  //    }
-  //    return column.getColumnType();
-  //  }
 
   public static DataType toJooqType(ColumnType type) {
     switch (type) {
