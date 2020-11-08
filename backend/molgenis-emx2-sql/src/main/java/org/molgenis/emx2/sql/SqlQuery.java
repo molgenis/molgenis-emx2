@@ -821,8 +821,8 @@ public class SqlQuery extends QueryBean {
                 .map(
                     r ->
                         r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)
-                            ? field(name(r.getName()))
-                            : field("UNNEST({0})", name(r.getName())))
+                            ? field(name(tableAlias, r.getName()))
+                            : field("UNNEST({0})", name(tableAlias, r.getName())))
                 .collect(Collectors.toList());
         foreignKeyMatch.add(row(to).in(DSL.select(unnest)));
       }
