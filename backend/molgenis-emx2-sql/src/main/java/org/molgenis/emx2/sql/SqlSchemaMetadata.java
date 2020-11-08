@@ -41,7 +41,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SqlTableMetadata create(TableMetadata table) {
     // delete to batch creator
-    this.create(table);
+    this.create(new TableMetadata[] {table});
     return getTableMetadata(table.getTableName());
   }
 
