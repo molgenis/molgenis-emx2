@@ -65,20 +65,20 @@ public class SqlColumnRefExecutor {
     Column column1 = column[0];
     String refTableName = column1.getRefTableName();
     String columnNames =
-        List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+        List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
 
     // check if refTable exists
     if (refTableName == null) {
       throw new MolgenisException(
-          "Create column failed",
-          "Create of column(s) '" + columnNames + "' failed because RefTableName was not set");
+          "Create column failed: Create of column(s) '"
+              + columnNames
+              + "' failed because RefTableName was not set");
     }
 
     // check if other end has primary key
     if (column1.getRefTable().getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
-          "Create column failed",
-          "Create of column '"
+          "Create column failed: Create of column '"
               + columnNames
               + "' failed because other table has no primary key set");
     }
@@ -88,7 +88,7 @@ public class SqlColumnRefExecutor {
     Column column1 = column[0];
     return column1.getTable().getTableName()
         + "_"
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","))
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","))
         + "_FKINDEX";
   }
 
@@ -96,7 +96,7 @@ public class SqlColumnRefExecutor {
     Column column1 = column[0];
     return column1.getTable().getTableName()
         + "."
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","))
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","))
         + " REFERENCES "
         + column1.getRefTableName();
   }

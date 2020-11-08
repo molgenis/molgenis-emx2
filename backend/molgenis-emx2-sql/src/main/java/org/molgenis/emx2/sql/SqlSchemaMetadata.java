@@ -20,13 +20,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(MetadataUtils.loadSchemaMetadata(db.getJooq(), new SchemaMetadata(name)));
-    logger.info("loading schema '" + name + "' as user " + db.getActiveUser());
+    if (logger.isInfoEnabled()) {
+      logger.info("loading schema '{0}' as user {1}", name, db.getActiveUser());
+    }
     long start = System.currentTimeMillis();
     for (TableMetadata table : MetadataUtils.loadTables(db.getJooq(), this)) {
       super.create(new SqlTableMetadata(db, this, table));
     }
-    logger.info(
-        "loading schema '" + name + "'complete in " + (System.currentTimeMillis() - start) + "ms");
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "loading schema '{0}}'complete in {1}ms", name, System.currentTimeMillis() - start);
+    }
     this.db = db;
   }
 
@@ -37,7 +41,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SqlTableMetadata create(TableMetadata table) {
     // delete to batch creator
-    this.create(new TableMetadata[] {table});
+    this.create(table);
     return getTableMetadata(table.getTableName());
   }
 

@@ -1,33 +1,30 @@
 package org.molgenis.emx2;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Version;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class RunMolgenisEmx2BackendOnly {
+  private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2BackendOnly.class);
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     String url = "jdbc:postgresql:molgenis";
     if (args.length == 1) {
       if (Pattern.matches("[0-9A-Za-z/:]+", args[0])) {
         url = args[0];
       } else {
-        System.out.println("Error: invalid jdbc string. Found '" + args[0] + "'");
+        logger.error("Error: invalid jdbc string. Found '{0}'", args[0]);
         return;
       }
     } else {
-      System.out.println(
-          "You can pass custom postgresql jdbc url as first parameter as commandline");
+      logger.info("You can pass custom postgresql jdbc url as first parameter as commandline");
     }
-    System.out.println(
-        "Starting EMX2 Version=" + Version.getVersion() + " with postgresql url: " + url);
+    logger.info("Starting EMX2 Version=" + Version.getVersion() + " with postgresql url: " + url);
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();

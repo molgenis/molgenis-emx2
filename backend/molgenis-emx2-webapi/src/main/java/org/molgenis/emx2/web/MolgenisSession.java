@@ -42,8 +42,9 @@ public class MolgenisSession {
       Schema schema = database.getSchema(schemaName);
       if (schema == null)
         throw new MolgenisException(
-            "Schema not found",
-            "Schema with name '" + schemaName + "' does not exist or permission denied");
+            "Schema not found: Schema with name '"
+                + schemaName
+                + "' does not exist or permission denied");
       graphqlPerSchema.put(schemaName, new GraphqlApiFactory().createGraphqlForSchema(schema));
       logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
     }

@@ -34,12 +34,7 @@ public class MolgenisWebservice {
     // hide constructor
   }
 
-  public static void start(DataSource ds) throws IOException {
-    final Properties properties = new Properties();
-    //    properties.load(
-    //        MolgenisWebservice.class.getClassLoader().getResourceAsStream("version.properties"));
-    //    version = properties.getProperty("emx2.version");
-    //    logger.info("Starting EMX2 version: " + version);
+  public static void start(DataSource ds) {
 
     sessionManager = new MolgenisSessionManager(ds);
     port(8080);
@@ -60,9 +55,8 @@ public class MolgenisWebservice {
     get(
         "/api/",
         ACCEPT_HTML,
-        (request, response) -> {
-          return "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response);
-        });
+        (request, response) ->
+            "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response));
 
     // documentation operations
     get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
@@ -75,9 +69,7 @@ public class MolgenisWebservice {
 
     get(
         "/:schema/api",
-        (request, response) -> {
-          return "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>";
-        });
+        (request, response) -> "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>");
 
     CsvApi.create();
     ZipApi.create();
@@ -159,7 +151,7 @@ public class MolgenisWebservice {
     Schema schema =
         sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
     if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied", "");
+      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
     }
     return schema.getTable(sanitize(request.params(TABLE)));
   }

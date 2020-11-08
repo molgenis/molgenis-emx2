@@ -67,8 +67,7 @@ class SqlSchemaMetadataExecutor {
 
     if (!currentRoles.contains(member.getRole())) {
       throw new MolgenisException(
-          "Add member(s) failed",
-          "Role '"
+          "Add member(s) failed: Role '"
               + member.getRole()
               + " doesn't exist in schema '"
               + schema.getMetadata().getName()
@@ -204,7 +203,7 @@ class SqlSchemaMetadataExecutor {
       }
       MetadataUtils.deleteSchema(db.getJooq(), schemaName);
     } catch (MolgenisException me) {
-      throw new MolgenisException("Drop schema failed", me.getMessage());
+      throw new MolgenisException("Drop schema failed", me);
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Drop schema failed", dae);
     }

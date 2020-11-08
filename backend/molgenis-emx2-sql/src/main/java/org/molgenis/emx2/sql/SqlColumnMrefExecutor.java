@@ -83,7 +83,7 @@ public class SqlColumnMrefExecutor {
   private static String getInsertOrUpdateTriggerName(Column... column) {
     return column[0].getTable().getTableName()
         + "_"
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","))
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","))
         + "_TRIGGER";
   }
 
@@ -121,8 +121,6 @@ public class SqlColumnMrefExecutor {
     return String.join(" AND ", items);
   }
 
-  /* create "SELECT ({NEW.{keyfield} as {keyfield}}) AS self, UNNEST({refFields}) AS other({refFields}
-   */
   private static String subQuery(Column column) {
     StringBuilder result = new StringBuilder();
 
@@ -152,7 +150,7 @@ public class SqlColumnMrefExecutor {
   private static String getJoinTableName(Column... column) {
     return column[0].getTableName()
         + "-"
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
   }
 
   private static void createJoinTable(DSLContext jooq, Column column) {
@@ -169,7 +167,7 @@ public class SqlColumnMrefExecutor {
     // define the columns
     if (column.getTable().getPrimaryKeyColumns().isEmpty()) {
       throw new MolgenisException(
-          "Cannot create ref_array '" + column.getName() + "'", "Primary key not set");
+          "Cannot create ref_array '" + column.getName() + "': Primary key not set");
     }
     for (Field thisKey : column.getTable().getPrimaryKeyFields()) {
       selfKeyFields.add(thisKey.getQualifiedName());

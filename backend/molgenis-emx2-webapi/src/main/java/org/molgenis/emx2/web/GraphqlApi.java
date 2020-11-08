@@ -20,11 +20,9 @@ import javax.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -38,6 +36,8 @@ import static spark.Spark.post;
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
 public class GraphqlApi {
+  public static final String QUERY = "query";
+  public static final String VARIABLES = "variables";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
 
@@ -160,15 +160,15 @@ public class GraphqlApi {
         request.attribute(
             "org.eclipse.jetty.multipartConfig",
             new MultipartConfigElement(tempFile.getAbsolutePath()));
-        query = request.queryParams("query");
+        query = request.queryParams(QUERY);
       } else {
         ObjectNode node = new ObjectMapper().readValue(request.body(), ObjectNode.class);
-        query = node.get("query").asText();
+        query = node.get(QUERY).asText();
       }
     } else {
       query =
           request.queryParamOrDefault(
-              "query",
+              QUERY,
               "{\n"
                   + "  __schema {\n"
                   + "    types {\n"
@@ -185,18 +185,18 @@ public class GraphqlApi {
       try {
         if (request.headers("Content-Type").startsWith("multipart/form-data")) {
           Map<String, Object> variables =
-              new ObjectMapper().readValue(request.queryParams("variables"), Map.class);
+              new ObjectMapper().readValue(request.queryParams(VARIABLES), Map.class);
           // now replace each part id with the part
           putPartsIntoMap(
               variables,
               request.raw().getParts().stream()
-                  .filter(p -> !p.getName().equals("variables") && !p.getName().equals("query"))
+                  .filter(p -> !p.getName().equals(VARIABLES) && !p.getName().equals(QUERY))
                   .collect(Collectors.toList()));
           //
           return variables;
         } else {
           Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
-          return (Map<String, Object>) node.get("variables");
+          return (Map<String, Object>) node.get(VARIABLES);
         }
       } catch (Exception e) {
         throw new MolgenisException(

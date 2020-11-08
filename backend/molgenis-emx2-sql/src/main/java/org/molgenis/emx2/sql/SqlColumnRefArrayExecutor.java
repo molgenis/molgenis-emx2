@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Reference;
 
 import java.util.Collection;
@@ -192,7 +191,7 @@ class SqlColumnRefArrayExecutor {
         + "_CHECK_"
         + column1.getTable().getTableName()
         + "_"
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
   }
 
   private static String getUpdateTriggerName(Column... column) {
@@ -202,7 +201,7 @@ class SqlColumnRefArrayExecutor {
         + "_CASCADE_"
         + column1.getTable().getTableName()
         + "_"
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
   }
 
   /**
@@ -215,11 +214,6 @@ class SqlColumnRefArrayExecutor {
     Name toTable = name(schemaName, column.getRefTableName());
     String functionName = getUpdateCheckName(column);
     List<Reference> references = column.getReferences();
-
-    String newFromColumns =
-        references.stream()
-            .map(r -> "NEW." + name(r.getName()).toString())
-            .collect(Collectors.joining(","));
 
     String fromColumns =
         references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
@@ -312,6 +306,6 @@ class SqlColumnRefArrayExecutor {
         + "_CHECK_"
         + column1.getTable().getTableName()
         + "_"
-        + List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
   }
 }

@@ -7,7 +7,7 @@ import org.postgresql.util.PSQLException;
 public class SqlMolgenisException extends MolgenisException {
 
   public SqlMolgenisException(DataAccessException dae) {
-    super(getTitle(dae), getDetail(dae), dae);
+    super(getTitle(dae) + ": " + getDetail(dae), dae);
   }
 
   public SqlMolgenisException(String title, Exception e) {
@@ -15,7 +15,7 @@ public class SqlMolgenisException extends MolgenisException {
   }
 
   public SqlMolgenisException(String title, DataAccessException dae) {
-    super(title, getTitle(dae) + "." + getDetail(dae), dae);
+    super(title + ": " + getTitle(dae) + "." + getDetail(dae), dae);
   }
 
   private static String getTitle(DataAccessException dae) {

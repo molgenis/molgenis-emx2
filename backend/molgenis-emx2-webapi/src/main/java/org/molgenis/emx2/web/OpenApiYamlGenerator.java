@@ -18,9 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javax.servlet.RequestDispatcher.ERROR_MESSAGE;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.CsvApi.SUCCESS_MESSAGE;
 
 public class OpenApiYamlGenerator {
 
@@ -29,8 +27,6 @@ public class OpenApiYamlGenerator {
   private static final String PROBLEM = "Problem";
   static final String BAD_REQUEST = "400";
   static final String BAD_REQUEST_MESSAGE = "Bad request";
-  private static final String MEMBER = "Member";
-  private static final String SCHEMA = "SchemaMetadata";
 
   private OpenApiYamlGenerator() {
     // hide public constructor

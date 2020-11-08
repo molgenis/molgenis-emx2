@@ -274,30 +274,6 @@ public class MetadataUtils {
     }
   }
 
-  // not used, due to remove
-  //  protected static void loadTableMetadata(DSLContext jooq, TableMetadata table) {
-  //    try {
-  //      Record tableRecord =
-  //          jooq.selectFrom(TABLE_METADATA)
-  //              .where(
-  //                  TABLE_SCHEMA.eq(table.getSchema().getName()),
-  //                  (TABLE_NAME).eq(table.getTableName()))
-  //              .fetchOne();
-  //      if (tableRecord == null) {
-  //        return;
-  //      }
-  //      table.setInherit(tableRecord.get(TABLE_INHERITS, String.class));
-  //      table.setDescription(tableRecord.get(TABLE_DESCRIPTION, String.class));
-  //      table.setSettings(jsonMapper.readValue(tableRecord.get(SETTINGS, String.class),
-  // Map.class));
-  //      for (Column c : MetadataUtils.loadColumnMetadata(jooq, table)) {
-  //        table.add(c);
-  //      }
-  //    } catch (Exception e) {
-  //      throw new MolgenisException("load of table metadata failed", e);
-  //    }
-  //  }
-
   protected static void deleteTable(DSLContext jooq, TableMetadata table) {
     jooq.deleteFrom(TABLE_METADATA)
         .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getTableName()))
@@ -406,90 +382,6 @@ public class MetadataUtils {
     c.setRdfTemplate(col.get(COLUMN_RDF_TEMPLATE, String.class));
     return c;
   }
-
-  //  public static todo() {
-  //    if (getRefTable() == null) return refColumns;
-  //    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
-  //    if (pkeys.size() == 0) {
-  //      throw new MolgenisException(
-  //          "Error in column '" + getName() + "'",
-  //          "Reference to " + getRefTableName() + " fails because that table has no primary key");
-  //    }
-  //
-  //    // first create
-  //    for (Column keyPart : pkeys) {
-  //      if (keyPart.isReference()) {
-  //        for (Reference ref : keyPart.getReferences()) {
-  //          ColumnType type = ref.getColumnType();
-  //          if (!REF.equals(getColumnType())) {
-  //            type = getArrayType(type);
-  //          }
-  //          List<String> path = ref.getPath();
-  //          path.add(0, keyPart.getName());
-  //          refColumns.add(
-  //              new Reference(
-  //                  ref.getName(), ref.getName(), type, ref.isNullable() || this.isNullable(),
-  // path));
-  //        }
-  //      } else {
-  //        ColumnType type = keyPart.getColumnType();
-  //        // all but ref is array
-  //        if (!REF.equals(getColumnType())) {
-  //          type = getArrayType(type);
-  //        }
-  //        // create the ref
-  //        refColumns.add(
-  //            new Reference(
-  //                keyPart.getName(),
-  //                keyPart.getName(),
-  //                type,
-  //                keyPart.isNullable() || this.isNullable(),
-  //                new ArrayList(List.of(keyPart.getName()))));
-  //      }
-  //    }
-  //
-  //    // check if maps to existing, otherwise count to see if we need prefixing
-  //    int prefixCount = 0;
-  //    for (Reference ref : refColumns) {
-  //      if (getRefContraintMap().containsKey(ref.getName())) {
-  //        ref.setName(getRefContraintMap().get(ref.getName()));
-  //        ref.setExisting(true);
-  //      } else {
-  //        // if not existing, we might need to prefix if more than one reference
-  //        prefixCount++;
-  //      }
-  //    }
-  //
-  //    // if multiple, prefix with column name, otherwise rename to column name
-  //    // (ignore if maps to existing column)
-  //    if (prefixCount > 1) {
-  //      for (Reference ref : refColumns) {
-  //        // don't touch 'existing'
-  //        if (!ref.isExisting()) {
-  //          ref.setName(getName() + "-" + ref.getName());
-  //        }
-  //      }
-  //    } else {
-  //      for (Reference ref : refColumns) {
-  //        // don't touch 'existing'
-  //        if (!ref.isExisting()) {
-  //          refColumns.get(0).setName(getName());
-  //        }
-  //      }
-  //    }
-  //  }
-  //
-  //  private Map<String, String> getRefContraintMap() {
-  //    Map<String, String> result = new LinkedHashMap<>();
-  //    if (getRefLink() != null) {
-  //      for (String part : getRefLink().split(",")) {
-  //        String key = part.substring(0, part.indexOf("=")).trim();
-  //        String value = part.substring(part.indexOf("=") + 1).trim();
-  //        result.put(key, value);
-  //      }
-  //    }
-  //    return result;
-  //  }
 
   public static void setUserPassword(DSLContext jooq, String user, String password) {
     jooq.insertInto(USERS_METADATA)

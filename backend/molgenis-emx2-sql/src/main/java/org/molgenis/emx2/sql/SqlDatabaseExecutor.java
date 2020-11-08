@@ -25,7 +25,7 @@ class SqlDatabaseExecutor {
       if (result.isEmpty()) {
         jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
       } else {
-        throw new MolgenisException("Add user failed", "User '" + user + "' already exists");
+        throw new MolgenisException("Add user failed: User '" + user + "' already exists");
       }
       if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users

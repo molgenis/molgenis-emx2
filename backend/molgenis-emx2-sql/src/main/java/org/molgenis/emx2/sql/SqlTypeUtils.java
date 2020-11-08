@@ -42,8 +42,13 @@ public class SqlTypeUtils extends TypeUtils {
           String error = executeJavascriptOnValue(c.getValidationScript(), value);
           if (error != null)
             throw new MolgenisException(
-                "Validation error on column '" + c.getName() + "'",
-                error + ". Instead found value '" + value + "'");
+                "Validation error on column '"
+                    + c.getName()
+                    + "'"
+                    + error
+                    + ". Instead found value '"
+                    + value
+                    + "'");
         }
 
         // get value
@@ -148,7 +153,7 @@ public class SqlTypeUtils extends TypeUtils {
         return "jsonb";
       default:
         throw new MolgenisException(
-            "Unknown type", "Internal error: data cannot be mapped to psqlType " + type);
+            "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
     }
   }
 }

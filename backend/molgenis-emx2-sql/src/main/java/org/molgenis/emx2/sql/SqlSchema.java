@@ -174,8 +174,7 @@ public class SqlSchema implements Schema {
     }
     if (!errors.isEmpty()) {
       throw new MolgenisException(
-          "Discard failed",
-          "Discard of tables out of schema "
+          "Discard failed: Discard of tables out of schema "
               + getMetadata().getName()
               + " failed: "
               + String.join("\n", errors));

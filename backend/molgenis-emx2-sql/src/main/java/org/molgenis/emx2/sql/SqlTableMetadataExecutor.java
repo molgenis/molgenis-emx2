@@ -94,8 +94,7 @@ class SqlTableMetadataExecutor {
   static void executeSetInherit(DSLContext jooq, TableMetadata table, TableMetadata other) {
     if (other == null) {
       throw new MolgenisException(
-          "Extend failed",
-          "Cannot make table '"
+          "Extend failed: Cannot make table '"
               + table.getTableName()
               + "' extend table '"
               + table.getInherit()

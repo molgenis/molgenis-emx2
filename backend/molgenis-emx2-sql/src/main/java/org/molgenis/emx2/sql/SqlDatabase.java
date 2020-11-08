@@ -127,10 +127,7 @@ public class SqlDatabase implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    tx(
-        d -> {
-          SqlSchemaMetadataExecutor.executeDropSchema(this, name);
-        });
+    tx(d -> SqlSchemaMetadataExecutor.executeDropSchema(this, name));
     schemaCache.remove(name);
     schemaNames.remove(name);
     listener.schemaRemoved(name);
@@ -179,7 +176,7 @@ public class SqlDatabase implements Database {
   public void setUserPassword(String user, String password) {
     // can only as admin or as own user
     if (getActiveUser() != null
-        && !getActiveUser().equals("admin")
+        && !getActiveUser().equals(ADMIN)
         && !user.equals(getActiveUser())) {
       throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
     }
@@ -200,7 +197,7 @@ public class SqlDatabase implements Database {
     long start = System.currentTimeMillis();
     if (!hasUser(user))
       throw new MolgenisException(
-          "Remove user failed", "User with name '" + user + "' doesn't exist");
+          "Remove user failed: User with name '" + user + "' doesn't exist");
     tx(d -> jooq.execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
   }

@@ -39,10 +39,11 @@ public class MolgenisSessionManager implements DatabaseListener {
       if (minutesBetween(session.getCreateTime(), DateTime.now())
           .isGreaterThan(Minutes.minutes(30))) {
         request.session(false); // destroy session
-        logger.info(
-            "Destroyed session for user("
-                + session.getSessionUser()
-                + ") because timeout more than 30mins");
+        if (logger.isInfoEnabled()) {
+          logger.info(
+              "Destroyed session for user({0}) because timeout more than 30mins",
+              session.getSessionUser());
+        }
 
       } else {
         logger.info("Reusing session for user({})", session.getSessionUser());
@@ -63,7 +64,7 @@ public class MolgenisSessionManager implements DatabaseListener {
         t -> {
           Database database = new SqlDatabase(dataSource);
           if (!database.hasUser(user)) {
-            throw new MolgenisException("Authentication failed", "User " + user + " not known");
+            throw new MolgenisException("Authentication failed: User " + user + " not known");
           }
           database.setListener(this);
           database.setActiveUser(user);
@@ -107,7 +108,9 @@ public class MolgenisSessionManager implements DatabaseListener {
 
   @Override
   public void schemaRemoved(String schemaName) {
-    logger.debug("Schema changed/removed, clearing from caches: " + schemaName);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Schema changed/removed, clearing from caches: {0}", schemaName);
+    }
     for (MolgenisSession session : sessions.values()) {
       session.clearSchemaCache(schemaName);
     }

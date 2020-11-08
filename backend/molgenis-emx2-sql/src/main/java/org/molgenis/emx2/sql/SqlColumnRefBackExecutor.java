@@ -27,14 +27,13 @@ class SqlColumnRefBackExecutor {
       // get ref table
       validateRef(ref);
       String columNames =
-          ref.getReferences().stream().map(r -> r.getName()).collect(Collectors.joining(","));
+          ref.getReferences().stream().map(Reference::getName).collect(Collectors.joining(","));
 
       // get the via column which is also in the 'toTable'
       String mappedByColumnName = ref.getMappedBy();
       if (mappedByColumnName == null) {
         throw new MolgenisException(
-            "Create column failed",
-            "Create of REFBACK column(s) '"
+            "Create column failed: Create of REFBACK column(s) '"
                 + columNames
                 + "' failed because mappedBy was not set.");
       }
@@ -63,8 +62,7 @@ class SqlColumnRefBackExecutor {
           // todo case MREF:
         default:
           throw new MolgenisException(
-              "Create column failed",
-              "Create of REFBACK column(s) '"
+              "Create column failed: Create of REFBACK column(s) '"
                   + getNames(ref)
                   + "' failed because mappedBy was not of type REF, REF_ARRAY");
       }
@@ -115,18 +113,18 @@ class SqlColumnRefBackExecutor {
             .collect(Collectors.joining(","));
     String mappedByToEqualsNewKey =
         mappedByColumns.stream()
-            .map(s -> s.getRefTo())
+            .map(Reference::getRefTo)
             .map(r -> name(r) + "=NEW." + name(r))
             .collect(Collectors.joining(" AND "));
     String mappedByToEqualsOldKey =
         mappedByColumns.stream()
-            .map(s -> s.getRefTo())
+            .map(Reference::getRefTo)
             .map(r -> name(r) + "=OLD." + name(r))
             .collect(Collectors.joining(" AND "));
 
     String updateFilter =
         columns.stream()
-            .map(s -> s.getRefTo())
+            .map(Reference::getRefTo)
             .map(r -> "t." + name(r) + "=error_row." + name(r))
             .collect(Collectors.joining(" AND "));
 
@@ -195,51 +193,51 @@ class SqlColumnRefBackExecutor {
             + "\nEND;"
             + "\n$BODY$ LANGUAGE plpgsql;",
 
-        // {0} function name
+        // 0 function name
         name(schemaName, updateTriggerName),
-        // {1} to replace old mappedBy array(s) with new array(s)
+        // 1 to replace old mappedBy array(s) with new array(s)
         keyword(setterUpdate),
-        // {2} refTable
+        // 2 refTable
         table(name(schemaName, ref2.getRefTableName())),
-        // {3} mappedBy
+        // 3 mappedBy
         keyword(mappedByFrom),
-        // {4} key that mappedBy uses (might not be pkey)
+        // 4 key that mappedBy uses (might not be pkey)
         keyword(oldMappedByTo),
-        // {5} the column, in case of composite decomposed
+        // 5 the column, in case of composite decomposed
         keyword(newRef),
-        // {6} toColumn where fake foreign key dummy points to
+        // 6 toColumn where fake foreign key dummy points to
         keyword(refTo),
-        // {7} this table
+        // 7 this table
         table(name(schemaName, ref2.getTable().getTableName())),
-        // {8} check if pkey in new.pkey (i.e. if insert or update)
+        // 8 check if pkey in new.pkey (i.e. if insert or update)
         keyword(mappedByToEqualsNewKey),
-        // {9} inline table name
+        // 9 inline table name
         inline(ref2.getTable().getTableName()),
-        // {10} name
+        // 10 name
         inline(getNames(ref2)),
-        // {11} inline refTable name
+        // 11 inline refTable name
         inline(ref2.getRefTableName()),
-        // {12} inline refTable key column names
+        // 12 inline refTable key column names
         inline(refTo),
-        // {13} columns concat for errors
+        // 13 columns concat for errors
         keyword(errorColumns),
-        // {14} new key
+        // 14 new key
         keyword(newMappedByTo),
-        // {15} set new.ref to null
+        // 15 set new.ref to null
         keyword(setRefToNull),
-        // {16} keyEqualsOldKey
+        // 16 keyEqualsOldKey
         keyword(mappedByToEqualsOldKey),
-        // {17}
+        // 17
         keyword(arrayAgg),
-        // {18}
+        // 18
         keyword(updateFilter),
-        // {19}
+        // 19
         keyword(refTo),
-        // {20}
+        // 20
         keyword(mappedByFromErrorRow),
-        // {21}
+        // 21
         keyword(mappedByTo),
-        // {22}
+        // 22
         keyword(oldRefTo));
 
     // attach the trigger
@@ -267,7 +265,6 @@ class SqlColumnRefBackExecutor {
             + "\n$BODY$ LANGUAGE plpgsql;",
         name(schemaName, deleteTriggerName), // {0} function name
         table(name(schemaName, ref2.getRefTableName())), // {1} this table
-        // todo: composite refback test
         field(name(ref2.getMappedBy())), // {2} mappedBy
         field(
             name(
@@ -380,7 +377,7 @@ class SqlColumnRefBackExecutor {
         // 14 where this keys
         keyword(
             column.getMappedByColumn().getReferences().stream()
-                .map(r -> r.getRefTo())
+                .map(Reference::getRefTo)
                 .map(s -> name(s) + "=NEW." + name(s))
                 .collect(Collectors.joining(" AND "))));
 
@@ -399,31 +396,6 @@ class SqlColumnRefBackExecutor {
         name(schemaName, column.getTable().getTableName()),
         // reference to the trigger function
         name(schemaName, insertOrUpdateTrigger));
-
-    // delete trigger
-    //    jooq.execute(
-    //        "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ BEGIN"
-    //            + "\nBEGIN"
-    //            + "\n\tUPDATE {2} set {3} = NULL WHERE {3} = OLD.{4};"
-    //            + "\n\tRETURN NEW;"
-    //            + "\nEND; $BODY$ LANGUAGE plpgsql;",
-    //        name(schemaName, deleteTrigger), // {0} function name
-    //        keyword(SqlTypeUtils.getPsqlType(column.getRefColumn())), // {1} type of item
-    //        table(name(schemaName, column.getRefTableName())), // {2} toTable table
-    //        field(name(column.getMappedBy())), // {3} mappedBy field
-    //        field(
-    //            name(
-    //                getMappedByColumn(column)
-    //                    .getRefColumn()
-    //                    .getName()))); // {4} mappedBy reference to 'me' (might not be pkey)
-
-    //    jooq.execute(
-    //        "CREATE TRIGGER {0} "
-    //            + "\n\tAFTER DELETE ON {1} "
-    //            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
-    //        name(deleteTrigger),
-    //        name(schemaName, column.getTable().getTableName()),
-    //        name(schemaName, deleteTrigger));
   }
 
   static void removeRefBackConstraints(DSLContext jooq, Column column) {
@@ -440,7 +412,7 @@ class SqlColumnRefBackExecutor {
   }
 
   private static String getNames(Column... column) {
-    return List.of(column).stream().map(c -> c.getName()).collect(Collectors.joining(","));
+    return List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
   }
 
   private static String refbackUpdateTriggerName(Column... column) {

@@ -42,7 +42,7 @@ public class SqlColumnExecutor {
         break;
       case REF:
       case REF_ARRAY:
-        isNullable = column.getReferences().stream().anyMatch(c -> c.isNullable()) || isNullable;
+        isNullable = column.getReferences().stream().anyMatch(Reference::isNullable) || isNullable;
         break;
       case MREF:
         // nullability checked on the jointable
@@ -122,8 +122,9 @@ public class SqlColumnExecutor {
     if (FILE.equals(oldColumn.getColumnType()) && !FILE.equals(newColumn.getColumnType())
         || !FILE.equals(oldColumn.getColumnType()) && FILE.equals(newColumn.getColumnType())) {
       throw new MolgenisException(
-          "Alter type for column '" + newColumn.getName() + "' failed",
-          "Cannot convert from or to binary");
+          "Alter type for column '"
+              + newColumn.getName()
+              + "' failed: Cannot convert from or to binary");
     }
 
     // pre changes
@@ -235,14 +236,13 @@ public class SqlColumnExecutor {
 
   static void validateColumn(Column c) {
     if (c.getName() == null) {
-      throw new MolgenisException("Add column failed", "Column name cannot be null");
+      throw new MolgenisException("Add column failed: Column name cannot be null");
     }
-    if (c.getKey() > 0) {
-      if (c.getTable().getKeyFields(c.getKey()).size() > 1 && c.isNullable()) {
-        throw new MolgenisException(
-            "unique on column '" + c.getName() + "' failed",
-            "When key spans multiple columns, none of the columns can be nullable");
-      }
+    if (c.getKey() > 0 && !c.getTable().getKeyFields(c.getKey()).isEmpty() && c.isNullable()) {
+      throw new MolgenisException(
+          "unique on column '"
+              + c.getName()
+              + "' failed: When key spans multiple columns, none of the columns can be nullable");
     }
     if (c.isReference() && c.getRefTable() == null) {
       throw new MolgenisException(
@@ -250,7 +250,7 @@ public class SqlColumnExecutor {
               + c.getName()
               + "' failed: 'refTable' required for columns of type ref, ref_array, refback and mref  ");
     }
-    if (c.isReference() && c.getRefTable().getPrimaryKeyColumns().size() > 1) {
+    if (c.isReference() && !c.getRefTable().getPrimaryKeyColumns().isEmpty()) {
       if (c.getRefFrom() == null || c.getRefTo() == null) {
         throw new MolgenisException(
             "Add column '"
@@ -277,7 +277,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' must contain all primary key fields (incl subkeys): "
                 + c.getRefTable().getPrimaryKeyFields().stream()
-                    .map(f -> f.getName())
+                    .map(Field::getName)
                     .collect(Collectors.joining(",")));
       }
     }

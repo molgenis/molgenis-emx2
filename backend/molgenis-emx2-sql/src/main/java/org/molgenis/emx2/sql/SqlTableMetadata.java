@@ -21,7 +21,6 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 class SqlTableMetadata extends TableMetadata {
-  private static final String SET_INHERITANCE_FAILED = "Set inheritance failed";
   private Database db;
   private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
 
@@ -219,7 +218,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata removeInherit() {
-    throw new MolgenisException("removeInherit not yet implemented", "");
+    throw new MolgenisException("removeInherit not yet implemented");
   }
 
   @Override
