@@ -22,27 +22,17 @@
         <td>{{ table.description }}</td>
       </tr>
     </table>
-
-    <ShowMore title="debug">
-      STATE FOR DEBUG<br />
-      molgenis =
-      {{ JSON.stringify(session) }}
-      <br />
-      schema =
-      <pre>{{ JSON.stringify(schema, null, "\t") }}</pre>
-    </ShowMore>
   </div>
 </template>
 
 <script>
-import {DataTable, MessageError, ShowMore} from "@mswertz/emx2-styleguide";
+import { DataTable, MessageError } from "@mswertz/emx2-styleguide";
 
 export default {
   name: "App",
   components: {
     DataTable,
-    MessageError,
-    ShowMore
+    MessageError
   },
   props: {
     session: Object,

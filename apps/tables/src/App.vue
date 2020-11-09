@@ -1,20 +1,21 @@
 <template>
-  <Molgenis :menuItems="menuItems" id="__top" v-model="session">
-    <router-view
-      v-if="session && session.email"
-      :session="session"
-      :schema="schema"
-    />
+  <Molgenis id="__top" v-model="session">
+    <router-view v-if="session" :session="session" :schema="schema" />
+    <ShowMore title="debug">
+      session: {{ session }} <br /><br />
+      schema: {{ schema }}
+    </ShowMore>
   </Molgenis>
 </template>
 
 <script>
-import {Molgenis} from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import { Molgenis, ShowMore } from "@mswertz/emx2-styleguide";
+import { request } from "graphql-request";
 
 export default {
   components: {
-    Molgenis
+    Molgenis,
+    ShowMore
   },
   data() {
     return {
