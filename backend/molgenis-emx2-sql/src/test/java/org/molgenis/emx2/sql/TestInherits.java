@@ -15,7 +15,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.LIKE;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 
 public class TestInherits {
   private static Database db;

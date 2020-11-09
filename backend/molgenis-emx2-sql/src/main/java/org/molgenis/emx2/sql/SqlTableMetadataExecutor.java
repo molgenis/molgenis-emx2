@@ -123,9 +123,9 @@ class SqlTableMetadataExecutor {
     while (root.getInherit() != null) {
       root = root.getInheritedTable();
     }
-    if (root.getColumn(Constants.MG_TABLECLASS) == null) {
+    if (root.getColumn(org.molgenis.emx2.Constants.MG_TABLECLASS) == null) {
       root.add(
-          column(Constants.MG_TABLECLASS)
+          column(org.molgenis.emx2.Constants.MG_TABLECLASS)
               .setReadonly(true)
               .setDefaultValue(root.getTableName())); // should not be user editable
     }

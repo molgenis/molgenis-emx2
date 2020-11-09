@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.sql.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 class SqlTable implements Table {

@@ -49,7 +49,7 @@ import {
   Molgenis,
   Spinner
 } from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 /** Data import tool */
 export default {
@@ -86,15 +86,15 @@ export default {
     },
     downloadExcel() {
       //TODO add permission check
-      window.open("/api/excel/" + this.schema);
+      window.open("../api/excel");
     },
     downloadZip() {
       //TODO add permission check
-      window.open("/api/zip/" + this.schema);
+      window.open("../api/zip");
     },
     downloadCsv() {
       //TODO add permission check
-      window.open("/api/csv/" + this.schema);
+      window.open("../api/csv");
     }
   },
   created() {

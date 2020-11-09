@@ -1,6 +1,8 @@
 package org.molgenis.emx2.io;
 
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStore;
@@ -9,6 +11,9 @@ import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 
 import java.nio.file.Path;
+
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
 
 public class SchemaExport {
 
@@ -33,7 +38,18 @@ public class SchemaExport {
     store.writeTable("molgenis", Emx2.toRowList(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
-      store.writeTable(tableName, schema.getTable(tableName).retrieveRows());
+      writeTableContents(store, schema.getTable(tableName));
+    }
+  }
+
+  private static void writeTableContents(TableStore store, Table table) {
+    if (table.getMetadata().getColumn(Constants.MG_TABLECLASS) != null) {
+      // download only actual class
+      store.writeTable(
+          table.getName(),
+          table.query().where(f(Constants.MG_TABLECLASS, EQUALS, table.getName())).retrieveRows());
+    } else {
+      store.writeTable(table.getName(), table.retrieveRows());
     }
   }
 
@@ -47,7 +63,7 @@ public class SchemaExport {
     store.writeTable("attributes", Emx1.getEmx1Attributes(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
-      store.writeTable(tableName, schema.getTable(tableName).retrieveRows());
+      writeTableContents(store, schema.getTable(tableName));
     }
   }
 }

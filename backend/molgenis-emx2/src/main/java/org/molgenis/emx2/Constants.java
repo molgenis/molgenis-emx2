@@ -18,6 +18,7 @@ public class Constants {
   public static final String ROLE = "role";
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
+  public static final String MG_TABLECLASS = "mg_tableclass";
 
   private Constants() {
     // hide constructor
