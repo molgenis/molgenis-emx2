@@ -24,14 +24,13 @@ class SqlDatabaseExecutor {
           jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
       if (result.isEmpty()) {
         jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
-      } else {
-        throw new MolgenisException("Add user failed: User '" + user + "' already exists");
-      }
-      if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
-        // non-system users get role 'user' as way to identify all users
-        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));
-        // all users can see what anynymous can see
-        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS), name(userName));
+
+        if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
+          // non-system users get role 'user' as way to identify all users
+          jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));
+          // all users can see what anynymous can see
+          jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS), name(userName));
+        }
       }
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add user failed", dae);
