@@ -22,6 +22,7 @@ public class Column {
   private ColumnType columnType = STRING;
 
   // relationships
+  private String refSchema; // for cross schema references
   private String refTable;
   // for composite key
   private String[] refFrom = new String[0];
@@ -491,5 +492,16 @@ public class Column {
   public Column setRefJsTemplate(String refJsTemplate) {
     this.refJsTemplate = refJsTemplate;
     return this;
+  }
+
+  public String getRefSchema() {
+    if (refSchema == null) {
+      return getTable().getSchemaName();
+    }
+    return refSchema;
+  }
+
+  public void setRefSchema(String refSchema) {
+    this.refSchema = refSchema;
   }
 }

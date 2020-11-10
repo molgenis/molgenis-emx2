@@ -340,7 +340,7 @@ public class MetadataUtils {
   protected static void deleteColumn(DSLContext jooq, Column column) {
     jooq.deleteFrom(COLUMN_METADATA)
         .where(
-            TABLE_SCHEMA.eq(column.getTable().getSchemaName()),
+            TABLE_SCHEMA.eq(column.getSchemaName()),
             TABLE_NAME.eq(column.getTableName()),
             COLUMN_NAME.eq(column.getName()))
         .execute();

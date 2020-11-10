@@ -230,7 +230,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return DSL.select(column.getRefTable().getPrimaryKeyFields())
-        .from(name(mappedBy.getTable().getSchemaName(), mappedBy.getTable().getTableName()))
+        .from(name(mappedBy.getSchemaName(), mappedBy.getTableName()))
         .where(where);
   }
 

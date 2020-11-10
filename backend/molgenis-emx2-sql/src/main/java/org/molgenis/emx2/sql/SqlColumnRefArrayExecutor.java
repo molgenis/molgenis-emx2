@@ -150,7 +150,7 @@ class SqlColumnRefArrayExecutor {
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;",
         // 0 trigger name
-        name(ref.getTable().getSchemaName(), deleteTrigger),
+        name(ref.getSchemaName(), deleteTrigger),
         // 1
         inline(toColumns),
         // 2

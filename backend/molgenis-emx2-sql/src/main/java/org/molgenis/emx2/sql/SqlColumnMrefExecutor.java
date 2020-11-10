@@ -156,11 +156,11 @@ public class SqlColumnMrefExecutor {
   private static void createJoinTable(DSLContext jooq, Column column) {
 
     // Define the parameters
-    Name tableName = name(column.getTable().getSchemaName(), getJoinTableName(column));
-    Name thisTable = name(column.getTable().getSchemaName(), column.getTableName());
+    Name tableName = name(column.getSchemaName(), getJoinTableName(column));
+    Name thisTable = name(column.getSchemaName(), column.getTableName());
     List<Field> selfFields = new ArrayList<>();
     List<Name> selfKeyFields = new ArrayList<>();
-    Name otherTable = name(column.getTable().getSchemaName(), column.getRefTableName());
+    Name otherTable = name(column.getSchemaName(), column.getRefTableName());
     List<Field> otherFields = new ArrayList<>();
     List<Name> otherFkeyFields = new ArrayList<>();
 
