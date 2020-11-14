@@ -1,18 +1,17 @@
 package org.molgenis.emx2.examples;
 
+import static junit.framework.TestCase.fail;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.TestCase.fail;
 
 public class CompareTools {
 

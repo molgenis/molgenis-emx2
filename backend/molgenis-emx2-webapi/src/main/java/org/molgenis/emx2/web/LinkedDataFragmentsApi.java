@@ -1,17 +1,16 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static spark.Spark.*;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.linkeddata.LinkedDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.*;
 
 public class LinkedDataFragmentsApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);

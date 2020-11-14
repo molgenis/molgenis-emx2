@@ -1,10 +1,5 @@
 package org.molgenis.emx2.io.rowstore;
 
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.io.readers.CsvTableWriter;
-
 import java.io.*;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -18,6 +13,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
 
 public class TableStoreForCsvInZipFile implements TableStore {
   static final String CSV_EXTENSION = ".csv";

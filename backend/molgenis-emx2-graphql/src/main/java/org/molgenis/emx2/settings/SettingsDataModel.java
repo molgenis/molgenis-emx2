@@ -1,10 +1,10 @@
 package org.molgenis.emx2.settings;
 
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.TableMetadata;
-
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.TableMetadata;
 
 public class SettingsDataModel {
 

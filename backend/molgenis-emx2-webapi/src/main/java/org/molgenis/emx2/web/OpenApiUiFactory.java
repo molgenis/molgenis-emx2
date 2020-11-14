@@ -1,9 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+
 import spark.Request;
 import spark.Response;
-
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 public class OpenApiUiFactory {
 

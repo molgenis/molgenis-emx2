@@ -1,16 +1,14 @@
 package org.molgenis.emx2.sql;
 
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.TableMetadata.table;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-
-import java.sql.SQLException;
-
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertNull;
-import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestSchemaCreateDestroy {
   private static Database db;

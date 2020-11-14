@@ -1,14 +1,13 @@
 package org.molgenis.emx2;
 
+import static org.junit.Assert.*;
+import static org.molgenis.emx2.ColumnType.*;
+
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.molgenis.emx2.beans.Mapper;
 import org.molgenis.emx2.beans.PersonBean;
 import org.molgenis.emx2.beans.TypeTestBean;
-
-import java.lang.reflect.InvocationTargetException;
-
-import static org.junit.Assert.*;
-import static org.molgenis.emx2.ColumnType.*;
 
 public class TestMapPojoToTable {
 

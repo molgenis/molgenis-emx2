@@ -1,5 +1,17 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
@@ -7,19 +19,6 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
-import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 public class SqlDatabase implements Database {
   public static final String ADMIN = "admin";

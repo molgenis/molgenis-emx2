@@ -1,5 +1,11 @@
 package org.molgenis.emx2.io;
 
+import static junit.framework.TestCase.assertEquals;
+import static org.molgenis.emx2.SelectColumn.s;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,13 +17,6 @@ import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import static junit.framework.TestCase.assertEquals;
-import static org.molgenis.emx2.SelectColumn.s;
 
 public class TestLegacyImport {
   static Database db;

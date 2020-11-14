@@ -1,13 +1,12 @@
 package org.molgenis.emx2.json;
 
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Setting;
-import org.molgenis.emx2.TableMetadata;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.molgenis.emx2.TableMetadata.table;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Setting;
+import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
   private List<Table> tables = new ArrayList<>();
@@ -26,8 +25,19 @@ public class Schema {
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
     Collections.sort(list);
+    Set<String> imported = new LinkedHashSet<>();
     for (String tableName : list) {
-      tables.add(new Table(schema.getTableMetadata(tableName)));
+      org.molgenis.emx2.TableMetadata t = schema.getTableMetadata(tableName);
+      tables.add(new Table(t));
+      for (org.molgenis.emx2.Column c : t.getColumns()) {
+        if (!c.getRefSchema().equals(c.getSchemaName())
+            && !imported.contains(c.getRefTableName())) {
+          Table ref = new Table(c.getRefTable());
+          ref.setExternalSchema(c.getRefSchema());
+          tables.add(ref);
+          imported.add(c.getRefTableName());
+        }
+      }
     }
   }
 

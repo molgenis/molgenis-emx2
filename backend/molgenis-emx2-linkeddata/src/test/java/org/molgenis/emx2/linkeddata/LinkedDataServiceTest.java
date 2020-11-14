@@ -1,5 +1,11 @@
 package org.molgenis.emx2.linkeddata;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -9,13 +15,6 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
-
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.Path;
-
-import static org.junit.Assert.assertEquals;
 
 public class LinkedDataServiceTest {
 

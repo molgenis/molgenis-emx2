@@ -1,9 +1,9 @@
 package org.molgenis.emx2.io.emx1;
 
+import static org.molgenis.emx2.ColumnType.REF;
+
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
-
-import static org.molgenis.emx2.ColumnType.REF;
 
 public class Emx1Attribute {
   public static final String ID_ATTRIBUTE = "idAttribute";

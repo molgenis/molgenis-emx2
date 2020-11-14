@@ -1,16 +1,15 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestSettings {
   private static Database db;

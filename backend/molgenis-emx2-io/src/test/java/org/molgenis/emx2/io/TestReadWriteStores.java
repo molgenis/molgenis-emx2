@@ -1,11 +1,6 @@
 package org.molgenis.emx2.io;
 
-import org.junit.Test;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.io.rowstore.*;
-import org.molgenis.emx2.utils.StopWatch;
+import static junit.framework.TestCase.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +14,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static junit.framework.TestCase.fail;
+import org.junit.Test;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.examples.CompareTools;
+import org.molgenis.emx2.io.rowstore.*;
+import org.molgenis.emx2.utils.StopWatch;
 
 public class TestReadWriteStores {
   @Test

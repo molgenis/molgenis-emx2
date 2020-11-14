@@ -1,5 +1,12 @@
 package org.molgenis.emx2.io;
 
+import static org.junit.Assert.*;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -7,14 +14,6 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.SelectColumn.s;
 
 /** representative import file for testing */
 public class TestCohortCatalogue {

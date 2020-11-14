@@ -1,17 +1,16 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jooq.ConstraintForeignKeyOnStep;
 import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
 /** Create ref constraints. Might be composite key so therefore using Column...column parameters. */
 public class SqlColumnRefExecutor {
@@ -39,7 +38,7 @@ public class SqlColumnRefExecutor {
             .map(c -> name(c.getRefTo()))
             .collect(Collectors.toList());
 
-    Name fkeyTable = name(refColumn.getTable().getSchema().getName(), refColumn.getRefTableName());
+    Name fkeyTable = name(refColumn.getRefTable().getSchemaName(), refColumn.getRefTableName());
 
     ConstraintForeignKeyOnStep constraint =
         constraint(fkeyConstraintName)

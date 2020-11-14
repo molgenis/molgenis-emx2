@@ -1,17 +1,16 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
+
+import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-
-import java.sql.SQLException;
-
-import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestRowLevelSecurity {
   public static final String TEST_RLS_HAS_NO_PERMISSION = "test_rls_has_no_permission";

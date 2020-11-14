@@ -1,12 +1,12 @@
 package org.molgenis.emx2.examples.synthetic;
 
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
-
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 public class ArrayTypeTestExample {
 

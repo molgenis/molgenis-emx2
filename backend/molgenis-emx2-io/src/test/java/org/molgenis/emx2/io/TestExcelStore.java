@@ -1,16 +1,15 @@
 package org.molgenis.emx2.io;
 
-import org.junit.Test;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 
 public class TestExcelStore {
 

@@ -1,14 +1,13 @@
 package org.molgenis.emx2.sql;
 
-import org.molgenis.emx2.*;
-
-import java.util.*;
-
 import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
+
+import java.util.*;
+import org.molgenis.emx2.*;
 
 public class SqlSchema implements Schema {
   private SqlDatabase db;
@@ -282,5 +281,9 @@ public class SqlSchema implements Schema {
         });
 
     db.getListener().schemaChanged(this.metadata.getName());
+  }
+
+  public String getName() {
+    return getMetadata().getName();
   }
 }

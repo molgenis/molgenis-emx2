@@ -1,7 +1,14 @@
 package org.molgenis.emx2.web;
 
+import static io.restassured.RestAssured.given;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
+
 import com.zaxxer.hikari.HikariDataSource;
 import io.restassured.RestAssured;
+import java.io.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -12,14 +19,6 @@ import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-
-import java.io.*;
-
-import static io.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 
 /* this is a smoke test for the integration of web api with the database layer */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

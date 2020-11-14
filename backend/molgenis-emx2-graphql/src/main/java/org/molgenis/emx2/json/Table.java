@@ -1,18 +1,18 @@
 package org.molgenis.emx2.json;
 
-import org.molgenis.emx2.Setting;
-import org.molgenis.emx2.TableMetadata;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.Setting;
+import org.molgenis.emx2.TableMetadata;
 
 public class Table {
   private String name;
   private String[] pkey;
   private String inherit;
   private String description;
+  private String externalSchema;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
@@ -88,5 +88,13 @@ public class Table {
 
   public void setSettings(List<Setting> settings) {
     this.settings = settings;
+  }
+
+  public String getExternalSchema() {
+    return externalSchema;
+  }
+
+  public void setExternalSchema(String externalSchema) {
+    this.externalSchema = externalSchema;
   }
 }

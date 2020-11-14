@@ -1,18 +1,17 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.MREF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.StopWatch;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.MREF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
-import static org.molgenis.emx2.TableMetadata.table;
 
 public class Benchmark {
 

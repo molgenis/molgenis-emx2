@@ -1,14 +1,13 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.name;
+
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.List;
+import javax.sql.DataSource;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.Database;
-
-import javax.sql.DataSource;
-import java.util.List;
-
-import static org.jooq.impl.DSL.name;
 
 public class TestDatabaseFactory {
 

@@ -1,17 +1,16 @@
 package org.molgenis.emx2;
 
-import org.jooq.JSONB;
-import org.junit.Test;
-import org.molgenis.emx2.utils.TypeUtils;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
+import org.jooq.JSONB;
+import org.junit.Test;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class TestTypeUtils {
 

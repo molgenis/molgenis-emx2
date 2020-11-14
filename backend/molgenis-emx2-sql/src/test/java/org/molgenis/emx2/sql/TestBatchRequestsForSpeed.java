@@ -1,14 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.StopWatch;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNull;
@@ -16,6 +7,14 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.StopWatch;
 
 public class TestBatchRequestsForSpeed {
   private static Database db;

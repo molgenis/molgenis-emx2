@@ -1,13 +1,12 @@
 package org.molgenis.emx2;
 
-import org.jooq.DataType;
-import org.jooq.Field;
-
-import java.util.List;
-
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
+
+import java.util.List;
+import org.jooq.DataType;
+import org.jooq.Field;
 
 public class Reference {
   private Column column;

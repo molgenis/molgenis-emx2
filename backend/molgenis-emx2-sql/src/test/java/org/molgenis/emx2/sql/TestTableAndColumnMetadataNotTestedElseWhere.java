@@ -1,14 +1,13 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
-import java.util.ArrayList;
-
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.ArrayList;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestTableAndColumnMetadataNotTestedElseWhere {
   private static Database db;

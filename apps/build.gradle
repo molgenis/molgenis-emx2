@@ -1,4 +1,4 @@
-/* will produce a fat jar containing all htmls/js dists in public_html/apps*/
+/* will produce a fat jar containing all html/js dist in public_html/apps*/
 
 plugins {
     id "base"
@@ -8,16 +8,23 @@ plugins {
 node {
     version = '14.10.1'
     yarnVersion = '1.22.5'
+    npmVersion = "6.14.18"
     download = true
 }
 
 subprojects {
-
     apply plugin: "com.github.node-gradle.node"
 
     //all depends on styleguide, so that needs build first
     /* builds each app*/
-    task build(type: YarnTask) {
+    task build(type: YarnTask, dependsOn: yarn) {
+
+        node {
+            version = '14.10.1'
+            yarnVersion = '1.22.5'
+            npmVersion = "6.14.18"
+            download = true
+        }
 
         inputs.files(fileTree('src'))
         inputs.files(fileTree('public'))
@@ -66,17 +73,17 @@ subprojects {
 }
 
 /** skip yarn install unless changes => removed because leads to travis errors*/
-//yarn_install {
-//    inputs.file('package.json')
-//    inputs.file('yarn.lock')
-//    outputs.dir('node_modules')
-//    subprojects.each {
-//        inputs.file('package.json')
-//        outputs.dir('node_modules')
-//    }
-//
-//    outputs.cacheIf { true }
-//}
+yarn_install {
+    inputs.file('package.json')
+    inputs.file('yarn.lock')
+    outputs.dir('node_modules')
+    subprojects.each {
+        inputs.file('package.json')
+        outputs.dir('node_modules')
+    }
+
+    //outputs.cacheIf { true }
+}
 
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
 task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
@@ -93,7 +100,7 @@ configurations.default.extendsFrom(configurations.appResources)
 
 /* expose as artifact that can be used as dependency by other modules*/
 artifacts {
-    appResources(createJar.archivePath) {
+    appResources(createJar.getArchiveFile()) {
         builtBy createJar
         type "jar"
     }

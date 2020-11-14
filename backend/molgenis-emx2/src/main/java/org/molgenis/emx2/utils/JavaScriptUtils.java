@@ -1,22 +1,20 @@
 package org.molgenis.emx2.utils;
 
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.script.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 
-import javax.script.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 public class JavaScriptUtils {
-
-  private JavaScriptUtils() {
-    // hide constructor
-  }
 
   private static ScriptEngine engine = new ScriptEngineManager().getEngineByName("graal.js");
   private static Bindings valueBindings = engine.createBindings();
   private static Map<String, CompiledScript> cache = new LinkedHashMap<>();
+
+  private JavaScriptUtils() {
+    // hide constructor
+  }
 
   public static String executeJavascriptOnValue(String script, Object value) {
     try {
@@ -29,7 +27,7 @@ public class JavaScriptUtils {
 
   public static String executeJavascriptOnMap(String script, Map<String, Object> map) {
     try {
-      ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
+      // ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
       Bindings bindings = engine.createBindings();
       for (Map.Entry<String, Object> col : map.entrySet()) {
         bindings.put(col.getKey(), col.getValue());
@@ -42,7 +40,7 @@ public class JavaScriptUtils {
 
   public static String executeJavascriptOnRow(String script, Row row) {
     try {
-      ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
+      // ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
       Bindings bindings = engine.createBindings();
       for (Map.Entry<String, Object> col : row.getValueMap().entrySet()) {
         bindings.put(col.getKey().replace("-", "$"), col.getValue());

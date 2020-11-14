@@ -1,13 +1,12 @@
 package org.molgenis.emx2.io.rowstore;
 
+import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
-
-import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class TableStoreForCsvInMemory implements TableStore {
   private final Map<String, String> store;

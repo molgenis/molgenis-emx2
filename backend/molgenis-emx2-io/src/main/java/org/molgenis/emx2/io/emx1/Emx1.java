@@ -1,18 +1,17 @@
 package org.molgenis.emx2.io.emx1;
 
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.rowstore.TableStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.TableMetadata.table;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.rowstore.TableStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Emx1 {
   static final String EMX_1_IMPORT_FAILED = "EMX1 import failed: ";

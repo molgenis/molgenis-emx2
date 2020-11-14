@@ -1,5 +1,15 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.FILE;
+import static org.molgenis.emx2.sql.Constants.TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Name;
@@ -7,17 +17,6 @@ import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.FILE;
-import static org.molgenis.emx2.sql.Constants.TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 class SqlTableMetadataExecutor {
 

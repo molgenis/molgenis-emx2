@@ -1,10 +1,10 @@
 package org.molgenis.emx2.io.emx1;
 
+import static org.molgenis.emx2.io.emx1.Emx1.EMX_1_IMPORT_FAILED;
+
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
-
-import static org.molgenis.emx2.io.emx1.Emx1.EMX_1_IMPORT_FAILED;
 
 public class Emx1Entity {
   private String name;

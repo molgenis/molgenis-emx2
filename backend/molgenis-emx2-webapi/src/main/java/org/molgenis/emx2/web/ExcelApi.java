@@ -1,5 +1,20 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.TABLE;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
+import static spark.Spark.get;
+import static spark.Spark.post;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -8,22 +23,6 @@ import org.molgenis.emx2.io.SchemaImport;
 import org.molgenis.emx2.io.TableExport;
 import spark.Request;
 import spark.Response;
-
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-
-import static org.molgenis.emx2.web.Constants.TABLE;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
-import static spark.Spark.get;
-import static spark.Spark.post;
 
 public class ExcelApi {
   private ExcelApi() {

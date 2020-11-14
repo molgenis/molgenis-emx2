@@ -1,16 +1,15 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.Test;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.StopWatch;
-
-import java.util.UUID;
-
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.UUID;
+import org.junit.Test;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.StopWatch;
 
 public class TestDeferConstrainChecksToEndOfTransaction {
   Database database = TestDatabaseFactory.getTestDatabase();

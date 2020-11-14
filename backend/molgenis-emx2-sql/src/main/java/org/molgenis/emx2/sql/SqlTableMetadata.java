@@ -1,15 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DSLContext;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.TableMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REFBACK;
@@ -19,6 +9,15 @@ import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
+
+import java.util.Map;
+import org.jooq.DSLContext;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class SqlTableMetadata extends TableMetadata {
   private Database db;

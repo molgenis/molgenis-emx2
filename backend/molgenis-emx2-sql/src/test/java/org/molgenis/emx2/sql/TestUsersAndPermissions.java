@@ -1,15 +1,15 @@
 package org.molgenis.emx2.sql;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
+import static org.molgenis.emx2.TableMetadata.table;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
-import static org.molgenis.emx2.TableMetadata.table;
 
 public class TestUsersAndPermissions {
   static Database database;

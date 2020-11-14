@@ -1,13 +1,12 @@
 package org.molgenis.emx2.io.readers;
 
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.simpleflatmapper.csv.CsvParser;
-
 import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.simpleflatmapper.csv.CsvParser;
 
 public class CsvTableReader {
 

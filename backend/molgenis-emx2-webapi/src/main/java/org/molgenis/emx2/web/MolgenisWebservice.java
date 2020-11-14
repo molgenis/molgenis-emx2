@@ -1,8 +1,14 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
+import static org.molgenis.emx2.web.Constants.*;
+import static spark.Spark.*;
+
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
+import java.io.IOException;
+import javax.sql.DataSource;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -14,14 +20,6 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.Properties;
-
-import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
-import static org.molgenis.emx2.web.Constants.*;
-import static spark.Spark.*;
 
 public class MolgenisWebservice {
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";

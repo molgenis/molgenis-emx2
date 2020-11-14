@@ -1,16 +1,15 @@
 package org.molgenis.emx2.io.rowstore;
 
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.readers.CsvTableWriter;
-import org.molgenis.emx2.io.readers.RowReaderJackson;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.readers.RowReaderJackson;
 
 public class TableStoreForCsvFilesDirectory implements TableStore {
   static final String CSV_EXTENSION = ".csv";

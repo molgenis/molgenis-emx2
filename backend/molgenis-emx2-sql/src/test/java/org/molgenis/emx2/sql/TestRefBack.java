@@ -1,11 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
-import java.util.List;
-
 import static junit.framework.TestCase.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
@@ -13,6 +7,11 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.List;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestRefBack {
 

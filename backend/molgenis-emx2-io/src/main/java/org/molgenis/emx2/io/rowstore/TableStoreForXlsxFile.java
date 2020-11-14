@@ -1,11 +1,7 @@
 package org.molgenis.emx2.io.rowstore;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.poi.ss.usermodel.CellType.BLANK;
+import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,9 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.*;
-
-import static org.apache.poi.ss.usermodel.CellType.BLANK;
-import static org.apache.poi.ss.usermodel.CellType.FORMULA;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {

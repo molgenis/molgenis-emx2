@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.*;
+
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.*;
@@ -9,16 +11,13 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.jetbrains.annotations.NotNull;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.molgenis.emx2.web.Constants.*;
+import org.jetbrains.annotations.NotNull;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 public class OpenApiYamlGenerator {
 

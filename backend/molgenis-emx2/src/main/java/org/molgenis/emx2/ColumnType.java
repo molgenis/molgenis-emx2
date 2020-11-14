@@ -1,9 +1,9 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Constants.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import static org.molgenis.emx2.Constants.*;
 
 public enum ColumnType {
 
@@ -38,6 +38,7 @@ public enum ColumnType {
   // RELATIONSHIP
   REF(Object.class),
   REF_ARRAY(Object[].class),
+  @Deprecated
   MREF(Object[].class),
   REFBACK(Object[].class);
 

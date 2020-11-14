@@ -1,20 +1,19 @@
 package org.molgenis.emx2;
 
-import org.jooq.DataType;
-import org.jooq.Field;
-import org.jooq.impl.SQLDataType;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
+import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
-import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
+import org.jooq.DataType;
+import org.jooq.Field;
+import org.jooq.impl.SQLDataType;
 
 public class Column {
   private TableMetadata table;
@@ -37,17 +36,7 @@ public class Column {
   private boolean nullable = false;
   private String validationScript = null;
   private String computed = null;
-
-  public String getRdfTemplate() {
-    return rdfTemplate;
-  }
-
-  public void setRdfTemplate(String rdfTemplate) {
-    this.rdfTemplate = rdfTemplate;
-  }
-
   private String rdfTemplate = null;
-
   // todo implement below
   private boolean readonly = false;
   private String description = null;
@@ -65,36 +54,6 @@ public class Column {
     copy(column);
   }
 
-  /* copy constructor to prevent changes on in progress data */
-  private void copy(Column column) {
-    columnName = column.columnName;
-    columnType = column.columnType;
-    position = column.position;
-    nullable = column.nullable;
-    key = column.key;
-    readonly = column.readonly;
-    description = column.description;
-    defaultValue = column.defaultValue;
-    indexed = column.indexed;
-    refTable = column.refTable;
-    refTo = column.refTo;
-    refFrom = column.refFrom;
-    mappedBy = column.mappedBy;
-    validationScript = column.validationScript;
-    computed = column.computed;
-    description = column.description;
-    cascadeDelete = column.cascadeDelete;
-    rdfTemplate = column.rdfTemplate;
-  }
-
-  public static Column column(String name) {
-    return new Column(name);
-  }
-
-  public static Column column(String name, ColumnType type) {
-    return new Column(name).setType(type);
-  }
-
   public Column(String columnName) {
     if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
       throw new MolgenisException(
@@ -110,12 +69,61 @@ public class Column {
     this.columnName = columnName;
   }
 
+  public static Column column(String name) {
+    return new Column(name);
+  }
+
+  public static Column column(String name, ColumnType type) {
+    return new Column(name).setType(type);
+  }
+
+  public String getRdfTemplate() {
+    return rdfTemplate;
+  }
+
+  public void setRdfTemplate(String rdfTemplate) {
+    this.rdfTemplate = rdfTemplate;
+  }
+
+  /* copy constructor to prevent changes on in progress data */
+  private void copy(Column column) {
+    columnName = column.columnName;
+    columnType = column.columnType;
+    position = column.position;
+    nullable = column.nullable;
+    key = column.key;
+    readonly = column.readonly;
+    description = column.description;
+    defaultValue = column.defaultValue;
+    indexed = column.indexed;
+    refTable = column.refTable;
+    refTo = column.refTo;
+    refFrom = column.refFrom;
+    refSchema = column.refSchema;
+    mappedBy = column.mappedBy;
+    validationScript = column.validationScript;
+    computed = column.computed;
+    description = column.description;
+    cascadeDelete = column.cascadeDelete;
+    rdfTemplate = column.rdfTemplate;
+  }
+
   public TableMetadata getTable() {
     return table;
   }
 
+  public Column setTable(TableMetadata table) {
+    this.table = table;
+    return this;
+  }
+
   public String getName() {
     return columnName;
+  }
+
+  public Column setName(String columnName) {
+    this.columnName = columnName;
+    return this;
   }
 
   public ColumnType getColumnType() {
@@ -131,13 +139,28 @@ public class Column {
   }
 
   public TableMetadata getRefTable() {
+    SchemaMetadata schema = getSchema();
+    if (this.refSchema != null) {
+      try {
+        schema = getSchema().getDatabase().getSchema(this.refSchema).getMetadata();
+      } catch (Exception e) {
+        throw new MolgenisException(
+            "refSchema '"
+                + this.refSchema
+                + "' cannot be found for column '"
+                + getTableName()
+                + "."
+                + getName()
+                + "'");
+      }
+    }
+
     if (this.refTable != null && getTable() != null) {
       // self relation
       if (this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
       // other relation
-      SchemaMetadata schema = getSchema();
       if (schema != null) {
         TableMetadata result = schema.getTableMetadata(this.refTable);
         if (result == null) {
@@ -157,13 +180,18 @@ public class Column {
     return null;
   }
 
-  public Column setKey(int key) {
-    this.key = key;
+  public Column setRefTable(String refTable) {
+    this.refTable = refTable;
     return this;
   }
 
   public int getKey() {
     return this.key;
+  }
+
+  public Column setKey(int key) {
+    this.key = key;
+    return this;
   }
 
   public Boolean isReadonly() {
@@ -179,13 +207,13 @@ public class Column {
     return nullable;
   }
 
-  public Boolean isCascadeDelete() {
-    return cascadeDelete;
-  }
-
   public Column setNullable(boolean nillable) {
     this.nullable = nillable;
     return this;
+  }
+
+  public Boolean isCascadeDelete() {
+    return cascadeDelete;
   }
 
   public String getDescription() {
@@ -257,16 +285,6 @@ public class Column {
     return this;
   }
 
-  public Column setRefTable(String refTable) {
-    this.refTable = refTable;
-    return this;
-  }
-
-  public Column setTable(TableMetadata table) {
-    this.table = table;
-    return this;
-  }
-
   public String getTableName() {
     if (this.table != null) return this.table.getTableName();
     return null;
@@ -287,11 +305,6 @@ public class Column {
 
   public Column removeKey() {
     this.key = 0;
-    return this;
-  }
-
-  public Column setName(String columnName) {
-    this.columnName = columnName;
     return this;
   }
 
@@ -501,7 +514,8 @@ public class Column {
     return refSchema;
   }
 
-  public void setRefSchema(String refSchema) {
+  public Column setRefSchema(String refSchema) {
     this.refSchema = refSchema;
+    return this;
   }
 }

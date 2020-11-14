@@ -1,16 +1,15 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
-import java.io.File;
-
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.io.File;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestFileType {
   private static Database db;

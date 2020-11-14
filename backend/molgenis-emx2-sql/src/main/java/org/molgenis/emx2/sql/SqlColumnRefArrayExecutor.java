@@ -1,17 +1,16 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DSLContext;
-import org.jooq.Name;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Reference;
+import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
+import org.jooq.DSLContext;
+import org.jooq.Name;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Reference;
 
 /**
  * Create refArray constraints. Might be composite key so therefore using Column...column
@@ -179,7 +178,7 @@ class SqlColumnRefArrayExecutor {
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(deleteTrigger),
         ref.getRefTable().getJooqTable(),
-        name(ref.getTable().getSchema().getName(), deleteTrigger),
+        name(ref.getSchemaName(), deleteTrigger),
         keyword(keyColumns));
   }
 
@@ -187,6 +186,8 @@ class SqlColumnRefArrayExecutor {
     Column column1 = column[0];
 
     return "DEL_"
+        + column1.getSchemaName()
+        + "_"
         + column1.getRefTableName()
         + "_CHECK_"
         + column1.getTable().getTableName()
@@ -211,7 +212,7 @@ class SqlColumnRefArrayExecutor {
   private static void createReferenceExistsCheck(DSLContext jooq, Column column) {
     String schemaName = column.getSchema().getName();
     Name thisTable = name(schemaName, column.getTable().getTableName());
-    Name toTable = name(schemaName, column.getRefTableName());
+    Name toTable = name(column.getRefSchema(), column.getRefTableName());
     String functionName = getUpdateCheckName(column);
     List<Reference> references = column.getReferences();
 

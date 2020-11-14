@@ -1,16 +1,15 @@
 package org.molgenis.emx2.io;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class TableExport {
 

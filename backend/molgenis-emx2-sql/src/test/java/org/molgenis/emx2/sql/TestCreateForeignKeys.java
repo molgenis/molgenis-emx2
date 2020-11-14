@@ -1,13 +1,13 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestCreateForeignKeys {
 

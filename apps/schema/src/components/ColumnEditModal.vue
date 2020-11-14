@@ -1,16 +1,16 @@
 <template>
   <!-- when authorisation error show login-->
-  <Spinner v-if="loading" />
+  <Spinner v-if="loading"/>
   <div v-else-if="showLogin">
     <MessageError v-if="error">{{ error }}</MessageError>
-    <SigninForm @login="loginSuccess" @cancel="cancel" />
+    <SigninForm @cancel="cancel" @login="loginSuccess"/>
   </div>
   <!-- when update succesfull show result before close -->
   <LayoutModal
-    v-else-if="success"
-    :title="title"
-    :show="true"
-    @close="$emit('close')"
+      v-else-if="success"
+      :show="true"
+      :title="title"
+      @close="$emit('close')"
   >
     <template v-slot:body>
       <MessageSuccess>{{ success }}</MessageSuccess>
@@ -20,77 +20,109 @@
     </template>
   </LayoutModal>
   <!-- alter or add a column -->
-  <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
+  <LayoutModal v-else :show="true" :title="title" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm :key="key">
         <InputString
-          v-model="column.name"
-          label="Column name"
-          :default-value="defaultValue ? defaultValue.name : undefined"
-          :error="
+            v-model="column.name"
+            :default-value="defaultValue ? defaultValue.name : undefined"
+            :error="
             column.name == undefined || column.name == ''
               ? 'Name is required'
               : undefined
           "
+            label="Column name"
         />
         <InputSelect
-          v-model="column.columnType"
-          label="Column type"
-          :default-value="defaultValue ? defaultValue.columnType : undefined"
-          :options="columnTypes"
+            v-model="column.columnType"
+            :default-value="defaultValue ? defaultValue.columnType : undefined"
+            :options="columnTypes"
+            label="Column type"
         />
-        <InputSelect
-          v-if="
+        <InputString
+            v-if="
             column.columnType == 'REF' ||
               column.columnType == 'REF_ARRAY' ||
               column.columnType == 'MREF' ||
               column.columnType == 'REFBACK'
+          " v-model="column.refSchema" label="refSchema"/>
+        <InputString
+            v-if="
+            column.refSchema != undefined
+          " v-model="column.refTable" label="refSchema"/>
+        <InputSelect
+            v-if="
+            column.refSchema == undefined && (
+            column.columnType == 'REF' ||
+              column.columnType == 'REF_ARRAY' ||
+              column.columnType == 'MREF' ||
+              column.columnType == 'REFBACK')
           "
-          v-model="column.refTable"
-          label="Referenced table"
-          :defaultValue="defaultValue ? defaultValue.refTable : undefined"
-          :options="tables"
-          :error="
+            v-model="column.refTable"
+            :defaultValue="defaultValue ? defaultValue.refTable : undefined"
+            :error="
             column.refTable == undefined || column.name == ''
               ? 'Referenced table is required'
               : undefined
           "
+            :options="tables"
+            label="Referenced table"
         />
         <InputString
-          v-if="column.columnType == 'REFBACK'"
-          v-model="column.mappedBy"
-          label="Mapped by"
-          :default-value="defaultValue ? defaultValue.mappedBy : undefined"
+            v-if="column.columnType == 'REFBACK'"
+            v-model="column.mappedBy"
+            :default-value="defaultValue ? defaultValue.mappedBy : undefined"
+            label="Mapped by"
         />
         <InputBoolean
-          v-model="column.nullable"
-          label="Nullable"
-          :default-value="defaultValue && defaultValue.nullable ? true : false"
+            v-model="column.nullable"
+            :default-value="defaultValue && defaultValue.nullable ? true : false"
+            label="Nullable"
+        />
+        <InputString
+            v-if="column.columnType == 'REF' ||
+              column.columnType == 'REF_ARRAY' ||
+              column.columnType == 'MREF' ||
+              column.columnType == 'REFBACK'"
+            v-model="column.refFrom"
+            :default-value="defaultValue ? defaultValue.refFrom : undefined"
+            :list="true"
+            label="refFrom"
+        />
+        <InputString
+            v-if="column.columnType == 'REF' ||
+              column.columnType == 'REF_ARRAY' ||
+              column.columnType == 'MREF' ||
+              column.columnType == 'REFBACK'"
+            v-model="column.refTo"
+            :default-value="defaultValue ? defaultValue.refTo : undefined"
+            :list="true"
+            label="refTo"
         />
         <InputInt
-          v-model="column.key"
-          label="Key"
-          :default-value="
+            v-model="column.key"
+            :default-value="
             defaultValue && defaultValue.key ? defaultValue.key : undefined
           "
+            label="Key"
         />
         <InputBoolean
-          v-if="column.columnType == 'REF'"
-          v-model="column.cascadeDelete"
-          label="cascadeDelete"
-          :default-value="
+            v-if="column.columnType == 'REF'"
+            v-model="column.cascadeDelete"
+            :default-value="
             defaultValue && defaultValue.cascadeDelete ? true : false
           "
+            label="cascadeDelete"
         />
         <InputText
-          v-model="column.description"
-          label="Description"
-          :default-value="defaultValue ? defaultValue.description : undefined"
+            v-model="column.description"
+            :default-value="defaultValue ? defaultValue.description : undefined"
+            label="Description"
         />
         <InputText
-          v-model="column.rdfTemplate"
-          label="RDF template"
-          :default-value="defaultValue ? defaultValue.rdfTemplate : undefined"
+            v-model="column.rdfTemplate"
+            :default-value="defaultValue ? defaultValue.rdfTemplate : undefined"
+            label="RDF template"
         />
       </LayoutForm>
     </template>
@@ -99,10 +131,10 @@
       <MessageError v-if="error">{{ error }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
       <ButtonAction
-        v-if="defaultValue"
-        @click="executeCommand"
-        :disabled="column.name == undefined || column.name == ''"
-        >{{ action }}
+          v-if="defaultValue"
+          :disabled="column.name == undefined || column.name == ''"
+          @click="executeCommand"
+      >{{ action }}
       </ButtonAction>
       <ButtonAction v-else @click="executeCommand">{{ action }}</ButtonAction>
     </template>
@@ -173,7 +205,7 @@ export default {
     metadata: Array,
     defaultValue: Object
   },
-  data: function() {
+  data: function () {
     return {
       key: 0,
       column: {},
@@ -225,24 +257,24 @@ export default {
       this.success = null;
       this.column.table = this.table;
       request(
-        "graphql",
-        `mutation create($column:MolgenisColumnInput){create(columns:[$column]){message}}`,
-        {
-          column: this.column
-        }
+          "graphql",
+          `mutation create($column:MolgenisColumnInput){create(columns:[$column]){message}}`,
+          {
+            column: this.column
+          }
       )
-        .then(data => {
-          this.tables = data.create.message;
-          this.success = `Column ${this.column.name} created`;
-          this.$emit("close");
-        })
-        .catch(error => {
-          if (error.response.status === 403) {
-            this.error = "Forbidden. Do you need to login?";
-            this.showLogin = true;
-          } else this.error = error;
-        })
-        .finally((this.loading = false));
+          .then(data => {
+            this.tables = data.create.message;
+            this.success = `Column ${this.column.name} created`;
+            this.$emit("close");
+          })
+          .catch(error => {
+            if (error.response.status === 403) {
+              this.error = "Forbidden. Do you need to login?";
+              this.showLogin = true;
+            } else this.error = error;
+          })
+          .finally((this.loading = false));
     },
     alter() {
       this.loading = true;
@@ -250,26 +282,26 @@ export default {
       this.success = null;
       this.column.table = this.table;
       request(
-        "graphql",
-        `mutation alter($table:String,$name:String,$definition:MolgenisColumnInput){alter(columns:[{table:$table,name:$name,definition:$definition}]){message}}`,
-        {
-          table: this.table,
-          name: this.defaultValue.name,
-          definition: this.column
-        }
+          "graphql",
+          `mutation alter($table:String,$name:String,$definition:MolgenisColumnInput){alter(columns:[{table:$table,name:$name,definition:$definition}]){message}}`,
+          {
+            table: this.table,
+            name: this.defaultValue.name,
+            definition: this.column
+          }
       )
-        .then(data => {
-          this.tables = data.alter.message;
-          this.success = `Column ${this.column.name} altered`;
-          this.$emit("close");
-        })
-        .catch(error => {
-          if (error.response.status === 403) {
-            this.error = "Forbidden. Do you need to login?";
-            this.showLogin = true;
-          } else this.error = error.response.errors[0].message;
-        })
-        .finally((this.loading = false));
+          .then(data => {
+            this.tables = data.alter.message;
+            this.success = `Column ${this.column.name} altered`;
+            this.$emit("close");
+          })
+          .catch(error => {
+            if (error.response.status === 403) {
+              this.error = "Forbidden. Do you need to login?";
+              this.showLogin = true;
+            } else this.error = error.response.errors[0].message;
+          })
+          .finally((this.loading = false));
     },
     executeCommand() {
       this.defaultValue ? this.alter() : this.create();

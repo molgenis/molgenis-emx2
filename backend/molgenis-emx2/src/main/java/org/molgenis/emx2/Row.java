@@ -1,14 +1,11 @@
 package org.molgenis.emx2;
 
-import org.jooq.JSONB;
-import org.molgenis.emx2.utils.TypeUtils;
-
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-
-import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnValue;
+import org.jooq.JSONB;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();

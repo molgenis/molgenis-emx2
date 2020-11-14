@@ -1,18 +1,17 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Reference;
+import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.utils.TypeUtils.getNonArrayType;
+import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.utils.TypeUtils.getNonArrayType;
-import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
+import org.jooq.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Reference;
 
 public class SqlColumnMrefExecutor {
 
@@ -160,7 +159,7 @@ public class SqlColumnMrefExecutor {
     Name thisTable = name(column.getSchemaName(), column.getTableName());
     List<Field> selfFields = new ArrayList<>();
     List<Name> selfKeyFields = new ArrayList<>();
-    Name otherTable = name(column.getSchemaName(), column.getRefTableName());
+    Name otherTable = name(column.getRefTable().getSchemaName(), column.getRefTableName());
     List<Field> otherFields = new ArrayList<>();
     List<Name> otherFkeyFields = new ArrayList<>();
 

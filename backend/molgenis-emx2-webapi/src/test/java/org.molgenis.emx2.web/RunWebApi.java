@@ -1,12 +1,11 @@
 package org.molgenis.emx2.web;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.io.IOException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-
-import java.io.IOException;
 
 public class RunWebApi {
 

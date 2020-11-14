@@ -1,5 +1,12 @@
 package org.molgenis.emx2.web;
 
+import static io.swagger.models.ModelImpl.OBJECT;
+import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static org.molgenis.emx2.web.OpenApiYamlGenerator.*;
+import static spark.Spark.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
@@ -15,15 +22,6 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import org.jetbrains.annotations.NotNull;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.emx2.Emx2;
-import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.io.readers.CsvTableWriter;
-import spark.Request;
-import spark.Response;
-
-import javax.servlet.MultipartConfigElement;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +29,14 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-
-import static io.swagger.models.ModelImpl.OBJECT;
-import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
-import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.OpenApiYamlGenerator.*;
-import static spark.Spark.*;
+import javax.servlet.MultipartConfigElement;
+import org.jetbrains.annotations.NotNull;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
+import spark.Request;
+import spark.Response;
 
 public class CsvApi {
 

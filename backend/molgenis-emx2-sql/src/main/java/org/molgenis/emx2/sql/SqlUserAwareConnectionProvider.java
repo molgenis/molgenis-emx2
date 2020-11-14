@@ -1,15 +1,14 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
+
+import java.sql.Connection;
+import javax.sql.DataSource;
 import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;

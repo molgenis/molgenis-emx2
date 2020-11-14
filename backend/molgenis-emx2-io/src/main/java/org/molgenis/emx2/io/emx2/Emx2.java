@@ -1,17 +1,18 @@
 package org.molgenis.emx2.io.emx2;
 
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.io.readers.CsvTableWriter;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
-
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.TableMetadata.table;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
 
 public class Emx2 {
 
@@ -21,6 +22,7 @@ public class Emx2 {
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
   public static final String KEY = "key";
+  public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
   public static final String REF_FROM = "refFrom";
   public static final String REF_TO = "refTo";
@@ -72,6 +74,7 @@ public class Emx2 {
         if (r.notNull(COLUMN_TYPE))
           column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
         if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
+        if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
         if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
         if (r.notNull(REF_TO)) column.setRefTo(r.getStringArray(REF_TO));
         if (r.notNull(REF_FROM)) column.setRefFrom(r.getStringArray(REF_FROM));
@@ -120,6 +123,8 @@ public class Emx2 {
             row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
           if (c.isNullable()) row.setBool(NULLABLE, c.isNullable());
           if (c.getKey() > 0) row.setInt(KEY, c.getKey());
+          if (!c.getRefSchema().equals(c.getSchemaName()))
+            row.setString(REF_SCHEMA, c.getRefTableName());
           if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
           if (c.getRefTo() != null) row.setStringArray(REF_TO, c.getRefTo());
           if (c.getRefFrom() != null) row.setStringArray(REF_FROM, c.getRefFrom());

@@ -1,16 +1,15 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
-import java.util.Arrays;
-
 import static junit.framework.TestCase.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.Arrays;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestCreateMref {
   private static Database db;

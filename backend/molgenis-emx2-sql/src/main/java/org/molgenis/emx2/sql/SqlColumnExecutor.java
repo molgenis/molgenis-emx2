@@ -1,17 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.DSLContext;
-import org.jooq.DataType;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Reference;
-import org.molgenis.emx2.TableMetadata;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
@@ -23,6 +11,17 @@ import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumn
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import org.jooq.DSLContext;
+import org.jooq.DataType;
+import org.jooq.Field;
+import org.jooq.Table;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Reference;
+import org.molgenis.emx2.TableMetadata;
 
 public class SqlColumnExecutor {
   private SqlColumnExecutor() {

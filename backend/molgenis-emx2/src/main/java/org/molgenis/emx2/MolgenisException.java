@@ -1,10 +1,9 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.utils.MolgenisExceptionDetail;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
 public class MolgenisException extends RuntimeException {
   private final String message;

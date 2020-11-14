@@ -1,21 +1,20 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
-import java.time.LocalDate;
-
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.LIKE;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+
+import java.time.LocalDate;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestInherits {
   private static Database db;

@@ -1,8 +1,12 @@
 package org.molgenis.emx2.graphql;
 
+import static org.junit.Assert.*;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
+import java.io.IOException;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -11,11 +15,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-
-import java.io.IOException;
-
-import static org.junit.Assert.*;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 public class TestGraphqlDatabaseFields {
 

@@ -6,13 +6,12 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
-
-import java.io.IOException;
-import java.io.StringWriter;
 
 public class JsonUtil {
 

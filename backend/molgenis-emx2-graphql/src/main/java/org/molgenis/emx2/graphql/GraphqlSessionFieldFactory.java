@@ -1,18 +1,17 @@
 package org.molgenis.emx2.graphql;
 
-import graphql.Scalars;
-import graphql.schema.*;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
+
+import graphql.Scalars;
+import graphql.schema.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 
 public class GraphqlSessionFieldFactory {
 

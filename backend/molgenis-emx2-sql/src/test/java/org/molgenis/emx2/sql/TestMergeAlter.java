@@ -1,18 +1,17 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertArrayEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
 
 public class TestMergeAlter {
   private static final String REF_TARGET = "RefTarget";

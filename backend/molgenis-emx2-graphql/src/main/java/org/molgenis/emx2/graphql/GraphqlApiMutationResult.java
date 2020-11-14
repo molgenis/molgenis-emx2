@@ -1,15 +1,14 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+
 import graphql.Scalars;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
-import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 
 public class GraphqlApiMutationResult {
   public enum Status {

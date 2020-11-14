@@ -1,17 +1,16 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
 
 class SqlColumnRefBackExecutor {
   private SqlColumnRefBackExecutor() {

@@ -1,10 +1,6 @@
 package org.molgenis.emx2.utils;
 
-import org.jooq.DataType;
-import org.jooq.JSONB;
-import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
+import static org.jooq.impl.DSL.cast;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -21,8 +17,11 @@ import java.util.function.IntFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.jooq.impl.DSL.cast;
+import org.jooq.DataType;
+import org.jooq.JSONB;
+import org.jooq.impl.SQLDataType;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 
 public class TypeUtils {
   private static final String LOOSE_PARSER_FORMAT =

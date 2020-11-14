@@ -1,15 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.*;
-import org.jooq.Record;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.*;
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
 import java.io.Writer;
@@ -19,11 +13,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
+import org.jooq.*;
+import org.jooq.Record;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
+import org.postgresql.copy.CopyManager;
+import org.postgresql.core.BaseConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class SqlTable implements Table {
   private SqlDatabase db;

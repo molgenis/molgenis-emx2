@@ -8,9 +8,8 @@ import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
 import graphql.execution.ExecutionPath;
 import graphql.language.SourceLocation;
-import org.molgenis.emx2.MolgenisException;
-
 import java.util.List;
+import org.molgenis.emx2.MolgenisException;
 
 public class GraphqlCustomExceptionHandler implements DataFetcherExceptionHandler {
 

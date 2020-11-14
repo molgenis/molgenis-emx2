@@ -1,14 +1,15 @@
 package org.molgenis.emx2;
 
-import org.molgenis.emx2.utils.TableSort;
-
 import java.util.*;
+import org.molgenis.emx2.utils.TableSort;
 
 public class SchemaMetadata {
 
-  private String name;
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
   protected Map<String, String> settings = new LinkedHashMap<>();
+  private String name;
+  // optional
+  private Database database;
 
   public SchemaMetadata() {}
 
@@ -21,6 +22,11 @@ public class SchemaMetadata {
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
     this.settings = schema.getSettings();
+  }
+
+  public SchemaMetadata(Database db, SchemaMetadata schema) {
+    this(schema);
+    this.database = db;
   }
 
   public String getName() {
@@ -80,13 +86,17 @@ public class SchemaMetadata {
     return result;
   }
 
+  public Map<String, String> getSettings() {
+    return this.settings;
+  }
+
   public SchemaMetadata setSettings(Map<String, String> settings) {
     if (settings == null) return this;
     this.settings = settings;
     return this;
   }
 
-  public Map<String, String> getSettings() {
-    return this.settings;
+  public Database getDatabase() {
+    return database;
   }
 }

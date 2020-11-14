@@ -1,11 +1,27 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static spark.Spark.get;
+import static spark.Spark.post;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.Part;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
@@ -14,23 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
-
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.Part;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.MolgenisWebservice.*;
-import static spark.Spark.get;
-import static spark.Spark.post;
 
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call

@@ -1,27 +1,22 @@
 package org.molgenis.emx2.sql;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jooq.*;
-import org.jooq.Record;
-import org.molgenis.emx2.*;
-
-import java.util.*;
-
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
+import org.jooq.*;
+import org.molgenis.emx2.*;
+
 public class MetadataUtils {
 
   private static final String MOLGENIS = "MOLGENIS";
-  private static ObjectMapper jsonMapper = new ObjectMapper();
-
   // tables
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
-
   // fields
   private static final org.jooq.Field TABLE_SCHEMA =
       field(name("table_schema"), VARCHAR.nullable(false));
@@ -31,7 +26,6 @@ public class MetadataUtils {
       field(name("table_inherits"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
-
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field COLUMN_KEY =
@@ -41,33 +35,29 @@ public class MetadataUtils {
       field(name("column_description"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_RDF_TEMPLATE =
       field(name("column_rdf_template"), VARCHAR.nullable(true));
-
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
-
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
+  private static final org.jooq.Field REF_SCHEMA =
+      field(name("ref_schema"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_FROM =
       field(name("ref_from"), VARCHAR.getArrayDataType().nullable(true));
   private static final org.jooq.Field REF_TO =
       field(name("ref_to"), VARCHAR.getArrayDataType().nullable(true));
-
   private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
-
   private static final org.jooq.Field VALIDATION_SCRIPT =
       field(name("validationScript"), VARCHAR.nullable(true));
   private static final org.jooq.Field COMPUTE_SCRIPT =
       field(name("computeScript"), VARCHAR.nullable(true));
   private static final org.jooq.Field REF_CONSTRAINT =
       field(name("refConstraint"), VARCHAR.nullable(true));
-
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
   private static final org.jooq.Field CASCADE_DELETE =
       field(name("cascade_delete"), BOOLEAN.nullable(true));
-
   private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
   private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
-
   private static final org.jooq.Field SETTINGS = field(name("settings"), VARCHAR);
+  private static ObjectMapper jsonMapper = new ObjectMapper();
 
   private MetadataUtils() {
     // to hide the public constructor
@@ -136,6 +126,7 @@ public class MetadataUtils {
           COLUMN_KEY,
           COLUMN_POSITION,
           NULLABLE,
+          REF_SCHEMA,
           REF_TABLE,
           REF_TO,
           REF_FROM,
@@ -281,6 +272,8 @@ public class MetadataUtils {
   }
 
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
+    String refSchema =
+        column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     jooq.insertInto(COLUMN_METADATA)
         .columns(
             TABLE_SCHEMA,
@@ -290,6 +283,7 @@ public class MetadataUtils {
             COLUMN_KEY,
             COLUMN_POSITION,
             NULLABLE,
+            REF_SCHEMA,
             REF_TABLE,
             REF_FROM,
             REF_TO,
@@ -308,6 +302,7 @@ public class MetadataUtils {
             column.getKey(),
             column.getPosition(),
             column.isNullable(),
+            refSchema,
             column.getRefTableName(),
             column.getRefFrom(),
             column.getRefTo(),
@@ -324,6 +319,7 @@ public class MetadataUtils {
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
         .set(NULLABLE, column.isNullable())
+        .set(REF_SCHEMA, refSchema)
         .set(REF_TABLE, column.getRefTableName())
         .set(REF_FROM, column.getRefFrom())
         .set(REF_TO, column.getRefTo())
@@ -371,6 +367,7 @@ public class MetadataUtils {
     c.setNullable(col.get(NULLABLE, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
+    c.setRefSchema(col.get(REF_SCHEMA, String.class));
     c.setRefTable(col.get(REF_TABLE, String.class));
     c.setRefFrom(col.get(REF_FROM, String[].class));
     c.setRefTo(col.get(REF_TO, String[].class));

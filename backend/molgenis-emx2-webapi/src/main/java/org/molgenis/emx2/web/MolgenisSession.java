@@ -1,6 +1,8 @@
 package org.molgenis.emx2.web;
 
 import graphql.GraphQL;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -8,9 +10,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);

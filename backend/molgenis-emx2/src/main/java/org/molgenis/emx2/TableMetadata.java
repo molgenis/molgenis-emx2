@@ -1,36 +1,23 @@
 package org.molgenis.emx2;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.impl.DSL;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.ColumnType.INT;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.impl.DSL;
+
 public class TableMetadata {
 
-  private SchemaMetadata schema;
-  private String tableName;
   protected String inherit = null;
   protected String description = null;
   protected Map<String, Column> columns = new LinkedHashMap<>();
   protected Map<String, String> settings = new LinkedHashMap<>();
-
-  public static TableMetadata table(String tableName) {
-    return new TableMetadata(tableName);
-  }
-
-  public static TableMetadata table(String tableName, Column... columns) {
-    TableMetadata tm = new TableMetadata(tableName);
-    for (Column c : columns) {
-      tm.add(c);
-    }
-    return tm;
-  }
+  private SchemaMetadata schema;
+  private String tableName;
 
   public TableMetadata(String tableName) {
     if (!tableName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
@@ -53,6 +40,18 @@ public class TableMetadata {
     this.copy(metadata);
   }
 
+  public static TableMetadata table(String tableName) {
+    return new TableMetadata(tableName);
+  }
+
+  public static TableMetadata table(String tableName, Column... columns) {
+    TableMetadata tm = new TableMetadata(tableName);
+    for (Column c : columns) {
+      tm.add(c);
+    }
+    return tm;
+  }
+
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
@@ -71,9 +70,13 @@ public class TableMetadata {
     return schema;
   }
 
+  public void setSchema(SchemaMetadata schemaMetadata) {
+    this.schema = schemaMetadata;
+  }
+
   public List<Column> getColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
-    if (inherit != null) {
+    if (getInheritedTable() != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         result.put(col.getName(), new Column(col.getTable(), col));
@@ -136,7 +139,7 @@ public class TableMetadata {
   public List<Column> getLocalColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
     // get primary key from parent
-    if (getInherit() != null) {
+    if (getInheritedTable() != null) {
       for (Column pkey : getInheritedTable().getPrimaryKeyColumns()) {
         result.put(pkey.getName(), pkey);
       }
@@ -214,13 +217,13 @@ public class TableMetadata {
     columns.remove(name);
   }
 
+  public String getInherit() {
+    return this.inherit;
+  }
+
   public TableMetadata setInherit(String otherTable) {
     this.inherit = otherTable;
     return this;
-  }
-
-  public String getInherit() {
-    return this.inherit;
   }
 
   public TableMetadata getInheritedTable() {
@@ -269,10 +272,6 @@ public class TableMetadata {
   public TableMetadata removeInherit() {
     this.inherit = null;
     return this;
-  }
-
-  public void setSchema(SchemaMetadata schemaMetadata) {
-    this.schema = schemaMetadata;
   }
 
   public String getSchemaName() {

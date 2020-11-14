@@ -98,6 +98,15 @@ Major thanks to all these companies!
 
 N.B. snapshot docker images can be found at [Docker hub](https://hub.docker.com/repository/docker/mswertz/emx2-snapshot)
 
+### Software we use to develop
+
+* postresql 13
+* java 15
+* yarn (on mac, brew install yarn)
+* gradle (on mac, brew install gradle)
+* git (on mac, install xcode dev tools)
+* IntelliJ
+
 ### Code organisation
 
 ```
@@ -323,3 +332,8 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  cross-schema foreign keys, do we need/want those?
 *  postgresql queries exposed as readonly tables
 
+# For developers, how to seutup IDE and stuff
+
+* I have git pre-push hook that runs gradle test
+* I have IntelliJ auto save and auto format using 'save actions' plugin
+* I have google-format

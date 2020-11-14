@@ -1,14 +1,13 @@
 package org.molgenis.emx2.io.readers;
 
-import org.molgenis.emx2.Row;
-import org.simpleflatmapper.csv.CsvWriter;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.molgenis.emx2.Row;
+import org.simpleflatmapper.csv.CsvWriter;
 
 public class CsvTableWriter {
 

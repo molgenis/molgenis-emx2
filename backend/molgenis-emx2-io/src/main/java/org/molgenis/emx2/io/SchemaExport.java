@@ -1,5 +1,9 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+
+import java.nio.file.Path;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -9,11 +13,6 @@ import org.molgenis.emx2.io.rowstore.TableStore;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
-
-import java.nio.file.Path;
-
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
 
 public class SchemaExport {
 

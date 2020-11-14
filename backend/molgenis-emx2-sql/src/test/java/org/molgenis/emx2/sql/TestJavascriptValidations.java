@@ -1,5 +1,7 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.Assert.fail;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -7,8 +9,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-
-import static org.junit.Assert.fail;
 
 public class TestJavascriptValidations {
 

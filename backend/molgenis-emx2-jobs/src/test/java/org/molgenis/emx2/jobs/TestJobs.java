@@ -1,9 +1,8 @@
 package org.molgenis.emx2.jobs;
 
+import java.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.time.LocalDateTime;
 
 public class TestJobs {
 

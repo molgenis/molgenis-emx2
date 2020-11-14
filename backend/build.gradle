@@ -1,6 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
+    id "com.diffplug.spotless" version "5.8.1"
 }
 
 repositories {
@@ -13,6 +14,7 @@ repositories {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
+    apply plugin: "com.diffplug.spotless"
 
     repositories {
         mavenLocal()
@@ -21,9 +23,15 @@ subprojects {
         }
     }
 
+    spotless {
+        java {
+            googleJavaFormat()
+        }
+    }
+    compileJava.dependsOn 'spotlessApply'
+
     /* default dependencies for all projects*/
     dependencies {
-
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.0'
         implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
         implementation 'org.jooq:jooq:3.14.3'

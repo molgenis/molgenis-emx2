@@ -1,5 +1,10 @@
 package org.molgenis.emx2.io;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -8,12 +13,6 @@ import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
 
 public class TestImportExportEmx2DataAndMetadata {
 

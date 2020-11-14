@@ -1,13 +1,12 @@
 package org.molgenis.emx2;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.regex.Pattern;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.MolgenisWebservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.regex.Pattern;
 
 public class RunMolgenisEmx2BackendOnly {
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2BackendOnly.class);

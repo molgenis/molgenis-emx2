@@ -3,10 +3,9 @@ package org.molgenis.emx2.graphql;
 import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
-import org.molgenis.emx2.Version;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.molgenis.emx2.Version;
 
 public class GraphqlManifesFieldFactory {
 

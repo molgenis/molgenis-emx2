@@ -1,14 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.StopWatch;
-
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
@@ -16,6 +8,12 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.List;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.StopWatch;
 
 public class TestQuery {
   static Database database;

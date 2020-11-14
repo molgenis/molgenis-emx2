@@ -1,14 +1,13 @@
 package org.molgenis.emx2.web;
 
+import static spark.Spark.*;
+
 import com.google.common.io.ByteStreams;
+import java.io.InputStream;
 import spark.Request;
 import spark.Response;
 import spark.resource.ClassPathResource;
 import spark.staticfiles.MimeType;
-
-import java.io.InputStream;
-
-import static spark.Spark.*;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in

@@ -1,8 +1,8 @@
 package org.molgenis.emx2;
 
-import org.junit.Test;
-
 import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 public class TestRows {
   @Test

@@ -1,17 +1,16 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.DefaultRoles.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.DefaultRoles.*;
 
 class SqlSchemaMetadataExecutor {
   private SqlSchemaMetadataExecutor() {

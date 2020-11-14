@@ -1,5 +1,10 @@
 package org.molgenis.emx2.web;
 
+import static org.joda.time.Minutes.minutesBetween;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.sql.DataSource;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.molgenis.emx2.Database;
@@ -10,12 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
-
-import javax.sql.DataSource;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.joda.time.Minutes.minutesBetween;
 
 public class MolgenisSessionManager implements DatabaseListener {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";

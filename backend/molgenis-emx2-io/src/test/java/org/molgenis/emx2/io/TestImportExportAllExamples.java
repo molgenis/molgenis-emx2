@@ -1,5 +1,7 @@
 package org.molgenis.emx2.io;
 
+import java.io.IOException;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -11,9 +13,6 @@ import org.molgenis.emx2.examples.synthetic.RefAndRefArrayTestExample;
 import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-
-import java.io.IOException;
-import java.util.List;
 
 public class TestImportExportAllExamples {
 

@@ -8,6 +8,7 @@ public class Column {
   private String name;
   private Integer key = 0;
   private Boolean nullable = false;
+  private String refSchema = null;
   private String refTable = null;
   private String[] refFrom = new String[0];
   private String[] refTo = new String[0];
@@ -29,6 +30,8 @@ public class Column {
     this.name = column.getName();
     this.key = column.getKey();
     this.columnType = column.getColumnType();
+    this.refSchema =
+        column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refFrom = column.getRefFrom();
     this.refTo = column.getRefTo();
@@ -49,6 +52,7 @@ public class Column {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.setType(columnType);
     c.setNullable(nullable);
+    c.setRefSchema(refSchema);
     c.setRefTable(refTable);
     c.setRefFrom(refFrom);
     c.setRefTo(refTo);
@@ -181,5 +185,13 @@ public class Column {
 
   public void setInherited(boolean inherited) {
     this.inherited = inherited;
+  }
+
+  public String getRefSchema() {
+    return refSchema;
+  }
+
+  public void setRefSchema(String refSchema) {
+    this.refSchema = refSchema;
   }
 }

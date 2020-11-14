@@ -1,15 +1,14 @@
 package org.molgenis.emx2.linkeddata;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.JavaScriptUtils;
+import static org.molgenis.emx2.SelectColumn.s;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.molgenis.emx2.SelectColumn.s;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.JavaScriptUtils;
 
 public class LinkedDataService {
 

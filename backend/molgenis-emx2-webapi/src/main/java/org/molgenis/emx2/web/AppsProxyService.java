@@ -1,5 +1,14 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static spark.Spark.get;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import okhttp3.OkHttpClient;
 import okhttp3.brotli.BrotliInterceptor;
 import org.molgenis.emx2.*;
@@ -7,16 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
-import static spark.Spark.get;
 
 /**
  * On purpose we don't want here full fledged proxy because we don't want cookies etc to be passed.

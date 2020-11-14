@@ -1,15 +1,15 @@
 package org.molgenis.emx2.graphql;
 
-import graphql.Scalars;
-import graphql.schema.*;
-import org.molgenis.emx2.Database;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
+
+import graphql.Scalars;
+import graphql.schema.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.molgenis.emx2.Database;
 
 public class GraphqlDatabaseFieldFactory {
 

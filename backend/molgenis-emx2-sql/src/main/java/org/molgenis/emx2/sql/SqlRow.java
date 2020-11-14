@@ -1,13 +1,12 @@
 package org.molgenis.emx2.sql;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.molgenis.emx2.Row;
-
 import java.sql.Array;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.molgenis.emx2.Row;
 
 public class SqlRow extends Row {
 

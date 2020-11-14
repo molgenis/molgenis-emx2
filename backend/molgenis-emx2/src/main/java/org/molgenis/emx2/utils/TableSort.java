@@ -1,14 +1,13 @@
 package org.molgenis.emx2.utils;
 
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.TableMetadata;
+import static org.molgenis.emx2.ColumnType.REFBACK;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.molgenis.emx2.ColumnType.REFBACK;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
 
 public class TableSort {
 

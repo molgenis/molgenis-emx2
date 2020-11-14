@@ -1,10 +1,9 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
-import org.molgenis.emx2.BinaryFileWrapper;
-
-import javax.servlet.http.Part;
 import java.io.IOException;
+import javax.servlet.http.Part;
+import org.molgenis.emx2.BinaryFileWrapper;
 
 public class GraphqlCustomTypes {
 

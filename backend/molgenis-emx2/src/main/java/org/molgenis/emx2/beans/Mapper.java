@@ -1,9 +1,6 @@
 package org.molgenis.emx2.beans;
 
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.TypeUtils;
+import static org.molgenis.emx2.Column.column;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,8 +8,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.molgenis.emx2.Column.column;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class Mapper {
 
