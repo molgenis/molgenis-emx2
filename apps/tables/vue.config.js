@@ -4,7 +4,7 @@ module.exports = {
     port: "9090",
     proxy: {
       "^/graphql": {
-        target: "http://localhost:8080/TestCohortCatalogue"
+        target: "http://localhost:8080/CohortsLocal"
       },
       "/apps": { target: "http://localhost:8080" }
     }

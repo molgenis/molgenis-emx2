@@ -1,12 +1,19 @@
 <template>
   <div v-if="schema">
-    <h1>{{ schema.name }}</h1>
-    <p>Tables:</p>
+    <h1>Tables: {{ schema.name }}</h1>
     <MessageError v-if="!schema"
       >No tables found. Might you need to login?
     </MessageError>
+    Show
+    <InputCheckbox
+      class="ml-2"
+      v-model="tableFilter"
+      :defaultValue="tableFilter"
+      :options="['external']"
+      :clear="false"
+    />
     Download:
-    <a href="../api/zip"> zip</a>
+    <a href="../api/zip" class="ml-2"> zip</a>
     <a href="../api/excel"> Excel</a>
     <table class="table">
       <thead>
@@ -15,7 +22,14 @@
           <th scope="col">Description</th>
         </tr>
       </thead>
-      <tr v-for="table in schema.tables" :key="table.name">
+      <tr
+        v-for="table in schema.tables.filter(
+          table =>
+            table.externalSchema == undefined ||
+            tableFilter.includes('external')
+        )"
+        :key="table.name"
+      >
         <td>
           <router-link :to="table.name">{{ table.name }}</router-link>
         </td>
@@ -26,17 +40,27 @@
 </template>
 
 <script>
-import { DataTable, MessageError } from "@mswertz/emx2-styleguide";
+import {
+  DataTable,
+  InputCheckbox,
+  MessageError
+} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "App",
   components: {
     DataTable,
-    MessageError
+    MessageError,
+    InputCheckbox
   },
   props: {
     session: Object,
     schema: Object
+  },
+  data() {
+    return {
+      tableFilter: []
+    };
   }
 };
 </script>
