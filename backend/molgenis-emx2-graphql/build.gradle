@@ -2,5 +2,4 @@ dependencies {
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-exampledata')
-    implementation 'com.sparkjava:spark-core:2.9.3'
 }

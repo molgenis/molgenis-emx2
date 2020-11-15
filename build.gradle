@@ -12,6 +12,9 @@ plugins {
     id 'com.google.cloud.tools.jib' version '2.6.0'
 }
 
+sourceCompatibility = 13
+targetCompatibility = 13
+
 sonarqube {
     properties {
         property 'sonar.projectName', 'molgenis-emx2'

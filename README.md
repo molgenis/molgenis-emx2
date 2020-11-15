@@ -332,9 +332,12 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  cross-schema foreign keys, do we need/want those?
 *  postgresql queries exposed as readonly tables
 
-# For developers, how to seutup IDE and stuff
-
-* IntelliJ 
+# For developers, what I have that works
+last updated 15 nov 2020
+* Java 13 (don't forget to set JAVA_HOME because that is what gradle uses)
+* Postgresql 13
+* Gradle 6.7 (watch out that it uses java 13, check with --version, otherwise fix JAVA_HOME)
+* IntelliJ 20202 with
   * installed google-format plugin 
   * installed prettier, set to include 'vue' and 'on save'
   * auto save and auto format using 'save actions' plugin
@@ -347,3 +350,8 @@ if[$RESULTS -ne 0]; then
 fi
 exit 0
 ```
+
+P.S. sometimes it help to reset gradle cache and stop the gradle daemon
+
+./gradlew --stop
+rm -rf $HOME/.gradle/

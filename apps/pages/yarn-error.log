@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: EEXIST: file already exists, symlink '../../schema' -> '/Users/umcg-mswertz/git/molgenis-emx2/apps/node_modules/@mswertz/emx2-schema'
+  Error: EEXIST: file already exists, mkdir '/Users/umcg-mswertz/git/molgenis-emx2/apps/node_modules/@mswertz/emx2-styleguide/node_modules'
 
 npm manifest: 
   {

@@ -6,7 +6,10 @@ import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
-import org.jooq.*;
+import org.jooq.CreateSchemaFinalStep;
+import org.jooq.CreateTableColumnStep;
+import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.molgenis.emx2.*;
 
 public class MetadataUtils {
@@ -192,7 +195,7 @@ public class MetadataUtils {
   }
 
   protected static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
-    Record tableRecord =
+    org.jooq.Record tableRecord =
         jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
     if (tableRecord == null) {
       return schema;
@@ -239,9 +242,9 @@ public class MetadataUtils {
     try {
       Map<String, TableMetadata> result = new LinkedHashMap<>();
       // tables
-      List<Record> tableRecords =
+      List<org.jooq.Record> tableRecords =
           jooq.selectFrom(TABLE_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetch();
-      for (Record r : tableRecords) {
+      for (org.jooq.Record r : tableRecords) {
         TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
         table.setInherit(r.get(TABLE_INHERITS, String.class));
         table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
@@ -251,12 +254,12 @@ public class MetadataUtils {
         result.put(table.getTableName(), table);
       }
       // columns
-      List<Record> columnRecords =
+      List<org.jooq.Record> columnRecords =
           jooq.selectFrom(COLUMN_METADATA)
               .where(TABLE_SCHEMA.eq(schema.getName()))
               .orderBy(COLUMN_POSITION)
               .fetch();
-      for (Record r : columnRecords) {
+      for (org.jooq.Record r : columnRecords) {
         result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));
       }
       return result.values();
@@ -349,19 +352,19 @@ public class MetadataUtils {
   protected static List<Column> loadColumnMetadata(DSLContext jooq, TableMetadata table) {
     List<Column> columnList = new ArrayList<>();
     // load tables and columns
-    Collection<Record> columnRecords =
+    Collection<org.jooq.Record> columnRecords =
         jooq.selectFrom(COLUMN_METADATA)
             .where(
                 TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
             .fetch();
 
-    for (Record col : columnRecords) {
+    for (org.jooq.Record col : columnRecords) {
       columnList.add(new Column(table, recordToColumn(col)));
     }
     return columnList;
   }
 
-  private static Column recordToColumn(Record col) {
+  private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
     c.setType(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
     c.setNullable(col.get(NULLABLE, Boolean.class));
@@ -391,7 +394,7 @@ public class MetadataUtils {
   }
 
   public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
-    Record result =
+    org.jooq.Record result =
         jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as("matches"))
             .from(USERS_METADATA)
             .where(field(USER_NAME).eq(username))
