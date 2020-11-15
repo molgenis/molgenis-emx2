@@ -2738,11 +2738,19 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-ckeditor4-vue@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.1.0.tgz#f5965d4f96a1df9dc7ce638b6b1f796b53015398"
-  integrity sha512-dzIobyow+fXrY7Q08Wr7qY5sSpUfAFCydu0m3+JMH3lLC6kiknuvDl6mPnlhaNvYHD0tDU1dlzGFr7G2than0Q==
+ckeditor4-integrations-common@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-0.1.0.tgz#523044f143a7bcf6fe33bb9786cafe897227fa92"
+  integrity sha512-Z0fOFOyIavYti3jh8u7SQCFTHTJfCF6cceIkxwnrtpTczt5nI0PI16EnknKvUOPOsHVAnmvRi10IUM+2Rooslw==
   dependencies:
+    load-script "^1.0.0"
+
+ckeditor4-vue@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.2.0.tgz#add02df7c504741ca5f7a8d1c380660d621d2836"
+  integrity sha512-JvlBnfDHrhCOoUrQ/Lfug8o+ChOVaNdVE+AuQ9b69h5K8DRZQUAvJgF9/s2L6qngx0FDAKOCpCJhbcBTWlSdAQ==
+  dependencies:
+    ckeditor4-integrations-common "^0.1.0"
     load-script "^1.0.0"
 
 class-utils@^0.3.5:
