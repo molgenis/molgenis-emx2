@@ -17,7 +17,7 @@ subprojects {
 
     //all depends on styleguide, so that needs build first
     /* builds each app*/
-    task build(type: YarnTask, dependsOn: yarn) {
+    task build(type: YarnTask, dependsOn: parent.yarn_install) {
 
         node {
             version = '14.10.1'
@@ -43,7 +43,6 @@ subprojects {
         }
 
         //first install the workspace
-        dependsOn parent.yarn_install
         args = ['run', 'build']
 
         //remove the target folder with copy of all build materials
