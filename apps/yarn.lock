@@ -10286,10 +10286,10 @@ vue-eslint-parser@^7.0.0:
     esquery "^1.0.1"
     lodash "^4.17.15"
 
-vue-flatpickr-component@9.0.2:
-  version "9.0.2"
-  resolved "https://registry.yarnpkg.com/vue-flatpickr-component/-/vue-flatpickr-component-9.0.2.tgz#15e15b49279f680c6458de98d16611a377e1a27d"
-  integrity sha512-nVKjSgvcH/DJtk8FhB1MGw0Qv8RZxZSYi1Wnje/FWoXZFgkoO3VE6dGZKbYZtNPv0RyRk6Lr7PB1LIODQcYgxw==
+vue-flatpickr-component@8.1.6:
+  version "8.1.6"
+  resolved "https://registry.yarnpkg.com/vue-flatpickr-component/-/vue-flatpickr-component-8.1.6.tgz#8fb25dc72946ceb1ab005b871a8151461c0883f6"
+  integrity sha512-RUu/M/1lbuzQT+U3yP7O5/M2EIizr9vXLXqSc1eFOvCT3AHurQg8+iO02rjW+2l78Kit8pCNAUvHw7eexws6hw==
   dependencies:
     flatpickr "^4.6.6"
 
