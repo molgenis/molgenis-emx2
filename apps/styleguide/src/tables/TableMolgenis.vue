@@ -153,6 +153,8 @@ export default {
         } else {
           return [this.flattenObject(row[col.name])];
         }
+      } else if (col.columnType.includes("ARRAY")) {
+        return row[col.name];
       } else {
         return [row[col.name]];
       }
