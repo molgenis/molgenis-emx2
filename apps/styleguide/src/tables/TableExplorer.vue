@@ -1,20 +1,10 @@
 <template>
   <div>
     <div v-if="tableMetadata">
+      <h1>
+        {{ table }}
+      </h1>
       <div class="navbar shadow-none navbar-expand-lg">
-        <h1>
-          {{ table }}
-        </h1>
-        <InputSearch class="navbar-nav ml-auto" v-model="searchTerms" />
-        <ShowHide
-          class="navbar-nav "
-          v-model="tableMetadata.columns"
-          checkAttribute="showColumn"
-          @input="updateTimestamp"
-          label="columns"
-          icon="columns"
-          :key="JSON.stringify(tableMetadata.columns)"
-        />
         <ShowHide
           class="navbar-nav "
           v-model="tableMetadata.columns"
@@ -24,6 +14,15 @@
           icon="filter"
           :key="JSON.stringify(tableMetadata.columns)"
         />
+        <ShowHide
+          class="navbar-nav "
+          v-model="tableMetadata.columns"
+          checkAttribute="showColumn"
+          @input="updateTimestamp"
+          label="columns"
+          icon="columns"
+        />
+        <InputSearch class="navbar-nav ml-auto" v-model="searchTerms" />
         <ButtonDropdown icon="download">
           <ButtonAlt :href="'../api/zip/' + table">Download zip</ButtonAlt>
           <ButtonAlt :href="'../api/excel/' + table">Download Excel</ButtonAlt>

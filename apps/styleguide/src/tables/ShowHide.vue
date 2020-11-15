@@ -7,7 +7,7 @@
         <div
           class="form-check"
           v-for="col in value"
-          :key="col.name + col[checkAttribute]"
+          :key="col.name + col[checkAttribute] + timestamp"
         >
           <input
             class="form-check-input"
