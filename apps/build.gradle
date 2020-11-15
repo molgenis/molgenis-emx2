@@ -73,17 +73,17 @@ subprojects {
 }
 
 /** skip yarn install unless changes => removed because leads to travis errors*/
-yarn_install {
-//    inputs.file('package.json')
-//    inputs.file('yarn.lock')
-//    outputs.dir('node_modules')
-//    subprojects.each {
-//        inputs.file('package.json')
-//        outputs.dir('node_modules')
-//    }
-
-    //outputs.cacheIf { true }
-}
+//yarn_install {
+////    inputs.file('package.json')
+////    inputs.file('yarn.lock')
+////    outputs.dir('node_modules')
+////    subprojects.each {
+////        inputs.file('package.json')
+////        outputs.dir('node_modules')
+////    }
+//
+//    //outputs.cacheIf { true }
+//}
 
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
 task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
