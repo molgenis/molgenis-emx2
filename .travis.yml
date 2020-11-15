@@ -23,7 +23,7 @@ before_script:
   - psql -c "CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';" -U postgres
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
 addons:
-  postgresql: "13"
+  postgresql: "11"
   sonarcloud:
     organization: "mswertz-github"
 jobs:
