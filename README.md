@@ -337,9 +337,11 @@ last updated 15 nov 2020
 * Java 13 (don't forget to set JAVA_HOME because that is what gradle uses)
 * Postgresql 13
 * Gradle 6.7 (watch out that it uses java 13, check with --version, otherwise fix JAVA_HOME)
-* IntelliJ 20202 with
-  * installed google-format plugin 
-  * installed prettier, set to include 'vue' and 'on save'
+* IntelliJ 20202 with 
+  * google-format plugin 
+  * prettier plugn, set to include 'vue' and 'on save'
+  * vue plugin
+  * save actions plugin
   * auto save and auto format using 'save actions' plugin
 * hook in .git/hooks/pre-push
 ```
