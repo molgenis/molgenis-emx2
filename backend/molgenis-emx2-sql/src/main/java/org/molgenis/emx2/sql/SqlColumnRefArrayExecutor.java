@@ -24,23 +24,26 @@ class SqlColumnRefArrayExecutor {
   static void createRefArrayConstraints(DSLContext jooq, Column column) {
     validateRef(column);
     createReferenceExistsCheck(jooq, column);
-    createDeleteOrUpdateReferedCheck(jooq, column);
+    createReferedCheck(jooq, column);
     // createUpdateReferedCheck(jooq, column);
   }
 
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
         "DROP TRIGGER {0} ON {1}",
-        name(getDeleteTriggerName(ref)), ref.getRefTable().getJooqTable());
+        name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
+    jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
+
     //    jooq.execute(
     //        "DROP TRIGGER {0} ON {1}", name(getUpdateTriggerName(column)),
     // column.getRefTable().asJooqTable());
-    jooq.execute("DROP TRIGGER {0} ON {1}", name(getUpdateCheckName(ref)), ref.getJooqTable());
-    jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getDeleteTriggerName(ref)));
     //    jooq.execute(
     //        "DROP FUNCTION {0}",
     //        name(SqlColumnExecutor.getSchemaName(column), getUpdateTriggerName(column)));
-    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getUpdateCheckName(ref)));
+
+    jooq.execute(
+        "DROP TRIGGER {0} ON {1}", name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
+    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
@@ -86,8 +89,8 @@ class SqlColumnRefArrayExecutor {
   }
 
   /** update check; in case of composite key this consists of multiple Column */
-  private static void createDeleteOrUpdateReferedCheck(DSLContext jooq, Column ref) {
-    String deleteTrigger = getDeleteTriggerName(ref);
+  private static void createReferedCheck(DSLContext jooq, Column ref) {
+    String deleteTrigger = getReferedCheckName(ref);
     Collection<Reference> references = ref.getReferences();
 
     String unnestRefs =
@@ -178,21 +181,13 @@ class SqlColumnRefArrayExecutor {
             + "\n\tFOR EACH ROW EXECUTE PROCEDURE {2}()",
         name(deleteTrigger),
         ref.getRefTable().getJooqTable(),
-        name(ref.getSchemaName(), deleteTrigger),
+        name(ref.getTable().getSchema().getName(), deleteTrigger),
         keyword(keyColumns));
   }
 
-  private static String getDeleteTriggerName(Column... column) {
-    Column column1 = column[0];
-
-    return "DEL_"
-        + column1.getSchemaName()
-        + "_"
-        + column1.getRefTableName()
-        + "_CHECK_"
-        + column1.getTable().getTableName()
-        + "_"
-        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
+  private static String getReferedCheckName(Column column) {
+    // todo, might be longer then 63 bytes!
+    return "DEL_" + column.getSchemaName() + "_" + column.getTableName() + "_" + column.getName();
   }
 
   private static String getUpdateTriggerName(Column... column) {
@@ -213,7 +208,7 @@ class SqlColumnRefArrayExecutor {
     String schemaName = column.getSchema().getName();
     Name thisTable = name(schemaName, column.getTable().getTableName());
     Name toTable = name(column.getRefSchema(), column.getRefTableName());
-    String functionName = getUpdateCheckName(column);
+    String functionName = getReferenceExistsCheckName(column);
     List<Reference> references = column.getReferences();
 
     String fromColumns =
@@ -300,13 +295,7 @@ class SqlColumnRefArrayExecutor {
         name(column.getTable().getSchema().getName(), functionName));
   }
 
-  private static String getUpdateCheckName(Column... column) {
-    Column column1 = column[0];
-    return "UPD_"
-        + column1.getTable().getTableName()
-        + "_CHECK_"
-        + column1.getTable().getTableName()
-        + "_"
-        + List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
+  private static String getReferenceExistsCheckName(Column column) {
+    return "C_" + column.getSchemaName() + "_" + column.getTableName() + "_" + column.getName();
   }
 }

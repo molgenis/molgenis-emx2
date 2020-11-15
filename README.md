@@ -334,6 +334,16 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 # For developers, how to seutup IDE and stuff
 
-* I have git pre-push hook that runs gradle test
-* I have IntelliJ auto save and auto format using 'save actions' plugin
-* I have google-format
+* IntelliJ 
+  * installed google-format plugin 
+  * installed prettier, set to include 'vue' and 'on save'
+  * auto save and auto format using 'save actions' plugin
+* hook in .git/hooks/pre-push
+```
+./gradlew test --info
+RESULTS=$?
+if[$RESULTS -ne 0]; then
+    exit 1
+fi
+exit 0
+```
