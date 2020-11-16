@@ -12,11 +12,11 @@ public class Emx1Attribute {
   private String label;
   private String dataType;
   private String description;
-  private Boolean nillable;
-  private Boolean idAttribute;
-  private Boolean aggregateable;
-  private Boolean labelAttribute;
-  private Boolean readonly;
+  private boolean nillable = false;
+  private boolean idAttribute = false;
+  private boolean aggregateable = false;
+  private boolean labelAttribute = false;
+  private boolean readonly = false;
   private String validationExpression;
   private String visibleExpression;
   private String defaultValue;
@@ -43,14 +43,16 @@ public class Emx1Attribute {
     this.label = get(row, "label");
     this.dataType = get(row, "dataType");
     this.description = get(row, "description");
-    this.nillable = row.getBoolean("nillable");
+    if (row.getBoolean("nillable") != null) this.nillable = row.getBoolean("nillable");
     this.idAttribute =
         get(row, ID_ATTRIBUTE) != null
             && ("AUTO".equalsIgnoreCase(row.getString(ID_ATTRIBUTE))
-                || row.getBoolean(ID_ATTRIBUTE));
-    this.aggregateable = row.getBoolean("aggregatable");
-    this.labelAttribute = row.getBoolean("labelAttribute");
-    this.readonly = row.getBoolean("readonly");
+                || row.getBoolean(ID_ATTRIBUTE) != null
+                    && row.getBoolean(ID_ATTRIBUTE).equals(true));
+    if (row.getBoolean("aggregatable") != null) this.aggregateable = row.getBoolean("aggregatable");
+    if (row.getBoolean("labelAttribute") != null)
+      this.labelAttribute = row.getBoolean("labelAttribute");
+    if (row.getBoolean("readonly") != null) this.readonly = row.getBoolean("readonly");
     this.validationExpression = get(row, "validationExpression");
     this.visibleExpression = get(row, "visibleExpression");
     this.defaultValue = get(row, "defaultValue");
@@ -100,15 +102,15 @@ public class Emx1Attribute {
     return idAttribute;
   }
 
-  public Boolean getAggregateable() {
+  public boolean getAggregateable() {
     return aggregateable;
   }
 
-  public Boolean getLabelAttribute() {
+  public boolean getLabelAttribute() {
     return labelAttribute;
   }
 
-  public Boolean getReadonly() {
+  public boolean getReadonly() {
     return readonly;
   }
 
@@ -168,23 +170,23 @@ public class Emx1Attribute {
     this.description = description;
   }
 
-  public void setNillable(Boolean nillable) {
+  public void setNillable(boolean nillable) {
     this.nillable = nillable;
   }
 
-  public void setIdAttribute(Boolean idAttribute) {
+  public void setIdAttribute(boolean idAttribute) {
     this.idAttribute = idAttribute;
   }
 
-  public void setAggregateable(Boolean aggregateable) {
+  public void setAggregateable(boolean aggregateable) {
     this.aggregateable = aggregateable;
   }
 
-  public void setLabelAttribute(Boolean labelAttribute) {
+  public void setLabelAttribute(boolean labelAttribute) {
     this.labelAttribute = labelAttribute;
   }
 
-  public void setReadonly(Boolean readonly) {
+  public void setReadonly(boolean readonly) {
     this.readonly = readonly;
   }
 

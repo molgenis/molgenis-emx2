@@ -105,7 +105,11 @@ public class TypeUtils {
       if ("true".equalsIgnoreCase((String) v)) return true;
       if ("false".equalsIgnoreCase((String) v)) return false;
     }
-    return (Boolean) v;
+    try {
+      return (Boolean) v;
+    } catch (Exception e) {
+      throw new MolgenisException("Cannot cast value '" + v + "' to boolean");
+    }
   }
 
   public static Boolean[] toBoolArray(Object v) {

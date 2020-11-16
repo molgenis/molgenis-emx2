@@ -33,16 +33,16 @@ public class Column {
   // options
   private Integer position = null; // column order
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private boolean nullable = false;
+  private Boolean nullable = false;
   private String validationScript = null;
   private String computed = null;
   private String rdfTemplate = null;
   // todo implement below
-  private boolean readonly = false;
+  private Boolean readonly = false;
   private String description = null;
   private String defaultValue = null;
-  private boolean indexed = false;
-  private boolean cascadeDelete = false;
+  private Boolean indexed = false;
+  private Boolean cascadeDelete = false;
 
   public Column(Column column) {
     copy(column);
@@ -198,16 +198,16 @@ public class Column {
     return readonly;
   }
 
-  public Column setReadonly(boolean readonly) {
+  public Column setReadonly(Boolean readonly) {
     this.readonly = readonly;
     return this;
   }
 
-  public boolean isNullable() {
+  public Boolean isNullable() {
     return nullable;
   }
 
-  public Column setNullable(boolean nillable) {
+  public Column setNullable(Boolean nillable) {
     this.nullable = nillable;
     return this;
   }
@@ -243,12 +243,12 @@ public class Column {
     return this;
   }
 
-  public Column setIndex(boolean indexed) {
+  public Column setIndex(Boolean indexed) {
     this.indexed = indexed;
     return this;
   }
 
-  public Column setCascadeDelete(boolean cascadeDelete) {
+  public Column setCascadeDelete(Boolean cascadeDelete) {
     if (cascadeDelete && !REF.equals(this.columnType)) {
       throw new MolgenisException(
           "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
@@ -324,7 +324,7 @@ public class Column {
     return getTable().getJooqTable();
   }
 
-  public boolean isReference() {
+  public Boolean isReference() {
     return REF.equals(getColumnType())
         || MREF.equals(getColumnType())
         || REF_ARRAY.equals(getColumnType())
@@ -380,7 +380,7 @@ public class Column {
         field(name(getName() + "_contents"), SQLDataType.BINARY));
   }
 
-  public boolean isArray() {
+  public Boolean isArray() {
     return this.columnType.toString().endsWith("ARRAY") || this.columnType.equals(REFBACK);
   }
 

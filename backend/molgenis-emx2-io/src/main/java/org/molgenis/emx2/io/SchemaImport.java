@@ -1,9 +1,5 @@
 package org.molgenis.emx2.io;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
@@ -13,6 +9,11 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class SchemaImport {
   private static Logger logger = LoggerFactory.getLogger(SchemaImport.class.getName());
@@ -191,13 +192,13 @@ public class SchemaImport {
         if (batch.size() >= 100000) {
           table.update(batch);
           batch.clear();
-          logger.info("Imported {0} into {1}", count, table.getName());
+          logger.info("Imported {} into {}", count, table.getName());
         }
       }
       // remaining
       if (!batch.isEmpty()) {
         table.update(batch);
-        logger.info("Imported {0} into {1}", count, table.getName());
+        logger.info("Imported {} into {}", count, table.getName());
       }
     }
   }
