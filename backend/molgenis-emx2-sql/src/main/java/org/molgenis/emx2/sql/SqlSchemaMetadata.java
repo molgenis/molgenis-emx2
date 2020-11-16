@@ -1,17 +1,18 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
+import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
@@ -28,7 +29,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
     if (logger.isInfoEnabled()) {
       logger.info(
-          "loading schema '{0}}'complete in {1}ms", name, System.currentTimeMillis() - start);
+          "loading schema '{0}' complete in {1}ms", name, System.currentTimeMillis() - start);
     }
     this.db = db;
   }
