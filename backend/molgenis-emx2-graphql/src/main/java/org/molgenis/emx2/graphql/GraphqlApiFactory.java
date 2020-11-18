@@ -177,7 +177,8 @@ public class GraphqlApiFactory {
       queryBuilder.field(tableField.tableAggField(table));
       // we also include query-only tables from other schemas we link to
       for (Column column : table.getMetadata().getColumns()) {
-        if (!column.getRefSchema().equals(schema.getName())
+        if (column.isReference()
+            && !column.getRefSchema().equals(schema.getName())
             && !importedTables.contains(column.getRefTableName())) {
           Table importedTable =
               schema

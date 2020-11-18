@@ -12,19 +12,27 @@ import org.jooq.impl.DSL;
 
 public class TableMetadata {
 
+  // if a table extends another table (optional)
   protected String inherit = null;
+  // use for enabling inherit to go accross schema's (optional)
+  protected String importSchema = null;
+  // description of the table (optional)
   protected String description = null;
+  // columns of the table (required)
   protected Map<String, Column> columns = new LinkedHashMap<>();
+  // key value map for settings specific to this table (optional)
   protected Map<String, String> settings = new LinkedHashMap<>();
+  // link to the schema this table is part of (optional)
   private SchemaMetadata schema;
+  // name unique within this schema (required)
   private String tableName;
 
   public TableMetadata(String tableName) {
-    if (!tableName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+    if (!tableName.matches("[a-zA-Z_][a-zA-Z0-9_]*") || tableName.length() > 341) {
       throw new MolgenisException(
           "Invalid table name '"
               + tableName
-              + "': Table name must start with a letter or underscore, followed by letters, underscores or numbers");
+              + "': Table name must start with a letter or underscore, followed by letters, underscores or numbers. Maximum length: 31 characters (so it fits in Excel sheet names)");
     }
     this.tableName = tableName;
   }
@@ -60,6 +68,7 @@ public class TableMetadata {
       this.columns.put(c.getName(), new Column(this, c));
     }
     this.inherit = metadata.getInherit();
+    this.importSchema = metadata.getImportSchema();
   }
 
   public String getTableName() {
@@ -79,7 +88,7 @@ public class TableMetadata {
     if (getInheritedTable() != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
-        result.put(col.getName(), new Column(col.getTable(), col));
+        result.put(col.getName(), new Column(getInheritedTable(), col));
       }
     }
 
@@ -228,7 +237,23 @@ public class TableMetadata {
 
   public TableMetadata getInheritedTable() {
     if (inherit != null && getSchema() != null) {
-      return getSchema().getTableMetadata(inherit);
+      if (getImportSchema() != null) {
+        if (getSchema().getDatabase().getSchema(getImportSchema()) == null) {
+          throw new MolgenisException(
+              "Cannot find schema '"
+                  + getImportSchema()
+                  + " for inheritance of table '"
+                  + inherit
+                  + "'");
+        }
+        return getSchema()
+            .getDatabase()
+            .getSchema(getImportSchema())
+            .getTable(inherit)
+            .getMetadata();
+      } else {
+        return getSchema().getTableMetadata(inherit);
+      }
     }
     return null;
   }
@@ -250,7 +275,11 @@ public class TableMetadata {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();
     if (getInherit() != null) {
-      name += " extends " + getInherit();
+      if (getImportSchema() != null) {
+        name += " extends " + getImportSchema() + "." + getInherit();
+      } else {
+        name += " extends " + getInherit();
+      }
     }
     builder.append("TABLE(").append(name).append("){");
     for (Column c : getColumns()) {
@@ -263,6 +292,7 @@ public class TableMetadata {
   public void clearCache() {
     columns = new LinkedHashMap<>();
     inherit = null;
+    importSchema = null;
   }
 
   public boolean exists() {
@@ -352,6 +382,15 @@ public class TableMetadata {
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey, Map.Entry::getValue)); // strip null and "" values
+    return this;
+  }
+
+  public String getImportSchema() {
+    return importSchema;
+  }
+
+  public TableMetadata setImportSchema(String importSchema) {
+    this.importSchema = importSchema;
     return this;
   }
 }

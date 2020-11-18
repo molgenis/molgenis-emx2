@@ -163,7 +163,12 @@ public class TestInherits {
 
     // filtering on mg_tableclass
     assertEquals(
-        1, personTable.query().where(f(MG_TABLECLASS, EQUALS, "Employee")).retrieveRows().size());
+        1,
+        personTable
+            .query()
+            .where(f(MG_TABLECLASS, EQUALS, s.getName() + ".Employee"))
+            .retrieveRows()
+            .size());
 
     // delete
     ceoTable.delete(managerRow);

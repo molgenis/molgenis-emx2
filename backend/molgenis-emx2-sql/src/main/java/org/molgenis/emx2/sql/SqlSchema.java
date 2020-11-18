@@ -215,6 +215,7 @@ public class SqlSchema implements Schema {
     tx(
         database -> {
           List<TableMetadata> mergeTableList = new ArrayList<>();
+          mergeSchema.setDatabase(database);
           for (String tableName : mergeSchema.getTableNames()) {
             mergeTableList.add(mergeSchema.getTableMetadata(tableName));
           }
@@ -236,6 +237,9 @@ public class SqlSchema implements Schema {
 
             // update inheritance
             if (newTable.getInherit() != null) {
+              if (newTable.getImportSchema() != null) {
+                oldTable.setImportSchema(newTable.getImportSchema());
+              }
               oldTable.setInherit(newTable.getInherit());
             } else if (oldTable.getInherit() != null) {
               oldTable.removeInherit();
@@ -245,15 +249,16 @@ public class SqlSchema implements Schema {
             oldTable.setSettings(newTable.getSettings());
 
             // add missing (except refback), remove triggers if existing column if type changed
-            for (Column newColumn : newTable.getLocalColumns()) {
+            for (Column newColumn : newTable.getColumns()) {
               Column oldColumn = oldTable.getColumn(newColumn.getName());
               if (oldTable.getColumn(newColumn.getName()) == null) {
-                // if column does not exist then create except refback
-                if (!newColumn.getColumnType().equals(REFBACK)) {
+                // if column does not exist then create except refback and inheritance
+                if (!(oldTable.getInherit() != null
+                        && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
+                    && !newColumn.getColumnType().equals(REFBACK)) {
                   oldTable.add(newColumn);
                 }
               } else if (!newColumn.getColumnType().equals(oldColumn.getColumnType())) {
-
                 // if column exist but type has changed remove triggers
                 executeRemoveRefConstraints(getMetadata().getJooq(), oldColumn);
               }

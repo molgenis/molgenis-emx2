@@ -33,7 +33,7 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(13, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    assertEquals(14, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
 
     loadSchema("CohortsLocal.xlsx", localSchema);
     assertEquals(6, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
@@ -45,7 +45,7 @@ public class TestCohortCatalogueMultipleSchemas {
 
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(file);
     SchemaMetadata source = Emx2.fromRowList(store.readTable("molgenis"));
-
+    source.setDatabase(schema.getDatabase()); // enable cross links to existing data
     System.out.println(source);
     StopWatch.print("schema loaded, now creating tables");
 

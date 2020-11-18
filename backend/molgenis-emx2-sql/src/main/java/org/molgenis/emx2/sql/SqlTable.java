@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.jooq.*;
-import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
@@ -126,8 +125,7 @@ class SqlTable implements Table {
 
             // first update superclass
             if (getMetadata().getInherit() != null) {
-              ((SqlTable) getSchema().getTable(getMetadata().getInherit()))
-                  .insert(rows, getMetadata().getTableName());
+              getInheritedTable().insert(rows, getMgTableClass(getMetadata()));
             }
 
             // get metadata
@@ -172,6 +170,10 @@ class SqlTable implements Table {
     return count.get();
   }
 
+  private String getMgTableClass(TableMetadata table) {
+    return table.getSchemaName() + "." + table.getTableName();
+  }
+
   @Override
   public int insert(Row... rows) {
     return insert(Arrays.asList(rows));
@@ -184,7 +186,7 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
-    return this.update(rows, getMetadata().getTableName());
+    return this.update(rows, getMetadata().getSchemaName() + "." + getMetadata().getTableName());
   }
 
   private int update(Iterable<Row> rows, String mgTableClass) {
@@ -200,8 +202,7 @@ class SqlTable implements Table {
           db2 -> { // first update superclass
             if (getMetadata().getInherit() != null) {
               try {
-                ((SqlTable) getSchema().getTable(getMetadata().getInherit()))
-                    .update(rows, mgTableClass);
+                getInheritedTable().update(rows, mgTableClass);
               } catch (MolgenisException e) {
                 throw new MolgenisException("Update of table '" + getName() + "' failed", e);
               }
@@ -329,7 +330,7 @@ class SqlTable implements Table {
           config -> {
             // first update superclass
             if (getMetadata().getInherit() != null) {
-              getSchema().getTable(getMetadata().getInherit()).delete(rows);
+              getInheritedTable().delete(rows);
             }
 
             // because of expensive jTable scanning and smaller queryOld string size this batch
@@ -465,6 +466,18 @@ class SqlTable implements Table {
 
   protected org.jooq.Table<Record> getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
+  }
+
+  private SqlTable getInheritedTable() {
+    if (getMetadata().getImportSchema() != null) {
+      return (SqlTable)
+          getSchema()
+              .getDatabase()
+              .getSchema(getMetadata().getImportSchema())
+              .getTable(getMetadata().getInherit());
+    } else {
+      return (SqlTable) getSchema().getTable(getMetadata().getInherit());
+    }
   }
 
   private void log(long start, AtomicInteger count, String message) {

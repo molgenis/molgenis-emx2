@@ -12,10 +12,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 import java.util.Map;
 import org.jooq.DSLContext;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,6 +175,16 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata setInherit(String otherTable) {
     long start = System.currentTimeMillis();
+    if (getImportSchema() != null && getSchema().getTableMetadata(otherTable) != null) {
+      throw new MolgenisException(
+          "Inheritance failed: cannot extend schema.table '"
+              + getImportSchema()
+              + "."
+              + otherTable
+              + " because table of that name already exists in this schema ("
+              + getSchemaName()
+              + ')');
+    }
     if (getInherit() != null) {
       if (getInherit().equals(otherTable)) {
         return this; // nothing to do
@@ -192,11 +199,25 @@ class SqlTableMetadata extends TableMetadata {
                 + "'");
       }
     }
-    TableMetadata other = getSchema().getTableMetadata(otherTable);
-    if (other == null)
-      throw new MolgenisException(
-          "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
-
+    TableMetadata other;
+    if (getImportSchema() != null) {
+      // check for duplicate table name
+      Schema otherSchema = getSchema().getDatabase().getSchema(getImportSchema());
+      if (otherSchema == null || otherSchema.getMetadata().getTableMetadata(otherTable) == null) {
+        throw new MolgenisException(
+            "Inheritance failed. Other schema.table '"
+                + getImportSchema()
+                + "."
+                + otherTable
+                + "' does not exist in this database");
+      }
+      other = otherSchema.getMetadata().getTableMetadata(otherTable);
+    } else {
+      other = getSchema().getTableMetadata(otherTable);
+      if (other == null)
+        throw new MolgenisException(
+            "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
+    }
     if (other.getPrimaryKeys().isEmpty())
       throw new MolgenisException(
           "Set inheritance failed: To extend table '"

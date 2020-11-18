@@ -11,7 +11,7 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.CrossSchemaReferenceExample;
 
-public class TestCrossSchemaForeignKeys {
+public class TestCrossSchemaForeignKeysAndInheritance {
   static Schema schema1;
   static Schema schema2;
   static Database db;
@@ -19,8 +19,10 @@ public class TestCrossSchemaForeignKeys {
   @BeforeClass
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema1 = db.dropCreateSchema(TestCrossSchemaForeignKeys.class.getSimpleName() + "1");
-    schema2 = db.dropCreateSchema(TestCrossSchemaForeignKeys.class.getSimpleName() + "2");
+    schema1 =
+        db.dropCreateSchema(TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "1");
+    schema2 =
+        db.dropCreateSchema(TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "2");
 
     CrossSchemaReferenceExample.create(schema1, schema2);
   }
@@ -39,5 +41,14 @@ public class TestCrossSchemaForeignKeys {
 
     System.out.println(q.retrieveJSON());
     assertTrue(q.retrieveJSON().contains("dog"));
+  }
+
+  @Test
+  public void testInheritance() {
+    Query q = schema2.getTable("Mouse").select(s("name"), s("species"));
+    assertEquals("mickey", q.retrieveRows().get(0).getString("name"));
+
+    q = schema1.getTable("Pet").select(s("name"), s("species"));
+    assertEquals(3, q.retrieveRows().size());
   }
 }

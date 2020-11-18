@@ -27,6 +27,8 @@ public class MetadataUtils {
       field(name("table_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
+  private static final org.jooq.Field TABLE_IMPORT_SCHEMA =
+      field(name("import_schema"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_NAME =
@@ -105,7 +107,8 @@ public class MetadataUtils {
     }
 
     // this way more robust for non breaking changes
-    for (Field field : new Field[] {TABLE_INHERITS, TABLE_DESCRIPTION, SETTINGS}) {
+    for (Field field :
+        new Field[] {TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, SETTINGS}) {
       jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
     }
 
@@ -220,16 +223,24 @@ public class MetadataUtils {
 
       String settings = jsonMapper.writeValueAsString(table.getSettings()); // strip empty
       jooq.insertInto(TABLE_METADATA)
-          .columns(TABLE_SCHEMA, TABLE_NAME, TABLE_INHERITS, TABLE_DESCRIPTION, SETTINGS)
+          .columns(
+              TABLE_SCHEMA,
+              TABLE_NAME,
+              TABLE_INHERITS,
+              TABLE_IMPORT_SCHEMA,
+              TABLE_DESCRIPTION,
+              SETTINGS)
           .values(
               table.getSchema().getName(),
               table.getTableName(),
               table.getInherit(),
+              table.getImportSchema(),
               table.getDescription(),
               settings)
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
+          .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
           .set(SETTINGS, settings)
           .execute();
@@ -247,6 +258,7 @@ public class MetadataUtils {
       for (org.jooq.Record r : tableRecords) {
         TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
         table.setInherit(r.get(TABLE_INHERITS, String.class));
+        table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
         table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
         if (r.get(SETTINGS, String.class) != null) {
           table.setSettings(jsonMapper.readValue(r.get(SETTINGS, String.class), Map.class));

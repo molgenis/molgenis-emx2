@@ -42,6 +42,10 @@ class SqlTableMetadataExecutor {
 
     // create columns from primary key of superclass
     if (table.getInherit() != null) {
+      if (table.getInheritedTable() == null) {
+        throw new MolgenisException(
+            "Cannot inherit " + table.getImportSchema() + "." + table.getInherit() + ": not found");
+      }
       executeSetInherit(jooq, table, table.getInheritedTable());
     }
 
@@ -91,16 +95,6 @@ class SqlTableMetadataExecutor {
   }
 
   static void executeSetInherit(DSLContext jooq, TableMetadata table, TableMetadata other) {
-    if (other == null) {
-      throw new MolgenisException(
-          "Extend failed: Cannot make table '"
-              + table.getTableName()
-              + "' extend table '"
-              + table.getInherit()
-              + "' because table '"
-              + table.getInherit()
-              + "' does not exist");
-    }
     if (other.getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
           "Extend failed: Cannot make table '"
@@ -110,6 +104,7 @@ class SqlTableMetadataExecutor {
               + "' because table primary key is null");
     }
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
+    copyTm.setInherit(other.getTableName());
     for (Column pkey : other.getPrimaryKeyColumns()) {
       // same as parent table, except table name
       Column copy = new Column(copyTm, pkey);

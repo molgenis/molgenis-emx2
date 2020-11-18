@@ -99,4 +99,8 @@ public class SchemaMetadata {
   public Database getDatabase() {
     return database;
   }
+
+  public void setDatabase(Database database) {
+    this.database = database;
+  }
 }

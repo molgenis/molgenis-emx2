@@ -50,7 +50,6 @@ public class Column {
 
   public Column(TableMetadata table, Column column) {
     this.table = table;
-    // todo validate
     copy(column);
   }
 
@@ -160,13 +159,19 @@ public class Column {
       if (this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
+
+      // inherited pkey field, hard to explain but this is needed for cross schema inheritanc
+      if (getTable().getInherit() != null
+          && getTable().getInheritedTable().getColumn(this.getName()) != null) {
+        schema = getTable().getInheritedTable().getColumn(this.getName()).getSchema();
+      }
+
       // other relation
       if (schema != null) {
         TableMetadata result = schema.getTableMetadata(this.refTable);
         if (result == null) {
           throw new MolgenisException(
-              "Internal error",
-              "Column.getRefTable failed for column '"
+              "Internal error: Column.getRefTable failed for column '"
                   + getName()
                   + "' because refTable '"
                   + getRefTableName()
@@ -508,10 +513,11 @@ public class Column {
   }
 
   public String getRefSchema() {
-    if (refSchema == null) {
-      return getTable().getSchemaName();
-    }
-    return refSchema;
+    if (refSchema != null) {
+      return refSchema;
+    } else if (getRefTable() != null) {
+      return getRefTable().getSchemaName();
+    } else return getSchemaName();
   }
 
   public Column setRefSchema(String refSchema) {
