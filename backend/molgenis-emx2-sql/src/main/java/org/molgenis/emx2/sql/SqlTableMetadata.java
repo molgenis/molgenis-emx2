@@ -108,7 +108,8 @@ class SqlTableMetadata extends TableMetadata {
           executeSetNullable(getJooq(), newColumn);
 
           // change nullable?
-          if (oldColumn.isNullable() != newColumn.isNullable()) {
+          if (oldColumn.isNullable() != null
+              && !oldColumn.isNullable().equals(newColumn.isNullable())) {
             executeSetNullable(getJooq(), newColumn);
           }
 
