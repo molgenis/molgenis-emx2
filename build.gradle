@@ -66,11 +66,11 @@ semanticRelease {
     }
 }
 
-def imageName = 'docker.io/mswertz/emx2'
+def imageName = 'docker.io/molgenis/molgenis-emx2'
 def tagName = project.version.toString()
 if (version.toString().endsWith('-SNAPSHOT')) {
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
-    imageName = "docker.io/mswertz/emx2-snapshot"
+    imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
     tagName = "${project.version.toString()}-${ext.hash}"
 }
 jib {
