@@ -12,28 +12,33 @@
 
 <script>
 import Groups from "./components/Groups";
-import {Molgenis} from "@mswertz/emx2-styleguide";
+import { Molgenis } from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
     Molgenis,
-    Groups
+    Groups,
   },
-  data: function() {
+  data: function () {
     return {
       session: {},
       menuItems: [
         { label: "Central", href: ".", active: true },
         {
           label: "GraphQL API",
-          href: "/apps/graphql-playground/"
+          href: "/apps/graphql-playground/",
         },
         {
           label: "Styleguide",
-          href: "/apps/styleguide/"
-        }
-      ]
+          href: "/apps/styleguide/",
+        },
+        {
+          label: "Docs",
+          href: "/apps/docs/",
+          newWindow: true,
+        },
+      ],
     };
-  }
+  },
 };
 </script>

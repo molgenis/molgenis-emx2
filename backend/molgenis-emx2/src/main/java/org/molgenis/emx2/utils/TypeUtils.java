@@ -2,6 +2,7 @@ package org.molgenis.emx2.utils;
 
 import static org.jooq.impl.DSL.cast;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -24,6 +25,8 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 
 public class TypeUtils {
+  private static ObjectMapper json = new ObjectMapper();
+
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -370,6 +373,42 @@ public class TypeUtils {
       default:
         throw new UnsupportedOperationException(
             "Unsupported columnType columnType found:" + columnType);
+    }
+  }
+
+  public static String toJson(String jsonldType) {
+    if (jsonldType != null) {
+      // is an object?
+      if (jsonldType.trim().startsWith("{")) {
+        try {
+          // if can parse is okay
+          json.readTree(jsonldType);
+          return jsonldType;
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json ", e);
+        }
+      } else if (jsonldType.trim().startsWith("[")) {
+        try {
+          // if can parse is okay
+          json.readValue(jsonldType, ArrayList.class);
+          return jsonldType;
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json ", e);
+        }
+      } else
+        // treat as string
+        try {
+          if (!jsonldType.trim().startsWith("\"")) {
+            // may need quotes
+            jsonldType = "\"" + jsonldType + "\"";
+          }
+          json.readTree(jsonldType);
+          return jsonldType;
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json ", e);
+        }
+    } else {
+      return null;
     }
   }
 }

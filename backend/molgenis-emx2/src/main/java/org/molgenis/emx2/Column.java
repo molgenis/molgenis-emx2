@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class Column {
   private TableMetadata table;
@@ -36,7 +37,7 @@ public class Column {
   private Boolean nullable = false;
   private String validationScript = null;
   private String computed = null;
-  private String rdfTemplate = null;
+  private String jsonldType = null;
   // todo implement below
   private Boolean readonly = false;
   private String description = null;
@@ -64,8 +65,8 @@ public class Column {
   }
 
   public Column(TableMetadata table, String columnName) {
+    this(columnName);
     this.table = table;
-    this.columnName = columnName;
   }
 
   public static Column column(String name) {
@@ -76,12 +77,13 @@ public class Column {
     return new Column(name).setType(type);
   }
 
-  public String getRdfTemplate() {
-    return rdfTemplate;
+  public String getJsonldType() {
+    return jsonldType;
   }
 
-  public void setRdfTemplate(String rdfTemplate) {
-    this.rdfTemplate = rdfTemplate;
+  public Column setJsonldType(String jsonldType) {
+    this.jsonldType = TypeUtils.toJson(jsonldType);
+    return this;
   }
 
   /* copy constructor to prevent changes on in progress data */
@@ -104,7 +106,7 @@ public class Column {
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
-    rdfTemplate = column.rdfTemplate;
+    jsonldType = column.jsonldType;
   }
 
   public TableMetadata getTable() {

@@ -50,6 +50,8 @@ public class Schema {
       t.getSettings().stream()
           .forEach(entry -> tableSettings.put(entry.getKey(), entry.getValue()));
       tm.setSettings(tableSettings);
+      tm.setJsonldType(t.getJsonldType());
+      tm.setDescription(t.getDescription());
       for (Column c : t.getColumns()) {
         tm.add(c.getColumnMetadata(tm));
       }

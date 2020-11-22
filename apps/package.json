@@ -3,12 +3,12 @@
   "workspaces": [
     "styleguide",
     "cohorts",
+    "docs",
     "settings",
     "central",
     "schema",
     "tables",
     "import",
-    "download",
     "pages"
   ]
 }

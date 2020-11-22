@@ -125,7 +125,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(RDF_TEMPLATE)
+                  .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -159,6 +159,14 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
                   .type(GraphQLList.list(outputSettingsMetadataType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(JSONLD_CONTEXT)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(JSONLD_TYPE)
+                  .type(Scalars.GraphQLString))
           .build();
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
@@ -197,7 +205,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(DEFINITION)
+                  .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -255,7 +267,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(RDF_TEMPLATE)
+                  .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
@@ -268,6 +280,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()

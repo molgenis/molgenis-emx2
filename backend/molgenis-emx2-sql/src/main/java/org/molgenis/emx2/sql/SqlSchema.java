@@ -230,7 +230,7 @@ public class SqlSchema implements Schema {
             }
           }
 
-          // first add missing columns (except refback), remove constraints of type changes, remove
+          //  add missing columns (except refback), remove constraints of type changes, remove
           // refback
           for (TableMetadata newTable : mergeTableList) {
             TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
@@ -245,8 +245,11 @@ public class SqlSchema implements Schema {
               oldTable.removeInherit();
             }
 
-            // update settings
+            // update table settings
             oldTable.setSettings(newTable.getSettings());
+            oldTable.setDescription(newTable.getDescription());
+            oldTable.setJsonldType(newTable.getJsonldType());
+            MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
 
             // add missing (except refback), remove triggers if existing column if type changed
             for (Column newColumn : newTable.getColumns()) {

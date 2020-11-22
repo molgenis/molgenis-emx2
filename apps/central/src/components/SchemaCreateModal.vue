@@ -15,6 +15,8 @@
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
+        Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
+        Go to upload <a :href="'/' + schemaName + '/upload/'">files</a>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
@@ -42,14 +44,14 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema">Create schema </ButtonAction>
+        <ButtonAction @click="executeCreateSchema">Create schema</ButtonAction>
       </template>
     </LayoutModal>
   </div>
 </template>
 
 <script>
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 import {
   ButtonAction,
@@ -61,7 +63,7 @@ import {
   LayoutModal,
   MessageError,
   MessageSuccess,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -75,16 +77,16 @@ export default {
     InputText,
     LayoutForm,
     Spinner,
-    IconAction
+    IconAction,
   },
-  data: function() {
+  data: function () {
     return {
       key: 0,
       loading: false,
       error: null,
       success: null,
       schemaName: null,
-      schemaDescription: null
+      schemaDescription: null,
     };
   },
   computed: {
@@ -93,7 +95,7 @@ export default {
     },
     endpoint() {
       return "/api/graphql";
-    }
+    },
   },
   methods: {
     executeCreateSchema() {
@@ -104,14 +106,14 @@ export default {
         this.endpoint,
         `mutation createSchema($name:String){createSchema(name:$name){message}}`,
         {
-          name: this.schemaName
+          name: this.schemaName,
         }
       )
-        .then(data => {
+        .then((data) => {
           this.success = data.createSchema.message;
           this.loading = false;
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response.status === 403) {
             this.error = error.message + "Forbidden. Do you need to login?";
           } else {
@@ -119,7 +121,7 @@ export default {
           }
           this.loading = false;
         });
-    }
-  }
+    },
+  },
 };
 </script>

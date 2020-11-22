@@ -7,21 +7,21 @@
 </template>
 
 <script>
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 export default {
   props: {
     graphqlURL: {
       default: "graphql",
-      type: String
-    }
+      type: String,
+    },
   },
-  data: function() {
+  data: function () {
     return {
       session: null,
       schema: null,
       loading: true,
-      error: null
+      error: null,
     };
   },
   methods: {
@@ -29,22 +29,22 @@ export default {
       this.loading = true;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,refFrom,refTo,refJsTemplate,cascadeDelete,nullable,rdfTemplate}}}}"
+        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,refFrom,refTo,refJsTemplate,cascadeDelete,nullable,jsonldType}}}}"
       )
-        .then(data => {
+        .then((data) => {
           this.session = data._session;
           this.schema = data._schema;
           this.loading = false;
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = "internal server error" + error;
           this.loading = false;
         });
-    }
+    },
   },
   created() {
     this.reloadMetadata();
-  }
+  },
 };
 </script>
 

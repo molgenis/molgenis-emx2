@@ -6,26 +6,31 @@ export default {
         { label: "Tables", href: "../tables/" },
         {
           label: "Schema",
-          href: "../schema/"
+          href: "../schema/",
         },
         {
           label: "Upload",
-          href: "../import/"
+          href: "../import/",
         },
         {
           label: "Download",
-          href: "../download/"
+          href: "../download/",
         },
         {
           label: "GraphQL",
-          href: "../graphql-playground/"
+          href: "../graphql-playground/",
         },
         {
           label: "Settings",
-          href: "../settings/"
-        }
+          href: "../settings/",
+        },
+        {
+          label: "Docs",
+          href: "/apps/docs/",
+          newWindow: true,
+        },
       ];
-    }
-  }
+    },
+  },
 };
 </script>

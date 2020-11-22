@@ -22,9 +22,22 @@
   <!-- alter or add a table -->
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm :key="key">
-        <InputString v-model="tableName" label="Table name" />
-        <InputText v-model="tableDescription" label="Table Description" />
+      <LayoutForm>
+        <InputString
+          v-model="table.name"
+          :defaultValue="table.name ? table.name : null"
+          label="Table name"
+        />
+        <InputText
+          v-model="table.description"
+          :defaultValue="table.description ? table.description : null"
+          label="Table Description"
+        />
+        <InputText
+          v-model="table.jsonldType"
+          :defaultValue="table.jsonldType ? table.jsonldType : null"
+          label="jsonld type (conform JSON-LD @type specification)"
+        />
       </LayoutForm>
     </template>
     <template v-slot:footer>
@@ -37,7 +50,7 @@
 </template>
 
 <script>
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 import {
   ButtonAction,
@@ -49,7 +62,7 @@ import {
   MessageError,
   MessageSuccess,
   SigninForm,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -63,24 +76,20 @@ export default {
     InputText,
     LayoutForm,
     Spinner,
-    SigninForm
+    SigninForm,
   },
   props: {
     schema: String,
-    create: {
-      type: Boolean,
-      default: true
-    }
+    table: { type: Object, default: {} },
   },
-  data: function() {
+  data: function () {
     return {
-      key: 0,
-      tableName: String,
-      tableDescription: String,
       loading: false,
       error: null,
       success: null,
-      showLogin: false
+      showLogin: false,
+      create: false,
+      tableDraft: {},
     };
   },
   computed: {
@@ -88,13 +97,13 @@ export default {
       if (this.create) {
         return `Create table`;
       } else {
-        return `Alter table '${this.tableName}'`;
+        return `Alter table '${this.table.name}'`;
       }
     },
     action() {
       if (this.create) return `Create table`;
-      else return `Alter table`;
-    }
+      else return `Alter table ${this.table.name}`;
+    },
   },
   methods: {
     executeCommand() {
@@ -102,29 +111,42 @@ export default {
       this.error = null;
       this.success = null;
       let command = this.create ? "create" : "alter";
+      let type = this.create ? "MolgenisTableInput" : "AlterTableInput";
       request(
         "graphql",
-        `mutation ${command}($name:String){${command}(tables:[{name:$name}]){message}}`,
+        `mutation ${command}($table:${type}){${command}(tables:[$table]){message}}`,
         {
-          name: this.tableName
+          table: {
+            name: this.table.name,
+            description: this.table.description,
+            jsonldType: this.table.jsonldType,
+          },
         }
       )
-        .then(data => {
-          if (this.create) {
-            this.success = `Table ${this.tableName} created`;
-          } else {
+        .then((data) => {
+          if (this.table) {
             this.success = `Table ${this.table.name} altered`;
+          } else {
+            this.success = `Table ${this.table.name} created`;
           }
           this.$emit("close");
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response.status === 403) {
             this.error = "Forbidden. Do you need to login?";
             this.showLogin = true;
-          } else this.error = error;
+          } else {
+            this.error = error.response.errors[0].message;
+            console.error(JSON.stringify(this.error));
+          }
         });
       this.loading = false;
+    },
+  },
+  created() {
+    if (this.table.name == null) {
+      this.create = true;
     }
-  }
+  },
 };
 </script>

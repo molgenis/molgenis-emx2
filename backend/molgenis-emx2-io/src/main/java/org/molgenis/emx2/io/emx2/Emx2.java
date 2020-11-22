@@ -29,7 +29,7 @@ public class Emx2 {
   public static final String MAPPED_BY = "mappedBy";
   public static final String NULLABLE = "nullable";
   private static final String VALIDATION = "validation";
-  private static final String RDF_TEMPLATE = "rdfTemplate";
+  private static final String JSONLD_TYPE = "jsonldType";
 
   private Emx2() {
     // hidden
@@ -59,6 +59,7 @@ public class Emx2 {
         schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION));
         schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
+        schema.getTableMetadata(tableName).setJsonldType(r.getString(JSONLD_TYPE));
       }
 
       // load column metadata
@@ -83,7 +84,7 @@ public class Emx2 {
         if (r.notNull(NULLABLE)) column.setNullable(r.getBoolean(NULLABLE));
         if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
         if (r.notNull(VALIDATION)) column.setValidationScript(r.getString(VALIDATION));
-        if (r.notNull(RDF_TEMPLATE)) column.setRdfTemplate(r.getString(RDF_TEMPLATE));
+        if (r.notNull(JSONLD_TYPE)) column.setJsonldType(r.getString(JSONLD_TYPE));
 
         schema.getTableMetadata(tableName).add(column);
       }
@@ -107,6 +108,8 @@ public class Emx2 {
       row.setString(TABLE_NAME, t.getTableName());
       if (t.getInherit() != null) row.setString(TABLE_EXTENDS, t.getInherit());
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
+      if (t.getJsonldType() != null) row.setString(JSONLD_TYPE, t.getJsonldType());
+
       result.add(row);
 
       List<String> columnNames = new ArrayList<>(t.getColumnNames());
@@ -132,6 +135,7 @@ public class Emx2 {
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidationScript() != null) row.set(VALIDATION, c.getValidationScript());
+          if (c.getJsonldType() != null) row.set(JSONLD_TYPE, c.getJsonldType());
 
           result.add(row);
         }

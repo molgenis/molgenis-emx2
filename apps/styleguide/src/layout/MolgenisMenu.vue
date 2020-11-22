@@ -17,12 +17,12 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav" v-if="items">
         <li
-          v-for="item in items.filter(i => permitted(i))"
+          v-for="item in items.filter((i) => permitted(i))"
           :key="item.label"
           class="nav-item"
           :class="{
             active: item.active,
-            dropdown: item.submenu
+            dropdown: item.submenu,
           }"
         >
           <ButtonDropdown
@@ -36,10 +36,17 @@
               class="dropdown-item"
               :href="sub.href"
               :key="sub.label"
+              :target="sub.newWindow ? '_blank' : '_self'"
               >{{ sub.label }}</a
             >
           </ButtonDropdown>
-          <a v-else class="nav-link" :href="item.href">{{ item.label }} </a>
+          <a
+            v-else
+            class="nav-link"
+            :href="item.href"
+            :target="item.newWindow ? '_blank' : '_self'"
+            >{{ item.label }}
+          </a>
         </li>
       </ul>
     </div>
@@ -53,7 +60,7 @@ import ButtonDropdown from "../forms/ButtonDropdown";
 /** You can use the slot to put a component in the right of menu, e.g. an 'Account' component */
 export default {
   components: {
-    ButtonDropdown
+    ButtonDropdown,
   },
   props: {
     /** the navbar items */
@@ -61,7 +68,7 @@ export default {
     /** logo to show*/
     logo: String,
     /** session information, so we can check role permissions */
-    session: Object
+    session: Object,
   },
   methods: {
     permitted(item) {
@@ -90,8 +97,8 @@ export default {
         }
       }
       return false;
-    }
-  }
+    },
+  },
 };
 </script>
 

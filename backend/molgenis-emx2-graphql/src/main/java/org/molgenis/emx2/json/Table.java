@@ -16,6 +16,7 @@ public class Table {
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
+  private String jsonldType;
 
   public Table() {
     // for json serialisation
@@ -25,6 +26,7 @@ public class Table {
     this.name = tableMetadata.getTableName();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
+    this.jsonldType = tableMetadata.getJsonldType();
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
@@ -96,5 +98,13 @@ public class Table {
 
   public void setExternalSchema(String externalSchema) {
     this.externalSchema = externalSchema;
+  }
+
+  public String getJsonldType() {
+    return jsonldType;
+  }
+
+  public void setJsonldType(String jsonldType) {
+    this.jsonldType = jsonldType;
   }
 }

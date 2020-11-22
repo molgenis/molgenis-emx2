@@ -19,7 +19,7 @@ public class Column {
   private String validation = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
-  private String rdfTemplate = null;
+  private String jsonldType = null;
 
   private boolean inherited = false;
 
@@ -41,7 +41,7 @@ public class Column {
     this.validation = column.getValidationScript();
     this.nullable = column.isNullable();
     this.description = column.getDescription();
-    this.rdfTemplate = column.getRdfTemplate();
+    this.jsonldType = column.getJsonldType();
 
     // calculated field
     if (table.getInherit() != null)
@@ -62,7 +62,7 @@ public class Column {
     c.setMappedBy(mappedBy);
     c.setValidationScript(validation);
     c.setDescription(description);
-    c.setRdfTemplate(rdfTemplate);
+    c.setJsonldType(jsonldType);
     // ignore inherited
     return c;
   }
@@ -147,12 +147,12 @@ public class Column {
     this.description = description;
   }
 
-  public String getRdfTemplate() {
-    return rdfTemplate;
+  public String getJsonldType() {
+    return jsonldType;
   }
 
-  public void setRdfTemplate(String rdfTemplate) {
-    this.rdfTemplate = rdfTemplate;
+  public void setJsonldType(String jsonldType) {
+    this.jsonldType = jsonldType;
   }
 
   public String[] getRefFrom() {

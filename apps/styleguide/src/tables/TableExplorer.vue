@@ -6,7 +6,7 @@
       </h1>
       <div class="navbar shadow-none navbar-expand-lg">
         <ShowHide
-          class="navbar-nav "
+          class="navbar-nav"
           v-model="tableMetadata.columns"
           checkAttribute="showFilter"
           @input="updateTimestamp"
@@ -15,7 +15,7 @@
           :key="JSON.stringify(tableMetadata.columns)"
         />
         <ShowHide
-          class="navbar-nav "
+          class="navbar-nav"
           v-model="tableMetadata.columns"
           checkAttribute="showColumn"
           @input="updateTimestamp"
@@ -23,10 +23,14 @@
           icon="columns"
         />
         <InputSearch class="navbar-nav ml-auto" v-model="searchTerms" />
-        <ButtonDropdown icon="download">
-          <ButtonAlt :href="'../api/zip/' + table">Download zip</ButtonAlt>
-          <ButtonAlt :href="'../api/excel/' + table">Download Excel</ButtonAlt>
-        </ButtonDropdown>
+        Download:
+        <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
+        |
+        <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
+        |
+        <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
+        |
+        <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
         <Pagination
           class="navbar-nav"
           v-model="page"
@@ -120,7 +124,6 @@ import ShowMore from "../layout/ShowMore";
 import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
-import ButtonDropdown from "../forms/ButtonDropdown";
 import ButtonAlt from "../forms/ButtonAlt";
 
 export default {
@@ -138,29 +141,29 @@ export default {
     ShowHide,
     InputSearch,
     Pagination,
-    ButtonDropdown,
-    ButtonAlt
+    ButtonAlt,
   },
   data() {
     return {
       timestamp: 0,
-      page: 1
+      page: 1,
     };
   },
   computed: {
     showFilters() {
       return (
         this.tableMetadata &&
-        this.tableMetadata.columns.filter(c => c.showFilter === true).length > 0
+        this.tableMetadata.columns.filter((c) => c.showFilter === true).length >
+          0
       );
     },
     //overrides from TableMixin
     graphqlFilter() {
       let filter = {};
       if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach(col => {
+        this.tableMetadata.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
-            ? col.conditions.filter(f => f !== "" && f != undefined)
+            ? col.conditions.filter((f) => f !== "" && f != undefined)
             : [];
           if (conditions.length > 0) {
             if (col.columnType.startsWith("STRING")) {
@@ -176,11 +179,11 @@ export default {
                 "INT",
                 "INT_ARRAY",
                 "DATE",
-                "DATE_ARRAY"
+                "DATE_ARRAY",
               ].includes(col.columnType)
             ) {
               filter[col.name] = {
-                between: conditions.flat()
+                between: conditions.flat(),
               };
             }
           }
@@ -190,7 +193,7 @@ export default {
     },
     columns() {
       if (this.tableMetadata && this.tableMetadata.columns) {
-        return this.tableMetadata.columns.map(col => col.name);
+        return this.tableMetadata.columns.map((col) => col.name);
       }
       return null;
     },
@@ -201,13 +204,13 @@ export default {
           (this.session.roles.includes("Editor") ||
             this.session.roles.includes("Manager")))
       );
-    }
+    },
   },
   methods: {
     pkey(row) {
       let result = {};
       if (this.tableMetadata != null) {
-        this.tableMetadata.columns.forEach(col => {
+        this.tableMetadata.columns.forEach((col) => {
           if (col.key == 1) {
             result[col.name] = row[col.name];
           }
@@ -217,15 +220,15 @@ export default {
     },
     updateTimestamp() {
       this.timestamp = new Date().getTime();
-    }
+    },
   },
   watch: {
     page() {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
       this.reload();
-    }
-  }
+    },
+  },
 };
 </script>
 

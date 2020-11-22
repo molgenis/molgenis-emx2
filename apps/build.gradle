@@ -31,9 +31,13 @@ subprojects {
         inputs.files(fileTree('src'))
         inputs.files(fileTree('public'))
         inputs.file('package.json')
-        inputs.files(fileTree('../styleguide/src'))
-        inputs.file('vue.config.js')
-        outputs.dir('dist')
+        if (project.name != 'docs') {
+            inputs.files(fileTree('../styleguide/src'))
+            inputs.file('vue.config.js')
+            outputs.dir('dist')
+        } else {
+            outputs.dir('src/.vitepress/dist')
+        }
 
         // tell gradle to apply the build cache
         outputs.cacheIf { true }
@@ -50,12 +54,15 @@ subprojects {
     }
 
     task copyDistFiles(type: Copy, dependsOn: build) {
-        from "dist"
+        if (project.name == 'docs') {
+            from "src/.vitepress/dist"
+        } else {
+            from "dist"
+        }
         into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
 
         inputs.dir("dist")
         outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-
         outputs.cacheIf { true }
     }
 

@@ -4,27 +4,33 @@
     <MessageError v-if="!schema"
       >No tables found. Might you need to login?
     </MessageError>
-    Show
-    <InputCheckbox
-      class="ml-2"
-      v-model="tableFilter"
-      :defaultValue="tableFilter"
-      :options="['external']"
-      :clear="false"
-    />
-    Download:
-    <a href="../api/zip" class="ml-2"> zip</a>
-    <a href="../api/excel"> Excel</a>
+    Download all tables:
+    <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
+    <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
     <table class="table">
       <thead>
         <tr>
-          <th scope="col">Name</th>
+          <th scope="col">
+            Name
+            <div class="form-check form-check-inline">
+              <InputCheckbox
+                class="ml-2"
+                v-model="tableFilter"
+                :defaultValue="tableFilter"
+                :options="['external']"
+                :clear="false"
+              />
+            </div>
+          </th>
+          <th scope="col" v-if="tableFilter.includes('external')">
+            externalSchema
+          </th>
           <th scope="col">Description</th>
         </tr>
       </thead>
       <tr
         v-for="table in schema.tables.filter(
-          table =>
+          (table) =>
             table.externalSchema == undefined ||
             tableFilter.includes('external')
         )"
@@ -32,6 +38,9 @@
       >
         <td>
           <router-link :to="table.name">{{ table.name }}</router-link>
+        </td>
+        <td v-if="tableFilter.includes('external')">
+          {{ table.externalSchema }}
         </td>
         <td>{{ table.description }}</td>
       </tr>
@@ -41,9 +50,10 @@
 
 <script>
 import {
+  ButtonDropdown,
   DataTable,
   InputCheckbox,
-  MessageError
+  MessageError,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -51,17 +61,18 @@ export default {
   components: {
     DataTable,
     MessageError,
-    InputCheckbox
+    InputCheckbox,
+    ButtonDropdown,
   },
   props: {
     session: Object,
-    schema: Object
+    schema: Object,
   },
   data() {
     return {
-      tableFilter: []
+      tableFilter: [],
     };
-  }
+  },
 };
 </script>
 

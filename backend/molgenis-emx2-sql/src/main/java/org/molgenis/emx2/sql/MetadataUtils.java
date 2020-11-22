@@ -31,6 +31,8 @@ public class MetadataUtils {
       field(name("import_schema"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
+  private static final org.jooq.Field TABLE_JSONLD_TYPE =
+      field(name("table_jsonld_type"), JSON.nullable(true));
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field COLUMN_KEY =
@@ -38,8 +40,8 @@ public class MetadataUtils {
   private static final org.jooq.Field COLUMN_POSITION = field(name("column_position"), INTEGER);
   private static final org.jooq.Field COLUMN_DESCRIPTION =
       field(name("column_description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_RDF_TEMPLATE =
-      field(name("column_rdf_template"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_JSONLD_TYPE =
+      field(name("column_jsonld_type"), JSON.nullable(true));
   private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
   private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
   private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
@@ -108,7 +110,9 @@ public class MetadataUtils {
 
     // this way more robust for non breaking changes
     for (Field field :
-        new Field[] {TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, SETTINGS}) {
+        new Field[] {
+          TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, SETTINGS, TABLE_JSONLD_TYPE
+        }) {
       jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
     }
 
@@ -142,7 +146,7 @@ public class MetadataUtils {
           INDEXED,
           CASCADE_DELETE,
           COLUMN_DESCRIPTION,
-          COLUMN_RDF_TEMPLATE
+          COLUMN_JSONLD_TYPE
         }) {
       jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
     }
@@ -229,20 +233,23 @@ public class MetadataUtils {
               TABLE_INHERITS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
-              SETTINGS)
+              SETTINGS,
+              TABLE_JSONLD_TYPE)
           .values(
               table.getSchema().getName(),
               table.getTableName(),
               table.getInherit(),
               table.getImportSchema(),
               table.getDescription(),
-              settings)
+              settings,
+              table.getJsonldType())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
           .set(SETTINGS, settings)
+          .set(TABLE_JSONLD_TYPE, table.getJsonldType())
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of table metadata failed", e);
@@ -260,6 +267,7 @@ public class MetadataUtils {
         table.setInherit(r.get(TABLE_INHERITS, String.class));
         table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
         table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
+        table.setJsonldType(r.get(TABLE_JSONLD_TYPE, String.class));
         if (r.get(SETTINGS, String.class) != null) {
           table.setSettings(jsonMapper.readValue(r.get(SETTINGS, String.class), Map.class));
         }
@@ -308,7 +316,7 @@ public class MetadataUtils {
             INDEXED,
             CASCADE_DELETE,
             COLUMN_DESCRIPTION,
-            COLUMN_RDF_TEMPLATE)
+            COLUMN_JSONLD_TYPE)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -327,7 +335,7 @@ public class MetadataUtils {
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription(),
-            column.getRdfTemplate())
+            column.getJsonldType())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(DATA_TYPE, column.getColumnType())
@@ -344,7 +352,7 @@ public class MetadataUtils {
         .set(INDEXED, column.isIndexed())
         .set(CASCADE_DELETE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
-        .set(COLUMN_RDF_TEMPLATE, column.getRdfTemplate())
+        .set(COLUMN_JSONLD_TYPE, column.getJsonldType())
         .execute();
   }
 
@@ -391,7 +399,7 @@ public class MetadataUtils {
     c.setComputed(col.get(COMPUTE_SCRIPT, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.setCascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
-    c.setRdfTemplate(col.get(COLUMN_RDF_TEMPLATE, String.class));
+    c.setJsonldType(col.get(COLUMN_JSONLD_TYPE, String.class));
     return c;
   }
 

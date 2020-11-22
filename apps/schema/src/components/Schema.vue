@@ -1,142 +1,19 @@
 <template>
   <Molgenis id="__top" v-model="session">
-    <Spinner v-if="loading" />
-    <MessageError v-else-if="error">{{ error }}</MessageError>
-    <div v-else :class="{ 'img-fullscreen': imgFullscreen }">
-      <div>
-        <IconAction
-          v-if="!loadingYuml"
-          :icon="imgFullscreen ? 'compress' : 'expand'"
-          class="fullscreen-icon"
-          @click="imgFullscreen = !imgFullscreen"
-        />
-        <h1>Schema: {{ schema }}</h1>
-        <InputCheckbox
-          v-model="showAttributes"
-          :defaultValue="showAttributes"
-          :options="['attributes', 'external', 'inheritance']"
-        />
-        <Spinner v-if="loadingYuml" />
-        <div
-          v-scroll-lock="imgFullscreen"
-          style="text-align:center; overflow: auto;"
-        >
-          <img
-            :key="showAttributes"
-            :src="yuml"
-            :style="{
-              visibility: loadingYuml ? 'hidden' : 'visible',
-              'max-width': imgFullscreen ? 'none' : '100%'
-            }"
-            alt="Small"
-            @load="loadingYuml = false"
-          />
-        </div>
-      </div>
-    </div>
-    <span
-      v-for="table in tables.filter(t => t.externalSchema == undefined)"
-      :key="table.name"
-    >
-      <a v-scroll-to="'#' + table.name" href=".">{{ table.name }}</a> |
-    </span>
-    <div>
-      {{ count }} tables found
-      <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <tbody
-            v-for="table in tables.filter(t => t.externalSchema == undefined)"
-            :key="table.name"
-          >
-            <tr>
-              <td colspan="3">
-                <h1 :id="table.name">
-                  {{ table.name }}
-                  <IconBar class="hover">
-                    <!--IconAction
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              icon="edit"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @click="
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                currentTable = table;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                tableAdd = true;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              "
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /-->
-                    <IconDanger
-                      v-if="canEdit"
-                      icon="trash"
-                      @click="
-                        currentTable = table;
-                        tableDrop = true;
-                      "
-                    />
-                  </IconBar>
-                </h1>
-              </td>
-              <td><a v-scroll-to="'#__top'" href=".">back to top</a></td>
-            </tr>
-            <tr>
-              <th scope="col">
-                name
-                <IconAction
-                  v-if="canEdit"
-                  class="hover"
-                  icon="plus"
-                  @click="
-                    currentTable = table;
-                    columnAdd = true;
-                  "
-                />
-              </th>
-              <th scope="col">type</th>
-              <th scope="col">key</th>
-              <th scope="col">description</th>
-            </tr>
-            <tr
-              v-for="column in table.columns.filter(c => {
-                return c.name != 'mg_tableclass' && !c.inherited;
-              })"
-              :key="column.name"
-            >
-              <td>
-                {{ column.name }}<span v-if="!column.nillable">*</span>
-                <span class="hover"
-                  ><IconAction
-                    v-if="canEdit"
-                    icon="edit"
-                    @click="
-                      currentTable = table;
-                      currentColumn = column;
-                      columnAlter = true;
-                    "/>
-                  <IconDanger
-                    v-if="canEdit"
-                    icon="trash"
-                    @click="
-                      currentTable = table;
-                      currentColumn = column;
-                      columnDrop = true;
-                    "
-                /></span>
-              </td>
-              <td>
-                <span>{{ column.columnType }}</span>
-                <span v-if="column.refTable">({{ column.refTable }})</span
-                >&nbsp;
-                <span v-if="column.nullable">nullable&nbsp;</span>
-                <span v-if="column.cascadeDelete">cascadeDelete&nbsp;</span>
-              </td>
-              <td>{{ column.key }}</td>
-              <td>{{ column.description }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
     <TableEditModal
       v-if="tableAdd"
       :schema="schema"
       @close="
         tableAdd = false;
+        loadSchema();
+      "
+    />
+    <TableEditModal
+      v-if="tableAlter"
+      :schema="schema"
+      :table="currentTable"
+      @close="
+        tableAlter = false;
         loadSchema();
       "
     />
@@ -181,6 +58,155 @@
         loadSchema();
       "
     />
+    <Spinner v-if="loading" />
+    <MessageError v-else-if="error">{{ error }}</MessageError>
+    <div v-else :class="{ 'img-fullscreen': imgFullscreen }">
+      <div v-if="tables">
+        <IconAction
+          v-if="!loadingYuml"
+          :icon="imgFullscreen ? 'compress' : 'expand'"
+          class="fullscreen-icon"
+          @click="imgFullscreen = !imgFullscreen"
+        />
+        <h1>
+          Schema: <span style="text-transform: none">{{ schema }}</span>
+        </h1>
+        <InputCheckbox
+          v-model="showAttributes"
+          :defaultValue="showAttributes"
+          :options="['attributes', 'external', 'inheritance']"
+        />
+        <Spinner v-if="loadingYuml" />
+        <div
+          v-scroll-lock="imgFullscreen"
+          style="text-align: center; overflow: auto"
+        >
+          <img
+            :key="JSON.stringify(showAttributes)"
+            :src="yuml"
+            :style="{
+              visibility: loadingYuml ? 'hidden' : 'visible',
+              'max-width': imgFullscreen ? 'none' : '100%',
+            }"
+            alt="Small"
+            @load="loadingYuml = false"
+          />
+        </div>
+      </div>
+    </div>
+    <div v-if="tables">
+      <span
+        v-for="table in tables.filter((t) => t.externalSchema == undefined)"
+        :key="table.name"
+      >
+        <a v-scroll-to="'#' + table.name" href=".">{{ table.name }}</a> |
+      </span>
+    </div>
+    <div>
+      {{ count }} tables found
+      <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
+      <div class="table-responsive" v-if="tables">
+        <table class="table table-hover">
+          <tbody
+            v-for="table in tables.filter((t) => t.externalSchema == undefined)"
+            :key="table.name"
+          >
+            <tr>
+              <td colspan="4">
+                <h3 :id="table.name" style="text-transform: none">
+                  {{ table.name }}
+                  <span
+                    v-if="table.jsonldType"
+                    style="font-size: small; text-transform: none"
+                  >
+                    <<i>jsonldType:{{ table.jsonldType }}</i
+                    >> <br />
+                  </span>
+                  <IconBar class="hover">
+                    <IconAction
+                      icon="edit"
+                      @click="
+                        currentTable = table;
+                        tableAlter = true;
+                      "
+                    />
+                    <IconDanger
+                      v-if="canEdit"
+                      icon="trash"
+                      @click="
+                        currentTable = table;
+                        tableDrop = true;
+                      "
+                    />
+                  </IconBar>
+                </h3>
+                <small v-if="table.description">
+                  <i>Description: {{ table.description }}</i></small
+                >
+              </td>
+              <td><a v-scroll-to="'#__top'" href=".">back to top</a></td>
+            </tr>
+            <tr>
+              <th scope="col">
+                name
+                <IconAction
+                  v-if="canEdit"
+                  icon="plus"
+                  @click="
+                    currentTable = table;
+                    columnAdd = true;
+                  "
+                />
+              </th>
+              <th scope="col">type</th>
+              <th scope="col">key</th>
+              <th scope="col">description</th>
+              <th scope="col">jsonldType</th>
+            </tr>
+            <tr
+              v-for="column in table.columns == null
+                ? []
+                : table.columns.filter((c) => {
+                    return c.name != 'mg_tableclass' && !c.inherited;
+                  })"
+              :key="column.name"
+            >
+              <td>
+                {{ column.name }}<span v-if="!column.nillable">*</span>
+                <span class="hover"
+                  ><IconAction
+                    v-if="canEdit"
+                    icon="edit"
+                    @click="
+                      currentTable = table;
+                      currentColumn = column;
+                      columnAlter = true;
+                    " />
+                  <IconDanger
+                    v-if="canEdit"
+                    icon="trash"
+                    @click="
+                      currentTable = table;
+                      currentColumn = column;
+                      columnDrop = true;
+                    "
+                /></span>
+              </td>
+              <td>
+                <span>{{ column.columnType }}</span>
+                <span v-if="column.refTable">({{ column.refTable }})</span
+                >&nbsp;
+                <span v-if="column.nullable">nullable&nbsp;</span>
+                <span v-if="column.cascadeDelete">cascadeDelete&nbsp;</span>
+              </td>
+              <td>{{ column.key }}</td>
+              <td>{{ column.description }}</td>
+              <td>{{ column.jsonldType }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </Molgenis>
 </template>
 
@@ -242,7 +268,7 @@ import {
   InputCheckbox,
   MessageError,
   Molgenis,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
 import ColumnEditModal from "./ColumnEditModal";
 import ColumnDropModal from "./ColumnDropModal";
@@ -267,9 +293,9 @@ export default {
     ColumnEditModal,
     ColumnDropModal,
     TableDropModal,
-    Molgenis
+    Molgenis,
   },
-  data: function() {
+  data: function () {
     return {
       session: null,
       schema: null,
@@ -284,28 +310,38 @@ export default {
       columnAdd: false,
       columnDrop: false,
       tableAdd: false,
+      tableAlter: false,
       tableDrop: false,
-      imgFullscreen: false
+      imgFullscreen: false,
     };
   },
   methods: {
     // alter(column) {},
     // drop(column) {},
     loadSchema() {
+      this.error = null;
       this.loading = true;
+      this.schema = null;
+      this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,columns{name,columnType,inherited,key,refSchema,refTable,refFrom,refTo,mappedBy,cascadeDelete,nullable,description,rdfTemplate}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,inherited,key,refSchema,refTable,refFrom,refTo,mappedBy,cascadeDelete,nullable,description,jsonldType}}}}"
       )
-        .then(data => {
+        .then((data) => {
           this.schema = data._schema.name;
           this.tables = data._schema.tables;
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
+          if (
+            this.error.includes("Field '_schema' in type 'Query' is undefined")
+          ) {
+            this.error =
+              "Schema is unknown or permission denied (might you need to login with authorized user?)";
+          }
         })
         .finally((this.loading = false));
-    }
+    },
   },
   computed: {
     canEdit() {
@@ -319,7 +355,7 @@ export default {
     },
     count() {
       if (this.tables)
-        return this.tables.filter(t => t.externalSchema == undefined).length;
+        return this.tables.filter((t) => t.externalSchema == undefined).length;
       return 0;
     },
     yuml() {
@@ -329,9 +365,9 @@ export default {
       // classes
       this.tables
         .filter(
-          t => !t.externalSchema || this.showAttributes.includes("external")
+          (t) => !t.externalSchema || this.showAttributes.includes("external")
         )
-        .forEach(table => {
+        .forEach((table) => {
           res += `[${table.name}`;
 
           if (
@@ -340,8 +376,8 @@ export default {
           ) {
             res += "|";
             table.columns
-              .filter(column => !column.inherited)
-              .forEach(column => {
+              .filter((column) => !column.inherited)
+              .forEach((column) => {
                 if (column.columnType.includes("REF")) {
                   res += `${column.name}:${column.refTable}`;
                 } else {
@@ -358,26 +394,27 @@ export default {
             res += `{bg:dodgerblue}],`;
           }
         });
+
       // relations
       this.tables
         .filter(
-          t =>
+          (t) =>
             t.externalSchema == undefined ||
             this.showAttributes.includes("external")
         )
-        .forEach(table => {
+        .forEach((table) => {
           if (table.inherit && this.showAttributes.includes("inheritance")) {
             res += `[${table.inherit}]^-[${table.name}],`;
           }
           if (Array.isArray(table.columns)) {
             table.columns
               .filter(
-                c =>
+                (c) =>
                   !c.inherited &&
                   (c.refSchema == undefined ||
                     this.showAttributes.includes("external"))
               )
-              .forEach(column => {
+              .forEach((column) => {
                 if (column.columnType === "REF") {
                   console.log(JSON.stringify(column));
 
@@ -390,12 +427,27 @@ export default {
               });
           }
         });
+
       return res;
-    }
+    },
   },
   created() {
     this.loadSchema();
-  }
+  },
+  watch: {
+    tableAdd() {
+      console.log("tableadd changed " + JSON.stringify(this.tableAdd));
+    },
+    tableAlter() {
+      console.log("tableAlter changed " + JSON.stringify(this.tableAlter));
+    },
+    session: {
+      deep: true,
+      handler() {
+        this.loadSchema();
+      },
+    },
+  },
 };
 </script>
 

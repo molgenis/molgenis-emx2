@@ -1,0 +1,16 @@
+:root {
+    --c-brand: #017FFD;
+    --font-family-base: 'Roboto', sans-serif;
+}
+
+.title, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    margin-bottom: 0.5rem;
+    font-family: 'Oswald', sans-serif;
+}
+
+.nav-link, .title, .sidebar-link, h1 {
+    color: var(--c-brand)
+}
+
+@import "https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap";
+

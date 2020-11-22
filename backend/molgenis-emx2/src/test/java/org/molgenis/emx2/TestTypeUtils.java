@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,5 +40,11 @@ public class TestTypeUtils {
     assertArrayEquals(c, (Object[]) TypeUtils.getTypedValue(c, type));
     assertNull((Object[]) TypeUtils.getTypedValue(null, type));
     assertNull(TypeUtils.getTypedValue("", type));
+  }
+
+  @Test
+  public void testJsonType() {
+    String json = "http://some.url";
+    assertEquals("\"" + json + "\"", TypeUtils.toJson(json));
   }
 }

@@ -1,12 +1,14 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.*;
+import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
+import static spark.Spark.get;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.linkeddata.LinkedDataService;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.jsonld.JsonLdService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -18,15 +20,37 @@ public class LinkedDataFragmentsApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
-
-    final String schemaPath = "/api/ld/:schema";
-    get(schemaPath, LinkedDataFragmentsApi::dump);
+    get("/:schema/api/jsonld", LinkedDataFragmentsApi::jsonld);
+    get("/:schema/api/ttl", LinkedDataFragmentsApi::ttl);
+    get("/:schema/api/jsonld/:table", LinkedDataFragmentsApi::jsonldTable);
+    get("/:schema/api/ttl/:table", LinkedDataFragmentsApi::ttlTable);
   }
 
-  private static String dump(Request request, Response response) {
+  private static String jsonldTable(Request request, Response response) {
+    Table table = getTable(request);
+    StringWriter sw = new StringWriter();
+    JsonLdService.jsonld(table, new PrintWriter(sw));
+    return sw.getBuffer().toString();
+  }
+
+  private static String jsonld(Request request, Response response) {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
-    LinkedDataService.dump(schema, new PrintWriter(sw));
+    JsonLdService.jsonld(schema, new PrintWriter(sw));
+    return sw.getBuffer().toString();
+  }
+
+  private static String ttl(Request request, Response response) {
+    Schema schema = getSchema(request);
+    StringWriter sw = new StringWriter();
+    JsonLdService.ttl(schema, new PrintWriter(sw));
+    return sw.getBuffer().toString();
+  }
+
+  private static String ttlTable(Request request, Response response) {
+    Table table = getTable(request);
+    StringWriter sw = new StringWriter();
+    JsonLdService.ttl(table, new PrintWriter(sw));
     return sw.getBuffer().toString();
   }
 

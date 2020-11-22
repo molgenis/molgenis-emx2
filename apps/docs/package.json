@@ -1,0 +1,18 @@
+{
+  "name": "molgenis-emx2-docs",
+  "version": "0.0.1",
+  "description": "MOLGENIS EMX2 docs",
+  "main": "index.js",
+  "repository": "http://github.com/mswertz/molgenis-emx2",
+  "author": "Morris Swertz",
+  "license": "LGPLv3",
+  "private": false,
+  "devDependencies": {
+    "vitepress": "^0.8.1"
+  },
+  "scripts": {
+    "dev": "vitepress dev src",
+    "build": "vitepress build src",
+    "serve": "vitepress serve src"
+  }
+}

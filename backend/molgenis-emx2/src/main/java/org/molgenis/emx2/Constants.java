@@ -14,7 +14,8 @@ public class Constants {
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
   public static final String DESCRIPTION = "description";
-  public static final String RDF_TEMPLATE = "rdfTemplate";
+  public static final String JSONLD_TYPE = "jsonldType";
+  public static final String JSONLD_CONTEXT = "jsonldContext";
   public static final String DEFINITION = "definition";
   public static final String ROLE = "role";
   public static final String KEY = "key";

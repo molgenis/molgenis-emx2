@@ -5,12 +5,15 @@
 plugins {
     id "java"
     id "org.sonarqube" version "3.0"
+    id "org.ajoberstar.grgit" version "4.1.0"
     id "de.gliderpilot.semantic-release" version "1.4.0"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.6.0'
+    //id "kr.motd.sphinx" version "2.9.0"
 }
+
 
 sourceCompatibility = 13
 targetCompatibility = 13

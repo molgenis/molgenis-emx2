@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.jooq.*;
-import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
@@ -238,6 +237,7 @@ public class SqlQuery extends QueryBean {
     SelectColumn select = getSelect();
     List<Field<?>> fields = new ArrayList<>();
     DSLContext sql = schema.getJooq();
+
     // get the table from root select
     SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
     if (table == null && select.getColumn().endsWith("_agg")) {
@@ -256,6 +256,12 @@ public class SqlQuery extends QueryBean {
           jsonAggregateSelect(
               table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     } else {
+      // select all on root level as default
+      if (select.getSubselect().size() == 0) {
+        for (Column c : table.getColumns()) {
+          select.select(c.getName());
+        }
+      }
       fields.add(
           jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     }
@@ -298,7 +304,9 @@ public class SqlQuery extends QueryBean {
         || searchTerms.length > 0
         || select.getLimit() > 0
         || select.getOffset() > 0) {
-      conditions.add(row(table.getPrimaryKeyFields()).in(filterQuery));
+      List<Field> pkeyFields = table.getPrimaryKeyFields();
+      if (pkeyFields.size() == 0) throw new MolgenisException("primary key not set");
+      conditions.add(row(pkeyFields).in(filterQuery));
     }
     if (column != null) {
       conditions.add(refJoinCondition(column, tableAlias, subAlias));
@@ -657,8 +665,10 @@ public class SqlQuery extends QueryBean {
     if (column != null) {
       List<Condition> conditions = new ArrayList<>();
       if (filter != null || searchTerms.length > 1) {
+        List<Field> pkeyFields = table.getPrimaryKeyFields();
+        if (pkeyFields.size() == 0) throw new MolgenisException("primary key not set");
         conditions.add(
-            row(table.getPrimaryKeyFields())
+            row(pkeyFields)
                 .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms)));
       }
       conditions.add(refJoinCondition(column, tableAlias, subAlias));
