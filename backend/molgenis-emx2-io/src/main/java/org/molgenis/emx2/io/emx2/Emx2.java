@@ -110,7 +110,7 @@ public class Emx2 {
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
       // todo, also trim in case of array, make the simple array
       if (t.getJsonldType() != null)
-        row.setString(JSONLD_TYPE, t.getJsonldType().replaceAll("^\"|\"$", ""));
+        row.setString(JSONLD_TYPE, t.getJsonldType().replaceAll("(?:^\")|(?:\"$)", ""));
 
       result.add(row);
 
@@ -138,7 +138,7 @@ public class Emx2 {
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidationScript() != null) row.set(VALIDATION, c.getValidationScript());
           if (c.getJsonldType() != null)
-            row.set(JSONLD_TYPE, c.getJsonldType().replaceAll("^\"|\"$", ""));
+            row.set(JSONLD_TYPE, c.getJsonldType().replaceAll("(?:^\")|(?:\"$)", ""));
 
           result.add(row);
         }

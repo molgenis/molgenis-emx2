@@ -33,10 +33,10 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(14, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    assertEquals(13, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
 
     loadSchema("CohortsLocal.xlsx", localSchema);
-    assertEquals(6, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
+    assertEquals(8, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) {
