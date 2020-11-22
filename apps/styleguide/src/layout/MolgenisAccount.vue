@@ -35,7 +35,7 @@ import InputPassword from "../forms/InputPassword";
 import MessageSuccess from "../forms/MessageSuccess";
 import MessageError from "../forms/MessageError";
 import Spinner from "./Spinner";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -45,10 +45,10 @@ export default {
     InputPassword,
     MessageError,
     MessageSuccess,
-    Spinner
+    Spinner,
   },
   props: {
-    user: String
+    user: String,
   },
   data() {
     return {
@@ -56,7 +56,7 @@ export default {
       password2: null,
       loading: false,
       error: null,
-      success: null
+      success: null,
     };
   },
   methods: {
@@ -71,7 +71,7 @@ export default {
           "graphql",
           `mutation{changePassword(password: "${this.password}"){status,message}}`
         )
-          .then(data => {
+          .then((data) => {
             if (data.changePassword.status === "SUCCESS") {
               this.success = "Success. Password changed";
             } else {
@@ -79,7 +79,7 @@ export default {
                 "Password change failed: " + data.changePassword.message;
             }
           })
-          .catch(error => {
+          .catch((error) => {
             console.log(JSON.stringify(error));
           });
         this.loading = false;
@@ -88,7 +88,7 @@ export default {
     close() {
       this.error = null;
       this.$emit("cancel");
-    }
-  }
+    },
+  },
 };
 </script>

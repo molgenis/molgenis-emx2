@@ -25,24 +25,24 @@ Vue.use(VScrollLock);
 
 export default {
   directives: {
-    VScrollLock
+    VScrollLock,
   },
   components: {
-    IconAction
+    IconAction,
   },
   props: {
     /** Title that is shown on the card (optional) */
-    title: String
+    title: String,
   },
-  data: function() {
+  data: function () {
     return {
-      fullscreen: false
+      fullscreen: false,
     };
   },
   methods: {
     toggle() {
       this.fullscreen = !this.fullscreen;
-    }
+    },
   },
   computed: {
     bodyheight() {
@@ -52,8 +52,8 @@ export default {
         return `height: calc(100vh - ${header + footer}px)`;
       }
       return "";
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -28,13 +28,13 @@ export default {
       } else {
         return "...show less";
       }
-    }
+    },
   },
   methods: {
     toggle() {
       this.show = !this.show;
-    }
-  }
+    },
+  },
 };
 </script>
 

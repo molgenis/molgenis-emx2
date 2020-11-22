@@ -47,7 +47,7 @@
               <a
                 :href="
                   'https://github.com/mswertz/molgenis-emx2/releases/tag/v' +
-                    session.manifest.SpecificationVersion
+                  session.manifest.SpecificationVersion
                 "
                 >{{ session.manifest.SpecificationVersion }}</a
               ></span
@@ -92,13 +92,13 @@ export default {
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
-    title: String
+    title: String,
   },
-  data: function() {
+  data: function () {
     return {
       session: null,
       cssURL: null,
-      fullscreen: false
+      fullscreen: false,
     };
   },
   computed: {
@@ -115,7 +115,7 @@ export default {
       } else {
         return this.defaultMenu;
       }
-    }
+    },
   },
   watch: {
     session: {
@@ -131,14 +131,14 @@ export default {
           this.cssURL = this.session.settings.cssURL;
         }
         this.$emit("input", this.session);
-      }
-    }
+      },
+    },
   },
   methods: {
     toggle() {
       this.fullscreen = !this.fullscreen;
-    }
-  }
+    },
+  },
 };
 </script>
 

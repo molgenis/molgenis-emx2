@@ -8,14 +8,14 @@
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
   props: {
-    icon: String
+    icon: String,
   },
   methods: {
     onClick() {
       /** emitted on click */
       this.$emit("click");
-    }
-  }
+    },
+  },
 };
 </script>
 

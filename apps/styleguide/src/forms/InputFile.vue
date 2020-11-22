@@ -6,7 +6,7 @@
         :id="id"
         ref="file"
         type="file"
-        style="display:none"
+        style="display: none"
         @change="handleFileUpload"
       />
       <input
@@ -21,7 +21,7 @@
           class="btn"
           :class="{
             'btn-outline-primary': !error,
-            'btn-outline-danger': error
+            'btn-outline-danger': error,
           }"
           type="button"
           title="Toggle"
@@ -38,7 +38,7 @@
           class="btn"
           :class="{
             'btn-outline-primary': !error,
-            'btn-outline-danger': error
+            'btn-outline-danger': error,
           }"
           type="button"
           title="Toggle"
@@ -67,7 +67,7 @@ export default {
     filename() {
       if (this.value) return this.value.name;
       return null;
-    }
+    },
   },
   methods: {
     handleFileUpload() {
@@ -78,8 +78,8 @@ export default {
       this.$refs.file.value = "";
       this.value = null;
       this.$emit("input", this.value);
-    }
-  }
+    },
+  },
 };
 </script>
 

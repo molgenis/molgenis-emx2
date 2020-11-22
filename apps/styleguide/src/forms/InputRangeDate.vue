@@ -37,7 +37,7 @@ import InputAppend from "./_inputAppend";
 /** Input for integer values */
 export default {
   extends: InputRangeInt,
-  components: { InputDate, FormGroup, InputAppend }
+  components: { InputDate, FormGroup, InputAppend },
 };
 </script>
 

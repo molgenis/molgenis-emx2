@@ -69,9 +69,9 @@ export default {
       if (this.list) {
         //replace empty strings to null
         this.value = Array.isArray(this.arrayValue)
-          ? this.arrayValue.map(v =>
+          ? this.arrayValue.map((v) =>
               Array.isArray(v)
-                ? v.map(v2 =>
+                ? v.map((v2) =>
                     !v2 || v2.length === 0 || !String(v2).trim() ? null : v2
                   )
                 : null
@@ -80,20 +80,20 @@ export default {
         //filter [null,null] also
         this.value = Array.isArray(this.value)
           ? this.value.filter(
-              el => Array.isArray(el) && el.some(v => v != null)
+              (el) => Array.isArray(el) && el.some((v) => v != null)
             )
           : null;
       } else {
         this.value = Array.isArray(this.arrayValue[0])
-          ? this.arrayValue[0].map(v =>
+          ? this.arrayValue[0].map((v) =>
               !v || v.length === 0 || !String(v).trim() ? null : v
             )
           : null;
       }
       this.$emit("input", this.value);
-    }
+    },
   },
-  components: { InputInt, FormGroup, InputAppend }
+  components: { InputInt, FormGroup, InputAppend },
 };
 </script>
 

@@ -48,11 +48,11 @@ export default {
   props: {
     count: Number,
     limit: { type: Number, default: 10 },
-    defaultValue: { type: Number, default: 1 }
+    defaultValue: { type: Number, default: 1 },
   },
-  data: function() {
+  data: function () {
     return {
-      page: 1
+      page: 1,
     };
   },
   computed: {
@@ -61,7 +61,7 @@ export default {
     },
     totalPages() {
       return Math.ceil(this.count / this.limit);
-    }
+    },
   },
   watch: {
     page() {
@@ -72,14 +72,14 @@ export default {
       if (this.page > this.totalPages) {
         this.page = 1;
       }
-    }
+    },
   },
   created() {
     if (this.defaultValue) {
       this.page = this.defaultValue;
     }
     this.$emit("input", this.page);
-  }
+  },
 };
 </script>
 

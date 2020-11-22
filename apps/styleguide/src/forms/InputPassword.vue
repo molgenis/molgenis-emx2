@@ -17,7 +17,7 @@ import _baseInput from "./_baseInput.vue";
 
 /** Input for passwords */
 export default {
-  extends: _baseInput
+  extends: _baseInput,
 };
 </script>
 

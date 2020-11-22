@@ -5,7 +5,7 @@
 <script>
 export default {
   props: {
-    href: String
+    href: String,
   },
   methods: {
     appendFile() {
@@ -13,7 +13,7 @@ export default {
       file.rel = "stylesheet";
       file.href = this.href;
       document.head.appendChild(file);
-    }
+    },
   },
   mounted() {
     this.appendFile();
@@ -21,7 +21,7 @@ export default {
   watch: {
     href() {
       this.appendFile();
-    }
-  }
+    },
+  },
 };
 </script>

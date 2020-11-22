@@ -38,22 +38,22 @@ export default {
     FilterInput,
     FilterContainer,
     Draggable,
-    ShowMore
+    ShowMore,
   },
   props: {
-    filters: Array
+    filters: Array,
   },
   data() {
     return {
-      timestamp: 0
+      timestamp: 0,
     };
   },
   computed: {
     url() {
       let url = new URL("#");
-      this.filters.forEach(column => {
+      this.filters.forEach((column) => {
         if (Array.isArray(column.conditions)) {
-          column.conditions.forEach(value => {
+          column.conditions.forEach((value) => {
             //range filters are nested arrays
             if (Array.isArray(value)) {
               let rangeString = "";
@@ -70,7 +70,7 @@ export default {
               //refs are objects
               if (typeof value === "object") {
                 let flatten = this.flatten(value, column.name);
-                Object.keys(flatten).forEach(key => {
+                Object.keys(flatten).forEach((key) => {
                   url.searchParams.append(
                     key,
                     encodeURIComponent(flatten[key])
@@ -87,14 +87,14 @@ export default {
       if (this.filters.length > 0) {
         url.searchParams.append(
           "_show",
-          this.filters.map(column => column.name).join("-")
+          this.filters.map((column) => column.name).join("-")
         );
       }
       return url.searchParams;
-    }
+    },
   },
   created() {
-    this.filters.forEach(column => {
+    this.filters.forEach((column) => {
       if (column.showFilter == "undefined") {
         //we use updateTime to be able to know when to refresh a view
         column.updateTime = column.name + new Date().getTime();
@@ -113,20 +113,20 @@ export default {
     },
     flatten(obj, keyName) {
       let result = {};
-      Object.keys(obj).forEach(key => {
+      Object.keys(obj).forEach((key) => {
         var newKey = `${keyName}-${key}`;
         if (typeof obj[key] === "object") {
           result = {
             ...result,
-            ...this.flatten(obj[key], newKey)
+            ...this.flatten(obj[key], newKey),
           };
         } else {
           result[newKey] = obj[key];
         }
       });
       return result;
-    }
-  }
+    },
+  },
 };
 </script>
 

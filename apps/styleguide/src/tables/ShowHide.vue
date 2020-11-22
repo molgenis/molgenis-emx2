@@ -35,11 +35,11 @@ export default {
     value: {},
     label: String,
     icon: String,
-    checkAttribute: String
+    checkAttribute: String,
   },
   data() {
     return {
-      timestamp: 0
+      timestamp: 0,
     };
   },
   methods: {
@@ -50,15 +50,15 @@ export default {
       this.$emit("input", this.value);
     },
     hideAll() {
-      this.value.forEach(c => (c[this.checkAttribute] = false));
+      this.value.forEach((c) => (c[this.checkAttribute] = false));
       this.updateTimestamp();
       this.emitValue();
     },
     showAll() {
-      this.value.forEach(c => (c[this.checkAttribute] = true));
+      this.value.forEach((c) => (c[this.checkAttribute] = true));
       this.updateTimestamp();
       this.emitValue();
-    }
-  }
+    },
+  },
 };
 </script>

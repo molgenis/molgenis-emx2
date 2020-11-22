@@ -6,7 +6,7 @@
     >
       <thead>
         <tr>
-          <th scope="col" style="width: 1px;">
+          <th scope="col" style="width: 1px">
             <slot name="colheader" />
           </th>
           <th v-for="col in columns" :key="col" scope="col">
@@ -51,17 +51,17 @@ export default {
     /** set to create select boxes that will yield this columns value when selected. */
     selectColumn: String,
     /** default value */
-    defaultValue: Array
+    defaultValue: Array,
   },
-  data: function() {
+  data: function () {
     return {
-      selectedItems: []
+      selectedItems: [],
     };
   },
   watch: {
     selectedItems() {
       this.$emit("input", this.selectedItems);
-    }
+    },
   },
   created() {
     if (this.defaultValue instanceof Array) {
@@ -82,7 +82,7 @@ export default {
         if (this.isSelected(row)) {
           /** when a row is deselected */
           this.selectedItems = this.selectedItems.filter(
-            item => item !== row[this.selectColumn]
+            (item) => item !== row[this.selectColumn]
           );
           this.$emit("deselect", row[this.selectColumn]);
         } else {
@@ -93,8 +93,8 @@ export default {
       } else {
         this.$emit("click", row);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -15,26 +15,26 @@ import RowEditModal from "./RowEditModal.vue";
 import IconAction from "../forms/IconAction";
 
 export default {
-  data: function() {
+  data: function () {
     return {
-      open: false
+      open: false,
     };
   },
   components: {
     RowEditModal,
-    IconAction
+    IconAction,
   },
   props: {
     table: String,
     graphqlURL: {
       defaultValue: "graphql",
-      type: String
-    }
+      type: String,
+    },
   },
   computed: {
     title() {
       return "Add new row to table " + this.table;
-    }
+    },
   },
   methods: {
     openForm() {
@@ -43,8 +43,8 @@ export default {
     closeForm() {
       this.open = false;
       this.$emit("close");
-    }
-  }
+    },
+  },
 };
 </script>
 

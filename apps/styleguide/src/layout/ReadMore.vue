@@ -4,15 +4,11 @@
     <span v-else-if="text.length <= length">{{ text }}</span>
     <span v-else-if="expand">
       {{ text }}
-      <a @click.prevent="expand = false" href="#">
-        ...
-      </a>
+      <a @click.prevent="expand = false" href="#"> ... </a>
     </span>
     <span v-else>
       {{ text.slice(0, length) }}
-      <a @click.prevent="expand = true" href="#">
-        ...
-      </a>
+      <a @click.prevent="expand = true" href="#"> ... </a>
     </span>
   </div>
 </template>
@@ -23,14 +19,14 @@ export default {
     text: String,
     length: {
       type: Number,
-      default: () => 20
-    }
+      default: () => 20,
+    },
   },
   data() {
     return {
-      expand: false
+      expand: false,
     };
-  }
+  },
 };
 </script>
 

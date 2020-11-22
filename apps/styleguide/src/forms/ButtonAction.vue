@@ -8,7 +8,7 @@
 /** Button that is shown as a primary action */
 export default {
   props: {
-    href: String
+    href: String,
   },
   methods: {
     onClick() {
@@ -18,8 +18,8 @@ export default {
         /** emitted on click */
         this.$emit("click");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

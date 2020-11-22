@@ -10,10 +10,10 @@ export default {
         dateFormat: "Y-m-dTH:i:S",
         allowInput: false,
         enableTime: true,
-        clickOpens: !this.readonly
+        clickOpens: !this.readonly,
       };
-    }
-  }
+    },
+  },
 };
 </script>
 

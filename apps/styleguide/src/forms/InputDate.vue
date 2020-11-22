@@ -43,7 +43,7 @@ export default {
   extends: _baseInput,
   components: {
     FlatPickr,
-    InputAppend
+    InputAppend,
   },
   computed: {
     config() {
@@ -51,10 +51,10 @@ export default {
         wrap: true, // set wrap to true only when using 'input-group'
         dateFormat: "Y-m-d",
         allowInput: false,
-        clickOpens: !this.readonly
+        clickOpens: !this.readonly,
       };
-    }
-  }
+    },
+  },
 };
 </script>
 

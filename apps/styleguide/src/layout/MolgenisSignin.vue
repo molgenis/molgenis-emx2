@@ -40,7 +40,7 @@ import MessageSuccess from "../forms/MessageSuccess";
 import LayoutForm from "./LayoutForm";
 import LayoutModal from "./LayoutModal";
 import Spinner from "./Spinner";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -52,15 +52,15 @@ export default {
     MessageSuccess,
     LayoutForm,
     LayoutModal,
-    Spinner
+    Spinner,
   },
-  data: function() {
+  data: function () {
     return {
       email: null,
       password: null,
       loading: false,
       error: null,
-      success: null
+      success: null,
     };
   },
   methods: {
@@ -74,13 +74,13 @@ export default {
           "/api/graphql",
           `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
-          .then(data => {
+          .then((data) => {
             if (data.signin.status === "SUCCESS") {
               this.success = "Signed in with " + this.email;
               this.$emit("signin", this.email);
             } else this.error = data.signin.message;
           })
-          .catch(error => (this.error = "internal server error" + error));
+          .catch((error) => (this.error = "internal server error" + error));
         this.loading = false;
       }
     },
@@ -90,8 +90,8 @@ export default {
        */
       this.error = null;
       this.$emit("cancel");
-    }
-  }
+    },
+  },
 };
 </script>
 

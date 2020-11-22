@@ -5,8 +5,8 @@
       :or="true"
       v-if="
         column.columnType.startsWith('STRING') ||
-          column.columnType.startsWith('TEXT') ||
-          column.columnType.startsWith('UUID')
+        column.columnType.startsWith('TEXT') ||
+        column.columnType.startsWith('UUID')
       "
       v-model="column.conditions"
       :defaultValue="column.conditions"
@@ -61,10 +61,10 @@ export default {
     InputRangeInt,
     InputRangeDecimal,
     InputRangeDate,
-    InputRef
+    InputRef,
   },
   props: {
-    column: Object
-  }
+    column: Object,
+  },
 };
 </script>

@@ -45,7 +45,7 @@ import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import ChangePasswordForm from "./MolgenisAccount";
 
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
@@ -56,15 +56,15 @@ export default {
     ChangePasswordForm,
     Spinner,
     ButtonAlt,
-    MessageError
+    MessageError,
   },
   props: {
     graphql: {
       default: "graphql",
-      type: String
-    }
+      type: String,
+    },
   },
-  data: function() {
+  data: function () {
     return {
       /** @ignore */
       showSigninForm: false,
@@ -73,14 +73,14 @@ export default {
       error: null,
       loading: false,
       session: {},
-      version: null
+      version: null,
     };
   },
   watch: {
     email() {
       this.showSigninForm = false;
       this.showSignupForm = false;
-    }
+    },
   },
   created() {
     this.reload();
@@ -92,7 +92,7 @@ export default {
         this.graphql,
         `{_session{email,roles},_settings{key,value},_manifest{ImplementationVersion,SpecificationVersion}}`
       )
-        .then(data => {
+        .then((data) => {
           if (
             data._session != undefined &&
             data._session.email !== "anonymous"
@@ -104,7 +104,7 @@ export default {
           //convert settings to object
           this.session.settings = {};
           data._settings.forEach(
-            s =>
+            (s) =>
               (this.session.settings[s.key] =
                 s.value.startsWith("[") || s.value.startsWith("{")
                   ? this.parseJson(s.value)
@@ -115,7 +115,7 @@ export default {
           this.loading = false;
           this.$emit("input", this.session);
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response.status === 504) {
             this.error = "Error. Server cannot be reached.";
           } else {
@@ -149,7 +149,7 @@ export default {
       this.loading = true;
       this.showSigninForm = false;
       request("graphql", `mutation{signout{status}}`)
-        .then(data => {
+        .then((data) => {
           if (data.signout.status === "SUCCESS") {
             this.session = {};
             console.log("signed out");
@@ -159,9 +159,9 @@ export default {
           this.loading = false;
           this.$emit("input", this.session);
         })
-        .catch(error => (this.error = "internal server error" + error));
-    }
-  }
+        .catch((error) => (this.error = "internal server error" + error));
+    },
+  },
 };
 </script>
 

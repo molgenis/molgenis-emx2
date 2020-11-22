@@ -30,9 +30,7 @@
           </span>
         </span>
       </span>
-      <a href="#" @click.prevent="removeAll">
-        remove all filters
-      </a>
+      <a href="#" @click.prevent="removeAll"> remove all filters </a>
     </span>
   </div>
 </template>
@@ -41,18 +39,18 @@ import FilterWell from "./FilterWell";
 
 export default {
   props: {
-    filters: Array
+    filters: Array,
   },
   components: {
-    FilterWell
+    FilterWell,
   },
   computed: {
     countFilters() {
       let count = 0;
       if (Array.isArray(this.filters)) {
-        this.filters.forEach(column => {
+        this.filters.forEach((column) => {
           if (Array.isArray(column.conditions)) {
-            column.conditions.forEach(condition => {
+            column.conditions.forEach((condition) => {
               if (Array.isArray(condition)) {
                 if (condition[0] !== null || condition[1] != null) {
                   count++;
@@ -67,7 +65,7 @@ export default {
         });
       }
       return count;
-    }
+    },
   },
   methods: {
     renderValue(value) {
@@ -79,7 +77,7 @@ export default {
     },
     flattenObject(object) {
       let result = "";
-      Object.keys(object).forEach(key => {
+      Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
         } else if (typeof object[key] === "object") {
@@ -96,13 +94,13 @@ export default {
       this.filters[idx].updateTime = new Date().getTime();
     },
     removeAll() {
-      this.filters.forEach(column => {
+      this.filters.forEach((column) => {
         column.conditions = [];
         //we use updateTime as key to know when to refresh a filter view
         column.updateTime = new Date().getTime();
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

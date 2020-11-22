@@ -30,14 +30,14 @@ import ButtonAlt from "../forms/ButtonAlt";
 import ButtonAction from "../forms/ButtonAction";
 import MessageError from "../forms/MessageError";
 import MessageSuccess from "../forms/MessageSuccess";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 export default {
   extends: RowButtonAdd,
-  data: function() {
+  data: function () {
     return {
       success: null,
-      error: null
+      error: null,
     };
   },
   components: {
@@ -46,10 +46,10 @@ export default {
     ButtonAction,
     ButtonAlt,
     MessageSuccess,
-    MessageError
+    MessageError,
   },
   props: {
-    pkey: Object
+    pkey: Object,
   },
   computed: {
     title() {
@@ -57,24 +57,24 @@ export default {
     },
     pkeyAsString() {
       return this.flattenObject(this.pkey);
-    }
+    },
   },
   methods: {
     executeDelete() {
       let query = `mutation delete($pkey:[${this.table}Input]){delete(${this.table}:$pkey){message}}`;
       let variables = { pkey: [this.pkey] };
       request("graphql", query, variables)
-        .then(data => {
+        .then((data) => {
           this.success = data.delete.message;
           this.$emit("close");
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
         });
     }, //duplicated code from MolgenisTable, think of util lib
     flattenObject(object) {
       let result = "";
-      Object.keys(object).forEach(key => {
+      Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
         } else if (typeof object[key] === "object") {
@@ -84,8 +84,8 @@ export default {
         }
       });
       return result;
-    }
-  }
+    },
+  },
 };
 </script>
 

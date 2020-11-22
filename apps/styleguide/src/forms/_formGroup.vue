@@ -30,7 +30,7 @@ export default {
     /** String with error state */
     error: String,
     /** If should be rendered as a filter*/
-    filter: Boolean
-  }
+    filter: Boolean,
+  },
 };
 </script>

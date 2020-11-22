@@ -5,7 +5,7 @@ import objectPath from "object-path";
 export default {
   methods: {
     requestMultipart(url, query, variables) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         //thanks to https://medium.com/@danielbuechele/file-uploads-with-graphql-and-apollo-5502bbf3941e
         const formData = new FormData();
 
@@ -21,35 +21,35 @@ export default {
         formData.append("variables", JSON.stringify(variables || {}));
         fetch(url, {
           body: formData,
-          method: "POST"
+          method: "POST",
         })
-          .then(response => {
+          .then((response) => {
             if (response.ok) {
-              response.json().then(result => {
+              response.json().then((result) => {
                 if (!result.errors && result.data) {
                   resolve({
-                    data: result.data
+                    data: result.data,
                   });
                 } else {
                   {
                     reject({
-                      errors: result.errors
+                      errors: result.errors,
                     });
                   }
                 }
               });
             } else {
-              response.json().then(result => {
+              response.json().then((result) => {
                 reject({ errors: result.errors });
               });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             alert("catch: " + error.json());
             reject({ status: error, query: query });
           });
       });
-    }
-  }
+    },
+  },
 };
 </script>

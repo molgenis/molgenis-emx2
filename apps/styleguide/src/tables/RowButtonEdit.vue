@@ -14,16 +14,16 @@ export default {
   extends: RowButtonAdd,
   components: {
     RowEditModal,
-    IconAction
+    IconAction,
   },
   props: {
-    pkey: Object
+    pkey: Object,
   },
   computed: {
     title() {
       return `Update ${this.table}`;
-    }
-  }
+    },
+  },
 };
 </script>
 

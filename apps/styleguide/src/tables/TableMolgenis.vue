@@ -12,7 +12,7 @@
           ghost-class="border-primary"
           tag="tr"
         >
-          <th slot="header" scope="col" style="width: 1px;">
+          <th slot="header" scope="col" style="width: 1px">
             <slot name="colheader" />
           </th>
           <th
@@ -29,7 +29,7 @@
       <tbody>
         <tr v-for="(row, idx) in data" :key="JSON.stringify(row)">
           <td>
-            <div style="display: flex;">
+            <div style="display: flex">
               <div v-if="select" class="form-check form-check-inline mr-1">
                 <input
                   type="checkbox"
@@ -57,11 +57,11 @@
               <a
                 :href="
                   'graphql?table=' +
-                    metadata.name +
-                    '&column=' +
-                    col.name +
-                    '&download=' +
-                    row[col.name].id
+                  metadata.name +
+                  '&column=' +
+                  col.name +
+                  '&download=' +
+                  row[col.name].id
                 "
                 >download.{{ row[col.name].extension }}</a
               >
@@ -122,15 +122,15 @@ export default {
   props: {
     select: {
       type: Boolean,
-      default: false
+      default: false,
     },
     metadata: Object,
-    data: Array
+    data: Array,
   },
   data: () => {
     return {
       selectedItems: [],
-      timestamp: 0
+      timestamp: 0,
     };
   },
   methods: {
@@ -146,7 +146,7 @@ export default {
         col.columnType == "MREF" ||
         col.columnType == "REFBACK"
       ) {
-        return row[col.name].map(v => this.flattenObject(v));
+        return row[col.name].map((v) => this.flattenObject(v));
       } else if (col.columnType == "REF") {
         if (col.refJsTemplate) {
           return [this.applyJsTemplate(col.refJsTemplate, row[col.name])];
@@ -178,7 +178,7 @@ export default {
     },
     flattenObject(object) {
       let result = "";
-      Object.keys(object).forEach(key => {
+      Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
         } else if (typeof object[key] === "object") {
@@ -192,15 +192,15 @@ export default {
     getKey(row) {
       let result = {};
       this.metadata.columns
-        .filter(c => c.key == 1)
-        .map(c => (result[c.name] = row[c.name]));
+        .filter((c) => c.key == 1)
+        .map((c) => (result[c.name] = row[c.name]));
       return result;
     },
     isSelected(row) {
       let key = this.getKey(row);
       return (
         this.selectedItems.filter(
-          s => JSON.stringify(key) === JSON.stringify(s)
+          (s) => JSON.stringify(key) === JSON.stringify(s)
         ).length > 0
       );
     },
@@ -210,7 +210,7 @@ export default {
         if (this.isSelected(row)) {
           /** when a row is deselected */
           this.selectedItems = this.selectedItems.filter(
-            item => JSON.stringify(item) !== JSON.stringify(key)
+            (item) => JSON.stringify(item) !== JSON.stringify(key)
           );
           this.$emit("deselect", this.getKey(row));
         } else {
@@ -240,7 +240,7 @@ export default {
 
       // format number and add suffix
       return scaled.toFixed(1) + suffix;
-    }
+    },
   },
   watch: {
     selectedItems() {
@@ -250,14 +250,14 @@ export default {
       deep: true,
       handler() {
         this.updateTimestamp();
-      }
-    }
+      },
+    },
   },
   created() {
-    this.metadata.columns.forEach(c => {
+    this.metadata.columns.forEach((c) => {
       if (c["showColumn"] === undefined) c.showColumn = true;
     });
-  }
+  },
 };
 </script>
 

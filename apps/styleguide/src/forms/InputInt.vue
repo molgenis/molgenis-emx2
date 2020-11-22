@@ -6,15 +6,15 @@ export default {
   extends: InputString,
   props: {
     placeholder: {
-      default: "Enter integer (does not accept A-Za-z,.)"
+      default: "Enter integer (does not accept A-Za-z,.)",
     },
     parser: {
       default() {
-        return value => {
+        return (value) => {
           return parseInt(value);
         };
-      }
-    }
+      },
+    },
   },
   methods: {
     keyhandler(event) {
@@ -27,8 +27,8 @@ export default {
       var ret =
         (keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) !== -1;
       return ret;
-    }
-  }
+    },
+  },
 };
 </script>
 

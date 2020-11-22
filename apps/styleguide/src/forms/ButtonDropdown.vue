@@ -1,11 +1,11 @@
 <template>
   <div class="dropdown" :class="{ show: display }">
     <button
-      class=" btn"
+      class="btn"
       :class="{
         'btn-outline-primary': !icon,
         'dropdown-toggle': !icon,
-        'btn-link': icon
+        'btn-link': icon,
       }"
       type="button"
       data-toggle="dropdown"
@@ -34,21 +34,21 @@ import vClickOutside from "v-click-outside";
 
 export default {
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
   props: {
     label: String,
-    icon: String
+    icon: String,
   },
   data() {
     return {
-      display: false
+      display: false,
     };
   },
   methods: {
     toggle() {
       this.display = !this.display;
-    }
-  }
+    },
+  },
 };
 </script>

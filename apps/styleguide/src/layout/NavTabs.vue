@@ -25,8 +25,8 @@ export default {
     select(item) {
       this.value = item;
       this.$emit("input", this.value);
-    }
-  }
+    },
+  },
 };
 </script>
 

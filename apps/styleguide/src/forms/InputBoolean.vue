@@ -6,9 +6,9 @@ export default {
   extends: InputRadio,
   props: {
     options: {
-      default: () => [true, false]
-    }
-  }
+      default: () => [true, false],
+    },
+  },
 };
 </script>
 

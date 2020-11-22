@@ -7,22 +7,22 @@
 </template>
 
 <script>
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 import TableMetadataMixin from "./TableMetadataMixin";
 
 export default {
   extends: TableMetadataMixin,
   props: {
     table: String,
-    filter: {}
+    filter: {},
   },
-  data: function() {
+  data: function () {
     return {
       data: [],
       count: 0,
       offset: 0,
       limit: 20,
-      searchTerms: null
+      searchTerms: null,
     };
   },
   computed: {
@@ -50,7 +50,7 @@ export default {
     columnNames() {
       let result = "";
       if (this.tableMetadata != null) {
-        this.tableMetadata.columns.forEach(col => {
+        this.tableMetadata.columns.forEach((col) => {
           if (
             ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
           ) {
@@ -63,7 +63,7 @@ export default {
         });
       }
       return result;
-    }
+    },
   },
   methods: {
     reload() {
@@ -71,12 +71,12 @@ export default {
         this.loading = true;
         this.error = null;
         request(this.graphqlURL, this.graphql, { filter: this.graphqlFilter })
-          .then(data => {
+          .then((data) => {
             this.data = data[this.table];
             this.count = data[this.table + "_agg"]["count"];
             this.loading = false;
           })
-          .catch(error => {
+          .catch((error) => {
             this.error = "internal server error" + error;
             this.loading = false;
           });
@@ -84,7 +84,7 @@ export default {
     },
     refGraphql(column) {
       let graphqlString = "";
-      this.getTable(column.refTable).columns.forEach(c => {
+      this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
           graphqlString += c.name + " ";
           if (["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(c.columnType)) {
@@ -97,7 +97,7 @@ export default {
     getTable(table) {
       let result = undefined;
       if (this.schema != null && this.schema.tables != null) {
-        this.schema.tables.forEach(t => {
+        this.schema.tables.forEach((t) => {
           if (t.name == table) {
             result = t;
           }
@@ -107,7 +107,7 @@ export default {
         }
       }
       if (result) return result;
-    }
+    },
   },
   watch: {
     searchTerms: "reload",
@@ -115,11 +115,11 @@ export default {
       deep: true,
       handler() {
         this.reload();
-      }
+      },
     },
     table: "reload",
-    schema: "reload"
-  }
+    schema: "reload",
+  },
 };
 </script>
 

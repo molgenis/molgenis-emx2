@@ -39,8 +39,8 @@
       :list="true"
       v-else-if="
         columnType === 'REF_ARRAY' ||
-          columnType === 'REFBACK' ||
-          columnType === 'MREF'
+        columnType === 'REFBACK' ||
+        columnType === 'MREF'
       "
       v-bind="$props"
       v-model="value"
@@ -81,8 +81,8 @@ export default {
     defaultValue: [String, Number, Object, Array],
     graphqlURL: {
       default: "graphql",
-      type: String
-    }
+      type: String,
+    },
   },
   components: {
     InputString,
@@ -92,13 +92,13 @@ export default {
     InputRef,
     InputDate,
     InputDateTime,
-    InputFile
+    InputFile,
   },
   watch: {
     value() {
       this.$emit("input", this.value);
-    }
-  }
+    },
+  },
 };
 </script>
 

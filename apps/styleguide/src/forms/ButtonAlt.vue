@@ -9,7 +9,7 @@
 import ButtonAction from "./ButtonAction";
 
 export default {
-  extends: ButtonAction
+  extends: ButtonAction,
 };
 </script>
 

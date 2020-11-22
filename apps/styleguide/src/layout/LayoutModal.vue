@@ -4,7 +4,7 @@
       v-if="show"
       class="modal fade show"
       role="dialog"
-      style="display:block"
+      style="display: block"
       tabindex="-1"
       aria-modal="true"
       @click="closeUnlessInDialog"
@@ -77,7 +77,7 @@ import VScrollLock from "v-scroll-lock";
 
 export default {
   directives: {
-    VScrollLock
+    VScrollLock,
   },
   props: {
     /** Shown as the title of the model */
@@ -85,8 +85,8 @@ export default {
     /** When true the modal will be shown */
     show: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   methods: {
     close() {
@@ -97,8 +97,8 @@ export default {
       if (event.target === event.currentTarget) {
         this.$emit("close");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -32,8 +32,8 @@ export default {
   extends: _baseInput,
   components: {
     InputAppend,
-    FormGroup
-  }
+    FormGroup,
+  },
 };
 </script>
 

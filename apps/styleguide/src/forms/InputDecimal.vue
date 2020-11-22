@@ -6,16 +6,16 @@ export default {
   extends: InputString,
   props: {
     placeholder: {
-      default: "enter decimal (does not accept A-Za-z,)"
+      default: "enter decimal (does not accept A-Za-z,)",
     },
     //for outputing not string but floats
     parser: {
       default() {
-        return value => {
+        return (value) => {
           return parseFloat(value);
         };
-      }
-    }
+      },
+    },
   },
   methods: {
     keyhandler(event) {
@@ -28,8 +28,8 @@ export default {
         keyCode === 8 ||
         (keyCode === 46 && !this.value.includes("."));
       return ret;
-    }
-  }
+    },
+  },
 };
 </script>
 

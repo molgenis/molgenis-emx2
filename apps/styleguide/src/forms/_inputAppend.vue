@@ -35,21 +35,21 @@ export default {
   props: {
     readonly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     error: String,
     showClear: {
       type: Boolean,
-      default: true
+      default: true,
     },
     clear: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showPlus: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 };
 </script>

@@ -11,7 +11,7 @@
           :id="id + index"
           @change="
             arrayValue.includes(item)
-              ? (arrayValue = arrayValue.filter(c => c != item))
+              ? (arrayValue = arrayValue.filter((c) => c != item))
               : arrayValue.push(item)
           "
           class="form-check-input"
@@ -25,7 +25,7 @@
       <a
         class="checkbox-clear-value"
         href="#"
-        v-if="arrayValue.filter(c => c != undefined).length > 0"
+        v-if="arrayValue.filter((c) => c != undefined).length > 0"
         @click.prevent="arrayValue = [null]"
       >
         clear
@@ -51,9 +51,9 @@ export default {
   extends: InputSelect,
   props: {
     list: {
-      default: true
-    }
-  }
+      default: true,
+    },
+  },
 };
 </script>
 

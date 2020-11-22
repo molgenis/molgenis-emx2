@@ -39,7 +39,12 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "plugins": [
+      "autofix"
+    ],
+    "rules": {
+      "autofix/no-debugger": "error"
+    }
   },
   "browserslist": [
     "> 1%",

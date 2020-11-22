@@ -66,18 +66,18 @@ import ShowMore from "../layout/ShowMore";
 export default {
   extends: TableMixin,
   mixins: [GraphqlRequestMixin],
-  data: function() {
+  data: function () {
     return {
       showLogin: false,
       value: {},
       errorPerColumn: {},
       success: null,
-      defaultValue: null
+      defaultValue: null,
     };
   },
   props: {
     /** when updating existing record, this is the primary key value */
-    pkey: Object
+    pkey: Object,
   },
   components: {
     LayoutForm,
@@ -88,7 +88,7 @@ export default {
     MessageError,
     MessageSuccess,
     SigninForm,
-    ShowMore
+    ShowMore,
   },
   methods: {
     loginSuccess() {
@@ -107,7 +107,7 @@ export default {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
       this.requestMultipart(this.graphqlURL, query, variables)
-        .then(data => {
+        .then((data) => {
           if (data.insert) {
             this.success = data.insert.message;
           }
@@ -117,7 +117,7 @@ export default {
           this.defaultValue = this.value;
           this.$emit("close");
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.status === 403) {
             this.error =
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
@@ -129,7 +129,7 @@ export default {
     },
     validate() {
       if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach(column => {
+        this.tableMetadata.columns.forEach((column) => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
             //this.value[column.name] = null;
@@ -162,7 +162,7 @@ export default {
           }
         });
       }
-    }
+    },
   },
   computed: {
     // override from tableMixin
@@ -170,8 +170,8 @@ export default {
       let result = {};
       if (this.tableMetadata && this.pkey) {
         this.tableMetadata.columns
-          .filter(c => c.key == 1)
-          .map(c => (result[c.name] = { equals: this.pkey[c.name] }));
+          .filter((c) => c.key == 1)
+          .map((c) => (result[c.name] = { equals: this.pkey[c.name] }));
       }
       return result;
     },
@@ -181,14 +181,14 @@ export default {
       } else {
         return `insert ${this.table}`;
       }
-    }
+    },
   },
   watch: {
     data(val) {
       if (val && val.length > 0) {
         let data = val[0];
         let defaultValue = {};
-        this.tableMetadata.columns.forEach(column => {
+        this.tableMetadata.columns.forEach((column) => {
           if (data[column.name]) {
             defaultValue[column.name] = data[column.name];
           }
@@ -201,11 +201,11 @@ export default {
       handler() {
         this.validate();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.validate();
-  }
+  },
 };
 </script>

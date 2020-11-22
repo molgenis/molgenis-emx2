@@ -4,7 +4,7 @@
     :disabled="disabled"
     :class="{
       'btn border border-left-0 btn-outline-primary': !error,
-      'btn-outline-danger': error
+      'btn-outline-danger': error,
     }"
     type="button"
     title="Clear"
@@ -20,7 +20,7 @@
 export default {
   props: {
     disabled: Boolean,
-    error: String
-  }
+    error: String,
+  },
 };
 </script>

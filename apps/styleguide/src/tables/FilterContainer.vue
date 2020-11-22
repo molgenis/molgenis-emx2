@@ -39,12 +39,12 @@ import IconAction from "../forms/IconAction";
 
 export default {
   components: {
-    IconAction
+    IconAction,
   },
   props: {
     title: String,
-    visible: Boolean
-  }
+    visible: Boolean,
+  },
 };
 </script>
 

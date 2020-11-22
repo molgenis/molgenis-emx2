@@ -56,12 +56,12 @@ subprojects {
     task copyDistFiles(type: Copy, dependsOn: build) {
         if (project.name == 'docs') {
             from "src/.vitepress/dist"
+            inputs.dir("src/.vitepress/dist")
         } else {
             from "dist"
+            inputs.dir("dist")
         }
         into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-
-        inputs.dir("dist")
         outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
         outputs.cacheIf { true }
     }

@@ -21,7 +21,7 @@ import FilterDropdown from "./FilterDropdown";
 
 export default {
   extends: FilterSidebar,
-  components: { FilterDropdown }
+  components: { FilterDropdown },
 };
 </script>
 

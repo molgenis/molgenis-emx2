@@ -37,7 +37,7 @@ import InputAppend from "./_inputAppend";
 /** Input for integer values */
 export default {
   extends: InputRangeInt,
-  components: { InputDecimal, FormGroup, InputAppend }
+  components: { InputDecimal, FormGroup, InputAppend },
 };
 </script>
 

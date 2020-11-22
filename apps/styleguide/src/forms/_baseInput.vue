@@ -6,7 +6,7 @@ import _formGroup from "./_formGroup.vue";
 
 export default {
   components: {
-    "form-group": _formGroup
+    "form-group": _formGroup,
   },
   props: {
     /** value to be shown as placeholder in the input (if possible) */
@@ -18,12 +18,12 @@ export default {
     /** whether input can nullable (does not validate, but show option to clear input) */
     nullable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** whether input is readonly (default: false) */
     readonly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** message when in error state */
     error: null,
@@ -32,20 +32,20 @@ export default {
     /** whether this is a list of values*/
     list: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** whether this should be rendered as filter option**/
     filter: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** whether to show clear buttons */
     clear: {
       type: Boolean,
-      default: true
+      default: true,
     },
     /** parse function, such as parseInt to type value*/
-    parser: Function
+    parser: Function,
   },
   data() {
     return {
@@ -54,19 +54,17 @@ export default {
       /** internal value to differ between list and non-list values*/
       arrayValue: [],
       /** external visible value you can v-model on */
-      value: null
+      value: null,
     };
   },
   watch: {
     arrayValue() {
       this.emitValue();
-    }
+    },
   },
   // generate automatic id
   mounted() {
-    this.id = Math.random()
-      .toString(36)
-      .substring(7);
+    this.id = Math.random().toString(36).substring(7);
   },
   created() {
     if (this.list) {
@@ -86,14 +84,14 @@ export default {
       //list type
       if (this.list) {
         //else continue
-        this.value = this.arrayValue.map(v =>
+        this.value = this.arrayValue.map((v) =>
           v === undefined || (v && v.length === 0) || !String(v).trim()
             ? null
             : v
         );
-        this.value = this.value.filter(el => el != undefined);
+        this.value = this.value.filter((el) => el != undefined);
         if (this.parser != null) {
-          this.value = this.value.map(v => this.parser(v));
+          this.value = this.value.map((v) => this.parser(v));
         }
         //singular value
       } else {
@@ -143,7 +141,7 @@ export default {
         this.arrayValue !== null &&
         this.arrayValue[idx] !== null
       );
-    }
-  }
+    },
+  },
 };
 </script>

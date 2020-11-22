@@ -31,13 +31,13 @@ export default {
   extends: BaseInput,
   components: {
     InputAppend,
-    FormGroup
+    FormGroup,
   },
   methods: {
     keyhandler(event) {
       return event;
-    }
-  }
+    },
+  },
 };
 </script>
 

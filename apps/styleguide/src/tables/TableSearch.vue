@@ -59,7 +59,7 @@ export default {
   props: {
     defaultValue: Array,
     selectColumn: String,
-    filter: { type: Object, defaultValue: {} }
+    filter: { type: Object, defaultValue: {} },
   },
   components: {
     ShowMore,
@@ -67,13 +67,13 @@ export default {
     MessageError,
     InputSearch,
     Pagination,
-    Spinner
+    Spinner,
   },
-  data: function() {
+  data: function () {
     return {
       selectedItems: [],
       page: 1,
-      loading: true
+      loading: true,
     };
   },
   methods: {
@@ -82,7 +82,7 @@ export default {
     },
     deselect(value) {
       this.$emit("deselect", value);
-    }
+    },
   },
   watch: {
     selectedItems() {
@@ -92,8 +92,8 @@ export default {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
       this.reload();
-    }
-  }
+    },
+  },
 };
 </script>
 

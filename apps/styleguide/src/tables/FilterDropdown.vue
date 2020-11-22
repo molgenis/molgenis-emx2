@@ -8,8 +8,8 @@
 export default {
   props: {
     title: String,
-    visible: Boolean
-  }
+    visible: Boolean,
+  },
 };
 </script>
 

@@ -20,7 +20,7 @@
         ></option>
         <option
           v-for="(option, index) in options.filter(
-            o => el == o || !arrayValue.includes(o)
+            (o) => el == o || !arrayValue.includes(o)
           )"
           :key="index"
           :value="option"
@@ -42,7 +42,7 @@ export default {
   extends: _baseInput,
   components: {
     InputAppend,
-    FormGroup
+    FormGroup,
   },
   methods: {
     showPlus(idx) {
@@ -51,13 +51,13 @@ export default {
         !this.readonly &&
         this.arrayValue[idx] != undefined &&
         idx === this.arrayValue.length - 1 &&
-        this.options.filter(o => !this.arrayValue.includes(o)).length > 0
+        this.options.filter((o) => !this.arrayValue.includes(o)).length > 0
       );
-    }
+    },
   },
   props: {
-    options: Array
-  }
+    options: Array,
+  },
 };
 </script>
 

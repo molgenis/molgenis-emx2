@@ -29,7 +29,7 @@ import AppendClear from "./_appendClear";
 
 export default {
   extends: InputString,
-  components: { AppendClear }
+  components: { AppendClear },
 };
 </script>
 

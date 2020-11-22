@@ -44,7 +44,7 @@
 import InputSelect from "./InputSelect";
 
 export default {
-  extends: InputSelect
+  extends: InputSelect,
 };
 </script>
 

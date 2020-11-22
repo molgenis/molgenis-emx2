@@ -60,10 +60,10 @@ import ButtonAction from "./ButtonAction";
 
 export default {
   extends: _baseInput,
-  data: function() {
+  data: function () {
     return {
       showSelect: false,
-      selectIdx: null
+      selectIdx: null,
     };
   },
   components: {
@@ -73,21 +73,21 @@ export default {
     FormGroup,
     ButtonAction,
     ButtonAlt,
-    InputAppend
+    InputAppend,
   },
   props: {
     /** change if graphql URL != 'graphql'*/
     graphqlURL: {
       default: "graphql",
-      type: String
+      type: String,
     },
     refTable: String,
-    filter: Object
+    filter: Object,
   },
   computed: {
     title() {
       return "Select " + this.refTable;
-    }
+    },
   },
   methods: {
     select(event) {
@@ -109,7 +109,7 @@ export default {
     },
     flattenObject(object) {
       let result = "";
-      Object.keys(object).forEach(key => {
+      Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
         } else if (typeof object[key] === "object") {
@@ -119,8 +119,8 @@ export default {
         }
       });
       return result;
-    }
-  }
+    },
+  },
 };
 </script>
 
