@@ -108,7 +108,9 @@ public class Emx2 {
       row.setString(TABLE_NAME, t.getTableName());
       if (t.getInherit() != null) row.setString(TABLE_EXTENDS, t.getInherit());
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
-      if (t.getJsonldType() != null) row.setString(JSONLD_TYPE, t.getJsonldType());
+      // todo, also trim in case of array, make the simple array
+      if (t.getJsonldType() != null)
+        row.setString(JSONLD_TYPE, t.getJsonldType().replaceAll("^\"|\"$", ""));
 
       result.add(row);
 
@@ -135,7 +137,8 @@ public class Emx2 {
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidationScript() != null) row.set(VALIDATION, c.getValidationScript());
-          if (c.getJsonldType() != null) row.set(JSONLD_TYPE, c.getJsonldType());
+          if (c.getJsonldType() != null)
+            row.set(JSONLD_TYPE, c.getJsonldType().replaceAll("^\"|\"$", ""));
 
           result.add(row);
         }
