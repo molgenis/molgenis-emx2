@@ -16,7 +16,7 @@
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
         Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
-        Go to upload <a :href="'/' + schemaName + '/upload/'">files</a>
+        Go to upload <a :href="'/' + schemaName + '/import/'">files</a>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
