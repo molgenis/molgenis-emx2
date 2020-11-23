@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +22,7 @@ class SqlColumnRefArrayExecutor {
   }
 
   static void createRefArrayConstraints(DSLContext jooq, Column column) {
-    validateRef(column);
+    validateColumn(column);
     createReferenceExistsCheck(jooq, column);
     createReferedCheck(jooq, column);
     // createUpdateReferedCheck(jooq, column);

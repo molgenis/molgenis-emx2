@@ -18,25 +18,40 @@ import org.molgenis.emx2.utils.StopWatch;
 public class TestCohortCatalogueMultipleSchemas {
 
   static Database database;
+  static Schema sharedSchema;
+  static Schema harmonizedSchema;
+  static Schema localSchema1;
+  static Schema localSchema2;
   static Schema centralSchema;
-  static Schema localSchema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    sharedSchema = database.dropCreateSchema("CohortsShared");
+    harmonizedSchema = database.dropCreateSchema("CohortsHarmonised");
+    localSchema1 = database.dropCreateSchema("CohortsLocal1");
+    localSchema2 = database.dropCreateSchema("CohortsLocal2");
     centralSchema = database.dropCreateSchema("CohortsCentral");
-    localSchema = database.dropCreateSchema("CohortsLocal");
   }
 
   @Test
   public void importTest() {
     StopWatch.print("begin");
 
-    loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(13, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    loadSchema("CohortsShared.xlsx", sharedSchema);
+    assertEquals(9, TestCohortCatalogueMultipleSchemas.sharedSchema.getTableNames().size());
 
-    loadSchema("CohortsLocal.xlsx", localSchema);
-    assertEquals(8, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
+    loadSchema("CohortsHarmonised.xlsx", harmonizedSchema);
+    assertEquals(6, TestCohortCatalogueMultipleSchemas.harmonizedSchema.getTableNames().size());
+
+    loadSchema("CohortsLocal.xlsx", localSchema1);
+    assertEquals(8, TestCohortCatalogueMultipleSchemas.localSchema1.getTableNames().size());
+
+    loadSchema("CohortsLocal.xlsx", localSchema2);
+    assertEquals(8, TestCohortCatalogueMultipleSchemas.localSchema2.getTableNames().size());
+
+    loadSchema("CohortsCentral.xlsx", centralSchema);
+    assertEquals(17, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) {

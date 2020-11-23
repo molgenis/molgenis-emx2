@@ -436,7 +436,12 @@ public class Column {
           String name = nameLookup.get(ref.getName());
           if (name == null)
             throw new MolgenisException(
-                "get references failed: no name mapping for ref " + ref.getName());
+                "get references for column '"
+                    + getTableName()
+                    + "."
+                    + getName()
+                    + "' failed: no name mapping for ref "
+                    + ref.getName());
 
           refColumns.put(
               name,

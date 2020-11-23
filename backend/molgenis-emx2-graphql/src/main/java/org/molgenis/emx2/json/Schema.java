@@ -29,13 +29,23 @@ public class Schema {
     for (String tableName : list) {
       org.molgenis.emx2.TableMetadata t = schema.getTableMetadata(tableName);
       tables.add(new Table(t));
-      for (org.molgenis.emx2.Column c : t.getColumns()) {
-        if (!c.getRefSchema().equals(c.getSchemaName())
-            && !imported.contains(c.getRefTableName())) {
-          Table ref = new Table(c.getRefTable());
-          ref.setExternalSchema(c.getRefSchema());
-          tables.add(ref);
-          imported.add(c.getRefTableName());
+      getImportedTablesRecursively(imported, t);
+    }
+  }
+
+  private void getImportedTablesRecursively(Set<String> imported, TableMetadata t) {
+    for (org.molgenis.emx2.Column c : t.getColumns()) {
+      if (!c.getRefSchema().equals(c.getSchemaName()) && !imported.contains(c.getRefTableName())) {
+        Table ref = new Table(c.getRefTable());
+        ref.setExternalSchema(c.getRefSchema());
+        tables.add(ref);
+        imported.add(c.getRefTableName());
+
+        // recurse
+        for (org.molgenis.emx2.Column c2 : c.getRefTable().getPrimaryKeyColumns()) {
+          if (c2.isReference()) {
+            getImportedTablesRecursively(imported, c2.getRefTable());
+          }
         }
       }
     }

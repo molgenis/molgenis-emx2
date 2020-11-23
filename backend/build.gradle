@@ -53,6 +53,7 @@ subprojects {
         }
     }
 
+    targetCompatibility = '11'
     sourceCompatibility = '11'
 
     jar {

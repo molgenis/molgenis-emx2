@@ -172,24 +172,8 @@ public class GraphqlApiFactory {
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
     Set<String> importedTables = new HashSet<>();
     for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      queryBuilder.field(tableField.tableQueryField(table));
-      queryBuilder.field(tableField.tableAggField(table));
-      // we also include query-only tables from other schemas we link to
-      for (Column column : table.getMetadata().getColumns()) {
-        if (column.isReference()
-            && !column.getRefSchema().equals(schema.getName())
-            && !importedTables.contains(column.getRefTableName())) {
-          Table importedTable =
-              schema
-                  .getDatabase()
-                  .getSchema(column.getRefSchema())
-                  .getTable(column.getRefTableName());
-          importedTables.add(importedTable.getName());
-          queryBuilder.field(tableField.tableQueryField(importedTable));
-          queryBuilder.field(tableField.tableAggField(importedTable));
-        }
-      }
+      addImportedTablesRecursively(
+          schema, queryBuilder, tableField, importedTables, schema.getTable(tableName));
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
@@ -216,5 +200,41 @@ public class GraphqlApiFactory {
     }
 
     return result;
+  }
+
+  private void addImportedTablesRecursively(
+      Schema schema,
+      GraphQLObjectType.Builder queryBuilder,
+      GraphqlTableFieldFactory tableField,
+      Set<String> importedTables,
+      Table table) {
+    queryBuilder.field(tableField.tableQueryField(table));
+    queryBuilder.field(tableField.tableAggField(table));
+    for (Column column : table.getMetadata().getColumns()) {
+      if (column.isReference()
+          && !column.getRefSchema().equals(schema.getName())
+          && !importedTables.contains(column.getRefTableName())) {
+        Table importedTable =
+            schema
+                .getDatabase()
+                .getSchema(column.getRefSchema())
+                .getTable(column.getRefTableName());
+        importedTables.add(importedTable.getName());
+
+        addImportedTablesRecursively(
+            schema,
+            queryBuilder,
+            tableField,
+            importedTables,
+            column
+                .getRefTable()
+                .getSchema()
+                .getDatabase()
+                .getSchema(column.getRefTable().getSchemaName())
+                .getTable(column.getRefTableName())); // lolwut, should probably merge
+        // table+tablemetadata
+
+      }
+    }
   }
 }

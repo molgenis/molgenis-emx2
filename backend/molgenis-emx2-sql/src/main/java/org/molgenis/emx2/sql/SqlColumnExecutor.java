@@ -35,6 +35,8 @@ public class SqlColumnExecutor {
         if (!column.isNullable()) {
           throw new MolgenisException(
               "Set NOT NULL failed on column "
+                  + column.getTableName()
+                  + "."
                   + column.getName()
                   + ": refback column must always be nullable (not null not supported)");
         }
@@ -229,7 +231,8 @@ public class SqlColumnExecutor {
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
       saveColumnMetadata(jooq, column);
     } catch (Exception e) {
-      throw new MolgenisException("Create column '" + current + "' failed", e);
+      throw new MolgenisException(
+          "Create column '" + column.getTableName() + "." + current + "' failed", e);
     }
   }
 
@@ -250,14 +253,19 @@ public class SqlColumnExecutor {
               + c.getName()
               + "' failed: 'refTable' required for columns of type ref, ref_array, refback and mref  ");
     }
-    if (c.isReference() && c.getRefTable().getPrimaryKeyColumns().size() > 1) {
-      if (c.getRefFrom() == null || c.getRefTo() == null) {
+    if (c.isReference() && c.getRefTable().getPrimaryKeyFields().size() > 1) {
+      String refCols =
+          c.getRefTable().getPrimaryKeyFields().stream()
+              .map(Field::getName)
+              .collect(Collectors.joining(","));
+      if (c.getRefFrom().length == 0 || c.getRefTo().length == 0) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be provided mapping to pkey of refTable");
+                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be provided mapping to pkey of refTable: "
+                + refCols);
       }
       if (c.getRefFrom().length != c.getRefTo().length) {
         throw new MolgenisException(
@@ -265,20 +273,23 @@ public class SqlColumnExecutor {
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be of same length");
+                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be of same length and refTo must contain: "
+                + refCols);
       }
 
-      if (c.getRefTable().getPrimaryKeyFields().stream()
-          .anyMatch(f -> !List.of(c.getRefTo()).contains(f.getName()))) {
+      List<String> desired =
+          c.getRefTable().getPrimaryKeyFields().stream()
+              .map(f -> f.getName())
+              .collect(Collectors.toList());
+      List<String> got = List.of(c.getRefTo());
+      if (desired.size() != got.size() || !desired.containsAll(got)) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
                 + "."
                 + c.getName()
                 + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' must contain all primary key fields (incl subkeys): "
-                + c.getRefTable().getPrimaryKeyFields().stream()
-                    .map(Field::getName)
-                    .collect(Collectors.joining(",")));
+                + refCols);
       }
     }
   }

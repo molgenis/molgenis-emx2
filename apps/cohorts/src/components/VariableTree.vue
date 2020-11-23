@@ -53,9 +53,9 @@ import {
   MessageSuccess,
   Molgenis,
   ShowMore,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -74,9 +74,9 @@ export default {
     InputString,
     InputSelect,
     ShowMore,
-    VariablePanel
+    VariablePanel,
   },
-  data: function() {
+  data: function () {
     return {
       error: null,
       success: null,
@@ -84,20 +84,22 @@ export default {
       topics: [],
       search: "",
       selectedTopic: null,
-      variables: []
+      variables: [],
     };
   },
   methods: {
     load() {
       request(
         "graphql",
-        "{Topic{name,parentTopic{name},childTopics{name,childTopics{name,childTopics{name,childTopics{name,childTopics{name}}}}}}}"
+        "{Topics{name,parentTopic{name}, childTopics{name,childTopics{name, childTopics{name,childTopics{name,childTopics{name}}}}}}}"
       )
-        .then(data => {
-          this.topics = data.Topic.filter(t => t["parentTopic"] == undefined);
+        .then((data) => {
+          this.topics = data.Topics.filter(
+            (t) => t["parentTopic"] == undefined
+          );
           this.applySearch(this.topics, this.search);
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
         })
         .finally(() => {
@@ -106,16 +108,17 @@ export default {
     },
     loadVariables() {
       if (this.selectedTopic) {
+        //
         request(
           "graphql",
-          '{Variable(filter:{topic:{name:{equals:"' +
+          '{Variables(filter:{topic:{name:{equals:"' +
             this.selectedTopic +
-            '"}}}){name,table{name},format{name},description,unit{name},harmonisations{sourceCollection{name}},codeList{name,codes{codeLabel,codeValue}}}}'
+            '"}}}){name,table{name},format{name},description,unit{name},codeList{name,codes{codeLabel,codeValue}}}}'
         )
-          .then(data => {
-            this.variables = data.Variable;
+          .then((data) => {
+            this.variables = data.Variables;
           })
-          .catch(error => {
+          .catch((error) => {
             this.error = error.response.errors[0].message;
           })
           .finally(() => {
@@ -125,7 +128,7 @@ export default {
     },
     applySearch(topics, terms) {
       let result = false;
-      topics.forEach(t => {
+      topics.forEach((t) => {
         t.match = false;
         if (
           terms == null ||
@@ -143,7 +146,7 @@ export default {
     },
     select(topic) {
       this.selectedTopic = topic.name;
-    }
+    },
   },
   created() {
     this.load();
@@ -154,7 +157,7 @@ export default {
     },
     selectedTopic() {
       this.loadVariables();
-    }
-  }
+    },
+  },
 };
 </script>

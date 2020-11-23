@@ -350,7 +350,12 @@ public class GraphqlTableFieldFactory {
               f(
                   c.getName(),
                   convertMapToFilterArray(
-                      table.getSchema().getTable(c.getRefTableName()), (Map) entry.getValue())));
+                      table
+                          .getSchema()
+                          .getDatabase()
+                          .getSchema(c.getRefTable().getSchemaName())
+                          .getTable(c.getRefTableName()),
+                      (Map) entry.getValue())));
         } else {
           if (entry.getValue() instanceof Map) {
             subFilters.add(

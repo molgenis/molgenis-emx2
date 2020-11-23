@@ -13,10 +13,6 @@ export default {
           href: "../import/",
         },
         {
-          label: "Download",
-          href: "../download/",
-        },
-        {
           label: "GraphQL",
           href: "../graphql-playground/",
         },

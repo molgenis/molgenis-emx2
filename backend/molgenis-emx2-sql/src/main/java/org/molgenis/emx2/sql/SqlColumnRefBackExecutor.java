@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.sql.SqlColumnRefExecutor.validateRef;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +24,7 @@ class SqlColumnRefBackExecutor {
 
     try {
       // get ref table
-      validateRef(ref);
+      validateColumn(ref);
       String columNames =
           ref.getReferences().stream().map(Reference::getName).collect(Collectors.joining(","));
 

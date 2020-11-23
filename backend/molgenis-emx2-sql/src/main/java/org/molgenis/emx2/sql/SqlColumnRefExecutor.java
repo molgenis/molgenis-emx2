@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.getJooqTable;
 
 import java.util.List;
@@ -10,7 +11,6 @@ import org.jooq.ConstraintForeignKeyOnStep;
 import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 
 /** Create ref constraints. Might be composite key so therefore using Column...column parameters. */
 public class SqlColumnRefExecutor {
@@ -28,7 +28,7 @@ public class SqlColumnRefExecutor {
   }
 
   public static void createRefConstraints(DSLContext jooq, Column refColumn) {
-    validateRef(refColumn);
+    validateColumn(refColumn);
     Name fkeyConstraintName = name(getRefConstraintName(refColumn));
     Name thisTable = getJooqTable(refColumn.getTable()).getQualifiedName();
     List<Name> thisColumns =
@@ -60,28 +60,28 @@ public class SqlColumnRefExecutor {
         .execute();
   }
 
-  static void validateRef(Column... column) {
-    Column column1 = column[0];
-    String refTableName = column1.getRefTableName();
-    String columnNames =
-        List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
-
-    // check if refTable exists
-    if (refTableName == null) {
-      throw new MolgenisException(
-          "Create column failed: Create of column(s) '"
-              + columnNames
-              + "' failed because RefTableName was not set");
-    }
-
-    // check if other end has primary key
-    if (column1.getRefTable().getPrimaryKeys().isEmpty()) {
-      throw new MolgenisException(
-          "Create column failed: Create of column '"
-              + columnNames
-              + "' failed because other table has no primary key set");
-    }
-  }
+  //  static void validateRef(Column... column) {
+  //    Column column1 = column[0];
+  //    String refTableName = column1.getRefTableName();
+  //    String columnNames =
+  //        List.of(column).stream().map(Column::getName).collect(Collectors.joining(","));
+  //
+  //    // check if refTable exists
+  //    if (refTableName == null) {
+  //      throw new MolgenisException(
+  //          "Create column failed: Create of column(s) '"
+  //              + columnNames
+  //              + "' failed because RefTableName was not set");
+  //    }
+  //
+  //    // check if other end has primary key
+  //    if (column1.getRefTable().getPrimaryKeys().isEmpty()) {
+  //      throw new MolgenisException(
+  //          "Create column failed: Create of column '"
+  //              + columnNames
+  //              + "' failed because other table has no primary key set");
+  //    }
+  //  }
 
   private static String getIndexName(Column... column) {
     Column column1 = column[0];
