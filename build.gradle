@@ -14,8 +14,8 @@ plugins {
 }
 
 
-sourceCompatibility = 13
-targetCompatibility = 13
+targetCompatibility = '11'
+sourceCompatibility = '11'
 
 sonarqube {
     properties {
