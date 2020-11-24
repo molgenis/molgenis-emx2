@@ -6,12 +6,12 @@
           :class="{
             'fa fa-folder': topic.childTopics && topic.collapsed,
             'fa fa-folder-open': topic.childTopics && !topic.collapsed,
-            'fa fa-file': !topic.childTopics
+            'fa fa-file': !topic.childTopics,
           }"
         ></i
       ></span>
     </div>
-    {{ topic.name }} match={{ topic.match }} collapsed={{ topic.collapsed }}
+    {{ topic.name }}
     <ul class="fa-ul" v-if="topic.childTopics && !topic.collapsed">
       <tree-node
         v-for="subtopic in topic.childTopics"
@@ -26,7 +26,7 @@
 export default {
   name: "tree-node",
   props: {
-    topic: Object
+    topic: Object,
   },
   methods: {
     click() {
@@ -39,12 +39,12 @@ export default {
     },
     select(topic) {
       this.$emit("select", topic);
-    }
+    },
   },
   created() {
     if (this.topic.collapsed == undefined) {
       this.topic.collapsed = true;
     }
-  }
+  },
 };
 </script>

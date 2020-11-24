@@ -91,7 +91,7 @@ export default {
     load() {
       request(
         "graphql",
-        "{Topics{name,parentTopic{name}, childTopics{name,childTopics{name, childTopics{name,childTopics{name,childTopics{name}}}}}}}"
+        "{Topics(orderby:{order:ASC}){name,parentTopic{name}, childTopics{name,childTopics{name, childTopics{name,childTopics{name,childTopics{name}}}}}}}"
       )
         .then((data) => {
           this.topics = data.Topics.filter(
@@ -113,7 +113,7 @@ export default {
           "graphql",
           '{Variables(filter:{topic:{name:{equals:"' +
             this.selectedTopic +
-            '"}}}){name,table{name},format{name},description,unit{name},codeList{name,codes{codeLabel,codeValue}}}}'
+            '"}}}){name,table{name},format{name},description,unit{name},codeList{name}}}'
         )
           .then((data) => {
             this.variables = data.Variables;
