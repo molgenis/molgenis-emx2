@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.io.SchemaImport;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -19,16 +20,33 @@ import org.molgenis.emx2.utils.StopWatch;
 public class LinkedDataServiceTest {
 
   static Database database;
-  static Schema schema;
+  static Schema fdpSchema;
+  static Schema patientSchema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema("fdpTest");
+    fdpSchema = database.dropCreateSchema("fdpTest");
+    patientSchema = database.dropCreateSchema("patientTest");
   }
 
   @Test
-  public void importTest() {
+  public void testOntologyLinks() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path file = new File(classLoader.getResource("hpo_patients.xlsx").getFile()).toPath();
+    SchemaImport.fromExcelFile(file, patientSchema);
+
+    StringWriter sw = new StringWriter();
+    JsonLdService.jsonld(patientSchema, new PrintWriter(sw));
+    System.out.println("result\r" + sw.getBuffer().toString());
+
+    sw = new StringWriter();
+    JsonLdService.ttl(patientSchema, new PrintWriter(sw));
+    System.out.println("result\r" + sw.getBuffer().toString());
+  }
+
+  @Test
+  public void testFairDataPointsFDP() {
     StopWatch.print("begin");
 
     // todo make this code shorter, redicolos
@@ -46,28 +64,28 @@ public class LinkedDataServiceTest {
 
     // fix, reload should not be need
     database.clearCache();
-    schema = database.getSchema("fdpTest");
+    LinkedDataServiceTest.fdpSchema = database.getSchema("fdpTest");
 
     // anyway, here goes the generation
     StringWriter sw = new StringWriter();
-    JsonLdService.jsonld(schema, new PrintWriter(sw));
+    JsonLdService.jsonld(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
     System.out.println("result\r" + sw.getBuffer().toString());
 
-    assertEquals(2, schema.getTableNames().size());
+    assertEquals(2, LinkedDataServiceTest.fdpSchema.getTableNames().size());
 
     sw = new StringWriter();
-    JsonLdService.ttl(schema, new PrintWriter(sw));
+    JsonLdService.ttl(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
     System.out.println(sw.toString());
   }
 
   private void runImportProcedure(TableStoreForXlsxFile store, SchemaMetadata cohortSchema) {
-    schema.merge(cohortSchema);
+    fdpSchema.merge(cohortSchema);
 
     StopWatch.print("creation of tables complete, now starting import data");
 
-    for (String tableName : schema.getTableNames()) {
+    for (String tableName : fdpSchema.getTableNames()) {
       if (store.containsTable(tableName))
-        schema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
+        fdpSchema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
     }
   }
 }

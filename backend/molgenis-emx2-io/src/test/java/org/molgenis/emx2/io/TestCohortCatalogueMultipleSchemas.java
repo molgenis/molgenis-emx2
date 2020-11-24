@@ -23,10 +23,12 @@ public class TestCohortCatalogueMultipleSchemas {
   static Schema localSchema1;
   static Schema localSchema2;
   static Schema centralSchema;
+  static Schema simpleSchema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    simpleSchema = database.dropCreateSchema("CohortsSimple");
     sharedSchema = database.dropCreateSchema("CohortsShared");
     harmonizedSchema = database.dropCreateSchema("CohortsHarmonised");
     localSchema1 = database.dropCreateSchema("CohortsLocal1");
@@ -37,6 +39,9 @@ public class TestCohortCatalogueMultipleSchemas {
   @Test
   public void importTest() {
     StopWatch.print("begin");
+
+    loadSchema("CohortsSimple.xlsx", simpleSchema);
+    assertEquals(20, TestCohortCatalogueMultipleSchemas.simpleSchema.getTableNames().size());
 
     loadSchema("CohortsShared.xlsx", sharedSchema);
     assertEquals(9, TestCohortCatalogueMultipleSchemas.sharedSchema.getTableNames().size());

@@ -159,9 +159,9 @@ public class TableStoreForXlsxFile implements TableStore {
       String colName = columnNames.get(cell.getColumnIndex());
       if (colName == null && !BLANK.equals(cell.getCellType())) {
         throw new IOException(
-            "Read of "
+            "Read of table '"
                 + name
-                + " failed: column index "
+                + "' failed: column index "
                 + cell.getColumnIndex()
                 + " has no column name and contains value '"
                 + cell.getStringCellValue()
