@@ -11166,7 +11166,7 @@ vite@^1.0.0-rc.9:
     vue "^3.0.2"
     ws "^7.3.1"
 
-vitepress@^0.8.1:
+vitepress@0.8.1:
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/vitepress/-/vitepress-0.8.1.tgz#9c487c8b6f99de019c2df7d1616690e49a441319"
   integrity sha512-bJtuBR4qy3SxxNZ+tNCHhPKLEcsgITZ368bQvcRSM5v7H3aNSmK609uOss0ANkYYhLBPcjQHQ3af6d0og8VubA==
