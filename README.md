@@ -44,7 +44,7 @@ N.B.
 
 For minimalist server installation you can use the 'jar' file. 
 
-* Download molgenis-emx2-version-all.jar from [releaes](https://github.com/mswertz/molgenis-emx2/releases).
+* Download molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
 * Download and install [Postgresql](https://www.postgresql.org/download/) 
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
@@ -57,6 +57,16 @@ For minimalist server installation you can use the 'jar' file.
     ```console
     java -jar molgenis-emx2-<version>-all.jar
     ```
+  
+Optionally, you can change defaults using either java properties or using env variables:
+* MOLGENIS_POSTGRES_URI
+* MOLGENIS_POSTGRES_USER
+* MOLGENIS_POSTGRES_PASS
+* MOLGENIS_HTTP_PORT
+For example:
+```console
+java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
+```
   
 ### 3. Using Helm on Kubernetes
 
