@@ -1,17 +1,16 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.STRING;
+
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.regex.Pattern;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.web.MolgenisWebservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.regex.Pattern;
-
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.STRING;
 
 public class RunMolgenisEmx2 {
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
