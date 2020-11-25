@@ -32,10 +32,10 @@ public class MolgenisWebservice {
     // hide constructor
   }
 
-  public static void start(DataSource ds) {
+  public static void start(DataSource ds, int port) {
 
     sessionManager = new MolgenisSessionManager(ds);
-    port(8080);
+    port(port);
 
     staticFiles.location("/public_html");
 

@@ -48,7 +48,7 @@ public class TestWebApi {
     schema.addMember(PET_SHOP_OWNER, DefaultRoles.OWNER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
     // start web service for testing
-    MolgenisWebservice.start(dataSource);
+    MolgenisWebservice.start(dataSource, 8080);
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";

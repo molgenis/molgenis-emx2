@@ -25,6 +25,6 @@ public class RunWebApi {
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
-    MolgenisWebservice.start(dataSource);
+    MolgenisWebservice.start(dataSource, 8080);
   }
 }
