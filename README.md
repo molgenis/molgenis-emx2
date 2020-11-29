@@ -63,6 +63,7 @@ Optionally, you can change defaults using either java properties or using env va
 * MOLGENIS_POSTGRES_USER
 * MOLGENIS_POSTGRES_PASS
 * MOLGENIS_HTTP_PORT
+
 For example:
 ```console
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
@@ -287,8 +288,9 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  ENSURE PASSWORD IS NOT IN THE LOGS
 
 ### first
-*  reintroduce cohorts codeList.codes refback => fix overlapping refs
-*  fix anonymous access granting on tables 
+
+*  download of extended class should include superclass values
+*  filter option for 'null' and 'not_null'
 *  check roundtrip download/update of data and model
 *  prefilter UI in case of overlapping keys so you don't get unexpected errors
 *  collection level permissions (based on rule)
