@@ -1,10 +1,6 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
-
 import java.nio.file.Path;
-import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
@@ -42,14 +38,7 @@ public class SchemaExport {
   }
 
   private static void writeTableContents(TableStore store, Table table) {
-    if (table.getMetadata().getColumn(Constants.MG_TABLECLASS) != null) {
-      // download only actual class
-      store.writeTable(
-          table.getName(),
-          table.query().where(f(Constants.MG_TABLECLASS, EQUALS, table.getName())).retrieveRows());
-    } else {
-      store.writeTable(table.getName(), table.retrieveRows());
-    }
+    store.writeTable(table.getName(), table.retrieveRows());
   }
 
   public static void toEmx1ExcelFile(Path excelFile, Schema schema) {

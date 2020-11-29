@@ -79,6 +79,7 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
+        // currently we don't download refback (good) and files (that is bad)
         if (!REFBACK.equals(c.getColumnType()) && !FILE.equals(c.getColumnType())) {
           if (c.isReference()) {
             for (Reference ref : c.getReferences()) {
@@ -841,10 +842,13 @@ public class SqlQuery extends QueryBean {
             mappedBy.getReferences().stream()
                 .map(
                     ref ->
-                        condition(
-                            ANY_SQL,
-                            field(name(tableAlias, ref.getRefTo())),
-                            field(name(subAlias, ref.getName()))))
+                        ref.isOverlapping() && ref.getOverlapping().getColumnType().equals(REF)
+                            ? field(name(tableAlias, ref.getRefTo()))
+                                .eq(field(name(subAlias, ref.getName())))
+                            : condition(
+                                ANY_SQL,
+                                field(name(tableAlias, ref.getRefTo())),
+                                field(name(subAlias, ref.getName()))))
                 .collect(Collectors.toList()));
       }
     } else if (MREF.equals(column.getColumnType())) {
