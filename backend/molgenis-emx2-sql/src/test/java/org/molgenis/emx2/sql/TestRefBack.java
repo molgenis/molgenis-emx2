@@ -84,7 +84,7 @@ public class TestRefBack {
             .get(0)
             .getStringArray("parts")[0]);
 
-    // if reback is not updated then nothing happens
+    // if refback is not updated then nothing happens
     parts.update(new Row().set("partname", "bigscreen"));
 
     // so now bigphone.parts = [bigscreen]
@@ -111,7 +111,6 @@ public class TestRefBack {
             .getStringArray("parts"));
 
     // now multiple
-
     parts.update(
         new Row().set("partname", "bigscreen").set("products", "bigphone"),
         new Row()

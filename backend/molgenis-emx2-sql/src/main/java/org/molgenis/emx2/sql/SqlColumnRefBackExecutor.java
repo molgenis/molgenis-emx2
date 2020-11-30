@@ -53,10 +53,10 @@ class SqlColumnRefBackExecutor {
       ColumnType mappedByType = mappedBy.getColumnType();
       switch (mappedByType) {
         case REF:
-          // createTriggerForRef(jooq, ref);
+          createTriggerForRef(jooq, ref);
           break;
         case REF_ARRAY:
-          // createTriggerForRefArray(jooq, ref);
+          createTriggerForRefArray(jooq, ref);
           break;
           // todo case MREF:
         default:
