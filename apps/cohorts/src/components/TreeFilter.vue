@@ -1,17 +1,17 @@
 <template>
   <li v-if="topic.match">
-    <div @click="click">
-      <span class="fa-li"
-        ><i
-          :class="{
-            'fa fa-folder': topic.childTopics && topic.collapsed,
-            'fa fa-folder-open': topic.childTopics && !topic.collapsed,
-            'fa fa-file': !topic.childTopics,
-          }"
-        ></i
-      ></span>
-    </div>
-    {{ topic.name }}
+    <button class="btn text-primary" @click="click">
+      <i
+        :class="{
+          'fa fa-2x fa-folder': topic.childTopics && topic.collapsed,
+          'fa fa-2x fa-folder-open': topic.childTopics && !topic.collapsed,
+          'fa fa-2x fa-file': !topic.childTopics,
+        }"
+      >
+      </i>
+
+      {{ topic.name }}
+    </button>
     <ul class="fa-ul" v-if="topic.childTopics && !topic.collapsed">
       <tree-node
         v-for="subtopic in topic.childTopics"
@@ -31,7 +31,7 @@ export default {
   methods: {
     click() {
       if (this.topic.childTopics) {
-        this.topic.collapsed = !this.topic.collapsed;
+        this.clickRecursiveIfOne(this.topic);
         this.$forceUpdate();
       } else {
         this.select(this.topic);
@@ -39,6 +39,18 @@ export default {
     },
     select(topic) {
       this.$emit("select", topic);
+    },
+    clickRecursiveIfOne(topic) {
+      topic.collapsed = !topic.collapsed;
+      if (
+        topic.childTopics &&
+        topic.childTopics.filter((c) => c.match).length == 1
+      ) {
+        this.clickRecursiveIfOne(topic.childTopics[0]);
+        topic.childTopics[0].collapsed = !topic.childTopics[0].collapsed;
+      } else {
+        this.select(topic);
+      }
     },
   },
   created() {

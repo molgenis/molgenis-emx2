@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .card-header:hover {
   cursor: move;
 }

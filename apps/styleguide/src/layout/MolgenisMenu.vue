@@ -72,27 +72,16 @@ export default {
   },
   methods: {
     permitted(item) {
-      console.log(
-        "item: " +
-          JSON.stringify(item) +
-          "session: " +
-          JSON.stringify(this.session)
-      );
       if (!item.role) {
-        console.log("no check needed");
         return true;
       }
-      console.log(" check needed ");
       //user admin
       if (this.session) {
-        console.log(" checking session ");
         if (this.session.email == "admin") {
-          console.log("found admin");
           return true;
         }
         //todo, smarter roles system, should have all roles user has than this is peanuts
         if (Array.isArray(this.session.roles)) {
-          console.log("checking roles");
           return this.session.roles.includes(item.role);
         }
       }
