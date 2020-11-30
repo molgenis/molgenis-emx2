@@ -26,8 +26,14 @@ settings: {{ settings }}
 </template>
 
 <script>
-import {ButtonAction, InputString, MessageError, MessageSuccess, ShowMore} from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import {
+  ButtonAction,
+  InputString,
+  MessageError,
+  MessageSuccess,
+  ShowMore,
+} from "@mswertz/emx2-styleguide";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -35,26 +41,24 @@ export default {
     ButtonAction,
     MessageError,
     MessageSuccess,
-    ShowMore
+    ShowMore,
   },
   props: {
-    session: Object
+    session: Object,
   },
   data() {
     return {
       settings: {},
       loading: false,
       error: null,
-      success: null
+      success: null,
     };
   },
   methods: {
     saveSettings() {
       let settingsMap = [];
-      Object.keys(this.settings).forEach(key => {
-        if (this.settings[key] != null) {
-          settingsMap.push({ key: key, value: this.settings[key] });
-        }
+      Object.keys(this.settings).forEach((key) => {
+        settingsMap.push({ key: key, value: this.settings[key] });
       });
       alert("result: " + JSON.stringify(settingsMap));
       this.loading = true;
@@ -66,14 +70,14 @@ export default {
         `mutation alter($settings:[AlterSettingInput]){alter(settings:$settings){message}}`,
         { settings: settingsMap }
       )
-        .then(data => {
+        .then((data) => {
           this.success = data.alter.message;
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
         })
         .finally((this.loading = false));
-    }
-  }
+    },
+  },
 };
 </script>
