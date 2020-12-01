@@ -16,7 +16,7 @@
     </NavBar>
     <div style="background: #fafafa">
       <div
-        :class="fullscreen ? 'container-xl' : 'container'"
+        :class="fullscreen ? 'container-xl' : 'container-fluid'"
         style="background: #fafafa"
         @keydown.esc="toggle"
         :style="

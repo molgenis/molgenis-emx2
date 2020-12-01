@@ -20,8 +20,6 @@ module.exports = {
 
     sidebar: {
       "/": getGuideSidebar(),
-      "/guide/": getGuideSidebar(),
-      "/config/": getConfigSidebar(),
     },
   },
 };
@@ -31,11 +29,11 @@ function getGuideSidebar() {
     {
       text: "Introduction",
       children: [
-        { text: "What is EMX2?", link: "/" },
-        { text: "Configuration", link: "configuration" },
-        { text: "Architecture", link: "architecture" },
+        { text: "Overview", link: "/" },
+        { text: "Data model", link: "emx2format" },
+        { text: "Settings", link: "settings" },
+        { text: "For developers", link: "developers" },
         { text: "How to run", link: "how_to_run" },
-        { text: "EMX2 file format reference", link: "emx2" },
       ],
     },
   ];

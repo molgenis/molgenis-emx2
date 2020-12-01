@@ -2,6 +2,7 @@
   <Molgenis title="Browse variables">
     <ShowMore title="debug">
       <pre>
+        timestamp = {{ timestamp }}
           search = {{ search }}
           selectedTopic = {{ selectedTopic }}
           selectedCollections = {{ selectedCollections }}
@@ -16,18 +17,17 @@
     </div>
     <div class="row">
       <div class="col-6 col-md-4">
-        <LayoutCard title="Topics">
+        <LayoutCard title="Topics" :key="timestamp">
           <InputSearch placeholder="Filter topics..." v-model="search" />
-          <div>
-            <ul class="fa-ul">
-              <TreeNode
-                @select="select"
-                :topic="topic"
-                v-for="topic in topics"
-                :key="topic.name + topic.match + topic.collapsed"
-              />
-            </ul>
-          </div>
+          selected: {{ selectedTopics(topics) }}
+          <ul class="fa-ul">
+            <TreeNode
+              :topic="topic"
+              v-for="topic in topics"
+              @change="timestamp = Date.now()"
+              :key="JSON.stringify(topic)"
+            />
+          </ul>
         </LayoutCard>
       </div>
       <div class="col-md-8">
@@ -104,9 +104,16 @@ export default {
       variableSearch: "",
       selectedTopic: null,
       variables: [],
+      timestamp: Date.now(),
     };
   },
   methods: {
+    selectedTopics(topics) {
+      if (Array.isArray(topics)) {
+        return topics.filter((t) => t.checked).map((t) => t.name);
+      }
+      return [];
+    },
     loadTopics() {
       request(
         "graphql",
@@ -201,9 +208,6 @@ export default {
       this.applySearch(this.topics, this.search);
     },
     variableSearch() {
-      this.loadVariables();
-    },
-    selectedTopic() {
       this.loadVariables();
     },
     selectedCollections() {

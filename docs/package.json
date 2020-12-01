@@ -11,8 +11,8 @@
     "vitepress": "0.9.0"
   },
   "scripts": {
-    "dev": "vitepress dev src",
-    "build": "vitepress build src",
-    "serve": "vitepress serve src"
+    "dev": "node_modules/.bin/vitepress dev src",
+    "build": "node_modules/.bin/vitepress build src",
+    "serve": "node_modules/.bin/vitepress serve src"
   }
 }

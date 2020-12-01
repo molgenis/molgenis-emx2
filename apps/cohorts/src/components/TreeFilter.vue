@@ -3,21 +3,33 @@
     <button class="btn text-primary" @click="click">
       <i
         :class="{
-          'fa fa-2x fa-folder': topic.childTopics && topic.collapsed,
-          'fa fa-2x fa-folder-open': topic.childTopics && !topic.collapsed,
-          'fa fa-2x fa-file': !topic.childTopics,
+          'fa fa-folder': topic.childTopics.length > 0 && topic.collapsed,
+          'fa fa-folder-open': topic.childTopics.length > 0 && !topic.collapsed,
+          'fa fa-file': topic.childTopics.length == 0,
         }"
       >
       </i>
-
-      {{ topic.name }}
     </button>
+    <div class="form-check form-check-inline">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        v-model="topic.checked"
+        @click="
+          topic.checked = !topic.checked;
+          selectChildren(topic, !topic.checked);
+          $emit('changed');
+        "
+        :key="JSON.stringify(topic)"
+      />
+    </div>
+    {{ topic.name }}
+
     <ul class="fa-ul" v-if="topic.childTopics && !topic.collapsed">
       <tree-node
         v-for="subtopic in topic.childTopics"
         :topic="subtopic"
-        :key="subtopic.name + subtopic.match + subtopic.collapsed"
-        @select="select"
+        :key="JSON.stringify(topic)"
       />
     </ul>
   </li>
@@ -29,16 +41,19 @@ export default {
     topic: Object,
   },
   methods: {
+    selectChildren(topic, checked) {
+      topic.checked = checked;
+      if (topic.childTopics) {
+        topic.childTopics.forEach((t) => {
+          t.checked = checked;
+          this.selectChildren(t, checked);
+        });
+      }
+    },
     click() {
       if (this.topic.childTopics) {
         this.clickRecursiveIfOne(this.topic);
-        this.$forceUpdate();
-      } else {
-        this.select(this.topic);
       }
-    },
-    select(topic) {
-      this.$emit("select", topic);
     },
     clickRecursiveIfOne(topic) {
       topic.collapsed = !topic.collapsed;
@@ -48,8 +63,6 @@ export default {
       ) {
         this.clickRecursiveIfOne(topic.childTopics[0]);
         topic.childTopics[0].collapsed = !topic.childTopics[0].collapsed;
-      } else {
-        this.select(topic);
       }
     },
   },

@@ -20,11 +20,6 @@ export default {
           label: "Settings",
           href: "../settings/",
         },
-        {
-          label: "Docs",
-          href: "/apps/docs/",
-          newWindow: true,
-        },
       ];
     },
   },
