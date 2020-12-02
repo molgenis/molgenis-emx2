@@ -6,6 +6,7 @@
       v-bind="$props"
       @clear="clearValue(idx)"
       :showPlus="showPlus(idx)"
+      :showClear="showClear(idx)"
       @add="addRow"
     >
       <select
@@ -62,75 +63,75 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputSelect
-                    label=" Animals
+Example
+```
+<template>
+  <div>
+    <InputSelect
+        label=" Animals
                 "
-                    v-model="check"
-                    :options="['lion', 'ape', 'monkey']"
-            />
-            Selected: {{check}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    check: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example with default
-    ```
-    <template>
-        <div>
-            <InputSelect
-                    label="Animals"
-                    v-model="check"
-                    defaultValue="ape"
-                    :options="['lion', 'ape', 'monkey']"
-            />
-            Selected: {{check}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    check: null
-                };
-            }
-        };
-    </script>
-    ```
+        v-model="check"
+        :options="['lion', 'ape', 'monkey']"
+    />
+    Selected: {{ check }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        check: null
+      };
+    }
+  };
+</script>
+```
+Example with default
+```
+<template>
+  <div>
+    <InputSelect
+        label="Animals"
+        v-model="check"
+        defaultValue="ape"
+        :options="['lion', 'ape', 'monkey']"
+    />
+    Selected: {{ check }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        check: null
+      };
+    }
+  };
+</script>
+```
 
-    Example list with default
-    ```
-    <template>
-        <div>
-            <InputSelect
-                    label="Animals"
-                    v-model="check"
-                    :defaultValue="['ape']"
-                    :options="['lion', 'ape', 'monkey']"
-                    :list="true"
-            />
-            Selected: {{check}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    check: null
-                };
-            }
-        };
-    </script>
-    ```
+Example list with default
+```
+<template>
+  <div>
+    <InputSelect
+        label="Animals"
+        v-model="check"
+        :defaultValue="['ape']"
+        :options="['lion', 'ape', 'monkey']"
+        :list="true"
+    />
+    Selected: {{ check }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        check: null
+      };
+    }
+  };
+</script>
+```
 </docs>
