@@ -1,14 +1,242 @@
 <template>
   <div id="app">
-    <VariableTree />
+    <Molgenis title="Human research data collections catalogue">
+      <p>Cohorts, Biobanks, Registries, and more ...</p>
+      <Spinner v-if="loading" />
+      <div v-else>
+        <MessageError v-if="error">{{ error }}</MessageError>
+        <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+      </div>
+      <div class="row">
+        <div class="card">
+          <div class="card-header"><h4>Filter</h4></div>
+          <div class="card-body">
+            <FilterView />
+          </div>
+        </div>
+        <div class="col">
+          <InputSearch placeholder="Search..." v-model="search" />
+          <ul class="nav nav-tabs">
+            <li>
+              <router-link
+                class="nav-link"
+                :class="{ active: selected == 'Collections' }"
+                to="collections"
+                >Collections ({{ collectionCount }})
+              </router-link>
+            </li>
+            <li>
+              <router-link
+                class="nav-link"
+                :class="{ active: selected == 'Variables' }"
+                to="variables"
+                >Variables ({{ variableCount }})
+              </router-link>
+            </li>
+          </ul>
+          <br />
+          <router-view :search="search" />
+        </div>
+      </div>
+      <ShowMore title="debug">
+        <pre>
+        timestamp = {{ timestamp }}
+          search = {{ search }}
+          selectedTopic = {{ selectedTopic }}
+          selectedCollections = {{ selectedCollections }}
+          topics = {{ topics }}
+      </pre
+        >
+      </ShowMore>
+    </Molgenis>
   </div>
 </template>
 
 <script>
-import VariableTree from "./components/VariableTree";
+import TreeNode from "./components//TreeFilter.vue";
+import CohortSelection from "./components/CohortSelection";
+import VariablePanel from "./components/VariablePanel";
+import {
+  ButtonAction,
+  ButtonAlt,
+  DataTable,
+  InputCheckbox,
+  InputFile,
+  InputSearch,
+  InputSelect,
+  InputString,
+  LayoutCard,
+  LayoutNavTabs,
+  MessageError,
+  MessageSuccess,
+  Molgenis,
+  Pagination,
+  ShowMore,
+  Spinner,
+} from "@mswertz/emx2-styleguide";
+import { request } from "graphql-request";
+import TreeMultiFilter from "./components/TreeMultiFilter";
+import FilterView from "./components/FilterView";
 
 export default {
-  name: "App",
-  components: { VariableTree }
+  components: {
+    TreeMultiFilter,
+    CohortSelection,
+    LayoutNavTabs,
+    TreeNode,
+    ButtonAction,
+    FilterView,
+    ButtonAlt,
+    InputFile,
+    DataTable,
+    InputSearch,
+    MessageError,
+    MessageSuccess,
+    LayoutCard,
+    Spinner,
+    Molgenis,
+    Pagination,
+    InputCheckbox,
+    InputString,
+    InputSelect,
+    ShowMore,
+    VariablePanel,
+  },
+  data: function () {
+    return {
+      selectedCollections: [],
+      error: null,
+      success: null,
+      loading: false,
+      topics: [],
+      collectionCount: 0,
+      variableCount: 0,
+      limit: 20,
+      page: 1,
+      search: "",
+      variableSearch: "",
+      selectedTopic: null,
+      variables: [],
+      timestamp: Date.now(),
+    };
+  },
+  computed: {
+    selected() {
+      return this.$route.name;
+    },
+  },
+  methods: {
+    selectedTopics(topics) {
+      if (Array.isArray(topics)) {
+        return topics.filter((t) => t.checked).map((t) => t.name);
+      }
+      return [];
+    },
+    loadTopics() {
+      request(
+        "graphql",
+        "{Topics(orderby:{order:ASC}){name,parentTopic{name},variables{name},childTopics{name,variables{name},childTopics{name, variables{name},childTopics{name,variables{name},childTopics{name,variables{name},childTopics{name}}}}}}}"
+      )
+        .then((data) => {
+          this.topics = data.Topics.filter(
+            (t) => t["parentTopic"] == undefined
+          );
+          this.topics = this.topicsWithContents(this.topics);
+          this.applySearch(this.topics, this.search);
+        })
+        .catch((error) => {
+          this.error = error.response.errors[0].message;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    loadVariables() {
+      let filter = {};
+      let search = "";
+      if (this.search && this.search.trim() != "") {
+        search = `search:"${this.search}",`;
+      }
+      if (this.selectedTopic) {
+        filter.topics = { name: { equals: this.selectedTopic } };
+      }
+      if (this.selectedCollections.length > 0) {
+        filter.collection = {
+          name: {
+            equals: this.selectedCollections,
+          },
+        };
+      }
+      request(
+        "graphql",
+        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter){Collections_agg(${search}filter:$cFilter){count}
+        ,Variables_agg(${search}filter:$vFilter){count}}`,
+        {
+          cFilter: filter,
+          vFilter: filter,
+          offset: (this.page - 1) * 10,
+          limit: this.limit,
+        }
+      )
+        .then((data) => {
+          this.variableCount = data.Variables_agg.count;
+          this.collectionCount = data.Collections_agg.count;
+        })
+        .catch((error) => {
+          this.error = error.response.errors[0].message;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    topicsWithContents(topics) {
+      let result = [];
+      if (topics)
+        topics.forEach((t) => {
+          let childTopics = this.topicsWithContents(t.childTopics);
+          if (t.variables || childTopics.length > 0) {
+            result.push({ name: t.name, childTopics: childTopics });
+          }
+        });
+      return result;
+    },
+    applySearch(topics, terms) {
+      let result = false;
+      topics.forEach((t) => {
+        t.match = false;
+        if (
+          terms == null ||
+          t.name.toLowerCase().includes(terms.toLowerCase())
+        ) {
+          t.match = true;
+          result = true;
+        }
+        if (t.childTopics && this.applySearch(t.childTopics, terms)) {
+          t.match = true;
+          result = true;
+        }
+      });
+      return result;
+    },
+    select(topic) {
+      this.selectedTopic = topic.name;
+    },
+  },
+  created() {
+    this.loadTopics();
+    this.loadVariables();
+  },
+  watch: {
+    search() {
+      this.applySearch(this.topics, this.search);
+      this.loadVariables();
+    },
+    selectedCollections() {
+      this.loadVariables();
+    },
+    page() {
+      this.loadVariables();
+    },
+  },
 };
 </script>

@@ -53,13 +53,17 @@
       <dd class="col-9" v-if="variable.description">
         {{ variable.description }}
       </dd>
-      <dt class="col-3">Harmonisations</dt>
+      <dt class="col-3" v-if="variable.harmonisations">Harmonisations</dt>
       <dd class="col-9" v-if="variable.harmonisations">
         {{
           variable.harmonisations
             .map((h) => h.sourceTable.collection.name)
             .join(", ")
         }}
+      </dd>
+      <dt class="col-3" v-if="variable.topics">Topics</dt>
+      <dd class="col-9" v-if="variable.topics">
+        <span> {{ variable.topics.map((c) => c.name).join(", ") }}</span>
       </dd>
     </dl>
   </div>

@@ -11,7 +11,8 @@
     "@mswertz/emx2-styleguide": "*",
     "core-js": "3.8.0",
     "graphql-request": "2.0.0",
-    "vue": "2.6.12"
+    "vue": "2.6.12",
+    "vue-router": "3.4.9"
   },
   "eslintConfig": {
     "root": true,

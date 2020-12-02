@@ -40,14 +40,15 @@ Example
   </div>
 </template>
 
-<script>
-  export default {
-    data: function () {
-      return {
-        selected: null
-      };
-    }
-  };
+<script>23
+fgf
+export default {
+  data: function () {
+    return {
+      selected: null
+    };
+  }
+};
 </script>
 ```
 With default
