@@ -275,8 +275,7 @@ public class SqlQuery extends QueryBean {
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
       logger.info(
-          "query in {0}ms: {1}",
-          System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
+          "query in {}ms: {}", System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
     }
     return result;
   }
