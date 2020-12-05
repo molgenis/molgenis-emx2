@@ -202,6 +202,29 @@ public class TestGraphqSchemaFields {
             .at("/Pet/0/tags/0/name")
             .textValue());
 
+    // or
+    TestCase.assertEquals(
+        2,
+        execute("{Pet(filter:{_or:[{name:{equals:\"pooky\"}},{name:{equals:\"spike\"}}]}){name}}")
+            .at("/Pet")
+            .size());
+
+    // or nested
+    TestCase.assertEquals(
+        2,
+        execute(
+                "{Pet(filter:{_or:[{name:{equals:\"pooky\"}},{tags:{_or:[{name:{equals:\"green\"}}]}}]}){name}}")
+            .at("/Pet")
+            .size());
+
+    // or nested
+    TestCase.assertEquals(
+        2,
+        execute(
+                "{Pet_agg(filter:{_or:[{name:{equals:\"pooky\"}},{tags:{_or:[{name:{equals:\"green\"}}]}}]}){count}}")
+            .at("/Pet_agg/count")
+            .intValue());
+
     // root agg
     TestCase.assertEquals(
         7,

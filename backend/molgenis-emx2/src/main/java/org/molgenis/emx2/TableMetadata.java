@@ -259,6 +259,10 @@ public class TableMetadata {
                   + inherit
                   + "'");
         }
+        if (getSchema().getDatabase().getSchema(getImportSchema()).getTable(inherit) == null) {
+          throw new MolgenisException(
+              "Cannot find table '" + inherit + "' for inheritance of table.");
+        }
         return getSchema()
             .getDatabase()
             .getSchema(getImportSchema())

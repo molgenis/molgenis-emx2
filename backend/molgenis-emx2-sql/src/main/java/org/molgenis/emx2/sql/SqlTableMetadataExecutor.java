@@ -4,7 +4,7 @@ import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.FILE;
-import static org.molgenis.emx2.sql.Constants.TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 import java.util.ArrayList;

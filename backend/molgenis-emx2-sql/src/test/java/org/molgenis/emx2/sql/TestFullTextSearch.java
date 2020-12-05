@@ -4,14 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.TEXT;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.examples.PetStoreExample;
 
 public class TestFullTextSearch {
   private static Database db;
@@ -25,7 +27,7 @@ public class TestFullTextSearch {
   public void testSearch() {
 
     // setup
-    Schema schema = db.dropCreateSchema("TestFullTextSearch");
+    Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName());
     Table aTable =
         schema.create(
             table("TestFullTextSearch")
@@ -70,5 +72,49 @@ public class TestFullTextSearch {
     // assertEquals(0, aTable.query().search("c.19239T>C").getRows().size());
 
     // search accross join of xref
+  }
+
+  @Test
+  public void nestedSearch() {
+    Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName() + "nested");
+    PetStoreExample.create(schema.getMetadata());
+    PetStoreExample.populate(schema);
+
+    List<Row> result =
+        schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();
+    Assert.assertEquals(result.size(), 1);
+
+    // nesting example 3
+    result =
+        schema
+            .query("Order")
+            .where(
+                or(
+                    f(Operator.TRIGRAM_SEARCH, "approved"),
+                    f("pet", f(Operator.TRIGRAM_SEARCH, "cat"))))
+            .retrieveRows();
+    Assert.assertEquals(2, result.size());
+
+    result = schema.query("Order").where(f(Operator.TEXT_SEARCH, "cat")).retrieveRows();
+    Assert.assertEquals(0, result.size());
+
+    // nesting example 1
+    result = schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveRows();
+    Assert.assertEquals(1, result.size());
+
+    String json =
+        schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveJSON();
+    // would exclude approved order
+    Assert.assertTrue(!json.contains("approved"));
+
+    // nesting example 2
+    json =
+        schema
+            .query("Order")
+            .where(
+                or(f(Operator.TEXT_SEARCH, "approved"), f("pet", f(Operator.TEXT_SEARCH, "cat"))))
+            .retrieveJSON();
+    // would include approved
+    Assert.assertTrue(json.contains("approved"));
   }
 }

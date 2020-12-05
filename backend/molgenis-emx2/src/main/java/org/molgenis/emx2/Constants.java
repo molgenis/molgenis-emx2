@@ -21,6 +21,7 @@ public class Constants {
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
   public static final String MG_TABLECLASS = "mg_tableclass";
+  public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
   protected static final Operator[] STRING_OPERATORS = {

@@ -206,7 +206,12 @@ public class TestRefBack {
     // check via query we have now post for jack
     assertEquals(
         "joes post",
-        posts.query().where(f("user", EQUALS, "jack")).retrieveRows().get(0).getString("title"));
+        posts
+            .query()
+            .where(f("user", f("username", EQUALS, "jack")))
+            .retrieveRows()
+            .get(0)
+            .getString("title"));
 
     // add another post for jack, should result in 'posts(user=jack,title=jacks post)
     posts.insert(new Row().set("title", "jacks post").set("user", "jack"));

@@ -237,12 +237,28 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLInputObjectType getTableFilterInputObjectType(TableMetadata table) {
     if (!tableFilterInputTypes.containsKey(table.getTableName())) {
+      String typeName = table.getTableName() + FILTER;
       GraphQLInputObjectType.Builder filterBuilder =
-          GraphQLInputObjectType.newInputObject().name(table.getTableName() + FILTER);
+          GraphQLInputObjectType.newInputObject().name(typeName);
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
               .name(FILTER_EQUALS)
               .type(GraphQLList.list(getPrimaryKeyInput(table)))
+              .build());
+      filterBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name(FILTER_SEARCH)
+              .type(Scalars.GraphQLString)
+              .build());
+      filterBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name(FILTER_OR)
+              .type(GraphQLList.list(GraphQLTypeReference.typeRef(typeName)))
+              .build());
+      filterBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name(FILTER_AND)
+              .type(GraphQLList.list(GraphQLTypeReference.typeRef(typeName)))
               .build());
       for (Column col : table.getColumns()) {
         filterBuilder.field(
@@ -328,7 +344,20 @@ public class GraphqlTableFieldFactory {
   private FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
-      if (entry.getKey().equals(FILTER_EQUALS)) {
+      if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
+        List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
+        List<Filter> nestedFilters =
+            nested.stream()
+                .map(m -> and(convertMapToFilterArray(table, m)))
+                .collect(Collectors.toList());
+        if (entry.getKey().equals(FILTER_OR)) {
+          subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
+        } else {
+          subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
+        }
+      } else if (entry.getKey().equals(FILTER_SEARCH)) {
+        subFilters.add(f(Operator.TEXT_SEARCH, entry.getValue()));
+      } else if (entry.getKey().equals(FILTER_EQUALS)) {
         //  complex filter, should be an list of maps per graphql contract
         subFilters.add(
             or(
@@ -357,16 +386,8 @@ public class GraphqlTableFieldFactory {
                           .getTable(c.getRefTableName()),
                       (Map) entry.getValue())));
         } else {
-          if (entry.getValue() instanceof Map) {
-            subFilters.add(
-                convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
-          } else {
-            throw new GraphqlException(
-                "Graphql API error: unknown filter expression "
-                    + entry.getValue()
-                    + " for column "
-                    + entry.getKey());
-          }
+          subFilters.add(
+              convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
         }
       }
     }

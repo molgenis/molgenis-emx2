@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -897,42 +898,46 @@ public class SqlQuery extends QueryBean {
   private static Condition whereConditionsFilter(
       TableMetadata table, String tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
-    for (Filter filter : filters.getSubfilters()) {
-      if (Operator.OR.equals(filter.getOperator())) {
-        conditions.add(
-            or(
-                filter.getSubfilters().stream()
-                    .map(f -> whereConditionsFilter(table, tableAlias, f))
-                    .collect(Collectors.toList())));
-      } else if (Operator.AND.equals(filter.getOperator())) {
-        conditions.add(
-            and(
-                filter.getSubfilters().stream()
-                    .map(f -> whereConditionsFilter(table, tableAlias, f))
-                    .collect(Collectors.toList())));
-      } else {
-        Column column = isValidColumn(table, filter.getColumn());
-        if (column.isReference()) {
-          conditions.add(
-              whereConditionsFilter(
-                  column.getRefTable(), tableAlias + "-" + column.getName(), filter));
-        } else if (FILE.equals(column.getColumnType())) {
-          Filter sub = filter.getSubfilter("id");
-          // todo expand properly
-          if (sub != null && EQUALS.equals(sub.getOperator())) {
-            conditions.add(field(name(column.getName() + "_id")).in(sub.getValues()));
-          } else {
-            throw new MolgenisException("Invalid filter for file");
+
+    if (Operator.OR.equals(filters.getOperator())) {
+      conditions.add(
+          or(
+              filters.getSubfilters().stream()
+                  .map(f -> whereConditionsFilter(table, tableAlias, f))
+                  .collect(Collectors.toList())));
+    } else if (Operator.AND.equals(filters.getOperator())) {
+      conditions.add(
+          and(
+              filters.getSubfilters().stream()
+                  .map(f -> whereConditionsFilter(table, tableAlias, f))
+                  .collect(Collectors.toList())));
+    } else {
+      Column column = isValidColumn(table, filters.getColumn());
+      if (filters.getSubfilters().size() > 0) {
+        for (Filter subfilter : filters.getSubfilters()) {
+          if (column.isReference()) {
+
+            conditions.add(
+                whereConditionsFilter(
+                    column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
+          } else if (FILE.equals(column.getColumnType())) {
+            Filter sub = filters.getSubfilter("id");
+            // todo expand properly
+            if (sub != null && EQUALS.equals(sub.getOperator())) {
+              conditions.add(field(name(column.getName() + "_id")).in(sub.getValues()));
+            } else {
+              throw new MolgenisException("Invalid filter for file");
+            }
           }
-        } else {
-          conditions.add(
-              whereCondition(
-                  tableAlias,
-                  column.getName(),
-                  column.getColumnType(),
-                  filter.getOperator(),
-                  filter.getValues()));
         }
+      } else {
+        conditions.add(
+            whereCondition(
+                tableAlias,
+                column.getName(),
+                column.getColumnType(),
+                filters.getOperator(),
+                filters.getValues()));
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
@@ -1208,8 +1213,14 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Column isValidColumn(TableMetadata table, String columnName) {
+    // is search?
+    if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
+      return new Column(table, searchColumnName(table));
+    }
+    // is scalar column
     Column column = table.getColumn(columnName);
     if (column == null) {
+      // is reference?
       for (Column c : table.getColumns()) {
         for (Reference ref : c.getReferences()) {
           // can also request composite reference columns, can only be used on row level queries

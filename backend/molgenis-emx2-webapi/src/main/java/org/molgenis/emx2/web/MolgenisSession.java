@@ -26,7 +26,6 @@ public class MolgenisSession {
     this.createTime = DateTime.now();
   }
 
-  // todo remove this method, molgenis session shouldn't know this
   public GraphQL getGraphqlForDatabase() {
     if (graphqlForDatabase == null) {
       graphqlForDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database);

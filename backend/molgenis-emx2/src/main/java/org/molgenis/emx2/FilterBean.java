@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +38,16 @@ public class FilterBean implements Filter {
 
   public static Filter f(String columnName, Operator operator, Object... values) {
     return new FilterBean(columnName, operator, values);
+  }
+
+  public static Filter f(Operator operator, Object... values) {
+    // this will translate to search
+    if (!Operator.TEXT_SEARCH.equals(operator)
+        && !Operator.TRIGRAM_SEARCH.equals(operator)
+        && !Operator.LIKE.equals(operator)) {
+      throw new MolgenisException("Column missing for filter " + operator + " " + values);
+    }
+    return new FilterBean(TEXT_SEARCH_COLUMN_NAME, operator, values);
   }
 
   public static Filter f(String columnName, Operator operator, List<Object> values) {

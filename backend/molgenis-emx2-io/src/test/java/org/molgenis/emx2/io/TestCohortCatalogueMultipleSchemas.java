@@ -18,21 +18,13 @@ import org.molgenis.emx2.utils.StopWatch;
 public class TestCohortCatalogueMultipleSchemas {
 
   static Database database;
-  static Schema sharedSchema;
-  static Schema harmonizedSchema;
-  static Schema localSchema1;
-  static Schema localSchema2;
   static Schema centralSchema;
-  static Schema simpleSchema;
+  static Schema localSchema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    simpleSchema = database.dropCreateSchema("CohortsSimple");
-    sharedSchema = database.dropCreateSchema("CohortsShared");
-    harmonizedSchema = database.dropCreateSchema("CohortsHarmonised");
-    localSchema1 = database.dropCreateSchema("CohortsLocal1");
-    localSchema2 = database.dropCreateSchema("CohortsLocal2");
+    localSchema = database.dropCreateSchema("CohortsLocal");
     centralSchema = database.dropCreateSchema("CohortsCentral");
   }
 
@@ -40,23 +32,11 @@ public class TestCohortCatalogueMultipleSchemas {
   public void importTest() {
     StopWatch.print("begin");
 
-    loadSchema("CohortsSimple.xlsx", simpleSchema);
-    assertEquals(20, TestCohortCatalogueMultipleSchemas.simpleSchema.getTableNames().size());
-
-    loadSchema("CohortsShared.xlsx", sharedSchema);
-    assertEquals(9, TestCohortCatalogueMultipleSchemas.sharedSchema.getTableNames().size());
-
-    loadSchema("CohortsHarmonised.xlsx", harmonizedSchema);
-    assertEquals(6, TestCohortCatalogueMultipleSchemas.harmonizedSchema.getTableNames().size());
-
-    loadSchema("CohortsLocal.xlsx", localSchema1);
-    assertEquals(8, TestCohortCatalogueMultipleSchemas.localSchema1.getTableNames().size());
-
-    loadSchema("CohortsLocal.xlsx", localSchema2);
-    assertEquals(8, TestCohortCatalogueMultipleSchemas.localSchema2.getTableNames().size());
-
     loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(17, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    assertEquals(20, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+
+    loadSchema("CohortsLocal.xlsx", localSchema);
+    assertEquals(9, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) {
