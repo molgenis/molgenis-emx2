@@ -9,13 +9,20 @@
       </div>
       <div class="row">
         <div class="card">
-          <div class="card-header"><h4>Filter</h4></div>
           <div class="card-body">
+            <label>Filters:</label>
             <FilterView />
           </div>
         </div>
         <div class="col">
           <InputSearch placeholder="Search..." v-model="search" />
+          <form style="width: 100%">
+            <label>Limit search to:</label>
+            <InputCheckbox
+              class="custom-control-inline ml-2"
+              :options="['Collections', 'Variables', 'Topics']"
+            />
+          </form>
           <ul class="nav nav-tabs">
             <li>
               <router-link

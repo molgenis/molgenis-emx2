@@ -2,29 +2,34 @@
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
     <div v-else style="text-align: center">
-      <InputSearch v-if="table" v-model="searchTerms" />
-      <Pagination v-model="page" :limit="limit" :count="count" />
+      <form class="form-inline justify-content-between mb-2">
+        <InputSearch v-if="table" v-model="searchTerms" />
+        <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
+        <SelectionBox v-if="showSelect" v-model="value" />
+      </form>
       <Spinner v-if="loading" />
-      <TableMolgenis
-        v-else
-        v-model="selectedItems"
-        :metadata="tableMetadata"
-        :data="data"
-        @select="select"
-        @deselect="deselect"
-      >
-        <template v-slot:colheader>
-          <slot name="colheader" />
-        </template>
-        <template v-slot:rowheader="slotProps">
-          <slot
-            name="rowheader"
-            :row="slotProps.row"
-            :metadata="metadata"
-            :rowkey="slotProps.rowkey"
-          />
-        </template>
-      </TableMolgenis>
+      <div v-else>
+        <TableMolgenis
+          v-model="selectedItems"
+          :metadata="tableMetadata"
+          :data="data"
+          :showSelect="showSelect"
+          @select="select"
+          @deselect="deselect"
+        >
+          <template v-slot:colheader>
+            <slot name="colheader" />
+          </template>
+          <template v-slot:rowheader="slotProps">
+            <slot
+              name="rowheader"
+              :row="slotProps.row"
+              :metadata="tableMetadata"
+              :rowkey="slotProps.rowkey"
+            />
+          </template>
+        </TableMolgenis>
+      </div>
     </div>
     <ShowMore title="debug info">
       <pre>
@@ -32,8 +37,7 @@ graphql = {{ graphql }}
 
 filter = {{ filter }}
 
-selectedItems =
-{{ selectedItems }}
+selectedItems = {{ selectedItems }}
 
 data =
 {{ data }}
@@ -53,21 +57,27 @@ import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import ShowMore from "../layout/ShowMore";
+import SelectionBox from "./SelectionBox";
 
 export default {
-  mixins: [TableMixin],
-  props: {
-    defaultValue: Array,
-    selectColumn: String,
-    filter: { type: Object, defaultValue: {} },
-  },
   components: {
+    SelectionBox,
     ShowMore,
     TableMolgenis,
     MessageError,
     InputSearch,
     Pagination,
     Spinner,
+  },
+  mixins: [TableMixin],
+  props: {
+    /** v-model value, represents selected item, if showSelect=true*/
+    value: { type: Array, default: () => [] },
+    /** enables checkbox to select rows */
+    showSelect: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -85,14 +95,20 @@ export default {
     },
   },
   watch: {
-    selectedItems() {
-      this.$emit("input", this.selectedItems);
-    },
     page() {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
       this.reload();
     },
+    selectedItems() {
+      this.$emit("input", this.selectedItems);
+    },
+    value() {
+      this.selectedItems = this.value;
+    },
+  },
+  created() {
+    this.selectedItems = this.value;
   },
 };
 </script>
@@ -101,7 +117,7 @@ export default {
 Example:
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<TableSearch table="AbstractVariable" graphqlURL="/TestCohortCatalogue/graphql">
+<TableSearch table="Variables" graphqlURL="/CohortsCentral/graphql" :limit="10">
   <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
 </TableSearch>
 Selected: {{ selectedItems }}
@@ -136,12 +152,25 @@ Example with select and default value
 ```
 Example with filter:
 ```
-<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<TableSearch table="Code" :filter="{collection:{equals:{name:'LifeCycle'}}}"
-             graphqlURL="/TestCohortCatalogue/graphql">
-  <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
-</TableSearch>
-Selected: {{ selectedItems }}
-
+<template>
+  <div>
+    Example with filter:
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <TableSearch table="Variables" :filter="{collection:{name:{equals:['LifeCycle','ARS']}}}"
+                 graphqlURL="/CohortsCentral/graphql" :showSelect="true">
+      <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
+    </TableSearch>
+    Selected: {{ selectedItems }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        selectedItems: []
+      };
+    }
+  };
+</script>
 ```
 </docs>

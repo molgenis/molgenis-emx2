@@ -1,5 +1,6 @@
 <template>
   <button type="button" class="btn btn-link" @click="onClick">
+    <i v-if="icon" :class="icon" class="mr-2 ml-0"></i>
     <slot />
   </button>
 </template>

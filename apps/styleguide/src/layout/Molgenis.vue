@@ -22,7 +22,7 @@
         :style="
           fullscreen
             ? 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index:1000'
-            : 'padding-top: 60px; padding-bottom: 60px;'
+            : 'padding-top: 20px; padding-bottom: 20px;'
         "
       >
         <div class="col-md-12">

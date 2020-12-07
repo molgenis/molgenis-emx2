@@ -42,6 +42,7 @@
       :refTable="column.refTable"
       v-model="column.conditions"
       :defaultValue="column.conditions"
+      :limit="7"
     />
   </div>
 </template>

@@ -1,57 +1,45 @@
 <template>
   <FormGroup v-bind="$props">
-    <div
-      class="form-check custom-control custom-checkbox"
-      v-for="row in data"
-      :key="JSON.stringify(row)"
+    <InputAppend
+      v-for="(el, idx) in arrayValue"
+      :key="idx"
+      v-bind="$props"
+      @clear="clearValue(idx)"
+      :showPlus="showPlus(idx)"
+      :showClear="showClear(idx)"
+      @add="addRow"
     >
-      <input
-        v-if="list"
-        class="form-check-input"
-        :name="id"
-        type="checkbox"
-        :value="pkey(row)"
-        v-model="arrayValue"
-        @change="$emit('input', value)"
-      />
-      <input
-        v-else
-        class="form-check-input"
-        :name="id"
-        type="radio"
-        :value="pkey(row)"
-        v-model="arrayValue[0]"
-        @change="$emit('input', value)"
-      />
-      <label class="form-check-label">
-        {{ flattenObject(pkey(row)) }}
-      </label>
-    </div>
-    <ButtonAlt class="pl-1" icon="fa fa-search" @click="showSelect = true">
-      more
-    </ButtonAlt>
+      <select
+        :id="id"
+        @click="openSelect(idx)"
+        :class="{ 'form-control': true, 'is-invalid': error }"
+      >
+        <option
+          v-if="arrayValue[idx] && !showSelect"
+          :value="arrayValue[idx]"
+          selected
+        >
+          {{ flattenObject(arrayValue[idx]) }}
+        </option>
+      </select>
+    </InputAppend>
     <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
       <template v-slot:body>
         <MessageError v-if="error">{{ error }}</MessageError>
         <TableSearch
-          v-if="list"
-          v-model="arrayValue"
           :table="refTable"
+          :defaultValue="[arrayValue[selectIdx]]"
           :filter="filter"
+          @select="select($event, selectIdx)"
+          @deselect="deselect(selectIdx)"
           :graphqlURL="graphqlURL"
-          :showSelect="true"
-          :limit="10"
-        />
-        <TableSearch
-          v-else
-          :table="refTable"
-          :filter="filter"
-          @select="select($event)"
-          @deselect="deselect($event)"
-          :graphqlURL="graphqlURL"
-          :showSelect="true"
-          :limit="10"
-        />
+        >
+          <template v-slot:rowheader="slotProps">
+            <ButtonAction @click="select(slotProps.rowkey)"
+              >Select
+            </ButtonAction>
+          </template>
+        </TableSearch>
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="closeSelect">Close</ButtonAlt>
@@ -67,17 +55,15 @@ import LayoutModal from "../layout/LayoutModal";
 import MessageError from "./MessageError";
 import FormGroup from "./_formGroup";
 import ButtonAlt from "./ButtonAlt";
-import TableMixin from "../mixins/TableMixin";
+import InputAppend from "./_inputAppend";
+import ButtonAction from "./ButtonAction";
 
 export default {
   extends: _baseInput,
-  mixins: [TableMixin],
   data: function () {
     return {
       showSelect: false,
       selectIdx: null,
-      options: [],
-      id: Math.random(),
     };
   },
   components: {
@@ -85,7 +71,9 @@ export default {
     MessageError,
     LayoutModal,
     FormGroup,
+    ButtonAction,
     ButtonAlt,
+    InputAppend,
   },
   props: {
     /** change if graphql URL != 'graphql'*/
@@ -100,17 +88,11 @@ export default {
     title() {
       return "Select " + this.refTable;
     },
-    //overrides TableMixin
-    table() {
-      return this.refTable;
-    },
   },
   methods: {
-    loadOptions() {},
     select(event) {
       this.showSelect = false;
-      //in case of radio button, it is the first
-      this.arrayValue[0] = event;
+      this.arrayValue[this.selectIdx] = event;
       this.emitValue();
     },
     closeSelect() {
@@ -148,7 +130,7 @@ Example
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
+    <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
     Selection: {{ value }}
   </div>
 </template>
@@ -167,8 +149,7 @@ Example with default value
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti
-        label="My pets"
+    <InputRef
         v-model="value"
         refTable="Pet"
         :defaultValue="value"
@@ -192,7 +173,7 @@ Example with filter
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti
+    <InputRef
         v-model="value"
         refTable="Pet"
         :filter="{category:{name:'dog'}}"
@@ -217,11 +198,11 @@ Example with list
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti :list="true"
-                   v-model="value"
-                   refTable="Pet"
-                   :defaultValue="[{name:'spike'},{name:'pooky'}]"
-                   graphqlURL="/pet store/graphql"
+    <InputRef :list="true"
+              v-model="value"
+              refTable="Pet"
+              :defaultValue="[{name:'spike'},{name:'pooky'}]"
+              graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
   </div>

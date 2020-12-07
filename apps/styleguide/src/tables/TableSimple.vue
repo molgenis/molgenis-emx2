@@ -106,61 +106,61 @@ td {
 </style>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <DataTable
-                    v-model="selectedItems"
-                    selectColumn="lastName"
-                    :defaultValue="selectedItems"
-                    :columns="['firstName','lastName','tags']"
-                    :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
-                    @select="select"
-                    @deselect="deselect"
-            />
-            SelectedItems: {{selectedItems}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    selectedItems: ['Duck']
-                };
-            },
-            methods: {
-                select(value) {
-                    alert("select " + value);
-                },
-                deselect(value) {
-                    alert("deselect " + value);
-                }
-            }
-        };
-    </script>
-    ```
-    Example using simple click (no selection)
-    ```
-    <template>
-        <div>
-            <DataTable
-                    v-model="selectedItems"
-                    :defaultValue="['Duck']"
-                    :columns="['firstName','lastName','tags']"
-                    :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
-                    @click="click"
-            />
-        </div>
-    </template>
-    <script>
-        export default {
-            methods: {
-                click(value) {
-                    alert("click " + JSON.stringify(value));
-                }
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <TableSimple
+        v-model="selectedItems"
+        selectColumn="lastName"
+        :defaultValue="selectedItems"
+        :columns="['firstName','lastName','tags']"
+        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
+        @select="select"
+        @deselect="deselect"
+    />
+    SelectedItems: {{ selectedItems }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        selectedItems: ['Duck']
+      };
+    },
+    methods: {
+      select(value) {
+        alert("select " + value);
+      },
+      deselect(value) {
+        alert("deselect " + value);
+      }
+    }
+  };
+</script>
+```
+Example using simple click (no selection)
+```
+<template>
+  <div>
+    <TableSimple
+        v-model="selectedItems"
+        :defaultValue="['Duck']"
+        :columns="['firstName','lastName','tags']"
+        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
+        @click="click"
+    />
+  </div>
+</template>
+<script>
+  export default {
+    methods: {
+      click(value) {
+        alert("click " + JSON.stringify(value));
+      }
+    }
+  };
+</script>
+```
 </docs>

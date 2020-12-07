@@ -11,7 +11,7 @@
     >
       <div v-if="show" class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-          <div v-if="title" class="modal-header">
+          <div class="modal-header">
             <h5 class="modal-title">{{ title }}</h5>
             <button
               type="button"
@@ -81,7 +81,7 @@ export default {
   },
   props: {
     /** Shown as the title of the model */
-    title: String,
+    title: { type: String, default: "" },
     /** When true the modal will be shown */
     show: {
       type: Boolean,

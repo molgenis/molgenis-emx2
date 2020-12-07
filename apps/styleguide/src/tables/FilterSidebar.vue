@@ -3,15 +3,20 @@
     <div :key="timestamp">
       <Draggable
         :list="filters"
-        handle=".card-header "
+        handle=".filter-header "
         ghost-class="border-primary"
       >
         <FilterContainer
-          v-for="(column, idx) in filters"
+          v-for="column in filters"
           :title="column.name"
           :visible="column.showFilter"
           :key="column.name + column.updateTime"
-          @remove="hideFilter(idx)"
+          :count="
+            Array.isArray(column.conditions) ? column.conditions.length : null
+          "
+          :expanded="column.name == expanded"
+          @expand="expanded = column.name"
+          @collapse="expanded = null"
         >
           <FilterInput :column="column" />
         </FilterContainer>
@@ -19,6 +24,7 @@
       <ShowMore title="debug">
         <pre>
 url = {{ url }}
+expanded = {{ expanded }}
 filters = {{ filters }}
       </pre
         >
@@ -46,6 +52,7 @@ export default {
   data() {
     return {
       timestamp: 0,
+      expanded: null,
     };
   },
   computed: {
@@ -158,9 +165,9 @@ examples
           "columnType": "STRING", showFilter: true
         },
           {
-            "name": "code",
+            "name": "variables",
             "columnType": "REF",
-            "refTable": "Code", showFilter: true
+            "refTable": "Variables", showFilter: true
           },
           {
             "name": "quantity",

@@ -1,5 +1,6 @@
 <template>
   <button type="button" class="btn btn-primary" @click="onClick">
+    <i v-if="icon" :class="icon"></i>
     <slot />
   </button>
 </template>
@@ -9,6 +10,7 @@
 export default {
   props: {
     href: String,
+    icon: String,
   },
   methods: {
     onClick() {

@@ -1,60 +1,67 @@
 <template>
   <div>
     <div v-if="tableMetadata">
-      <h1>
-        {{ table }}
-      </h1>
-      <div class="navbar shadow-none navbar-expand-lg">
-        <ShowHide
-          class="navbar-nav"
-          v-model="tableMetadata.columns"
-          checkAttribute="showFilter"
-          @input="updateTimestamp"
-          label="filters"
-          icon="filter"
-          :key="JSON.stringify(tableMetadata.columns)"
-        />
-        <ShowHide
-          class="navbar-nav"
-          v-model="tableMetadata.columns"
-          checkAttribute="showColumn"
-          @input="updateTimestamp"
-          label="columns"
-          icon="columns"
-        />
-        <InputSearch class="navbar-nav ml-auto" v-model="searchTerms" />
-        Download:
-        <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
-        |
-        <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-        |
-        <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-        |
-        <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
-        <Pagination
-          class="navbar-nav"
-          v-model="page"
-          :limit="limit"
-          :count="count"
-          :key="timestamp"
-          @change="updateTimestamp"
-        />
-      </div>
       <MessageError v-if="error">{{ error }}</MessageError>
-      <div class="row flex-nowrap" :key="timestamp">
-        <div class="col-3" v-if="showFilters">
+      <div class="d-flex flex-nowrap">
+        <div :key="timestamp" v-if="showFilters" class="col">
           <FilterSidebar :filters="tableMetadata.columns" />
         </div>
-        <div v-if="loading" class="col-9">
+        <div v-if="loading">
           <Spinner />
         </div>
-        <div v-else :class="{ 'col-9': showFilters, 'col-12': !showFilters }">
+        <div v-else class="col">
+          <div
+            class="navbar shadow-none navbar-expand-lg justify-content-between"
+          >
+            <h1>
+              {{ table }}
+            </h1>
+            <InputSearch class="navbar-nav" v-model="searchTerms" />
+            <div class="btn-group">
+              <ShowHide
+                class="navbar-nav"
+                v-model="tableMetadata.columns"
+                checkAttribute="showFilter"
+                @input="updateTimestamp"
+                label="filters"
+                icon="filter"
+              />
+              <ShowHide
+                class="navbar-nav"
+                v-model="tableMetadata.columns"
+                checkAttribute="showColumn"
+                @input="updateTimestamp"
+                label="columns"
+                icon="columns"
+              />
+            </div>
+            <Pagination
+              class="navbar-nav"
+              v-model="page"
+              :limit="limit"
+              :count="count"
+              :key="timestamp"
+              @change="updateTimestamp"
+            />
+            <SelectionBox v-model="selectedItems" />
+          </div>
+          <div>
+            Download:
+            <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
+            |
+            <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
+            |
+            <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
+            |
+            <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
+          </div>
           <FilterWells v-if="table" :filters="tableMetadata.columns" />
           <TableMolgenis
+            v-model="selectedItems"
             :metadata="tableMetadata"
             :data="data"
-            class="table-responsive"
             :key="JSON.stringify(tableMetadata.columns)"
+            :showSelect="true"
           >
             <template v-slot:header
               ><label>{{ count }} records found</label></template
@@ -82,6 +89,8 @@
     </div>
     <ShowMore title="debug">
       <pre>
+        selection = {{ selectedItems }}
+
       graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
 
       session = {{ session }}
@@ -125,6 +134,7 @@ import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
 import ButtonAlt from "../forms/ButtonAlt";
+import SelectionBox from "./SelectionBox";
 
 export default {
   extends: TableMixin,
@@ -142,21 +152,23 @@ export default {
     InputSearch,
     Pagination,
     ButtonAlt,
+    SelectionBox,
+  },
+  props: {
+    value: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
+      selectedItems: [],
       timestamp: 0,
       page: 1,
+      showFilters: false,
     };
   },
   computed: {
-    showFilters() {
-      return (
-        this.tableMetadata &&
-        this.tableMetadata.columns.filter((c) => c.showFilter === true).length >
-          0
-      );
-    },
     //overrides from TableMixin
     graphqlFilter() {
       let filter = {};
@@ -207,17 +219,6 @@ export default {
     },
   },
   methods: {
-    pkey(row) {
-      let result = {};
-      if (this.tableMetadata != null) {
-        this.tableMetadata.columns.forEach((col) => {
-          if (col.key == 1) {
-            result[col.name] = row[col.name];
-          }
-        });
-      }
-      return result;
-    },
     updateTimestamp() {
       this.timestamp = new Date().getTime();
     },
@@ -228,6 +229,22 @@ export default {
       this.offset = this.limit * (this.page - 1);
       this.reload();
     },
+    value() {
+      this.selectedItems = this.value;
+    },
+    timestamp: {
+      deep: true,
+      handler() {
+        this.showFilters = false;
+        if (this.tableMetadata) {
+          this.tableMetadata.columns.forEach((f) => {
+            if (f.showFilter) {
+              this.showFilters = true;
+            }
+          });
+        }
+      },
+    },
   },
 };
 </script>
@@ -235,6 +252,8 @@ export default {
 <docs>
 example (graphqlURL is usually not needed because app is served on right path)
 ```
-<TableExplorer table="biobanks" graphqlURL="/testImportLegacyFormat/graphql"/>
+<Molgenis>
+  <TableExplorer table="Variables" graphqlURL="/CohortsCentral/graphql" :showSelect="true"/>
+</Molgenis>
 ```
 </docs>

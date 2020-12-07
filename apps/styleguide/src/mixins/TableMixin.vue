@@ -13,15 +13,21 @@ import TableMetadataMixin from "./TableMetadataMixin";
 export default {
   extends: TableMetadataMixin,
   props: {
+    /** Name of the table within graphql endpoint */
     table: String,
+    /** pass filters conform TableMixin */
     filter: {},
+    /** set page size */
+    limit: {
+      type: Number,
+      default: 20,
+    },
   },
   data: function () {
     return {
       data: [],
       count: 0,
       offset: 0,
-      limit: 20,
       searchTerms: null,
     };
   },
@@ -108,6 +114,17 @@ export default {
       }
       if (result) return result;
     },
+    pkey(row) {
+      let result = {};
+      if (this.tableMetadata != null) {
+        this.tableMetadata.columns.forEach((col) => {
+          if (col.key == 1) {
+            result[col.name] = row[col.name];
+          }
+        });
+      }
+      return result;
+    },
   },
   watch: {
     searchTerms: "reload",
@@ -119,6 +136,13 @@ export default {
     },
     table: "reload",
     schema: "reload",
+    tableMetadata() {
+      this.tableMetadata.columns.forEach((c) => {
+        if (c["showColumn"] === undefined) c.showColumn = true;
+        if (c["showFilter"] === undefined) c.showFilter = true;
+      });
+      this.updateTimestamp();
+    },
   },
 };
 </script>

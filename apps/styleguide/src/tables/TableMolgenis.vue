@@ -1,8 +1,8 @@
 <template>
-  <div class="table-responsive">
+  <div class="table-responsive" style="overflow: scroll">
     <table
-      class="table table-bordered table-sm"
-      :class="{ 'table-hover': select }"
+      class="table table-sm"
+      :class="{ 'table-hover': showSelect }"
       :key="timestamp"
     >
       <thead>
@@ -13,6 +13,7 @@
           tag="tr"
         >
           <th slot="header" scope="col" style="width: 1px">
+            <!--@slot Use this to add values or actions buttons header -->
             <slot name="colheader" />
           </th>
           <th
@@ -30,7 +31,7 @@
         <tr v-for="(row, idx) in data" :key="JSON.stringify(row)">
           <td>
             <div style="display: flex">
-              <div v-if="select" class="form-check form-check-inline mr-1">
+              <div v-if="showSelect" class="form-check form-check-inline mr-1">
                 <input
                   type="checkbox"
                   class="form-check-input position-static"
@@ -38,6 +39,7 @@
                   @click="onRowClick(row)"
                 />
               </div>
+              <!--@slot Use this to add values or actions buttons to each row -->
               <slot
                 name="rowheader"
                 :row="row"
@@ -85,7 +87,7 @@
     <ShowMore title="debug">
       <pre>
 metadata = {{ JSON.stringify(metadata) }}
-
+selection = {{ selectedItems }}
 timestamp = {{ timestamp }}
      </pre
       >
@@ -113,6 +115,10 @@ td {
 </style>
 
 <script>
+/**
+ * Table that uses MOLGENIS metadata format to configure itself. Provide 'metadata' and 'data' and your table is ready.
+ * Can be used without backend to configure a table. Note, columns can be dragged.
+ */
 import Draggable from "vuedraggable";
 import ShowMore from "../layout/ShowMore";
 import ReadMore from "../layout/ReadMore";
@@ -120,12 +126,17 @@ import ReadMore from "../layout/ReadMore";
 export default {
   components: { Draggable, ShowMore, ReadMore },
   props: {
-    select: {
+    /** metadata in molgenis metadata format (as graphql endpoint would deliver it) */
+    metadata: Object,
+    /** json structure in molgenis json data format matching the metadata */
+    data: Array,
+    /** if select show be shown */
+    showSelect: {
       type: Boolean,
       default: false,
     },
-    metadata: Object,
-    data: Array,
+    /** v-model two way binded value for the selection, if enabled*/
+    value: { type: Array, default: () => [] },
   },
   data: () => {
     return {
@@ -199,13 +210,14 @@ export default {
     isSelected(row) {
       let key = this.getKey(row);
       return (
+        Array.isArray(this.selectedItems) &&
         this.selectedItems.filter(
           (s) => JSON.stringify(key) === JSON.stringify(s)
         ).length > 0
       );
     },
     onRowClick(row) {
-      if (this.select) {
+      if (this.showSelect) {
         let key = this.getKey(row);
         if (this.isSelected(row)) {
           /** when a row is deselected */
@@ -221,6 +233,7 @@ export default {
       } else {
         this.$emit("click", this.getKey(row));
       }
+      this.$emit("input", this.selectedItems);
     },
     renderNumber(number) {
       var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
@@ -243,20 +256,18 @@ export default {
     },
   },
   watch: {
-    selectedItems() {
-      this.$emit("input", this.selectedItems);
-    },
     metadata: {
       deep: true,
       handler() {
         this.updateTimestamp();
       },
     },
+    value() {
+      this.selectedItems = this.value;
+    },
   },
   created() {
-    this.metadata.columns.forEach((c) => {
-      if (c["showColumn"] === undefined) c.showColumn = true;
-    });
+    this.selectedItems = this.value;
   },
 };
 </script>
@@ -266,22 +277,13 @@ example
 ```
 <template>
   <div>
-    <MolgenisTable v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click"
+    <TableMolgenis v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click"
                    @click="click">
       <template v-slot:header>columns</template>
       <template v-slot:rowheader="slotProps">
-        <RowButtonEdit
-            table="Pet"
-            :pkey="{name:'spike'}"
-            @close="click"
-        />
-        <RowButtonDelete
-            table="Pet"
-            :pkey="{name:'spike'}"
-            @close="click"
-        />
+        some row content
       </template>
-    </MolgenisTable>
+    </TableMolgenis>
     selected: {{ JSON.stringify(selected) }}
   </div>
 </template>
@@ -290,6 +292,49 @@ example
     data: function () {
       return {
         selected: [],
+        metadata: {
+          columns: [{name: 'col1', columnType: "STRING", key: 1}, {
+            name: 'ref1',
+            columnType: "REF",
+            refColumns: ['firstName', 'lastName']
+          }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
+        },
+        data: [{
+          col1: "row1",
+          ref1: {firstName: 'katrien', lastName: 'duck'},
+          ref_arr1: [{firstName: 'kwik', lastName: 'duck'}, {
+            firstName: 'kwek',
+            lastName: 'duck'
+          }, {firstName: 'kwak', lastName: 'duck'}]
+        }, {
+          col1: "row2"
+        }]
+      }
+    },
+    methods: {
+      click(value) {
+        alert("click " + JSON.stringify(value));
+      }
+    }
+  };
+</script>
+```
+example with default selection
+```
+<template>
+  <div>
+    <TableMolgenis v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click" @click="click"
+                   :showSelect="true">
+      <template v-slot:header>columns</template>
+    </TableMolgenis>
+    selected: {{ JSON.stringify(selected) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        selected: [{'col1': 'row1'}],
         metadata: {
           columns: [{name: 'col1', columnType: "STRING", key: 1}, {
             name: 'ref1',
