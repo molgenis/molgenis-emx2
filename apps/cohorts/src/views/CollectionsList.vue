@@ -1,10 +1,31 @@
 <template>
   <div>
-    <CollectionsPanel
+    <div
       v-for="collection in collections"
       :key="collection.name"
       :collection="collection"
-    />
+    >
+      <span>
+        <h2>{{ collection.name }}<span v-if="collection.acronym"></span></h2>
+        <a href="collection.url">website</a>
+      </span>
+      <p>
+        <ReadMore v-if="collection.description">
+          {{ collection.description }}
+        </ReadMore>
+        <span v-else>No description provided</span>
+      </p>
+      <ul>
+        <div v-for="table in collection.tables">
+          {{ table.name }}
+          <ul>
+            <li v-for="variable in table.variables">
+              {{ variable.name }}
+            </li>
+          </ul>
+        </div>
+      </ul>
+    </div>
     <Pagination
       v-if="count > 0"
       class="justify-content-center"
@@ -17,14 +38,14 @@
 </template>
 
 <script>
-import { Pagination } from "@mswertz/emx2-styleguide";
+import { ButtonAction, Pagination, ReadMore } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import CollectionsPanel from "../components/CollectionsPanel";
 
 export default {
   components: {
-    CollectionsPanel,
     Pagination,
+    ReadMore,
+    ButtonAction,
   },
   props: {
     filter: {
@@ -55,7 +76,7 @@ export default {
       }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,tables{name,variables{name}}}
+        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,description,tables{name,variables{name}}}
         ,Collections_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

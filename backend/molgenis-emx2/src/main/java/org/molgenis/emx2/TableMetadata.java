@@ -130,6 +130,7 @@ public class TableMetadata {
         new LinkedHashMap<>(); // overlapping references can lead to duplicates
     for (Column c : getLocalColumns()) {
       if (FILE.equals(c.getColumnType())) {
+        result.put(c.getName() + "_id", new Column(c.getTable(), c.getName() + "_id"));
         result.put(
             c.getName() + "_contents",
             new Column(c.getTable(), c.getName() + "_contents").setType(FILE));

@@ -3,7 +3,8 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
+import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -16,6 +17,7 @@ import graphql.GraphQL;
 import graphql.GraphQLError;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -96,13 +98,15 @@ public class GraphqlApi {
       if (result.size() != 1) {
         throw new MolgenisException("Download failed", "Id '" + id + "' not found");
       }
-      String ext = result.get(0).getString(columnName + "-extension");
-      String mimetype = result.get(0).getString(columnName + "-mimetype");
-      byte[] contents = result.get(0).getBinary(columnName + "-contents");
-      response.status(200);
-      response.header("Content-Disposition", "attachment; filename=download." + ext);
-      response.type(mimetype);
-      response.raw().getOutputStream().write(contents);
+      String ext = result.get(0).getString(columnName + "_extension");
+      String mimetype = result.get(0).getString(columnName + "_mimetype");
+      byte[] contents = result.get(0).getBinary(columnName + "_contents");
+      response.raw().setHeader("Content-Disposition", "attachment; filename=download." + ext);
+      response.raw().setContentType(mimetype);
+      try (OutputStream out = response.raw().getOutputStream()) {
+        out.write(contents); // autoclosing
+        out.flush();
+      }
     }
 
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);

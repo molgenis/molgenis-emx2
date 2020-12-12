@@ -1,7 +1,9 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
 
@@ -28,9 +30,17 @@ public class GraphqlCustomTypes {
                 public BinaryFileWrapper parseValue(Object input) {
                   if (input instanceof Part) {
                     Part part = (Part) input;
-                    try {
+                    try (InputStream is = part.getInputStream(); ) {
                       String contentType = part.getContentType();
-                      byte[] content = new byte[part.getInputStream().available()];
+
+                      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                      int nRead;
+                      byte[] data = new byte[1024];
+                      while ((nRead = is.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, nRead);
+                      }
+                      buffer.flush();
+                      byte[] content = buffer.toByteArray();
                       String fileName = part.getSubmittedFileName();
                       part.delete();
                       return new BinaryFileWrapper(contentType, fileName, content);
@@ -38,14 +48,8 @@ public class GraphqlCustomTypes {
                       throw new CoercingParseValueException(
                           "Couldn't read content of the uploaded file");
                     }
-                  } else if (null == input) {
-                    return null;
                   } else {
-                    throw new CoercingParseValueException(
-                        "Expected type "
-                            + Part.class.getName()
-                            + " but was "
-                            + input.getClass().getName());
+                    return null;
                   }
                 }
 
