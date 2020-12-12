@@ -2,61 +2,60 @@
   <div>
     <div v-if="tableMetadata">
       <MessageError v-if="error">{{ error }}</MessageError>
-      <div class="d-flex flex-nowrap">
-        <div :key="timestamp" v-if="showFilters" class="col">
+      <div class="navbar shadow-none navbar-expand-lg justify-content-between">
+        <h1>
+          {{ table }}
+        </h1>
+        <InputSearch class="navbar-nav" v-model="searchTerms" />
+        <div class="btn-group">
+          <ShowHide
+            class="navbar-nav"
+            v-model="tableMetadata.columns"
+            checkAttribute="showFilter"
+            @input="updateTimestamp"
+            label="filters"
+            icon="filter"
+          />
+          <ShowHide
+            class="navbar-nav"
+            v-model="tableMetadata.columns"
+            checkAttribute="showColumn"
+            @input="updateTimestamp"
+            label="columns"
+            icon="columns"
+          />
+        </div>
+        <Pagination
+          class="navbar-nav"
+          v-model="page"
+          :limit="limit"
+          :count="count"
+          :key="timestamp"
+          @change="updateTimestamp"
+        />
+        <SelectionBox v-model="selectedItems" />
+      </div>
+      <div>
+        Download:
+        <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
+        |
+        <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
+        |
+        <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
+        |
+        <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
+      </div>
+      <div class="row" :key="timestamp">
+        <div v-if="showFilters" class="col col-3">
           <FilterSidebar :filters="tableMetadata.columns" />
         </div>
-        <div v-if="loading">
-          <Spinner />
-        </div>
-        <div v-else class="col">
-          <div
-            class="navbar shadow-none navbar-expand-lg justify-content-between"
-          >
-            <h1>
-              {{ table }}
-            </h1>
-            <InputSearch class="navbar-nav" v-model="searchTerms" />
-            <div class="btn-group">
-              <ShowHide
-                class="navbar-nav"
-                v-model="tableMetadata.columns"
-                checkAttribute="showFilter"
-                @input="updateTimestamp"
-                label="filters"
-                icon="filter"
-              />
-              <ShowHide
-                class="navbar-nav"
-                v-model="tableMetadata.columns"
-                checkAttribute="showColumn"
-                @input="updateTimestamp"
-                label="columns"
-                icon="columns"
-              />
-            </div>
-            <Pagination
-              class="navbar-nav"
-              v-model="page"
-              :limit="limit"
-              :count="count"
-              :key="timestamp"
-              @change="updateTimestamp"
-            />
-            <SelectionBox v-model="selectedItems" />
-          </div>
-          <div>
-            Download:
-            <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
-            |
-            <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-            |
-            <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-            |
-            <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
-          </div>
+        <div class="col col-9">
           <FilterWells v-if="table" :filters="tableMetadata.columns" />
+          <div v-if="loading">
+            <Spinner />
+          </div>
           <TableMolgenis
+            v-else
             v-model="selectedItems"
             :metadata="tableMetadata"
             :data="data"
@@ -73,13 +72,13 @@
               <RowButtonEdit
                 v-if="canEdit"
                 :table="table"
-                :pkey="pkey(slotProps.row)"
+                :pkey="getPkey(slotProps.row)"
                 @close="reload"
               />
               <RowButtonDelete
                 v-if="canEdit"
                 :table="table"
-                :pkey="pkey(slotProps.row)"
+                :pkey="getPkey(slotProps.row)"
                 @close="reload"
               />
             </template>

@@ -101,13 +101,12 @@ export default {
     },
   },
   created() {
-    this.filters.forEach((column) => {
-      if (column.showFilter == "undefined") {
-        //we use updateTime to be able to know when to refresh a view
-        column.updateTime = column.name + new Date().getTime();
-        column.showFilter = true;
-      }
-    });
+    this.initShowFilter();
+  },
+  watch: {
+    filter() {
+      this.initShowFilter();
+    },
   },
   methods: {
     updateTimestamp() {
@@ -132,6 +131,15 @@ export default {
         }
       });
       return result;
+    },
+    initShowFilter() {
+      this.filters.forEach((column) => {
+        if (column.showFilter === undefined) {
+          //we use updateTime to be able to know when to refresh a view
+          column.updateTime = column.name + new Date().getTime();
+          column.showFilter = true;
+        }
+      });
     },
   },
 };

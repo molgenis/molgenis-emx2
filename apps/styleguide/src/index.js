@@ -8,6 +8,8 @@ import DataTable from "./tables/TableSimple";
 import Footer from "./layout/MolgenisFooter";
 import FilterSidebar from "./tables/FilterSidebar";
 import FilterWells from "./tables/FilterWells";
+import FilterInput from "./tables/FilterInput";
+import FilterContainer from "./tables/FilterContainer";
 
 import IconAction from "./forms/IconAction";
 import IconBar from "./forms/IconBar";
@@ -23,6 +25,7 @@ import InputInt from "./forms/InputInt";
 import InputPassword from "./forms/InputPassword";
 import InputRadio from "./forms/InputRadio";
 import InputRef from "./forms/InputRef";
+import InputRefSelect from "./forms/InputRefSelect";
 import InputRangeDate from "./forms/InputRangeDate";
 import InputRangeDecimal from "./forms/InputRangeDecimal";
 import InputRangeInt from "./forms/InputRangeInt";
@@ -35,6 +38,7 @@ import LayoutCard from "./layout/LayoutCard";
 import LayoutForm from "./layout/LayoutForm";
 import LayoutModal from "./layout/LayoutModal";
 import LayoutNavTabs from "./layout/NavTabs";
+import NavTabs from "./layout/NavTabs";
 
 import MessageSuccess from "./forms/MessageSuccess";
 import MessageError from "./forms/MessageError";
@@ -48,6 +52,7 @@ import Pagination from "./tables/Pagination";
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
 import RowButtonDelete from "./tables/RowButtonDelete";
+import ReadMore from "./layout/ReadMore";
 
 import SelectionBox from "./tables/SelectionBox";
 import Spinner from "./layout/Spinner";
@@ -69,6 +74,8 @@ export {
   Footer,
   FilterSidebar,
   FilterWells,
+  FilterInput,
+  FilterContainer,
   IconBar,
   IconAction,
   IconDanger,
@@ -82,6 +89,7 @@ export {
   InputPassword,
   InputRadio,
   InputRef,
+  InputRefSelect,
   InputRangeInt,
   InputRangeDecimal,
   InputRangeDate,
@@ -97,7 +105,9 @@ export {
   MessageSuccess,
   Molgenis,
   NavBar,
+  NavTabs,
   Pagination,
+  ReadMore,
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,

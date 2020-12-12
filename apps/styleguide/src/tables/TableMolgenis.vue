@@ -21,7 +21,11 @@
             :key="col.name + col.showColumn"
             scope="col"
             class="column-drag-header"
-            :style="col.showColumn ? '' : 'display: none'"
+            :style="
+              col.showColumn === undefined || col.showColumn == true
+                ? ''
+                : 'display: none'
+            "
           >
             <b>{{ col.name }}</b>
           </th>
@@ -53,10 +57,15 @@
             :key="idx + col.name"
             @click="onRowClick(row)"
             style="cursor: pointer"
-            :style="col.showColumn ? '' : 'display: none'"
+            :style="
+              col.showColumn === undefined || col.showColumn == true
+                ? ''
+                : 'display: none'
+            "
           >
             <div v-if="'FILE' === col.columnType">
               <a
+                v-if="row[col.name].id"
                 :href="
                   'graphql?table=' +
                   metadata.name +
@@ -65,9 +74,11 @@
                   '&download=' +
                   row[col.name].id
                 "
-                >download.{{ row[col.name].extension }}</a
               >
-              ({{ renderNumber(row[col.name].size) }}b)
+                download.{{ row[col.name].extension }} ({{
+                  renderNumber(row[col.name].size)
+                }}b)
+              </a>
             </div>
             <div v-else>
               <div

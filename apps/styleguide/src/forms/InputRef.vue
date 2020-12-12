@@ -10,7 +10,7 @@
         class="form-check-input"
         :name="id"
         type="checkbox"
-        :value="pkey(row)"
+        :value="getPkey(row)"
         v-model="arrayValue"
         @change="$emit('input', value)"
       />
@@ -19,12 +19,12 @@
         class="form-check-input"
         :name="id"
         type="radio"
-        :value="pkey(row)"
+        :value="getPkey(row)"
         v-model="arrayValue[0]"
         @change="$emit('input', value)"
       />
       <label class="form-check-label">
-        {{ flattenObject(pkey(row)) }}
+        {{ flattenObject(getPkey(row)) }}
       </label>
     </div>
     <ButtonAlt class="pl-1" icon="fa fa-search" @click="showSelect = true">

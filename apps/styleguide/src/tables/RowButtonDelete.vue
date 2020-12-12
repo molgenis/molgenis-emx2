@@ -13,8 +13,8 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="closeForm">Close</ButtonAlt>
-        <ButtonAction v-if="!success && !success" @click="executeDelete"
-          >Delete
+        <ButtonAction v-if="!success && !success" @click="executeDelete">
+          Delete
         </ButtonAction>
       </template>
     </LayoutModal>
@@ -50,6 +50,7 @@ export default {
   },
   props: {
     pkey: Object,
+    graphqlURL: { type: String, default: "graphql" },
   },
   computed: {
     title() {
@@ -63,7 +64,7 @@ export default {
     executeDelete() {
       let query = `mutation delete($pkey:[${this.table}Input]){delete(${this.table}:$pkey){message}}`;
       let variables = { pkey: [this.pkey] };
-      request("graphql", query, variables)
+      request(this.graphqlURL, query, variables)
         .then((data) => {
           this.success = data.delete.message;
           this.$emit("close");

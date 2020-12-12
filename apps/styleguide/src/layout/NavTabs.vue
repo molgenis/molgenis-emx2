@@ -35,27 +35,26 @@ Example
 ```
 <template>
   <div>
-    <LayoutNavTabs label="Animals" v-model="selected" :options="['lion', 'ape', 'monkey']"/>
+    <NavTabs label="Animals" v-model="selected" :options="['lion', 'ape', 'monkey']"/>
     Selected: {{ selected }}
   </div>
 </template>
 
-<script>23
-fgf
-export default {
-  data: function () {
-    return {
-      selected: null
-    };
-  }
-};
+<script>
+  export default {
+    data: function () {
+      return {
+        selected: null
+      };
+    }
+  };
 </script>
 ```
 With default
 ``````
 <template>
   <div>
-    <LayoutNavTabs
+    <NavTabs
         label="Animals"
         v-model="selected"
         :options="['lion', 'ape', 'monkey']"

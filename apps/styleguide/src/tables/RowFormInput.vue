@@ -1,7 +1,12 @@
 <template>
   <div>
     <InputString
-      v-if="columnType === 'STRING' || columnType === 'TEXT'"
+      v-if="columnType === 'STRING'"
+      v-bind="$props"
+      v-model="value"
+    />
+    <InputText
+      v-else-if="columnType === 'TEXT'"
       v-bind="$props"
       v-model="value"
     />
@@ -20,7 +25,7 @@
       v-bind="$props"
       v-model="value"
     />
-    <InputRef
+    <InputRefSelect
       v-else-if="columnType === 'REF'"
       v-bind="$props"
       v-model="value"
@@ -35,7 +40,7 @@
       v-bind="$props"
       v-model="value"
     />
-    <InputRef
+    <InputRefSelect
       :list="true"
       v-else-if="
         columnType === 'REF_ARRAY' ||
@@ -47,7 +52,13 @@
       :graphqlURL="graphqlURL"
     />
     <InputString
-      v-else-if="columnType === 'STRING_ARRAY' || columnType === 'TEXT_ARRAY'"
+      v-else-if="columnType === 'STRING_ARRAY'"
+      :list="true"
+      v-bind="$props"
+      v-model="value"
+    />
+    <InputText
+      v-else-if="columnType === 'TEXT_ARRAY'"
       :list="true"
       v-bind="$props"
       v-model="value"
@@ -67,10 +78,11 @@ import InputString from "../forms/InputString";
 import InputInt from "../forms/InputInt";
 import InputDecimal from "../forms/InputDecimal";
 import InputBoolean from "../forms/InputBoolean";
-import InputRef from "../forms/InputRef";
+import InputRefSelect from "../forms/InputRefSelect";
 import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
+import InputText from "../forms/InputText";
 
 export default {
   extends: _baseInput,
@@ -89,10 +101,11 @@ export default {
     InputInt,
     InputDecimal,
     InputBoolean,
-    InputRef,
+    InputRefSelect,
     InputDate,
     InputDateTime,
     InputFile,
+    InputText,
   },
   watch: {
     value() {

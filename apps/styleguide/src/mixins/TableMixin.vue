@@ -114,7 +114,7 @@ export default {
       }
       if (result) return result;
     },
-    pkey(row) {
+    getPkey(row) {
       let result = {};
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
@@ -136,13 +136,6 @@ export default {
     },
     table: "reload",
     schema: "reload",
-    tableMetadata() {
-      this.tableMetadata.columns.forEach((c) => {
-        if (c["showColumn"] === undefined) c.showColumn = true;
-        if (c["showFilter"] === undefined) c.showFilter = true;
-      });
-      this.updateTimestamp();
-    },
   },
 };
 </script>
