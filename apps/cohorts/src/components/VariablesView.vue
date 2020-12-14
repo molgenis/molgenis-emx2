@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import VariablePanel from "../components/VariablePanel";
+import VariablePanel from "./VariablePanel";
 import { Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 

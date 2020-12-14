@@ -1,32 +1,42 @@
 <template>
   <div>
-    <div class="card-columns">
-      <CollectionsView
-        v-for="collection in collections"
-        :key="collection.name"
-        :collection="collection"
+    <h1>Dataset & variable catalogue</h1>
+    <p>Catalogue of cohorts, registries, harmonisations and more...</p>
+    <MessageError v-if="error">{{ error }}</MessageError>
+    <div class="row">
+      <Pagination
+        v-if="count > 0"
+        class="justify-content-center col-10 mb-2"
+        :count="count"
+        v-model="page"
+        :limit="limit"
+        :defaultValue="page"
       />
     </div>
-    <Pagination
-      v-if="count > 0"
-      class="justify-content-center"
-      :count="count"
-      v-model="page"
-      :limit="limit"
-      :defaultValue="page"
-    />
+    <div class="row">
+      <div class="card-columns col-10">
+        <CollectionsCard
+          v-for="collection in collections"
+          :key="collection.name"
+          :collection="collection"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { Pagination } from "@mswertz/emx2-styleguide";
+import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import CollectionsView from "./CollectionsView";
+import CollectionsCard from "./CollectionCard";
+import TableOfContents from "./TableOfContents";
 
 export default {
   components: {
-    CollectionsView,
+    TableOfContents,
+    CollectionsCard,
     Pagination,
+    MessageError,
   },
   props: {
     filter: {
@@ -45,6 +55,8 @@ export default {
       page: 1,
       limit: 20,
       count: 0,
+      error: null,
+      loading: false,
       collections: [],
     };
   },
@@ -57,7 +69,7 @@ export default {
       }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,tables{name,variables{name}}}
+        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,datasets{name,variables{name}}}
         ,Collections_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
