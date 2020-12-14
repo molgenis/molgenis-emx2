@@ -1,10 +1,12 @@
 <template>
   <div>
-    <VariablePanel
-      v-for="variable in variables"
-      :key="variable.collection.name + variable.table.name + variable.name"
-      :variable="variable"
-    />
+    <div class="card-columns">
+      <VariablePanel
+        v-for="variable in variables"
+        :key="variable.collection.name + variable.table.name + variable.name"
+        :variable="variable"
+      />
+    </div>
     <Pagination
       class="justify-content-center"
       :count="count"
@@ -54,7 +56,7 @@ export default {
       }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,${searchString}filter:$filter){name,collection{name},table{name},topics{name},valueLabels,missingValues,harmonisations{sourceTable{collection{name}}},format{name},description,unit{name},codeList{name,codes{value,label}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,${searchString}filter:$filter){name,collection{name},table{name},topics{name},mandatory,valueLabels,missingValues,harmonisations{sourceTable{collection{name}}},unit{name},format{name},description,unit{name},codeList{name,codes{value,label}}}
         ,Variables_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

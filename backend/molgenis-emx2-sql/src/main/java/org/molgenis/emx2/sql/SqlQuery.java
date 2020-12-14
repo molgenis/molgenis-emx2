@@ -422,16 +422,13 @@ public class SqlQuery extends QueryBean {
               } else if (REFBACK.equals(c.getColumnType())) {
                 Column mappedBy = c.getMappedByColumn();
                 List<Field> pkey =
-                    c.getTable().getPrimaryKeyColumns().stream()
-                        .map(Column::getJooqField)
-                        .collect(Collectors.toList());
+                    c.getTable().getPrimaryKeyFields().stream().collect(Collectors.toList());
                 List<Field> backRef =
                     c.getMappedByColumn().getReferences().stream()
                         .map(Reference::getJooqField)
                         .collect(Collectors.toList());
                 List<Field> backRefKey =
-                    c.getMappedByColumn().getTable().getPrimaryKeyColumns().stream()
-                        .map(Column::getJooqField)
+                    c.getMappedByColumn().getTable().getPrimaryKeyFields().stream()
                         .collect(Collectors.toList());
                 // can be ref, ref_array (mref is checked above)
                 if (REF.equals(mappedBy.getColumnType())) {
