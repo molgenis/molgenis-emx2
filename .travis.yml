@@ -4,7 +4,6 @@ dist: bionic
 jdk:
   - openjdk13
 services:
-  - postgresql
   - docker
 branches:
   except:
@@ -24,6 +23,10 @@ before_script:
   - psql -c "grant all privileges on database molgenis to molgenis;" -U postgres
 addons:
   postgresql: "13"
+  apt:
+    packages:
+      - postgresql-13
+      - postgresql-client-13
   sonarcloud:
     organization: "mswertz-github"
 jobs:
