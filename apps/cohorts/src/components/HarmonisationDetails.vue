@@ -65,6 +65,28 @@
         </pre
           >
         </div>
+        <span v-if="harmonisation.targetVariable.dataset.harmonisations">
+          <h5>Dataset harmonisation</h5>
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Source dataset</th>
+                  <th>Description of mappping</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="h in harmonisation.targetVariable.dataset
+                    .harmonisations"
+                >
+                  <td>{{ h.sourceDataset.name }}</td>
+                  <td>{{ h.description }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </span>
         <ShowMore title="debug">
           <pre>
           {{ JSON.stringify(harmonisation) }}
@@ -143,7 +165,7 @@ export default {
       };
       request(
         "graphql",
-        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){targetVariable{name},sourceVariables{name,description,format{name},valueLabels,missingValues},syntax,description}}`,
+        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}},sourceVariables{name,description,format{name},valueLabels,missingValues},syntax,description}}`,
         {
           filter: filter,
         }

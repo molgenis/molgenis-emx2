@@ -1,6 +1,6 @@
 <template>
   <p v-if="count == 0">No variables found</p>
-  <div v-else>
+  <div v-else class="mt-2">
     <Pagination class="mb-2" :count="count" :limit="limit" v-model="page" />
     <MessageError v-if="error">{{ error }}</MessageError>
 

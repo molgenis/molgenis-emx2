@@ -2,8 +2,12 @@
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
     <p v-if="count == 0">No harmonisations found</p>
-    <div v-else>
-      <table class="table">
+    <div v-else class="mt-2">
+      <i class="fa fa-check-circle text-success" /> = complete match,
+      <i class="fa fa-check-circle text-warning" /> = partial match,
+      <i class="fa fa-times text-primary" /> = no match,
+      <i class="fa fa-question text-primary" /> = not provided.
+      <table class="table mt-2">
         <thead>
           <tr>
             <th scope="col">variable</th>
@@ -28,17 +32,6 @@
         </tbody>
       </table>
     </div>
-    <ShowMore title="debug">
-      <pre>
-      harmonisations = {{ JSON.stringify(harmonisations) }}
-
-      datasets = {{ JSON.stringify(datasets) }}
-
-      variables = {{ JSON.stringify(variables) }}
-
-      matrix = {{ JSON.stringify(matrix) }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -78,7 +71,7 @@ export default {
       count: 0,
       error: null,
       page: 1,
-      limit: 10000,
+      limit: 0,
     };
   },
   computed: {
@@ -125,14 +118,14 @@ export default {
           },
         };
       }
-      if (this.datasetName) {
+      if (this.datasetName !== undefined) {
         filter.targetVariable.dataset.name = { equals: this.datasetName };
       }
       console.log(JSON.stringify(filter));
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name}sourceDataset{collection{acronym}name}match{name}}
+          {targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}}sourceDataset{collection{acronym}name}match{name}}
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,

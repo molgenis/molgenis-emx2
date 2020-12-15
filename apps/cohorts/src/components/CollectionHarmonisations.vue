@@ -1,39 +1,43 @@
 <template>
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>Dataset: {{ dataset.name }}</h1>
-    <p>{{ dataset.label }}</p>
-    <DatasetTabs
+    <h1>Collection: {{ collectionAcronym }}</h1>
+    <div>
+      <ReadMore
+        :text="collection.description"
+        :length="200"
+        v-if="collection.description"
+      />
+    </div>
+    <CollectionTabs
       selected="harmonisations"
-      :dataset-name="datasetName"
       :collection-acronym="collectionAcronym"
     />
-    <HarmonisationList
-      :collection-acronym="collectionAcronym"
-      :dataset-name="datasetName"
-    />
+    <HarmonisationList :collectionAcronym="collectionAcronym" />
   </div>
 </template>
 <script>
 import { request } from "graphql-request";
-import { MessageError } from "@mswertz/emx2-styleguide";
-import DatasetTabs from "./DatasetTabs";
+import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
+import DatasetList from "./DatasetList";
+import CollectionTabs from "./CollectionTabs";
 import HarmonisationList from "./HarmonisationList";
 
 export default {
   components: {
     HarmonisationList,
-    DatasetTabs,
+    CollectionTabs,
+    DatasetList,
     MessageError,
+    ReadMore,
   },
   props: {
     collectionAcronym: String,
-    datasetName: String,
   },
   data() {
     return {
       error: null,
-      dataset: {},
+      collection: {},
     };
   },
   methods: {
@@ -41,15 +45,13 @@ export default {
       console.log("collections reload");
       request(
         "graphql",
-        `query Datasets($collection:CollectionsPkeyInput,$name:String){Datasets(filter:{collection:{equals:[$collection]},name:{equals:[$name]}})
-        {name,description,label,topics{name},completeness,timeline,populations{name},supplementaryInformation,variables{name}}}`,
+        `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},description,website,datasets{name,label}}}`,
         {
-          collection: { acronym: this.collectionAcronym },
-          name: this.datasetName,
+          acronym: this.collectionAcronym,
         }
       )
         .then((data) => {
-          this.dataset = data.Datasets[0];
+          this.collection = data.Collections[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -64,9 +66,6 @@ export default {
   },
   watch: {
     collectionAcronym() {
-      this.reload();
-    },
-    datasetName() {
       this.reload();
     },
   },

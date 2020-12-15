@@ -2,7 +2,7 @@
   <div class="card p-1">
     <span>
       <h4 class="card-title">
-        <RouterLink :to="'/collection/' + collection.acronym">
+        <RouterLink :to="'/collection-datasets/' + collection.acronym">
           <small class="float-right">
             <span
               v-if="collection.type"

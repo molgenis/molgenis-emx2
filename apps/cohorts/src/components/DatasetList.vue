@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Pagination :count="count" :limit="limit" v-model="page" />
+    <Pagination class="mt-2" :count="count" :limit="limit" v-model="page" />
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="card-columns mt-2">
       <DatasetCard v-for="dataset in datasets" :dataset="dataset" />

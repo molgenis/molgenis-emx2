@@ -8,18 +8,20 @@
       :dataset-name="datasetName"
       :collection-acronym="collectionAcronym"
     />
-    <div
-      v-for="item in [
-        'description',
-        'completeness',
-        'target',
-        'timeline',
-        'comments',
-        'constraints',
-      ]"
-    >
-      <h3>{{ item }}</h3>
-      <p>{{ dataset[item] ? dataset[item] : "N/A" }}</p>
+    <div class="card mt-2">
+      <div class="card-body">
+        <div
+          v-for="item in [
+            'description',
+            'completeness',
+            'timeline',
+            'supplementaryInformation',
+          ]"
+        >
+          <h3>{{ item }}</h3>
+          <p>{{ dataset[item] ? dataset[item] : "N/A" }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -51,7 +53,7 @@ export default {
       request(
         "graphql",
         `query Datasets($collection:CollectionsPkeyInput,$name:String){Datasets(filter:{collection:{equals:[$collection]},name:{equals:[$name]}})
-        {name,description,label,topics{name},completeness,target,timeline,population{name},comments,constraints,variables{name}}}`,
+        {name,description,label,topics{name},completeness,timeline,populations{name},supplementaryInformation,variables{name}}}`,
         {
           collection: { acronym: this.collectionAcronym },
           name: this.datasetName,

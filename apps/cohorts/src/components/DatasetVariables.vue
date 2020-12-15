@@ -1,7 +1,7 @@
 <template>
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>Dataset: {{ dataset.name }}</h1>
+    <h1>Dataset: {{ datasetName }}</h1>
     <p>{{ dataset.label }}</p>
     <DatasetTabs
       selected="variables"
@@ -43,7 +43,7 @@ export default {
       request(
         "graphql",
         `query Datasets($collection:CollectionsPkeyInput,$name:String){Datasets(filter:{collection:{equals:[$collection]},name:{equals:[$name]}})
-        {name,description,label,topics{name},completeness,target,timeline,population{name},comments,constraints,variables{name}}}`,
+        {name,description,label,topics{name},completeness,timeline,populations{name},supplementaryInformation,variables{name}}}`,
         {
           collection: { acronym: this.collectionAcronym },
           name: this.datasetName,

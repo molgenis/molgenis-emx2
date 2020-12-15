@@ -1,7 +1,7 @@
 <template>
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>{{ collectionAcronym }}</h1>
+    <h1>Collection: {{ collectionAcronym }}</h1>
     <div>
       <ReadMore
         :text="collection.description"
@@ -9,17 +9,24 @@
         v-if="collection.description"
       />
     </div>
-    <h5>Datasets:</h5>
-    <DatasetList :collectionAcronym="collectionAcronym" />
+    <CollectionTabs
+      selected="variables"
+      :collection-acronym="collectionAcronym"
+    />
+    <VariablesList :collectionAcronym="collectionAcronym" />
   </div>
 </template>
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
 import DatasetList from "./DatasetList";
+import CollectionTabs from "./CollectionTabs";
+import VariablesList from "./VariablesList";
 
 export default {
   components: {
+    VariablesList,
+    CollectionTabs,
     DatasetList,
     MessageError,
     ReadMore,

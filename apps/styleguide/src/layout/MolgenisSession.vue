@@ -5,7 +5,7 @@
       <span v-if="error">
         <MessageError>{{ error }}</MessageError>
       </span>
-      <span v-if="session.email">
+      <span v-if="session.email && session.email != 'anonymous'">
         <a href="#" @click.prevent="showChangePasswordForm = true">
           Hi {{ session.email }}</a
         >&nbsp;
@@ -93,10 +93,7 @@ export default {
         `{_session{email,roles},_settings{key,value},_manifest{ImplementationVersion,SpecificationVersion}}`
       )
         .then((data) => {
-          if (
-            data._session != undefined &&
-            data._session.email !== "anonymous"
-          ) {
+          if (data._session != undefined) {
             this.session = data._session;
           } else {
             this.session = {};
@@ -158,6 +155,7 @@ export default {
           }
           this.loading = false;
           this.$emit("input", this.session);
+          this.reload();
         })
         .catch((error) => (this.error = "internal server error" + error));
     },

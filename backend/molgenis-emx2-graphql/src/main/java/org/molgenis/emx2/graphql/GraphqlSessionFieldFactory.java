@@ -7,7 +7,10 @@ import static org.molgenis.emx2.graphql.GraphqlConstants.EMAIL;
 import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
 
 import graphql.Scalars;
-import graphql.schema.*;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.GraphQLList;
+import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
@@ -103,7 +106,7 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
               result.put(
-                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "none");
+                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }

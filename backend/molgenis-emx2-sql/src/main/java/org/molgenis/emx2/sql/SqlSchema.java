@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -81,7 +82,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public String getRoleForUser(String user) {
-    if (user == null) return null;
+    if (user == null) user = ANONYMOUS;
     user = user.trim();
     for (Member m : executeGetMembers(getMetadata().getJooq(), getMetadata())) {
       if (m.getUser().equals(user)) return m.getRole();
@@ -91,7 +92,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<String> getInheritedRolesForUser(String user) {
-    if (user == null) return null;
+    if (user == null) user = ANONYMOUS;
     user = user.trim();
     // elevate permissions temporarily
     String current = db.getActiveUser();

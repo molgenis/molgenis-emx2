@@ -3,19 +3,6 @@
     <li class="nav-item">
       <RouterLink
         class="nav-link"
-        :class="{ active: selected == 'variables' }"
-        href="#"
-        :to="{
-          name: 'dataset-variables',
-          params: { datasetName, collectionAcronym },
-        }"
-      >
-        Variables
-      </RouterLink>
-    </li>
-    <li class="nav-item">
-      <RouterLink
-        class="nav-link"
         :class="{ active: selected == 'description' }"
         href="#"
         :to="{
@@ -29,13 +16,27 @@
     <li class="nav-item">
       <RouterLink
         class="nav-link"
+        :class="{ active: selected == 'variables' }"
+        href="#"
+        :to="{
+          name: 'dataset-variables',
+          params: { datasetName, collectionAcronym },
+        }"
+      >
+        Variables
+      </RouterLink>
+    </li>
+    <li class="nav-item">
+      <RouterLink
+        class="nav-link"
         :class="{ active: selected == 'harmonisations' }"
         href="#"
         :to="{
           name: 'dataset-harmonisations',
           params: { datasetName, collectionAcronym },
         }"
-        >Harmonisations
+      >
+        Harmonisations
       </RouterLink>
     </li>
   </ul>
