@@ -501,6 +501,7 @@ public class Column {
   }
 
   public String getRefJsTemplate() {
+    if (!isReference()) return null;
     if (refJsTemplate == null) {
       // we concat all columns unless already shown in another column
       StringBuilder result = new StringBuilder();
