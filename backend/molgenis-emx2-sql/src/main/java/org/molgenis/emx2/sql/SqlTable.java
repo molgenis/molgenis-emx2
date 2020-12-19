@@ -112,7 +112,7 @@ class SqlTable implements Table {
   }
 
   public int insert(Iterable<Row> rows) {
-    return this.insert(rows, getMetadata().getTableName());
+    return this.insert(rows, getMgTableClass(getMetadata()));
   }
 
   private int insert(Iterable<Row> rows, String mgTableClass) {
@@ -186,7 +186,7 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
-    return this.update(rows, getMetadata().getSchemaName() + "." + getMetadata().getTableName());
+    return this.update(rows, getMgTableClass(getMetadata()));
   }
 
   private int update(Iterable<Row> rows, String mgTableClass) {

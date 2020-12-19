@@ -107,7 +107,7 @@ public class ZipApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path zipFile = tempDir.resolve("download.zip");
-      TableExport.toZipFile(zipFile, table.query());
+      TableExport.toZipFile(zipFile, table);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(

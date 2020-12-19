@@ -121,7 +121,8 @@ class SqlTableMetadataExecutor {
       root.add(
           column(org.molgenis.emx2.Constants.MG_TABLECLASS)
               .setReadonly(true)
-              .setDefaultValue(root.getTableName())); // should not be user editable
+              .setDefaultValue(
+                  root.getSchemaName() + "." + root.getTableName())); // should not be user editable
     }
     createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
   }

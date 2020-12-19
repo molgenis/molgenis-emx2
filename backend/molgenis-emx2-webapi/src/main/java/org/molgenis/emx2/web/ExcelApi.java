@@ -90,7 +90,7 @@ public class ExcelApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      TableExport.toExcelFile(excelFile, table.query());
+      TableExport.toExcelFile(excelFile, table);
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",

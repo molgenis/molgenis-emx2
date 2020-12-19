@@ -2,7 +2,6 @@ package org.molgenis.emx2.io;
 
 import java.nio.file.Path;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.rowstore.TableStore;
@@ -33,12 +32,8 @@ public class SchemaExport {
     store.writeTable("molgenis", Emx2.toRowList(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
-      writeTableContents(store, schema.getTable(tableName));
+      TableExport.executeExport(store, schema.getTable(tableName));
     }
-  }
-
-  private static void writeTableContents(TableStore store, Table table) {
-    store.writeTable(table.getName(), table.retrieveRows());
   }
 
   public static void toEmx1ExcelFile(Path excelFile, Schema schema) {
@@ -51,7 +46,7 @@ public class SchemaExport {
     store.writeTable("attributes", Emx1.getEmx1Attributes(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
-      writeTableContents(store, schema.getTable(tableName));
+      TableExport.executeExport(store, schema.getTable(tableName));
     }
   }
 }

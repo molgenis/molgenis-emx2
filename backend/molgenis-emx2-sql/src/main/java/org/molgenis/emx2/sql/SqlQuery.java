@@ -222,7 +222,7 @@ public class SqlQuery extends QueryBean {
               condition(
                   ANY_SQL,
                   field(name(tableAlias, ref.getRefTo())),
-                  field(name(mappedBy.getTable().getTableName(), ref.getRefTo()))));
+                  field(name(mappedBy.getTable().getTableName(), ref.getName()))));
           break;
         default:
           throw new MolgenisException(
@@ -1226,6 +1226,18 @@ public class SqlQuery extends QueryBean {
           }
         }
       }
+      // is file?
+      //      for (Column c : table.getColumns()) {
+      //        if (c.getColumnType().equals(FILE) && columnName.startsWith(c.getName())) {
+      //          if (columnName.endsWith("_id")
+      //              || columnName.endsWith("_mimetype")
+      //              || columnName.endsWith("_extension")
+      //              || columnName.endsWith("_size")
+      //              || columnName.endsWith("_contents")) {
+      //            return new Column(table, columnName);
+      //          }
+      //        }
+      //      }
       throw new MolgenisException(
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
