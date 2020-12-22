@@ -10,7 +10,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.7.0'
-    //id "kr.motd.sphinx" version "2.9.0"
 }
 
 
