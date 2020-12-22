@@ -37,7 +37,7 @@
       </div>
       <div>
         Download:
-        <ButtonAlt :href="'../api/zip/' + table">csv.zip</ButtonAlt>
+        <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
         |
         <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
         |

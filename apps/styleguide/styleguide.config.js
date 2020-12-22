@@ -46,7 +46,7 @@ module.exports = {
       ],
     },
   },
-  styleguideDir: "dist",
+  styleguideDir: "build",
   sections: [
     {
       name: "Introduction",
