@@ -380,7 +380,7 @@ public class Column {
 
   public List<Field> getJooqFileFields() {
     return List.of(
-        field(name(getName() + "_id"), SQLDataType.VARCHAR),
+        field(name(getName()), SQLDataType.VARCHAR),
         field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
         field(name(getName() + "_extension"), SQLDataType.VARCHAR),
         field(name(getName() + "_size"), SQLDataType.INTEGER),

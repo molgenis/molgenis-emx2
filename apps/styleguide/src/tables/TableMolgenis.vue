@@ -75,7 +75,7 @@
                   row[col.name].id
                 "
               >
-                download.{{ row[col.name].extension }} ({{
+                {{ col.name }}.{{ row[col.name].extension }} ({{
                   renderNumber(row[col.name].size)
                 }}b)
               </a>

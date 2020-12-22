@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 
 import java.util.*;
@@ -124,10 +125,11 @@ public class TableMetadata {
     return primaryKey;
   }
 
-  public List<Column> getDownloadColumns() {
+  public List<Column> getDownloadColumnNames() {
     return getExpandedColumns(
         getColumns().stream()
-            .filter(c -> !c.getColumnType().equals(REFBACK) && !c.getColumnType().equals(FILE))
+            .filter(c -> !c.getColumnType().equals(REFBACK))
+            .map(c2 -> c2.getColumnType().equals(FILE) ? column(c2.getName()) : c2)
             .collect(Collectors.toList()));
   }
 
@@ -140,7 +142,7 @@ public class TableMetadata {
         new LinkedHashMap<>(); // overlapping references can lead to duplicates
     for (Column c : columns) {
       if (FILE.equals(c.getColumnType())) {
-        result.put(c.getName() + "_id", new Column(c.getTable(), c.getName() + "_id"));
+        result.put(c.getName(), new Column(c.getTable(), c.getName()));
         result.put(
             c.getName() + "_contents",
             new Column(c.getTable(), c.getName() + "_contents").setType(FILE));

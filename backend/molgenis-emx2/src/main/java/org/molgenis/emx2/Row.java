@@ -162,7 +162,7 @@ public class Row {
   }
 
   public Row setBinary(String name, BinaryFileWrapper value) {
-    this.values.put(name + "_id", UUID.randomUUID().toString().replace("-", ""));
+    this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
     this.values.put(name + "_extension", value.getExtension());
     this.values.put(name + "_mimetype", value.getMimeType());
     this.values.put(name + "_size", value.getSize());

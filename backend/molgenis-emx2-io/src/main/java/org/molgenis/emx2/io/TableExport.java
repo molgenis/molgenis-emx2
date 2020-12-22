@@ -34,7 +34,7 @@ public class TableExport {
   public static void executeExport(TableStore store, Table table) {
     if (table.getMetadata().getColumn(MG_TABLECLASS) != null) {
       SelectColumn[] select =
-          table.getMetadata().getDownloadColumns().stream()
+          table.getMetadata().getDownloadColumnNames().stream()
               .map(c -> c.getName())
               .filter(n -> !n.equals(MG_TABLECLASS))
               .map(c -> s(c))

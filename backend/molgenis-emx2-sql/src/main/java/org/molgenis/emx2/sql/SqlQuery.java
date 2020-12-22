@@ -136,7 +136,7 @@ public class SqlQuery extends QueryBean {
       if (FILE.equals(column.getColumnType())) {
         // check what they want to get, contents, mimetype, size and/or extension
         if (select.has("id")) {
-          fields.add(field(name(column.getName() + "_id")));
+          fields.add(field(name(column.getName())));
         }
         if (select.has("contents")) {
           fields.add(field(name(column.getName() + "_contents")));
@@ -560,7 +560,11 @@ public class SqlQuery extends QueryBean {
     List<Field> subFields = new ArrayList<>();
     for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype"}) {
       if (select.has(ext)) {
-        subFields.add(field(name(tableAlias, column.getName() + "_" + ext)).as(ext));
+        if (ext.equals("id")) {
+          subFields.add(field(name(tableAlias, column.getName())).as(ext));
+        } else {
+          subFields.add(field(name(tableAlias, column.getName() + "_" + ext)).as(ext));
+        }
       }
     }
     return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
@@ -921,7 +925,7 @@ public class SqlQuery extends QueryBean {
             Filter sub = filters.getSubfilter("id");
             // todo expand properly
             if (sub != null && EQUALS.equals(sub.getOperator())) {
-              conditions.add(field(name(column.getName() + "_id")).in(sub.getValues()));
+              conditions.add(field(name(column.getName())).in(sub.getValues()));
             } else {
               throw new MolgenisException("Invalid filter for file");
             }

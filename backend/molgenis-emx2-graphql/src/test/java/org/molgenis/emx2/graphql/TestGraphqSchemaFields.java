@@ -1,13 +1,8 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
-import java.io.IOException;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,6 +12,12 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 public class TestGraphqSchemaFields {
 
@@ -330,4 +331,7 @@ public class TestGraphqSchemaFields {
 
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
   }
+
+  @Test
+  public void testFileType() {}
 }

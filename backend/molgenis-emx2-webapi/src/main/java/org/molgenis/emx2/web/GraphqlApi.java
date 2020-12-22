@@ -101,7 +101,11 @@ public class GraphqlApi {
       String ext = result.get(0).getString(columnName + "_extension");
       String mimetype = result.get(0).getString(columnName + "_mimetype");
       byte[] contents = result.get(0).getBinary(columnName + "_contents");
-      response.raw().setHeader("Content-Disposition", "attachment; filename=download." + ext);
+      response
+          .raw()
+          .setHeader(
+              "Content-Disposition",
+              "attachment; filename=" + tableName + "-" + columnName + "-" + id + "." + ext);
       response.raw().setContentType(mimetype);
       try (OutputStream out = response.raw().getOutputStream()) {
         out.write(contents); // autoclosing

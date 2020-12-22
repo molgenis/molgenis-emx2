@@ -94,8 +94,7 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (FILE.equals(newColumn.getColumnType())) {
-        for (String suffix :
-            new String[] {"_id", "_extension", "_size", "_contents", "_mimetype"}) {
+        for (String suffix : new String[] {"", "_extension", "_size", "_contents", "_mimetype"}) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
