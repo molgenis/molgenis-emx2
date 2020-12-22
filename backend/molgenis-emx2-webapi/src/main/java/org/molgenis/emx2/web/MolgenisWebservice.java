@@ -72,6 +72,7 @@ public class MolgenisWebservice {
     CsvApi.create();
     ZipApi.create();
     ExcelApi.create();
+    FileApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
 

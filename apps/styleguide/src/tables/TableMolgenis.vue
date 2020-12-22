@@ -67,11 +67,11 @@
               <a
                 v-if="row[col.name].id"
                 :href="
-                  'graphql?table=' +
+                  '../api/file/' +
                   metadata.name +
-                  '&column=' +
+                  '/' +
                   col.name +
-                  '&download=' +
+                  '/' +
                   row[col.name].id
                 "
               >
