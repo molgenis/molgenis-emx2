@@ -42,6 +42,8 @@ public class GraphqlTableFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name("extension")
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
 
   // schema specific types

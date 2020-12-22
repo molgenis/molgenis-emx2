@@ -558,10 +558,22 @@ public class SqlQuery extends QueryBean {
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
     List<Field> subFields = new ArrayList<>();
-    for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype"}) {
+    for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
         if (ext.equals("id")) {
           subFields.add(field(name(tableAlias, column.getName())).as(ext));
+        } else if (ext.equals("url")) {
+          subFields.add(
+              field(
+                      "'/"
+                          + table.getSchemaName()
+                          + "/api/file/"
+                          + table.getTableName()
+                          + "/"
+                          + column.getName()
+                          + "/' || {0}",
+                      field(name(tableAlias, column.getName())))
+                  .as(ext));
         } else {
           subFields.add(field(name(tableAlias, column.getName() + "_" + ext)).as(ext));
         }

@@ -64,17 +64,7 @@
             "
           >
             <div v-if="'FILE' === col.columnType">
-              <a
-                v-if="row[col.name].id"
-                :href="
-                  '../api/file/' +
-                  metadata.name +
-                  '/' +
-                  col.name +
-                  '/' +
-                  row[col.name].id
-                "
-              >
+              <a v-if="row[col.name].id" :href="row[col.name].url">
                 {{ col.name }}.{{ row[col.name].extension }} ({{
                   renderNumber(row[col.name].size)
                 }}b)
