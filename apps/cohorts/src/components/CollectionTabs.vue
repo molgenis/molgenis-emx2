@@ -40,19 +40,6 @@
         Variables
       </RouterLink>
     </li>
-    <li class="nav-item">
-      <RouterLink
-          class="nav-link"
-          :class="{ active: selected == 'harmonisations' }"
-          href="#"
-          :to="{
-          name: 'collection-harmonisations',
-          params: { collectionAcronym },
-        }"
-      >
-        Variable_Harmonisations
-      </RouterLink>
-    </li>
   </ul>
 </template>
 <script>

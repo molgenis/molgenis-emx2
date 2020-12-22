@@ -290,6 +290,8 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 ### first
 
 *  download of extended class should include superclass values
+*  download of superclass should only include superclass records
+*  download using filter that is applied in explorer view
 *  filter option for 'null' and 'not_null'
 *  check roundtrip download/update of data and model
 *  prefilter UI in case of overlapping keys so you don't get unexpected errors

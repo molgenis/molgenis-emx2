@@ -1,5 +1,17 @@
 <template>
-  <div>
+  <div v-if="error">
+    <MessageError>
+      {{ error }}<br />
+      sourceCollection: {{ this.sourceCollection }}<br />
+      sourceDataset: {{ this.sourceDataset }}<br />
+      targetVariable: {{ this.targetVariable }}<br />
+      targetCollection:
+      {{ this.targetCollection }}<br />
+      targetDataset:
+      {{ this.targetDataset }}
+    </MessageError>
+  </div>
+  <div v-else>
     <a v-if="!compact" href="#" @click="show = true">
       {{ sourceCollection }}:{{ sourceDataset }}
     </a>
@@ -65,7 +77,12 @@
         </pre
           >
         </div>
-        <span v-if="harmonisation.targetVariable.dataset.harmonisations">
+        <span
+          v-if="
+            harmonisation.targetVariable.dataset &&
+            harmonisation.targetVariable.dataset.harmonisations
+          "
+        >
           <h5>Dataset harmonisation</h5>
           <div>
             <table>
@@ -165,7 +182,7 @@ export default {
       };
       request(
         "graphql",
-        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}},sourceVariables{name,description,format{name},valueLabels,missingValues},syntax,description}}`,
+        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){match{name},targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}},sourceVariables{name,description,format{name},valueLabels,missingValues},syntax,description}}`,
         {
           filter: filter,
         }
@@ -174,6 +191,7 @@ export default {
           this.harmonisation = data.VariableHarmonisations[0];
         })
         .catch((error) => {
+          console.log(JSON.stringify(error));
           this.error = error.response.errors[0].message;
         })
         .finally(() => {
