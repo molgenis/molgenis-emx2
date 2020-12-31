@@ -26,8 +26,10 @@ public class Emx2Roles {
   }
 
   public static void inputRoles(TableStore store, Schema schema) {
-    for (Row row : store.readTable(ROLES_TABLE)) {
-      schema.addMember(row.getString(USER), row.getString(ROLE));
+    if (store.containsTable(ROLES_TABLE)) {
+      for (Row row : store.readTable(ROLES_TABLE)) {
+        schema.addMember(row.getString(USER), row.getString(ROLE));
+      }
     }
   }
 }
