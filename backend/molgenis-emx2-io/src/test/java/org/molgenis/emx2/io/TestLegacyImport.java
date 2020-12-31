@@ -13,9 +13,9 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.io.rowstore.TableStore;
-import org.molgenis.emx2.io.rowstore.TableStoreForCsvFilesDirectory;
-import org.molgenis.emx2.io.rowstore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestLegacyImport {
@@ -57,10 +57,10 @@ public class TestLegacyImport {
     File temp = File.createTempFile("exm1", ".xlsx");
     // delete the file, we will create
     temp.delete();
-    SchemaExport.toEmx1ExcelFile(temp.toPath(), schema);
+    MolgenisIO.toEmx1ExcelFile(temp.toPath(), schema);
 
     schema = db.dropCreateSchema("testExm1ExportImport");
-    SchemaImport.fromExcelFile(temp.toPath(), schema);
+    MolgenisIO.fromExcelFile(temp.toPath(), schema);
 
     schema.getTableNames().contains("Pet");
 
@@ -68,7 +68,7 @@ public class TestLegacyImport {
   }
 
   private void executeTest(TableStore store, Schema schema) {
-    SchemaImport.executeImport(store, schema);
+    MolgenisIO.inputAll(store, schema);
 
     assertEquals(22, schema.getTableNames().size());
 

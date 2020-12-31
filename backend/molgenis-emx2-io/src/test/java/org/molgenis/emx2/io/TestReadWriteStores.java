@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.io.rowstore.*;
+import org.molgenis.emx2.io.tablestore.*;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestReadWriteStores {

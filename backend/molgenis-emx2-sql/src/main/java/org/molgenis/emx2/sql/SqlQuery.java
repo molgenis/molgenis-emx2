@@ -81,7 +81,9 @@ public class SqlQuery extends QueryBean {
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
         // currently we don't download refback (good) and files (that is bad)
-        if (!REFBACK.equals(c.getColumnType()) && !FILE.equals(c.getColumnType())) {
+        if (FILE.equals(c.getColumnType())) {
+          select.select(c.getName());
+        } else if (!REFBACK.equals(c.getColumnType())) {
           if (c.isReference()) {
             for (Reference ref : c.getReferences()) {
               select.select(ref.getName());
@@ -135,7 +137,7 @@ public class SqlQuery extends QueryBean {
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
       if (FILE.equals(column.getColumnType())) {
         // check what they want to get, contents, mimetype, size and/or extension
-        if (select.has("id")) {
+        if (select.getSubselect().size() == 0 || select.has("id")) {
           fields.add(field(name(column.getName())));
         }
         if (select.has("contents")) {
@@ -966,6 +968,7 @@ public class SqlQuery extends QueryBean {
     switch (type) {
       case TEXT:
       case STRING:
+      case FILE:
         return whereConditionText(name, operator, toStringArray(values));
       case BOOL:
         return whereConditionEquals(name, operator, toBoolArray(values));
@@ -1243,17 +1246,17 @@ public class SqlQuery extends QueryBean {
         }
       }
       // is file?
-      //      for (Column c : table.getColumns()) {
-      //        if (c.getColumnType().equals(FILE) && columnName.startsWith(c.getName())) {
-      //          if (columnName.endsWith("_id")
-      //              || columnName.endsWith("_mimetype")
-      //              || columnName.endsWith("_extension")
-      //              || columnName.endsWith("_size")
-      //              || columnName.endsWith("_contents")) {
-      //            return new Column(table, columnName);
-      //          }
-      //        }
-      //      }
+      for (Column c : table.getColumns()) {
+        if (c.getColumnType().equals(FILE) && columnName.startsWith(c.getName())) {
+          if (columnName.equals(c.getName())
+              || columnName.endsWith("_mimetype")
+              || columnName.endsWith("_extension")
+              || columnName.endsWith("_size")
+              || columnName.endsWith("_contents")) {
+            return new Column(table, columnName);
+          }
+        }
+      }
       throw new MolgenisException(
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }

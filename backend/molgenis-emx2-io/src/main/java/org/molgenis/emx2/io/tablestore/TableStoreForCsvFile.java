@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.rowstore;
+package org.molgenis.emx2.io.tablestore;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -8,6 +8,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 
+/** can only handle one table */
 public class TableStoreForCsvFile implements TableStore {
   private Path csvFile;
 

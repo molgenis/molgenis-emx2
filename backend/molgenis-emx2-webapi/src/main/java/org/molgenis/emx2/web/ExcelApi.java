@@ -18,9 +18,7 @@ import javax.servlet.ServletException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.SchemaExport;
-import org.molgenis.emx2.io.SchemaImport;
-import org.molgenis.emx2.io.TableExport;
+import org.molgenis.emx2.io.MolgenisIO;
 import spark.Request;
 import spark.Response;
 
@@ -53,7 +51,7 @@ public class ExcelApi {
     try (InputStream input = request.raw().getPart("file").getInputStream()) {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-    SchemaImport.fromExcelFile(tempFile.toPath(), schema);
+    MolgenisIO.fromExcelFile(tempFile.toPath(), schema);
     response.status(200);
     return "Import success in " + (System.currentTimeMillis() - start) + "ms";
   }
@@ -66,9 +64,9 @@ public class ExcelApi {
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
       if (request.queryParams("emx1") != null) {
-        SchemaExport.toEmx1ExcelFile(excelFile, schema);
+        MolgenisIO.toEmx1ExcelFile(excelFile, schema);
       } else {
-        SchemaExport.toExcelFile(excelFile, schema);
+        MolgenisIO.toExcelFile(excelFile, schema);
       }
 
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -90,7 +88,7 @@ public class ExcelApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      TableExport.toExcelFile(excelFile, table);
+      MolgenisIO.toExcelFile(excelFile, table);
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",

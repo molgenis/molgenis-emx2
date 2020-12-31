@@ -1,18 +1,17 @@
 package org.molgenis.emx2.web;
 
-import org.molgenis.emx2.*;
-import spark.Request;
-import spark.Response;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import org.molgenis.emx2.*;
+import spark.Request;
+import spark.Response;
 
 public class FileApi {
   public static void create() {

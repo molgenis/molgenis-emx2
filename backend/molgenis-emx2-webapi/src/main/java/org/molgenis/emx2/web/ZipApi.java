@@ -20,9 +20,7 @@ import javax.servlet.ServletException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.SchemaExport;
-import org.molgenis.emx2.io.SchemaImport;
-import org.molgenis.emx2.io.TableExport;
+import org.molgenis.emx2.io.MolgenisIO;
 import spark.Request;
 import spark.Response;
 
@@ -49,7 +47,7 @@ public class ZipApi {
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
       Path zipFile = tempDir.resolve("download.zip");
-      SchemaExport.toZipFile(zipFile, schema);
+      MolgenisIO.toZipFile(zipFile, schema);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(
@@ -83,9 +81,9 @@ public class ZipApi {
       String fileName = request.raw().getPart("file").getSubmittedFileName();
 
       if (fileName.endsWith(".zip")) {
-        SchemaImport.fromZipFile(tempFile.toPath(), schema);
+        MolgenisIO.fromZipFile(tempFile.toPath(), schema);
       } else if (fileName.endsWith(".xlsx")) {
-        SchemaImport.fromExcelFile(tempFile.toPath(), schema);
+        MolgenisIO.fromExcelFile(tempFile.toPath(), schema);
       } else {
         throw new IOException(
             "File upload failed: extension "
@@ -107,7 +105,7 @@ public class ZipApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path zipFile = tempDir.resolve("download.zip");
-      TableExport.toZipFile(zipFile, table);
+      MolgenisIO.toZipFile(zipFile, table);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(

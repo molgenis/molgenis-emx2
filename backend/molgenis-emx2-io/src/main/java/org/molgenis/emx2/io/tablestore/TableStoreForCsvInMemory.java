@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.rowstore;
+package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
 import java.util.LinkedHashMap;

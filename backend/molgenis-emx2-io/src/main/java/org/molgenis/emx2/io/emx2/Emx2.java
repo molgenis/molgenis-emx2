@@ -6,13 +6,12 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2 {
 
@@ -35,8 +34,12 @@ public class Emx2 {
     // hidden
   }
 
-  public static SchemaMetadata fromRowList(Iterable<Row> rows) {
+  public static void inputMetadata(TableStore store, Schema schema) {
+    SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
+    schema.merge(emx2Schema);
+  }
 
+  public static SchemaMetadata fromRowList(Iterable<Row> rows) {
     SchemaMetadata schema = new SchemaMetadata();
     int lineNo = 1;
 
@@ -91,6 +94,14 @@ public class Emx2 {
       lineNo++;
     }
     return schema;
+  }
+
+  public static void outputMetadata(TableStore store, Schema schema) {
+    outputMetadata(store, schema.getMetadata());
+  }
+
+  public static void outputMetadata(TableStore store, SchemaMetadata schema) {
+    store.writeTable("molgenis", toRowList(schema));
   }
 
   public static List<Row> toRowList(SchemaMetadata schema) {
@@ -149,10 +160,5 @@ public class Emx2 {
 
   public static SchemaMetadata loadEmx2File(File file, Character separator) throws IOException {
     return fromRowList(CsvTableReader.read(file, separator));
-  }
-
-  public static void toCsv(SchemaMetadata model, Writer writer, Character separator)
-      throws IOException {
-    CsvTableWriter.write(toRowList(model), writer, separator);
   }
 }

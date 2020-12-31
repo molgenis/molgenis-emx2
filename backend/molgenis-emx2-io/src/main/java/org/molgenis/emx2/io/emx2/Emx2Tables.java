@@ -1,66 +1,70 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.emx2;
 
-import java.nio.file.Path;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.emx1.Emx1;
-import org.molgenis.emx2.io.emx2.Emx2;
-import org.molgenis.emx2.io.rowstore.*;
+import org.molgenis.emx2.io.tablestore.RowProcessor;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SchemaImport {
-  private static Logger logger = LoggerFactory.getLogger(SchemaImport.class.getName());
+public class Emx2Tables {
+  private static final Logger logger = LoggerFactory.getLogger(Emx2Tables.class.getName());
 
-  private SchemaImport() {
-    // hide constructor
+  private Emx2Tables() {
+    // hidden
   }
 
-  public static void fromDirectory(Path directory, Schema schema) {
-    executeImport(new TableStoreForCsvFilesDirectory(directory), schema);
+  public static void outputTable(TableStore store, Table table) {
+    SelectColumn[] select =
+        table.getMetadata().getDownloadColumnNames().stream()
+            .map(c -> c.getName())
+            .filter(n -> !n.equals(MG_TABLECLASS))
+            .map(c -> s(c))
+            .toArray(SelectColumn[]::new);
+
+    if (table.getMetadata().getColumns().contains(MG_TABLECLASS)) {
+      store.writeTable(
+          table.getName(),
+          table
+              .query()
+              .select(select)
+              .where(
+                  f(
+                      MG_TABLECLASS,
+                      Operator.EQUALS,
+                      table.getSchema().getName() + "." + table.getName()))
+              .retrieveRows());
+    } else {
+      store.writeTable(table.getName(), table.select(select).retrieveRows());
+    }
+
+    // in case of zip file we include the attached files
+    if (store instanceof TableStoreForCsvInZipFile) {
+      Emx2Files.outputFiles((TableStoreForCsvInZipFile) store, table);
+    }
   }
 
-  public static void fromZipFile(Path zipFile, Schema schema) {
-    executeImport(new TableStoreForCsvInZipFile(zipFile), schema);
-  }
+  public static void inputTable(TableStore store, Table table) {
+    if (store.containsTable(table.getName())) {
 
-  public static void fromExcelFile(Path excelFile, Schema schema) {
-    executeImport(new TableStoreForXlsxFile(excelFile), schema);
-  }
+      // validation of fkeys
+      // store.processTable(table.getName(), new ValidationProcessor(table));
 
-  static void executeImport(TableStore store, Schema schema) {
-    long start = System.currentTimeMillis();
-    schema.tx(
-        db -> {
-          // read emx1 metadata, if available (to be removed in future versions)
-          if (store.containsTable("attributes")) {
-            Emx1.uploadFromStoreToSchema(store, schema);
-          } else if (store.containsTable("molgenis")) {
-            SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
-            schema.merge(emx2Schema);
-          }
-          // read data
-          for (Table table : schema.getTablesSorted()) {
-            if (store.containsTable(table.getName())) {
+      // batching here to not blow memory,
+      // and in strategy class so reader can close file
+      store.processTable(table.getName(), new ImportProcessor(table));
 
-              // validation of fkeys
-              // store.processTable(table.getName(), new ValidationProcessor(table));
-
-              // batching here to not blow memory,
-              // and in strategy class so reader can close file
-              store.processTable(table.getName(), new ImportProcessor(table));
-
-              logger.info("Import of table '" + table.getName() + "' completed");
-            }
-          }
-        });
-    if (logger.isInfoEnabled()) {
-      logger.info("Import transaction completed in {0}ms", System.currentTimeMillis() - start);
+      logger.info("Import of table '" + table.getName() + "' completed");
     }
   }
 

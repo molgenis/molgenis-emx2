@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.rowstore;
+package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
 import java.net.URI;
@@ -46,6 +46,23 @@ public class TableStoreForCsvInZipFile implements TableStore {
     env.put("create", "false");
     final URI zipUri = URI.create("jar:" + zipFilePath.toUri());
     return FileSystems.newFileSystem(zipUri, env, null);
+  }
+
+  public void writeFile(String filePath, byte[] contents) {
+    try (FileSystem zipfs = open()) {
+      // dir exist?
+      Path dir = zipfs.getPath("_files");
+      if (!Files.exists(dir)) {
+        Files.createDirectories(dir);
+      }
+      Path pathInZipfile = zipfs.getPath(filePath);
+      OutputStream out = Files.newOutputStream(pathInZipfile);
+      out.write(contents);
+      out.flush();
+      out.close();
+    } catch (IOException ioe) {
+      throw new MolgenisException("File export failed", ioe);
+    }
   }
 
   @Override
@@ -115,7 +132,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
     }
   }
 
-  // magic functiont to allow file in subfolder
+  // magic function to allow file in subfolder
   private ZipEntry getEntry(ZipFile zf, String name) {
     List<ZipEntry> result =
         zf.stream()

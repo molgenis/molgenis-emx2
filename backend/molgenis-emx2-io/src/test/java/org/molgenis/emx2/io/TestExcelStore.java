@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 
 public class TestExcelStore {
 

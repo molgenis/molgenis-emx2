@@ -35,6 +35,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import spark.Request;
 import spark.Response;
 
@@ -87,7 +88,7 @@ public class CsvApi {
   static String getMetadata(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
     StringWriter writer = new StringWriter();
-    Emx2.toCsv(schema.getMetadata(), writer, getSeperator(request));
+    Emx2.outputMetadata(new TableStoreForCsvFile(null), schema);
     response.status(200);
     return writer.toString();
   }

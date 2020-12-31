@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.io.SchemaImport;
+import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
-import org.molgenis.emx2.io.rowstore.TableStoreForXlsxFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -34,7 +34,7 @@ public class LinkedDataServiceTest {
   public void testOntologyLinks() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path file = new File(classLoader.getResource("hpo_patients.xlsx").getFile()).toPath();
-    SchemaImport.fromExcelFile(file, patientSchema);
+    MolgenisIO.fromExcelFile(file, patientSchema);
 
     StringWriter sw = new StringWriter();
     JsonLdService.jsonld(patientSchema, new PrintWriter(sw));
