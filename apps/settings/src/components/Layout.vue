@@ -56,27 +56,49 @@ export default {
   },
   methods: {
     saveSettings() {
-      let settingsMap = [];
+      let settingsAlter = [];
+      let settingsDrop = [];
       Object.keys(this.settings).forEach((key) => {
-        settingsMap.push({ key: key, value: this.settings[key] });
+        if (this.settings[key] != undefined) {
+          settingsAlter.push({ key: key, value: this.settings[key] });
+        } else {
+          settingsDrop.push({ key: key });
+        }
       });
-      alert("result: " + JSON.stringify(settingsMap));
       this.loading = true;
       this.loading = true;
       this.error = null;
       this.success = null;
-      request(
-        "graphql",
-        `mutation alter($settings:[AlterSettingInput]){alter(settings:$settings){message}}`,
-        { settings: settingsMap }
-      )
-        .then((data) => {
-          this.success = data.alter.message;
-        })
-        .catch((error) => {
-          this.error = error.response.errors[0].message;
-        })
-        .finally((this.loading = false));
+      //alter
+      if (settingsAlter.length > 0) {
+        request(
+          "graphql",
+          `mutation alter($alter:[AlterSettingInput]){alter(settings:$alter){message}}`,
+          { settings: settingsAlter }
+        )
+          .then((data) => {
+            this.success = data.alter.message;
+          })
+          .catch((error) => {
+            this.error = error.response.errors[0].message;
+          })
+          .finally((this.loading = false));
+      }
+      // drop, dunno how to do this in one call!
+      if (settingsDrop.length > 0) {
+        request(
+          "graphql",
+          `mutation drop($drop:[DropSettingInput]){drop(settings:$drop){message}}`,
+          { settings: settingsDrop }
+        )
+          .then((data) => {
+            this.success = data.drop.message;
+          })
+          .catch((error) => {
+            this.error = error.response.errors[0].message;
+          })
+          .finally((this.loading = false));
+      }
     },
   },
 };
