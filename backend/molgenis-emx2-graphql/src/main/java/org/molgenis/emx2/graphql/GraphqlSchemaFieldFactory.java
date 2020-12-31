@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,19 +25,14 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLInputObjectType.Builder()
           .name("AlterSettingInput")
           .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.KEY)
-                  .type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
           .build();
   static final GraphQLType outputSettingsMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSettingsType")
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.KEY)
-                  .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.VALUE)
@@ -51,6 +47,14 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN)
                   .type(Scalars.GraphQLString))
+          .build();
+  private static final GraphQLInputObjectType inputDropSettingType =
+      new GraphQLInputObjectType.Builder()
+          .name("DropSettingInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
   // medatadata
   private static final GraphQLType outputRolesMetadataType =
@@ -343,6 +347,7 @@ public class GraphqlSchemaFieldFactory {
             dropTables(schema, dataFetchingEnvironment, message);
             dropMembers(schema, dataFetchingEnvironment, message);
             dropColumns(schema, dataFetchingEnvironment, message);
+            dropSettings(schema, dataFetchingEnvironment, message);
           });
       Map result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
@@ -375,6 +380,26 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
+  private static void dropSettings(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
+    if (settings != null) {
+      for (Map<String, String> setting : settings) {
+        if (setting.get("table") != null) {
+          Table table = schema.getTable(setting.get("table"));
+          if (table == null) {
+            throw new MolgenisException(
+                "Cannot remove setting because table " + setting.get("table") + " does not exist");
+          }
+          table.getMetadata().removeSetting(setting.get("key"));
+        } else {
+          schema.getMetadata().removeSetting(setting.get("key"));
+          message.append("Removed schema setting '" + (setting.get("key")) + "'\n");
+        }
+      }
+    }
+  }
+
   private static void dropTables(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
@@ -400,7 +425,7 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment ->
                 // add settings
-                schema.getMetadata().getSettings().entrySet().stream()
+                schema.getMetadata().getSettings().stream()
                     .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue()))
                     .collect(Collectors.toList()));
   }
@@ -527,19 +552,8 @@ public class GraphqlSchemaFieldFactory {
   private void createSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
-      // get the old settings
-      Map<String, String> settingsMap = schema.getMetadata().getSettings();
-      // convert from  {key:xx,value:yy} to {xx:yy}, merge with old settings
       settings.forEach(
-          entry -> {
-            if (entry.get(VALUE) == null || entry.get(VALUE).trim().equals("")) {
-              // remove the key
-              settingsMap.remove(entry.get("key"));
-            } else {
-              settingsMap.put(entry.get("key"), entry.get(VALUE));
-            }
-          });
-      schema.getMetadata().setSettings(settingsMap);
+          entry -> schema.getMetadata().setSetting(entry.get("key"), entry.get(VALUE)));
     }
   }
 
@@ -580,6 +594,10 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)
                 .type(GraphQLList.list(inputDropColumnType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(SETTINGS)
+                .type(GraphQLList.list(inputDropSettingType)))
         .build();
   }
 }

@@ -5,17 +5,17 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
-  private SqlDatabase db;
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(db, MetadataUtils.loadSchemaMetadata(db.getJooq(), new SchemaMetadata(name)));
@@ -24,16 +24,15 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
     long start = System.currentTimeMillis();
     for (TableMetadata table : MetadataUtils.loadTables(db.getJooq(), this)) {
-      super.create(new SqlTableMetadata(db, this, table));
+      super.create(new SqlTableMetadata(this, table));
     }
     if (logger.isInfoEnabled()) {
       logger.info("loading schema '{}' complete in {}ms", name, System.currentTimeMillis() - start);
     }
-    this.db = db;
   }
 
   public boolean exists() {
-    return MetadataUtils.schemaExists(db.getJooq(), this.getName());
+    return MetadataUtils.schemaExists(getDatabase().getJooq(), this.getName());
   }
 
   @Override
@@ -50,47 +49,75 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void create(TableMetadata... tables) {
-    db.tx(
-        database -> {
-          List<TableMetadata> tableList = new ArrayList<>();
-          tableList.addAll(List.of(tables));
-          if (tableList.size() > 1) sortTableByDependency(tableList);
-          for (TableMetadata table : tableList) {
-            SqlTableMetadata result = new SqlTableMetadata(database, this, table);
-            executeCreateTable(getJooq(), result);
-            super.create(result);
-          }
-        });
-    db.getListener().schemaChanged(getName());
+    getDatabase()
+        .tx(
+            database -> {
+              List<TableMetadata> tableList = new ArrayList<>();
+              tableList.addAll(List.of(tables));
+              if (tableList.size() > 1) sortTableByDependency(tableList);
+              for (TableMetadata table : tableList) {
+                SqlTableMetadata result = new SqlTableMetadata(this, table);
+                executeCreateTable(getJooq(), result);
+                super.create(result);
+              }
+            });
+    getDatabase().getListener().schemaChanged(getName());
   }
 
   @Override
   public void drop(String tableName) {
     long start = System.currentTimeMillis();
-    db.tx(
-        dsl -> {
-          executeDropTable(getJooq(), getTableMetadata(tableName));
-          super.drop(tableName);
-        });
-    db.getListener().schemaChanged(getName());
+    getDatabase()
+        .tx(
+            dsl -> {
+              executeDropTable(getJooq(), getTableMetadata(tableName));
+              super.drop(tableName);
+            });
+    getDatabase().getListener().schemaChanged(getName());
     log(start, "dropped");
   }
 
   @Override
-  public SqlSchemaMetadata setSettings(Map<String, String> settings) {
+  public SqlSchemaMetadata setSettings(Collection<Setting> settings) {
     super.setSettings(settings);
-    MetadataUtils.saveSchemaMetadata(db.getJooq(), this);
-    db.getListener().schemaChanged(getName());
+    for (Setting setting : settings) {
+      MetadataUtils.saveSetting(getDatabase().getJooq(), this, null, setting);
+    }
     return this;
   }
 
+  @Override
+  public SqlSchemaMetadata setSetting(String key, String value) {
+    MetadataUtils.saveSetting(getDatabase().getJooq(), this, null, new Setting(key, value));
+    return this;
+  }
+
+  @Override
+  public List<Setting> getSettings() {
+    if (super.getSettings().size() == 0) {
+      super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
+    }
+    return super.getSettings();
+  }
+
+  @Override
+  public void removeSetting(String key) {
+    MetadataUtils.deleteSetting(getDatabase().getJooq(), this, null, new Setting(key, null));
+    super.removeSetting(key);
+  }
+
   protected DSLContext getJooq() {
-    return db.getJooq();
+    return getDatabase().getJooq();
   }
 
   private void log(long start, String message) {
-    String user = db.getActiveUser();
+    String user = getDatabase().getActiveUser();
     if (user == null) user = "molgenis";
     logger.info("{} {} {} in {}ms", user, message, getName(), (System.currentTimeMillis() - start));
+  }
+
+  @Override
+  public SqlDatabase getDatabase() {
+    return (SqlDatabase) super.getDatabase();
   }
 }

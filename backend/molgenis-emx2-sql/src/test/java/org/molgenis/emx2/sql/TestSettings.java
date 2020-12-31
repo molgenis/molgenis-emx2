@@ -4,11 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.util.Map;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.Table;
 
 public class TestSettings {
@@ -22,18 +23,28 @@ public class TestSettings {
   @Test
   public void testSchemaSettings() {
     Schema s = db.dropCreateSchema("testSchemaSettings");
-    Map<String, String> settings = Map.of("key", "value");
-    s.getMetadata().setSettings(settings);
-    assertEquals(settings, s.getMetadata().getSettings());
-    assertEquals(settings, db.getSchema("testSchemaSettings").getMetadata().getSettings());
+    s.getMetadata().setSetting("key", "value");
+
+    assertEquals("key", s.getMetadata().getSettings().get(0).getKey());
+    assertEquals("value", s.getMetadata().getSettings().get(0).getValue());
+
+    assertEquals(
+        "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
+    assertEquals(
+        "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
+
     db.clearCache();
-    assertEquals(settings, db.getSchema("testSchemaSettings").getMetadata().getSettings());
+
+    assertEquals(
+        "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
+    assertEquals(
+        "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
   }
 
   @Test
   public void testTableSettings() {
     Schema s = db.dropCreateSchema("testTableSettings");
-    Map<String, String> settings = Map.of("key", "value");
+    List<Setting> settings = List.of(new Setting("key", "value"));
 
     Table t = s.create(table("test").add(column("test")));
     t.getMetadata().setSettings(settings);
@@ -43,6 +54,20 @@ public class TestSettings {
         settings, db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings());
     db.clearCache();
     assertEquals(
-        settings, db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings());
+        "key",
+        db.getSchema("testTableSettings")
+            .getTable("test")
+            .getMetadata()
+            .getSettings()
+            .get(0)
+            .getKey());
+    assertEquals(
+        "value",
+        db.getSchema("testTableSettings")
+            .getTable("test")
+            .getMetadata()
+            .getSettings()
+            .get(0)
+            .getValue());
   }
 }

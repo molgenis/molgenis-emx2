@@ -3,7 +3,6 @@ package org.molgenis.emx2.json;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
@@ -20,10 +19,7 @@ public class Schema {
     // deterministic order is important for all kinds of comparisons
     List<String> list = new ArrayList<>();
     list.addAll(schema.getTableNames());
-    this.settings =
-        schema.getSettings().entrySet().stream()
-            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
+    this.settings = List.of(schema.getSettings().toArray(new Setting[0]));
     Collections.sort(list);
     Set<String> imported = new LinkedHashSet<>();
     for (String tableName : list) {
@@ -53,13 +49,10 @@ public class Schema {
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
-    s.setSettings(settings.stream().collect(Collectors.toMap(Setting::getKey, Setting::getValue)));
-    for (Table t : tables) {
+    s.setSettings(this.settings);
+    for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
-      Map<String, String> tableSettings = new LinkedHashMap<>();
-      t.getSettings().stream()
-          .forEach(entry -> tableSettings.put(entry.getKey(), entry.getValue()));
-      tm.setSettings(tableSettings);
+      tm.setSettings(t.getSettings());
       tm.setJsonldType(t.getJsonldType());
       tm.setDescription(t.getDescription());
       for (Column c : t.getColumns()) {

@@ -22,7 +22,7 @@ public class TableMetadata {
   // columns of the table (required)
   protected Map<String, Column> columns = new LinkedHashMap<>();
   // key value map for settings specific to this table (optional)
-  protected Map<String, String> settings = new LinkedHashMap<>();
+  protected Map<String, Setting> settings = new LinkedHashMap<>();
   // link to the schema this table is part of (optional)
   private SchemaMetadata schema;
   // name unique within this schema (required)
@@ -75,7 +75,7 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
-    this.settings = metadata.getSettings();
+    this.setSettings(metadata.getSettings());
     for (Column c : metadata.columns.values()) {
       this.columns.put(c.getName(), new Column(this, c));
     }
@@ -400,19 +400,20 @@ public class TableMetadata {
     return getKeyFields(1);
   }
 
-  public Map<String, String> getSettings() {
-    return settings;
+  public List<Setting> getSettings() {
+    return settings.values().stream().collect(Collectors.toList());
   }
 
-  public TableMetadata setSettings(Map<String, String> settings) {
+  public TableMetadata setSettings(List<Setting> settings) {
     if (settings == null) return this;
-    this.settings =
-        settings.entrySet().stream()
-            .filter(e -> e.getValue() != null && e.getValue().trim().length() > 0)
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey, Map.Entry::getValue)); // strip null and "" values
+    for (Setting setting : settings) {
+      this.settings.put(setting.getKey(), setting);
+    }
     return this;
+  }
+
+  public void removeSetting(String key) {
+    this.settings.remove(key);
   }
 
   public String getImportSchema() {
@@ -421,6 +422,11 @@ public class TableMetadata {
 
   public TableMetadata setImportSchema(String importSchema) {
     this.importSchema = importSchema;
+    return this;
+  }
+
+  public TableMetadata setSetting(String key, String value) {
+    this.settings.put(key, new Setting(key, value));
     return this;
   }
 }

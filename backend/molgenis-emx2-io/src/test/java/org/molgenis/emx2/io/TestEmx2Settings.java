@@ -2,12 +2,12 @@ package org.molgenis.emx2.io;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
@@ -25,9 +25,7 @@ public class TestEmx2Settings {
   @Test
   public void testRolesIO() {
     // create settings
-    Map<String, String> settings = new LinkedHashMap<>();
-    settings.put("foo", "bar");
-    schema.getMetadata().setSettings(settings);
+    schema.getMetadata().setSetting("foo", "bar");
 
     // export
     TableStore store = new TableStoreForCsvInMemory();
@@ -39,7 +37,8 @@ public class TestEmx2Settings {
 
     // import and see if consistent
     Emx2Settings.inputSettings(store, schema);
-    settings = schema.getMetadata().getSettings();
-    assertEquals("bar", settings.get("foo"));
+    List<Setting> settings = schema.getMetadata().getSettings();
+    assertEquals("foo", settings.get(0).getKey());
+    assertEquals("bar", settings.get(0).getValue());
   }
 }

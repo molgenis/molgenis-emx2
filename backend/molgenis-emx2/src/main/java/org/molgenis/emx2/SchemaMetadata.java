@@ -6,7 +6,7 @@ import org.molgenis.emx2.utils.TableSort;
 public class SchemaMetadata {
 
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
-  protected Map<String, String> settings = new LinkedHashMap<>();
+  protected Map<String, Setting> settings = new LinkedHashMap<>();
   private String name;
   // optional
   private Database database;
@@ -21,12 +21,14 @@ public class SchemaMetadata {
 
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
-    this.settings = schema.getSettings();
+    this.database = schema.getDatabase();
+    this.setSettings(schema.getSettings());
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
-    this(schema);
+    this.name = schema.getName();
     this.database = db;
+    this.setSettings(schema.getSettings());
   }
 
   public String getName() {
@@ -86,13 +88,22 @@ public class SchemaMetadata {
     return result;
   }
 
-  public Map<String, String> getSettings() {
-    return this.settings;
+  public List<Setting> getSettings() {
+    List<Setting> result = new ArrayList<>();
+    result.addAll(this.settings.values());
+    return result;
   }
 
-  public SchemaMetadata setSettings(Map<String, String> settings) {
+  public SchemaMetadata setSettings(Collection<Setting> settings) {
     if (settings == null) return this;
-    this.settings = settings;
+    for (Setting setting : settings) {
+      this.settings.put(setting.getKey(), new Setting(setting));
+    }
+    return this;
+  }
+
+  public SchemaMetadata setSetting(String name, String value) {
+    this.settings.put(name, new Setting(name, value));
     return this;
   }
 
@@ -102,5 +113,9 @@ public class SchemaMetadata {
 
   public void setDatabase(Database database) {
     this.database = database;
+  }
+
+  public void removeSetting(String key) {
+    this.settings.remove(key);
   }
 }

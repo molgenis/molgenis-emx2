@@ -10,49 +10,50 @@ import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
-import java.util.Map;
+import java.util.List;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class SqlTableMetadata extends TableMetadata {
-  private Database db;
   private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
 
-  SqlTableMetadata(Database db, SqlSchemaMetadata schema, TableMetadata metadata) {
+  SqlTableMetadata(SqlSchemaMetadata schema, TableMetadata metadata) {
     super(schema, metadata);
-    this.db = db;
   }
 
   @Override
   public TableMetadata add(Column... column) {
     long start = System.currentTimeMillis();
-    db.tx(
-        dsl -> {
-          // first per-column actions, then multi-column action such as composite keys/refs
-          for (Column c : column) {
-            if (getColumn(c.getName()) != null) {
-              alterColumn(c);
-            } else {
-              Column newColumn = new Column(this, c);
-              validateColumn(newColumn);
-              updatePositions(newColumn, this);
-              executeCreateColumn(getJooq(), newColumn);
-              super.add(newColumn);
-              if (newColumn.getKey() > 0) {
-                createOrReplaceKey(
-                    getJooq(),
-                    newColumn.getTable(),
-                    newColumn.getKey(),
-                    newColumn.getTable().getKeyFields(newColumn.getKey()));
+    getDatabase()
+        .tx(
+            dsl -> {
+              // first per-column actions, then multi-column action such as composite keys/refs
+              for (Column c : column) {
+                if (getColumn(c.getName()) != null) {
+                  alterColumn(c);
+                } else {
+                  Column newColumn = new Column(this, c);
+                  validateColumn(newColumn);
+                  updatePositions(newColumn, this);
+                  executeCreateColumn(getJooq(), newColumn);
+                  super.add(newColumn);
+                  if (newColumn.getKey() > 0) {
+                    createOrReplaceKey(
+                        getJooq(),
+                        newColumn.getTable(),
+                        newColumn.getKey(),
+                        newColumn.getTable().getKeyFields(newColumn.getKey()));
+                  }
+                  executeCreateRefConstraints(getJooq(), newColumn);
+                  log(
+                      start,
+                      "added column '" + newColumn.getName() + "' to table " + getTableName());
+                }
               }
-              executeCreateRefConstraints(getJooq(), newColumn);
-              log(start, "added column '" + newColumn.getName() + "' to table " + getTableName());
-            }
-          }
-        });
-    db.getListener().schemaChanged(getSchemaName());
+            });
+    getDatabase().getListener().schemaChanged(getSchemaName());
     return this;
   }
 
@@ -67,70 +68,72 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    db.tx(
-        dsl -> {
-          Column newColumn = new Column(this, column);
+    getDatabase()
+        .tx(
+            dsl -> {
+              Column newColumn = new Column(this, column);
 
-          // check if reference and of different size
-          if (REF_ARRAY.equals(newColumn.getColumnType())
-              && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
-            throw new MolgenisException(
-                "Alter column of '"
-                    + oldColumn.getName()
-                    + " failed: REF_ARRAY is not supported for composite keys of table "
-                    + newColumn.getRefTableName());
-          }
+              // check if reference and of different size
+              if (REF_ARRAY.equals(newColumn.getColumnType())
+                  && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
+                throw new MolgenisException(
+                    "Alter column of '"
+                        + oldColumn.getName()
+                        + " failed: REF_ARRAY is not supported for composite keys of table "
+                        + newColumn.getRefTableName());
+              }
 
-          // if changing 'ref' then check if not refback exists
-          if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-            checkNotRefback(name, oldColumn);
-          }
+              // if changing 'ref' then check if not refback exists
+              if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
+                checkNotRefback(name, oldColumn);
+              }
 
-          // change positions if needed
-          if (!oldColumn.getPosition().equals(newColumn.getPosition())) {
-            updatePositions(newColumn, this);
-          }
+              // change positions if needed
+              if (!oldColumn.getPosition().equals(newColumn.getPosition())) {
+                updatePositions(newColumn, this);
+              }
 
-          // drop old key, if touched
-          if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
-            executeDropKey(getJooq(), oldColumn.getTable(), oldColumn.getKey());
-          }
+              // drop old key, if touched
+              if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
+                executeDropKey(getJooq(), oldColumn.getTable(), oldColumn.getKey());
+              }
 
-          // drop referential constraints around this column
-          executeRemoveRefConstraints(getJooq(), oldColumn);
+              // drop referential constraints around this column
+              executeRemoveRefConstraints(getJooq(), oldColumn);
 
-          // remove refbacks if exist
-          executeRemoveRefback(oldColumn, newColumn);
+              // remove refbacks if exist
+              executeRemoveRefback(oldColumn, newColumn);
 
-          // rename and retype if needed
-          executeAlterType(getJooq(), oldColumn, newColumn);
-          executeAlterName(getJooq(), oldColumn, newColumn);
-          executeSetNullable(getJooq(), newColumn);
+              // rename and retype if needed
+              executeAlterType(getJooq(), oldColumn, newColumn);
+              executeAlterName(getJooq(), oldColumn, newColumn);
+              executeSetNullable(getJooq(), newColumn);
 
-          // change nullable?
-          if (oldColumn.isNullable() != null
-              && !oldColumn.isNullable().equals(newColumn.isNullable())) {
-            executeSetNullable(getJooq(), newColumn);
-          }
+              // change nullable?
+              if (oldColumn.isNullable() != null
+                  && !oldColumn.isNullable().equals(newColumn.isNullable())) {
+                executeSetNullable(getJooq(), newColumn);
+              }
 
-          // update the metadata so we can use it for new keys and references
-          super.alterColumn(name, newColumn);
+              // update the metadata so we can use it for new keys and references
+              super.alterColumn(name, newColumn);
 
-          // check if refback constraints need updating
-          reapplyRefbackContraints(oldColumn, newColumn);
+              // check if refback constraints need updating
+              reapplyRefbackContraints(oldColumn, newColumn);
 
-          // create/update key, if touched
-          if (newColumn.getKey() != oldColumn.getKey()) {
+              // create/update key, if touched
+              if (newColumn.getKey() != oldColumn.getKey()) {
 
-            createOrReplaceKey(
-                getJooq(), this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
-          }
+                createOrReplaceKey(
+                    getJooq(), this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
+              }
 
-          // delete old column if name changed, then save any other metadata changes
-          if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(getJooq(), oldColumn);
-          saveColumnMetadata(getJooq(), newColumn);
-        });
-    db.getListener().schemaChanged(getSchemaName());
+              // delete old column if name changed, then save any other metadata changes
+              if (!oldColumn.getName().equals(newColumn.getName()))
+                deleteColumn(getJooq(), oldColumn);
+              saveColumnMetadata(getJooq(), newColumn);
+            });
+    getDatabase().getListener().schemaChanged(getSchemaName());
 
     return this;
   }
@@ -164,12 +167,13 @@ class SqlTableMetadata extends TableMetadata {
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
-    db.tx(
-        dsl -> {
-          SqlColumnExecutor.executeRemoveColumn(getJooq(), getColumn(name));
-          super.columns.remove(name);
-        });
-    db.getListener().schemaChanged(getSchemaName());
+    getDatabase()
+        .tx(
+            dsl -> {
+              SqlColumnExecutor.executeRemoveColumn(getJooq(), getColumn(name));
+              super.columns.remove(name);
+            });
+    getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "removed column '" + name + "' from ");
   }
 
@@ -224,15 +228,17 @@ class SqlTableMetadata extends TableMetadata {
           "Set inheritance failed: To extend table '"
               + otherTable
               + "' it must have primary key set");
-    db.tx(
-        tdb -> {
-          // extends means we copy primary key column from parent to child, make it foreign key to
-          // parent, and make it primary key of this table also.
-          executeSetInherit(getJooq(), this, other);
-          super.setInherit(otherTable);
-          MetadataUtils.saveTableMetadata(getJooq(), this);
-        });
-    db.getListener().schemaChanged(getSchemaName());
+    getDatabase()
+        .tx(
+            tdb -> {
+              // extends means we copy primary key column from parent to child, make it foreign key
+              // to
+              // parent, and make it primary key of this table also.
+              executeSetInherit(getJooq(), this, other);
+              super.setInherit(otherTable);
+              MetadataUtils.saveTableMetadata(getJooq(), this);
+            });
+    getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "set inherit on ");
     return this;
   }
@@ -243,11 +249,19 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlTableMetadata setSettings(Map<String, String> settings) {
+  public SqlTableMetadata setSettings(List<Setting> settings) {
     super.setSettings(settings);
-    MetadataUtils.saveTableMetadata(getJooq(), this);
-    db.getListener().schemaChanged(getSchemaName());
+    for (Setting setting : settings) {
+      MetadataUtils.saveSetting(getJooq(), this.getSchema(), this, setting);
+    }
+    getDatabase().getListener().schemaChanged(getSchemaName());
     return this;
+  }
+
+  @Override
+  public void removeSetting(String key) {
+    MetadataUtils.deleteSetting(getJooq(), getSchema(), this, new Setting(key, null));
+    super.removeSetting(key);
   }
 
   @Override
@@ -284,15 +298,19 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   public DSLContext getJooq() {
-    return ((SqlDatabase) db).getJooq();
+    return getDatabase().getJooq();
   }
 
   private void log(long start, String message) {
-    String user = db.getActiveUser();
+    String user = getDatabase().getActiveUser();
     if (user == null) user = "molgenis";
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));
     }
+  }
+
+  private SqlDatabase getDatabase() {
+    return (SqlDatabase) getSchema().getDatabase();
   }
 }

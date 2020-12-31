@@ -195,6 +195,7 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
+      // remove settings
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();
       // TODO if there are custom roles
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {

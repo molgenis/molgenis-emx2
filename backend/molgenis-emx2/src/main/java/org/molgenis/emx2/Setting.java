@@ -13,6 +13,10 @@ public class Setting {
     this.value = value;
   }
 
+  public Setting(Setting setting) {
+    this(setting.getKey(), setting.getValue());
+  }
+
   public String getKey() {
     return key;
   }

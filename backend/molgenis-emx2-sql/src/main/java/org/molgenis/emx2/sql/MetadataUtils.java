@@ -15,12 +15,16 @@ import org.molgenis.emx2.*;
 public class MetadataUtils {
 
   private static final String MOLGENIS = "MOLGENIS";
+  private static final String NOT_PROVIDED = "NOT_PROVIDED";
   // tables
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
-  // fields
+  private static final org.jooq.Table SETTINGS_METADATA =
+      table(name(MOLGENIS, "settings_metadata"));
+
+  // table
   private static final org.jooq.Field TABLE_SCHEMA =
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_NAME =
@@ -33,6 +37,7 @@ public class MetadataUtils {
       field(name("table_description"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_JSONLD_TYPE =
       field(name("table_jsonld_type"), JSON.nullable(true));
+  // column
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field COLUMN_KEY =
@@ -56,14 +61,25 @@ public class MetadataUtils {
       field(name("validationScript"), VARCHAR.nullable(true));
   private static final org.jooq.Field COMPUTE_SCRIPT =
       field(name("computeScript"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_CONSTRAINT =
-      field(name("refConstraint"), VARCHAR.nullable(true));
   private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
   private static final org.jooq.Field CASCADE_DELETE =
       field(name("cascade_delete"), BOOLEAN.nullable(true));
+
+  // users
   private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
   private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
-  private static final org.jooq.Field SETTINGS = field(name("settings"), VARCHAR);
+
+  // settings
+  private static final org.jooq.Field SETTINGS_TABLE_NAME =
+      field(
+          name(TABLE_NAME.getName()),
+          VARCHAR.nullable(true)); // note table might be null in case of schema
+  private static final org.jooq.Field SETTINGS_NAME =
+      field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
+  private static final org.jooq.Field SETTINGS_VALUE =
+      field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
+
+  // helper method
   private static ObjectMapper jsonMapper = new ObjectMapper();
 
   private MetadataUtils() {
@@ -78,11 +94,6 @@ public class MetadataUtils {
 
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
       t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
-    }
-
-    // this way more robust for non breaking changes
-    for (Field field : new Field[] {SETTINGS}) {
-      jooq.alterTable(SCHEMA_METADATA).addColumnIfNotExists(field).execute();
     }
 
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
@@ -110,9 +121,7 @@ public class MetadataUtils {
 
     // this way more robust for non breaking changes
     for (Field field :
-        new Field[] {
-          TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, SETTINGS, TABLE_JSONLD_TYPE
-        }) {
+        new Field[] {TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, TABLE_JSONLD_TYPE}) {
       jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
     }
 
@@ -155,6 +164,12 @@ public class MetadataUtils {
       t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
     }
 
+    try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
+      t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+          .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+          .execute();
+    }
+
     jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
     jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
   }
@@ -184,14 +199,7 @@ public class MetadataUtils {
 
   protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
     try {
-      String settings = jsonMapper.writeValueAsString(schema.getSettings());
-      sql.insertInto(SCHEMA_METADATA)
-          .columns(TABLE_SCHEMA, SETTINGS)
-          .values(schema.getName(), settings)
-          .onConflict(TABLE_SCHEMA)
-          .doUpdate()
-          .set(SETTINGS, settings)
-          .execute();
+      sql.insertInto(SCHEMA_METADATA).columns(TABLE_SCHEMA).values(schema.getName()).execute();
     } catch (Exception e) {
       throw new MolgenisException("save of schema metadata failed", e);
     }
@@ -207,25 +215,16 @@ public class MetadataUtils {
     if (tableRecord == null) {
       return schema;
     }
-    if (tableRecord.get(SETTINGS, String.class) != null) {
-      try {
-        schema.setSettings(
-            jsonMapper.readValue(tableRecord.get(SETTINGS, String.class), Map.class));
-      } catch (Exception e) {
-        throw new MolgenisException("load of schema metadata failed", e);
-      }
-    }
     return schema;
   }
 
   protected static void deleteSchema(DSLContext jooq, String schemaName) {
     jooq.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schemaName)).execute();
+    jooq.deleteFrom(SETTINGS_METADATA).where(TABLE_SCHEMA.eq(schemaName)).execute();
   }
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     try {
-
-      String settings = jsonMapper.writeValueAsString(table.getSettings()); // strip empty
       jooq.insertInto(TABLE_METADATA)
           .columns(
               TABLE_SCHEMA,
@@ -233,7 +232,6 @@ public class MetadataUtils {
               TABLE_INHERITS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
-              SETTINGS,
               TABLE_JSONLD_TYPE)
           .values(
               table.getSchema().getName(),
@@ -241,14 +239,12 @@ public class MetadataUtils {
               table.getInherit(),
               table.getImportSchema(),
               table.getDescription(),
-              settings,
               table.getJsonldType())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
-          .set(SETTINGS, settings)
           .set(TABLE_JSONLD_TYPE, table.getJsonldType())
           .execute();
     } catch (Exception e) {
@@ -268,11 +264,20 @@ public class MetadataUtils {
         table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
         table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
         table.setJsonldType(r.get(TABLE_JSONLD_TYPE, String.class));
-        if (r.get(SETTINGS, String.class) != null) {
-          table.setSettings(jsonMapper.readValue(r.get(SETTINGS, String.class), Map.class));
-        }
         result.put(table.getTableName(), table);
       }
+
+      // settings
+      List<org.jooq.Record> settingRecords =
+          jooq.selectFrom(SETTINGS_METADATA)
+              .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.notEqual(NOT_PROVIDED))
+              .fetch();
+      for (org.jooq.Record r : settingRecords) {
+        result
+            .get(r.get(SETTINGS_TABLE_NAME, String.class))
+            .setSetting(r.get(SETTINGS_NAME, String.class), r.get(SETTINGS_VALUE, String.class));
+      }
+
       // columns
       List<org.jooq.Record> columnRecords =
           jooq.selectFrom(COLUMN_METADATA)
@@ -291,6 +296,11 @@ public class MetadataUtils {
   protected static void deleteTable(DSLContext jooq, TableMetadata table) {
     jooq.deleteFrom(TABLE_METADATA)
         .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getTableName()))
+        .execute();
+    jooq.deleteFrom(SETTINGS_METADATA)
+        .where(
+            TABLE_SCHEMA.eq(table.getSchema().getName()),
+            SETTINGS_TABLE_NAME.eq(table.getTableName()))
         .execute();
   }
 
@@ -362,6 +372,49 @@ public class MetadataUtils {
             TABLE_SCHEMA.eq(column.getSchemaName()),
             TABLE_NAME.eq(column.getTableName()),
             COLUMN_NAME.eq(column.getName()))
+        .execute();
+  }
+
+  protected static List<Setting> loadSettings(DSLContext jooq, SchemaMetadata schema) {
+    List<org.jooq.Record> settingRecords =
+        jooq.selectFrom(SETTINGS_METADATA)
+            .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
+            .fetch();
+    List<Setting> settings = new ArrayList<>();
+    for (org.jooq.Record record : settingRecords) {
+      settings.add(
+          new Setting(
+              record.get(SETTINGS_NAME, String.class), record.get(SETTINGS_VALUE, String.class)));
+    }
+    return settings;
+  }
+
+  protected static void saveSetting(
+      DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
+    try {
+      jooq.insertInto(SETTINGS_METADATA)
+          .columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+          .values(
+              schema.getName(),
+              table != null ? table.getTableName() : NOT_PROVIDED,
+              setting.getKey(),
+              setting.getValue())
+          .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME)
+          .doUpdate()
+          .set(SETTINGS_VALUE, setting.getValue())
+          .execute();
+    } catch (Exception e) {
+      throw new MolgenisException("save of settings failed", e);
+    }
+  }
+
+  protected static void deleteSetting(
+      DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
+    jooq.deleteFrom(SETTINGS_METADATA)
+        .where(
+            TABLE_SCHEMA.eq(schema.getName()),
+            table != null ? TABLE_NAME.eq(table.getTableName()) : TABLE_NAME.eq(NOT_PROVIDED),
+            SETTINGS_NAME.eq(setting.getKey()))
         .execute();
   }
 

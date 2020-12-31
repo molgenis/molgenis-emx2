@@ -74,7 +74,7 @@ public class TestGraphqSchemaFields {
             .textValue());
 
     // remove value
-    execute("mutation{alter(tables:[{name:\"Pet\",settings:{key:\"test\",value:\"\"}}]){message}}");
+    execute("mutation{drop(settings:[{table:\"Pet\", key:\"test\"}]){message}}");
 
     assertEquals(
         0,

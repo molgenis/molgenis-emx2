@@ -3,7 +3,6 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 
@@ -27,10 +26,7 @@ public class Table {
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
     this.jsonldType = tableMetadata.getJsonldType();
-    this.settings =
-        tableMetadata.getSettings().entrySet().stream()
-            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
+    this.settings = tableMetadata.getSettings();
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata));
     }
