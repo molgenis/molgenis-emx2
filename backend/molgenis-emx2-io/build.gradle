@@ -1,6 +1,6 @@
 dependencies {
     implementation 'org.simpleflatmapper:sfm-csv:8.2.3'
-    implementation 'org.apache.poi:poi-ooxml:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml:5.0.0'
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-exampledata')
