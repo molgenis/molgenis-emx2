@@ -54,7 +54,8 @@
     </div>
     <h2>Explanation</h2>
     <p>
-      A conceptual overview of the contents of this catalogue is shown below:
+      An overview of the relationships between contents of this catalogue is
+      shown below:
     </p>
     <img src="diagram.svg" />
     <p>
@@ -95,13 +96,12 @@ export default {
   },
   methods: {
     reload() {
-      console.log("counts reload");
       request(
         "graphql",
-        `query {Organisations_agg{count},Collections_agg{count},Networks_agg{count},Datasets_agg{count},Variables_agg{count}}`
+        `query {Providers_agg{count},Collections_agg{count},Networks_agg{count},Datasets_agg{count},Variables_agg{count}}`
       )
         .then((data) => {
-          this.providers = data.Organisations_agg.count;
+          this.providers = data.Providers_agg.count;
           this.collections = data.Collections_agg.count;
           this.networks = data.Networks_agg.count;
           this.datasets = data.Datasets_agg.count;

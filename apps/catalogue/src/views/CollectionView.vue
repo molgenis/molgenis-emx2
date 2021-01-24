@@ -5,19 +5,25 @@
         collection.acronym
       }})
     </h1>
+    <label> Website: </label>
+    <a :href="collection.website">{{ collection.website }}</a> <br />
     <label> Type(s): </label>
-    <span v-for="type in collection.type">{{ type.name }}</span>
+    <span v-for="type in collection.type">{{ type.name }}</span
+    ><br />
     <label>Description:</label>
     <p>{{ collection.description }}</p>
-    <label>Datasets</label>
-    <DatasetList :collectionAcronym="collectionAcronym" />
+    <h4>Datasets:</h4>
+    <DatasetList
+      :collectionAcronym="collectionAcronym"
+      :providerAcronym="providerAcronym"
+    />
   </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import DatasetList from "./DatasetListView";
+import DatasetList from "../components/DatasetList";
 
 export default {
   components: {
@@ -27,6 +33,7 @@ export default {
   },
   props: {
     collectionAcronym: String,
+    providerAcronym: String,
   },
   data() {
     return {
@@ -36,7 +43,6 @@ export default {
   },
   methods: {
     reload() {
-      console.log("collections reload");
       request(
         "graphql",
         `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, datasets{name}}}`,

@@ -3,7 +3,15 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">
-          <RouterLink :to="'/collections/' + collection.acronym">
+          <RouterLink
+            :to="{
+              name: collectionview,
+              params: {
+                collectionAcronym: collection.acronym,
+                providerAcronym: providerAcronym,
+              },
+            }"
+          >
             <small class="float-right">
               <span
                 v-if="collection.type"
@@ -20,8 +28,8 @@
             {{ collection.name }}
           </RouterLink>
         </h4>
-        <span v-if="collection.host_organisation">
-          <label>Provider:</label> {{ collection.host_organisation.name }}<br />
+        <span v-if="collection.provider">
+          <label>Provider:</label> {{ collection.provider.name }}<br />
         </span>
         <span v-if="collection.website">
           <label>website: </label>
@@ -56,11 +64,20 @@ export default {
   components: { ReadMore },
   props: {
     collection: Object,
+    providerAcronym: String,
   },
   data() {
     return {
       tab: "Description",
     };
+  },
+  computed: {
+    collectionview() {
+      if (this.providerAcronym) {
+        return "provider-collection";
+      }
+      return "collection";
+    },
   },
 };
 </script>

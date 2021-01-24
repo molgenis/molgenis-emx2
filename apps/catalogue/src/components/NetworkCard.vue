@@ -3,7 +3,7 @@
     <div class="card h-100 overflow-auto">
       <span>
         <h4 class="card-title">
-          <RouterLink :to="'/network-details/' + network.acronym">
+          <RouterLink :to="'/networks/' + network.acronym">
             <small>
               {{ network.acronym }}
             </small>

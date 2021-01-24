@@ -4,7 +4,7 @@
     <Property label="Collection">{{ dataset.collection.name }}</Property>
     <Property label="Description">{{ dataset.description }}</Property>
     <MessageError v-if="error"> {{ error }}</MessageError>
-    <label>Variables:</label>
+    <h4>Variables:</h4>
     <VariablesList
       :collection-acronym="collectionAcronym"
       :dataset-name="datasetName"
@@ -22,24 +22,28 @@ export default {
     Property,
   },
   props: {
+    networkAcronym: String,
     collectionAcronym: String,
     datasetName: String,
   },
   data() {
     return {
       error: null,
-      dataset: {},
+      dataset: null,
     };
   },
   methods: {
     reload() {
-      console.log("collections reload");
       request(
         "graphql",
         `query Datasets($collection:ResourcesPkeyInput,$name:String){Datasets(filter:{collection:{equals:[$collection]},name:{equals:[$name]}})
         {name,collection{name},description,label,topics{name},completeness,timeline,populations{name},supplementaryInformation}}`,
         {
-          collection: { acronym: this.collectionAcronym },
+          collection: {
+            acronym: this.collectionAcronym
+              ? this.collectionAcronym
+              : this.networkAcronym,
+          },
           name: this.datasetName,
         }
       )

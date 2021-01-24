@@ -3,22 +3,22 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">
-          <RouterLink :to="'/providers/' + organisation.acronym">
+          <RouterLink :to="'/providers/' + provider.acronym">
             <small>
-              {{ organisation.acronym }}
+              {{ provider.acronym }}
             </small>
             <br />
-            {{ organisation.name }}
+            {{ provider.name }}
           </RouterLink>
         </h4>
-        <span v-if="organisation.website">
+        <span v-if="provider.website">
           <label>website: </label>
-          <a href="organisation.website">{{ organisation.website }}</a>
+          <a :href="provider.website">{{ provider.website }}</a>
         </span>
         <ReadMore
-          :text="organisation.description"
+          :text="provider.description"
           length="200"
-          v-if="organisation.description"
+          v-if="provider.description"
         />
       </div>
     </div>
@@ -31,7 +31,7 @@ import { ReadMore } from "@mswertz/emx2-styleguide";
 export default {
   components: { ReadMore },
   props: {
-    organisation: Object,
+    provider: Object,
   },
 };
 </script>

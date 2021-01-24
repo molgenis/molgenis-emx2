@@ -21,7 +21,7 @@
       >
         <RouterLink
           :to="{
-            name: 'provider-details',
+            name: 'provider',
             params: { providerAcronym: this.providerAcronym },
           }"
         >
@@ -29,13 +29,27 @@
         </RouterLink>
       </li>
       <li
-        v-if="collectionAcronym"
+        v-if="networkAcronym"
         class="breadcrumb-item active"
         aria-current="page"
       >
         <RouterLink
           :to="{
-            name: 'collection',
+            name: networkview,
+            params: { networkAcronym: this.networkAcronym },
+          }"
+        >
+          {{ networkAcronym }}
+        </RouterLink>
+      </li>
+      <li
+        v-else-if="collectionAcronym"
+        class="breadcrumb-item active"
+        aria-current="page"
+      >
+        <RouterLink
+          :to="{
+            name: collectionview,
             params: { collectionAcronym: this.collectionAcronym },
           }"
         >
@@ -55,23 +69,6 @@
           {{ datasetName }}
         </RouterLink>
       </li>
-      <li
-        v-if="mainview == 'variables'"
-        class="breadcrumb-item active"
-        aria-current="page"
-      >
-        <RouterLink
-          :to="{
-            name: 'variables',
-            params: {
-              collectionAcronym,
-              datasetName,
-            },
-          }"
-        >
-          Variables
-        </RouterLink>
-      </li>
     </ol>
   </nav>
 </template>
@@ -79,6 +76,7 @@
 export default {
   props: {
     collectionAcronym: String,
+    networkAcronym: String,
     providerAcronym: String,
     datasetName: String,
   },
@@ -97,11 +95,35 @@ export default {
         if (this.$route.name.startsWith("dataset")) {
           return "datasets";
         }
+        if (this.$route.name.startsWith("variable")) {
+          return "variables";
+        }
       }
+    },
+    collectionview() {
+      if (this.$route.name.startsWith("provider")) {
+        return "provider-collection";
+      }
+      if (this.$route.name.startsWith("dataset")) {
+        return "dataset-collection";
+      }
+      return "collection";
+    },
+    networkview() {
+      if (this.$route.name.startsWith("dataset")) {
+        return "dataset-network";
+      }
+      return "network";
     },
     datasetview() {
       if (this.$route.name.startsWith("collection")) {
         return "collection-dataset";
+      }
+      if (this.$route.name.startsWith("network")) {
+        return "network-dataset";
+      }
+      if (this.$route.name.startsWith("provider")) {
+        return "provider-dataset";
       }
       return "dataset";
     },

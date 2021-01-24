@@ -8,7 +8,8 @@
     <a :href="provider.website">{{ provider.website }}</a> <br />
     <label>Description:</label>
     <p>{{ provider.description }}</p>
-    <label>Collections:</label><br />
+    <h4>Collections:</h4>
+    <br />
     <CollectionList :providerAcronym="providerAcronym" />
   </div>
 </template>
@@ -35,16 +36,15 @@ export default {
   },
   methods: {
     reload() {
-      console.log("provider reload");
       request(
         "graphql",
-        `query Organisations($acronym:String){Organisations(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,resources{acronym,name}}}`,
+        `query Providers($acronym:String){Providers(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,resources{acronym,name}}}`,
         {
           acronym: this.providerAcronym,
         }
       )
         .then((data) => {
-          this.provider = data.Organisations[0];
+          this.provider = data.Providers[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

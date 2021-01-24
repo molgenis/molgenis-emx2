@@ -10,6 +10,7 @@
         <BreadCrumb
           :collectionAcronym="collectionAcronym"
           :providerAcronym="providerAcronym"
+          :networkAcronym="networkAcronym"
           :datasetName="datasetName"
         />
         <div class="container-fluid">
@@ -47,6 +48,9 @@ export default {
     },
     providerAcronym() {
       return this.$route.params.providerAcronym;
+    },
+    networkAcronym() {
+      return this.$route.params.networkAcronym;
     },
     datasetName() {
       return this.$route.params.datasetName;

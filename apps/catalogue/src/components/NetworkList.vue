@@ -1,10 +1,10 @@
 <template>
   <div>
-    <InputSearch v-model="search" />
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="row justify-content-center mb-2">
+    <div class="row">
       <Pagination
         v-if="count > 0"
+        class="justify-content-center col-10 mb-2"
         :count="count"
         v-model="page"
         :limit="limit"
@@ -12,11 +12,10 @@
       />
     </div>
     <div class="row">
-      <CollectionsCard
-        v-for="collection in collections"
-        :key="collection.name"
-        :collection="collection"
-        :providerAcronym="providerAcronym"
+      <NetworkCard
+        v-for="network in networks"
+        :key="network.name"
+        :network="network"
       />
     </div>
   </div>
@@ -25,16 +24,17 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import CollectionsCard from "../components/CollectionCard";
+import NetworkCard from "../components/NetworkCard";
+import TableOfContents from "../components/TableOfContents";
 
 export default {
   components: {
-    CollectionsCard,
+    TableOfContents,
+    NetworkCard,
     Pagination,
     MessageError,
   },
   props: {
-    providerAcronym: String,
     filter: {
       type: Object,
       default() {
@@ -49,11 +49,11 @@ export default {
   data() {
     return {
       page: 1,
-      limit: 9,
+      limit: 20,
       count: 0,
       error: null,
       loading: false,
-      collections: [],
+      networks: [],
     };
   },
   methods: {
@@ -62,13 +62,10 @@ export default {
       if (this.search && this.search.trim() != "") {
         searchString = `search:"${this.search}",`;
       }
-      if (this.providerAcronym) {
-        this.filter["provider"] = { acronym: { equals: this.providerAcronym } };
-      }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name},datasets{name,variables{name}}}
-        ,Collections_agg(${searchString}filter:$filter){count}}`,
+        `query Networks($filter:NetworksFilter,$offset:Int,$limit:Int){Networks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name},datasets{name,variables{name}}}
+        ,Networks_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -76,8 +73,8 @@ export default {
         }
       )
         .then((data) => {
-          this.collections = data.Collections;
-          this.count = data.Collections_agg.count;
+          this.networks = data.Networks;
+          this.count = data.Networks_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

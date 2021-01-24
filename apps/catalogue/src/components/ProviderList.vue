@@ -1,6 +1,5 @@
 <template>
   <div>
-    <InputSearch v-model="search" />
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="row justify-content-center mb-2">
       <Pagination
@@ -12,11 +11,10 @@
       />
     </div>
     <div class="row">
-      <CollectionsCard
-        v-for="collection in collections"
-        :key="collection.name"
-        :collection="collection"
-        :providerAcronym="providerAcronym"
+      <ProviderCard
+        v-for="provider in providers"
+        :key="provider.name"
+        :provider="provider"
       />
     </div>
   </div>
@@ -25,16 +23,15 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import CollectionsCard from "../components/CollectionCard";
+import ProviderCard from "../components/ProviderCard";
 
 export default {
   components: {
-    CollectionsCard,
+    ProviderCard,
     Pagination,
     MessageError,
   },
   props: {
-    providerAcronym: String,
     filter: {
       type: Object,
       default() {
@@ -49,11 +46,11 @@ export default {
   data() {
     return {
       page: 1,
-      limit: 9,
+      limit: 20,
       count: 0,
       error: null,
       loading: false,
-      collections: [],
+      providers: [],
     };
   },
   methods: {
@@ -62,22 +59,19 @@ export default {
       if (this.search && this.search.trim() != "") {
         searchString = `search:"${this.search}",`;
       }
-      if (this.providerAcronym) {
-        this.filter["provider"] = { acronym: { equals: this.providerAcronym } };
-      }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name},datasets{name,variables{name}}}
-        ,Collections_agg(${searchString}filter:$filter){count}}`,
+        `query Providers($filter:ProvidersFilter,$offset:Int,$limit:Int){Providers(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,description,website}
+        ,Providers_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
-          offset: (this.page - 1) * 10,
+          offset: (this.page - 1) * this.limit,
           limit: this.limit,
         }
       )
         .then((data) => {
-          this.collections = data.Collections;
-          this.count = data.Collections_agg.count;
+          this.providers = data.Providers;
+          this.count = data.Providers_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

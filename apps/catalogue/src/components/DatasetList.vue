@@ -5,8 +5,11 @@
     <div class="card-columns mt-2">
       <DatasetCard
         v-for="dataset in datasets"
+        :key="dataset.collection.acronym + ':' + dataset.name"
         :dataset="dataset"
         :collectionAcronym="collectionAcronym"
+        :networkAcronym="networkAcronym"
+        :providerAcronym="providerAcronym"
       />
     </div>
   </div>
@@ -39,6 +42,8 @@ export default {
   },
   props: {
     collectionAcronym: String,
+    providerAcronym: String,
+    networkAcronym: String,
   },
   data() {
     return {
@@ -55,9 +60,12 @@ export default {
       if (this.collectionAcronym) {
         filter.collection = { acronym: { equals: this.collectionAcronym } };
       }
+      if (this.networkAcronym) {
+        filter.collection = { acronym: { equals: this.networkAcronym } };
+      }
       request(
         "graphql",
-        `query Datasets($filter:DatasetsFilter,$offset:Int,$limit:Int){Datasets(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym},label,variables_agg{count}}
+        `query Datasets($filter:DatasetsFilter,$offset:Int,$limit:Int){Datasets(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym,name,mg_tableclass},label,variables_agg{count}}
         ,Datasets_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -79,6 +87,9 @@ export default {
   },
   watch: {
     collectionAcronym() {
+      this.reload();
+    },
+    networkAcronym() {
       this.reload();
     },
     page() {
