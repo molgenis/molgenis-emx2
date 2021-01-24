@@ -8,12 +8,14 @@
       </div>
       <div v-else>
         <BreadCrumb
-          :key="session"
           :collectionAcronym="collectionAcronym"
+          :providerAcronym="providerAcronym"
           :datasetName="datasetName"
         />
-        <div class="row cohorts-scroll" :key="session">
-          <RouterView :key="collectionAcronym + ': ' + datasetName" />
+        <div class="container-fluid">
+          <div class="row cohorts-scroll">
+            <RouterView :key="collectionAcronym + ': ' + datasetName" />
+          </div>
         </div>
       </div>
     </Molgenis>
@@ -37,8 +39,14 @@ export default {
     };
   },
   computed: {
+    view() {
+      return this.$route.name;
+    },
     collectionAcronym() {
       return this.$route.params.collectionAcronym;
+    },
+    providerAcronym() {
+      return this.$route.params.providerAcronym;
     },
     datasetName() {
       return this.$route.params.datasetName;

@@ -31,8 +31,14 @@
               ? 'Name is required'
               : undefined
           "
-          label="Column name"
+          label="Name"
         />
+        <InputText
+          v-model="column.description"
+          :default-value="defaultValue ? defaultValue.description : undefined"
+          label="Description"
+        />
+        <h4>Constraints</h4>
         <InputSelect
           v-model="column.columnType"
           :default-value="defaultValue ? defaultValue.columnType : undefined"
@@ -40,35 +46,11 @@
           label="Column type"
         />
         <InputSelect
-          v-model="column.key"
-          :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-          :default-value="
-            defaultValue && defaultValue.key ? defaultValue.key : undefined
-          "
-          label="Key"
-        />
-        <InputString
           v-if="
             column.columnType == 'REF' ||
             column.columnType == 'REF_ARRAY' ||
             column.columnType == 'MREF' ||
             column.columnType == 'REFBACK'
-          "
-          v-model="column.refSchema"
-          label="refSchema"
-        />
-        <InputString
-          v-if="column.refSchema != undefined"
-          v-model="column.refTable"
-          label="refSchema"
-        />
-        <InputSelect
-          v-if="
-            column.refSchema == undefined &&
-            (column.columnType == 'REF' ||
-              column.columnType == 'REF_ARRAY' ||
-              column.columnType == 'MREF' ||
-              column.columnType == 'REFBACK')
           "
           v-model="column.refTable"
           :defaultValue="defaultValue ? defaultValue.refTable : undefined"
@@ -80,54 +62,83 @@
           :options="tables"
           label="Referenced table"
         />
-        <InputString
-          v-if="column.columnType == 'REFBACK'"
-          v-model="column.mappedBy"
-          :default-value="defaultValue ? defaultValue.mappedBy : undefined"
-          label="Mapped by"
+        <InputSelect
+          v-model="column.key"
+          :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+          :default-value="
+            defaultValue && defaultValue.key ? defaultValue.key : undefined
+          "
+          label="Key"
         />
         <InputBoolean
           v-model="column.nullable"
           :default-value="defaultValue && defaultValue.nullable ? true : false"
           label="Nullable"
         />
-        <InputString
+        <InputText
+          v-model="column.validation"
+          :default-value="defaultValue ? defaultValue.validation : undefined"
+          label="Validation"
+        />
+        <div
           v-if="
             column.columnType == 'REF' ||
             column.columnType == 'REF_ARRAY' ||
             column.columnType == 'MREF' ||
             column.columnType == 'REFBACK'
           "
-          v-model="column.refFrom"
-          :default-value="defaultValue ? defaultValue.refFrom : undefined"
-          :list="true"
-          label="refFrom"
-        />
-        <InputString
-          v-if="
-            column.columnType == 'REF' ||
-            column.columnType == 'REF_ARRAY' ||
-            column.columnType == 'MREF' ||
-            column.columnType == 'REFBACK'
-          "
-          v-model="column.refTo"
-          :default-value="defaultValue ? defaultValue.refTo : undefined"
-          :list="true"
-          label="refTo"
-        />
-        <InputBoolean
-          v-if="column.columnType == 'REF'"
-          v-model="column.cascadeDelete"
-          :default-value="
-            defaultValue && defaultValue.cascadeDelete ? true : false
-          "
-          label="cascadeDelete"
+        >
+          <h4>Advanced relationship settings</h4>
+          <InputString
+            v-model="column.refSchema"
+            label="refSchema (only needed if referencing outside schema)"
+            :defaultValue="defaultValue ? defaultValue.refSchema : undefined"
+          />
+          <InputString
+            v-if="column.columnType == 'REFBACK'"
+            v-model="column.mappedBy"
+            :default-value="defaultValue ? defaultValue.mappedBy : undefined"
+            label="Mapped by"
+          />
+          <InputString
+            v-if="
+              column.columnType == 'REF' ||
+              column.columnType == 'REF_ARRAY' ||
+              column.columnType == 'MREF' ||
+              column.columnType == 'REFBACK'
+            "
+            v-model="column.refFrom"
+            :default-value="defaultValue ? defaultValue.refFrom : undefined"
+            :list="true"
+            label="refFrom"
+          />
+          <InputString
+            v-if="
+              column.columnType == 'REF' ||
+              column.columnType == 'REF_ARRAY' ||
+              column.columnType == 'MREF' ||
+              column.columnType == 'REFBACK'
+            "
+            v-model="column.refTo"
+            :default-value="defaultValue ? defaultValue.refTo : undefined"
+            :list="true"
+            label="refTo"
+          />
+        </div>
+        <h4>Display</h4>
+        <InputSelect
+          v-if="column.columnType == 'STRING'"
+          v-model="column.form"
+          :default-value="defaultValue ? defaultValue.description : undefined"
+          :options="['plain', 'hyperlink', 'email']"
+          label="Column format"
         />
         <InputText
-          v-model="column.description"
-          :default-value="defaultValue ? defaultValue.description : undefined"
-          label="Description"
+          v-model="column.visible"
+          :default-value="defaultValue ? defaultValue.visible : undefined"
+          label="Visible"
         />
+        <h4>Settings for semantic web</h4>
         <InputText
           v-model="column.jsonldType"
           :default-value="defaultValue ? defaultValue.jsonldType : undefined"
@@ -178,7 +189,7 @@ const columnTypes = [
   "DATETIME",
   "REF",
   "REF_ARRAY",
-  "MREF",
+  //depcrecated "MREF",
   "REFBACK",
   "UUID",
   "TEXT",

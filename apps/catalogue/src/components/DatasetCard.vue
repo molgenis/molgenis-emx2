@@ -4,7 +4,7 @@
       <h5 class="card-title">
         <RouterLink
           :to="{
-            name: 'dataset-variables',
+            name: datasetView,
             params: {
               collectionAcronym: dataset.collection.acronym,
               datasetName: dataset.name,
@@ -51,6 +51,15 @@
 export default {
   props: {
     dataset: Object,
+    collectionAcronym: String,
+  },
+  computed: {
+    datasetView() {
+      if (this.collectionAcronym) {
+        return "collection-dataset";
+      }
+      return "dataset";
+    },
   },
 };
 </script>

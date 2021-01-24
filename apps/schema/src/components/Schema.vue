@@ -361,7 +361,7 @@ export default {
     yuml() {
       this.loadingYuml = true;
       if (!this.tables) return "";
-      let res = "http://yuml.me/diagram/plain;dir:td/class/";
+      let res = "http://yuml.me/diagram/plain;dir:bt/class/";
       // classes
       this.tables
         .filter(

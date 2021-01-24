@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">
-          <RouterLink :to="'/collection-datasets/' + collection.acronym">
+          <RouterLink :to="'/collections/' + collection.acronym">
             <small class="float-right">
               <span
                 v-if="collection.type"
@@ -29,7 +29,7 @@
         </span>
         <ReadMore
           :text="collection.description"
-          length="200"
+          :length="200"
           v-if="collection.description"
         />
         <div v-if="tab === 'Variables'">

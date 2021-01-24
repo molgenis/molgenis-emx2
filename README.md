@@ -289,6 +289,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ### first
 
+*  remove option for refback to be updateable
 *  download of extended class should include superclass values
 *  download of superclass should only include superclass records
 *  download using filter that is applied in explorer view

@@ -109,7 +109,7 @@ export default {
       count: 0,
       error: null,
       page: 1,
-      limit: 9,
+      limit: 20,
     };
   },
   methods: {

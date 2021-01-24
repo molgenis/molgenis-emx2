@@ -1,35 +1,29 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>Collection: {{ collectionAcronym }}</h1>
-    <div>
-      <ReadMore
-        :text="collection.description"
-        :length="200"
-        v-if="collection.description"
-      />
-    </div>
-    <CollectionTabs
-      selected="variables"
-      :collection-acronym="collectionAcronym"
-    />
-    <VariablesList :collectionAcronym="collectionAcronym" />
+    <h1>
+      <small>Collection:</small><br />{{ collection.name }} ({{
+        collection.acronym
+      }})
+    </h1>
+    <label> Type(s): </label>
+    <span v-for="type in collection.type">{{ type.name }}</span>
+    <label>Description:</label>
+    <p>{{ collection.description }}</p>
+    <label>Datasets</label>
+    <DatasetList :collectionAcronym="collectionAcronym" />
   </div>
 </template>
+
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import DatasetList from "../views/DatasetListView";
-import CollectionTabs from "./CollectionTabs";
-import VariablesList from "./VariablesList";
+import DatasetList from "./DatasetListView";
 
 export default {
   components: {
-    VariablesList,
-    CollectionTabs,
-    DatasetList,
     MessageError,
     ReadMore,
+    DatasetList,
   },
   props: {
     collectionAcronym: String,
@@ -45,7 +39,7 @@ export default {
       console.log("collections reload");
       request(
         "graphql",
-        `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},description,website,datasets{name,label}}}`,
+        `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, datasets{name}}}`,
         {
           acronym: this.collectionAcronym,
         }

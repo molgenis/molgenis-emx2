@@ -1,16 +1,15 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
-import VariablesView from "./components/VariablesView";
-import NetworksList from "./components/NetworksList";
-import CollectionsList from "./components/CollectionsList";
-import CollectionDatasets from "./components/CollectionDatasets";
-import DatasetDescription from "./components/DatasetDescription";
-import DatasetVariables from "./components/DatasetVariables";
-import DatasetHarmonisations from "./components/DatasetHarmonisations";
-import CollectionVariables from "./components/CollectionVariables";
-import CollectionDescription from "./components/CollectionDescription";
-import CollectionHarmonisations from "./components/CollectionHarmonisations";
+import CatalogueView from "./views/CatalogueView";
+import ProvidersListView from "./views/ProvidersListView";
+import NetworksListView from "./views/NetworksListView";
+import CollectionsListView from "./views/CollectionsListView";
+import VariablesListView from "./components/VariablesList";
+import ProviderView from "./views/ProviderView";
+import CollectionView from "./views/CollectionView";
+import DatasetView from "./views/DatasetView";
+import DatasetListView from "./views/DatasetListView";
 
 Vue.config.productionTip = false;
 
@@ -18,66 +17,61 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
+    { name: "Catalogue", path: "/", component: CatalogueView },
     {
-      name: "Variables",
-      path: "/variables",
-      component: VariablesView,
+      name: "providers",
+      path: "/providers",
+      component: ProvidersListView,
     },
     {
-      name: "collections",
-      path: "/collections",
-      component: CollectionsList,
+      name: "provider",
+      path: "/providers/:providerAcronym",
+      component: ProviderView,
+      props: true,
+    },
+    {
+      name: "provider-collection",
+      path: "/providers/:providerAcronym/:collectionAcronym",
+      component: CollectionView,
+      props: true,
     },
     {
       name: "networks",
       path: "/networks",
-      component: NetworksList,
+      component: NetworksListView,
     },
     {
-      name: "collection-datasets",
-      path: "/collection-datasets/:collectionAcronym",
-      component: CollectionDatasets,
+      name: "collections",
+      path: "/collections",
+      component: CollectionsListView,
+    },
+    {
+      name: "collection",
+      path: "/collections/:collectionAcronym",
+      component: CollectionView,
       props: true,
     },
     {
-      name: "collection-variables",
-      path: "/collection-variables/:collectionAcronym",
-      component: CollectionVariables,
+      name: "collection-dataset",
+      path: "/collections/:collectionAcronym/:datasetName",
+      component: DatasetView,
       props: true,
     },
     {
-      name: "collection-description",
-      path: "/collection-description/:collectionAcronym",
-      component: CollectionDescription,
+      name: "datasets",
+      path: "/datasets",
+      component: DatasetListView,
+    },
+    {
+      name: "dataset",
+      path: "/datasets/:collectionAcronym/:datasetName",
+      component: DatasetView,
       props: true,
     },
     {
-      name: "collection-harmonisations",
-      path: "/collection-harmonisations/:collectionAcronym",
-      component: CollectionHarmonisations,
-      props: true,
-    },
-    {
-      name: "dataset-description",
-      path: "/dataset-description/:collectionAcronym/:datasetName",
-      component: DatasetDescription,
-      props: true,
-    },
-    {
-      name: "dataset-variables",
-      path: "/dataset-variables/:collectionAcronym/:datasetName",
-      component: DatasetVariables,
-      props: true,
-    },
-    {
-      name: "dataset-harmonisations",
-      path: "/dataset-harmonisations/:collectionAcronym/:datasetName",
-      component: DatasetHarmonisations,
-      props: true,
-    },
-    {
-      path: "/",
-      redirect: "/collections",
+      name: "variables",
+      path: "/variables",
+      component: VariablesListView,
     },
   ],
 });
