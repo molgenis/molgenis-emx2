@@ -4,7 +4,7 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 # molgenis-emx2 preview
-This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha'). 
+This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'beta'). 
 
 Demo server: https://emx2.test.molgenis.org/
 
