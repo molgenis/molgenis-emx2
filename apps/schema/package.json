@@ -16,7 +16,7 @@
     "vue-scrollto": "2.20.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-router": "4.5.8"
+    "@vue/cli-plugin-router": "4.5.11"
   },
   "eslintConfig": {
     "root": true,
