@@ -9,21 +9,11 @@
       <div v-else>
         <BreadCrumb
           :key="session"
-          v-if="collectionAcronym"
           :collectionAcronym="collectionAcronym"
           :datasetName="datasetName"
         />
         <div class="row cohorts-scroll" :key="session">
-          <TableOfContents
-            class="pr-4 col-3"
-            style="overflow: scroll"
-            :collectionAcronym="collectionAcronym"
-            :datasetName="datasetName"
-          />
-          <RouterView
-            class="col-9"
-            :key="collectionAcronym + ': ' + datasetName"
-          />
+          <RouterView :key="collectionAcronym + ': ' + datasetName" />
         </div>
       </div>
     </Molgenis>

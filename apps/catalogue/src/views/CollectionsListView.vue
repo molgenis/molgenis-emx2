@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <h1>Dataset & variable catalogue</h1>
-    <p>Catalogue of cohorts, registries, harmonisations and more...</p>
+  <div class="container-fluid">
+    <h1>Collections</h1>
+    <p>Cohorts, registries, databases, and more...</p>
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="row">
       <Pagination
@@ -14,13 +14,11 @@
       />
     </div>
     <div class="row">
-      <div class="card-columns col-10">
-        <CollectionsCard
-          v-for="collection in collections"
-          :key="collection.name"
-          :collection="collection"
-        />
-      </div>
+      <CollectionsCard
+        v-for="collection in collections"
+        :key="collection.name"
+        :collection="collection"
+      />
     </div>
   </div>
 </template>
@@ -69,7 +67,7 @@ export default {
       }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,datasets{name,variables{name}}}
+        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,host_organisation{name},datasets{name,variables{name}}}
         ,Collections_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

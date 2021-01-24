@@ -58,9 +58,9 @@ public class TestGrantRolesToUsers {
     database.addUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    schema.addMember("user_testRolePermissions_viewer", DefaultRoles.VIEWER.toString());
-    schema.addMember("user_testRolePermissions_editor", DefaultRoles.EDITOR.toString());
-    schema.addMember("user_testRolePermissions_manager", DefaultRoles.MANAGER.toString());
+    schema.addMember("user_testRolePermissions_viewer", Privileges.VIEWER.toString());
+    schema.addMember("user_testRolePermissions_editor", Privileges.EDITOR.toString());
+    schema.addMember("user_testRolePermissions_manager", Privileges.MANAGER.toString());
 
     StopWatch.print("testRolePermissions schema created");
 
@@ -147,15 +147,15 @@ public class TestGrantRolesToUsers {
 
       database.clearActiveUser();
 
-      schema.addMember("testadmin", DefaultRoles.OWNER.toString());
-      assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForUser("testadmin"));
+      schema.addMember("testadmin", Privileges.OWNER.toString());
+      assertEquals(Privileges.OWNER.toString(), schema.getRoleForUser("testadmin"));
 
       assertTrue(
-          schema.getInheritedRolesForUser("testadmin").contains(DefaultRoles.OWNER.toString()));
+          schema.getInheritedRolesForUser("testadmin").contains(Privileges.OWNER.toString()));
       assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
 
       database.setActiveUser("testadmin");
-      assertEquals(DefaultRoles.OWNER.toString(), schema.getRoleForActiveUser());
+      assertEquals(Privileges.OWNER.toString(), schema.getRoleForActiveUser());
       database.clearActiveUser();
 
       schema.create(
@@ -183,7 +183,7 @@ public class TestGrantRolesToUsers {
             db -> {
               db.getSchema("testRole").create(table("Test"));
               // this is soo cooool
-              db.getSchema("testRole").addMember("testuser", DefaultRoles.VIEWER.toString());
+              db.getSchema("testRole").addMember("testuser", Privileges.VIEWER.toString());
             });
 
       } catch (Exception e) {

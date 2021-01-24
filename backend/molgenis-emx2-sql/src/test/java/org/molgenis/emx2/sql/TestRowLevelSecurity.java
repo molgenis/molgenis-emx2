@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.DefaultRoles;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
@@ -36,12 +36,12 @@ public class TestRowLevelSecurity {
       database.addUser(TESTRLS_HAS_RLS_VIEW);
 
       // grant both owner on TestRLS schema so can add row level security
-      s.addMember("testrls1", DefaultRoles.OWNER.toString());
-      s.addMember("testrls2", DefaultRoles.OWNER.toString());
+      s.addMember("testrls1", Privileges.OWNER.toString());
+      s.addMember("testrls2", Privileges.OWNER.toString());
 
       s.addMember(
           TESTRLS_HAS_RLS_VIEW,
-          DefaultRoles.VIEWER.toString()); // can view table but only rows with right RLS
+          Privileges.VIEWER.toString()); // can view table but only rows with right RLS
 
       // let one user create the table
       database.setActiveUser("testrls1");

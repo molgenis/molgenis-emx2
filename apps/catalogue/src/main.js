@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
 import VariablesView from "./components/VariablesView";
+import NetworksList from "./components/NetworksList";
 import CollectionsList from "./components/CollectionsList";
 import CollectionDatasets from "./components/CollectionDatasets";
 import DatasetDescription from "./components/DatasetDescription";
@@ -26,6 +27,11 @@ const router = new VueRouter({
       name: "collections",
       path: "/collections",
       component: CollectionsList,
+    },
+    {
+      name: "networks",
+      path: "/networks",
+      component: NetworksList,
     },
     {
       name: "collection-datasets",

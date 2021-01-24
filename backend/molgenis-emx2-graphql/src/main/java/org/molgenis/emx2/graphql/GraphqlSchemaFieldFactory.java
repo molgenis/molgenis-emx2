@@ -132,6 +132,9 @@ public class GraphqlSchemaFieldFactory {
                   .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(VISIBLE).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(FORM).type(Scalars.GraphQLString))
+          .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(INHERITED)
                   .type(Scalars.GraphQLBoolean))
@@ -273,6 +276,12 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(VISIBLE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(FORM).type(Scalars.GraphQLString))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()

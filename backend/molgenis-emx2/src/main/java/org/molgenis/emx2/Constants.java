@@ -13,6 +13,8 @@ public class Constants {
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
+  public static final String FORM = "form";
+  public static final String VISIBLE = "visible";
   public static final String DESCRIPTION = "description";
   public static final String JSONLD_TYPE = "jsonldType";
   public static final String JSONLD_CONTEXT = "jsonldContext";

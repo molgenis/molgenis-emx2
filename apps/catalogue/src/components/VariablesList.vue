@@ -3,7 +3,6 @@
   <div v-else class="mt-2">
     <Pagination class="mb-2" :count="count" :limit="limit" v-model="page" />
     <MessageError v-if="error">{{ error }}</MessageError>
-
     <div class="card-columns">
       <div class="card" v-for="variable in variables">
         <div class="card-body">
@@ -12,22 +11,24 @@
             <i>{{ variable.label }}</i>
           </p>
           <dl class="card-text">
-            <dt>dataset</dt>
-            <dd>
-              <RouterLink
-                :to="{
-                  name: 'dataset-description',
-                  params: {
-                    collectionAcronym: variable.dataset.collection.acronym,
-                    datasetName: variable.dataset.name,
-                  },
-                }"
-              >
-                {{ variable.dataset.collection.acronym }}:{{
-                  variable.dataset.name
-                }}
-              </RouterLink>
-            </dd>
+            <div v-if="!datasetName">
+              <dt>dataset</dt>
+              <dd>
+                <RouterLink
+                  :to="{
+                    name: 'dataset-description',
+                    params: {
+                      collectionAcronym: variable.dataset.collection.acronym,
+                      datasetName: variable.dataset.name,
+                    },
+                  }"
+                >
+                  {{ variable.dataset.collection.acronym }}:{{
+                    variable.dataset.name
+                  }}
+                </RouterLink>
+              </dd>
+            </div>
             <dt>format</dt>
             <dd>
               {{ variable.format ? variable.format.name : "N/A" }}
@@ -123,7 +124,7 @@ export default {
       console.log(JSON.stringify(filter));
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, dataset{name,collection{acronym}},label, format{name},unit{name}, description,valueLabels,missingValues,harmonisations{match{name},sourceDataset{name,collection{acronym}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, dataset{name,collection{acronym}},label, format{name},unit{name}, description,harmonisations{match{name},sourceDataset{name,collection{acronym}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,

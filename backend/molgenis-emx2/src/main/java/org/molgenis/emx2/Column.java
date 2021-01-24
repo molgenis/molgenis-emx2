@@ -17,8 +17,10 @@ import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class Column {
+
+  // basics
   private TableMetadata table;
-  private String columnName;
+  private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
   private ColumnType columnType = STRING;
 
   // relationships
@@ -32,15 +34,17 @@ public class Column {
   private String mappedBy;
 
   // options
-  private Integer position = null; // column order
+  private String description = null; // long description of the column
+  private String form = null; // influences how data is rendered
+  private Integer position = null; // column order within the table
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private Boolean nullable = false;
   private String validationScript = null;
-  private String computed = null;
-  private String jsonldType = null;
-  // todo implement below
+  private String visible = null; // javascript expression to influence vibility
+  private String computed = null; // javascript expression to compute a value, overrides updates
+  private String jsonldType = null; // json ld expression
+  // todo implement below, or remove
   private Boolean readonly = false;
-  private String description = null;
   private String defaultValue = null;
   private Boolean indexed = false;
   private Boolean cascadeDelete = false;
@@ -55,11 +59,11 @@ public class Column {
   }
 
   public Column(String columnName) {
-    if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+    if (!columnName.matches("[a-zA-Z][a-zA-Z0-9_]*")) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter or underscore, followed by letters, underscores or numbers");
+              + "': Column must start with a letter, followed by letters, underscores or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
     }
     this.columnName = columnName;
   }
@@ -107,6 +111,8 @@ public class Column {
     description = column.description;
     cascadeDelete = column.cascadeDelete;
     jsonldType = column.jsonldType;
+    form = column.form;
+    visible = column.visible;
   }
 
   public TableMetadata getTable() {
@@ -530,6 +536,23 @@ public class Column {
 
   public Column setRefSchema(String refSchema) {
     this.refSchema = refSchema;
+    return this;
+  }
+
+  public String getForm() {
+    return form;
+  }
+
+  public void setForm(String form) {
+    this.form = form;
+  }
+
+  public String getVisible() {
+    return visible;
+  }
+
+  public Column setVisible(String visible) {
+    this.visible = visible;
     return this;
   }
 }

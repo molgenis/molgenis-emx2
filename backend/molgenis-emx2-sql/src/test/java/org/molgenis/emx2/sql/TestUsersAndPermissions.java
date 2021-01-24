@@ -7,8 +7,8 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.DefaultRoles;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 
 public class TestUsersAndPermissions {
@@ -50,7 +50,7 @@ public class TestUsersAndPermissions {
 
       // retry with proper permission
       database.clearActiveUser(); // god mode so I can edit membership
-      schema1.addMember(user1, DefaultRoles.MANAGER.toString());
+      schema1.addMember(user1, Privileges.MANAGER.toString());
       database.setActiveUser(user1);
       try {
         schema1.create(table("Test"));

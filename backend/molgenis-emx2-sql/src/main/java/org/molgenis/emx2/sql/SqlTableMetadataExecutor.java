@@ -32,13 +32,13 @@ class SqlTableMetadataExecutor {
     // grant rights to schema manager, editor and viewer rol
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + DefaultRoles.VIEWER.toString()));
+        jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));
     jooq.execute(
         "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + DefaultRoles.EDITOR.toString()));
+        jooqTable, name(getRolePrefix(table) + Privileges.EDITOR.toString()));
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
-        jooqTable, name(getRolePrefix(table) + DefaultRoles.MANAGER.toString()));
+        jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
 
     // create columns from primary key of superclass
     if (table.getInherit() != null) {
@@ -217,7 +217,7 @@ class SqlTableMetadataExecutor {
     jooq.execute(functionBody);
     jooq.execute(
         "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
-        name(getRolePrefix(table) + DefaultRoles.MANAGER.toString()));
+        name(getRolePrefix(table) + Privileges.MANAGER.toString()));
     return triggerfunction;
   }
 
