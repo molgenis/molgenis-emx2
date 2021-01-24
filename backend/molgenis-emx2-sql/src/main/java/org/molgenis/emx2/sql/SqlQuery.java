@@ -1117,13 +1117,22 @@ public class SqlQuery extends QueryBean {
           conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
           break;
         case TRIGRAM_SEARCH:
-          conditions.add(condition("word_similarity({0},{1}) > 0.6", value, field(columnName)));
+          if (value.length() > 2) {
+            conditions.add(condition("word_similarity({0},{1}) > 0.6", value, field(columnName)));
+          } else {
+            conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
+          }
           break;
         case TEXT_SEARCH:
-          conditions.add(
-              condition(
-                  "to_tsquery({0}) @@ to_tsvector({1})",
-                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
+          // NOTE WE ONLY SEARCH ON LONGER STRINGS
+          if (value.length() > 2) {
+            conditions.add(
+                condition(
+                    "to_tsquery({0}) @@ to_tsvector({1})",
+                    value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
+          } else {
+            conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
+          }
           break;
         default:
           throw new SqlQueryException(
