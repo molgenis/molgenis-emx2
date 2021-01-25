@@ -19,7 +19,7 @@ sourceCompatibility = '11'
 sonarqube {
     properties {
         property 'sonar.projectName', 'molgenis-emx2'
-        property 'sonar.projectKey', 'mswertz_molgenis-emx2'
+        property 'sonar.projectKey', 'molgenis_molgenis-emx2'
         property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/backend/build/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
     }
 }
