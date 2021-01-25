@@ -1,4 +1,4 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
-    implementation 'org.javers:javers-core:5.13.2'
+    implementation 'org.javers:javers-core:5.14.0'
 }
