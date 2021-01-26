@@ -263,14 +263,17 @@ public class GraphqlTableFieldFactory {
               .type(GraphQLList.list(GraphQLTypeReference.typeRef(typeName)))
               .build());
       for (Column col : table.getColumns()) {
-        if (col.getColumnType().getOperators().length > 0) {
+        if (col.isReference()) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(col.getName())
-                  .type(
-                      col.isReference()
-                          ? GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER)
-                          : getColumnFilterInputObjectType(col))
+                  .type(GraphQLTypeReference.typeRef(col.getRefTableName() + FILTER))
+                  .build());
+        } else if (col.getColumnType().getOperators().length > 0) {
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(col.getName())
+                  .type(getColumnFilterInputObjectType(col))
                   .build());
         }
       }
