@@ -7,7 +7,7 @@
         ghost-class="border-primary"
       >
         <FilterContainer
-          v-for="column in filters"
+          v-for="(column, index) in filters"
           :title="column.name"
           :visible="column.showFilter"
           :key="column.name + column.updateTime"
@@ -18,7 +18,7 @@
           @expand="expanded = column.name"
           @collapse="expanded = null"
         >
-          <FilterInput :column="column" />
+          <FilterInput v-model="filters[index]" />
         </FilterContainer>
       </Draggable>
       <ShowMore title="debug">
@@ -47,10 +47,11 @@ export default {
     ShowMore,
   },
   props: {
-    filters: Array,
+    value: Array,
   },
   data() {
     return {
+      filters: [],
       timestamp: 0,
       expanded: null,
     };
@@ -101,11 +102,16 @@ export default {
     },
   },
   created() {
+    this.filters = this.value;
     this.initShowFilter();
   },
   watch: {
-    filter() {
-      this.initShowFilter();
+    value() {
+      this.filters = this.value;
+    },
+    filters() {
+      //this.initShowFilter();
+      this.$emit("input", this.filters);
     },
   },
   methods: {
@@ -152,10 +158,10 @@ examples
   <div>
     <div class="row">
       <div class="col col-lg-5">
-        <FilterSidebar :filters="filters"/>
+        <FilterSidebar v-model="filters"/>
       </div>
       <div class="col">
-        <FilterWells :filters="filters"/>
+        <FilterWells v-model="filters"/>
       </div>
     </div>
   </div>

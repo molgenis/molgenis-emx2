@@ -8,7 +8,7 @@
       </div>
       <div class="row">
         <div class="col-2">
-          <FilterSidebar :filters="filters" />
+          <FilterSidebar v-model="filters" />
         </div>
         <div class="col-9">
           <div class="row">
@@ -32,7 +32,7 @@
               </form>
             </div>
           </div>
-          <FilterWells :filters="filters" />
+          <FilterWells v-model="filters" />
           <ul class="nav nav-tabs">
             <li>
               <router-link

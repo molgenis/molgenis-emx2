@@ -47,10 +47,10 @@
       </div>
       <div class="row" :key="timestamp">
         <div v-if="showFilters" class="col col-3">
-          <FilterSidebar :filters="tableMetadata.columns" />
+          <FilterSidebar v-model="tableMetadata.columns" />
         </div>
         <div class="col col-9">
-          <FilterWells v-if="table" :filters="tableMetadata.columns" />
+          <FilterWells v-if="table" v-model="tableMetadata.columns" />
           <div v-if="loading">
             <Spinner />
           </div>

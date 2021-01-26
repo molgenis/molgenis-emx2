@@ -9,7 +9,7 @@
         @remove="hideFilter(idx)"
         class="mr-2 mt-2"
       >
-        <FilterInput :column="column" />
+        <FilterInput v-model="filters[idx]" />
       </FilterDropdown>
     </div>
   </div>
@@ -31,8 +31,8 @@ examples
 <template>
   <div>
     <div class="row">
-      <FilterWells :filters="filters"/>
-      <FilterTopbar :filters="filters"/>
+      <FilterWells v-model="filters"/>
+      <FilterTopbar v-model="filters"/>
     </div>
   </div>
 

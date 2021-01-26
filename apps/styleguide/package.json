@@ -13,6 +13,7 @@
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "dependencies": {
     "core-js": "3.8.3",
+    "graphql": "^15.5.0",
     "graphql-request": "3.4.0",
     "object-path": "0.11.5",
     "recursive-iterator": "3.3.0",
@@ -22,15 +23,15 @@
     "vuedraggable": "2.24.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-eslint": "4.5.11",
     "@vue/cli-plugin-babel": "4.5.11",
+    "@vue/cli-plugin-eslint": "4.5.11",
     "@vue/cli-service": "4.5.11",
     "@vue/eslint-config-prettier": "6.0.0",
     "babel-eslint": "10.1.0",
     "eslint": "7.18.0",
-    "eslint-plugin-prettier": "3.3.1",
-    "eslint-plugin-vue": "6.2.2",
     "eslint-plugin-autofix": "1.0.3",
+    "eslint-plugin-prettier": "3.3.1",
+    "eslint-plugin-vue": "7.5.0",
     "prettier": "2.2.1",
     "vue-cli-plugin-styleguidist": "4.35.0",
     "vue-template-compiler": "2.6.12"

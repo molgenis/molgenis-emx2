@@ -39,7 +39,26 @@ import FilterWell from "./FilterWell";
 
 export default {
   props: {
-    filters: Array,
+    value: Array,
+  },
+  data() {
+    return {
+      filters: [],
+    };
+  },
+  created() {
+    this.filters = this.value;
+  },
+  watch: {
+    value() {
+      this.filters = this.value;
+    },
+    filters: {
+      deep: true,
+      handler() {
+        this.$emit("input", this.filters);
+      },
+    },
   },
   components: {
     FilterWell,
@@ -105,54 +124,54 @@ export default {
 </script>
 
 <docs>
-    Example:
-    ```
-    <template>
-        <div>
-            <FilterWells :filters="filters"/>
-            value: {{JSON.stringify(filters)}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    filters:
-                        [
-                            {
-                                name: "orderId",
-                                conditions: []
-                            },
-                            {
-                                name: "pet",
-                                conditions: []
-                            },
-                            {
-                                name: "quantity",
-                                conditions: [[1, null]]
-                            },
-                            {
-                                name: "price",
-                                conditions: [[null, 25.7], [2, 11.3]]
-                            },
-                            {
-                                name: "complete",
-                                conditions: ["false"]
-                            },
-                            {
-                                name: "status",
-                                conditions: [{name: "status", second: " true"}]
-                            },
-                            {
-                                name: "birthday",
-                                conditions: [['2020-1-1', '2030-2-3']]
-                            }
-                        ]
-                }
-            }
-        }
-    </script>
-    ```
+Example:
+```
+<template>
+  <div>
+    <FilterWells v-model="filters"/>
+    value: {{ JSON.stringify(filters) }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        filters:
+            [
+              {
+                name: "orderId",
+                conditions: []
+              },
+              {
+                name: "pet",
+                conditions: []
+              },
+              {
+                name: "quantity",
+                conditions: [[1, null]]
+              },
+              {
+                name: "price",
+                conditions: [[null, 25.7], [2, 11.3]]
+              },
+              {
+                name: "complete",
+                conditions: ["false"]
+              },
+              {
+                name: "status",
+                conditions: [{name: "status", second: " true"}]
+              },
+              {
+                name: "birthday",
+                conditions: [['2020-1-1', '2030-2-3']]
+              }
+            ]
+      }
+    }
+  }
+</script>
+```
 
 
 </docs>

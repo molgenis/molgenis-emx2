@@ -65,7 +65,23 @@ export default {
     InputRef,
   },
   props: {
-    column: Object,
+    value: Object,
+  },
+  data() {
+    return {
+      column: {},
+    };
+  },
+  watch: {
+    column() {
+      this.$emit("input", this.column);
+    },
+    value() {
+      this.column = this.value;
+    },
+  },
+  created() {
+    this.column = this.value;
   },
 };
 </script>
