@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>Dataset & variable catalogue</h1>
-    <p>Catalogue of cohorts, registries, harmonisations and more...</p>
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="row">
       <Pagination
@@ -14,13 +12,11 @@
       />
     </div>
     <div class="row">
-      <div class="card-columns col-10">
-        <CollectionsCard
-          v-for="collection in collections"
-          :key="collection.name"
-          :collection="collection"
-        />
-      </div>
+      <NetworkCard
+        v-for="network in networks"
+        :key="network.name"
+        :network="network"
+      />
     </div>
   </div>
 </template>
@@ -28,13 +24,13 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import CollectionsCard from "./CollectionCard";
-import TableOfContents from "./TableOfContents";
+import NetworkCard from "../components/NetworkCard";
+import TableOfContents from "../components/TableOfContents";
 
 export default {
   components: {
     TableOfContents,
-    CollectionsCard,
+    NetworkCard,
     Pagination,
     MessageError,
   },
@@ -57,20 +53,19 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      collections: [],
+      networks: [],
     };
   },
   methods: {
     reload() {
-      console.log("collections reload");
       let searchString = "";
       if (this.search && this.search.trim() != "") {
         searchString = `search:"${this.search}",`;
       }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,datasets{name,variables{name}}}
-        ,Collections_agg(${searchString}filter:$filter){count}}`,
+        `query Networks($filter:NetworksFilter,$offset:Int,$limit:Int){Networks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name},datasets{name,variables{name}}}
+        ,Networks_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -78,8 +73,8 @@ export default {
         }
       )
         .then((data) => {
-          this.collections = data.Collections;
-          this.count = data.Collections_agg.count;
+          this.networks = data.Networks;
+          this.count = data.Networks_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

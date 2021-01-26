@@ -1,14 +1,19 @@
 package org.molgenis.emx2;
 
-public enum DefaultRoles {
+public enum Privileges {
+
+  // can select
   VIEWER("Viewer"),
+  // can insert, update, delete, implies Viewer
   EDITOR("Editor"),
+  // extends Editor to create, alter, drop, implies Manager
   MANAGER("Manager"),
+  // can add/remove users to schema
   OWNER("Owner");
 
   private String name;
 
-  DefaultRoles(String name) {
+  Privileges(String name) {
     this.name = name;
   }
 

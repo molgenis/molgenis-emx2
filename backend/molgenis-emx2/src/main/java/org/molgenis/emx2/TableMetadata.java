@@ -40,11 +40,11 @@ public class TableMetadata {
   private String jsonldType = null;
 
   public TableMetadata(String tableName) {
-    if (!tableName.matches("[a-zA-Z_][a-zA-Z0-9_]*") || tableName.length() > 341) {
+    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_]*") || tableName.length() > 341) {
       throw new MolgenisException(
           "Invalid table name '"
               + tableName
-              + "': Table name must start with a letter or underscore, followed by letters, underscores or numbers. Maximum length: 31 characters (so it fits in Excel sheet names)");
+              + "': Table name must start with a letter , followed by letters, underscores or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
     }
     this.tableName = tableName;
   }

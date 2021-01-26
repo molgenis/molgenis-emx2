@@ -15,7 +15,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.DefaultRoles;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -45,7 +45,7 @@ public class TestWebApi {
     PetStoreExample.populate(schema);
 
     // grant a user permission
-    schema.addMember(PET_SHOP_OWNER, DefaultRoles.OWNER.toString());
+    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
     // start web service for testing
     MolgenisWebservice.start(dataSource, 8080);
