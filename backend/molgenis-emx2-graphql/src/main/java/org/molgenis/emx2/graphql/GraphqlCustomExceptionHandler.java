@@ -6,7 +6,7 @@ import graphql.GraphQLError;
 import graphql.execution.DataFetcherExceptionHandler;
 import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
-import graphql.execution.ExecutionPath;
+import graphql.execution.ResultPath;
 import graphql.language.SourceLocation;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
@@ -19,7 +19,7 @@ public class GraphqlCustomExceptionHandler implements DataFetcherExceptionHandle
 
     final Throwable exception = handlerParameters.getException();
     final SourceLocation sourceLocation = handlerParameters.getSourceLocation();
-    final ExecutionPath path = handlerParameters.getPath();
+    final ResultPath path = handlerParameters.getPath();
     GraphQLError error = new ExceptionWhileDataFetching(path, exception, sourceLocation);
     final ErrorClassification errorType = error.getErrorType();
 
