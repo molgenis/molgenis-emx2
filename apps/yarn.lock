@@ -4041,16 +4041,16 @@ eslint-loader@^2.2.1:
     object-hash "^1.1.4"
     rimraf "^2.6.1"
 
-eslint-plugin-autofix@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-autofix/-/eslint-plugin-autofix-1.0.2.tgz#9283c56539b1fe536bf2c88b3150e2519240b7df"
-  integrity sha512-nEYdYSN73V/ZT6okB6WGzLzlV7xlLfikmjEgWaCRO2gCdDsY0QKhc2u0H0p/yyHXJSC1hMrqBDwkLWt6knuTdw==
+eslint-plugin-autofix@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-autofix/-/eslint-plugin-autofix-1.0.3.tgz#4fcee0e5c150e200b9a327b0c8c23d3380765c69"
+  integrity sha512-GJlzweP4y35Ql4hOBBtvPVKAihm2CcJNTMa5k4IOAAsrmheeTlaa564yAIS+TzFLhtlOW0OXoYyZ2bZvs4fUVA==
   dependencies:
     eslint-rule-composer "^0.3.0"
-    espree "^6.1.2"
+    espree "^7.3.1"
     esutils "^2.0.2"
-    lodash "^4.17.15"
-    string-similarity "^4.0.1"
+    lodash "^4.17.20"
+    string-similarity "^4.0.3"
 
 eslint-plugin-prettier@3.3.1:
   version "3.3.1"
@@ -4149,7 +4149,7 @@ eslint@7.18.0:
     text-table "^0.2.0"
     v8-compile-cache "^2.0.3"
 
-espree@^6.1.2, espree@^6.2.1:
+espree@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/espree/-/espree-6.2.1.tgz#77fc72e1fd744a2052c20f38a5b575832e82734a"
   integrity sha512-ysCxRQY3WaXJz9tdbWOwuWr5Y/XrPTGX9Kiz3yoUXwW0VZ4w30HTkQLaGx/+ttFjF8i+ACbArnB4ce68a9m5hw==
@@ -9460,10 +9460,10 @@ string-hash@^1.1.1:
   resolved "https://registry.yarnpkg.com/string-hash/-/string-hash-1.1.3.tgz#e8aafc0ac1855b4666929ed7dd1275df5d6c811b"
   integrity sha1-6Kr8CsGFW0Zmkp7X3RJ1311sgRs=
 
-string-similarity@^4.0.1:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/string-similarity/-/string-similarity-4.0.3.tgz#ef52d6fc59c8a0fc93b6307fbbc08cc6e18cde21"
-  integrity sha512-QEwJzNFCqq+5AGImk5z4vbsEPTN/+gtyKfXBVLBcbPBRPNganZGfQnIuf9yJ+GiwSnD65sT8xrw/uwU1Q1WmfQ==
+string-similarity@^4.0.3:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/string-similarity/-/string-similarity-4.0.4.tgz#42d01ab0b34660ea8a018da8f56a3309bb8b2a5b"
+  integrity sha512-/q/8Q4Bl4ZKAPjj8WerIBJWALKkaPRfrvhfF8k/B23i4nzrlRj2/go1m90In7nG/3XDSbOo0+pu6RvCTM9RGMQ==
 
 string-width@^2.0.0, string-width@^2.1.0:
   version "2.1.1"
