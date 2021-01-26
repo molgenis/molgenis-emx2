@@ -13,7 +13,13 @@ export default {
   },
   computed: {
     hasSlot() {
-      return !!this.$slots.default[0].text.length;
+      if (
+        this.$slots.default &&
+        this.$slots.default[0] &&
+        this.$slots.default[0].text != undefined
+      )
+        return this.$slots.default[0].text.trim().length > 0;
+      return this.$slots.default;
     },
   },
 };

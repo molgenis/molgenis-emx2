@@ -89,7 +89,7 @@
               <thead>
                 <tr>
                   <th>Source dataset</th>
-                  <th>Description of mappping</th>
+                  <th>Description of mapping</th>
                 </tr>
               </thead>
               <tbody>
@@ -182,7 +182,7 @@ export default {
       };
       request(
         "graphql",
-        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){match{name},targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}},sourceVariables{name,description,format{name},valueLabels,missingValues},syntax,description}}`,
+        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){match{name},targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}},sourceVariables{name,description,format{name}},syntax,description}}`,
         {
           filter: filter,
         }

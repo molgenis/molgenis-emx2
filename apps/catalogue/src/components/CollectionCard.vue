@@ -66,11 +66,6 @@ export default {
     collection: Object,
     providerAcronym: String,
   },
-  data() {
-    return {
-      tab: "Description",
-    };
-  },
   computed: {
     collectionview() {
       if (this.providerAcronym) {

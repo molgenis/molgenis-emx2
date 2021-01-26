@@ -82,7 +82,7 @@ export default {
       }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, dataset{name,collection{acronym}},label, format{name},unit{name}, description,harmonisations{match{name},sourceDataset{name,collection{acronym}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, dataset{name,collection{acronym}},label, format{name},unit{name}, description,categories{label,value,isMissing},harmonisations{match{name},sourceDataset{name,collection{acronym}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,

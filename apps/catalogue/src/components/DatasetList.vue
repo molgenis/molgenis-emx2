@@ -69,7 +69,7 @@ export default {
         ,Datasets_agg(filter:$filter){count}}`,
         {
           filter: filter,
-          offset: (this.page - 1) * 10,
+          offset: (this.page - 1) * this.limit,
           limit: this.limit,
         }
       )
