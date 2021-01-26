@@ -5,7 +5,7 @@
       <form class="form-inline justify-content-between mb-2">
         <InputSearch v-if="table" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
-        <SelectionBox v-if="showSelect" v-model="value" />
+        <SelectionBox v-if="showSelect" v-model="selectedItems" />
       </form>
       <Spinner v-if="loading" />
       <div v-else>

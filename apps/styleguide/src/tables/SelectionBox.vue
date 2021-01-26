@@ -3,28 +3,28 @@
     <ButtonAction @click="toggle">
       Selection
       <span class="badge badge-light">
-        {{ Array.isArray(value) ? value.length : 0 }}
+        {{ Array.isArray(selection) ? value.length : 0 }}
       </span>
     </ButtonAction>
     <LayoutModal v-if="expand" @close="expand = false" title="Show selection">
       <template v-slot:body>
-        <span v-if="!Array.isArray(value) || value.length == 0">
+        <span v-if="!Array.isArray(selection) || selection.length == 0">
           No items selected
         </span>
         <span
           v-else
           class="btn-outline-primary btn-sm mr-2"
-          v-for="(item, idx) in value"
+          v-for="(item, idx) in selection"
           :key="JSON.stringify(item)"
         >
           {{ flattenObject(item) }}
-          <IconAction icon="times" @click="value.splice(idx, 1)" />
+          <IconAction icon="times" @click="selection.splice(idx, 1)" />
         </span>
       </template>
       <template v-slot:footer>
         <ButtonAlt
-          v-if="Array.isArray(value) && value.length > 0"
-          @click="value.splice(0, value.length)"
+          v-if="Array.isArray(selection) && selection.length > 0"
+          @click="selection.splice(0, selection.length)"
           >clear selection
         </ButtonAlt>
       </template>
@@ -53,8 +53,20 @@ export default {
   },
   data() {
     return {
+      selection: [],
       expand: false,
     };
+  },
+  created() {
+    this.selection = this.value;
+  },
+  watch: {
+    value() {
+      this.selection = this.value;
+    },
+    selection() {
+      this.$emit("input", this.selection);
+    },
   },
   methods: {
     toggle() {
