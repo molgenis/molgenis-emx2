@@ -1,5 +1,5 @@
 {
-  "name": "cohorts",
+  "name": "catalogue",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@mswertz/emx2-styleguide": "*",
-    "core-js": "3.8.1",
+    "core-js": "3.8.3",
     "graphql-request": "2.0.0",
     "vue": "2.6.12",
     "vue-router": "3.4.9"

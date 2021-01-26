@@ -17,6 +17,8 @@ public class Column {
   private Boolean cascadeDelete = false;
   private String mappedBy = null;
   private String validation = null;
+  private String form = null;
+  private String visible = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
   private String jsonldType = null;
@@ -42,6 +44,8 @@ public class Column {
     this.nullable = column.isNullable();
     this.description = column.getDescription();
     this.jsonldType = column.getJsonldType();
+    this.visible = column.getVisible();
+    this.form = column.getForm();
 
     // calculated field
     if (table.getInherit() != null)
@@ -63,6 +67,8 @@ public class Column {
     c.setValidationScript(validation);
     c.setDescription(description);
     c.setJsonldType(jsonldType);
+    c.setVisible(visible);
+    c.setForm(form);
     // ignore inherited
     return c;
   }
@@ -193,5 +199,21 @@ public class Column {
 
   public void setRefSchema(String refSchema) {
     this.refSchema = refSchema;
+  }
+
+  public String getForm() {
+    return form;
+  }
+
+  public void setForm(String form) {
+    this.form = form;
+  }
+
+  public String getVisible() {
+    return visible;
+  }
+
+  public void setVisible(String visible) {
+    this.visible = visible;
   }
 }

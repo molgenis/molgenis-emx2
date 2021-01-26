@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.com/mswertz/molgenis-emx2.svg?branch=master)](https://travis-ci.com/mswertz/molgenis-emx2)
-[![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=mswertz_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=mswertz_molgenis-emx2)
-[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=mswertz_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=mswertz_molgenis-emx2)
+[![Build Status](https://travis-ci.com/molgenis/molgenis-emx2.svg?branch=master)](https://travis-ci.com/molgenis/molgenis-emx2)
+[![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2)
+[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=molgenis_molgenis-emx2)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 # molgenis-emx2 preview
-This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'alpha'). 
+This is a reference implementation of MOLGENIS/EMX2 data service. Status: preview (or 'beta'). 
 
 Demo server: https://emx2.test.molgenis.org/
 
@@ -289,6 +289,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 ### first
 
+*  remove option for refback to be updateable
 *  download of extended class should include superclass values
 *  download of superclass should only include superclass records
 *  download using filter that is applied in explorer view

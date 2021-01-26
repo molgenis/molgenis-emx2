@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.DefaultRoles.*;
+import static org.molgenis.emx2.Privileges.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ class SqlSchemaMetadataExecutor {
       String member = getRolePrefix(schemaName) + VIEWER;
       String editor = getRolePrefix(schemaName) + EDITOR;
       String manager = getRolePrefix(schemaName) + MANAGER;
-      String owner = getRolePrefix(schemaName) + DefaultRoles.OWNER;
+      String owner = getRolePrefix(schemaName) + Privileges.OWNER;
 
       db.addRole(member);
       db.addRole(editor);
@@ -103,7 +103,7 @@ class SqlSchemaMetadataExecutor {
       }
 
       // give god powers if 'owner'
-      if (DefaultRoles.OWNER.toString().equals(m.getRole())) {
+      if (Privileges.OWNER.toString().equals(m.getRole())) {
         jooq.execute("ALTER ROLE {0} CREATEROLE", name(username));
       }
 

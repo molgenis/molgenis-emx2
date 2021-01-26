@@ -1,38 +1,39 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>Collection: {{ collectionAcronym }}</h1>
-    <div>
-      <ReadMore
-        :text="collection.description"
-        :length="200"
-        v-if="collection.description"
-      />
-    </div>
-    <CollectionTabs
-      selected="variables"
-      :collection-acronym="collectionAcronym"
+    <h1>
+      <small>Collection:</small><br />{{ collection.name }} ({{
+        collection.acronym
+      }})
+    </h1>
+    <label> Website: </label>
+    <a :href="collection.website">{{ collection.website }}</a> <br />
+    <label> Type(s): </label>
+    <span v-for="type in collection.type">{{ type.name }}</span
+    ><br />
+    <label>Description:</label>
+    <p>{{ collection.description }}</p>
+    <h4>Datasets:</h4>
+    <DatasetList
+      :collectionAcronym="collectionAcronym"
+      :providerAcronym="providerAcronym"
     />
-    <VariablesList :collectionAcronym="collectionAcronym" />
   </div>
 </template>
+
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import DatasetList from "./DatasetList";
-import CollectionTabs from "./CollectionTabs";
-import VariablesList from "./VariablesList";
+import DatasetList from "../components/DatasetList";
 
 export default {
   components: {
-    VariablesList,
-    CollectionTabs,
-    DatasetList,
     MessageError,
     ReadMore,
+    DatasetList,
   },
   props: {
     collectionAcronym: String,
+    providerAcronym: String,
   },
   data() {
     return {
@@ -42,10 +43,9 @@ export default {
   },
   methods: {
     reload() {
-      console.log("collections reload");
       request(
         "graphql",
-        `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},description,website,datasets{name,label}}}`,
+        `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, datasets{name}}}`,
         {
           acronym: this.collectionAcronym,
         }

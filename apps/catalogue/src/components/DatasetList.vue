@@ -3,7 +3,14 @@
     <Pagination class="mt-2" :count="count" :limit="limit" v-model="page" />
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="card-columns mt-2">
-      <DatasetCard v-for="dataset in datasets" :dataset="dataset" />
+      <DatasetCard
+        v-for="dataset in datasets"
+        :key="dataset.collection.acronym + ':' + dataset.name"
+        :dataset="dataset"
+        :collectionAcronym="collectionAcronym"
+        :networkAcronym="networkAcronym"
+        :providerAcronym="providerAcronym"
+      />
     </div>
   </div>
 </template>
@@ -25,7 +32,7 @@ dd {
 <script>
 import { request } from "graphql-request";
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
-import DatasetCard from "./DatasetCard";
+import DatasetCard from "../components/DatasetCard";
 
 export default {
   components: {
@@ -35,6 +42,8 @@ export default {
   },
   props: {
     collectionAcronym: String,
+    providerAcronym: String,
+    networkAcronym: String,
   },
   data() {
     return {
@@ -47,12 +56,16 @@ export default {
   },
   methods: {
     reload() {
-      let filter = {
-        collection: { acronym: { equals: this.collectionAcronym } },
-      };
+      let filter = {};
+      if (this.collectionAcronym) {
+        filter.collection = { acronym: { equals: this.collectionAcronym } };
+      }
+      if (this.networkAcronym) {
+        filter.collection = { acronym: { equals: this.networkAcronym } };
+      }
       request(
         "graphql",
-        `query Datasets($filter:DatasetsFilter,$offset:Int,$limit:Int){Datasets(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym},label,variables_agg{count}}
+        `query Datasets($filter:DatasetsFilter,$offset:Int,$limit:Int){Datasets(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym,name,mg_tableclass},label,variables_agg{count}}
         ,Datasets_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -74,6 +87,9 @@ export default {
   },
   watch: {
     collectionAcronym() {
+      this.reload();
+    },
+    networkAcronym() {
       this.reload();
     },
     page() {

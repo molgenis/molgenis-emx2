@@ -37,45 +37,53 @@ public class MetadataUtils {
       field(name("table_description"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_JSONLD_TYPE =
       field(name("table_jsonld_type"), JSON.nullable(true));
+
   // column
   private static final org.jooq.Field COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
-  private static final org.jooq.Field COLUMN_KEY =
-      field(name("column_key"), INTEGER.nullable(true));
-  private static final org.jooq.Field COLUMN_POSITION = field(name("column_position"), INTEGER);
+  private static final org.jooq.Field COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
+  private static final org.jooq.Field COLUMN_POSITION = field(name("position"), INTEGER);
   private static final org.jooq.Field COLUMN_DESCRIPTION =
-      field(name("column_description"), VARCHAR.nullable(true));
+      field(name("description"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_VISIBLE =
+      field(name("visible"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_FORM = field(name("form"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_JSONLD_TYPE =
-      field(name("column_jsonld_type"), JSON.nullable(true));
-  private static final org.jooq.Field DATA_TYPE = field(name("data_type"), VARCHAR.nullable(false));
-  private static final org.jooq.Field NULLABLE = field(name("nullable"), BOOLEAN.nullable(false));
-  private static final org.jooq.Field REF_TABLE = field(name("ref_table"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_SCHEMA =
+      field(name("jsonldType"), JSON.nullable(true));
+  private static final org.jooq.Field COLUMN_TYPE =
+      field(name("columnType"), VARCHAR.nullable(false));
+  private static final org.jooq.Field COLUMN_NULLABLE =
+      field(name("nullable"), BOOLEAN.nullable(false));
+  private static final org.jooq.Field COLUMN_REF_TABLE =
+      field(name("ref_table"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_REF_SCHEMA =
       field(name("ref_schema"), VARCHAR.nullable(true));
-  private static final org.jooq.Field REF_FROM =
+  private static final org.jooq.Field COLUMN_REF_FROM =
       field(name("ref_from"), VARCHAR.getArrayDataType().nullable(true));
-  private static final org.jooq.Field REF_TO =
+  private static final org.jooq.Field COLUMN_REF_TO =
       field(name("ref_to"), VARCHAR.getArrayDataType().nullable(true));
-  private static final org.jooq.Field MAPPED_BY = field(name("mappedBy"), VARCHAR.nullable(true));
-  private static final org.jooq.Field VALIDATION_SCRIPT =
-      field(name("validationScript"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COMPUTE_SCRIPT =
-      field(name("computeScript"), VARCHAR.nullable(true));
-  private static final org.jooq.Field INDEXED = field(name("indexed"), BOOLEAN.nullable(true));
-  private static final org.jooq.Field CASCADE_DELETE =
-      field(name("cascade_delete"), BOOLEAN.nullable(true));
+  private static final org.jooq.Field COLUMN_MAPPED_BY =
+      field(name("mappedBy"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_VALIDATION =
+      field(name("validation"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_COMPUTED =
+      field(name("computed"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_INDEXED =
+      field(name("indexed"), BOOLEAN.nullable(true));
+  private static final org.jooq.Field COLUMN_CASCADE =
+      field(name("cascade"), BOOLEAN.nullable(true));
 
   // users
   private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
   private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
 
   // settings
+  private static final org.jooq.Field SETTINGS_NAME =
+      field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
   private static final org.jooq.Field SETTINGS_TABLE_NAME =
       field(
           name(TABLE_NAME.getName()),
           VARCHAR.nullable(true)); // note table might be null in case of schema
-  private static final org.jooq.Field SETTINGS_NAME =
-      field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
   private static final org.jooq.Field SETTINGS_VALUE =
       field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
 
@@ -141,21 +149,23 @@ public class MetadataUtils {
     // this way more robust for non-breaking changes
     for (Field field :
         new Field[] {
-          DATA_TYPE,
+          COLUMN_TYPE,
           COLUMN_KEY,
           COLUMN_POSITION,
-          NULLABLE,
-          REF_SCHEMA,
-          REF_TABLE,
-          REF_TO,
-          REF_FROM,
-          MAPPED_BY,
-          VALIDATION_SCRIPT,
-          COMPUTE_SCRIPT,
-          INDEXED,
-          CASCADE_DELETE,
+          COLUMN_NULLABLE,
+          COLUMN_REF_SCHEMA,
+          COLUMN_REF_TABLE,
+          COLUMN_REF_TO,
+          COLUMN_REF_FROM,
+          COLUMN_MAPPED_BY,
+          COLUMN_VALIDATION,
+          COLUMN_COMPUTED,
+          COLUMN_INDEXED,
+          COLUMN_CASCADE,
           COLUMN_DESCRIPTION,
-          COLUMN_JSONLD_TYPE
+          COLUMN_JSONLD_TYPE,
+          COLUMN_VISIBLE,
+          COLUMN_FORM
         }) {
       jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
     }
@@ -180,18 +190,18 @@ public class MetadataUtils {
     // this to enforce policy of being able to change vs view table.
     jooq.execute(
         "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || upper({3}) || '/"
-            + DefaultRoles.MANAGER.toString()
+            + Privileges.MANAGER.toString()
             + "', 'member'))",
-        name("TABLE_RLS_" + DefaultRoles.MANAGER),
+        name("TABLE_RLS_" + Privileges.MANAGER),
         table,
         MG_ROLE_PREFIX,
         TABLE_SCHEMA);
 
     jooq.execute(
         "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || upper({3}) || '/"
-            + DefaultRoles.VIEWER
+            + Privileges.VIEWER
             + "', 'member'))",
-        name("TABLE_RLS_" + DefaultRoles.VIEWER),
+        name("TABLE_RLS_" + Privileges.VIEWER),
         table,
         MG_ROLE_PREFIX,
         TABLE_SCHEMA);
@@ -312,21 +322,23 @@ public class MetadataUtils {
             TABLE_SCHEMA,
             TABLE_NAME,
             COLUMN_NAME,
-            DATA_TYPE,
+            COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
-            NULLABLE,
-            REF_SCHEMA,
-            REF_TABLE,
-            REF_FROM,
-            REF_TO,
-            MAPPED_BY,
-            VALIDATION_SCRIPT,
-            COMPUTE_SCRIPT,
-            INDEXED,
-            CASCADE_DELETE,
+            COLUMN_NULLABLE,
+            COLUMN_REF_SCHEMA,
+            COLUMN_REF_TABLE,
+            COLUMN_REF_FROM,
+            COLUMN_REF_TO,
+            COLUMN_MAPPED_BY,
+            COLUMN_VALIDATION,
+            COLUMN_COMPUTED,
+            COLUMN_INDEXED,
+            COLUMN_CASCADE,
             COLUMN_DESCRIPTION,
-            COLUMN_JSONLD_TYPE)
+            COLUMN_JSONLD_TYPE,
+            COLUMN_VISIBLE,
+            COLUMN_FORM)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -345,24 +357,28 @@ public class MetadataUtils {
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription(),
-            column.getJsonldType())
+            column.getJsonldType(),
+            column.getVisible(),
+            column.getForm())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
-        .set(DATA_TYPE, column.getColumnType())
+        .set(COLUMN_TYPE, column.getColumnType())
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
-        .set(NULLABLE, column.isNullable())
-        .set(REF_SCHEMA, refSchema)
-        .set(REF_TABLE, column.getRefTableName())
-        .set(REF_FROM, column.getRefFrom())
-        .set(REF_TO, column.getRefTo())
-        .set(MAPPED_BY, column.getMappedBy())
-        .set(VALIDATION_SCRIPT, column.getValidationScript())
-        .set(COMPUTE_SCRIPT, column.getComputed())
-        .set(INDEXED, column.isIndexed())
-        .set(CASCADE_DELETE, column.isCascadeDelete())
+        .set(COLUMN_NULLABLE, column.isNullable())
+        .set(COLUMN_REF_SCHEMA, refSchema)
+        .set(COLUMN_REF_TABLE, column.getRefTableName())
+        .set(COLUMN_REF_FROM, column.getRefFrom())
+        .set(COLUMN_REF_TO, column.getRefTo())
+        .set(COLUMN_MAPPED_BY, column.getMappedBy())
+        .set(COLUMN_VALIDATION, column.getValidationScript())
+        .set(COLUMN_COMPUTED, column.getComputed())
+        .set(COLUMN_INDEXED, column.isIndexed())
+        .set(COLUMN_CASCADE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
         .set(COLUMN_JSONLD_TYPE, column.getJsonldType())
+        .set(COLUMN_VISIBLE, column.getVisible())
+        .set(COLUMN_FORM, column.getForm())
         .execute();
   }
 
@@ -439,20 +455,22 @@ public class MetadataUtils {
 
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
-    c.setType(ColumnType.valueOf(col.get(DATA_TYPE, String.class)));
-    c.setNullable(col.get(NULLABLE, Boolean.class));
+    c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
+    c.setNullable(col.get(COLUMN_NULLABLE, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
-    c.setRefSchema(col.get(REF_SCHEMA, String.class));
-    c.setRefTable(col.get(REF_TABLE, String.class));
-    c.setRefFrom(col.get(REF_FROM, String[].class));
-    c.setRefTo(col.get(REF_TO, String[].class));
-    c.setMappedBy(col.get(MAPPED_BY, String.class));
-    c.setValidationScript(col.get(VALIDATION_SCRIPT, String.class));
-    c.setComputed(col.get(COMPUTE_SCRIPT, String.class));
+    c.setRefSchema(col.get(COLUMN_REF_SCHEMA, String.class));
+    c.setRefTable(col.get(COLUMN_REF_TABLE, String.class));
+    c.setRefFrom(col.get(COLUMN_REF_FROM, String[].class));
+    c.setRefTo(col.get(COLUMN_REF_TO, String[].class));
+    c.setMappedBy(col.get(COLUMN_MAPPED_BY, String.class));
+    c.setValidationScript(col.get(COLUMN_VALIDATION, String.class));
+    c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
-    c.setCascadeDelete(col.get(CASCADE_DELETE, Boolean.class));
+    c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setJsonldType(col.get(COLUMN_JSONLD_TYPE, String.class));
+    c.setVisible(col.get(COLUMN_VISIBLE, String.class));
+    c.setForm(col.get(COLUMN_FORM, String.class));
     return c;
   }
 

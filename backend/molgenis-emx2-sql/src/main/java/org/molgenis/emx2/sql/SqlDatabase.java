@@ -98,8 +98,7 @@ public class SqlDatabase implements Database {
           executeCreateSchema(this, metadata);
           // make current user a manager
           if (getActiveUser() != null) {
-            getSchema(metadata.getName())
-                .addMember(getActiveUser(), DefaultRoles.MANAGER.toString());
+            getSchema(metadata.getName()).addMember(getActiveUser(), Privileges.MANAGER.toString());
           }
           schemaCache.put(name, metadata);
           schemaNames.add(name);
