@@ -36,8 +36,6 @@ import FlatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import InputAppend from "./_inputAppend";
 
-//import '../../../public/css/bootstrap-molgenis-blue.css'
-
 /** Show a data input */
 export default {
   extends: _baseInput,
@@ -59,109 +57,109 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputDate v-model="value" label="My date input label" help="Some help needed?"/>
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
+Example
+```
+<template>
+  <div>
+    <InputDate v-model="value" label="My date input label" help="Some help needed?"/>
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
 
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example readonly with default value
-    ```
-    <template>
-        <div>
-            <InputDate :readonly="true" :defaultValue="value" v-model="value" label="My date input label"
-                       help="Some help needed?"/>
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: '2020-1-1'
-                };
-            }
-        };
-    </script>
-    ```
-    Example with default value
-    ```
-    <template>
-        <div>
-            <InputDate
-                    v-model="value"
-                    label="My date input label"
-                    :defaultValue="value"
-                    help="Some help needed?"
-            />
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+Example readonly with default value
+```
+<template>
+  <div>
+    <InputDate :readonly="true" :defaultValue="value" v-model="value" label="My date input label"
+               help="Some help needed?"/>
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: '2020-1-1'
+      };
+    }
+  };
+</script>
+```
+Example with default value
+```
+<template>
+  <div>
+    <InputDate
+        v-model="value"
+        label="My date input label"
+        :defaultValue="value"
+        help="Some help needed?"
+    />
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
 
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: '2020-01-10'
-                };
-            }
-        };
-    </script>
-    ```
-    Example with error set
-    ```
-    <InputDate label="My date input label" error="Some error message is shown"/>
-    ```
-    Example with list set
-    ```
-    <template>
-        <div>
-            <InputDate :list="true" v-model="value" :defaultValue="value" label="My date input label"/>
-            Value: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: [null]
-                };
-            }
-        };
-    </script>
-    ```
-    Example with list default
-    ```
-    <template>
-        <div>
-            <InputDate :list="true" v-model="value" :defaultValue="value" label="My date input label"/>
-            Value: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: ['2020-1-1', '2020-1-2']
-                };
-            }
-        };
-    </script>
-    ```
+<script>
+  export default {
+    data: function () {
+      return {
+        value: '2020-01-10'
+      };
+    }
+  };
+</script>
+```
+Example with error set
+```
+<InputDate label="My date input label" error="Some error message is shown"/>
+```
+Example with list set
+```
+<template>
+  <div>
+    <InputDate :list="true" v-model="value" :defaultValue="value" label="My date input label"/>
+    Value: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: [null]
+      };
+    }
+  };
+</script>
+```
+Example with list default
+```
+<template>
+  <div>
+    <InputDate :list="true" v-model="value" :defaultValue="value" label="My date input label"/>
+    Value: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: ['2020-1-1', '2020-1-2']
+      };
+    }
+  };
+</script>
+```
 </docs>
