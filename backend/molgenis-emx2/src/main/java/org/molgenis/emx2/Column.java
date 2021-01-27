@@ -1,21 +1,20 @@
 package org.molgenis.emx2;
 
-import org.jooq.DataType;
-import org.jooq.Field;
-import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.utils.TypeUtils;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
+import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
-import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
+import org.jooq.DataType;
+import org.jooq.Field;
+import org.jooq.impl.SQLDataType;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class Column {
 

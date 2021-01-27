@@ -1,15 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import graphql.Scalars;
-import graphql.schema.*;
-import org.molgenis.emx2.*;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
@@ -17,6 +7,15 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.sql.SqlQuery.*;
+
+import graphql.Scalars;
+import graphql.schema.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.molgenis.emx2.*;
 
 public class GraphqlTableFieldFactory {
 
