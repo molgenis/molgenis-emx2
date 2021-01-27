@@ -53,10 +53,6 @@ module.exports = {
       content: "src/styleguide/introduction.md",
     },
     {
-      name: "Sign in",
-      components: "src/signin/[A-Z]*.vue",
-    },
-    {
       name: "Form",
       components: "src/forms/[A-Z]*.vue",
     },

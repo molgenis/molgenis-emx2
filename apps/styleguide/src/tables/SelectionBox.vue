@@ -88,3 +88,10 @@ export default {
   },
 };
 </script>
+
+<docs>
+Example
+```
+<SelectionBox/>
+```
+</docs>

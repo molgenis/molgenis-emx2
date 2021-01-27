@@ -16,6 +16,6 @@ export default {
 <docs>
 example
 ```
-<FilterDropdown title="test">some contents</FilterDropdown>
+<FilterDropdown title="test" :visible="true">some contents</FilterDropdown>
 ```
 </docs>

@@ -49,9 +49,9 @@ examples
           "columnType": "STRING", showFilter: true
         },
           {
-            "name": "code",
+            "name": "category",
             "columnType": "REF",
-            "refTable": "Code", showFilter: true
+            "refTable": "Topic", showFilter: true
           },
           {
             "name": "quantity",

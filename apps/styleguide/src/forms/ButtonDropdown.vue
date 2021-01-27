@@ -52,3 +52,11 @@ export default {
   },
 };
 </script>
+
+<docs>
+```
+<ButtonDropdown label="My pulldown">
+  <ButtonAlt>Some button</ButtonAlt>
+</ButtonDropdown>
+```
+</docs>

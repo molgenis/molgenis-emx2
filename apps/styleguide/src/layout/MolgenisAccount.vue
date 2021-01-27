@@ -1,6 +1,6 @@
 <template>
   <Spinner v-if="loading" />
-  <LayoutModal v-else title="Change account" :show="true">
+  <LayoutModal v-else title="Change account" :show="true" @close="close">
     <template v-slot:body>
       <LayoutForm>
         <h2>Change password</h2>
@@ -92,3 +92,24 @@ export default {
   },
 };
 </script>
+
+<docs>
+Example
+```
+<template>
+  <div>
+    <ButtonAlt @click="show = !show">toggle modal account view</ButtonAlt>
+    <MolgenisAccount v-if="show" @cancel="show = false"/>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        show: false
+      }
+    }
+  }
+</script>
+```
+</docs>

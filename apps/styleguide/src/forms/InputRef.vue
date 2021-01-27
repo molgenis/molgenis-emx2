@@ -143,12 +143,14 @@ export default {
 </script>
 
 <docs>
+You have to be have server running and be signed in for this to work
+
 Example
 ```
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
+    <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
     Selection: {{ value }}
   </div>
 </template>
@@ -167,7 +169,7 @@ Example with default value
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti
+    <InputRef
         label="My pets"
         v-model="value"
         refTable="Pet"
@@ -192,7 +194,7 @@ Example with filter
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti
+    <InputRef
         v-model="value"
         refTable="Pet"
         :filter="{category:{name:'dog'}}"
@@ -217,11 +219,11 @@ Example with list
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefMulti :list="true"
-                   v-model="value"
-                   refTable="Pet"
-                   :defaultValue="[{name:'spike'},{name:'pooky'}]"
-                   graphqlURL="/pet store/graphql"
+    <InputRef :list="true"
+              v-model="value"
+              refTable="Pet"
+              :defaultValue="[{name:'spike'},{name:'pooky'}]"
+              graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
   </div>

@@ -62,3 +62,12 @@ export default {
   },
 };
 </script>
+
+<docs>
+Example
+```
+<ShowHide label="x">
+
+</ShowHide>
+```
+</docs>

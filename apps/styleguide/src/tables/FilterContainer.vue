@@ -50,12 +50,22 @@ export default {
 
 <docs>
 
-Example
+Example expanded
 
 ```jsx
 <template>
-  <FilterContainer title="My filter">
-    some contents
+  <FilterContainer title="My filter" :visible="true" :expanded="true">
+    some contents of the filter box
+  </FilterContainer>
+</template>
+```
+
+Example collapsed
+
+```jsx
+<template>
+  <FilterContainer title="My filter" :visible="true" :expanded="false">
+    some contents of the filter box
   </FilterContainer>
 </template>
 ```

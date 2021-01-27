@@ -25,6 +25,6 @@ export default {};
 
 <docs>
 ```
-<Footer/>
+<MolgenisFooter/>
 ```
 </docs>
