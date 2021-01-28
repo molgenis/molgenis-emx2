@@ -92,10 +92,12 @@ Alternatively, [download latest helm chart](https://github.com/mswertz/molgenis-
 
 ### Basics
 We use the following:
-* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is in [this repository](https://github.com/mswertz/molgenis-emx2) (it is not a monolith).
+* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is in this repository (it is not a monolith).
 * [gradle](https://gradle.org/) for build (with yarn 'workspaces' for web app)
     * ```gradle build``` => builds all
     * ```gradle clean``` => removes all build artifacts
+    * ```gradle run``` => launches the app
+    * ```gradle test``` => runs the tests  
 * [Semantic Release](https://github.com/semantic-release/semantic-release) where commit message determines major.minor.patch release 
     * ```fix(component): message``` => results in patch+1 release
     * ```feat(component): message``` => results in minor+1 release
@@ -112,7 +114,7 @@ N.B. snapshot docker images can be found at [Docker hub](https://hub.docker.com/
 ### Software we use to develop
 
 * postresql 13
-* java 15
+* java 13
 * yarn (on mac, brew install yarn)
 * gradle (on mac, brew install gradle)
 * git (on mac, install xcode dev tools)
@@ -123,7 +125,7 @@ N.B. snapshot docker images can be found at [Docker hub](https://hub.docker.com/
 ```
 [apps]          # contains javascript apps, one folder per app.
 [backend]       # contains java modules, one folder per module. 
-[deploy]        # contains sources for helm chart
+[helm-chart]        # contains sources for helm chart
 [docs]          # published at https://mswertz.github.io/molgenis-emx2/
 [gradle]        # contains source for gradle
 build.gradle    # master build file, typically don't need to edit
@@ -152,7 +154,6 @@ IntelliJ will recognize gradle and build all. First time that takes a few minute
 ### To develop javascript/frontend 'apps'
 
 Frontend apps are developed using [vuejs](https://vuejs.org/) and [vue-cli](https://cli.vuejs.org/).
-
 To develop, first cd into to folder 'apps' and install all dependencies for all apps.
 This also automatically links local dependencies using [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
 ```console
@@ -160,7 +161,7 @@ cd apps
 yarn install
 ```
 
-There is one central library called 'styleguide' that contains all shared components (using bootstrap for styling).
+There is one central frontend library called 'styleguide' that contains all shared components (using bootstrap for styling).
 To view this run:
 ```console
 cd apps
@@ -186,7 +187,7 @@ To create a new app
 Below summary of directions that have guided development.
 
 ### starting point
-* EMX2 simplified metadata format
+* EMX2 simplified metadata format: only one sheet 'molgenis' needed
 * Organize data in schemas; each schema functions as permission group and as scope of multi-tenancy if desired
 * GraphQL endpoint for each schema, as well as 1 overall
 * Uses PostgreSQL for all heavy lifting (incl search, permissions, JSON generation, file storage)
@@ -194,22 +195,27 @@ Below summary of directions that have guided development.
 * Well isolated components (microfrontend using little spa, we envision microservice for server side add-ons)
 
 ### dependencies
-* Jooq for safe database interaction 
-* Sparkjava for lightweigh webservice
+* Jooq for injection safe database interaction 
+* Sparkjava for lightweight webservice
 * Jackson for json and csv parsing
 * POI for Excel parsing
 * graphql-java for graphql api
 * OpenApi for web service spec (for file based services that don't use graphql)
 To minimize dependencies, no Spring stuff, no Elasticsearch, just the least that can work.
-Outside scope: file service, script service, authentication (asumed all to be other services used as dependency)
+Outside scope: file service (simple file column type inside postgresql), script service, authentication (asumed all to be other services used as dependency)
 Most core ideas where already described in https://docs.google.com/document/d/19YEGG8OGgtjCu5WlJKmHbHvosJzw3Mp6e6e7B8EioPY/edit#
 
 ### Backend modules
 *  emx2: interface and base classes
 *  emx2-sql: implementation into postgresql
 *  emx2-io: emx2 format, csv import/export of data, legacy import
-*  emx2-webservice: web API on top of jooq + io
+*  emx2-graphql: all for generating the graphql on top of sql
+*  emx2-jsonld: endpoint for json-ld serving
+*  emx2-webapi: ties it all together onto SparkJava embedded web server
 *  emx2-exampledata: test data models and data, used in various test
+*  emx2-run: packages all into one fat jar
+Work in progress
+*  emx2-job: toward asynchronous calls for long running transactions/queries
 
 ### Feature list (mostly in POC or 'walking skeleton' state)
 *  simplified EMX '2.0' format 
@@ -286,12 +292,12 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  change password via ui possible
 *  enable overlapping composite foreign key for ref_array (trigger difficult!)
 *  ENSURE PASSWORD IS NOT IN THE LOGS
+*  download of extended class should include superclass values
+*  download of superclass should only include superclass records
 
 ### first
 
-*  remove option for refback to be updateable
-*  download of extended class should include superclass values
-*  download of superclass should only include superclass records
+*  remove option for refback to be updateable? (discussion about this)
 *  download using filter that is applied in explorer view
 *  filter option for 'null' and 'not_null'
 *  check roundtrip download/update of data and model
@@ -303,11 +309,14 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  change graphql to have pageInfo{first,prev,next,last} pointers returned'
 *  postgresql cube index feature for aggregation views
 *  roundtrip settings and members (bacisally 'all')
-*  custom roles
+*  custom roles, so I can grant priviliges on tables
+*  adding posibility for policy based privileges
 *  long running downloads as jobs
-*  add audit trail
-*  documentation framework so we can start adding some docs
+*  add audit trail log
+*  documentation framework so we can start adding some docs (see 'docs')
 *  kan actieve user zien in userlist (als admin en als manager)
+*  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
+
 
 ### later
 *  consider parquet as import/export format
@@ -343,7 +352,6 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  throw error when webservice is called with only csv header and no values
 *  update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey then?)
 *  job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
-*  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
 *  reduce build+test times back to under a minute (LOL)
 *  decide to store both ends of ref; added value might be order of items and query speed
 *  cross-schema foreign keys, do we need/want those?
@@ -351,9 +359,6 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 
 # For developers, what I have that works
 last updated 15 nov 2020
-* Java 13 (don't forget to set JAVA_HOME because that is what gradle uses)
-* Postgresql 13
-* Gradle 6.7 (watch out that it uses java 13, check with --version, otherwise fix JAVA_HOME)
 * IntelliJ 20202 with 
   * google-format plugin 
   * prettier plugn, set to include 'vue' and 'on save'
