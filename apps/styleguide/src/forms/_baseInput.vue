@@ -9,6 +9,8 @@ export default {
     "form-group": _formGroup,
   },
   props: {
+    /**  value */
+    value: null,
     /** value to be shown as placeholder in the input (if possible) */
     placeholder: String,
     /** label to be shown above the input */
@@ -27,8 +29,6 @@ export default {
     },
     /** message when in error state */
     error: null,
-    /** default value */
-    defaultValue: null,
     /** whether this is a list of values*/
     list: {
       type: Boolean,
@@ -53,8 +53,6 @@ export default {
       id: null,
       /** internal value to differ between list and non-list values*/
       arrayValue: [],
-      /** external visible value you can v-model on */
-      value: null,
     };
   },
   watch: {
@@ -68,48 +66,46 @@ export default {
   },
   created() {
     if (this.list) {
-      if (this.defaultValue) {
-        this.arrayValue = this.defaultValue;
-      }
+      this.arrayValue = this.value;
     } else {
-      this.arrayValue[0] = this.defaultValue;
+      this.arrayValue[0] = this.value;
     }
     if (this.arrayValue === null || this.arrayValue.length == 0) {
       this.arrayValue = [null];
     }
-    this.emitValue();
   },
   methods: {
     emitValue() {
       //list type
+      var value;
       if (this.list) {
         //else continue
-        this.value = this.arrayValue.map((v) =>
+        value = this.arrayValue.map((v) =>
           v === undefined || (v && v.length === 0) || !String(v).trim()
             ? null
             : v
         );
-        this.value = this.value.filter((el) => el != undefined);
+        value = value.filter((el) => el != undefined);
         if (this.parser != null) {
-          this.value = this.value.map((v) => this.parser(v));
+          value = value.map((v) => this.parser(v));
         }
         //singular value
       } else {
-        this.value = this.arrayValue[0];
+        value = this.arrayValue[0];
         //console.log("value: " + this.value);
         if (
-          this.value === undefined ||
-          (this.value && this.value.length === 0) ||
-          !String(this.value).trim()
+          value === undefined ||
+          (value && value.length === 0) ||
+          !String(value).trim()
         ) {
-          this.value = null;
+          value = null;
         }
         if (this.parser != null) {
-          this.value = this.parser(this.value);
+          value = this.parser(value);
         }
         //console.log("final value: " + this.value);
       }
-      this.$emit("input", this.value);
+      this.$emit("input", value);
     },
     addRow() {
       this.arrayValue.push(null);

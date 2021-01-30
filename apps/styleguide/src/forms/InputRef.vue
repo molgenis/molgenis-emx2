@@ -198,7 +198,6 @@ Example with filter
         v-model="value"
         refTable="Pet"
         :filter="{category:{name:'dog'}}"
-        :defaultValue="value"
         graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -222,7 +221,6 @@ Example with list
     <InputRef :list="true"
               v-model="value"
               refTable="Pet"
-              :defaultValue="[{name:'spike'},{name:'pooky'}]"
               graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -232,7 +230,7 @@ Example with list
   export default {
     data: function () {
       return {
-        value: ['spike']
+        value: [{'name': 'spike'}]
       };
     }
   };

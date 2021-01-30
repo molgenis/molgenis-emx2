@@ -93,7 +93,6 @@ Example with default
     <InputSelect
         label="Animals"
         v-model="check"
-        defaultValue="ape"
         :options="['lion', 'ape', 'monkey']"
     />
     Selected: {{ check }}
@@ -103,7 +102,7 @@ Example with default
   export default {
     data: function () {
       return {
-        check: null
+        check: 'ape'
       };
     }
   };
@@ -117,7 +116,6 @@ Example list with default
     <InputSelect
         label="Animals"
         v-model="check"
-        :defaultValue="['ape']"
         :options="['lion', 'ape', 'monkey']"
         :list="true"
     />
@@ -128,7 +126,7 @@ Example list with default
   export default {
     data: function () {
       return {
-        check: null
+        check: ['ape']
       };
     }
   };

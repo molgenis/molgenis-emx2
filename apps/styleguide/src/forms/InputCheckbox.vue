@@ -58,28 +58,27 @@ export default {
 </script>
 
 <docs>
-    Example with defaultValue
-    ```
-    <template>
-        <div>
-            <InputCheckbox
-                    label="Animals"
-                    v-model="value"
-                    :defaultValue="value"
-                    :options="['lion', 'ape', 'monkey']"
-                    help="some help here"
-            />
-            Selected: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: ['ape', 'lion']
-                };
-            }
-        };
-    </script>
-    ```
+Example with defaultValue
+```
+<template>
+  <div>
+    <InputCheckbox
+        label="Animals"
+        v-model="value"
+        :options="['lion', 'ape', 'monkey']"
+        help="some help here"
+    />
+    Selected: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: ['ape', 'lion']
+      };
+    }
+  };
+</script>
+```
 </docs>

@@ -13,7 +13,7 @@
           class="form-check-input"
           type="radio"
           :value="item"
-          :checked="defaultValue === item"
+          :checked="arrayValue[0] == item"
           :aria-describedby="id + 'Help'"
         />
         <label class="form-check-label" :for="id + index">{{ item }}</label>
@@ -49,33 +49,32 @@ export default {
 </script>
 
 <docs>
-    Example with defaultValue
-    ```
-    <template>
-        <div>
-            <InputRadio
-                    label="Animals"
-                    v-model="check"
-                    defaultValue="ape"
-                    :options="['lion', 'ape', 'monkey','armadillo','rino','crocodile','tiger','coyote']"
-                    help="some help here"
-            />
-            Selected: {{check}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    check: null
-                };
-            },
-            methods: {
-                clear() {
-                    this.check = null;
-                }
-            }
-        };
-    </script>
-    ```
+Example with defaultValue
+```
+<template>
+  <div>
+    <InputRadio
+        label="Animals"
+        v-model="check"
+        :options="['lion', 'ape', 'monkey','armadillo','rino','crocodile','tiger','coyote']"
+        help="some help here"
+    />
+    Selected: {{ check }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        check: 'ape'
+      };
+    },
+    methods: {
+      clear() {
+        this.check = null;
+      }
+    }
+  };
+</script>
+```
 </docs>
