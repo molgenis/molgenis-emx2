@@ -9,7 +9,9 @@
       :showClear="showClear(idx)"
       @add="addRow"
     >
+      <MessageError v-if="!options">No options provided</MessageError>
       <select
+        v-else
         :id="id"
         v-model="arrayValue[idx]"
         :class="{ 'form-control': true, 'is-invalid': error }"
@@ -18,7 +20,7 @@
           v-if="!list || el == undefined"
           :selected="el === undefined"
           disabled
-        ></option>
+        />
         <option
           v-for="(option, index) in options.filter(
             (o) => el == o || !arrayValue.includes(o)
@@ -48,6 +50,7 @@ export default {
   methods: {
     showPlus(idx) {
       return (
+        this.option &&
         this.list &&
         !this.readonly &&
         this.arrayValue[idx] != undefined &&
