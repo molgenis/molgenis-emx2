@@ -11,20 +11,20 @@
         <thead>
           <tr>
             <th scope="col">variable</th>
-            <th scope="col" v-for="d in datasets">{{ d }}</th>
+            <th scope="col" v-for="t in tables">{{ t }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="v in variables">
             <th scope="row">{{ v }}</th>
-            <td v-for="d in datasets">
+            <td v-for="t in tables">
               <HarmonisationDetails
                 :compact="true"
                 :target-variable="v"
-                :target-dataset="datasetName"
+                :target-table="tableName"
                 :target-collection="collectionAcronym"
-                :source-collection="d.split(':')[0]"
-                :source-dataset="d.split(':')[1]"
+                :source-collection="dtsplit(':')[0]"
+                :source-table="t.split(':')[1]"
                 :match="matrix[v][d]"
               />
             </td>
@@ -63,7 +63,7 @@ export default {
   },
   props: {
     collectionAcronym: String,
-    datasetName: String,
+    tableName: String,
   },
   data() {
     return {
@@ -75,12 +75,11 @@ export default {
     };
   },
   computed: {
-    datasets() {
+    tables() {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) =>
-              h.sourceDataset.collection.acronym + ":" + h.sourceDataset.name
+            (h) => h.sourceTable.collection.acronym + ":" + h.sourceTable.name
           )
         ),
       ].sort();
@@ -100,7 +99,7 @@ export default {
       this.harmonisations.forEach((h) => {
         if (h.match) {
           result[h.targetVariable.name][
-            h.sourceDataset.collection.acronym + ":" + h.sourceDataset.name
+            h.sourceTable.collection.acronym + ":" + h.sourceTable.name
           ] = h.match.name;
         }
       });
@@ -110,22 +109,22 @@ export default {
   methods: {
     reload() {
       let filter = {};
-      //filter:{targetVariable:{dataset:{name:{equals:"table1"},collection:{acronym:{equals:"LifeCycle"}}}}}
+      //filter:{targetVariable:{table:{name:{equals:"table1"},collection:{acronym:{equals:"LifeCycle"}}}}}
       if (this.collectionAcronym) {
         filter.targetVariable = {
-          dataset: {
+          table: {
             collection: { acronym: { equals: this.collectionAcronym } },
           },
         };
       }
-      if (this.datasetName !== undefined) {
-        filter.targetVariable.dataset.name = { equals: this.datasetName };
+      if (this.tableName !== undefined) {
+        filter.targetVariable.table.name = { equals: this.tableName };
       }
       console.log(JSON.stringify(filter));
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name,dataset{harmonisations{sourceDataset{name}description}}}sourceDataset{collection{acronym}name}match{name}}
+          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{collection{acronym}name}match{name}}
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -149,7 +148,7 @@ export default {
     collectionAcronym() {
       this.reload();
     },
-    datasetName() {
+    tableName() {
       this.reload();
     },
     page() {

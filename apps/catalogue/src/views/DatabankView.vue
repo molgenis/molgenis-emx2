@@ -1,20 +1,20 @@
 <template>
   <div>
     <h1>
-      <small>Collection:</small><br />{{ collection.name }} ({{
-        collection.acronym
+      <small>Databanks:</small><br />{{ databank.name }} ({{
+        databank.acronym
       }})
     </h1>
     <label> Website: </label>
-    <a :href="collection.website">{{ collection.website }}</a> <br />
+    <a :href="databank.website">{{ databank.website }}</a> <br />
     <label> Type(s): </label>
-    <span v-for="type in collection.type">{{ type.name }}</span
+    <span v-for="type in databank.type">{{ type.name }}</span
     ><br />
     <label>Description:</label>
-    <p>{{ collection.description }}</p>
-    <h4>Datasets:</h4>
-    <DatasetList
-      :collectionAcronym="collectionAcronym"
+    <p>{{ databank.description }}</p>
+    <h4>Tables:</h4>
+    <TableList
+      :databankAcronym="databankAcronym"
       :providerAcronym="providerAcronym"
     />
   </div>
@@ -23,35 +23,35 @@
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import DatasetList from "../components/DatasetList";
+import TableList from "../components/TableList";
 
 export default {
   components: {
     MessageError,
     ReadMore,
-    DatasetList,
+    TableList,
   },
   props: {
-    collectionAcronym: String,
+    databankAcronym: String,
     providerAcronym: String,
   },
   data() {
     return {
       error: null,
-      collection: {},
+      databank: {},
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Collections($acronym:String){Collections(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, datasets{name}}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, tables{name}}}`,
         {
-          acronym: this.collectionAcronym,
+          acronym: this.databankAcronym,
         }
       )
         .then((data) => {
-          this.collection = data.Collections[0];
+          this.databank = data.Databanks[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -65,7 +65,7 @@ export default {
     this.reload();
   },
   watch: {
-    collectionAcronym() {
+    databankAcronym() {
       this.reload();
     },
   },

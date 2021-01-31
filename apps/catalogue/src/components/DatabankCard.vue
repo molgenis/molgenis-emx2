@@ -5,44 +5,44 @@
         <h4 class="card-title">
           <RouterLink
             :to="{
-              name: collectionview,
+              name: databankview,
               params: {
-                collectionAcronym: collection.acronym,
+                databankAcronym: databank.acronym,
                 providerAcronym: providerAcronym,
               },
             }"
           >
             <small class="float-right">
               <span
-                v-if="collection.type"
-                v-for="type in collection.type"
+                v-if="databank.type"
+                v-for="type in databank.type"
                 class="badge badge-primary"
               >
                 {{ type.name }}
               </span>
             </small>
             <small>
-              {{ collection.acronym }}
+              {{ databank.acronym }}
             </small>
             <br />
-            {{ collection.name }}
+            {{ databank.name }}
           </RouterLink>
         </h4>
-        <span v-if="collection.provider">
-          <label>Provider:</label> {{ collection.provider.name }}<br />
+        <span v-if="databank.provider">
+          <label>Provider:</label> {{ databank.provider.name }}<br />
         </span>
-        <span v-if="collection.website">
+        <span v-if="databank.website">
           <label>website: </label>
-          <a href="collection.website">{{ collection.website }}</a>
+          <a :href="databank.website">{{ databank.website }}</a>
         </span>
         <ReadMore
-          :text="collection.description"
+          :text="databank.description"
           :length="200"
-          v-if="collection.description"
+          v-if="databank.description"
         />
         <div v-if="tab === 'Variables'">
           <ul>
-            <div v-for="table in collection.tables">
+            <div v-for="table in databank.tables">
               {{ table.name }}
               <ul>
                 <li v-for="variable in table.variables">
@@ -63,15 +63,15 @@ import { ReadMore } from "@mswertz/emx2-styleguide";
 export default {
   components: { ReadMore },
   props: {
-    collection: Object,
+    databank: Object,
     providerAcronym: String,
   },
   computed: {
-    collectionview() {
+    databankview() {
       if (this.providerAcronym) {
-        return "provider-collection";
+        return "provider-databank";
       }
-      return "collection";
+      return "databank";
     },
   },
 };

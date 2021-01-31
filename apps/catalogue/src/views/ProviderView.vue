@@ -8,20 +8,20 @@
     <a :href="provider.website">{{ provider.website }}</a> <br />
     <label>Description:</label>
     <p>{{ provider.description }}</p>
-    <h4>Collections:</h4>
+    <h4>Databanks:</h4>
     <br />
-    <CollectionList :providerAcronym="providerAcronym" />
+    <DatabankList :providerAcronym="providerAcronym" />
   </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import CollectionList from "../components/CollectionList";
+import DatabankList from "../components/DatabankList";
 
 export default {
   components: {
-    CollectionList,
+    DatabankList,
     MessageError,
     ReadMore,
   },
@@ -38,7 +38,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Providers($acronym:String){Providers(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,resources{acronym,name}}}`,
+        `query Providers($acronym:String){Providers(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,collections{acronym,name}}}`,
         {
           acronym: this.providerAcronym,
         }

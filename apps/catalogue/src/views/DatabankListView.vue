@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import CollectionList from "../components/CollectionList";
+import CollectionList from "../components/DatabankList";
 
 export default {
   components: {

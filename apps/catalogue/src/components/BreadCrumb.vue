@@ -29,44 +29,44 @@
         </RouterLink>
       </li>
       <li
-        v-if="networkAcronym"
+        v-if="consortiumAcronym"
         class="breadcrumb-item active"
         aria-current="page"
       >
         <RouterLink
           :to="{
-            name: networkview,
-            params: { networkAcronym: this.networkAcronym },
+            name: consortiumview,
+            params: { consortiumAcronym: this.consortiumAcronym },
           }"
         >
-          {{ networkAcronym }}
+          {{ consortiumAcronym }}
         </RouterLink>
       </li>
       <li
-        v-else-if="collectionAcronym"
+        v-else-if="databankAcronym"
         class="breadcrumb-item active"
         aria-current="page"
       >
         <RouterLink
           :to="{
-            name: collectionview,
-            params: { collectionAcronym: this.collectionAcronym },
+            name: databankview,
+            params: { databankAcronym: this.databankAcronym },
           }"
         >
-          {{ collectionAcronym }}
+          {{ databankAcronym }}
         </RouterLink>
       </li>
-      <li v-if="datasetName" class="breadcrumb-item active" aria-current="page">
+      <li v-if="tableName" class="breadcrumb-item active" aria-current="page">
         <RouterLink
           :to="{
-            name: datasetview,
+            name: tableView,
             params: {
-              collectionAcronym: this.collectionAcronym,
-              datasetName: this.datasetName,
+              databankAcronym: this.databankAcronym,
+              tableName: this.tableName,
             },
           }"
         >
-          {{ datasetName }}
+          {{ tableName }}
         </RouterLink>
       </li>
     </ol>
@@ -75,10 +75,10 @@
 <script>
 export default {
   props: {
-    collectionAcronym: String,
-    networkAcronym: String,
+    databankAcronym: String,
+    consortiumAcronym: String,
     providerAcronym: String,
-    datasetName: String,
+    tableName: String,
   },
   computed: {
     mainview() {
@@ -86,46 +86,46 @@ export default {
         if (this.$route.name.startsWith("provider")) {
           return "providers";
         }
-        if (this.$route.name.startsWith("network")) {
-          return "networks";
+        if (this.$route.name.startsWith("consort")) {
+          return "consortia";
         }
-        if (this.$route.name.startsWith("collection")) {
-          return "collections";
+        if (this.$route.name.startsWith("databank")) {
+          return "databanks";
         }
-        if (this.$route.name.startsWith("dataset")) {
-          return "datasets";
+        if (this.$route.name.startsWith("tables")) {
+          return "tables";
         }
         if (this.$route.name.startsWith("variable")) {
           return "variables";
         }
       }
     },
-    collectionview() {
+    databankview() {
       if (this.$route.name.startsWith("provider")) {
-        return "provider-collection";
+        return "provider-databank";
       }
-      if (this.$route.name.startsWith("dataset")) {
-        return "dataset-collection";
+      if (this.$route.name.startsWith("table")) {
+        return "table-databank";
       }
-      return "collection";
+      return "databank";
     },
-    networkview() {
-      if (this.$route.name.startsWith("dataset")) {
-        return "dataset-network";
+    consortiumview() {
+      if (this.$route.name.startsWith("table")) {
+        return "table-consortium";
       }
-      return "network";
+      return "consortium";
     },
-    datasetview() {
-      if (this.$route.name.startsWith("collection")) {
-        return "collection-dataset";
+    tableView() {
+      if (this.$route.name.startsWith("databank")) {
+        return "databank-table";
       }
-      if (this.$route.name.startsWith("network")) {
-        return "network-dataset";
+      if (this.$route.name.startsWith("consort")) {
+        return "consortium-table";
       }
       if (this.$route.name.startsWith("provider")) {
-        return "provider-dataset";
+        return "provider-table";
       }
-      return "dataset";
+      return "table";
     },
   },
   methods: {

@@ -2,62 +2,57 @@
   <div class="height:100%; overflow-y: scroll">
     <MessageError v-if="error">{{ error }}</MessageError>
     <ul class="nav flex-column">
-      Collections & datasets:
-      <li v-for="collection in collections" class="nav-item border-top">
+      Databanks & tables:
+      <li v-for="databank in databanks" class="nav-item border-top">
         <RouterLink
           class="nav-link"
           :class="{
             'font-weight-bold text-secondary':
-              collection.acronym === collectionAcronym,
+              databank.acronym === databankAcronym,
           }"
           :to="{
-            name: 'collection-description',
-            params: { collectionAcronym: collection.acronym },
+            name: 'databank-description',
+            params: { databankAcronym: databank.acronym },
           }"
         >
-          {{ collection.acronym }}
+          {{ databank.acronym }}
         </RouterLink>
-        <ul
-          v-if="collectionAcronym == collection.acronym"
-          class="nav flex-column"
-        >
-          <li v-for="dataset in collection.datasets" class="nav-item pl-4">
+        <ul v-if="databankAcronym == databank.acronym" class="nav flex-column">
+          <li v-for="table in databank.tables" class="nav-item pl-4">
             <div class="nav-link">
               <RouterLink
                 :class="{
-                  'font-weight-bold  text-secondary':
-                    dataset.name === datasetName,
+                  'font-weight-bold  text-secondary': table.name === tableName,
                 }"
                 :to="{
-                  name: 'dataset-description',
+                  name: 'table-description',
                   params: {
-                    collectionAcronym: collection.acronym,
-                    datasetName: dataset.name,
+                    databankAcronym: databank.acronym,
+                    tableName: table.name,
                   },
                 }"
               >
-                {{ dataset.name }}
+                {{ table.name }}
               </RouterLink>
 
               <RouterLink
                 class="float-right"
                 :class="{
-                  'font-weight-bold  text-secondary':
-                    dataset.name === datasetName,
+                  'font-weight-bold  text-secondary': table.name === tableName,
                 }"
                 :to="{
-                  name: 'dataset-harmonisations',
+                  name: 'table-harmonisations',
                   params: {
-                    collectionAcronym: collection.acronym,
-                    datasetName: dataset.name,
+                    databankAcronym: databank.acronym,
+                    tableName: table.name,
                   },
                 }"
               >
                 <span
                   class="ml-2 fa-stack has-badge"
                   :data-count="
-                    Array.isArray(dataset.variables)
-                      ? dataset.variables
+                    Array.isArray(table.variables)
+                      ? table.variables
                           .map((v) =>
                             v.harmonisations_agg !== undefined
                               ? v.harmonisations_agg.count
@@ -73,20 +68,19 @@
               <RouterLink
                 class="float-right"
                 :class="{
-                  'font-weight-bold  text-secondary':
-                    dataset.name === datasetName,
+                  'font-weight-bold  text-secondary': table.name === tableName,
                 }"
                 :to="{
-                  name: 'dataset-variables',
+                  name: 'table-variables',
                   params: {
-                    collectionAcronym: collection.acronym,
-                    datasetName: dataset.name,
+                    databankAcronym: databank.acronym,
+                    tableName: table.name,
                   },
                 }"
               >
                 <span
                   class="ml-2 fa-stack has-badge"
-                  :data-count="dataset.variables_agg.count"
+                  :data-count="table.variables_agg.count"
                 >
                   <i class="fa fa-table fa-stack-2x"></i>
                 </span>
@@ -126,8 +120,8 @@ export default {
     MessageError,
   },
   props: {
-    collectionAcronym: String,
-    datasetName: String,
+    databankAcronym: String,
+    tableName: String,
   },
   data() {
     return {
@@ -137,13 +131,13 @@ export default {
   },
   methods: {
     reload() {
-      console.log("collections reload");
+      console.log("databanks reload");
       request(
         "graphql",
-        `{Collections{acronym,name,datasets{name,label,variables_agg{count},variables{harmonisations_agg{count}}}}}`
+        `{Databanks{acronym,name,tables{name,label,variables_agg{count},variables{harmonisations_agg{count}}}}}`
       )
         .then((data) => {
-          this.collections = data.Collections;
+          this.databanks = data.Databanks;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

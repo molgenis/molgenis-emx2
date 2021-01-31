@@ -13,34 +13,23 @@
       <RouterLink to="providers" class="btn btn-primary col-2">
         <span class="badge badge-light">{{ providers }}</span>
         <h3>Providers</h3>
-        <p class="text-left">
-          Universities, Companies, Institutes providing access to data resources
-          (collections, harmonisation networks)
-        </p>
+        <p class="text-left">Such as Universities, Companies, Institutes</p>
       </RouterLink>
-      <RouterLink to="collections" class="btn btn-warning col-2">
-        <span class="badge badge-light">{{ collections }}</span>
-        <h3>Collections</h3>
-        <p class="text-left">
-          Data resources collected data in Cohorts, Registries, Biobanks
-        </p>
+      <RouterLink to="databanks" class="btn btn-warning col-2">
+        <span class="badge badge-light">{{ databanks }}</span>
+        <h3>Databanks</h3>
+        <p class="text-left">Such as Cohorts, Registries, Biobanks</p>
       </RouterLink>
-      <RouterLink to="networks" class="btn btn-success col-2">
-        <span class="badge badge-light">{{ networks }}</span>
-        <h3>Networks</h3>
-        <p class="text-left">
-          Data resources pooled and/or harmonised data derived multiple
-          collected collections, in context of consortia and multi-center
-          studies.
-        </p>
+      <RouterLink to="consortia" class="btn btn-success col-2">
+        <span class="badge badge-light">{{ consortia }}</span>
+        <h3>Consortia</h3>
+        <p class="text-left">Collaborations of multiple databanks.</p>
       </RouterLink>
-      <RouterLink to="datasets" class="btn btn-info col-2">
-        <span class="badge badge-light">{{ datasets }}</span>
-        <h3>Datasets</h3>
+      <RouterLink to="tables" class="btn btn-info col-2">
+        <span class="badge badge-light">{{ tables }}</span>
+        <h3>Tables</h3>
         <p class="text-left">
-          Datasets as made available within either collections or networks, e.g.
-          listing observations on patients, general population, medicine intake,
-          etc
+          Tables within either Databanks or as defined by Consortia.
         </p>
       </RouterLink>
       <RouterLink to="variables" class="btn btn-danger col-2">
@@ -48,7 +37,7 @@
         <h3>Variables</h3>
         <p class="text-left">
           The atomics data items made available within collected or harmonised
-          datasets.
+          tables.
         </p>
       </RouterLink>
     </div>
@@ -87,9 +76,9 @@ export default {
   data() {
     return {
       providers: null,
-      collections: null,
-      networks: null,
-      datasets: null,
+      databanks: null,
+      consortia: null,
+      tables: null,
       variables: null,
       error: null,
     };
@@ -98,13 +87,13 @@ export default {
     reload() {
       request(
         "graphql",
-        `query {Providers_agg{count},Collections_agg{count},Networks_agg{count},Datasets_agg{count},Variables_agg{count}}`
+        `query {Providers_agg{count},Databanks_agg{count},Consortia_agg{count},Tables_agg{count},Variables_agg{count}}`
       )
         .then((data) => {
           this.providers = data.Providers_agg.count;
-          this.collections = data.Collections_agg.count;
-          this.networks = data.Networks_agg.count;
-          this.datasets = data.Datasets_agg.count;
+          this.databanks = data.Databanks_agg.count;
+          this.consortia = data.Consortia_agg.count;
+          this.tables = data.Tables_agg.count;
           this.variables = data.Variables_agg.count;
         })
         .catch((error) => {

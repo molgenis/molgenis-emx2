@@ -109,7 +109,7 @@ export default {
       }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,${search}filter:$filter){name,collection{name},dataset{name},topics{name},valueLabels,missingValues,harmonisations{sourceDataset{collection{name}}},format{name},description,unit{name},codeList{name,codes{value,label}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,${search}filter:$filter){name,collection{name},table{name},topics{name},valueLabels,missingValues,harmonisations{sourceTable{collection{name}}},format{name},description,unit{name},codeList{name,codes{value,label}}}
         ,Variables_agg(${search}filter:$filter){count}}`,
         {
           filter: filter,

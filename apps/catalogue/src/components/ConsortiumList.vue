@@ -12,10 +12,10 @@
       />
     </div>
     <div class="row">
-      <NetworkCard
-        v-for="network in networks"
-        :key="network.name"
-        :network="network"
+      <ConsortiumCard
+        v-for="consortium in consortia"
+        :key="consortium.name"
+        :consortium="consortium"
       />
     </div>
   </div>
@@ -24,13 +24,13 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import NetworkCard from "../components/NetworkCard";
+import ConsortiumCard from "./ConsortiumCard";
 import TableOfContents from "../components/TableOfContents";
 
 export default {
   components: {
     TableOfContents,
-    NetworkCard,
+    ConsortiumCard,
     Pagination,
     MessageError,
   },
@@ -53,7 +53,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      networks: [],
+      consortia: [],
     };
   },
   methods: {
@@ -64,8 +64,8 @@ export default {
       }
       request(
         "graphql",
-        `query Networks($filter:NetworksFilter,$offset:Int,$limit:Int){Networks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name},datasets{name,variables{name}}}
-        ,Networks_agg(${searchString}filter:$filter){count}}`,
+        `query Consortia($filter:ConsortiaFilter,$offset:Int,$limit:Int){Consortia(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name},tables{name,variables{name}}}
+        ,Consortia_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -73,8 +73,8 @@ export default {
         }
       )
         .then((data) => {
-          this.networks = data.Networks;
-          this.count = data.Networks_agg.count;
+          this.consortia = data.Consortia;
+          this.count = data.Consortia_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

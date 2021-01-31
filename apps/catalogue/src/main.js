@@ -3,14 +3,14 @@ import VueRouter from "vue-router";
 import App from "./App.vue";
 import CatalogueView from "./views/CatalogueView";
 import ProvidersListView from "./views/ProvidersListView";
-import NetworksListView from "./views/NetworksListView";
-import NetworkView from "./views/NetworkView";
-import CollectionsListView from "./views/CollectionsListView";
+import ConsortiumListView from "./views/ConsortiumListView";
+import ConsortiumView from "./views/ConsortiumView";
+import DatabankListView from "./views/DatabankListView";
 import VariablesListView from "./views/VariablesListView";
 import ProviderView from "./views/ProviderView";
-import CollectionView from "./views/CollectionView";
-import DatasetView from "./views/DatasetView";
-import DatasetListView from "./views/DatasetListView";
+import DatabankView from "./views/DatabankView";
+import TableView from "./views/TableView";
+import TableListView from "./views/TableListView";
 
 Vue.config.productionTip = false;
 
@@ -31,72 +31,72 @@ const router = new VueRouter({
       props: true,
     },
     {
-      name: "provider-collection",
-      path: "/providers/:providerAcronym/:collectionAcronym",
-      component: CollectionView,
+      name: "provider-databank",
+      path: "/providers/:providerAcronym/:databankAcronym",
+      component: DatabankView,
       props: true,
     },
     {
-      name: "provider-dataset",
-      path: "/providers/:providerAcronym/:collectionAcronym/:datasetName",
-      component: DatasetView,
+      name: "provider-table",
+      path: "/providers/:providerAcronym/:databankAcronym/:tableName",
+      component: TableView,
       props: true,
     },
     {
-      name: "networks",
-      path: "/networks",
-      component: NetworksListView,
+      name: "consortia",
+      path: "/consortia",
+      component: ConsortiumListView,
     },
     {
-      name: "network",
-      path: "/networks/:networkAcronym",
-      component: NetworkView,
+      name: "consortium",
+      path: "/consortia/:consortiumAcronym",
+      component: ConsortiumView,
       props: true,
     },
     {
-      name: "network-dataset",
-      path: "/networks/:networkAcronym/:datasetName",
-      component: DatasetView,
+      name: "consortium-table",
+      path: "/consortia/:consortiumAcronym/:tableName",
+      component: TableView,
       props: true,
     },
     {
-      name: "collections",
-      path: "/collections",
-      component: CollectionsListView,
+      name: "databanks",
+      path: "/databanks",
+      component: DatabankListView,
     },
     {
-      name: "collection",
-      path: "/collections/:collectionAcronym",
-      component: CollectionView,
+      name: "databank",
+      path: "/databanks/:databankAcronym",
+      component: DatabankView,
       props: true,
     },
     {
-      name: "collection-dataset",
-      path: "/collections/:collectionAcronym/:datasetName",
-      component: DatasetView,
+      name: "databank-table",
+      path: "/databanks/:databankAcronym/:tableName",
+      component: TableView,
       props: true,
     },
     {
-      name: "datasets",
-      path: "/datasets",
-      component: DatasetListView,
+      name: "tables",
+      path: "/tables",
+      component: TableListView,
     },
     {
-      name: "dataset",
-      path: "/datasets/:collectionAcronym/:datasetName",
-      component: DatasetView,
+      name: "table",
+      path: "/tables/:databankAcronym/:tableName",
+      component: TableView,
       props: true,
     },
     {
-      name: "dataset-collection",
-      path: "/datasets/:collectionAcronym",
-      component: CollectionView,
+      name: "table-databank",
+      path: "/tables/:databankAcronym",
+      component: DatabankView,
       props: true,
     },
     {
-      name: "dataset-network",
-      path: "/datasets-network/:networkAcronym",
-      component: NetworkView,
+      name: "tables-consortium",
+      path: "/tables-consortium/:consortiumAcronym",
+      component: ConsortiumView,
       props: true,
     },
     {

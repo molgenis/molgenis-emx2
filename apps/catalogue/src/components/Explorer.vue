@@ -46,10 +46,10 @@
             <li>
               <router-link
                 class="nav-link"
-                :class="{ active: selected == 'Datasets' }"
-                to="datasets"
+                :class="{ active: selected == 'Tables' }"
+                to="tables"
               >
-                Datasets ({{ tableCount }})
+                Tables ({{ tableCount }})
               </router-link>
             </li>
             <li>
@@ -71,7 +71,7 @@
         timestamp = {{ timestamp }}
           search = {{ search }}
           selectedTopic = {{ selectedTopic }}
-          selectedCollections = {{ selectedCollections }}
+          selectedDatabanks = {{ selectedDatabanks }}
           topics = {{ topics }}
       </pre
         >
@@ -136,12 +136,12 @@ export default {
   },
   data: function () {
     return {
-      selectedCollections: [],
+      selectedDatabanks: [],
       error: null,
       success: null,
       loading: false,
       topics: [],
-      collectionCount: 0,
+      databanksCount: 0,
       variableCount: 0,
       tableCount: 0,
       limit: 20,
@@ -185,7 +185,7 @@ export default {
         },
         {
           name: "Host organisation",
-          refTable: "Organisation",
+          refTable: "Providers",
           columnType: "REF",
         },
         {
@@ -250,8 +250,8 @@ export default {
       }
       request(
         "graphql",
-        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter,$tFilter:DatasetsFilter){Collections_agg(${search}filter:$cFilter){count}
-        ,Variables_agg(${search}filter:$vFilter){count},Datasets_agg(${search}filter:$tFilter){count}}`,
+        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter,$tFilter:TablesFilter){Collections_agg(${search}filter:$cFilter){count}
+        ,Variables_agg(${search}filter:$vFilter){count},Tables_agg(${search}filter:$tFilter){count}}`,
         {
           cFilter: filter,
           vFilter: filter,

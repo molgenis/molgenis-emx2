@@ -9,12 +9,12 @@
         <VariableCard
           v-for="variable in variables"
           :key="
-            variable.dataset.collection.acronym +
-            variable.dataset.name +
+            variable.table.collection.acronym +
+            variable.table.name +
             variable.name
           "
           :variable="variable"
-          :datasetName="datasetName"
+          :tableName="tableName"
         />
       </div>
     </div>
@@ -55,7 +55,7 @@ export default {
   },
   props: {
     collectionAcronym: String,
-    datasetName: String,
+    tableName: String,
   },
   data() {
     return {
@@ -74,15 +74,15 @@ export default {
       if (this.collectionAcronym) {
         filter.collection = { acronym: { equals: this.collectionAcronym } };
       }
-      if (this.datasetName) {
-        filter.dataset = { name: { equals: this.datasetName } };
+      if (this.tableName) {
+        filter.table = { name: { equals: this.tableName } };
       }
       if (this.search) {
         filter._search = this.search;
       }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, dataset{name,collection{acronym}},label, format{name},unit{name}, description,categories{label,value,isMissing},harmonisations{match{name},sourceDataset{name,collection{acronym}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, table{name,collection{acronym,mg_tableclass}},label, format{name},unit{name}, description,categories{label,value,isMissing},harmonisations{match{name},sourceTable{name,collection{acronym}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -106,7 +106,7 @@ export default {
     collectionAcronym() {
       this.reload();
     },
-    datasetName() {
+    tableName() {
       this.reload();
     },
     page() {

@@ -3,12 +3,12 @@
     <Pagination class="mt-2" :count="count" :limit="limit" v-model="page" />
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="card-columns mt-2">
-      <DatasetCard
-        v-for="dataset in datasets"
-        :key="dataset.collection.acronym + ':' + dataset.name"
-        :dataset="dataset"
-        :collectionAcronym="collectionAcronym"
-        :networkAcronym="networkAcronym"
+      <TableCard
+        v-for="table in tables"
+        :key="table.collection.acronym + ':' + table.name"
+        :table="table"
+        :databankAcronym="databankAcronym"
+        :consortiumAcronym="consortiumAcronym"
         :providerAcronym="providerAcronym"
       />
     </div>
@@ -32,22 +32,22 @@ dd {
 <script>
 import { request } from "graphql-request";
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
-import DatasetCard from "../components/DatasetCard";
+import TableCard from "./TableCard";
 
 export default {
   components: {
-    DatasetCard,
+    TableCard,
     Pagination,
     MessageError,
   },
   props: {
-    collectionAcronym: String,
+    databankAcronym: String,
     providerAcronym: String,
-    networkAcronym: String,
+    consortiumAcronym: String,
   },
   data() {
     return {
-      datasets: [],
+      tables: [],
       count: 0,
       error: null,
       page: 1,
@@ -57,16 +57,16 @@ export default {
   methods: {
     reload() {
       let filter = {};
-      if (this.collectionAcronym) {
-        filter.collection = { acronym: { equals: this.collectionAcronym } };
+      if (this.databankAcronym) {
+        filter.collection = { acronym: { equals: this.databankAcronym } };
       }
-      if (this.networkAcronym) {
-        filter.collection = { acronym: { equals: this.networkAcronym } };
+      if (this.consortiumAcronym) {
+        filter.collection = { acronym: { equals: this.consortiumAcronym } };
       }
       request(
         "graphql",
-        `query Datasets($filter:DatasetsFilter,$offset:Int,$limit:Int){Datasets(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym,name,mg_tableclass},label,variables_agg{count}}
-        ,Datasets_agg(filter:$filter){count}}`,
+        `query Tables($filter:TablesFilter,$offset:Int,$limit:Int){Tables(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym,name,mg_tableclass},label,variables_agg{count}}
+        ,Tables_agg(filter:$filter){count}}`,
         {
           filter: filter,
           offset: (this.page - 1) * this.limit,
@@ -74,8 +74,8 @@ export default {
         }
       )
         .then((data) => {
-          this.datasets = data.Datasets;
-          this.count = data.Datasets_agg.count;
+          this.tables = data.Tables;
+          this.count = data.Tables_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -86,10 +86,10 @@ export default {
     },
   },
   watch: {
-    collectionAcronym() {
+    databankAcronym() {
       this.reload();
     },
-    networkAcronym() {
+    consortiumAcronym() {
       this.reload();
     },
     page() {

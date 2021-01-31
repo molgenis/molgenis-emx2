@@ -1,15 +1,15 @@
 <template>
   <div class="container-fluid">
-    <h1>Networks</h1>
+    <h1>Consortia</h1>
     <p>Collaboration, harmonisation and integration initiatives</p>
-    <NetworkList />
+    <ConsortiumList />
   </div>
 </template>
 
 <script>
-import NetworkList from "../components/NetworkList";
+import ConsortiumList from "../components/ConsortiumList";
 
 export default {
-  components: { NetworkList },
+  components: { ConsortiumList },
 };
 </script>

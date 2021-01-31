@@ -12,10 +12,10 @@
       />
     </div>
     <div class="row">
-      <CollectionsCard
-        v-for="collection in collections"
-        :key="collection.name"
-        :collection="collection"
+      <DatabankCard
+        v-for="databank in databanks"
+        :key="databank.name"
+        :databank="databank"
         :providerAcronym="providerAcronym"
       />
     </div>
@@ -23,15 +23,20 @@
 </template>
 
 <script>
-import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
+import {
+  MessageError,
+  Pagination,
+  InputSearch,
+} from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import CollectionsCard from "../components/CollectionCard";
+import DatabankCard from "./DatabankCard";
 
 export default {
   components: {
-    CollectionsCard,
+    DatabankCard,
     Pagination,
     MessageError,
+    InputSearch,
   },
   props: {
     providerAcronym: String,
@@ -53,7 +58,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      collections: [],
+      databanks: [],
     };
   },
   methods: {
@@ -67,8 +72,8 @@ export default {
       }
       request(
         "graphql",
-        `query Collections($filter:CollectionsFilter,$offset:Int,$limit:Int){Collections(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name},datasets{name,variables{name}}}
-        ,Collections_agg(${searchString}filter:$filter){count}}`,
+        `query Databanks($filter:DatabanksFilter,$offset:Int,$limit:Int){Databanks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name},tables{name,variables{name}}}
+        ,Databanks_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -76,8 +81,8 @@ export default {
         }
       )
         .then((data) => {
-          this.collections = data.Collections;
-          this.count = data.Collections_agg.count;
+          this.databanks = data.Databanks;
+          this.count = data.Databanks_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

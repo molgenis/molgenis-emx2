@@ -8,14 +8,14 @@
       </div>
       <div v-else>
         <BreadCrumb
-          :collectionAcronym="collectionAcronym"
+          :databankAcronym="databankAcronym"
           :providerAcronym="providerAcronym"
-          :networkAcronym="networkAcronym"
-          :datasetName="datasetName"
+          :consortiumAcronym="consortiumAcronym"
+          :tableName="tableName"
         />
         <div class="container-fluid">
           <div class="row cohorts-scroll">
-            <RouterView :key="collectionAcronym + ': ' + datasetName" />
+            <RouterView :key="databankAcronym + ': ' + tableName" />
           </div>
         </div>
       </div>
@@ -43,17 +43,17 @@ export default {
     view() {
       return this.$route.name;
     },
-    collectionAcronym() {
-      return this.$route.params.collectionAcronym;
+    databankAcronym() {
+      return this.$route.params.databankAcronym;
     },
     providerAcronym() {
       return this.$route.params.providerAcronym;
     },
-    networkAcronym() {
-      return this.$route.params.networkAcronym;
+    consortiumAcronym() {
+      return this.$route.params.consortiumAcronym;
     },
-    datasetName() {
-      return this.$route.params.datasetName;
+    tableName() {
+      return this.$route.params.tableName;
     },
   },
 };

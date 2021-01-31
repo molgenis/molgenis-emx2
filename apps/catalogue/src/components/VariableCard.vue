@@ -4,29 +4,36 @@
       <h5 class="card-title">{{ variable.name }}</h5>
       <div class="card-text">
         <Property label="label">{{ variable.label }}</Property>
-        <Property v-if="!datasetName" label="Collection">
+        <Property
+          v-if="!tableName"
+          :label="
+            variable.table.collection.mg_tableclass.includes('Consort')
+              ? 'Consortium'
+              : 'Databank'
+          "
+        >
           <RouterLink
             :to="{
-              name: 'collection',
+              name: 'databank',
               params: {
-                collectionAcronym: variable.dataset.collection.acronym,
+                databankAcronym: variable.table.collection.acronym,
               },
             }"
           >
-            {{ variable.dataset.collection.acronym }}
+            {{ variable.table.collection.acronym }}
           </RouterLink>
         </Property>
-        <Property v-if="!datasetName" label="dataset">
+        <Property v-if="!tableName" label="table">
           <RouterLink
             :to="{
-              name: 'dataset',
+              name: 'table',
               params: {
-                collectionAcronym: variable.dataset.collection.acronym,
-                datasetName: variable.dataset.name,
+                databankAcronym: variable.table.collection.acronym,
+                tableName: variable.table.name,
               },
             }"
           >
-            {{ variable.dataset.name }}
+            {{ variable.table.name }}
           </RouterLink>
         </Property>
         <Property label="format">
@@ -56,10 +63,10 @@
           <HarmonisationDetails
             v-for="h in variable.harmonisations"
             :key="JSON.stringify(h)"
-            :sourceCollection="h.sourceDataset.collection.acronym"
-            :source-dataset="h.sourceDataset.name"
-            :target-collection="variable.dataset.collection.acronym"
-            :target-dataset="variable.dataset.name"
+            :sourceCollection="h.sourceTable.collection.acronym"
+            :source-table="h.sourceTable.name"
+            :target-collection="variable.table.collection.acronym"
+            :target-table="variable.table.name"
             :target-variable="variable.name"
             :match="variable.match ? variable.match.name : 'unknown'"
           />
@@ -76,7 +83,7 @@ import Property from "./Property";
 export default {
   props: {
     variable: Object,
-    datasetName: String,
+    tableName: String,
   },
   components: { HarmonisationDetails, Property },
 };

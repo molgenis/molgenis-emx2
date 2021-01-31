@@ -1,50 +1,52 @@
 <template>
   <div>
     <h1>
-      <small>Network:</small><br />{{ network.name }} ({{ network.acronym }})
+      <small>Consortium:</small><br />{{ consortium.name }} ({{
+        consortium.acronym
+      }})
     </h1>
     <label>Description:</label>
     <ReadMore
-      :text="network.description"
-      length="1000"
-      v-if="network.description"
+      :text="consortium.description"
+      :length="1000"
+      v-if="consortium.description"
     />
-    <h4>Datasets:</h4>
-    <DatasetList :networkAcronym="network.acronym" />
+    <h4>Tables:</h4>
+    <TableList :consortiumAcronym="consortium.acronym" />
   </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import DatasetList from "../components/DatasetList";
+import TableList from "../components/TableList";
 
 export default {
   components: {
     MessageError,
     ReadMore,
-    DatasetList,
+    TableList,
   },
   props: {
-    networkAcronym: String,
+    consortiumAcronym: String,
   },
   data() {
     return {
       error: null,
-      network: {},
+      consortium: {},
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, datasets{name}}}`,
+        `query Consortia($acronym:String){Consortia(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, tables{name}}}`,
         {
-          acronym: this.networkAcronym,
+          acronym: this.consortiumAcronym,
         }
       )
         .then((data) => {
-          this.network = data.Networks[0];
+          this.consortium = data.Consortia[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -58,7 +60,7 @@ export default {
     this.reload();
   },
   watch: {
-    networkAcronym() {
+    consortiumAcronym() {
       this.reload();
     },
   },
