@@ -130,7 +130,7 @@ Example
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
+    <InputRefSelect v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
     Selection: {{ value }}
   </div>
 </template>
@@ -149,7 +149,7 @@ Example with default value
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRef
+    <InputRefSelect
         v-model="value"
         refTable="Pet"
         :defaultValue="value"
@@ -173,7 +173,7 @@ Example with filter
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRef
+    <InputRefSelect
         v-model="value"
         refTable="Pet"
         :filter="{category:{name:'dog'}}"
@@ -198,11 +198,11 @@ Example with list
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRef :list="true"
-              v-model="value"
-              refTable="Pet"
-              :defaultValue="[{name:'spike'},{name:'pooky'}]"
-              graphqlURL="/pet store/graphql"
+    <InputRefSelect :list="true"
+                    v-model="value"
+                    refTable="Pet"
+                    :defaultValue="[{name:'spike'},{name:'pooky'}]"
+                    graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
   </div>

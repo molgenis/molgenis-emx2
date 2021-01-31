@@ -6,6 +6,8 @@ import static org.molgenis.emx2.ColumnType.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -16,6 +18,8 @@ public class TableMetadata {
   // if a table extends another table (optional)
   protected String inherit = null;
   // use for enabling inherit to go accross schema's (optional)
+  @DiffIgnore protected Command command = null;
+  // command to allow alter/create/drop to be communicated in the model
   protected String importSchema = null;
   // description of the table (optional)
   protected String description = null;
@@ -27,6 +31,8 @@ public class TableMetadata {
   private SchemaMetadata schema;
   // name unique within this schema (required)
   private String tableName;
+  // old name, useful for alter table
+  private String oldName;
 
   public String getJsonldType() {
     return jsonldType;
@@ -75,6 +81,7 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
+    this.oldName = metadata.getOldName();
     this.setSettings(metadata.getSettings());
     for (Column c : metadata.columns.values()) {
       this.columns.put(c.getName(), new Column(this, c));
@@ -427,6 +434,24 @@ public class TableMetadata {
 
   public TableMetadata setSetting(String key, String value) {
     this.settings.put(key, new Setting(key, value));
+    return this;
+  }
+
+  public String getOldName() {
+    return oldName;
+  }
+
+  public TableMetadata setOldName(String oldName) {
+    this.oldName = oldName;
+    return this;
+  }
+
+  public Command getCommand() {
+    return command;
+  }
+
+  public TableMetadata setCommand(Command command) {
+    this.command = command;
     return this;
   }
 }

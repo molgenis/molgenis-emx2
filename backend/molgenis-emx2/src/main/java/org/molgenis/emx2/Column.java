@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
@@ -22,6 +23,11 @@ public class Column {
   private TableMetadata table;
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
   private ColumnType columnType = STRING;
+  private String columnFormat = null; // influences how data is rendered, in addition to type
+
+  // transient for enabling migrations
+  @DiffIgnore private String oldName; // use this when wanting to change name
+  @DiffIgnore private Command command; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
   private String refSchema; // for cross schema references
@@ -35,12 +41,11 @@ public class Column {
 
   // options
   private String description = null; // long description of the column
-  private String form = null; // influences how data is rendered
   private Integer position = null; // column order within the table
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private Boolean nullable = false;
-  private String validationScript = null;
-  private String visible = null; // javascript expression to influence vibility
+  private String validationExpression = null;
+  private String visibleExpression = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String jsonldType = null; // json ld expression
   // todo implement below, or remove
@@ -93,6 +98,8 @@ public class Column {
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
+    oldName = column.oldName;
+    command = column.command;
     columnType = column.columnType;
     position = column.position;
     nullable = column.nullable;
@@ -106,13 +113,13 @@ public class Column {
     refFrom = column.refFrom;
     refSchema = column.refSchema;
     mappedBy = column.mappedBy;
-    validationScript = column.validationScript;
+    validationExpression = column.validationExpression;
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
     jsonldType = column.jsonldType;
-    form = column.form;
-    visible = column.visible;
+    columnFormat = column.columnFormat;
+    visibleExpression = column.visibleExpression;
   }
 
   public TableMetadata getTable() {
@@ -303,12 +310,12 @@ public class Column {
     return null;
   }
 
-  public String getValidationScript() {
-    return validationScript;
+  public String getValidationExpression() {
+    return validationExpression;
   }
 
-  public Column setValidationScript(String validationScript) {
-    this.validationScript = validationScript;
+  public Column setValidationExpression(String validationExpression) {
+    this.validationExpression = validationExpression;
     return this;
   }
 
@@ -539,20 +546,38 @@ public class Column {
     return this;
   }
 
-  public String getForm() {
-    return form;
+  public String getColumnFormat() {
+    return columnFormat;
   }
 
-  public void setForm(String form) {
-    this.form = form;
+  public void setColumnFormat(String columnFormat) {
+    this.columnFormat = columnFormat;
   }
 
-  public String getVisible() {
-    return visible;
+  public String getVisibleExpression() {
+    return visibleExpression;
   }
 
-  public Column setVisible(String visible) {
-    this.visible = visible;
+  public Column setVisibleExpression(String visibleExpression) {
+    this.visibleExpression = visibleExpression;
+    return this;
+  }
+
+  public String getOldName() {
+    return oldName;
+  }
+
+  public Column setOldName(String oldName) {
+    this.oldName = oldName;
+    return this;
+  }
+
+  public Command getCommand() {
+    return command;
+  }
+
+  public Column setCommand(Command command) {
+    this.command = command;
     return this;
   }
 }

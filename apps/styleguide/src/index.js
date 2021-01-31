@@ -53,6 +53,7 @@ import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
+import RowFormInput from "./tables/RowFormInput";
 
 import SelectionBox from "./tables/SelectionBox";
 import Spinner from "./layout/Spinner";
@@ -111,6 +112,7 @@ export {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
+  RowFormInput,
   SelectionBox,
   Spinner,
   ShowMore,

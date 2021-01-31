@@ -297,6 +297,8 @@ Work in progress
 
 ### first
 
+*  enable custom 'format' as way to allow decoration of primitive types such as 'hyperlink', 'email', 'ontology'
+*  create a type registry in the frontend allowing for custom input and view components for columns
 *  remove option for refback to be updateable? (discussion about this)
 *  download using filter that is applied in explorer view
 *  filter option for 'null' and 'not_null'

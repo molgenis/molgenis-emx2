@@ -22,29 +22,23 @@
   <!-- alter or add a table -->
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm>
-        <InputString
-          v-model="table.name"
-          :defaultValue="table.name ? table.name : null"
-          label="Table name"
-        />
+      <LayoutForm v-if="create">
+        <InputString v-model="tableDraft.name" label="Table name" />
+        <InputText v-model="tableDraft.description" label="Table Description" />
         <InputText
-          v-model="table.description"
-          :defaultValue="table.description ? table.description : null"
-          label="Table Description"
-        />
-        <InputText
-          v-model="table.jsonldType"
-          :defaultValue="table.jsonldType ? table.jsonldType : null"
+          v-model="tableDraft.jsonldType"
           label="jsonld type (conform JSON-LD @type specification)"
         />
       </LayoutForm>
+      <div v-else>ALTER IS NOT YET IMPLEMENTED</div>
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="error">{{ error }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction @click="executeCommand">{{ action }}</ButtonAction>
+      <ButtonAction v-if="create" @click="executeCommand">{{
+        action
+      }}</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -110,11 +104,9 @@ export default {
       this.loading = true;
       this.error = null;
       this.success = null;
-      let command = this.create ? "create" : "alter";
-      let type = this.create ? "MolgenisTableInput" : "AlterTableInput";
       request(
         "graphql",
-        `mutation ${command}($table:${type}){${command}(tables:[$table]){message}}`,
+        `mutation createOrAlter($table:MolgenisTableInput){createOrAlter(tables:[$table]){message}}`,
         {
           table: {
             name: this.table.name,
@@ -144,8 +136,13 @@ export default {
     },
   },
   created() {
-    if (this.table.name == null) {
+    this.tableDraft = this.table;
+    if (this.tableDraft.name == null) {
       this.create = true;
+      this.tableDraft.command = "CREATE";
+    } else {
+      this.tableDraft.command = "ALTER";
+      this.tableDraft.oldName = this.tableDraft.name;
     }
   },
 };

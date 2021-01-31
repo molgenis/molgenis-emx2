@@ -30,20 +30,23 @@ class SqlColumnRefArrayExecutor {
 
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
-        "DROP TRIGGER {0} ON {1}",
+        "DROP TRIGGER IF EXISTS {0} ON {1}",
+        name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
+    jooq.execute(
+        "DROP FUNCTION IF EXISTS {0} ",
+        name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
+    jooq.execute(
+        "DROP TRIGGER IF EXISTS {0} ON {1}",
         name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
-    jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
+    jooq.execute(
+        "DROP FUNCTION IF EXISTS {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
 
     //    jooq.execute(
-    //        "DROP TRIGGER {0} ON {1}", name(getUpdateTriggerName(column)),
-    // column.getRefTable().asJooqTable());
+    //        "DROP TRIGGER {0} ON {1}", name(getUpdateTriggerName(ref)),
+    // ref.getRefTable().asJooqTable());
     //    jooq.execute(
     //        "DROP FUNCTION {0}",
-    //        name(SqlColumnExecutor.getSchemaName(column), getUpdateTriggerName(column)));
-
-    jooq.execute(
-        "DROP TRIGGER {0} ON {1}", name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
-    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
+    //        name(SqlColumnExecutor.getSchemaName(ref), getUpdateTriggerName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be

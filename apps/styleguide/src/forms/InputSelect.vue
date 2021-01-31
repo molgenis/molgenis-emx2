@@ -40,17 +40,20 @@
 import _baseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
 import FormGroup from "./_formGroup";
+import MessageError from "./MessageError";
 
 export default {
   extends: _baseInput,
   components: {
     InputAppend,
     FormGroup,
+    MessageError,
   },
   methods: {
     showPlus(idx) {
       return (
         this.option &&
+        this.arrayValue &&
         this.list &&
         !this.readonly &&
         this.arrayValue[idx] != undefined &&

@@ -1,15 +1,22 @@
 <template>
   <div id="app">
-    <Schema />
+    <Molgenis id="__top" v-model="session">
+      <RouterView :session="session" />
+    </Molgenis>
   </div>
 </template>
 
 <script>
-import Schema from "./components/Schema";
+import { Molgenis } from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
-    Schema
-  }
+    Molgenis,
+  },
+  data() {
+    return {
+      session: {},
+    };
+  },
 };
 </script>

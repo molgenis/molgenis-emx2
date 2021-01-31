@@ -52,11 +52,21 @@ public class Schema {
     s.setSettings(this.settings);
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
+      tm.setInherit(t.getInherit());
       tm.setSettings(t.getSettings());
+      tm.setCommand(t.getCommand());
+
       tm.setJsonldType(t.getJsonldType());
       tm.setDescription(t.getDescription());
       for (Column c : t.getColumns()) {
-        tm.add(c.getColumnMetadata(tm));
+        int i = 1;
+        if (!c.isInherited()) {
+          // we remove clearly inherited columns here
+          org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
+          // add position so we can also deal with ordering
+          cm.setPosition(i++);
+          tm.add(cm);
+        }
       }
     }
     return s;

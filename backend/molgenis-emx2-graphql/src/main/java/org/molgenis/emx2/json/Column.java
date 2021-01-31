@@ -1,11 +1,14 @@
 package org.molgenis.emx2.json;
 
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Command;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
   private String table;
   private String name;
+  private Command command; // needed in case of migrations
+  private String oldName;
   private Integer key = 0;
   private Boolean nullable = false;
   private String refSchema = null;
@@ -16,11 +19,11 @@ public class Column {
 
   private Boolean cascadeDelete = false;
   private String mappedBy = null;
-  private String validation = null;
-  private String form = null;
-  private String visible = null;
+  private String validationExpression = null;
+  private String visibleExpression = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
+  private String columnFormat = null;
   private String jsonldType = null;
 
   private boolean inherited = false;
@@ -30,8 +33,11 @@ public class Column {
   public Column(org.molgenis.emx2.Column column, TableMetadata table) {
     this.table = column.getTableName();
     this.name = column.getName();
+    this.oldName = column.getOldName();
+    this.command = column.getCommand();
     this.key = column.getKey();
     this.columnType = column.getColumnType();
+    this.columnFormat = column.getColumnFormat();
     this.refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
@@ -40,12 +46,12 @@ public class Column {
     this.refJsTemplate = column.getRefJsTemplate();
     this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
-    this.validation = column.getValidationScript();
+    this.validationExpression = column.getValidationExpression();
     this.nullable = column.isNullable();
     this.description = column.getDescription();
     this.jsonldType = column.getJsonldType();
-    this.visible = column.getVisible();
-    this.form = column.getForm();
+    this.visibleExpression = column.getVisibleExpression();
+    this.columnFormat = column.getColumnFormat();
 
     // calculated field
     if (table.getInherit() != null)
@@ -54,7 +60,10 @@ public class Column {
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
+    c.setOldName(oldName);
     c.setType(columnType);
+    c.setCommand(command);
+    c.setColumnFormat(columnFormat);
     c.setNullable(nullable);
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
@@ -64,11 +73,11 @@ public class Column {
     c.setKey(key);
     c.setCascadeDelete(cascadeDelete);
     c.setMappedBy(mappedBy);
-    c.setValidationScript(validation);
+    c.setValidationExpression(validationExpression);
     c.setDescription(description);
     c.setJsonldType(jsonldType);
-    c.setVisible(visible);
-    c.setForm(form);
+    c.setVisibleExpression(visibleExpression);
+    c.setColumnFormat(columnFormat);
     // ignore inherited
     return c;
   }
@@ -129,12 +138,12 @@ public class Column {
     this.columnType = columnType;
   }
 
-  public String getValidation() {
-    return validation;
+  public String getValidationExpression() {
+    return validationExpression;
   }
 
-  public void setValidation(String validation) {
-    this.validation = validation;
+  public void setValidationExpression(String validationExpression) {
+    this.validationExpression = validationExpression;
   }
 
   public String getMappedBy() {
@@ -201,19 +210,35 @@ public class Column {
     this.refSchema = refSchema;
   }
 
-  public String getForm() {
-    return form;
+  public String getColumnFormat() {
+    return columnFormat;
   }
 
-  public void setForm(String form) {
-    this.form = form;
+  public void setColumnFormat(String columnFormat) {
+    this.columnFormat = columnFormat;
   }
 
-  public String getVisible() {
-    return visible;
+  public String getVisibleExpression() {
+    return visibleExpression;
   }
 
-  public void setVisible(String visible) {
-    this.visible = visible;
+  public void setVisibleExpression(String visibleExpression) {
+    this.visibleExpression = visibleExpression;
+  }
+
+  public String getOldName() {
+    return oldName;
+  }
+
+  public void setOldName(String oldName) {
+    this.oldName = oldName;
+  }
+
+  public Command getCommand() {
+    return command;
+  }
+
+  public void setCommand(Command command) {
+    this.command = command;
   }
 }

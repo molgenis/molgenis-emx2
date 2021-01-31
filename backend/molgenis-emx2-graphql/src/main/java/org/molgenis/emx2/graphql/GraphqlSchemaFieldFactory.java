@@ -1,9 +1,11 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Command.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 
@@ -21,7 +23,7 @@ import org.molgenis.emx2.json.JsonUtil;
 
 public class GraphqlSchemaFieldFactory {
 
-  static final GraphQLInputObjectType inputAlterSettingType =
+  static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("AlterSettingInput")
           .field(
@@ -85,6 +87,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(COLUMN_FORMAT)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(Constants.KEY)
                   .type(Scalars.GraphQLInt))
           .field(
@@ -121,7 +127,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.VALIDATION)
+                  .name(GraphqlConstants.VALIDATION_EXPRESSION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -132,7 +138,13 @@ public class GraphqlSchemaFieldFactory {
                   .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(VISIBLE).type(Scalars.GraphQLString))
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(VALIDATION_EXPRESSION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(VISIBLE_EXPRESSION)
+                  .type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(FORM).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -203,25 +215,12 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .build();
-  private final GraphQLInputObjectType inputAlterTableType =
-      new GraphQLInputObjectType.Builder()
-          .name("AlterTableInput")
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(JSONLD_TYPE)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(SETTINGS)
-                  .type(GraphQLList.list(inputAlterSettingType)))
+  private GraphQLEnumType enumCommandType =
+      GraphQLEnumType.newEnum()
+          .name("MolgenisDDLCommand")
+          .value("CREATE", CREATE)
+          .value("ALTER", ALTER)
+          .value("DROP", DROP)
           .build();
   private GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -232,9 +231,22 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name(COMMAND).type(enumCommandType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(OLD_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(INHERITED)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(COLUMN_FORMAT)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -278,7 +290,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(VISIBLE)
+                  .name(VALIDATION_EXPRESSION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(VISIBLE_EXPRESSION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(FORM).type(Scalars.GraphQLString))
@@ -292,6 +308,15 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(OLD_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name(COMMAND).type(enumCommandType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(INHERIT)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
@@ -302,20 +327,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.COLUMNS)
                   .type(GraphQLList.list(inputColumnMetadataType)))
-          .build();
-  private final GraphQLInputObjectType inputAlterColumnType =
-      new GraphQLInputObjectType.Builder()
-          .name("AlterColumnInput")
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(DEFINITION)
-                  .type(inputColumnMetadataType))
+                  .name(SETTINGS)
+                  .type(GraphQLList.list(inputSettingsMetadataType)))
           .build();
 
   public GraphqlSchemaFieldFactory() {
@@ -439,11 +454,11 @@ public class GraphqlSchemaFieldFactory {
                     .collect(Collectors.toList()));
   }
 
-  public GraphQLFieldDefinition createMutation(Schema schema) {
+  public GraphQLFieldDefinition createOrAlterMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("create")
+        .name("createOrAlter")
         .type(typeForMutationResult)
-        .dataFetcher(createFetcher(schema))
+        .dataFetcher(createOrAlterFetcher(schema))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
@@ -454,19 +469,24 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
+                .name(GraphqlConstants.SETTINGS)
+                .type(GraphQLList.list(inputSettingsMetadataType)))
+        .argument(
+            GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)
                 .type(GraphQLList.list(inputColumnMetadataType)))
         .build();
   }
 
-  private DataFetcher<?> createFetcher(Schema schema) {
+  private DataFetcher<?> createOrAlterFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       schema.tx(
           db -> {
             try {
-              createTables(schema, dataFetchingEnvironment);
-              createMembers(schema, dataFetchingEnvironment);
-              createColumns(schema, dataFetchingEnvironment);
+              createOrAlterTables(schema, dataFetchingEnvironment);
+              createOrAlterMembers(schema, dataFetchingEnvironment);
+              createOrAlterColumns(schema, dataFetchingEnvironment);
+              createOrAlterSettings(schema, dataFetchingEnvironment);
             } catch (IOException e) {
               throw new GraphqlException("Save metadata failed", e);
             }
@@ -475,7 +495,7 @@ public class GraphqlSchemaFieldFactory {
     };
   }
 
-  private void createColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+  private void createOrAlterColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
       throws IOException {
     List<Map<String, String>> columns =
         dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
@@ -488,13 +508,17 @@ public class GraphqlSchemaFieldFactory {
         }
         String json = JsonUtil.getWriter().writeValueAsString(c);
         Column column = JsonUtil.jsonToColumn(json);
-
-        tm.add(column);
+        if (column.getOldName() != null) {
+          tm.alterColumn(column.getOldName(), column);
+        } else {
+          tm.add(column);
+        }
       }
     }
   }
 
-  private void createMembers(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+  private void createOrAlterMembers(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     // members
     List<Map<String, String>> members =
         dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
@@ -505,7 +529,7 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  private void createTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+  private void createOrAlterTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
       throws IOException {
     Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
     // tables
@@ -517,72 +541,12 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  public GraphQLFieldDefinition alterMutation(Schema schema) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("alter")
-        .type(typeForMutationResult)
-        .dataFetcher(alterFetcher(schema))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.TABLES)
-                .type(GraphQLList.list(inputAlterTableType)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.MEMBERS)
-                .type(GraphQLList.list(inputMembersMetadataType)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.COLUMNS)
-                .type(GraphQLList.list(inputAlterColumnType)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(SETTINGS)
-                .type(GraphQLList.list(inputAlterSettingType)))
-        .build();
-  }
-
-  private DataFetcher<?> alterFetcher(Schema schema) {
-    return dataFetchingEnvironment -> {
-      schema.tx(
-          db -> {
-            try {
-              createTables(schema, dataFetchingEnvironment);
-              createMembers(schema, dataFetchingEnvironment);
-              alterColumns(schema, dataFetchingEnvironment);
-              createSettings(schema, dataFetchingEnvironment);
-            } catch (IOException e) {
-              throw new GraphqlException("Save metadata failed", e);
-            }
-          });
-      return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
-    };
-  }
-
-  private void createSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+  private void createOrAlterSettings(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
       settings.forEach(
           entry -> schema.getMetadata().setSetting(entry.get("key"), entry.get(VALUE)));
-    }
-  }
-
-  private void alterColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
-      throws IOException {
-    List<Map<String, String>> columns =
-        dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
-    if (columns != null) {
-      for (Map<String, String> c : columns) {
-        String tableName = c.get(TABLE);
-        String columnName = c.get(GraphqlConstants.NAME);
-        String json = JsonUtil.getWriter().writeValueAsString(c.get(DEFINITION));
-        Column columnDefinition = JsonUtil.jsonToColumn(json);
-        TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
-        if (tm == null) {
-          throw new GraphqlException("Table '" + tableName + "' not found");
-        }
-
-        tm.alterColumn(columnName, columnDefinition);
-      }
     }
   }
 

@@ -51,7 +51,7 @@ public class TestGraphqSchemaFields {
   @Test
   public void testSchemaSettings() throws IOException {
     // add value
-    execute("mutation{alter(settings:{key:\"test\",value:\"testval\"}){message}}");
+    execute("mutation{createOrAlter(settings:{key:\"test\",value:\"testval\"}){message}}");
 
     assertEquals("testval", execute("{_settings{key,value}}").at("/_settings/0/value").textValue());
 
@@ -65,7 +65,7 @@ public class TestGraphqSchemaFields {
   public void testTableSettings() throws IOException {
     // add value
     execute(
-        "mutation{alter(tables:[{name:\"Pet\",settings:{key:\"test\",value:\"testval\"}}]){message}}");
+        "mutation{createOrAlter(tables:[{name:\"Pet\",settings:{key:\"test\",value:\"testval\"}}]){message}}");
 
     assertEquals(
         "testval",
@@ -251,7 +251,7 @@ public class TestGraphqSchemaFields {
     int count = execute("{_schema{members{email}}}").at("/_schema/members").size();
 
     // add members
-    execute("mutation{create(members:{email:\"blaat\", role:\"Manager\"}){message}}");
+    execute("mutation{createOrAlter(members:{email:\"blaat\", role:\"Manager\"}){message}}");
     TestCase.assertEquals(
         count + 1, execute("{_schema{members{email}}}").at("/_schema/members").size());
 
@@ -268,7 +268,7 @@ public class TestGraphqSchemaFields {
 
     // add table
     execute(
-        "mutation{create(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1}]}]){message}}");
+        "mutation{createOrAlter(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1}]}]){message}}");
 
     JsonNode node = execute("{_schema{tables{name,columns{name,key}}}}");
 
@@ -306,11 +306,12 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void testAddAlterDropColumn() throws IOException {
-    execute("mutation{create(columns:{table:\"Pet\",name:\"test\", nullable:true}){message}}");
+    execute(
+        "mutation{createOrAlter(columns:{table:\"Pet\",name:\"test\", nullable:true}){message}}");
     TestCase.assertNotNull(
         database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
     execute(
-        "mutation{alter(columns:{table:\"Pet\", name:\"test\", definition:{name:\"test2\", key:3, nullable:true, columnType:\"INT\"}}){message}}");
+        "mutation{createOrAlter(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, nullable:true, columnType:\"INT\"}){message}}");
 
     database.clearCache(); // cannot know here, server clears caches
 
@@ -329,6 +330,27 @@ public class TestGraphqSchemaFields {
     database.clearCache(); // cannot know here, server clears caches
 
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
+
+    execute(
+        "mutation{createOrAlter(columns:{table:\"Pet\", name:\"test2\", nullable:true, columnType:\"STRING\", columnFormat:\"Hyperlink\", visibleExpression:\"blaat\"}){message}}");
+    database.clearCache(); // cannot know here, server clears caches
+    assertEquals(
+        "Hyperlink",
+        database
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test2")
+            .getColumnFormat());
+    assertEquals(
+        "blaat",
+        database
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test2")
+            .getVisibleExpression());
+    execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
   }
 
   @Test

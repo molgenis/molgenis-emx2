@@ -164,8 +164,7 @@ public class GraphqlApiFactory {
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
     queryBuilder.field(schemaFields.schemaQuery(schema));
     queryBuilder.field(schemaFields.settingsQuery(schema));
-    mutationBuilder.field(schemaFields.createMutation(schema));
-    mutationBuilder.field(schemaFields.alterMutation(schema));
+    mutationBuilder.field(schemaFields.createOrAlterMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
 
     // table

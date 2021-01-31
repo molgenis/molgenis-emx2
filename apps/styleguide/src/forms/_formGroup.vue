@@ -4,13 +4,13 @@
   <div class="form-group">
     <label v-if="label" :for="id">
       <b>{{ label }}</b>
-      <span v-if="nullable">(optional)</span>
     </label>
+    <span v-if="nullable" class="float-right">(optional)</span>
     <slot />
-    <div v-if="error" class="text-danger">{{ error }}</div>
-    <div v-else-if="help" :id="id + 'Help'" class="form-text text-muted">
+    <small v-if="help" :id="id + 'Help'" class="form-text text-muted">
       {{ help }}
-    </div>
+    </small>
+    <div v-if="error" class="text-danger">{{ error }}</div>
   </div>
 </template>
 
@@ -29,8 +29,6 @@ export default {
     nullable: Boolean,
     /** String with error state */
     error: String,
-    /** If should be rendered as a filter*/
-    filter: Boolean,
   },
 };
 </script>

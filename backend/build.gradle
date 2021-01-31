@@ -42,6 +42,7 @@ subprojects {
         implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.1'
         implementation 'com.graphql-java:graphql-java:16.1'
         implementation 'com.sparkjava:spark-core:2.9.3'
+        implementation 'org.javers:javers-core:5.14.0'
 
         //also used outside test
         implementation 'junit:junit:4.13.1'

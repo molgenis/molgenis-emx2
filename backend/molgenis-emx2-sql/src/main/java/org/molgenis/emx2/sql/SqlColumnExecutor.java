@@ -230,8 +230,19 @@ public class SqlColumnExecutor {
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
       saveColumnMetadata(jooq, column);
     } catch (Exception e) {
-      throw new MolgenisException(
-          "Create column '" + column.getTableName() + "." + current + "' failed", e);
+      if (e.getMessage().contains("null values")) {
+        throw new MolgenisException(
+            "Create column '"
+                + column.getTableName()
+                + "."
+                + current
+                + "' failed:"
+                + e.getMessage()
+                + ". You might want to set nullable=TRUE or add a default value to update existing rows.");
+      } else {
+        throw new MolgenisException(
+            "Create column '" + column.getTableName() + "." + current + "' failed", e);
+      }
     }
   }
 

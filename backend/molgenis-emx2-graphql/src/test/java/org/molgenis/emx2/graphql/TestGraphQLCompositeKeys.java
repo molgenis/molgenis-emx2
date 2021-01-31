@@ -36,7 +36,7 @@ public class TestGraphQLCompositeKeys {
     // create schema (best edit this in graphql editor)
     execute(
         "mutation {\n"
-            + "  create(\n"
+            + "  createOrAlter(\n"
             + "    tables: [\n"
             + "      { name: \"TargetTable\"\n"
             + "        columns: [\n"
@@ -61,7 +61,7 @@ public class TestGraphQLCompositeKeys {
 
     // add refback (TODO unfortunately cannot yet do that in one call)
     execute(
-        "mutation {create(columns: [{table: \"TargetTable\" name: \"refbacks\" columnType:"
+        "mutation {createOrAlter(columns: [{table: \"TargetTable\" name: \"refbacks\" columnType:"
             + " \"REFBACK\" refTable: \"RefTable\" mappedBy: \"ref\" refFrom:[\"ref_id1\",\"ref_id2\"] refTo:[\"id1\",\"id2\"]}]) {message}}");
 
     // have to reload graphql
@@ -152,7 +152,7 @@ public class TestGraphQLCompositeKeys {
     // create schema (best edit this in graphql editor)
     execute(
         "mutation {\n"
-            + "  create(\n"
+            + "  createOrAlter(\n"
             + "    tables: [\n"
             + "      { name: \"TargetTable2\", columns: [{ name: \"firstName\", key: 1 },{ name: \"lastName\", key: 1 }] }\n"
             + "      {\n"

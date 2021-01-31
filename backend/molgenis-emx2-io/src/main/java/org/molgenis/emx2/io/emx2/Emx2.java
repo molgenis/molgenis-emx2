@@ -86,7 +86,7 @@ public class Emx2 {
         if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
         if (r.notNull(NULLABLE)) column.setNullable(r.getBoolean(NULLABLE));
         if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
-        if (r.notNull(VALIDATION)) column.setValidationScript(r.getString(VALIDATION));
+        if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
         if (r.notNull(JSONLD_TYPE)) column.setJsonldType(r.getString(JSONLD_TYPE));
 
         schema.getTableMetadata(tableName).add(column);
@@ -147,7 +147,7 @@ public class Emx2 {
           if (c.getRefFrom() != null) row.setStringArray(REF_FROM, c.getRefFrom());
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-          if (c.getValidationScript() != null) row.set(VALIDATION, c.getValidationScript());
+          if (c.getValidationExpression() != null) row.set(VALIDATION, c.getValidationExpression());
           if (c.getJsonldType() != null)
             row.set(JSONLD_TYPE, c.getJsonldType().replaceAll("(?:^\")|(?:\"$)", ""));
 

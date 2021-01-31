@@ -1,5 +1,6 @@
 <template>
-  <Molgenis id="__top" v-model="session">
+  <div>
+    <RouterLink to="/formeditor">TO FORM EDITOR (Alpha!)</RouterLink>
     <TableEditModal
       v-if="tableAdd"
       :schema="schema"
@@ -106,14 +107,32 @@
       {{ count }} tables found
       <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
       <div class="table-responsive" v-if="tables">
-        <table class="table table-hover">
+        <table class="table table-hover table-sm">
           <tbody
             v-for="table in tables.filter((t) => t.externalSchema == undefined)"
             :key="table.name"
           >
             <tr>
-              <td colspan="4">
-                <h3 :id="table.name" style="text-transform: none">
+              <td>
+                <IconBar class="text-nowrap mt-4">
+                  <IconAction
+                    icon="edit"
+                    @click="
+                      currentTable = table;
+                      tableAlter = true;
+                    "
+                  />
+                  <IconDanger
+                    icon="trash"
+                    @click="
+                      currentTable = table;
+                      tableDrop = true;
+                    "
+                  />
+                </IconBar>
+              </td>
+              <td colspan="5">
+                <h3 :id="table.name" style="text-transform: none" class="mt-3">
                   {{ table.name }}
                   <span
                     v-if="table.jsonldType"
@@ -122,23 +141,6 @@
                     <<i>jsonldType:{{ table.jsonldType }}</i
                     >> <br />
                   </span>
-                  <IconBar class="hover">
-                    <IconAction
-                      icon="edit"
-                      @click="
-                        currentTable = table;
-                        tableAlter = true;
-                      "
-                    />
-                    <IconDanger
-                      v-if="canEdit"
-                      icon="trash"
-                      @click="
-                        currentTable = table;
-                        tableDrop = true;
-                      "
-                    />
-                  </IconBar>
                 </h3>
                 <small v-if="table.description">
                   <i>Description: {{ table.description }}</i></small
@@ -148,9 +150,7 @@
             </tr>
             <tr>
               <th scope="col">
-                name
                 <IconAction
-                  v-if="canEdit"
                   icon="plus"
                   @click="
                     currentTable = table;
@@ -158,6 +158,7 @@
                   "
                 />
               </th>
+              <th scope="col">name</th>
               <th scope="col">type</th>
               <th scope="col">key</th>
               <th scope="col">description</th>
@@ -172,26 +173,24 @@
               :key="column.name"
             >
               <td>
-                {{ column.name }}<span v-if="!column.nillable">*</span>
-                <span class="hover"
-                  ><IconAction
-                    v-if="canEdit"
-                    icon="edit"
-                    @click="
-                      currentTable = table;
-                      currentColumn = column;
-                      columnAlter = true;
-                    " />
-                  <IconDanger
-                    v-if="canEdit"
-                    icon="trash"
-                    @click="
-                      currentTable = table;
-                      currentColumn = column;
-                      columnDrop = true;
-                    "
-                /></span>
+                <IconAction
+                  icon="edit"
+                  @click="
+                    currentTable = table;
+                    currentColumn = column;
+                    columnAlter = true;
+                  "
+                />
+                <IconDanger
+                  icon="trash"
+                  @click="
+                    currentTable = table;
+                    currentColumn = column;
+                    columnDrop = true;
+                  "
+                />
               </td>
+              <td>{{ column.name }}<span v-if="!column.nillable">*</span></td>
               <td>
                 <span>{{ column.columnType }}</span>
                 <span v-if="column.refTable">({{ column.refTable }})</span
@@ -207,7 +206,7 @@
         </table>
       </div>
     </div>
-  </Molgenis>
+  </div>
 </template>
 
 <style scoped>
@@ -218,7 +217,7 @@
 }
 
 .hover {
-  float: right;
+  float: left;
   white-space: nowrap;
 }
 
@@ -295,9 +294,11 @@ export default {
     TableDropModal,
     Molgenis,
   },
+  props: {
+    session: Object,
+  },
   data: function () {
     return {
-      session: null,
       schema: null,
       showAttributes: [],
       loading: false,
@@ -325,7 +326,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,inherited,key,refSchema,refTable,refFrom,refTo,mappedBy,cascadeDelete,nullable,description,jsonldType}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refFrom,refTo,mappedBy,cascadeDelete,nullable,description,jsonldType,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = data._schema.name;

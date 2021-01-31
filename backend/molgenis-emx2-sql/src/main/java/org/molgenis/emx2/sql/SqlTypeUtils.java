@@ -37,8 +37,8 @@ public class SqlTypeUtils extends TypeUtils {
         }
 
         // validation
-        if (value != null && c.getValidationScript() != null) {
-          String error = executeJavascriptOnValue(c.getValidationScript(), value);
+        if (value != null && c.getValidationExpression() != null) {
+          String error = executeJavascriptOnValue(c.getValidationExpression(), value);
           if (error != null)
             throw new MolgenisException(
                 "Validation error on column '"

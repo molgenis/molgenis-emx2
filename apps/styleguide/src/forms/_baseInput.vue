@@ -10,7 +10,7 @@ export default {
   },
   props: {
     /**  value */
-    value: null,
+    value: [String, Number, Object, Array, Boolean],
     /** value to be shown as placeholder in the input (if possible) */
     placeholder: String,
     /** label to be shown above the input */
@@ -31,11 +31,6 @@ export default {
     error: null,
     /** whether this is a list of values*/
     list: {
-      type: Boolean,
-      default: false,
-    },
-    /** whether this should be rendered as filter option**/
-    filter: {
       type: Boolean,
       default: false,
     },
@@ -66,12 +61,13 @@ export default {
   },
   created() {
     if (this.list) {
-      this.arrayValue = this.value;
+      if (Array.isArray(this.value)) {
+        this.arrayValue = this.value;
+      } else {
+        this.arrayValue = [this.value];
+      }
     } else {
       this.arrayValue[0] = this.value;
-    }
-    if (this.arrayValue === null || this.arrayValue.length == 0) {
-      this.arrayValue = [null];
     }
   },
   methods: {
@@ -79,12 +75,17 @@ export default {
       //list type
       var value;
       if (this.list) {
-        //else continue
-        value = this.arrayValue.map((v) =>
-          v === undefined || (v && v.length === 0) || !String(v).trim()
-            ? null
-            : v
-        );
+        if (Array.isArray(this.arrayValue)) {
+          value = this.arrayValue.map((v) =>
+            v === undefined || (v && v.length === 0) || !String(v).trim()
+              ? null
+              : v
+          );
+        } else if (this.arrayValue) {
+          value = [this.arrayValue];
+        } else {
+          value = [];
+        }
         value = value.filter((el) => el != undefined);
         if (this.parser != null) {
           value = value.map((v) => this.parser(v));
@@ -125,6 +126,7 @@ export default {
       return (
         this.list &&
         !this.readonly &&
+        this.arrayValue &&
         this.arrayValue[idx] !== null &&
         this.arrayValue[idx] !== "" &&
         idx === this.arrayValue.length - 1

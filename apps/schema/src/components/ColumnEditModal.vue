@@ -23,6 +23,7 @@
   <LayoutModal v-else :show="true" :title="title" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm :key="key">
+        {{ defaultValue }}
         <InputString
           v-model="column.name"
           :default-value="defaultValue ? defaultValue.name : undefined"
@@ -44,6 +45,13 @@
           :default-value="defaultValue ? defaultValue.columnType : undefined"
           :options="columnTypes"
           label="Column type"
+        />
+        <InputSelect
+          v-if="column.columnType == 'STRING'"
+          v-model="column.columnFormat"
+          :default-value="defaultValue ? defaultValue.columnFormat : undefined"
+          :options="['', 'HYPERLINK']"
+          label="Column format"
         />
         <InputSelect
           v-if="
@@ -74,11 +82,6 @@
           v-model="column.nullable"
           :default-value="defaultValue && defaultValue.nullable ? true : false"
           label="Nullable"
-        />
-        <InputText
-          v-model="column.validation"
-          :default-value="defaultValue ? defaultValue.validation : undefined"
-          label="Validation"
         />
         <div
           v-if="
@@ -125,17 +128,19 @@
             label="refTo"
           />
         </div>
-        <h4>Display</h4>
-        <InputSelect
-          v-if="column.columnType == 'STRING'"
-          v-model="column.form"
-          :default-value="defaultValue ? defaultValue.description : undefined"
-          :options="['plain', 'hyperlink', 'email']"
-          label="Column format"
+        <h4>Expressions</h4>
+        <InputText
+          v-model="column.validationExpression"
+          :default-value="
+            defaultValue ? defaultValue.validationExpression : undefined
+          "
+          label="Validation"
         />
         <InputText
-          v-model="column.visible"
-          :default-value="defaultValue ? defaultValue.visible : undefined"
+          v-model="column.visibleExpression"
+          :default-value="
+            defaultValue ? defaultValue.visibleExpression : undefined
+          "
           label="Visible"
         />
         <h4>Settings for semantic web</h4>
@@ -153,10 +158,10 @@
       <ButtonAction
         v-if="defaultValue"
         :disabled="column.name == undefined || column.name == ''"
-        @click="executeCommand"
+        @click="createOrAlter"
         >{{ action }}
       </ButtonAction>
-      <ButtonAction v-else @click="executeCommand">{{ action }}</ButtonAction>
+      <ButtonAction v-else @click="createOrAlter">{{ action }}</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -265,27 +270,38 @@ export default {
       return null;
     },
   },
+  created() {
+    if (this.defaultValue) {
+      //todo refactor to follow v-model rules
+      this.column = this.defaultValue;
+      this.column.oldName = this.column.name;
+      this.column.command = "ALTER";
+    } else {
+      this.column.command = "CREATE";
+    }
+  },
+
   watch: {
     column() {
       this.$emit("input", this.column);
     },
   },
   methods: {
-    create() {
+    createOrAlter() {
       this.loading = true;
       this.error = null;
       this.success = null;
       this.column.table = this.table;
       request(
         "graphql",
-        `mutation create($column:MolgenisColumnInput){create(columns:[$column]){message}}`,
+        `mutation createOrAlter($column:MolgenisColumnInput){createOrAlter(columns:[$column]){message}}`,
         {
           column: this.column,
         }
       )
         .then((data) => {
-          this.tables = data.create.message;
-          this.success = `Column ${this.column.name} created`;
+          this.tables = data.createOrAlter.message;
+          this.success = `Column ${this.column.name} created/altered`;
           this.$emit("close");
         })
         .catch((error) => {
@@ -298,36 +314,6 @@ export default {
           }
         })
         .finally((this.loading = false));
-    },
-    alter() {
-      this.loading = true;
-      this.error = null;
-      this.success = null;
-      this.column.table = this.table;
-      request(
-        "graphql",
-        `mutation alter($table:String,$name:String,$definition:MolgenisColumnInput){alter(columns:[{table:$table,name:$name,definition:$definition}]){message}}`,
-        {
-          table: this.table,
-          name: this.defaultValue.name,
-          definition: this.column,
-        }
-      )
-        .then((data) => {
-          this.tables = data.alter.message;
-          this.success = `Column ${this.column.name} altered`;
-          this.$emit("close");
-        })
-        .catch((error) => {
-          if (error.response.status === 403) {
-            this.error = "Forbidden. Do you need to login?";
-            this.showLogin = true;
-          } else this.error = error.response.errors[0].message;
-        })
-        .finally((this.loading = false));
-    },
-    executeCommand() {
-      this.defaultValue ? this.alter() : this.create();
     },
   },
 };

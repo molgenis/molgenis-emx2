@@ -52,12 +52,12 @@ public class PetStoreExample {
             .add(
                 column(QUANTITY)
                     .setType(INT)
-                    .setValidationScript(
+                    .setValidationExpression(
                         "if(value<1)'Must be larger than 1'")) // todo: validation >=1
             .add(
                 column(PRICE)
                     .setType(DECIMAL)
-                    .setValidationScript(
+                    .setValidationExpression(
                         "if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
@@ -80,7 +80,7 @@ public class PetStoreExample {
             .add(
                 column(EMAIL)
                     .setNullable(true)
-                    .setValidationScript(
+                    .setValidationExpression(
                         "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
             .add(column("password").setNullable(true)) // todo: password type
             .add(column("phone").setNullable(true)) // todo: validation phone

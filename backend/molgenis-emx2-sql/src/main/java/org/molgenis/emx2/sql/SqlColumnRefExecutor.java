@@ -19,12 +19,11 @@ public class SqlColumnRefExecutor {
   }
 
   public static void removeRefConstraints(DSLContext jooq, Column column) {
-    Column[] columns = new Column[] {column};
-    Column column1 = columns[0];
-    jooq.alterTable(getJooqTable(column1.getTable()))
-        .dropConstraint(getRefConstraintName(columns))
+    jooq.alterTable(getJooqTable(column.getTable()))
+        .dropConstraintIfExists(getRefConstraintName(column))
         .execute();
-    jooq.execute("DROP INDEX {0}", name(column1.getSchemaName(), getIndexName(columns)));
+    // expensive???
+    jooq.execute("DROP INDEX IF EXISTS {0}", name(column.getSchemaName(), getIndexName(column)));
   }
 
   public static void createRefConstraints(DSLContext jooq, Column refColumn) {

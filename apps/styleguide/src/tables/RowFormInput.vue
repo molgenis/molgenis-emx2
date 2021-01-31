@@ -3,42 +3,42 @@
     <InputString
       v-if="columnType === 'STRING'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputText
       v-else-if="columnType === 'TEXT'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputInt
       v-else-if="columnType === 'INT'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputDecimal
       v-else-if="columnType === 'DECIMAL'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputBoolean
       v-else-if="columnType === 'BOOL'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputRefSelect
       v-else-if="columnType === 'REF'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputDate
       v-else-if="columnType === 'DATE'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputDateTime
       v-else-if="columnType === 'DATETIME'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputRefSelect
       :list="true"
@@ -48,25 +48,25 @@
         columnType === 'MREF'
       "
       v-bind="$props"
-      v-model="value"
+      v-model="input"
       :graphqlURL="graphqlURL"
     />
     <InputString
       v-else-if="columnType === 'STRING_ARRAY'"
       :list="true"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputText
       v-else-if="columnType === 'TEXT_ARRAY'"
       :list="true"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <InputFile
       v-else-if="columnType === 'FILE'"
       v-bind="$props"
-      v-model="value"
+      v-model="input"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
@@ -90,11 +90,15 @@ export default {
     schema: String,
     columnType: String,
     refTable: String,
-    defaultValue: [String, Number, Object, Array],
     graphqlURL: {
       default: "graphql",
       type: String,
     },
+  },
+  data() {
+    return {
+      input: null,
+    };
   },
   components: {
     InputString,
@@ -107,9 +111,15 @@ export default {
     InputFile,
     InputText,
   },
+  created() {
+    this.input = this.value;
+  },
   watch: {
     value() {
-      this.$emit("input", this.value);
+      this.input = this.value;
+    },
+    input() {
+      this.$emit("input", this.input);
     },
   },
 };

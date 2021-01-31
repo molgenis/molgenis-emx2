@@ -47,7 +47,7 @@ public class MetadataUtils {
       field(name("description"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_VISIBLE =
       field(name("visible"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_FORM = field(name("form"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_FORMAT = field(name("format"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_JSONLD_TYPE =
       field(name("jsonldType"), JSON.nullable(true));
   private static final org.jooq.Field COLUMN_TYPE =
@@ -165,7 +165,7 @@ public class MetadataUtils {
           COLUMN_DESCRIPTION,
           COLUMN_JSONLD_TYPE,
           COLUMN_VISIBLE,
-          COLUMN_FORM
+          COLUMN_FORMAT
         }) {
       jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
     }
@@ -338,7 +338,7 @@ public class MetadataUtils {
             COLUMN_DESCRIPTION,
             COLUMN_JSONLD_TYPE,
             COLUMN_VISIBLE,
-            COLUMN_FORM)
+            COLUMN_FORMAT)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -352,14 +352,14 @@ public class MetadataUtils {
             column.getRefFrom(),
             column.getRefTo(),
             column.getMappedBy(),
-            column.getValidationScript(),
+            column.getValidationExpression(),
             column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription(),
             column.getJsonldType(),
-            column.getVisible(),
-            column.getForm())
+            column.getVisibleExpression(),
+            column.getColumnFormat())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_TYPE, column.getColumnType())
@@ -371,14 +371,14 @@ public class MetadataUtils {
         .set(COLUMN_REF_FROM, column.getRefFrom())
         .set(COLUMN_REF_TO, column.getRefTo())
         .set(COLUMN_MAPPED_BY, column.getMappedBy())
-        .set(COLUMN_VALIDATION, column.getValidationScript())
+        .set(COLUMN_VALIDATION, column.getValidationExpression())
         .set(COLUMN_COMPUTED, column.getComputed())
         .set(COLUMN_INDEXED, column.isIndexed())
         .set(COLUMN_CASCADE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
         .set(COLUMN_JSONLD_TYPE, column.getJsonldType())
-        .set(COLUMN_VISIBLE, column.getVisible())
-        .set(COLUMN_FORM, column.getForm())
+        .set(COLUMN_VISIBLE, column.getVisibleExpression())
+        .set(COLUMN_FORMAT, column.getColumnFormat())
         .execute();
   }
 
@@ -464,13 +464,13 @@ public class MetadataUtils {
     c.setRefFrom(col.get(COLUMN_REF_FROM, String[].class));
     c.setRefTo(col.get(COLUMN_REF_TO, String[].class));
     c.setMappedBy(col.get(COLUMN_MAPPED_BY, String.class));
-    c.setValidationScript(col.get(COLUMN_VALIDATION, String.class));
+    c.setValidationExpression(col.get(COLUMN_VALIDATION, String.class));
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setJsonldType(col.get(COLUMN_JSONLD_TYPE, String.class));
-    c.setVisible(col.get(COLUMN_VISIBLE, String.class));
-    c.setForm(col.get(COLUMN_FORM, String.class));
+    c.setVisibleExpression(col.get(COLUMN_VISIBLE, String.class));
+    c.setColumnFormat(col.get(COLUMN_FORMAT, String.class));
     return c;
   }
 

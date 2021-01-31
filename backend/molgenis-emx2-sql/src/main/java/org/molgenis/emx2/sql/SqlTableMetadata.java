@@ -123,7 +123,6 @@ class SqlTableMetadata extends TableMetadata {
 
               // create/update key, if touched
               if (newColumn.getKey() != oldColumn.getKey()) {
-
                 createOrReplaceKey(
                     getJooq(), this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
               }

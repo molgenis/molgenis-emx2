@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
+import static org.molgenis.emx2.Command.*;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
@@ -253,35 +254,73 @@ public class SqlSchema implements Schema {
             MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
 
             // add missing (except refback), remove triggers if existing column if type changed
+            // drop ones marked with 'drop'
             for (Column newColumn : newTable.getColumns()) {
-              Column oldColumn = oldTable.getColumn(newColumn.getName());
-              if (oldTable.getColumn(newColumn.getName()) == null) {
+              Column oldColumn =
+                  newColumn.getOldName() != null
+                      ? oldTable.getColumn(newColumn.getOldName())
+                      : oldTable.getColumn(newColumn.getName());
+              if (oldColumn != null) {
+                if (CREATE.equals(newColumn.getCommand())) {
+                  throw new MolgenisException(
+                      "Cannot create column "
+                          + newColumn.getTableName()
+                          + "."
+                          + newColumn.getName()
+                          + ": column exists");
+                } else if (newColumn.getCommand() == null) {
+                  newColumn.setCommand(ALTER);
+                } else if (DROP.equals(newColumn.getCommand())) {
+                  // execute drop
+                  oldTable.dropColumn(oldColumn.getName());
+                }
+              } else {
+                if (newColumn.getCommand() == null) {
+                  if (newColumn.getOldName() == null) {
+                    newColumn.setCommand(CREATE);
+                  } else {
+                    newColumn.setCommand(ALTER);
+                  }
+                }
+              }
+              if (CREATE.equals(newColumn.getCommand())) {
                 // if column does not exist then create except refback and inheritance
                 if (!(oldTable.getInherit() != null
                         && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
                     && !newColumn.getColumnType().equals(REFBACK)) {
                   oldTable.add(newColumn);
                 }
-              } else if (!newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+              } else if (oldColumn != null
+                  && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
                 // if column exist but type has changed remove triggers
                 executeRemoveRefConstraints(getMetadata().getJooq(), oldColumn);
               }
             }
           }
 
-          // second pass, update to the new types, reconnect refback
+          // second pass, update existing columns to the new types, and new names, reconnect refback
           for (TableMetadata newTable : mergeTableList) {
             TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
-
             for (Column newColumn : newTable.getLocalColumns()) {
-              Column oldColumn = oldTable.getColumn(newColumn.getName());
-              // update the types
-              if (oldColumn != null
-                  && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+              Column oldColumn =
+                  newColumn.getOldName() != null
+                      ? oldTable.getColumn(newColumn.getOldName()) // when renaming
+                      : oldTable.getColumn(newColumn.getName()); // when not renaming
+              if (ALTER.equals(newColumn.getCommand())) {
+                if (oldColumn == null) {
+                  throw new MolgenisException(
+                      "Cannot alter column "
+                          + newColumn.getTableName()
+                          + "."
+                          + newColumn.getOldName()
+                          + ": column '"
+                          + newColumn.getOldName()
+                          + "' doesn't exist");
+                }
                 oldTable.alterColumn(oldColumn.getName(), newColumn);
               }
 
-              // create new refback relations
+              // create refback relations for new and existing
               if (newColumn.getColumnType().equals(REFBACK)) {
                 this.getTable(newTable.getTableName()).getMetadata().add(newColumn);
               }
