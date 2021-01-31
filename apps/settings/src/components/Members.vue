@@ -8,8 +8,8 @@
     <div
       v-if="
         session &&
-          (session.email == 'admin' ||
-            (session.roles && session.roles.length > 0))
+        (session.email == 'admin' ||
+          (session.roles && session.roles.length > 0))
       "
     >
       <h5 class="card-title">Manage members</h5>
@@ -45,9 +45,7 @@
         </template>
       </DataTable>
     </div>
-    <div v-else>
-      Not a member, cannot see settings
-    </div>
+    <div v-else>Not a member, cannot see settings</div>
 
     <ShowMore title="debug">
       <br />
@@ -77,9 +75,9 @@ import {
   MessageError,
   MessageSuccess,
   ShowMore,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -94,12 +92,12 @@ export default {
     InputCheckbox,
     InputString,
     InputSelect,
-    ShowMore
+    ShowMore,
   },
   props: {
-    session: Object
+    session: Object,
   },
-  data: function() {
+  data: function () {
     return {
       schema: null,
       members: [],
@@ -109,7 +107,7 @@ export default {
       file: null,
       error: null,
       success: null,
-      loading: false
+      loading: false,
     };
   },
 
@@ -120,7 +118,7 @@ export default {
         (this.session.email == "admin" ||
           this.session.roles.includes("Manager"))
       );
-    }
+    },
   },
   methods: {
     removeMember(row) {
@@ -133,10 +131,10 @@ export default {
         `mutation drop($member:[String]){drop(members:$member){message}}`,
         { member: name }
       )
-        .then(data => {
+        .then((data) => {
           this.loadMembers();
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
         })
         .finally(() => {
@@ -149,14 +147,14 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation alter($editMember:MolgenisMembersInput){alter(members:[$editMember]){message}}`,
+        `mutation createOrAlter($editMember:MolgenisMembersInput){createOrAlter(members:[$editMember]){message}}`,
         { editMember: this.editMember }
       )
         .then(() => {
           this.selectedItems = [];
           this.loadMembers();
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
         })
         .finally((this.loading = false));
@@ -164,20 +162,20 @@ export default {
     loadMembers() {
       this.loading = true;
       request("graphql", "{_schema{name,members{email,role}roles{name}}}")
-        .then(data => {
+        .then((data) => {
           this.schema = data._schema.name;
           this.members = data._schema.members;
-          this.roles = data._schema.roles.map(role => role.name);
+          this.roles = data._schema.roles.map((role) => role.name);
         })
-        .catch(error => {
+        .catch((error) => {
           this.error = error.response.errors[0].message;
         })
         .finally((this.loading = false));
-    }
+    },
   },
   created() {
     this.loadMembers();
-  }
+  },
 };
 </script>
 

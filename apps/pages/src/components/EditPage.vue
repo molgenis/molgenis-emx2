@@ -27,8 +27,14 @@ session = {{ session }}
 
 <script>
 import CKEditor from "ckeditor4-vue";
-import {ButtonAction, ButtonAlt, MessageError, MessageSuccess, ShowMore} from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import {
+  ButtonAction,
+  ButtonAlt,
+  MessageError,
+  MessageSuccess,
+  ShowMore,
+} from "@mswertz/emx2-styleguide";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -37,7 +43,7 @@ export default {
     ButtonAlt,
     ShowMore,
     MessageError,
-    MessageSuccess
+    MessageSuccess,
   },
   data() {
     return {
@@ -56,8 +62,8 @@ export default {
               "Underline",
               "Strike",
               "Subscript",
-              "Superscript"
-            ]
+              "Superscript",
+            ],
           },
           {
             name: "paragraph",
@@ -74,29 +80,29 @@ export default {
               "JustifyLeft",
               "JustifyCenter",
               "JustifyRight",
-              "JustifyBlock"
-            ]
+              "JustifyBlock",
+            ],
           },
           { name: "links", items: ["Link", "Unlink", "Anchor"] },
           {
             name: "insert",
-            items: ["Image", "SpecialChar"]
+            items: ["Image", "SpecialChar"],
           },
           { name: "styles", items: ["Format", "Font", "FontSize"] },
           { name: "tools", items: ["Maximize"] },
           {
             name: "document",
             groups: ["mode"],
-            items: ["Source"]
-          }
+            items: ["Source"],
+          },
         ],
-        removeButtons: ""
-      }
+        removeButtons: "",
+      },
     };
   },
   props: {
     page: String,
-    session: Object
+    session: Object,
   },
   computed: {
     title() {
@@ -107,7 +113,7 @@ export default {
       )
         return "Edit page '" + this.page + "'";
       else return "Create new page '" + this.page + "'";
-    }
+    },
   },
   methods: {
     savePage() {
@@ -116,19 +122,19 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation alter($settings:[AlterSettingInput]){alter(settings:$settings){message}}`,
+        `mutation createOrAlter($settings:[AlterSettingInput]){createOrAlter(settings:$settings){message}}`,
         {
           settings: {
             key: "page." + this.page,
-            value: this.draft.trim()
-          }
+            value: this.draft.trim(),
+          },
         }
       )
-        .then(data => {
+        .then((data) => {
           this.success = data.alter.message;
           this.session.settings["page." + this.page] = this.draft;
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(JSON.stringify(error));
           this.error = error.response.errors[0].message;
         })
@@ -144,18 +150,18 @@ export default {
       } else {
         return "New page, edit here";
       }
-    }
+    },
   },
   watch: {
     session: {
       deep: true,
       handler() {
         this.reload();
-      }
-    }
+      },
+    },
   },
   created() {
     this.reload();
-  }
+  },
 };
 </script>

@@ -73,7 +73,7 @@ export default {
       if (settingsAlter.length > 0) {
         request(
           "graphql",
-          `mutation alter($alter:[AlterSettingInput]){alter(settings:$alter){message}}`,
+          `mutation createOrAlter($alter:[AlterSettingInput]){createOrAlter(settings:$alter){message}}`,
           { settings: settingsAlter }
         )
           .then((data) => {

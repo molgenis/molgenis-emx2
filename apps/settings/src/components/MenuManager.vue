@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h5 class="card-title">
-      Manage menu
-    </h5>
+    <h5 class="card-title">Manage menu</h5>
     <p>Customize menu structure and labels below:</p>
     <MessageError v-if="error">{{ error }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -40,8 +38,15 @@ session = {{ session }}
 
 <script>
 import MenuDesign from "./MenuDesign";
-import {ButtonAction, ButtonAlt, IconAction, MessageError, MessageSuccess, ShowMore} from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import {
+  ButtonAction,
+  ButtonAlt,
+  IconAction,
+  MessageError,
+  MessageSuccess,
+  ShowMore,
+} from "@mswertz/emx2-styleguide";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -51,7 +56,7 @@ export default {
     ButtonAlt,
     ButtonAction,
     MessageSuccess,
-    MessageError
+    MessageError,
   },
   props: {
     session: {},
@@ -62,23 +67,23 @@ export default {
           { label: "Tables", href: "../tables/" },
           {
             label: "Schema",
-            href: "../schema/"
+            href: "../schema/",
           },
           {
             label: "Upload",
-            href: "../import/"
+            href: "../import/",
           },
           {
             label: "Download",
-            href: "../download/"
+            href: "../download/",
           },
           {
             label: "Settings",
-            href: "../settings/"
-          }
+            href: "../settings/",
+          },
         ];
-      }
-    }
+      },
+    },
   },
   data() {
     return {
@@ -86,14 +91,12 @@ export default {
       key: 0,
       error: null,
       success: null,
-      loading: false
+      loading: false,
     };
   },
   methods: {
     updateKey() {
-      this.key = Math.random()
-        .toString(36)
-        .substring(7);
+      this.key = Math.random().toString(36).substring(7);
     },
     reset() {
       if (this.session && this.session.settings && this.session.settings.menu) {
@@ -110,13 +113,13 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation alter($settings:[AlterSettingInput]){alter(settings:$settings){message}}`,
+        `mutation createOrAlter($settings:[AlterSettingInput]){createOrAlter(settings:$settings){message}}`,
         { settings: { key: "menu", value: JSON.stringify(this.draft) } }
       )
-        .then(data => {
+        .then((data) => {
           this.success = data.alter.message;
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(JSON.stringify(error));
           this.error = error.response.errors[0].message;
         })
@@ -124,24 +127,22 @@ export default {
     },
     sanitizeDraft() {
       if (this.draft) {
-        this.draft.forEach(item => {
+        this.draft.forEach((item) => {
           //give random keys so we can monitor moves
-          item.key = Math.random()
-            .toString(36)
-            .substring(7);
+          item.key = Math.random().toString(36).substring(7);
           //give empty submenu so we can drag-nest
           if (item.submenu == undefined) {
             item.submenu = [];
           } else {
-            item.submenu.forEach(sub => delete sub.submenu);
+            item.submenu.forEach((sub) => delete sub.submenu);
           }
         });
       }
-    }
+    },
   },
   created() {
     this.reset();
     this.sanitizeDraft();
-  }
+  },
 };
 </script>
