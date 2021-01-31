@@ -3,7 +3,6 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.molgenis.emx2.Command;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;

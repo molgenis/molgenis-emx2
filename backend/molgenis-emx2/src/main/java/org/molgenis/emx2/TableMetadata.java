@@ -6,7 +6,6 @@ import static org.molgenis.emx2.ColumnType.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.Field;
 import org.jooq.Record;
