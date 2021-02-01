@@ -5,7 +5,7 @@
   </div>
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="tableMetadata && (pkey == null || defaultValue)">
+      <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in tableMetadata.columns" :key="column.name">
           <RowFormInput
             v-model="value[column.name]"
@@ -14,7 +14,6 @@
             :columnType="column.columnType"
             :refTable="column.refTable"
             :nullable="column.nullable"
-            :defaultValue="defaultValue ? defaultValue[column.name] : undefined"
             :error="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
             :graphqlURL="graphqlURL"
@@ -23,7 +22,6 @@
       </LayoutForm>
       <ShowMore title="debug">
         <pre>
-defaultValue={{ JSON.stringify(defaultValue) }}
 
 value={{ JSON.stringify(value) }}
 
@@ -72,7 +70,6 @@ export default {
       value: {},
       errorPerColumn: {},
       success: null,
-      defaultValue: null,
     };
   },
   props: {
@@ -193,7 +190,7 @@ export default {
             defaultValue[column.name] = data[column.name];
           }
         });
-        this.defaultValue = defaultValue;
+        this.value = defaultValue;
       }
     },
     // validation happens here
