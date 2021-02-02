@@ -36,7 +36,7 @@ public class TestGraphQLCompositeKeys {
     // create schema (best edit this in graphql editor)
     execute(
         "mutation {\n"
-            + "  createOrAlter(\n"
+            + "  change(\n"
             + "    tables: [\n"
             + "      { name: \"TargetTable\"\n"
             + "        columns: [\n"
@@ -48,9 +48,7 @@ public class TestGraphQLCompositeKeys {
             + "        columns: [\n"
             + "          { name: \"id1\", columnType: \"INT\", key: 1 }\n"
             + "          { name: \"id2\", key: 1}\n"
-            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\", "
-            + "               refFrom:[\"ref_firstName\",\"ref_lastName\"] "
-            + "               refTo:[\"firstName\",\"lastName\"] nullable:true }\n"
+            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\", nullable:true }\n"
             + "        ]\n"
             + "      }\n"
             + "    ]\n"
@@ -61,8 +59,8 @@ public class TestGraphQLCompositeKeys {
 
     // add refback (TODO unfortunately cannot yet do that in one call)
     execute(
-        "mutation {createOrAlter(columns: [{table: \"TargetTable\" name: \"refbacks\" columnType:"
-            + " \"REFBACK\" refTable: \"RefTable\" mappedBy: \"ref\" refFrom:[\"ref_id1\",\"ref_id2\"] refTo:[\"id1\",\"id2\"]}]) {message}}");
+        "mutation {change(columns: [{table: \"TargetTable\" name: \"refbacks\" columnType:"
+            + " \"REFBACK\" refTable: \"RefTable\" mappedBy: \"ref\"}]) {message}}");
 
     // have to reload graphql
     grapql =
@@ -152,14 +150,14 @@ public class TestGraphQLCompositeKeys {
     // create schema (best edit this in graphql editor)
     execute(
         "mutation {\n"
-            + "  createOrAlter(\n"
+            + "  change(\n"
             + "    tables: [\n"
             + "      { name: \"TargetTable2\", columns: [{ name: \"firstName\", key: 1 },{ name: \"lastName\", key: 1 }] }\n"
             + "      {\n"
             + "        name: \"RefTable2\"\n"
             + "        columns: [\n"
             + "          { name: \"id\", key: 1 }\n"
-            + "          { name: \"ref\", columnType: \"MREF\", refTable: \"TargetTable2\" refFrom:[\"ref_firstName\",\"ref_lastName\"] refTo:[\"firstName\",\"lastName\"]}\n"
+            + "          { name: \"ref\", columnType: \"MREF\", refTable: \"TargetTable2\"}\n"
             + "        ]\n"
             + "      }\n"
             + "    ]\n"

@@ -31,10 +31,10 @@
       <ButtonAction
         v-if="defaultValue"
         :disabled="column.name == undefined || column.name == ''"
-        @click="createOrAlter"
+        @click="change"
         >{{ action }}
       </ButtonAction>
-      <ButtonAction v-else @click="createOrAlter">{{ action }}</ButtonAction>
+      <ButtonAction v-else @click="change">{{ action }}</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -162,20 +162,20 @@ export default {
     },
   },
   methods: {
-    createOrAlter() {
+    change() {
       this.loading = true;
       this.error = null;
       this.success = null;
       this.column.table = this.table;
       request(
         "graphql",
-        `mutation createOrAlter($column:MolgenisColumnInput){createOrAlter(columns:[$column]){message}}`,
+        `mutation change($column:MolgenisColumnInput){change(columns:[$column]){message}}`,
         {
           column: this.column,
         }
       )
         .then((data) => {
-          this.tables = data.createOrAlter.message;
+          this.tables = data.change.message;
           this.success = `Column ${this.column.name} created/altered`;
           this.$emit("close");
         })

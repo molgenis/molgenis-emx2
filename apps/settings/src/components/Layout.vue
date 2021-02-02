@@ -73,11 +73,11 @@ export default {
       if (settingsAlter.length > 0) {
         request(
           "graphql",
-          `mutation createOrAlter($alter:[AlterSettingInput]){createOrAlter(settings:$alter){message}}`,
+          `mutation change($alter:[AlterSettingInput]){change(settings:$alter){message}}`,
           { settings: settingsAlter }
         )
           .then((data) => {
-            this.success = data.alter.message;
+            this.success = data.change.message;
           })
           .catch((error) => {
             this.error = error.response.errors[0].message;

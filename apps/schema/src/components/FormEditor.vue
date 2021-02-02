@@ -247,7 +247,7 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation createOrAlter($tables:[MolgenisTableInput]){createOrAlter(tables:$tables){message}}`,
+        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
         {
           tables: this.selectedTable,
         }

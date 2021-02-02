@@ -212,7 +212,6 @@ public class GraphqlSchemaFieldFactory {
           .name("MolgenisDDLCommand")
           .value("CREATE", CREATE)
           .value("ALTER", ALTER)
-          .value("CREATE_OR_ALTER", CREATE_OR_ALTER)
           .value("DROP", DROP)
           .build();
   private GraphQLInputObjectType inputColumnMetadataType =
@@ -285,11 +284,7 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(COMMAND)
-                  .type(enumCommandType)
-                  .defaultValue(CREATE_OR_ALTER))
+          .field(GraphQLInputObjectField.newInputObjectField().name(COMMAND).type(enumCommandType))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -446,11 +441,11 @@ public class GraphqlSchemaFieldFactory {
                     .collect(Collectors.toList()));
   }
 
-  public GraphQLFieldDefinition createOrAlterMutation(Schema schema) {
+  public GraphQLFieldDefinition changeMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("createOrAlter")
+        .name("change")
         .type(typeForMutationResult)
-        .dataFetcher(createOrAlterFetcher(schema))
+        .dataFetcher(changeFetcher(schema))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
@@ -470,15 +465,15 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  private DataFetcher<?> createOrAlterFetcher(Schema schema) {
+  private DataFetcher<?> changeFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       schema.tx(
           db -> {
             try {
-              createOrAlterTables(schema, dataFetchingEnvironment);
-              createOrAlterMembers(schema, dataFetchingEnvironment);
-              createOrAlterColumns(schema, dataFetchingEnvironment);
-              createOrAlterSettings(schema, dataFetchingEnvironment);
+              changeTables(schema, dataFetchingEnvironment);
+              changeMembers(schema, dataFetchingEnvironment);
+              changeColumns(schema, dataFetchingEnvironment);
+              changeSettings(schema, dataFetchingEnvironment);
             } catch (IOException e) {
               throw new GraphqlException("Save metadata failed", e);
             }
@@ -487,7 +482,7 @@ public class GraphqlSchemaFieldFactory {
     };
   }
 
-  private void createOrAlterColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+  private void changeColumns(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
       throws IOException {
     List<Map<String, String>> columns =
         dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
@@ -509,8 +504,7 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  private void createOrAlterMembers(
-      Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+  private void changeMembers(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     // members
     List<Map<String, String>> members =
         dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
@@ -521,7 +515,7 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  private void createOrAlterTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
+  private void changeTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
       throws IOException {
     Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
     // tables
@@ -533,8 +527,7 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  private void createOrAlterSettings(
-      Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+  private void changeSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
       settings.forEach(

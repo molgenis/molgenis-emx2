@@ -36,9 +36,9 @@
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="error">{{ error }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction v-if="create" @click="executeCommand">{{
-        action
-      }}</ButtonAction>
+      <ButtonAction v-if="create" @click="executeCommand"
+        >{{ action }}
+      </ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -106,7 +106,7 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation createOrAlter($table:MolgenisTableInput){createOrAlter(tables:[$table]){message}}`,
+        `mutation change($table:MolgenisTableInput){change(tables:[$table]){message}}`,
         {
           table: {
             name: this.table.name,

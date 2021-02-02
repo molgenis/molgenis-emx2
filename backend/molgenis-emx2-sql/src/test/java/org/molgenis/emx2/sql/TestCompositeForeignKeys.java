@@ -49,8 +49,8 @@ public class TestCompositeForeignKeys {
           new Row()
               .setString("firstName", "Kwik")
               .setString("lastName", "Duck")
-              .setString("uncle/firstName", "Donald")
-              .setString("uncle/lastName", "MISSING"));
+              .setString("uncle.firstName", "Donald")
+              .setString("uncle.lastName", "MISSING"));
       fail("should have failed on missing foreign key");
     } catch (Exception e) {
       System.out.println("errored correctly: " + e);
@@ -60,22 +60,22 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Kwik")
             .setString("lastName", "Duck")
-            .setString("uncle/firstName", "Donald")
-            .setString("uncle/lastName", "Duck"));
+            .setString("uncle.firstName", "Donald")
+            .setString("uncle.lastName", "Duck"));
 
     p.insert(
         new Row()
             .setString("firstName", "Kwek")
             .setString("lastName", "Duck")
-            .setString("uncle/firstName", "Donald")
-            .setString("uncle/lastName", "Duck"));
+            .setString("uncle.firstName", "Donald")
+            .setString("uncle.lastName", "Duck"));
 
     p.insert(
         new Row()
             .setString("firstName", "Kwak")
             .setString("lastName", "Duck")
-            .setString("uncle/firstName", "Donald")
-            .setString("uncle/lastName", "Duck"));
+            .setString("uncle.firstName", "Donald")
+            .setString("uncle.lastName", "Duck"));
 
     try {
       p.delete(new Row().setString("firstName", "Donald").setString("lastName", "Duck"));
@@ -90,8 +90,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Mickey")
             .setString("lastName", "Mouse")
-            .setString("uncle/firstName", "Kwik")
-            .setString("uncle/lastName", "Duck"));
+            .setString("uncle.firstName", "Kwik")
+            .setString("uncle.lastName", "Duck"));
 
     String result =
         schema
@@ -160,8 +160,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Katrien")
             .setString("lastName", "Duck")
-            .setString("nephew/firstName", "Kwik")
-            .setString("nephew/lastName", "Duck")); // I know, not true
+            .setString("nephew.firstName", "Kwik")
+            .setString("nephew.lastName", "Duck")); // I know, not true
 
     assertTrue(
         List.of(
@@ -211,8 +211,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Donald")
             .setString("lastName", "Duck")
-            .setString("cousins/firstName", "Kwik")
-            .setString("cousins/lastName", "Duck"));
+            .setString("cousins.firstName", "Kwik")
+            .setString("cousins.lastName", "Duck"));
 
     try {
       p.delete(new Row().setString("firstName", "Kwik").setString("lastName", "Duck"));
@@ -227,8 +227,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Mickey")
             .setString("lastName", "Mouse")
-            .setString("cousins/firstName", "Kwik")
-            .setString("cousins/lastName", "Duck"));
+            .setString("cousins.firstName", "Kwik")
+            .setString("cousins.lastName", "Duck"));
 
     String result =
         schema
@@ -248,8 +248,8 @@ public class TestCompositeForeignKeys {
         new Row()
             .setString("firstName", "Kwok") // doesn't exist
             .setString("lastName", "Duck")
-            .setString("uncles/firstName", "Donald")
-            .setString("uncles/lastName", "Duck"));
+            .setString("uncles.firstName", "Donald")
+            .setString("uncles.lastName", "Duck"));
 
     assertTrue(
         List.of(

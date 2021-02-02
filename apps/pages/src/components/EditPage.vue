@@ -122,7 +122,7 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation createOrAlter($settings:[AlterSettingInput]){createOrAlter(settings:$settings){message}}`,
+        `mutation change($settings:[AlterSettingInput]){change(settings:$settings){message}}`,
         {
           settings: {
             key: "page." + this.page,
@@ -131,7 +131,7 @@ export default {
         }
       )
         .then((data) => {
-          this.success = data.alter.message;
+          this.success = data.change.message;
           this.session.settings["page." + this.page] = this.draft;
         })
         .catch((error) => {

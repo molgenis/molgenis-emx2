@@ -113,11 +113,11 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation createOrAlter($settings:[AlterSettingInput]){createOrAlter(settings:$settings){message}}`,
+        `mutation change($settings:[AlterSettingInput]){change(settings:$settings){message}}`,
         { settings: { key: "menu", value: JSON.stringify(this.draft) } }
       )
         .then((data) => {
-          this.success = data.alter.message;
+          this.success = data.change.message;
         })
         .catch((error) => {
           console.log(JSON.stringify(error));

@@ -147,7 +147,7 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation createOrAlter($editMember:MolgenisMembersInput){createOrAlter(members:[$editMember]){message}}`,
+        `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
         { editMember: this.editMember }
       )
         .then(() => {
