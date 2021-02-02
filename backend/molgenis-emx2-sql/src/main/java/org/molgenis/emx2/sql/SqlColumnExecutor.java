@@ -13,7 +13,6 @@ import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -32,14 +31,8 @@ public class SqlColumnExecutor {
     boolean isNullable = column.isNullable();
     switch (column.getColumnType()) {
       case REFBACK:
-        if (!column.isNullable()) {
-          throw new MolgenisException(
-              "Set NOT NULL failed on column "
-                  + column.getTableName()
-                  + "."
-                  + column.getName()
-                  + ": refback column must always be nullable (not null not supported)");
-        }
+        // refback is always nullable so fix here
+        isNullable = true;
         break;
       case REF:
       case REF_ARRAY:
@@ -230,7 +223,7 @@ public class SqlColumnExecutor {
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
       saveColumnMetadata(jooq, column);
     } catch (Exception e) {
-      if (e.getMessage().contains("null values")) {
+      if (e.getMessage() != null && e.getMessage().contains("null values")) {
         throw new MolgenisException(
             "Create column '"
                 + column.getTableName()
@@ -250,12 +243,10 @@ public class SqlColumnExecutor {
     if (c.getName() == null) {
       throw new MolgenisException("Add column failed: Column name cannot be null");
     }
-    if (c.getKey() > 0) {
-      if (c.getTable().getKeyFields(c.getKey()).size() > 1 && c.isNullable()) {
-        throw new MolgenisException(
-            "unique on column '" + c.getName() + "' failed",
-            "When key spans multiple columns, none of the columns can be nullable");
-      }
+    if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && c.isNullable()) {
+      throw new MolgenisException(
+          "unique on column '" + c.getName() + "' failed",
+          "When key spans multiple columns, none of the columns can be nullable");
     }
     if (c.isReference() && c.getRefTable() == null) {
       throw new MolgenisException(
@@ -263,43 +254,27 @@ public class SqlColumnExecutor {
               + c.getName()
               + "' failed: 'refTable' required for columns of type ref, ref_array, refback and mref  ");
     }
-    if (c.isReference() && c.getRefTable().getPrimaryKeyFields().size() > 1) {
-      String refCols =
-          c.getRefTable().getPrimaryKeyFields().stream()
-              .map(Field::getName)
-              .collect(Collectors.joining(","));
-      if (c.getRefFrom().length == 0 || c.getRefTo().length == 0) {
+    if (c.getRefLink() != null) {
+      if (c.getTable().getColumn(c.getRefLink()) == null) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be provided mapping to pkey of refTable: "
-                + refCols);
+                + "' failed: refLink "
+                + c.getRefLink()
+                + " column cannot be found");
       }
-      if (c.getRefFrom().length != c.getRefTo().length) {
+      if (!List.of(REF, REF_ARRAY)
+          .contains(c.getTable().getColumn(c.getRefLink()).getColumnType())) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' and 'refFrom' must be of same length and refTo must contain: "
-                + refCols);
-      }
-
-      List<String> desired =
-          c.getRefTable().getPrimaryKeyFields().stream()
-              .map(f -> f.getName())
-              .collect(Collectors.toList());
-      List<String> got = List.of(c.getRefTo());
-      if (desired.size() != got.size() || !desired.containsAll(got)) {
-        throw new MolgenisException(
-            "Add column '"
-                + c.getTableName()
-                + "."
-                + c.getName()
-                + "' failed: when reference to a table with primary key consisting of multiple columns then 'refTo' must contain all primary key fields (incl subkeys): "
-                + refCols);
+                + "' failed: refLink "
+                + c.getRefLink()
+                + " is not a REF,REF_ARRAY");
       }
     }
   }

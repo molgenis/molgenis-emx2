@@ -1,5 +1,5 @@
 <template>
-  <div :key="JSON.stringify(input)">
+  <div>
     <InputString
       v-if="columnType === 'STRING'"
       v-bind="$props"

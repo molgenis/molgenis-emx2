@@ -294,10 +294,11 @@ Work in progress
 *  ENSURE PASSWORD IS NOT IN THE LOGS
 *  download of extended class should include superclass values
 *  download of superclass should only include superclass records
+*  enable custom 'format' as way to allow decoration of primitive types such as 'hyperlink', 'email', 'ontology'
 
 ### first
 
-*  enable custom 'format' as way to allow decoration of primitive types such as 'hyperlink', 'email', 'ontology'
+*  fix alter column in case of composite key (difficult, overlapping columns)
 *  create a type registry in the frontend allowing for custom input and view components for columns
 *  remove option for refback to be updateable? (discussion about this)
 *  download using filter that is applied in explorer view

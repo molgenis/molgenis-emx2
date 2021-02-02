@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Molgenis id="__top" v-model="session">
-      <RouterView :session="session" />
+      <RouterView :session="session" :key="session" />
     </Molgenis>
   </div>
 </template>

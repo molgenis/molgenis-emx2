@@ -3,13 +3,13 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
 import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
 import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
@@ -32,9 +32,7 @@ public class Column {
   // relationships
   private String refSchema; // for cross schema references
   private String refTable;
-  // for composite key
-  private String[] refFrom = new String[0];
-  private String[] refTo = new String[0];
+  private String refLink; // to allow a reference to depend on another reference.
   private String refJsTemplate;
   // for refback
   private String mappedBy;
@@ -64,7 +62,11 @@ public class Column {
   }
 
   public Column(String columnName) {
-    if (!columnName.matches("[a-zA-Z][a-zA-Z0-9_]*")) {
+    this(columnName, false);
+  }
+
+  public Column(String columnName, boolean skipValidation) {
+    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_]*")) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
@@ -75,6 +77,11 @@ public class Column {
 
   public Column(TableMetadata table, String columnName) {
     this(columnName);
+    this.table = table;
+  }
+
+  public Column(TableMetadata table, String columnName, boolean skipValidation) {
+    this(columnName, skipValidation);
     this.table = table;
   }
 
@@ -109,8 +116,7 @@ public class Column {
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
-    refTo = column.refTo;
-    refFrom = column.refFrom;
+    refLink = column.refLink;
     refSchema = column.refSchema;
     mappedBy = column.mappedBy;
     validationExpression = column.validationExpression;
@@ -364,30 +370,12 @@ public class Column {
     return this;
   }
 
-  public String[] getRefFrom() {
-    return this.refFrom;
-  }
-
-  public Column setRefFrom(String... refFrom) {
-    this.refFrom = refFrom;
-    return this;
-  }
-
   public Integer getPosition() {
     return position;
   }
 
   public Column setPosition(Integer position) {
     this.position = position;
-    return this;
-  }
-
-  public String[] getRefTo() {
-    return refTo;
-  }
-
-  public Column setRefTo(String... refTo) {
-    this.refTo = refTo;
     return this;
   }
 
@@ -408,13 +396,14 @@ public class Column {
   public List<Reference> getReferences() {
 
     // no ref
-    if (getRefTable() == null) return new ArrayList<>();
+    if (getRefTable() == null) {
+      return new ArrayList<>();
+    }
 
-    Map<String, Reference> refColumns =
-        new LinkedHashMap<>(); // overlapping keys may lead to duplicates
+    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
+    List<Reference> refColumns = new ArrayList<>();
 
     // check if primary key exists
-    List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
     if (pkeys.size() == 0) {
       throw new MolgenisException(
           "Error in column '"
@@ -424,17 +413,8 @@ public class Column {
               + " fails because that table has no primary key");
     }
 
-    // create name map
-    Map<String, String> nameLookup = new LinkedHashMap<>();
-    if (refTo != null && refFrom != null && refTo.length > 0 && refTo.length == refFrom.length) {
-      for (int i = 0; i < refTo.length; i++) {
-        nameLookup.put(refTo[i], refFrom[i]);
-      }
-    } else {
-      nameLookup.put(getRefTable().getPrimaryKeys().get(0), getName());
-    }
-
     // create the refs
+    Column refLink = getRefLinkColumn();
     for (Column keyPart : pkeys) {
       if (keyPart.isReference()) {
         for (Reference ref : keyPart.getReferences()) {
@@ -442,28 +422,32 @@ public class Column {
           if (!REF.equals(getColumnType())) {
             type = getArrayType(type);
           }
-
           List<String> path = ref.getPath();
           path.add(0, keyPart.getName());
-
-          String name = nameLookup.get(ref.getName());
-          if (name == null)
-            throw new MolgenisException(
-                "get references for column '"
-                    + getTableName()
-                    + "."
-                    + getName()
-                    + "' failed: no name mapping for ref "
-                    + ref.getName());
-
-          refColumns.put(
-              name,
+          String name = null;
+          if (refLink != null) {
+            for (Reference overlap : refLink.getReferences()) {
+              if (overlap.getTargetTable().equals(ref.getTargetTable())
+                  && overlap.getTargetColumn().equals(ref.getTargetColumn())) {
+                name = overlap.getName();
+              }
+            }
+          }
+          if (name == null) {
+            name = getName();
+            if (pkeys.size() > 1) {
+              name += COMPOSITE_REF_SEPARATOR + ref.getName();
+            }
+          }
+          refColumns.add(
               new Reference(
                   this,
                   name,
                   ref.getName(),
                   getColumnType(),
                   type,
+                  ref.getTargetTable(),
+                  ref.getTargetColumn(),
                   ref.isNullable() || this.isNullable(),
                   path));
         }
@@ -475,26 +459,42 @@ public class Column {
           type = getArrayType(type);
         }
 
-        String name = nameLookup.get(keyPart.getName());
-        if (name == null)
-          throw new MolgenisException(
-              "get references failed: no name mapping for ref " + keyPart.getName());
-
         // create the ref
-        refColumns.put(
-            name,
+        String name = getName();
+        if (pkeys.size() > 1) {
+          name += COMPOSITE_REF_SEPARATOR + keyPart.getName();
+        }
+        refColumns.add(
             new Reference(
                 this,
                 name,
                 keyPart.getName(),
                 getColumnType(),
                 type,
+                getRefTableName(),
+                keyPart.getName(),
                 keyPart.isNullable() || this.isNullable(),
                 new ArrayList<>(List.of(keyPart.getName()))));
       }
     }
 
-    return new ArrayList<>(refColumns.values());
+    // clean up in case only one
+    if (refColumns.stream().filter(r -> r.getName().startsWith(getName())).count() == 1) {
+      refColumns =
+          refColumns.stream()
+              .map(
+                  r -> {
+                    if (r.getName().startsWith(getName())) r.setName(getName());
+                    return r;
+                  })
+              .collect(Collectors.toList());
+    }
+
+    // remove dupalictes
+    HashSet<Object> seen = new HashSet<>();
+    refColumns.removeIf(e -> !seen.add(e.getName()));
+
+    return refColumns;
   }
 
   public ColumnType getPrimitiveColumnType() {
@@ -579,5 +579,20 @@ public class Column {
   public Column setCommand(Command command) {
     this.command = command;
     return this;
+  }
+
+  public String getRefLink() {
+    return refLink;
+  }
+
+  public Column getRefLinkColumn() {
+    if (refLink != null) {
+      return getTable().getColumn(refLink);
+    }
+    return null;
+  }
+
+  public void setRefLink(String refLink) {
+    this.refLink = refLink;
   }
 }

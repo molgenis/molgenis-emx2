@@ -143,6 +143,7 @@ public class TableMetadata {
     return getExpandedColumns(getLocalColumns());
   }
 
+  /** returns columns including the nested composite key columns, needed to create the table */
   public List<Column> getExpandedColumns(List<Column> columns) {
     Map<String, Column> result =
         new LinkedHashMap<>(); // overlapping references can lead to duplicates
@@ -157,17 +158,14 @@ public class TableMetadata {
             c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
         result.put(
             c.getName() + "_size", new Column(c.getTable(), c.getName() + "_size").setType(INT));
-      } else if (c.isReference()) {
+      } else
+      // expand composite keys if necessary
+      if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
-          if (ref.isOverlapping()) {
+          if (!ref.isOverlapping()) { // only add overlapping once
             result.put(
                 ref.getName(),
-                new Column(c.getTable(), ref.getName())
-                    .setType(ref.getOverlapping().getPrimitiveType()));
-          } else {
-            result.put(
-                ref.getName(),
-                new Column(c.getTable(), ref.getName()).setType(ref.getPrimitiveType()));
+                new Column(c.getTable(), ref.getName(), true).setType(ref.getPrimitiveType()));
           }
         }
       } else {

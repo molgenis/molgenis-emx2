@@ -268,14 +268,17 @@ export default {
       this.loading = false;
     },
     loadSchema() {
+      (this.tableName = null), (this.value = null);
+      this.schema = null;
+      this.selectedColumn = null;
+      this.selectedColumnName = null;
+      this.selectedTable = null;
       this.error = null;
       this.loading = true;
-      this.schema = null;
-      this.tableName = null;
-      this.selectedTable = null;
+      this.errorPerColumn = {};
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refFrom,refTo,mappedBy,cascadeDelete,nullable,description,jsonldType,validationExpression,visibleExpression}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,nullable,description,jsonldType,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = data._schema;

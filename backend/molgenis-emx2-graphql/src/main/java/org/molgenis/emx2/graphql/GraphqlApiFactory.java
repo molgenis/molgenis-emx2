@@ -207,8 +207,11 @@ public class GraphqlApiFactory {
       GraphqlTableFieldFactory tableField,
       Set<String> importedTables,
       Table table) {
-    queryBuilder.field(tableField.tableQueryField(table));
-    queryBuilder.field(tableField.tableAggField(table));
+    // only add tables that have columns, otherwise will be error
+    if (table.getMetadata().getColumns().size() > 0) {
+      queryBuilder.field(tableField.tableQueryField(table));
+      queryBuilder.field(tableField.tableAggField(table));
+    }
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isReference()
           && !column.getRefSchema().equals(schema.getName())

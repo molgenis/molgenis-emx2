@@ -11,8 +11,10 @@ import org.jooq.Field;
 public class Reference {
   private Column column;
   private String fromColumn;
-  private String toColumn;
+  private String toColumn; // intermediate target, might be table in the middle
   private List<String> path;
+  private String targetTable; // final target
+  private String targetColumn; // final target
 
   public List<String> getPath() {
     return path;
@@ -28,6 +30,8 @@ public class Reference {
       String toColumn,
       ColumnType type,
       ColumnType primitiveType,
+      String targetTable,
+      String targetColumn,
       boolean nullable,
       List<String> path) {
     this.column = column;
@@ -35,6 +39,8 @@ public class Reference {
     this.toColumn = toColumn;
     this.type = type;
     this.primitiveType = primitiveType;
+    this.targetTable = targetTable;
+    this.targetColumn = targetColumn;
     this.nullable = nullable;
     this.path = path;
   }
@@ -72,23 +78,26 @@ public class Reference {
   }
 
   public Reference getOverlapping() {
-    for (Column c : column.getTable().getColumns()) {
-      if (c.getName().equals(column.getName())) {
-        return null; // should be before this one
-      } else if (c.getName().equals(getName())) {
-        return c.getReferences().get(0);
-      } else {
-        for (Reference ref : c.getReferences()) {
-          if (ref.getName().equals(this.getName())) {
-            return ref;
-          }
-        }
-      }
-    }
-    return null;
+    return column.getRefLinkColumn().getReferences().get(0);
   }
 
   public boolean isOverlapping() {
-    return getOverlapping() != null;
+    return !getName().startsWith(column.getName());
+  }
+
+  public void setPrimitiveType(ColumnType type) {
+    this.primitiveType = type;
+  }
+
+  public void setColumn(Column column) {
+    this.column = column;
+  }
+
+  public String getTargetTable() {
+    return this.targetTable;
+  }
+
+  public String getTargetColumn() {
+    return this.targetColumn;
   }
 }

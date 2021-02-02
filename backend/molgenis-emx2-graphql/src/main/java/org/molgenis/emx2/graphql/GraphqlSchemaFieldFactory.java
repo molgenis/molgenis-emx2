@@ -83,12 +83,20 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_FORMAT)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(INHERITED)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(Constants.KEY)
@@ -107,36 +115,21 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_FROM)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
+                  .name(REF_LINK)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_TO)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
+                  .name(REF_MAPPED_BY)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_JS_TEMPLATE)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(CASCADE_DELETE)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(MAPPED_BY)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.VALIDATION_EXPRESSION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(JSONLD_TYPE)
-                  .type(Scalars.GraphQLString))
+          // TODO
+          //          .field(
+          //              GraphQLFieldDefinition.newFieldDefinition()
+          //                  .name(CASCADE_DELETE)
+          //                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(VALIDATION_EXPRESSION)
@@ -145,11 +138,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(VISIBLE_EXPRESSION)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(FORM).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(INHERITED)
-                  .type(Scalars.GraphQLBoolean))
+                  .name(JSONLD_TYPE)
+                  .type(Scalars.GraphQLString))
           .build();
   private static final GraphQLObjectType outputTableMetadataType =
       new GraphQLObjectType.Builder()
@@ -220,6 +212,7 @@ public class GraphqlSchemaFieldFactory {
           .name("MolgenisDDLCommand")
           .value("CREATE", CREATE)
           .value("ALTER", ALTER)
+          .value("CREATE_OR_ALTER", CREATE_OR_ALTER)
           .value("DROP", DROP)
           .build();
   private GraphQLInputObjectType inputColumnMetadataType =
@@ -231,15 +224,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(COMMAND).type(enumCommandType))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(OLD_NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERITED)
-                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)
@@ -266,27 +250,28 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_FROM)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_TO)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(CASCADE_DELETE)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(MAPPED_BY)
+                  .name(REF_LINK)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(REF_MAPPED_BY)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(OLD_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(INHERITED)
+                  .type(Scalars.GraphQLBoolean))
+          // TODO
+          //          .field(
+          //              GraphQLInputObjectField.newInputObjectField()
+          //                  .name(CASCADE_DELETE)
+          //                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -297,7 +282,14 @@ public class GraphqlSchemaFieldFactory {
                   .name(VISIBLE_EXPRESSION)
                   .type(Scalars.GraphQLString))
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(FORM).type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(JSONLD_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(COMMAND)
+                  .type(enumCommandType)
+                  .defaultValue(CREATE_OR_ALTER))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()

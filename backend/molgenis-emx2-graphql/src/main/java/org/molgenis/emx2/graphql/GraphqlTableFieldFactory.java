@@ -501,10 +501,12 @@ public class GraphqlTableFieldFactory {
 
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      fieldBuilder.argument(
-          GraphQLArgument.newArgument()
-              .name(tableName)
-              .type(GraphQLList.list(rowInputType(table))));
+      if (table.getMetadata().getColumns().size() > 0) {
+        fieldBuilder.argument(
+            GraphQLArgument.newArgument()
+                .name(tableName)
+                .type(GraphQLList.list(rowInputType(table))));
+      }
     }
     return fieldBuilder.build();
   }
@@ -518,11 +520,13 @@ public class GraphqlTableFieldFactory {
 
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      fieldBuilder.argument(
-          GraphQLArgument.newArgument()
-              .name(tableName)
-              // reuse same input as insert
-              .type(GraphQLList.list(GraphQLTypeReference.typeRef(table.getName() + INPUT))));
+      if (table.getMetadata().getColumns().size() > 0) {
+        fieldBuilder.argument(
+            GraphQLArgument.newArgument()
+                .name(tableName)
+                // reuse same input as insert
+                .type(GraphQLList.list(GraphQLTypeReference.typeRef(table.getName() + INPUT))));
+      }
     }
     return fieldBuilder.build();
   }

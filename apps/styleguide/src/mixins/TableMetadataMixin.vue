@@ -29,7 +29,7 @@ export default {
       this.loading = true;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,refFrom,refTo,refJsTemplate,cascadeDelete,nullable,jsonldType}}}}"
+        "{_session{email,roles}_schema{name,tables{name,columns{name,columnType,key,refTable,refLink,refJsTemplate,nullable,jsonldType}}}}"
       )
         .then((data) => {
           this.session = data._session;

@@ -23,8 +23,7 @@ public class Emx2 {
   public static final String KEY = "key";
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
-  public static final String REF_FROM = "refFrom";
-  public static final String REF_TO = "refTo";
+  public static final String REF_LINK = "refLink";
   public static final String MAPPED_BY = "mappedBy";
   public static final String NULLABLE = "nullable";
   private static final String VALIDATION = "validation";
@@ -81,8 +80,7 @@ public class Emx2 {
         if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
         if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
         if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
-        if (r.notNull(REF_TO)) column.setRefTo(r.getStringArray(REF_TO));
-        if (r.notNull(REF_FROM)) column.setRefFrom(r.getStringArray(REF_FROM));
+        if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
         if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
         if (r.notNull(NULLABLE)) column.setNullable(r.getBoolean(NULLABLE));
         if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
@@ -143,8 +141,7 @@ public class Emx2 {
           if (!c.getRefSchema().equals(c.getSchemaName()))
             row.setString(REF_SCHEMA, c.getRefTableName());
           if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
-          if (c.getRefTo() != null) row.setStringArray(REF_TO, c.getRefTo());
-          if (c.getRefFrom() != null) row.setStringArray(REF_FROM, c.getRefFrom());
+          if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidationExpression() != null) row.set(VALIDATION, c.getValidationExpression());

@@ -13,12 +13,11 @@ public class Column {
   private Boolean nullable = false;
   private String refSchema = null;
   private String refTable = null;
-  private String[] refFrom = new String[0];
-  private String[] refTo = new String[0];
+  private String refLink = null;
+  private String mappedBy = null;
   private String refJsTemplate;
 
-  private Boolean cascadeDelete = false;
-  private String mappedBy = null;
+  // private Boolean cascadeDelete = false;
   private String validationExpression = null;
   private String visibleExpression = null;
   private String description = null;
@@ -41,10 +40,9 @@ public class Column {
     this.refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
-    this.refFrom = column.getRefFrom();
-    this.refTo = column.getRefTo();
+    this.refLink = column.getRefLink();
     this.refJsTemplate = column.getRefJsTemplate();
-    this.cascadeDelete = column.isCascadeDelete();
+    // this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validationExpression = column.getValidationExpression();
     this.nullable = column.isNullable();
@@ -67,11 +65,10 @@ public class Column {
     c.setNullable(nullable);
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
-    c.setRefFrom(refFrom);
-    c.setRefTo(refTo);
+    c.setRefLink(refLink);
     c.setRefJsTemplate(refJsTemplate);
     c.setKey(key);
-    c.setCascadeDelete(cascadeDelete);
+    // c.setCascadeDelete(cascadeDelete);
     c.setMappedBy(mappedBy);
     c.setValidationExpression(validationExpression);
     c.setDescription(description);
@@ -122,13 +119,13 @@ public class Column {
     this.refTable = refTable;
   }
 
-  public Boolean getCascadeDelete() {
-    return cascadeDelete;
-  }
-
-  public void setCascadeDelete(Boolean cascadeDelete) {
-    this.cascadeDelete = cascadeDelete;
-  }
+  //  public Boolean getCascadeDelete() {
+  //    return cascadeDelete;
+  //  }
+  //
+  //  public void setCascadeDelete(Boolean cascadeDelete) {
+  //    this.cascadeDelete = cascadeDelete;
+  //  }
 
   public ColumnType getColumnType() {
     return columnType;
@@ -170,20 +167,12 @@ public class Column {
     this.jsonldType = jsonldType;
   }
 
-  public String[] getRefFrom() {
-    return refFrom;
+  public String getRefLink() {
+    return refLink;
   }
 
-  public void setRefFrom(String[] refFrom) {
-    this.refFrom = refFrom;
-  }
-
-  public String[] getRefTo() {
-    return refTo;
-  }
-
-  public void setRefTo(String[] refTo) {
-    this.refTo = refTo;
+  public void setRefLink(String refLink) {
+    this.refLink = refLink;
   }
 
   public String getRefJsTemplate() {

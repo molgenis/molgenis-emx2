@@ -6,7 +6,6 @@
       label="Name"
     />
     <InputText v-model="column.description" label="Description" />
-    <h4>Constraints</h4>
     <InputSelect
       v-model="column.columnType"
       :options="columnTypes"
@@ -18,36 +17,6 @@
       :options="['', 'HYPERLINK']"
       label="Column format"
     />
-    <InputSelect
-      v-if="
-        column.columnType == 'REF' ||
-        column.columnType == 'REF_ARRAY' ||
-        column.columnType == 'MREF' ||
-        column.columnType == 'REFBACK'
-      "
-      v-model="column.refTable"
-      :error="
-        column.refTable == undefined || column.name == ''
-          ? 'Referenced table is required'
-          : undefined
-      "
-      :options="tables"
-      label="Referenced table"
-    />
-    <InputSelect
-      v-model="column.key"
-      :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-      label="Key"
-    />
-    <InputBoolean v-model="column.nullable" label="Nullable" />
-    <h4>Expressions</h4>
-    <InputText v-model="column.validationExpression" label="Validation" />
-    <InputText v-model="column.visibleExpression" label="Visible" />
-    <h4>Settings for semantic web</h4>
-    <InputText
-      v-model="column.jsonldType"
-      label="jsonldType (should be valid json conform jsonld @type spec)"
-    />
     <div
       v-if="
         column.columnType == 'REF' ||
@@ -56,10 +25,19 @@
         column.columnType == 'REFBACK'
       "
     >
-      <h4>Advanced relationship settings</h4>
       <InputString
         v-model="column.refSchema"
         label="refSchema (only needed if referencing outside schema)"
+      />
+      <InputSelect
+        v-model="column.refTable"
+        :error="
+          column.refTable == undefined || column.name == ''
+            ? 'Referenced table is required'
+            : undefined
+        "
+        :options="tables"
+        label="Referenced table"
       />
       <InputString
         v-if="column.columnType == 'REFBACK'"
@@ -67,28 +45,27 @@
         label="Mapped by"
       />
       <InputString
-        v-if="
-          column.columnType == 'REF' ||
-          column.columnType == 'REF_ARRAY' ||
-          column.columnType == 'MREF' ||
-          column.columnType == 'REFBACK'
-        "
-        v-model="column.refFrom"
-        :list="true"
-        label="refFrom"
-      />
-      <InputString
-        v-if="
-          column.columnType == 'REF' ||
-          column.columnType == 'REF_ARRAY' ||
-          column.columnType == 'MREF' ||
-          column.columnType == 'REFBACK'
-        "
-        v-model="column.refTo"
-        :list="true"
-        label="refTo"
+        v-if="column.columnType == 'REF' || column.columnType == 'REF_ARRAY'"
+        v-model="column.refLink"
+        label="refLink"
       />
     </div>
+    <InputSelect
+      v-model="column.key"
+      :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+      label="Key"
+    />
+    <InputBoolean v-model="column.nullable" label="Nullable" />
+
+    <InputText
+      v-model="column.validationExpression"
+      label="validationExpression"
+    />
+    <InputText v-model="column.visibleExpression" label="visibleExpression" />
+    <InputText
+      v-model="column.jsonldType"
+      label="jsonldType (should be valid json conform jsonld @type spec)"
+    />
   </LayoutForm>
 </template>
 
@@ -141,7 +118,10 @@ export default {
   },
   methods: {
     validateName(name) {
-      if (this.table.columns.filter((c) => c.name == name).length != 1) {
+      if (
+        Array.isArray(this.table.columns) &&
+        this.table.columns.filter((c) => c.name == name).length != 1
+      ) {
         return "Name should be unique";
       }
       if (name == undefined) {

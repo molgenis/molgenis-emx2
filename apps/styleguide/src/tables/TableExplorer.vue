@@ -49,7 +49,10 @@
         <div v-if="showFilters" class="col col-3">
           <FilterSidebar v-model="tableMetadata.columns" />
         </div>
-        <div class="col col-9">
+        <div
+          class="col"
+          :class="{ 'col-9': showFilters, 'col-12': !showFilters }"
+        >
           <FilterWells v-if="table" v-model="tableMetadata.columns" />
           <div v-if="loading">
             <Spinner />

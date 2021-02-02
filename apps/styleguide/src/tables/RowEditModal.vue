@@ -5,12 +5,16 @@
   </div>
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="tableMetadata && (pkey == null || value)">
+      <LayoutForm v-if="tableMetadata && (pkey == null || value)" :key="value">
         <span v-for="column in tableMetadata.columns" :key="column.name">
           <RowFormInput
+            v-if="
+              visible(column.visibleExpression) &&
+              column.name != 'mg_tableclass'
+            "
             v-model="value[column.name]"
-            v-if="column.name != 'mg_tableclass'"
             :label="column.name"
+            :help="column.description"
             :columnType="column.columnType"
             :refTable="column.refTable"
             :nullable="column.nullable"
@@ -88,6 +92,12 @@ export default {
     ShowMore,
   },
   methods: {
+    reload() {
+      //override superclass
+      if (this.pkey) {
+        TableMixin.methods.reload.call(this);
+      }
+    },
     loginSuccess() {
       this.error = null;
       this.success = null;
@@ -124,17 +134,28 @@ export default {
           }
         });
     },
+    eval(expression) {
+      try {
+        return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
+      } catch (e) {
+        return "Script error contact admin: " + e.message;
+      }
+    },
+    visible(expression) {
+      if (expression) {
+        return this.eval(expression);
+      } else {
+        return true;
+      }
+    },
     validate() {
-      if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((column) => {
+      if (this.selectedTable) {
+        this.selectedTable.columns.forEach((column) => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
             //this.value[column.name] = null;
           }
           delete this.errorPerColumn[column.name];
-          console.log(
-            "column test: " + column.name + " value " + this.value[column.name]
-          );
           // when empty
           if (
             this.value[column.name] == null ||
@@ -150,11 +171,13 @@ export default {
             // when validation
             if (
               typeof this.value[column.name] !== "undefined" &&
-              typeof column.validation !== "undefined"
+              typeof column.validationExpression !== "undefined"
             ) {
               let value = this.value[column.name]; //used for eval, two lines below
               this.errorPerColumn[column.name] = value; //dummy assign
-              this.errorPerColumn[column.name] = eval(column.validation); // eslint-disable-line
+              this.errorPerColumn[column.name] = this.eval(
+                column.validationExpression
+              );
             }
           }
         });
@@ -182,7 +205,8 @@ export default {
   },
   watch: {
     data(val) {
-      if (val && val.length > 0) {
+      //TODO prevent loading of parent class if no pkey
+      if (this.pkey && val && val.length > 0) {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {

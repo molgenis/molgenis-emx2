@@ -58,10 +58,8 @@ public class MetadataUtils {
       field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_REF_SCHEMA =
       field(name("ref_schema"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_REF_FROM =
-      field(name("ref_from"), VARCHAR.getArrayDataType().nullable(true));
-  private static final org.jooq.Field COLUMN_REF_TO =
-      field(name("ref_to"), VARCHAR.getArrayDataType().nullable(true));
+  private static final org.jooq.Field COLUMN_REF_LINK =
+      field(name("ref_link"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_MAPPED_BY =
       field(name("mappedBy"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_VALIDATION =
@@ -155,8 +153,7 @@ public class MetadataUtils {
           COLUMN_NULLABLE,
           COLUMN_REF_SCHEMA,
           COLUMN_REF_TABLE,
-          COLUMN_REF_TO,
-          COLUMN_REF_FROM,
+          COLUMN_REF_LINK,
           COLUMN_MAPPED_BY,
           COLUMN_VALIDATION,
           COLUMN_COMPUTED,
@@ -328,8 +325,7 @@ public class MetadataUtils {
             COLUMN_NULLABLE,
             COLUMN_REF_SCHEMA,
             COLUMN_REF_TABLE,
-            COLUMN_REF_FROM,
-            COLUMN_REF_TO,
+            COLUMN_REF_LINK,
             COLUMN_MAPPED_BY,
             COLUMN_VALIDATION,
             COLUMN_COMPUTED,
@@ -349,8 +345,7 @@ public class MetadataUtils {
             column.isNullable(),
             refSchema,
             column.getRefTableName(),
-            column.getRefFrom(),
-            column.getRefTo(),
+            column.getRefLink(),
             column.getMappedBy(),
             column.getValidationExpression(),
             column.getComputed(),
@@ -368,8 +363,7 @@ public class MetadataUtils {
         .set(COLUMN_NULLABLE, column.isNullable())
         .set(COLUMN_REF_SCHEMA, refSchema)
         .set(COLUMN_REF_TABLE, column.getRefTableName())
-        .set(COLUMN_REF_FROM, column.getRefFrom())
-        .set(COLUMN_REF_TO, column.getRefTo())
+        .set(COLUMN_REF_LINK, column.getRefLink())
         .set(COLUMN_MAPPED_BY, column.getMappedBy())
         .set(COLUMN_VALIDATION, column.getValidationExpression())
         .set(COLUMN_COMPUTED, column.getComputed())
@@ -461,8 +455,7 @@ public class MetadataUtils {
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
     c.setRefSchema(col.get(COLUMN_REF_SCHEMA, String.class));
     c.setRefTable(col.get(COLUMN_REF_TABLE, String.class));
-    c.setRefFrom(col.get(COLUMN_REF_FROM, String[].class));
-    c.setRefTo(col.get(COLUMN_REF_TO, String[].class));
+    c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setMappedBy(col.get(COLUMN_MAPPED_BY, String.class));
     c.setValidationExpression(col.get(COLUMN_VALIDATION, String.class));
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));

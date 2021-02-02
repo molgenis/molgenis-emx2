@@ -4,12 +4,12 @@ import static org.molgenis.emx2.Operator.*;
 
 public class Constants {
 
+  public static final String COMPOSITE_REF_SEPARATOR = ".";
   public static final String REF_SCHEMA_NAME = "refSchema";
   public static final String REF_TABLE_NAME = "refTable";
-  public static final String REF_FROM = "refFrom";
-  public static final String REF_TO = "refTo";
+  public static final String REF_LINK = "refLink";
   public static final String REF_JS_TEMPLATE = "refJsTemplate";
-  public static final String MAPPED_BY = "mappedBy";
+  public static final String REF_MAPPED_BY = "mappedBy";
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
@@ -18,7 +18,6 @@ public class Constants {
   public static final String DESCRIPTION = "description";
   public static final String JSONLD_TYPE = "jsonldType";
   public static final String JSONLD_CONTEXT = "jsonldContext";
-  public static final String DEFINITION = "definition";
   public static final String ROLE = "role";
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";

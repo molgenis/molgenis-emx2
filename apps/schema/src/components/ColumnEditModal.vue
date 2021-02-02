@@ -22,134 +22,7 @@
   <!-- alter or add a column -->
   <LayoutModal v-else :show="true" :title="title" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm :key="key">
-        {{ defaultValue }}
-        <InputString
-          v-model="column.name"
-          :default-value="defaultValue ? defaultValue.name : undefined"
-          :error="
-            column.name == undefined || column.name == ''
-              ? 'Name is required'
-              : undefined
-          "
-          label="Name"
-        />
-        <InputText
-          v-model="column.description"
-          :default-value="defaultValue ? defaultValue.description : undefined"
-          label="Description"
-        />
-        <h4>Constraints</h4>
-        <InputSelect
-          v-model="column.columnType"
-          :default-value="defaultValue ? defaultValue.columnType : undefined"
-          :options="columnTypes"
-          label="Column type"
-        />
-        <InputSelect
-          v-if="column.columnType == 'STRING'"
-          v-model="column.columnFormat"
-          :default-value="defaultValue ? defaultValue.columnFormat : undefined"
-          :options="['', 'HYPERLINK']"
-          label="Column format"
-        />
-        <InputSelect
-          v-if="
-            column.columnType == 'REF' ||
-            column.columnType == 'REF_ARRAY' ||
-            column.columnType == 'MREF' ||
-            column.columnType == 'REFBACK'
-          "
-          v-model="column.refTable"
-          :defaultValue="defaultValue ? defaultValue.refTable : undefined"
-          :error="
-            column.refTable == undefined || column.name == ''
-              ? 'Referenced table is required'
-              : undefined
-          "
-          :options="tables"
-          label="Referenced table"
-        />
-        <InputSelect
-          v-model="column.key"
-          :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-          :default-value="
-            defaultValue && defaultValue.key ? defaultValue.key : undefined
-          "
-          label="Key"
-        />
-        <InputBoolean
-          v-model="column.nullable"
-          :default-value="defaultValue && defaultValue.nullable ? true : false"
-          label="Nullable"
-        />
-        <div
-          v-if="
-            column.columnType == 'REF' ||
-            column.columnType == 'REF_ARRAY' ||
-            column.columnType == 'MREF' ||
-            column.columnType == 'REFBACK'
-          "
-        >
-          <h4>Advanced relationship settings</h4>
-          <InputString
-            v-model="column.refSchema"
-            label="refSchema (only needed if referencing outside schema)"
-            :defaultValue="defaultValue ? defaultValue.refSchema : undefined"
-          />
-          <InputString
-            v-if="column.columnType == 'REFBACK'"
-            v-model="column.mappedBy"
-            :default-value="defaultValue ? defaultValue.mappedBy : undefined"
-            label="Mapped by"
-          />
-          <InputString
-            v-if="
-              column.columnType == 'REF' ||
-              column.columnType == 'REF_ARRAY' ||
-              column.columnType == 'MREF' ||
-              column.columnType == 'REFBACK'
-            "
-            v-model="column.refFrom"
-            :default-value="defaultValue ? defaultValue.refFrom : undefined"
-            :list="true"
-            label="refFrom"
-          />
-          <InputString
-            v-if="
-              column.columnType == 'REF' ||
-              column.columnType == 'REF_ARRAY' ||
-              column.columnType == 'MREF' ||
-              column.columnType == 'REFBACK'
-            "
-            v-model="column.refTo"
-            :default-value="defaultValue ? defaultValue.refTo : undefined"
-            :list="true"
-            label="refTo"
-          />
-        </div>
-        <h4>Expressions</h4>
-        <InputText
-          v-model="column.validationExpression"
-          :default-value="
-            defaultValue ? defaultValue.validationExpression : undefined
-          "
-          label="Validation"
-        />
-        <InputText
-          v-model="column.visibleExpression"
-          :default-value="
-            defaultValue ? defaultValue.visibleExpression : undefined
-          "
-          label="Visible"
-        />
-        <h4>Settings for semantic web</h4>
-        <InputText
-          v-model="column.jsonldType"
-          :default-value="defaultValue ? defaultValue.jsonldType : undefined"
-          label="jsonldType (should be valid json conform jsonld @type spec)"
-        />
-      </LayoutForm>
+      <ColumnEdit v-model="column" :table="tableMetadata" :tables="tables" />
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -184,6 +57,7 @@ import {
   SigninForm,
   Spinner,
 } from "@mswertz/emx2-styleguide";
+import ColumnEdit from "./ColumnEdit";
 
 const columnTypes = [
   "STRING",
@@ -210,6 +84,7 @@ const columnTypes = [
 
 export default {
   components: {
+    ColumnEdit,
     MessageSuccess,
     MessageError,
     ButtonAction,
@@ -267,7 +142,7 @@ export default {
       return [];
     },
     tableMetadata() {
-      return null;
+      return this.metadata.filter((table) => table.name == this.table)[0];
     },
   },
   created() {

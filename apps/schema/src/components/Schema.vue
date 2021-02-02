@@ -75,7 +75,7 @@
         <InputCheckbox
           v-model="showAttributes"
           :defaultValue="showAttributes"
-          :options="['attributes', 'external', 'inheritance']"
+          :options="['attributes', 'external']"
         />
         <Spinner v-if="loadingYuml" />
         <div
@@ -107,7 +107,7 @@
       {{ count }} tables found
       <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
       <div class="table-responsive" v-if="tables">
-        <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm table-bordered">
           <tbody
             v-for="table in tables.filter((t) => t.externalSchema == undefined)"
             :key="table.name"
@@ -131,7 +131,7 @@
                   />
                 </IconBar>
               </td>
-              <td colspan="5">
+              <td colspan="4">
                 <h3 :id="table.name" style="text-transform: none" class="mt-3">
                   {{ table.name }}
                   <span
@@ -196,7 +196,12 @@
                 <span v-if="column.refTable">({{ column.refTable }})</span
                 >&nbsp;
                 <span v-if="column.nullable">nullable&nbsp;</span>
-                <span v-if="column.cascadeDelete">cascadeDelete&nbsp;</span>
+                <span v-if="column.refLink">
+                  refLink({{ column.refLink }})&nbsp;
+                </span>
+                <span v-if="column.mappedBy">
+                  mappedBy({{ column.mappedBy }})&nbsp;
+                </span>
               </td>
               <td>{{ column.key }}</td>
               <td>{{ column.description }}</td>
@@ -326,7 +331,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refFrom,refTo,mappedBy,cascadeDelete,nullable,description,jsonldType,validationExpression,visibleExpression}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,nullable,description,jsonldType,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = data._schema.name;
@@ -404,7 +409,7 @@ export default {
             this.showAttributes.includes("external")
         )
         .forEach((table) => {
-          if (table.inherit && this.showAttributes.includes("inheritance")) {
+          if (table.inherit) {
             res += `[${table.inherit}]^-[${table.name}],`;
           }
           if (Array.isArray(table.columns)) {
