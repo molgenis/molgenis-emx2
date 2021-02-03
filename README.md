@@ -295,31 +295,33 @@ Work in progress
 *  download of extended class should include superclass values
 *  download of superclass should only include superclass records
 *  enable custom 'format' as way to allow decoration of primitive types such as 'hyperlink', 'email', 'ontology'
+*  fix alter column in case of composite key (difficult, overlapping columns)
+*  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
 
 ### first
 
-*  fix alter column in case of composite key (difficult, overlapping columns)
+*  extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
+*  check roundtrip download/update of data and model and settings ('all')
+*  add audit trail log
+*  change 'email' to 'user' as user id might not come from email
+*  implement order by in table view, default on lastUpdated
+*  investigate migrations (for in place upgrades when metadata tables change)
+
 *  create a type registry in the frontend allowing for custom input and view components for columns
-*  remove option for refback to be updateable? (discussion about this)
 *  download using filter that is applied in explorer view
 *  filter option for 'null' and 'not_null'
-*  check roundtrip download/update of data and model
 *  prefilter UI in case of overlapping keys so you don't get unexpected errors
-*  collection level permissions (based on rule)
+*  add custom roles with per table privileges
+*  add custom privileges based on policies (row level security)
 *  oicd integration
-*  implement order by in table view, default on lastUpdated
 *  test large data => remove 'offset' and replace with 'after' so large offset doesn't slow down
 *  change graphql to have pageInfo{first,prev,next,last} pointers returned'
 *  postgresql cube index feature for aggregation views
-*  roundtrip settings and members (bacisally 'all')
 *  custom roles, so I can grant priviliges on tables
-*  adding posibility for policy based privileges
 *  long running downloads as jobs
-*  add audit trail log
 *  documentation framework so we can start adding some docs (see 'docs')
 *  kan actieve user zien in userlist (als admin en als manager)
-*  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
-
+*  create env variable for admin password and add as option to helm chart to ease deploys
 
 ### later
 *  consider parquet as import/export format
@@ -382,3 +384,5 @@ P.S. sometimes it help to reset gradle cache and stop the gradle daemon
 
 ./gradlew --stop
 rm -rf $HOME/.gradle/
+
+If you want to delete all schemas in database use molgenis-emx2-sql/test/java/.../AToolToCleanDatabase
