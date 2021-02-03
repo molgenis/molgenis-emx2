@@ -97,7 +97,7 @@ public class SqlQuery extends QueryBean {
     }
 
     // basequery
-    SelectJoinStep<Record> from =
+    SelectJoinStep<org.jooq.Record> from =
         table
             .getJooq()
             .select(rowSelectFields(table, tableAlias, "", select))
@@ -108,8 +108,8 @@ public class SqlQuery extends QueryBean {
 
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
-    SelectConnectByStep<Record> where = condition != null ? from.where(condition) : from;
-    SelectConnectByStep<Record> query = limitOffsetOrderBy(select, where);
+    SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
+    SelectConnectByStep<org.jooq.Record> query = limitOffsetOrderBy(select, where);
 
     // execute
     try {
@@ -117,8 +117,8 @@ public class SqlQuery extends QueryBean {
       if (logger.isInfoEnabled()) {
         logger.info(query.getSQL(ParamType.INLINED));
       }
-      Result<Record> fetch = query.fetch();
-      for (Record r : fetch) {
+      Result<org.jooq.Record> fetch = query.fetch();
+      for (org.jooq.Record r : fetch) {
         result.add(new SqlRow(r));
       }
       return result;
@@ -207,7 +207,8 @@ public class SqlQuery extends QueryBean {
                     .eq(field(name(tableAlias, reverseToColumn.getName())))));
   }
 
-  private static SelectConditionStep<Record> rowBackrefSubselect(Column column, String tableAlias) {
+  private static SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
+      Column column, String tableAlias) {
     Column mappedBy = column.getMappedByColumn();
     List<Condition> where = new ArrayList<>();
 
@@ -295,12 +296,12 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
-    SelectJoinStep<Record> from =
+    SelectJoinStep<org.jooq.Record> from =
         jooq.select(jsonSubselectFields(table, subAlias, select))
             .from(tableWithInheritanceJoin(table).as(subAlias));
 
     List<Condition> conditions = new ArrayList<>();
-    Select<Record> filterQuery =
+    Select<org.jooq.Record> filterQuery =
         limitOffsetOrderBy(
             select, jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms));
     if (filters != null
@@ -315,7 +316,7 @@ public class SqlQuery extends QueryBean {
       conditions.add(refJoinCondition(column, tableAlias, subAlias));
     }
     if (!conditions.isEmpty()) {
-      from = (SelectJoinStep<Record>) from.where(conditions);
+      from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
     }
 
     String agg =
@@ -325,7 +326,7 @@ public class SqlQuery extends QueryBean {
         .as(select.getColumn());
   }
 
-  private static SelectConditionStep<Record> jsonFilterQuery(
+  private static SelectConditionStep<org.jooq.Record> jsonFilterQuery(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
@@ -350,7 +351,7 @@ public class SqlQuery extends QueryBean {
           .from(tableWithInheritanceJoin(table))
           .where(conditions);
     } else {
-      return (SelectConditionStep<Record>)
+      return (SelectConditionStep<org.jooq.Record>)
           table.getJooq().select(table.getPrimaryKeyFields()).from(tableWithInheritanceJoin(table));
     }
   }
@@ -377,7 +378,7 @@ public class SqlQuery extends QueryBean {
           if (c.isReference()) {
             // add subfilter where reference is in tuples from subquery
             // todo, if filter is on pkey we don't even need subquery!
-            SelectConditionStep<Record> subQuery =
+            SelectConditionStep<org.jooq.Record> subQuery =
                 jsonFilterQuery(
                     (SqlTableMetadata) c.getRefTable(),
                     column,
@@ -594,7 +595,7 @@ public class SqlQuery extends QueryBean {
       String[] searchTerms) {
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
-    SelectSelectStep<Record> from =
+    SelectSelectStep<org.jooq.Record> from =
         table
             .getJooq()
             .select(
@@ -710,9 +711,9 @@ public class SqlQuery extends QueryBean {
     return countField;
   }
 
-  private static Table<Record> tableWithInheritanceJoin(TableMetadata table) {
+  private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
 
-    Table<Record> result = table.getJooqTable();
+    Table<org.jooq.Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
     while (inheritedTable != null) {
       result =
@@ -728,10 +729,10 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
-  private static SelectJoinStep<Record> refJoins(
+  private static SelectJoinStep<org.jooq.Record> refJoins(
       TableMetadata table,
       String tableAlias,
-      SelectJoinStep<Record> join,
+      SelectJoinStep<org.jooq.Record> join,
       Filter filters,
       SelectColumn selection,
       List<String> aliasList) {
@@ -1218,20 +1219,21 @@ public class SqlQuery extends QueryBean {
     return searchConditions.isEmpty() ? null : or(searchConditions);
   }
 
-  private static SelectJoinStep<Record> limitOffsetOrderBy(
-      SelectColumn select, SelectConnectByStep<Record> query) {
+  private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
+      SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
     query = orderBy(select, (SelectJoinStep) query);
     if (select.getLimit() > 0) query = (SelectConditionStep) query.limit(select.getLimit());
     if (select.getOffset() > 0) query = (SelectConditionStep) query.offset(select.getOffset());
-    return (SelectJoinStep<Record>) query;
+    return (SelectJoinStep<org.jooq.Record>) query;
   }
 
-  private static SelectJoinStep<Record> orderBy(SelectColumn select, SelectJoinStep<Record> query) {
+  private static SelectJoinStep<org.jooq.Record> orderBy(
+      SelectColumn select, SelectJoinStep<org.jooq.Record> query) {
     for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
       if (ASC.equals(col.getValue())) {
-        query = (SelectJoinStep<Record>) query.orderBy(field(name(col.getKey())).asc());
+        query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).asc());
       } else {
-        query = (SelectJoinStep<Record>) query.orderBy(field(name(col.getKey())).desc());
+        query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
       }
     }
     return query;

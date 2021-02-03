@@ -140,7 +140,7 @@ class SqlTable implements Table {
 
             // keep batchsize smaller to limit memory footprint
             int batchSize = 1000;
-            InsertValuesStepN<Record> step =
+            InsertValuesStepN<org.jooq.Record> step =
                 db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
             int i = 0;
             for (Row row : rows) {
@@ -283,7 +283,7 @@ class SqlTable implements Table {
 
   private void updateBatch(
       Collection<Row> rows,
-      org.jooq.Table<Record> t,
+      org.jooq.Table<org.jooq.Record> t,
       List<String> fieldNames,
       List<Column> columns,
       List<Field> fields,
@@ -294,7 +294,7 @@ class SqlTable implements Table {
     if (!rows.isEmpty()) {
 
       // createColumn multi-value insert
-      InsertValuesStepN<Record> step =
+      InsertValuesStepN<org.jooq.Record> step =
           db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
 
       for (Row row : rows) {
@@ -309,7 +309,7 @@ class SqlTable implements Table {
       }
 
       // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep<Record> step2 =
+      InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(keyField.toArray(new Field<?>[keyField.size()])).doUpdate();
       for (String name : fieldNames) {
         step2 =
@@ -464,7 +464,7 @@ class SqlTable implements Table {
     return getMetadata().getPrimaryKeyFields();
   }
 
-  protected org.jooq.Table<Record> getJooqTable() {
+  protected org.jooq.Table<org.jooq.Record> getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
