@@ -6,6 +6,7 @@ pipeline {
     }
     environment {
         TIMESTAMP = sh(returnStdout: true, script: "date -u +'%F_%H-%M-%S'").trim()
+        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql:molgenis_test'
     }
     stages {
         stage('Retrieve build secrets') {

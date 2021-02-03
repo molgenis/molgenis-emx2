@@ -1,6 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.utils.EnvironmentProperty.getParameter;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
@@ -40,14 +44,17 @@ public class TestDatabaseFactory {
   }
 
   public static Database getTestDatabase(boolean deleteAll) {
-    String url = "jdbc:postgresql:molgenis";
+
+    String url = (String) getParameter(MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
+    String user = (String) getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
+    String pass = (String) getParameter(MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
 
     // createColumn data source
     if (dataSource == null) {
       dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
-      dataSource.setUsername("molgenis");
-      dataSource.setPassword("molgenis");
+      dataSource.setUsername(user);
+      dataSource.setPassword(pass);
     }
 
     return getTestDatabase(dataSource, deleteAll);
