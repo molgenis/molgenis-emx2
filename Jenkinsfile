@@ -46,7 +46,7 @@ pipeline {
                                     docker.image('mysql:5').inside("--link ${postgres.id}:postgres") {
                                          sh 'sleep 30'
                                     }
-                                    docker.image('openjdk:13-alpine').inside("--link ${postgres.id}:postgres") {
+                                    docker.image('maven').inside("--link ${postgres.id}:postgres") {
                                         sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
                                     }
                                 }
