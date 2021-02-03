@@ -18,7 +18,7 @@ public class TestDatabaseFactory {
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
   private static HikariDataSource dataSource = null;
-  private static Logger logger = Logger.getLogger(TestDatabaseFactory.getClass().getSimpleName());
+  private static Logger logger = Logger.getLogger(TestDatabaseFactory.class.getSimpleName());
 
   private TestDatabaseFactory() {
     // to hide the public constructor
