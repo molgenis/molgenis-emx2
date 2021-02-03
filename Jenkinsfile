@@ -36,12 +36,14 @@ pipeline {
             stages {
                 stage('Build, Test [ master ]') {
                     steps {
-                        docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { c ->
-                            docker.image('mysql:5').inside("--link ${c.id}:postgres") {
-                                 sh 'while !</dev/tcp/db/5432; do sleep 1; done; done'
-                            }
-                            docker.image('openjdk:13-alpine').inside("--link ${c.id}:postgres") {
-                                sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
+                        script {
+                            docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { c ->
+                                docker.image('mysql:5').inside("--link ${c.id}:postgres") {
+                                     sh 'while !</dev/tcp/db/5432; do sleep 1; done; done'
+                                }
+                                docker.image('openjdk:13-alpine').inside("--link ${c.id}:postgres") {
+                                    sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
+                                }
                             }
                         }
                     }
