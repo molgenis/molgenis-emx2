@@ -36,7 +36,7 @@ pipeline {
             stages {
                 stage('Build, Test [ master ]') {
                     steps {
-                        script {
+                        container('maven') {
                             docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { postgres ->
                                 docker.image('mysql:5').inside("--link ${postgres.id}:postgres") {
                                      sh 'while !</dev/tcp/db/5432; do sleep 1; done; done'
