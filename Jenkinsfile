@@ -38,8 +38,7 @@ pipeline {
             }
             stages {
                 stage('Build, Test [ master ]') {
-                    postgres = docker.image('postgres:13').run('-P -e POSTGRES_DB=molgenis')
-                    MOLGENIS_POSTGRES_URI = "postgresql://postgres@${hostIp}:${containerPort(postgres, 5432)}/molgenis"
+                    postgres = docker.image('postgres:13').withRun('-p 5432:5432 -P -e POSTGRES_DB=molgenis -e POSTGRES_USER=molgenis -e POSTGRES_PASSWORD=molgenis')
                     try {
                         sh "./gradlew test"
                     } finally {
