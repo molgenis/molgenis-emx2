@@ -24,6 +24,7 @@ subprojects {
             npmWorkDir = file("${parent.projectDir}/.gradle/npm")
             yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
             workDir = file("${parent.projectDir}/.gradle/nodejs")
+            download = true
         }
 
         inputs.files(fileTree('src'))
@@ -62,6 +63,7 @@ subprojects {
                 npmWorkDir = file("${parent.projectDir}/.gradle/npm")
                 yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
                 workDir = file("${parent.projectDir}/.gradle/nodejs")
+                download = true
             }
 
             inputs.files(fileTree('src'))
