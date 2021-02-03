@@ -6,9 +6,6 @@ pipeline {
     }
     environment {
         TIMESTAMP = sh(returnStdout: true, script: "date -u +'%F_%H-%M-%S'").trim()
-        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql:molgenis_test'
-        MOLGENIS_POSTGRES_USER = 'postgres'
-        MOLGENIS_POSTGRES_PASS = 'postgres'
     }
     stages {
         stage('Retrieve build secrets') {
@@ -38,11 +35,15 @@ pipeline {
             }
             stages {
                 stage('Build, Test [ master ]') {
-                    postgres = docker.image('postgres:13').withRun('-p 5432:5432 -P -e POSTGRES_DB=molgenis -e POSTGRES_USER=molgenis -e POSTGRES_PASSWORD=molgenis')
-                    try {
-                        sh "./gradlew test"
-                    } finally {
-                        postgres.stop()
+                    steps {
+                        docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P -e POSTGRES_DB=molgenis -e POSTGRES_USER=molgenis -e POSTGRES_PASSWORD=molgenis') { c ->
+                            docker.image('mysql:5').inside("--link ${c.id}:postgres") {
+                                 sh 'while !</dev/tcp/db/5432; do sleep 1; done; done'
+                            }
+                            docker.image('maven').inside("--link ${c.id}:postgres") {
+                                sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
+                            }
+                        }
                     }
                 }
             }
