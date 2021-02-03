@@ -98,17 +98,22 @@ public class MetadataUtils {
       step.execute();
     }
 
-    try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-      t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+    if (jooq.meta().getTables(SCHEMA_METADATA.getName()).size() == 0) {
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
+        t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+        jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
+        jooq.execute(
+            "DROP POLICY IF EXISTS {0} ON {1}",
+            name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
+        jooq.execute(
+            "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
+            name(SCHEMA_METADATA.getName() + "_POLICY"),
+            SCHEMA_METADATA,
+            MG_ROLE_PREFIX,
+            TABLE_SCHEMA);
+      }
     }
 
-    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
-    jooq.execute(
-        "DROP POLICY IF EXISTS {0} ON {1}",
-        name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
-        name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA, MG_ROLE_PREFIX, TABLE_SCHEMA);
     // rowlevel secur the schema table
 
     // public access
