@@ -37,7 +37,7 @@ pipeline {
                 stage('Build, Test [ master ]') {
                     steps {
                         container('maven') {
-                            sh "./gradlew test --stacktrace --debug"
+                            sh "./gradlew test"
                         }
                     }
                 }
