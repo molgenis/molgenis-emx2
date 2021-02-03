@@ -1,13 +1,13 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.EnvironmentProperty.getParameter;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -18,6 +18,7 @@ public class TestDatabaseFactory {
   private static DSLContext jooq = null;
   private static SqlDatabase db = null;
   private static HikariDataSource dataSource = null;
+  private static Logger logger = Logger.getLogger(TestDatabaseFactory.getClass().getSimpleName());
 
   private TestDatabaseFactory() {
     // to hide the public constructor
@@ -48,6 +49,11 @@ public class TestDatabaseFactory {
     String url = (String) getParameter(MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
     String user = (String) getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
     String pass = (String) getParameter(MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
+
+    logger.info("Using database:");
+    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
+    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
+    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
 
     // createColumn data source
     if (dataSource == null) {

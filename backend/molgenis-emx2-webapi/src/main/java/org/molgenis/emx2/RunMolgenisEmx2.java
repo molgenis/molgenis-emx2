@@ -36,9 +36,9 @@ public class RunMolgenisEmx2 {
     }
 
     logger.info("Starting MOLGENIS EMX2 Version=" + Version.getVersion());
-    logger.info("with " + Constants.MOLGENIS_POSTGRES_URI + "=" + url);
-    logger.info("with " + Constants.MOLGENIS_POSTGRES_USER + "=" + user);
-    logger.info("with " + Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
+    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
+    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
+    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
     logger.info(
         "with "
             + Constants.MOLGENIS_HTTP_PORT
