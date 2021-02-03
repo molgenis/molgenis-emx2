@@ -10,7 +10,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.7.1'
-    id 'io.vincentpalazzo.gradledatabase' version '0.6.0'
+    id 'io.vincentpalazzo.gradledatabase' version '0.6'
 }
 
 
