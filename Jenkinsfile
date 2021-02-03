@@ -43,13 +43,11 @@ pipeline {
                             script {
                                 sh "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
                                 docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { postgres ->
-                                    docker.image('mysql:5').inside("--link ${postgres.id}:postgres") {
-                                         sh 'sleep 30'
-                                    }
-                                    docker.image('maven').inside("--link ${postgres.id}:postgres") {
-                                        sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
+                                    docker.image('postgres:13-alpine').inside("--link ${postgres.id}:postgres") {
+                                         sh 'sleep 15'
                                     }
                                 }
+                                sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
                             }
                         }
                     }
