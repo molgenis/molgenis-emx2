@@ -38,10 +38,12 @@ pipeline {
             }
             stages {
                 stage('Build, Test [ master ]') {
-                    steps {
-                        container('maven') {
-                            sh "./gradlew createDatabase test"
-                        }
+                    postgres = docker.image('postgres:13').run('-P -e POSTGRES_DB=molgenis')
+                    MOLGENIS_POSTGRES_URI = "postgresql://postgres@${hostIp}:${containerPort(postgres, 5432)}/molgenis"
+                    try {
+                        sh "./gradlew test"
+                    } finally {
+                        postgres.stop()
                     }
                 }
             }
