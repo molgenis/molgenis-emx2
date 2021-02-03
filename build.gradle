@@ -10,6 +10,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.7.1'
+    id 'io.vincentpalazzo.gradledatabase' version '0.6.0'
 }
 
 
@@ -112,3 +113,15 @@ ext {
 application {
     mainClassName = javaMainClass
 }
+
+//used for jenkins only
+settingDatabase {
+    url = 'jdbc:postgresql://localhost'
+    username = 'postgres'
+    password = 'postgres'
+    nameDatabase = 'molgenis_test'
+    driver = 'org.postgresql.Driver'
+    nameJar = 'org.postgresql:postgresql:42.2.18'
+    levelLog = 'info'
+}
+

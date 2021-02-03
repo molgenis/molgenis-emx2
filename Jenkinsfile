@@ -40,7 +40,7 @@ pipeline {
                 stage('Build, Test [ master ]') {
                     steps {
                         container('maven') {
-                            sh "./gradlew test --info"
+                            sh "./gradlew createDatabase test"
                         }
                     }
                 }
