@@ -84,7 +84,8 @@ public class TypeUtils {
   private static Object[] processArray(
       Object v, UnaryOperator<Object> f, IntFunction<Object[]> m, Class<?> c) {
     if (v == null) return null; // NOSONAR
-    else if (v.getClass().equals(c.arrayType())) return (Object[]) v;
+    else if (v.getClass().isArray() && v.getClass().getComponentType().equals(c.getClass()))
+      return (Object[]) v;
     else if (v instanceof String) {
       if (((String) v).trim().equals("")) return null; // NOSONAR
       v = splitCsvString((String) v);
