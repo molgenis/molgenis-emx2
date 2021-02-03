@@ -37,7 +37,10 @@ pipeline {
                 stage('Build, Test [ master ]') {
                     steps {
                         container('maven') {
-                            sh "./gradlew test --stacktrace"
+                            sh "psql -c 'create database molgenis;' -U postgres"
+                            sh "psql -c \"CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';\" -U postgres"
+                            sh "psql -c \"grant all privileges on database molgenis to molgenis;\" -U postgres"
+                            sh "./gradlew test --info"
                         }
                     }
                 }
