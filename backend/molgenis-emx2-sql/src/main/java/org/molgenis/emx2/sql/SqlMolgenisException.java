@@ -20,7 +20,12 @@ public class SqlMolgenisException extends MolgenisException {
 
   private static String getTitle(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
-      return ((PSQLException) dae.getCause()).getServerErrorMessage().getMessage();
+      PSQLException cause = (PSQLException) dae.getCause();
+      if (cause.getServerErrorMessage() != null) {
+        return cause.getServerErrorMessage().getMessage();
+      } else {
+        return cause.getMessage();
+      }
     }
     return dae.getMessage();
   }
@@ -28,9 +33,9 @@ public class SqlMolgenisException extends MolgenisException {
   private static String getDetail(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
       PSQLException pe = (PSQLException) dae.getCause();
-      if (pe.getServerErrorMessage().getDetail() != null) {
+      if (pe.getServerErrorMessage() != null && pe.getServerErrorMessage().getDetail() != null) {
         return pe.getServerErrorMessage().getDetail();
-      } else return pe.getMessage();
+      }
     }
     return "";
   }
