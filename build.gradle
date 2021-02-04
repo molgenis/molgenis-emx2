@@ -29,7 +29,7 @@ allprojects {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(4) ?: 1
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 }
 
 repositories {

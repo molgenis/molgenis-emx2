@@ -9,9 +9,9 @@ node {
     version = '14.10.1'
     yarnVersion = '1.22.10'
     npmVersion = "6.14.18"
-//    npmWorkDir = file("${project.projectDir}/.gradle/npm")
-//    yarnWorkDir = file("${project.projectDir}/.gradle/yarn")
-//    workDir = file("${project.projectDir}/.gradle/nodejs")
+    npmWorkDir = file("${project.projectDir}/.gradle/npm")
+    yarnWorkDir = file("${project.projectDir}/.gradle/yarn")
+    workDir = file("${project.projectDir}/.gradle/nodejs")
     download = true
 }
 
@@ -30,9 +30,9 @@ subprojects {
             yarnVersion = '1.22.10'
             npmVersion = "6.14.18"
             download = true
-//            npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-//            yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
-//            workDir = file("${parent.projectDir}/.gradle/nodejs")
+            npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+            yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
+            workDir = file("${parent.projectDir}/.gradle/nodejs")
         }
 
         inputs.files(fileTree('src'))
@@ -64,9 +64,9 @@ subprojects {
                 yarnVersion = '1.22.10'
                 npmVersion = "6.14.18"
                 download = true
-//                npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-//                yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
-//                workDir = file("${parent.projectDir}/.gradle/nodejs")
+                npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+                yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
+                workDir = file("${parent.projectDir}/.gradle/nodejs")
             }
 
             inputs.files(fileTree('src'))
