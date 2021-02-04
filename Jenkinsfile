@@ -21,7 +21,8 @@ pipeline {
                         env.GITHUB_USER = sh(script: 'vault read -field=username secret/ops/token/github', returnStdout: true)
                         env.GITHUB_USER = sh(script: 'vault read -field=username secret/ops/token/github', returnStdout: true)
                         env.DOCKER_USERNAME = sh(script: 'vault read -field=username secret/gcc/account/dockerhub', returnStdout: true)
-                        env.DOCKER_PASSWORD = sh(script: 'vault read -field=password secret/gcc/account/dockerhub', returnStdout: true)
+                        env.DOCKER_PASSWORD = sh(script: 'vault read -field=password secret/gcc/account/dockerhub > ~/docker_password.txt', returnStdout: true)
+
                     }
                 }
                 dir("${JENKINS_AGENT_WORKDIR}/.m2") {
@@ -41,7 +42,7 @@ pipeline {
                     steps {
                         container('maven') {
                             script {
-                                sh "docker login -u \"$DOCKER_USERNAME\" --password-stdin <<< \"$DOCKER_PASSWORD\""
+                                sh "cat ~/docker_password.txt | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
                                 docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { postgres ->
                                     docker.image('postgres:13-alpine').inside("--link ${postgres.id}:postgres") {
                                          sh 'sleep 15'
