@@ -42,7 +42,7 @@ pipeline {
                     steps {
                         container('maven') {
                             script {
-                                sh "cat ~/docker_password.txt | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
+                                sh "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
                                 docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { postgres ->
                                     docker.image('postgres:13-alpine').inside("--link ${postgres.id}:postgres") {
                                          sh 'sleep 15'
