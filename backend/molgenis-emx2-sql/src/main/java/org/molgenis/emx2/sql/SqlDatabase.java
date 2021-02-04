@@ -56,22 +56,23 @@ public class SqlDatabase implements Database {
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     this.tx(
         db -> {
-          MetadataUtils.createMetadataSchemaIfNotExists(jooq);
+          DSLContext dsl = ((SqlDatabase) db).getJooq();
+          MetadataUtils.createMetadataSchemaIfNotExists(dsl);
 
           // setup default stuff
-          this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-          this.jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
-          if (!hasUser(ANONYMOUS)) {
-            this.addUser(ANONYMOUS); // used when not logged in
+          dsl.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+          dsl.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
+          if (!db.hasUser(ANONYMOUS)) {
+            db.addUser(ANONYMOUS); // used when not logged in
           }
           if (!hasUser(USER)) {
-            this.addUser(USER); // used as role to identify all users except anonymous
+            db.addUser(USER); // used as role to identify all users except anonymous
           }
-          if (!hasUser(ADMIN)) {
-            this.addUser(ADMIN);
-            this.setUserPassword(
+          if (!db.hasUser(ADMIN)) {
+            db.addUser(ADMIN);
+            db.setUserPassword(
                 ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
-            this.jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
+            dsl.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
           }
         });
   }
