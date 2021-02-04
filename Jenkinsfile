@@ -46,7 +46,7 @@ pipeline {
                 stage('Build, Test [ master ]') {
                     steps {
                         script {
-                            sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
+                            sh "./gradlew test"
                         }
                     }
                 }
