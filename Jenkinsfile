@@ -41,17 +41,11 @@ pipeline {
                 stage('Build, Test [ master ]') {
                     steps {
                         container('maven') {
-                            script {
-                                sh "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
-                                docker.image('postgres:13-alpine').withRun('-p 5432:5432 -P --name postgres_server -e "POSTGRES_DB=molgenis" -e "POSTGRES_USER=molgenis" -e "POSTGRES_PASSWORD=molgenis"') { postgres ->
-                                    docker.image('postgres:13-alpine').inside("--link ${postgres.id}:postgres") {
-                                         sh 'sleep 15'
-                                    }
-                                    docker.image("maven").inside("--link ${postgres.id}:postgres") {
-                                        sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
-                                    }
-                                }
-                            }
+                            sh "apk add postgresql-client"
+                            sh "psql -c 'create database molgenis;' -U postgres"
+                            sh "psql -c \"CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';\" -U postgres"
+                            sh "psql -c \"grant all privileges on database molgenis to molgenis;\" -U postgres"
+                            sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
                         }
                     }
                 }
