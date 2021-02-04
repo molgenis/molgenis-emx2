@@ -37,11 +37,15 @@ pipeline {
             when {
                 branch 'master'
             }
+            agent {
+                kubernetes {
+                    label('molgenis-it-jdk11')
+                }
+            }
             stages {
                 stage('Build, Test [ master ]') {
                     steps {
-                        container('maven') {
-                            sh "apk add postgresql-client"
+                        script {
                             sh "psql -c 'create database molgenis;' -U postgres"
                             sh "psql -c \"CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';\" -U postgres"
                             sh "psql -c \"grant all privileges on database molgenis to molgenis;\" -U postgres"
