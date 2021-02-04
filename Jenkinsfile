@@ -47,7 +47,7 @@ pipeline {
                                          sh 'sleep 15'
                                     }
                                 }
-                                sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
+                                sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:molgenis"
                             }
                         }
                     }
