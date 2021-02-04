@@ -54,27 +54,29 @@ public class SqlDatabase implements Database {
     this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
-    this.tx(
-        db -> {
-          DSLContext dsl = ((SqlDatabase) db).getJooq();
-          MetadataUtils.createMetadataSchemaIfNotExists(dsl);
 
-          // setup default stuff
-          dsl.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-          dsl.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
-          if (!db.hasUser(ANONYMOUS)) {
-            db.addUser(ANONYMOUS); // used when not logged in
-          }
-          if (!hasUser(USER)) {
-            db.addUser(USER); // used as role to identify all users except anonymous
-          }
-          if (!db.hasUser(ADMIN)) {
-            db.addUser(ADMIN);
-            db.setUserPassword(
-                ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
-            dsl.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
-          }
-        });
+    this.tx(db -> db.init());
+  }
+
+  @Override
+  public synchronized void init() {
+    MetadataUtils.createMetadataSchemaIfNotExists(jooq);
+
+    // setup default stuff
+    jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+    jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
+    if (!hasUser(ANONYMOUS)) {
+      addUser(ANONYMOUS); // used when not logged in
+    }
+    if (!hasUser(USER)) {
+      addUser(USER); // used as role to identify all users except anonymous
+    }
+    if (!hasUser(ADMIN)) {
+      addUser(ADMIN);
+      setUserPassword(
+          ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
+      jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
+    }
   }
 
   @Override

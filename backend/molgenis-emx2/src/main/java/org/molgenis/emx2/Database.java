@@ -6,6 +6,8 @@ public interface Database {
 
   void tx(Transaction transaction);
 
+  void init();
+
   Schema createSchema(String name);
 
   Schema dropCreateSchema(String name);
