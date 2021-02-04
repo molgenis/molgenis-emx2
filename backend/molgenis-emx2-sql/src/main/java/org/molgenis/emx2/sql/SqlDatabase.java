@@ -99,11 +99,12 @@ public class SqlDatabase implements Database {
     long start = System.currentTimeMillis();
     SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     this.tx(
-        database -> {
-          executeCreateSchema(this, metadata);
+        db -> {
+          executeCreateSchema((SqlDatabase) db, metadata);
           // make current user a manager
-          if (getActiveUser() != null) {
-            getSchema(metadata.getName()).addMember(getActiveUser(), Privileges.MANAGER.toString());
+          if (db.getActiveUser() != null) {
+            db.getSchema(metadata.getName())
+                .addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
           schemaCache.put(name, metadata);
           schemaNames.add(name);
@@ -130,7 +131,7 @@ public class SqlDatabase implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    tx(d -> SqlSchemaMetadataExecutor.executeDropSchema(this, name));
+    tx(d -> SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) d, name));
     schemaCache.remove(name);
     schemaNames.remove(name);
     listener.schemaRemoved(name);
