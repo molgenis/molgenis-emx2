@@ -45,7 +45,7 @@ pipeline {
             stages {
                 stage('Build, Test [ master ]') {
                     steps {
-                        script {
+                        container('maven') {
                             sh "./gradlew test"
                         }
                     }
