@@ -61,7 +61,6 @@ public class SqlDatabase implements Database {
   @Override
   public synchronized void init() {
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
-
     // setup default stuff
     jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
     jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
@@ -140,10 +139,14 @@ public class SqlDatabase implements Database {
 
   @Override
   public Schema dropCreateSchema(String name) {
-    if (getSchemaNames().contains(name)) {
-      this.dropSchema(name);
-    }
-    return createSchema(name);
+    tx(
+        db -> {
+          if (db.getSchemaNames().contains(name)) {
+            db.dropSchema(name);
+          }
+          db.createSchema(name);
+        });
+    return getSchema(name);
   }
 
   @Override
