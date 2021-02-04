@@ -46,9 +46,6 @@ pipeline {
                 stage('Build, Test [ master ]') {
                     steps {
                         script {
-                            sh "psql -c 'create database molgenis;' -U postgres"
-                            sh "psql -c \"CREATE USER molgenis WITH SUPERUSER PASSWORD 'molgenis';\" -U postgres"
-                            sh "psql -c \"grant all privileges on database molgenis to molgenis;\" -U postgres"
                             sh "./gradlew test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis"
                         }
                     }
