@@ -22,7 +22,7 @@
   <!-- alter or add a table -->
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="create">
+      <LayoutForm v-if="(tableDraft.command = 'CREATE')">
         <InputString v-model="tableDraft.name" label="Table name" />
         <InputText v-model="tableDraft.description" label="Table Description" />
         <InputText
@@ -36,7 +36,9 @@
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="error">{{ error }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction v-if="create" @click="executeCommand"
+      <ButtonAction
+        v-if="(tableDraft.command = 'CREATE')"
+        @click="executeCommand"
         >{{ action }}
       </ButtonAction>
     </template>
@@ -82,20 +84,19 @@ export default {
       error: null,
       success: null,
       showLogin: false,
-      create: false,
       tableDraft: {},
     };
   },
   computed: {
     title() {
-      if (this.create) {
+      if ((this.tableDraft.command = "CREATE")) {
         return `Create table`;
       } else {
         return `Alter table '${this.table.name}'`;
       }
     },
     action() {
-      if (this.create) return `Create table`;
+      if ((this.tableDraft.command = "CREATE")) return `Create table`;
       else return `Alter table ${this.table.name}`;
     },
   },
@@ -135,10 +136,17 @@ export default {
       this.loading = false;
     },
   },
+  watch: {
+    table: {
+      deep: true,
+      handler() {
+        this.created();
+      },
+    },
+  },
   created() {
     this.tableDraft = this.table;
     if (this.tableDraft.name == null) {
-      this.create = true;
       this.tableDraft.command = "CREATE";
     } else {
       this.tableDraft.command = "ALTER";
