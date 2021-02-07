@@ -39,15 +39,13 @@ pipeline {
             }
             agent {
                 kubernetes {
-                    label('molgenis-it-jdk11')
+                    label('molgenis-jdk13')
                 }
             }
             stages {
                 stage('Build, Test [ master ]') {
                     steps {
-                        container('maven') {
-                            sh "./gradlew test --info"
-                        }
+                        sh "./gradlew test --info"
                     }
                 }
             }
