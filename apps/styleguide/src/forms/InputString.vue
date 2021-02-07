@@ -1,37 +1,47 @@
 <template>
-  <FormGroup v-bind="$props">
-    <InputAppend
-      v-for="(item, idx) in arrayValue"
-      :key="idx"
-      v-bind="$props"
-      :showClear="showClear(idx)"
-      @clear="clearValue(idx)"
-      :showPlus="showPlus(idx)"
-      @add="addRow"
-    >
-      <input
-        :id="id + idx"
-        v-model="arrayValue[idx]"
-        :class="{ 'form-control': true, 'is-invalid': error }"
-        :aria-describedby="id + 'Help'"
-        :placeholder="placeholder"
-        :readonly="readonly"
-        @keypress="keyhandler"
-      />
-    </InputAppend>
-  </FormGroup>
+  <span>
+    <span v-if="inplace && !focus && !error" @click="toggleFocus">
+      {{ prettyValue ? prettyValue : "&zwnj;.&zwnj;" }}
+      <IconAction class="hoverIcon" icon="edit" />
+    </span>
+    <FormGroup v-else v-bind="$props">
+      <InputAppend
+        v-for="(item, idx) in arrayValue"
+        :key="idx"
+        v-bind="$props"
+        :showClear="showClear(idx)"
+        @clear="clearValue(idx)"
+        :showPlus="showPlus(idx)"
+        @add="addRow"
+      >
+        <input
+          :id="id + idx"
+          v-focus="inplace"
+          v-model="arrayValue[idx]"
+          :class="{ 'form-control': true, 'is-invalid': error }"
+          :aria-describedby="id + 'Help'"
+          :placeholder="placeholder"
+          :readonly="readonly"
+          @keypress="keyhandler"
+          @blur="toggleFocus"
+        />
+      </InputAppend>
+    </FormGroup>
+  </span>
 </template>
 
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
 import FormGroup from "./_formGroup";
+import IconAction from "./IconAction";
 
 export default {
   extends: BaseInput,
   components: {
     InputAppend,
     FormGroup,
+    IconAction,
   },
   methods: {
     keyhandler(event) {
@@ -48,70 +58,88 @@ export default {
 </style>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputString v-model="value" label="My string input label" help="Some help needed?"/>
-            You typed: {{JSON.stringify(value)}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example with default value
-    ```
-    <template>
-        <div>
-            <InputString
-                    v-model="value"
-                    :defaultValue="value"
-                    label="My string input label"
-                    help="Some help needed?"
-            />
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: "blaat"
-                };
-            }
-        };
-    </script>
-    ```
-    Example readonly
-    ```
-    <InputString label="test" :readonly="true" defaultValue="can't change me" help="Should not be able to edit this"/>
-    ```
-    Example list
-    ```
-    <template>
-        <div>
-            <InputString v-model="value" :list="true" label="test" :defaultValue="['aap','noot']"
-                         help="should be able to manage a list of values"/>
-            <br/>
-            You typed: {{JSON.stringify(value)}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: "blaat"
-                };
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <InputString v-model="value" label="My string input label" help="Some help needed?"/>
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+Example with default value
+```
+<template>
+  <div>
+    <InputString
+        v-model="value"
+        :defaultValue="value"
+        label="My string input label"
+        help="Some help needed?"
+    />
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: "blaat"
+      };
+    }
+  };
+</script>
+```
+Example readonly
+```
+<InputString label="test" :readonly="true" defaultValue="can't change me" help="Should not be able to edit this"/>
+```
+Example list
+```
+<template>
+  <div>
+    <InputString v-model="value" :list="true" label="test" :defaultValue="['aap','noot']"
+                 help="should be able to manage a list of values"/>
+    <br/>
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: "blaat"
+      };
+    }
+  };
+</script>
+```
+Example in place
+```
+<template>
+  <div>
+    In place some
+    <InputString label="test" v-model="value" :inplace="true" help="Should be able to edit in place"/>
+    text.<br/>
+    value: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {value: null}
+    }
+  }
+</script>
+```
 </docs>
