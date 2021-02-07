@@ -14,6 +14,7 @@
       </div>
       <div class="col-10">
         <RouterLink to="/formeditor">TO FORM EDITOR (Alpha!)</RouterLink>
+        <RouterLink to="/simple">TO INPLACE TABLE EDITOR (Alpha!)</RouterLink>
         <TableEditModal
           v-if="tableAdd"
           :schema="schema"
