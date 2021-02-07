@@ -169,13 +169,13 @@ export default {
       let filter = {
         sourceTable: {
           name: { equals: this.sourceTable },
-          collection: { acronym: { equals: this.sourceCollection } },
+          resource: { acronym: { equals: this.sourceCollection } },
         },
         targetVariable: {
           name: { equals: this.targetVariable },
           table: {
             name: { equals: this.targetTable },
-            collection: { acronym: { equals: this.targetCollection } },
+            resource: { acronym: { equals: this.targetCollection } },
           },
         },
       };

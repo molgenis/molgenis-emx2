@@ -3,26 +3,26 @@
     <div class="card h-100 overflow-auto">
       <span>
         <h4 class="card-title">
-          <RouterLink :to="'/consortia/' + consortium.acronym">
+          <RouterLink :to="'/projects/' + project.acronym">
             <small>
-              {{ consortium.acronym }}
+              {{ project.acronym }}
             </small>
             <br />
-            {{ consortium.name }}
+            {{ project.name }}
           </RouterLink>
         </h4>
-        <span v-if="consortium.host_organisation">
-          <label>by:</label> {{ consortium.host_organisation.name }}<br />
+        <span v-if="project.institution">
+          <label>by:</label> {{ project.institution.name }}<br />
         </span>
-        <span v-if="consortium.website">
+        <span v-if="project.website">
           <label>website:</label>&nbsp;
-          <a :href="consortium.website">{{ consortium.website }}</a>
+          <a :href="project.website">{{ project.website }}</a>
         </span>
       </span>
       <ReadMore
-        :text="consortium.description"
+        :text="project.description"
         :length="200"
-        v-if="consortium.description"
+        v-if="project.description"
       />
     </div>
   </div>
@@ -34,7 +34,7 @@ import { ReadMore } from "@mswertz/emx2-styleguide";
 export default {
   components: { ReadMore },
   props: {
-    consortium: Object,
+    project: Object,
   },
 };
 </script>

@@ -8,7 +8,7 @@
               name: databankview,
               params: {
                 databankAcronym: databank.acronym,
-                providerAcronym: providerAcronym,
+                institutionAcronym: institutionAcronym,
               },
             }"
           >
@@ -28,8 +28,8 @@
             {{ databank.name }}
           </RouterLink>
         </h4>
-        <span v-if="databank.provider">
-          <label>Provider:</label> {{ databank.provider.name }}<br />
+        <span v-if="databank.institution">
+          <label>institution:</label> {{ databank.institution.name }}<br />
         </span>
         <span v-if="databank.website">
           <label>website: </label>
@@ -64,12 +64,12 @@ export default {
   components: { ReadMore },
   props: {
     databank: Object,
-    providerAcronym: String,
+    institutionAcronym: String,
   },
   computed: {
     databankview() {
-      if (this.providerAcronym) {
-        return "provider-databank";
+      if (this.institutionAcronym) {
+        return "institution-databank";
       }
       return "databank";
     },

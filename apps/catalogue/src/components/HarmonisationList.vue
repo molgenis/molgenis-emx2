@@ -22,8 +22,8 @@
                 :compact="true"
                 :target-variable="v"
                 :target-table="tableName"
-                :target-collection="collectionAcronym"
-                :source-collection="dtsplit(':')[0]"
+                :target-resource="resourceAcronym"
+                :source-resource="dtsplit(':')[0]"
                 :source-table="t.split(':')[1]"
                 :match="matrix[v][d]"
               />
@@ -62,7 +62,7 @@ export default {
     ShowMore,
   },
   props: {
-    collectionAcronym: String,
+    resourceAcronym: String,
     tableName: String,
   },
   data() {
@@ -79,7 +79,7 @@ export default {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) => h.sourceTable.collection.acronym + ":" + h.sourceTable.name
+            (h) => h.sourceTable.resource.acronym + ":" + h.sourceTable.name
           )
         ),
       ].sort();
@@ -99,7 +99,7 @@ export default {
       this.harmonisations.forEach((h) => {
         if (h.match) {
           result[h.targetVariable.name][
-            h.sourceTable.collection.acronym + ":" + h.sourceTable.name
+            h.sourceTable.resource.acronym + ":" + h.sourceTable.name
           ] = h.match.name;
         }
       });
@@ -109,11 +109,11 @@ export default {
   methods: {
     reload() {
       let filter = {};
-      //filter:{targetVariable:{table:{name:{equals:"table1"},collection:{acronym:{equals:"LifeCycle"}}}}}
-      if (this.collectionAcronym) {
+      //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{acronym:{equals:"LifeCycle"}}}}}
+      if (this.resourceAcronym) {
         filter.targetVariable = {
           table: {
-            collection: { acronym: { equals: this.collectionAcronym } },
+            resource: { acronym: { equals: this.resourceAcronym } },
           },
         };
       }
@@ -124,7 +124,7 @@ export default {
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{collection{acronym}name}match{name}}
+          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{resource{acronym}name}match{name}}
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -145,7 +145,7 @@ export default {
     },
   },
   watch: {
-    collectionAcronym() {
+    resourceAcronym() {
       this.reload();
     },
     tableName() {

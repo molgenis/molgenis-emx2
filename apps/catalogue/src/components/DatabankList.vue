@@ -16,7 +16,7 @@
         v-for="databank in databanks"
         :key="databank.name"
         :databank="databank"
-        :providerAcronym="providerAcronym"
+        :institutionAcronym="institutionAcronym"
       />
     </div>
   </div>
@@ -39,7 +39,7 @@ export default {
     InputSearch,
   },
   props: {
-    providerAcronym: String,
+    institutionAcronym: String,
     filter: {
       type: Object,
       default() {
@@ -47,7 +47,7 @@ export default {
       },
     },
     search: {
-      String,
+      type: String,
       default: "",
     },
   },
@@ -67,12 +67,14 @@ export default {
       if (this.search && this.search.trim() != "") {
         searchString = `search:"${this.search}",`;
       }
-      if (this.providerAcronym) {
-        this.filter["provider"] = { acronym: { equals: this.providerAcronym } };
+      if (this.institutionAcronym) {
+        this.filter["institution"] = {
+          acronym: { equals: this.institutionAcronym },
+        };
       }
       request(
         "graphql",
-        `query Databanks($filter:DatabanksFilter,$offset:Int,$limit:Int){Databanks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name},tables{name,variables{name}}}
+        `query Databanks($filter:DatabanksFilter,$offset:Int,$limit:Int){Databanks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{acronym,name},tables{name,variables{name}}}
         ,Databanks_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

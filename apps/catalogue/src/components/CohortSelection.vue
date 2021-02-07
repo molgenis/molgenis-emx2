@@ -3,7 +3,7 @@
   <MessageError v-else-if="error">{{ error }}</MessageError>
   <div v-else>
     <InputCheckbox
-      label="Choose collection(s)"
+      label="Choose resource(s)"
       :options="options"
       v-model="value"
       :list="true"

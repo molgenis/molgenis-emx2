@@ -1,15 +1,17 @@
 <template>
   <div>
+    <InputSearch v-model="search" />
+    <p v-if="count == 0">No tables found</p>
     <Pagination class="mt-2" :count="count" :limit="limit" v-model="page" />
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="card-columns mt-2">
       <TableCard
         v-for="table in tables"
-        :key="table.collection.acronym + ':' + table.name"
+        :key="table.resource.acronym + ':' + table.name"
         :table="table"
         :databankAcronym="databankAcronym"
-        :consortiumAcronym="consortiumAcronym"
-        :providerAcronym="providerAcronym"
+        :projectAcronym="projectAcronym"
+        :institutionAcronym="institutionAcronym"
       />
     </div>
   </div>
@@ -31,7 +33,11 @@ dd {
 
 <script>
 import { request } from "graphql-request";
-import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
+import {
+  MessageError,
+  Pagination,
+  InputSearch,
+} from "@mswertz/emx2-styleguide";
 import TableCard from "./TableCard";
 
 export default {
@@ -39,17 +45,19 @@ export default {
     TableCard,
     Pagination,
     MessageError,
+    InputSearch,
   },
   props: {
     databankAcronym: String,
-    providerAcronym: String,
-    consortiumAcronym: String,
+    institutionAcronym: String,
+    projectAcronym: String,
   },
   data() {
     return {
       tables: [],
       count: 0,
       error: null,
+      search: null,
       page: 1,
       limit: 9,
     };
@@ -58,14 +66,17 @@ export default {
     reload() {
       let filter = {};
       if (this.databankAcronym) {
-        filter.collection = { acronym: { equals: this.databankAcronym } };
+        filter.resource = { acronym: { equals: this.databankAcronym } };
       }
-      if (this.consortiumAcronym) {
-        filter.collection = { acronym: { equals: this.consortiumAcronym } };
+      if (this.projectAcronym) {
+        filter.resource = { acronym: { equals: this.projectAcronym } };
+      }
+      if (this.search) {
+        filter._search = this.search;
       }
       request(
         "graphql",
-        `query Tables($filter:TablesFilter,$offset:Int,$limit:Int){Tables(offset:$offset,limit:$limit,filter:$filter){name,collection{acronym,name,mg_tableclass},label,variables_agg{count}}
+        `query Tables($filter:TablesFilter,$offset:Int,$limit:Int){Tables(offset:$offset,limit:$limit,filter:$filter){name,resource{acronym,name,mg_tableclass},label,variables_agg{count}}
         ,Tables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -89,10 +100,13 @@ export default {
     databankAcronym() {
       this.reload();
     },
-    consortiumAcronym() {
+    projectAcronym() {
       this.reload();
     },
     page() {
+      this.reload();
+    },
+    search() {
       this.reload();
     },
   },

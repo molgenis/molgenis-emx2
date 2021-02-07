@@ -1,9 +1,30 @@
-<template></template>
+<template>
+  <div>
+    <h4>Variables</h4>
+    <div class="row">
+      <div class="col-3">
+        Topics:
+        <InputSearch v-model="search" />
+        <TopicFilter
+          :topics="topics"
+          @select="select"
+          :selected="selectedTopic"
+        />
+      </div>
+      {{ error }}
+      <div class="col-9">Variables:</div>
+      <VariablesList
+        :resource-acronym="resourceAcronym"
+        :topic="selectedTopic"
+      />
+    </div>
+  </div>
+</template>
 
 <script>
 import TreeNode from "./TreeFilter.vue";
 import CohortSelection from "./CohortSelection";
-import VariablePanel from "./VariablePanel";
+import VariablesList from "./VariablesList";
 import {
   ButtonAction,
   ButtonAlt,
@@ -23,11 +44,11 @@ import {
   Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import TreeMultiFilter from "./TreeMultiFilter";
+import TopicFilter from "./TopicSelector";
 
 export default {
   components: {
-    TreeMultiFilter,
+    TopicFilter,
     CohortSelection,
     LayoutNavTabs,
     TreeNode,
@@ -46,7 +67,10 @@ export default {
     InputString,
     InputSelect,
     ShowMore,
-    VariablePanel,
+    VariablesList,
+  },
+  props: {
+    resourceAcronym: String,
   },
   data: function () {
     return {
@@ -66,11 +90,8 @@ export default {
     };
   },
   methods: {
-    selectedTopics(topics) {
-      if (Array.isArray(topics)) {
-        return topics.filter((t) => t.checked).map((t) => t.name);
-      }
-      return [];
+    select(topic) {
+      this.selectedTopic = topic.name;
     },
     loadTopics() {
       request(
@@ -83,43 +104,6 @@ export default {
           );
           this.topics = this.topicsWithContents(this.topics);
           this.applySearch(this.topics, this.search);
-        })
-        .catch((error) => {
-          this.error = error.response.errors[0].message;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    loadVariables() {
-      let filter = {};
-      let search = "";
-      if (this.variableSearch && this.variableSearch.trim() != "") {
-        search = `search:"${this.variableSearch}",`;
-      }
-      if (this.selectedTopic) {
-        filter.topics = { name: { equals: this.selectedTopic } };
-      }
-      if (this.selectedCollections.length > 0) {
-        filter.collection = {
-          name: {
-            equals: this.selectedCollections,
-          },
-        };
-      }
-      request(
-        "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,${search}filter:$filter){name,collection{name},table{name},topics{name},valueLabels,missingValues,harmonisations{sourceTable{collection{name}}},format{name},description,unit{name},codeList{name,codes{value,label}}}
-        ,Variables_agg(${search}filter:$filter){count}}`,
-        {
-          filter: filter,
-          offset: (this.page - 1) * 10,
-          limit: this.limit,
-        }
-      )
-        .then((data) => {
-          this.variables = data.Variables;
-          this.count = data.Variables_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -157,26 +141,13 @@ export default {
       });
       return result;
     },
-    select(topic) {
-      this.selectedTopic = topic.name;
-    },
   },
   created() {
     this.loadTopics();
-    this.loadVariables();
   },
   watch: {
     search() {
       this.applySearch(this.topics, this.search);
-    },
-    variableSearch() {
-      this.loadVariables();
-    },
-    selectedCollections() {
-      this.loadVariables();
-    },
-    page() {
-      this.loadVariables();
     },
   },
 };

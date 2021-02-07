@@ -6,40 +6,40 @@
           :to="{
             name: tableView,
             params: {
-              collectionAcronym: table.collection.acronym,
-              consortiumAcronym: consortiumAcronym,
+              resourceAcronym: table.resource.acronym,
+              projectAcronym: projectAcronym,
               tableName: table.name,
-              providerAcronym: providerAcronym,
+              institutionAcronym: institutionAcronym,
             },
           }"
         >
           {{ table.name }}
         </RouterLink>
       </h5>
-      <div v-if="!databankAcronym && !consortiumAcronym">
+      <div v-if="!databankAcronym && !projectAcronym">
         <p
           class="cart-text"
-          v-if="table.collection.mg_tableclass.includes('Databank')"
+          v-if="table.resource.mg_tableclass.includes('Databank')"
         >
           <label>Databank:</label>
           <RouterLink
             :to="{
               name: 'table-databank',
-              params: { databankAcronym: table.collection.acronym },
+              params: { databankAcronym: table.resource.acronym },
             }"
           >
-            {{ table.collection.acronym }}
+            {{ table.resource.acronym }}
           </RouterLink>
         </p>
         <p class="cart-text" v-else>
-          <label>Consortium:</label>
+          <label>Project:</label>
           <RouterLink
             :to="{
-              name: 'table-consortium',
-              params: { consortiumAcronym: table.collection.acronym },
+              name: 'table-project',
+              params: { projectAcronym: table.resource.acronym },
             }"
           >
-            {{ table.collection.acronym }}
+            {{ table.resource.acronym }}
           </RouterLink>
         </p>
       </div>
@@ -56,16 +56,16 @@ export default {
   props: {
     table: Object,
     databankAcronym: String,
-    providerAcronym: String,
-    consortiumAcronym: String,
+    institutionAcronym: String,
+    projectAcronym: String,
   },
   computed: {
     tableView() {
-      if (this.$route.name.startsWith("provider")) {
-        return "provider-table";
+      if (this.$route.name.startsWith("instit")) {
+        return "institution-table";
       }
-      if (this.$route.name.startsWith("consort")) {
-        return "consortium-table";
+      if (this.$route.name.startsWith("project")) {
+        return "project-table";
       }
       if (this.$route.name.startsWith("databank")) {
         return "databank-table";

@@ -3,18 +3,18 @@
     <h1><small>Table:</small>&nbsp;{{ table.name }}</h1>
     <Property
       :label="
-        table.collection.mg_tableclass.includes('Consort')
-          ? 'Consortium'
+        table.resource.mg_tableclass.includes('Project')
+          ? 'Project'
           : 'Databank'
       "
     >
-      {{ table.collection.name }}
+      {{ table.resource.name }}
     </Property>
     <Property label="Description">{{ table.description }}</Property>
     <MessageError v-if="error"> {{ error }}</MessageError>
     <h4>Variables:</h4>
     <VariablesList
-      :collection-acronym="collectionAcronym"
+      :resource-acronym="resourceAcronym"
       :table-name="tableName"
     />
   </div>
@@ -30,8 +30,8 @@ export default {
     Property,
   },
   props: {
-    consortiumAcronym: String,
-    datasetAcronym: String,
+    projectAcronym: String,
+    resourceAcronym: String,
     tableName: String,
   },
   data() {
@@ -44,14 +44,12 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Tables($collection:CollectionsPkeyInput,$name:String){Tables(filter:{collection:{equals:[$collection]},name:{equals:[$name]}})
-        {name,collection{name,mg_tableclass},description,label,topics{name},completeness,timeline,populations{name},supplementaryInformation}}`,
+        `query Tables($resource:String,$name:String){Tables(filter:{resource:{acronym:{equals:[$resource]}},name:{equals:[$name]}})
+        {name,resource{name,mg_tableclass},description,label,topics{name},populations{name}}}`,
         {
-          collection: {
-            acronym: this.databankAcronym
-              ? this.databankAcronym
-              : this.consortiumAcronym,
-          },
+          resource: this.resourceAcronym
+            ? this.resourceAcronym
+            : this.projectAcronym,
           name: this.tableName,
         }
       )

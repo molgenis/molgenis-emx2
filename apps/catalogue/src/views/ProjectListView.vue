@@ -1,15 +1,15 @@
 <template>
   <div class="container-fluid">
-    <h1>Consortia</h1>
+    <h1>Projects</h1>
     <p>Collaboration, harmonisation and integration initiatives</p>
-    <ConsortiumList />
+    <ProjectList />
   </div>
 </template>
 
 <script>
-import ConsortiumList from "../components/ConsortiumList";
+import ProjectList from "../components/ProjectList";
 
 export default {
-  components: { ConsortiumList },
+  components: { ProjectList },
 };
 </script>

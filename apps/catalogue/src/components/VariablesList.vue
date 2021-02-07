@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ topic }}
     <InputSearch v-model="search" />
     <p v-if="count == 0">No variables found</p>
     <div v-else class="mt-2">
@@ -9,7 +10,7 @@
         <VariableCard
           v-for="variable in variables"
           :key="
-            variable.table.collection.acronym +
+            variable.table.resource.acronym +
             variable.table.name +
             variable.name
           "
@@ -54,8 +55,9 @@ export default {
     InputSearch,
   },
   props: {
-    collectionAcronym: String,
+    resourceAcronym: String,
     tableName: String,
+    topic: String,
   },
   data() {
     return {
@@ -71,8 +73,8 @@ export default {
     reload() {
       this.error = null;
       let filter = {};
-      if (this.collectionAcronym) {
-        filter.collection = { acronym: { equals: this.collectionAcronym } };
+      if (this.resourceAcronym) {
+        filter.resource = { acronym: { equals: this.resourceAcronym } };
       }
       if (this.tableName) {
         filter.table = { name: { equals: this.tableName } };
@@ -80,9 +82,12 @@ export default {
       if (this.search) {
         filter._search = this.search;
       }
+      if (this.topic) {
+        filter.topics = { name: { equals: this.topic } };
+      }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, table{name,collection{acronym,mg_tableclass}},label, format{name},unit{name}, description,categories{label,value,isMissing},harmonisations{match{name},sourceTable{name,collection{acronym}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, table{name,resource{acronym,mg_tableclass}},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceTable{name,resource{acronym}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -103,7 +108,7 @@ export default {
     },
   },
   watch: {
-    collectionAcronym() {
+    resourceAcronym() {
       this.reload();
     },
     tableName() {
@@ -113,6 +118,9 @@ export default {
       this.reload();
     },
     search() {
+      this.reload();
+    },
+    topic() {
       this.reload();
     },
   },

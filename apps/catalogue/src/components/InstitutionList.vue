@@ -12,9 +12,9 @@
     </div>
     <div class="row">
       <InstituteCard
-        v-for="Institute in Institutes"
-        :key="Institute.name"
-        :Institute="Institute"
+        v-for="institution in institutions"
+        :key="institution.name"
+        :institution="institution"
       />
     </div>
   </div>
@@ -23,11 +23,11 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import InstituteCard from "../components/InstituteCard";
+import InstitutionCard from "./InstitutionCard";
 
 export default {
   components: {
-    InstituteCard,
+    InstituteCard: InstitutionCard,
     Pagination,
     MessageError,
   },
@@ -50,7 +50,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      Institutes: [],
+      institutions: [],
     };
   },
   methods: {
@@ -61,8 +61,8 @@ export default {
       }
       request(
         "graphql",
-        `query Institutes($filter:InstitutesFilter,$offset:Int,$limit:Int){Institutes(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,description,website}
-        ,Institutes_agg(${searchString}filter:$filter){count}}`,
+        `query Institutions($filter:InstitutionsFilter,$offset:Int,$limit:Int){Institutions(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,description,website}
+        ,Institutions_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * this.limit,
@@ -70,8 +70,8 @@ export default {
         }
       )
         .then((data) => {
-          this.Institutes = data.Institutes;
-          this.count = data.Institutes_agg.count;
+          this.institutions = data.Institutions;
+          this.count = data.Institutions_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

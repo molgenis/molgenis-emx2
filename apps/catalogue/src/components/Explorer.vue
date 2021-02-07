@@ -15,7 +15,7 @@
             <div class="col">
               <h1>Variable Catalogue</h1>
               <p>
-                From cohorts, biobanks, registries, harmonisation consortia, and
+                From cohorts, biobanks, registries, harmonisation projects, and
                 more ...
               </p>
             </div>
@@ -38,9 +38,9 @@
               <router-link
                 class="nav-link"
                 :class="{ active: selected == 'Collections' }"
-                to="collections"
+                to="resources"
               >
-                Collections ({{ collectionCount }})
+                Collections ({{ resourceCount }})
               </router-link>
             </li>
             <li>
@@ -185,7 +185,7 @@ export default {
         },
         {
           name: "Host organisation",
-          refTable: "Providers",
+          refTable: "Institutes",
           columnType: "REF",
         },
         {
@@ -242,7 +242,7 @@ export default {
         filter.topics = { name: { equals: this.selectedTopic } };
       }
       if (this.selectedCollections.length > 0) {
-        filter.collection = {
+        filter.resource = {
           name: {
             equals: this.selectedCollections,
           },
@@ -262,7 +262,7 @@ export default {
       )
         .then((data) => {
           this.variableCount = data.Variables_agg.count;
-          this.collectionCount = data.Collections_agg.count;
+          this.resourceCount = data.Collections_agg.count;
           this.tableCount = data.Tables_agg.count;
         })
         .catch((error) => {

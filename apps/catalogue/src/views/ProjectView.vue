@@ -1,18 +1,17 @@
 <template>
   <div>
     <h1>
-      <small>Consortium:</small><br />{{ consortium.name }} ({{
-        consortium.acronym
-      }})
+      <small>Project:</small><br />{{ project.name }} ({{ project.acronym }})
     </h1>
     <label>Description:</label>
     <ReadMore
-      :text="consortium.description"
+      :text="project.description"
       :length="1000"
-      v-if="consortium.description"
+      v-if="project.description"
     />
     <h4>Tables:</h4>
-    <TableList :consortiumAcronym="consortium.acronym" />
+    <TableList :projectAcronym="project.acronym" />
+    <VariableTree :resourceAcronym="project.acronym" />
   </div>
 </template>
 
@@ -20,33 +19,35 @@
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
 import TableList from "../components/TableList";
+import VariableTree from "../components/VariableTree";
 
 export default {
   components: {
+    VariableTree,
     MessageError,
     ReadMore,
     TableList,
   },
   props: {
-    consortiumAcronym: String,
+    projectAcronym: String,
   },
   data() {
     return {
       error: null,
-      consortium: {},
+      project: {},
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Consortia($acronym:String){Consortia(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},Institute{acronym,name}, description,website, investigators{name}, supplementaryInformation, tables{name}}}`,
+        `query Projects($acronym:String){Projects(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,website, investigators{name}, supplementaryInformation, tables{name}}}`,
         {
-          acronym: this.consortiumAcronym,
+          acronym: this.projectAcronym,
         }
       )
         .then((data) => {
-          this.consortium = data.Consortia[0];
+          this.project = data.Projects[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -60,7 +61,7 @@ export default {
     this.reload();
   },
   watch: {
-    consortiumAcronym() {
+    projectAcronym() {
       this.reload();
     },
   },

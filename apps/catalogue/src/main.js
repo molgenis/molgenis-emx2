@@ -2,12 +2,12 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
 import CatalogueView from "./views/CatalogueView";
-import ProvidersListView from "./views/ProvidersListView";
-import ConsortiumListView from "./views/ConsortiumListView";
-import ConsortiumView from "./views/ConsortiumView";
+import InstitutionListView from "./views/InstitutionListView";
+import ConsortiumListView from "./views/ProjectListView";
+import ConsortiumView from "./views/ProjectView";
 import DatabankListView from "./views/DatabankListView";
 import VariablesListView from "./views/VariablesListView";
-import ProviderView from "./views/ProviderView";
+import InstitutionView from "./views/InstitutionView";
 import DatabankView from "./views/DatabankView";
 import TableView from "./views/TableView";
 import TableListView from "./views/TableListView";
@@ -20,42 +20,42 @@ const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     {
-      name: "providers",
-      path: "/providers",
-      component: ProvidersListView,
+      name: "institutions",
+      path: "/institutions",
+      component: InstitutionListView,
     },
     {
-      name: "provider",
-      path: "/providers/:providerAcronym",
-      component: ProviderView,
+      name: "institution",
+      path: "/institutions/:institutionAcronym",
+      component: InstitutionView,
       props: true,
     },
     {
-      name: "provider-databank",
-      path: "/providers/:providerAcronym/:databankAcronym",
+      name: "institution-databank",
+      path: "/institutions/:institutionAcronym/:databankAcronym",
       component: DatabankView,
       props: true,
     },
     {
-      name: "provider-table",
-      path: "/providers/:providerAcronym/:databankAcronym/:tableName",
+      name: "institution-table",
+      path: "/institutions/:institutionAcronym/:databankAcronym/:tableName",
       component: TableView,
       props: true,
     },
     {
-      name: "consortia",
-      path: "/consortia",
+      name: "projects",
+      path: "/projects",
       component: ConsortiumListView,
     },
     {
-      name: "consortium",
-      path: "/consortia/:consortiumAcronym",
+      name: "project",
+      path: "/projects/:projectAcronym",
       component: ConsortiumView,
       props: true,
     },
     {
-      name: "consortium-table",
-      path: "/consortia/:consortiumAcronym/:tableName",
+      name: "project-table",
+      path: "/projects/:projectAcronym/:tableName",
       component: TableView,
       props: true,
     },
@@ -83,7 +83,7 @@ const router = new VueRouter({
     },
     {
       name: "table",
-      path: "/tables/:databankAcronym/:tableName",
+      path: "/tables/:resourceAcronym/:tableName",
       component: TableView,
       props: true,
     },
@@ -94,8 +94,8 @@ const router = new VueRouter({
       props: true,
     },
     {
-      name: "tables-consortium",
-      path: "/tables-consortium/:consortiumAcronym",
+      name: "tables-project",
+      path: "/tables-project/:projectAcronym",
       component: ConsortiumView,
       props: true,
     },

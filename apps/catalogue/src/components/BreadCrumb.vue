@@ -15,31 +15,31 @@
         </RouterLink>
       </li>
       <li
-        v-if="providerAcronym"
+        v-if="institutionAcronym"
         class="breadcrumb-item active"
         aria-current="page"
       >
         <RouterLink
           :to="{
-            name: 'provider',
-            params: { providerAcronym: this.providerAcronym },
+            name: 'institute',
+            params: { institutionAcronym: this.institutionAcronym },
           }"
         >
-          {{ providerAcronym }}
+          {{ institutionAcronym }}
         </RouterLink>
       </li>
       <li
-        v-if="consortiumAcronym"
+        v-if="projectAcronym"
         class="breadcrumb-item active"
         aria-current="page"
       >
         <RouterLink
           :to="{
-            name: consortiumview,
-            params: { consortiumAcronym: this.consortiumAcronym },
+            name: projectview,
+            params: { projectAcronym: this.projectAcronym },
           }"
         >
-          {{ consortiumAcronym }}
+          {{ projectAcronym }}
         </RouterLink>
       </li>
       <li
@@ -76,18 +76,18 @@
 export default {
   props: {
     databankAcronym: String,
-    consortiumAcronym: String,
-    providerAcronym: String,
+    projectAcronym: String,
+    institutionAcronym: String,
     tableName: String,
   },
   computed: {
     mainview() {
       if (this.$route.name) {
-        if (this.$route.name.startsWith("provider")) {
-          return "providers";
+        if (this.$route.name.startsWith("institution")) {
+          return "institutions";
         }
         if (this.$route.name.startsWith("consort")) {
-          return "consortia";
+          return "projects";
         }
         if (this.$route.name.startsWith("databank")) {
           return "databanks";
@@ -101,29 +101,29 @@ export default {
       }
     },
     databankview() {
-      if (this.$route.name.startsWith("provider")) {
-        return "provider-databank";
+      if (this.$route.name.startsWith("institution")) {
+        return "institution-databank";
       }
       if (this.$route.name.startsWith("table")) {
         return "table-databank";
       }
       return "databank";
     },
-    consortiumview() {
+    projectview() {
       if (this.$route.name.startsWith("table")) {
-        return "table-consortium";
+        return "table-project";
       }
-      return "consortium";
+      return "project";
     },
     tableView() {
       if (this.$route.name.startsWith("databank")) {
         return "databank-table";
       }
       if (this.$route.name.startsWith("consort")) {
-        return "consortium-table";
+        return "project-table";
       }
-      if (this.$route.name.startsWith("provider")) {
-        return "provider-table";
+      if (this.$route.name.startsWith("institution")) {
+        return "institution-table";
       }
       return "table";
     },

@@ -2,14 +2,14 @@
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
     <h1>
-      <small>Institute</small><br />{{ Institute.name }} ({{
-        Institute.acronym
+      <small>institution</small><br />{{ institution.name }} ({{
+        institution.acronym
       }})
     </h1>
     <label>Website:</label>
-    <a :href="Institute.website">{{ Institute.website }}</a> <br />
+    <a :href="institution.website">{{ institution.website }}</a> <br />
     <label>Description:</label>
-    <p>{{ Institute.description }}</p>
+    <p>{{ institution.description }}</p>
     <h4>Databanks:</h4>
     <br />
     <DatabankList :institutionAcronym="institutionAcronym" />
@@ -33,20 +33,20 @@ export default {
   data() {
     return {
       error: null,
-      Institute: {},
+      institution: {},
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Institutes($acronym:String){Institutes(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,collections{acronym,name}}}`,
+        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,resources{acronym,name}}}`,
         {
           acronym: this.institutionAcronym,
         }
       )
         .then((data) => {
-          this.Institute = data.Institutes[0];
+          this.institution = data.Institutions[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

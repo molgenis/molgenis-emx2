@@ -9,8 +9,8 @@
       <div v-else>
         <BreadCrumb
           :databankAcronym="databankAcronym"
-          :providerAcronym="providerAcronym"
-          :consortiumAcronym="consortiumAcronym"
+          :institutionAcronym="institutionAcronym"
+          :projectAcronym="projectAcronym"
           :tableName="tableName"
         />
         <div class="container-fluid">
@@ -25,14 +25,12 @@
 
 <script>
 import { Molgenis } from "@mswertz/emx2-styleguide";
-import TableOfContents from "./components/TableOfContents";
 import BreadCrumb from "./components/BreadCrumb";
 
 export default {
   components: {
     BreadCrumb,
     Molgenis,
-    TableOfContents,
   },
   data() {
     return {
@@ -46,11 +44,11 @@ export default {
     databankAcronym() {
       return this.$route.params.databankAcronym;
     },
-    providerAcronym() {
-      return this.$route.params.providerAcronym;
+    institutionAcronym() {
+      return this.$route.params.institutionAcronym;
     },
-    consortiumAcronym() {
-      return this.$route.params.consortiumAcronym;
+    projectAcronym() {
+      return this.$route.params.projectAcronym;
     },
     tableName() {
       return this.$route.params.tableName;

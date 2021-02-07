@@ -7,7 +7,7 @@
         <Property
           v-if="!tableName"
           :label="
-            variable.table.collection.mg_tableclass.includes('Consort')
+            variable.table.resource.mg_tableclass.includes('Consort')
               ? 'Consortium'
               : 'Databank'
           "
@@ -16,11 +16,11 @@
             :to="{
               name: 'databank',
               params: {
-                databankAcronym: variable.table.collection.acronym,
+                databankAcronym: variable.table.resource.acronym,
               },
             }"
           >
-            {{ variable.table.collection.acronym }}
+            {{ variable.table.resource.acronym }}
           </RouterLink>
         </Property>
         <Property v-if="!tableName" label="table">
@@ -28,7 +28,7 @@
             :to="{
               name: 'table',
               params: {
-                databankAcronym: variable.table.collection.acronym,
+                databankAcronym: variable.table.resource.acronym,
                 tableName: variable.table.name,
               },
             }"
@@ -41,6 +41,11 @@
         </Property>
         <Property label="unit">
           {{ variable.unit ? variable.unit.name : "" }}
+        </Property>
+        <Property label="topics">
+          {{
+            variable.topics ? variable.topics.map((t) => t.name).join(",") : ""
+          }}
         </Property>
         <Property label="description">
           {{ variable.description }}
@@ -63,9 +68,9 @@
           <HarmonisationDetails
             v-for="h in variable.harmonisations"
             :key="JSON.stringify(h)"
-            :sourceCollection="h.sourceTable.collection.acronym"
+            :sourceCollection="h.sourceTable.resource.acronym"
             :source-table="h.sourceTable.name"
-            :target-collection="variable.table.collection.acronym"
+            :target-resource="variable.table.resource.acronym"
             :target-table="variable.table.name"
             :target-variable="variable.name"
             :match="variable.match ? variable.match.name : 'unknown'"

@@ -12,10 +12,10 @@
       />
     </div>
     <div class="row">
-      <ConsortiumCard
-        v-for="consortium in consortia"
-        :key="consortium.name"
-        :consortium="consortium"
+      <ProjectCard
+        v-for="project in projects"
+        :key="project.name"
+        :project="project"
       />
     </div>
   </div>
@@ -24,13 +24,11 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import ConsortiumCard from "./ConsortiumCard";
-import TableOfContents from "../components/TableOfContents";
+import ProjectCard from "./ProjectCard";
 
 export default {
   components: {
-    TableOfContents,
-    ConsortiumCard,
+    ProjectCard,
     Pagination,
     MessageError,
   },
@@ -53,7 +51,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      consortia: [],
+      projects: [],
     };
   },
   methods: {
@@ -64,8 +62,8 @@ export default {
       }
       request(
         "graphql",
-        `query Consortia($filter:ConsortiaFilter,$offset:Int,$limit:Int){Consortia(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name},tables{name,variables{name}}}
-        ,Consortia_agg(${searchString}filter:$filter){count}}`,
+        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name},tables{name,variables{name}}}
+        ,Projects_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -73,8 +71,8 @@ export default {
         }
       )
         .then((data) => {
-          this.consortia = data.Consortia;
-          this.count = data.Consortia_agg.count;
+          this.projects = data.Projects;
+          this.count = data.Projects_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
