@@ -41,9 +41,7 @@
                         @click="
                           selectedColumn = column;
                           selectedColumnName = selectedColumn.name;
-                          if (!selectedColumn.command) {
-                            selectedColumn.command = 'ALTER';
-                          }
+
                           if (!selectedColumn.oldName) {
                             selectedColumn.oldName = selectedColumn.name;
                           }
@@ -54,7 +52,6 @@
                         class="mr-2"
                         @click="
                           selectedColumn = { name: 'new column' };
-                          selectedColumn.command = 'CREATE';
                           selectedColumn.columnType = 'STRING';
                           selectedTable.columns.splice(
                             idx + 1,
@@ -68,7 +65,7 @@
                         icon="trash"
                         class="mr-2"
                         @click="
-                          column.command = 'DROP';
+                          column.drop = true;
                           selectedTable.columns.splice(
                             idx + 1,
                             0,
@@ -268,7 +265,7 @@ export default {
       this.loading = false;
     },
     loadSchema() {
-      (this.tableName = null), (this.value = null);
+      (this.tableName = null), (this.value = {});
       this.schema = null;
       this.selectedColumn = null;
       this.selectedColumnName = null;

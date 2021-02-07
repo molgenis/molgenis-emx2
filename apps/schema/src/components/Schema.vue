@@ -1,220 +1,209 @@
 <template>
   <div>
-    <RouterLink to="/formeditor">TO FORM EDITOR (Alpha!)</RouterLink>
-    <TableEditModal
-      v-if="tableAdd"
-      :schema="schema"
-      @close="
-        tableAdd = false;
-        loadSchema();
-      "
-    />
-    <TableEditModal
-      v-if="tableAlter"
-      :schema="schema"
-      :table="currentTable"
-      @close="
-        tableAlter = false;
-        loadSchema();
-      "
-    />
-    <TableDropModal
-      v-if="tableDrop"
-      :schema="schema"
-      :table="currentTable.name"
-      @close="
-        tableDrop = false;
-        loadSchema();
-      "
-    />
-    <ColumnEditModal
-      v-if="columnAlter"
-      :defaultValue="currentColumn"
-      :metadata="tables"
-      :schema="schema"
-      :table="currentTable.name"
-      @close="
-        columnAlter = false;
-        loadSchema();
-      "
-    />
-    <ColumnEditModal
-      v-if="columnAdd"
-      :metadata="tables"
-      :schema="schema"
-      :show="true"
-      :table="currentTable.name"
-      @close="
-        columnAdd = false;
-        loadSchema();
-      "
-    />
-    <ColumnDropModal
-      v-if="columnDrop"
-      :column="currentColumn.name"
-      :schema="schema"
-      :table="currentTable.name"
-      @close="
-        columnDrop = false;
-        loadSchema();
-      "
-    />
-    <Spinner v-if="loading" />
-    <MessageError v-else-if="error">{{ error }}</MessageError>
-    <div v-else :class="{ 'img-fullscreen': imgFullscreen }">
-      <div v-if="tables">
-        <IconAction
-          v-if="!loadingYuml"
-          :icon="imgFullscreen ? 'compress' : 'expand'"
-          class="fullscreen-icon"
-          @click="imgFullscreen = !imgFullscreen"
-        />
-        <h1>
-          Schema: <span style="text-transform: none">{{ schema }}</span>
-        </h1>
-        <InputCheckbox
-          v-model="showAttributes"
-          :defaultValue="showAttributes"
-          :options="['attributes', 'external']"
-        />
-        <Spinner v-if="loadingYuml" />
-        <div
-          v-scroll-lock="imgFullscreen"
-          style="text-align: center; overflow: auto"
-        >
-          <img
-            :key="JSON.stringify(showAttributes)"
-            :src="yuml"
-            :style="{
-              visibility: loadingYuml ? 'hidden' : 'visible',
-              'max-width': imgFullscreen ? 'none' : '100%',
-            }"
-            alt="Small"
-            @load="loadingYuml = false"
-          />
-        </div>
-      </div>
-    </div>
-    <div v-if="tables">
-      <span
-        v-for="table in tables.filter((t) => t.externalSchema == undefined)"
-        :key="table.name"
-      >
-        <a v-scroll-to="'#' + table.name" href=".">{{ table.name }}</a> |
-      </span>
-    </div>
-    <div>
-      {{ count }} tables found
-      <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
-      <div class="table-responsive" v-if="tables">
-        <table class="table table-hover table-sm table-bordered">
-          <tbody
+    <div class="row">
+      <div v-if="tables" class="col-2">
+        <div class="fixedContainer">
+          <h1>Tables:</h1>
+          <p
             v-for="table in tables.filter((t) => t.externalSchema == undefined)"
             :key="table.name"
           >
-            <tr>
-              <td>
-                <IconBar class="text-nowrap mt-4">
-                  <IconAction
-                    icon="edit"
-                    @click="
-                      currentTable = table;
-                      tableAlter = true;
-                    "
-                  />
-                  <IconDanger
-                    icon="trash"
-                    @click="
-                      currentTable = table;
-                      tableDrop = true;
-                    "
-                  />
-                </IconBar>
-              </td>
-              <td colspan="4">
-                <h3 :id="table.name" style="text-transform: none" class="mt-3">
-                  {{ table.name }}
-                  <span
-                    v-if="table.jsonldType"
-                    style="font-size: small; text-transform: none"
-                  >
-                    <<i>jsonldType:{{ table.jsonldType }}</i
-                    >> <br />
-                  </span>
-                </h3>
-                <small v-if="table.description">
-                  <i>Description: {{ table.description }}</i></small
+            <a v-scroll-to="'#' + table.name" href=".">{{ table.name }}</a>
+          </p>
+        </div>
+      </div>
+      <div class="col-10">
+        <RouterLink to="/formeditor">TO FORM EDITOR (Alpha!)</RouterLink>
+        <TableEditModal
+          v-if="tableAdd"
+          :schema="schema"
+          @close="
+            tableAdd = false;
+            loadSchema();
+          "
+        />
+        <TableEditModal
+          v-if="tableAlter"
+          :schema="schema"
+          :table="currentTable"
+          @close="
+            tableAlter = false;
+            loadSchema();
+          "
+        />
+        <TableDropModal
+          v-if="tableDrop"
+          :schema="schema"
+          :table="currentTable.name"
+          @close="
+            tableDrop = false;
+            loadSchema();
+          "
+        />
+        <ColumnEditModal
+          v-if="columnAlter"
+          :defaultValue="currentColumn"
+          :metadata="tables"
+          :schema="schema"
+          :table="currentTable.name"
+          @close="
+            columnAlter = false;
+            loadSchema();
+          "
+        />
+        <ColumnEditModal
+          v-if="columnAdd"
+          :metadata="tables"
+          :schema="schema"
+          :show="true"
+          :table="currentTable.name"
+          @close="
+            columnAdd = false;
+            loadSchema();
+          "
+        />
+        <ColumnDropModal
+          v-if="columnDrop"
+          :column="currentColumn.name"
+          :schema="schema"
+          :table="currentTable.name"
+          @close="
+            columnDrop = false;
+            loadSchema();
+          "
+        />
+        <Spinner v-if="loading" />
+        <MessageError v-else-if="error">{{ error }}</MessageError>
+        <Yuml v-else :schema="{ tables: tables }" />
+
+        <div>
+          {{ count }} tables found
+          <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
+          <div class="table-responsive" v-if="tables">
+            <table class="table table-hover table-sm table-bordered">
+              <tbody
+                v-for="table in tables.filter(
+                  (t) => t.externalSchema == undefined
+                )"
+                :key="table.name"
+              >
+                <tr>
+                  <td>
+                    <IconBar class="text-nowrap mt-4">
+                      <IconAction
+                        icon="edit"
+                        @click="
+                          currentTable = table;
+                          tableAlter = true;
+                        "
+                      />
+                      <IconDanger
+                        icon="trash"
+                        @click="
+                          currentTable = table;
+                          tableDrop = true;
+                        "
+                      />
+                    </IconBar>
+                  </td>
+                  <td colspan="4">
+                    <h3
+                      :id="table.name"
+                      style="text-transform: none"
+                      class="mt-3"
+                    >
+                      {{ table.name }}
+                      <span
+                        v-if="table.jsonldType"
+                        style="font-size: small; text-transform: none"
+                      >
+                        <<i>jsonldType:{{ table.jsonldType }}</i
+                        >> <br />
+                      </span>
+                    </h3>
+                    <small v-if="table.description">
+                      <i>Description: {{ table.description }}</i></small
+                    >
+                  </td>
+                  <td><a v-scroll-to="'#__top'" href=".">back to top</a></td>
+                </tr>
+                <tr>
+                  <th scope="col">
+                    <IconAction
+                      icon="plus"
+                      @click="
+                        currentTable = table;
+                        columnAdd = true;
+                      "
+                    />
+                  </th>
+                  <th scope="col">name</th>
+                  <th scope="col">type</th>
+                  <th scope="col">key</th>
+                  <th scope="col">description</th>
+                  <th scope="col">jsonldType</th>
+                </tr>
+                <tr
+                  v-for="column in table.columns == null
+                    ? []
+                    : table.columns.filter((c) => {
+                        return c.name != 'mg_tableclass' && !c.inherited;
+                      })"
+                  :key="column.name"
                 >
-              </td>
-              <td><a v-scroll-to="'#__top'" href=".">back to top</a></td>
-            </tr>
-            <tr>
-              <th scope="col">
-                <IconAction
-                  icon="plus"
-                  @click="
-                    currentTable = table;
-                    columnAdd = true;
-                  "
-                />
-              </th>
-              <th scope="col">name</th>
-              <th scope="col">type</th>
-              <th scope="col">key</th>
-              <th scope="col">description</th>
-              <th scope="col">jsonldType</th>
-            </tr>
-            <tr
-              v-for="column in table.columns == null
-                ? []
-                : table.columns.filter((c) => {
-                    return c.name != 'mg_tableclass' && !c.inherited;
-                  })"
-              :key="column.name"
-            >
-              <td>
-                <IconAction
-                  icon="edit"
-                  @click="
-                    currentTable = table;
-                    currentColumn = column;
-                    columnAlter = true;
-                  "
-                />
-                <IconDanger
-                  icon="trash"
-                  @click="
-                    currentTable = table;
-                    currentColumn = column;
-                    columnDrop = true;
-                  "
-                />
-              </td>
-              <td>{{ column.name }}<span v-if="!column.nillable">*</span></td>
-              <td>
-                <span>{{ column.columnType }}</span>
-                <span v-if="column.refTable">({{ column.refTable }})</span
-                >&nbsp;
-                <span v-if="column.nullable">nullable&nbsp;</span>
-                <span v-if="column.refLink">
-                  refLink({{ column.refLink }})&nbsp;
-                </span>
-                <span v-if="column.mappedBy">
-                  mappedBy({{ column.mappedBy }})&nbsp;
-                </span>
-              </td>
-              <td>{{ column.key }}</td>
-              <td>{{ column.description }}</td>
-              <td>{{ column.jsonldType }}</td>
-            </tr>
-          </tbody>
-        </table>
+                  <td>
+                    <IconAction
+                      icon="edit"
+                      @click="
+                        currentTable = table;
+                        currentColumn = column;
+                        columnAlter = true;
+                      "
+                    />
+                    <IconDanger
+                      icon="trash"
+                      @click="
+                        currentTable = table;
+                        currentColumn = column;
+                        columnDrop = true;
+                      "
+                    />
+                  </td>
+                  <td>
+                    {{ column.name }}
+                  </td>
+                  <td>
+                    <span>{{ column.columnType }}</span>
+                    <span v-if="column.refTable">({{ column.refTable }})</span
+                    >&nbsp;
+                    <span v-if="column.nullable">nullable&nbsp;</span>
+                    <span v-if="column.refLink">
+                      refLink({{ column.refLink }})&nbsp;
+                    </span>
+                    <span v-if="column.mappedBy">
+                      mappedBy({{ column.mappedBy }})&nbsp;
+                    </span>
+                  </td>
+                  <td>{{ column.key }}</td>
+                  <td>{{ column.description }}</td>
+                  <td>{{ column.jsonldType }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.fixedContainer {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
+
 @media (hover: hover) {
   .hover {
     opacity: 0;
@@ -278,6 +267,7 @@ import ColumnEditModal from "./ColumnEditModal";
 import ColumnDropModal from "./ColumnDropModal";
 import TableEditModal from "./TableEditModal";
 import TableDropModal from "./TableDropModal";
+import Yuml from "./Yuml";
 
 import VueScrollTo from "vue-scrollto";
 
@@ -298,6 +288,7 @@ export default {
     ColumnDropModal,
     TableDropModal,
     Molgenis,
+    Yuml,
   },
   props: {
     session: Object,
@@ -326,6 +317,7 @@ export default {
     // drop(column) {},
     loadSchema() {
       this.error = null;
+      this.loading = true;
       this.loading = true;
       this.schema = null;
       this.tables = null;
@@ -363,78 +355,6 @@ export default {
       if (this.tables)
         return this.tables.filter((t) => t.externalSchema == undefined).length;
       return 0;
-    },
-    yuml() {
-      this.loadingYuml = true;
-      if (!this.tables) return "";
-      let res = "http://yuml.me/diagram/plain;dir:bt/class/";
-      // classes
-      this.tables
-        .filter(
-          (t) => !t.externalSchema || this.showAttributes.includes("external")
-        )
-        .forEach((table) => {
-          res += `[${table.name}`;
-
-          if (
-            Array.isArray(table.columns) &&
-            this.showAttributes.includes("attributes")
-          ) {
-            res += "|";
-            table.columns
-              .filter((column) => !column.inherited)
-              .forEach((column) => {
-                if (column.columnType.includes("REF")) {
-                  res += `${column.name}:${column.refTable}`;
-                } else {
-                  res += `${column.name}:${column.columnType}`;
-                }
-                res += `［${column.nullable ? "0" : "1"}..${
-                  column.columnType.includes("ARRAY") ? "*" : "1"
-                }］;`; //notice I use not standard [] to not break yuml
-              });
-          }
-          if (table.externalSchema) {
-            res += `],`;
-          } else {
-            res += `{bg:dodgerblue}],`;
-          }
-        });
-
-      // relations
-      this.tables
-        .filter(
-          (t) =>
-            t.externalSchema == undefined ||
-            this.showAttributes.includes("external")
-        )
-        .forEach((table) => {
-          if (table.inherit) {
-            res += `[${table.inherit}]^-[${table.name}],`;
-          }
-          if (Array.isArray(table.columns)) {
-            table.columns
-              .filter(
-                (c) =>
-                  !c.inherited &&
-                  (c.refSchema == undefined ||
-                    this.showAttributes.includes("external"))
-              )
-              .forEach((column) => {
-                if (column.columnType === "REF") {
-                  console.log(JSON.stringify(column));
-
-                  res += `[${table.name}]->[${column.refTable}],`;
-                } else if (column.columnType === "REF_ARRAY") {
-                  console.log(JSON.stringify(column));
-
-                  res += `[${table.name}]-*>[${column.refTable}],`;
-                }
-              });
-          }
-        });
-
-      return res;
     },
   },
   created() {

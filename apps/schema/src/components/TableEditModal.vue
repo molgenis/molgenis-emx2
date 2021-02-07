@@ -22,7 +22,7 @@
   <!-- alter or add a table -->
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="(tableDraft.command = 'CREATE')">
+      <LayoutForm v-if="(tableDraft.oldName = null)">
         <InputString v-model="tableDraft.name" label="Table name" />
         <InputText v-model="tableDraft.description" label="Table Description" />
         <InputText
@@ -36,9 +36,7 @@
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="error">{{ error }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction
-        v-if="(tableDraft.command = 'CREATE')"
-        @click="executeCommand"
+      <ButtonAction v-if="tableDraft.oldName == false" @click="executeCommand"
         >{{ action }}
       </ButtonAction>
     </template>

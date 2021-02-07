@@ -4,9 +4,12 @@ module.exports = {
     port: "9090",
     proxy: {
       "^/graphql": {
-        target: "http://localhost:8080/Planning",
+        target: "http://localhost:8080/fdpTest",
       },
       "/apps": { target: "http://localhost:8080" },
     },
+  },
+  configureWebpack: (config) => {
+    config.devtool = "source-map";
   },
 };

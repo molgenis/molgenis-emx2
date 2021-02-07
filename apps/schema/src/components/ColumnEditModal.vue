@@ -150,9 +150,6 @@ export default {
       //todo refactor to follow v-model rules
       this.column = this.defaultValue;
       this.column.oldName = this.column.name;
-      this.column.command = "ALTER";
-    } else {
-      this.column.command = "CREATE";
     }
   },
 
