@@ -279,22 +279,22 @@ public class TestCompositeForeignKeys {
             .contains("Kwok"));
   }
 
-  @Test
-  public void testCompositeMref() {
-    Schema schema =
-        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "Mref");
-
-    schema.create(
-        table(
-            "Person2",
-            column("firstName").setPkey(),
-            column("lastName").setPkey(),
-            column("father", REF).setRefTable("Person2"),
-            column("mother", REF).setRefTable("Person2"),
-            column("children_firstName", MREF).setRefTable("Person2")));
-
-    assertEquals(1, schema.getTableNames().size());
-  }
+  //  @Test
+  //  public void testCompositeMref() {
+  //    Schema schema =
+  //        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "Mref");
+  //
+  //    schema.create(
+  //        table(
+  //            "Person2",
+  //            column("firstName").setPkey(),
+  //            column("lastName").setPkey(),
+  //            column("father", REF).setRefTable("Person2"),
+  //            column("mother", REF).setRefTable("Person2"),
+  //            column("children_firstName", MREF).setRefTable("Person2")));
+  //
+  //    assertEquals(1, schema.getTableNames().size());
+  //  }
 
   //  @Test
   //  public void testCompositeRefWithLinkToOtherColumn() {

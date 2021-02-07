@@ -61,7 +61,7 @@ public class TestMergeAlter {
                     .setRefTable(targetTableName)
                     .setNullable(true)));
 
-    schema.merge(newSchema);
+    schema.migrate(newSchema);
 
     schema.getTable(targetTableName).insert(new Row().set(ID_COLUMN, "target1"));
     schema

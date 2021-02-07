@@ -91,7 +91,7 @@ bbmri_nl_sample_collections,publications,Publications,mref,bbmri_nl_publications
 bbmri_nl_sample_collections,organisation,Organisational structure,compound,,true,false,,,,,false,false,false,false,true,false,,,,,The organisational structure,,,,,,,,,,,,,,,,,
 bbmri_nl_sample_collections,contact_person,Contact person,mref,bbmri_nl_persons,false,false,,,,,false,false,false,true,true,false,organisation,,,,The contact person for general inquiries about this particular sample collection,,,,,,,,,,,,,,,,,
 bbmri_nl_sample_collections,principal_investigators,Principal investigators,mref,bbmri_nl_persons,false,false,,,,,false,false,false,true,true,false,organisation,,,,The principal investigators involved in this sample collection,,,,,,,,,,,,,,,,,
-bbmri_nl_sample_collections,institutes,Institutes,mref,bbmri_nl_juristic_persons,false,false,,,,,false,false,false,true,true,false,organisation,,,,Institutes participating in the collection,,,,,,,,,,,,,,,,,
+bbmri_nl_sample_collections,institutes,institutions,mref,bbmri_nl_juristic_persons,false,false,,,,,false,false,false,true,true,false,organisation,,,,institutions participating in the collection,,,,,,,,,,,,,,,,,
 bbmri_nl_sample_collections,biobanks,Biobanks,mref,bbmri_nl_biobanks,true,false,,,,,false,false,false,false,true,false,organisation,,,,The biobanks that host this particular sample collection,,,,,,,,,,,,,,,,,
 bbmri_nl_sample_collections,website,Website,hyperlink,,true,false,,,,,false,false,false,false,true,false,organisation,,,,The webpage of sample collection,,,,,,,,,,,,,,,,,
 bbmri_nl_sample_collections,sample_access,Sample access policy,compound,,true,false,,,,,false,false,false,false,true,false,,,,,The policy for accessing samples,,,,,,,,,,,,,,,,,

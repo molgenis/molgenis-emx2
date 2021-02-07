@@ -80,7 +80,7 @@ public class CsvApi {
 
   static String mergeMetadata(Request request, Response response) throws IOException {
     SchemaMetadata schema = Emx2.loadEmx2File(getUploadedFile(request), getSeperator(request));
-    getSchema(request).merge(schema);
+    getSchema(request).migrate(schema);
     response.status(200);
     return "add/update metadata success";
   }

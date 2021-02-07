@@ -70,11 +70,14 @@ class SqlTableMetadata extends TableMetadata {
     }
     getDatabase()
         .tx(
-            dsl -> {
+            db -> {
+              DSLContext jooq = ((SqlDatabase) db).getJooq();
               Column newColumn = new Column(this, column);
 
               // check if reference and of different size
               if (REF_ARRAY.equals(newColumn.getColumnType())
+                  && !newColumn.getName().equals(oldColumn.getName())
+                  && !newColumn.getColumnType().equals(oldColumn.getColumnType())
                   && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
                 throw new MolgenisException(
                     "Alter column of '"
@@ -95,28 +98,30 @@ class SqlTableMetadata extends TableMetadata {
 
               // drop old key, if touched
               if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
-                executeDropKey(getJooq(), oldColumn.getTable(), oldColumn.getKey());
+                executeDropKey(jooq, oldColumn.getTable(), oldColumn.getKey());
               }
 
               // drop referential constraints around this column
-              executeRemoveRefConstraints(getJooq(), oldColumn);
+              executeRemoveRefConstraints(jooq, oldColumn);
 
               // remove refbacks if exist
               executeRemoveRefback(oldColumn, newColumn);
 
               // rename and retype if needed
-              executeAlterType(getJooq(), oldColumn, newColumn);
-              executeAlterName(getJooq(), oldColumn, newColumn);
-              executeSetNullable(getJooq(), newColumn);
+              executeAlterType(jooq, oldColumn, newColumn);
+              executeAlterName(jooq, oldColumn, newColumn);
 
               // change nullable?
               if (oldColumn.isNullable() != null
                   && !oldColumn.isNullable().equals(newColumn.isNullable())) {
-                executeSetNullable(getJooq(), newColumn);
+                executeSetNullable(jooq, newColumn);
               }
 
               // update the metadata so we can use it for new keys and references
               super.alterColumn(name, newColumn);
+
+              // reapply ref constrainst
+              executeCreateRefConstraints(jooq, newColumn);
 
               // check if refback constraints need updating
               reapplyRefbackContraints(oldColumn, newColumn);
@@ -124,13 +129,12 @@ class SqlTableMetadata extends TableMetadata {
               // create/update key, if touched
               if (newColumn.getKey() != oldColumn.getKey()) {
                 createOrReplaceKey(
-                    getJooq(), this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
+                    jooq, this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
               }
 
               // delete old column if name changed, then save any other metadata changes
-              if (!oldColumn.getName().equals(newColumn.getName()))
-                deleteColumn(getJooq(), oldColumn);
-              saveColumnMetadata(getJooq(), newColumn);
+              if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(jooq, oldColumn);
+              saveColumnMetadata(jooq, newColumn);
             });
     getDatabase().getListener().schemaChanged(getSchemaName());
 
@@ -311,5 +315,21 @@ class SqlTableMetadata extends TableMetadata {
 
   private SqlDatabase getDatabase() {
     return (SqlDatabase) getSchema().getDatabase();
+  }
+
+  @Override
+  public TableMetadata drop() {
+    long start = System.currentTimeMillis();
+    getDatabase()
+        .tx(
+            db -> {
+              DSLContext jooq = ((SqlDatabase) db).getJooq();
+              executeDropTable(jooq, this);
+              MetadataUtils.deleteTable(jooq, this);
+            });
+    ((SqlSchemaMetadata) getSchema()).reload();
+    getDatabase().getListener().schemaChanged(getSchemaName());
+    log(start, "dropped");
+    return this;
   }
 }

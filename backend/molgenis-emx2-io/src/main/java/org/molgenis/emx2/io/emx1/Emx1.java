@@ -33,7 +33,8 @@ public class Emx1 {
     loadRefRelationships(emx1schema, entities, attributes);
 
     // load into target schema
-    targetSchema.merge(emx1schema);
+    targetSchema.migrate(emx1schema);
+
     // revert map
     Map<String, String> tableToSheet = new LinkedHashMap<>();
     for (Map.Entry<String, Emx1Entity> entry : entities.entrySet()) {

@@ -35,7 +35,7 @@ public class Emx2 {
 
   public static void inputMetadata(TableStore store, Schema schema) {
     SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
-    schema.merge(emx2Schema);
+    schema.migrate(emx2Schema);
   }
 
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {

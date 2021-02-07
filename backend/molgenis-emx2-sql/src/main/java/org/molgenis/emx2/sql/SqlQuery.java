@@ -161,9 +161,11 @@ public class SqlQuery extends QueryBean {
                 tableAlias + "-" + column.getName(),
                 columnAlias,
                 selection.getSubselect(column.getName())));
-      } else if (MREF.equals(column.getColumnType())) {
-        fields.add(rowMrefSubselect(column, tableAlias).as(columnAlias));
-      } else if (REFBACK.equals(column.getColumnType())) {
+      } else
+      //        if (MREF.equals(column.getColumnType())) {
+      //        fields.add(rowMrefSubselect(column, tableAlias).as(columnAlias));
+      //      } else
+      if (REFBACK.equals(column.getColumnType())) {
         fields.add(
             field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
       } else if (column.isReference()) { // REF and REF_ARRAY
@@ -407,22 +409,27 @@ public class SqlQuery extends QueryBean {
                   conditions.add(
                       exists(selectFrom(jooq.select(unnest).asTable().naturalJoin(subQuery))));
                 }
-              } else if (MREF.equals(c.getColumnType())
-                  || (REFBACK.equals(c.getColumnType())
-                      && MREF.equals(c.getMappedByColumn().getColumnType()))) {
-                // (pkey) in (junctionTable natural join filterQuery)
-                List<Field> pkey =
-                    c.getTable().getPrimaryKeyColumns().stream()
-                        .map(Column::getJooqField)
-                        .collect(Collectors.toList());
-                Table joinTable = table(name(column.getTableName() + "-" + column.getName()));
-                if (REFBACK.equals(c.getColumnType())) {
-                  joinTable = table(name(c.getRefTableName() + "-" + c.getMappedBy()));
-                }
-                conditions.add(
-                    row(pkey)
-                        .in(table.getJooq().select(pkey).from(joinTable).naturalJoin(subQuery)));
-              } else if (REFBACK.equals(c.getColumnType())) {
+              } else
+              //                if (MREF.equals(c.getColumnType())
+              //                  || (REFBACK.equals(c.getColumnType())
+              //                      && MREF.equals(c.getMappedByColumn().getColumnType()))) {
+              //                // (pkey) in (junctionTable natural join filterQuery)
+              //                List<Field> pkey =
+              //                    c.getTable().getPrimaryKeyColumns().stream()
+              //                        .map(Column::getJooqField)
+              //                        .collect(Collectors.toList());
+              //                Table joinTable = table(name(column.getTableName() + "-" +
+              // column.getName()));
+              //                if (REFBACK.equals(c.getColumnType())) {
+              //                  joinTable = table(name(c.getRefTableName() + "-" +
+              // c.getMappedBy()));
+              //                }
+              //                conditions.add(
+              //                    row(pkey)
+              //
+              // .in(table.getJooq().select(pkey).from(joinTable).naturalJoin(subQuery)));
+              //              } else
+              if (REFBACK.equals(c.getColumnType())) {
                 Column mappedBy = c.getMappedByColumn();
                 List<Field> pkey =
                     c.getTable().getPrimaryKeyFields().stream().collect(Collectors.toList());
@@ -867,25 +874,29 @@ public class SqlQuery extends QueryBean {
                                 field(name(subAlias, ref.getName()))))
                 .collect(Collectors.toList()));
       }
-    } else if (MREF.equals(column.getColumnType())) {
-      String joinTable = column.getTableName() + "-" + column.getName();
-      String joinTableAlias = "joinTable";
-      List<Condition> where = new ArrayList<>();
-      // MTM table should match on the remote key
-      for (Reference ref : column.getReferences()) {
-        where.add(
-            field(name(subAlias, ref.getRefTo())).eq(field(name(joinTableAlias, ref.getName()))));
-      }
-      // MTM table should match on primary key
-      for (Column key : column.getTable().getPrimaryKeyColumns()) {
-        where.add(
-            field(name(tableAlias, key.getName())).eq(field(name(joinTableAlias, key.getName()))));
-      }
-      foreignKeyMatch.add(
-          exists(
-              selectFrom(table(name(column.getSchemaName(), joinTable)).as(joinTableAlias))
-                  .where(where)));
-    } else {
+    }
+    //    else if (MREF.equals(column.getColumnType())) {
+    //      String joinTable = column.getTableName() + "-" + column.getName();
+    //      String joinTableAlias = "joinTable";
+    //      List<Condition> where = new ArrayList<>();
+    //      // MTM table should match on the remote key
+    //      for (Reference ref : column.getReferences()) {
+    //        where.add(
+    //            field(name(subAlias, ref.getRefTo())).eq(field(name(joinTableAlias,
+    // ref.getName()))));
+    //      }
+    //      // MTM table should match on primary key
+    //      for (Column key : column.getTable().getPrimaryKeyColumns()) {
+    //        where.add(
+    //            field(name(tableAlias, key.getName())).eq(field(name(joinTableAlias,
+    // key.getName()))));
+    //      }
+    //      foreignKeyMatch.add(
+    //          exists(
+    //              selectFrom(table(name(column.getSchemaName(), joinTable)).as(joinTableAlias))
+    //                  .where(where)));
+    //    }
+    else {
       throw new SqlQueryException(
           "Internal error: For column "
               + column.getTable().getTableName()

@@ -4,7 +4,6 @@ import static junit.framework.TestCase.assertEquals;
 import static org.molgenis.emx2.SelectColumn.s;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -12,7 +11,6 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -48,24 +46,25 @@ public class TestLegacyImport {
     executeTest(store, schema);
   }
 
-  @Test
-  public void testExportImportEmx1() throws IOException {
-
-    Schema schema = db.dropCreateSchema("testExm1ExportImport");
-    PetStoreExample.create(schema.getMetadata());
-
-    File temp = File.createTempFile("exm1", ".xlsx");
-    // delete the file, we will create
-    temp.delete();
-    MolgenisIO.toEmx1ExcelFile(temp.toPath(), schema);
-
-    schema = db.dropCreateSchema("testExm1ExportImport");
-    MolgenisIO.fromExcelFile(temp.toPath(), schema);
-
-    schema.getTableNames().contains("Pet");
-
-    Assert.assertEquals(5, schema.getTableNames().size());
-  }
+  //  @Test
+  //  public void testExportImportEmx1() throws IOException {
+  //
+  //    Schema schema = db.dropCreateSchema("testExm1ExportImport");
+  //    PetStoreExample.create(schema.getMetadata());
+  //
+  //    File temp = File.createTempFile("exm1", ".xlsx");
+  //
+  //    // delete the file, we will create
+  //    temp.delete();
+  //    MolgenisIO.toEmx1ExcelFile(temp.toPath(), schema);
+  //
+  //    schema = db.dropCreateSchema("testExm1ExportImport");
+  //    MolgenisIO.fromExcelFile(temp.toPath(), schema);
+  //
+  //    schema.getTableNames().contains("Pet");
+  //
+  //    Assert.assertEquals(5, schema.getTableNames().size());
+  //  }
 
   private void executeTest(TableStore store, Schema schema) {
     MolgenisIO.inputAll(store, schema);

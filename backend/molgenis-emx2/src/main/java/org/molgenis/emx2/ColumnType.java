@@ -38,8 +38,8 @@ public enum ColumnType {
   // RELATIONSHIP
   REF(Object.class),
   REF_ARRAY(Object[].class),
-  @Deprecated
-  MREF(Object[].class),
+  // @Deprecated
+  // MREF(Object[].class),
   REFBACK(Object[].class);
 
   private Class javaType;

@@ -1,50 +1,52 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
     <h1>
-      <small>Provider</small><br />{{ provider.name }} ({{ provider.acronym }})
+      <small>Consortium:</small><br />{{ consortium.name }} ({{
+        consortium.acronym
+      }})
     </h1>
-    <label>Website:</label>
-    <a :href="provider.website">{{ provider.website }}</a> <br />
     <label>Description:</label>
-    <p>{{ provider.description }}</p>
-    <h4>Databanks:</h4>
-    <br />
-    <DatabankList :providerAcronym="providerAcronym" />
+    <ReadMore
+      :text="consortium.description"
+      :length="1000"
+      v-if="consortium.description"
+    />
+    <h4>Tables:</h4>
+    <TableList :consortiumAcronym="consortium.acronym" />
   </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
-import DatabankList from "../components/DatabankList";
+import TableList from "../components/TableList";
 
 export default {
   components: {
-    DatabankList,
     MessageError,
     ReadMore,
+    TableList,
   },
   props: {
-    providerAcronym: String,
+    consortiumAcronym: String,
   },
   data() {
     return {
       error: null,
-      provider: {},
+      consortium: {},
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Providers($acronym:String){Providers(filter:{acronym:{equals:[$acronym]}}){name,acronym,description,website,collections{acronym,name}}}`,
+        `query Consortia($acronym:String){Consortia(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},Institute{acronym,name}, description,website, investigators{name}, supplementaryInformation, tables{name}}}`,
         {
-          acronym: this.providerAcronym,
+          acronym: this.consortiumAcronym,
         }
       )
         .then((data) => {
-          this.provider = data.Providers[0];
+          this.consortium = data.Consortia[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -58,7 +60,7 @@ export default {
     this.reload();
   },
   watch: {
-    providerAcronym() {
+    consortiumAcronym() {
       this.reload();
     },
   },

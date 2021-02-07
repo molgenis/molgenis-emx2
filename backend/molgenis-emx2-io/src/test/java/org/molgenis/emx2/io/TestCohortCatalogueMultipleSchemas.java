@@ -33,7 +33,7 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(23, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    assertEquals(27, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
     //
     //    loadSchema("CohortsLocal.xlsx", localSchema);
     //    assertEquals(9, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
@@ -51,7 +51,7 @@ public class TestCohortCatalogueMultipleSchemas {
 
     database.tx(
         db -> {
-          schema.merge(source);
+          schema.migrate(source);
         });
 
     // don't put alter in same transaction as update
@@ -64,7 +64,7 @@ public class TestCohortCatalogueMultipleSchemas {
     // repeat for idempotency test (should not change anything)
     database.tx(
         db -> {
-          schema.merge(source);
+          schema.migrate(source);
         });
 
     database.tx(

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.ArrayList;
@@ -19,15 +18,26 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public SqlSchemaMetadata(SqlDatabase db, String name) {
     super(db, MetadataUtils.loadSchemaMetadata(db.getJooq(), new SchemaMetadata(name)));
+    this.reload();
+  }
+
+  public void reload() {
+
     if (logger.isInfoEnabled()) {
-      logger.info("loading schema '{}' as user {}", name, db.getActiveUser());
+      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
     }
     long start = System.currentTimeMillis();
-    for (TableMetadata table : MetadataUtils.loadTables(db.getJooq(), this)) {
+    this.tables.clear();
+    this.settings.clear();
+    for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
+    for (Setting setting : MetadataUtils.loadSettings(getDatabase().getJooq(), this)) {
+      super.setSetting(setting.getKey(), setting.getValue());
+    }
     if (logger.isInfoEnabled()) {
-      logger.info("loading schema '{}' complete in {}ms", name, System.currentTimeMillis() - start);
+      logger.info(
+          "loading schema '{}' complete in {}ms", getName(), System.currentTimeMillis() - start);
     }
   }
 
@@ -66,15 +76,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void drop(String tableName) {
-    long start = System.currentTimeMillis();
-    getDatabase()
-        .tx(
-            dsl -> {
-              executeDropTable(getJooq(), getTableMetadata(tableName));
-              super.drop(tableName);
-            });
-    getDatabase().getListener().schemaChanged(getName());
-    log(start, "dropped");
+    getTableMetadata(tableName).drop();
   }
 
   @Override

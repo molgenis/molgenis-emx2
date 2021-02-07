@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.Command.*;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
@@ -213,122 +212,134 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void merge(SchemaMetadata mergeSchema) {
+  public void migrate(SchemaMetadata mergeSchema) {
     tx(
         database -> {
+
+          // create list, sort dependency order
           List<TableMetadata> mergeTableList = new ArrayList<>();
           mergeSchema.setDatabase(database);
           for (String tableName : mergeSchema.getTableNames()) {
             mergeTableList.add(mergeSchema.getTableMetadata(tableName));
           }
-
-          // sort dependency order
           sortTableByDependency(mergeTableList);
 
-          // first add all tables not yet in schema
+          // first loop
+          // create, alter
+          // (drop is last thing we do, as columns might need deleting)
+          // todo, fix if we rename to existing tables, then order matters
           for (TableMetadata mergeTable : mergeTableList) {
-            if (getTable(mergeTable.getTableName()) == null) {
-              this.create(new TableMetadata(mergeTable.getTableName()));
+
+            // get the old table, if exists
+            Table oldTableSource =
+                mergeTable.getOldName() == null
+                    ? this.getTable(mergeTable.getTableName())
+                    : this.getTable(mergeTable.getOldName());
+            TableMetadata oldTable = oldTableSource != null ? oldTableSource.getMetadata() : null;
+
+            // set oldName in case table does exist, and oldName was not provided
+            if (mergeTable.getOldName() == null && oldTable != null) {
+              mergeTable.setOldName(oldTable.getTableName());
+            }
+
+            // create table if not exists
+            if (oldTable == null && !mergeTable.isDrop()) {
+              this.create(new TableMetadata(mergeTable.getTableName())); // only the name
             }
           }
 
-          //  add missing columns (except refback), remove constraints of type changes, remove
-          // refback
-          for (TableMetadata newTable : mergeTableList) {
-            TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
+          // for create/alter
+          //  add missing columns (except refback),
+          //  remove triggers in case of table name or column type changes
+          //  remove refback
+          List<String> created = new ArrayList<>();
+          for (TableMetadata mergeTable : mergeTableList) {
 
-            // update inheritance
-            if (newTable.getInherit() != null) {
-              if (newTable.getImportSchema() != null) {
-                oldTable.setImportSchema(newTable.getImportSchema());
+            if (!mergeTable.isDrop()) {
+              // assume creates/renames have been done
+              TableMetadata oldTable = this.getTable(mergeTable.getTableName()).getMetadata();
+
+              // set inheritance
+              if (mergeTable.getInherit() != null) {
+                if (mergeTable.getImportSchema() != null) {
+                  oldTable.setImportSchema(mergeTable.getImportSchema());
+                }
+                oldTable.setInherit(mergeTable.getInherit());
+              } else if (oldTable.getInherit() != null) {
+                oldTable.removeInherit();
               }
-              oldTable.setInherit(newTable.getInherit());
-            } else if (oldTable.getInherit() != null) {
-              oldTable.removeInherit();
-            }
 
-            // update table settings
-            oldTable.setSettings(newTable.getSettings());
-            oldTable.setDescription(newTable.getDescription());
-            oldTable.setJsonldType(newTable.getJsonldType());
-            MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
+              // update table settings
+              oldTable.setSettings(mergeTable.getSettings());
+              oldTable.setDescription(mergeTable.getDescription());
+              oldTable.setJsonldType(mergeTable.getJsonldType());
+              MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
 
-            // add missing (except refback), remove triggers if existing column if type changed
-            // drop ones marked with 'drop'
-            for (Column newColumn : newTable.getColumns()) {
-              Column oldColumn =
-                  newColumn.getOldName() != null
-                      ? oldTable.getColumn(newColumn.getOldName())
-                      : oldTable.getColumn(newColumn.getName());
-              if (oldColumn != null) {
-                if (CREATE.equals(newColumn.getCommand())) {
-                  throw new MolgenisException(
-                      "Cannot create column "
-                          + newColumn.getTableName()
-                          + "."
-                          + newColumn.getName()
-                          + ": column exists");
-                } else if (newColumn.getCommand() == null) {
-                  newColumn.setCommand(ALTER);
-                } else if (DROP.equals(newColumn.getCommand())) {
-                  // execute drop
+              // add missing (except refback),
+              // remove triggers if existing column if type changed
+              // drop columns marked with 'drop'
+              for (Column newColumn : mergeTable.getColumns()) {
+                Column oldColumn =
+                    newColumn.getOldName() != null
+                        ? oldTable.getColumn(newColumn.getOldName())
+                        : oldTable.getColumn(newColumn.getName());
+
+                // drop columns that need dropping
+                if (newColumn.isDrop()) {
                   oldTable.dropColumn(oldColumn.getName());
-                }
-              } else {
-                if (newColumn.getCommand() == null) {
-                  if (newColumn.getOldName() == null) {
-                    newColumn.setCommand(CREATE);
-                  } else {
-                    newColumn.setCommand(ALTER);
-                  }
-                }
-              }
-              if (CREATE.equals(newColumn.getCommand())) {
-                // if column does not exist then create except refback and inheritance
-                if (!(oldTable.getInherit() != null
+                } else
+                // if new column and not inherited
+                if (oldColumn == null
+                    && !(oldTable.getInherit() != null
                         && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
                     && !newColumn.getColumnType().equals(REFBACK)) {
                   oldTable.add(newColumn);
-                }
-              } else if (oldColumn != null
-                  && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+                  created.add(newColumn.getTableName() + "." + newColumn.getName());
+                } else
                 // if column exist but type has changed remove triggers
-                executeRemoveRefConstraints(getMetadata().getJooq(), oldColumn);
+                if (oldColumn != null
+                    && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+                  executeRemoveRefConstraints(getMetadata().getJooq(), oldColumn);
+                }
               }
             }
           }
 
-          // second pass, update existing columns to the new types, and new names, reconnect refback
+          // second pass,
+          // update existing columns to the new types, and new names, reconnect refback
           for (TableMetadata newTable : mergeTableList) {
-            TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
-            for (Column newColumn : newTable.getLocalColumns()) {
-              Column oldColumn =
-                  newColumn.getOldName() != null
-                      ? oldTable.getColumn(newColumn.getOldName()) // when renaming
-                      : oldTable.getColumn(newColumn.getName()); // when not renaming
-              if (ALTER.equals(newColumn.getCommand())) {
-                if (oldColumn == null) {
-                  throw new MolgenisException(
-                      "Cannot alter column "
-                          + newColumn.getTableName()
-                          + "."
-                          + newColumn.getOldName()
-                          + ": column '"
-                          + newColumn.getOldName()
-                          + "' doesn't exist");
-                }
-                oldTable.alterColumn(oldColumn.getName(), newColumn);
-              }
+            if (!newTable.isDrop()) {
+              TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
+              for (Column newColumn : newTable.getLocalColumns()) {
+                Column oldColumn =
+                    newColumn.getOldName() != null
+                        ? oldTable.getColumn(newColumn.getOldName()) // when renaming
+                        : oldTable.getColumn(newColumn.getName()); // when not renaming
 
-              // create refback relations for new and existing
-              if (newColumn.getColumnType().equals(REFBACK)) {
-                this.getTable(newTable.getTableName()).getMetadata().add(newColumn);
+                if (oldColumn != null && !newColumn.isDrop()) {
+                  if (!created.contains(newColumn.getTableName() + "." + newColumn.getName())) {
+                    oldTable.alterColumn(oldColumn.getName(), newColumn);
+                  }
+                } else
+                // don't forget to add the refbacks
+                if (oldColumn == null && newColumn.getColumnType().equals(REFBACK)) {
+                  this.getTable(newTable.getTableName()).getMetadata().add(newColumn);
+                }
               }
+            }
+          }
+
+          // finally, drop tables, in reverse dependency order
+          Collections.reverse(mergeTableList);
+          for (TableMetadata mergeTable : mergeTableList) {
+            // idempotent so we only drop if exists
+            if (mergeTable.isDrop() && getTable(mergeTable.getOldName()) != null) {
+              getTable(mergeTable.getOldName()).getMetadata().drop();
             }
           }
         });
-
-    db.getListener().schemaChanged(this.metadata.getName());
+    this.getMetadata().reload();
+    db.getListener().schemaChanged(getName());
   }
 
   public String getName() {

@@ -145,57 +145,60 @@ public class TestGraphQLCompositeKeys {
     assertEquals(1, result.at("/RefTable_agg/count").asInt());
   }
 
-  @Test
-  public void testMref() throws IOException {
-    // create schema (best edit this in graphql editor)
-    execute(
-        "mutation {\n"
-            + "  change(\n"
-            + "    tables: [\n"
-            + "      { name: \"TargetTable2\", columns: [{ name: \"firstName\", key: 1 },{ name: \"lastName\", key: 1 }] }\n"
-            + "      {\n"
-            + "        name: \"RefTable2\"\n"
-            + "        columns: [\n"
-            + "          { name: \"id\", key: 1 }\n"
-            + "          { name: \"ref\", columnType: \"MREF\", refTable: \"TargetTable2\"}\n"
-            + "        ]\n"
-            + "      }\n"
-            + "    ]\n"
-            + "  ) {\n"
-            + "    message\n"
-            + "  }\n"
-            + "}");
-
-    // have to reload graphql
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
-
-    // insert some data, enough to check if foreign keys are joined correctly
-    execute(
-        "mutation{insert(TargetTable2:["
-            + "\n{firstName:\"Donald\",lastName:\"Duck\"}"
-            + "\n{firstName:\"Katrien\",lastName:\"Duck\"}"
-            + "\n{firstName:\"Katrien\",lastName:\"Mouse\"}"
-            + "\n{firstName:\"Donald\",lastName:\"Mouse\"}"
-            + "\n], RefTable2:["
-            + "\n{id:\"1\", ref:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}"
-            + "\n{id:\"2\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"},{firstName:\"Donald\",lastName:\"Mouse\"}]}"
-            + "\n{id:\"3\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"}]}"
-            + "]){message}}");
-
-    // test query
-    JsonNode result = execute("{RefTable2{id,ref{firstName,lastName}}}");
-    System.out.println(result.toPrettyString());
-
-    assertEquals(2, result.at("/RefTable2/0/ref").size());
-    // order is determined by TargetTable unfortunately
-    assertEquals("Katrien", result.at("/RefTable2/0/ref/1/firstName").asText());
-    assertEquals("Mouse", result.at("/RefTable2/0/ref/1/lastName").asText());
-    assertEquals("Donald", result.at("/RefTable2/0/ref/0/firstName").asText());
-    assertEquals("Duck", result.at("/RefTable2/0/ref/0/lastName").asText());
-  }
+  //  @Test
+  //  public void testMref() throws IOException {
+  //    // create schema (best edit this in graphql editor)
+  //    execute(
+  //        "mutation {\n"
+  //            + "  change(\n"
+  //            + "    tables: [\n"
+  //            + "      { name: \"TargetTable2\", columns: [{ name: \"firstName\", key: 1 },{ name:
+  // \"lastName\", key: 1 }] }\n"
+  //            + "      {\n"
+  //            + "        name: \"RefTable2\"\n"
+  //            + "        columns: [\n"
+  //            + "          { name: \"id\", key: 1 }\n"
+  //            + "          { name: \"ref\", columnType: \"MREF\", refTable: \"TargetTable2\"}\n"
+  //            + "        ]\n"
+  //            + "      }\n"
+  //            + "    ]\n"
+  //            + "  ) {\n"
+  //            + "    message\n"
+  //            + "  }\n"
+  //            + "}");
+  //
+  //    // have to reload graphql
+  //    grapql =
+  //        new GraphqlApiFactory()
+  //            .createGraphqlForSchema(
+  //                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+  //
+  //    // insert some data, enough to check if foreign keys are joined correctly
+  //    execute(
+  //        "mutation{insert(TargetTable2:["
+  //            + "\n{firstName:\"Donald\",lastName:\"Duck\"}"
+  //            + "\n{firstName:\"Katrien\",lastName:\"Duck\"}"
+  //            + "\n{firstName:\"Katrien\",lastName:\"Mouse\"}"
+  //            + "\n{firstName:\"Donald\",lastName:\"Mouse\"}"
+  //            + "\n], RefTable2:["
+  //            + "\n{id:\"1\",
+  // ref:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}"
+  //            + "\n{id:\"2\",
+  // ref:[{firstName:\"Katrien\",lastName:\"Duck\"},{firstName:\"Donald\",lastName:\"Mouse\"}]}"
+  //            + "\n{id:\"3\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"}]}"
+  //            + "]){message}}");
+  //
+  //    // test query
+  //    JsonNode result = execute("{RefTable2{id,ref{firstName,lastName}}}");
+  //    System.out.println(result.toPrettyString());
+  //
+  //    assertEquals(2, result.at("/RefTable2/0/ref").size());
+  //    // order is determined by TargetTable unfortunately
+  //    assertEquals("Katrien", result.at("/RefTable2/0/ref/1/firstName").asText());
+  //    assertEquals("Mouse", result.at("/RefTable2/0/ref/1/lastName").asText());
+  //    assertEquals("Donald", result.at("/RefTable2/0/ref/0/firstName").asText());
+  //    assertEquals("Duck", result.at("/RefTable2/0/ref/0/lastName").asText());
+  //  }
 
   private static JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));

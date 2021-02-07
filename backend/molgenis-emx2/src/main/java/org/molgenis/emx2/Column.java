@@ -27,7 +27,7 @@ public class Column {
 
   // transient for enabling migrations
   @DiffIgnore private String oldName; // use this when wanting to change name
-  @DiffIgnore private Command command; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
+  @DiffIgnore private boolean drop; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
   private String refSchema; // for cross schema references
@@ -106,7 +106,7 @@ public class Column {
   private void copy(Column column) {
     columnName = column.columnName;
     oldName = column.oldName;
-    command = column.command;
+    drop = column.drop;
     columnType = column.columnType;
     position = column.position;
     nullable = column.nullable;
@@ -352,7 +352,7 @@ public class Column {
 
   public boolean isReference() {
     return REF.equals(getColumnType())
-        || MREF.equals(getColumnType())
+        //        || MREF.equals(getColumnType())
         || REF_ARRAY.equals(getColumnType())
         || REFBACK.equals(getColumnType());
   }
@@ -572,12 +572,12 @@ public class Column {
     return this;
   }
 
-  public Command getCommand() {
-    return command;
+  public boolean isDrop() {
+    return drop;
   }
 
-  public Column setCommand(Command command) {
-    this.command = command;
+  public Column drop() {
+    this.drop = true;
     return this;
   }
 

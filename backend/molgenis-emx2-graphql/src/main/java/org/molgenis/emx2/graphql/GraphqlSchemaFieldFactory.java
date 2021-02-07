@@ -1,6 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Command.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -207,13 +206,6 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .build();
-  private GraphQLEnumType enumCommandType =
-      GraphQLEnumType.newEnum()
-          .name("MolgenisDDLCommand")
-          .value("CREATE", CREATE)
-          .value("ALTER", ALTER)
-          .value("DROP", DROP)
-          .build();
   private GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisColumnInput")
@@ -284,7 +276,8 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(JSONLD_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(COMMAND).type(enumCommandType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -297,7 +290,8 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(COMMAND).type(enumCommandType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(INHERIT)
@@ -523,7 +517,7 @@ public class GraphqlSchemaFieldFactory {
       Map tableMap = Map.of("tables", tables);
       String json = JsonUtil.getWriter().writeValueAsString(tableMap);
       SchemaMetadata otherSchema = jsonToSchema(json);
-      schema.merge(otherSchema);
+      schema.migrate(otherSchema);
     }
   }
 

@@ -79,7 +79,7 @@ public class LinkedDataServiceTest {
   }
 
   private void runImportProcedure(TableStoreForXlsxFile store, SchemaMetadata cohortSchema) {
-    fdpSchema.merge(cohortSchema);
+    fdpSchema.migrate(cohortSchema);
 
     StopWatch.print("creation of tables complete, now starting import data");
 

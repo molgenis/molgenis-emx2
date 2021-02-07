@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.MREF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -32,11 +31,11 @@ public class Benchmark {
                 .add(column("ID").setPkey())
                 .add(column("ref").setType(REF_ARRAY).setRefTable("TableA")));
 
-    Table c =
-        schema.create(
-            table("TableC")
-                .add(column("ID").setPkey())
-                .add(column("ref").setType(MREF).setRefTable("TableA")));
+    //    Table c =
+    //        schema.create(
+    //            table("TableC")
+    //                .add(column("ID").setPkey())
+    //                .add(column("ref").setType(MREF).setRefTable("TableA")));
 
     StopWatch.start("benchmark started");
 

@@ -62,8 +62,12 @@ class SqlColumnRefBackExecutor {
         default:
           throw new MolgenisException(
               "Create column failed: Create of REFBACK column(s) '"
+                  + ref.getTableName()
+                  + "."
                   + getNames(ref)
-                  + "' failed because mappedBy was not of type REF, REF_ARRAY");
+                  + "' failed because mappedBy '"
+                  + ref.getMappedBy()
+                  + "' was not of type REF, REF_ARRAY");
       }
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(

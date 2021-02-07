@@ -36,7 +36,8 @@ public class SqlDatabase implements Database {
       new DatabaseListener() {
         @Override
         public void schemaRemoved(String name) {
-          // dummy
+          schemaCache.remove(name);
+          schemaNames.remove(name);
         }
 
         @Override
@@ -46,7 +47,7 @@ public class SqlDatabase implements Database {
 
         @Override
         public void schemaChanged(String schemaName) {
-          // dummy
+          getSchema(schemaName).getMetadata().reload();
         }
       };
 
@@ -132,8 +133,6 @@ public class SqlDatabase implements Database {
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
     tx(d -> SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) d, name));
-    schemaCache.remove(name);
-    schemaNames.remove(name);
     listener.schemaRemoved(name);
     log(start, "dropped schema " + name);
   }

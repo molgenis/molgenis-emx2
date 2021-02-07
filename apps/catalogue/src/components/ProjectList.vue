@@ -1,9 +1,10 @@
 <template>
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="row justify-content-center mb-2">
+    <div class="row">
       <Pagination
         v-if="count > 0"
+        class="justify-content-center col-10 mb-2"
         :count="count"
         v-model="page"
         :limit="limit"
@@ -11,10 +12,10 @@
       />
     </div>
     <div class="row">
-      <ProviderCard
-        v-for="provider in providers"
-        :key="provider.name"
-        :provider="provider"
+      <ConsortiumCard
+        v-for="consortium in consortia"
+        :key="consortium.name"
+        :consortium="consortium"
       />
     </div>
   </div>
@@ -23,11 +24,13 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import ProviderCard from "../components/ProviderCard";
+import ConsortiumCard from "./ConsortiumCard";
+import TableOfContents from "../components/TableOfContents";
 
 export default {
   components: {
-    ProviderCard,
+    TableOfContents,
+    ConsortiumCard,
     Pagination,
     MessageError,
   },
@@ -50,7 +53,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      providers: [],
+      consortia: [],
     };
   },
   methods: {
@@ -61,17 +64,17 @@ export default {
       }
       request(
         "graphql",
-        `query Providers($filter:ProvidersFilter,$offset:Int,$limit:Int){Providers(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,description,website}
-        ,Providers_agg(${searchString}filter:$filter){count}}`,
+        `query Consortia($filter:ConsortiaFilter,$offset:Int,$limit:Int){Consortia(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name},tables{name,variables{name}}}
+        ,Consortia_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
-          offset: (this.page - 1) * this.limit,
+          offset: (this.page - 1) * 10,
           limit: this.limit,
         }
       )
         .then((data) => {
-          this.providers = data.Providers;
-          this.count = data.Providers_agg.count;
+          this.consortia = data.Consortia;
+          this.count = data.Consortia_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

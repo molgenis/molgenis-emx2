@@ -29,7 +29,7 @@ public interface Schema {
 
   void tx(Transaction transaction);
 
-  void merge(SchemaMetadata from);
+  void migrate(SchemaMetadata from);
 
   void discard(SchemaMetadata schema);
 

@@ -419,9 +419,9 @@ class SqlTable implements Table {
 
   private Condition getColumnCondition(Row r, Column key) {
     List<Condition> columnCondition = new ArrayList<>();
-    if (REF.equals(key.getColumnType())
-        || REF_ARRAY.equals(key.getColumnType())
-        || MREF.equals(key.getColumnType())) {
+    if (REF.equals(key.getColumnType()) || REF_ARRAY.equals(key.getColumnType())
+    //       || MREF.equals(key.getColumnType())
+    ) {
       for (Reference ref : key.getReferences()) {
         if (!ref.isOverlapping()) {
           columnCondition.add(

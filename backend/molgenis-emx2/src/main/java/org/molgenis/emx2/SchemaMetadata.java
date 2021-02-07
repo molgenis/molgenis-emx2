@@ -23,12 +23,17 @@ public class SchemaMetadata {
     this.name = schema.getName();
     this.database = schema.getDatabase();
     this.setSettings(schema.getSettings());
+    for (Setting setting : schema.getSettings()) {
+      this.setSetting(setting.getKey(), setting.getValue());
+    }
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
     this.name = schema.getName();
     this.database = db;
-    this.setSettings(schema.getSettings());
+    for (Setting setting : schema.getSettings()) {
+      this.setSetting(setting.getKey(), setting.getValue());
+    }
   }
 
   public String getName() {

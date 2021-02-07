@@ -1,10 +1,9 @@
 <template>
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="row">
+    <div class="row justify-content-center mb-2">
       <Pagination
         v-if="count > 0"
-        class="justify-content-center col-10 mb-2"
         :count="count"
         v-model="page"
         :limit="limit"
@@ -12,10 +11,10 @@
       />
     </div>
     <div class="row">
-      <ConsortiumCard
-        v-for="consortium in consortia"
-        :key="consortium.name"
-        :consortium="consortium"
+      <InstituteCard
+        v-for="Institute in Institutes"
+        :key="Institute.name"
+        :Institute="Institute"
       />
     </div>
   </div>
@@ -24,13 +23,11 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import ConsortiumCard from "./ConsortiumCard";
-import TableOfContents from "../components/TableOfContents";
+import InstituteCard from "../components/InstituteCard";
 
 export default {
   components: {
-    TableOfContents,
-    ConsortiumCard,
+    InstituteCard,
     Pagination,
     MessageError,
   },
@@ -53,7 +50,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      consortia: [],
+      Institutes: [],
     };
   },
   methods: {
@@ -64,17 +61,17 @@ export default {
       }
       request(
         "graphql",
-        `query Consortia($filter:ConsortiaFilter,$offset:Int,$limit:Int){Consortia(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name},tables{name,variables{name}}}
-        ,Consortia_agg(${searchString}filter:$filter){count}}`,
+        `query Institutes($filter:InstitutesFilter,$offset:Int,$limit:Int){Institutes(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,description,website}
+        ,Institutes_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
-          offset: (this.page - 1) * 10,
+          offset: (this.page - 1) * this.limit,
           limit: this.limit,
         }
       )
         .then((data) => {
-          this.consortia = data.Consortia;
-          this.count = data.Consortia_agg.count;
+          this.Institutes = data.Institutes;
+          this.count = data.Institutes_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

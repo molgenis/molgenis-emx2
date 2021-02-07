@@ -6,7 +6,6 @@ import static org.molgenis.emx2.ColumnType.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -16,9 +15,9 @@ public class TableMetadata {
 
   // if a table extends another table (optional)
   protected String inherit = null;
-  // use for enabling inherit to go accross schema's (optional)
-  @DiffIgnore protected Command command = null;
-  // command to allow alter/create/drop to be communicated in the model
+  // to allow indicate that a table should be dropped
+  protected boolean drop = false;
+  // for refenence to another schema (rare use)
   protected String importSchema = null;
   // description of the table (optional)
   protected String description = null;
@@ -81,7 +80,9 @@ public class TableMetadata {
     clearCache();
     this.tableName = metadata.getTableName();
     this.oldName = metadata.getOldName();
-    this.setSettings(metadata.getSettings());
+    for (Setting setting : metadata.getSettings()) {
+      this.settings.put(setting.getKey(), setting);
+    }
     for (Column c : metadata.columns.values()) {
       this.columns.put(c.getName(), new Column(this, c));
     }
@@ -443,12 +444,12 @@ public class TableMetadata {
     return this;
   }
 
-  public Command getCommand() {
-    return command;
+  public boolean isDrop() {
+    return drop;
   }
 
-  public TableMetadata setCommand(Command command) {
-    this.command = command;
+  public TableMetadata drop() {
+    this.drop = true;
     return this;
   }
 }

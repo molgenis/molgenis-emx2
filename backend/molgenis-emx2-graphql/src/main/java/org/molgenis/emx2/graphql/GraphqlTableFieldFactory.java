@@ -160,7 +160,7 @@ public class GraphqlTableFieldFactory {
           break;
         case REF_ARRAY:
         case REFBACK:
-        case MREF:
+          // case MREF:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName())
@@ -242,11 +242,13 @@ public class GraphqlTableFieldFactory {
       String typeName = table.getTableName() + FILTER;
       GraphQLInputObjectType.Builder filterBuilder =
           GraphQLInputObjectType.newInputObject().name(typeName);
-      filterBuilder.field(
-          GraphQLInputObjectField.newInputObjectField()
-              .name(FILTER_EQUALS)
-              .type(GraphQLList.list(getPrimaryKeyInput(table)))
-              .build());
+      if (table.getPrimaryKeyColumns().size() > 0) {
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(FILTER_EQUALS)
+                .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                .build());
+      }
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
               .name(FILTER_SEARCH)
@@ -342,7 +344,7 @@ public class GraphqlTableFieldFactory {
       case REF_ARRAY:
       case REF:
       case REFBACK:
-      case MREF:
+        // case MREF:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
     }

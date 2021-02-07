@@ -50,8 +50,13 @@ public class TestSettings {
     t.getMetadata().setSettings(settings);
 
     assertEquals(settings, t.getMetadata().getSettings());
-    assertEquals(
-        settings, db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings());
+
+    List<Setting> test =
+        db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
+    assertEquals(settings.size(), test.size());
+    assertEquals(settings.get(0).getKey(), test.get(0).getKey());
+    assertEquals(settings.get(0).getValue(), test.get(0).getValue());
+
     db.clearCache();
     assertEquals(
         "key",

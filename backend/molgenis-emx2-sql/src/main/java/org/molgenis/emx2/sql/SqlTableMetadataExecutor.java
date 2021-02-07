@@ -156,7 +156,7 @@ class SqlTableMetadataExecutor {
 
       // drop search trigger
       jooq.execute(
-          "DROP FUNCTION {0} CASCADE",
+          "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table)));
 
       // drop all triggers from all columns

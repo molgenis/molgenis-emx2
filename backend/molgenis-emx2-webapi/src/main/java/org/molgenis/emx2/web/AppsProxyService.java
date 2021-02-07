@@ -44,7 +44,7 @@ public class AppsProxyService {
     settingsSchema
         .create(new TableMetadata("Apps").add(new Column("path").setPkey()))
         .add(new Column(SOURCE));
-    schema.merge(settingsSchema);
+    schema.migrate(settingsSchema);
     // load some defaults
     schema
         .getTable("Apps")

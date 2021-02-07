@@ -71,7 +71,7 @@ public class TestImportExportAllExamples {
       CompareTools.assertEquals(schema1, schema2);
 
       Schema schema3 = db.dropCreateSchema(getClass().getSimpleName() + schema1.getName());
-      schema3.merge(schema2);
+      schema3.migrate(schema2);
 
     } catch (MolgenisException e) {
       System.out.println(e.getDetails());

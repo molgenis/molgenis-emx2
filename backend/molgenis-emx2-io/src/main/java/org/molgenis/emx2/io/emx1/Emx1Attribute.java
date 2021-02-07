@@ -271,11 +271,12 @@ public class Emx1Attribute {
       case REF:
         return "xref";
       case REF_ARRAY:
-      case MREF:
-        return "mref";
+        //      case MREF:
+        //        return "mref";
       case REFBACK:
-        if (REF.equals(c.getMappedByColumn().getColumnType())) return "one_to_many";
-        else return "refback unsupported in emx1";
+        //        if (REF.equals(c.getMappedByColumn().getColumnType())) return "one_to_many";
+        //        else
+        return "refback unsupported in emx1";
       case BOOL_ARRAY:
       case UUID_ARRAY:
       case STRING_ARRAY:

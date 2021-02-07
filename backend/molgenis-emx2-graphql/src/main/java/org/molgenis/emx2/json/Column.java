@@ -1,13 +1,12 @@
 package org.molgenis.emx2.json;
 
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Command;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
   private String table;
   private String name;
-  private Command command; // needed in case of migrations
+  private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
   private Boolean nullable = false;
@@ -33,7 +32,7 @@ public class Column {
     this.table = column.getTableName();
     this.name = column.getName();
     this.oldName = column.getOldName();
-    this.command = column.getCommand();
+    this.drop = column.isDrop();
     this.key = column.getKey();
     this.columnType = column.getColumnType();
     this.columnFormat = column.getColumnFormat();
@@ -60,7 +59,7 @@ public class Column {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.setOldName(oldName);
     c.setType(columnType);
-    c.setCommand(command);
+    if (drop) c.drop();
     c.setColumnFormat(columnFormat);
     c.setNullable(nullable);
     c.setRefSchema(refSchema);
@@ -223,11 +222,11 @@ public class Column {
     this.oldName = oldName;
   }
 
-  public Command getCommand() {
-    return command;
+  public boolean getDrop() {
+    return drop;
   }
 
-  public void setCommand(Command command) {
-    this.command = command;
+  public void setDrop(boolean drop) {
+    this.drop = drop;
   }
 }

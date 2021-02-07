@@ -3,14 +3,13 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.molgenis.emx2.Command;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 
 public class Table {
   private String name;
   private String oldName;
-  private Command command;
+  private boolean drop;
   private String[] pkey;
   private String inherit;
   private String description;
@@ -26,7 +25,7 @@ public class Table {
 
   public Table(TableMetadata tableMetadata) {
     this.name = tableMetadata.getTableName();
-    this.command = tableMetadata.getCommand();
+    this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
@@ -117,11 +116,11 @@ public class Table {
     this.jsonldType = jsonldType;
   }
 
-  public Command getCommand() {
-    return command;
+  public boolean getDrop() {
+    return drop;
   }
 
-  public void setCommand(Command command) {
-    this.command = command;
+  public void setDrop(boolean drop) {
+    this.drop = drop;
   }
 }

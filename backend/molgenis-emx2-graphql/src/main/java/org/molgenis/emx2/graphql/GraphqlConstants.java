@@ -15,7 +15,7 @@ public class GraphqlConstants {
   public static final String EMAIL = "email";
   public static final String NAME = "name";
   public static final String OLD_NAME = "oldName";
-  public static final String COMMAND = "command";
+  public static final String DROP = "drop";
   public static final String EXTERNAL_SCHEMA = "externalSchema";
   public static final String INHERIT = "inherit";
   public static final String INHERITED = "inherited";

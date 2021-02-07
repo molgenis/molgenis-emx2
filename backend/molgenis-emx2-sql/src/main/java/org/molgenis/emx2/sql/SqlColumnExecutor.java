@@ -3,8 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
-import static org.molgenis.emx2.sql.SqlColumnMrefExecutor.createMrefConstraints;
-import static org.molgenis.emx2.sql.SqlColumnMrefExecutor.dropMrefConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
@@ -38,10 +36,10 @@ public class SqlColumnExecutor {
       case REF_ARRAY:
         isNullable = column.getReferences().stream().anyMatch(Reference::isNullable) || isNullable;
         break;
-      case MREF:
-        // nullability checked on the jointable
-        isNullable = true;
-        break;
+        //      case MREF:
+        //        // nullability checked on the jointable
+        //        isNullable = true;
+        //        break;
       default:
         // if has default, we will first update all 'null' to default
         if (!column.isNullable() && column.getDefaultValue() != null) {
@@ -210,6 +208,7 @@ public class SqlColumnExecutor {
             }
           }
         }
+        executeSetNullable(jooq, column);
       } else if (FILE.equals(column.getColumnType())) {
         for (Field f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
@@ -251,6 +250,8 @@ public class SqlColumnExecutor {
     if (c.isReference() && c.getRefTable() == null) {
       throw new MolgenisException(
           "Add column '"
+              + c.getTableName()
+              + "."
               + c.getName()
               + "' failed: 'refTable' required for columns of type ref, ref_array, refback and mref  ");
     }
@@ -261,9 +262,9 @@ public class SqlColumnExecutor {
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: refLink "
+                + "' failed: refLink '"
                 + c.getRefLink()
-                + " column cannot be found");
+                + "' column cannot be found");
       }
       if (!List.of(REF, REF_ARRAY)
           .contains(c.getTable().getColumn(c.getRefLink()).getColumnType())) {
@@ -294,9 +295,9 @@ public class SqlColumnExecutor {
       case REF_ARRAY:
         createRefArrayConstraints(jooq, column);
         break;
-      case MREF:
-        createMrefConstraints(jooq, column);
-        break;
+        //      case MREF:
+        //        createMrefConstraints(jooq, column);
+        //        break;
       case REFBACK:
         createRefBackColumnConstraints(jooq, column);
         break;
@@ -310,12 +311,20 @@ public class SqlColumnExecutor {
     if (FILE.equals(column.getColumnType())) {
       for (Field f : column.getJooqFileFields()) {
         jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
-            .dropColumn(f)
+            .dropColumnIfExists(f)
             .execute();
+      }
+    } else if (column.isReference()) {
+      for (Reference ref : column.getReferences()) {
+        // check if reference name already exists, composite ref may reuse columns
+        // either other column, or a part of a reference
+        if (!ref.isOverlapping()) {
+          jooq.alterTable(column.getJooqTable()).dropColumn(ref.getJooqField()).execute();
+        }
       }
     } else {
       jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
-          .dropColumn(field(name(column.getName())))
+          .dropColumnIfExists(field(name(column.getName())))
           .execute();
     }
     MetadataUtils.deleteColumn(jooq, column);
@@ -333,9 +342,9 @@ public class SqlColumnExecutor {
       case REFBACK:
         removeRefBackConstraints(jooq, column);
         break;
-      case MREF:
-        dropMrefConstraints(jooq, column);
-        break;
+        //      case MREF:
+        //        dropMrefConstraints(jooq, column);
+        //        break;
       default:
         // nothing to do
     }
