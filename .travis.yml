@@ -11,8 +11,8 @@ branches:
     - /^v\d+\.\d+\.\d+$/
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - git fetch
-  - git config user.email "m.a.swertz@gmail.com"
+  - git fetch --unshallow
+  - git config user.email "m.a.swertz@rug.nl"
   - git config user.name "Travis-CI"
   - git config url.https://.insteadOf git://
   - git checkout -qf $TRAVIS_BRANCH
