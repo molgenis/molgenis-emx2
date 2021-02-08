@@ -1,19 +1,18 @@
 <template>
   <div>
-    <h4>Variables</h4>
+    {{ error }}
     <div class="row">
-      <div class="col-3">
-        Topics:
-        <InputSearch v-model="search" />
+      <div class="col-4">
+        <label>Topics:</label>
         <TopicFilter
           :topics="topics"
           @select="select"
+          @deselect="deselect"
           :selected="selectedTopic"
         />
       </div>
-      {{ error }}
-      <div class="col-9">Variables:</div>
       <VariablesList
+        class="col-8"
         :resource-acronym="resourceAcronym"
         :topic="selectedTopic"
       />
@@ -92,6 +91,9 @@ export default {
   methods: {
     select(topic) {
       this.selectedTopic = topic.name;
+    },
+    deselect() {
+      this.selectedTopic = null;
     },
     loadTopics() {
       request(

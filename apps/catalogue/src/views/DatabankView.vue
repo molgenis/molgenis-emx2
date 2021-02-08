@@ -2,41 +2,73 @@
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
     <h1>
-      <small>Databank:</small><br />{{ databank.name }} ({{ databank.acronym }})
+      <small v-if="databank.type">{{
+        databank.type.map((t) => t.name).join(",")
+      }}</small
+      ><small v-else>Databank:</small><br />{{ databank.name }} ({{
+        databank.acronym
+      }})
     </h1>
     <label> Website: </label>
     <a :href="databank.website">{{ databank.website }}</a> <br />
     <label> Type(s): </label>
     <span v-for="type in databank.type">{{ type.name }}</span
     ><br />
-    <label>Description:</label>
-    <p>{{ databank.description }}</p>
-    <label>Quality:</label>
-    <p>{{ databank.quality }}</p>
-    <label>Lag time:</label>
-    <p>{{ databank.lagTime }}</p>
-    <label>Prompt:</label>
-    <p>{{ databank.prompt }}</p>
-    <label>Originator:</label>
-    <p>{{ databank.originator ? databank.originator.acronym : "N/A" }}</p>
-    <h4>Tables:</h4>
+    <NavTabs :options="['Data', 'Description']" v-model="tab" />
+    <div v-if="tab == 'Description'" class="tab-pane show active">
+      <label>Description:</label>
+      <p>{{ databank.description }}</p>
+      <p>{{ databank.originator ? databank.originator.acronym : "N/A" }}</p>
+      <label>Quality:</label>
+      <p>{{ databank.quality }}</p>
+      <label>Lag time:</label>
+      <p>{{ databank.lagTime }}</p>
+      <label>Prompt:</label>
+      <p>{{ databank.prompt }}</p>
+      <label>Originator:</label>
+    </div>
+    <div v-if="tab == 'Data'" class="tab-pane show active">
+      <span v-if="databank.releases == null">No data loaded</span>
+      <span v-else>
+        <InputSelect
+          label="choose a release"
+          v-if="databank.releases"
+          v-model="version"
+          :options="databank.releases.map((r) => r.version)" />
+        <VariablesList
+          v-if="version"
+          :resourceAcronym="databankAcronym"
+          :version="version"
+      /></span>
+    </div>
+    <!--<h4>Tables:</h4>
     <TableList
       :databankAcronym="databankAcronym"
       :institutionAcronym="institutionAcronym"
-    />
+    />-->
   </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
-import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
+import {
+  MessageError,
+  ReadMore,
+  InputSelect,
+  NavTabs,
+} from "@mswertz/emx2-styleguide";
 import TableList from "../components/TableList";
+import VariablesList from "../components/VariablesList";
 
 export default {
   components: {
     MessageError,
     ReadMore,
     TableList,
+    VariablesList,
+    InputSelect,
+    NavTabs,
+    InputSelect,
   },
   props: {
     databankAcronym: String,
@@ -46,20 +78,26 @@ export default {
     return {
       error: null,
       databank: {},
+      version: null,
+      tab: "Data",
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,website, quality,investigators{name}, supplementaryInformation, tables{name},originator{acronym}}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,website, quality,investigators{name}, supplementaryInformation, releases{version},originator{acronym}}}`,
         {
           acronym: this.databankAcronym,
         }
       )
         .then((data) => {
           this.databank = data.Databanks[0];
-          console.log("doh " + JSON.stringify(this.databank));
+          if (this.databank.releases) {
+            this.version = this.databank.releases[
+              this.databank.releases.length - 1
+            ].version;
+          }
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

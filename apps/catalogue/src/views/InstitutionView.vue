@@ -13,6 +13,14 @@
     <h4>Databanks:</h4>
     <br />
     <DatabankList :institutionAcronym="institutionAcronym" />
+    <h4>Networks:</h4>
+    <ProjectList
+      :filter="{
+        institution: {
+          acronym: { equals: this.institutionAcronym },
+        },
+      }"
+    />
   </div>
 </template>
 
@@ -20,9 +28,11 @@
 import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
 import DatabankList from "../components/DatabankList";
+import ProjectList from "../components/ProjectList";
 
 export default {
   components: {
+    ProjectList,
     DatabankList,
     MessageError,
     ReadMore,

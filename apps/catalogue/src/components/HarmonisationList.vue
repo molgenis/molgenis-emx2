@@ -23,9 +23,9 @@
                 :target-variable="v"
                 :target-table="tableName"
                 :target-resource="resourceAcronym"
-                :source-resource="dtsplit(':')[0]"
+                :source-resource="t.split(':')[0]"
                 :source-table="t.split(':')[1]"
-                :match="matrix[v][d]"
+                :match="matrix[v][t]"
               />
             </td>
           </tr>
@@ -112,9 +112,7 @@ export default {
       //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{acronym:{equals:"LifeCycle"}}}}}
       if (this.resourceAcronym) {
         filter.targetVariable = {
-          table: {
-            resource: { acronym: { equals: this.resourceAcronym } },
-          },
+          resource: { acronym: { equals: this.resourceAcronym } },
         };
       }
       if (this.tableName !== undefined) {
@@ -128,7 +126,7 @@ export default {
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,
-          offset: (this.page - 1) * 10,
+          offset: (this.page - 1) * this.limit,
           limit: this.limit,
         }
       )

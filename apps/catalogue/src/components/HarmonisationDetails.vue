@@ -5,15 +5,15 @@
       sourceCollection: {{ this.sourceCollection }}<br />
       sourceTable: {{ this.sourceTable }}<br />
       targetVariable: {{ this.targetVariable }}<br />
-      targetCollection:
-      {{ this.targetCollection }}<br />
+      targetResource:
+      {{ this.targetResource }}<br />
       targetTable:
       {{ this.targetTable }}
     </MessageError>
   </div>
   <div v-else>
     <a v-if="!compact" href="#" @click="show = true">
-      {{ sourceCollection }}:{{ sourceTable }}
+      {{ sourceCollection }}@{{ sourceVersion.version }}
     </a>
     <i
       v-if="match == 'complete'"
@@ -43,7 +43,9 @@
             <h5>Harmonised variable</h5>
             <dl>
               <dt>Consortium</dt>
-              <dd>{{ targetCollection }}</dd>
+              <dd>{{ targetResource }}</dd>
+              <dt>Version</dt>
+              <dd>{{ targetVersion.version }}</dd>
               <dt>Table</dt>
               <dd>{{ targetTable }}</dd>
               <dt>Variable</dt>
@@ -55,6 +57,8 @@
             <dl>
               <dt>Databank</dt>
               <dd>{{ sourceCollection }}</dd>
+              <dt>Version</dt>
+              <dd>{{ sourceVersion.version }}</dd>
               <dt>Table</dt>
               <dd>{{ sourceTable }}</dd>
               <dt>Variable</dt>
@@ -148,9 +152,11 @@ export default {
   props: {
     sourceCollection: String,
     sourceTable: String,
+    sourceVersion: Object,
     targetVariable: String,
-    targetCollection: String,
+    targetResource: String,
     targetTable: String,
+    targetVersion: Object,
     match: String,
     compact: {
       type: Boolean,
@@ -170,12 +176,16 @@ export default {
         sourceTable: {
           name: { equals: this.sourceTable },
           resource: { acronym: { equals: this.sourceCollection } },
+          version: { equals: this.sourceVersion },
         },
         targetVariable: {
           name: { equals: this.targetVariable },
           table: {
             name: { equals: this.targetTable },
-            resource: { acronym: { equals: this.targetCollection } },
+            resource: { acronym: { equals: this.targetResource } },
+            version: {
+              equals: this.targetVersion,
+            },
           },
         },
       };

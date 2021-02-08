@@ -1,17 +1,17 @@
 <template>
   <div>
-    <h1>Collections</h1>
+    <h1>Databanks</h1>
     <p>Cohorts, registries, databases, and more...</p>
-    <CollectionList />
+    <DatabankList />
   </div>
 </template>
 
 <script>
-import CollectionList from "../components/DatabankList";
+import DatabankList from "../components/DatabankList";
 
 export default {
   components: {
-    CollectionList,
+    DatabankList,
   },
   props: {},
 };

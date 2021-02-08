@@ -27,6 +27,7 @@
           :topics="topic.childTopics"
           :selected="selected"
           @select="select"
+          @deselect="deselect"
         />
       </div>
     </div>
@@ -57,7 +58,14 @@ export default {
       this.timestamp = Date.now();
     },
     select(topic) {
-      this.$emit("select", topic);
+      if (this.selected == topic.name) {
+        this.deselect();
+      } else {
+        this.$emit("select", topic);
+      }
+    },
+    deselect() {
+      this.$emit("deselect");
     },
   },
 };

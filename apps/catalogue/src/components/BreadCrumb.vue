@@ -21,11 +21,28 @@
       >
         <RouterLink
           :to="{
-            name: 'institute',
+            name: 'institution',
             params: { institutionAcronym: this.institutionAcronym },
           }"
         >
           {{ institutionAcronym }}
+        </RouterLink>
+      </li>
+      <li
+        v-if="resourceAcronym"
+        class="breadcrumb-item active"
+        aria-current="page"
+      >
+        <RouterLink
+          :to="{
+            name: 'release',
+            params: {
+              resourceAcronym: this.institutionAcronym,
+              version: this.version,
+            },
+          }"
+        >
+          {{ resourceAcronym }} {{ version }}
         </RouterLink>
       </li>
       <li
@@ -79,6 +96,8 @@ export default {
     projectAcronym: String,
     institutionAcronym: String,
     tableName: String,
+    resourceAcronym: String,
+    version: String,
   },
   computed: {
     mainview() {
@@ -86,7 +105,7 @@ export default {
         if (this.$route.name.startsWith("institution")) {
           return "institutions";
         }
-        if (this.$route.name.startsWith("consort")) {
+        if (this.$route.name.startsWith("project")) {
           return "projects";
         }
         if (this.$route.name.startsWith("databank")) {
@@ -97,6 +116,9 @@ export default {
         }
         if (this.$route.name.startsWith("variable")) {
           return "variables";
+        }
+        if (this.$route.name.startsWith("release")) {
+          return "releases";
         }
       }
     },

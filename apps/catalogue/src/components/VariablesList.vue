@@ -58,6 +58,7 @@ export default {
     resourceAcronym: String,
     tableName: String,
     topic: String,
+    version: String,
   },
   data() {
     return {
@@ -85,9 +86,12 @@ export default {
       if (this.topic) {
         filter.topics = { name: { equals: this.topic } };
       }
+      if (this.version) {
+        filter.version = { equals: this.topic };
+      }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, table{name,resource{acronym,mg_tableclass}},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceTable{name,resource{acronym}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, version{version},table{name,resource{acronym,mg_tableclass}},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceTable{name,resource{acronym},version{version}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -121,6 +125,9 @@ export default {
       this.reload();
     },
     topic() {
+      this.reload();
+    },
+    version() {
       this.reload();
     },
   },

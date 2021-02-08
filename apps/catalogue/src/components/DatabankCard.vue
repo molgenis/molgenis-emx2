@@ -1,58 +1,44 @@
 <template>
-  <div class="col-sm-3 py-2">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">
-          <RouterLink
-            :to="{
-              name: databankview,
-              params: {
-                databankAcronym: databank.acronym,
-                institutionAcronym: institutionAcronym,
-              },
-            }"
-          >
-            <small class="float-right">
-              <span
-                v-if="databank.type"
-                v-for="type in databank.type"
-                class="badge badge-primary"
-              >
-                {{ type.name }}
-              </span>
-            </small>
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">
+        <RouterLink
+          :to="{
+            name: databankview,
+            params: {
+              databankAcronym: databank.acronym,
+              institutionAcronym: institutionAcronym,
+            },
+          }"
+        >
+          <small class="float-right">
             <small>
               {{ databank.acronym }}
             </small>
-            <br />
-            {{ databank.name }}
-          </RouterLink>
-        </h4>
-        <span v-if="databank.institution">
-          <label>institution:</label> {{ databank.institution.name }}<br />
-        </span>
-        <span v-if="databank.website">
-          <label>website: </label>
-          <a :href="databank.website">{{ databank.website }}</a>
-        </span>
-        <ReadMore
-          :text="databank.description"
-          :length="200"
-          v-if="databank.description"
-        />
-        <div v-if="tab === 'Variables'">
-          <ul>
-            <div v-for="table in databank.tables">
-              {{ table.name }}
-              <ul>
-                <li v-for="variable in table.variables">
-                  {{ variable.name }}
-                </li>
-              </ul>
-            </div>
-          </ul>
-        </div>
-      </div>
+          </small>
+          <span
+            v-if="databank.type"
+            v-for="type in databank.type"
+            class="badge badge-primary"
+          >
+            {{ type.name }}
+          </span>
+          <br />
+          {{ databank.name }}
+        </RouterLink>
+      </h4>
+      <span v-if="databank.institution">
+        <label>institution:</label> {{ databank.institution.name }}<br />
+      </span>
+      <span v-if="databank.website">
+        <label>website: </label>
+        <a :href="databank.website">{{ databank.website }}</a>
+      </span>
+      <ReadMore
+        :text="databank.description"
+        :length="200"
+        v-if="databank.description"
+      />
     </div>
   </div>
 </template>

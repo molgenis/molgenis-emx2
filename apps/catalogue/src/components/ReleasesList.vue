@@ -1,22 +1,24 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="row">
-      <Pagination
-        v-if="count > 0"
-        class="justify-content-center col-10 mb-2"
-        :count="count"
-        v-model="page"
-        :limit="limit"
-        :defaultValue="page"
-      />
-    </div>
-    <div class="row">
-      <ProjectCard
-        v-for="project in projects"
-        :key="project.name"
-        :project="project"
-      />
+    <div>
+      <MessageError v-if="error">{{ error }}</MessageError>
+      <div class="row">
+        <Pagination
+          v-if="count > 0"
+          class="justify-content-center col-10 mb-2"
+          :count="count"
+          v-model="page"
+          :limit="limit"
+          :defaultValue="page"
+        />
+      </div>
+      <div class="cart-columns">
+        <ReleaseCard
+          v-for="release in releases"
+          :key="release.resource.name + release.version"
+          :release="release"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -24,16 +26,15 @@
 <script>
 import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import ProjectCard from "./ProjectCard";
+import ReleaseCard from "./ReleaseCard";
 
 export default {
   components: {
-    ProjectCard,
+    ReleaseCard,
     Pagination,
     MessageError,
   },
   props: {
-    institutionAcronym: String,
     filter: {
       type: Object,
       default() {
@@ -52,7 +53,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      projects: [],
+      releases: [],
     };
   },
   methods: {
@@ -63,8 +64,8 @@ export default {
       }
       request(
         "graphql",
-        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name}}
-        ,Projects_agg(${searchString}filter:$filter){count}}`,
+        `query Releases($filter:ReleasesFilter,$offset:Int,$limit:Int){Releases(offset:$offset,limit:$limit,${searchString}filter:$filter){resource{acronym},version}
+        ,Releases_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -72,8 +73,8 @@ export default {
         }
       )
         .then((data) => {
-          this.projects = data.Projects;
-          this.count = data.Projects_agg.count;
+          this.releases = data.Releases;
+          this.count = data.Releases_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

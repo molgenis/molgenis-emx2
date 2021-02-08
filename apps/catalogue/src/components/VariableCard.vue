@@ -7,8 +7,8 @@
         <Property
           v-if="!tableName"
           :label="
-            variable.table.resource.mg_tableclass.includes('Consort')
-              ? 'Consortium'
+            variable.table.resource.mg_tableclass.includes('Project')
+              ? 'Project'
               : 'Databank'
           "
         >
@@ -70,7 +70,9 @@
             :key="JSON.stringify(h)"
             :sourceCollection="h.sourceTable.resource.acronym"
             :source-table="h.sourceTable.name"
+            :source-version="h.sourceTable.version"
             :target-resource="variable.table.resource.acronym"
+            :target-version="variable.version"
             :target-table="variable.table.name"
             :target-variable="variable.name"
             :match="variable.match ? variable.match.name : 'unknown'"

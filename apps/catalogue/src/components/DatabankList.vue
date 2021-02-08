@@ -1,17 +1,18 @@
 <template>
   <div>
-    <InputSearch v-model="search" />
-    <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="row justify-content-center mb-2">
+    <div class="row" v-if="count > 0">
       <Pagination
-        v-if="count > 0"
+        class="col-3"
         :count="count"
         v-model="page"
         :limit="limit"
         :defaultValue="page"
       />
+      <InputSearch v-model="search" class="col-9" />
     </div>
-    <div class="row">
+    <p v-else>No records found.</p>
+    <MessageError v-if="error">{{ error }}</MessageError>
+    <div class="card-columns">
       <DatabankCard
         v-for="databank in databanks"
         :key="databank.name"
@@ -21,6 +22,17 @@
     </div>
   </div>
 </template>
+
+<style>
+.card-columns {
+  @include media-breakpoint-only(lg) {
+    column-count: 4;
+  }
+  @include media-breakpoint-only(xl) {
+    column-count: 5;
+  }
+}
+</style>
 
 <script>
 import {
@@ -74,7 +86,7 @@ export default {
       }
       request(
         "graphql",
-        `query Databanks($filter:DatabanksFilter,$offset:Int,$limit:Int){Databanks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{acronym,name},tables{name,variables{name}}}
+        `query Databanks($filter:DatabanksFilter,$offset:Int,$limit:Int){Databanks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{acronym,name}}
         ,Databanks_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

@@ -12,11 +12,11 @@
           :institutionAcronym="institutionAcronym"
           :projectAcronym="projectAcronym"
           :tableName="tableName"
+          :resourceAcronym="resourceAcronym"
+          :version="version"
         />
         <div class="container-fluid">
-          <div class="row cohorts-scroll">
-            <RouterView :key="databankAcronym + ': ' + tableName" />
-          </div>
+          <RouterView :key="databankAcronym + ': ' + tableName" />
         </div>
       </div>
     </Molgenis>
@@ -52,6 +52,12 @@ export default {
     },
     tableName() {
       return this.$route.params.tableName;
+    },
+    resourceAcronym() {
+      return this.$route.params.resourceAcronym;
+    },
+    version() {
+      return this.$route.params.version;
     },
   },
 };

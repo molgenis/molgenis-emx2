@@ -11,6 +11,9 @@ import InstitutionView from "./views/InstitutionView";
 import DatabankView from "./views/DatabankView";
 import TableView from "./views/TableView";
 import TableListView from "./views/TableListView";
+import NetworkView from "./views/NetworkView";
+import ReleasesListView from "./views/ReleasesListView";
+import ReleasesView from "./views/ReleasesView";
 
 Vue.config.productionTip = false;
 
@@ -18,7 +21,8 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    { name: "Catalogue", path: "/", component: CatalogueView },
+    { name: "Catalogue", path: "/alt", component: CatalogueView },
+    { name: "Cohorts", path: "/", component: NetworkView },
     {
       name: "institutions",
       path: "/institutions",
@@ -40,6 +44,17 @@ const router = new VueRouter({
       name: "institution-table",
       path: "/institutions/:institutionAcronym/:databankAcronym/:tableName",
       component: TableView,
+      props: true,
+    },
+    {
+      name: "releases",
+      path: "/releases",
+      component: ReleasesListView,
+    },
+    {
+      name: "release",
+      path: "/releases/:resourceAcronym/:version",
+      component: ReleasesView,
       props: true,
     },
     {
