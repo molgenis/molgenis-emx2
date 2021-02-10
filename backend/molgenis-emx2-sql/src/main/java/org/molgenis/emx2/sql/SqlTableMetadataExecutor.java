@@ -109,7 +109,7 @@ class SqlTableMetadataExecutor {
       // same as parent table, except table name
       Column copy = new Column(copyTm, pkey);
       executeCreateColumn(jooq, copy);
-      executeSetNullable(jooq, copy);
+      executeSetRequired(jooq, copy);
       copyTm.add(copy);
     }
     // add column to root superclass table

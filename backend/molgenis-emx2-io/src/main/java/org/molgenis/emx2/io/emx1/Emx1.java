@@ -138,7 +138,7 @@ public class Emx1 {
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
         Column column =
-            column(attribute.getName()).setType(type).setNullable(attribute.getNillable());
+            column(attribute.getName()).setType(type).setRequired(!attribute.getNillable());
 
         // pkey
         if (attribute.getIdAttribute()) {

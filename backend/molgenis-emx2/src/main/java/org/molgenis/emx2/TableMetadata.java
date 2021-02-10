@@ -176,6 +176,16 @@ public class TableMetadata {
     return new ArrayList<>(result.values());
   }
 
+  public List<Column> getNonInheritedColumns() {
+    if (getInherit() != null) {
+      return this.columns.values().stream()
+          .filter(c -> c.getKey() == 1)
+          .collect(Collectors.toList());
+    } else {
+      return new ArrayList<>(this.columns.values());
+    }
+  }
+
   public List<Column> getLocalColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
     // get primary key from parent
@@ -224,7 +234,7 @@ public class TableMetadata {
   public TableMetadata add(Column... column) {
     for (Column c : column) {
       if (c.getPosition() == null) {
-        c.setPosition(columns.size());
+        c.setPosition(columns.size() + 1);
       }
       columns.put(c.getName(), new Column(this, c));
       c.setTable(this);

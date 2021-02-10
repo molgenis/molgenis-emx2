@@ -38,17 +38,17 @@ public class PetStoreExample {
     schema.create(
         table(PET)
             .add(column(NAME).setDescription("the name").setPkey())
-            .add(column(CATEGORY_COLUMN).setType(REF).setRefTable(CATEGORY))
-            .add(column("photoUrls").setType(STRING_ARRAY).setNullable(true))
+            .add(column(CATEGORY_COLUMN).setType(REF).setRefTable(CATEGORY).setRequired(true))
+            .add(column("photoUrls").setType(STRING_ARRAY))
             .add(column(STATUS)) // todo enum: available, pending, sold
-            .add(column("tags").setType(REF_ARRAY).setRefTable(TAG).setNullable(true))
-            .add(column(WEIGHT).setType(DECIMAL))
+            .add(column("tags").setType(REF_ARRAY).setRefTable(TAG))
+            .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
             .setDescription("My pet store example table"));
 
     schema.create(
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
-            .add(column("pet").setType(REF).setRefTable(PET).setNullable(true))
+            .add(column("pet").setType(REF).setRefTable(PET))
             .add(
                 column(QUANTITY)
                     .setType(INT)
@@ -65,27 +65,21 @@ public class PetStoreExample {
     // refback
     schema
         .getTableMetadata(PET)
-        .add(
-            column("orders")
-                .setType(REFBACK)
-                .setRefTable(ORDER)
-                .setMappedBy("pet")
-                .setNullable(true));
+        .add(column("orders").setType(REFBACK).setRefTable(ORDER).setMappedBy("pet"));
 
     schema.create(
         table(USER)
             .add(column("username").setPkey())
-            .add(column("firstName").setNullable(true))
-            .add(column("lastName").setNullable(true))
+            .add(column("firstName"))
+            .add(column("lastName"))
             .add(
                 column(EMAIL)
-                    .setNullable(true)
                     .setValidationExpression(
                         "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
-            .add(column("password").setNullable(true)) // todo: password type
-            .add(column("phone").setNullable(true)) // todo: validation phone
-            .add(column("userStatus").setType(INT).setNullable(true))
-            .add(column("pets").setType(REF_ARRAY).setRefTable(PET).setNullable(true)));
+            .add(column("password")) // todo: password type
+            .add(column("phone")) // todo: validation phone
+            .add(column("userStatus").setType(INT))
+            .add(column("pets").setType(REF_ARRAY).setRefTable(PET)));
   }
 
   public static void populate(Schema schema) {

@@ -55,7 +55,7 @@
       :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
       label="Key"
     />
-    <InputBoolean v-model="column.nullable" label="Nullable" />
+    <InputBoolean v-model="column.required" label="required" />
 
     <InputText
       v-model="column.validationExpression"

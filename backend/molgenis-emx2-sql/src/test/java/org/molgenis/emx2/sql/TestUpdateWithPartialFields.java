@@ -25,10 +25,7 @@ public class TestUpdateWithPartialFields {
 
     Table test =
         schema.create(
-            table("test")
-                .add(column("keycol").setPkey())
-                .add(column("col1").setNullable(true))
-                .add(column("col2").setNullable(true)));
+            table("test").add(column("keycol").setPkey()).add(column("col1")).add(column("col2")));
 
     test.insert(new Row().set("keycol", "row1").set("col1", "val11").set("col2", "val21"));
 

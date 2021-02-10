@@ -43,11 +43,7 @@ public class TestRefBack {
         schema.create(
             table("Products")
                 .add(column("productname").setPkey())
-                .add(
-                    column("parts")
-                        .setType(refArrayOrMref)
-                        .setRefTable("Parts")
-                        .setNullable(true)));
+                .add(column("parts").setType(refArrayOrMref).setRefTable("Parts")));
 
     parts.insert(new Row().set("partname", "smallscreen"));
     parts.insert(new Row().set("partname", "bigscreen"));
@@ -64,12 +60,7 @@ public class TestRefBack {
     // add refback, Table Parts(partname,products->refback(product))
     parts
         .getMetadata()
-        .add(
-            column("products")
-                .setType(REFBACK)
-                .setRefTable("Products")
-                .setMappedBy("parts")
-                .setNullable(true));
+        .add(column("products").setType(REFBACK).setRefTable("Products").setMappedBy("parts"));
 
     // use refback to update indirectly
     parts.update(new Row().set("partname", "bigscreen").set("products", "bigphone"));
@@ -185,16 +176,11 @@ public class TestRefBack {
         schema.create(
             table("Posts")
                 .add(column("title").setPkey())
-                .add(column("user").setType(REF).setRefTable(users.getName()).setNullable(true)));
+                .add(column("user").setType(REF).setRefTable(users.getName())));
 
     users
         .getMetadata()
-        .add(
-            column("posts")
-                .setType(REFBACK)
-                .setRefTable(posts.getName())
-                .setMappedBy("user")
-                .setNullable(true));
+        .add(column("posts").setType(REFBACK).setRefTable(posts.getName()).setMappedBy("user"));
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));

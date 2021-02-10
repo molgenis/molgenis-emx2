@@ -17,7 +17,7 @@
             :help="column.description"
             :columnType="column.columnType"
             :refTable="column.refTable"
-            :nullable="column.nullable"
+            :required="column.required"
             :error="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
             :graphqlURL="graphqlURL"
@@ -163,7 +163,7 @@ export default {
               isNaN(this.value[column.name]))
           ) {
             // when required
-            if (column.nullable !== true) {
+            if (column.required) {
               this.errorPerColumn[column.name] = column.name + " is required ";
             }
           } else {

@@ -31,11 +31,12 @@ public class ArrayTypeTestExample {
         };
     for (ColumnType columnType : columnTypes) {
 
-      typeTestTable.add(column("Test_" + columnType.toString().toLowerCase()).setType(columnType));
       typeTestTable.add(
-          column("Test_" + columnType.toString().toLowerCase() + "_nillable")
+          column("Test_" + columnType.toString().toLowerCase())
               .setType(columnType)
-              .setNullable(true));
+              .setRequired(true));
+      typeTestTable.add(
+          column("Test_" + columnType.toString().toLowerCase() + "_nillable").setType(columnType));
     }
   }
 }

@@ -52,8 +52,8 @@ public class MetadataUtils {
       field(name("jsonldType"), JSON.nullable(true));
   private static final org.jooq.Field COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
-  private static final org.jooq.Field COLUMN_NULLABLE =
-      field(name("nullable"), BOOLEAN.nullable(false));
+  private static final org.jooq.Field COLUMN_REQUIRED =
+      field(name("required"), BOOLEAN.nullable(false));
   private static final org.jooq.Field COLUMN_REF_TABLE =
       field(name("ref_table"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_REF_SCHEMA =
@@ -160,7 +160,7 @@ public class MetadataUtils {
             COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
-            COLUMN_NULLABLE,
+            COLUMN_REQUIRED,
             COLUMN_REF_SCHEMA,
             COLUMN_REF_TABLE,
             COLUMN_REF_LINK,
@@ -337,7 +337,7 @@ public class MetadataUtils {
             COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
-            COLUMN_NULLABLE,
+            COLUMN_REQUIRED,
             COLUMN_REF_SCHEMA,
             COLUMN_REF_TABLE,
             COLUMN_REF_LINK,
@@ -357,7 +357,7 @@ public class MetadataUtils {
             column.getColumnType(),
             column.getKey(),
             column.getPosition(),
-            column.isNullable(),
+            column.isRequired(),
             refSchema,
             column.getRefTableName(),
             column.getRefLink(),
@@ -375,7 +375,7 @@ public class MetadataUtils {
         .set(COLUMN_TYPE, column.getColumnType())
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
-        .set(COLUMN_NULLABLE, column.isNullable())
+        .set(COLUMN_REQUIRED, column.isRequired())
         .set(COLUMN_REF_SCHEMA, refSchema)
         .set(COLUMN_REF_TABLE, column.getRefTableName())
         .set(COLUMN_REF_LINK, column.getRefLink())
@@ -465,7 +465,7 @@ public class MetadataUtils {
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
-    c.setNullable(col.get(COLUMN_NULLABLE, Boolean.class));
+    c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
     c.setRefSchema(col.get(COLUMN_REF_SCHEMA, String.class));

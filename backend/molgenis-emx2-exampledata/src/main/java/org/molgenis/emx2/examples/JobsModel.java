@@ -20,15 +20,15 @@ public class JobsModel {
         table(
             "Steps",
             column("id").setPkey(),
-            column("job").setType(REF).setRefTable("Jobs").setKey(2),
-            column("step").setType(INT).setKey(2),
-            column("label"),
-            column("scheduled").setType(DATETIME),
-            column("started").setType(DATETIME).setNullable(true),
-            column("completed").setType(DATETIME).setNullable(true),
-            column("error"),
-            column("success"),
-            column("count").setType(INT)));
+            column("job").setType(REF).setRefTable("Jobs").setKey(2).setRequired(true),
+            column("step").setType(INT).setKey(2).setRequired(true),
+            column("label").setRequired(true),
+            column("scheduled").setType(DATETIME).setRequired(true),
+            column("started").setType(DATETIME).setRequired(true),
+            column("completed").setType(DATETIME),
+            column("error").setRequired(true),
+            column("success").setRequired(true),
+            column("count").setType(INT).setRequired(true)));
 
     // refback
     schema

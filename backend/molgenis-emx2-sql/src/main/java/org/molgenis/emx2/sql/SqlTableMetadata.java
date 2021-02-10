@@ -35,6 +35,15 @@ class SqlTableMetadata extends TableMetadata {
                   alterColumn(c);
                 } else {
                   Column newColumn = new Column(this, c);
+                  if (getInherit() != null && getInheritedTable().getColumn(c.getName()) != null) {
+                    throw new MolgenisException(
+                        "Cannot add column "
+                            + getTableName()
+                            + "."
+                            + c.getName()
+                            + ": column exists in inherited class "
+                            + getInherit());
+                  }
                   validateColumn(newColumn);
                   updatePositions(newColumn, this);
                   executeCreateColumn(getJooq(), newColumn);
@@ -68,6 +77,30 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
+    if (getInherit() != null && getInheritedTable().getColumn(name) != null) {
+      throw new MolgenisException(
+          "Alter column "
+              + getTableName()
+              + "."
+              + name
+              + " failed: column is part of inherited table "
+              + getInherit());
+    }
+    if (getInherit() != null && getInheritedTable().getColumn(column.getName()) != null) {
+      throw new MolgenisException(
+          "Rename column from "
+              + getTableName()
+              + "."
+              + name
+              + " to "
+              + getTableName()
+              + "."
+              + column.getName()
+              + " failed: column '"
+              + column.getName()
+              + "' is part of inherited table "
+              + getInherit());
+    }
     getDatabase()
         .tx(
             db -> {
@@ -84,6 +117,10 @@ class SqlTableMetadata extends TableMetadata {
                         + oldColumn.getName()
                         + " failed: REF_ARRAY is not supported for composite keys of table "
                         + newColumn.getRefTableName());
+              }
+
+              if (newColumn.getKey() == 1) {
+                newColumn.setRequired(true);
               }
 
               // if changing 'ref' then check if not refback exists
@@ -111,10 +148,9 @@ class SqlTableMetadata extends TableMetadata {
               executeAlterType(jooq, oldColumn, newColumn);
               executeAlterName(jooq, oldColumn, newColumn);
 
-              // change nullable?
-              if (oldColumn.isNullable() != null
-                  && !oldColumn.isNullable().equals(newColumn.isNullable())) {
-                executeSetNullable(jooq, newColumn);
+              // change required?
+              if (oldColumn.isRequired() && !oldColumn.isRequired() == newColumn.isRequired()) {
+                executeSetRequired(jooq, newColumn);
               }
 
               // update the metadata so we can use it for new keys and references

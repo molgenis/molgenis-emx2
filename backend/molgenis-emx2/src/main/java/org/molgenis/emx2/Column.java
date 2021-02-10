@@ -41,7 +41,7 @@ public class Column {
   private String description = null; // long description of the column
   private Integer position = null; // column order within the table
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private Boolean nullable = false;
+  private boolean required = false;
   private String validationExpression = null;
   private String visibleExpression = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
@@ -49,8 +49,8 @@ public class Column {
   // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
-  private Boolean indexed = false;
-  private Boolean cascadeDelete = false;
+  private boolean indexed = false;
+  private boolean cascadeDelete = false;
 
   public Column(Column column) {
     copy(column);
@@ -109,7 +109,7 @@ public class Column {
     drop = column.drop;
     columnType = column.columnType;
     position = column.position;
-    nullable = column.nullable;
+    required = column.required;
     key = column.key;
     readonly = column.readonly;
     description = column.description;
@@ -229,12 +229,12 @@ public class Column {
     return this;
   }
 
-  public Boolean isNullable() {
-    return nullable;
+  public boolean isRequired() {
+    return required;
   }
 
-  public Column setNullable(Boolean nillable) {
-    this.nullable = nillable;
+  public Column setRequired(boolean required) {
+    this.required = required;
     return this;
   }
 
@@ -299,7 +299,7 @@ public class Column {
     if (getKey() > 0) {
       builder.append(" key" + getKey());
     }
-    if (Boolean.TRUE.equals(isNullable())) builder.append(" nullable");
+    if (Boolean.TRUE.equals(isRequired())) builder.append(" required");
     return builder.toString();
   }
 
@@ -326,7 +326,7 @@ public class Column {
   }
 
   public Column setPkey() {
-    return this.setKey(1);
+    return this.setKey(1).setRequired(true);
   }
 
   public Column removeKey() {
@@ -448,7 +448,7 @@ public class Column {
                   type,
                   ref.getTargetTable(),
                   ref.getTargetColumn(),
-                  ref.isNullable() || this.isNullable(),
+                  ref.isRequired() || this.isRequired(),
                   path));
         }
       } else {
@@ -473,7 +473,7 @@ public class Column {
                 type,
                 getRefTableName(),
                 keyPart.getName(),
-                keyPart.isNullable() || this.isNullable(),
+                keyPart.isRequired() || this.isRequired(),
                 new ArrayList<>(List.of(keyPart.getName()))));
       }
     }

@@ -38,7 +38,7 @@ public class TestCompositeForeignKeys {
             "Person",
             column("firstName").setPkey(),
             column("lastName").setPkey(),
-            column("uncle", REF).setRefTable("Person").setNullable(true)));
+            column("uncle", REF).setRefTable("Person")));
 
     Table p = schema.getTable("Person");
 
@@ -201,7 +201,7 @@ public class TestCompositeForeignKeys {
             "Person",
             column("firstName").setPkey(),
             column("lastName").setPkey(),
-            column("cousins", REF_ARRAY).setRefTable("Person").setNullable(true)));
+            column("cousins", REF_ARRAY).setRefTable("Person")));
 
     Table p = schema.getTable("Person");
 

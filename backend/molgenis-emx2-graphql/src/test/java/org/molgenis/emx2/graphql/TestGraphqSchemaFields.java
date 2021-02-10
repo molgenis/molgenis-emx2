@@ -306,11 +306,11 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void testAddAlterDropColumn() throws IOException {
-    execute("mutation{change(columns:{table:\"Pet\",name:\"test\", nullable:true}){message}}");
+    execute("mutation{change(columns:{table:\"Pet\",name:\"test\"}){message}}");
     TestCase.assertNotNull(
         database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
     execute(
-        "mutation{change(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, nullable:true, columnType:\"INT\"}){message}}");
+        "mutation{change(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, columnType:\"INT\"}){message}}");
 
     database.clearCache(); // cannot know here, server clears caches
 
@@ -331,7 +331,7 @@ public class TestGraphqSchemaFields {
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
 
     execute(
-        "mutation{change(columns:{table:\"Pet\", name:\"test2\", nullable:true, columnType:\"STRING\", columnFormat:\"Hyperlink\", visibleExpression:\"blaat\"}){message}}");
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", columnFormat:\"Hyperlink\", visibleExpression:\"blaat\"}){message}}");
     database.clearCache(); // cannot know here, server clears caches
     assertEquals(
         "Hyperlink",

@@ -15,12 +15,12 @@ import { request } from "graphql-request";
 export default {
   components: {
     Molgenis,
-    ShowMore
+    ShowMore,
   },
   data() {
     return {
       session: null,
-      schema: null
+      schema: null,
     };
   },
   computed: {
@@ -31,7 +31,7 @@ export default {
     schemaName() {
       if (this.schema) return this.schema.name;
       return null;
-    }
+    },
   },
   methods: {
     loadSchema() {
@@ -39,18 +39,18 @@ export default {
       this.schema = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,externalSchema,description,columns{name,columnType,key,refTable,nullable,description}}}}"
+        "{_schema{name,tables{name,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
       )
-        .then(data => {
+        .then((data) => {
           this.schema = data._schema;
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response.error.status === 403) {
             this.error = "Forbidden. Do you need to login?";
           } else this.error = error.response.error;
         })
         .finally((this.loading = false));
-    }
+    },
   },
   created() {
     this.loadSchema();
@@ -58,7 +58,7 @@ export default {
   watch: {
     session() {
       this.loadSchema();
-    }
-  }
+    },
+  },
 };
 </script>

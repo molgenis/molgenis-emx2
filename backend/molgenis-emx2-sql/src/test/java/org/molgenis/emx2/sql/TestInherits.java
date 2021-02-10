@@ -48,7 +48,7 @@ public class TestInherits {
 
     // set pkey and a property
     person.getMetadata().add(column("fullName").setPkey());
-    person.getMetadata().add(column("birthDate").setType(DATE).setNullable(true));
+    person.getMetadata().add(column("birthDate").setType(DATE));
 
     // create first extended table
     Table employee =
@@ -58,11 +58,7 @@ public class TestInherits {
         s.create(
             table("Manager")
                 .setInherit("Employee")
-                .add(
-                    column("directs")
-                        .setType(REF_ARRAY)
-                        .setRefTable("Employee")
-                        .setNullable(true)));
+                .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
     Table ceo = s.create(table("CEO").setInherit("Manager"));
 

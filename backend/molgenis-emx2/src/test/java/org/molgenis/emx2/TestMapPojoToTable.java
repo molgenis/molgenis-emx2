@@ -48,10 +48,10 @@ public class TestMapPojoToTable {
     assertEquals(ColumnType.UUID, molgenisid.getColumnType());
     assertEquals(STRING, firstName.getColumnType());
 
-    assertTrue(firstName.isNullable());
-    assertFalse(lastName.isNullable());
+    assertTrue(firstName.isRequired());
+    assertFalse(lastName.isRequired());
 
-    assertEquals("This is optional first name", firstName.getDescription());
+    assertEquals("This is required first name", firstName.getDescription());
   }
 
   @Test

@@ -22,7 +22,7 @@ public class Reference {
 
   private ColumnType type;
   private ColumnType primitiveType;
-  private boolean nullable;
+  private boolean required;
 
   public Reference(
       Column column,
@@ -32,7 +32,7 @@ public class Reference {
       ColumnType primitiveType,
       String targetTable,
       String targetColumn,
-      boolean nullable,
+      boolean required,
       List<String> path) {
     this.column = column;
     this.fromColumn = fromColumn;
@@ -41,7 +41,7 @@ public class Reference {
     this.primitiveType = primitiveType;
     this.targetTable = targetTable;
     this.targetColumn = targetColumn;
-    this.nullable = nullable;
+    this.required = required;
     this.path = path;
   }
 
@@ -61,8 +61,8 @@ public class Reference {
     return toJooqType(getPrimitiveType());
   }
 
-  public boolean isNullable() {
-    return nullable;
+  public boolean isRequired() {
+    return required;
   }
 
   public Field getJooqField() {

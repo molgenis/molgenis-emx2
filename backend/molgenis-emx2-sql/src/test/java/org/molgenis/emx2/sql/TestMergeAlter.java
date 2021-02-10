@@ -50,16 +50,11 @@ public class TestMergeAlter {
             column(REFBACK_COLUMN)
                 .setType(ColumnType.REFBACK)
                 .setRefTable(refTableName)
-                .setMappedBy(REF_COLUMN)
-                .setNullable(true));
+                .setMappedBy(REF_COLUMN));
     newSchema.create(
         table(refTableName)
             .add(column(ID_COLUMN).setPkey())
-            .add(
-                column(REF_COLUMN)
-                    .setType(refColumnType)
-                    .setRefTable(targetTableName)
-                    .setNullable(true)));
+            .add(column(REF_COLUMN).setType(refColumnType).setRefTable(targetTableName)));
 
     schema.migrate(newSchema);
 
@@ -127,11 +122,7 @@ public class TestMergeAlter {
     schema
         .getTable(refTableName)
         .getMetadata()
-        .alterColumn(
-            new Column(REF_COLUMN)
-                .setType(refColumnType)
-                .setRefTable(targetTableName)
-                .setNullable(true));
+        .alterColumn(new Column(REF_COLUMN).setType(refColumnType).setRefTable(targetTableName));
     schema
         .getTable(targetTableName)
         .getMetadata()
@@ -139,8 +130,7 @@ public class TestMergeAlter {
             new Column(REFBACK_COLUMN)
                 .setType(ColumnType.REFBACK)
                 .setRefTable(refTableName)
-                .setMappedBy(REF_COLUMN)
-                .setNullable(true));
+                .setMappedBy(REF_COLUMN));
 
     // finally check change from ref to ref_array should keep refback
     //    if (REF.equals(refColumnType)) {

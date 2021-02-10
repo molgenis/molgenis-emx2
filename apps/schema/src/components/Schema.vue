@@ -177,7 +177,7 @@
                     <span>{{ column.columnType }}</span>
                     <span v-if="column.refTable">({{ column.refTable }})</span
                     >&nbsp;
-                    <span v-if="column.nullable">nullable&nbsp;</span>
+                    <span v-if="column.required">required&nbsp;</span>
                     <span v-if="column.refLink">
                       refLink({{ column.refLink }})&nbsp;
                     </span>
@@ -324,7 +324,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,nullable,description,jsonldType,validationExpression,visibleExpression}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,required,description,jsonldType,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = data._schema.name;

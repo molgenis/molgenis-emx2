@@ -106,7 +106,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLInt))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(NULLABLE)
+                  .name(REQUIRED)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -237,7 +237,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLInt))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(NULLABLE)
+                  .name(REQUIRED)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()

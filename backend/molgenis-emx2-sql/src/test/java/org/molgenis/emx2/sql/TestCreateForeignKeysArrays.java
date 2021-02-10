@@ -90,11 +90,7 @@ public class TestCreateForeignKeysArrays {
             table("B")
                 .add(column("id").setPkey())
                 .add(column(refToA).setType(REF_ARRAY).setRefTable("A"))
-                .add(
-                    column(refToA + "Nullable")
-                        .setType(REF_ARRAY)
-                        .setRefTable("A")
-                        .setNullable(true)));
+                .add(column(refToA + "Nullable").setType(REF_ARRAY).setRefTable("A")));
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set("id", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 3));

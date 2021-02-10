@@ -5,7 +5,7 @@
     <label v-if="label && !inplace" :for="id">
       <b>{{ label }}</b>
     </label>
-    <span v-if="nullable" class="float-right">(optional)</span>
+    <span v-if="required" class="float-right">(required)</span>
     <slot />
     <small
       v-if="help && !inplace"
@@ -29,8 +29,8 @@ export default {
     label: String,
     /** optional help string shown below */
     help: String,
-    /** if optional */
-    nullable: Boolean,
+    /** if required */
+    required: Boolean,
     /** String with error state */
     error: String,
     /** whether inplace */

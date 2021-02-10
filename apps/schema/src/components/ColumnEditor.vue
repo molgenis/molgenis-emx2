@@ -25,7 +25,7 @@
       />
     </td>
     <td>
-      <InputBoolean v-model="column.nullable" :inplace="true" />
+      <InputBoolean v-model="column.required" :inplace="true" />
     </td>
     <td>
       <InputSelect

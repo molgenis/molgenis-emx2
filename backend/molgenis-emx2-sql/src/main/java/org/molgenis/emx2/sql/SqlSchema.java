@@ -310,7 +310,7 @@ public class SqlSchema implements Schema {
           for (TableMetadata newTable : mergeTableList) {
             if (!newTable.isDrop()) {
               TableMetadata oldTable = this.getTable(newTable.getTableName()).getMetadata();
-              for (Column newColumn : newTable.getLocalColumns()) {
+              for (Column newColumn : newTable.getNonInheritedColumns()) {
                 Column oldColumn =
                     newColumn.getOldName() != null
                         ? oldTable.getColumn(newColumn.getOldName()) // when renaming

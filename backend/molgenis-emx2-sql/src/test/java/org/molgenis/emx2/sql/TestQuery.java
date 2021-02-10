@@ -32,10 +32,10 @@ public class TestQuery {
         schema.create(
             table(PERSON)
                 .add(column("ID").setType(INT).setPkey())
-                .add(column("First_Name").setKey(2))
-                .add(column("Last_Name").setKey(2))
-                .add(column("Father").setType(REF).setRefTable(PERSON).setNullable(true))
-                .add(column("Mother").setType(REF).setRefTable(PERSON).setNullable(true)));
+                .add(column("First_Name").setKey(2).setRequired(true))
+                .add(column("Last_Name").setKey(2).setRequired(true))
+                .add(column("Father").setType(REF).setRefTable(PERSON))
+                .add(column("Mother").setType(REF).setRefTable(PERSON)));
 
     Row donald =
         new Row().setInt("ID", 1).setString("First_Name", "Donald").setString("Last_Name", "Duck");

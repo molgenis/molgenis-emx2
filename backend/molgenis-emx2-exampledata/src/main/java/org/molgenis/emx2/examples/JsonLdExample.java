@@ -20,13 +20,12 @@ public class JsonLdExample {
                         .setPkey()
                         .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#name"),
                     column("jobTitle")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#jobTitle"),
+                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#jobTitle")
+                        .setRequired(true),
                     column("telephone")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#telephone")
-                        .setNullable(true),
+                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#telephone"),
                     column("url")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#url")
-                        .setNullable(true)));
+                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#url")));
 
     personTable.insert(
         row(
@@ -51,13 +50,15 @@ public class JsonLdExample {
                     column("author")
                         .setType(REF)
                         .setRefTable("Person")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#author"),
+                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#author")
+                        .setRequired(true),
                     column("datePublished")
                         .setType(DATE)
-                        .setJsonldType(
-                            "https://schema.org/docs/jsonldcontext.jsonld#datePublished"),
+                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#datePublished")
+                        .setRequired(true),
                     column("prepTime")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#prepTime")));
+                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#prepTime")
+                        .setRequired(true)));
 
     recipeTable.insert(
         row(

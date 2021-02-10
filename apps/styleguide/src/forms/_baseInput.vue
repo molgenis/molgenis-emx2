@@ -21,8 +21,8 @@ export default {
     label: String,
     /** optional help string shown below input */
     help: String,
-    /** whether input can nullable (does not validate, but show option to clear input) */
-    nullable: {
+    /** whether input must be required (does not validate, but show option to clear input) */
+    required: {
       type: Boolean,
       default: false,
     },
@@ -153,7 +153,7 @@ export default {
       );
     },
     showClear() {
-      return !this.readonly && this.nullable && this.clear;
+      return !this.readonly && !this.required && this.clear;
     },
   },
   directives: {

@@ -36,10 +36,10 @@ public class TestGraphJsonQuery {
     schema.create(
         table("Person")
             .add(column("name").setPkey())
-            .add(column("father").setType(REF).setRefTable("Person").setNullable(true))
-            .add(column("mother").setType(REF).setRefTable("Person").setNullable(true))
-            .add(column("children").setType(REF_ARRAY).setRefTable("Person").setNullable(true))
-            .add(column("cousins").setType(REF_ARRAY).setRefTable("Person").setNullable(true)));
+            .add(column("father").setType(REF).setRefTable("Person"))
+            .add(column("mother").setType(REF).setRefTable("Person"))
+            .add(column("children").setType(REF_ARRAY).setRefTable("Person"))
+            .add(column("cousins").setType(REF_ARRAY).setRefTable("Person")));
 
     schema
         .getTable("Person")

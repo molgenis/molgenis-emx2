@@ -47,7 +47,10 @@ public class SqlDatabase implements Database {
 
         @Override
         public void schemaChanged(String schemaName) {
-          getSchema(schemaName).getMetadata().reload();
+          // wait until end of transaction
+          if (!inTx) {
+            getSchema(schemaName).getMetadata().reload();
+          }
         }
       };
 

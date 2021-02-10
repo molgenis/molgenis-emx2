@@ -5,7 +5,7 @@ import java.util.UUID;
 public class PersonBean {
   private UUID molgenisid;
 
-  @ColumnAnnotation(description = "This is optional first name", nullable = true)
+  @ColumnAnnotation(description = "This is required first name", required = true)
   private String firstName;
 
   private String lastName;

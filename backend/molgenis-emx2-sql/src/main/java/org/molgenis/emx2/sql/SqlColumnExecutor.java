@@ -25,16 +25,16 @@ public class SqlColumnExecutor {
     // hide
   }
 
-  public static void executeSetNullable(DSLContext jooq, Column column) {
-    boolean isNullable = column.isNullable();
+  public static void executeSetRequired(DSLContext jooq, Column column) {
+    boolean isRequired = column.isRequired();
     switch (column.getColumnType()) {
       case REFBACK:
-        // refback is always nullable so fix here
-        isNullable = true;
+        // refback is never required so fix here
+        isRequired = false;
         break;
       case REF:
       case REF_ARRAY:
-        isNullable = column.getReferences().stream().anyMatch(Reference::isNullable) || isNullable;
+        isRequired = column.getReferences().stream().allMatch(Reference::isRequired) && isRequired;
         break;
         //      case MREF:
         //        // nullability checked on the jointable
@@ -42,7 +42,7 @@ public class SqlColumnExecutor {
         //        break;
       default:
         // if has default, we will first update all 'null' to default
-        if (!column.isNullable() && column.getDefaultValue() != null) {
+        if (column.isRequired() && column.getDefaultValue() != null) {
           jooq.update(column.getJooqTable())
               .set(column.getJooqField(), column.getDefaultValue())
               .where(column.getJooqField().isNull())
@@ -53,27 +53,27 @@ public class SqlColumnExecutor {
     // in case of FILE we have to add all parts
     if (FILE.equals(column.getColumnType())) {
       for (Field f : column.getJooqFileFields()) {
-        executeSetNullable(jooq, column.getJooqTable(), f, column.isNullable());
+        executeSetRequired(jooq, column.getJooqTable(), f, column.isRequired());
       }
     }
     // simply add set nullability
     else {
       if (column.isReference()) {
         for (Reference ref : column.getReferences()) {
-          executeSetNullable(jooq, column.getJooqTable(), ref.getJooqField(), isNullable);
+          executeSetRequired(jooq, column.getJooqTable(), ref.getJooqField(), isRequired);
         }
       } else {
-        executeSetNullable(jooq, column.getJooqTable(), column.getJooqField(), isNullable);
+        executeSetRequired(jooq, column.getJooqTable(), column.getJooqField(), isRequired);
       }
     }
   }
 
-  private static void executeSetNullable(
-      DSLContext jooq, Table table, Field field, boolean nullable) {
-    if (nullable) {
-      jooq.alterTable(table).alterColumn(field).dropNotNull().execute();
-    } else {
+  private static void executeSetRequired(
+      DSLContext jooq, Table table, Field field, boolean required) {
+    if (required) {
       jooq.alterTable(table).alterColumn(field).setNotNull().execute();
+    } else {
+      jooq.alterTable(table).alterColumn(field).dropNotNull().execute();
     }
   }
 
@@ -208,7 +208,7 @@ public class SqlColumnExecutor {
             }
           }
         }
-        executeSetNullable(jooq, column);
+        executeSetRequired(jooq, column);
       } else if (FILE.equals(column.getColumnType())) {
         for (Field f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
@@ -216,7 +216,7 @@ public class SqlColumnExecutor {
       } else {
         jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
         executeSetDefaultValue(jooq, column);
-        executeSetNullable(jooq, column);
+        executeSetRequired(jooq, column);
       }
       // central constraints
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
@@ -242,7 +242,7 @@ public class SqlColumnExecutor {
     if (c.getName() == null) {
       throw new MolgenisException("Add column failed: Column name cannot be null");
     }
-    if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && c.isNullable()) {
+    if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
       throw new MolgenisException(
           "unique on column '" + c.getName() + "' failed",
           "When key spans multiple columns, none of the columns can be nullable");
@@ -276,6 +276,9 @@ public class SqlColumnExecutor {
                 + "' failed: refLink "
                 + c.getRefLink()
                 + " is not a REF,REF_ARRAY");
+      }
+      if (c.getKey() == 1) {
+        c.setRequired(true);
       }
     }
   }

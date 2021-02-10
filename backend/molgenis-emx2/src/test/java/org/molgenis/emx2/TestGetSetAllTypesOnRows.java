@@ -175,8 +175,8 @@ public class TestGetSetAllTypesOnRows {
   private void addContents(SchemaMetadata m, List<ColumnType> columnTypes) {
     TableMetadata t = m.create(table("TypeTest"));
     for (ColumnType columnType : columnTypes) {
-      t.add(column("test" + columnType).setType(columnType));
-      t.add(column("test" + columnType + "_nullable").setType(columnType).setNullable(true));
+      t.add(column("test" + columnType).setType(columnType).setRequired(true));
+      t.add(column("test" + columnType + "_nullable").setType(columnType));
       t.add(column("test" + columnType + "_readonly").setType(columnType).setReadonly(true));
     }
   }

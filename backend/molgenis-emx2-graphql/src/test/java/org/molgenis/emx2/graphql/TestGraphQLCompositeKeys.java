@@ -48,7 +48,7 @@ public class TestGraphQLCompositeKeys {
             + "        columns: [\n"
             + "          { name: \"id1\", columnType: \"INT\", key: 1 }\n"
             + "          { name: \"id2\", key: 1}\n"
-            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\", nullable:true }\n"
+            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\" }\n"
             + "        ]\n"
             + "      }\n"
             + "    ]\n"

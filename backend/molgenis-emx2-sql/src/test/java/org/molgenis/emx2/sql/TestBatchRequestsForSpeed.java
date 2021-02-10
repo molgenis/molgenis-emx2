@@ -90,9 +90,9 @@ public class TestBatchRequestsForSpeed {
             table(
                 PERSON,
                 column("ID").setType(INT).setPkey(),
-                column("First_Name").setNullable(false).setKey(2),
-                column("Last_Name").setKey(2),
-                column("Father").setType(REF).setRefTable(PERSON).setNullable(true)));
+                column("First_Name").setRequired(true).setKey(2),
+                column("Last_Name").setKey(2).setRequired(true),
+                column("Father").setType(REF).setRefTable(PERSON)));
 
     for (int i = 0; i < 10; i++) {
       String name = PERSON + i;
@@ -100,9 +100,9 @@ public class TestBatchRequestsForSpeed {
           table(
               name,
               column("ID").setType(INT).setPkey(),
-              column("First_Name").setNullable(false).setKey(2),
-              column("Last_Name").setKey(2),
-              column("Father").setType(REF).setRefTable(name).setNullable(true)));
+              column("First_Name").setRequired(true).setKey(2),
+              column("Last_Name").setKey(2).setRequired(true),
+              column("Father").setType(REF).setRefTable(name)));
     }
     StopWatch.print("Created tables");
 

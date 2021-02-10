@@ -25,7 +25,7 @@ public class Emx2 {
   public static final String REF_TABLE = "refTable";
   public static final String REF_LINK = "refLink";
   public static final String MAPPED_BY = "mappedBy";
-  public static final String NULLABLE = "nullable";
+  public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
   private static final String JSONLD_TYPE = "jsonldType";
 
@@ -82,7 +82,7 @@ public class Emx2 {
         if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
         if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
         if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
-        if (r.notNull(NULLABLE)) column.setNullable(r.getBoolean(NULLABLE));
+        if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
         if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
         if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
         if (r.notNull(JSONLD_TYPE)) column.setJsonldType(r.getString(JSONLD_TYPE));
@@ -136,7 +136,7 @@ public class Emx2 {
           row.setString(COLUMN_NAME, c.getName());
           if (!c.getColumnType().equals(STRING))
             row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-          if (c.isNullable()) row.setBool(NULLABLE, c.isNullable());
+          if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
           if (c.getKey() > 0) row.setInt(KEY, c.getKey());
           if (!c.getRefSchema().equals(c.getSchemaName()))
             row.setString(REF_SCHEMA, c.getRefTableName());

@@ -20,11 +20,12 @@ public class SimpleTypeTestExample {
     ColumnType[] columnTypes =
         new ColumnType[] {UUID, STRING, BOOL, INT, DECIMAL, TEXT, DATE, DATETIME};
     for (ColumnType columnType : columnTypes) {
-      typeTestTable.add(column("Test_" + columnType.toString().toLowerCase()).setType(columnType));
       typeTestTable.add(
-          column("Test_" + columnType.toString().toLowerCase() + "_nillable")
+          column("Test_" + columnType.toString().toLowerCase())
               .setType(columnType)
-              .setNullable(true));
+              .setRequired(true));
+      typeTestTable.add(
+          column("Test_" + columnType.toString().toLowerCase() + "_nillable").setType(columnType));
     }
     schema.create(typeTestTable);
   }

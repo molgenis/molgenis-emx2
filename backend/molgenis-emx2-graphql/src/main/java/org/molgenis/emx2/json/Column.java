@@ -9,7 +9,7 @@ public class Column {
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
-  private Boolean nullable = false;
+  private Boolean required = false;
   private String refSchema = null;
   private String refTable = null;
   private String refLink = null;
@@ -46,7 +46,7 @@ public class Column {
     // this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validationExpression = column.getValidationExpression();
-    this.nullable = column.isNullable();
+    this.required = column.isRequired();
     this.description = column.getDescription();
     this.jsonldType = column.getJsonldType();
     this.visibleExpression = column.getVisibleExpression();
@@ -63,7 +63,7 @@ public class Column {
     c.setType(columnType);
     if (drop) c.drop();
     c.setColumnFormat(columnFormat);
-    c.setNullable(nullable);
+    c.setRequired(required);
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
     c.setRefLink(refLink);
@@ -105,12 +105,12 @@ public class Column {
     this.key = key;
   }
 
-  public Boolean getNullable() {
-    return nullable;
+  public Boolean getRequired() {
+    return required;
   }
 
-  public void setNullable(Boolean nullable) {
-    this.nullable = nullable;
+  public void setRequired(Boolean required) {
+    this.required = required;
   }
 
   public String getRefTable() {

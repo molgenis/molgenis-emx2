@@ -34,7 +34,7 @@ public class Emx1Attribute {
     this.setIdAttribute(c.getKey() == 1);
     this.setRefEntity(c.getRefTableName());
     this.setMappedBy(c.getMappedBy());
-    this.setNillable(c.isNullable());
+    this.setNillable(!c.isRequired());
   }
 
   public Emx1Attribute(Row row) {
