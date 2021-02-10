@@ -1,7 +1,7 @@
 <template>
   <tr :style="column.drop ? 'text-decoration: line-through' : ''">
     <td>
-      <div class="moveHandle">{{ columnIndex + 1 }}</div>
+      <div class="moveHandle">{{ column.position }}</div>
     </td>
     <td style="width: 10em">
       <InputString

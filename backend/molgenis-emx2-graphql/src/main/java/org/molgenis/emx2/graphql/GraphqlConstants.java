@@ -6,6 +6,7 @@ public class GraphqlConstants {
   public static final String COLUMNS = "columns";
   public static final String SETTINGS = "settings";
   public static final String NULLABLE = "nullable";
+  public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";
   public static final String COLUMN_FORMAT = "columnFormat";
   public static final String VALIDATION_EXPRESSION = "validationExpression";

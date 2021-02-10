@@ -39,7 +39,10 @@
       <Draggable
         v-model="columns"
         tag="tbody"
-        @end="timestamp = Date.now()"
+        @end="
+          timestamp = Date.now();
+          applyPosition();
+        "
         :key="timestamp"
       >
         <ColumnEditor
@@ -108,6 +111,11 @@ export default {
     };
   },
   methods: {
+    applyPosition() {
+      let position = 1;
+      this.columns.forEach((c) => (c.position = position++));
+      timestamp: Date.now();
+    },
     validateName() {
       if (!this.name) {
         return "Table name is required";

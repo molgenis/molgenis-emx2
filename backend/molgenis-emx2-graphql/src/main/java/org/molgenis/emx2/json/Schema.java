@@ -62,8 +62,6 @@ public class Schema {
         if (!c.isInherited()) {
           // we remove clearly inherited columns here
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
-          // add position so we can also deal with ordering
-          cm.setPosition(i++);
           tm.add(cm);
         }
       }

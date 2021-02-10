@@ -304,7 +304,7 @@ public class MetadataUtils {
       List<org.jooq.Record> columnRecords =
           jooq.selectFrom(COLUMN_METADATA)
               .where(TABLE_SCHEMA.eq(schema.getName()))
-              .orderBy(COLUMN_POSITION)
+              .orderBy(COLUMN_POSITION.asc())
               .fetch();
       for (org.jooq.Record r : columnRecords) {
         result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));

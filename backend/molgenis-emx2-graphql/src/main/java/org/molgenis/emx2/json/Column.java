@@ -15,6 +15,7 @@ public class Column {
   private String refLink = null;
   private String mappedBy = null;
   private String refJsTemplate;
+  private Integer position = null;
 
   // private Boolean cascadeDelete = false;
   private String validationExpression = null;
@@ -41,6 +42,7 @@ public class Column {
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
     this.refJsTemplate = column.getRefJsTemplate();
+    this.position = column.getPosition();
     // this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validationExpression = column.getValidationExpression();
@@ -67,6 +69,7 @@ public class Column {
     c.setRefLink(refLink);
     c.setRefJsTemplate(refJsTemplate);
     c.setKey(key);
+    c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
     c.setMappedBy(mappedBy);
     c.setValidationExpression(validationExpression);
@@ -228,5 +231,13 @@ public class Column {
 
   public void setDrop(boolean drop) {
     this.drop = drop;
+  }
+
+  public Integer getPosition() {
+    return position;
+  }
+
+  public void setPosition(Integer position) {
+    this.position = position;
   }
 }
