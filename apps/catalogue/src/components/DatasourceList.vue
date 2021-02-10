@@ -12,10 +12,10 @@
     <p v-else>No records found.</p>
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="card-columns">
-      <DatabankCard
-        v-for="databank in databanks"
-        :key="databank.name"
-        :databank="databank"
+      <DatasourceCard
+        v-for="datasource in datasources"
+        :key="datasource.acronym"
+        :datasource="datasource"
         :institutionAcronym="institutionAcronym"
       />
     </div>
@@ -40,11 +40,11 @@ import {
   InputSearch,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
-import DatabankCard from "./DatabankCard";
+import DatasourceCard from "./DatasourceCard";
 
 export default {
   components: {
-    DatabankCard,
+    DatasourceCard,
     Pagination,
     MessageError,
     InputSearch,
@@ -52,7 +52,6 @@ export default {
   props: {
     showSearch: { type: Boolean, default: true },
     institutionAcronym: String,
-    datasourceAcronym: String,
     filter: {
       type: Object,
       default() {
@@ -71,7 +70,7 @@ export default {
       count: 0,
       error: null,
       loading: false,
-      databanks: [],
+      datasources: [],
     };
   },
   methods: {
@@ -85,15 +84,10 @@ export default {
           acronym: { equals: this.institutionAcronym },
         };
       }
-      if (this.datasourceAcronym) {
-        this.filter.datasource = {
-          acronym: { equals: this.datasourceAcronym },
-        };
-      }
       request(
         "graphql",
-        `query Databanks($filter:DatabanksFilter,$offset:Int,$limit:Int){Databanks(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name}}
-        ,Databanks_agg(${searchString}filter:$filter){count}}`,
+        `query Datasources($filter:DatasourcesFilter,$offset:Int,$limit:Int){Datasources(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{acronym,name}}
+        ,Datasources_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
@@ -101,8 +95,8 @@ export default {
         }
       )
         .then((data) => {
-          this.databanks = data.Databanks;
-          this.count = data.Databanks_agg.count;
+          this.datasources = data.Datasources;
+          this.count = data.Datasources_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

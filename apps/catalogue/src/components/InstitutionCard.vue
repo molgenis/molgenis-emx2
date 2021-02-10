@@ -11,15 +11,11 @@
             {{ institution.name }}
           </RouterLink>
         </h4>
-        <span v-if="institution.website">
-          <label>website: </label>
+        <p v-if="institution.website">
           <a :href="institution.website">{{ institution.website }}</a>
-        </span>
-        <ReadMore
-          :text="institution.description"
-          length="200"
-          v-if="institution.description"
-        />
+        </p>
+        <p>{{ institution.type ? institution.type.name : "" }}</p>
+        <p>{{ institution.country ? institution.country.name : "" }}</p>
       </div>
     </div>
   </div>
@@ -27,9 +23,10 @@
 
 <script>
 import { ReadMore } from "@mswertz/emx2-styleguide";
+import Property from "./Property";
 
 export default {
-  components: { ReadMore },
+  components: { ReadMore, Property },
   props: {
     institution: Object,
   },

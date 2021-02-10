@@ -10,13 +10,20 @@
     <a :href="institution.website">{{ institution.website }}</a> <br />
     <label>Description:</label>
     <p>{{ institution.description }}</p>
+    <h4>Datasources:</h4>
+    <DatasourceList
+      :institutionAcronym="institutionAcronym"
+      :showSearch="false"
+    />
     <h4>Databanks:</h4>
-    <br />
-    <DatabankList :institutionAcronym="institutionAcronym" />
+    <DatabankList
+      :institutionAcronym="institutionAcronym"
+      :showSearch="false"
+    />
     <h4>Networks:</h4>
     <ProjectList
       :filter="{
-        institution: {
+        provider: {
           acronym: { equals: this.institutionAcronym },
         },
       }"
@@ -29,9 +36,11 @@ import { request } from "graphql-request";
 import { MessageError, ReadMore } from "@mswertz/emx2-styleguide";
 import DatabankList from "../components/DatabankList";
 import ProjectList from "../components/ProjectList";
+import DatasourceList from "../components/DatasourceList";
 
 export default {
   components: {
+    DatasourceList,
     ProjectList,
     DatabankList,
     MessageError,

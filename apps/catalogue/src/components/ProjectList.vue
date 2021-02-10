@@ -1,15 +1,16 @@
 <template>
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="row">
+    <div>
       <Pagination
         v-if="count > 0"
-        class="justify-content-center col-10 mb-2"
+        class="justify-content-center mb-2"
         :count="count"
         v-model="page"
         :limit="limit"
         :defaultValue="page"
       />
+      <p v-else>No records found.</p>
     </div>
     <div class="row">
       <ProjectCard
@@ -63,7 +64,7 @@ export default {
       }
       request(
         "graphql",
-        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name}}
+        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name}}
         ,Projects_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

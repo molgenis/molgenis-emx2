@@ -19,13 +19,28 @@
       <label>Description:</label>
       <p>{{ databank.description }}</p>
       <p>{{ databank.originator ? databank.originator.acronym : "N/A" }}</p>
+      <label>Population:</label>
+      <p v-if="databank.datasource">
+        Underlying population: {{ databank.datasource.population }}
+      </p>
+      <p v-if="databank.datasource">
+        Datasource population: {{ databank.datasource.inclusionCriteria }}
+      </p>
+      <p>Databank population: {{ databank.population }}</p>
       <label>Quality:</label>
       <p>{{ databank.quality }}</p>
       <label>Lag time:</label>
       <p>{{ databank.lagTime }}</p>
       <label>Prompt:</label>
       <p>{{ databank.prompt }}</p>
-      <label>Originator:</label>
+      <label>Purpose:</label>
+      <p>{{ databank.purpose }}</p>
+      <label>Collection:</label>
+      <p>{{ databank.collection }}</p>
+      <label>StartYear:</label>
+      <p>{{ databank.startYear }}</p>
+      <label>Completeness:</label>
+      <p>{{ databank.completeness }}</p>
     </div>
     <div v-if="tab == 'Data'" class="tab-pane show active">
       <span v-if="databank.releases == null">No data loaded</span>
@@ -86,7 +101,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,website, quality,investigators{name}, supplementaryInformation, releases{version},originator{acronym}}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,datasource{population,inclusionCriteria},purpose, collection,population,updateFrequency,completeness, startYear,endYear, type{name},provider{acronym,name}, description,website,prompt, lagTime,investigators{name}, supplementaryInformation, releases{version}}}`,
         {
           acronym: this.databankAcronym,
         }

@@ -15,6 +15,13 @@
         <h3>Institutions</h3>
         <p class="text-left">Such as Universities, Companies, institutions</p>
       </RouterLink>
+      <RouterLink to="datasources" class="btn btn-info col-2">
+        <span class="badge badge-light">{{ tables }}</span>
+        <h3>Datasources</h3>
+        <p class="text-left">
+          Families of databanks collected from same population
+        </p>
+      </RouterLink>
       <RouterLink to="databanks" class="btn btn-warning col-2">
         <span class="badge badge-light">{{ databanks }}</span>
         <h3>Databanks</h3>
@@ -22,15 +29,8 @@
       </RouterLink>
       <RouterLink to="projects" class="btn btn-success col-2">
         <span class="badge badge-light">{{ projects }}</span>
-        <h3>Projects</h3>
+        <h3>Studies</h3>
         <p class="text-left">Collaborations of multiple databanks.</p>
-      </RouterLink>
-      <RouterLink to="tables" class="btn btn-info col-2">
-        <span class="badge badge-light">{{ tables }}</span>
-        <h3>Tables</h3>
-        <p class="text-left">
-          Tables within either Databanks or as defined by Consortia.
-        </p>
       </RouterLink>
       <RouterLink to="variables" class="btn btn-danger col-2">
         <span class="badge badge-light">{{ variables }}</span>

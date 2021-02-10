@@ -61,7 +61,7 @@ export default {
       }
       request(
         "graphql",
-        `query Institutions($filter:InstitutionsFilter,$offset:Int,$limit:Int){Institutions(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,description,website}
+        `query Institutions($filter:InstitutionsFilter,$offset:Int,$limit:Int){Institutions(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,country{name}}
         ,Institutions_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

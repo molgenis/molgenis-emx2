@@ -13,6 +13,7 @@
           :projectAcronym="projectAcronym"
           :tableName="tableName"
           :resourceAcronym="resourceAcronym"
+          :datasourceAcronym="datasourceAcronym"
           :version="version"
         />
         <div class="container-fluid">
@@ -55,6 +56,9 @@ export default {
     },
     resourceAcronym() {
       return this.$route.params.resourceAcronym;
+    },
+    datasourceAcronym() {
+      return this.$route.params.datasourceAcronym;
     },
     version() {
       return this.$route.params.version;
