@@ -73,7 +73,7 @@ export default {
       if (settingsAlter.length > 0) {
         request(
           "graphql",
-          `mutation change($alter:[AlterSettingInput]){change(settings:$alter){message}}`,
+          `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
           { settings: settingsAlter }
         )
           .then((data) => {
@@ -88,7 +88,7 @@ export default {
       if (settingsDrop.length > 0) {
         request(
           "graphql",
-          `mutation drop($drop:[DropSettingInput]){drop(settings:$drop){message}}`,
+          `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
           { settings: settingsDrop }
         )
           .then((data) => {

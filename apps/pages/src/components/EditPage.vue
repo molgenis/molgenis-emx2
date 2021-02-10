@@ -122,7 +122,7 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation change($settings:[AlterSettingInput]){change(settings:$settings){message}}`,
+        `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
         {
           settings: {
             key: "page." + this.page,

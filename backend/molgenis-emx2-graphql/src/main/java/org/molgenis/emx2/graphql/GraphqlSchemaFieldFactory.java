@@ -24,7 +24,7 @@ public class GraphqlSchemaFieldFactory {
 
   static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
-          .name("MolgenisSettingInput")
+          .name("MolgenisSettingsInput")
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .field(
@@ -51,7 +51,7 @@ public class GraphqlSchemaFieldFactory {
           .build();
   private static final GraphQLInputObjectType inputDropSettingType =
       new GraphQLInputObjectType.Builder()
-          .name("DropSettingInput")
+          .name("DropSettingsInput")
           .field(
               GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
           .field(
