@@ -9,7 +9,7 @@ For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis 
  
 ## Example 'molgenis' sheet
 
-| tableName | columName  | type | key | nullable | description               |
+| tableName | columName  | type | key | required | description               |
 |-----------|------------|------|-----|----------|---------------------------|
 | Person    |            |      |     |          | my person table           |
 | Person    | id         | int  | 1   |          | id is part of primary key |
@@ -71,9 +71,9 @@ When key=1 this is used as primary key in user interface, upload and API
 Other key>1 can be used to create secondary key.
 Default value: empty
 
-### nullable
-When nullable=TRUE then values in this column can be left empty.
-When nullable=FALSE then this column is required.
+### required
+When required=TRUE then values in this column must be filled
+When required=FALSE then this column can be left empty.
 Default value: FALSE.
 
 ### description
@@ -94,15 +94,16 @@ Default value: empty
 
 A simple reference:
 
-| tableName | columName  | type | key | refTable | nullable | description               |
+| tableName | columName  | type | key | refTable | required | description               |
 |-----------|------------|------|-----|----------|----------|---------------------------|
 | Person    |            |      |     |          |          | my person table           |
 | Person    | id         | int  | 1   |          |          | id is part of primary key |
-| Person    | firstName  |      | 2   |          |          |                           |
-| Person    | lastName   |      | 2   |          |          |                           |
+| Person    | firstName  |      | 2   |          | TRUE     |                           |
+| Person    | lastName   |      | 2   |          | TRUE     |                           |
 | Pet       | name       |      | 1   |          |          |                           |   
 | Pet       | species    |      |     |          | TRUE     |                           |
-| Pet       | owner      | ref  |     | Person   |          | foreign key to Person     |
+| Pet       | owner      | ref  |     | Person   | TRUE     | foreign key to Person     |
+Note: when key=1 then automatically required=TRUE
 
 ### mappedBy
 In case you want to create a two-directional relationship you can use columnType=refack + mappedBy.
@@ -120,14 +121,14 @@ See example below:
 
 Example of complex relationships:
 
-| tableName | columName  | type    | key | refTable | refFrom         | refTo              | mappedBy | nullable | description                 |
+| tableName | columName  | type    | key | refTable | refFrom         | refTo              | mappedBy | required | description                 |
 |-----------|------------|---------|-----|----------|-----------------|--------------------|----------|----------|-----------------------------|
 | Person    |            |         |     |          |                 |                    |          |          | my person table             |      
 | Person    | firstName  |         | 1   |          |                 |                    |          |          |                             |
 | Person    | lastName   |         | 1   |          |                 |                    |          |          |                             |
 | Person    | pets       | refback |     | Pet      |                 |                    | owner    |          |                             |
 | Pet       | name       |         | 1   |          |                 |                    |          |          |                             |   
-| Pet       | species    |         |     |          |                 |                    |          | TRUE     |                             |
+| Pet       | species    |         |     |          |                 |                    |          |          |                             |
 | Pet       | owner      | ref     |     | Person   | ownerFN,ownerLN | firstName,lastName |          |          | multi-foreign key to Person |
 
 ## Expressions (alpha/planned)
