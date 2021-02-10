@@ -45,10 +45,12 @@ import {
   MessageError,
   MessageSuccess,
   ShowMore,
+  DefaultMenuMixin,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
 export default {
+  mixins: [DefaultMenuMixin],
   components: {
     MenuDesign,
     ShowMore,
@@ -60,30 +62,6 @@ export default {
   },
   props: {
     session: {},
-    menu: {
-      type: Array,
-      default: () => {
-        return [
-          { label: "Tables", href: "../tables/" },
-          {
-            label: "Schema",
-            href: "../schema/",
-          },
-          {
-            label: "Upload",
-            href: "../import/",
-          },
-          {
-            label: "Download",
-            href: "../download/",
-          },
-          {
-            label: "Settings",
-            href: "../settings/",
-          },
-        ];
-      },
-    },
   },
   data() {
     return {
@@ -103,7 +81,7 @@ export default {
         this.draft = JSON.parse(JSON.stringify(this.session.settings.menu));
       } else {
         //deep clone
-        this.draft = JSON.parse(JSON.stringify(this.menu));
+        this.draft = JSON.parse(JSON.stringify(this.defaultMenu));
       }
       this.updateKey();
     },
@@ -113,7 +91,7 @@ export default {
       this.success = null;
       request(
         "graphql",
-        `mutation change($settings:[AlterSettingInput]){change(settings:$settings){message}}`,
+        `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
         { settings: { key: "menu", value: JSON.stringify(this.draft) } }
       )
         .then((data) => {
