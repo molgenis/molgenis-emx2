@@ -14,7 +14,7 @@
     v-else
     v-bind="$props"
     v-model="arrayValue[0]"
-    :options="['yes', 'no']"
+    :options="[true, false]"
   />
 </template>
 
