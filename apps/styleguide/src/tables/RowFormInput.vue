@@ -78,13 +78,13 @@ import InputString from "../forms/InputString";
 import InputInt from "../forms/InputInt";
 import InputDecimal from "../forms/InputDecimal";
 import InputBoolean from "../forms/InputBoolean";
-import InputRefSelect from "../forms/InputRefSelect";
 import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 
 export default {
+  name: "RowFormInput",
   extends: _baseInput,
   props: {
     schema: String,
@@ -105,7 +105,7 @@ export default {
     InputInt,
     InputDecimal,
     InputBoolean,
-    InputRefSelect,
+    InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
     InputDate,
     InputDateTime,
     InputFile,

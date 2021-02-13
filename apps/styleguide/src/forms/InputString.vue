@@ -1,7 +1,7 @@
 <template>
   <span>
     <span v-if="inplace && !focus && !error" @click="toggleFocus">
-      {{ prettyValue ? prettyValue : "&zwnj;.&zwnj;" }}
+      {{ prettyValue ? prettyValue : "&zwnj;&zwnj;" }}
       <IconAction class="hoverIcon" icon="edit" />
     </span>
     <FormGroup v-else v-bind="$props">
@@ -54,6 +54,10 @@ export default {
 <style scoped>
 .is-invalid {
   background-image: none;
+}
+
+span:hover .hoverIcon {
+  visibility: visible;
 }
 </style>
 

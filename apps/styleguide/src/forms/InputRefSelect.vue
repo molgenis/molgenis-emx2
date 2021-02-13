@@ -34,9 +34,17 @@
           @deselect="deselect(selectIdx)"
           :graphqlURL="graphqlURL"
         >
+          <template v-slot:colheader="slotProps">
+            <RowButtonAdd
+              v-if="slotProps.canEdit"
+              :table="slotProps.table"
+              :graphqlURL="graphqlURL"
+              @close="slotProps.reload"
+            />
+          </template>
           <template v-slot:rowheader="slotProps">
-            <ButtonAction @click="select(slotProps.rowkey)"
-              >Select
+            <ButtonAction @click="select(slotProps.rowkey)">
+              Select
             </ButtonAction>
           </template>
         </TableSearch>
@@ -57,8 +65,10 @@ import FormGroup from "./_formGroup";
 import ButtonAlt from "./ButtonAlt";
 import InputAppend from "./_inputAppend";
 import ButtonAction from "./ButtonAction";
+import RowButtonAdd from "../tables/RowButtonAdd";
 
 export default {
+  name: "InputRefSelect",
   extends: _baseInput,
   data: function () {
     return {
@@ -74,6 +84,7 @@ export default {
     ButtonAction,
     ButtonAlt,
     InputAppend,
+    RowButtonAdd,
   },
   props: {
     /** change if graphql URL != 'graphql'*/

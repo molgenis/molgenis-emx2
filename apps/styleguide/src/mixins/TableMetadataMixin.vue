@@ -42,6 +42,17 @@ export default {
         });
     },
   },
+  computed: {
+    canEdit() {
+      return (
+        this.session &&
+        (this.session.email == "admin" ||
+          (this.session.roles &&
+            (this.session.roles.includes("Editor") ||
+              this.session.roles.includes("Manager"))))
+      );
+    },
+  },
   created() {
     this.reloadMetadata();
   },
