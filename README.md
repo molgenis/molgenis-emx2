@@ -300,6 +300,9 @@ Work in progress
 
 ### first
 
+*  ontology data type, inclusief label
+*  form elementen zoals separator, nesting, 
+*  kunnen hergebruiken van groepjes
 *  extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
 *  check roundtrip download/update of data and model and settings ('all')
 *  add audit trail log
