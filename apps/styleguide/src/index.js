@@ -42,6 +42,7 @@ import NavTabs from "./layout/NavTabs";
 
 import MessageSuccess from "./forms/MessageSuccess";
 import MessageError from "./forms/MessageError";
+import MessageWarning from "./forms/MessageWarning";
 import Molgenis from "./layout/Molgenis";
 import TableMolgenis from "./tables/TableMolgenis";
 import TableExplorer from "./tables/TableExplorer";
@@ -104,6 +105,7 @@ export {
   LayoutNavTabs,
   MessageError,
   MessageSuccess,
+  MessageWarning,
   Molgenis,
   NavBar,
   NavTabs,

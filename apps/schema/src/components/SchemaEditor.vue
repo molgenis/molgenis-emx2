@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :key="timestamp">
     <a href="#" @click.prevent="createTable"> create table </a>
     <div v-if="schema.tables && schema.tables.length > 0">
       <TableEditor
@@ -56,7 +56,11 @@ export default {
       if (!this.schema.tables) {
         this.schema.tables = [];
       }
-      this.schema.tables.push({ name: "test", columns: [] });
+      let name = "test" + Math.round(Math.random() * 100);
+      this.schema.tables.unshift({
+        name: name,
+        columns: [],
+      });
       this.timestamp = Date.now();
     },
     refbackCandidates(fromTable, toTable) {
@@ -66,39 +70,20 @@ export default {
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
     },
-    addOldNames(schema) {
-      if (schema) {
-        if (schema.tables) {
-          schema.tables.forEach((t) => {
-            t.oldName = t.name;
-            if (t.columns) {
-              t.columns.forEach((c) => (c.oldName = c.name));
-            } else {
-              t.columns = [];
-              ("");
-            }
-          });
-        } else {
-          schema.tables = [];
-        }
-      }
-      return schema;
-    },
   },
   watch: {
     schema: {
       deep: true,
       handler() {
-        this.timestamp = Date.now();
         this.$emit("input", this.schema);
       },
     },
     value() {
-      this.schema = this.addOldNames(this.value);
+      this.schema = this.value;
     },
   },
   created() {
-    this.schema = this.addOldNames(this.value);
+    this.schema = this.value;
   },
 };
 </script>

@@ -1,30 +1,27 @@
 <template>
   <div v-if="schema.tables">
-    <!--IconAction
-      v-if="!loadingYuml"
-      :icon="imgFullscreen ? 'compress' : 'expand'"
-      class="fullscreen-icon"
-      @click="imgFullscreen = !imgFullscreen"
-    /-->
+    <ButtonAlt @click="imgFullscreen = !imgFullscreen"
+      >{{ imgFullscreen ? "show small size" : "show full size" }}
+    </ButtonAlt>
     <InputCheckbox
       v-model="showAttributes"
       :defaultValue="showAttributes"
       :options="['attributes', 'external']"
     />
-    <Spinner v-if="loadingYuml" />
     <div
       v-scroll-lock="imgFullscreen"
+      :style="{
+        height: imgFullscreen ? 'auto' : '300px',
+      }"
       style="text-align: center; overflow: auto"
     >
+      <Spinner v-if="loadingYuml" />
       <img
+        v-else
         :key="JSON.stringify(showAttributes)"
         :src="yuml"
-        :style="{
-          visibility: loadingYuml ? 'hidden' : 'visible',
-          'max-height': imgFullscreen ? 'none' : '30%',
-          'max-width': imgFullscreen ? 'none' : '100%',
-        }"
         alt="Small"
+        style="max-height: 100%"
         @load="loadingYuml = false"
       />
     </div>
@@ -32,13 +29,19 @@
 </template>
 
 <script>
-import { Spinner, InputCheckbox, IconAction } from "@mswertz/emx2-styleguide";
+import {
+  Spinner,
+  InputCheckbox,
+  IconAction,
+  ButtonAlt,
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
     Spinner,
     InputCheckbox,
     IconAction,
+    ButtonAlt,
   },
   props: {
     schema: Object,
