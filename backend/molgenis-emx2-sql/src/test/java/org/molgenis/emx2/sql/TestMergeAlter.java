@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.fail;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
@@ -188,7 +187,10 @@ public class TestMergeAlter {
                     column("Ref").setType(REF_ARRAY).setRefTable("testRenameTable")));
 
     // test via migrate so we have full stack
+    assertNull(schema.getTable("testRenameTableRefOld"));
     schema.migrate(s);
+    assertNotNull(schema.getTable("testRenameTableRefOld"));
+
     // now, we check trigger name
     DSLContext jooq = ((SqlSchemaMetadata) schema.getMetadata()).getJooq();
     jooq.resultQuery(
@@ -207,10 +209,12 @@ public class TestMergeAlter {
             .create(table("testRenameTableRefNew").setOldName("testRenameTableRefOld"))
             .getSchema();
     schema.migrate(migration);
-    assertEquals(2, schema.getTableNames().size());
+    assertNull(schema.getTable("testRenameTableRefOld"));
+    assertNotNull(schema.getTable("testRenameTableRefNew"));
     db.clearCache();
     schema = db.getSchema(schema.getName());
-    assertEquals(2, schema.getTableNames().size());
+    assertNull(schema.getTable("testRenameTableRefOld"));
+    assertNotNull(schema.getTable("testRenameTableRefNew"));
     assertEquals(
         0,
         jooq
