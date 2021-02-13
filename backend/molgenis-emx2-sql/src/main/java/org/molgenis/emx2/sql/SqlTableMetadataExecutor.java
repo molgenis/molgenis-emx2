@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
@@ -74,6 +73,20 @@ class SqlTableMetadataExecutor {
       }
     }
     executeEnableSearch(jooq, table);
+  }
+
+  static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {
+    // drop search trigger
+    dropSearchTrigger(jooq, table);
+
+    // rename search column
+    jooq.alterTable(table.getJooqTable()).renameTo(newName + "search_vector_trigger");
+
+    // rename table
+    jooq.alterTable(table.getJooqTable()).renameTo(name(table.getSchemaName(), newName)).execute();
+
+    // recreate search trigger
+    createSearchTrigger(jooq, table, newName);
   }
 
   static void createOrReplaceKeys(DSLContext jooq, SqlTableMetadata table) {
@@ -157,7 +170,7 @@ class SqlTableMetadataExecutor {
       // drop search trigger
       jooq.execute(
           "DROP FUNCTION IF EXISTS {0} CASCADE",
-          name(table.getSchema().getName(), getSearchTriggerName(table)));
+          name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
 
       // drop all triggers from all columns
       for (Column c : table.getLocalColumns()) {
@@ -176,14 +189,15 @@ class SqlTableMetadataExecutor {
     return SqlSchemaMetadataExecutor.getRolePrefix(table.getSchema().getName());
   }
 
-  static String updateSearchIndexTriggerFunction(DSLContext jooq, TableMetadata table) {
+  static String updateSearchIndexTriggerFunction(
+      DSLContext jooq, TableMetadata table, String tableName) {
     // TODO should also join in REFBACK column to make them searchable as part of 'mew'
     //  TODO and then also should trigger indexing on update for tables with a REF to me so trigger
     // on ref
     // change
     // then?
 
-    String triggerName = getSearchTriggerName(table);
+    String triggerName = getSearchTriggerName(tableName);
     String triggerfunction =
         String.format("\"%s\".\"%s\"()", table.getSchema().getName(), triggerName);
 
@@ -212,7 +226,7 @@ class SqlTableMetadataExecutor {
                 + "\treturn new;\n"
                 + "end\n"
                 + "$$ LANGUAGE plpgsql;",
-            triggerfunction, name(searchColumnName(table)), mgSearchVector);
+            triggerfunction, name(searchColumnName(tableName)), mgSearchVector);
 
     jooq.execute(functionBody);
     jooq.execute(
@@ -221,18 +235,36 @@ class SqlTableMetadataExecutor {
     return triggerfunction;
   }
 
-  static String searchColumnName(TableMetadata table) {
-    return table.getTableName() + TEXT_SEARCH_COLUMN_NAME;
+  static String searchColumnName(String tableName) {
+    return tableName + TEXT_SEARCH_COLUMN_NAME;
   }
 
-  private static String getSearchTriggerName(TableMetadata table) {
-    return table.getTableName() + "search_vector_trigger";
+  private static String getSearchTriggerName(String tableName) {
+    return tableName + "search_vector_trigger";
+  }
+
+  private static void dropSearchTrigger(DSLContext jooq, TableMetadata table) {
+    String triggerfunction = getSearchTriggerName(table.getTableName());
+    jooq.execute("DROP FUNCTION {0} CASCADE", name(table.getSchema().getName(), triggerfunction));
+  }
+
+  private static void createSearchTrigger(DSLContext jooq, TableMetadata table, String tableName) {
+    // 3. create the trigger function to automatically update the MG_SEARCH_INDEX_COLUMN_NAME
+    String triggerfunction = updateSearchIndexTriggerFunction(jooq, table, tableName);
+    Name searchColumnName = name(searchColumnName(tableName));
+
+    // 4. add trigger to update the tsvector on each insert or update
+    jooq.execute(
+        "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
+            + triggerfunction,
+        searchColumnName,
+        name(table.getSchemaName(), tableName));
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {
 
     Table jooqTable = getJooqTable(table);
-    Name searchColumnName = name(searchColumnName(table));
+    Name searchColumnName = name(searchColumnName(table.getTableName()));
     Name searchIndexName = name(table.getTableName() + "_search_idx");
 
     // also add text search  column
@@ -244,14 +276,6 @@ class SqlTableMetadataExecutor {
         "CREATE INDEX {0} ON {1} USING GIN( {2} gin_trgm_ops)",
         searchIndexName, jooqTable, searchColumnName);
 
-    // 3. createColumn the trigger function to automatically update the MG_SEARCH_INDEX_COLUMN_NAME
-    String triggerfunction = updateSearchIndexTriggerFunction(jooq, table);
-
-    // 4. add trigger to update the tsvector on each insert or update
-    jooq.execute(
-        "CREATE TRIGGER {0} BEFORE INSERT OR UPDATE ON {1} FOR EACH ROW EXECUTE FUNCTION "
-            + triggerfunction,
-        searchColumnName,
-        jooqTable);
+    createSearchTrigger(jooq, table, table.getTableName());
   }
 }

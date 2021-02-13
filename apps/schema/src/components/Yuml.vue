@@ -1,183 +1,127 @@
-</script>
-}
-;
-},
-},
-return res;
-
-})
-;
-}
-})
-;
-}
-res += `[${table.name}]${column.name}-*>[${column.refTable}],`;
-
-console.log(JSON.stringify(column));
-} else
-if (column.columnType === "REF_ARRAY") {
-  res += `[${table.name}]${column.name}->[${column.refTable}],`;
-
-  console.log(JSON.stringify(column));
-  if (column.columnType === "REF") {
-  .
-    forEach((column) => {
-    )
-    this.showAttributes.includes("external")
-  )
-(c.refSchema == undefined ||
-    !c.inherited &&
-    (c)
-=>
-.filter(
-    table.columns
-if (Array.isArray(table.columns)) {
-}
-res += `[${table.inherit}]^-[${table.name}],`;
-if (table.inherit) {
-.
-  forEach((table) => {
-  )
-  this.showAttributes.includes("external")
-  t.externalSchema == undefined ||
-  (t)
-=>
-.
-  filter(
-      this.tables
-  // relations
-
-}
-)
-;
-}
-res += `{bg:dodgerblue}],`;
-} else
-{
-  res += `],`;
-  if (table.externalSchema) {
-  }
-}
-)
-;
-}］;`; //notice I use not standard [] to not break yuml
-                  column.columnType.includes("ARRAY") ? "*" : "1"
-                res += `［${column.required ? "1" : "0"}..$
-{
-}
-res += `${column.name}:${column.columnType}`;
-} else
-{
-  res += `${column.name}:${column.refTable}`;
-  if (column.columnType.includes("REF")) {
-  .
-    forEach((column) => {
-    .
-      filter((column) => !column.inherited)
-      table.columns
-      res += "|";
-    )
-    {
-      this.showAttributes.includes("attributes")
-      Array.isArray(table.columns) &&
-      if (
-
-          res += `[${table.name}`;
-    .
-      forEach((table) => {
-      )
-      (t)
-    =>
-      !t.externalSchema || this.showAttributes.includes("external")
-          .filter(
-              this.tables
-      // classes
-      let res = "http://yuml.me/diagram/plain;dir:bt/class/";
-      if (!this.tables) return "";
-      this.loadingYuml = true;
-      yuml()
-      {
-      }
-    ,
-      return this.schema.tables;
-      tables()
-      {
-        computed: {
-        }
-      ,
-      }
-      ;
-      showAttributes: [],
-          imgFullscreen
-    :
-      false,
-          loadingYuml
-    :
-      false,
-      return {
-        data() {
-        },
-        schema: Object,
-        props: {},
-        IconAction,
-        InputCheckbox,
-        Spinner,
-        components: {
-          export default {
-
-                import {Spinner, InputCheckbox, IconAction} from "@mswertz/emx2-styleguide";
-              < script >
-
-              < /template>
-              < /div>
-              < /div>
+<template>
+  <div v-if="schema.tables">
+    <!--IconAction
+      v-if="!loadingYuml"
+      :icon="imgFullscreen ? 'compress' : 'expand'"
+      class="fullscreen-icon"
+      @click="imgFullscreen = !imgFullscreen"
+    /-->
+    <InputCheckbox
+      v-model="showAttributes"
+      :defaultValue="showAttributes"
+      :options="['attributes', 'external']"
+    />
+    <Spinner v-if="loadingYuml" />
+    <div
+      v-scroll-lock="imgFullscreen"
+      style="text-align: center; overflow: auto"
+    >
+      <img
+        :key="JSON.stringify(showAttributes)"
+        :src="yuml"
+        :style="{
+          visibility: loadingYuml ? 'hidden' : 'visible',
+          'max-height': imgFullscreen ? 'none' : '30%',
+          'max-width': imgFullscreen ? 'none' : '100%',
+        }"
+        alt="Small"
+        @load="loadingYuml = false"
       />
-    @load
-      = "loadingYuml = false"
-      alt = "Small"
-    }
-      "
-      'max-width'
-    :
-      imgFullscreen ? 'none' : '100%',
-          'max-height'
-    :
-      imgFullscreen ? 'none' : '30%',
-          visibility
-    :
-      loadingYuml ? 'hidden' : 'visible',
-    :
-      style = "{
-    :
-      src = "yuml"
-    :
-      key = "JSON.stringify(showAttributes)"
-      < img
-      >
-      style = "text-align: center; overflow: auto"
-      v - scroll - lock = "imgFullscreen"
-          < div
-          < Spinner
-      v -
-      if= "loadingYuml" / >
-          / >
-          :
-      options = "['attributes', 'external']"
-    :
-      defaultValue = "showAttributes"
-      v - model = "showAttributes"
-      < InputCheckbox
-      / -- >
-      @click = "imgFullscreen = !imgFullscreen"
+    </div>
+  </div>
+</template>
 
-      class
+<script>
+import { Spinner, InputCheckbox, IconAction } from "@mswertz/emx2-styleguide";
 
-      = "fullscreen-icon"
-    :
-      icon = "imgFullscreen ? 'compress' : 'expand'"
-      v -
-      if= "!loadingYuml"
-          < !--IconAction
-          < div v -
-      if= "schema.tables" >
-          < template >
+export default {
+  components: {
+    Spinner,
+    InputCheckbox,
+    IconAction,
+  },
+  props: {
+    schema: Object,
+  },
+  data() {
+    return {
+      loadingYuml: false,
+      imgFullscreen: false,
+      showAttributes: [],
+    };
+  },
+  computed: {
+    tables() {
+      return this.schema.tables;
+    },
+    yuml() {
+      this.loadingYuml = true;
+      if (!this.tables) return "";
+      let res = "http://yuml.me/diagram/plain;dir:bt/class/";
+      // classes
+      this.tables
+        .filter(
+          (t) => !t.externalSchema || this.showAttributes.includes("external")
+        )
+        .forEach((table) => {
+          res += `[${table.name}`;
+
+          if (
+            Array.isArray(table.columns) &&
+            this.showAttributes.includes("attributes")
+          ) {
+            res += "|";
+            table.columns
+              .filter((column) => !column.inherited)
+              .forEach((column) => {
+                if (column.columnType.includes("REF")) {
+                  res += `${column.name}:${column.refTable}`;
+                } else {
+                  res += `${column.name}:${column.columnType}`;
+                }
+                res += `［${column.nullable ? "0" : "1"}..${
+                  column.columnType.includes("ARRAY") ? "*" : "1"
+                }］;`; //notice I use not standard [] to not break yuml
+              });
+          }
+          if (table.externalSchema) {
+            res += `],`;
+          } else {
+            res += `{bg:dodgerblue}],`;
+          }
+        });
+
+      // relations
+      this.tables
+        .filter(
+          (t) =>
+            t.externalSchema == undefined ||
+            this.showAttributes.includes("external")
+        )
+        .forEach((table) => {
+          if (table.inherit) {
+            res += `[${table.inherit}]^-[${table.name}],`;
+          }
+          if (Array.isArray(table.columns)) {
+            table.columns
+              .filter(
+                (c) =>
+                  !c.inherited &&
+                  (c.refSchema == undefined ||
+                    this.showAttributes.includes("external"))
+              )
+              .forEach((column) => {
+                if (column.columnType === "REF") {
+                  res += `[${table.name}]${column.name}->[${column.refTable}],`;
+                } else if (column.columnType === "REF_ARRAY") {
+                  res += `[${table.name}]${column.name}-*>[${column.refTable}],`;
+                }
+              });
+          }
+        });
+
+      return res;
+    },
+  },
+};
+</script>

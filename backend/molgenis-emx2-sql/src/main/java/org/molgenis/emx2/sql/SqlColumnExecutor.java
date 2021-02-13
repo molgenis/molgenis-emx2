@@ -219,7 +219,8 @@ public class SqlColumnExecutor {
         executeSetRequired(jooq, column);
       }
       // central constraints
-      SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, column.getTable());
+      SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
+          jooq, column.getTable(), column.getTableName());
       saveColumnMetadata(jooq, column);
     } catch (Exception e) {
       if (e.getMessage() != null && e.getMessage().contains("null values")) {

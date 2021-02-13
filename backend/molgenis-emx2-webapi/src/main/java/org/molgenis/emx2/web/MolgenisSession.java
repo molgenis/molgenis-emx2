@@ -64,6 +64,7 @@ public class MolgenisSession {
 
   public void clearSchemaCache(String schemaName) {
     this.graphqlPerSchema.remove(schemaName);
+    this.database.clearCache();
     logger.info("cleared schema cache {} for user {}", schemaName, getSessionUser());
   }
 

@@ -1,10 +1,10 @@
 <template>
   <div>
     <a href="#" @click.prevent="createTable"> create table </a>
-    <div v-if="tables.length > 0">
+    <div v-if="schema.tables && schema.tables.length > 0">
       <TableEditor
-        v-for="tableIndex in tables.keys()"
-        v-model="tables[tableIndex]"
+        v-for="tableIndex in schema.tables.keys()"
+        v-model="schema.tables[tableIndex]"
         :schema="schema"
       />
     </div>
@@ -47,7 +47,6 @@ export default {
   data() {
     return {
       schema: {},
-      tables: [],
       columnTypes,
       timestamp: Date.now(), //used for updating when sorting
     };
@@ -57,7 +56,7 @@ export default {
       if (!this.schema.tables) {
         this.schema.tables = [];
       }
-      this.schema.tables.push({ name: "test" });
+      this.schema.tables.push({ name: "test", columns: [] });
       this.timestamp = Date.now();
     },
     refbackCandidates(fromTable, toTable) {
@@ -67,33 +66,39 @@ export default {
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
     },
+    addOldNames(schema) {
+      if (schema) {
+        if (schema.tables) {
+          schema.tables.forEach((t) => {
+            t.oldName = t.name;
+            if (t.columns) {
+              t.columns.forEach((c) => (c.oldName = c.name));
+            } else {
+              t.columns = [];
+              ("");
+            }
+          });
+        } else {
+          schema.tables = [];
+        }
+      }
+      return schema;
+    },
   },
   watch: {
     schema: {
       deep: true,
       handler() {
-        console.log("emit(schema): " + JSON.stringify(this.schema));
+        this.timestamp = Date.now();
         this.$emit("input", this.schema);
       },
     },
-    tables: {
-      deep: true,
-      handler() {
-        this.schema.tables = this.tables;
-      },
-    },
     value() {
-      this.schema = this.value;
-      if (this.value.tables) {
-        this.tables = this.value.tables;
-      }
+      this.schema = this.addOldNames(this.value);
     },
   },
   created() {
-    this.schema = this.value;
-    if (this.value.tables) {
-      this.tables = this.value.tables;
-    }
+    this.schema = this.addOldNames(this.value);
   },
 };
 </script>

@@ -1,61 +1,74 @@
 <template>
-  <div>
+  <div :key="timestamp" class="tableContainer">
     <h4
-      :id="name"
+      :id="table.name"
       style="display: inline-block; text-transform: none !important"
+      :style="table.drop ? 'text-decoration: line-through' : ''"
     >
-      <!-- todo make updateable in backend, sorry <InputString
-      class="ml-1"
-      v-model="name"
-      :inplace="true"
-      :error="validateName()"
-    />-->
-      {{ name }}
+      <InputString v-model="table.name" inplace="true" />
     </h4>
-    <InputString class="ml-1" v-model="description" :inplace="true" />
-    <br />
-    <label>jsonldType:</label>
-    <InputString class="ml-1" v-model="jsonldType" :inplace="true" />
-    <table class="table table-sm" :key="timestamp">
-      <thead class="font-weight-bold">
-        <th style="width: 2em">
-          <IconAction
-            icon="plus"
-            @click="createColumn"
-            class="btn-sm hoverIcon"
+    <IconDanger icon="trash" @click="deleteTable" class="btn-sm hoverIcon" />
+    <ButtonAction @click="formedit = true" class="hoverIcon float-right">
+      Open form editor
+    </ButtonAction>
+    <div v-if="!table.drop">
+      <label>Description: </label>
+      <InputString class="ml-1" v-model="table.description" :inplace="true" />
+      <br />
+      <label>jsonldType:</label>
+      <InputString class="ml-1" v-model="table.jsonldType" :inplace="true" />
+      <table class="table table-sm" :key="timestamp">
+        <thead class="font-weight-bold">
+          <th style="width: 2em">
+            <IconAction
+              icon="plus"
+              @click="createColumn"
+              class="btn-sm hoverIcon"
+            />
+          </th>
+          <th style="width: 10em">columnName</th>
+          <th style="width: 8em">columnType</th>
+          <th style="width: 3em">key</th>
+          <th style="width: 5em">required</th>
+          <th style="width: 10em">refTable</th>
+          <th style="width: 10em" v-if="needsMappedByColumn">mappedBy</th>
+          <th style="width: 10em">refLink</th>
+          <th style="width: 10em">jsonldType</th>
+          <th>description</th>
+          <th style="width: 3em"></th>
+        </thead>
+        <Draggable
+          v-model="table.columns"
+          tag="tbody"
+          @end="
+            timestamp = Date.now();
+            applyPosition();
+          "
+          :key="timestamp"
+        >
+          <ColumnEditor
+            v-for="columnIndex in table.columns.keys()"
+            :key="columnIndex"
+            v-model="table.columns[columnIndex]"
+            :schema="schema"
+            :columnIndex="columnIndex"
+            :needsMappedByColumn="needsMappedByColumn"
           />
-        </th>
-        <th style="width: 10em">columnName</th>
-        <th style="width: 8em">columnType</th>
-        <th style="width: 3em">key</th>
-        <th style="width: 5em">required</th>
-        <th style="width: 10em">refTable</th>
-        <th style="width: 10em" v-if="needsMappedByColumn">mappedBy</th>
-        <th style="width: 10em">refLink</th>
-        <th style="width: 10em">jsonldType</th>
-        <th>description</th>
-        <th style="width: 3em"></th>
-      </thead>
-      <Draggable
-        v-model="columns"
-        tag="tbody"
-        @end="
+        </Draggable>
+      </table>
+      <LayoutModal
+        :show="formedit"
+        title="Form editor"
+        @close="
+          formedit = false;
           timestamp = Date.now();
-          applyPosition();
         "
-        :key="timestamp"
       >
-        <ColumnEditor
-          v-for="columnIndex in columns.keys()"
-          :key="columnIndex"
-          v-model="columns[columnIndex]"
-          :schema="schema"
-          :columnIndex="columnIndex"
-          :tableName="name"
-          :needsMappedByColumn="needsMappedByColumn"
-        />
-      </Draggable>
-    </table>
+        <template v-slot:body>
+          <FormEdit :schema="schema" v-model="table" />
+        </template>
+      </LayoutModal>
+    </div>
   </div>
 </template>
 
@@ -64,7 +77,7 @@
   visibility: hidden;
 }
 
-table:hover .hoverIcon {
+.tableContainer:hover .hoverIcon {
   visibility: visible;
 }
 </style>
@@ -73,19 +86,24 @@ import {
   InputString,
   InputSelect,
   InputBoolean,
+  ButtonAction,
   InputText,
   ButtonAlt,
   IconDanger,
   IconAction,
   ShowMore,
+  LayoutModal,
 } from "@mswertz/emx2-styleguide";
 import columnTypes from "../columnTypes";
 import ColumnEditor from "./ColumnEditor";
 import Draggable from "vuedraggable";
+import FormEdit from "./FormEdit";
 
 export default {
   components: {
+    FormEdit,
     InputString,
+    ButtonAction,
     IconAction,
     InputSelect,
     InputBoolean,
@@ -94,6 +112,7 @@ export default {
     IconDanger,
     ShowMore,
     ColumnEditor,
+    LayoutModal,
     Draggable,
   },
   props: {
@@ -102,10 +121,8 @@ export default {
   },
   data() {
     return {
-      name: null,
-      description: null,
-      jsonldType: null,
-      columns: [],
+      table: {},
+      formedit: false,
       columnTypes,
       timestamp: Date.now(), //used for updating when sorting
     };
@@ -114,7 +131,7 @@ export default {
     applyPosition() {
       let position = 1;
       this.columns.forEach((c) => (c.position = position++));
-      timestamp: Date.now();
+      this.timestamp = Date.now();
     },
     validateName() {
       if (!this.name) {
@@ -125,15 +142,22 @@ export default {
       }
     },
     emitValue() {
-      let table = {};
-      table.name = this.name;
-      table.description = this.description;
-      table.columns = this.columns;
       console.log("emit(table) " + JSON.stringify(table));
-      this.$emit("input", table);
+      this.$emit("input", this.table);
     },
     createColumn() {
-      this.columns.push({ columnType: "STRING" });
+      this.table.columns.push({
+        name: "editme" + Math.round(Math.random() * 1000),
+        columnType: "STRING",
+      });
+      this.timestamp = Date.now();
+    },
+    deleteTable() {
+      if (this.table.drop) {
+        delete this.table.drop;
+      } else {
+        this.table.drop = true;
+      }
       this.timestamp = Date.now();
     },
     refbackCandidates(fromTable, toTable) {
@@ -170,24 +194,21 @@ export default {
     },
   },
   watch: {
-    name() {
-      this.emitValue();
+    table: {
+      deep: true,
+      handler() {
+        this.emitValue();
+      },
     },
-    description() {
-      this.emitValue();
-    },
-    columns() {
-      this.emitValue();
+    value() {
+      if (this.value) {
+        this.table = this.value;
+      }
     },
   },
   created() {
     if (this.value) {
-      this.name = this.value.name;
-      this.description = this.value.description;
-      this.jsonldType = this.value.jsonldType;
-      if (this.value.columns) {
-        this.columns = this.value.columns;
-      }
+      this.table = this.value;
     }
   },
 };

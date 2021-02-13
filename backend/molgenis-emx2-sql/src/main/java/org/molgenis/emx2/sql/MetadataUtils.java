@@ -274,6 +274,13 @@ public class MetadataUtils {
     }
   }
 
+  protected static void alterTableName(DSLContext jooq, TableMetadata table, String newName) {
+    jooq.update(TABLE_METADATA)
+        .set(TABLE_NAME, newName)
+        .where(TABLE_SCHEMA.eq(table.getSchemaName()), TABLE_NAME.eq(table.getTableName()))
+        .execute();
+  }
+
   protected static Collection<TableMetadata> loadTables(DSLContext jooq, SchemaMetadata schema) {
     try {
       Map<String, TableMetadata> result = new LinkedHashMap<>();

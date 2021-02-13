@@ -9,6 +9,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.jooq.DSLContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -171,6 +172,59 @@ public class TestMergeAlter {
     //          "target1",
     // schema.getTable(refTableName).retrieveRows().get(0).getString(REF_COLUMN));
     //    }
+  }
+
+  @Test
+  public void testRenameTable() {
+
+    SchemaMetadata s =
+        new SchemaMetadata("temp")
+            .create(
+                table("testRenameTable", column("ID").setKey(1), column("Name")),
+                table(
+                    "testRenameTableRefOld",
+                    column("ID").setKey(1),
+                    column("Name"),
+                    column("Ref").setType(REF_ARRAY).setRefTable("testRenameTable")));
+
+    // test via migrate so we have full stack
+    schema.migrate(s);
+    // now, we check trigger name
+    DSLContext jooq = ((SqlSchemaMetadata) schema.getMetadata()).getJooq();
+    jooq.resultQuery(
+        "SELECT trigger_name from information_schema.triggers  WHERE trigger_name LIKE '%testRenameTableRefOld%'");
+    assertEquals(
+        6,
+        jooq
+            .resultQuery(
+                "SELECT trigger_name from information_schema.triggers  WHERE trigger_name LIKE '%testRenameTableRefOld%'")
+            .stream()
+            .count());
+
+    // now create migration
+    SchemaMetadata migration =
+        new SchemaMetadata()
+            .create(table("testRenameTableRefNew").setOldName("testRenameTableRefOld"))
+            .getSchema();
+    schema.migrate(migration);
+    assertEquals(2, schema.getTableNames().size());
+    db.clearCache();
+    schema = db.getSchema(schema.getName());
+    assertEquals(2, schema.getTableNames().size());
+    assertEquals(
+        0,
+        jooq
+            .resultQuery(
+                "SELECT trigger_name from information_schema.triggers  WHERE trigger_name LIKE '%testRenameTableRefOld%'")
+            .stream()
+            .count());
+    assertEquals(
+        6,
+        jooq
+            .resultQuery(
+                "SELECT trigger_name from information_schema.triggers  WHERE trigger_name LIKE '%testRenameTableRefNew%'")
+            .stream()
+            .count());
   }
 
   @Test

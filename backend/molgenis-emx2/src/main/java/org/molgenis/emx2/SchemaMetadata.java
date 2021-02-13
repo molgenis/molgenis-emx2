@@ -61,10 +61,11 @@ public class SchemaMetadata {
     return table;
   }
 
-  public void create(TableMetadata... tables) {
+  public SchemaMetadata create(TableMetadata... tables) {
     for (TableMetadata table : tables) {
       this.create(table);
     }
+    return this;
   }
 
   public TableMetadata getTableMetadata(String name) {
