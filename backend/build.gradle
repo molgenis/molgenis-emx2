@@ -45,7 +45,7 @@ subprojects {
         implementation 'org.javers:javers-core:5.14.0'
 
         //also used outside test
-        implementation 'junit:junit:4.13.1'
+        implementation 'junit:junit:4.13.2'
     }
 
     jacocoTestReport {
