@@ -90,6 +90,7 @@ export default {
   props: {
     /** Column metadata object entered as v-model */
     value: Object,
+    /** table column is part of */
     table: Object,
     /** listof tables for references */
     tables: Array,
@@ -126,6 +127,9 @@ export default {
       if (this.column != null) {
         this.$emit("input", this.column);
       }
+    },
+    value() {
+      this.column = this.value;
     },
   },
 };

@@ -14,6 +14,7 @@
           </ButtonAlt>
           <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
           <MessageError v-if="error">{{ error }}</MessageError>
+          <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
         </div>
       </div>
       <div :class="toc ? 'col-10' : 'col-12'">
@@ -44,6 +45,7 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
+  MessageWarning,
   IconAction,
   ButtonAlt,
 } from "@mswertz/emx2-styleguide";
@@ -55,6 +57,7 @@ export default {
     ButtonAction,
     MessageError,
     MessageSuccess,
+    MessageWarning,
     SchemaToc,
     IconAction,
     ButtonAlt,
@@ -64,6 +67,7 @@ export default {
       schema: {},
       loading: false,
       error: null,
+      warning: null,
       success: null,
       timestamp: Date.now(),
       toc: true,
@@ -81,9 +85,10 @@ export default {
         }
       )
         .then((data) => {
-          this.success = `Schema saved`;
-          this.timestamp = Date.now();
           this.loadSchema();
+          this.timestamp = Date.now();
+          this.success = `Schema saved`;
+          this.warning = null;
         })
         .catch((error) => {
           if (error.response.status === 403) {
@@ -106,7 +111,7 @@ export default {
         "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,required,description,jsonldType,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
-          this.schema = data._schema;
+          this.schema = this.addOldNames(data._schema);
           this.timestamp = Date.now();
         })
         .catch((error) => {
@@ -118,11 +123,40 @@ export default {
               "Schema is unknown or permission denied (might you need to login with authorized user?)";
           }
         })
-        .finally((this.loading = false));
+        .finally(() => {
+          this.loading = false;
+          this.warning = null;
+        });
+    },
+    addOldNames(schema) {
+      if (schema) {
+        if (schema.tables) {
+          schema.tables.forEach((t) => {
+            t.oldName = t.name;
+            if (t.columns) {
+              t.columns.forEach((c) => (c.oldName = c.name));
+            } else {
+              t.columns = [];
+              ("");
+            }
+          });
+        } else {
+          schema.tables = [];
+        }
+      }
+      return schema;
     },
   },
   created() {
     this.loadSchema();
+  },
+  watch: {
+    schema: {
+      deep: true,
+      handler() {
+        this.warning = "Unsaved changes";
+      },
+    },
   },
 };
 </script>

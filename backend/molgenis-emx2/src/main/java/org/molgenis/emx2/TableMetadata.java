@@ -462,4 +462,9 @@ public class TableMetadata {
     this.drop = true;
     return this;
   }
+
+  public TableMetadata alterName(String name) {
+    this.tableName = name;
+    return this;
+  }
 }

@@ -41,7 +41,11 @@
           :graphqlURL="graphqlURL"
           :showSelect="true"
           :limit="10"
-        />
+        >
+          <template name="colheader">
+            <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
+          </template>
+        </TableSearch>
         <TableSearch
           v-else
           :table="refTable"
@@ -51,7 +55,11 @@
           :graphqlURL="graphqlURL"
           :showSelect="true"
           :limit="10"
-        />
+        >
+          <template name="colheader">
+            <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
+          </template>
+        </TableSearch>
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="closeSelect">Close</ButtonAlt>

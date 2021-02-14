@@ -158,8 +158,10 @@ export default {
   },
   directives: {
     focus: {
-      inserted(el) {
-        el.focus();
+      inserted(el, binding) {
+        if (binding.value) {
+          el.focus();
+        }
       },
     },
   },

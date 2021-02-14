@@ -65,9 +65,9 @@
             :key="JSON.stringify(tableMetadata.columns)"
             :showSelect="true"
           >
-            <template v-slot:header
-              ><label>{{ count }} records found</label></template
-            >
+            <template v-slot:header>
+              <label>{{ count }} records found</label>
+            </template>
             <template v-slot:colheader>
               <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
             </template>
@@ -210,14 +210,6 @@ export default {
         return this.tableMetadata.columns.map((col) => col.name);
       }
       return null;
-    },
-    canEdit() {
-      return (
-        this.session.email == "admin" ||
-        (this.session.roles &&
-          (this.session.roles.includes("Editor") ||
-            this.session.roles.includes("Manager")))
-      );
     },
   },
   methods: {

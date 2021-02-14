@@ -58,7 +58,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public void create(TableMetadata... tables) {
+  public SchemaMetadata create(TableMetadata... tables) {
     getDatabase()
         .tx(
             database -> {
@@ -72,11 +72,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               }
             });
     getDatabase().getListener().schemaChanged(getName());
+    return this;
   }
 
   @Override
   public void drop(String tableName) {
     getTableMetadata(tableName).drop();
+    super.tables.remove(tableName);
   }
 
   @Override
@@ -121,5 +123,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SqlDatabase getDatabase() {
     return (SqlDatabase) super.getDatabase();
+  }
+
+  public void renameTable(TableMetadata table, String newName) {
+    tables.remove(table.getTableName());
+    table.alterName(newName);
+    tables.put(table.getTableName(), table);
   }
 }

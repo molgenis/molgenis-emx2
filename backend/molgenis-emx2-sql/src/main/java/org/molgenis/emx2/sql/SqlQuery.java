@@ -500,12 +500,12 @@ public class SqlQuery extends QueryBean {
     List<Condition> search = new ArrayList<>();
     for (String term : searchTerms) {
       search.add(
-          field(name(table.getTableName(), searchColumnName(table)))
+          field(name(table.getTableName(), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
-            field(name(parent.getTableName(), searchColumnName(parent)))
+            field(name(parent.getTableName(), searchColumnName(parent.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
         parent = table.getInheritedTable();
       }
@@ -1217,7 +1217,7 @@ public class SqlQuery extends QueryBean {
       for (String term : searchTerms) {
         for (String subTerm : term.split(" ")) {
           subTerm = subTerm.trim();
-          Field<Object> field = field(name(tableAlias, searchColumnName(table)));
+          Field<Object> field = field(name(tableAlias, searchColumnName(table.getTableName())));
           // short terms with 'like', longer with trigram
           subConditions.add(field.likeIgnoreCase("%" + subTerm + "%"));
         }
@@ -1253,7 +1253,7 @@ public class SqlQuery extends QueryBean {
   private static Column isValidColumn(TableMetadata table, String columnName) {
     // is search?
     if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
-      return new Column(table, searchColumnName(table));
+      return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
     Column column = table.getColumn(columnName);

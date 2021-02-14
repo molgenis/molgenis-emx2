@@ -67,6 +67,41 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
+  public TableMetadata alterName(String newName) {
+    long start = System.currentTimeMillis();
+    String oldName = getTableName();
+    if (!getTableName().equals(newName)) {
+      getDatabase()
+          .tx(
+              dsl -> {
+                DSLContext jooq = ((SqlDatabase) dsl).getJooq();
+
+                // drop triggers for this table
+                for (Column column : getLocalColumns()) {
+                  SqlColumnExecutor.executeRemoveRefConstraints(jooq, column);
+                }
+
+                // rename table and triggers
+                SqlTableMetadataExecutor.executeAlterName(jooq, this, newName);
+
+                // update metadata
+                MetadataUtils.alterTableName(jooq, this, newName);
+                super.alterName(newName);
+
+                // recreate triggers for this table
+                for (Column column : getLocalColumns()) {
+                  SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
+                }
+
+                // reroute inherits in meta of other tables
+              });
+      getDatabase().getListener().schemaChanged(getSchemaName());
+      log(start, "altered table from '" + oldName + "' to  " + getTableName());
+    }
+    return this;
+  }
+
+  @Override
   public TableMetadata alterColumn(String name, Column column) {
     Column oldColumn = getColumn(name);
     if (oldColumn == null) {
@@ -363,7 +398,6 @@ class SqlTableMetadata extends TableMetadata {
               executeDropTable(jooq, this);
               MetadataUtils.deleteTable(jooq, this);
             });
-    ((SqlSchemaMetadata) getSchema()).reload();
     getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "dropped");
     return this;

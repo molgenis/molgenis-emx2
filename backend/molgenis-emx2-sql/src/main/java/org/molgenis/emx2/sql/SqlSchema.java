@@ -245,6 +245,9 @@ public class SqlSchema implements Schema {
             // create table if not exists
             if (oldTable == null && !mergeTable.isDrop()) {
               this.create(new TableMetadata(mergeTable.getTableName())); // only the name
+            } else if (oldTable != null
+                && !oldTable.getTableName().equals(mergeTable.getTableName())) {
+              this.getMetadata().renameTable(oldTable, mergeTable.getTableName());
             }
           }
 
@@ -256,7 +259,6 @@ public class SqlSchema implements Schema {
           for (TableMetadata mergeTable : mergeTableList) {
 
             if (!mergeTable.isDrop()) {
-              // assume creates/renames have been done
               TableMetadata oldTable = this.getTable(mergeTable.getTableName()).getMetadata();
 
               // set inheritance
@@ -273,7 +275,7 @@ public class SqlSchema implements Schema {
               oldTable.setSettings(mergeTable.getSettings());
               oldTable.setDescription(mergeTable.getDescription());
               oldTable.setJsonldType(mergeTable.getJsonldType());
-              MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
+              // MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
 
               // add missing (except refback),
               // remove triggers if existing column if type changed

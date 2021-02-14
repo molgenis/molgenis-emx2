@@ -34,23 +34,23 @@ export default {
 </script>
 
 <docs>
-    Example:
-    ```
-    <template>
-        <div>
-            <InputSearch v-model="value"/>
-            Search terms: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
+Example:
+```
+<template>
+  <div>
+    <InputSearch v-model="value"/>
+    Search terms: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
 
-    ```
+```
 </docs>

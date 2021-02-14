@@ -300,7 +300,11 @@ Work in progress
 
 ### first
 
+*  ontology data type, inclusief label
+*  form elementen zoals separator, nesting, 
+*  kunnen hergebruiken van groepjes kolommen
 *  extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
+*  per tabel , per rij en per kolom kunnen vragen of men 'edit' permissie heeft
 *  check roundtrip download/update of data and model and settings ('all')
 *  add audit trail log
 *  change 'email' to 'user' as user id might not come from email

@@ -14,8 +14,8 @@
     v-else
     v-bind="$props"
     v-model="arrayValue[0]"
-    :options="['yes', 'no']"
-  ></InputRadio>
+    :options="[true, false]"
+  />
 </template>
 
 <script>
@@ -23,7 +23,7 @@ import BaseInput from "./_baseInput.vue";
 import InputRadio from "./InputRadio";
 
 export default {
-  compontents: { InputRadio },
+  components: { InputRadio },
   extends: BaseInput,
 };
 </script>

@@ -54,6 +54,7 @@ public class Schema {
       TableMetadata tm = s.create(table(t.getName()));
       tm.setInherit(t.getInherit());
       tm.setSettings(t.getSettings());
+      tm.setOldName(t.getOldName());
       if (t.getDrop()) tm.drop();
       tm.setJsonldType(t.getJsonldType());
       tm.setDescription(t.getDescription());

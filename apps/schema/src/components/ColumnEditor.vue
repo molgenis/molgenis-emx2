@@ -1,7 +1,7 @@
 <template>
-  <tr :style="column.drop ? 'text-decoration: line-through' : ''">
+  <tr :class="{ 'table-danger': column.drop }" :key="timestamp">
     <td>
-      <div class="moveHandle">{{ column.position }}</div>
+      <IconAction class="hoverIcon moveHandle" icon="ellipsis-v" />
     </td>
     <td style="width: 10em">
       <InputString
@@ -75,7 +75,6 @@
     </td>
     <td>
       <IconDanger
-        v-if="column.drop"
         IconDanger
         icon="trash"
         class="hoverIcon"
@@ -85,7 +84,7 @@
   </tr>
 </template>
 
-<style scoped>
+<style>
 .moveHandle:hover {
   cursor: move;
 }
@@ -99,6 +98,7 @@ import {
   InputText,
   ButtonAlt,
   IconDanger,
+  IconAction,
 } from "@mswertz/emx2-styleguide";
 import columnTypes from "../columnTypes";
 
@@ -110,9 +110,10 @@ export default {
     InputText,
     ButtonAlt,
     IconDanger,
+    IconAction,
   },
   data() {
-    return { column: {}, columnTypes: columnTypes };
+    return { column: {}, columnTypes: columnTypes, timestamp: Date.now() };
   },
   props: {
     value: Object,
@@ -124,11 +125,15 @@ export default {
   methods: {
     tableNames() {
       let result = this.schema.tables.map((t) => t.name);
-      console.log("result: " + JSON.stringify(result));
       return result;
     },
     deleteColumn() {
-      this.column.drop = true;
+      if (this.column.drop) {
+        delete this.column.drop;
+      } else {
+        this.column.drop = true;
+      }
+      this.timestamp = Date.now();
     },
     refbackCandidates(fromTable, toTable) {
       return this.schema.tables
@@ -140,19 +145,22 @@ export default {
     reflinkCandidates(tableName, columnName) {
       let result = this.schema.tables
         .filter((t) => t.name === tableName)
-        .map((t) => t.columns)[0]
-        .filter(
-          (c) =>
-            c.name != columnName &&
-            (c.columnType == "REF" || c.columnType == "REF_ARRAY")
-        )
-        .map((c) => c.name);
-      result.unshift(null);
-      console.log(columnName + "=" + result);
-      return result;
+        .map((t) => t.columns)[0];
+      if (result) {
+        result = result
+          .filter(
+            (c) =>
+              c.name != columnName &&
+              (c.columnType == "REF" || c.columnType == "REF_ARRAY")
+          )
+          .map((c) => c.name);
+        result.unshift(null);
+        return result;
+      } else {
+        return [];
+      }
     },
     validateName(name) {
-      console.log("validate");
       // if (this.columns.filter((c) => c.name == name).length != 1) {
       //   return "Name should be unique";
       // }

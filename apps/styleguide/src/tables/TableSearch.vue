@@ -18,7 +18,13 @@
           @deselect="deselect"
         >
           <template v-slot:colheader>
-            <slot name="colheader" />
+            <slot
+              name="colheader"
+              v-bind="$props"
+              :canEdit="canEdit"
+              :reload="reload"
+              :grapqlURL="graphqlURL"
+            />
           </template>
           <template v-slot:rowheader="slotProps">
             <slot
@@ -33,6 +39,10 @@
     </div>
     <ShowMore title="debug info">
       <pre>
+        canEdit =          {{ canEdit }}
+
+        session =       {{ session }}
+
 graphql = {{ graphql }}
 
 filter = {{ filter }}
