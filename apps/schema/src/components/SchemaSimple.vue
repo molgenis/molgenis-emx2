@@ -6,18 +6,19 @@
     <div class="row">
       <div v-if="toc" class="col-2">
         <div class="fixedContainer">
-          <SchemaToc :tables="schema.tables" />
-          <ButtonAction @click="saveSchema">Save</ButtonAction>&nbsp;
-          <ButtonAction @click="loadSchema">Reset</ButtonAction>
           <ButtonAlt class="pl-0" @click="toc = false">
             hide table of contents
           </ButtonAlt>
+          <br />
+          <ButtonAction @click="saveSchema">Save</ButtonAction>&nbsp;
+          <ButtonAction @click="loadSchema">Reset</ButtonAction>
           <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
           <MessageError v-if="error">{{ error }}</MessageError>
           <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
+          <SchemaToc :tables="schema.tables" />
         </div>
       </div>
-      <div :class="toc ? 'col-10' : 'col-12'">
+      <div :class="toc ? 'col-10' : 'col-12'" style="overflow-y: scroll">
         <Spinner v-if="loading" />
         <div v-else :key="timestamp">
           <Yuml :schema="schema" :key="JSON.stringify(schema)" />
@@ -32,6 +33,8 @@
 .fixedContainer {
   position: -webkit-sticky; /* Safari */
   position: sticky;
+  overflow-y: scroll;
+  max-height: 100vh;
   top: 0;
 }
 </style>
@@ -48,6 +51,7 @@ import {
   MessageWarning,
   IconAction,
   ButtonAlt,
+  Spinner,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -61,6 +65,7 @@ export default {
     SchemaToc,
     IconAction,
     ButtonAlt,
+    Spinner,
   },
   data() {
     return {
@@ -134,7 +139,12 @@ export default {
           schema.tables.forEach((t) => {
             t.oldName = t.name;
             if (t.columns) {
-              t.columns.forEach((c) => (c.oldName = c.name));
+              t.columns = t.columns
+                .map((c) => {
+                  c.oldName = c.name;
+                  return c;
+                })
+                .filter((c) => !c.inherited);
             } else {
               t.columns = [];
               ("");

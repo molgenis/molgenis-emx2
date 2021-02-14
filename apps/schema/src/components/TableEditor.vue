@@ -12,6 +12,9 @@
       Open form editor
     </ButtonAction>
     <div v-if="!table.drop">
+      <label>Inherits: </label>
+      <InputString v-model="table.inherit" inplace="true" />
+      <br />
       <label>Description: </label>
       <InputString class="ml-1" v-model="table.description" :inplace="true" />
       <br />

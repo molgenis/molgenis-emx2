@@ -13,7 +13,7 @@
       :style="{
         height: imgFullscreen ? 'auto' : '300px',
       }"
-      style="text-align: center; overflow: auto"
+      style="text-align: center; overflow: scroll"
     >
       <Spinner v-if="loadingYuml" />
       <img
