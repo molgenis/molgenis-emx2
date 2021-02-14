@@ -245,7 +245,7 @@ public class SqlColumnExecutor {
     }
     if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
       throw new MolgenisException(
-          "unique on column '" + c.getName() + "' failed",
+          "unique on column '" + c.getTableName() + "." + c.getName() + "' failed",
           "When key spans multiple columns, none of the columns can be nullable");
     }
     if (c.isReference() && c.getRefTable() == null) {
