@@ -45,7 +45,7 @@
               <dt>Consortium</dt>
               <dd>{{ targetResource }}</dd>
               <dt>Version</dt>
-              <dd>{{ targetVersion.version }}</dd>
+              <dd>{{ targetRelease.version }}</dd>
               <dt>Table</dt>
               <dd>{{ targetTable }}</dd>
               <dt>Variable</dt>
@@ -58,7 +58,7 @@
               <dt>Databank</dt>
               <dd>{{ sourceCollection }}</dd>
               <dt>Version</dt>
-              <dd>{{ sourceVersion.version }}</dd>
+              <dd>{{ sourceRelease.version }}</dd>
               <dt>Table</dt>
               <dd>{{ sourceTable }}</dd>
               <dt>Variable</dt>
@@ -152,11 +152,11 @@ export default {
   props: {
     sourceCollection: String,
     sourceTable: String,
-    sourceVersion: Object,
+    sourceVersion: String,
     targetVariable: String,
     targetResource: String,
     targetTable: String,
-    targetVersion: Object,
+    targetVersion: String,
     match: String,
     compact: {
       type: Boolean,
@@ -173,19 +173,23 @@ export default {
   methods: {
     reload() {
       let filter = {
-        sourceTable: {
-          name: { equals: this.sourceTable },
+        sourceRelease: {
           resource: { acronym: { equals: this.sourceCollection } },
           version: { equals: this.sourceVersion },
+        },
+        sourceTable: {
+          name: { equals: this.sourceTable },
+        },
+        targetRelease: {
+          resource: { acronym: { equals: this.targetResource } },
+          version: {
+            equals: this.targetVersion,
+          },
         },
         targetVariable: {
           name: { equals: this.targetVariable },
           table: {
             name: { equals: this.targetTable },
-            resource: { acronym: { equals: this.targetResource } },
-            version: {
-              equals: this.targetVersion,
-            },
           },
         },
       };

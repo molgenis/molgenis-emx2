@@ -10,35 +10,34 @@
     </p>
     <h2>Where do you want to start today?</h2>
     <div class="row justify-content-between container-fluid mt-4 mb-4">
-      <RouterLink to="institutions" class="btn btn-primary col-2">
+      <RouterLink to="institutions" class="btn btn-info col-2">
         <span class="badge badge-light">{{ institutions }}</span>
         <h3>Institutions</h3>
         <p class="text-left">Such as Universities, Companies, institutions</p>
       </RouterLink>
-      <RouterLink to="datasources" class="btn btn-info col-2">
+      <RouterLink to="datasources" class="btn btn-warning col-2">
         <span class="badge badge-light">{{ tables }}</span>
         <h3>Datasources</h3>
         <p class="text-left">
           Families of databanks collected from same population
         </p>
       </RouterLink>
-      <RouterLink to="databanks" class="btn btn-warning col-2">
+      <RouterLink to="databanks" class="btn btn-danger col-2">
         <span class="badge badge-light">{{ databanks }}</span>
         <h3>Databanks</h3>
         <p class="text-left">Such as Cohorts, Registries, Biobanks</p>
       </RouterLink>
+      <RouterLink to="harmonisations" class="btn btn-primary col-2">
+        <span class="badge badge-light">{{ variables }}</span>
+        <h3>Common Models</h3>
+        <p class="text-left">
+          Common Data Element models and Harmonisation models
+        </p>
+      </RouterLink>
       <RouterLink to="projects" class="btn btn-success col-2">
         <span class="badge badge-light">{{ projects }}</span>
-        <h3>Studies</h3>
+        <h3>Projects</h3>
         <p class="text-left">Collaborations of multiple databanks.</p>
-      </RouterLink>
-      <RouterLink to="variables" class="btn btn-danger col-2">
-        <span class="badge badge-light">{{ variables }}</span>
-        <h3>Variables</h3>
-        <p class="text-left">
-          The atomics data items made available within collected or harmonised
-          tables.
-        </p>
       </RouterLink>
     </div>
     <h2>Explanation</h2>

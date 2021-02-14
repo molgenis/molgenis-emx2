@@ -79,7 +79,7 @@ export default {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) => h.sourceTable.resource.acronym + ":" + h.sourceTable.name
+            (h) => h.sourceRelease.resource.acronym + ":" + h.sourceTable.name
           )
         ),
       ].sort();
@@ -111,7 +111,7 @@ export default {
       let filter = {};
       //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{acronym:{equals:"LifeCycle"}}}}}
       if (this.resourceAcronym) {
-        filter.targetVariable = {
+        filter.targetRelease = {
           resource: { acronym: { equals: this.resourceAcronym } },
         };
       }
@@ -122,7 +122,7 @@ export default {
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{resource{acronym}name}match{name}}
+          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{release{resource{acronym}}name}match{name}}
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,

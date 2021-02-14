@@ -10,7 +10,7 @@
         <VariableCard
           v-for="variable in variables"
           :key="
-            variable.table.resource.acronym +
+            variable.release.resource.acronym +
             variable.table.name +
             variable.name
           "
@@ -19,6 +19,9 @@
         />
       </div>
     </div>
+    <ShowMore title="debug">
+      {{ variables }}
+    </ShowMore>
   </div>
 </template>
 
@@ -42,6 +45,7 @@ import {
   InputSearch,
   MessageError,
   Pagination,
+  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import HarmonisationDetails from "./HarmonisationDetails";
 import VariableCard from "./VariableCard";
@@ -53,6 +57,7 @@ export default {
     MessageError,
     VariableCard,
     InputSearch,
+    ShowMore,
   },
   props: {
     resourceAcronym: String,
@@ -75,7 +80,9 @@ export default {
       this.error = null;
       let filter = {};
       if (this.resourceAcronym) {
-        filter.resource = { acronym: { equals: this.resourceAcronym } };
+        filter.release = {
+          resource: { acronym: { equals: this.resourceAcronym } },
+        };
       }
       if (this.tableName) {
         filter.table = { name: { equals: this.tableName } };
@@ -86,12 +93,12 @@ export default {
       if (this.topic) {
         filter.topics = { name: { equals: this.topic } };
       }
-      if (this.version) {
-        filter.version = { equals: this.topic };
-      }
+      // if (this.version) {
+      //   filter.release.version = { equals: this.version };
+      // }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, version{version},table{name,resource{acronym,mg_tableclass}},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceTable{name,resource{acronym},version{version}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{acronym,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{acronym},version},targetRelease{resource{acronym},version}sourceTable{name,release{resource{acronym},version}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -102,6 +109,7 @@ export default {
         .then((data) => {
           this.variables = data.Variables;
           this.count = data.Variables_agg.count;
+          this.$forceUpdate();
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

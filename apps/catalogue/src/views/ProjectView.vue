@@ -30,13 +30,8 @@
           <tr v-for="partner in project.partners">
             <td>{{ partner.acronym }}</td>
             <td>{{ partner.name }}</td>
-            <td>
-              <span v-if="partner.contacts">{{
-                partner.contacts.map((c) => c.name).join(",")
-              }}</span>
-            </td>
             <td>{{ partner.type ? partner.type.name : "" }}</td>
-            <td>{{ partner.country }}</td>
+            <td>{{ partner.country ? partner.country.name : "" }}</td>
           </tr>
         </table>
       </div>
@@ -98,7 +93,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Projects($acronym:String){Projects(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,website, investigators{name},partners{acronym,name,contacts{name},country} supplementaryInformation, releases{version}}}`,
+        `query Projects($acronym:String){Projects(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, partners{acronym,name,country{name}} supplementaryInformation, releases{version}}}`,
         {
           acronym: this.projectAcronym,
         }

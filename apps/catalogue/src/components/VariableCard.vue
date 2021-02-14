@@ -7,7 +7,7 @@
         <Property
           v-if="!tableName"
           :label="
-            variable.table.resource.mg_tableclass.includes('Project')
+            variable.release.resource.mg_tableclass.includes('Project')
               ? 'Project'
               : 'Databank'
           "
@@ -16,11 +16,11 @@
             :to="{
               name: 'databank',
               params: {
-                databankAcronym: variable.table.resource.acronym,
+                databankAcronym: variable.release.resource.acronym,
               },
             }"
           >
-            {{ variable.table.resource.acronym }}
+            {{ variable.release.resource.acronym }}
           </RouterLink>
         </Property>
         <Property v-if="!tableName" label="table">
@@ -28,7 +28,7 @@
             :to="{
               name: 'table',
               params: {
-                databankAcronym: variable.table.resource.acronym,
+                databankAcronym: variable.release.resource.acronym,
                 tableName: variable.table.name,
               },
             }"
@@ -68,11 +68,11 @@
           <HarmonisationDetails
             v-for="h in variable.harmonisations"
             :key="JSON.stringify(h)"
-            :sourceCollection="h.sourceTable.resource.acronym"
+            :sourceCollection="h.sourceRelease.resource.acronym"
             :source-table="h.sourceTable.name"
-            :source-version="h.sourceTable.version"
-            :target-resource="variable.table.resource.acronym"
-            :target-version="variable.version"
+            :source-version="h.sourceRelease.version"
+            :target-resource="variable.release.resource.acronym"
+            :target-version="variable.release.version"
             :target-table="variable.table.name"
             :target-variable="variable.name"
             :match="variable.match ? variable.match.name : 'unknown'"

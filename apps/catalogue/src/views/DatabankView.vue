@@ -14,7 +14,7 @@
     <label> Type(s): </label>
     <span v-for="type in databank.type">{{ type.name }}</span
     ><br />
-    <NavTabs :options="['Data', 'Description']" v-model="tab" />
+    <NavTabs :options="['Description', 'Data']" v-model="tab" />
     <div v-if="tab == 'Description'" class="tab-pane show active">
       <label>Description:</label>
       <p>{{ databank.description }}</p>
@@ -27,19 +27,19 @@
         Datasource population: {{ databank.datasource.inclusionCriteria }}
       </p>
       <p>Databank population: {{ databank.population }}</p>
-      <label>Quality:</label>
+      <h6>Quality:</h6>
       <p>{{ databank.quality }}</p>
-      <label>Lag time:</label>
+      <h6>Lag time:</h6>
       <p>{{ databank.lagTime }}</p>
-      <label>Prompt:</label>
+      <h6>Prompt:</h6>
       <p>{{ databank.prompt }}</p>
-      <label>Purpose:</label>
+      <h6>Purpose:</h6>
       <p>{{ databank.purpose }}</p>
-      <label>Collection:</label>
+      <h6>Collection:</h6>
       <p>{{ databank.collection }}</p>
-      <label>StartYear:</label>
+      <h6>StartYear:</h6>
       <p>{{ databank.startYear }}</p>
-      <label>Completeness:</label>
+      <h6>Completeness:</h6>
       <p>{{ databank.completeness }}</p>
     </div>
     <div v-if="tab == 'Data'" class="tab-pane show active">
@@ -94,14 +94,14 @@ export default {
       error: null,
       databank: {},
       version: null,
-      tab: "Data",
+      tab: "Description",
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,datasource{population,inclusionCriteria},purpose, collection,population,updateFrequency,completeness, startYear,endYear, type{name},provider{acronym,name}, description,website,prompt, lagTime,investigators{name}, supplementaryInformation, releases{version}}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,datasource{population,inclusionCriteria},purpose, population,updateFrequency,completeness, startYear,endYear, type{name},provider{acronym,name}, description,website,prompt, lagTime, supplementaryInformation, releases{version}}}`,
         {
           acronym: this.databankAcronym,
         }

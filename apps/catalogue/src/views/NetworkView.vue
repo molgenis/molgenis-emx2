@@ -17,7 +17,7 @@
           Such as Universities, Companies, Hospitals, Governemental bodies.
         </p>
       </RouterLink>
-      <RouterLink to="databanks" class="btn btn-danger col-2 pt-4">
+      <RouterLink to="databanks" class="btn btn-warning col-2 pt-4">
         <span class="badge badge-light">{{ databanks }}</span>
         <h3>Databanks</h3>
         <p class="text-left">
