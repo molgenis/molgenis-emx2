@@ -20,12 +20,23 @@ public class TestCohortCatalogueMultipleSchemas {
   static Database database;
   static Schema centralSchema;
   static Schema localSchema;
+  static Schema catalogueOntologies;
+  static Schema catalogueDescriptions;
+  static Schema catalogueSourceVariables;
+  static Schema catalogueHarmonizedVariables;
+  static Schema catalogueMappings;
+  ;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     localSchema = database.dropCreateSchema("CohortsLocal");
     centralSchema = database.dropCreateSchema("CohortsCentral");
+    catalogueOntologies = database.dropCreateSchema("CatalogueOntologies");
+    catalogueDescriptions = database.dropCreateSchema("CatalogueDescriptions");
+    catalogueSourceVariables = database.dropCreateSchema("CatalogueSourceVariables");
+    catalogueHarmonizedVariables = database.dropCreateSchema("CatalogueHarmonizedVariables");
+    catalogueMappings = database.dropCreateSchema("CatalogueMappings");
   }
 
   @Test
@@ -33,10 +44,25 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(31, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
-    //
-    //    loadSchema("CohortsLocal.xlsx", localSchema);
-    //    assertEquals(9, TestCohortCatalogueMultipleSchemas.localSchema.getTableNames().size());
+    assertEquals(30, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+
+    loadSchema("CatalogueOntologies.xlsx", catalogueOntologies);
+    assertEquals(13, TestCohortCatalogueMultipleSchemas.catalogueOntologies.getTableNames().size());
+
+    loadSchema("CatalogueDescriptions.xlsx", catalogueDescriptions);
+    assertEquals(
+        10, TestCohortCatalogueMultipleSchemas.catalogueDescriptions.getTableNames().size());
+
+    loadSchema("CatalogueSourceVariables.xlsx", catalogueSourceVariables);
+    assertEquals(
+        7, TestCohortCatalogueMultipleSchemas.catalogueSourceVariables.getTableNames().size());
+
+    loadSchema("CatalogueHarmonizedVariables.xlsx", catalogueHarmonizedVariables);
+    assertEquals(
+        7, TestCohortCatalogueMultipleSchemas.catalogueHarmonizedVariables.getTableNames().size());
+
+    loadSchema("CatalogueMappings.xlsx", catalogueMappings);
+    assertEquals(2, TestCohortCatalogueMultipleSchemas.catalogueMappings.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) {
