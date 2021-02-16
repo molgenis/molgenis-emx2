@@ -92,8 +92,8 @@
             <table>
               <thead>
                 <tr>
-                  <th>Source table</th>
-                  <th>Description of mapping</th>
+                  <th scope="col">Source table</th>
+                  <th scope="col">Description of mapping</th>
                 </tr>
               </thead>
               <tbody>

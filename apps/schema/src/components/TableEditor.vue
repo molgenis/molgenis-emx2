@@ -29,16 +29,18 @@
               class="btn-sm hoverIcon"
             />
           </th>
-          <th style="width: 10em">columnName</th>
-          <th style="width: 8em">columnType</th>
-          <th style="width: 3em">key</th>
-          <th style="width: 5em">required</th>
-          <th style="width: 10em">refTable</th>
-          <th style="width: 10em" v-if="needsMappedByColumn">mappedBy</th>
-          <th style="width: 10em">refLink</th>
-          <th style="width: 10em">jsonldType</th>
-          <th>description</th>
-          <th style="width: 3em"></th>
+          <th scope="col" style="width: 10em">columnName</th>
+          <th scope="col" style="width: 8em">columnType</th>
+          <th scope="col" style="width: 3em">key</th>
+          <th scope="col" style="width: 5em">required</th>
+          <th scope="col" style="width: 10em">refTable</th>
+          <th scope="col" style="width: 10em" v-if="needsMappedByColumn">
+            mappedBy
+          </th>
+          <th scope="col" style="width: 10em">refLink</th>
+          <th scope="col" style="width: 10em">jsonldType</th>
+          <th scope="col">description</th>
+          <th scope="col" style="width: 3em"></th>
         </thead>
         <Draggable
           v-model="table.columns"

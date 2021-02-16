@@ -53,9 +53,9 @@
         <Property label="categories">
           <table v-if="variable.categories" class="table table-sm">
             <thead>
-              <th>value</th>
-              <th>label</th>
-              <th>isMissing</th>
+              <th scope="col">value</th>
+              <th scope="col">label</th>
+              <th scope="col">isMissing</th>
             </thead>
             <tr v-for="category in variable.categories">
               <td>{{ category.value }}</td>

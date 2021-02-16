@@ -20,11 +20,11 @@
         <table v-if="project.partners" class="table">
           <thead>
             <tr>
-              <th>Acronym</th>
-              <th>Name</th>
-              <th>contact(s)</th>
-              <th>type</th>
-              <th>country</th>
+              <th scope="col">Acronym</th>
+              <th scope="col">Name</th>
+              <th scope="col">contact(s)</th>
+              <th scope="col">type</th>
+              <th scope="col">country</th>
             </tr>
           </thead>
           <tr v-for="partner in project.partners">
