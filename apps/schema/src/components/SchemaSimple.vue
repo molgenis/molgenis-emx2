@@ -147,7 +147,6 @@ export default {
                 .filter((c) => !c.inherited);
             } else {
               t.columns = [];
-              ("");
             }
           });
         } else {
