@@ -1263,7 +1263,7 @@ public class SqlQuery extends QueryBean {
         for (Reference ref : c.getReferences()) {
           // can also request composite reference columns, can only be used on row level queries
           if (ref.getName().equals(columnName)) {
-            return new Column(table, columnName).setType(ref.getPrimitiveType());
+            return new Column(table, columnName, true).setType(ref.getPrimitiveType());
           }
         }
       }

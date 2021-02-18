@@ -181,12 +181,6 @@ public class Column {
         return getTable(); // this table
       }
 
-      // inherited pkey field, hard to explain but this is needed for cross schema inheritanc
-      if (getTable().getInherit() != null
-          && getTable().getInheritedTable().getColumn(this.getName()) != null) {
-        schema = getTable().getInheritedTable().getColumn(this.getName()).getSchema();
-      }
-
       // other relation
       if (schema != null) {
         TableMetadata result = schema.getTableMetadata(this.refTable);

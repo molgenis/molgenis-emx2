@@ -3,6 +3,8 @@ package org.molgenis.emx2.io;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,7 +42,7 @@ public class TestCohortCatalogueMultipleSchemas {
   }
 
   @Test
-  public void importTest() {
+  public void importTest() throws IOException {
     StopWatch.print("begin");
 
     loadSchema("CohortsCentral.xlsx", centralSchema);
@@ -65,7 +67,7 @@ public class TestCohortCatalogueMultipleSchemas {
     assertEquals(2, TestCohortCatalogueMultipleSchemas.catalogueMappings.getTableNames().size());
   }
 
-  private void loadSchema(String fileName, Schema schema) {
+  private void loadSchema(String fileName, Schema schema) throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     Path file = new File(classLoader.getResource(fileName).getFile()).toPath();
 
@@ -98,6 +100,17 @@ public class TestCohortCatalogueMultipleSchemas {
           runImportProcedure(store, source, schema);
           StopWatch.print("import of data complete");
         });
+
+    // verify export doesn't throw exceptions
+    Path tempDir =
+        Files.createTempDirectory(TestCohortCatalogueMultipleSchemas.class.getSimpleName());
+    tempDir.toFile().deleteOnExit();
+
+    Path excelFile = tempDir.resolve("download.xlsx");
+    MolgenisIO.toExcelFile(excelFile, schema);
+
+    Path zipFile = tempDir.resolve("download.zip");
+    MolgenisIO.toZipFile(zipFile, schema);
   }
 
   private void runImportProcedure(
