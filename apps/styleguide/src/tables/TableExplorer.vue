@@ -2,10 +2,13 @@
   <div>
     <div v-if="tableMetadata">
       <MessageError v-if="error">{{ error }}</MessageError>
+      <h1>
+        {{ table }}
+        <ButtonAction v-if="hasSubclass" @click="showSubclass = !showSubclass">
+          {{ showSubclass ? "Hide" : "Show" }} subclass rows
+        </ButtonAction>
+      </h1>
       <div class="navbar shadow-none navbar-expand-lg justify-content-between">
-        <h1>
-          {{ table }}
-        </h1>
         <InputSearch class="navbar-nav" v-model="searchTerms" />
         <div class="btn-group">
           <ShowHide
@@ -168,13 +171,26 @@ export default {
       timestamp: 0,
       page: 1,
       showFilters: false,
+      showSubclass: false,
     };
   },
   computed: {
+    hasSubclass() {
+      if (this.tableMetadata && this.columnNames.includes("mg_tableclass")) {
+        return true;
+      }
+      return false;
+    },
     //overrides from TableMixin
     graphqlFilter() {
       let filter = {};
       if (this.tableMetadata) {
+        //filter on subclass, if exists
+        if (!this.showSubclass && this.hasSubclass) {
+          filter.mg_tableclass = {
+            equals: this.schema.name + "." + this.tableMetadata.name,
+          };
+        }
         this.tableMetadata.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
             ? col.conditions.filter((f) => f !== "" && f != undefined)
