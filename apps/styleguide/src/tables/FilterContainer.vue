@@ -1,18 +1,20 @@
 <template>
-  <div class="filter-header border-bottom" v-if="visible">
-    <div class="d-flex flex-row justify-content-between">
-      <label class="mb-0 font-weight-bold p-2">
+  <div class="filter-header mb-2 border bg-white" v-if="visible">
+    <div
+      class="d-flex flex-row justify-content-between"
+      @click="expanded ? $emit('collapse') : $emit('expand')"
+    >
+      <h6 class="mb-0 font-weight-bold p-2">
         {{ title }}
         <span v-if="count > 0" class="badge badge-secondary">{{ count }}</span>
-      </label>
+      </h6>
       <IconAction
         class="ml-auto"
         :icon="expanded ? 'angle-up' : 'angle-down'"
-        @click="expanded ? $emit('collapse') : $emit('expand')"
       />
     </div>
     <slot name="header" />
-    <div v-if="expanded">
+    <div v-if="expanded" class="p-2">
       <!-- @slot Use this slot to place the filter box content -->
       <slot />
     </div>

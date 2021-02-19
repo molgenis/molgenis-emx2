@@ -157,7 +157,7 @@ examples
 <template>
   <div>
     <div class="row">
-      <div class="col col-lg-5">
+      <div class="col col-lg-5 bg-">
         <FilterSidebar v-model="filters"/>
       </div>
       <div class="col">

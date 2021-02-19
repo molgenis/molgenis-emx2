@@ -48,14 +48,11 @@
         |
         <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
       </div>
-      <div class="row" :key="timestamp">
-        <div v-if="showFilters" class="col col-3">
-          <FilterSidebar v-model="tableMetadata.columns" />
+      <div class="d-flex" :key="timestamp">
+        <div v-if="showFilters" class="col-2">
+          <FilterSidebar v-model="tableMetadata.columns" :key="timestamp" />
         </div>
-        <div
-          class="col"
-          :class="{ 'col-9': showFilters, 'col-12': !showFilters }"
-        >
+        <div class="flex-grow-1 overflow-auto" :key="timestamp">
           <FilterWells v-if="table" v-model="tableMetadata.columns" />
           <div v-if="loading">
             <Spinner />
@@ -140,6 +137,7 @@ import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
 import ButtonAlt from "../forms/ButtonAlt";
 import SelectionBox from "./SelectionBox";
+import ButtonAction from "../forms/ButtonAction";
 
 export default {
   extends: TableMixin,
@@ -157,6 +155,7 @@ export default {
     InputSearch,
     Pagination,
     ButtonAlt,
+    ButtonAction,
     SelectionBox,
   },
   props: {

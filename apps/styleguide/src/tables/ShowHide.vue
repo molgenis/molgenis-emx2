@@ -6,14 +6,14 @@
       <div>
         <div
           class="form-check"
-          v-for="col in value"
+          v-for="(col, key) in columns"
           :key="col.name + col[checkAttribute] + timestamp"
         >
           <input
             class="form-check-input"
             type="checkbox"
+            v-model="columns[key][checkAttribute]"
             @change="emitValue"
-            v-model="col[checkAttribute]"
             :id="col.name"
           />
           <label class="form-check-label" :for="col.name">
@@ -21,6 +21,7 @@
           </label>
         </div>
       </div>
+      {{ columns }}
     </div>
   </ButtonDropdown>
 </template>
@@ -32,7 +33,7 @@ import ButtonDropdown from "../forms/ButtonDropdown";
 export default {
   components: { ButtonAlt, ButtonDropdown },
   props: {
-    value: {},
+    value: Array,
     label: String,
     icon: String,
     checkAttribute: String,
@@ -40,25 +41,37 @@ export default {
   data() {
     return {
       timestamp: 0,
+      columns: [],
     };
   },
   methods: {
-    updateTimestamp() {
-      this.timestamp = new Date().getTime();
-    },
     emitValue() {
-      this.$emit("input", this.value);
+      this.$emit("input", this.columns);
     },
     hideAll() {
-      this.value.forEach((c) => (c[this.checkAttribute] = false));
-      this.updateTimestamp();
+      this.columns.forEach((c) => (c[this.checkAttribute] = false));
+      this.timestamp = Date.now();
       this.emitValue();
     },
     showAll() {
-      this.value.forEach((c) => (c[this.checkAttribute] = true));
-      this.updateTimestamp();
+      this.columns.forEach((c) => (c[this.checkAttribute] = true));
+      this.timestamp = Date.now();
       this.emitValue();
     },
+  },
+  watch: {
+    columns: {
+      deep: true,
+      handler() {
+        this.emitValue();
+      },
+    },
+    value() {
+      this.columns = this.value;
+    },
+  },
+  created() {
+    this.columns = this.value;
   },
 };
 </script>
