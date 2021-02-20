@@ -1,18 +1,14 @@
 <template>
   <div class="input-group-append">
     <slot />
-    <AppendPlus
-      class="input-append-show"
-      v-if="showPlus"
-      v-bind="$props"
-      @add="$emit('add')"
-    />
     <AppendClear
       class="input-append-show"
       v-if="showClear"
       v-bind="$props"
       @clear="$emit('clear')"
     />
+    <IconAction v-if="showMinus" icon="minus" class="invisible" />
+    <IconAction v-if="showPlus" icon="plus" @click="$emit('add')" />
   </div>
 </template>
 
@@ -27,11 +23,11 @@
 </style>
 
 <script>
-import AppendPlus from "./_appendPlus";
 import AppendClear from "./_appendClear";
+import IconAction from "./IconAction";
 
 export default {
-  components: { AppendPlus, AppendClear },
+  components: { IconAction, AppendClear },
   props: {
     readonly: {
       type: Boolean,
@@ -47,6 +43,10 @@ export default {
       default: true,
     },
     showPlus: {
+      type: Boolean,
+      default: false,
+    },
+    showMinus: {
       type: Boolean,
       default: false,
     },

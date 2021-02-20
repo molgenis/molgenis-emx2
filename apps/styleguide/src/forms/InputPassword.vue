@@ -7,7 +7,7 @@
       type="password"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
-      v-on="$listeners"
+      @input="emitValue"
     />
   </form-group>
 </template>
@@ -22,30 +22,30 @@ export default {
 </script>
 
 <docs>
-    Examlple
-    ```
-    <template>
-        <div>
-            <LayoutForm>
-                <InputPassword
-                        v-model="value"
-                        label="My password label"
-                        placholder="type here your password"
-                        help="Some help needed?"
-                />
-            </LayoutForm>
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
+Examlple
+```
+<template>
+  <div>
+    <LayoutForm>
+      <InputPassword
+          v-model="value"
+          label="My password label"
+          placholder="type here your password"
+          help="Some help needed?"
+      />
+    </LayoutForm>
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
 </docs>

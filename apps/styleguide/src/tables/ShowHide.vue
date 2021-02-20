@@ -1,19 +1,23 @@
 <template>
-  <ButtonDropdown :icon="icon">
+  <ButtonDropdown :icon="icon" :label="label">
     <div>
-      <ButtonAlt @click="showAll">show all {{ label }}</ButtonAlt>
-      <ButtonAlt @click="hideAll">hide all {{ label }}</ButtonAlt>
+      <h6>
+        {{ label }}
+      </h6>
+      <ButtonAlt @click="showAll">show all</ButtonAlt>
+      <ButtonAlt @click="hideAll">hide all</ButtonAlt>
+
       <div>
-        <div
-          class="form-check"
-          v-for="(col, key) in columns"
-          :key="col.name + col[checkAttribute] + timestamp"
-        >
+        <div class="form-check" v-for="(col, key) in columns" :key="key">
           <input
             class="form-check-input"
             type="checkbox"
-            v-model="columns[key][checkAttribute]"
-            @change="emitValue"
+            :checked="
+              col[checkAttribute] == undefined
+                ? defaultValue
+                : col[checkAttribute]
+            "
+            @input="change(key, !col[checkAttribute])"
             :id="col.name"
           />
           <label class="form-check-label" :for="col.name">
@@ -21,7 +25,6 @@
           </label>
         </div>
       </div>
-      {{ columns }}
     </div>
   </ButtonDropdown>
 </template>
@@ -33,45 +36,38 @@ import ButtonDropdown from "../forms/ButtonDropdown";
 export default {
   components: { ButtonAlt, ButtonDropdown },
   props: {
-    value: Array,
+    columns: Array,
     label: String,
     icon: String,
     checkAttribute: String,
-  },
-  data() {
-    return {
-      timestamp: 0,
-      columns: [],
-    };
+    defaultValue: { type: Boolean, default: false },
   },
   methods: {
-    emitValue() {
-      this.$emit("input", this.columns);
+    value(col) {
+      return col[this.checkAttribute] == undefined
+        ? this.defaultValue
+        : col[this.checkAttribute];
+    },
+    change(key, value) {
+      let update = JSON.parse(JSON.stringify(this.columns));
+      console.log(value);
+      update[key][this.checkAttribute] = value;
+      this.$emit("update:columns", update);
     },
     hideAll() {
-      this.columns.forEach((c) => (c[this.checkAttribute] = false));
-      this.timestamp = Date.now();
-      this.emitValue();
+      let update = JSON.parse(JSON.stringify(this.columns));
+      for (var key in update) {
+        update[key][this.checkAttribute] = false;
+      }
+      this.$emit("update:columns", update);
     },
     showAll() {
-      this.columns.forEach((c) => (c[this.checkAttribute] = true));
-      this.timestamp = Date.now();
-      this.emitValue();
+      let update = JSON.parse(JSON.stringify(this.columns));
+      for (var key in update) {
+        update[key][this.checkAttribute] = true;
+      }
+      this.$emit("update:columns", update);
     },
-  },
-  watch: {
-    columns: {
-      deep: true,
-      handler() {
-        this.emitValue();
-      },
-    },
-    value() {
-      this.columns = this.value;
-    },
-  },
-  created() {
-    this.columns = this.value;
   },
 };
 </script>

@@ -12,7 +12,8 @@
           @change="
             arrayValue.includes(item)
               ? (arrayValue = arrayValue.filter((c) => c != item))
-              : arrayValue.push(item)
+              : arrayValue.push(item);
+            emitValue();
           "
           class="form-check-input"
           type="checkbox"
@@ -26,7 +27,10 @@
         class="checkbox-clear-value"
         href="#"
         v-if="arrayValue.filter((c) => c != undefined).length > 0"
-        @click.prevent="arrayValue = [null]"
+        @click.prevent="
+          arrayValue = [null];
+          emitValue();
+        "
       >
         clear
       </a>

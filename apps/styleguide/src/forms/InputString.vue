@@ -12,6 +12,7 @@
         :showClear="showClear(idx)"
         @clear="clearValue(idx)"
         :showPlus="showPlus(idx)"
+        :showMinus="showMinus(idx)"
         @add="addRow"
       >
         <input
@@ -23,6 +24,7 @@
           :placeholder="placeholder"
           :readonly="readonly"
           @keypress="keyhandler"
+          @input="emitValue"
           @blur="toggleFocus"
         />
       </InputAppend>

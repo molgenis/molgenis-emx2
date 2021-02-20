@@ -12,17 +12,17 @@
     >
       <InputDate
         v-model="arrayValue[idx][0]"
-        :defaultValue="arrayValue[idx][0]"
         placeholder="from"
         :clear="false"
         style="margin: 0px"
+        @input="emitValue"
       />
       <InputDate
         v-model="arrayValue[idx][1]"
-        :defaultValue="arrayValue[idx][1]"
         placeholder="to"
         :clear="false"
         style="margin: 0px"
+        @input="emitValue"
       />
     </InputAppend>
   </FormGroup>
@@ -42,59 +42,59 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputRangeDate v-model="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: []
-                }
-            }
-        }
-    </script>
-    ```
-    Example with list
-    ```
-    <template>
-        <div>
-            <InputRangeDate :list="true" v-model="value"
-            />
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: []
-                }
-            }
-        }
-    </script>
-    ```
-    Example with list and default
-    ```
-    <template>
-        <div>
-            <InputRangeDate :list="true" v-model="value" :defaultValue="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: [['2020-1-1', '2020-2-2'], ['1999-10-10', null]]
-                }
-            }
-        }
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <InputRangeDate v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: []
+      }
+    }
+  }
+</script>
+```
+Example with list
+```
+<template>
+  <div>
+    <InputRangeDate :list="true" v-model="value"
+    />
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: []
+      }
+    }
+  }
+</script>
+```
+Example with list and default
+```
+<template>
+  <div>
+    <InputRangeDate :list="true" v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: [['2020-1-1', '2020-2-2'], ['1999-10-10', null]]
+      }
+    }
+  }
+</script>
+```
 </docs>

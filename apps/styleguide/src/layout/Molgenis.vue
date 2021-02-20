@@ -14,7 +14,7 @@
     >
       <Session v-model="session" />
     </NavBar>
-    <div style="background: #fafafa">
+    <div style="background: #f5f5f7">
       <div
         :class="fullscreen ? 'container-xl' : 'container-fluid'"
         style="background: #fafafa"

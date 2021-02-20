@@ -12,17 +12,17 @@
     >
       <InputDecimal
         v-model="arrayValue[idx][0]"
-        :defaultValue="arrayValue[idx][0]"
         placeholder="from"
         :clear="false"
         style="margin: 0px"
+        @input="emitValue"
       />
       <InputDecimal
         v-model="arrayValue[idx][1]"
-        :defaultValue="arrayValue[idx][1]"
         placeholder="to"
         :clear="false"
         style="margin: 0px"
+        @input="emitValue"
       />
     </InputAppend>
   </FormGroup>
@@ -42,76 +42,76 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputRangeDecimal v-model="value" :defaultValue="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: null
-                }
-            }
-        }
-    </script>
-    ```
-    Example with default
-    ```
-    <template>
-        <div>
-            <InputRangeDecimal v-model="value" :defaultValue="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: [1.0, 2.0]
-                }
-            }
-        }
-    </script>
-    ```
-    Example list
-    ```
-    <template>
-        <div>
-            <InputRangeDecimal :list="true" v-model="value" :defaultValue="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: null
-                }
-            }
-        }
-    </script>
-    ```
-    Example list and default
-    ```
-    <template>
-        <div>
-            <InputRangeDecimal :list="true" v-model="value" :defaultValue="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: [[1.0, 2.0], [3.1, 4.5]]
-                }
-            }
-        }
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <InputRangeDecimal v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: null
+      }
+    }
+  }
+</script>
+```
+Example with default
+```
+<template>
+  <div>
+    <InputRangeDecimal v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: [1.0, 2.0]
+      }
+    }
+  }
+</script>
+```
+Example list
+```
+<template>
+  <div>
+    <InputRangeDecimal :list="true" v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: null
+      }
+    }
+  }
+</script>
+```
+Example list and default
+```
+<template>
+  <div>
+    <InputRangeDecimal :list="true" v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: [[1.0, 2.0], [3.1, 4.5]]
+      }
+    }
+  }
+</script>
+```
 </docs>

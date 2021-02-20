@@ -15,6 +15,7 @@
           :value="item"
           :checked="arrayValue[0] == item"
           :aria-describedby="id + 'Help'"
+          @change="emitValue"
         />
         <label class="form-check-label" :for="id + index">{{ item }}</label>
       </div>

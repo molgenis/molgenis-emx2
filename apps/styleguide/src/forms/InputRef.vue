@@ -12,7 +12,7 @@
         type="checkbox"
         :value="getPkey(row)"
         v-model="arrayValue"
-        @change="$emit('input', value)"
+        @change="emitValue"
       />
       <input
         v-else
@@ -21,7 +21,7 @@
         type="radio"
         :value="getPkey(row)"
         v-model="arrayValue[0]"
-        @change="$emit('input', value)"
+        @change="emitValue"
       />
       <label class="form-check-label">
         {{ flattenObject(getPkey(row)) }}

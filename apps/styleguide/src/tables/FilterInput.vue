@@ -4,46 +4,47 @@
       :list="true"
       :or="true"
       v-if="
-        column.columnType.startsWith('STRING') ||
-        column.columnType.startsWith('TEXT') ||
-        column.columnType.startsWith('UUID')
+        columnType.startsWith('STRING') ||
+        columnType.startsWith('TEXT') ||
+        columnType.startsWith('UUID')
       "
-      v-model="column.conditions"
-      :defaultValue="column.conditions"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
     />
     <InputRangeInt
       :list="true"
-      v-if="column.columnType.startsWith('INT')"
-      v-model="column.conditions"
-      :defaultValue="column.conditions"
+      v-else-if="columnType.startsWith('INT')"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
     />
     <InputRangeDecimal
       :list="true"
-      v-if="column.columnType.startsWith('DECIMAL')"
-      v-model="column.conditions"
-      :defaultValue="column.conditions"
+      v-else-if="columnType.startsWith('DECIMAL')"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
     />
     <InputRangeDate
       :list="true"
-      v-if="column.columnType.startsWith('DATE')"
-      v-model="column.conditions"
-      :defaultValue="column.conditions"
+      v-else-if="columnType.startsWith('DATE')"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
     />
     <InputCheckbox
       :list="true"
-      v-if="column.columnType.startsWith('BOOL')"
+      v-else-if="columnType.startsWith('BOOL')"
       :options="['true', 'false']"
-      v-model="column.conditions"
-      :defaultValue="column.conditions"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
     />
     <InputRef
       :list="true"
-      v-if="column.columnType.startsWith('REF') || column.columnType == 'MREF'"
-      :refTable="column.refTable"
-      v-model="column.conditions"
-      :defaultValue="column.conditions"
+      v-else-if="columnType.startsWith('REF') || columnType == 'MREF'"
+      :refTable="refTable"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
       :limit="7"
     />
+    <div v-else>ERROR {{ column }}</div>
   </div>
 </template>
 
@@ -65,23 +66,9 @@ export default {
     InputRef,
   },
   props: {
-    value: Object,
-  },
-  data() {
-    return {
-      column: {},
-    };
-  },
-  watch: {
-    column() {
-      this.$emit("input", this.column);
-    },
-    value() {
-      this.column = this.value;
-    },
-  },
-  created() {
-    this.column = this.value;
+    columnType: String,
+    refTable: String,
+    conditions: Array,
   },
 };
 </script>

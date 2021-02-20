@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :key="timestamp">
+    <div>
       <Draggable
         :list="filters"
         handle=".filter-header "
@@ -8,23 +8,24 @@
       >
         <FilterContainer
           v-for="(column, index) in filters"
+          :expanded.sync="filters[index].expanded"
           :title="column.name"
           :visible="column.showFilter"
-          :key="column.name + column.updateTime"
-          :count="
-            Array.isArray(column.conditions) ? column.conditions.length : null
-          "
-          :expanded="column.name == expanded"
-          @expand="expanded = column.name"
-          @collapse="expanded = null"
+          :count="count(column)"
+          :key="column.name"
+          :style="column.showFilter ? '' : 'display: none'"
         >
-          <FilterInput v-model="filters[index]" />
+          <FilterInput
+            :conditions.sync="filters[index].conditions"
+            @update="$emit('update:filters', filters)"
+            :columnType="column.columnType"
+            :refTable="column.refTable"
+          />
         </FilterContainer>
       </Draggable>
       <ShowMore title="debug">
         <pre>
 url = {{ url }}
-expanded = {{ expanded }}
 filters = {{ filters }}
       </pre
         >
@@ -47,14 +48,7 @@ export default {
     ShowMore,
   },
   props: {
-    value: Array,
-  },
-  data() {
-    return {
-      filters: [],
-      timestamp: 0,
-      expanded: null,
-    };
+    filters: Array,
   },
   computed: {
     url() {
@@ -101,27 +95,24 @@ export default {
       return url.searchParams;
     },
   },
-  created() {
-    this.filters = this.value;
-    this.initShowFilter();
-  },
-  watch: {
-    value() {
-      this.filters = this.value;
-    },
-    filters() {
-      //this.initShowFilter();
-      this.$emit("input", this.filters);
-    },
-  },
   methods: {
-    updateTimestamp() {
-      this.timestamp = new Date().getTime();
+    count(column) {
+      return Array.isArray(column.conditions) ? column.conditions.length : null;
+    },
+    expandFilter(index) {
+      let update = this.filters;
+      update[index].expanded = true;
+      this.$emit("update:filters", update);
+    },
+    collapseFilter(index) {
+      let update = this.filters;
+      update[index].expanded = false;
+      this.$emit("update:filters", update);
     },
     hideFilter(idx) {
-      this.filters[idx].showFilter = false;
-      this.updateTimestamp();
-      console.log("hide " + idx);
+      let update = this.filters;
+      update[idx].showFilter = false;
+      this.$emit("update:filters", update);
     },
     flatten(obj, keyName) {
       let result = {};
@@ -138,15 +129,6 @@ export default {
       });
       return result;
     },
-    initShowFilter() {
-      this.filters.forEach((column) => {
-        if (column.showFilter === undefined) {
-          //we use updateTime to be able to know when to refresh a view
-          column.updateTime = column.name + new Date().getTime();
-          column.showFilter = true;
-        }
-      });
-    },
   },
 };
 </script>
@@ -157,11 +139,12 @@ examples
 <template>
   <div>
     <div class="row">
-      <div class="col col-lg-5 bg-">
-        <FilterSidebar v-model="filters"/>
+      <div class="col-3">
+        <FilterSidebar :filters.sync="table.filters"/>
       </div>
-      <div class="col">
-        <FilterWells v-model="filters"/>
+      <div class="col-9">
+        <FilterWells :filters.sync="table.filters"/>
+        <pre>{{ table }}</pre>
       </div>
     </div>
   </div>
@@ -173,36 +156,38 @@ examples
   export default {
     data: function () {
       return {
-        filters: [{
-          "name": "orderId",
-          "pkey": true,
-          "columnType": "STRING", showFilter: true
-        },
-          {
-            "name": "variables",
-            "columnType": "REF",
-            "refTable": "Variables", showFilter: true
-          },
-          {
-            "name": "quantity",
-            "columnType": "INT", showFilter: true
-          },
-          {
-            "name": "price",
-            "columnType": "DECIMAL", showFilter: true
-          },
-          {
-            "name": "complete",
-            "columnType": "BOOL", showFilter: true
-          },
-          {
-            "name": "status",
+        table: {
+          filters: [{
+            "name": "orderId",
+            "pkey": true,
             "columnType": "STRING", showFilter: true
           },
-          {
-            "name": "birthday",
-            "columnType": "DATE", showFilter: true
-          }]
+            {
+              "name": "variables",
+              "columnType": "REF",
+              "refTable": "Variables", showFilter: true
+            },
+            {
+              "name": "quantity",
+              "columnType": "INT", showFilter: true
+            },
+            {
+              "name": "price",
+              "columnType": "DECIMAL", showFilter: true
+            },
+            {
+              "name": "complete",
+              "columnType": "BOOL", showFilter: true
+            },
+            {
+              "name": "status",
+              "columnType": "STRING", showFilter: true
+            },
+            {
+              "name": "birthday",
+              "columnType": "DATE", showFilter: true
+            }]
+        }
       }
     }
   }

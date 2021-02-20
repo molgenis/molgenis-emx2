@@ -2,7 +2,11 @@
   <div class="filter-header mb-2 border bg-white" v-if="visible">
     <div
       class="d-flex flex-row justify-content-between"
-      @click="expanded ? $emit('collapse') : $emit('expand')"
+      @click="
+        expanded
+          ? $emit('update:expanded', false)
+          : $emit('update:expanded', true)
+      "
     >
       <h6 class="mb-0 font-weight-bold p-2">
         {{ title }}

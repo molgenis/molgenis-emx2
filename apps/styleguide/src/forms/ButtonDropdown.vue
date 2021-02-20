@@ -1,11 +1,10 @@
 <template>
   <div class="dropdown" :class="{ show: display }">
     <button
-      class="btn"
+      class="btn btn-outline-primary"
       :class="{
         'btn-outline-primary': !icon,
         'dropdown-toggle': !icon,
-        'btn-link': icon,
       }"
       type="button"
       data-toggle="dropdown"
@@ -14,7 +13,7 @@
       @click="toggle"
     >
       <span v-if="label">{{ label }}</span>
-      <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg'"></span>
+      <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg ml-2'"></span>
     </button>
     <div
       v-if="display"

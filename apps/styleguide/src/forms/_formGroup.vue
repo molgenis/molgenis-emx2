@@ -1,7 +1,7 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <div class="form-group">
+  <div class="form-group m-0">
     <label v-if="label && !inplace" :for="id">
       <b>{{ label }}</b>
     </label>

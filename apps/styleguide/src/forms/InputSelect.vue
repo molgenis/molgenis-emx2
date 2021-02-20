@@ -50,6 +50,7 @@
         :id="id"
         v-model="arrayValue[idx]"
         :class="{ 'form-control': true, 'is-invalid': error }"
+        @change="emitValue"
       >
         <option
           v-if="!list || el == undefined"
@@ -95,17 +96,6 @@ export default {
       this.toggleFocus();
       this.arrayValue[idx] = option;
       this.emitValue();
-    },
-    showPlus(idx) {
-      return (
-        this.option &&
-        this.arrayValue &&
-        this.list &&
-        !this.readonly &&
-        this.arrayValue[idx] != undefined &&
-        idx === this.arrayValue.length - 1 &&
-        this.options.filter((o) => !this.arrayValue.includes(o)).length > 0
-      );
     },
   },
   props: {

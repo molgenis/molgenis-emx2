@@ -1,9 +1,9 @@
 <template>
   <div class="table-responsive" style="overflow: scroll">
     <table
-      class="table table-sm"
+      class="table table-sm table-bordered"
       :class="{ 'table-hover': showSelect }"
-      :key="timestamp"
+      :key="timestamp + countColumns"
     >
       <thead>
         <Draggable
@@ -21,18 +21,14 @@
             :key="col.name + col.showColumn"
             scope="col"
             class="column-drag-header"
-            :style="
-              col.showColumn === undefined || col.showColumn == true
-                ? ''
-                : 'display: none'
-            "
+            :style="col.showColumn ? '' : 'display: none'"
           >
-            <b>{{ col.name }}</b>
+            <h6 class="mb-0">{{ col.name }}</h6>
           </th>
         </Draggable>
       </thead>
       <tbody>
-        <tr v-for="(row, idx) in data" :key="JSON.stringify(row)">
+        <tr v-for="(row, idx) in data" :key="idx">
           <td>
             <div style="display: flex">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
@@ -57,11 +53,7 @@
             :key="idx + col.name"
             @click="onRowClick(row)"
             style="cursor: pointer"
-            :style="
-              col.showColumn === undefined || col.showColumn == true
-                ? ''
-                : 'display: none'
-            "
+            :style="col.showColumn ? '' : 'display: none'"
           >
             <div v-if="'FILE' === col.columnType">
               <a v-if="row[col.name].id" :href="row[col.name].url">
@@ -87,7 +79,7 @@
     </table>
     <ShowMore title="debug">
       <pre>
-metadata = {{ JSON.stringify(metadata) }}
+metadata = {{ metadata }}
 selection = {{ selectedItems }}
 timestamp = {{ timestamp }}
      </pre
@@ -144,6 +136,11 @@ export default {
       selectedItems: [],
       timestamp: 0,
     };
+  },
+  computed: {
+    countColumns() {
+      return this.metadata.columns.filter((c) => c.showColumn).length;
+    },
   },
   methods: {
     updateTimestamp() {
@@ -255,20 +252,22 @@ export default {
       // format number and add suffix
       return scaled.toFixed(1) + suffix;
     },
+    initDefault() {
+      this.metadata.columns.forEach((c) => {
+        if (c.showColumn == undefined) {
+          c.showColumn = true;
+        }
+      });
+    },
   },
   watch: {
-    metadata: {
-      deep: true,
-      handler() {
-        this.updateTimestamp();
-      },
-    },
     value() {
       this.selectedItems = this.value;
     },
   },
   created() {
     this.selectedItems = this.value;
+    this.initDefault();
   },
 };
 </script>

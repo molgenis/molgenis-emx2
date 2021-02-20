@@ -7,6 +7,7 @@
         class="form-check-input"
         type="checkbox"
         :aria-describedby="id + 'Help'"
+        @change="emitValue"
       />
     </div>
   </div>
@@ -15,6 +16,7 @@
     v-bind="$props"
     v-model="arrayValue[0]"
     :options="[true, false]"
+    @input="emitValue"
   />
 </template>
 

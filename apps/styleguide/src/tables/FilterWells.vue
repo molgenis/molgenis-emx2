@@ -39,26 +39,7 @@ import FilterWell from "./FilterWell";
 
 export default {
   props: {
-    value: Array,
-  },
-  data() {
-    return {
-      filters: [],
-    };
-  },
-  created() {
-    this.filters = this.value;
-  },
-  watch: {
-    value() {
-      this.filters = this.value;
-    },
-    filters: {
-      deep: true,
-      handler() {
-        this.$emit("input", this.filters);
-      },
-    },
+    filters: Array,
   },
   components: {
     FilterWell,
@@ -108,16 +89,20 @@ export default {
       return result;
     },
     remove(idx, idx2) {
-      this.filters[idx].conditions.splice(idx2, 1);
-      //we use updateTime as key to know when to refresh a filter view
-      this.filters[idx].updateTime = new Date().getTime();
+      let update = this.filters;
+      console.log("remove one");
+      update[idx].conditions.splice(idx2, 1);
+      this.$emit("update:filters", update);
     },
     removeAll() {
-      this.filters.forEach((column) => {
-        column.conditions = [];
-        //we use updateTime as key to know when to refresh a filter view
-        column.updateTime = new Date().getTime();
-      });
+      let update = this.filters;
+      for (var idx in update) {
+        if (Array.isArray(update[idx].conditions)) {
+          update[idx].conditions = [];
+        }
+      }
+      console.log("removeAll");
+      this.$emit("update:filters", update);
     },
   },
 };
@@ -128,7 +113,7 @@ Example:
 ```
 <template>
   <div>
-    <FilterWells v-model="filters"/>
+    <FilterWells :filters.sync="filters"/>
     value: {{ JSON.stringify(filters) }}
   </div>
 </template>

@@ -6,6 +6,7 @@
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"
+      :showMinus="showMinus(idx)"
       :showPlus="showPlus(idx)"
       @add="addRow"
     >
@@ -25,6 +26,7 @@
         :config="config"
         :placeholder="placeholder"
         :disabled="readonly"
+        @input="emitValue"
       />
     </InputAppend>
   </form-group>

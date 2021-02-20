@@ -59,11 +59,11 @@ export default {
     };
   },
   watch: {
-    arrayValue: {
-      handler() {
-        this.emitValue();
-      },
-      deep: true,
+    value() {
+      //why doesn't have javascript proper equals!!!
+      if (JSON.stringify(this.value) != JSON.stringify(this.getValue())) {
+        this.init();
+      }
     },
   },
   // generate automatic id
@@ -71,19 +71,27 @@ export default {
     this.id = Math.random().toString(36).substring(7);
   },
   created() {
-    if (this.list) {
-      if (Array.isArray(this.value)) {
-        this.arrayValue = this.value;
-      } else {
-        this.arrayValue = [this.value];
-      }
-    } else {
-      this.arrayValue[0] = this.value;
-    }
-    //note, initially we used 'computed' but that doesn't always update imediately
-    this.prettyValue = this.getValue();
+    this.init();
   },
   methods: {
+    init() {
+      if (this.list) {
+        if (this.value == null) {
+          this.arrayValue = [null];
+        } else if (Array.isArray(this.value)) {
+          this.arrayValue = this.value;
+        } else {
+          this.arrayValue = [this.value];
+        }
+      } else {
+        this.arrayValue[0] = this.value;
+      }
+      if (this.arrayValue == null || this.arrayValue.length == 0) {
+        this.arrayValue = [null];
+      }
+      //note, initially we used 'computed' but that doesn't always update imediately
+      this.prettyValue = this.getValue();
+    },
     getValue() {
       //list type
       var value;
@@ -141,19 +149,18 @@ export default {
           this.arrayValue = [null];
         }
       }
+      this.emitValue();
     },
     showPlus(idx) {
-      return (
-        this.list &&
-        !this.readonly &&
-        this.arrayValue &&
-        this.arrayValue[idx] !== null &&
-        this.arrayValue[idx] !== "" &&
-        idx === this.arrayValue.length - 1
-      );
+      //always on last line
+      return this.list && idx == this.arrayValue.length - 1;
     },
+    //always show on empty lines in list view
     showClear() {
-      return !this.readonly && !this.required && this.clear;
+      return this.clear;
+    },
+    showMinus(idx) {
+      return this.list && idx != this.arrayValue.length - 1;
     },
   },
   directives: {

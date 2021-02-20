@@ -18,6 +18,7 @@
           v-if="arrayValue[idx] && !showSelect"
           :value="arrayValue[idx]"
           selected
+          @input="emitValue"
         >
           {{ flattenObject(arrayValue[idx]) }}
         </option>
@@ -163,7 +164,6 @@ Example with default value
     <InputRefSelect
         v-model="value"
         refTable="Pet"
-        :defaultValue="value"
         graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -188,7 +188,6 @@ Example with filter
         v-model="value"
         refTable="Pet"
         :filter="{category:{name:'dog'}}"
-        :defaultValue="value"
         graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -212,7 +211,6 @@ Example with list
     <InputRefSelect :list="true"
                     v-model="value"
                     refTable="Pet"
-                    :defaultValue="[{name:'spike'},{name:'pooky'}]"
                     graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}

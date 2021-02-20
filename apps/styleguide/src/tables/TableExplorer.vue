@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="tableMetadata">
+    <div v-if="columns">
       <MessageError v-if="error">{{ error }}</MessageError>
       <h1>
         {{ table }}
@@ -8,61 +8,62 @@
           {{ showSubclass ? "Hide" : "Show" }} subclass rows
         </ButtonAction>
       </h1>
-      <div class="navbar shadow-none navbar-expand-lg justify-content-between">
-        <InputSearch class="navbar-nav" v-model="searchTerms" />
-        <div class="btn-group">
-          <ShowHide
-            class="navbar-nav"
-            v-model="tableMetadata.columns"
-            checkAttribute="showFilter"
-            @input="updateTimestamp"
-            label="filters"
-            icon="filter"
-          />
-          <ShowHide
-            class="navbar-nav"
-            v-model="tableMetadata.columns"
-            checkAttribute="showColumn"
-            @input="updateTimestamp"
-            label="columns"
-            icon="columns"
-          />
+      <div class="d-flex">
+        <div v-if="countFilters" class="col-2 pl-0">
+          <FilterSidebar :filters.sync="columns" />
         </div>
-        <Pagination
-          class="navbar-nav"
-          v-model="page"
-          :limit="limit"
-          :count="count"
-          :key="timestamp"
-          @change="updateTimestamp"
-        />
-        <SelectionBox v-model="selectedItems" />
-      </div>
-      <div>
-        Download:
-        <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
-        |
-        <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-        |
-        <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-        |
-        <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
-      </div>
-      <div class="d-flex" :key="timestamp">
-        <div v-if="showFilters" class="col-2">
-          <FilterSidebar v-model="tableMetadata.columns" :key="timestamp" />
-        </div>
-        <div class="flex-grow-1 overflow-auto" :key="timestamp">
-          <FilterWells v-if="table" v-model="tableMetadata.columns" />
+        <div class="flex-grow-1 overflow-auto">
+          <div
+            class="navbar shadow-none navbar-expand-lg justify-content-between p-0 pb-2"
+          >
+            <div class="btn-group">
+              <ShowHide
+                class="navbar-nav"
+                :columns.sync="columns"
+                checkAttribute="showFilter"
+                label="filters"
+                icon="filter"
+              />
+              <ShowHide
+                class="navbar-nav"
+                :columns.sync="columns"
+                checkAttribute="showColumn"
+                label="columns"
+                icon="columns"
+                id="showColumn"
+                :defaultValue="true"
+              />
+            </div>
+            <InputSearch class="navbar-nav" v-model="searchTerms" />
+
+            <Pagination
+              class="navbar-nav"
+              v-model="page"
+              :limit="limit"
+              :count="count"
+            />
+            <SelectionBox v-model="selectedItems" />
+          </div>
+
+          <div>
+            Download:
+            <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
+            |
+            <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
+            |
+            <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
+            |
+            <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
+          </div>
+          <FilterWells v-if="table" :filters.sync="columns" />
           <div v-if="loading">
             <Spinner />
           </div>
           <TableMolgenis
             v-else
             v-model="selectedItems"
-            :metadata="tableMetadata"
+            :metadata="tableMetadataMerged"
             :data="data"
-            :key="JSON.stringify(tableMetadata.columns)"
             :showSelect="true"
           >
             <template v-slot:header>
@@ -91,6 +92,8 @@
     </div>
     <ShowMore title="debug">
       <pre>
+        columns = {{ columns }}
+
         selection = {{ selectedItems }}
 
       graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
@@ -167,15 +170,35 @@ export default {
   data() {
     return {
       selectedItems: [],
-      timestamp: 0,
       page: 1,
-      showFilters: false,
       showSubclass: false,
+      //a copy of column metadata used to show/hide filters and columns
+      columns: [],
     };
   },
   computed: {
+    tableMetadataMerged() {
+      let tm = this.tableMetadata;
+      tm.columns = this.columns;
+      return tm;
+    },
+    countFilters() {
+      if (this.columns) {
+        return this.columns.filter((f) => f.showFilter).length;
+      }
+      return null;
+    },
+    countColumns() {
+      if (this.columns) {
+        return this.columns.filter((f) => f.showColumn).length;
+      }
+      return null;
+    },
     hasSubclass() {
-      if (this.tableMetadata && this.columnNames.includes("mg_tableclass")) {
+      if (
+        this.columns &&
+        this.columns.filter((c) => c.name == "mg_tableclass").length > 0
+      ) {
         return true;
       }
       return false;
@@ -183,14 +206,14 @@ export default {
     //overrides from TableMixin
     graphqlFilter() {
       let filter = {};
-      if (this.tableMetadata) {
+      if (this.columns) {
         //filter on subclass, if exists
         if (!this.showSubclass && this.hasSubclass) {
           filter.mg_tableclass = {
             equals: this.schema.name + "." + this.tableMetadata.name,
           };
         }
-        this.tableMetadata.columns.forEach((col) => {
+        this.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
             ? col.conditions.filter((f) => f !== "" && f != undefined)
             : [];
@@ -218,18 +241,8 @@ export default {
           }
         });
       }
+      console.log(JSON.stringify(filter));
       return filter;
-    },
-    columns() {
-      if (this.tableMetadata && this.tableMetadata.columns) {
-        return this.tableMetadata.columns.map((col) => col.name);
-      }
-      return null;
-    },
-  },
-  methods: {
-    updateTimestamp() {
-      this.timestamp = new Date().getTime();
     },
   },
   watch: {
@@ -238,21 +251,11 @@ export default {
       this.offset = this.limit * (this.page - 1);
       this.reload();
     },
-    value() {
-      this.selectedItems = this.value;
-    },
-    timestamp: {
-      deep: true,
-      handler() {
-        this.showFilters = false;
-        if (this.tableMetadata) {
-          this.tableMetadata.columns.forEach((f) => {
-            if (f.showFilter) {
-              this.showFilters = true;
-            }
-          });
-        }
-      },
+    tableMetadata() {
+      if (this.columns.length == 0) {
+        console.log("bla");
+        this.columns.push(...this.tableMetadata.columns);
+      }
     },
   },
 };

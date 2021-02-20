@@ -2,24 +2,25 @@
   <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
       v-for="(item, idx) in arrayValue"
-      :key="idx"
+      :key="idx + '.' + arrayValue.length"
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"
+      :showMinus="showMinus(idx)"
       :showPlus="showPlus(idx)"
       @add="addRow"
       class="form-group"
     >
       <InputInt
         v-model="arrayValue[idx][0]"
-        :defaultValue="arrayValue[idx][0]"
+        @input="emitValue"
         placeholder="from"
         :clear="false"
         style="margin: 0px"
       />
       <InputInt
         v-model="arrayValue[idx][1]"
-        :defaultValue="arrayValue[idx][1]"
+        @input="emitValue"
         placeholder="to"
         :clear="false"
         style="margin: 0px"
@@ -36,23 +37,22 @@ import InputAppend from "./_inputAppend";
 
 /** Input for integer values */
 export default {
+  components: { InputInt, FormGroup, InputAppend },
   extends: BaseInput,
   methods: {
-    showPlus(idx) {
-      if (this.arrayValue[idx] == undefined) {
+    init() {
+      console.log("init override " + JSON.stringify(this.value));
+      if (this.value && Array.isArray(this.value) && this.value.length > 0) {
+        if (this.list) {
+          //deep copy
+          this.arrayValue = JSON.parse(JSON.stringify(this.value));
+        } else {
+          //deep copy
+          this.arrayValue = [JSON.parse(JSON.stringify(this.value))];
+        }
+      } else {
         this.arrayValue = [[null, null]];
       }
-      return (
-        this.list &&
-        idx === this.arrayValue.length - 1 &&
-        (this.arrayValue[idx][0] !== null || this.arrayValue[idx][1] !== null)
-      );
-    },
-    showClear(idx) {
-      if (this.arrayValue[idx] == undefined) {
-        this.arrayValue = [[null, null]];
-      }
-      return true;
     },
     addRow() {
       this.arrayValue.push([null, null]);
@@ -63,111 +63,97 @@ export default {
       } else {
         this.arrayValue = [[null, null]];
       }
+      this.emitValue();
     },
     //override from baseinput
     emitValue() {
-      if (this.list) {
-        //replace empty strings to null
-        this.value = Array.isArray(this.arrayValue)
-          ? this.arrayValue.map((v) =>
-              Array.isArray(v)
-                ? v.map((v2) =>
-                    !v2 || v2.length === 0 || !String(v2).trim() ? null : v2
-                  )
-                : null
-            )
-          : null;
-        //filter [null,null] also
-        this.value = Array.isArray(this.value)
-          ? this.value.filter(
-              (el) => Array.isArray(el) && el.some((v) => v != null)
-            )
-          : null;
+      let result;
+      if (!Array.isArray(this.arrayValue)) {
+        result = [null, null];
       } else {
-        this.value = Array.isArray(this.arrayValue[0])
-          ? this.arrayValue[0].map((v) =>
-              !v || v.length === 0 || !String(v).trim() ? null : v
-            )
-          : null;
+        result = this.arrayValue;
+        result = result.filter((e) => e[0] || e[1]);
       }
-      this.$emit("input", this.value);
+      if (!this.list) {
+        result = result[0];
+      }
+      this.$emit("input", result);
     },
   },
-  components: { InputInt, FormGroup, InputAppend },
 };
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputRangeInt v-model="value"/>
-            {{JSON.stringify(value)}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: null
-                }
-            }
-        }
-    </script>
-    ```
-    Example with default
-    ```
-    <template>
-        <div>
-            <InputRangeInt v-model="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: [1, 2]
-                }
-            }
-        }
-    </script>
-    ```
-    Example list
-    ```
-    <template>
-        <div>
-            <InputRangeInt :list="true" v-model="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: null
-                }
-            }
-        }
-    </script>
-    ```
-    Example with list and default
-    ```
-    <template>
-        <div>
-            <InputRangeInt :list="true" v-model="value" :defaultValue="value"/>
-            {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data() {
-                return {
-                    value: [[1, 2], [3, 4]]
-                }
-            }
-        }
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <InputRangeInt v-model="value"/>
+    {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: null
+      }
+    }
+  }
+</script>
+```
+Example with default
+```
+<template>
+  <div>
+    <InputRangeInt v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: [1, 2]
+      }
+    }
+  }
+</script>
+```
+Example list
+```
+<template>
+  <div>
+    <InputRangeInt :list="true" v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: null
+      }
+    }
+  }
+</script>
+```
+Example with list and default
+```
+<template>
+  <div>
+    <InputRangeInt :list="true" v-model="value"/>
+    {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        value: [[1, 2], [3, 4]]
+      }
+    }
+  }
+</script>
+```
 </docs>

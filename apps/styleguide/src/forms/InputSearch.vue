@@ -17,6 +17,7 @@
         :placeholder="placeholder"
         :readonly="readonly"
         @keypress="keyhandler"
+        @input="emitValue"
       />
       <AppendClear @clear="clearValue(0)" />
     </div>
