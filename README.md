@@ -297,6 +297,7 @@ Work in progress
 *  enable custom 'format' as way to allow decoration of primitive types such as 'hyperlink', 'email', 'ontology'
 *  fix alter column in case of composite key (difficult, overlapping columns)
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
+*  in table view, don't show subclass rows unless explicitly enabled
 
 ### first
 
