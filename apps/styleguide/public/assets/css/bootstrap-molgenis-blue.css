@@ -65,7 +65,7 @@ body {
     line-height: 1.5;
     color: #212529;
     text-align: left;
-    background-color: #fafafa;
+    background-color: #f5f5f7;
 }
 
 [tabindex="-1"]:focus {
@@ -479,7 +479,7 @@ mark,
 
 .img-thumbnail {
     padding: 0.25rem;
-    background-color: #fafafa;
+    background-color: #f5f5f7;
     border: 1px solid #dee2e6;
     border-radius: 0px;
     max-width: 100%;
@@ -1538,7 +1538,7 @@ pre code {
 }
 
 .table .table {
-    background-color: #fafafa;
+    background-color: #f5f5f7;
 }
 
 .table-sm th,

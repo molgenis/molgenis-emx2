@@ -1,16 +1,11 @@
 module.exports = {
   // set your styleguidist configuration here
   title: "MOLGENIS EMX2 Style Guide",
-  ribbon: {
-    // Link to open on the ribbon click (required)
-    url: "https://github.com/mswertz/molgenis-emx2/",
-    // Text to show on the ribbon (optional)
-    text: "Fork me on GitHub",
-  },
   theme: {
     color: {
       ribbonBackground: "black",
     },
+    maxWidth: "auto",
   },
   assetsDir: "public",
   webpackConfig: {
