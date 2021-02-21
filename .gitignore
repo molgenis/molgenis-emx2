@@ -42,3 +42,5 @@ release.properties
 tls
 
 yarn_error.log
+.nyc_output
+coverage

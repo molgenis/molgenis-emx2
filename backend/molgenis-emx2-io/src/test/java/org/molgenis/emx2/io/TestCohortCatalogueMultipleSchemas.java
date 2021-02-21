@@ -46,7 +46,7 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(30, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    assertEquals(32, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
 
     loadSchema("CatalogueOntologies.xlsx", catalogueOntologies);
     assertEquals(13, TestCohortCatalogueMultipleSchemas.catalogueOntologies.getTableNames().size());

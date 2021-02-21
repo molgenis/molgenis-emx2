@@ -56,7 +56,7 @@ export default {
       if (!this.schema.tables) {
         this.schema.tables = [];
       }
-      let name = "test" + Math.round(Math.random() * 100);
+      let name = "NewTable";
       this.schema.tables.unshift({
         name: name,
         columns: [],

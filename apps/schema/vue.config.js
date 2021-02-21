@@ -1,7 +1,7 @@
 module.exports = {
   publicPath: "", // to ensure relative paths are used
   devServer: {
-    port: "9090",
+    port: "9092",
     proxy: {
       "^/graphql": {
         target: "http://localhost:8080/CohortsCentral",
@@ -9,7 +9,7 @@ module.exports = {
       "/apps": { target: "http://localhost:8080" },
     },
   },
-  configureWebpack: (config) => {
-    config.devtool = "source-map";
+  configureWebpack: {
+    devtool: "source-map",
   },
 };
