@@ -76,21 +76,24 @@ export default {
   methods: {
     init() {
       if (this.list) {
-        if (this.value == null) {
-          this.arrayValue = [null];
-        } else if (Array.isArray(this.value)) {
+        if (this.value && Array.isArray(this.value)) {
           this.arrayValue = this.value;
-        } else {
+        } else if (this.value) {
           this.arrayValue = [this.value];
+        } else {
+          this.arrayValue = [null];
         }
       } else {
         this.arrayValue[0] = this.value;
       }
       if (this.arrayValue == null || this.arrayValue.length == 0) {
-        this.arrayValue = [null];
+        this.arrayValue = [];
       }
       //note, initially we used 'computed' but that doesn't always update imediately
       this.prettyValue = this.getValue();
+      console.log(
+        JSON.stringify(this.value) + " " + JSON.stringify(this.prettyValue)
+      );
     },
     getValue() {
       //list type
@@ -125,7 +128,6 @@ export default {
         if (this.parser != null) {
           value = this.parser(value);
         }
-        //console.log("final value: " + this.value);
       }
       return value;
     },
@@ -137,16 +139,16 @@ export default {
       this.$emit("input", this.prettyValue);
     },
     addRow() {
-      this.arrayValue.push(null);
+      this.arrayValue.push();
     },
     clearValue(idx) {
       if (this.arrayValue.length > 1) {
         this.arrayValue.splice(idx, 1);
       } else {
         if (this.list) {
-          this.arrayValue = [[null]];
+          this.arrayValue = [[]];
         } else {
-          this.arrayValue = [null];
+          this.arrayValue = [];
         }
       }
       this.emitValue();

@@ -220,20 +220,44 @@ export default {
     },
     isSelected(row) {
       let key = this.getKey(row);
-      if (
-        Array.isArray(this.selection) &&
-        this.selection.filter(
-          (s) =>
-            //there should be a better way to do compare
-            JSON.stringify(key, Object.keys(key).sort()) ===
-            JSON.stringify(s, Object.keys(s).sort())
-        ).length > 0
-      ) {
-        console.log("selected");
-        return true;
+      let found = false;
+      if (Array.isArray(this.selection)) {
+        this.selection.forEach((s) => {
+          if (s != null && this.deepEqual(key, s)) {
+            found = true;
+            console.log(
+              "found " +
+                JSON.stringify(key, Object.keys(key).sort()) +
+                " " +
+                JSON.stringify(s, Object.keys(s).sort())
+            );
+          }
+        });
       }
-      console.log("not selected");
-      return false;
+      return found;
+    },
+    /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
+    deepEqual(object1, object2) {
+      const keys1 = Object.keys(object1);
+      const keys2 = Object.keys(object2);
+      if (keys1.length !== keys2.length) {
+        return false;
+      }
+      for (const key of keys1) {
+        const val1 = object1[key];
+        const val2 = object2[key];
+        const areObjects = this.isObject(val1) && this.isObject(val2);
+        if (
+          (areObjects && !this.deepEqual(val1, val2)) ||
+          (!areObjects && val1 !== val2)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    },
+    isObject(object) {
+      return object != null && typeof object === "object";
     },
     onRowClick(row) {
       //deep copy
@@ -243,7 +267,9 @@ export default {
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
-            (item) => JSON.stringify(item) !== JSON.stringify(key)
+            (item) =>
+              JSON.stringify(item, Object.keys(item).sort()) !==
+              JSON.stringify(key, Object.keys(key).sort())
           );
           this.$emit("deselect", this.getKey(row));
         } else {

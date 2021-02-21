@@ -30,6 +30,18 @@
     <ButtonAlt class="pl-1" icon="fa fa-search" @click="showSelect = true">
       more
     </ButtonAlt>
+    <ButtonAlt
+      v-if="
+        (Array.isArray(arrayValue) &&
+          arrayValue.filter((s) => s != null).length > 0) ||
+        (!Array.isArray(arrayValue) && arrayValue != null)
+      "
+      class="pl-1"
+      icon="fa fa-clear"
+      @click="clear"
+    >
+      clear
+    </ButtonAlt>
     <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
       <template v-slot:body>
         <MessageError v-if="error">{{ error }}</MessageError>
@@ -115,6 +127,14 @@ export default {
     },
   },
   methods: {
+    clear() {
+      if (this.list) {
+        this.arrayValue = [];
+      } else {
+        this.arrayValue = undefined;
+      }
+      this.emitValue();
+    },
     loadOptions() {},
     select(event) {
       this.showSelect = false;

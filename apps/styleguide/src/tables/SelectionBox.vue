@@ -4,18 +4,27 @@
       Selection
       <i class="fa fa-shopping-basket"></i>
       <span class="badge badge-pill badge-danger" style="top: -7px; left: -7px">
-        {{ Array.isArray(selection) ? selection.length : 0 }}
+        {{
+          Array.isArray(selection)
+            ? selection.filter((s) => s != null).length
+            : 0
+        }}
       </span>
     </ButtonAlt>
     <LayoutModal v-if="expand" @close="expand = false" title="Show selection">
       <template v-slot:body>
-        <span v-if="!Array.isArray(selection) || selection.length == 0">
+        <span
+          v-if="
+            !Array.isArray(selection) ||
+            selection.filter((s) => s != null).length == 0
+          "
+        >
           No items selected
         </span>
         <span
           v-else
           class="btn-outline-primary btn-sm mr-2"
-          v-for="(item, idx) in selection"
+          v-for="(item, idx) in selection.filter((s) => s != null)"
           :key="JSON.stringify(item)"
         >
           {{ flattenObject(item) }}
