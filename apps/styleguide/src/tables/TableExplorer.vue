@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="columns">
+    <div v-if="columns" style="overflow-x: scroll">
       <MessageError v-if="error">{{ error }}</MessageError>
       <h1>
         {{ table }}
@@ -8,61 +8,70 @@
           {{ showSubclass ? "Hide" : "Show" }} subclass rows
         </ButtonAction>
       </h1>
+      <div
+        class="navbar shadow-none navbar-expand-lg justify-content-between mb-2 bg-white"
+      >
+        <div class="btn-group">
+          <ShowHide
+            class="navbar-nav"
+            :columns.sync="columns"
+            checkAttribute="showFilter"
+            label="filters"
+            icon="filter"
+          />
+          <ShowHide
+            class="navbar-nav"
+            :columns.sync="columns"
+            checkAttribute="showColumn"
+            label="columns"
+            icon="columns"
+            id="showColumn"
+            :defaultValue="true"
+          />
+          <ButtonDropdown label="download" icon="download" v-slot="scope">
+            <IconAction
+              icon="times"
+              class="float-right"
+              style="margin-top: -10px; margin-right: -10px"
+              @click="scope.close"
+            />
+            <h6>Download:</h6>
+            <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
+            <br />
+            <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
+            <br />
+            <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
+            <br />
+            <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
+          </ButtonDropdown>
+        </div>
+        <InputSearch class="navbar-nav" v-model="searchTerms" />
+
+        <Pagination
+          class="navbar-nav"
+          v-model="page"
+          :limit="limit"
+          :count="count"
+        />
+        <SelectionBox :selection.sync="selectedItems" />
+      </div>
       <div class="d-flex">
         <div v-if="countFilters" class="col-2 pl-0">
           <FilterSidebar :filters.sync="columns" />
         </div>
-        <div class="flex-grow-1 overflow-auto">
-          <div
-            class="navbar shadow-none navbar-expand-lg justify-content-between p-0 pb-2"
-          >
-            <div class="btn-group">
-              <ShowHide
-                class="navbar-nav"
-                :columns.sync="columns"
-                checkAttribute="showFilter"
-                label="filters"
-                icon="filter"
-              />
-              <ShowHide
-                class="navbar-nav"
-                :columns.sync="columns"
-                checkAttribute="showColumn"
-                label="columns"
-                icon="columns"
-                id="showColumn"
-                :defaultValue="true"
-              />
-            </div>
-            <InputSearch class="navbar-nav" v-model="searchTerms" />
-
-            <Pagination
-              class="navbar-nav"
-              v-model="page"
-              :limit="limit"
-              :count="count"
-            />
-            <SelectionBox v-model="selectedItems" />
-          </div>
-
-          <div>
-            Download:
-            <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
-            |
-            <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-            |
-            <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-            |
-            <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
-          </div>
+        <div
+          class="flex-grow-1 pl-0 pr-0"
+          :class="countFilters > 0 ? 'col-10' : 'col-12'"
+        >
           <FilterWells v-if="table" :filters.sync="columns" />
           <div v-if="loading">
             <Spinner />
           </div>
           <TableMolgenis
             v-else
-            v-model="selectedItems"
-            :metadata="tableMetadataMerged"
+            :selection.sync="selectedItems"
+            :columns.sync="columns"
+            :table-metadata="tableMetadata"
             :data="data"
             :showSelect="true"
           >
@@ -70,7 +79,12 @@
               <label>{{ count }} records found</label>
             </template>
             <template v-slot:colheader>
-              <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
+              <RowButtonAdd
+                v-if="canEdit"
+                :table="table"
+                @close="reload"
+                class="d-inline p-0"
+              />
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButtonEdit
@@ -141,6 +155,7 @@ import Pagination from "./Pagination";
 import ButtonAlt from "../forms/ButtonAlt";
 import SelectionBox from "./SelectionBox";
 import ButtonAction from "../forms/ButtonAction";
+import ButtonDropdown from "../forms/ButtonDropdown";
 
 export default {
   extends: TableMixin,
@@ -159,6 +174,7 @@ export default {
     Pagination,
     ButtonAlt,
     ButtonAction,
+    ButtonDropdown,
     SelectionBox,
   },
   props: {

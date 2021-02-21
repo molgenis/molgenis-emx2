@@ -1,5 +1,5 @@
 <template>
-  <button class="btn text-primary pl-1 pr-1" @click="onClick">
+  <button class="btn pl-1 pr-1 btn-outline-primary border-0" @click="onClick">
     <i :class="'fa fa-' + icon"></i>
   </button>
 </template>
@@ -20,21 +20,21 @@ export default {
 </script>
 
 <docs>
-    Example
+Example
 
-    ```
-    <template>
-        <IconAction icon="times" @click="alert('clicked')"/>
-    </template>
-    <script>
-        export default {
-            methods: {
-                alert(text) {
-                    alert(text)
-                }
-            }
-        }
-    </script>
-    ```
+```
+<template>
+  <IconAction icon="times" @click="alert('clicked')"/>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text)
+      }
+    }
+  }
+</script>
+```
 
 </docs>

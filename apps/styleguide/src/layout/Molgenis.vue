@@ -1,94 +1,53 @@
 <template>
   <div>
-    <MolgenisTheme :href="css" />
-    <MolgenisTheme
-      href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
-    />
-    <MolgenisTheme
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <NavBar
-      logo="https://master.dev.molgenis.org/img/Logo_Blue_Small.png"
-      active="My search"
-      :items="menu"
-    >
-      <Session v-model="session" />
-    </NavBar>
-    <div style="background: #f5f5f7">
-      <div
-        :class="fullscreen ? 'container-xl' : 'container-fluid'"
-        style="background: #fafafa"
-        @keydown.esc="toggle"
-        :style="
-          fullscreen
-            ? 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index:1000'
-            : 'padding-top: 20px; padding-bottom: 20px;'
-        "
+    <div style="background: #f5f5f7; min-height: calc(100vh - 70px)">
+      <MolgenisTheme :href="css" />
+      <MolgenisTheme
+        href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
+      />
+      <MolgenisTheme
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+      />
+      <NavBar
+        logo="https://master.dev.molgenis.org/img/Logo_Blue_Small.png"
+        active="My search"
+        :items="menu"
       >
-        <div class="col-md-12">
-          <div class="row">
-            <IconAction
-              class="fullscreen-icon"
-              :icon="fullscreen ? 'compress' : 'expand'"
-              @click="toggle"
-            />
-            <h1 v-if="title">{{ title }}</h1>
-          </div>
-          <div>
-            <slot />
-          </div>
-        </div>
-      </div>
-      <div class="row justify-content-md-center">
-        <div class="col-md-auto">
-          <Footer
-            ><span v-if="session && session.manifest"
-              >version:
-              <a
-                :href="
-                  'https://github.com/mswertz/molgenis-emx2/releases/tag/v' +
-                  session.manifest.SpecificationVersion
-                "
-                >{{ session.manifest.SpecificationVersion }}</a
-              ></span
-            >
-          </Footer>
-        </div>
+        <Session v-model="session" />
+      </NavBar>
+      <div class="container-fluid p-3" style="padding-bottom: 50px">
+        <h1 v-if="title">{{ title }}</h1>
+        <slot />
       </div>
     </div>
-    <ShowMore title="debug">
-      <pre>
-cssURL = {{ cssURL }}
-
-session = {{ session }}
-      </pre>
-    </ShowMore>
+    <Footer>
+      <span v-if="session && session.manifest">
+        Version:
+        <a
+          :href="
+            'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
+            session.manifest.SpecificationVersion
+          "
+        >
+          {{ session.manifest.SpecificationVersion }}
+        </a>
+      </span>
+    </Footer>
   </div>
 </template>
-
-<style>
-.fullscreen-icon {
-  float: right;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-}
-</style>
 
 <script>
 import NavBar from "./MolgenisMenu";
 import Session from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
-import ShowMore from "./ShowMore";
 import Footer from "./MolgenisFooter";
-import IconAction from "../forms/IconAction";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { Session, NavBar, Footer, MolgenisTheme, ShowMore, IconAction },
+  components: { Session, NavBar, Footer, MolgenisTheme },
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,

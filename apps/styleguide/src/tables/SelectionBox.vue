@@ -1,11 +1,12 @@
 <template>
   <div>
-    <ButtonAction @click="toggle">
+    <ButtonAlt @click="toggle">
       Selection
-      <span class="badge badge-light">
-        {{ Array.isArray(selection) ? value.length : 0 }}
+      <i class="fa fa-shopping-basket"></i>
+      <span class="badge badge-pill badge-danger" style="top: -7px; left: -7px">
+        {{ Array.isArray(selection) ? selection.length : 0 }}
       </span>
-    </ButtonAction>
+    </ButtonAlt>
     <LayoutModal v-if="expand" @close="expand = false" title="Show selection">
       <template v-slot:body>
         <span v-if="!Array.isArray(selection) || selection.length == 0">
@@ -18,14 +19,15 @@
           :key="JSON.stringify(item)"
         >
           {{ flattenObject(item) }}
-          <IconAction icon="times" @click="selection.splice(idx, 1)" />
+          <IconAction icon="times" @click="deselect(idx)" />
         </span>
       </template>
       <template v-slot:footer>
         <ButtonAlt
           v-if="Array.isArray(selection) && selection.length > 0"
-          @click="selection.splice(0, selection.length)"
-          >clear selection
+          @click="clear"
+        >
+          clear selection
         </ButtonAlt>
       </template>
     </LayoutModal>
@@ -33,7 +35,6 @@
 </template>
 
 <script>
-import ButtonAction from "../forms/ButtonAction";
 import IconAction from "../forms/IconAction";
 import ButtonAlt from "../forms/ButtonAlt";
 import LayoutModal from "../layout/LayoutModal";
@@ -43,32 +44,27 @@ export default {
     IconAction,
     ButtonAlt,
     LayoutModal,
-    ButtonAction,
   },
   props: {
-    value: {
+    selection: {
       type: Array,
       default: () => [],
     },
   },
   data() {
     return {
-      selection: [],
       expand: false,
     };
   },
-  created() {
-    this.selection = this.value;
-  },
-  watch: {
-    value() {
-      this.selection = this.value;
-    },
-    selection() {
-      this.$emit("input", this.selection);
-    },
-  },
   methods: {
+    deselect(idx) {
+      let update = this.selection;
+      update.splice(idx, 1);
+      this.$emit("update:selection", update);
+    },
+    clear() {
+      this.$emit("update:selection", []);
+    },
     toggle() {
       this.expand = !this.expand;
     },

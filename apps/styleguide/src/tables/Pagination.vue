@@ -43,6 +43,12 @@
   </nav>
 </template>
 
+<style scope>
+.page-item {
+  border: none;
+}
+</style>
+
 <script>
 export default {
   props: {

@@ -1,9 +1,8 @@
 <template>
   <div class="dropdown" :class="{ show: display }">
     <button
-      class="btn btn-outline-primary"
+      class="btn btn-outline-primary border-0"
       :class="{
-        'btn-outline-primary': !icon,
         'dropdown-toggle': !icon,
       }"
       type="button"
@@ -22,7 +21,7 @@
       v-click-outside="toggle"
     >
       <div class="form-group dropdown-item">
-        <slot />
+        <slot :close="toggle" />
       </div>
     </div>
   </div>

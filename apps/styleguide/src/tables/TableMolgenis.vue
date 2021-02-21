@@ -1,23 +1,26 @@
 <template>
-  <div class="table-responsive" style="overflow: scroll">
+  <div style="max-width: 100%; overflow-x: auto" class="flex-grow-1">
     <table
-      class="table table-sm table-bordered"
+      class="table table-sm bg-white border-top-0"
       :class="{ 'table-hover': showSelect }"
-      :key="timestamp + countColumns"
     >
       <thead>
         <Draggable
-          :list="metadata.columns"
+          :list="columns"
           handle=".column-drag-header"
           ghost-class="border-primary"
           tag="tr"
+          @change="$emit('update:columns', $event)"
         >
           <th slot="header" scope="col" style="width: 1px">
-            <!--@slot Use this to add values or actions buttons header -->
-            <slot name="colheader" />
+            <h6 class="mb-0 mt-2">
+              #
+              <!--@slot Use this to add values or actions buttons header -->
+              <slot name="colheader" />
+            </h6>
           </th>
           <th
-            v-for="col in metadata.columns"
+            v-for="col in columns"
             :key="col.name + col.showColumn"
             scope="col"
             class="column-drag-header"
@@ -28,7 +31,11 @@
         </Draggable>
       </thead>
       <tbody>
-        <tr v-for="(row, idx) in data" :key="idx">
+        <tr
+          v-for="(row, idx) in data"
+          :key="idx + JSON.stringify(row) + isSelected(row)"
+          :class="isSelected(row) ? 'table-primary' : 'table-hover'"
+        >
           <td>
             <div style="display: flex">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
@@ -43,14 +50,14 @@
               <slot
                 name="rowheader"
                 :row="row"
-                :metadata="metadata"
+                :metadata="tableMetadata"
                 :rowkey="getKey(row)"
               />
             </div>
           </td>
           <td
-            v-for="col in metadata.columns"
-            :key="idx + col.name"
+            v-for="col in columns"
+            :key="idx + col.name + isSelected(row)"
             @click="onRowClick(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
@@ -77,25 +84,24 @@
         </tr>
       </tbody>
     </table>
-    <ShowMore title="debug">
-      <pre>
-metadata = {{ metadata }}
-selection = {{ selectedItems }}
-timestamp = {{ timestamp }}
-     </pre
-      >
+    <ShowMore title="debug columns">
+      <pre>columns = {{ columns }}</pre>
+    </ShowMore>
+    <ShowMore title="debug selection">
+      <pre> selection = {{ selection }} </pre>
     </ShowMore>
   </div>
 </template>
 
 <style scoped>
-table {
-  position: relative;
+th {
+  background-color: white;
 }
 
-th,
-td {
-  text-align: left;
+thead th {
+  position: sticky !important;
+  top: 0px;
+  white-space: nowrap;
 }
 
 .column-drag-header:hover {
@@ -119,32 +125,39 @@ import ReadMore from "../layout/ReadMore";
 export default {
   components: { Draggable, ShowMore, ReadMore },
   props: {
-    /** metadata in molgenis metadata format (as graphql endpoint would deliver it) */
-    metadata: Object,
-    /** json structure in molgenis json data format matching the metadata */
+    /** selection, two-way binded*/
+    selection: Array,
+    /** column metadata, two-way binded to allow for reorder */
+    columns: Array,
+    /** not two way binded, table metadata */
+    tableMetadata: Object,
+    /** json structure in molgenis json data format matching the column metadata */
     data: Array,
     /** if select show be shown */
     showSelect: {
       type: Boolean,
       default: false,
     },
-    /** v-model two way binded value for the selection, if enabled*/
-    value: { type: Array, default: () => [] },
-  },
-  data: () => {
-    return {
-      selectedItems: [],
-      timestamp: 0,
-    };
   },
   computed: {
     countColumns() {
-      return this.metadata.columns.filter((c) => c.showColumn).length;
+      return this.columns.filter((c) => c.showColumn).length;
     },
   },
+  created() {
+    this.initShowColumn();
+  },
   methods: {
-    updateTimestamp() {
-      this.timestamp = new Date().getTime();
+    initShowColumn() {
+      if (this.columns) {
+        let update = this.columns;
+        for (var key in update) {
+          if (update[key].showColumn == undefined) {
+            update[key].showColumn = true;
+            this.$emit("update:columns", update);
+          }
+        }
+      }
     },
     renderValue(row, col) {
       if (row[col.name] === undefined) {
@@ -200,38 +213,54 @@ export default {
     },
     getKey(row) {
       let result = {};
-      this.metadata.columns
+      this.columns
         .filter((c) => c.key == 1)
         .map((c) => (result[c.name] = row[c.name]));
       return result;
     },
     isSelected(row) {
       let key = this.getKey(row);
-      return (
-        Array.isArray(this.selectedItems) &&
-        this.selectedItems.filter(
-          (s) => JSON.stringify(key) === JSON.stringify(s)
+      if (
+        Array.isArray(this.selection) &&
+        this.selection.filter(
+          (s) =>
+            //there should be a better way to do compare
+            JSON.stringify(key, Object.keys(key).sort()) ===
+            JSON.stringify(s, Object.keys(s).sort())
         ).length > 0
-      );
+      ) {
+        console.log("selected");
+        return true;
+      }
+      console.log("not selected");
+      return false;
     },
     onRowClick(row) {
+      //deep copy
+      let update = JSON.parse(JSON.stringify(this.selection));
       if (this.showSelect) {
         let key = this.getKey(row);
         if (this.isSelected(row)) {
           /** when a row is deselected */
-          this.selectedItems = this.selectedItems.filter(
+          update = update.filter(
             (item) => JSON.stringify(item) !== JSON.stringify(key)
           );
           this.$emit("deselect", this.getKey(row));
         } else {
           /** when a row is selected */
-          this.selectedItems.push(this.getKey(row));
+          update.push(this.getKey(row));
           this.$emit("select", this.getKey(row));
         }
       } else {
         this.$emit("click", this.getKey(row));
       }
-      this.$emit("input", this.selectedItems);
+      console.log(
+        "update:selection " +
+          JSON.stringify(update) +
+          "\n\nvs" +
+          JSON.stringify(this.selection)
+      );
+      this.$emit("update:selection", update);
     },
     renderNumber(number) {
       var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
@@ -252,22 +281,6 @@ export default {
       // format number and add suffix
       return scaled.toFixed(1) + suffix;
     },
-    initDefault() {
-      this.metadata.columns.forEach((c) => {
-        if (c.showColumn == undefined) {
-          c.showColumn = true;
-        }
-      });
-    },
-  },
-  watch: {
-    value() {
-      this.selectedItems = this.value;
-    },
-  },
-  created() {
-    this.selectedItems = this.value;
-    this.initDefault();
   },
 };
 </script>
@@ -277,7 +290,8 @@ example
 ```
 <template>
   <div>
-    <TableMolgenis v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click"
+    <TableMolgenis :selection.sync="selected" :columns.sync="columns" :data="data" @select="click"
+                   @deselect="click"
                    @click="click">
       <template v-slot:header>columns</template>
       <template v-slot:rowheader="slotProps">
@@ -292,13 +306,12 @@ example
     data: function () {
       return {
         selected: [],
-        metadata: {
-          columns: [{name: 'col1', columnType: "STRING", key: 1}, {
-            name: 'ref1',
-            columnType: "REF",
-            refColumns: ['firstName', 'lastName']
-          }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
-        },
+        columns: [{name: 'col1', columnType: "STRING", key: 1}, {
+          name: 'ref1',
+          columnType: "REF",
+          refColumns: ['firstName', 'lastName']
+        }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
+        ,
         data: [{
           col1: "row1",
           ref1: {firstName: 'katrien', lastName: 'duck'},
@@ -323,7 +336,8 @@ example with default selection
 ```
 <template>
   <div>
-    <TableMolgenis v-model="selected" :metadata="metadata" :data="data" @select="click" @deselect="click" @click="click"
+    <TableMolgenis :selection.sync="selected" :columns.sync="columns" :data="data" @select="click"
+                   @deselect="click" @click="click"
                    :showSelect="true">
       <template v-slot:header>columns</template>
     </TableMolgenis>
@@ -335,13 +349,12 @@ example with default selection
     data: function () {
       return {
         selected: [{'col1': 'row1'}],
-        metadata: {
-          columns: [{name: 'col1', columnType: "STRING", key: 1}, {
-            name: 'ref1',
-            columnType: "REF",
-            refColumns: ['firstName', 'lastName']
-          }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
-        },
+        columns: [{name: 'col1', columnType: "STRING", key: 1}, {
+          name: 'ref1',
+          columnType: "REF",
+          refColumns: ['firstName', 'lastName']
+        }, {name: 'ref_arr1', columnType: "REF_ARRAY", refColumns: ['firstName', 'lastName']}]
+        ,
         data: [{
           col1: "row1",
           ref1: {firstName: 'katrien', lastName: 'duck'},

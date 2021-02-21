@@ -1,5 +1,11 @@
 <template>
-  <ButtonDropdown :icon="icon" :label="label">
+  <ButtonDropdown :icon="icon" :label="label" v-slot="scope">
+    <IconAction
+      icon="times"
+      class="float-right"
+      style="margin-top: -10px; margin-right: -10px"
+      @click="scope.close"
+    />
     <div>
       <h6>
         {{ label }}
@@ -32,9 +38,10 @@
 <script>
 import ButtonAlt from "../forms/ButtonAlt";
 import ButtonDropdown from "../forms/ButtonDropdown";
+import IconAction from "../forms/IconAction";
 
 export default {
-  components: { ButtonAlt, ButtonDropdown },
+  components: { ButtonAlt, ButtonDropdown, IconAction },
   props: {
     columns: Array,
     label: String,

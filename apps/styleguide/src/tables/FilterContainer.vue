@@ -1,5 +1,5 @@
 <template>
-  <div class="filter-header mb-2 border bg-white" v-if="visible">
+  <div class="filter-header mb-2 bg-white" v-if="visible">
     <div
       class="d-flex flex-row justify-content-between"
       @click="
