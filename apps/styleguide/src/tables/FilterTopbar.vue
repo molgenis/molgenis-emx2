@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :key="timestamp" class="d-flex flex-row flex-wrap">
+    <div class="d-flex flex-row flex-wrap">
       <FilterDropdown
         v-for="(column, idx) in filters"
         :title="column.name"
@@ -31,7 +31,7 @@ examples
 <template>
   <div>
     <div class="row">
-      <FilterWells v-model="filters"/>
+      <FilterWells filters.sync="filters"/>
       <FilterTopbar v-model="filters"/>
     </div>
   </div>

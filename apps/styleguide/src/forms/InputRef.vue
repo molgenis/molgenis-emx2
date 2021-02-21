@@ -35,7 +35,7 @@
         <MessageError v-if="error">{{ error }}</MessageError>
         <TableSearch
           v-if="list"
-          v-model="arrayValue"
+          :selection.sync="arrayValue"
           :table="refTable"
           :filter="filter"
           :graphqlURL="graphqlURL"
@@ -48,6 +48,7 @@
         </TableSearch>
         <TableSearch
           v-else
+          :selection="[arrayValue[0]]"
           :table="refTable"
           :filter="filter"
           @select="select($event)"

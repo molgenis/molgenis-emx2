@@ -5,13 +5,19 @@
       <form class="form-inline justify-content-between mb-2">
         <InputSearch v-if="table" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
-        <SelectionBox v-if="showSelect" v-model="selectedItems" />
+        <SelectionBox
+          v-if="showSelect"
+          :selection="selection"
+          @update:selection="$emit('update:selection', $event)"
+        />
       </form>
       <Spinner v-if="loading" />
       <div v-else>
         <TableMolgenis
-          v-model="selectedItems"
+          :selection="selection"
+          @update:selection="$emit('update:selection', $event)"
           :metadata="tableMetadata"
+          :columns="tableMetadata.columns"
           :data="data"
           :showSelect="showSelect"
           @select="select"
@@ -47,7 +53,7 @@ graphql = {{ graphql }}
 
 filter = {{ filter }}
 
-selectedItems = {{ selectedItems }}
+selection = {{ selection }}
 
 data =
 {{ data }}
@@ -81,8 +87,8 @@ export default {
   },
   mixins: [TableMixin],
   props: {
-    /** v-model value, represents selected item, if showSelect=true*/
-    value: { type: Array, default: () => [] },
+    /** two-way binding of the selection */
+    selection: { type: Array, default: () => [] },
     /** enables checkbox to select rows */
     showSelect: {
       type: Boolean,
@@ -91,7 +97,6 @@ export default {
   },
   data: function () {
     return {
-      selectedItems: [],
       page: 1,
       loading: true,
     };
@@ -110,15 +115,6 @@ export default {
       this.offset = this.limit * (this.page - 1);
       this.reload();
     },
-    selectedItems() {
-      this.$emit("input", this.selectedItems);
-    },
-    value() {
-      this.selectedItems = this.value;
-    },
-  },
-  created() {
-    this.selectedItems = this.value;
   },
 };
 </script>
@@ -128,19 +124,20 @@ Example:
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
 <TableSearch table="Variables" graphqlURL="/CohortsCentral/graphql" :limit="10">
-  <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
+  <template :selection.sync="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
 </TableSearch>
 Selected: {{ selectedItems }}
 
 ```
-Example with select and default value
+Example with select
 ```
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <TableSearch
-        v-model="selectedItems"
+        :selection.sync="selectedItems"
         table="Pet"
+        :showSelect="true"
         :defaultValue="['pooky']"
         graphqlURL="/pet store/graphql"
     >

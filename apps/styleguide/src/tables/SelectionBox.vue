@@ -60,10 +60,14 @@ export default {
     deselect(idx) {
       let update = this.selection;
       update.splice(idx, 1);
+      console.log("update:selection " + JSON.stringify(update));
       this.$emit("update:selection", update);
     },
     clear() {
-      this.$emit("update:selection", []);
+      let update = this.selection;
+      update.splice(0, update.length);
+      console.log("update:selection " + JSON.stringify(update));
+      this.$emit("update:selection", update);
     },
     toggle() {
       this.expand = !this.expand;

@@ -39,6 +39,7 @@ import FilterWell from "./FilterWell";
 
 export default {
   props: {
+    /** two-way bindable array of column metadata. Will add 'conditions' property to hold filter values */
     filters: Array,
   },
   components: {
