@@ -8,7 +8,7 @@
   "license": "LGPLv3",
   "private": false,
   "devDependencies": {
-    "vitepress": "0.12.0"
+    "vitepress": "0.12.2"
   },
   "scripts": {
     "dev": "node_modules/.bin/vitepress dev src",
