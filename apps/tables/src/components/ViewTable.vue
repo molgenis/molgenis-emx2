@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-link v-if="schema" to="/">< Back to {{ schema.name }}</router-link>
-    <TableExplorer :table="table" class="sticky-top" />
+    <TableExplorer :table="table" />
   </div>
 </template>
 
