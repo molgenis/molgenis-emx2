@@ -17,17 +17,13 @@ export default {
     table: String,
     /** pass filters conform TableMixin */
     filter: {},
-    /** set page size */
-    limit: {
-      type: Number,
-      default: 20,
-    },
   },
   data: function () {
     return {
       data: [],
       count: 0,
       offset: 0,
+      limit: 20,
       searchTerms: null,
     };
   },
@@ -136,6 +132,7 @@ export default {
     },
     table: "reload",
     schema: "reload",
+    limit: "reload",
   },
 };
 </script>
