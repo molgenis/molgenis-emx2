@@ -50,9 +50,11 @@
         </button>
       </div>
     </div>
-    <a v-for="val in arrayValue" :key="val.id" :href="val.url">
-      Previous value: logo.{{ val.extension }}
-    </a>
+    <div v-for="val in arrayValue" :key="JSON.stringify(val)">
+      <a v-if="val.url" :href="val.url">
+        Previous value: logo.{{ val.extension }}
+      </a>
+    </div>
     <br />
   </form-group>
 </template>
