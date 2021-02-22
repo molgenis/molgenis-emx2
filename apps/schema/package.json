@@ -4,13 +4,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "test": "jest"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@babel/runtime": "7.12.13",
     "@mswertz/emx2-styleguide": "*",
-    "@vue/babel-preset-app": "4.5.11",
     "core-js": "3.9.0",
     "graphql-request": "3.4.0",
     "v-scroll-lock": "1.3.1",
@@ -20,25 +17,7 @@
     "vuedraggable": "2.24.3"
   },
   "devDependencies": {
-    "@babel/core": "7.12.17",
-    "@babel/preset-env": "7.12.17",
-    "@vue/cli-plugin-router": "4.5.11",
-    "@vue/cli-service": "4.5.11",
-    "@vue/test-utils": "1.1.3",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "26.6.3",
-    "jest": "26.6.3",
-    "jest-playwright-preset": "1.4.6",
-    "playwright": "1.8.1",
-    "regenerator-runtime": "0.13.7",
-    "source-map-support": "0.5.19",
-    "vue-jest": "3.0.7",
-    "vue-template-compiler": "2.6.11"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
+    "@vue/cli-plugin-router": "4.5.11"
   },
   "eslintConfig": {
     "root": true,
@@ -70,27 +49,7 @@
   },
   "browserslist": [
     "> 1%",
-    "last 2 versions",
-    "not dead"
+    "last 2 versions"
   ],
-  "jest": {
-    "verbose": true,
-    "preset": "jest-playwright-preset",
-    "collectCoverageFrom": [
-      "src/**/*.{js,json,vue}",
-      "!**/node_modules/**"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "vue"
-    ],
-    "collectCoverage": true,
-    "transform": {
-      ".*\\.(vue)$": "vue-jest",
-      ".*\\.(js)$": "babel-jest"
-    },
-    "extraGlobals": []
-  },
   "license": "LGPL-3.0"
 }
