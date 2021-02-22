@@ -9,6 +9,7 @@ import static spark.Spark.get;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import spark.Request;
 import spark.Response;
@@ -39,8 +40,15 @@ public class FileApi {
               + "."
               + tableName);
     }
+
     List<Row> result =
         t.query()
+            // select key
+            .select(
+                t.getMetadata().getPrimaryKeyFields().stream()
+                    .map(f -> s(f.getName()))
+                    .toArray(SelectColumn[]::new))
+            // select file details
             .select(s(columnName, s("contents"), s("mimetype"), s("extension")))
             .where(f(columnName, f("id", EQUALS, id)))
             .retrieveRows();
@@ -48,7 +56,11 @@ public class FileApi {
       throw new MolgenisException(
           "Download failed: file id '" + id + "' not found in table " + tableName);
     }
-    String fileId = result.get(0).getString(columnName);
+    // create file id based on pkey
+    String fileId =
+        t.getMetadata().getPrimaryKeyFields().stream()
+            .map(f -> result.get(0).getString(f.getName()))
+            .collect(Collectors.joining("-"));
     String ext = result.get(0).getString(columnName + "_extension");
     String mimetype = result.get(0).getString(columnName + "_mimetype");
     byte[] contents = result.get(0).getBinary(columnName + "_contents");
