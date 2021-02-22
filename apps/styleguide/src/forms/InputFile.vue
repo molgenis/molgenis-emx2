@@ -50,6 +50,10 @@
         </button>
       </div>
     </div>
+    <a v-for="val in arrayValue" :key="val.id" :href="val.url">
+      Previous value: logo.{{ val.extension }}
+    </a>
+    <br />
   </form-group>
 </template>
 
