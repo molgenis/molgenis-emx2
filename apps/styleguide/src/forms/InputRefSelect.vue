@@ -9,8 +9,15 @@
       :showClear="showClear(idx)"
       @add="addRow"
     >
+      <input
+        v-if="readonly"
+        type="hidden"
+        v-model="arrayValue[idx]"
+        class="form-control"
+      />
       <select
         :id="id"
+        :disabled="readonly"
         @click="openSelect(idx)"
         :class="{ 'form-control': true, 'is-invalid': error }"
       >
@@ -19,6 +26,7 @@
           :value="arrayValue[idx]"
           selected
           @input="emitValue"
+          :readonly="readonly"
         >
           {{ flattenObject(arrayValue[idx]) }}
         </option>
