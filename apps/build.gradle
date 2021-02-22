@@ -5,11 +5,15 @@ plugins {
     id "com.github.node-gradle.node" version "3.0.1"
 }
 
-node {
+def nodeSpec = {
     version = '14.15.5'
     yarnVersion = '1.22.5'
     npmVersion = "7.5.4"
     download = true
+}
+
+node {
+    with nodeSpec
 }
 
 subprojects {
@@ -18,14 +22,7 @@ subprojects {
     //all depends on styleguide, so that needs build first
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node {
-            //waiting for feature in this plugin to point to existing installations
-            download = true
-            version = '14.15.5'
-            yarnVersion = '1.22.5'
-            npmVersion = "7.5.4"
-//            npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-//            yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
-//            workDir = file("${parent.projectDir}/.gradle/nodejs")
+            with nodeSpec
         }
 
         inputs.files(fileTree('src'))
@@ -58,12 +55,7 @@ subprojects {
     if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: parent.yarn_install) {
             node {
-                version = '14.10.1'
-                yarnVersion = '1.22.10'
-                npmVersion = "6.14.18"
-                npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-                yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
-                workDir = file("${parent.projectDir}/.gradle/nodejs")
+                with nodeSpec
             }
 
             inputs.files(fileTree('src'))
