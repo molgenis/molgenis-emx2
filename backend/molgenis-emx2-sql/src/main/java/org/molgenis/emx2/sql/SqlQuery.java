@@ -507,7 +507,7 @@ public class SqlQuery extends QueryBean {
         search.add(
             field(name(parent.getTableName(), searchColumnName(parent.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
-        parent = table.getInheritedTable();
+        parent = parent.getInheritedTable();
       }
     }
     return or(search);
