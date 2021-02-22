@@ -38,7 +38,7 @@
       "
       class="pl-1"
       icon="fa fa-clear"
-      @click="clear"
+      @click="clearValue"
     >
       clear
     </ButtonAlt>
@@ -127,7 +127,7 @@ export default {
     },
   },
   methods: {
-    clear() {
+    clearValue() {
       if (this.list) {
         this.arrayValue = [];
       } else {
