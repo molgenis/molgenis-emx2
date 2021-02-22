@@ -1,6 +1,7 @@
 <template>
   <button class="btn pl-1 pr-1 btn-outline-primary border-0" @click="onClick">
-    <i :class="'fa fa-' + icon"></i>
+    <span v-if="label" class="mr-2">{{ label }}</span>
+    <i :class="'fa fa-fw fa-' + icon"></i>
   </button>
 </template>
 
@@ -9,6 +10,7 @@
 export default {
   props: {
     icon: String,
+    label: String,
   },
   methods: {
     onClick() {

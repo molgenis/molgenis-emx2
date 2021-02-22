@@ -1,6 +1,7 @@
 <template>
-  <button class="btn text-danger pl-1 pr-1" @click="onClick">
-    <i :class="'fa fa-' + icon"></i>
+  <button class="btn pl-1 pr-1 btn-outline-danger border-0" @click="onClick">
+    <span v-if="label" class="mr-2">{{ label }}</span>
+    <i :class="'fa fa-fw fa-' + icon"></i>
   </button>
 </template>
 
@@ -9,6 +10,7 @@
 export default {
   props: {
     icon: String,
+    label: String,
   },
   methods: {
     onClick() {
@@ -20,21 +22,21 @@ export default {
 </script>
 
 <docs>
-    Example
+Example
 
-    ```
-    <template>
-        <IconDanger icon="times" @click="alert('clicked')"/>
-    </template>
-    <script>
-        export default {
-            methods: {
-                alert(text) {
-                    alert(text)
-                }
-            }
-        }
-    </script>
-    ```
+```
+<template>
+  <IconDanger icon="times" @click="alert('clicked')"/>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text)
+      }
+    }
+  }
+</script>
+```
 
 </docs>
