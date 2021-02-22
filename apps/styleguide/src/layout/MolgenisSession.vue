@@ -108,7 +108,6 @@ export default {
                   : s.value)
           );
           this.session.manifest = data._manifest;
-          console.log(JSON.stringify(data));
           this.loading = false;
           this.$emit("input", this.session);
         })
@@ -149,7 +148,6 @@ export default {
         .then((data) => {
           if (data.signout.status === "SUCCESS") {
             this.session = {};
-            console.log("signed out");
           } else {
             this.error = "sign out failed";
           }

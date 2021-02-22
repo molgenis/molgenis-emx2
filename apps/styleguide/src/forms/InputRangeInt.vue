@@ -41,7 +41,6 @@ export default {
   extends: BaseInput,
   methods: {
     init() {
-      console.log("init override " + JSON.stringify(this.value));
       if (this.value && Array.isArray(this.value) && this.value.length > 0) {
         if (this.list) {
           //deep copy
