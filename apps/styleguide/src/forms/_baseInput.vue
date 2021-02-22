@@ -12,7 +12,7 @@ export default {
   },
   props: {
     /**  value */
-    value: [String, Number, Object, Array, Boolean],
+    value: { type: [String, Number, Object, Array, Boolean], default: null },
     /** wether to enable in place editing */
     inplace: Boolean,
     /** value to be shown as placeholder in the input (if possible) */
@@ -91,9 +91,6 @@ export default {
       }
       //note, initially we used 'computed' but that doesn't always update imediately
       this.prettyValue = this.getValue();
-      console.log(
-        JSON.stringify(this.value) + " " + JSON.stringify(this.prettyValue)
-      );
     },
     getValue() {
       //list type
@@ -146,9 +143,9 @@ export default {
         this.arrayValue.splice(idx, 1);
       } else {
         if (this.list) {
-          this.arrayValue = [[]];
+          this.arrayValue = [[null]];
         } else {
-          this.arrayValue = [];
+          this.arrayValue = [null];
         }
       }
       this.emitValue();
@@ -159,7 +156,7 @@ export default {
     },
     //always show on empty lines in list view
     showClear() {
-      return this.clear;
+      return this.clear && !this.readonly;
     },
     showMinus(idx) {
       return this.list && idx != this.arrayValue.length - 1;
