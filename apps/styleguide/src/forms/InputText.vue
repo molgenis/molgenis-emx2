@@ -3,25 +3,26 @@
     {{ prettyValue ? prettyValue : "" }}
     <IconAction class="hoverIcon" icon="edit" />
   </span>
-  <FormGroup v-else :id="id" :label="label" :help="help">
+  <FormGroup v-else :id="id" :label="label" :help="help" v-bind="$props">
     <InputAppend
       v-for="(el, idx) in arrayValue"
       :key="idx"
       v-bind="$props"
+      :showClear="showClear(idx)"
       @clear="clearValue(idx)"
-      :plus="
-        list && !readonly && el != undefined && idx === arrayValue.length - 1
-      "
+      :showPlus="showPlus(idx)"
+      :showMinus="showMinus(idx)"
       @add="addRow"
     >
       <textarea
-        :id="id"
+        :id="id + idx"
         v-focus="inplace"
         v-model="arrayValue[idx]"
-        class="form-control"
+        :class="{ 'form-control': true, 'is-invalid': error }"
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
-        v-on="$listeners"
+        :readonly="readonly"
+        @input="emitValue"
         @blur="toggleFocus"
       />
     </InputAppend>
