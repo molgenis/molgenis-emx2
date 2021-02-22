@@ -1,36 +1,37 @@
 <template>
-  <div class="from-inline">
-    <span v-if="countFilters > 0">
-      {{ countFilters }} filters:&nbsp;
-      <span v-for="(column, idx) in filters" :key="column.name">
-        <span v-for="(value, idx2) in column.conditions" :key="idx2">
-          <span v-if="Array.isArray(value)">
-            <FilterWell
-              v-if="value[0] !== null && value[1] !== null"
-              @click="remove(idx, idx2)"
-              :label="value[0] + ' &lt; ' + column.name + ' &lt; ' + value[1]"
-            />
-            <FilterWell
-              v-else-if="value[0] !== null"
-              @click="remove(idx, idx2)"
-              :label="value[0] + ' &lt; ' + column.name"
-            />
+  <div class="from-inline" v-if="countFilters > 0">
+    {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (<a
+      href="#"
+      @click.prevent="removeAll"
+      >remove all filters</a
+    >) :<br />
+    <span v-for="(column, idx) in filters" :key="column.name">
+      <span v-for="(value, idx2) in column.conditions" :key="idx2">
+        <span v-if="Array.isArray(value)">
+          <FilterWell
+            v-if="value[0] !== null && value[1] !== null"
+            @click="remove(idx, idx2)"
+            :label="value[0] + ' &lt; ' + column.name + ' &lt; ' + value[1]"
+          />
+          <FilterWell
+            v-else-if="value[0] !== null"
+            @click="remove(idx, idx2)"
+            :label="value[0] + ' &lt; ' + column.name"
+          />
 
-            <FilterWell
-              v-else-if="value[1] !== null"
-              @click="remove(idx, idx2)"
-              :label="column.name + ' &lt; ' + value[1]"
-            />
-          </span>
-          <span v-else>
-            <FilterWell
-              @click="remove(idx, idx2)"
-              :label="column.name + ' = ' + renderValue(value)"
-            />
-          </span>
+          <FilterWell
+            v-else-if="value[1] !== null"
+            @click="remove(idx, idx2)"
+            :label="column.name + ' &lt; ' + value[1]"
+          />
+        </span>
+        <span v-else>
+          <FilterWell
+            @click="remove(idx, idx2)"
+            :label="column.name + ' = ' + renderValue(value)"
+          />
         </span>
       </span>
-      <a href="#" @click.prevent="removeAll"> remove all filters </a>
     </span>
   </div>
 </template>

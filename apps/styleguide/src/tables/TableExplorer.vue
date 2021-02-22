@@ -2,73 +2,104 @@
   <div>
     <div v-if="columns" style="overflow-x: scroll">
       <MessageError v-if="error">{{ error }}</MessageError>
-      <h1>
-        {{ table }}
-        <ButtonAction v-if="hasSubclass" @click="showSubclass = !showSubclass">
-          {{ showSubclass ? "Hide" : "Show" }} subclass rows
-        </ButtonAction>
-      </h1>
-      <div
-        class="navbar shadow-none navbar-expand-lg justify-content-between mb-2 bg-white"
-      >
-        <div class="btn-group">
-          <ShowHide
-            class="navbar-nav"
-            :columns.sync="columns"
-            checkAttribute="showFilter"
-            label="filters"
-            icon="filter"
-          />
-          <ShowHide
-            class="navbar-nav"
-            :columns.sync="columns"
-            checkAttribute="showColumn"
-            label="columns"
-            icon="columns"
-            id="showColumn"
-            :defaultValue="true"
-          />
-          <ButtonDropdown label="download" icon="download" v-slot="scope">
-            <IconAction
-              icon="times"
-              class="float-right"
-              style="margin-top: -10px; margin-right: -10px"
-              @click="scope.close"
+      <div class="bg-white">
+        <h1 class="pl-2">
+          {{ table }}
+          <ButtonAction
+            v-if="hasSubclass"
+            @click="showSubclass = !showSubclass"
+          >
+            {{ showSubclass ? "Hide" : "Show" }} subclass rows
+          </ButtonAction>
+        </h1>
+        <div
+          class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
+        >
+          <div class="btn-group">
+            <ShowHide
+              class="navbar-nav"
+              :columns.sync="columns"
+              checkAttribute="showFilter"
+              label="filters"
+              icon="filter"
             />
-            <h6>Download:</h6>
-            <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
-            <br />
-            <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-            <br />
-            <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-            <br />
-            <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
-          </ButtonDropdown>
+            <ShowHide
+              class="navbar-nav"
+              :columns.sync="columns"
+              checkAttribute="showColumn"
+              label="columns"
+              icon="columns"
+              id="showColumn"
+              :defaultValue="true"
+            />
+            <ButtonDropdown label="download" icon="download" v-slot="scope">
+              <IconAction
+                icon="times"
+                class="float-right"
+                style="margin-top: -10px; margin-right: -10px"
+                @click="scope.close"
+              />
+              <h6>Download:</h6>
+              <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
+              <br />
+              <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
+              <br />
+              <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
+              <br />
+              <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
+            </ButtonDropdown>
+            <IconAction
+              class="ml-2"
+              :label="'layout'"
+              :icon="layoutTable ? 'th' : 'table'"
+              @click="layoutTable = !layoutTable"
+            />
+          </div>
+          <InputSearch class="navbar-nav" v-model="searchTerms" />
+          <Pagination
+            class="navbar-nav"
+            v-model="page"
+            :limit="limit"
+            :count="count"
+          />
+          <div class="btn-group">
+            <span class="btn">Rows per page:</span>
+            <InputSelect
+              :value="limit"
+              :options="[10, 20, 50, 100]"
+              :clear="false"
+              @input="setlimit($event)"
+            />
+          </div>
+          <SelectionBox :selection.sync="selectedItems" />
         </div>
-        <InputSearch class="navbar-nav" v-model="searchTerms" />
-
-        <Pagination
-          class="navbar-nav"
-          v-model="page"
-          :limit="limit"
-          :count="count"
-        />
-        <SelectionBox :selection.sync="selectedItems" />
       </div>
       <div class="d-flex">
         <div v-if="countFilters" class="col-2 pl-0">
           <FilterSidebar :filters.sync="columns" />
         </div>
         <div
-          class="flex-grow-1 pl-0 pr-0"
+          class="flex-grow-1 pr-0 pl-0"
           :class="countFilters > 0 ? 'col-10' : 'col-12'"
         >
-          <FilterWells v-if="table" :filters.sync="columns" />
+          <FilterWells
+            v-if="table"
+            :filters.sync="columns"
+            class="border-top pt-3 pb-3"
+          />
           <div v-if="loading">
             <Spinner />
           </div>
+          <TableCards
+            v-if="!loading && !layoutTable"
+            :data="data"
+            :columns="columns"
+            :table-name="table"
+            @reload="reload"
+            :can-edit="canEdit"
+          />
           <TableMolgenis
-            v-else
+            v-if="!loading && layoutTable"
             :selection.sync="selectedItems"
             :columns.sync="columns"
             :table-metadata="tableMetadata"
@@ -156,6 +187,9 @@ import ButtonAlt from "../forms/ButtonAlt";
 import SelectionBox from "./SelectionBox";
 import ButtonAction from "../forms/ButtonAction";
 import ButtonDropdown from "../forms/ButtonDropdown";
+import InputSelect from "../forms/InputSelect";
+import TableCards from "./TableCards";
+import IconAction from "../forms/IconAction";
 
 export default {
   extends: TableMixin,
@@ -176,6 +210,9 @@ export default {
     ButtonAction,
     ButtonDropdown,
     SelectionBox,
+    InputSelect,
+    TableCards,
+    IconAction,
   },
   props: {
     value: {
@@ -190,7 +227,15 @@ export default {
       showSubclass: false,
       //a copy of column metadata used to show/hide filters and columns
       columns: [],
+      layoutTable: true,
     };
+  },
+  methods: {
+    setlimit(limit) {
+      console.log("resetpage");
+      this.limit = limit;
+      this.page = 1;
+    },
   },
   computed: {
     tableMetadataMerged() {
@@ -257,7 +302,6 @@ export default {
           }
         });
       }
-      console.log(JSON.stringify(filter));
       return filter;
     },
   },
@@ -269,7 +313,6 @@ export default {
     },
     tableMetadata() {
       if (this.columns.length == 0) {
-        console.log("bla");
         this.columns.push(...this.tableMetadata.columns);
       }
     },
@@ -280,8 +323,25 @@ export default {
 <docs>
 example (graphqlURL is usually not needed because app is served on right path)
 ```
-<Molgenis>
-  <TableExplorer table="Variables" graphqlURL="/CohortsCentral/graphql" :showSelect="true"/>
-</Molgenis>
+<template>
+  <div>
+    <Molgenis v-model="session">
+      <TableExplorer v-if="session && session.roles && session.roles.includes('Viewer')" :session="session"
+                     table="Variables" graphqlURL="/CohortsCentral/graphql"
+                     :showSelect="true"/>
+      <div v-else>Please sign in.</div>
+    </Molgenis>
+    session: {{ session }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        session: null
+      }
+    }
+  }
+</script>
 ```
 </docs>

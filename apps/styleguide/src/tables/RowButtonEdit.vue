@@ -1,14 +1,12 @@
 <template>
-  <div>
-    <RowEditModal
-      v-if="open"
-      :table="table"
-      :graphqlURL="graphqlURL"
-      :pkey="pkey"
-      @close="closeForm"
-    />
-    <IconAction v-else icon="edit" @click="openForm" />
-  </div>
+  <RowEditModal
+    v-if="open"
+    :table="table"
+    :graphqlURL="graphqlURL"
+    :pkey="pkey"
+    @close="closeForm"
+  />
+  <IconAction v-else icon="pencil" @click="openForm" />
 </template>
 
 <script>

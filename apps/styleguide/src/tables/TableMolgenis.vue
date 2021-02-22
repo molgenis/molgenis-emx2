@@ -1,7 +1,7 @@
 <template>
   <div style="max-width: 100%; overflow-x: auto" class="flex-grow-1">
     <table
-      class="table table-sm bg-white border-top-0"
+      class="table table-sm bg-white table-bordered"
       :class="{ 'table-hover': showSelect }"
     >
       <thead>
@@ -58,7 +58,6 @@
           <td
             v-for="col in columns"
             :key="idx + col.name + isSelected(row)"
-            @click="onRowClick(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
           >
@@ -219,12 +218,6 @@ export default {
         this.selection.forEach((s) => {
           if (s != null && this.deepEqual(key, s)) {
             found = true;
-            console.log(
-              "found " +
-                JSON.stringify(key, Object.keys(key).sort()) +
-                " " +
-                JSON.stringify(s, Object.keys(s).sort())
-            );
           }
         });
       }
@@ -274,12 +267,6 @@ export default {
       } else {
         this.$emit("click", this.getKey(row));
       }
-      console.log(
-        "update:selection " +
-          JSON.stringify(update) +
-          "\n\nvs" +
-          JSON.stringify(this.selection)
-      );
       this.$emit("update:selection", update);
     },
     renderNumber(number) {

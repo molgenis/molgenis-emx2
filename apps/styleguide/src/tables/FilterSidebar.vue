@@ -50,6 +50,14 @@ export default {
   props: {
     filters: Array,
   },
+  created() {
+    //default expand
+    for (var idx in this.filters) {
+      if (this.filters.expanded == undefined) {
+        this.expandFilter(idx);
+      }
+    }
+  },
   computed: {
     url() {
       let url = new URL("#");

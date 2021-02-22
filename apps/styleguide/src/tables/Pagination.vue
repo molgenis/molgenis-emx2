@@ -2,7 +2,7 @@
   <nav aria-label="Pagination">
     <ul class="pagination justify-content-center mb-0">
       <li class="page-item">
-        <a class="page-link" href="#" @click.prevent="page = 1">
+        <a class="page-link" href="#" @click.prevent="$emit('input', 1)">
           <span aria-hidden="true">&laquo;</span>
           <span class="sr-only">First</span></a
         >
@@ -11,7 +11,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="page = Math.max(page - 1, 1)"
+          @click.prevent="$emit('input', Math.max(value - 1, 1))"
         >
           <span aria-hidden="true">&lsaquo;</span>
           <span class="sr-only">Previous</span>
@@ -19,22 +19,26 @@
       </li>
       <li class="page-item">
         <a class="page-link text-nowrap" href="#"
-          >{{ (page - 1) * limit + 1 }} - {{ Math.min(count, page * limit) }} of
-          {{ count }}</a
+          >{{ (value - 1) * limit + 1 }} -
+          {{ Math.min(count, value * limit) }} of {{ count }}</a
         >
       </li>
       <li class="page-item">
         <a
           class="page-link"
           href="#"
-          @click.prevent="page = Math.min(page + 1, totalPages)"
+          @click.prevent="$emit('input', Math.min(value + 1, totalPages))"
         >
           <span aria-hidden="true">&rsaquo;</span>
           <span class="sr-only">Next</span></a
         >
       </li>
       <li class="page-item">
-        <a class="page-link" href="#" @click.prevent="page = totalPages">
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="$emit('input', totalPages)"
+        >
           <span aria-hidden="true">&raquo;</span>
           <span class="sr-only">Last</span></a
         >
@@ -52,39 +56,35 @@
 <script>
 export default {
   props: {
+    value: { type: Number, default: 1 },
     count: Number,
     limit: { type: Number, default: 10 },
-    defaultValue: { type: Number, default: 1 },
-  },
-  data: function () {
-    return {
-      page: 1,
-    };
   },
   computed: {
     offset() {
-      return this.limit * (this.page - 1);
+      return this.limit * (this.value - 1);
     },
     totalPages() {
       return Math.ceil(this.count / this.limit);
     },
   },
   watch: {
-    page() {
-      this.$emit("input", this.page);
+    value() {
+      if (this.value < 1) {
+        this.$emit("input", 1);
+      }
     },
     count() {
       //reset page to within range in case count changes
       if (this.page > this.totalPages) {
-        this.page = 1;
+        this.$emit("input", 1);
       }
     },
   },
   created() {
-    if (this.defaultValue) {
-      this.page = this.defaultValue;
+    if (this.value < 1) {
+      this.$emit("input", 1);
     }
-    this.$emit("input", this.page);
   },
 };
 </script>
