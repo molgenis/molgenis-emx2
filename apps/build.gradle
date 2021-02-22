@@ -6,9 +6,9 @@ plugins {
 }
 
 node {
-    version = '14.10.1'
+    version = '15.2.0'
     yarnVersion = '1.22.10'
-    npmVersion = "6.14.18"
+    npmVersion = "7.0.10"
     download = true
 }
 
@@ -18,9 +18,9 @@ subprojects {
     //all depends on styleguide, so that needs build first
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node {
-            version = '14.10.1'
+            version = '15.2.0'
             yarnVersion = '1.22.10'
-            npmVersion = "6.14.18"
+            npmVersion = "7.0.1"
             npmWorkDir = file("${parent.projectDir}/.gradle/npm")
             yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
             workDir = file("${parent.projectDir}/.gradle/nodejs")
