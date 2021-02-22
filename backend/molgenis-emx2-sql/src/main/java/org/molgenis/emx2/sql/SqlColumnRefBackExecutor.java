@@ -358,7 +358,7 @@ class SqlColumnRefBackExecutor {
         // 9 set mappedBy to null
         keyword(
             column.getMappedByColumn().getReferences().stream()
-                .map(r -> name(r.getName()) + "=NULL")
+                .map(r -> name(r.getName()) + "=NEW." + r.getRefTo())
                 .collect(Collectors.joining(","))),
         // 10 where references old key and not new key
         keyword(
