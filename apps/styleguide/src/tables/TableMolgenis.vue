@@ -98,12 +98,6 @@ th {
   background-color: white;
 }
 
-thead th {
-  position: sticky !important;
-  top: 0px;
-  white-space: nowrap;
-}
-
 .column-drag-header:hover {
   cursor: grab;
 }
