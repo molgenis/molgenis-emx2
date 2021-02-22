@@ -33,7 +33,7 @@
     "regenerator-runtime": "0.13.7",
     "source-map-support": "0.5.19",
     "vue-jest": "3.0.7",
-    "vue-template-compiler": "2.6.11"
+    "vue-template-compiler": "2.6.12"
   },
   "babel": {
     "presets": [
