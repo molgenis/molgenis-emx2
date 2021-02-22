@@ -96,11 +96,11 @@ subprojects {
     }
 
     // TODO QC and test coverage on javascript parts
-    sonarqube {
-        properties {
-            property 'sonar.sources', 'src'
-        }
-    }
+//    sonarqube {
+//        properties {
+//            property 'sonar.sources', 'src'
+//        }
+//    }
 }
 
 /** skip yarn install unless changes => removed because leads to travis errors*/
