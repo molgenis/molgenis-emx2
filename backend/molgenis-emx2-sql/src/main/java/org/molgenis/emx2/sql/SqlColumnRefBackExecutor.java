@@ -32,8 +32,8 @@ class SqlColumnRefBackExecutor {
       String mappedByColumnName = ref.getMappedBy();
       if (mappedByColumnName == null) {
         throw new MolgenisException(
-            "Create column failed: Create of REFBACK column(s) '"
-                + columNames
+            "Create column failed: Create of REFBACK column '"
+                + ref.getQualifiedName()
                 + "' failed because mappedBy was not set.");
       }
 
