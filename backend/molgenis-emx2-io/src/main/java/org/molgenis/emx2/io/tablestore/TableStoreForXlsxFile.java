@@ -111,7 +111,11 @@ public class TableStoreForXlsxFile implements TableStore {
             columnNames = new LinkedHashMap<>();
             for (Cell cell : excelRow) {
               if (!BLANK.equals(cell.getCellType())) {
-                columnNames.put(cell.getColumnIndex(), cell.getStringCellValue());
+                String value = cell.getStringCellValue();
+                if (value != null) {
+                  value = value.trim();
+                }
+                columnNames.put(cell.getColumnIndex(), value);
               }
             }
           }
@@ -180,7 +184,7 @@ public class TableStoreForXlsxFile implements TableStore {
   private void convertCellToRowValue(Row row, Cell cell, CellType cellType, String colName) {
     switch (cellType) {
       case STRING:
-        row.set(colName, cell.getRichStringCellValue().getString());
+        row.set(colName, cell.getRichStringCellValue().getString().trim());
         break;
       case NUMERIC:
         if (DateUtil.isCellDateFormatted(cell)) {
