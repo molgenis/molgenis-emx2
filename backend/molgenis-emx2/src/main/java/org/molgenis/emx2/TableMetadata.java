@@ -79,6 +79,7 @@ public class TableMetadata {
   protected void copy(TableMetadata metadata) {
     clearCache();
     this.tableName = metadata.getTableName();
+    this.description = metadata.getDescription();
     this.oldName = metadata.getOldName();
     for (Setting setting : metadata.getSettings()) {
       this.settings.put(setting.getKey(), setting);
@@ -179,7 +180,7 @@ public class TableMetadata {
   public List<Column> getNonInheritedColumns() {
     if (getInherit() != null) {
       return this.columns.values().stream()
-          .filter(c -> c.getKey() == 1)
+          .filter(c -> !getInheritedTable().getColumnNames().contains(c.getName()))
           .collect(Collectors.toList());
     } else {
       return new ArrayList<>(this.columns.values());

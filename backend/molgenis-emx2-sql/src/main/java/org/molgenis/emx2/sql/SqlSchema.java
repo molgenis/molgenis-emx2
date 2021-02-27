@@ -275,7 +275,7 @@ public class SqlSchema implements Schema {
               oldTable.setSettings(mergeTable.getSettings());
               oldTable.setDescription(mergeTable.getDescription());
               oldTable.setJsonldType(mergeTable.getJsonldType());
-              // MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
+              MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
 
               // add missing (except refback),
               // remove triggers if existing column if type changed
