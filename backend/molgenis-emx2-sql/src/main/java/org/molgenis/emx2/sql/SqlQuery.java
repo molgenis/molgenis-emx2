@@ -725,7 +725,7 @@ public class SqlQuery extends QueryBean {
     while (inheritedTable != null) {
       result =
           result
-              .leftJoin(inheritedTable.getJooqTable())
+              .join(inheritedTable.getJooqTable())
               .using(
                   inheritedTable
                       .getPrimaryKeyFields()
