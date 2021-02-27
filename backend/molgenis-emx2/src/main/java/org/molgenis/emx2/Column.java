@@ -141,6 +141,10 @@ public class Column {
     return columnName;
   }
 
+  public String getQualifiedName() {
+    return getTableName() + "." + getName();
+  }
+
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
@@ -187,7 +191,7 @@ public class Column {
         if (result == null) {
           throw new MolgenisException(
               "Internal error: Column.getRefTable failed for column '"
-                  + getName()
+                  + getQualifiedName()
                   + "' because refTable '"
                   + getRefTableName()
                   + "' does not exist in schema '"
