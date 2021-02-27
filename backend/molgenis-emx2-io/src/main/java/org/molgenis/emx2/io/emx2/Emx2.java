@@ -66,28 +66,33 @@ public class Emx2 {
 
       // load column metadata
       else {
-        if (r.getString(TABLE_EXTENDS) != null) {
-          throw new MolgenisException(
-              "Parsing of sheet molgenis failed: Column "
-                  + TABLE_EXTENDS
-                  + " not supported for columns at "
-                  + lineNo);
+        try {
+          if (r.getString(TABLE_EXTENDS) != null) {
+            throw new MolgenisException(
+                "Parsing of sheet molgenis failed: Column "
+                    + TABLE_EXTENDS
+                    + " not supported for columns at "
+                    + lineNo);
+          }
+
+          Column column = column(r.getString(COLUMN_NAME));
+          if (r.notNull(COLUMN_TYPE))
+            column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
+
+          if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
+          if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
+          if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
+          if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
+          if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
+          if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
+          if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
+          if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
+          if (r.notNull(JSONLD_TYPE)) column.setJsonldType(r.getString(JSONLD_TYPE));
+
+          schema.getTableMetadata(tableName).add(column);
+        } catch (Exception e) {
+          throw new MolgenisException("Error on line " + lineNo + ":" + e.getMessage());
         }
-
-        Column column = column(r.getString(COLUMN_NAME));
-        if (r.notNull(COLUMN_TYPE))
-          column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
-        if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
-        if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
-        if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
-        if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
-        if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
-        if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
-        if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
-        if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
-        if (r.notNull(JSONLD_TYPE)) column.setJsonldType(r.getString(JSONLD_TYPE));
-
-        schema.getTableMetadata(tableName).add(column);
       }
       lineNo++;
     }
