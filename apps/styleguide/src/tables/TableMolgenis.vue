@@ -1,7 +1,7 @@
 <template>
   <div style="max-width: 100%; overflow-x: auto" class="flex-grow-1">
     <table
-      class="table table-sm bg-white table-bordered"
+      class="table table-sm bg-white table-bordered table-hover"
       :class="{ 'table-hover': showSelect }"
     >
       <thead>
@@ -12,12 +12,12 @@
           tag="tr"
           @change="$emit('update:columns', $event)"
         >
-          <th slot="header" scope="col" style="width: 1px">
-            <h6 class="mb-0 mt-2">
+          <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
+            <h6 class="mb-0 mt-2 d-inline">
               #
               <!--@slot Use this to add values or actions buttons header -->
-              <slot name="colheader" />
             </h6>
+            <span style="text-align: left"><slot name="colheader" /> </span>
           </th>
           <th
             v-for="col in columns"
@@ -36,7 +36,7 @@
           :key="idx + JSON.stringify(row) + isSelected(row)"
           :class="isSelected(row) ? 'table-primary' : 'table-hover'"
         >
-          <td>
+          <td v-if="hasColheader">
             <div style="display: flex">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
                 <input
@@ -60,6 +60,7 @@
             :key="idx + col.name + isSelected(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
+            @click="onRowClick(row)"
           >
             <div v-if="'FILE' === col.columnType">
               <a v-if="row[col.name].id" :href="row[col.name].url">
@@ -83,12 +84,6 @@
         </tr>
       </tbody>
     </table>
-    <ShowMore title="debug columns">
-      <pre>columns = {{ columns }}</pre>
-    </ShowMore>
-    <ShowMore title="debug selection">
-      <pre> selection = {{ selection }} </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -112,11 +107,10 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import Draggable from "vuedraggable";
-import ShowMore from "../layout/ShowMore";
 import ReadMore from "../layout/ReadMore";
 
 export default {
-  components: { Draggable, ShowMore, ReadMore },
+  components: { Draggable, ReadMore },
   props: {
     /** selection, two-way binded*/
     selection: Array,
@@ -141,6 +135,11 @@ export default {
     this.initShowColumn();
   },
   methods: {
+    hasColheader() {
+      return (
+        this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader
+      );
+    },
     initShowColumn() {
       if (this.columns) {
         let update = this.columns;

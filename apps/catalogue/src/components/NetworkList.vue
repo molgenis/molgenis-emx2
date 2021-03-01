@@ -1,22 +1,20 @@
 <template>
-  <ul v-if="datasources">
-    <li v-for="d in datasources" :key="d.acronym">
+  <ul v-if="networks">
+    <li v-for="d in networks" :key="d.acronym">
       <RouterLink
         :to="{
-          name: 'datasource',
+          name: 'network',
           params: { acronym: d.acronym },
         }"
-        >{{ d.acronym }} - {{ d.name }}
+      >
+        {{ d.acronym }} - {{ d.name }}
       </RouterLink>
     </li>
   </ul>
   <p v-else>N/A</p>
 </template>
-
 <script>
 export default {
-  props: {
-    datasources: Array,
-  },
+  props: { networks: Array },
 };
 </script>

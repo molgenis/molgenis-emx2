@@ -1,58 +1,118 @@
 <template>
-  <div>
-    <h1>MOLGENIS Catalogue</h1>
+  <div class="container bg-white p-3">
+    <h1>Health data catalogue</h1>
     <MessageError v-if="error">{{ error }}</MessageError>
     <p>
-      MOLGENIS catalogue is a user friendly system to browse and manage metadata
-      for human research data resources, such as cohorts, registries, biobanks,
-      and multi-center studies thereof, such as EU projects and harmonisations
-      studies.
+      Browse and manage metadata for human research data resources, such as
+      cohorts, registries, biobanks, and multi-center studies thereof, such as
+      EU projects and harmonisations studies. This catalogue software has been
+      made possible by contributions from H2020 EUCAN-connect, LifeCycle,
+      Longitools and ATHLETE as well as IMI Conception and EMA.
     </p>
-    <h2>Where do you want to start today?</h2>
-    <div class="row justify-content-between container-fluid mt-4 mb-4">
-      <RouterLink to="institutions" class="btn btn-info col-2">
+    <h2>Data collections</h2>
+    <div class="row justify-content-between mt-4 mb-4 p-3">
+      <RouterLink to="list/Institutions" class="btn btn-info col-3">
         <span class="badge badge-light">{{ institutions }}</span>
         <h3>Institutions</h3>
-        <p class="text-left">Such as Universities, Companies, institutions</p>
+        <p class="text-left">
+          Universities, Companies, Medical Centers and Research Institutes
+        </p>
       </RouterLink>
-      <RouterLink to="datasources" class="btn btn-warning col-2">
-        <span class="badge badge-light">{{ tables }}</span>
+      <RouterLink to="/list/Datasources" class="btn btn-warning col-3">
+        <span class="badge badge-light">{{ datasources }}</span>
         <h3>Datasources</h3>
         <p class="text-left">
           Families of databanks collected from same population
         </p>
       </RouterLink>
-      <RouterLink to="databanks" class="btn btn-danger col-2">
+      <RouterLink to="/list/Databanks" class="btn btn-danger col-3">
         <span class="badge badge-light">{{ databanks }}</span>
         <h3>Databanks</h3>
         <p class="text-left">Such as Cohorts, Registries, Biobanks</p>
       </RouterLink>
-      <RouterLink to="harmonisations" class="btn btn-primary col-2">
-        <span class="badge badge-light">{{ variables }}</span>
+    </div>
+    <h2>Data use</h2>
+    <div class="row justify-content-around mt-4 mb-4">
+      <RouterLink to="/list/Models" class="btn btn-secondary col-3">
+        <span class="badge badge-light">{{ models }}</span>
         <h3>Common Models</h3>
         <p class="text-left">
           Common Data Element models and Harmonisation models
         </p>
       </RouterLink>
-      <RouterLink to="projects" class="btn btn-success col-2">
-        <span class="badge badge-light">{{ projects }}</span>
-        <h3>Projects</h3>
-        <p class="text-left">Collaborations of multiple databanks.</p>
+      <RouterLink to="/list/Networks" class="btn btn-primary col-3">
+        <span class="badge badge-light">{{ networks }}</span>
+        <h3>Networks</h3>
+        <p class="text-left">
+          Collaborations of multiple intitutions, datasources and/or databanks.
+        </p>
+      </RouterLink>
+      <RouterLink to="/list/Studies" class="btn btn-success col-3">
+        <span class="badge badge-light">{{ studies }}</span>
+        <h3>Studies</h3>
+        <p class="text-left">
+          Collaborations of multiple intitutions, datasources and/or databanks.
+        </p>
       </RouterLink>
     </div>
-    <h2>Explanation</h2>
-    <p>
-      An overview of the relationships between contents of this catalogue is
-      shown below:
-    </p>
-    <img src="diagram.svg" />
-    <p>
-      <a
-        href="https://docs.google.com/presentation/d/1LLhHa_Y3D6oTyurtAoh7fG5caqXndjgBCNIkT124g70/edit#slide=id.p"
+    <h2>Browse by institute and contacts</h2>
+    <div class="row justify-content-around container-fluid mt-4 mb-4">
+      <RouterLink to="list/Contacts" class="btn btn-info col-2">
+        <span class="badge badge-light">{{ institutions }}</span>
+        <h3>Contacts</h3>
+        <p class="text-left">Researchers, data managers,</p>
+      </RouterLink>
+      <RouterLink to="list/Affiliations" class="btn btn-info col-2">
+        <span class="badge badge-light">{{ institutions }}</span>
+        <h3>Affiliations</h3>
+        <p class="text-left">Departments, divisions and research groups.</p>
+      </RouterLink>
+    </div>
+    <h2>Browse data definitions</h2>
+    <div class="row justify-content-between container-fluid mt-4 mb-4">
+      <RouterLink to="/list/Releases" class="btn btn-outline-dark col-2">
+        <span class="badge badge-light">{{ releases }}</span>
+        <h3>Releases</h3>
+        <p class="text-left">
+          Data releases from databanks, models or networks.
+        </p>
+      </RouterLink>
+      <RouterLink to="/list/Tables" class="btn btn-outline-dark col-2">
+        <span class="badge badge-light">{{ tables }}</span>
+        <h3>Tables</h3>
+        <p class="text-left">
+          Raw listing of all tables described across all releases of all
+          databanks and common models.
+        </p>
+      </RouterLink>
+      <RouterLink to="/list/Variables" class="btn btn-outline-dark col-2">
+        <span class="badge badge-light">{{ variables }}</span>
+        <h3>Variables</h3>
+        <p class="text-left">
+          Raw listing of all variables described across all releases of all
+          databanks and common models.
+        </p>
+      </RouterLink>
+      <RouterLink to="/list/TableMappings" class="btn btn-outline-dark col-2">
+        <span class="badge badge-light">{{ tableMappings }}</span>
+        <h3>Table Mappings</h3>
+        <p class="text-left">
+          Raw listing of all mappings described between tables in databanks and
+          those in common data models.
+        </p>
+      </RouterLink>
+      <RouterLink
+        to="/list/VariableMappings"
+        class="btn btn-outline-dark col-2"
       >
-        source
-      </a>
-    </p>
+        <span class="badge badge-light">{{ variableMappings }}</span>
+        <h3>Variable Mappings</h3>
+        <p class="text-left">
+          List of all mappings described variables in databanks and those in
+          common data models.
+        </p>
+      </RouterLink>
+    </div>
   </div>
 </template>
 
@@ -77,23 +137,35 @@ export default {
       institutions: null,
       databanks: null,
       projects: null,
-      tables: null,
+      models: null,
+      datasources: null,
       variables: null,
+      tables: null,
       error: null,
+      releases: null,
+      variableMappings: null,
+      tableMappings: null,
+      studies: null,
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query {Institutions_agg{count},Databanks_agg{count},Projects_agg{count},Tables_agg{count},Variables_agg{count}}`
+        `query {Institutions_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
       )
         .then((data) => {
           this.institutions = data.Institutions_agg.count;
           this.databanks = data.Databanks_agg.count;
-          this.projects = data.Projects_agg.count;
+          this.networks = data.Networks_agg.count;
+          this.models = data.Models_agg.count;
+          this.datasources = data.Datasources_agg.count;
+          this.releases = data.Releases_agg.count;
           this.tables = data.Tables_agg.count;
           this.variables = data.Variables_agg.count;
+          this.variableMappings = data.VariableMappings_agg.count;
+          this.tableMappings = data.TableMappings_agg.count;
+          this.studies = data.Studies_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;

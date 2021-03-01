@@ -8,6 +8,7 @@
       :tableName="tableName"
       :can-edit="canEdit"
       @reload="$emit('reload')"
+      @click="$emit('click', $event)"
     />
   </div>
 </template>

@@ -1,90 +1,30 @@
 <template>
-  <div class="container-fluid bg-white">
-    <div class="p-2 bg-success text-white">
-      <h6>
-        <RouterLink to="/" class="text-white"> home</RouterLink>
-        /
-        <RouterLink to="/projects" class="text-white"> consortia</RouterLink>
-        /
-      </h6>
-    </div>
-    <h4>
-      <span
-        class="badge badge-pill badge-secondary float-right"
-        v-if="project.type"
-      >
-        {{ project.type.map((t) => t.name).join(",") }}
-      </span>
-    </h4>
-    <h1>
-      {{ projectAcronym }}
-      <br />
-      {{ project.name }}
-    </h1>
-    <MessageError v-if="error">{{ error }}</MessageError>
-    <a v-if="project.website" :href="project.website">{{ project.website }}</a>
-    <p v-else>Website: N/A</p>
-    <p v-if="project.description">{{ project.description }}</p>
-    <p v-else>Description: N/A</p>
+  <div class="container bg-white">
+    <ResourceHeader
+      :resource="network"
+      headerCss="bg-success text-white"
+      table-name="Network"
+    />
     <div class="row">
       <div class="col">
-        <h6>Coordinator</h6>
-        <p>{{ project.provider ? project.provider.name : "N/A" }}</p>
-        <h6>Intitutions involved</h6>
-        <ul v-if="project.partners">
-          <li v-for="p in project.partners" :key="p.name">{{ p.name }}</li>
-        </ul>
-        <p v-else>N/A</p>
+        <h6>Provider</h6>
+        <InstitutionList :institutions="network.provider" />
+        <h6>Partners</h6>
+        <PartnersList :partners="network.partners" />
         <h6>Datasources involved</h6>
-        <ul v-if="project.datasources">
-          <li v-for="d in project.datasources" :key="d.acronym">
-            <RouterLink
-              :to="{
-                name: 'datasource',
-                params: { datasourceAcronym: d.acronym },
-              }"
-              >{{ d.acronym }} - {{ d.name }}
-            </RouterLink>
-          </li>
-        </ul>
-        <p v-else>N/A</p>
+        <DatasourceList :datasources="network.datasources" />
         <h6>Databanks involved</h6>
-        <ul v-if="project.databanks">
-          <li v-for="d in project.databanks" :key="d.acronym">
-            <RouterLink
-              :to="{ name: 'databank', params: { databankAcronym: d.acronym } }"
-              >{{ d.acronym }} - {{ d.name }}
-            </RouterLink>
-          </li>
-        </ul>
-        <p v-else>N/A</p>
+        <DatabankList :databanks="network.databanks" />
         <h6>Funding</h6>
-        <p>{{ project.funding ? project.funding : "N/A" }}</p>
+        <p>{{ network.funding ? network.funding : "N/A" }}</p>
       </div>
       <div class="col">
-        <h6>Protocols</h6>
-        <ul v-if="project.documentation">
-          <li v-for="d in project.documentation" :key="d.name">{{ d.name }}</li>
-        </ul>
-        <p v-else>N/A</p>
-        <h6>Data releases</h6>
-        <ul v-if="project.releases">
-          <li v-for="r in project.releases" :key="r.resource.name + r.version">
-            <RouterLink
-              :to="{
-                name: 'release',
-                params: {
-                  resourceAcronym: r.resource.acronym,
-                  version: r.version,
-                },
-              }"
-              >{{ r.version }}
-            </RouterLink>
-          </li>
-        </ul>
-        <p v-else>N/A</p>
+        <h6>Releases</h6>
+        <ReleasesList :releases="network.releases" />
+        <h6>Documentation</h6>
+        <DocumentationList :documentation="network.documentation" />
         <h6>Publications</h6>
-        <p>{{ project.publications ? project.publications : "N/A" }}</p>
+        <PublicationList :publications="network.publications" />
       </div>
     </div>
   </div>
@@ -98,28 +38,42 @@ import {
   InputSelect,
   NavTabs,
 } from "@mswertz/emx2-styleguide";
-import TableList from "../components/TableList";
 import VariableTree from "../components/VariableTree";
 import HarmonisationList from "../components/HarmonisationList";
+import PublicationList from "../components/PublicationList";
+import PartnersList from "../components/PartnersList";
+import InstitutionList from "../components/InstitutionList";
+import ResourceHeader from "../components/ResourceHeader";
+import DatasourceList from "../components/DatasourceList";
+import DatabankList from "../components/DatabankList";
+import ReleasesList from "../components/ReleasesList";
+import DocumentationList from "../components/DocumentationList";
 
 export default {
   components: {
+    DocumentationList,
+    ReleasesList,
+    DatabankList,
+    DatasourceList,
+    InstitutionList,
+    PartnersList,
+    PublicationList,
     HarmonisationList,
     VariableTree,
     MessageError,
     ReadMore,
-    TableList,
     InputSelect,
     NavTabs,
+    ResourceHeader,
   },
   props: {
-    projectAcronym: String,
+    acronym: String,
   },
   data() {
     return {
       version: null,
       error: null,
-      project: {},
+      network: {},
       tab: "Variables",
     };
   },
@@ -127,18 +81,13 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Projects($acronym:String){Projects(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, partners{acronym,name,country{name}}, datasources{acronym,name}, databanks{acronym,name}, supplementary, releases{resource{acronym,name},version}}}`,
+        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,homepage,funding, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name}, releases{resource{acronym,name},version}}}`,
         {
-          acronym: this.projectAcronym,
+          acronym: this.acronym,
         }
       )
         .then((data) => {
-          this.project = data.Projects[0];
-          if (this.project.releases) {
-            this.version = this.project.releases[
-              this.project.releases.length - 1
-            ].version;
-          }
+          this.network = data.Networks[0];
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
@@ -152,7 +101,7 @@ export default {
     this.reload();
   },
   watch: {
-    projectAcronym() {
+    acronym() {
       this.reload();
     },
   },

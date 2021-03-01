@@ -2,7 +2,7 @@
   <div>
     {{ error }}
     <div class="row">
-      <div class="col-4">
+      <div class="col-3">
         <label>Topics:</label>
         <TopicFilter
           :topics="topics"
@@ -12,7 +12,7 @@
         />
       </div>
       <VariablesList
-        class="col-8"
+        class="col-9"
         :resource-acronym="resourceAcronym"
         :topic="selectedTopic"
       />
@@ -98,7 +98,7 @@ export default {
     loadTopics() {
       request(
         "graphql",
-        "{Topics(orderby:{order:ASC}){name,parentTopic{name},variables{name},childTopics{name,variables{name},childTopics{name, variables{name},childTopics{name,variables{name},childTopics{name,variables{name},childTopics{name}}}}}}}"
+        "{Topics(orderby:{order:ASC}){name,parent{name},variables_agg{count},children{name,variables_agg{count},children{name, variables_agg{count},children{name,variables{name},children{name,variables{name},children{name}}}}}}}"
       )
         .then((data) => {
           this.topics = data.Topics.filter(

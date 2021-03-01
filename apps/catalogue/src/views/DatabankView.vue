@@ -1,66 +1,62 @@
 <template>
-  <div>
+  <div class="container bg-white">
+    <ResourceHeader
+      :resource="databank"
+      headerCss="bg-danger text-white"
+      table-name="Databank"
+    />
     <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>
-      <small v-if="databank.type">{{
-        databank.type.map((t) => t.name).join(",")
-      }}</small
-      ><small v-else>Databank:</small><br />{{ databank.name }} ({{
-        databank.acronym
-      }})
-    </h1>
-    <label> Website: </label>
-    <a :href="databank.website">{{ databank.website }}</a> <br />
-    <label> Type(s): </label>
-    <span v-for="type in databank.type">{{ type.name }}</span
-    ><br />
-    <NavTabs :options="['Description', 'Data']" v-model="tab" />
-    <div v-if="tab == 'Description'" class="tab-pane show active">
-      <label>Description:</label>
-      <p>{{ databank.description }}</p>
-      <p>{{ databank.originator ? databank.originator.acronym : "N/A" }}</p>
-      <label>Population:</label>
-      <p v-if="databank.datasource">
-        Underlying population: {{ databank.datasource.population }}
-      </p>
-      <p v-if="databank.datasource">
-        Datasource population: {{ databank.datasource.inclusionCriteria }}
-      </p>
-      <p>Databank population: {{ databank.population }}</p>
-      <h6>Quality:</h6>
-      <p>{{ databank.quality }}</p>
-      <h6>Lag time:</h6>
-      <p>{{ databank.lagTime }}</p>
-      <h6>Prompt:</h6>
-      <p>{{ databank.prompt }}</p>
-      <h6>Purpose:</h6>
-      <p>{{ databank.purpose }}</p>
-      <h6>Collection:</h6>
-      <p>{{ databank.collection }}</p>
-      <h6>StartYear:</h6>
-      <p>{{ databank.startYear }}</p>
-      <h6>Completeness:</h6>
-      <p>{{ databank.completeness }}</p>
+    <hr class="border-danger" />
+    <div class="row">
+      <div class="col">
+        <h6>Population</h6>
+        <OntologyTerms :terms="databank.population" color="danger" />
+        <h6>Inclusion criteria</h6>
+        <OntologyTerms :terms="databank.inclusionCriteria" color="danger" />
+        <h6>Topics</h6>
+        <p>{{ databank.topics ? databank.topics : "N/A" }}</p>
+        <h6>Number of participants:</h6>
+        <p>{{ databank.noParticipants ? databank.noParticipants : "N/A" }}</p>
+        <h6>Part of datasource</h6>
+        <DatasourceList :datasources="databank.datasources" />
+        <hr class="border-danger" />
+        <h6>Orginator</h6>
+        <p>{{ databank.originator ? databank.originator : "N/A" }}</p>
+        <h6>Record prompt:</h6>
+        <p>{{ databank.recordPrompt ? databank.recordPrompt : "N/A" }}</p>
+        <h6>Start/End year</h6>
+        <p>
+          {{ databank.startYear ? databank.startYear : "N/A" }} -
+          {{ databank.endYear ? databank.endYear : "N/A" }}
+        </p>
+        <h6>Update frequency</h6>
+        <p>{{ databank.updates ? databank.updates : "N/A" }}</p>
+        <h6>Lag time</h6>
+        <p>{{ databank.lagtime ? databank.lagtime : "N/A" }}</p>
+        <h6>Collection events</h6>
+        <p>
+          {{ databank.collectionEvents ? databank.collectionEvents : "N/A" }}
+        </p>
+        <hr class="border-danger" />
+        <Conditions :resource="databank" />
+      </div>
+      <div class="col">
+        <h6>Provider</h6>
+        <InstitutionList :institutions="databank.provider" />
+        <h6>Contact</h6>
+        <ContactList :contacts="databank.contact" />
+        <h6>Documentation</h6>
+        <DocumentationList :documentation="databank.documentation" />
+        <h6>Data releases</h6>
+        <ReleasesList :releases="databank.releases" />
+        <h6>Contributors</h6>
+        <ContributorList :contributors="databank.contributors" color="danger" />
+        <h6>Networks</h6>
+        <NetworkList :networks="databank.networks" />
+        <h6>Publications</h6>
+        <PublicationList :publications="databank.publications" />
+      </div>
     </div>
-    <div v-if="tab == 'Data'" class="tab-pane show active">
-      <span v-if="databank.releases == null">No data loaded</span>
-      <span v-else>
-        <InputSelect
-          label="choose a release"
-          v-if="databank.releases"
-          v-model="version"
-          :options="databank.releases.map((r) => r.version)" />
-        <VariablesList
-          v-if="version"
-          :resourceAcronym="databankAcronym"
-          :version="version"
-      /></span>
-    </div>
-    <!--<h4>Tables:</h4>
-    <TableList
-      :databankAcronym="databankAcronym"
-      :institutionAcronym="institutionAcronym"
-    />-->
   </div>
 </template>
 
@@ -72,22 +68,40 @@ import {
   InputSelect,
   NavTabs,
 } from "@mswertz/emx2-styleguide";
-import TableList from "../components/TableList";
 import VariablesList from "../components/VariablesList";
+import OntologyTerms from "../components/OntologyTerms";
+import PublicationList from "../components/PublicationList";
+import ResourceHeader from "../components/ResourceHeader";
+import InstitutionList from "../components/InstitutionList";
+import ReleasesList from "../components/ReleasesList";
+import ContactList from "../components/ContactList";
+import DocumentationList from "../components/DocumentationList";
+import DatasourceList from "../components/DatasourceList";
+import NetworkList from "../components/NetworkList";
+import Conditions from "../components/Conditions";
+import ContributorList from "../components/ContributorList";
 
 export default {
   components: {
+    NetworkList,
+    DatasourceList,
+    ContactList,
+    ReleasesList,
+    ResourceHeader,
+    InstitutionList,
+    PublicationList,
+    OntologyTerms,
     MessageError,
     ReadMore,
-    TableList,
     VariablesList,
-    InputSelect,
     NavTabs,
     InputSelect,
+    DocumentationList,
+    Conditions,
+    ContributorList,
   },
   props: {
-    databankAcronym: String,
-    institutionAcronym: String,
+    acronym: String,
   },
   data() {
     return {
@@ -101,9 +115,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,acronym,datasource{population,inclusionCriteria},purpose, population,updateFrequency,completeness, startYear,endYear, type{name},provider{acronym,name}, description,website,prompt, lagTime, supplementaryInformation, releases{version}}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,logo{url},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},provider{acronym,name}, description,homepage,recordPrompt, lagTime, releases{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
         {
-          acronym: this.databankAcronym,
+          acronym: this.acronym,
         }
       )
         .then((data) => {
@@ -126,7 +140,7 @@ export default {
     this.reload();
   },
   watch: {
-    databankAcronym() {
+    acronym() {
       this.reload();
     },
   },

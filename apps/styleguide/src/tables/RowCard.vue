@@ -28,14 +28,24 @@
           @close="$emit('reload')"
       /></span>
     </div>
-    <div class="card-body">
+    <div class="card-body" @click="$emit('click', row)">
       <div class="card-text">
         <dl>
           <div v-for="col in columns" :key="col.name">
-            <dt v-if="col.showColumn && row[col.name]" class="pr-3">
+            <dt
+              v-if="
+                col.showColumn && row[col.name] && col.name != 'mg_tableclass'
+              "
+              class="pr-3"
+            >
               {{ col.name }}
             </dt>
-            <dd class="pl-3" v-if="col.showColumn && row[col.name]">
+            <dd
+              class="pl-3"
+              v-if="
+                col.showColumn && row[col.name] && col.name != 'mg_tableclass'
+              "
+            >
               <RenderValue :col="col" :row="row" />
             </dd>
           </div>

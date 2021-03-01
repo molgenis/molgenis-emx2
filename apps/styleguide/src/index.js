@@ -63,6 +63,8 @@ import ShowHide from "./tables/ShowHide";
 
 import TableMixin from "./mixins/TableMixin";
 import TableMetadataMixin from "./mixins/TableMetadataMixin";
+import TableSimple from "./tables/TableSimple";
+import TableSearch from "./tables/TableSearch";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
@@ -123,4 +125,6 @@ export {
   TableMetadataMixin,
   TableMolgenis,
   TableExplorer,
+  TableSimple,
+  TableSearch,
 };

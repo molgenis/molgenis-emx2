@@ -1,45 +1,33 @@
 <template>
-  <div>
-    {{ datasourceAcronym }}
+  <div class="container bg-white">
+    <ResourceHeader
+      :resource="datasource"
+      headerCss="bg-warning text-dark"
+      table-name="Datasource"
+    />
     <MessageError v-if="error">{{ error }}</MessageError>
-    <h1>
-      <small v-if="datasource.type">{{
-        datasource.type.map((t) => t.name).join(",")
-      }}</small
-      ><small v-else>Datasource:</small><br />{{ datasource.name }} ({{
-        datasource.acronym
-      }})
-    </h1>
-    <label> Website: </label>
-    <a :href="datasource.website">{{ datasource.website }}</a> <br />
-    <label> Type(s): </label>
-    <span v-for="type in datasource.type">{{ type.name }}</span
-    ><br />
-    <NavTabs :options="['Data', 'Description']" v-model="tab" />
-    <div v-if="tab == 'Data'" class="tab-pane show active">
-      <h4>Databanks:</h4>
-      <DatabankList
-        :datasourceAcronym="datasourceAcronym"
-        :showSearch="false"
-      />
+    <div class="row">
+      <div class="col">
+        <h6>Population</h6>
+        <OntologyTerms :terms="datasource.population" color="warning" />
+        <h6>Inclusion criteria</h6>
+        <OntologyTerms :terms="datasource.inclusionCriteria" color="warning" />
+        <h6>Databanks</h6>
+        <DatabankList :databanks="datasource.databanks" />
+        <h6>Summary statistics</h6>
+        <p>{{ datasource.statistics ? datasource.statistics : "N/A" }}</p>
+      </div>
+      <div class="col">
+        <h6>Provider</h6>
+        <InstitutionList :institutions="datasource.provider" />
+        <h6>Contact</h6>
+        <ContactList :contacts="datasource.contact" />
+        <h6>Networks</h6>
+        <NetworkList :networks="datasource.networks" />
+        <h6>Contributors</h6>
+        <p>{{ datasource.contacts ? datasource.contacts : "N/A" }}</p>
+      </div>
     </div>
-    <div v-if="tab == 'Description'" class="tab-pane show active">
-      <label>Description:</label>
-      <p>{{ datasource.description }}</p>
-      <p>{{ datasource.originator ? datasource.originator.acronym : "N/A" }}</p>
-      <label>Quality:</label>
-      <p>{{ datasource.quality }}</p>
-      <label>Lag time:</label>
-      <p>{{ datasource.lagTime }}</p>
-      <label>Prompt:</label>
-      <p>{{ datasource.prompt }}</p>
-      <label>Originator:</label>
-    </div>
-    <!--<h4>Tables:</h4>
-    <TableList
-      :databankAcronym="databankAcronym"
-      :institutionAcronym="institutionAcronym"
-    />-->
   </div>
 </template>
 
@@ -51,24 +39,30 @@ import {
   InputSelect,
   NavTabs,
 } from "@mswertz/emx2-styleguide";
-import TableList from "../components/TableList";
 import VariablesList from "../components/VariablesList";
 import DatabankList from "../components/DatabankList";
+import InstitutionList from "../components/InstitutionList";
+import ResourceHeader from "../components/ResourceHeader";
+import NetworkList from "../components/NetworkList";
+import ContactList from "../components/ContactList";
+import OntologyTerms from "../components/OntologyTerms";
 
 export default {
   components: {
+    OntologyTerms,
+    ContactList,
+    NetworkList,
+    ResourceHeader,
     MessageError,
     ReadMore,
-    TableList,
     VariablesList,
     InputSelect,
     NavTabs,
-    InputSelect,
     DatabankList,
+    InstitutionList,
   },
   props: {
-    datasourceAcronym: String,
-    institutionAcronym: String,
+    acronym: String,
   },
   data() {
     return {
@@ -82,9 +76,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,website, investigators{name}, supplementaryInformation, releases{version}}}`,
+        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,population{name},inclusionCriteria{name}type{name},networks{acronym,name}databanks{acronym,name},provider{acronym,name} description,homepage}}`,
         {
-          acronym: this.datasourceAcronym,
+          acronym: this.acronym,
         }
       )
         .then((data) => {

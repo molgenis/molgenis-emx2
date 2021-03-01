@@ -45,25 +45,30 @@ public class TestCohortCatalogueMultipleSchemas {
   public void importTest() throws IOException {
     StopWatch.print("begin");
 
-    loadSchema("CohortsCentral.xlsx", centralSchema);
-    assertEquals(32, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+    // in three modules
 
-    loadSchema("CatalogueOntologies.xlsx", catalogueOntologies);
-    assertEquals(13, TestCohortCatalogueMultipleSchemas.catalogueOntologies.getTableNames().size());
+    loadSchema("CatalogueCentralOntologies.xlsx", centralSchema);
+    assertEquals(18, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
 
-    loadSchema("CatalogueDescriptions.xlsx", catalogueDescriptions);
-    assertEquals(
-        10, TestCohortCatalogueMultipleSchemas.catalogueDescriptions.getTableNames().size());
+    loadSchema("CatalogueCentralCollections.xlsx", centralSchema);
+    assertEquals(34, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
 
-    loadSchema("CatalogueSourceVariables.xlsx", catalogueSourceVariables);
+    loadSchema("CatalogueCentralDictionaries.xlsx", centralSchema);
+    assertEquals(41, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
+
+    // submodules for the 'data'
+    loadSchema("CatalogueCentralOntologies.xlsx", catalogueOntologies);
+    assertEquals(18, TestCohortCatalogueMultipleSchemas.catalogueOntologies.getTableNames().size());
+
+    loadSchema("CatalogueLocalSourceVariables.xlsx", catalogueSourceVariables);
     assertEquals(
         7, TestCohortCatalogueMultipleSchemas.catalogueSourceVariables.getTableNames().size());
 
-    loadSchema("CatalogueHarmonizedVariables.xlsx", catalogueHarmonizedVariables);
+    loadSchema("CatalogueLocalHarmonizedVariables.xlsx", catalogueHarmonizedVariables);
     assertEquals(
         7, TestCohortCatalogueMultipleSchemas.catalogueHarmonizedVariables.getTableNames().size());
 
-    loadSchema("CatalogueMappings.xlsx", catalogueMappings);
+    loadSchema("CatalogueLocalMappings.xlsx", catalogueMappings);
     assertEquals(2, TestCohortCatalogueMultipleSchemas.catalogueMappings.getTableNames().size());
   }
 

@@ -1,17 +1,12 @@
 <template>
   <div>
-    <div v-if="columns" style="overflow-x: scroll">
+    <div v-if="columns" class="h-100 overflow-auto">
       <MessageError v-if="error">{{ error }}</MessageError>
       <div class="bg-white">
         <h1 class="pl-2">
           {{ table }}
-          <ButtonAction
-            v-if="hasSubclass"
-            @click="showSubclass = !showSubclass"
-          >
-            {{ showSubclass ? "Hide" : "Show" }} subclass rows
-          </ButtonAction>
         </h1>
+        <p class="pl-2" v-if="tableMetadata">{{ tableMetadata.description }}</p>
         <div
           class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
         >
@@ -71,7 +66,7 @@
               @input="setlimit($event)"
             />
           </div>
-          <SelectionBox :selection.sync="selectedItems" />
+          <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
         </div>
       </div>
       <div class="d-flex">
@@ -97,6 +92,7 @@
             :table-name="table"
             @reload="reload"
             :can-edit="canEdit"
+            @click="$emit('click', $event)"
           />
           <TableMolgenis
             v-if="!loading && layoutTable"
@@ -104,7 +100,8 @@
             :columns.sync="columns"
             :table-metadata="tableMetadata"
             :data="data"
-            :showSelect="true"
+            :showSelect="showSelect"
+            @click="$emit('click', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
@@ -185,7 +182,6 @@ import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
 import ButtonAlt from "../forms/ButtonAlt";
 import SelectionBox from "./SelectionBox";
-import ButtonAction from "../forms/ButtonAction";
 import ButtonDropdown from "../forms/ButtonDropdown";
 import InputSelect from "../forms/InputSelect";
 import TableCards from "./TableCards";
@@ -207,7 +203,6 @@ export default {
     InputSearch,
     Pagination,
     ButtonAlt,
-    ButtonAction,
     ButtonDropdown,
     SelectionBox,
     InputSelect,
@@ -218,6 +213,10 @@ export default {
     value: {
       type: Array,
       default: () => [],
+    },
+    showSelect: {
+      type: Boolean,
+      default: () => false,
     },
   },
   data() {
@@ -266,10 +265,10 @@ export default {
     },
     //overrides from TableMixin
     graphqlFilter() {
-      let filter = {};
+      let filter = this.filter ? this.filter : {};
       if (this.columns) {
         //filter on subclass, if exists
-        if (!this.showSubclass && this.hasSubclass) {
+        if (this.hasSubclass) {
           filter.mg_tableclass = {
             equals: this.schema.name + "." + this.tableMetadata.name,
           };
@@ -313,7 +312,9 @@ export default {
     },
     tableMetadata() {
       if (this.columns.length == 0) {
-        this.columns.push(...this.tableMetadata.columns);
+        this.columns.push(
+          ...this.tableMetadata.columns.filter((c) => c.name != "mg_tableclass")
+        );
       }
     },
   },
@@ -328,7 +329,7 @@ example (graphqlURL is usually not needed because app is served on right path)
     <Molgenis v-model="session">
       <TableExplorer v-if="session && session.roles && session.roles.includes('Viewer')" :session="session"
                      table="Variables" graphqlURL="/CohortsCentral/graphql"
-                     :showSelect="true"/>
+                     :showSelect="false" @click="click"/>
       <div v-else>Please sign in.</div>
     </Molgenis>
     session: {{ session }}
@@ -339,6 +340,10 @@ example (graphqlURL is usually not needed because app is served on right path)
     data() {
       return {
         session: null
+      }
+    }, methods: {
+      click(event) {
+        alert(event);
       }
     }
   }

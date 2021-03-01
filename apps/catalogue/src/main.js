@@ -2,20 +2,16 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
 import CatalogueView from "./views/CatalogueView";
-import InstitutionListView from "./views/InstitutionListView";
-import ConsortiumListView from "./views/ProjectListView";
-import ConsortiumView from "./views/ProjectView";
-import DatabankListView from "./views/DatabankListView";
-import VariablesListView from "./views/VariablesListView";
 import InstitutionView from "./views/InstitutionView";
 import DatabankView from "./views/DatabankView";
 import TableView from "./views/TableView";
-import TableListView from "./views/TableListView";
 import NetworkView from "./views/NetworkView";
-import ReleasesListView from "./views/ReleasesListView";
 import ReleasesView from "./views/ReleasesView";
-import DatasourceListView from "./views/DatasourceListView";
 import DatasourceView from "./views/DatasourceView";
+import ModelView from "./views/ModelView";
+import ResourceListView from "./views/ResourceListView";
+import AffiliationView from "./views/AffiliationView";
+import ContactView from "./views/ContactView";
 
 Vue.config.productionTip = false;
 
@@ -25,118 +21,68 @@ const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
+    //list views
     {
-      name: "institutions",
-      path: "/institutions",
-      component: InstitutionListView,
+      name: "list",
+      path: "/list/:tableName",
+      props: true,
+      component: ResourceListView,
     },
     {
       name: "institution",
-      path: "/institutions/:institutionAcronym",
+      path: "/institutions/:acronym",
       component: InstitutionView,
       props: true,
     },
-    {
-      name: "institution-databank",
-      path: "/institutions/:institutionAcronym/:databankAcronym",
-      component: DatabankView,
-      props: true,
-    },
-    {
-      name: "institution-datasource",
-      path: "/institutions-datasource/:institutionAcronym/:datasourceAcronym",
-      component: DatasourceView,
-      props: true,
-    },
-    {
-      name: "institution-table",
-      path: "/institutions/:institutionAcronym/:databankAcronym/:tableName",
-      component: TableView,
-      props: true,
-    },
-    {
-      name: "releases",
-      path: "/releases",
-      component: ReleasesListView,
-    },
+
     {
       name: "release",
-      path: "/releases/:resourceAcronym/:version",
+      path: "/releases/:acronym/:version",
       component: ReleasesView,
       props: true,
     },
     {
-      name: "projects",
-      path: "/projects",
-      component: ConsortiumListView,
-    },
-    {
-      name: "project",
-      path: "/projects/:projectAcronym",
-      component: ConsortiumView,
-      props: true,
-    },
-    {
-      name: "project-table",
-      path: "/projects/:projectAcronym/:tableName",
-      component: TableView,
-      props: true,
-    },
-    {
-      name: "databanks",
-      path: "/databanks",
-      component: DatabankListView,
-    },
-    {
       name: "databank",
-      path: "/databanks/:databankAcronym",
+      path: "/databanks/:acronym",
       component: DatabankView,
       props: true,
     },
-    {
-      name: "datasources",
-      path: "/datasources",
-      component: DatasourceListView,
-    },
+
     {
       name: "datasource",
-      path: "/datasources/:datasourceAcronym",
+      path: "/datasources/:acronym",
       component: DatasourceView,
       props: true,
     },
     {
-      name: "databank-table",
-      path: "/databanks/:databankAcronym/:tableName",
-      component: TableView,
+      name: "model",
+      path: "/models/:acronym",
+      component: ModelView,
       props: true,
-    },
-    {
-      name: "tables",
-      path: "/tables",
-      component: TableListView,
     },
     {
       name: "table",
-      path: "/tables/:resourceAcronym/:tableName",
+      path: "/tables/:acronym/:version/:tableName",
       component: TableView,
       props: true,
     },
     {
-      name: "table-databank",
-      path: "/tables/:databankAcronym",
-      component: DatabankView,
+      name: "network",
+      path: "/networks/:acronym",
       props: true,
+      component: NetworkView,
     },
     {
-      name: "tables-project",
-      path: "/tables-project/:projectAcronym",
-      component: ConsortiumView,
+      name: "affiliation",
+      path: "/affiliations/:acronym",
       props: true,
+      component: AffiliationView,
     },
     {
-      name: "variables",
-      path: "/variables",
-      component: VariablesListView,
+      name: "contact",
+      path: "/contacts/:name",
+      props: true,
+      component: ContactView,
     },
   ],
 });

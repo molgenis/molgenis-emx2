@@ -8,24 +8,13 @@ This is a reference implementation of MOLGENIS/EMX2 data service. Status: previe
 
 Demo server: https://emx2.test.molgenis.org/
 
-Design system/styleguide (for app developers): https://mswertz.github.io/molgenis-emx2/
-
 ## How to run
-
-You can run EMX2 as:
-1. [Docker image](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1) using docker-compose up
-1. [java -jar molgenis-emx2-version-all.jar](https://github.com/mswertz/molgenis-emx2/releases) (then you need to install postgresql)
-1. Kubernetes Helm Chart
-
-Details below.
 
 ### 1. Using docker compose
 
-Install [Docker compose](https://docs.docker.com/compose/install/).
-Download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
-To use a particular version in docker-compose.yml change 'mswertz/emx2' to 'mswertz/emx2-snapshot:1.0.27-SNAPSHOT-ba8f51b'
-
-To start, in directory with docker-compose.yml run:
+* Install [Docker compose](https://docs.docker.com/compose/install/).
+* Download molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>docker-compose.yml</a> file 
+* To start, in directory with docker-compose.yml run:
 ```
 docker-compose up
 ``` 
@@ -41,8 +30,6 @@ N.B.
 * if you want particular [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1) then add version in docker-compose.yml file 'mswertz/emx2:version'
 
 ### 2. Using JAR file and your own postgresql
-
-For minimalist server installation you can use the 'jar' file. 
 
 * Download molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
 * Download and install [Postgresql](https://www.postgresql.org/download/) 
@@ -312,6 +299,7 @@ Work in progress
 *  implement order by in table view, default on lastUpdated
 *  investigate migrations (for in place upgrades when metadata tables change)
 
+*  change refback<-ref into a partof relation, at least in term of edit forms
 *  create a type registry in the frontend allowing for custom input and view components for columns
 *  download using filter that is applied in explorer view
 *  filter option for 'null' and 'not_null'

@@ -6,7 +6,7 @@
     >
       <thead>
         <tr>
-          <th scope="col" style="width: 1px">
+          <th scope="col" style="width: 1px" v-if="hasColheader()">
             <slot name="colheader" />
           </th>
           <th v-for="col in columns" :key="col" scope="col">
@@ -15,7 +15,7 @@
         </tr>
       </thead>
       <tr v-for="row in rows" :key="JSON.stringify(row)">
-        <td>
+        <td v-if="hasColheader()">
           <slot name="rowheader" :row="row" />
           <input
             v-if="selectColumn"
@@ -33,7 +33,7 @@
           <ul v-if="Array.isArray(row[col])" class="list-unstyled">
             <li v-for="(item, index3) in row[col]" :key="index3">{{ item }}</li>
           </ul>
-          <span v-else>{{ row[col] }}</span>
+          <span v-else-if="row[col]">{{ flattenObject(row[col]) }}</span>
         </td>
       </tr>
     </table>
@@ -71,6 +71,26 @@ export default {
     }
   },
   methods: {
+    hasColheader() {
+      return this.selectColumn || !!this.$slots.colheader;
+    },
+    flattenObject(object) {
+      let result = "";
+      if (typeof object === "object") {
+        Object.keys(object).forEach((key) => {
+          if (object[key] === null) {
+            //nothing
+          } else if (typeof object[key] === "object") {
+            result += this.flattenObject(object[key]);
+          } else {
+            result += " " + object[key];
+          }
+        });
+      } else {
+        result = object;
+      }
+      return result.replace(/^\./, "");
+    },
     isSelected(row) {
       return (
         this.selectedItems != null &&

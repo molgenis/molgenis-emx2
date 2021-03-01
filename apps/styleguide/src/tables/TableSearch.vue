@@ -2,7 +2,10 @@
   <div>
     <MessageError v-if="error">{{ error }}</MessageError>
     <div v-else style="text-align: center">
-      <form class="form-inline justify-content-between mb-2">
+      <form
+        v-if="showHeaderIfNeeded"
+        class="form-inline justify-content-between mb-2"
+      >
         <InputSearch v-if="table" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
         <SelectionBox
@@ -17,7 +20,7 @@
           :selection="selection"
           @update:selection="$emit('update:selection', $event)"
           :metadata="tableMetadata"
-          :columns="tableMetadata.columns"
+          :columns="columnsVisible"
           :data="data"
           :showSelect="showSelect"
           @select="select"
@@ -43,25 +46,6 @@
         </TableMolgenis>
       </div>
     </div>
-    <ShowMore title="debug info">
-      <pre>
-        canEdit =          {{ canEdit }}
-
-        session =       {{ session }}
-
-graphql = {{ graphql }}
-
-filter = {{ filter }}
-
-selection = {{ selection }}
-
-data =
-{{ data }}
-          
-schema =
-{{ schema }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -72,13 +56,11 @@ import MessageError from "../forms/MessageError";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import ShowMore from "../layout/ShowMore";
 import SelectionBox from "./SelectionBox";
 
 export default {
   components: {
     SelectionBox,
-    ShowMore,
     TableMolgenis,
     MessageError,
     InputSearch,
@@ -94,12 +76,29 @@ export default {
       type: Boolean,
       default: false,
     },
+    showHeader: {
+      type: Boolean,
+      default: true,
+    },
+    showColumns: {
+      type: Array,
+    },
   },
   data: function () {
     return {
       page: 1,
       loading: true,
     };
+  },
+  computed: {
+    showHeaderIfNeeded() {
+      return this.showHeader || this.count > this.limit;
+    },
+    columnsVisible() {
+      return this.tableMetadata.columns.filter(
+        (c) => this.showColumns == null || this.showColumns.includes(c.name)
+      );
+    },
   },
   methods: {
     select(value) {
