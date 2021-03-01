@@ -3,11 +3,11 @@
     <MessageError>{{ error }}</MessageError>
   </div>
   <div v-else-if="table" class="container bg-white">
-    <div class="p-2 border border-danger text-danger mb-3">
+    <div class="p-2 bg-dark text-white mb-3">
       <h6>
-        <RouterLink to="/" class="text-danger"> home</RouterLink>
+        <RouterLink to="/" class="text-white"> home</RouterLink>
         /
-        <RouterLink to="/tables" class="text-danger"> tables</RouterLink>
+        <RouterLink to="/list/Tables" class="text-white"> tables</RouterLink>
         /
       </h6>
     </div>
@@ -26,7 +26,7 @@
       <TableExplorer
         table="Variables"
         :filter="{
-          name: { equals: tableName },
+          name: { equals: name },
           release: {
             version: { equals: version },
             resource: { acronym: { equals: acronym } },
@@ -52,7 +52,7 @@ export default {
   props: {
     acronym: String,
     version: String,
-    tableName: String,
+    name: String,
   },
   data() {
     return {
@@ -69,7 +69,7 @@ export default {
         {
           acronym: this.acronym,
           version: this.version,
-          name: this.tableName,
+          name: this.name,
         }
       )
         .then((data) => {

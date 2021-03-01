@@ -15,12 +15,18 @@ import { TableExplorer } from "@mswertz/emx2-styleguide";
 
 const css = {
   Institutions: "bg-info text-white",
-  Contacts: "bg-info text-white",
-  Affiliations: "bg-info text-white",
   Datasources: "bg-warning text-dark",
   Databanks: "bg-danger text-white",
-  Networks: "bg-success text-white",
-  Models: "bg-primary text-white",
+  Models: "bg-secondary text-white",
+  Networks: "bg-primary text-white",
+  Studies: "bg-success text-white",
+  Contacts: "bg-info text-white",
+  Affiliations: "bg-info text-white",
+  Releases: "bg-dark text-white",
+  Tables: "bg-dark text-white",
+  Variables: "bg-dark text-white",
+  TableMappings: "bg-dark text-white",
+  VariableMappings: "bg-dark text-white",
 };
 
 export default {
@@ -42,13 +48,13 @@ export default {
   methods: {
     openDetailView(row) {
       // in case of table
-      if (this.tableName == "Tables") {
+      if (this.tableName == "Tables" || this.tableName == "Variables") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
             acronym: row.release.resource.acronym,
             version: row.release.version,
-            tableName: row.name,
+            name: row.name,
           },
         });
       } else if (row.version) {

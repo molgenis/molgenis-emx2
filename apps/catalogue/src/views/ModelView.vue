@@ -1,26 +1,10 @@
 <template>
   <div class="container bg-white">
-    <div class="p-2 bg-primary text-white">
-      <h6>
-        <RouterLink to="/" class="text-white"> home</RouterLink>
-        /
-        <RouterLink to="/models" class="text-white"> models</RouterLink>
-        /
-      </h6>
-    </div>
-    <h4>
-      <span
-        class="badge badge-pill badge-secondary float-right"
-        v-if="model.type"
-      >
-        {{ model.type.map((t) => t.name).join(",") }}
-      </span>
-    </h4>
-    <h1>
-      {{ modelAcronym }}
-      <br />
-      {{ model.name }}
-    </h1>
+    <ResourceHeader
+      header-css="bg-secondary text-white"
+      table-name="Models"
+      :resource="model"
+    />
     <MessageError v-if="error">{{ error }}</MessageError>
     <a v-if="model.website" :href="model.website">{{ model.website }}</a>
     <p v-else>Website: N/A</p>
@@ -75,6 +59,7 @@ import DatabankList from "../components/DatabankList";
 import NetworkList from "../components/NetworkList";
 import InstitutionList from "../components/InstitutionList";
 import PartnersList from "../components/PartnersList";
+import ResourceHeader from "../components/ResourceHeader";
 
 export default {
   components: {
@@ -87,6 +72,7 @@ export default {
     ReadMore,
     InputSelect,
     NavTabs,
+    ResourceHeader,
   },
   props: {
     acronym: String,

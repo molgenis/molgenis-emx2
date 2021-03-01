@@ -3,7 +3,7 @@
     <ResourceHeader
       :resource="databank"
       headerCss="bg-danger text-white"
-      table-name="Databank"
+      table-name="Databanks"
     />
     <MessageError v-if="error">{{ error }}</MessageError>
     <hr class="border-danger" />

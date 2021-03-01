@@ -3,7 +3,7 @@
     <ResourceHeader
       :resource="datasource"
       headerCss="bg-warning text-dark"
-      table-name="Datasource"
+      table-name="Datasources"
     />
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="row">

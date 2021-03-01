@@ -2,8 +2,8 @@
   <div class="container bg-white">
     <ResourceHeader
       :resource="network"
-      headerCss="bg-success text-white"
-      table-name="Network"
+      headerCss="bg-primary text-white"
+      table-name="Networks"
     />
     <div class="row">
       <div class="col">

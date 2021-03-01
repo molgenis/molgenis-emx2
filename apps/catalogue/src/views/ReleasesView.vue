@@ -4,7 +4,9 @@
       <h6>
         <RouterLink to="/" class="text-white"> home</RouterLink>
         /
-        <RouterLink to="/releases" class="text-white"> releases</RouterLink>
+        <RouterLink to="/list/Releases" class="text-white">
+          releases
+        </RouterLink>
         /
       </h6>
     </div>

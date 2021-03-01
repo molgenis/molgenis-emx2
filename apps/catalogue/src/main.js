@@ -12,6 +12,10 @@ import ModelView from "./views/ModelView";
 import ResourceListView from "./views/ResourceListView";
 import AffiliationView from "./views/AffiliationView";
 import ContactView from "./views/ContactView";
+import StudiesView from "./views/StudiesView";
+import VariableView from "./views/VariableView";
+import VariableMappingsView from "./views/VariableMappingsView";
+import TableMappingsView from "./views/TableMappingsView";
 
 Vue.config.productionTip = false;
 
@@ -61,12 +65,6 @@ const router = new VueRouter({
       props: true,
     },
     {
-      name: "table",
-      path: "/tables/:acronym/:version/:tableName",
-      component: TableView,
-      props: true,
-    },
-    {
       name: "network",
       path: "/networks/:acronym",
       props: true,
@@ -83,6 +81,36 @@ const router = new VueRouter({
       path: "/contacts/:name",
       props: true,
       component: ContactView,
+    },
+    {
+      name: "studie",
+      path: "/studies/:acronym",
+      props: true,
+      component: StudiesView,
+    },
+    {
+      name: "variable",
+      path: "/variables/:acronym/:version/:name",
+      props: true,
+      component: VariableView,
+    },
+    {
+      name: "table",
+      path: "/tables/:acronym/:version/:name",
+      component: TableView,
+      props: true,
+    },
+    {
+      name: "variablemapping",
+      path: "/variablemappings/:acronym/:version/:name",
+      props: true,
+      component: VariableMappingsView,
+    },
+    {
+      name: "tablemapping",
+      path: "/tablemappings/:acronym/:version/:name",
+      props: true,
+      component: TableMappingsView,
     },
   ],
 });

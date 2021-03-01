@@ -3,7 +3,7 @@
     <ResourceHeader
       :resource="institution"
       header-css="bg-info text-white"
-      table-name="Institution"
+      table-name="Institutions"
     />
     <MessageError v-if="error">{{ error }}</MessageError>
     <hr class="border-info" />

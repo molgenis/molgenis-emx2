@@ -2,7 +2,7 @@
   <div class="container bg-white">
     <ResourceHeader
       header-css="bg-info text-white"
-      table-name="Affiliation"
+      table-name="Affiliations"
       :resource="affiliation"
     />
     <MessageError v-if="error">{{ error }}</MessageError>

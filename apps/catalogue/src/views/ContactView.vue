@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="container bg-white">
     <ResourceHeader
       header-css="bg-info text-white"
-      table-name="Contact"
+      table-name="Contacts"
       :resource="contact"
     />
     <MessageError v-if="error">{{ error }}</MessageError>
