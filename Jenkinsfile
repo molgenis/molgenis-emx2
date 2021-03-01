@@ -40,7 +40,9 @@ pipeline {
             stages {
                 stage('Build, Test [ master ]') {
                     steps {
-                        sh "./gradlew test --info"
+                        container('java') {
+                            sh "./gradlew test --info"
+                        }
                     }
                 }
             }
