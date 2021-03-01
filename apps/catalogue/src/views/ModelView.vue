@@ -25,15 +25,7 @@
       </div>
       <div class="col">
         <h6>Model releases</h6>
-        <ul v-if="model.releases">
-          <li v-for="r in model.releases" :key="r.resource.name + r.version">
-            <RouterLink
-              :to="{ name: 'release', params: { releaseAcronym: r.resource } }"
-              >{{ r.version }}
-            </RouterLink>
-          </li>
-        </ul>
-        <p v-else>N/A</p>
+        <ReleasesList :releases="model.releases" />
         <h6>Documentation</h6>
         <ul v-if="model.documentation">
           <li v-for="p in model.documentation" :key="p.name">{{ p.name }}</li>
@@ -60,9 +52,11 @@ import NetworkList from "../components/NetworkList";
 import InstitutionList from "../components/InstitutionList";
 import PartnersList from "../components/PartnersList";
 import ResourceHeader from "../components/ResourceHeader";
+import ReleasesList from "../components/ReleasesList";
 
 export default {
   components: {
+    ReleasesList,
     PartnersList,
     InstitutionList,
     NetworkList,
@@ -88,7 +82,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},releases{resource{name},version}}}`,
+        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},releases{resource{acronym,name},version}}}`,
         {
           acronym: this.acronym,
         }
