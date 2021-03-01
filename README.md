@@ -379,3 +379,4 @@ P.S. sometimes it help to reset gradle cache and stop the gradle daemon
 rm -rf $HOME/.gradle/
 
 If you want to delete all schemas in database use molgenis-emx2-sql/test/java/.../AToolToCleanDatabase
+
