@@ -63,7 +63,7 @@
         <p class="text-left">Researchers, data managers,</p>
       </RouterLink>
       <RouterLink to="list/Affiliations" class="btn btn-info col-2">
-        <span class="badge badge-light">{{ institutions }}</span>
+        <span class="badge badge-light">{{ affiliations }}</span>
         <h3>Affiliations</h3>
         <p class="text-left">Departments, divisions and research groups.</p>
       </RouterLink>
@@ -146,13 +146,14 @@ export default {
       variableMappings: null,
       tableMappings: null,
       studies: null,
+      affiliations: null,
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query {Institutions_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
+        `query {Institutions_agg{count}, Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Affiliations_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
       )
         .then((data) => {
           this.institutions = data.Institutions_agg.count;
@@ -166,6 +167,7 @@ export default {
           this.variableMappings = data.VariableMappings_agg.count;
           this.tableMappings = data.TableMappings_agg.count;
           this.studies = data.Studies_agg.count;
+          this.affiliations = data.Affiliations_agg.count;
         })
         .catch((error) => {
           this.error = error.response.errors[0].message;
