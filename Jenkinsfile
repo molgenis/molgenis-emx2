@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'molgenis-jdk11'
+            label 'molgenis-jdk13'
         }
     }
     environment {
@@ -36,11 +36,6 @@ pipeline {
         stage('Steps [ master ]') {
             when {
                 branch 'master'
-            }
-            agent {
-                kubernetes {
-                    label('molgenis-jdk13')
-                }
             }
             stages {
                 stage('Build, Test [ master ]') {
