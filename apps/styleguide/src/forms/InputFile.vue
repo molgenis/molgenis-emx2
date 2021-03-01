@@ -51,8 +51,8 @@
       </div>
     </div>
     <div v-for="val in arrayValue" :key="JSON.stringify(val)">
-      <a v-if="val.url" :href="val.url">
-        Previous value: logo.{{ val.extension }}
+      <a v-if="val && val.url" :href="val.url">
+        Previous value: {{ name }}.{{ val.extension }}
       </a>
     </div>
     <br />
