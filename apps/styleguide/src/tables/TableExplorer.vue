@@ -3,10 +3,12 @@
     <div v-if="columns" class="h-100 overflow-auto">
       <MessageError v-if="error">{{ error }}</MessageError>
       <div class="bg-white">
-        <h1 class="pl-2">
+        <h1 v-if="showHeader" class="pl-2">
           {{ table }}
         </h1>
-        <p class="pl-2" v-if="tableMetadata">{{ tableMetadata.description }}</p>
+        <p class="pl-2" v-if="showHeader && tableMetadata">
+          {{ tableMetadata.description }}
+        </p>
         <div
           class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
         >
@@ -217,6 +219,10 @@ export default {
     showSelect: {
       type: Boolean,
       default: () => false,
+    },
+    showHeader: {
+      type: Boolean,
+      default: () => true,
     },
   },
   data() {
