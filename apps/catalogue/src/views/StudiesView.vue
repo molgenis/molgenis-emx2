@@ -8,16 +8,15 @@
     <MessageError v-if="error">{{ error }}</MessageError>
     <div class="row">
       <div class="col">
-        <h6>Provider</h6>
-        <InstitutionList :institutions="study.provider" />
-        <h6>Partners</h6>
-        <PartnersList :partners="study.partners" />
         <h6>Datasources involved</h6>
         <DatasourceList :datasources="study.datasources" />
         <h6>Databanks involved</h6>
         <DatabankList :databanks="study.databanks" />
         <h6>Funding</h6>
         <p>{{ study.funding ? study.funding : "N/A" }}</p>
+      </div>
+      <div class="col">
+        <ResourceContext :resource="study" />
       </div>
     </div>
   </div>
@@ -32,9 +31,13 @@ import DatabankList from "../components/DatabankList";
 import DatasourceList from "../components/DatasourceList";
 import PartnersList from "../components/PartnersList";
 import ResourceHeader from "../components/ResourceHeader";
+import ContributorList from "../components/ContributorList";
+import ResourceContext from "../components/ResourceContext";
 
 export default {
   components: {
+    ResourceContext,
+    ContributorList,
     DatasourceList,
     InstitutionList,
     DatabankList,

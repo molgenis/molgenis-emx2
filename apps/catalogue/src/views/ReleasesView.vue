@@ -15,37 +15,24 @@
         release.version
       }})
     </h1>
-    <h6>Resource:</h6>
-    <RouterLink
-      v-if="release.resource.mg_tableclass.includes('Network')"
-      :to="{
-        name: 'network',
-        params: { projectAcronym: release.resource.acronym },
-      }"
-      >{{ release.resource.acronym }} -
-      {{ release.resource.name }}
-    </RouterLink>
-    <RouterLink
-      v-if="release.resource.mg_tableclass.includes('Databank')"
-      :to="{
-        name: 'databank',
-        params: { databankAcronym: release.resource.acronym },
-      }"
-      >{{ release.resource.acronym }} -
-      {{ release.resource.name }}
-    </RouterLink>
-    <RouterLink
-      v-if="release.resource.mg_tableclass.includes('Model')"
-      :to="{
-        name: 'model',
-        params: { modelAcronym: release.resource.acronym },
-      }"
-      >{{ release.resource.acronym }} -
-      {{ release.resource.name }}
-    </RouterLink>
+    <h6>{{ resourceType }}</h6>
+    <p>
+      <RouterLink
+        :to="{
+          name: resourceType.toLowerCase(),
+          params: { acronym: release.resource.acronym },
+        }"
+        >{{ release.resource.acronym }} -
+        {{ release.resource.name }}
+      </RouterLink>
+    </p>
+    <h6>Release</h6>
+    <p>{{ release.version }}</p>
+    <h6>Tables in this release</h6>
     <div class="mt-4">
       <TableExplorer
         table="Tables"
+        :showHeader="false"
         :filter="{
           release: {
             version: { equals: version },
@@ -53,16 +40,6 @@
           },
         }"
         @click="openTable"
-      />
-      <TableExplorer
-        table="Variables"
-        :filter="{
-          release: {
-            version: { equals: version },
-            resource: { acronym: { equals: acronym } },
-          },
-        }"
-        @click="openVariable(row)"
       />
     </div>
   </div>
@@ -86,6 +63,13 @@ export default {
       release: null,
     };
   },
+  computed: {
+    resourceType() {
+      if (this.release) {
+        return this.release.resource.mg_tableclass.split(".")[1].slice(0, -1);
+      }
+    },
+  },
   methods: {
     openTable(row) {
       this.$router.push({
@@ -93,12 +77,9 @@ export default {
         params: {
           acronym: this.acronym,
           version: this.version,
-          tableName: row.name,
+          name: row.name,
         },
       });
-    },
-    openVariable() {
-      alert("todo implement");
     },
     reload() {
       console.log(this.version + " " + this.resourceAcronym);

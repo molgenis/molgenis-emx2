@@ -8,7 +8,7 @@
       </div>
       <div v-else>
         <div class="container-fluid">
-          <RouterView />
+          <RouterView :key="$route.fullPath" />
         </div>
       </div>
     </Molgenis>

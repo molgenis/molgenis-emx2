@@ -18,14 +18,7 @@
         <p>{{ datasource.statistics ? datasource.statistics : "N/A" }}</p>
       </div>
       <div class="col">
-        <h6>Provider</h6>
-        <InstitutionList :institutions="datasource.provider" />
-        <h6>Contact</h6>
-        <ContactList :contacts="datasource.contact" />
-        <h6>Networks</h6>
-        <NetworkList :networks="datasource.networks" />
-        <h6>Contributors</h6>
-        <p>{{ datasource.contacts ? datasource.contacts : "N/A" }}</p>
+        <ResourceContext :resource="datasource" />
       </div>
     </div>
   </div>
@@ -44,14 +37,13 @@ import DatabankList from "../components/DatabankList";
 import InstitutionList from "../components/InstitutionList";
 import ResourceHeader from "../components/ResourceHeader";
 import NetworkList from "../components/NetworkList";
-import ContactList from "../components/ContactList";
 import OntologyTerms from "../components/OntologyTerms";
+import ResourceContext from "../components/ResourceContext";
 
 export default {
   components: {
+    ResourceContext,
     OntologyTerms,
-    ContactList,
-    NetworkList,
     ResourceHeader,
     MessageError,
     ReadMore,
@@ -60,6 +52,7 @@ export default {
     NavTabs,
     DatabankList,
     InstitutionList,
+    NetworkList,
   },
   props: {
     acronym: String,

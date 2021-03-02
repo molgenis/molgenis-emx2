@@ -7,8 +7,6 @@
     />
     <div class="row">
       <div class="col">
-        <h6>Provider</h6>
-        <InstitutionList :institutions="network.provider" />
         <h6>Partners</h6>
         <PartnersList :partners="network.partners" />
         <h6>Datasources involved</h6>
@@ -19,12 +17,7 @@
         <p>{{ network.funding ? network.funding : "N/A" }}</p>
       </div>
       <div class="col">
-        <h6>Releases</h6>
-        <ReleasesList :releases="network.releases" />
-        <h6>Documentation</h6>
-        <DocumentationList :documentation="network.documentation" />
-        <h6>Publications</h6>
-        <PublicationList :publications="network.publications" />
+        <ResourceContext :resource="network" />
       </div>
     </div>
   </div>
@@ -48,9 +41,11 @@ import DatasourceList from "../components/DatasourceList";
 import DatabankList from "../components/DatabankList";
 import ReleasesList from "../components/ReleasesList";
 import DocumentationList from "../components/DocumentationList";
+import ResourceContext from "../components/ResourceContext";
 
 export default {
   components: {
+    ResourceContext,
     DocumentationList,
     ReleasesList,
     DatabankList,

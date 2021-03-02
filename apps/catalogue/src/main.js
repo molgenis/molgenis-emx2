@@ -90,7 +90,7 @@ const router = new VueRouter({
     },
     {
       name: "variable",
-      path: "/variables/:acronym/:version/:name",
+      path: "/variables/:acronym/:version/:table/:name",
       props: true,
       component: VariableView,
     },

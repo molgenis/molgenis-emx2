@@ -24,15 +24,7 @@
         <p>{{ model.funding ? model.funding : "N/A" }}</p>
       </div>
       <div class="col">
-        <h6>Model releases</h6>
-        <ReleasesList :releases="model.releases" />
-        <h6>Documentation</h6>
-        <ul v-if="model.documentation">
-          <li v-for="p in model.documentation" :key="p.name">{{ p.name }}</li>
-        </ul>
-        <p v-else>N/A</p>
-        <h6>Publications</h6>
-        <p>{{ model.publications ? model.publications : "N/A" }}</p>
+        <ResourceContext :resource="model" />
       </div>
     </div>
   </div>
@@ -53,6 +45,7 @@ import InstitutionList from "../components/InstitutionList";
 import PartnersList from "../components/PartnersList";
 import ResourceHeader from "../components/ResourceHeader";
 import ReleasesList from "../components/ReleasesList";
+import ResourceContext from "../components/ResourceContext";
 
 export default {
   components: {
@@ -67,6 +60,7 @@ export default {
     InputSelect,
     NavTabs,
     ResourceHeader,
+    ResourceContext,
   },
   props: {
     acronym: String,

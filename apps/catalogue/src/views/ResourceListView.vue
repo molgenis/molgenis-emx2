@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container bg-white">
     <div class="p-2 mb-2" :class="headerCss">
       <h6>
         <RouterLink to="/" :class="headerCss"> home</RouterLink>
@@ -48,12 +48,22 @@ export default {
   methods: {
     openDetailView(row) {
       // in case of table
-      if (this.tableName == "Tables" || this.tableName == "Variables") {
+      if (this.tableName == "Tables") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
             acronym: row.release.resource.acronym,
             version: row.release.version,
+            name: row.name,
+          },
+        });
+      } else if (this.tableName == "Variables") {
+        this.$router.push({
+          name: this.detailRouteName,
+          params: {
+            acronym: row.release.resource.acronym,
+            version: row.release.version,
+            table: row.table.name,
             name: row.name,
           },
         });

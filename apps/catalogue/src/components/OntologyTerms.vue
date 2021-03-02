@@ -1,6 +1,6 @@
 <template>
   <span
-    v-if="terms"
+    v-if="terms && terms[0] != null"
     class="pb-2 mb-2"
     :style="
       inline ? 'font-size: small; vertical-align: super;' : 'display:block;'
@@ -29,7 +29,7 @@
       </div>
     </span>
   </span>
-  <p v-else-if="!inline">N/A</p>
+  <p v-else-if="inline == false">N/A</p>
 </template>
 
 <script>

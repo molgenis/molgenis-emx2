@@ -9,6 +9,8 @@
     <hr class="border-danger" />
     <div class="row">
       <div class="col">
+        <h6 v-if="databank.datasource">Part of datasource</h6>
+        <DatasourceList :datasources="[databank.datasource]" />
         <h6>Population</h6>
         <OntologyTerms :terms="databank.population" color="danger" />
         <h6>Inclusion criteria</h6>
@@ -17,8 +19,6 @@
         <p>{{ databank.topics ? databank.topics : "N/A" }}</p>
         <h6>Number of participants:</h6>
         <p>{{ databank.noParticipants ? databank.noParticipants : "N/A" }}</p>
-        <h6>Part of datasource</h6>
-        <DatasourceList :datasources="databank.datasources" />
         <hr class="border-danger" />
         <h6>Orginator</h6>
         <p>{{ databank.originator ? databank.originator : "N/A" }}</p>
@@ -41,20 +41,7 @@
         <Conditions :resource="databank" />
       </div>
       <div class="col">
-        <h6>Provider</h6>
-        <InstitutionList :institutions="databank.provider" />
-        <h6>Contact</h6>
-        <ContactList :contacts="databank.contact" />
-        <h6>Documentation</h6>
-        <DocumentationList :documentation="databank.documentation" />
-        <h6>Data releases</h6>
-        <ReleasesList :releases="databank.releases" />
-        <h6>Contributors</h6>
-        <ContributorList :contributors="databank.contributors" color="danger" />
-        <h6>Networks</h6>
-        <NetworkList :networks="databank.networks" />
-        <h6>Publications</h6>
-        <PublicationList :publications="databank.publications" />
+        <ResourceContext :resource="databank" />
       </div>
     </div>
   </div>
@@ -80,9 +67,11 @@ import DatasourceList from "../components/DatasourceList";
 import NetworkList from "../components/NetworkList";
 import Conditions from "../components/Conditions";
 import ContributorList from "../components/ContributorList";
+import ResourceContext from "../components/ResourceContext";
 
 export default {
   components: {
+    ResourceContext,
     NetworkList,
     DatasourceList,
     ContactList,
