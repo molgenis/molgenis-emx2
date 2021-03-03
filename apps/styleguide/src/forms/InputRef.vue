@@ -168,6 +168,10 @@ export default {
       return result;
     },
   },
+  created() {
+    this.limit = 8;
+    this.reloadMetadata();
+  },
 };
 </script>
 
