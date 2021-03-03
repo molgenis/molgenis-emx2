@@ -33,18 +33,18 @@
     </div>
     <h2>Data use</h2>
     <div class="row justify-content-around mt-4 mb-4">
-      <RouterLink to="/list/Models" class="btn btn-secondary col-3">
-        <span class="badge badge-light">{{ models }}</span>
-        <h3>Common Models</h3>
-        <p class="text-left">
-          Common Data Element models and Harmonisation models
-        </p>
-      </RouterLink>
       <RouterLink to="/list/Networks" class="btn btn-primary col-3">
         <span class="badge badge-light">{{ networks }}</span>
         <h3>Networks</h3>
         <p class="text-left">
           Collaborations of multiple intitutions, datasources and/or databanks.
+        </p>
+      </RouterLink>
+      <RouterLink to="/list/Models" class="btn btn-secondary col-3">
+        <span class="badge badge-light">{{ models }}</span>
+        <h3>Common Models</h3>
+        <p class="text-left">
+          Common Data Element models and Harmonisation models
         </p>
       </RouterLink>
       <RouterLink to="/list/Studies" class="btn btn-success col-3">

@@ -57,6 +57,21 @@ export default {
             name: row.name,
           },
         });
+      } else if (
+        this.tableName == "TableMappings" ||
+        this.tableName == "VariableMappings"
+      ) {
+        this.$router.push({
+          name: "tablemapping",
+          params: {
+            fromAcronym: row.fromRelease.resource.acronym,
+            fromVersion: row.fromRelease.version,
+            fromTable: row.fromTable.name,
+            toAcronym: row.toRelease.resource.acronym,
+            toVersion: row.toRelease.version,
+            toTable: row.toTable.name,
+          },
+        });
       } else if (this.tableName == "Variables") {
         this.$router.push({
           name: this.detailRouteName,

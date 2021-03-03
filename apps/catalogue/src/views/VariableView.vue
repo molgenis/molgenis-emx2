@@ -12,8 +12,45 @@
           /
         </h6>
       </div>
-      <h4>Variable:</h4>
-      <h1>{{ variable.name }}</h1>
+      <h6 class="d-inline">{{ resourceType }}&nbsp;</h6>
+      <RouterLink
+        :to="{
+          name: resourceType.toLowerCase(),
+          params: {
+            acronym: variable.release.resource.acronym,
+          },
+        }"
+        >{{ variable.release.resource.acronym }}
+      </RouterLink>
+      /
+      <h6 class="d-inline">Release</h6>
+      <RouterLink
+        :to="{
+          name: 'release',
+          params: {
+            acronym: variable.release.resource.acronym,
+            version: variable.release.version,
+          },
+        }"
+      >
+        {{ variable.release.version }}
+      </RouterLink>
+      /
+      <h6 class="d-inline">Table name</h6>
+      <RouterLink
+        :to="{
+          name: 'table',
+          params: {
+            acronym: variable.release.resource.acronym,
+            name: variable.table.name,
+            version: variable.release.version,
+          },
+        }"
+      >
+        {{ variable.table.name }}
+      </RouterLink>
+
+      <h1>Variable: {{ variable.name }}</h1>
       <div class="row">
         <div class="col">
           <h6>Variable name</h6>
@@ -80,59 +117,13 @@
           </table>
           <p v-else>N/A</p>
         </div>
-        <div class="col">
-          <h6>{{ resourceType }}</h6>
-          <p>
-            <RouterLink
-              :to="{
-                name: resourceType.toLowerCase(),
-                params: {
-                  acronym: variable.release.resource.acronym,
-                },
-              }"
-              >{{ variable.release.resource.acronym }} -
-              {{ variable.release.resource.name }}
-            </RouterLink>
-          </p>
-          <p></p>
-          <h6>Release</h6>
-          <p>
-            <RouterLink
-              :to="{
-                name: 'release',
-                params: {
-                  acronym: variable.release.resource.acronym,
-                  version: variable.release.version,
-                },
-              }"
-            >
-              {{ variable.release.version }}
-            </RouterLink>
-          </p>
-          <h6>Table name</h6>
-          <p>
-            <RouterLink
-              :to="{
-                name: 'table',
-                params: {
-                  acronym: variable.release.resource.acronym,
-                  name: variable.table.name,
-                  version: variable.release.version,
-                },
-              }"
-            >
-              {{ variable.table.name }}
-            </RouterLink>
-          </p>
-        </div>
+        <div class="col"></div>
       </div>
 
       <h6>Mappings</h6>
       <table v-if="variable.mappings" class="table table-sm table-bordered">
         <thead>
           <tr>
-            <th>from</th>
-            <th>fromVersion</th>
             <th>fromTable</th>
             <th>fromVariables</th>
             <th>match</th>
@@ -145,46 +136,28 @@
             <td>
               <RouterLink
                 :to="{
-                  name: getType(
-                    m.fromRelease.resource.mg_tableclass
-                  ).toLowerCase(),
-                  params: { acronym: m.fromRelease.resource.acronym },
-                }"
-                >{{ m.fromRelease.resource.acronym }}
-              </RouterLink>
-            </td>
-            <td>
-              <RouterLink
-                :to="{
-                  name: 'release',
+                  name: 'tablemapping',
                   params: {
-                    acronym: m.fromRelease.resource.acronym,
-                    version: m.fromRelease.version,
+                    fromAcronym: m.fromRelease.resource.acronym,
+                    fromVersion: m.fromRelease.version,
+                    fromTable: m.fromTable.name,
+                    toAcronym: variable.release.resource.acronym,
+                    toVersion: variable.release.version,
+                    toTable: variable.table.name,
                   },
                 }"
               >
-                {{ m.fromRelease.version }}
+                {{ getType(m.fromRelease.resource.mg_tableclass) }}:
+                {{ m.fromRelease.resource.acronym }}
+                {{ m.fromRelease.version }}, table: {{ m.fromTable.name }}
               </RouterLink>
             </td>
-            <td>
-              <RouterLink
-                :to="{
-                  name: 'table',
-                  params: {
-                    acronym: m.fromRelease.resource.acronym,
-                    version: m.fromRelease.version,
-                    name: m.fromTable.name,
-                  },
-                }"
-              >
-                {{ m.fromTable.name }}
-              </RouterLink>
-            </td>
+
             <td>
               <div v-for="v in m.fromVariable" :key="v.name">
                 <RouterLink
                   :to="{
-                    name: 'variable',
+                    name: 'tablemapping',
                     params: {
                       acronym: m.fromRelease.resource.acronym,
                       version: m.fromRelease.version,

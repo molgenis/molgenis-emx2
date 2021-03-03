@@ -11,52 +11,81 @@
         /
       </h6>
     </div>
-
-    <h4>Table:</h4>
-    <h1>{{ table.name }}</h1>
+    <h6 class="d-inline">{{ resourceType }}:&nbsp;</h6>
+    <RouterLink
+      :to="{
+        name: resourceType.toLowerCase(),
+        params: { acronym: acronym },
+      }"
+      >{{ table.release.resource.acronym }}
+    </RouterLink>
+    /
+    <h6 class="d-inline">Release</h6>
+    <RouterLink
+      :to="{
+        name: 'release',
+        params: { acronym: acronym, version: version },
+      }"
+    >
+      {{ table.release.version }}
+    </RouterLink>
+    <h1>Table: {{ table.name }}</h1>
     <p>{{ table.description ? table.description : "Description: N/A" }}</p>
+
     <MessageError v-if="error"> {{ error }}</MessageError>
     <div class="row">
       <div class="col">
         <h6>Topics</h6>
         <OntologyTerms :terms="table.topics" color="dark" />
       </div>
-      <div class="col">
-        <h6>{{ resourceType }}</h6>
-        <RouterLink
-          :to="{
-            name: resourceType.toLowerCase(),
-            params: { acronym: acronym },
-          }"
-          >{{ table.release.resource.acronym }}
-        </RouterLink>
-        <h6>Release</h6>
-        <RouterLink
-          :to="{
-            name: 'release',
-            params: { acronym: acronym, version: version },
-          }"
-        >
-          {{ table.release.version }}
-        </RouterLink>
-      </div>
     </div>
-    <nav>
-      <div class="nav nav-tabs">
-        <a
-          class="nav-item nav-link"
-          :class="{ 'active grey': tab == 'Variables' }"
-          @click="tab = 'Variables'"
-          ><h6>Variables</h6></a
+    <h6>Mappings/ETLs</h6>
+    <ul v-if="table.mappings || table.mappingsTo">
+      <li v-for="m in table.mappings">
+        From:
+        <RouterLink
+          :to="{
+            name: 'tablemapping',
+            params: {
+              fromAcronym: m.fromRelease.resource.acronym,
+              fromVersion: m.fromRelease.version,
+              fromTable: m.fromTable.name,
+              toAcronym: table.release.resource.acronym,
+              toVersion: table.release.version,
+              toTable: table.name,
+            },
+          }"
         >
-        <a
-          class="nav-item nav-link border"
-          :class="{ 'active grey': tab == 'Mappings' }"
-          @click="tab = 'Mappings'"
-          ><h6>Mappings</h6></a
+          {{ getType(m.fromRelease.resource.mg_tableclass) }}:
+          {{ m.fromRelease.resource.acronym }} - Version:
+          {{ m.fromRelease.version }} - Table:
+          {{ m.fromTable.name }}
+        </RouterLink>
+      </li>
+      <li v-for="m in table.mappingsTo">
+        To:
+        <RouterLink
+          :to="{
+            name: 'tablemapping',
+            params: {
+              toAcronym: m.toRelease.resource.acronym,
+              toVersion: m.toRelease.version,
+              toTable: m.toTable.name,
+              fromAcronym: table.release.resource.acronym,
+              fromVersion: table.release.version,
+              fromTable: table.name,
+            },
+          }"
         >
-      </div>
-    </nav>
+          {{ getType(m.toRelease.resource.mg_tableclass) }}:
+          {{ m.toRelease.resource.acronym }} - Version:
+          {{ m.toRelease.version }} - Table:
+          {{ m.toTable.name }}
+        </RouterLink>
+      </li>
+    </ul>
+    <p v-else>N/A</p>
+    <h6>Variables</h6>
     <TableExplorer
       v-if="tab == 'Variables'"
       table="Variables"
@@ -70,66 +99,6 @@
       }"
       @click="openVariable"
     />
-    <div v-else>
-      <table v-if="table.mappings" class="table table-sm table-bordered">
-        <thead>
-          <tr>
-            <th>from</th>
-            <th>fromVersion</th>
-            <th>fromTable</th>
-            <th>description</th>
-            <th>syntax</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="m in table.mappings">
-            <td>
-              <RouterLink
-                :to="{
-                  name: getType(
-                    m.fromRelease.resource.mg_tableclass
-                  ).toLowerCase(),
-                  params: { acronym: m.fromRelease.resource.acronym },
-                }"
-                >{{ m.fromRelease.resource.acronym }}
-              </RouterLink>
-            </td>
-            <td>
-              <RouterLink
-                :to="{
-                  name: 'release',
-                  params: {
-                    acronym: m.fromRelease.resource.acronym,
-                    version: m.fromRelease.version,
-                  },
-                }"
-              >
-                {{ m.fromRelease.version }}
-              </RouterLink>
-            </td>
-            <td>
-              <RouterLink
-                :to="{
-                  name: 'table',
-                  params: {
-                    acronym: m.fromRelease.resource.acronym,
-                    version: m.fromRelease.version,
-                    name: m.fromTable.name,
-                  },
-                }"
-              >
-                {{ m.fromTable.name }}
-              </RouterLink>
-            </td>
-            <td>{{ m.description }}</td>
-            <td>
-              <pre>{{ m.syntax }}</pre>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else>N/A</p>
-    </div>
   </div>
 </template>
 <script>
@@ -188,7 +157,9 @@ export default {
         "graphql",
         `query Tables($acronym:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{acronym:{equals:[$acronym]}}},name:{equals:[$name]}})
         {name,release{version,resource{acronym,name,mg_tableclass}},topics{name,ontologyTermURI,definition}, description,label,topics{name}
-        mappings{description,syntax,fromRelease{resource{acronym,mg_tableclass}version}fromTable{name}}}}`,
+        mappings{fromRelease{resource{acronym,mg_tableclass}version}fromTable{name}}
+         mappingsTo{toRelease{resource{acronym,mg_tableclass}version}toTable{name}}
+         }}`,
         {
           acronym: this.acronym,
           version: this.version,

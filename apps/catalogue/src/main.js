@@ -108,7 +108,8 @@ const router = new VueRouter({
     },
     {
       name: "tablemapping",
-      path: "/tablemappings/:acronym/:version/:name",
+      path:
+        "/tablemappings/:fromAcronym/:fromVersion/:fromTable/:toAcronym/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },
