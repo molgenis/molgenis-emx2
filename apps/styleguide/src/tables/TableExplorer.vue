@@ -224,6 +224,18 @@ export default {
       type: Boolean,
       default: () => true,
     },
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showColumns: {
+      type: Array,
+      default: () => [],
+    },
+    showCards: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -321,6 +333,18 @@ export default {
         this.columns.push(
           ...this.tableMetadata.columns.filter((c) => c.name != "mg_tableclass")
         );
+        //init settings
+        this.columns.forEach((c) => {
+          if (this.showColumns.length > 0 && this.showColumns.includes(c.name))
+            c.showColumn = true;
+          else c.showColumn = false;
+          if (this.showFilters.length > 0 && this.showFilters.includes(c.name))
+            c.showFilter = true;
+          else c.showFilter = false;
+        });
+        if (this.showCards) {
+          this.layoutTable = false;
+        }
       }
     },
   },
@@ -334,7 +358,8 @@ example (graphqlURL is usually not needed because app is served on right path)
   <div>
     <Molgenis v-model="session">
       <TableExplorer v-if="session && session.roles && session.roles.includes('Viewer')" :session="session"
-                     table="Variables" graphqlURL="/CohortsCentral/graphql"
+                     table="Variables" :showColumns="['name']" :showFilters="['table']" :showCards="true"
+                     graphqlURL="/CohortsCentral/graphql"
                      :showSelect="false" @click="click"/>
       <div v-else>Please sign in.</div>
     </Molgenis>
