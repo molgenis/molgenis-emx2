@@ -90,6 +90,9 @@
       v-if="tab == 'Variables'"
       table="Variables"
       :showHeader="false"
+      :showFilters="['topics', 'format']"
+      :showColumns="['name', 'label', 'format', 'unit', 'mandatory', 'topics']"
+      :showCards="true"
       :filter="{
         table: { name: { equals: name } },
         release: {
