@@ -69,7 +69,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}databanks{acronym,name},provider{acronym,name} description,homepage}}`,
+        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}databanks{acronym,name},provider{acronym,name} description,homepage}}`,
         {
           acronym: this.acronym,
         }
