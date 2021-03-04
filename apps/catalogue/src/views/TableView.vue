@@ -37,6 +37,8 @@
       <div class="col">
         <h6>Topics</h6>
         <OntologyTerms :terms="table.topics" color="dark" />
+        <h6>Unit of observation</h6>
+        <OntologyTerms :terms="[table.unitOfObservation]" color="dark" />
       </div>
     </div>
     <h6>Mappings/ETLs</h6>
@@ -159,7 +161,7 @@ export default {
       request(
         "graphql",
         `query Tables($acronym:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{acronym:{equals:[$acronym]}}},name:{equals:[$name]}})
-        {name,release{version,resource{acronym,name,mg_tableclass}},topics{name,ontologyTermURI,definition}, description,label,topics{name}
+        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{acronym,name,mg_tableclass}},topics{name,ontologyTermURI,definition}, description,label,topics{name}
         mappings{fromRelease{resource{acronym,mg_tableclass}version}fromTable{name}}
          mappingsTo{toRelease{resource{acronym,mg_tableclass}version}toTable{name}}
          }}`,
