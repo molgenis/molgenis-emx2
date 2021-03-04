@@ -1,12 +1,18 @@
 <template>
-  <div class="container bg-white">
+  <div class="bg-white">
     <div class="p-2 mb-2" :class="headerCss">
       <h6>
         <RouterLink to="/" :class="headerCss"> home</RouterLink>
         /
       </h6>
     </div>
-    <TableExplorer :table="tableName" @click="openDetailView" />
+    <TableExplorer
+      :showColumns="defaultColumns"
+      :showFilters="defaultFilters"
+      :table="tableName"
+      :showCards="defaultCards"
+      @click="openDetailView"
+    />
   </div>
 </template>
 
@@ -43,6 +49,64 @@ export default {
     detailRouteName() {
       //detailRoute is name of table minus trailing 's'
       return this.tableName.toLowerCase().slice(0, -1);
+    },
+    defaultCards() {
+      if (this.tableName == "Institutions") {
+        return true;
+      }
+      return false;
+    },
+    defaultColumns() {
+      if (this.tableName == "Institutions") {
+        return ["name", "acronym", "type", "country"];
+      } else if (
+        ["Datasources", "Databanks", "Networks", "Models"].includes(
+          this.tableName
+        )
+      ) {
+        return ["name", "acronym", "type", "provider"];
+      } else if (this.tableName == "Studies") {
+        return ["name", "network", "description", "contact"];
+      } else if (this.tableName == "Contacts") {
+        return [
+          "name",
+          "institution",
+          "affiliation",
+          "email",
+          "orcid",
+          "homepage",
+        ];
+      } else if (this.tableName == "Affiliations") {
+        return ["name", "homepage", "acronym"];
+      } else if (this.tableName == "Tables") {
+        return [
+          "release",
+          "name",
+          "label",
+          "unitOfObservation",
+          "topics",
+          "description",
+        ];
+      } else if (this.tableName == "Variables") {
+        return [
+          "release",
+          "table",
+          "name",
+          "label",
+          "format",
+          "unit",
+          "topics",
+          "description",
+          "mandatory",
+        ];
+      }
+      return [];
+    },
+    defaultFilters() {
+      if (this.tableName == "Institutions") {
+        return ["type", "country"];
+      }
+      return [];
     },
   },
   methods: {

@@ -6,7 +6,7 @@
       style="margin-top: -10px; margin-right: -10px"
       @click="scope.close"
     />
-    <div>
+    <div style="position: absolute; z-index: 1" class="bg-white">
       <h6>
         {{ label }}
       </h6>

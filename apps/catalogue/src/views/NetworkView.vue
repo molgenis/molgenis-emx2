@@ -7,8 +7,6 @@
     />
     <div class="row">
       <div class="col">
-        <h6>Partners</h6>
-        <PartnersList :partners="network.partners" />
         <h6>Datasources involved</h6>
         <DatasourceList :datasources="network.datasources" />
         <h6>Databanks involved</h6>

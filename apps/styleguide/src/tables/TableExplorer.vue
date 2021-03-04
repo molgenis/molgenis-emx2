@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-if="columns" class="h-100 overflow-auto">
+  <div class="h-100">
+    <div v-if="columns" clas="overflow-auto">
       <MessageError v-if="error">{{ error }}</MessageError>
       <div class="bg-white">
         <h1 v-if="showHeader" class="pl-2">
@@ -334,15 +334,17 @@ export default {
           ...this.tableMetadata.columns.filter((c) => c.name != "mg_tableclass")
         );
         // //init settings
-        // this.columns.forEach((c) => {
-        //   if (this.showColumns.length > 0 && this.showColumns.includes(c.name))
-        //     c.showColumn = true;
-        //   if (this.showColumns.length > 0 && this.showFilters.includes(c.name))
-        //     c.showFilter = true;
-        // });
-        // if (this.showCards) {
-        //   this.layoutTable = false;
-        // }
+        this.columns.forEach((c) => {
+          if (this.showColumns.length > 0 && !this.showColumns.includes(c.name))
+            c.showColumn = false;
+          else c.showColumn = true;
+          if (this.showColumns.length > 0 && this.showFilters.includes(c.name))
+            c.showFilter = true;
+          else c.showFilter = false;
+        });
+        if (this.showCards) {
+          this.layoutTable = false;
+        }
       }
     },
   },

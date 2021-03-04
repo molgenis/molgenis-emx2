@@ -6,10 +6,6 @@
       :resource="model"
     />
     <MessageError v-if="error">{{ error }}</MessageError>
-    <a v-if="model.website" :href="model.website">{{ model.website }}</a>
-    <p v-else>Website: N/A</p>
-    <p v-if="model.description">{{ model.description }}</p>
-    <p v-else>Description: N/A</p>
     <div class="row">
       <div class="col">
         <h6>Coordinator</h6>

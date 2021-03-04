@@ -92,7 +92,7 @@
       v-if="tab == 'Variables'"
       table="Variables"
       :showHeader="false"
-      :showFilters="['topics', 'format']"
+      :showFilters="['topics']"
       :showColumns="['name', 'label', 'format', 'unit', 'mandatory', 'topics']"
       :showCards="true"
       :filter="{
