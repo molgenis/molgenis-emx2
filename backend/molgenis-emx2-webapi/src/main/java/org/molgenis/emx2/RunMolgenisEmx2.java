@@ -16,6 +16,8 @@ public class RunMolgenisEmx2 {
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static void main(String[] args) {
+    logger.info("Starting MOLGENIS EMX2 Version=" + Version.getVersion());
+
     String url =
         (String)
             EnvironmentProperty.getParameter(
@@ -29,7 +31,6 @@ public class RunMolgenisEmx2 {
     Integer port =
         (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
 
-    logger.info("Starting MOLGENIS EMX2 Version=" + Version.getVersion());
     logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
     logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
     logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
