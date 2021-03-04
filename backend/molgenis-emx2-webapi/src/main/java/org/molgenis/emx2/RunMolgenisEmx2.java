@@ -11,6 +11,8 @@ import org.molgenis.emx2.web.MolgenisWebservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Pattern;
+
 public class RunMolgenisEmx2 {
 
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
@@ -40,6 +42,11 @@ public class RunMolgenisEmx2 {
             + "="
             + port
             + " (change either via java properties or via ENV variables)");
+
+    if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
+      logger.error("Error: invalid " + Constants.MOLGENIS_POSTGRES_URI + " string. Found :" + url);
+      return;
+    }
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
