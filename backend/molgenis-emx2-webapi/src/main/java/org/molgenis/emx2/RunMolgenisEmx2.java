@@ -4,7 +4,6 @@ import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.STRING;
 
 import com.zaxxer.hikari.HikariDataSource;
-import java.util.regex.Pattern;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
