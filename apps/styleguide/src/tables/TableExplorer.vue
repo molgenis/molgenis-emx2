@@ -333,18 +333,16 @@ export default {
         this.columns.push(
           ...this.tableMetadata.columns.filter((c) => c.name != "mg_tableclass")
         );
-        //init settings
-        this.columns.forEach((c) => {
-          if (this.showColumns.length > 0 && this.showColumns.includes(c.name))
-            c.showColumn = true;
-          else c.showColumn = false;
-          if (this.showFilters.length > 0 && this.showFilters.includes(c.name))
-            c.showFilter = true;
-          else c.showFilter = false;
-        });
-        if (this.showCards) {
-          this.layoutTable = false;
-        }
+        // //init settings
+        // this.columns.forEach((c) => {
+        //   if (this.showColumns.length > 0 && this.showColumns.includes(c.name))
+        //     c.showColumn = true;
+        //   if (this.showColumns.length > 0 && this.showFilters.includes(c.name))
+        //     c.showFilter = true;
+        // });
+        // if (this.showCards) {
+        //   this.layoutTable = false;
+        // }
       }
     },
   },
