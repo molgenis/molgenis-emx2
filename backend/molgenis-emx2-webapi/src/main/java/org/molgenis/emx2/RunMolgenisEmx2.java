@@ -30,11 +30,6 @@ public class RunMolgenisEmx2 {
     Integer port =
         (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
 
-    if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
-      logger.error("Error: invalid " + Constants.MOLGENIS_POSTGRES_URI + " string. Found :" + url);
-      return;
-    }
-
     logger.info("Starting MOLGENIS EMX2 Version=" + Version.getVersion());
     logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
     logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
