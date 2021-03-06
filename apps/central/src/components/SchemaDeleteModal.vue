@@ -23,19 +23,19 @@
     <!-- create schema -->
     <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
       <template v-slot:body>
-        <MessageError v-if="error">{{ error }}</MessageError>
+        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         Are you sure you want to delete schema '{{ schemaName }}'
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeDeleteSchema">Delete schema </ButtonAction>
+        <ButtonAction @click="executeDeleteSchema">Delete schema</ButtonAction>
       </template>
     </LayoutModal>
   </div>
 </template>
 
 <script>
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 import {
   ButtonAction,
@@ -45,7 +45,7 @@ import {
   LayoutModal,
   MessageError,
   MessageSuccess,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -57,17 +57,17 @@ export default {
     LayoutModal,
     LayoutForm,
     Spinner,
-    IconAction
+    IconAction,
   },
   props: {
-    schemaName: String
+    schemaName: String,
   },
-  data: function() {
+  data: function () {
     return {
       key: 0,
       loading: false,
-      error: null,
-      success: null
+      graphqlError: null,
+      success: null,
     };
   },
   computed: {
@@ -76,33 +76,34 @@ export default {
     },
     endpoint() {
       return "/api/graphql";
-    }
+    },
   },
   methods: {
     executeDeleteSchema() {
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       request(
         this.endpoint,
         `mutation deleteSchema($name:String){deleteSchema(name:$name){message}}`,
         {
-          name: this.schemaName
+          name: this.schemaName,
         }
       )
-        .then(data => {
+        .then((data) => {
           this.success = data.deleteSchema.message;
           this.loading = false;
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response.status === 403) {
-            this.error = error.message + "Forbidden. Do you need to login?";
+            this.graphqlError =
+              error.message + "Forbidden. Do you need to login?";
           } else {
-            this.error = error.response.errors[0].message;
+            this.graphqlError = error.response.errors[0].message;
           }
           this.loading = false;
         });
-    }
-  }
+    },
+  },
 };
 </script>

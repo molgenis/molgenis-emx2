@@ -1,5 +1,6 @@
 <template>
   <Spinner v-if="loading" />
+  <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
   <div v-else>
     <IconBar
       ><label>{{ count }} schemas found</label>
@@ -34,11 +35,18 @@
 </template>
 
 <script>
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 import SchemaCreateModal from "./SchemaCreateModal";
 import SchemaDeleteModal from "./SchemaDeleteModal";
-import {DataTable, IconAction, IconBar, IconDanger, ShowMore, Spinner} from "@mswertz/emx2-styleguide";
+import {
+  DataTable,
+  IconAction,
+  IconBar,
+  IconDanger,
+  ShowMore,
+  Spinner,
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
@@ -49,23 +57,24 @@ export default {
     IconBar,
     IconAction,
     IconDanger,
-    ShowMore
+    ShowMore,
   },
   props: {
-    session: Object
+    session: Object,
   },
-  data: function() {
+  data: function () {
     return {
       schemas: [],
       loading: false,
       showCreateSchema: false,
-      showDeleteSchema: false
+      showDeleteSchema: false,
+      graphqlError: null,
     };
   },
   computed: {
     count() {
       return this.schemas.length;
-    }
+    },
   },
   created() {
     this.getSchemaList();
@@ -91,12 +100,15 @@ export default {
     getSchemaList() {
       this.loading = true;
       request("graphql", "{Schemas{name}}")
-        .then(data => {
+        .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;
         })
-        .catch(error => (this.error = "internal server error" + error));
-    }
-  }
+        .catch(
+          (error) =>
+            (this.graphqlError = "internal server graphqlError" + error)
+        );
+    },
+  },
 };
 </script>

@@ -27,7 +27,7 @@
       <template v-slot:body>
         <Spinner v-if="loading" />
         <div v-else>
-          <MessageError v-if="error">{{ error }}</MessageError>
+          <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <LayoutForm :key="key">
             <InputString
               v-model="schemaName"
@@ -83,7 +83,7 @@ export default {
     return {
       key: 0,
       loading: false,
-      error: null,
+      graphqlError: null,
       success: null,
       schemaName: null,
       schemaDescription: null,
@@ -100,7 +100,7 @@ export default {
   methods: {
     executeCreateSchema() {
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       request(
         this.endpoint,
@@ -115,9 +115,10 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            this.error = error.message + "Forbidden. Do you need to login?";
+            this.graphqlError =
+              error.message + "Forbidden. Do you need to login?";
           } else {
-            this.error = error.response.errors[0].message;
+            this.graphqlError = error.response.errors[0].message;
           }
           this.loading = false;
         });
