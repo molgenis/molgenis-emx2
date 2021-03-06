@@ -288,6 +288,7 @@ Work in progress
 
 ### first
 
+*  add filter on refSelect in case of overlapping keys
 *  ontology data type, inclusief label
 *  form elementen zoals separator, nesting, 
 *  kunnen hergebruiken van groepjes kolommen
@@ -323,7 +324,7 @@ Work in progress
 *  known bug: if I set refback for refarray to 'null' then ref is not updated!
 *  user interface for row level security
 *  more filter option s for array types (now only 'equals')
-*  improve error titles and messages
+*  improve graphqlError titles and messages
 *  merge Schema and SchemaMetadata and Table and TableMetadata
 *  column level permissions
 *  flattened result in graphql for tables, including group by
@@ -344,10 +345,10 @@ Work in progress
 *  Finish the legacy reader
 *  column/per value validation, tuple/per row validation
 *  computed values?
-*  create validation procedure for Schema/Table/Column so we can give complete error messages and remove model checks from from SQL parts
+*  create validation procedure for Schema/Table/Column so we can give complete graphqlError messages and remove model checks from from SQL parts
 
 ### someday maybe
-*  throw error when webservice is called with only csv header and no values
+*  throw graphqlError when webservice is called with only csv header and no values
 *  update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey then?)
 *  job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
 *  reduce build+test times back to under a minute (LOL)
