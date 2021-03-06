@@ -2,7 +2,7 @@
   <Molgenis :title="'Import into ' + schema">
     <Spinner v-if="loading" />
     <div v-else>
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <InputFile v-model="file" />
       <ButtonAction @click="upload('excel')" :disabled="file == undefined">
@@ -23,9 +23,9 @@ import {
   MessageError,
   MessageSuccess,
   Molgenis,
-  Spinner
+  Spinner,
 } from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
 /** Data import tool */
 export default {
@@ -36,31 +36,31 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
-    Molgenis
+    Molgenis,
   },
-  data: function() {
+  data: function () {
     return {
       schema: null,
       file: null,
-      error: null,
+      graphqlError: null,
       success: null,
-      loading: false
+      loading: false,
     };
   },
   methods: {
     loadSchema() {
       this.loading = true;
       request("graphql", "{_schema{name}}")
-        .then(data => {
+        .then((data) => {
           this.schema = data._schema.name;
         })
-        .catch(error => {
-          this.error = error.response.errors[0].message;
+        .catch((error) => {
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));
     },
     upload(type) {
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       this.loading = true;
       let formData = new FormData();
@@ -68,34 +68,34 @@ export default {
       let url = "/" + this.schema + "/api/" + type;
       fetch(url, {
         method: "POST",
-        body: formData
+        body: formData,
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             // todo make proper json
-            response.text().then(success => {
+            response.text().then((success) => {
               this.success = success;
-              this.error = null;
+              this.graphqlError = null;
             });
           } else {
-            response.json().then(error => {
+            response.json().then((graphqlError) => {
               this.success = null;
-              this.error = error.errors[0].message;
+              this.graphqlError = graphqlError.errors[0].message;
             });
           }
         })
-        .catch(error => {
-          this.error = error;
+        .catch((error) => {
+          this.graphqlError = error;
         })
         .finally(() => {
           this.file = null;
           this.loading = false;
         });
-    }
+    },
   },
   created() {
     this.loadSchema();
-  }
+  },
 };
 </script>
 
