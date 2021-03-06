@@ -4,7 +4,7 @@
     <h1>{{ title }}</h1>
     <Spinner v-if="loading" />
     <div v-else>
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <ckeditor v-model="draft" :config="editorConfig" :key="page" />
       <div class="mt-2 float-right">
@@ -47,7 +47,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       success: null,
       loading: false,
       draft: "<h1>New page</h1><p>Add your contents here</p>",
@@ -118,7 +118,7 @@ export default {
   methods: {
     savePage() {
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       request(
         "graphql",
@@ -134,9 +134,9 @@ export default {
           this.success = data.change.message;
           this.session.settings["page." + this.page] = this.draft;
         })
-        .catch((error) => {
-          console.log(JSON.stringify(error));
-          this.error = error.response.errors[0].message;
+        .catch((graphqlError) => {
+          console.log(JSON.stringify(graphqlError));
+          this.graphqlError = graphqlError.response.errors[0].message;
         })
         .finally((this.loading = false));
     },
