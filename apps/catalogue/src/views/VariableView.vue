@@ -1,6 +1,6 @@
 <template>
   <div class="container bg-white">
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div v-if="variable">
       <div class="p-2 bg-dark text-white mb-3">
         <h6>
@@ -206,7 +206,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       variable: null,
     };
   },
@@ -238,8 +238,9 @@ export default {
           this.variable = data.Variables[0];
         })
         .catch((error) => {
-          if (error.response) this.error = error.response.errors[0].message;
-          else this.error = error;
+          if (error.response)
+            this.graphqlError = error.response.errors[0].message;
+          else this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;

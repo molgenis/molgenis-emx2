@@ -1,7 +1,7 @@
 <template>
-  <div v-if="error">
+  <div v-if="graphqlError">
     <MessageError>
-      {{ error }}<br />
+      {{ graphqlError }}<br />
       sourceCollection: {{ this.sourceCollection }}<br />
       sourceTable: {{ this.sourceTable }}<br />
       targetVariable: {{ this.targetVariable }}<br />
@@ -37,7 +37,7 @@
       title="Harmonisation details"
     >
       <template v-slot:body>
-        <MessageError v-if="error">{{ error }}</MessageError>
+        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <div class="row">
           <div class="col">
             <h5>Harmonised variable</h5>
@@ -167,7 +167,7 @@ export default {
     return {
       show: false,
       harmonisation: {},
-      error: null,
+      graphqlError: null,
     };
   },
   methods: {
@@ -204,8 +204,7 @@ export default {
           this.harmonisation = data.VariableHarmonisations[0];
         })
         .catch((error) => {
-          console.log(JSON.stringify(error));
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

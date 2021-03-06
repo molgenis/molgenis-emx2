@@ -11,7 +11,7 @@
       </h6>
     </div>
     <h4>Table mapping</h4>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <table class="table table-bordered">
       <tr>
         <td><h6>Target table:&nbsp;</h6></td>
@@ -147,7 +147,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       tablemapping: null,
       variablemappings: null,
     };
@@ -211,8 +211,9 @@ query TableMappings($fromAcronym:String,$fromVersion:String,$fromTable:String,$t
           this.variablemappings = data.VariableMappings;
         })
         .catch((error) => {
-          if (error.response) this.error = error.response.errors[0].message;
-          else this.error = error;
+          if (error.response)
+            this.graphqlError = error.response.errors[0].message;
+          else this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;

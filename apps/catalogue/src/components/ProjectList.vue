@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div>
       <Pagination
         v-if="count > 0"
@@ -51,7 +51,7 @@ export default {
       page: 1,
       limit: 20,
       count: 0,
-      error: null,
+      graphqlError: null,
       loading: false,
       projects: [],
     };
@@ -77,7 +77,7 @@ export default {
           this.count = data.Projects_agg.count;
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

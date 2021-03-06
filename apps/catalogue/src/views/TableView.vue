@@ -1,6 +1,6 @@
 <template>
-  <div v-if="error">
-    <MessageError>{{ error }}</MessageError>
+  <div v-if="graphqlError">
+    <MessageError>{{ graphqlError }}</MessageError>
   </div>
   <div v-else-if="table" class="container bg-white">
     <div class="p-2 bg-dark text-white mb-3">
@@ -32,7 +32,7 @@
     <h1>Table: {{ table.name }}</h1>
     <p>{{ table.description ? table.description : "Description: N/A" }}</p>
 
-    <MessageError v-if="error"> {{ error }}</MessageError>
+    <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
         <h6>Topics</h6>
@@ -128,7 +128,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       table: null,
       tab: "Variables",
     };
@@ -175,8 +175,9 @@ export default {
           this.table = data.Tables[0];
         })
         .catch((error) => {
-          if (error.response) this.error = error.response.errors[0].message;
-          else this.error = error;
+          if (error.response)
+            this.graphqlError = error.response.errors[0].message;
+          else this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;

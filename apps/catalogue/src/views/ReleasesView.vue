@@ -97,7 +97,7 @@ export default {
           this.release = data.Releases[0];
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

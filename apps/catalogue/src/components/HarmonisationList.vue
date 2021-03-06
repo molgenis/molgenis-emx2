@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <p v-if="count == 0">No harmonisations found</p>
     <div v-else class="mt-2">
       <i class="fa fa-check-circle text-success" /> = complete match,
@@ -69,7 +69,7 @@ export default {
     return {
       harmonisations: [],
       count: 0,
-      error: null,
+      graphqlError: null,
       page: 1,
       limit: 0,
     };
@@ -135,7 +135,7 @@ export default {
           this.count = data.VariableHarmonisations_agg.count;
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

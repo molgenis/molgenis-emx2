@@ -3,7 +3,7 @@
     <Molgenis>
       <Spinner v-if="loading" />
       <div v-else>
-        <MessageError v-if="error">{{ error }}</MessageError>
+        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       </div>
       <div class="row">
@@ -137,7 +137,7 @@ export default {
   data: function () {
     return {
       selectedDatabanks: [],
-      error: null,
+      graphqlError: null,
       success: null,
       loading: false,
       topics: [],
@@ -226,7 +226,7 @@ export default {
           this.applySearch(this.topics, this.search);
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;
@@ -266,7 +266,7 @@ export default {
           this.tableCount = data.Tables_agg.count;
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

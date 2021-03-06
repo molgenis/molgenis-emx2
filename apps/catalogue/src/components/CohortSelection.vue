@@ -1,6 +1,6 @@
 <template>
   <Spinner v-if="loading" />
-  <MessageError v-else-if="error">{{ error }}</MessageError>
+  <MessageError v-else-if="graphqlError">{{ graphqlError }}</MessageError>
   <div v-else>
     <InputCheckbox
       label="Choose resource(s)"
@@ -25,7 +25,7 @@ export default {
       value: [],
       options: [],
       loading: false,
-      error: null,
+      graphqlError: null,
     };
   },
   methods: {
@@ -39,7 +39,7 @@ export default {
         this.options = data.Collections.map((c) => c.name);
       })
       .catch((error) => {
-        this.error = error.response.errors[0].message;
+        this.graphqlError = error.response.errors[0].message;
       })
       .finally(() => {
         this.loading = false;

@@ -43,7 +43,7 @@ export default {
             this.value.options = data[this.value.refTable];
           })
           .catch((error) => {
-            this.error = error.response.errors[0].message;
+            this.graphqlError = error.response.errors[0].message;
           })
           .finally(() => {
             this.loading = false;

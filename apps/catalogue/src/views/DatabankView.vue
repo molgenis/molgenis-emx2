@@ -5,7 +5,7 @@
       headerCss="bg-danger text-white"
       table-name="Databanks"
     />
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <hr class="border-danger" />
     <div class="row">
       <div class="col">
@@ -94,7 +94,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       databank: {},
       version: null,
       tab: "Description",
@@ -118,7 +118,7 @@ export default {
           }
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

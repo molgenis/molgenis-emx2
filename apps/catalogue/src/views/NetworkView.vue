@@ -65,7 +65,7 @@ export default {
   data() {
     return {
       version: null,
-      error: null,
+      graphqlError: null,
       network: {},
       tab: "Variables",
     };
@@ -83,7 +83,7 @@ export default {
           this.network = data.Networks[0];
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

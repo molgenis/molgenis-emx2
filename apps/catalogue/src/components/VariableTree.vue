@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ error }}
+    {{ graphqlError }}
     <div class="row">
       <div class="col-3">
         <label>Topics:</label>
@@ -74,7 +74,7 @@ export default {
   data: function () {
     return {
       selectedCollections: [],
-      error: null,
+      graphqlError: null,
       success: null,
       loading: false,
       topics: [],
@@ -108,7 +108,7 @@ export default {
           this.applySearch(this.topics, this.search);
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

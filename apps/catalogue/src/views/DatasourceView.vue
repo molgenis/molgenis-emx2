@@ -5,7 +5,7 @@
       headerCss="bg-warning text-dark"
       table-name="Datasources"
     />
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
         <h6>Population</h6>
@@ -59,7 +59,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       datasource: {},
       version: null,
       tab: "Data",
@@ -84,9 +84,7 @@ export default {
           }
         })
         .catch((error) => {
-          console.log(error);
-
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

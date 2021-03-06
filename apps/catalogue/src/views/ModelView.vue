@@ -5,7 +5,7 @@
       table-name="Models"
       :resource="model"
     />
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
         <h6>Coordinator</h6>
@@ -64,7 +64,7 @@ export default {
   data() {
     return {
       version: null,
-      error: null,
+      graphqlError: null,
       model: {},
     };
   },
@@ -81,8 +81,9 @@ export default {
           this.model = data.Models[0];
         })
         .catch((error) => {
-          if (error.response) this.error = error.response.errors[0].message;
-          else this.error = error;
+          if (error.response)
+            this.graphqlError = error.response.errors[0].message;
+          else this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;

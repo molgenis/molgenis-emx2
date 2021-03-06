@@ -5,7 +5,7 @@
     <p v-if="count == 0">No variables found</p>
     <div v-else class="mt-2">
       <Pagination class="mb-2" :count="count" :limit="limit" v-model="page" />
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="card-columns">
         <VariableCard
           v-for="variable in variables"
@@ -70,14 +70,14 @@ export default {
       variables: [],
       search: null,
       count: 0,
-      error: null,
+      graphqlError: null,
       page: 1,
       limit: 20,
     };
   },
   methods: {
     reload() {
-      this.error = null;
+      this.graphqlError = null;
       let filter = {};
       if (this.resourceAcronym) {
         filter.release = {
@@ -112,7 +112,7 @@ export default {
           this.$forceUpdate();
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;

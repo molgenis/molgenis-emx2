@@ -5,7 +5,7 @@
       header-css="bg-info text-white"
       table-name="Institutions"
     />
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <hr class="border-info" />
     <div class="row">
       <div class="col">
@@ -58,7 +58,7 @@ export default {
   },
   data() {
     return {
-      error: null,
+      graphqlError: null,
       institution: {},
     };
   },
@@ -113,8 +113,9 @@ export default {
           this.institution = data.Institutions[0];
         })
         .catch((error) => {
-          if (error.response) this.error = error.response.errors[0].message;
-          else this.error = error;
+          if (error.response)
+            this.graphqlError = error.response.errors[0].message;
+          else this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;

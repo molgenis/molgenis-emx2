@@ -1,7 +1,7 @@
 <template>
   <div class="container bg-white p-3">
     <h1>Health data catalogue</h1>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <p>
       Browse and manage metadata for human research data resources, such as
       cohorts, registries, biobanks, and multi-center studies thereof, such as
@@ -141,7 +141,7 @@ export default {
       datasources: null,
       variables: null,
       tables: null,
-      error: null,
+      graphqlError: null,
       releases: null,
       variableMappings: null,
       tableMappings: null,
@@ -170,7 +170,7 @@ export default {
           this.affiliations = data.Affiliations_agg.count;
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;
