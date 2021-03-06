@@ -11,7 +11,7 @@
       <InputString
         label="Add new page: "
         v-model="newPage"
-        :error="nameError"
+        :errorMessage="nameError"
       />
       <ButtonAction v-if="newPage && !nameError" @click="openPageEdit(newPage)"
         >Create new
@@ -21,26 +21,30 @@
 </template>
 
 <script>
-import {ButtonAction, IconAction, InputString} from "@mswertz/emx2-styleguide";
+import {
+  ButtonAction,
+  IconAction,
+  InputString,
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
     IconAction,
     ButtonAction,
-    InputString
+    InputString,
   },
   props: {
-    session: Object
+    session: Object,
   },
   data() {
     return {
-      newPage: null
+      newPage: null,
     };
   },
   methods: {
     openPageEdit(page) {
       window.open("../pages/#/" + page + "/edit", "_blank");
-    }
+    },
   },
   computed: {
     nameError() {
@@ -51,11 +55,11 @@ export default {
     pages() {
       if (this.session && this.session.settings) {
         return Object.keys(this.session.settings)
-          .filter(key => key.startsWith("page."))
-          .map(key => key.substring(5));
+          .filter((key) => key.startsWith("page."))
+          .map((key) => key.substring(5));
       }
       return [];
-    }
-  }
+    },
+  },
 };
 </script>

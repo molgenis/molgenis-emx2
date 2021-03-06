@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <Spinner v-if="loading" />
     <div v-else>
       <h5 class="card-title">Manage layout settings</h5>
@@ -50,7 +50,7 @@ export default {
     return {
       settings: {},
       loading: false,
-      error: null,
+      graphqlError: null,
       success: null,
     };
   },
@@ -67,7 +67,7 @@ export default {
       });
       this.loading = true;
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       //alter
       if (settingsAlter.length > 0) {
@@ -80,7 +80,7 @@ export default {
             this.success = data.change.message;
           })
           .catch((error) => {
-            this.error = error.response.errors[0].message;
+            this.graphqlError = error.response.errors[0].message;
           })
           .finally((this.loading = false));
       }
@@ -95,7 +95,7 @@ export default {
             this.success = data.drop.message;
           })
           .catch((error) => {
-            this.error = error.response.errors[0].message;
+            this.graphqlError = error.response.errors[0].message;
           })
           .finally((this.loading = false));
       }

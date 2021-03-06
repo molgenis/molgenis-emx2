@@ -2,7 +2,7 @@
   <div>
     <Spinner v-if="loading" />
     <div v-else>
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
     <div
@@ -32,7 +32,7 @@
           Add/update
         </ButtonAction>
       </form>
-      <DataTable
+      <TableSimple
         v-model="selectedItems"
         :defaultValue="selectedItems"
         :rows="members"
@@ -43,7 +43,7 @@
             Remove
           </ButtonAction>
         </template>
-      </DataTable>
+      </TableSimple>
     </div>
     <div v-else>Not a member, cannot see settings</div>
 
@@ -66,7 +66,7 @@
 import {
   ButtonAction,
   ButtonAlt,
-  DataTable,
+  TableSimple,
   InputCheckbox,
   InputFile,
   InputSelect,
@@ -84,7 +84,7 @@ export default {
     ButtonAction,
     ButtonAlt,
     InputFile,
-    DataTable,
+    TableSimple,
     MessageError,
     MessageSuccess,
     Spinner,
@@ -105,7 +105,7 @@ export default {
       editMember: {},
       roles: [],
       file: null,
-      error: null,
+      graphqlError: null,
       success: null,
       loading: false,
     };
@@ -124,7 +124,7 @@ export default {
     removeMember(row) {
       let name = [row.email];
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       request(
         "graphql",
@@ -135,7 +135,7 @@ export default {
           this.loadMembers();
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
           this.loading = false;
@@ -143,7 +143,7 @@ export default {
     },
     updateMember() {
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       request(
         "graphql",
@@ -155,7 +155,7 @@ export default {
           this.loadMembers();
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));
     },
@@ -168,7 +168,7 @@ export default {
           this.roles = data._schema.roles.map((role) => role.name);
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));
     },

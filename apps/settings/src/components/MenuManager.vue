@@ -2,7 +2,7 @@
   <div>
     <h5 class="card-title">Manage menu</h5>
     <p>Customize menu structure and labels below:</p>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <Spinner v-if="loading" />
     <div v-else>
@@ -67,7 +67,7 @@ export default {
     return {
       draft: [],
       key: 0,
-      error: null,
+      graphqlError: null,
       success: null,
       loading: false,
     };
@@ -87,7 +87,7 @@ export default {
     },
     saveSettings() {
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       request(
         "graphql",
@@ -98,8 +98,7 @@ export default {
           this.success = data.change.message;
         })
         .catch((error) => {
-          console.log(JSON.stringify(error));
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));
     },
