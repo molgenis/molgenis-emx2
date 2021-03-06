@@ -1,7 +1,7 @@
 <template>
   <Spinner v-if="loading" />
-  <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
   <div v-else>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <IconBar
       ><label>{{ count }} schemas found</label>
       <IconAction
@@ -10,7 +10,7 @@
         @click="openCreateSchema"
       />
     </IconBar>
-    <DataTable
+    <TableSimple
       :columns="['name', 'description']"
       :rows="schemas"
       @click="openGroup"
@@ -23,14 +23,16 @@
           :key="slotProps.row.name"
         />
       </template>
-    </DataTable>
+    </TableSimple>
     <SchemaCreateModal v-if="showCreateSchema" @close="closeCreateSchema" />
     <SchemaDeleteModal
       v-if="showDeleteSchema"
       @close="closeDeleteSchema"
       :schemaName="showDeleteSchema"
     />
-    <ShowMore title="debug">session = {{ session }}</ShowMore>
+    <ShowMore title="debug"
+      >session = {{ session }}, schemas = {{ schemas }}
+    </ShowMore>
   </div>
 </template>
 
@@ -40,7 +42,7 @@ import { request } from "graphql-request";
 import SchemaCreateModal from "./SchemaCreateModal";
 import SchemaDeleteModal from "./SchemaDeleteModal";
 import {
-  DataTable,
+  TableSimple,
   IconAction,
   IconBar,
   IconDanger,
@@ -50,7 +52,7 @@ import {
 
 export default {
   components: {
-    DataTable,
+    TableSimple,
     Spinner,
     SchemaCreateModal,
     SchemaDeleteModal,

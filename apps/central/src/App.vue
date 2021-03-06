@@ -5,7 +5,7 @@
       :menuItems="menuItems"
       v-model="session"
     >
-      <Groups :session="session" :key="session" />
+      <Groups :session="session" :key="JSON.stringify(session)" />
     </Molgenis>
   </div>
 </template>
