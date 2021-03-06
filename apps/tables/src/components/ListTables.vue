@@ -1,8 +1,8 @@
 <template>
   <div v-if="schema">
     <h1>Tables: {{ schema.name }}</h1>
-    <MessageError v-if="!schema"
-      >No tables found. Might you need to login?
+    <MessageError v-if="!schema">
+      No tables found. Might you need to login?
     </MessageError>
     Download all tables:
     <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |

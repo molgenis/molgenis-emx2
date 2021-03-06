@@ -1,6 +1,11 @@
 <template>
   <Molgenis id="__top" v-model="session">
-    <router-view v-if="session" :session="session" :schema="schema" />
+    <router-view
+      v-if="session"
+      :session="session"
+      :schema="schema"
+      :key="JSON.stringify(session)"
+    />
     <ShowMore title="debug">
       session: {{ session }} <br /><br />
       schema: {{ schema }}
@@ -46,8 +51,8 @@ export default {
         })
         .catch((error) => {
           if (error.response.error.status === 403) {
-            this.error = "Forbidden. Do you need to login?";
-          } else this.error = error.response.error;
+            this.graphqlError = "Forbidden. Do you need to login?";
+          } else this.graphqlError = error.response.error;
         })
         .finally((this.loading = false));
     },
