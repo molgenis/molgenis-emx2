@@ -1,11 +1,11 @@
 <template>
   <span v-if="inplace && !focus" @click="toggleFocus">
-    {{ prettyValue ? prettyValue : "" }}
+    {{ value ? value : "" }}
     <IconAction class="hoverIcon" icon="edit" />
   </span>
   <FormGroup v-else :id="id" :label="label" :help="help" v-bind="$props">
     <InputAppend
-      v-for="(el, idx) in arrayValue"
+      v-for="(el, idx) in valueArray"
       :key="idx"
       v-bind="$props"
       :showClear="showClear(idx)"
@@ -18,14 +18,12 @@
         v-autogrow
         ref="textarea"
         :id="id + idx"
-        v-focus="inplace"
-        v-model="arrayValue[idx]"
-        :class="{ 'form-control': true, 'is-invalid': error }"
+        v-model="valueArray[idx]"
+        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
-        @input="emitValue"
-        @blur="toggleFocus"
+        @input="emitValue($event, idx)"
         style="resize: none"
       />
     </InputAppend>

@@ -16,7 +16,7 @@
 <script>
 export default {
   props: {
-    row: Array,
+    row: Object,
     col: Object,
   },
   methods: {

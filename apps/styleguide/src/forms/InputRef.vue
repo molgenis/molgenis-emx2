@@ -8,11 +8,10 @@
       <input
         v-if="list"
         class="form-check-input"
-        :name="id"
         type="checkbox"
         :value="getPkey(row)"
-        v-model="arrayValue"
-        @change="emitValue"
+        v-model="selection"
+        @change="$emit('input', selection)"
       />
       <input
         v-else
@@ -20,8 +19,8 @@
         :name="id"
         type="radio"
         :value="getPkey(row)"
-        v-model="arrayValue[0]"
-        @change="emitValue"
+        v-model="selection"
+        @change="$emit('input', getPkey(row))"
       />
       <label class="form-check-label">
         {{ flattenObject(getPkey(row)) }}
@@ -30,25 +29,16 @@
     <ButtonAlt class="pl-1" icon="fa fa-search" @click="showSelect = true">
       more
     </ButtonAlt>
-    <ButtonAlt
-      v-if="
-        (Array.isArray(arrayValue) &&
-          arrayValue.filter((s) => s != null).length > 0) ||
-        (!Array.isArray(arrayValue) && arrayValue != null)
-      "
-      class="pl-1"
-      icon="fa fa-clear"
-      @click="clearValue"
-    >
+    <ButtonAlt class="pl-1" icon="fa fa-clear" @click="emitClear">
       clear
     </ButtonAlt>
     <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
       <template v-slot:body>
-        <MessageError v-if="error">{{ error }}</MessageError>
+        <MessageError v-if="errorMessage">{{ graphqlError }}</MessageError>
         <TableSearch
           v-if="list"
-          :selection.sync="arrayValue"
-          :table="refTable"
+          :selection.sync="selection"
+          :table="table"
           :filter="filter"
           :graphqlURL="graphqlURL"
           :showSelect="true"
@@ -60,11 +50,11 @@
         </TableSearch>
         <TableSearch
           v-else
-          :selection="[arrayValue[0]]"
-          :table="refTable"
+          :selection="[valueArray[0]]"
+          :table="table"
           :filter="filter"
           @select="select($event)"
-          @deselect="deselect($event)"
+          @deselect="emitClear"
           :graphqlURL="graphqlURL"
           :showSelect="true"
           :limit="10"
@@ -99,6 +89,7 @@ export default {
       selectIdx: null,
       options: [],
       id: Math.random(),
+      selection: [],
     };
   },
   components: {
@@ -114,45 +105,34 @@ export default {
       default: "graphql",
       type: String,
     },
-    refTable: String,
     filter: Object,
   },
   computed: {
     title() {
-      return "Select " + this.refTable;
-    },
-    //overrides TableMixin
-    table() {
-      return this.refTable;
+      return "Select " + this.table;
     },
   },
   methods: {
-    clearValue() {
-      if (this.list) {
-        this.arrayValue = [];
-      } else {
-        this.arrayValue = undefined;
-      }
-      this.emitValue();
+    emitClear() {
+      if (this.list) this.$emit("input", []);
+      else this.$emit("input", null);
     },
-    loadOptions() {},
     select(event) {
-      this.showSelect = false;
-      //in case of radio button, it is the first
-      this.arrayValue[0] = event;
-      this.emitValue();
+      if (this.list) {
+        this.$emit("input", this.selection);
+      } else {
+        this.$emit("input", event);
+      }
     },
     closeSelect() {
       this.showSelect = false;
+      if (this.list) {
+        this.$emit("input", this.selection);
+      }
     },
     openSelect(idx) {
       this.showSelect = true;
       this.selectIdx = idx;
-    },
-    deselect(idx) {
-      this.showSelect = false;
-      this.clearValue(idx);
-      this.emitValue();
     },
     flattenObject(object) {
       let result = "";
@@ -168,8 +148,14 @@ export default {
       return result;
     },
   },
+  watch: {
+    value() {
+      this.selection = this.value ? this.value : [];
+    },
+  },
   created() {
     this.limit = 8;
+    this.selection = this.value ? this.value : [];
     this.reloadMetadata();
   },
 };
@@ -183,8 +169,8 @@ Example
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRef v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
-    Selection: {{ value }}
+    <InputRef v-model="value" table="Pet" graphqlURL="/pet store/graphql"/>
+    Selection: {{ JSON.stringify(value) }}
   </div>
 </template>
 <script>
@@ -205,7 +191,7 @@ Example with default value
     <InputRef
         label="My pets"
         v-model="value"
-        refTable="Pet"
+        table="Pet"
         :defaultValue="value"
         graphqlURL="/pet store/graphql"
     />
@@ -229,8 +215,8 @@ Example with filter
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRef
         v-model="value"
-        refTable="Pet"
-        :filter="{category:{name:'dog'}}"
+        table="Pet"
+        :filter="{category:{name:{equals:'dog'}}}"
         graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -253,7 +239,7 @@ Example with list
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRef :list="true"
               v-model="value"
-              refTable="Pet"
+              table="Pet"
               graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="inplace">
+  <span v-if="inplace">
     <div
       v-if="focus"
       style="display: inline-block"
@@ -7,7 +7,7 @@
       v-click-outside="toggleFocus"
     >
       <div
-        v-for="(el, idx) in arrayValue"
+        v-for="(el, idx) in valueArray"
         :key="idx"
         class="dropdown-menu show"
       >
@@ -22,21 +22,21 @@
         >
       </div>
     </div>
-    <div
+    <span
       @click="toggleFocus"
       @mouseover="hover = true"
       @mouseleave="hover = false"
       style="min-width: 1em"
     >
-      {{ prettyValue ? prettyValue : "&zwnj;&zwnj;" }}
-      <IconAction icon="caret-down" class="float-right hoverIcon" />
-      <div v-if="error" class="text-danger">{{ error }}</div>
-    </div>
-  </div>
+      {{ value ? value : "&zwnj;&zwnj;" }}
+      <IconAction icon="pencil" class="hoverIcon" />
+      <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
+    </span>
+  </span>
   <FormGroup v-else v-bind="$props">
     <InputAppend
-      v-for="(el, idx) in arrayValue"
-      :key="idx"
+      v-for="(el, idx) in valueArray"
+      :key="idx + '.' + valueArray.length"
       v-bind="$props"
       @clear="clearValue(idx)"
       :showPlus="showPlus(idx)"
@@ -48,18 +48,14 @@
         v-focus="inplace"
         v-else
         :id="id"
-        v-model="arrayValue[idx]"
-        :class="{ 'form-control': true, 'is-invalid': error }"
-        @change="emitValue"
+        :value="valueArray[idx]"
+        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+        @change="emitValue($event, idx)"
       >
-        <option
-          v-if="!list || el == undefined"
-          :selected="el === undefined"
-          disabled
-        />
+        <option v-if="!required" :selected="el === undefined" />
         <option
           v-for="(option, index) in options.filter(
-            (o) => el == o || !arrayValue.includes(o)
+            (o) => el == o || !valueArray.includes(o)
           )"
           :key="index"
           :value="option"
@@ -94,8 +90,7 @@ export default {
   methods: {
     select(option, idx) {
       this.toggleFocus();
-      this.arrayValue[idx] = option;
-      this.emitValue();
+      this.emitValue(option, idx);
     },
   },
   props: {
@@ -178,13 +173,13 @@ Example in place
 ```
 <template>
   <div>
-    Dit is inline
+    This is select with value
     <InputSelect
         :inplace="true"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
     />
-    gezet
+    shown inline <br/>
     Selected: {{ check }}
   </div>
 </template>

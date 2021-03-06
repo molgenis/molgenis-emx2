@@ -1,6 +1,6 @@
 <template>
   <ShowMore>
-    <pre>error = {{ error }}</pre>
+    <pre>graphqlError = {{ graphqlError }}</pre>
     <pre>graphql = {{ graphql }}</pre>
     <pre>data = {{ data }}</pre>
   </ShowMore>
@@ -71,7 +71,7 @@ export default {
     reload() {
       if (this.tableMetadata != undefined) {
         this.loading = true;
-        this.error = null;
+        this.graphqlError = null;
         request(this.graphqlURL, this.graphql, { filter: this.graphqlFilter })
           .then((data) => {
             this.data = data[this.table];
@@ -79,7 +79,7 @@ export default {
             this.loading = false;
           })
           .catch((error) => {
-            this.error = "internal server error" + error;
+            this.graphqlError = "internal server graphqlError" + error;
             this.loading = false;
           });
       }
@@ -105,7 +105,7 @@ export default {
           }
         });
         if (!result) {
-          this.error = "Table " + table + " not found";
+          this.graphqlError = "Table " + table + " not found";
         }
       }
       if (result) return result;
@@ -140,6 +140,6 @@ export default {
 <docs>
 ```
 <!-- normally you don't need provide graphqlURL because default 'graphql' just works -->
-<TableMixin table="Code" graphqlURL="/TestCohortCatalogue/graphql"/>
+<TableMixin table="Pet" graphqlURL="/pet store/graphql"/>
 ```
 </docs>

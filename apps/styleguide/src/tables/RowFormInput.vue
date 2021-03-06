@@ -29,6 +29,7 @@
       v-else-if="columnType === 'REF'"
       v-bind="$props"
       v-model="input"
+      :table="table"
     />
     <InputDate
       v-else-if="columnType === 'DATE'"
@@ -49,6 +50,7 @@
       "
       v-bind="$props"
       v-model="input"
+      :table="table"
       :graphqlURL="graphqlURL"
     />
     <InputString
@@ -89,7 +91,7 @@ export default {
   props: {
     schema: String,
     columnType: String,
-    refTable: String,
+    table: String,
     graphqlURL: {
       default: "graphql",
       type: String,
@@ -131,8 +133,9 @@ Example:
 <div>
   <RowFormInput columnType="STRING" label="Test String"/>
   <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
-  <RowFormInput columnType="REF" label="Test ref" refTable="Pet"/>
-  <RowFormInput columnType="REF_ARRAY" label="Test ref" refTable="Pet" :defaultValue="[{name:'spike'}]"/>
+  <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/Pet store/graphql"/>
+  <RowFormInput columnType="REF_ARRAY" label="Test ref" table="Pet" :defaultValue="[{name:'spike'}]"
+                graphqlURL="/Pet store/graphql"/>
   <RowFormInput columnType="DATE" label="Test Date"/>
 </div>
 ```

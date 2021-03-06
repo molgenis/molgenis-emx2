@@ -1,11 +1,11 @@
 <template>
   <div v-if="showLogin">
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <SigninForm @login="loginSuccess" @cancel="cancel" />
   </div>
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="tableMetadata && (pkey == null || value)" :key="value">
+      <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in tableMetadata.columns" :key="column.name">
           <RowFormInput
             v-if="
@@ -16,9 +16,9 @@
             :label="column.name"
             :help="column.description"
             :columnType="column.columnType"
-            :refTable="column.refTable"
+            :table="column.refTable"
             :required="column.required"
-            :error="errorPerColumn[column.name]"
+            :errorMessage="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
             :graphqlURL="graphqlURL"
           />
@@ -45,7 +45,7 @@ schema = {{ JSON.stringify(schema) }}
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
       <ButtonAction @click="executeCommand">{{ title }}</ButtonAction>
     </template>
@@ -99,12 +99,12 @@ export default {
       }
     },
     loginSuccess() {
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       this.showLogin = false;
     },
     executeCommand() {
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       // todo spinner
       let name = this.table;
@@ -126,11 +126,11 @@ export default {
         })
         .catch((error) => {
           if (error.status === 403) {
-            this.error =
+            this.graphqlError =
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
             this.showLogin = true;
           } else {
-            this.error = error.errors;
+            this.graphqlError = error.errors;
           }
         });
     },
@@ -149,8 +149,8 @@ export default {
       }
     },
     validate() {
-      if (this.selectedTable) {
-        this.selectedTable.columns.forEach((column) => {
+      if (this.tableMetadata) {
+        this.tableMetadata.columns.forEach((column) => {
           // make really empty if empty
           if (/^\s*$/.test(this.value[column.name])) {
             //this.value[column.name] = null;
@@ -185,8 +185,8 @@ export default {
     },
   },
   computed: {
-    // override from tableMixin
-    filter() {
+    //@overide
+    graphqlFilter() {
       let result = {};
       if (this.tableMetadata && this.pkey) {
         this.tableMetadata.columns
@@ -195,6 +195,7 @@ export default {
       }
       return result;
     },
+    // override from tableMixin
     title() {
       if (this.pkey) {
         return `update ${this.table}`;
@@ -219,6 +220,12 @@ export default {
     },
     // validation happens here
     value: {
+      handler() {
+        this.validate();
+      },
+      deep: true,
+    },
+    tableMetadata: {
       handler() {
         this.validate();
       },

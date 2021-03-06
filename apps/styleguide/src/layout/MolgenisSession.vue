@@ -2,9 +2,7 @@
   <Spinner v-if="loading" />
   <div v-else>
     <div>
-      <span v-if="error">
-        <MessageError>{{ error }}</MessageError>
-      </span>
+      <MessageError v-if="error">{{ error }}</MessageError>
       <span v-if="session.email && session.email != 'anonymous'">
         <a href="#" @click.prevent="showChangePasswordForm = true">
           Hi {{ session.email }}</a
@@ -166,7 +164,7 @@ Example
 ```
 <template>
   <div>
-    <Session v-model="session" graphql="/graphql/pet store"/>
+    <MolgenisSession v-model="session" graphql="/pet store/graphql"/>
     <ShowMore title="debug">session = {{ session }}</ShowMore>
   </div>
 </template>

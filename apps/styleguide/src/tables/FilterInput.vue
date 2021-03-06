@@ -39,7 +39,7 @@
     <InputRef
       :list="true"
       v-else-if="columnType.startsWith('REF') || columnType == 'MREF'"
-      :refTable="refTable"
+      :table="refTable"
       :value="conditions"
       @input="$emit('update:conditions', $event)"
       :limit="7"

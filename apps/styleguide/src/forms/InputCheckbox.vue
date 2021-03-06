@@ -5,20 +5,20 @@
         v-for="(item, index) in options"
         :key="index"
         class="form-check form-check-inline"
-        :class="{ 'is-invalid': error }"
+        :class="{ 'is-invalid': errorMessage }"
       >
         <input
           :id="id + index"
-          @change="
-            arrayValue.includes(item)
-              ? (arrayValue = arrayValue.filter((c) => c != item))
-              : arrayValue.push(item);
-            emitValue();
-          "
+          v-model="result"
           class="form-check-input"
           type="checkbox"
           :value="item"
-          :checked="arrayValue.includes(item)"
+          @change="
+            $emit(
+              'input',
+              result.filter((v) => v !== 0 || v != null)
+            )
+          "
           :aria-describedby="id + 'Help'"
         />
         <label class="form-check-label" :for="id + index">{{ item }}</label>
@@ -26,10 +26,9 @@
       <a
         class="checkbox-clear-value"
         href="#"
-        v-if="arrayValue.filter((c) => c != undefined).length > 0"
         @click.prevent="
-          arrayValue = [null];
-          emitValue();
+          result = [];
+          $emit('input', result);
         "
       >
         clear
@@ -57,6 +56,25 @@ export default {
     list: {
       default: true,
     },
+  },
+  computed: {
+    valueArray() {
+      let result = this.value;
+      if (!result) result = null;
+      if (!Array.isArray(result)) {
+        result = [result];
+      }
+      result = this.removeNulls(result);
+      return result;
+    },
+  },
+  data() {
+    return {
+      result: [],
+    };
+  },
+  created() {
+    this.result = this.valueArray != [null] ? this.valueArray : [];
   },
 };
 </script>

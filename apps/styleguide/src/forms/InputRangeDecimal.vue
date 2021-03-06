@@ -1,7 +1,7 @@
 <template>
   <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
-      v-for="(item, idx) in arrayValue"
+      v-for="(item, idx) in valueArray"
       :key="idx"
       v-bind="$props"
       :showClear="showClear(idx)"
@@ -11,18 +11,18 @@
       class="form-group"
     >
       <InputDecimal
-        v-model="arrayValue[idx][0]"
+        v-model="valueArray[idx][0]"
         placeholder="from"
         :clear="false"
         style="margin: 0px"
-        @input="emitValue"
+        @input="emitValue($event, idx, 0)"
       />
       <InputDecimal
-        v-model="arrayValue[idx][1]"
+        v-model="valueArray[idx][1]"
         placeholder="to"
         :clear="false"
         style="margin: 0px"
-        @input="emitValue"
+        @input="emitValue($event, idx, 1)"
       />
     </InputAppend>
   </FormGroup>

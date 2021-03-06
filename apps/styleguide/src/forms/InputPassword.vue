@@ -2,7 +2,7 @@
   <form-group :id="id" :label="label" :placeholder="placeholder" :help="help">
     <input
       :id="id"
-      v-model="arrayValue[0]"
+      v-model="valueArray[0]"
       class="form-control"
       type="password"
       :aria-describedby="id + 'Help'"

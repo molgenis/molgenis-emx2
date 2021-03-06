@@ -92,7 +92,6 @@ export default {
     },
     remove(idx, idx2) {
       let update = this.filters;
-      console.log("remove one");
       update[idx].conditions.splice(idx2, 1);
       this.$emit("update:filters", update);
     },
@@ -103,7 +102,6 @@ export default {
           update[idx].conditions = [];
         }
       }
-      console.log("removeAll");
       this.$emit("update:filters", update);
     },
   },

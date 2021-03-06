@@ -11,7 +11,7 @@
       />
       <input
         class="form-control active"
-        :class="{ 'is-invalid': error }"
+        :class="{ 'is-invalid': errorMessage }"
         :placeholder="filename"
         @click="$refs.file.click()"
         @keydown.prevent
@@ -20,8 +20,8 @@
         <button
           class="btn bg-transparent"
           :class="{
-            'text-primary': !error,
-            'text-danger': error,
+            'text-primary': !errorMessage,
+            'text-danger': errorMessage,
           }"
           type="button"
           title="Toggle"
@@ -38,8 +38,8 @@
         <button
           class="btn"
           :class="{
-            'btn-outline-primary': !error,
-            'btn-outline-danger': error,
+            'btn-outline-primary': !errorMessage,
+            'btn-outline-danger': errorMessage,
           }"
           type="button"
           title="Toggle"
@@ -50,7 +50,7 @@
         </button>
       </div>
     </div>
-    <div v-for="val in arrayValue" :key="JSON.stringify(val)">
+    <div v-for="val in valueArray" :key="JSON.stringify(val)">
       <a v-if="val && val.url" :href="val.url">
         Previous value: {{ name }}.{{ val.extension }}
       </a>
@@ -117,6 +117,6 @@ Example
 
 Example with error
 ```
-<InputFile label="My file input" error="Some error"/>
+<InputFile label="My file input" errorMessage="Some error with files"/>
 ```
 </docs>

@@ -1,20 +1,23 @@
 <template>
   <div v-if="inplace">
-    <div class="form-check form-check-inline" :class="{ 'is-invalid': error }">
+    <div
+      class="form-check form-check-inline"
+      :class="{ 'is-invalid': errorMessage }"
+    >
       <input
-        :id="id + index"
-        v-model="arrayValue[0]"
+        :id="id"
+        v-model="valueArray[0]"
         class="form-check-input"
         type="checkbox"
         :aria-describedby="id + 'Help'"
-        @change="emitValue"
+        @change="$emit('input', $event.target.checked)"
       />
     </div>
   </div>
   <InputRadio
     v-else
     v-bind="$props"
-    v-model="arrayValue[0]"
+    v-model="valueArray[0]"
     :options="[true, false]"
     @input="emitValue"
   />

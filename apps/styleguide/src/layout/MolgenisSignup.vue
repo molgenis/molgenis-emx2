@@ -118,7 +118,7 @@ Example
 <template>
   <div>
     <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
-    <SignupForm v-else @signup="SignupTest" @cancel="display = false"/>
+    <MolgenisSignup v-else @signup="SignupTest" @cancel="display = false"/>
   </div>
 </template>
 <script>

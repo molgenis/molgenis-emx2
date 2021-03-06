@@ -14,7 +14,7 @@
     >
       {{ help }}
     </small>
-    <div v-if="error" class="text-danger">{{ error }}</div>
+    <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
   </div>
 </template>
 
@@ -31,8 +31,8 @@ export default {
     help: String,
     /** if required */
     required: Boolean,
-    /** String with error state */
-    error: String,
+    /** String with graphqlError state */
+    errorMessage: String,
     /** whether inplace */
     inplace: Boolean,
   },

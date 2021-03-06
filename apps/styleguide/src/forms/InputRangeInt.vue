@@ -1,8 +1,8 @@
 <template>
   <FormGroup v-bind="$props" class="input-group-range">
     <InputAppend
-      v-for="(item, idx) in arrayValue"
-      :key="idx + '.' + arrayValue.length"
+      v-for="(item, idx) in valueArray"
+      :key="idx + '.' + valueArray.length"
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"
@@ -12,15 +12,15 @@
       class="form-group"
     >
       <InputInt
-        v-model="arrayValue[idx][0]"
-        @input="emitValue"
+        v-model="valueArray[idx][0]"
+        @input="emitValue($event, idx, 0)"
         placeholder="from"
         :clear="false"
         style="margin: 0px"
       />
       <InputInt
-        v-model="arrayValue[idx][1]"
-        @input="emitValue"
+        v-model="valueArray[idx][1]"
+        @input="emitValue($event, idx, 1)"
         placeholder="to"
         :clear="false"
         style="margin: 0px"
@@ -39,42 +39,56 @@ import InputAppend from "./_inputAppend";
 export default {
   components: { InputInt, FormGroup, InputAppend },
   extends: BaseInput,
-  methods: {
-    init() {
-      if (this.value && Array.isArray(this.value) && this.value.length > 0) {
+  computed: {
+    //@override
+    valueArray() {
+      let result = this.value;
+      if (!Array.isArray(result)) {
+        result = [];
         if (this.list) {
-          //deep copy
-          this.arrayValue = JSON.parse(JSON.stringify(this.value));
-        } else {
-          //deep copy
-          this.arrayValue = [JSON.parse(JSON.stringify(this.value))];
+          result = [[]];
         }
       } else {
-        this.arrayValue = [[null, null]];
+        //check each row
+        if (!this.list) {
+          result = [result];
+        }
       }
-    },
-    addRow() {
-      this.arrayValue.push([null, null]);
-    },
-    clearValue(idx) {
-      if (this.arrayValue.length > 1) {
-        this.arrayValue.splice(idx, 1);
-      } else {
-        this.arrayValue = [[null, null]];
+      result = this.removeNulls(result);
+      if (result.length == 0 || (this.list && this.showNewItem)) {
+        result.push([null, null]);
       }
-      this.emitValue();
+      return result;
     },
-    //override from baseinput
-    emitValue() {
-      let result;
-      if (!Array.isArray(this.arrayValue)) {
-        result = [null, null];
-      } else {
-        result = this.arrayValue;
-        result = result.filter((e) => e[0] || e[1]);
-      }
+  },
+  methods: {
+    //@override
+    removeNulls(arr) {
+      return arr.filter((v) => v && (v[0] != null || v[1] != null));
+    },
+    //@override
+    showPlus(idx) {
+      //always on last line
+      return (
+        this.list &&
+        !this.showNewItem &&
+        idx == this.valueArray.length - 1 &&
+        (this.valueArray[idx][0] != null || this.valueArray[idx][1] != null)
+      );
+    },
+    //@override
+    emitValue(event, idx, idx2) {
+      this.showNewItem = false;
+      let value = event ? (event.target ? event.target.value : event) : null;
+      let result = this.valueArray;
+      //update value
+      if (idx >= result.length) result[idx] = [null, null];
+      result[idx][idx2] = value;
+      //remove nulls
+      result = this.removeNulls(result);
       if (!this.list) {
-        result = result[0];
+        if (result && result.length > 0) result = result[0];
+        else result = null;
       }
       this.$emit("input", result);
     },

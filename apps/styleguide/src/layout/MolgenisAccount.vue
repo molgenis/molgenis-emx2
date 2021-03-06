@@ -5,7 +5,7 @@
       <LayoutForm>
         <h2>Change password</h2>
         <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-        <MessageError v-if="error">{{ error }}</MessageError>
+        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <InputPassword
           v-model="password"
           label="Password"
@@ -55,7 +55,7 @@ export default {
       password: null,
       password2: null,
       loading: false,
-      error: null,
+      graphqlError: null,
       success: null,
     };
   },
@@ -80,7 +80,7 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(JSON.stringify(error));
+            this.graphqlError = JSON.stringify(error);
           });
         this.loading = false;
       }

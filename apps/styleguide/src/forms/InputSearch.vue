@@ -11,8 +11,8 @@
       </span>
       <input
         :id="id"
-        v-model="arrayValue[0]"
-        :class="{ 'form-control': true, 'is-invalid': error }"
+        v-model="valueArray[0]"
+        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"

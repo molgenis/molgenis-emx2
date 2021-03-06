@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div v-else style="text-align: center">
       <form
         v-if="showHeaderIfNeeded"
@@ -121,11 +121,24 @@ export default {
 <docs>
 Example:
 ```
-<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<TableSearch table="Variables" graphqlURL="/CohortsCentral/graphql" :limit="10">
-  <template :selection.sync="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
-</TableSearch>
-Selected: {{ selectedItems }}
+<template>
+  <div>
+    <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    <TableSearch table="Variables" graphqlURL="/CohortsCentral/graphql" :limit="10">
+      <template :selection.sync="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
+    </TableSearch>
+    Selected: {{ selectedItems }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        selectedItems: null
+      }
+    }
+  }
+</script>
 
 ```
 Example with select

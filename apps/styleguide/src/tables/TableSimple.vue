@@ -1,12 +1,13 @@
 <template>
   <div class="table-responsive">
+    {{ hasColheader }}
     <table
       class="table table-bordered table-condensed"
       :class="{ 'table-hover': selectColumn }"
     >
       <thead>
         <tr>
-          <th scope="col" style="width: 1px" v-if="hasColheader()">
+          <th scope="col" style="width: 1px" v-if="hasColheader">
             <slot name="colheader" />
           </th>
           <th v-for="col in columns" :key="col" scope="col">
@@ -15,7 +16,7 @@
         </tr>
       </thead>
       <tr v-for="row in rows" :key="JSON.stringify(row)">
-        <td v-if="hasColheader()">
+        <td v-if="hasColheader">
           <slot name="rowheader" :row="row" />
           <input
             v-if="selectColumn"
@@ -70,10 +71,18 @@ export default {
       this.selectedItems.push(this.defaultValue);
     }
   },
-  methods: {
+  computed: {
     hasColheader() {
-      return this.selectColumn || !!this.$slots.colheader;
+      return (
+        this.selectColumn ||
+        !!this.$slots["colheader"] ||
+        !!this.$scopedSlots["colheader"] ||
+        !!this.$slots["rowheader"] ||
+        !!this.$scopedSlots["rowheader"]
+      );
     },
+  },
+  methods: {
     flattenObject(object) {
       let result = "";
       if (typeof object === "object") {
@@ -175,6 +184,43 @@ Example using simple click (no selection)
 </template>
 <script>
   export default {
+    data() {
+      return {
+        selectedItems: null
+      }
+    },
+    methods: {
+      click(value) {
+        alert("click " + JSON.stringify(value));
+      }
+    }
+  };
+</script>
+```
+Example with only rowheader
+```
+<template>
+  <div>
+    <TableSimple
+        v-model="selectedItems"
+        :defaultValue="['Duck']"
+        :columns="['firstName','lastName','tags']"
+        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
+        @click="click"
+    >
+      <template v-slot:rowheader="slotProps">
+        my row header with props {{ JSON.stringify(slotProps) }}
+      </template>
+    </TableSimple>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        selectedItems: null
+      }
+    },
     methods: {
       click(value) {
         alert("click " + JSON.stringify(value));

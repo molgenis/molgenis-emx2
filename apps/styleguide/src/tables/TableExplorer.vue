@@ -1,7 +1,7 @@
 <template>
   <div class="h-100">
     <div v-if="columns" clas="overflow-auto">
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="bg-white">
         <h1 v-if="showHeader" class="pl-2">
           {{ table }}
@@ -72,12 +72,12 @@
         </div>
       </div>
       <div class="d-flex">
-        <div v-if="countFilters" class="col-2 pl-0">
+        <div v-if="countFilters" class="col-3 pl-0">
           <FilterSidebar :filters.sync="columns" />
         </div>
         <div
           class="flex-grow-1 pr-0 pl-0"
-          :class="countFilters > 0 ? 'col-10' : 'col-12'"
+          :class="countFilters > 0 ? 'col-9' : 'col-12'"
         >
           <FilterWells
             v-if="table"
@@ -144,7 +144,7 @@
 
       session = {{ session }}
 
-        error = {{ error }}
+        graphqlError = {{ graphqlError }}
 
         schema = {{ schema }}
 

@@ -6,7 +6,7 @@
       style="margin-top: -10px; margin-right: -10px"
       @click="scope.close"
     />
-    <div style="position: absolute; z-index: 1" class="bg-white">
+    <div>
       <h6>
         {{ label }}
       </h6>
@@ -23,7 +23,7 @@
                 ? defaultValue
                 : col[checkAttribute]
             "
-            @input="change(key, !col[checkAttribute])"
+            @input.prevent="change(key, !col[checkAttribute])"
             :id="col.name"
           />
           <label class="form-check-label" :for="col.name">

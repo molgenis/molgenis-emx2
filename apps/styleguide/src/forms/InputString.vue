@@ -1,30 +1,29 @@
 <template>
   <span>
-    <span v-if="inplace && !focus && !error" @click="toggleFocus">
-      {{ prettyValue ? prettyValue : "&zwnj;&zwnj;" }}
+    <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
+      {{ value ? value : "&zwnj;&zwnj;" }}
       <IconAction class="hoverIcon" icon="edit" />
     </span>
     <FormGroup v-else v-bind="$props">
       <InputAppend
-        v-for="(item, idx) in arrayValue"
+        v-for="(item, idx) in valueArray"
         :key="idx"
         v-bind="$props"
         :showClear="showClear(idx)"
         @clear="clearValue(idx)"
+        @add="addRow"
         :showPlus="showPlus(idx)"
         :showMinus="showMinus(idx)"
-        @add="addRow"
       >
         <input
-          :id="id + idx"
           v-focus="inplace"
-          v-model="arrayValue[idx]"
-          :class="{ 'form-control': true, 'is-invalid': error }"
+          :value="item"
+          :class="{ 'form-control': true, 'is-invalid': errorMessage }"
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
           @keypress="keyhandler"
-          @input="emitValue"
+          @input="emitValue($event, idx)"
           @blur="toggleFocus"
         />
       </InputAppend>
@@ -88,7 +87,6 @@ Example with default value
   <div>
     <InputString
         v-model="value"
-        :defaultValue="value"
         label="My string input label"
         help="Some help needed?"
     />
@@ -108,13 +106,13 @@ Example with default value
 ```
 Example readonly
 ```
-<InputString label="test" :readonly="true" defaultValue="can't change me" help="Should not be able to edit this"/>
+<InputString label="test" :readonly="true" value="can't change me" help="Should not be able to edit this"/>
 ```
 Example list
 ```
 <template>
   <div>
-    <InputString v-model="value" :list="true" label="test" :defaultValue="['aap','noot']"
+    <InputString v-model="value" :list="true" label="test"
                  help="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
@@ -124,9 +122,9 @@ Example list
   export default {
     data: function () {
       return {
-        value: "blaat"
+        value: ['aap', 'noot']
       };
-    }
+    },
   };
 </script>
 ```

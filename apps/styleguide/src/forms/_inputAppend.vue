@@ -2,7 +2,7 @@
   <div class="input-group-append">
     <slot />
     <AppendClear
-      class="input-append-show"
+      class="input-append"
       v-if="showClear"
       v-bind="$props"
       @clear="$emit('clear')"

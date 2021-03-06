@@ -3,7 +3,11 @@
     <ButtonAlt @click="toggle">
       Selection
       <i class="fa fa-lg fa-check-square-o"></i>
-      <span class="badge badge-pill badge-danger" style="top: -7px; left: -7px">
+      <span
+        v-if="selection && selection.filter((s) => s != null).length > 0"
+        class="badge badge-pill badge-danger"
+        style="top: -7px; left: -7px"
+      >
         {{
           Array.isArray(selection)
             ? selection.filter((s) => s != null).length

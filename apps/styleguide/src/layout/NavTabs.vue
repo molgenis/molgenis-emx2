@@ -58,7 +58,6 @@ With default
         label="Animals"
         v-model="selected"
         :options="['lion', 'ape', 'monkey']"
-        defaultValue="ape"
     />
     Selected: {{ selected }}
   </div>
@@ -68,7 +67,7 @@ With default
   export default {
     data: function () {
       return {
-        selected: null
+        selected: 'ape'
       };
     }
   };

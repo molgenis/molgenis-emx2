@@ -80,7 +80,9 @@ export default {
               this.$emit("signin", this.email);
             } else this.error = data.signin.message;
           })
-          .catch((error) => (this.error = "internal server error" + error));
+          .catch(
+            (error) => (this.error = "internal server graphqlError" + error)
+          );
         this.loading = false;
       }
     },
@@ -102,7 +104,7 @@ Example
   <div>
     <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
     <!-- normally you don't need graphqlURL because that is available in apps context-->
-    <SigninForm v-else @login="signinTest" @cancel="display = false"/>
+    <MolgenisSignin v-else @login="signinTest" @cancel="display = false"/>
   </div>
 </template>
 <script>

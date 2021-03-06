@@ -13,7 +13,7 @@
         active="My search"
         :items="menu"
       >
-        <Session v-model="session" />
+        <MolgenisSession v-model="session" />
       </NavBar>
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
@@ -38,7 +38,7 @@
 
 <script>
 import NavBar from "./MolgenisMenu";
-import Session from "./MolgenisSession";
+import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
@@ -47,7 +47,7 @@ import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { Session, NavBar, Footer, MolgenisTheme },
+  components: { MolgenisSession, NavBar, Footer, MolgenisTheme },
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
@@ -80,7 +80,6 @@ export default {
     session: {
       deep: true,
       handler() {
-        console.log("handler");
         if (
           this.session != undefined &&
           this.session.settings &&

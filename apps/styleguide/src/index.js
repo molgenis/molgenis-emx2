@@ -3,8 +3,6 @@ import ButtonAlt from "./forms/ButtonAlt";
 import ButtonDanger from "./forms/ButtonDanger";
 import ButtonDropdown from "./forms/ButtonDropdown";
 
-import DataTable from "./tables/TableSimple";
-
 import Footer from "./layout/MolgenisFooter";
 import FilterSidebar from "./tables/FilterSidebar";
 import FilterWells from "./tables/FilterWells";
@@ -73,7 +71,6 @@ export {
   ButtonAlt,
   ButtonDanger,
   ButtonDropdown,
-  DataTable,
   DefaultMenuMixin,
   Footer,
   FilterSidebar,

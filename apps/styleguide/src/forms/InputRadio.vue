@@ -2,27 +2,27 @@
   <form-group v-bind="$props" class="radio-form-group">
     <div>
       <div
-        v-for="(item, index) in options"
-        :key="index"
+        v-for="(item, idx) in options"
+        :key="idx"
         class="form-check form-check-inline"
-        :class="{ 'is-invalid': error }"
+        :class="{ 'is-invalid': errorMessage }"
       >
         <input
-          :id="id + index"
-          v-model="arrayValue[0]"
+          :id="id + idx"
+          v-model="valueArray[0]"
           class="form-check-input"
           type="radio"
           :value="item"
-          :checked="arrayValue[0] == item"
+          :checked="valueArray[0] == item"
           :aria-describedby="id + 'Help'"
-          @change="emitValue"
+          @change="emitValue($event, idx)"
         />
-        <label class="form-check-label" :for="id + index">{{ item }}</label>
+        <label class="form-check-label" :for="id + idx">{{ item }}</label>
       </div>
       <a
         class="radio-clear-value"
         href="#"
-        v-if="arrayValue[0] !== null"
+        v-if="valueArray[0] !== null"
         @click.prevent="clearValue(0)"
       >
         clear
@@ -50,7 +50,7 @@ export default {
 </script>
 
 <docs>
-Example with defaultValue
+Example with default
 ```
 <template>
   <div>

@@ -1,8 +1,8 @@
 <template>
   <form-group v-bind="$props">
     <InputAppend
-      v-for="(el, idx) in arrayValue"
-      :key="idx"
+      v-for="(el, idx) in valueArray"
+      :key="idx + valueArray.length"
       v-bind="$props"
       :showClear="showClear(idx)"
       @clear="clearValue(idx)"
@@ -13,20 +13,19 @@
       <input
         v-if="readonly"
         readonly
-        :value="arrayValue[idx]"
-        :class="{ 'form-control': true, 'is-invalid': error }"
+        v-model="valueArray[idx]"
+        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
       />
       <FlatPickr
         v-else
-        v-model="arrayValue[idx]"
-        :defaultDate="arrayValue[idx]"
+        v-model="valueArray[idx]"
         style="background: white"
         class="form-control active"
-        :class="{ 'is-invalid': error }"
+        :class="{ 'is-invalid': errorMessage }"
         :config="config"
         :placeholder="placeholder"
         :disabled="readonly"
-        @input="emitValue"
+        @input="emitValue($event, idx)"
       />
     </InputAppend>
   </form-group>
@@ -83,7 +82,7 @@ Example readonly with default value
 ```
 <template>
   <div>
-    <InputDate :readonly="true" :defaultValue="value" v-model="value" label="My date input label"
+    <InputDate :readonly="true" v-model="value" label="My date input label"
                help="Some help needed?"/>
     <br/>
     You typed: {{ value }}
@@ -106,7 +105,6 @@ Example with default value
     <InputDate
         v-model="value"
         label="My date input label"
-        :defaultValue="value"
         help="Some help needed?"
     />
     <br/>
@@ -124,15 +122,15 @@ Example with default value
   };
 </script>
 ```
-Example with error set
+Example with errorMessage set
 ```
-<InputDate label="My date input label" error="Some error message is shown"/>
+<InputDate label="My date input label" errorMessage="Some error message is shown"/>
 ```
 Example with list set
 ```
 <template>
   <div>
-    <InputDate :list="true" v-model="value" :defaultValue="value" label="My date input label"/>
+    <InputDate :list="true" v-model="value" label="My date input label"/>
     Value: {{ value }}
   </div>
 </template>
@@ -140,7 +138,7 @@ Example with list set
   export default {
     data: function () {
       return {
-        value: [null]
+        value: null
       };
     }
   };
@@ -150,7 +148,7 @@ Example with list default
 ```
 <template>
   <div>
-    <InputDate :list="true" v-model="value" :defaultValue="value" label="My date input label"/>
+    <InputDate :list="true" v-model="value" label="My date input label"/>
     Value: {{ value }}
   </div>
 </template>

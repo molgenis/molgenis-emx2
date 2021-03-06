@@ -1,6 +1,6 @@
 <template>
   <ShowMore>
-    <pre>error = {{ error }}</pre>
+    <pre>graphqlError = {{ graphqlError }}</pre>
     <pre>session = {    { session }}</pre>
     <pre>schema = {{ schema }}</pre>
   </ShowMore>
@@ -21,12 +21,13 @@ export default {
       session: null,
       schema: null,
       loading: true,
-      error: null,
+      graphqlError: null,
     };
   },
   methods: {
     reloadMetadata() {
       this.loading = true;
+      this.graphqlError = null;
       request(
         this.graphqlURL,
         "{_session{email,roles}_schema{name,tables{name,description,columns{name,columnType,key,refTable,refLink,refJsTemplate,required,jsonldType}}}}"
@@ -37,7 +38,7 @@ export default {
           this.loading = false;
         })
         .catch((error) => {
-          this.error = "internal server error" + error;
+          this.graphqlError = "internal server graphqlError" + error;
           this.loading = false;
         });
     },
@@ -63,6 +64,6 @@ export default {
 Normally you would not instantiate a mixin component, so this is only for quick testing
 ```
 <!-- in normal use you don't need graphqlURL prop -->
-<TableMetadataMixin graphqlURL="/pet store/graphql"/>
+<TableMetadataMixin table="Pet" graphqlURL="/pet store/graphql"/>
 ```
 </docs>

@@ -1,7 +1,7 @@
 <template>
   <FormGroup v-bind="$props">
     <InputAppend
-      v-for="(el, idx) in arrayValue"
+      v-for="(el, idx) in valueArray"
       :key="idx"
       v-bind="$props"
       @clear="clearValue(idx)"
@@ -9,37 +9,29 @@
       :showClear="showClear(idx)"
       @add="addRow"
     >
-      <input
-        v-if="readonly"
-        type="hidden"
-        v-model="arrayValue[idx]"
-        class="form-control"
-      />
+      <input v-if="readonly" type="hidden" class="form-control" />
       <select
         :id="id"
         :disabled="readonly"
         @click="openSelect(idx)"
-        :class="{ 'form-control': true, 'is-invalid': error }"
+        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
       >
         <option
-          v-if="arrayValue[idx] && !showSelect"
-          :value="arrayValue[idx]"
+          v-if="valueArray[idx] && !showSelect"
+          :value="valueArray[idx]"
           selected
-          @input="emitValue"
           :readonly="readonly"
         >
-          {{ flattenObject(arrayValue[idx]) }}
+          {{ flattenObject(el) }}
         </option>
       </select>
     </InputAppend>
     <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
       <template v-slot:body>
-        <MessageError v-if="error">{{ error }}</MessageError>
         <TableSearch
-          :table="refTable"
-          :defaultValue="[arrayValue[selectIdx]]"
+          :table="table"
           :filter="filter"
-          @select="select($event, selectIdx)"
+          @select="select($event)"
           @deselect="deselect(selectIdx)"
           :graphqlURL="graphqlURL"
         >
@@ -69,7 +61,6 @@
 import _baseInput from "./_baseInput";
 import TableSearch from "../tables/TableSearch";
 import LayoutModal from "../layout/LayoutModal";
-import MessageError from "./MessageError";
 import FormGroup from "./_formGroup";
 import ButtonAlt from "./ButtonAlt";
 import InputAppend from "./_inputAppend";
@@ -87,7 +78,6 @@ export default {
   },
   components: {
     TableSearch,
-    MessageError,
     LayoutModal,
     FormGroup,
     ButtonAction,
@@ -101,19 +91,18 @@ export default {
       default: "graphql",
       type: String,
     },
-    refTable: String,
+    table: String,
     filter: Object,
   },
   computed: {
     title() {
-      return "Select " + this.refTable;
+      return "Select " + this.table;
     },
   },
   methods: {
     select(event) {
       this.showSelect = false;
-      this.arrayValue[this.selectIdx] = event;
-      this.emitValue();
+      this.emitValue(event, this.selectIdx);
     },
     closeSelect() {
       this.showSelect = false;
@@ -150,7 +139,7 @@ Example
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefSelect v-model="value" refTable="Pet" graphqlURL="/pet store/graphql"/>
+    <InputRefSelect v-model="value" table="Pet" graphqlURL="/pet store/graphql"/>
     Selection: {{ value }}
   </div>
 </template>
@@ -171,7 +160,7 @@ Example with default value
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRefSelect
         v-model="value"
-        refTable="Pet"
+        table="Pet"
         graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -194,8 +183,8 @@ Example with filter
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRefSelect
         v-model="value"
-        refTable="Pet"
-        :filter="{category:{name:'dog'}}"
+        table="Pet"
+        :filter="{category:{name: {equals:'dog'}}}"
         graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -218,7 +207,7 @@ Example with list
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRefSelect :list="true"
                     v-model="value"
-                    refTable="Pet"
+                    table="Pet"
                     graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
@@ -228,7 +217,7 @@ Example with list
   export default {
     data: function () {
       return {
-        value: ['spike']
+        value: [{name: 'spike'}]
       };
     }
   };
