@@ -74,7 +74,7 @@
           "
         />
         <Spinner v-if="loading" />
-        <MessageError v-else-if="error">{{ error }}</MessageError>
+        <MessageError v-else-if="graphqlError">{{ graphqlError }}</MessageError>
         <Yuml v-else :schema="{ tables: tables }" />
 
         <div>
@@ -301,7 +301,7 @@ export default {
       loading: false,
       loadingYuml: false,
       tables: null,
-      error: null,
+      graphqlError: null,
       currentTable: null,
       currentColumn: null,
       columnAlter: false,
@@ -317,7 +317,7 @@ export default {
     // alter(column) {},
     // drop(column) {},
     loadSchema() {
-      this.error = null;
+      this.graphqlError = null;
       this.loading = true;
       this.loading = true;
       this.schema = null;
@@ -330,12 +330,14 @@ export default {
           this.schema = data._schema.name;
           this.tables = data._schema.tables;
         })
-        .catch((error) => {
-          this.error = error.response.errors[0].message;
+        .catch((graphqlError) => {
+          this.graphqlError = graphqlError.response.errors[0].message;
           if (
-            this.error.includes("Field '_schema' in type 'Query' is undefined")
+            this.graphqlError.includes(
+              "Field '_schema' in type 'Query' is undefined"
+            )
           ) {
-            this.error =
+            this.graphqlError =
               "Schema is unknown or permission denied (might you need to login with authorized user?)";
           }
         })

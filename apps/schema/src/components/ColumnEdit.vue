@@ -2,7 +2,7 @@
   <LayoutForm v-if="value">
     <InputString
       v-model="column.name"
-      :error="validateName(column.name)"
+      :errorMessage="validateName(column.name)"
       label="Name"
     />
     <InputText v-model="column.description" label="Description" />
@@ -31,7 +31,7 @@
       />
       <InputSelect
         v-model="column.refTable"
-        :error="
+        :errorMessage="
           column.refTable == undefined || column.name == ''
             ? 'Referenced table is required'
             : undefined

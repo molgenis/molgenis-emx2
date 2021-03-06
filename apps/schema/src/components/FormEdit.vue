@@ -62,7 +62,7 @@
                   :columnType="column.columnType"
                   :refTable="column.refTable"
                   :required="column.required"
-                  :error="errorPerColumn[column.name]"
+                  :errorMessage="errorPerColumn[column.name]"
                   class="pl-2 pr-2"
                   :class="{
                     'border border-primary': column.name == selectedColumnName,
@@ -178,7 +178,7 @@ export default {
       try {
         return eval("(function (row) { " + expression + "})")(this.example); // eslint-disable-line
       } catch (e) {
-        return "Script error contact admin: " + e.message;
+        return "Script graphqlError contact admin: " + e.message;
       }
     },
     visible(expression) {

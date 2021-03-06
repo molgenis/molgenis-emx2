@@ -23,7 +23,11 @@
       <table class="table table-sm" :key="timestamp">
         <thead class="font-weight-bold">
           <th style="width: 2em">
-            <IconAction icon="plus" @click="olumn" class="btn-sm hoverIcon" />
+            <IconAction
+              icon="plus"
+              @click="createColumn"
+              class="btn-sm hoverIcon"
+            />
           </th>
           <th scope="col" style="width: 10em">columnName</th>
           <th scope="col" style="width: 8em">columnType</th>
@@ -147,7 +151,6 @@ export default {
       this.$emit("input", this.table);
     },
     createColumn() {
-      createC;
       this.table.columns.push({
         name: "NewColumn",
         columnType: "STRING",

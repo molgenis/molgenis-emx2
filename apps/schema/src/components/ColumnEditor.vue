@@ -7,7 +7,7 @@
       <InputString
         v-model="column.name"
         :inplace="true"
-        :error="validateName(column.name)"
+        :errorMessage="validateName(column.name)"
       />
     </td>
     <td>
@@ -36,7 +36,7 @@
         "
         v-model="column.refTable"
         :options="tableNames()"
-        :error="column.refTable == null ? 'Required for reference' : ''"
+        :errorMessage="column.refTable == null ? 'Required for reference' : ''"
         :inplace="true"
       />
       <span v-else class="text-muted small">n/a</span>

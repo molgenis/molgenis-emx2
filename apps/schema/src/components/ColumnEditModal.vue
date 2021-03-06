@@ -2,7 +2,7 @@
   <!-- when authorisation error show login-->
   <Spinner v-if="loading" />
   <div v-else-if="showLogin">
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <SigninForm @cancel="cancel" @login="loginSuccess" />
   </div>
   <!-- when update succesfull show result before close -->
@@ -26,7 +26,7 @@
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
       <ButtonAction
         v-if="defaultValue"
@@ -111,7 +111,7 @@ export default {
       column: {},
       loading: false,
       columnTypes,
-      error: null,
+      graphqlError: null,
       success: null,
       showLogin: false,
     };
@@ -161,7 +161,7 @@ export default {
   methods: {
     change() {
       this.loading = true;
-      this.error = null;
+      this.graphqlError = null;
       this.success = null;
       this.column.table = this.table;
       request(
@@ -176,13 +176,13 @@ export default {
           this.success = `Column ${this.column.name} created/altered`;
           this.$emit("close");
         })
-        .catch((error) => {
-          if (error.response.status === 403) {
-            this.error = "Forbidden. Do you need to login?";
+        .catch((graphqlError) => {
+          if (graphqlError.response.status === 403) {
+            this.graphqlError = "Forbidden. Do you need to login?";
             this.showLogin = true;
           } else {
-            this.error = error.response.errors[0].message;
-            console.err(JSON.stringify(error));
+            this.graphqlError = graphqlError.response.errors[0].message;
+            console.err(JSON.stringify(graphqlError));
           }
         })
         .finally((this.loading = false));

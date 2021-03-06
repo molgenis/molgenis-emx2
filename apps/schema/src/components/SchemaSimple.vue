@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="container-fluid">
     <ButtonAlt class="pl-0" v-if="!toc" @click="toc = true">
       show table of contents
     </ButtonAlt>
     <div class="row">
-      <div v-if="toc" class="col-2">
+      <div v-if="toc" class="col-2 bg-white">
         <div class="fixedContainer">
           <ButtonAlt class="pl-0" @click="toc = false">
             hide table of contents
@@ -13,12 +13,16 @@
           <ButtonAction @click="saveSchema">Save</ButtonAction>&nbsp;
           <ButtonAction @click="loadSchema">Reset</ButtonAction>
           <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-          <MessageError v-if="error">{{ error }}</MessageError>
+          <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
           <SchemaToc :tables="schema.tables" />
         </div>
       </div>
-      <div :class="toc ? 'col-10' : 'col-12'" style="overflow-y: scroll">
+      <div
+        class="bg-white"
+        :class="toc ? 'col-10' : 'col-12'"
+        style="overflow-y: scroll"
+      >
         <Spinner v-if="loading" />
         <div v-else :key="timestamp">
           <Yuml :schema="schema" :key="JSON.stringify(schema)" />
@@ -71,7 +75,7 @@ export default {
     return {
       schema: {},
       loading: false,
-      error: null,
+      graphqlError: null,
       warning: null,
       success: null,
       timestamp: Date.now(),
@@ -80,7 +84,7 @@ export default {
   },
   methods: {
     saveSchema() {
-      this.error = null;
+      this.graphqlError = null;
       this.loading = true;
       request(
         "graphql",
@@ -97,17 +101,16 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            this.error = "Forbidden. Do you need to login?";
+            this.graphqlError = "Forbidden. Do you need to login?";
             this.showLogin = true;
           } else {
-            this.error = error.response.errors[0].message;
-            console.error(JSON.stringify(this.error));
+            this.graphqlError = error.response.errors[0].message;
           }
         });
       this.loading = false;
     },
     loadSchema() {
-      this.error = null;
+      this.graphqlError = null;
       this.loading = true;
       this.schema = {};
       this.tables = null;
@@ -120,9 +123,11 @@ export default {
           this.timestamp = Date.now();
         })
         .catch((error) => {
-          this.error = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message;
           if (
-            this.error.includes("Field '_schema' in type 'Query' is undefined")
+            this.graphqlError.includes(
+              "Field '_schema' in type 'Query' is undefined"
+            )
           ) {
             this.error =
               "Schema is unknown or permission denied (might you need to login with authorized user?)";
