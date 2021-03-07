@@ -143,8 +143,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(JSONLD_TYPE)
-                  .type(Scalars.GraphQLString))
+                  .name(SEMANTICS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
   private static final GraphQLObjectType outputTableMetadataType =
       new GraphQLObjectType.Builder()
@@ -175,12 +175,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputSettingsMetadataType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(JSONLD_CONTEXT)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(JSONLD_TYPE)
-                  .type(Scalars.GraphQLString))
+                  .name(SEMANTICS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
@@ -282,8 +278,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(JSONLD_TYPE)
-                  .type(Scalars.GraphQLString))
+                  .name(SEMANTICS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .build();
@@ -310,8 +306,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(JSONLD_TYPE)
-                  .type(Scalars.GraphQLString))
+                  .name(SEMANTICS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.COLUMNS)

@@ -27,7 +27,7 @@ public class Emx2 {
   public static final String MAPPED_BY = "mappedBy";
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
-  private static final String JSONLD_TYPE = "jsonldType";
+  private static final String SEMANTICS = "semantics";
 
   private Emx2() {
     // hidden
@@ -61,7 +61,7 @@ public class Emx2 {
         schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION));
         schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
-        schema.getTableMetadata(tableName).setJsonldType(r.getString(JSONLD_TYPE));
+        schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS));
       }
 
       // load column metadata
@@ -87,7 +87,7 @@ public class Emx2 {
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
-          if (r.notNull(JSONLD_TYPE)) column.setJsonldType(r.getString(JSONLD_TYPE));
+          if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
@@ -123,8 +123,7 @@ public class Emx2 {
       if (t.getInherit() != null) row.setString(TABLE_EXTENDS, t.getInherit());
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
       // todo, also trim in case of array, make the simple array
-      if (t.getJsonldType() != null)
-        row.setString(JSONLD_TYPE, t.getJsonldType().replaceAll("(?:^\")|(?:\"$)", ""));
+      if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
 
       result.add(row);
 
@@ -150,8 +149,7 @@ public class Emx2 {
           if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidationExpression() != null) row.set(VALIDATION, c.getValidationExpression());
-          if (c.getJsonldType() != null)
-            row.set(JSONLD_TYPE, c.getJsonldType().replaceAll("(?:^\")|(?:\"$)", ""));
+          if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
 
           result.add(row);
         }

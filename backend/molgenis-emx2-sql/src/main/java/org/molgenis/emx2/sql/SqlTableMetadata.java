@@ -141,6 +141,7 @@ class SqlTableMetadata extends TableMetadata {
             db -> {
               DSLContext jooq = ((SqlDatabase) db).getJooq();
               Column newColumn = new Column(this, column);
+              validateColumn(newColumn);
 
               // check if reference and of different size
               if (REF_ARRAY.equals(newColumn.getColumnType())

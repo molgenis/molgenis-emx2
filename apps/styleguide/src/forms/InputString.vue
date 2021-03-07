@@ -1,8 +1,8 @@
 <template>
   <span>
     <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      {{ value ? value : "&zwnj;&zwnj;" }}
-      <IconAction class="hoverIcon" icon="edit" />
+      <span v-if="list && value">{{ value.join(", ") }}</span>
+      <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
     </span>
     <FormGroup v-else v-bind="$props">
       <InputAppend
@@ -16,7 +16,7 @@
         :showMinus="showMinus(idx)"
       >
         <input
-          v-focus="inplace"
+          v-focus="inplace && !list"
           :value="item"
           :class="{ 'form-control': true, 'is-invalid': errorMessage }"
           :aria-describedby="id + 'Help'"
@@ -28,6 +28,12 @@
         />
       </InputAppend>
     </FormGroup>
+    <IconAction
+      v-if="inplace"
+      class="hoverIcon"
+      :icon="focus ? 'times' : 'pencil'"
+      @click="toggleFocus"
+    />
   </span>
 </template>
 
@@ -142,6 +148,24 @@ Example in place
   export default {
     data() {
       return {value: null}
+    }
+  }
+</script>
+```
+Example list in place
+```
+<template>
+  <div>
+    In place some
+    <InputString label="test" :list="true" v-model="value" :inplace="true" help="Should be able to edit in place"/>
+    text.<br/>
+    value: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {value: ['aap', 'noot']}
     }
   }
 </script>

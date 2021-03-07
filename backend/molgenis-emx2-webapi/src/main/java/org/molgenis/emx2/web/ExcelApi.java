@@ -51,7 +51,7 @@ public class ExcelApi {
     try (InputStream input = request.raw().getPart("file").getInputStream()) {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-    MolgenisIO.fromExcelFile(tempFile.toPath(), schema);
+    MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
     response.status(200);
     return "Import success in " + (System.currentTimeMillis() - start) + "ms";
   }

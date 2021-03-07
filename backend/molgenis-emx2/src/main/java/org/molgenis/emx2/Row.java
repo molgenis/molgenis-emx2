@@ -50,6 +50,10 @@ public class Row {
     }
   }
 
+  public void clear(String name) {
+    this.values.remove(name);
+  }
+
   public UUID getUuid(String name) {
     return TypeUtils.toUuid(values.get(name));
   }

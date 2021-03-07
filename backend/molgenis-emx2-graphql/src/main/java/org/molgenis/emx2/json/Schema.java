@@ -56,7 +56,7 @@ public class Schema {
       tm.setSettings(t.getSettings());
       tm.setOldName(t.getOldName());
       if (t.getDrop()) tm.drop();
-      tm.setJsonldType(t.getJsonldType());
+      tm.setSemantics(t.getSemantics());
       tm.setDescription(t.getDescription());
       for (Column c : t.getColumns()) {
         int i = 1;

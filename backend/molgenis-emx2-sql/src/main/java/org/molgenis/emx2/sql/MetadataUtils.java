@@ -4,7 +4,6 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.CreateTableColumnStep;
@@ -35,8 +34,8 @@ public class MetadataUtils {
       field(name("import_schema"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TABLE_JSONLD_TYPE =
-      field(name("table_jsonld_type"), JSON.nullable(true));
+  private static final org.jooq.Field TALBE_SEMANTICS =
+      field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
 
   // column
   private static final org.jooq.Field COLUMN_NAME =
@@ -48,8 +47,8 @@ public class MetadataUtils {
   private static final org.jooq.Field COLUMN_VISIBLE =
       field(name("visible"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_FORMAT = field(name("format"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_JSONLD_TYPE =
-      field(name("jsonldType"), JSON.nullable(true));
+  private static final org.jooq.Field COLUMN_SEMANTICS =
+      field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
   private static final org.jooq.Field COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
   private static final org.jooq.Field COLUMN_REQUIRED =
@@ -84,9 +83,6 @@ public class MetadataUtils {
           VARCHAR.nullable(true)); // note table might be null in case of schema
   private static final org.jooq.Field SETTINGS_VALUE =
       field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
-
-  // helper method
-  private static ObjectMapper jsonMapper = new ObjectMapper();
 
   private MetadataUtils() {
     // to hide the public constructor
@@ -140,7 +136,7 @@ public class MetadataUtils {
             // this way more robust for non breaking changes
             for (Field field :
                 new Field[] {
-                  TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, TABLE_JSONLD_TYPE
+                  TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, TALBE_SEMANTICS
                 }) {
               jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
             }
@@ -176,7 +172,7 @@ public class MetadataUtils {
                   COLUMN_INDEXED,
                   COLUMN_CASCADE,
                   COLUMN_DESCRIPTION,
-                  COLUMN_JSONLD_TYPE,
+                  COLUMN_SEMANTICS,
                   COLUMN_VISIBLE,
                   COLUMN_FORMAT
                 }) {
@@ -261,20 +257,20 @@ public class MetadataUtils {
               TABLE_INHERITS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
-              TABLE_JSONLD_TYPE)
+              TALBE_SEMANTICS)
           .values(
               table.getSchema().getName(),
               table.getTableName(),
               table.getInherit(),
               table.getImportSchema(),
               table.getDescription(),
-              table.getJsonldType())
+              table.getSemantics())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
-          .set(TABLE_JSONLD_TYPE, table.getJsonldType())
+          .set(TALBE_SEMANTICS, table.getSemantics())
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of table metadata failed", e);
@@ -299,7 +295,7 @@ public class MetadataUtils {
         table.setInherit(r.get(TABLE_INHERITS, String.class));
         table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
         table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
-        table.setJsonldType(r.get(TABLE_JSONLD_TYPE, String.class));
+        table.setSemantics(r.get(TALBE_SEMANTICS, String[].class));
         result.put(table.getTableName(), table);
       }
 
@@ -361,7 +357,7 @@ public class MetadataUtils {
             COLUMN_INDEXED,
             COLUMN_CASCADE,
             COLUMN_DESCRIPTION,
-            COLUMN_JSONLD_TYPE,
+            COLUMN_SEMANTICS,
             COLUMN_VISIBLE,
             COLUMN_FORMAT)
         .values(
@@ -381,7 +377,7 @@ public class MetadataUtils {
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription(),
-            column.getJsonldType(),
+            column.getSemantics(),
             column.getVisibleExpression(),
             column.getColumnFormat())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
@@ -399,7 +395,7 @@ public class MetadataUtils {
         .set(COLUMN_INDEXED, column.isIndexed())
         .set(COLUMN_CASCADE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
-        .set(COLUMN_JSONLD_TYPE, column.getJsonldType())
+        .set(COLUMN_SEMANTICS, column.getSemantics())
         .set(COLUMN_VISIBLE, column.getVisibleExpression())
         .set(COLUMN_FORMAT, column.getColumnFormat())
         .execute();
@@ -490,7 +486,7 @@ public class MetadataUtils {
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
-    c.setJsonldType(col.get(COLUMN_JSONLD_TYPE, String.class));
+    c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
     c.setVisibleExpression(col.get(COLUMN_VISIBLE, String.class));
     c.setColumnFormat(col.get(COLUMN_FORMAT, String.class));
     return c;

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.jsonld;
+package org.molgenis.emx2.semantics;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,14 +34,14 @@ public class LinkedDataServiceTest {
   public void testOntologyLinks() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path file = new File(classLoader.getResource("hpo_patients.xlsx").getFile()).toPath();
-    MolgenisIO.fromExcelFile(file, patientSchema);
+    MolgenisIO.importFromExcelFile(file, patientSchema);
 
     StringWriter sw = new StringWriter();
-    JsonLdService.jsonld(patientSchema, new PrintWriter(sw));
+    LinkedDataService.getJsonLdForSchema(patientSchema, new PrintWriter(sw));
     System.out.println("result\r" + sw.getBuffer().toString());
 
     sw = new StringWriter();
-    JsonLdService.ttl(patientSchema, new PrintWriter(sw));
+    LinkedDataService.getTtlForSchema(patientSchema, new PrintWriter(sw));
     System.out.println("result\r" + sw.getBuffer().toString());
   }
 
@@ -68,13 +68,13 @@ public class LinkedDataServiceTest {
 
     // anyway, here goes the generation
     StringWriter sw = new StringWriter();
-    JsonLdService.jsonld(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
+    LinkedDataService.getJsonLdForSchema(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
     System.out.println("result\r" + sw.getBuffer().toString());
 
     assertEquals(2, LinkedDataServiceTest.fdpSchema.getTableNames().size());
 
     sw = new StringWriter();
-    JsonLdService.ttl(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
+    LinkedDataService.getTtlForSchema(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
     System.out.println(sw.toString());
   }
 

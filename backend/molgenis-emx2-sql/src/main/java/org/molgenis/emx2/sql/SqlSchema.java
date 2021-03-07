@@ -274,7 +274,7 @@ public class SqlSchema implements Schema {
               // update table settings
               oldTable.setSettings(mergeTable.getSettings());
               oldTable.setDescription(mergeTable.getDescription());
-              oldTable.setJsonldType(mergeTable.getJsonldType());
+              oldTable.setSemantics(mergeTable.getSemantics());
               MetadataUtils.saveTableMetadata(db.getJooq(), oldTable);
 
               // add missing (except refback),

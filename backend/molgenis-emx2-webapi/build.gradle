@@ -4,7 +4,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-graphql')
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-exampledata')
-    implementation project(':backend:molgenis-emx2-jsonld')
+    implementation project(':backend:molgenis-emx2-semantics')
     implementation 'com.sparkjava:spark-core:2.9.3'
     implementation 'io.swagger.parser.v3:swagger-parser:2.0.24'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'

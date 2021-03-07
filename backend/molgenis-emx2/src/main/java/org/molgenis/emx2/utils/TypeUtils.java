@@ -274,7 +274,7 @@ public class TypeUtils {
       } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
     }
     String v = trimQuotes(value.substring(start));
-    if (!"".equals(v)) result.add(v);
+    if (!"".equals(v)) result.add(v.trim());
     return result;
   }
 
@@ -284,6 +284,7 @@ public class TypeUtils {
     if (value.startsWith("\"") && value.endsWith("\"")) {
       return value.substring(1, value.length() - 1);
     }
+    value = value.trim();
     return value;
   }
 
@@ -374,42 +375,6 @@ public class TypeUtils {
       default:
         throw new UnsupportedOperationException(
             "Unsupported columnType columnType found:" + columnType);
-    }
-  }
-
-  public static String toJson(String jsonldType) {
-    if (jsonldType != null) {
-      // is an object?
-      if (jsonldType.trim().startsWith("{")) {
-        try {
-          // if can parse is okay
-          json.readTree(jsonldType);
-          return jsonldType;
-        } catch (Exception e) {
-          throw new MolgenisException("Invalid json ", e);
-        }
-      } else if (jsonldType.trim().startsWith("[")) {
-        try {
-          // if can parse is okay
-          json.readValue(jsonldType, ArrayList.class);
-          return jsonldType;
-        } catch (Exception e) {
-          throw new MolgenisException("Invalid json ", e);
-        }
-      } else
-        // treat as string
-        try {
-          if (!jsonldType.trim().startsWith("\"")) {
-            // may need quotes
-            jsonldType = "\"" + jsonldType + "\"";
-          }
-          json.readTree(jsonldType);
-          return jsonldType;
-        } catch (Exception e) {
-          throw new MolgenisException("Invalid json ", e);
-        }
-    } else {
-      return null;
     }
   }
 }

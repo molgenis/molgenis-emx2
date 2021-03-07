@@ -14,18 +14,18 @@ public class JsonLdExample {
     Table personTable =
         schema.create(
             table("Person")
-                .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#Person")
+                .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#Person")
                 .add(
                     column("name")
                         .setPkey()
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#name"),
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#name"),
                     column("jobTitle")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#jobTitle")
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#jobTitle")
                         .setRequired(true),
                     column("telephone")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#telephone"),
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#telephone"),
                     column("url")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#url")));
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#url")));
 
     personTable.insert(
         row(
@@ -42,22 +42,22 @@ public class JsonLdExample {
     Table recipeTable =
         schema.create(
             table("Recipe")
-                .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#Recipe")
+                .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#Recipe")
                 .add(
                     column("name")
                         .setPkey()
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#name"),
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#name"),
                     column("author")
                         .setType(REF)
                         .setRefTable("Person")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#author")
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#author")
                         .setRequired(true),
                     column("datePublished")
                         .setType(DATE)
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#datePublished")
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#datePublished")
                         .setRequired(true),
                     column("prepTime")
-                        .setJsonldType("https://schema.org/docs/jsonldcontext.jsonld#prepTime")
+                        .setSemantics("https://schema.org/docs/jsonldcontext.jsonld#prepTime")
                         .setRequired(true)));
 
     recipeTable.insert(

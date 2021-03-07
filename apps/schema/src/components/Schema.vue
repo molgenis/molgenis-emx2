@@ -115,10 +115,10 @@
                     >
                       {{ table.name }}
                       <span
-                        v-if="table.jsonldType"
+                        v-if="table.semantics"
                         style="font-size: small; text-transform: none"
                       >
-                        <<i>jsonldType:{{ table.jsonldType }}</i
+                        <<i>semantics:{{ table.semantics }}</i
                         >> <br />
                       </span>
                     </h3>
@@ -142,7 +142,7 @@
                   <th scope="col">type</th>
                   <th scope="col">key</th>
                   <th scope="col">description</th>
-                  <th scope="col">jsonldType</th>
+                  <th scope="col">semantics</th>
                 </tr>
                 <tr
                   v-for="column in table.columns == null
@@ -187,7 +187,7 @@
                   </td>
                   <td>{{ column.key }}</td>
                   <td>{{ column.description }}</td>
-                  <td>{{ column.jsonldType }}</td>
+                  <td>{{ column.semantics }}</td>
                 </tr>
               </tbody>
             </table>
@@ -324,7 +324,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,jsonldType,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,required,description,jsonldType,validationExpression,visibleExpression}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,required,description,semantics,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = data._schema.name;

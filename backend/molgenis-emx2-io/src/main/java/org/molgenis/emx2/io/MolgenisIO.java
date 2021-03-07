@@ -104,7 +104,7 @@ public class MolgenisIO {
     inputAll(new TableStoreForCsvInZipFile(zipFile), schema);
   }
 
-  public static void fromExcelFile(Path excelFile, Schema schema) {
+  public static void importFromExcelFile(Path excelFile, Schema schema) {
     inputAll(new TableStoreForXlsxFile(excelFile), schema);
   }
 }

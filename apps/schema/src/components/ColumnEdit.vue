@@ -62,9 +62,10 @@
       label="validationExpression"
     />
     <InputText v-model="column.visibleExpression" label="visibleExpression" />
-    <InputText
-      v-model="column.jsonldType"
-      label="jsonldType (should be valid json conform jsonld @type spec)"
+    <InputString
+      v-model="column.semantics"
+      :list="true"
+      label="semantics (should be command separated list of IRI, or keyword 'id')"
     />
   </LayoutForm>
 </template>

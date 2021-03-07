@@ -53,7 +53,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       StopWatch.print("export to excel complete");
       Schema schema3 = database.dropCreateSchema(getClass().getSimpleName() + "3");
       StopWatch.print("schema3 created, ready to reload the exported data");
-      MolgenisIO.fromExcelFile(excelFile, schema3);
+      MolgenisIO.importFromExcelFile(excelFile, schema3);
       StopWatch.print("import from excel complete");
       CompareTools.assertEquals(schema1.getMetadata(), schema3.getMetadata());
 

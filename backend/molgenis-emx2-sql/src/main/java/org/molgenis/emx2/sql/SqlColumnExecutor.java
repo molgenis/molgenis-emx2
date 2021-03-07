@@ -245,8 +245,11 @@ public class SqlColumnExecutor {
     }
     if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
       throw new MolgenisException(
-          "unique on column '" + c.getTableName() + "." + c.getName() + "' failed",
-          "When key spans multiple columns, none of the columns can be nullable");
+          "unique on column '"
+              + c.getTableName()
+              + "."
+              + c.getName()
+              + "' failed: When key spans multiple columns, none of the columns can be nullable");
     }
     if (c.isReference() && c.getRefTable() == null) {
       throw new MolgenisException(
@@ -278,9 +281,10 @@ public class SqlColumnExecutor {
                 + c.getRefLink()
                 + " is not a REF,REF_ARRAY");
       }
-      if (c.getKey() == 1) {
-        c.setRequired(true);
-      }
+    }
+    // fix required
+    if (c.getKey() == 1 && !c.isRequired()) {
+      c.setRequired(true);
     }
   }
 

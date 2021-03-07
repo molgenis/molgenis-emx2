@@ -18,8 +18,13 @@
       <label>Description: </label>
       <InputString class="ml-1" v-model="table.description" :inplace="true" />
       <br />
-      <label>jsonldType:</label>
-      <InputString class="ml-1" v-model="table.jsonldType" :inplace="true" />
+      <label>semantics:</label>
+      <InputString
+        class="ml-1"
+        v-model="table.semantics"
+        :list="true"
+        :inplace="true"
+      />
       <table class="table table-sm" :key="timestamp">
         <thead class="font-weight-bold">
           <th style="width: 2em">
@@ -38,7 +43,7 @@
             mappedBy
           </th>
           <th scope="col" style="width: 10em">refLink</th>
-          <th scope="col" style="width: 10em">jsonldType</th>
+          <th scope="col" style="width: 10em">semantics</th>
           <th scope="col">description</th>
           <th scope="col" style="width: 3em"></th>
         </thead>

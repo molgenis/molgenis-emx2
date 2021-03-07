@@ -68,7 +68,7 @@
       <span v-else class="text-muted small">n/a</span>
     </td>
     <td>
-      <InputString v-model="column.jsonldType" :inplace="true" />
+      <InputString v-model="column.semantics" :list="true" :inplace="true" />
     </td>
     <td>
       <InputText v-model="column.description" :inplace="true" />

@@ -197,7 +197,7 @@ Most core ideas where already described in https://docs.google.com/document/d/19
 *  emx2-sql: implementation into postgresql
 *  emx2-io: emx2 format, csv import/export of data, legacy import
 *  emx2-graphql: all for generating the graphql on top of sql
-*  emx2-jsonld: endpoint for json-ld serving
+*  emx2-semantics: endpoint for linked data serving in json-ld and ttl 
 *  emx2-webapi: ties it all together onto SparkJava embedded web server
 *  emx2-exampledata: test data models and data, used in various test
 *  emx2-run: packages all into one fat jar

@@ -25,9 +25,10 @@
       <LayoutForm v-if="(tableDraft.oldName = null)">
         <InputString v-model="tableDraft.name" label="Table name" />
         <InputText v-model="tableDraft.description" label="Table Description" />
-        <InputText
-          v-model="tableDraft.jsonldType"
-          label="jsonld type (conform JSON-LD @type specification)"
+        <InputString
+          :list="true"
+          v-model="tableDraft.semantics"
+          label="semantics (comma separated list of IRI defining type, and/or keyword 'id')"
         />
       </LayoutForm>
       <div v-else>ALTER IS NOT YET IMPLEMENTED</div>
@@ -110,7 +111,7 @@ export default {
           table: {
             name: this.table.name,
             description: this.table.description,
-            jsonldType: this.table.jsonldType,
+            semantics: this.table.semantics,
           },
         }
       )

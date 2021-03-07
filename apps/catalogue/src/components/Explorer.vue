@@ -87,7 +87,6 @@ import VariablePanel from "./components/VariablePanel";
 import {
   ButtonAction,
   ButtonAlt,
-  DataTable,
   FilterSidebar,
   FilterWells,
   InputCheckbox,
@@ -120,7 +119,6 @@ export default {
     FilterView,
     ButtonAlt,
     InputFile,
-    DataTable,
     InputSearch,
     MessageError,
     MessageSuccess,

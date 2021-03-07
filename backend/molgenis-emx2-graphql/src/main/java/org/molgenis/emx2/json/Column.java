@@ -23,7 +23,7 @@ public class Column {
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
   private String columnFormat = null;
-  private String jsonldType = null;
+  private String[] semantics = null;
 
   private boolean inherited = false;
 
@@ -48,7 +48,7 @@ public class Column {
     this.validationExpression = column.getValidationExpression();
     this.required = column.isRequired();
     this.description = column.getDescription();
-    this.jsonldType = column.getJsonldType();
+    this.semantics = column.getSemantics();
     this.visibleExpression = column.getVisibleExpression();
     this.columnFormat = column.getColumnFormat();
 
@@ -74,7 +74,7 @@ public class Column {
     c.setMappedBy(mappedBy);
     c.setValidationExpression(validationExpression);
     c.setDescription(description);
-    c.setJsonldType(jsonldType);
+    c.setSemantics(semantics);
     c.setVisibleExpression(visibleExpression);
     c.setColumnFormat(columnFormat);
     // ignore inherited
@@ -161,12 +161,12 @@ public class Column {
     this.description = description;
   }
 
-  public String getJsonldType() {
-    return jsonldType;
+  public String[] getSemantics() {
+    return semantics;
   }
 
-  public void setJsonldType(String jsonldType) {
-    this.jsonldType = jsonldType;
+  public void setSemantics(String[] semantics) {
+    this.semantics = semantics;
   }
 
   public String getRefLink() {

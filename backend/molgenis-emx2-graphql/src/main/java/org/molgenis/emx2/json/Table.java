@@ -17,7 +17,7 @@ public class Table {
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
-  private String jsonldType;
+  private String[] semantics;
 
   public Table() {
     // for json serialisation
@@ -29,7 +29,7 @@ public class Table {
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
-    this.jsonldType = tableMetadata.getJsonldType();
+    this.semantics = tableMetadata.getSemantics();
     this.settings = tableMetadata.getSettings();
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata));
@@ -108,12 +108,12 @@ public class Table {
     this.externalSchema = externalSchema;
   }
 
-  public String getJsonldType() {
-    return jsonldType;
+  public String[] getSemantics() {
+    return semantics;
   }
 
-  public void setJsonldType(String jsonldType) {
-    this.jsonldType = jsonldType;
+  public void setSemantics(String[] semantics) {
+    this.semantics = semantics;
   }
 
   public boolean getDrop() {

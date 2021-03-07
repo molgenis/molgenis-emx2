@@ -19,6 +19,6 @@ include(':backend:molgenis-emx2-exampledata')
 include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-jobs')
-include(':backend:molgenis-emx2-jsonld')
+include(':backend:molgenis-emx2-semantics')
 //include(':docs')
 

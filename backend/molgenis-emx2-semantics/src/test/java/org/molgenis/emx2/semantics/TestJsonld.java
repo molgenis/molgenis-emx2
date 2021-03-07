@@ -1,4 +1,4 @@
-package org.molgenis.emx2.jsonld;
+package org.molgenis.emx2.semantics;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,15 +26,15 @@ public class TestJsonld {
     JsonLdExample.create(schema);
 
     assertEquals(
-        "\"https://schema.org/docs/jsonldcontext.jsonld#Person\"",
-        db.getSchema(schema.getName()).getTable("Person").getMetadata().getJsonldType());
+        "https://schema.org/docs/jsonldcontext.jsonld#Person",
+        db.getSchema(schema.getName()).getTable("Person").getMetadata().getSemantics()[0]);
 
     StringWriter sw = new StringWriter();
-    JsonLdService.jsonld(schema, new PrintWriter(sw));
+    LinkedDataService.getJsonLdForSchema(schema, new PrintWriter(sw));
     System.out.println(sw.toString());
 
     sw = new StringWriter();
-    JsonLdService.ttl(schema, new PrintWriter(sw));
+    LinkedDataService.getTtlForSchema(schema, new PrintWriter(sw));
     System.out.println(sw.toString());
   }
 }

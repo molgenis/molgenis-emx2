@@ -83,7 +83,7 @@ public class ZipApi {
       if (fileName.endsWith(".zip")) {
         MolgenisIO.fromZipFile(tempFile.toPath(), schema);
       } else if (fileName.endsWith(".xlsx")) {
-        MolgenisIO.fromExcelFile(tempFile.toPath(), schema);
+        MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
       } else {
         throw new IOException(
             "File upload failed: extension "

@@ -15,7 +15,6 @@ import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.utils.TypeUtils;
 
 public class Column {
 
@@ -45,7 +44,7 @@ public class Column {
   private String validationExpression = null;
   private String visibleExpression = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String jsonldType = null; // json ld expression
+  private String[] semantics = null; // json ld expression
   // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -93,12 +92,12 @@ public class Column {
     return new Column(name).setType(type);
   }
 
-  public String getJsonldType() {
-    return jsonldType;
+  public String[] getSemantics() {
+    return semantics;
   }
 
-  public Column setJsonldType(String jsonldType) {
-    this.jsonldType = TypeUtils.toJson(jsonldType);
+  public Column setSemantics(String... semantics) {
+    this.semantics = semantics;
     return this;
   }
 
@@ -123,7 +122,7 @@ public class Column {
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
-    jsonldType = column.jsonldType;
+    semantics = column.semantics;
     columnFormat = column.columnFormat;
     visibleExpression = column.visibleExpression;
   }

@@ -41,10 +41,4 @@ public class TestTypeUtils {
     assertNull((Object[]) TypeUtils.getTypedValue(null, type));
     assertNull(TypeUtils.getTypedValue("", type));
   }
-
-  @Test
-  public void testJsonType() {
-    String json = "http://some.url";
-    assertEquals("\"" + json + "\"", TypeUtils.toJson(json));
-  }
 }

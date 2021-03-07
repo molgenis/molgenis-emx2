@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
-import org.molgenis.emx2.utils.TypeUtils;
 
 public class TableMetadata {
 
@@ -32,16 +31,16 @@ public class TableMetadata {
   // old name, useful for alter table
   private String oldName;
 
-  public String getJsonldType() {
-    return jsonldType;
+  public String[] getSemantics() {
+    return semantics;
   }
 
-  public TableMetadata setJsonldType(String jsonldType) {
-    this.jsonldType = TypeUtils.toJson(jsonldType);
+  public TableMetadata setSemantics(String... semantics) {
+    this.semantics = semantics;
     return this;
   }
 
-  private String jsonldType = null;
+  private String[] semantics = null;
 
   public TableMetadata(String tableName) {
     if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_]*") || tableName.length() > 341) {
@@ -89,7 +88,7 @@ public class TableMetadata {
     }
     this.inherit = metadata.getInherit();
     this.importSchema = metadata.getImportSchema();
-    this.jsonldType = metadata.getJsonldType();
+    this.semantics = metadata.getSemantics();
   }
 
   public String getTableName() {

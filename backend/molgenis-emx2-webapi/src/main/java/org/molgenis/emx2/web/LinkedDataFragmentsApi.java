@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.jsonld.JsonLdService;
+import org.molgenis.emx2.semantics.LinkedDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -29,28 +29,28 @@ public class LinkedDataFragmentsApi {
   private static String jsonldTable(Request request, Response response) {
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
-    JsonLdService.jsonld(table, new PrintWriter(sw));
+    LinkedDataService.getJsonLdForTable(table, new PrintWriter(sw));
     return sw.getBuffer().toString();
   }
 
   private static String jsonld(Request request, Response response) {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
-    JsonLdService.jsonld(schema, new PrintWriter(sw));
+    LinkedDataService.getJsonLdForSchema(schema, new PrintWriter(sw));
     return sw.getBuffer().toString();
   }
 
   private static String ttl(Request request, Response response) {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
-    JsonLdService.ttl(schema, new PrintWriter(sw));
+    LinkedDataService.getTtlForSchema(schema, new PrintWriter(sw));
     return sw.getBuffer().toString();
   }
 
   private static String ttlTable(Request request, Response response) {
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
-    JsonLdService.ttl(table, new PrintWriter(sw));
+    LinkedDataService.getTtlForTable(table, new PrintWriter(sw));
     return sw.getBuffer().toString();
   }
 

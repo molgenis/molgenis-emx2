@@ -16,8 +16,7 @@ public class Constants {
   public static final String FORM = "form";
   public static final String VISIBLE_EXPRESSION = "visibleExpression";
   public static final String DESCRIPTION = "description";
-  public static final String JSONLD_TYPE = "jsonldType";
-  public static final String JSONLD_CONTEXT = "jsonldContext";
+  public static final String SEMANTICS = "semantics";
   public static final String ROLE = "role";
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
