@@ -57,7 +57,7 @@ podTemplate(inheritFrom:'shared', containers: [
             sh "git fetch --depth 1000"
             sh "git config user.email \"m.a.swertz@rug.nl\""
             sh "git config user.name \"Jenkins-CI\""
-            sh "./gradlew test jacocoMergedReport sonarqube shadowJar jib -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Djib.to.auth.username=${DOCKER_USERNAME} -Djib.to.auth.password=${DOCKER_PASSWORD}"
+            sh "./gradlew test jacocoMergedReport sonarqube shadowJar jib release -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Djib.to.auth.username=${DOCKER_USERNAME} -Djib.to.auth.password=${DOCKER_PASSWORD}"
         }
     }
 
