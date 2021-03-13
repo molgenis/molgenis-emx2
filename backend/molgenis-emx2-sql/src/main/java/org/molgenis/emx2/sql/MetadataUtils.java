@@ -89,10 +89,8 @@ public class MetadataUtils {
   }
 
   // should never run in parallel
-  protected static synchronized void createMetadataSchemaIfNotExists(DSLContext j) {
-    j.transaction(
-        config -> {
-          DSLContext jooq = config.dsl();
+  protected static synchronized void createMetadataSchemaIfNotExists(DSLContext jooq) {
+
 
           try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
             step.execute();
@@ -100,7 +98,6 @@ public class MetadataUtils {
 
           try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
             t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
-            jooq.execute("LOCK " + SCHEMA_METADATA);
             jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
             jooq.execute(
                 "DROP POLICY IF EXISTS {0} ON {1}",
@@ -126,7 +123,6 @@ public class MetadataUtils {
                             .onUpdateCascade()
                             .onDeleteCascade())
                     .execute();
-            jooq.execute("LOCK " + TABLE_METADATA);
             if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
           }
 
@@ -148,7 +144,6 @@ public class MetadataUtils {
                             .onUpdateCascade()
                             .onDeleteCascade())
                     .execute();
-            jooq.execute("LOCK " + COLUMN_METADATA);
             if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
           }
 
@@ -177,19 +172,17 @@ public class MetadataUtils {
 
           try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
             t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
-            jooq.execute("LOCK " + USERS_METADATA);
           }
 
           try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
             t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
                 .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
                 .execute();
-            jooq.execute("LOCK " + SETTINGS_METADATA);
           }
 
           jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
           jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-        });
+
   }
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
