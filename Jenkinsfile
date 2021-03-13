@@ -36,7 +36,6 @@ podTemplate(inheritFrom:'shared', containers: [
                 sh(script: "vault read -field=value secret/ops/jenkins/maven/settings.xml > ${JENKINS_AGENT_WORKDIR}/.m2/settings.xml")
                 env.SONAR_TOKEN = sh(script: 'vault read -field=value secret/ops/token/sonar', returnStdout: true)
                 env.GITHUB_TOKEN = sh(script: 'vault read -field=token-emx2 secret/ops/token/github', returnStdout: true)
-                env.GITHUB_USER = sh(script: 'vault read -field=username secret/ops/token/github', returnStdout: true)
                 env.DOCKER_USERNAME = sh(script: 'vault read -field=username secret/gcc/account/dockerhub', returnStdout: true)
                 env.DOCKER_PASSWORD = sh(script: 'vault read -field=password secret/gcc/account/dockerhub', returnStdout: true)
             }
@@ -55,11 +54,11 @@ podTemplate(inheritFrom:'shared', containers: [
             sh "apt -y install git"
             sh "apt -y install docker.io"
             sh "git fetch --depth 1000"
-            sh "git config user.email \"molgenis+ci@gmail.com\""
+            sh "git config user.email \"m.a.swertz@rug.nl\""
             sh "git config user.name \"molgenis-jenkins\""
             sh "git config url.https://.insteadOf git://"
             sh "echo \"${DOCKER_PASSWORD}\" | docker login -u \"${DOCKER_USERNAME}\" --password-stdin"
-            sh "./gradlew -i test jacocoMergedReport sonarqube shadowJar jib \
+            sh "./gradlew -i test jacocoMergedReport sonarqube shadowJar jib release \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password "
         }
