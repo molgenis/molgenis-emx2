@@ -72,17 +72,31 @@ export default {
   },
   methods: {
     permitted(item) {
+      console.log(
+        "session: " +
+          JSON.stringify(this.session) +
+          " vs " +
+          JSON.stringify(item)
+      );
       if (!item.role) {
         return true;
       }
-      //user admin
-      if (this.session) {
+      if (this.session && Array.isArray(this.session.roles)) {
         if (this.session.email == "admin") {
           return true;
         }
-        //todo, smarter roles system, should have all roles user has than this is peanuts
-        if (Array.isArray(this.session.roles)) {
-          return this.session.roles.includes(item.role);
+        if (item.role == "Viewer") {
+          return this.session.roles.some((r) =>
+            ["Viewer", "Editor", "Manager", "Owner"].includes(r)
+          );
+        } else if (item.role == "Editor") {
+          return this.session.roles.some((r) =>
+            [("Editor", "Manager", "Owner")].includes(r)
+          );
+        } else if (item.role == "Manager") {
+          return this.session.roles.some((r) =>
+            ["Manager", "Owner"].includes(r)
+          );
         }
       }
       return false;

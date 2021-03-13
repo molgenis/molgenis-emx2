@@ -11,7 +11,7 @@
       :key="item.key + (item.submenu ? item.submenu.length : '')"
       class="flex-nowrap"
     >
-      <form class="form-inline flex-nowrap ">
+      <form class="form-inline flex-nowrap">
         <div class="col text-nowrap">
           <IconAction class="menu-drag-icon" icon="ellipsis-v" />
           <div class="d-inline">{{ item.label }}</div>
@@ -32,7 +32,12 @@
 
 <script>
 import Draggable from "vuedraggable";
-import {IconAction, IconDanger, InputSelect, InputString} from "@mswertz/emx2-styleguide";
+import {
+  IconAction,
+  IconDanger,
+  InputSelect,
+  InputString,
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
@@ -40,11 +45,11 @@ export default {
     IconAction,
     InputString,
     IconDanger,
-    InputSelect
+    InputSelect,
   },
   props: {
-    items: Array
+    items: Array,
   },
-  name: "MenuManager"
+  name: "MenuManager",
 };
 </script>

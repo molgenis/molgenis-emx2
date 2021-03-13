@@ -8,13 +8,14 @@
       <MolgenisTheme
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
       />
-      <NavBar
-        logo="https://master.dev.molgenis.org/img/Logo_Blue_Small.png"
+      <MolgenisMenu
+        logo="/apps/styleguide/assets/img/molgenis_logo.png"
         active="My search"
         :items="menu"
+        :session="session"
       >
         <MolgenisSession v-model="session" />
-      </NavBar>
+      </MolgenisMenu>
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
         <slot />
@@ -37,7 +38,7 @@
 </template>
 
 <script>
-import NavBar from "./MolgenisMenu";
+import MolgenisMenu from "./MolgenisMenu";
 import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
@@ -47,7 +48,7 @@ import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { MolgenisSession, NavBar, Footer, MolgenisTheme },
+  components: { MolgenisSession, MolgenisMenu, Footer, MolgenisTheme },
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
