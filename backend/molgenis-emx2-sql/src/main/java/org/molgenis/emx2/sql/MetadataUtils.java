@@ -116,19 +116,17 @@ public class MetadataUtils {
           // rowlevel securw the schema table
 
           // public access
-          if (jooq.meta().getTables(TABLE_METADATA.getName()).size() == 0) {
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
-              int result =
-                  t.columns(TABLE_SCHEMA, TABLE_NAME)
-                      .constraints(
-                          primaryKey(TABLE_SCHEMA, TABLE_NAME),
-                          foreignKey(TABLE_SCHEMA)
-                              .references(SCHEMA_METADATA)
-                              .onUpdateCascade()
-                              .onDeleteCascade())
-                      .execute();
-              if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
-            }
+          try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
+            int result =
+                t.columns(TABLE_SCHEMA, TABLE_NAME)
+                    .constraints(
+                        primaryKey(TABLE_SCHEMA, TABLE_NAME),
+                        foreignKey(TABLE_SCHEMA)
+                            .references(SCHEMA_METADATA)
+                            .onUpdateCascade()
+                            .onDeleteCascade())
+                    .execute();
+            if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
           }
 
           // this way more robust for non breaking changes
@@ -139,19 +137,17 @@ public class MetadataUtils {
             jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
           }
 
-          if (jooq.meta().getTables(COLUMN_METADATA.getName()).size() == 0) {
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
-              int result =
-                  t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
-                      .constraints(
-                          primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-                          foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                              .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                              .onUpdateCascade()
-                              .onDeleteCascade())
-                      .execute();
-              if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
-            }
+          try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
+            int result =
+                t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
+                    .constraints(
+                        primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
+                        foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                            .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                            .onUpdateCascade()
+                            .onDeleteCascade())
+                    .execute();
+            if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
           }
 
           // this way more robust for non-breaking changes
@@ -448,21 +444,6 @@ public class MetadataUtils {
 
   protected static boolean schemaExists(DSLContext jooq, String name) {
     return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
-  }
-
-  protected static List<Column> loadColumnMetadata(DSLContext jooq, TableMetadata table) {
-    List<Column> columnList = new ArrayList<>();
-    // load tables and columns
-    Collection<org.jooq.Record> columnRecords =
-        jooq.selectFrom(COLUMN_METADATA)
-            .where(
-                TABLE_SCHEMA.eq(table.getSchema().getName()), (TABLE_NAME).eq(table.getTableName()))
-            .fetch();
-
-    for (org.jooq.Record col : columnRecords) {
-      columnList.add(new Column(table, recordToColumn(col)));
-    }
-    return columnList;
   }
 
   private static Column recordToColumn(org.jooq.Record col) {
