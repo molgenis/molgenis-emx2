@@ -93,7 +93,6 @@ public class MetadataUtils {
     j.transaction(
         config -> {
           DSLContext jooq = config.dsl();
-          jooq.execute("LOCK TABLE pg_catalog.pg_namespace IN SHARE MODE");
           if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
             try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
