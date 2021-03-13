@@ -99,6 +99,11 @@ public class MetadataUtils {
               step.execute();
             }
           }
+        });
+
+    j.transaction(
+        config -> {
+          DSLContext jooq = config.dsl();
 
           if (jooq.meta().getTables(SCHEMA_METADATA.getName()).size() == 0) {
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
