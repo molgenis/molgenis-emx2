@@ -100,7 +100,7 @@ public class MetadataUtils {
 
           try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
             t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
-
+            jooq.execute("LOCK " + SCHEMA_METADATA);
             jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
             jooq.execute(
                 "DROP POLICY IF EXISTS {0} ON {1}",
