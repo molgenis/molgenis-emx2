@@ -35,9 +35,8 @@ podTemplate(inheritFrom:'shared', containers: [
                 sh(script: "vault read -field=value secret/ops/jenkins/rancher/cli2.json > ${JENKINS_AGENT_WORKDIR}/.rancher/cli2.json")
                 sh(script: "vault read -field=value secret/ops/jenkins/maven/settings.xml > ${JENKINS_AGENT_WORKDIR}/.m2/settings.xml")
                 env.SONAR_TOKEN = sh(script: 'vault read -field=value secret/ops/token/sonar', returnStdout: true)
-                env.GITHUB_TOKEN = sh(script: 'vault read -field=value secret/ops/token/github', returnStdout: true)
                 env.GRGIT_TOKEN = sh(script: 'vault read -field=value secret/ops/token/github', returnStdout: true)
-                env.GITHUB_USER = sh(script: 'vault read -field=username secret/ops/token/github', returnStdout: true)
+                env.GRGIT_USER = sh(script: 'vault read -field=username secret/ops/token/github', returnStdout: true)
                 env.DOCKER_USERNAME = sh(script: 'vault read -field=username secret/gcc/account/dockerhub', returnStdout: true)
                 env.DOCKER_PASSWORD = sh(script: 'vault read -field=password secret/gcc/account/dockerhub', returnStdout: true)
             }
@@ -58,10 +57,10 @@ podTemplate(inheritFrom:'shared', containers: [
             sh "git fetch --depth 1000"
             sh "git config user.email ${GITHUB_USER}"
             sh "git config user.name \"Jenkins-CI\""
+            sh "git config url.https://.insteadOf git://""
             sh "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
             sh "./gradlew -i test jacocoMergedReport sonarqube shadowJar jib release \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password="
+            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io"
         }
     }
 
