@@ -24,7 +24,7 @@ public class TestDatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getTestDatabase(DataSource source, boolean deleteAll) {
+  public static synchronized Database getTestDatabase(DataSource source, boolean deleteAll) {
     if (db == null) {
 
       // setup local Jooq
@@ -44,7 +44,7 @@ public class TestDatabaseFactory {
     return getTestDatabase(false);
   }
 
-  public static Database getTestDatabase(boolean deleteAll) {
+  public static synchronized Database getTestDatabase(boolean deleteAll) {
 
     String url = (String) getParameter(MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
     String user = (String) getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
