@@ -126,6 +126,7 @@ public class MetadataUtils {
                             .onUpdateCascade()
                             .onDeleteCascade())
                     .execute();
+            jooq.execute("LOCK " + TABLE_METADATA);
             if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
           }
 
@@ -147,6 +148,7 @@ public class MetadataUtils {
                             .onUpdateCascade()
                             .onDeleteCascade())
                     .execute();
+            jooq.execute("LOCK " + COLUMN_METADATA);
             if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
           }
 
@@ -175,12 +177,14 @@ public class MetadataUtils {
 
           try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
             t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+            jooq.execute("LOCK " + USERS_METADATA);
           }
 
           try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
             t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
                 .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
                 .execute();
+            jooq.execute("LOCK " + SETTINGS_METADATA);
           }
 
           jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
