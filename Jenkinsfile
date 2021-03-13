@@ -59,7 +59,7 @@ podTemplate(inheritFrom:'shared', containers: [
             sh "git config user.name \"molgenis-jenkins\""
             sh "git config url.https://.insteadOf git://"
             sh "echo \"${DOCKER_PASSWORD}\" | docker login -u \"${DOCKER_USERNAME}\" --password-stdin"
-            sh "./gradlew -i test jacocoMergedReport sonarqube shadowJar jib release \
+            sh "./gradlew -i test jacocoMergedReport sonarqube shadowJar jib \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password "
         }
