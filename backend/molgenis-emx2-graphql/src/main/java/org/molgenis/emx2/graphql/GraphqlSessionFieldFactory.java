@@ -54,10 +54,18 @@ public class GraphqlSessionFieldFactory {
               if (passWord.length() < 8) {
                 return new GraphqlApiMutationResult(FAILED, "Password too short");
               }
+              if (database.hasUser(userName)) {
+                return new GraphqlApiMutationResult(FAILED, "Username already exists");
+              }
               database.tx(
                   db -> {
+                    // uplift permissions
+                    String active = db.getActiveUser();
+                    db.clearActiveUser();
                     db.addUser(userName);
                     db.setUserPassword(userName, passWord);
+                    // and lift down again
+                    db.setActiveUser(active);
                   });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);
