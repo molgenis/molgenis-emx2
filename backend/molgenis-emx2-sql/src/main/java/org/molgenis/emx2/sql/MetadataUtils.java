@@ -93,17 +93,12 @@ public class MetadataUtils {
     j.transaction(
         config -> {
           DSLContext jooq = config.dsl();
-          jooq.execute("LOCK TABLE pg_catalog.pg_namespace");
+          jooq.execute("LOCK TABLE pg_catalog.pg_namespace IN SHARE MODE");
           if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
             try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
             }
           }
-        });
-
-    j.transaction(
-        config -> {
-          DSLContext jooq = config.dsl();
 
           if (jooq.meta().getTables(SCHEMA_METADATA.getName()).size() == 0) {
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
@@ -121,7 +116,7 @@ public class MetadataUtils {
             }
           }
 
-          // rowlevel secur the schema table
+          // rowlevel securw the schema table
 
           // public access
           if (jooq.meta().getTables(TABLE_METADATA.getName()).size() == 0) {
