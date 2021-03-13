@@ -93,26 +93,24 @@ public class MetadataUtils {
     j.transaction(
         config -> {
           DSLContext jooq = config.dsl();
-          if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
-            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
-              step.execute();
-            }
+
+          try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
+            step.execute();
           }
 
-          if (jooq.meta().getTables(SCHEMA_METADATA.getName()).size() == 0) {
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-              t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
-              jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
-              jooq.execute(
-                  "DROP POLICY IF EXISTS {0} ON {1}",
-                  name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
-              jooq.execute(
-                  "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
-                  name(SCHEMA_METADATA.getName() + "_POLICY"),
-                  SCHEMA_METADATA,
-                  MG_ROLE_PREFIX,
-                  TABLE_SCHEMA);
-            }
+          try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
+            t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+
+            jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
+            jooq.execute(
+                "DROP POLICY IF EXISTS {0} ON {1}",
+                name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
+            jooq.execute(
+                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
+                name(SCHEMA_METADATA.getName() + "_POLICY"),
+                SCHEMA_METADATA,
+                MG_ROLE_PREFIX,
+                TABLE_SCHEMA);
           }
 
           // rowlevel securw the schema table
@@ -179,18 +177,14 @@ public class MetadataUtils {
             jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
           }
 
-          if (jooq.meta().getTables(USERS_METADATA.getName()).size() == 0) {
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
-              t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
-            }
+          try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
+            t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
           }
 
-          if (jooq.meta().getTables(SETTINGS_METADATA.getName()).size() == 0) {
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
-              t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-                  .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
-                  .execute();
-            }
+          try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
+            t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+                .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+                .execute();
           }
 
           jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
