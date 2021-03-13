@@ -55,9 +55,8 @@ podTemplate(inheritFrom:'shared', containers: [
             sh "apt -y install git"
             sh "apt -y install docker.io"
             sh "git fetch --depth 1000"
-            sh "git config user.email ${GITHUB_USER}"
-            sh "git config user.name \"Jenkins-CI\""
-            sh "git config url.https://.insteadOf git://"
+            sh "git config user.email \"m.a.swertz@rug.nl\""
+            sh "git config user.name \"{$GITHUB_USER}\""
             sh "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin"
             sh "./gradlew -i test jacocoMergedReport sonarqube shadowJar jib release \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
