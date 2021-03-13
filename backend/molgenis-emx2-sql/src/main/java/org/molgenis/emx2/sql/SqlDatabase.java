@@ -58,12 +58,11 @@ public class SqlDatabase implements Database {
     this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
-
-    this.tx(db -> db.init());
+    this.init();
   }
 
   @Override
-  public synchronized void init() {
+  public void init() {
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
     // setup default stuff
     jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search

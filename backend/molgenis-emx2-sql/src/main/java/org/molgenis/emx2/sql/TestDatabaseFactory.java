@@ -24,7 +24,7 @@ public class TestDatabaseFactory {
     // to hide the public constructor
   }
 
-  public static synchronized Database getTestDatabase(DataSource source, boolean deleteAll) {
+  public static Database getTestDatabase(DataSource source, boolean deleteAll) {
     if (db == null) {
 
       // setup local Jooq
