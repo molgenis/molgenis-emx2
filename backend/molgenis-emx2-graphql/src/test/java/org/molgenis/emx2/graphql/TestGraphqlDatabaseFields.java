@@ -55,6 +55,7 @@ public class TestGraphqlDatabaseFields {
     execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
     Assert.assertEquals("admin", database.getActiveUser());
 
+    if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser("pietje"));
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
