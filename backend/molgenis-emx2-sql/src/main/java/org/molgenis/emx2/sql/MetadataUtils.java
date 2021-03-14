@@ -94,6 +94,8 @@ public class MetadataUtils {
     try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
       step.execute();
     }
+    jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+
 
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
       t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
@@ -182,12 +184,7 @@ public class MetadataUtils {
           .execute();
     }
 
-    jooq.transaction(
-        config -> {
-          DSLContext j = config.dsl();
-          j.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-          j.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-        });
+          jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
   }
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
