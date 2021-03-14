@@ -89,74 +89,78 @@ public class MetadataUtils {
   }
 
   // should never run in parallel
-  protected static synchronized void createMetadataSchemaIfNotExists(DSLContext jooq) {
+  protected static synchronized void createMetadataSchemaIfNotExists(DSLContext j) {
 
-    if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
-      jooq.transaction(
+    if (j.meta().getSchemas(MOLGENIS).size() == 0) {
+      j.transaction(
           config -> {
-            DSLContext j = config.dsl();
-            try (CreateSchemaFinalStep step = j.createSchemaIfNotExists(MOLGENIS)) {
+            DSLContext jooq = config.dsl();
+            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
             }
-            j.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-            j.execute(
+            jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+            jooq.execute(
                 "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC",
                 name(MOLGENIS));
+
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
+              t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+
+              jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
+
+              jooq.execute(
+                  "DROP POLICY IF EXISTS {0} ON {1}",
+                  name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
+              jooq.execute(
+                  "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
+                  name(SCHEMA_METADATA.getName() + "_POLICY"),
+                  SCHEMA_METADATA,
+                  MG_ROLE_PREFIX,
+                  TABLE_SCHEMA);
+            }
+
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
+              int result =
+                  t.columns(TABLE_SCHEMA, TABLE_NAME)
+                      .constraints(
+                          primaryKey(TABLE_SCHEMA, TABLE_NAME),
+                          foreignKey(TABLE_SCHEMA)
+                              .references(SCHEMA_METADATA)
+                              .onUpdateCascade()
+                              .onDeleteCascade())
+                      .execute();
+              if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
+            }
+
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
+              int result =
+                  t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
+                      .constraints(
+                          primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
+                          foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                              .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                              .onUpdateCascade()
+                              .onDeleteCascade())
+                      .execute();
+              if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
+            }
+
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
+              t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+            }
+
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
+              t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+                  .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+                  .execute();
+            }
           });
-    }
-
-    try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-      t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
-
-      jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
-      jooq.transaction(
-          config -> {
-            DSLContext j = config.dsl();
-            j.execute(
-                "DROP POLICY IF EXISTS {0} ON {1}",
-                name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
-            j.execute(
-                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},UPPER({3}),'/Viewer'),'MEMBER'))",
-                name(SCHEMA_METADATA.getName() + "_POLICY"),
-                SCHEMA_METADATA,
-                MG_ROLE_PREFIX,
-                TABLE_SCHEMA);
-          });
-    }
-
-    // rowlevel securw the schema table
-
-    // public access
-    try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
-      int result =
-          t.columns(TABLE_SCHEMA, TABLE_NAME)
-              .constraints(
-                  primaryKey(TABLE_SCHEMA, TABLE_NAME),
-                  foreignKey(TABLE_SCHEMA)
-                      .references(SCHEMA_METADATA)
-                      .onUpdateCascade()
-                      .onDeleteCascade())
-              .execute();
-      if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
     }
 
     // this way more robust for non breaking changes
     for (Field field :
         new Field[] {TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, TALBE_SEMANTICS}) {
-      jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
-    }
-
-    try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
-      int result =
-          t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
-              .constraints(
-                  primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-                  foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                      .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                      .onUpdateCascade()
-                      .onDeleteCascade())
-              .execute();
-      if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
+      j.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
     }
 
     // this way more robust for non-breaking changes
@@ -179,17 +183,7 @@ public class MetadataUtils {
           COLUMN_VISIBLE,
           COLUMN_FORMAT
         }) {
-      jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
-    }
-
-    try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
-      t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
-    }
-
-    try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
-      t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-          .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
-          .execute();
+      j.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
     }
   }
 
