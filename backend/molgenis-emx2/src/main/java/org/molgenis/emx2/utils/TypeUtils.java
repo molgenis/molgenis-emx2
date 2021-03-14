@@ -274,7 +274,7 @@ public class TypeUtils {
       } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
     }
     String v = trimQuotes(value.substring(start));
-    if (!"".equals(v)) result.add(v.trim());
+    if (v != null && !"".equals(v)) result.add(v.trim());
     return result;
   }
 
