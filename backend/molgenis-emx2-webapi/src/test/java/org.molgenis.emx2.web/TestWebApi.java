@@ -123,23 +123,13 @@ public class TestWebApi {
     assertEquals(exp1, result);
 
     String update = "name\r\nyellow\r\n";
-    given()
-        .multiPart("file", "test.txt", new ByteArrayInputStream(update.getBytes()))
-        .when()
-        .patch(path)
-        .then()
-        .statusCode(200);
+    given().body(update).when().post(path).then().statusCode(200);
 
     String exp2 = "name\r\nred\r\ngreen\r\nyellow\r\n";
     result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp2, result);
 
-    given()
-        .multiPart("file", "test.txt", new ByteArrayInputStream(update.getBytes()))
-        .when()
-        .delete(path)
-        .then()
-        .statusCode(200);
+    given().body(update).when().delete(path).then().statusCode(200);
 
     result = given().accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
