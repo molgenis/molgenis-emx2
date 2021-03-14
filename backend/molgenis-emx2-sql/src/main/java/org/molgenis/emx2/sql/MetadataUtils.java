@@ -95,12 +95,12 @@ public class MetadataUtils {
       jooq.transaction(
           config -> {
             DSLContext j = config.dsl();
-            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
+            try (CreateSchemaFinalStep step = j.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
             }
-            jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-            jooq.execute(
-                "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON TABLES  TO PUBLIC",
+            j.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+            j.execute(
+                "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC",
                 name(MOLGENIS));
           });
     }
