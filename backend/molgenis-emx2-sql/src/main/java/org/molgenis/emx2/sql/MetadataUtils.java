@@ -91,10 +91,19 @@ public class MetadataUtils {
   // should never run in parallel
   protected static synchronized void createMetadataSchemaIfNotExists(DSLContext jooq) {
 
-    try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
-      step.execute();
+    if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+      jooq.transaction(
+          config -> {
+            DSLContext j = config.dsl();
+            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
+              step.execute();
+            }
+            jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+            jooq.execute(
+                "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON TABLES  TO PUBLIC",
+                name(MOLGENIS));
+          });
     }
-    jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
 
     try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
       t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
@@ -182,8 +191,6 @@ public class MetadataUtils {
           .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
           .execute();
     }
-
-    jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
   }
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
