@@ -2,7 +2,6 @@ plugins {
     id "jacoco"
     id "java"
     id "com.diffplug.spotless" version "5.11.0" apply false
-    id 'org.gradle.test-retry' version '1.0.0'
 }
 
 repositories {
@@ -16,7 +15,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: "com.diffplug.spotless"
-    apply plugin: 'test-retry'
 
     repositories {
         mavenLocal()
@@ -83,11 +81,6 @@ subprojects {
             showStackTraces true
 
             showStandardStreams = false
-        }
-        retry {
-            failOnPassedAfterRetry = false
-            maxFailures = 42
-            maxRetries = 2
         }
     }
 }
