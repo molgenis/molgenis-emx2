@@ -182,8 +182,12 @@ public class MetadataUtils {
           .execute();
     }
 
-    jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-    jooq.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+    jooq.transaction(
+        config -> {
+          DSLContext j = config.dsl();
+          j.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+          j.execute("GRANT ALL ON ALL TABLES IN SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+        });
   }
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {

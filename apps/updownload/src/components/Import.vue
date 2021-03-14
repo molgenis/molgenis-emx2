@@ -14,16 +14,16 @@
         </p>
         <form class="form-inline">
           <InputFile v-model="file" />
-          <ButtonAction @click="upload('excel')" :disabled="file == undefined">
+          <ButtonAction @click="upload('excel')" v-if="file != undefined">
             Import Excel
           </ButtonAction>
-          <ButtonAction @click="upload('zip')" :disabled="file == undefined">
+          <ButtonAction @click="upload('zip')" v-if="file != undefined">
             Import Zip
           </ButtonAction>
-          <ButtonAction @click="upload('json')" :disabled="file == undefined">
+          <ButtonAction @click="upload('json')" v-if="file != undefined">
             Import JSON
           </ButtonAction>
-          <ButtonAction @click="upload('yaml')" :disabled="file == undefined">
+          <ButtonAction @click="upload('yaml')" v-if="file != undefined">
             Import YAML
           </ButtonAction>
         </form>

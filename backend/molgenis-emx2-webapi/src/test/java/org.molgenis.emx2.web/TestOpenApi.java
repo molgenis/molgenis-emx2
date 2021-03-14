@@ -40,7 +40,6 @@ public class TestOpenApi {
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
     Assert.assertEquals(1, api.getComponents().getSchemas().size()); // useless test
 
-    OpenAPI api2 = CsvApi.getOpenAPI(schema);
     Assert.assertEquals(1, api.getComponents().getSchemas().size()); // useless test
 
     StringWriter writer = new StringWriter();
