@@ -24,11 +24,13 @@
     <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-        Are you sure you want to delete schema '{{ schemaName }}'
+        Are you sure you want to delete database '{{ schemaName }}'?
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeDeleteSchema">Delete schema</ButtonAction>
+        <ButtonAction @click="executeDeleteSchema"
+          >Delete database
+        </ButtonAction>
       </template>
     </LayoutModal>
   </div>
@@ -72,7 +74,7 @@ export default {
   },
   computed: {
     title() {
-      return "Delete group";
+      return "Delete database";
     },
     endpoint() {
       return "/api/graphql";

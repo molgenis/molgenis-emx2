@@ -1,6 +1,5 @@
 <template>
   <div class="table-responsive">
-    {{ hasColheader }}
     <table
       class="table table-bordered table-condensed"
       :class="{ 'table-hover': selectColumn }"

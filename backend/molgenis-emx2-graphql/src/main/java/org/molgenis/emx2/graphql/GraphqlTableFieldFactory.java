@@ -144,13 +144,25 @@ public class GraphqlTableFieldFactory {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName())
-                  .type(Scalars.GraphQLBigDecimal));
+                  .type(Scalars.GraphQLFloat));
+          break;
+        case DECIMAL_ARRAY:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(GraphQLList.list(Scalars.GraphQLBigDecimal)));
           break;
         case INT:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(col.getName())
                   .type(Scalars.GraphQLInt));
+          break;
+        case INT_ARRAY:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(col.getName())
+                  .type(GraphQLList.list(Scalars.GraphQLInt)));
           break;
         case REF:
           tableBuilder.field(

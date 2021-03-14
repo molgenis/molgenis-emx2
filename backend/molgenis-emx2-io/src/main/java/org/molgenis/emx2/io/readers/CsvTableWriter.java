@@ -2,10 +2,7 @@ package org.molgenis.emx2.io.readers;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvWriter;
 
@@ -19,7 +16,7 @@ public class CsvTableWriter {
       throws IOException {
 
     // get most extensive headers
-    Set<String> columnNames = new HashSet<>();
+    Set<String> columnNames = new LinkedHashSet<>();
     for (Row r : rows) {
       columnNames.addAll(r.getColumnNames());
     }

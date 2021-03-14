@@ -1,17 +1,15 @@
 <template>
   <div v-if="schema">
-    <h1>Tables: {{ schema.name }}</h1>
+    <h1>Tables in '{{ schema.name }}'</h1>
     <MessageError v-if="!schema">
       No tables found. Might you need to login?
     </MessageError>
-    Download all tables:
-    <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
-    <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
+    <label v-else>{{ count }} tables found</label>
     <table class="table">
       <thead>
         <tr>
           <th scope="col">
-            Name
+            Table
             <div class="form-check form-check-inline">
               <InputCheckbox
                 class="ml-2"
@@ -72,6 +70,14 @@ export default {
     return {
       tableFilter: [],
     };
+  },
+  computed: {
+    count() {
+      if (!this.schema || !this.schema.tables) {
+        return 0;
+      }
+      return this.schema.tables.length;
+    },
   },
 };
 </script>

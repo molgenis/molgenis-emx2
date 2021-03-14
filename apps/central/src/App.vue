@@ -23,7 +23,7 @@ export default {
     return {
       session: {},
       menuItems: [
-        { label: "Central", href: ".", active: true },
+        { label: "Databases", href: ".", active: true },
         {
           label: "GraphQL API",
           href: "/apps/graphql-playground/",

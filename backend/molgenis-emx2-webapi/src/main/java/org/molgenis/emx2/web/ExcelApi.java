@@ -33,6 +33,10 @@ public class ExcelApi {
     get(schemaPath, ExcelApi::getExcel);
     post(schemaPath, ExcelApi::postExcel);
 
+    //    final String _metaPath = "/:schema/api/excel/_meta"; // NOSONAR
+    //    get(_metaPath, ExcelApi::getExcelMetadata);
+    //    post(_metaPath, ExcelApi::postExcelMetadata);
+
     // table level operations
     final String tablePath = ":schema/api/excel/:table"; // NOSONAR
     get(tablePath, ExcelApi::getExcelTable);

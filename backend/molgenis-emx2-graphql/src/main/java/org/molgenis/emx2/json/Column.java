@@ -30,19 +30,27 @@ public class Column {
   public Column() {}
 
   public Column(org.molgenis.emx2.Column column, TableMetadata table) {
-    this.table = column.getTableName();
+    this(column, table, false);
+  }
+
+  public Column(org.molgenis.emx2.Column column, TableMetadata table, boolean minimal) {
+    if (!minimal) {
+      this.table = column.getTableName();
+      this.position = column.getPosition();
+    }
     this.name = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
-    this.columnType = column.getColumnType();
+    if (!minimal || !ColumnType.STRING.equals(column.getColumnType())) {
+      this.columnType = column.getColumnType();
+    }
     this.columnFormat = column.getColumnFormat();
     this.refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
     this.refJsTemplate = column.getRefJsTemplate();
-    this.position = column.getPosition();
     // this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validationExpression = column.getValidationExpression();

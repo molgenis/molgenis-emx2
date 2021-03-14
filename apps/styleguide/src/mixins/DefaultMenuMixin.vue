@@ -9,11 +9,11 @@ export default {
           href: "../schema/",
         },
         {
-          label: "Upload",
-          href: "../import/",
+          label: "Up/Download",
+          href: "../updownload/",
         },
         {
-          label: "GraphQL",
+          label: "Graphql",
           href: "../graphql-playground/",
         },
         {

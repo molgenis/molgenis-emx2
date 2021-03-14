@@ -16,7 +16,7 @@
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
         Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
-        Go to upload <a :href="'/' + schemaName + '/import/'">files</a>
+        Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
@@ -31,12 +31,12 @@
           <LayoutForm :key="key">
             <InputString
               v-model="schemaName"
-              label="Schema name"
+              label="name"
               :defaultValue="schemaName"
             />
             <InputText
               v-model="schemaDescription"
-              label="Schema description"
+              label="description"
               :defaultValue="schemaDescription"
             />
           </LayoutForm>
@@ -44,7 +44,9 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema">Create schema</ButtonAction>
+        <ButtonAction @click="executeCreateSchema"
+          >Create database
+        </ButtonAction>
       </template>
     </LayoutModal>
   </div>
@@ -91,7 +93,7 @@ export default {
   },
   computed: {
     title() {
-      return "Create schema";
+      return "Create database";
     },
     endpoint() {
       return "/api/graphql";

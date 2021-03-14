@@ -24,6 +24,10 @@ public class Table {
   }
 
   public Table(TableMetadata tableMetadata) {
+    this(tableMetadata, false);
+  }
+
+  public Table(TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
@@ -32,7 +36,7 @@ public class Table {
     this.semantics = tableMetadata.getSemantics();
     this.settings = tableMetadata.getSettings();
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
-      this.columns.add(new Column(column, tableMetadata));
+      this.columns.add(new Column(column, tableMetadata, minimal));
     }
   }
 

@@ -110,7 +110,7 @@ public class Emx2 {
   public static List<Row> toRowList(SchemaMetadata schema) {
     List<Row> result = new ArrayList<>();
 
-    // deterministic order (TODO make user define order)
+    // deterministic order
     List<String> tableNames = new ArrayList<>();
     tableNames.addAll(schema.getTableNames());
     Collections.sort(tableNames);
@@ -119,12 +119,19 @@ public class Emx2 {
       TableMetadata t = schema.getTableMetadata(tableName);
 
       Row row = new Row();
+      // set null columns to ensure sensible order
       row.setString(TABLE_NAME, t.getTableName());
-      if (t.getInherit() != null) row.setString(TABLE_EXTENDS, t.getInherit());
-      if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
-      // todo, also trim in case of array, make the simple array
-      if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
-
+      row.setString(TABLE_EXTENDS, t.getInherit());
+      row.setString(COLUMN_NAME, null);
+      row.setString(COLUMN_TYPE, null);
+      row.setString(KEY, null);
+      row.setString(REQUIRED, null);
+      row.setString(REF_TABLE, null);
+      row.setString(REF_LINK, null);
+      row.setString(MAPPED_BY, null);
+      row.setString(VALIDATION, null);
+      row.setStringArray(SEMANTICS, t.getSemantics());
+      row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
 
       List<String> columnNames = new ArrayList<>(t.getColumnNames());

@@ -73,6 +73,7 @@ public class MolgenisWebservice {
     ZipApi.create();
     ExcelApi.create();
     FileApi.create();
+    JsonYamlApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
 
@@ -82,6 +83,14 @@ public class MolgenisWebservice {
     // schema members operations
 
     // handling of exceptions
+    exception(
+        NullPointerException.class,
+        (e, req, res) -> {
+          logger.error(e.getMessage());
+          res.status(400);
+          res.type(ACCEPT_JSON);
+          res.body(e.getMessage());
+        });
     exception(
         MolgenisException.class,
         (e, req, res) -> {

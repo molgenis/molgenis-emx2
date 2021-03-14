@@ -16,6 +16,10 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema) {
+    this(schema, false);
+  }
+
+  public Schema(SchemaMetadata schema, boolean minimal) {
     // deterministic order is important for all kinds of comparisons
     List<String> list = new ArrayList<>();
     list.addAll(schema.getTableNames());
@@ -24,7 +28,7 @@ public class Schema {
     Set<String> imported = new LinkedHashSet<>();
     for (String tableName : list) {
       org.molgenis.emx2.TableMetadata t = schema.getTableMetadata(tableName);
-      tables.add(new Table(t));
+      tables.add(new Table(t, minimal));
       getImportedTablesRecursively(imported, t);
     }
   }

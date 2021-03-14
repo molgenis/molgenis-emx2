@@ -2,8 +2,8 @@
   <Spinner v-if="loading" />
   <div v-else>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <IconBar
-      ><label>{{ count }} schemas found</label>
+    <IconBar>
+      <label>{{ count }} databases found</label>
       <IconAction
         v-if="session && session.email == 'admin'"
         icon="plus"
