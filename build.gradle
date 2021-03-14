@@ -10,7 +10,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '2.8.0'
-    id 'org.gradle.test-retry' version '1.0.0'
 }
 
 
@@ -112,17 +111,5 @@ ext {
 
 application {
     mainClassName = javaMainClass
-}
-
-test {
-    testLogging {
-        events "failed"
-        exceptionFormat "full"
-    }
-    retry {
-        failOnPassedAfterRetry = true
-        maxFailures = 42
-        maxRetries = 1
-    }
 }
 

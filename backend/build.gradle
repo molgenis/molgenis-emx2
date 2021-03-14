@@ -2,6 +2,7 @@ plugins {
     id "jacoco"
     id "java"
     id "com.diffplug.spotless" version "5.11.0" apply false
+    id 'org.gradle.test-retry' version '1.0.0'
 }
 
 repositories {
@@ -15,6 +16,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: "com.diffplug.spotless"
+    apply plugin: 'test-retry'
 
     repositories {
         mavenLocal()
@@ -68,6 +70,24 @@ subprojects {
                     'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
                     'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
             )
+        }
+    }
+
+    test {
+        testLogging {
+            events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+            showExceptions true
+            exceptionFormat "full"
+            showCauses true
+            showStackTraces true
+
+            showStandardStreams = false
+        }
+        retry {
+            failOnPassedAfterRetry = false
+            maxFailures = 42
+            maxRetries = 2
         }
     }
 }
