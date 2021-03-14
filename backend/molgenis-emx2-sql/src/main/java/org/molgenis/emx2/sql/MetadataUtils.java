@@ -91,10 +91,10 @@ public class MetadataUtils {
   // should never run in parallel
   protected static synchronized void createMetadataSchemaIfNotExists(DSLContext j) {
 
-    if (j.meta().getSchemas(MOLGENIS).size() == 0) {
-      j.transaction(
-          config -> {
-            DSLContext jooq = config.dsl();
+    j.transaction(
+        config -> {
+          DSLContext jooq = config.dsl();
+          if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
             try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
             }
@@ -118,7 +118,6 @@ public class MetadataUtils {
                   MG_ROLE_PREFIX,
                   TABLE_SCHEMA);
             }
-
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
               int result =
                   t.columns(TABLE_SCHEMA, TABLE_NAME)
@@ -131,7 +130,6 @@ public class MetadataUtils {
                       .execute();
               if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
             }
-
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
               int result =
                   t.columns(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
@@ -144,7 +142,6 @@ public class MetadataUtils {
                       .execute();
               if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
             }
-
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
               t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
             }
@@ -154,8 +151,8 @@ public class MetadataUtils {
                   .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
                   .execute();
             }
-          });
-    }
+          }
+        });
 
     // this way more robust for non breaking changes
     for (Field field :
