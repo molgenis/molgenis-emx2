@@ -40,7 +40,7 @@ public class JsonYamlApi {
   }
 
   private static String deleteSchemaYAML(Request request, Response response) throws IOException {
-    SchemaMetadata schema = jsonToSchema(request.body());
+    SchemaMetadata schema = yamlToSchema(request.body());
     getSchema(request).discard(schema);
     response.status(200);
     return "removed metadata items success";
