@@ -9,26 +9,27 @@
       made possible by contributions from H2020 EUCAN-connect, LifeCycle,
       Longitools and ATHLETE as well as IMI Conception and EMA.
     </p>
-    <h2>Data collections</h2>
+    <h2>Data collections and data users</h2>
     <div class="row justify-content-between mt-4 mb-4 p-3">
       <RouterLink to="list/Institutions" class="btn btn-info col-3">
         <span class="badge badge-light">{{ institutions }}</span>
         <h3>Institutions</h3>
         <p class="text-left">
-          Universities, Companies, Medical Centers and Research Institutes
+          Contributors to the catalogue such as universities, companies, medical
+          centres and research institutes
         </p>
       </RouterLink>
       <RouterLink to="/list/Datasources" class="btn btn-warning col-3">
         <span class="badge badge-light">{{ datasources }}</span>
-        <h3>Datasources</h3>
+        <h3>Data sources</h3>
         <p class="text-left">
-          Families of databanks collected from same population
+          Collections of data banks covering the same population
         </p>
       </RouterLink>
       <RouterLink to="/list/Databanks" class="btn btn-danger col-3">
         <span class="badge badge-light">{{ databanks }}</span>
-        <h3>Databanks</h3>
-        <p class="text-left">Such as Cohorts, Registries, Biobanks</p>
+        <h3>Data banks</h3>
+        <p class="text-left">Data collections such as registries or biobanks</p>
       </RouterLink>
     </div>
     <h2>Data use</h2>
@@ -36,22 +37,21 @@
       <RouterLink to="/list/Networks" class="btn btn-primary col-3">
         <span class="badge badge-light">{{ networks }}</span>
         <h3>Networks</h3>
-        <p class="text-left">
-          Collaborations of multiple intitutions, datasources and/or databanks.
-        </p>
+        <p class="text-left">Collaborations of multiple institutions</p>
       </RouterLink>
       <RouterLink to="/list/Models" class="btn btn-secondary col-3">
         <span class="badge badge-light">{{ models }}</span>
-        <h3>Common Models</h3>
+        <h3>Common data models</h3>
         <p class="text-left">
-          Common Data Element models and Harmonisation models
+          Common Data Element models and Harmonization models
         </p>
       </RouterLink>
       <RouterLink to="/list/Studies" class="btn btn-success col-3">
         <span class="badge badge-light">{{ studies }}</span>
         <h3>Studies</h3>
         <p class="text-left">
-          Collaborations of multiple intitutions, datasources and/or databanks.
+          Collaborations of multiple institutions, addressing research questions
+          using data sources and/or data banks
         </p>
       </RouterLink>
     </div>
