@@ -8,13 +8,7 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <hr class="border-info" />
     <div class="row">
-      <div class="col">
-        <h6>Country</h6>
-        <p>{{ institution.country ? institution.country.name : "N/A" }}</p>
-        <h6>Contacts</h6>
-        <p>{{ institution.contacts ? institution.contacts : "N/A" }}</p>
-      </div>
-      <div class="col">
+      <div class="col-7">
         <h5>Provider of:</h5>
         <div class="m-4">
           <h6>Datasources</h6>
@@ -26,6 +20,12 @@
         </div>
         <h5>Partner in:</h5>
         <PartnerInList :partnerIn="institution.partnerIn" />
+      </div>
+      <div class="col-5">
+        <h6>Country</h6>
+        <p>{{ institution.country ? institution.country.name : "N/A" }}</p>
+        <h6>Contacts</h6>
+        <p>{{ institution.contacts ? institution.contacts : "N/A" }}</p>
       </div>
     </div>
   </div>
@@ -104,7 +104,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},country{name},description,homepage,providerOf{acronym,name,mg_tableclass},partnerIn{resource{acronym,name,mg_tableclass},role{name}}}}`,
+        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},country{name},description,homepage,providerOf{acronym,name,mg_tableclass,contents{name},type{name}},partnerIn{resource{acronym,name,mg_tableclass},role{name}}}}`,
         {
           acronym: this.acronym,
         }

@@ -22,11 +22,9 @@
           </span>
         </h4>
         <h1>
-          {{ resource.acronym }}
+          {{ resource.name }} <sup>({{ resource.acronym }})</sup>
         </h1>
-        <h2>
-          {{ resource.name }}
-        </h2>
+
         <a v-if="resource.homepage" :href="resource.homepage">
           {{ resource.homepage }}
         </a>

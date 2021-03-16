@@ -1,35 +1,23 @@
 <template>
   <div class="card">
-    <div class="card-header d-flex justify-content-between">
-      <h6 class="card-title mb-0 d-flex d-inline pt-2">
-        <span
-          v-for="col in columns.filter((c) => c.key == 1)"
-          :key="col.name + '_head'"
-        >
-          <RenderValue
-            v-if="col.key == 1 && row[col.name]"
-            :col="col"
-            :row="row"
-          />
-        </span>
-      </h6>
-      <span>
-        <RowButtonDelete
-          class="d-inline"
-          v-if="canEdit"
-          :table="tableName"
-          :pkey="getKey(row)"
-          @close="$emit('reload')" />
-        <RowButtonEdit
-          class="mt-0"
-          v-if="canEdit"
-          :table="tableName"
-          :pkey="getKey(row)"
-          @close="$emit('reload')"
-      /></span>
-    </div>
     <div class="card-body" @click="$emit('click', row)">
       <div class="card-text">
+        <span class="float-right">
+          <RowButtonDelete
+            class="d-inline"
+            v-if="canEdit"
+            :table="tableName"
+            :pkey="getKey(row)"
+            @close="$emit('reload')"
+          />
+          <RowButtonEdit
+            class="mt-0"
+            v-if="canEdit"
+            :table="tableName"
+            :pkey="getKey(row)"
+            @close="$emit('reload')"
+          />
+        </span>
         <dl>
           <div v-for="col in columns" :key="col.name">
             <dt

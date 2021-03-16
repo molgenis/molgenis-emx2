@@ -62,7 +62,7 @@ export default {
       request(
         "graphql",
         `query Studies($acronym:String){Studies(filter:{acronym:{equals:[$acronym]}})
-        {acronym,name,partners{institution{acronym,name}},networks{acronym,name},databanks{acronym,name}}}`,
+        {acronym,provider{acronym,name},description,homepage,contact{name,email},name,partners{institution{acronym,name}},networks{acronym,name},databanks{acronym,name}}}`,
         {
           acronym: this.acronym,
         }

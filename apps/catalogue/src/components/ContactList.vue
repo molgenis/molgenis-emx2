@@ -4,7 +4,9 @@
       <RouterLink :to="{ name: 'contact', params: { name: c.name } }"
         >{{ c.name }}
       </RouterLink>
-      (<a :href="'mailto:' + c.email">{{ c.email }} </a>)
+      <span v-if="c.email">
+        (<a :href="'mailto:' + c.email">{{ c.email }} </a>)
+      </span>
     </li>
   </ul>
   <p v-else>N/A</p>

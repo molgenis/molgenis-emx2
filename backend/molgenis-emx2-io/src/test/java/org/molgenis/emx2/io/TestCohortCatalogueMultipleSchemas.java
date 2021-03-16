@@ -27,11 +27,14 @@ public class TestCohortCatalogueMultipleSchemas {
   static Schema catalogueSourceVariables;
   static Schema catalogueHarmonizedVariables;
   static Schema catalogueMappings;
+  static Schema conceptionSchema;
+
   ;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    conceptionSchema = database.dropCreateSchema("Conception");
     localSchema = database.dropCreateSchema("CohortsLocal");
     centralSchema = database.dropCreateSchema("CohortsCentral");
     catalogueOntologies = database.dropCreateSchema("CatalogueOntologies");
@@ -45,7 +48,9 @@ public class TestCohortCatalogueMultipleSchemas {
   public void importTest() throws IOException {
     StopWatch.print("begin");
 
-    // in three modules
+    // load data model
+    loadSchema("HealthDataCatalogue.xlsx", conceptionSchema);
+    loadSchema("Conception.xlsx", conceptionSchema);
 
     loadSchema("CatalogueCentralOntologies.xlsx", centralSchema);
     assertEquals(18, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
@@ -77,16 +82,19 @@ public class TestCohortCatalogueMultipleSchemas {
     Path file = new File(classLoader.getResource(fileName).getFile()).toPath();
 
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(file);
-    SchemaMetadata source = Emx2.fromRowList(store.readTable("molgenis"));
-    source.setDatabase(schema.getDatabase()); // enable cross links to existing data
-    System.out.println(source);
-    StopWatch.print("schema loaded, now creating tables");
+    if (store.containsTable("molgenis")) {
+      SchemaMetadata source = Emx2.fromRowList(store.readTable("molgenis"));
+      source.setDatabase(schema.getDatabase()); // enable cross links to existing data
+      System.out.println(source);
+      StopWatch.print("schema loaded, now creating tables");
 
-    database.tx(
-        db -> {
-          schema.migrate(source);
-        });
+      database.tx(
+          db -> {
+            schema.migrate(source);
+          });
+    }
 
+    SchemaMetadata source = schema.getMetadata();
     // don't put alter in same transaction as update
     database.tx(
         db -> {

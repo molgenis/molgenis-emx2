@@ -49,19 +49,21 @@ public class TableStoreForCsvInZipFile implements TableStore {
   }
 
   public void writeFile(String filePath, byte[] contents) {
-    try (FileSystem zipfs = open()) {
-      // dir exist?
-      Path dir = zipfs.getPath("_files");
-      if (!Files.exists(dir)) {
-        Files.createDirectories(dir);
+    if (contents != null && contents.length > 0) {
+      try (FileSystem zipfs = open()) {
+        // dir exist?
+        Path dir = zipfs.getPath("_files");
+        if (!Files.exists(dir)) {
+          Files.createDirectories(dir);
+        }
+        Path pathInZipfile = zipfs.getPath(filePath);
+        OutputStream out = Files.newOutputStream(pathInZipfile);
+        out.write(contents);
+        out.flush();
+        out.close();
+      } catch (IOException ioe) {
+        throw new MolgenisException("File export failed", ioe);
       }
-      Path pathInZipfile = zipfs.getPath(filePath);
-      OutputStream out = Files.newOutputStream(pathInZipfile);
-      out.write(contents);
-      out.flush();
-      out.close();
-    } catch (IOException ioe) {
-      throw new MolgenisException("File export failed", ioe);
     }
   }
 
