@@ -4,7 +4,9 @@
     <MessageError v-if="!schema">
       No tables found. Might you need to login?
     </MessageError>
-    <label v-else>{{ count }} tables found</label>
+    Download all tables:
+    <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
+    <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
     <table class="table">
       <thead>
         <tr>

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Molgenis
-      title="Welcome to MOLGENIS central"
+      title="Welcome to MOLGENIS"
       :menuItems="menuItems"
       v-model="session"
     >
