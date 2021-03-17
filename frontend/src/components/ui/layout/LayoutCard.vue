@@ -14,7 +14,6 @@
         </div>
         <div
             v-if="!collapse || !collapsed"
-            v-scroll-lock="fullscreen"
             class="card-body"
             :style="bodyheight"
         >
@@ -26,15 +25,9 @@
 
 <script>
 import IconAction from "../forms/IconAction.vue"
-import Vue from "vue"
-import VScrollLock from "v-scroll-lock"
-
-Vue.use(VScrollLock)
 
 export default {
-  directives: {
-    VScrollLock,
-  },
+
   components: {
     IconAction,
   },

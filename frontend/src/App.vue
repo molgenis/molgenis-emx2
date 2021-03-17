@@ -12,7 +12,7 @@
 
 <script>
 import Groups from "./components/central/Groups.vue";
-import { Molgenis } from "./components/ui/layout/Molgenis.vue";
+import Molgenis from "./components/ui/layout/Molgenis.vue";
 
 export default {
   components: {
@@ -21,6 +21,7 @@ export default {
   },
   data: function () {
     return {
+      page: null,
       session: {},
       menuItems: [
         { label: "Databases", href: ".", active: true },

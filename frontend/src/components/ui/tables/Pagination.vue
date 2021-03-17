@@ -51,6 +51,7 @@ export default {
     count: Number,
     limit: { type: Number, default: 10 },
   },
+  emits: ['update:modelValue'],
   computed: {
     offset() {
       return this.limit * (this.value - 1);
@@ -62,19 +63,19 @@ export default {
   watch: {
     value() {
       if (this.value < 1) {
-        this.$emit("input", 1);
+        this.$emit('update:modelValue', 1);
       }
     },
     count() {
       //reset page to within range in case count changes
       if (this.page > this.totalPages) {
-        this.$emit("input", 1);
+        this.$emit('update:modelValue', 1);
       }
     },
   },
   created() {
     if (this.value < 1) {
-      this.$emit("input", 1);
+      this.$emit('update:modelValue', 1);
     }
   },
 };

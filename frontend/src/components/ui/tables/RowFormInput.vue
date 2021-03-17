@@ -110,6 +110,7 @@ export default {
       type: String,
     },
   },
+  emits: ['update:modelValue'],
   data() {
     return {
       input: null,
@@ -120,7 +121,7 @@ export default {
       this.input = this.value;
     },
     input() {
-      this.$emit("input", this.input);
+      this.$emit('update:modelValue', this.input);
     },
   },
   created() {

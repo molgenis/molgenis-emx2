@@ -21,10 +21,11 @@ import InputSelect from "../forms/InputSelect.vue";
 
 export default {
   extends: InputSelect,
+  emits: ['update:modelValue'],
   methods: {
     select(item) {
       this.value = item;
-      this.$emit("input", this.value);
+      this.$emit('update:modelValue', this.value);
     },
   },
 };

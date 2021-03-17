@@ -56,6 +56,7 @@ export default {
     menuItems: Array,
     title: String,
   },
+  emits: ['update:modelValue'],
   data: function () {
     return {
       session: null,
@@ -67,7 +68,7 @@ export default {
     css() {
       if (this.cssURL) return this.cssURL;
       else
-        return "/public_html/apps/styleguide/assets/css/bootstrap-molgenis-blue.css";
+        return "https://master.dev.molgenis.org/theme/style.css";
     },
     menu() {
       if (this.session && this.session.settings && this.session.settings.menu) {
@@ -91,7 +92,7 @@ export default {
           console.log("changed url " + this.session.settings.cssURL);
           this.cssURL = this.session.settings.cssURL;
         }
-        this.$emit("input", this.session);
+        this.$emit('update:modelValue', this.session);
       },
     },
   },

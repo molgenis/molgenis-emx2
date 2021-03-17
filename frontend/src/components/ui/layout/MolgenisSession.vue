@@ -63,6 +63,7 @@ export default {
       type: String,
     },
   },
+  emits: ['update:modelValue'],
   data: function () {
     return {
       /** @ignore */
@@ -108,7 +109,7 @@ export default {
           );
           this.session.manifest = data._manifest;
           this.loading = false;
-          this.$emit("input", this.session);
+          this.$emit('update:modelValue', this.session);
         })
         .catch((error) => {
           if (error.response.status === 504) {
@@ -130,7 +131,7 @@ export default {
     changed() {
       this.reload();
       this.showSigninForm = false;
-      this.$emit("input", this.session);
+      this.$emit('update:modelValue', this.session);
     },
     closeSigninForm() {
       this.showSigninForm = false;
@@ -151,7 +152,7 @@ export default {
             this.error = "sign out failed";
           }
           this.loading = false;
-          this.$emit("input", this.session);
+          this.$emit('update:modelValue', this.session);
           this.reload();
         })
         .catch((error) => (this.error = "internal server error" + error));

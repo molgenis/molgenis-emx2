@@ -1,49 +1,59 @@
 <template>
-  <div>
-    <router-link :to="'/' + page">< view page</router-link>
-    <h1>{{ title }}</h1>
-    <Spinner v-if="loading" />
-    <div v-else>
-      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <ckeditor v-model="draft" :config="editorConfig" :key="page" />
-      <div class="mt-2 float-right">
-        <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
-      </div>
-    </div>
-    <br />
-    <br />
-    <ShowMore title="debug">
-      <pre>
+    <div>
+        <router-link :to="'/' + page">
+            view page
+        </router-link>
+        <h1>{{ title }}</h1>
+        <Spinner v-if="loading" />
+        <div v-else>
+            <MessageError v-if="graphqlError">
+                {{ graphqlError }}
+            </MessageError>
+            <MessageSuccess v-if="success">
+                {{ success }}
+            </MessageSuccess>
+            <ckeditor :key="page" v-model="draft" :config="editorConfig" />
+            <div class="mt-2 float-right">
+                <ButtonAction @click="savePage">
+                    Save '{{ page }}'
+                </ButtonAction>
+            </div>
+        </div>
+        <br>
+        <br>
+        <ShowMore title="debug">
+            <pre>
 page = {{ page }}
 
 draft = {{ draft }}
 
 session = {{ session }}
       </pre>
-    </ShowMore>
-  </div>
+        </ShowMore>
+    </div>
 </template>
 
 <script>
 import CKEditor from "ckeditor4-vue";
 import {
   ButtonAction,
-  ButtonAlt,
   MessageError,
   MessageSuccess,
   ShowMore,
-} from "@mswertz/emx2-styleguide";
+} from "../ui/index.js";
 import { request } from "graphql-request";
 
 export default {
   components: {
     ckeditor: CKEditor.component,
     ButtonAction,
-    ButtonAlt,
     ShowMore,
     MessageError,
     MessageSuccess,
+  },
+  props: {
+    page: String,
+    session: Object,
   },
   data() {
     return {
@@ -100,10 +110,6 @@ export default {
       },
     };
   },
-  props: {
-    page: String,
-    session: Object,
-  },
   computed: {
     title() {
       if (
@@ -114,6 +120,17 @@ export default {
         return "Edit page '" + this.page + "'";
       else return "Create new page '" + this.page + "'";
     },
+  },
+  watch: {
+    session: {
+      deep: true,
+      handler() {
+        this.reload();
+      },
+    },
+  },
+  created() {
+    this.reload();
   },
   methods: {
     savePage() {
@@ -151,17 +168,6 @@ export default {
         return "New page, edit here";
       }
     },
-  },
-  watch: {
-    session: {
-      deep: true,
-      handler() {
-        this.reload();
-      },
-    },
-  },
-  created() {
-    this.reload();
   },
 };
 </script>

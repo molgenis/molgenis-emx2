@@ -64,6 +64,7 @@ import _baseInput from "./_baseInput.vue";
 
 export default {
   extends: _baseInput,
+  emits: ['update:modelValue'],
   computed: {
     filename() {
       if (this.value) return this.value.name;
@@ -73,12 +74,12 @@ export default {
   methods: {
     handleFileUpload() {
       this.value = this.$refs.file.files[0];
-      this.$emit("input", this.value);
+      this.$emit('update:modelValue', this.value);
     },
     clearInput() {
       this.$refs.file.value = "";
       this.value = null;
-      this.$emit("input", this.value);
+      this.$emit('update:modelValue', this.value);
     },
   },
 };

@@ -39,6 +39,7 @@ import InputAppend from "./_inputAppend.vue";
 export default {
   components: { InputInt, FormGroup, InputAppend },
   extends: BaseInput,
+  emits: ['update:modelValue'],
   computed: {
     //@override
     valueArray() {
@@ -90,7 +91,7 @@ export default {
         if (result && result.length > 0) result = result[0];
         else result = null;
       }
-      this.$emit("input", result);
+      this.$emit('update:modelValue', result);
     },
   },
 };

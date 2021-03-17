@@ -1,8 +1,9 @@
-import EditPage from './components/central/EditPage'
-import ListPages from './components/central/ListPages'
-import ViewPage from './components/central/ViewPage'
+import EditPage from './components/pages/EditPage.vue'
+import ListPages from './components/pages/ListPages.vue'
+import ViewPage from './components/pages/ViewPage.vue'
 
 export default [
+    // Pages
     {
         component: ListPages,
         path: '/',

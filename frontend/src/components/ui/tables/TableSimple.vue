@@ -55,6 +55,7 @@ export default {
     /** default value */
     defaultValue: Array,
   },
+  emits: ['update:modelValue'],
   data: function () {
     return {
       selectedItems: [],
@@ -73,7 +74,7 @@ export default {
   },
   watch: {
     selectedItems() {
-      this.$emit("input", this.selectedItems);
+      this.$emit('update:modelValue', this.selectedItems);
     },
   },
   created() {

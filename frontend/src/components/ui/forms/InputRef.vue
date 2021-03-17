@@ -102,6 +102,7 @@ export default {
     },
     filter: Object,
   },
+  emits: ['update:modelValue'],
   data: function () {
     return {
       showSelect: false,
@@ -128,20 +129,20 @@ export default {
   },
   methods: {
     emitClear() {
-      if (this.list) this.$emit("input", []);
-      else this.$emit("input", null);
+      if (this.list) this.$emit('update:modelValue', []);
+      else this.$emit('update:modelValue', null);
     },
     select(event) {
       if (this.list) {
-        this.$emit("input", this.selection);
+        this.$emit('update:modelValue', this.selection);
       } else {
-        this.$emit("input", event);
+        this.$emit('update:modelValue', event);
       }
     },
     closeSelect() {
       this.showSelect = false;
       if (this.list) {
-        this.$emit("input", this.selection);
+        this.$emit('update:modelValue', this.selection);
       }
     },
     openSelect(idx) {

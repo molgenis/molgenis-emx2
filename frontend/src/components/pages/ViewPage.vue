@@ -1,10 +1,12 @@
 <template>
-  <div>
-    <router-link v-if="canEdit" :to="'/' + page + '/edit'"
-      >edit page
-    </router-link>
-    <div v-html="contents"></div>
-  </div>
+    <div>
+        <router-link
+            v-if="canEdit" :to="'/' + page + '/edit'"
+        >
+            edit page
+        </router-link>
+        <div v-html="contents" />
+    </div>
 </template>
 
 <script>
