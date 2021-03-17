@@ -1,0 +1,120 @@
+{
+  "parserOptions": {
+      "ecmaFeatures": {
+          "modules": true
+      },
+      "ecmaVersion": 2020,
+      "sourceType": "module"
+  },
+  "env": {
+      "browser": true,
+      "node": true,
+      "es6": true
+  },
+  "root": true,
+  "globals": {
+      "globalThis": true,
+      "$": true
+  },
+  "ignorePatterns": ["node_modules/"],
+  "overrides": [
+      {
+          "files": ["**/*.js"],
+          "parser": "espree",
+          "extends": [
+              "eslint:recommended"
+          ],
+          "rules": {
+              "comma-dangle": [2, "always-multiline"],
+              "semi": [2, "never"],
+              "indent": ["error", 4],
+              "no-cond-assign": ["error", "always"],
+              "one-var": "off",
+              "init-declarations": "off",
+              "no-console": "off",
+              "no-inline-comments": "off",
+              "sort-class-members/sort-class-members": [2, {
+                  "order": [
+                      "constructor",
+                      "[static-properties]",
+                      "[static-methods]",
+                      "[conventional-private-properties]",
+                      "[conventional-private-methods]",
+                      "[properties]",
+                      "[methods]",
+                      "[everything-else]"
+                  ],
+                  "groups": {
+                      "methods": [
+                          {
+                              "sort": "alphabetical",
+                              "type": "method"
+                          }
+                      ],
+                      "conventional-private-methods": [
+                          {
+                              "name": "/_.+/",
+                              "sort": "alphabetical",
+                              "type": "method"
+                          }
+                      ]
+                  },
+                  "accessorPairPositioning": "getThenSet",
+                  "stopAfterFirstProblem": true
+              }],
+              "sort-keys": [2, "asc", {"natural": true, "caseSensitive": false}],
+              "sort-vars": [2, {"ignoreCase": true}],
+              "space-before-function-paren": [2, "never"],
+              "space-in-brackets": [0, "never"],
+              "spaced-comment": [2, "always"],
+              "strict": [2, "global"],
+              "use-isnan": 2,
+              "vars-on-top": 0,
+              "sort-imports": ["error", {
+                  "ignoreCase": true,
+                  "ignoreDeclarationSort": false,
+                  "ignoreMemberSort": false,
+                  "memberSyntaxSortOrder": ["none",  "all", "single", "multiple"]
+              }]
+          },
+          "plugins": [
+              "sort-class-members"
+          ]
+      },
+      {
+          "parser": "vue-eslint-parser",
+          "files": ["**/*.vue"],
+          "extends": [
+              "plugin:vue/vue3-recommended"
+          ],
+          "rules": {
+              "vue/attributes-order": ["error", {
+                  "order": [
+                  "DEFINITION",
+                  "LIST_RENDERING",
+                  "CONDITIONALS",
+                  "RENDER_MODIFIERS",
+                  "GLOBAL",
+                  "UNIQUE",
+                  "TWO_WAY_BINDING",
+                  "OTHER_DIRECTIVES",
+                  "OTHER_ATTR",
+                  "EVENTS",
+                  "CONTENT"
+                  ],
+                  "alphabetical": true
+              }],
+              "vue/html-indent": ["error", 4],
+              "vue/max-attributes-per-line": ["error", {
+                  "singleline": 3,
+                  "multiline": {
+                    "max": 2,
+                    "allowFirstLine": false
+                  }
+              }],
+              "vue/require-component-is": [0],
+              "vue/valid-template-root": [0]
+          }
+      }
+  ]
+}

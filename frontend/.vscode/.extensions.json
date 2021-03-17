@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "davidanson.vscode-markdownlint",
+    "stylelint.vscode-stylelint",
+    "ivory-lab.jenkinsfile-support",
+    "msjsdiag.debugger-for-chrome",
+    "eamodio.gitlens",
+    "octref.vetur"
+  ]
+}
