@@ -34,9 +34,10 @@ filters = {{ filters }}
 </template>
 
 <script>
-import FilterContainer from "./FilterContainer";
-import FilterInput from "./FilterInput";
-import ShowMore from "../layout/ShowMore";
+import FilterContainer from "./FilterContainer.vue";
+import FilterInput from "./FilterInput.vue";
+import ShowMore from "../layout/ShowMore.vue";
+
 import Draggable from "vuedraggable";
 
 export default {

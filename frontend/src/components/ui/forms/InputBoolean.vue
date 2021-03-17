@@ -25,7 +25,7 @@
 
 <script>
 import BaseInput from "./_baseInput.vue";
-import InputRadio from "./InputRadio";
+import InputRadio from "./InputRadio.vue";
 
 export default {
   components: { InputRadio },

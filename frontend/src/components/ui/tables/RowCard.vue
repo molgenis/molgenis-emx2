@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import RenderValue from "./RenderValue";
-import RowButtonEdit from "./RowButtonEdit";
-import RowButtonDelete from "./RowButtonDelete";
+import RenderValue from "./RenderValue.vue";
+import RowButtonEdit from "./RowButtonEdit.vue";
+import RowButtonDelete from "./RowButtonDelete.vue";
 
 export default {
   components: {

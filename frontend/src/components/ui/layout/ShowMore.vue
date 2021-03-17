@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import ButtonAlt from "../forms/ButtonAlt";
+import ButtonAlt from "../forms/ButtonAlt.vue";
 
 export default {
   components: { ButtonAlt },

@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import InputSelect from "../forms/InputSelect";
+import InputSelect from "../forms/InputSelect.vue";
 
 export default {
   extends: InputSelect,

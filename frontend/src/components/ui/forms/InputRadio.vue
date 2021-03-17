@@ -31,6 +31,14 @@
     </form-group>
 </template>
 
+<script>
+import InputSelect from "./InputSelect.vue";
+
+export default {
+  extends: InputSelect,
+};
+</script>
+
 <style>
 .radio-clear-value {
   display: none;
@@ -40,11 +48,3 @@
   display: inline;
 }
 </style>
-
-<script>
-import InputSelect from "./InputSelect";
-
-export default {
-  extends: InputSelect,
-};
-</script>

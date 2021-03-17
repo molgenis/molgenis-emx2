@@ -1,7 +1,7 @@
-import './css/pyrite.css'
+import './css/emx2.css'
 import App from './App.vue'
 import { createApp } from 'vue'
-import Icon from './components/icons/Icon.vue'
+import Icon from './components/ui/icons/Icon.vue'
 
 const app = {}
 app.vm = createApp(App)

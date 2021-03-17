@@ -78,7 +78,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
-} from "@mswertz/emx2-styleguide";
+} from "../ui/index.js";
 
 export default {
   components: {
@@ -90,8 +90,7 @@ export default {
     InputString,
     InputText,
     LayoutForm,
-    Spinner,
-    IconAction,
+    Spinner
   },
   data: function () {
     return {

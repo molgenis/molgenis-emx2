@@ -35,14 +35,14 @@
 </template>
 
 <script>
-import Spinner from "./Spinner";
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import MessageError from "../forms/MessageError";
+import Spinner from "./Spinner.vue";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import MessageError from "../forms/MessageError.vue";
 
 import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-import ChangePasswordForm from "./MolgenisAccount";
+import ChangePasswordForm from "./MolgenisAccount.vue";
 
 import { request } from "graphql-request";
 

@@ -40,13 +40,14 @@
 </template>
 
 <script>
-import LayoutModal from "./LayoutModal";
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import InputPassword from "../forms/InputPassword";
-import MessageSuccess from "../forms/MessageSuccess";
-import MessageError from "../forms/MessageError";
-import Spinner from "./Spinner";
+import LayoutModal from "./LayoutModal.vue";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import InputPassword from "../forms/InputPassword.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+import MessageError from "../forms/MessageError.vue";
+import Spinner from "./Spinner.vue";
+
 import { request } from "graphql-request";
 
 export default {

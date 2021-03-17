@@ -30,10 +30,10 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput";
-import InputInt from "./InputInt";
-import FormGroup from "./_formGroup";
-import InputAppend from "./_inputAppend";
+import BaseInput from "./_baseInput.vue";
+import InputInt from "./InputInt.vue";
+import FormGroup from "./_formGroup.vue";
+import InputAppend from "./_inputAppend.vue";
 
 /** Input for integer values */
 export default {

@@ -40,9 +40,9 @@
 </template>
 
 <script>
-import ButtonAlt from "../forms/ButtonAlt";
-import ButtonDropdown from "../forms/ButtonDropdown";
-import IconAction from "../forms/IconAction";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import IconAction from "../forms/IconAction.vue";
 
 export default {
   components: { ButtonAlt, ButtonDropdown, IconAction },

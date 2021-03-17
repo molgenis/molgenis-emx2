@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import IconAction from "../forms/IconAction";
-import Vue from "vue";
+import IconAction from "../forms/IconAction.vue"
+import Vue from "vue"
 import VScrollLock from "v-scroll-lock"
 
 Vue.use(VScrollLock)

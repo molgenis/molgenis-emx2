@@ -8,7 +8,7 @@
 
 <script>
 import { request } from "graphql-request";
-import TableMetadataMixin from "./TableMetadataMixin";
+import TableMetadataMixin from "./TableMetadataMixin.vue";
 
 export default {
   extends: TableMetadataMixin,

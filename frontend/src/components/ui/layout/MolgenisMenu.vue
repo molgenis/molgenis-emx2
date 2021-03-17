@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import ButtonDropdown from "../forms/ButtonDropdown";
+import ButtonDropdown from "../forms/ButtonDropdown.vue";
 
 /** You can use the slot to put a component in the right of menu, e.g. an 'Account' component */
 export default {

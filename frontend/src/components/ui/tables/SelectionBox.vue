@@ -48,9 +48,9 @@
 </template>
 
 <script>
-import IconAction from "../forms/IconAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import LayoutModal from "../layout/LayoutModal";
+import IconAction from "../forms/IconAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 
 export default {
   components: {

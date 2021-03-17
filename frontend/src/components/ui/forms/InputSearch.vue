@@ -26,7 +26,7 @@
 
 <script>
 import InputString from "./InputString.vue";
-import AppendClear from "./_appendClear";
+import AppendClear from "./_appendClear.vue";
 
 export default {
   components: { AppendClear },

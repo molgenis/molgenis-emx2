@@ -60,14 +60,14 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput";
-import TableSearch from "../tables/TableSearch";
-import LayoutModal from "../layout/LayoutModal";
-import FormGroup from "./_formGroup";
-import ButtonAlt from "./ButtonAlt";
-import InputAppend from "./_inputAppend";
-import ButtonAction from "./ButtonAction";
-import RowButtonAdd from "../tables/RowButtonAdd";
+import _baseInput from "./_baseInput.vue";
+import TableSearch from "../tables/TableSearch.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import FormGroup from "./_formGroup.vue";
+import ButtonAlt from "./ButtonAlt.vue";
+import InputAppend from "./_inputAppend.vue";
+import ButtonAction from "./ButtonAction.vue";
+import RowButtonAdd from "../tables/RowButtonAdd.vue";
 
 export default {
   name: "InputRefSelect",

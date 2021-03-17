@@ -11,7 +11,7 @@
 
 <script>
 /** Cancel button */
-import ButtonAction from "./ButtonAction";
+import ButtonAction from "./ButtonAction.vue";
 
 export default {
   extends: ButtonAction,

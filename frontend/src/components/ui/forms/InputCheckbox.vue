@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import InputSelect from "./InputSelect";
+import InputSelect from "./InputSelect.vue";
 
 export default {
   extends: InputSelect,

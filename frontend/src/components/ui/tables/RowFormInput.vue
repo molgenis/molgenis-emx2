@@ -77,15 +77,15 @@
 </template>
 
 <script>
-import _baseInput from "../forms/_baseInput";
-import InputString from "../forms/InputString";
-import InputInt from "../forms/InputInt";
-import InputDecimal from "../forms/InputDecimal";
-import InputBoolean from "../forms/InputBoolean";
-import InputDate from "../forms/InputDate";
-import InputDateTime from "../forms/InputDateTime";
-import InputFile from "../forms/InputFile";
-import InputText from "../forms/InputText";
+import _baseInput from "../forms/_baseInput.vue";
+import InputString from "../forms/InputString.vue";
+import InputInt from "../forms/InputInt.vue";
+import InputDecimal from "../forms/InputDecimal.vue";
+import InputBoolean from "../forms/InputBoolean.vue";
+import InputDate from "../forms/InputDate.vue";
+import InputDateTime from "../forms/InputDateTime.vue";
+import InputFile from "../forms/InputFile.vue";
+import InputText from "../forms/InputText.vue";
 
 export default {
   name: "RowFormInput",
@@ -94,7 +94,7 @@ export default {
     InputInt,
     InputDecimal,
     InputBoolean,
-    InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
+    InputRefSelect: () => import("../forms/InputRefSelect.vue"), //because it uses itself in nested form
     InputDate,
     InputDateTime,
     InputFile,

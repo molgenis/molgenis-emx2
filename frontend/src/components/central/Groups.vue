@@ -1,46 +1,50 @@
 <template>
-  <Spinner v-if="loading" />
-  <div v-else>
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <IconBar>
-      <label>{{ count }} databases found</label>
-      <IconAction
-        v-if="session && session.email == 'admin'"
-        icon="plus"
-        @click="openCreateSchema"
-      />
-    </IconBar>
-    <TableSimple
-      :columns="['name', 'description']"
-      :rows="schemas"
-      @click="openGroup"
-    >
-      <template v-slot:rowheader="slotProps">
-        <IconDanger
-          v-if="session && session.email == 'admin'"
-          icon="trash"
-          @click="openDeleteSchema(slotProps.row.name)"
-          :key="slotProps.row.name"
+    <Spinner v-if="loading" />
+    <div v-else>
+        <MessageError v-if="graphqlError">
+            {{ graphqlError }}
+        </MessageError>
+        <IconBar>
+            <label>{{ count }} databases found</label>
+            <IconAction
+                v-if="session && session.email == 'admin'"
+                icon="plus"
+                @click="openCreateSchema"
+            />
+        </IconBar>
+        <TableSimple
+            :columns="['name', 'description']"
+            :rows="schemas"
+            @click="openGroup"
+        >
+            <template #rowheader="slotProps">
+                <IconDanger
+                    v-if="session && session.email == 'admin'"
+                    :key="slotProps.row.name"
+                    icon="trash"
+                    @click="openDeleteSchema(slotProps.row.name)"
+                />
+            </template>
+        </TableSimple>
+        <SchemaCreateModal v-if="showCreateSchema" @close="closeCreateSchema" />
+        <SchemaDeleteModal
+            v-if="showDeleteSchema"
+            :schema-name="showDeleteSchema"
+            @close="closeDeleteSchema"
         />
-      </template>
-    </TableSimple>
-    <SchemaCreateModal v-if="showCreateSchema" @close="closeCreateSchema" />
-    <SchemaDeleteModal
-      v-if="showDeleteSchema"
-      @close="closeDeleteSchema"
-      :schemaName="showDeleteSchema"
-    />
-    <ShowMore title="debug"
-      >session = {{ session }}, schemas = {{ schemas }}
-    </ShowMore>
-  </div>
+        <ShowMore
+            title="debug"
+        >
+            session = {{ session }}, schemas = {{ schemas }}
+        </ShowMore>
+    </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
 
-import SchemaCreateModal from "./SchemaCreateModal";
-import SchemaDeleteModal from "./SchemaDeleteModal";
+import SchemaCreateModal from "./SchemaCreateModal.vue";
+import SchemaDeleteModal from "./SchemaDeleteModal.vue";
 import {
   TableSimple,
   IconAction,
@@ -48,7 +52,7 @@ import {
   IconDanger,
   ShowMore,
   Spinner,
-} from "@mswertz/emx2-styleguide";
+} from "../ui/index.js";
 
 export default {
   components: {

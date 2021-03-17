@@ -56,13 +56,13 @@
 </template>
 
 <script>
-import TableMixin from "../mixins/TableMixin";
-import TableMolgenis from "./TableMolgenis";
-import MessageError from "../forms/MessageError";
-import InputSearch from "../forms/InputSearch";
+import TableMixin from "../mixins/TableMixin.vue";
+import TableMolgenis from "./TableMolgenis.vue";
+import MessageError from "../forms/MessageError.vue";
+import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import SelectionBox from "./SelectionBox";
+import SelectionBox from "./SelectionBox.vue";
 
 export default {
   components: {

@@ -76,13 +76,13 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput";
-import TableSearch from "../tables/TableSearch";
-import LayoutModal from "../layout/LayoutModal";
-import MessageError from "./MessageError";
-import FormGroup from "./_formGroup";
-import ButtonAlt from "./ButtonAlt";
-import TableMixin from "../mixins/TableMixin";
+import _baseInput from "./_baseInput.vue";
+import TableSearch from "../tables/TableSearch.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import MessageError from "./MessageError.vue";
+import FormGroup from "./_formGroup.vue";
+import ButtonAlt from "./ButtonAlt.vue";
+import TableMixin from "../mixins/TableMixin.vue";
 
 export default {
   components: {

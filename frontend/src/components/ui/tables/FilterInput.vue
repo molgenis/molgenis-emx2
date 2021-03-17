@@ -51,12 +51,12 @@
 </template>
 
 <script>
-import InputCheckbox from "../forms/InputCheckbox";
-import InputString from "../forms/InputString";
-import InputRangeInt from "../forms/InputRangeInt";
-import InputRangeDecimal from "../forms/InputRangeDecimal";
-import InputRangeDate from "../forms/InputRangeDate";
-import InputRef from "../forms/InputRef";
+import InputCheckbox from "../forms/InputCheckbox.vue";
+import InputString from "../forms/InputString.vue";
+import InputRangeInt from "../forms/InputRangeInt.vue";
+import InputRangeDecimal from "../forms/InputRangeDecimal.vue";
+import InputRangeDate from "../forms/InputRangeDate.vue";
+import InputRef from "../forms/InputRef.vue";
 
 export default {
   components: {

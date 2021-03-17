@@ -33,9 +33,10 @@
 
 <script>
 import _baseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend.vue";
+
 import FlatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
-import InputAppend from "./_inputAppend";
 
 /** Show a data input */
 export default {

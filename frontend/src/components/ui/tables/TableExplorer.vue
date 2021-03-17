@@ -178,25 +178,25 @@
 </template>
 
 <script>
-import TableMolgenis from "./TableMolgenis";
-import FilterSidebar from "./FilterSidebar";
-import FilterWells from "./FilterWells";
-import MessageError from "../forms/MessageError";
-import RowButtonAdd from "./RowButtonAdd";
-import RowButtonDelete from "./RowButtonDelete";
-import RowButtonEdit from "./RowButtonEdit";
-import Spinner from "../layout/Spinner";
-import TableMixin from "../mixins/TableMixin";
-import ShowMore from "../layout/ShowMore";
-import ShowHide from "./ShowHide";
-import InputSearch from "../forms/InputSearch";
-import Pagination from "./Pagination";
-import ButtonAlt from "../forms/ButtonAlt";
-import SelectionBox from "./SelectionBox";
-import ButtonDropdown from "../forms/ButtonDropdown";
-import InputSelect from "../forms/InputSelect";
-import TableCards from "./TableCards";
-import IconAction from "../forms/IconAction";
+import TableMolgenis from "./TableMolgenis.vue";
+import FilterSidebar from "./FilterSidebar.vue";
+import FilterWells from "./FilterWells.vue";
+import MessageError from "../forms/MessageError.vue";
+import RowButtonAdd from "./RowButtonAdd.vue";
+import RowButtonDelete from "./RowButtonDelete.vue";
+import RowButtonEdit from "./RowButtonEdit.vue";
+import Spinner from "../layout/Spinner.vue";
+import TableMixin from "../mixins/TableMixin.vue";
+import ShowMore from "../layout/ShowMore.vue";
+import ShowHide from "./ShowHide.vue";
+import InputSearch from "../forms/InputSearch.vue";
+import Pagination from "./Pagination.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import SelectionBox from "./SelectionBox.vue";
+import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import InputSelect from "../forms/InputSelect.vue";
+import TableCards from "./TableCards.vue";
+import IconAction from "../forms/IconAction.vue";
 
 export default {
   components: {
@@ -352,7 +352,6 @@ export default {
   },
   methods: {
     setlimit(limit) {
-      console.log("resetpage");
       this.limit = limit;
       this.page = 1;
     },

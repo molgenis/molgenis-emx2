@@ -69,15 +69,15 @@ schema = {{ JSON.stringify(schema) }}
 <script>
 import LayoutForm from "../layout/LayoutForm.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
+import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
-import SigninForm from "../layout/MolgenisSignin";
-import TableMixin from "../mixins/TableMixin";
-import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
+import SigninForm from "../layout/MolgenisSignin.vue";
+import TableMixin from "../mixins/TableMixin.vue";
+import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin.vue";
 import RowFormInput from "./RowFormInput.vue";
-import ShowMore from "../layout/ShowMore";
+import ShowMore from "../layout/ShowMore.vue";
 
 export default {
   components: {

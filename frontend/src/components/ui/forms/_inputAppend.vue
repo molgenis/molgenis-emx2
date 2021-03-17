@@ -12,19 +12,9 @@
     </div>
 </template>
 
-<style>
-.input-group-append .input-append-show {
-  display: none;
-}
-
-.input-group-append:hover .input-append-show {
-  display: block;
-}
-</style>
-
 <script>
-import AppendClear from "./_appendClear";
-import IconAction from "./IconAction";
+import AppendClear from "./_appendClear.vue";
+import IconAction from "./IconAction.vue";
 
 export default {
   components: { IconAction, AppendClear },
@@ -53,3 +43,15 @@ export default {
   },
 };
 </script>
+
+
+<style>
+.input-group-append .input-append-show {
+  display: none;
+}
+
+.input-group-append:hover .input-append-show {
+  display: block;
+}
+</style>
+

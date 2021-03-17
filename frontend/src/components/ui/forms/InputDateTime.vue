@@ -1,5 +1,5 @@
 <script>
-import InputDate from "./InputDate";
+import InputDate from "./InputDate.vue";
 
 export default {
   extends: InputDate,

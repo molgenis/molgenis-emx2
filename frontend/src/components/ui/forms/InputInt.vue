@@ -1,5 +1,5 @@
 <script>
-import InputString from "./InputString";
+import InputString from "./InputString.vue";
 
 /** Input for integer values */
 export default {

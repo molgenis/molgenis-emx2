@@ -27,13 +27,14 @@
 </template>
 
 <script>
-import RowButtonAdd from "./RowButtonAdd";
-import LayoutModal from "../layout/LayoutModal";
-import IconDanger from "../forms/IconDanger";
-import ButtonAlt from "../forms/ButtonAlt";
-import ButtonAction from "../forms/ButtonAction";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
+import RowButtonAdd from "./RowButtonAdd.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import IconDanger from "../forms/IconDanger.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonAction from "../forms/ButtonAction.vue";
+import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+
 import { request } from "graphql-request";
 
 export default {

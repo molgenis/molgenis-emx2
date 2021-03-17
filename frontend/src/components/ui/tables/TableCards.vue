@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import RowCard from "./RowCard";
+import RowCard from "./RowCard.vue";
 
 export default {
   components: { RowCard },

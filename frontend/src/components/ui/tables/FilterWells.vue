@@ -35,7 +35,7 @@
     </div>
 </template>
 <script>
-import FilterWell from "./FilterWell";
+import FilterWell from "./FilterWell.vue";
 
 export default {
   components: {

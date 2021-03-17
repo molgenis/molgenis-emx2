@@ -10,9 +10,9 @@
 </template>
 
 <script>
-import RowButtonAdd from "./RowButtonAdd";
+import RowButtonAdd from "./RowButtonAdd.vue";
 import RowEditModal from "./RowEditModal.vue";
-import IconAction from "../forms/IconAction";
+import IconAction from "../forms/IconAction.vue";
 
 export default {
   components: {

@@ -100,7 +100,7 @@
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import Draggable from "vuedraggable";
-import ReadMore from "../layout/ReadMore";
+import ReadMore from "../layout/ReadMore.vue";
 
 export default {
   components: { Draggable, ReadMore },

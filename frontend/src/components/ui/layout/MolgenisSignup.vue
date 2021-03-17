@@ -45,15 +45,15 @@
 </template>
 
 <script>
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import InputString from "../forms/InputString";
-import InputPassword from "../forms/InputPassword";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
-import LayoutForm from "./LayoutForm";
-import Spinner from "./Spinner";
-import LayoutModal from "./LayoutModal";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import InputString from "../forms/InputString.vue";
+import InputPassword from "../forms/InputPassword.vue";
+import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+import LayoutForm from "./LayoutForm.vue";
+import Spinner from "./Spinner.vue";
+import LayoutModal from "./LayoutModal.vue";
 
 import { request } from "graphql-request";
 

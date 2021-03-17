@@ -36,9 +36,9 @@
 
 <script>
 import _baseInput from "./_baseInput.vue";
-import InputAppend from "./_inputAppend";
-import FormGroup from "./_formGroup";
-import IconAction from "./IconAction";
+import InputAppend from "./_inputAppend.vue";
+import FormGroup from "./_formGroup.vue";
+import IconAction from "./IconAction.vue";
 
 /** Input for text */
 export default {

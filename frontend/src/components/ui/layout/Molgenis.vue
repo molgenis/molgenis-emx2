@@ -40,11 +40,11 @@
 </template>
 
 <script>
-import MolgenisMenu from "./MolgenisMenu";
-import MolgenisSession from "./MolgenisSession";
-import MolgenisTheme from "./MolgenisTheme";
-import Footer from "./MolgenisFooter";
-import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
+import MolgenisMenu from "./MolgenisMenu.vue";
+import MolgenisSession from "./MolgenisSession.vue";
+import MolgenisTheme from "./MolgenisTheme.vue";
+import Footer from "./MolgenisFooter.vue";
+import DefaultMenuMixin from "../mixins/DefaultMenuMixin.vue";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
