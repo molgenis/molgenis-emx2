@@ -66,7 +66,7 @@ export default {
       ) {
         return ["name", "acronym", "type", "provider"];
       } else if (this.tableName == "Studies") {
-        return ["name", "contents", "networks", "description", "contact"];
+        return ["name", "keywords"];
       } else if (this.tableName == "Contacts") {
         return [
           "name",
@@ -107,7 +107,7 @@ export default {
         return ["type", "country"];
       }
       if (this.tableName == "Studies") {
-        return ["contents"];
+        return ["keywords", "networks", "startYear", "endYear"];
       }
       return [];
     },

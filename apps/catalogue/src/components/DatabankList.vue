@@ -3,7 +3,11 @@
     <li v-for="d in databanks" :key="d.acronym">
       <RouterLink :to="{ name: 'databank', params: { acronym: d.acronym } }"
         >{{ d.acronym }} - {{ d.name }}
-        <OntologyTerms :terms="d.type" :inline="true"></OntologyTerms>
+        <OntologyTerms
+          :terms="d.type"
+          :inline="true"
+          :color="color"
+        ></OntologyTerms>
       </RouterLink>
     </li>
   </ul>
@@ -16,6 +20,7 @@ export default {
   components: { OntologyTerms },
   props: {
     databanks: Array,
+    color: String,
   },
 };
 </script>

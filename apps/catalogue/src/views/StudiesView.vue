@@ -8,12 +8,29 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
+        <h6>Study ID</h6>
+        <p>{{ study.acronym }}</p>
+        <h6>Study title</h6>
+        <p>{{ study.name }}</p>
+        <h6>Keywords</h6>
+        <OntologyTerms color="success" :terms="study.keywords" />
         <h6>Datasources involved</h6>
         <DatasourceList :datasources="study.datasources" />
-        <h6>Databanks involved</h6>
-        <DatabankList :databanks="study.databanks" />
-        <h6>Funding</h6>
-        <p>{{ study.funding ? study.funding : "N/A" }}</p>
+        <h6 v-if="study.databanks">Databanks involved</h6>
+        <DatabankList v-if="study.databanks" :databanks="study.databanks" />
+        <h6>Networks involved</h6>
+        <NetworkList :networks="study.networks" />
+        <h6 v-if="study.funding">Funding</h6>
+        <p v-if="study.funding">{{ study.funding ? study.funding : "N/A" }}</p>
+        <h6>Results <i class="fa fa-caret-down"></i></h6>
+        <h6>
+          Publications
+          <i class="fa fa-caret-down"></i>
+        </h6>
+        <h6>
+          Quality assesment
+          <i class="fa fa-caret-down"></i>
+        </h6>
       </div>
       <div class="col">
         <ResourceContext :resource="study" />
@@ -23,7 +40,11 @@
 </template>
 <script>
 import { request } from "graphql-request";
-import { MessageError, TableExplorer } from "@mswertz/emx2-styleguide";
+import {
+  MessageError,
+  TableExplorer,
+  IconAction,
+} from "@mswertz/emx2-styleguide";
 import VariablesList from "../components/VariablesList";
 import Property from "../components/Property";
 import InstitutionList from "../components/InstitutionList";
@@ -33,9 +54,12 @@ import PartnersList from "../components/PartnersList";
 import ResourceHeader from "../components/ResourceHeader";
 import ContributorList from "../components/ContributorList";
 import ResourceContext from "../components/ResourceContext";
+import NetworkList from "../components/NetworkList";
+import OntologyTerms from "../components/OntologyTerms";
 
 export default {
   components: {
+    OntologyTerms,
     ResourceContext,
     ContributorList,
     DatasourceList,
@@ -47,6 +71,8 @@ export default {
     MessageError,
     TableExplorer,
     ResourceHeader,
+    NetworkList,
+    IconAction,
   },
   props: {
     acronym: String,
@@ -62,7 +88,7 @@ export default {
       request(
         "graphql",
         `query Studies($acronym:String){Studies(filter:{acronym:{equals:[$acronym]}})
-        {acronym,provider{acronym,name},description,homepage,contact{name,email},name,partners{institution{acronym,name}},networks{acronym,name},databanks{acronym,name}}}`,
+        {acronym,provider{acronym,name},keywords{name,definition}description,homepage,contact{name,email},name,partners{institution{acronym,name}},networks{acronym,name},datasources{acronym,name},networks{acronym,name},databanks{acronym,name},documentation{name,url}}}`,
         {
           acronym: this.acronym,
         }

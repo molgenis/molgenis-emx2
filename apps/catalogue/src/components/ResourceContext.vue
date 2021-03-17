@@ -1,21 +1,26 @@
 <template>
   <div>
-    <h6>Provider</h6>
+    <h6>Lead institution</h6>
     <InstitutionList :institutions="resource.provider" />
-    <h6>Contact</h6>
+    <h6>Lead contact</h6>
     <ContactList :contacts="resource.contact" />
-    <h6>Data releases</h6>
-    <ReleasesList :releases="resource.releases" />
-    <h6>Documentation</h6>
-    <DocumentationList :documentation="resource.documentation" />
-    <h6>Networks</h6>
-    <NetworkList :networks="resource.networks" />
-    <h6>Partners</h6>
+    <h6>Additional institutions</h6>
     <PartnersList :partners="resource.partners" />
-    <h6>Contributors</h6>
-    <ContributorList :contributors="resource.contributors" color="danger" />
-    <h6>Publications</h6>
-    <PublicationList :publications="resource.publications" />
+    <h6>Protocols</h6>
+    <DocumentationList :documentation="resource.documentation" />
+    <h6 v-if="resource.releases">Mappings to data models</h6>
+    <ReleasesList v-if="resource.releases" :releases="resource.releases" />
+    <h6 v-if="resource.contributors">Contributors</h6>
+    <ContributorList
+      v-if="resource.contributors"
+      :contributors="resource.contributors"
+      color="danger"
+    />
+    <h6 v-if="resource.publications">Publications</h6>
+    <PublicationList
+      v-if="resource.publications"
+      :publications="resource.publications"
+    />
   </div>
 </template>
 <script>

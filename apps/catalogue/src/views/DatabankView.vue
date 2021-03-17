@@ -41,7 +41,17 @@
         <Conditions :resource="databank" />
       </div>
       <div class="col">
-        <ResourceContext :resource="databank" />
+        <h6>Data access providers</h6>
+        <InstitutionList :institutions="databank.provider" />
+        <h6>Documentation</h6>
+        <DocumentationList :documentation="databank.documentation" />
+        <h6 v-if="databank.releases">Data releases</h6>
+        <ReleasesList v-if="databank.releases" :releases="databank.releases" />
+        <h6 v-if="databank.publications">Publications</h6>
+        <PublicationList
+          v-if="databank.publications"
+          :publications="databank.publications"
+        />
       </div>
     </div>
   </div>

@@ -28,7 +28,6 @@
         <a v-if="resource.homepage" :href="resource.homepage">
           {{ resource.homepage }}
         </a>
-        <p v-else>Homepage: N/A</p>
         <p v-if="resource.description">{{ resource.description }}</p>
         <p v-else>Description: N/A</p>
       </div>
