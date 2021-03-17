@@ -66,8 +66,10 @@ public class SqlDatabase implements Database {
     MetadataUtils.createMetadataSchemaIfNotExists(jooq);
     // setup default stuff
 
-    jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-    jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
+    synchronized (jooq) {
+      jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+      jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;"); // for password hashing
+    }
 
     if (!hasUser(ANONYMOUS)) {
       addUser(ANONYMOUS); // used when not logged in
