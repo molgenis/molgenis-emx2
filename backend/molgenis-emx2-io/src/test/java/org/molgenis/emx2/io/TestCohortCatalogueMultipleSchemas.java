@@ -49,7 +49,7 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     // load data model
-    loadSchema("../../data/datacatalogue/HealthDataCatalogue.xlsx", conceptionSchema);
+    loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", conceptionSchema);
     loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
 
     loadSchema("CatalogueCentralOntologies.xlsx", centralSchema);
