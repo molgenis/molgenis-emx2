@@ -49,8 +49,8 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     // load data model
-    loadSchema("HealthDataCatalogue.xlsx", conceptionSchema);
-    loadSchema("Conception.xlsx", conceptionSchema);
+    loadSchema("../../data/datacatalogue/HealthDataCatalogue.xlsx", conceptionSchema);
+    loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
 
     loadSchema("CatalogueCentralOntologies.xlsx", centralSchema);
     assertEquals(18, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
@@ -78,8 +78,12 @@ public class TestCohortCatalogueMultipleSchemas {
   }
 
   private void loadSchema(String fileName, Schema schema) throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    Path file = new File(classLoader.getResource(fileName).getFile()).toPath();
+    File f = new File(fileName);
+    Path file = f.toPath();
+    if (!f.exists()) {
+      ClassLoader classLoader = getClass().getClassLoader();
+      file = new File(classLoader.getResource(fileName).getFile()).toPath();
+    }
 
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(file);
     if (store.containsTable("molgenis")) {

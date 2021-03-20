@@ -18,7 +18,6 @@ examplefiles
 *.iws
 *.DS_Store
 git.properties
-data
 psql_data
 */data/elasticsearch/
 /data/elasticsearch/
