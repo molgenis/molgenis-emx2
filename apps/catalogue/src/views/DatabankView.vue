@@ -13,17 +13,24 @@
         <DatasourceList :datasources="[databank.datasource]" />
         <h6>Population</h6>
         <OntologyTerms :terms="databank.population" color="danger" />
-        <h6>Inclusion criteria</h6>
-        <OntologyTerms :terms="databank.inclusionCriteria" color="danger" />
-        <h6>Topics</h6>
-        <p>{{ databank.topics ? databank.topics : "N/A" }}</p>
-        <h6>Number of participants:</h6>
-        <p>{{ databank.noParticipants ? databank.noParticipants : "N/A" }}</p>
+        <h6>Contents</h6>
+        <OntologyTerms :terms="databank.keywords" color="danger" />
+        <h6 v-if="databank.noParticipants">Number of participants:</h6>
+        <p v-if="databank.noParticipants">{{ databank.noParticipants }}</p>
         <hr class="border-danger" />
         <h6>Orginator</h6>
         <p>{{ databank.originator ? databank.originator : "N/A" }}</p>
-        <h6>Record prompt:</h6>
-        <p>{{ databank.recordPrompt ? databank.recordPrompt : "N/A" }}</p>
+        <h6>
+          Record prompt:
+          <OntologyTerms
+            :terms="databank.recordPrompt"
+            color="danger"
+            :inline="true"
+          />
+        </h6>
+        <p>
+          {{ databank.recordPromptDescription }}
+        </p>
         <h6>Start/End year</h6>
         <p>
           {{ databank.startYear ? databank.startYear : "N/A" }} -
@@ -47,7 +54,8 @@
         <DocumentationList :documentation="databank.documentation" />
         <h6 v-if="databank.releases">Data releases</h6>
         <ReleasesList v-if="databank.releases" :releases="databank.releases" />
-        <h6 v-if="databank.publications">Publications</h6>
+        <h6 v-if="databank.cdms">Common data models</h6>
+        <ReleasesList v-if="databank.cdms" :releases="databank.cdms" />
         <PublicationList
           v-if="databank.publications"
           :publications="databank.publications"
@@ -114,7 +122,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,logo{url},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},provider{acronym,name}, description,homepage,recordPrompt, lagTime, releases{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},provider{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
         {
           acronym: this.acronym,
         }

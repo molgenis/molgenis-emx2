@@ -1,6 +1,6 @@
 <template>
   <div class="container bg-white p-3">
-    <h1>Health data catalogue</h1>
+    <h1>Health meta data catalogue</h1>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <p>
       Browse and manage metadata for human research data resources, such as

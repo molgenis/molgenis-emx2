@@ -8,7 +8,7 @@
   >
     <span
       v-for="t in terms"
-      :class="'font-weight-bold mr-2 badge badge-' + color"
+      :class="'font-weight-bold mr-2 mb-2 badge badge-' + color"
       style="font-size: 100%"
       @mouseover="hover = t.name"
       @mouseleave="hover = null"

@@ -64,9 +64,9 @@ export default {
           this.tableName
         )
       ) {
-        return ["name", "acronym", "type", "provider"];
+        return ["name", "acronym", "type", "recordPrompt", "provider"];
       } else if (this.tableName == "Studies") {
-        return ["name", "keywords"];
+        return ["acronym", "name", "keywords"];
       } else if (this.tableName == "Contacts") {
         return [
           "name",
@@ -108,6 +108,9 @@ export default {
       }
       if (this.tableName == "Studies") {
         return ["keywords", "networks", "startYear", "endYear"];
+      }
+      if (this.tableName == "Databanks") {
+        return ["keywords", "recordPrompt"];
       }
       return [];
     },

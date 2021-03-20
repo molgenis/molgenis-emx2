@@ -10,7 +10,7 @@
               version: r.version,
             },
           }"
-          >{{ r.version }}
+          >{{ r.resource.acronym }} - version {{ r.version }}
         </RouterLink>
       </li>
     </ul>

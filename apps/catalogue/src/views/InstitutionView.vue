@@ -104,7 +104,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},country{name},description,homepage,providerOf{acronym,name,mg_tableclass,contents{name},type{name}},partnerIn{resource{acronym,name,mg_tableclass},role{name}}}}`,
+        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},country{name},description,homepage,providerOf{acronym,name,mg_tableclass,keywords{name},type{name}},partnerIn{resource{acronym,name,mg_tableclass},role{name}}}}`,
         {
           acronym: this.acronym,
         }
