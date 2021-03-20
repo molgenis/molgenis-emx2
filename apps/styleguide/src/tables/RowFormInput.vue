@@ -29,6 +29,7 @@
       v-else-if="columnType === 'REF'"
       v-bind="$props"
       v-model="input"
+      :filter="filter"
       :table="table"
     />
     <InputDate
@@ -91,6 +92,7 @@ export default {
   props: {
     schema: String,
     columnType: String,
+    filter: Object,
     table: String,
     graphqlURL: {
       default: "graphql",

@@ -17,6 +17,7 @@
             :help="column.description"
             :columnType="column.columnType"
             :table="column.refTable"
+            :filter="refLinkFilters[column.name]"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
@@ -37,7 +38,7 @@ filter = {{ JSON.stringify(filter) }}
 
 errorPerColumn = {{ JSON.stringify(errorPerColumn) }}
 
-schema = {{ JSON.stringify(schema) }}
+schema = {{ JSON.stringify(schema, null, 2) }}
 
 
         </pre>
@@ -156,16 +157,14 @@ export default {
             //this.value[column.name] = null;
           }
           delete this.errorPerColumn[column.name];
-          // when empty
+          // when required
           if (
             this.value[column.name] == null ||
             (typeof this.value[column.name] === "number" &&
-              isNaN(this.value[column.name]))
+              isNaN(this.value[column.name]) &&
+              column.required)
           ) {
-            // when required
-            if (column.required) {
-              this.errorPerColumn[column.name] = column.name + " is required ";
-            }
+            this.errorPerColumn[column.name] = column.name + " is required ";
           } else {
             // when not empty
             // when validation
@@ -178,6 +177,17 @@ export default {
               this.errorPerColumn[column.name] = this.eval(
                 column.validationExpression
               );
+            } else if (
+              column.refLink &&
+              !JSON.stringify(this.value[column.name]).includes(
+                JSON.stringify(this.value[column.refLink])
+              )
+            ) {
+              //reflinks should overlap
+              this.errorPerColumn[column.name] =
+                "value should match your selection in column '" +
+                column.refLink +
+                "' ";
             }
           }
         });
@@ -185,6 +195,33 @@ export default {
     },
   },
   computed: {
+    refLinkFilters() {
+      let filter = {};
+      if (this.tableMetadata) {
+        this.tableMetadata.columns.forEach((c) => {
+          if (c.refLink) {
+            //get the overlap, should be a key column of [refLink][refTable]
+            this.tableMetadata.columns.forEach((c2) => {
+              if (c2.name === c.refLink) {
+                this.schema.tables.forEach((t) => {
+                  if (t.name === c.refTable) {
+                    t.columns.forEach((c3) => {
+                      if (c3.refTable === c2.refTable) {
+                        filter[c.name] = {};
+                        filter[c.name][c3.name] = {
+                          equals: this.value[c.refLink],
+                        };
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      return filter;
+    },
     //@overide
     graphqlFilter() {
       let result = {};

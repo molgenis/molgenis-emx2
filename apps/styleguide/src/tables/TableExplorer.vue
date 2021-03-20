@@ -358,8 +358,8 @@ example (graphqlURL is usually not needed because app is served on right path)
   <div>
     <Molgenis v-model="session">
       <TableExplorer v-if="session && session.roles && session.roles.includes('Viewer')" :session="session"
-                     table="Variables" :showColumns="['name']" :showFilters="['table']" :showCards="true"
-                     graphqlURL="/CohortsCentral/graphql"
+                     table="VariableMappings" :showColumns="['name']" :showFilters="['table']" :showCards="true"
+                     graphqlURL="/Conception/graphql"
                      :showSelect="false" @click="click"/>
       <div v-else>Please sign in.</div>
     </Molgenis>
