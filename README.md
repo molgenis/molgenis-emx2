@@ -285,10 +285,11 @@ Work in progress
 *  fix alter column in case of composite key (difficult, overlapping columns)
 *  sanitize column and table identifiers to [_A-Za-z][_0-9A-Za-z] (we support _ to replace all illegal characters)
 *  in table view, don't show subclass rows unless explicitly enabled
+*  add filter on refSelect in case of overlapping keys
 
 ### first
 
-*  add filter on refSelect in case of overlapping keys
+*  user manager for admin so I can update passwords
 *  ontology data type, inclusief label
 *  form elementen zoals separator, nesting, 
 *  kunnen hergebruiken van groepjes kolommen
