@@ -487,10 +487,9 @@ public class Column {
               .collect(Collectors.toList());
     }
 
-    // remove dupalictes
+    // remove duplicates
     HashSet<Object> seen = new HashSet<>();
     refColumns.removeIf(e -> !seen.add(e.getName()));
-
     return refColumns;
   }
 
