@@ -269,7 +269,7 @@ public class TypeUtils {
     for (int i = 0; i < value.length() - 1; i++) {
       if (value.charAt(i) == ',' && notInsideComma) {
         String v = trimQuotes(value.substring(start, i));
-        if (!"".equals(v)) result.add(v);
+        if (!"".equals(v)) result.add(v != null ? v.trim() : null);
         start = i + 1;
       } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
     }
