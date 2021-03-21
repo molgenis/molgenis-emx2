@@ -116,7 +116,6 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testSearch() {
-
     Query s = schema.getTable("Person").query();
     s.select(s("name"));
     s.search("opa");
