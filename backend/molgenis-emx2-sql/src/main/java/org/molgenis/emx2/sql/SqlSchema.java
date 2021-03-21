@@ -147,6 +147,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public Query agg(String tableName) {
+    return getTable(tableName).agg();
+  }
+
+  @Override
   public Query query(String field, SelectColumn... selection) {
     return new SqlQuery(this.getMetadata(), field, selection);
   }

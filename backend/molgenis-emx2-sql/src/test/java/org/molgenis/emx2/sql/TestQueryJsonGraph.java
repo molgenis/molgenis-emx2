@@ -1,15 +1,20 @@
 package org.molgenis.emx2.sql;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.TRIGRAM_SEARCH;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -19,7 +24,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.utils.StopWatch;
 
-public class TestGraphJsonQuery {
+public class TestQueryJsonGraph {
 
   static Database db;
   static Schema schema;
@@ -28,7 +33,7 @@ public class TestGraphJsonQuery {
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
 
-    schema = db.dropCreateSchema(TestGraphJsonQuery.class.getSimpleName());
+    schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName());
 
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
@@ -171,5 +176,71 @@ public class TestGraphJsonQuery {
     result = s.retrieveJSON();
     System.out.println();
     assertTrue(result.contains("opa"));
+  }
+
+  @Test
+  public void testGroupBy() throws JsonProcessingException {
+    schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
+
+    schema.create(
+        table(
+            "Test",
+            column("id").setPkey(),
+            column("tag"),
+            column("tag_array").setType(STRING_ARRAY),
+            column("tag_array2").setType(STRING_ARRAY)));
+    schema
+        .getTable("Test")
+        .insert(
+            row(
+                "id",
+                1,
+                "tag",
+                "blue",
+                "tag_array",
+                new String[] {"blue", "green"},
+                "tag_array2",
+                new String[] {"yellow", "red"}),
+            row(
+                "id",
+                2,
+                "tag",
+                "blue",
+                "tag_array",
+                new String[] {"green", "blue"},
+                "tag_array2",
+                new String[] {"yellow", "red"}),
+            row(
+                "id",
+                3,
+                "tag",
+                "green",
+                "tag_array",
+                new String[] {"blue"},
+                "tag_array2",
+                new String[] {"yellow", "red"}));
+
+    ObjectMapper mapper = new ObjectMapper();
+
+    Map<String, Map<String, List<Map<String, Object>>>> result =
+        mapper.readValue(
+            schema.agg("Test").select(s("groupBy", s("count"), s("tag"))).retrieveJSON(),
+            Map.class);
+    assertEquals(2, result.get("Test_agg").get("groupBy").get(0).get("count"));
+
+    result =
+        mapper.readValue(
+            schema.agg("Test").select(s("groupBy", s("count"), s("tag_array"))).retrieveJSON(),
+            Map.class);
+    assertEquals(2, result.get("Test_agg").get("groupBy").get(0).get("count"));
+
+    result =
+        mapper.readValue(
+            schema
+                .agg("Test")
+                .select(s("groupBy", s("count"), s("tag_array"), s("tag_array2")))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(3, result.get("Test_agg").get("groupBy").get(0).get("count"));
   }
 }

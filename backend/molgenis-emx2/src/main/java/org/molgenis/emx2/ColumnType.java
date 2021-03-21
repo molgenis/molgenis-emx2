@@ -63,4 +63,8 @@ public enum ColumnType {
   public Object getXsdType() {
     return this.xsdType;
   }
+
+  public boolean isArray() {
+    return this.name().endsWith("ARRAY");
+  }
 }

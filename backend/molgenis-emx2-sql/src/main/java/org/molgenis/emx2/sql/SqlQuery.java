@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
   public static final String COUNT_FIELD = "count";
+  public static final String GROUPBY_FIELD = "groupBy";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
@@ -627,6 +628,9 @@ public class SqlQuery extends QueryBean {
       // count only uses the filter query to count
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(jsonCountField(table, column, tableAlias, subAlias, filter, searchTerms));
+      } else if (GROUPBY_FIELD.equals(field.getColumn())) {
+        fields.add(
+            jsonAggregateGroupBy(table, column, field, tableAlias, subAlias, filter, searchTerms));
       } else {
         Column c = isValidColumn(table, field.getColumn());
         if (field.has(MAX_FIELD)
@@ -639,6 +643,66 @@ public class SqlQuery extends QueryBean {
       }
     }
     return fields;
+  }
+
+  private static Field jsonAggregateGroupBy(
+      SqlTableMetadata table,
+      Column column,
+      SelectColumn groupBy,
+      String tableAlias,
+      String subAlias,
+      Filter filter,
+      String[] searchTerms) {
+    DSLContext jooq = table.getJooq();
+
+    // filter conditions
+    Condition condition = null;
+    if (filter != null || searchTerms.length > 1) {
+      condition =
+          row(table.getPrimaryKeyFields())
+              .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms));
+    }
+
+    List<SelectConnectByStep> subQuery = new ArrayList<>();
+    List<Field> selectFields = new ArrayList<>();
+    List<Field> groupByFields = new ArrayList<>();
+    for (SelectColumn field : groupBy.getSubselect()) {
+      if (COUNT_FIELD.equals(field.getColumn())) {
+        selectFields.add(field("COUNT(*)"));
+      } else {
+        Column c = isValidColumn(table, field.getColumn());
+        selectFields.add(c.getJooqField());
+        List<Field> subselectFields = new ArrayList<>();
+        subselectFields.addAll(table.getPrimaryKeyFields());
+        // if array we unnest
+        if (c.getColumnType().isArray()) {
+          subselectFields.add(field("unnest({0})", c.getJooqField()).as(c.getJooqField()));
+        } else {
+          subselectFields.add(c.getJooqField());
+        }
+        if (condition != null) {
+          subQuery.add(
+              jooq.select(subselectFields)
+                  .from(tableWithInheritanceJoin(table).as(tableAlias))
+                  .where(condition));
+        } else {
+          subQuery.add(
+              jooq.select(subselectFields).from(tableWithInheritanceJoin(table).as(tableAlias)));
+        }
+        groupByFields.add(c.getJooqField());
+      }
+    }
+
+    SelectJoinStep<Record> groupByQuery =
+        table.getJooq().select(selectFields).from(subQuery.get(0));
+    for (int i = 1; i < subQuery.size(); i++) {
+      groupByQuery = groupByQuery.naturalJoin(subQuery.get(i));
+    }
+
+    return field(
+            jooq.select(field(JSON_AGG_SQL))
+                .from(groupByQuery.groupBy(groupByFields).asTable(ITEM)))
+        .as(GROUPBY_FIELD);
   }
 
   private static Field jsonAggField(
