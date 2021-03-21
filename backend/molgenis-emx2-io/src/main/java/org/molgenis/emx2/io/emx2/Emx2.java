@@ -24,7 +24,7 @@ public class Emx2 {
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
   public static final String REF_LINK = "refLink";
-  public static final String REF_JS_TEMPLATE = "refJsTemplate";
+  public static final String REF_JS_TEMPLATE = "refLabel";
   public static final String MAPPED_BY = "mappedBy";
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
@@ -89,7 +89,7 @@ public class Emx2 {
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
-          if (r.notNull(REF_JS_TEMPLATE)) column.setRefJsTemplate(r.getString(REF_JS_TEMPLATE));
+          if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {

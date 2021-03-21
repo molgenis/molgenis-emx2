@@ -1,13 +1,13 @@
 <template>
   <span v-if="row[col.name] && Array.isArray(row[col.name])">
     <span v-for="val in row[col.name]" :key="val">
-      {{ col.refJsTemplate ? applyJsTemplate(col.refJsTemplate, val) : val }}
+      {{ col.refLabel ? applyJsTemplate(col.refLabel, val) : val }}
     </span>
   </span>
   <span v-else-if="row[col.name]">
     {{
-      col.refJsTemplate
-        ? applyJsTemplate(col.refJsTemplate, row[col.name])
+      col.refLabel
+        ? applyJsTemplate(col.refLabel, row[col.name])
         : row[col.name]
     }}
   </span>

@@ -14,7 +14,7 @@ public class Column {
   private String refTable = null;
   private String refLink = null;
   private String mappedBy = null;
-  private String refJsTemplate;
+  private String refLabel;
   private Integer position = null;
 
   // private Boolean cascadeDelete = false;
@@ -50,7 +50,7 @@ public class Column {
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
-    this.refJsTemplate = column.getRefJsTemplate();
+    this.refLabel = column.getRefLabel();
     // this.cascadeDelete = column.isCascadeDelete();
     this.mappedBy = column.getMappedBy();
     this.validationExpression = column.getValidationExpression();
@@ -75,7 +75,7 @@ public class Column {
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
     c.setRefLink(refLink);
-    c.setRefJsTemplate(refJsTemplate);
+    c.setRefLabel(refLabel);
     c.setKey(key);
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
@@ -185,12 +185,12 @@ public class Column {
     this.refLink = refLink;
   }
 
-  public String getRefJsTemplate() {
-    return refJsTemplate;
+  public String getRefLabel() {
+    return refLabel;
   }
 
-  public void setRefJsTemplate(String refJsTemplate) {
-    this.refJsTemplate = refJsTemplate;
+  public void setRefLabel(String refLabel) {
+    this.refLabel = refLabel;
   }
 
   public boolean isInherited() {

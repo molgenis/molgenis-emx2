@@ -32,7 +32,7 @@ public class Column {
   private String refSchema; // for cross schema references
   private String refTable;
   private String refLink; // to allow a reference to depend on another reference.
-  private String refJsTemplate;
+  private String refLabel;
   // for refback
   private String mappedBy;
 
@@ -119,7 +119,7 @@ public class Column {
     refSchema = column.refSchema;
     mappedBy = column.mappedBy;
     validationExpression = column.validationExpression;
-    refJsTemplate = column.refJsTemplate;
+    refLabel = column.refLabel;
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
@@ -510,13 +510,13 @@ public class Column {
     } else return getColumnType();
   }
 
-  public String getRefJsTemplateIfSet() {
-    return this.refJsTemplate;
+  public String getRefLabelIfSet() {
+    return this.refLabel;
   }
 
-  public String getRefJsTemplate() {
+  public String getRefLabel() {
     if (!isReference()) return null;
-    if (refJsTemplate == null) {
+    if (refLabel == null) {
       // we concat all columns unless already shown in another column
       StringBuilder result = new StringBuilder();
       for (Reference ref : getReferences()) {
@@ -526,11 +526,11 @@ public class Column {
       }
       return result.toString().replaceFirst("[.]", "");
     }
-    return refJsTemplate;
+    return refLabel;
   }
 
-  public Column setRefJsTemplate(String refJsTemplate) {
-    this.refJsTemplate = refJsTemplate;
+  public Column setRefLabel(String refLabel) {
+    this.refLabel = refLabel;
     return this;
   }
 

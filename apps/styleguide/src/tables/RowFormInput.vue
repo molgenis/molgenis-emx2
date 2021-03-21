@@ -94,7 +94,7 @@ export default {
     columnType: String,
     filter: Object,
     table: String,
-    refJsTemplate: String,
+    refLabel: String,
     graphqlURL: {
       default: "graphql",
       type: String,

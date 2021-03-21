@@ -18,7 +18,7 @@
             :columnType="column.columnType"
             :table="column.refTable"
             :filter="refLinkFilters[column.name]"
-            :refJsTemplate="column.refJsTemplate"
+            :refLabel="column.refLabel"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"

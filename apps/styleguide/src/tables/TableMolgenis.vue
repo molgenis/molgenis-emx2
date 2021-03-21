@@ -161,15 +161,15 @@ export default {
         col.columnType == "REFBACK"
       ) {
         return row[col.name].map((v) => {
-          if (col.refJsTemplate) {
-            return this.applyJsTemplate(col.refJsTemplate, v);
+          if (col.refLabel) {
+            return this.applyJsTemplate(col.refLabel, v);
           } else {
             return this.flattenObject(v);
           }
         });
       } else if (col.columnType == "REF") {
-        if (col.refJsTemplate) {
-          return [this.applyJsTemplate(col.refJsTemplate, row[col.name])];
+        if (col.refLabel) {
+          return [this.applyJsTemplate(col.refLabel, row[col.name])];
         } else {
           return [this.flattenObject(row[col.name])];
         }

@@ -30,7 +30,7 @@ export default {
       this.graphqlError = null;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,description,semantics,columns{name,columnType,key,refTable,refLink,refJsTemplate,required,semantics}}}}"
+        "{_session{email,roles}_schema{name,tables{name,description,semantics,columns{name,columnType,key,refTable,refLink,refLabel,required,semantics}}}}"
       )
         .then((data) => {
           this.session = data._session;

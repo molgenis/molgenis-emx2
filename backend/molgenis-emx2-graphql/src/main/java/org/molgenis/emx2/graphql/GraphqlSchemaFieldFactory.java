@@ -126,7 +126,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_JS_TEMPLATE)
+                  .name(REF_LABEL)
                   .type(Scalars.GraphQLString))
           // TODO
           //          .field(
