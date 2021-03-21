@@ -35,13 +35,13 @@ public class TestCohortCatalogueMultipleSchemas {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     conceptionSchema = database.dropCreateSchema("Conception");
-    localSchema = database.dropCreateSchema("CohortsLocal");
-    centralSchema = database.dropCreateSchema("CohortsCentral");
-    catalogueOntologies = database.dropCreateSchema("CatalogueOntologies");
-    catalogueDescriptions = database.dropCreateSchema("CatalogueDescriptions");
-    catalogueSourceVariables = database.dropCreateSchema("CatalogueSourceVariables");
-    catalogueHarmonizedVariables = database.dropCreateSchema("CatalogueHarmonizedVariables");
-    catalogueMappings = database.dropCreateSchema("CatalogueMappings");
+    // localSchema = database.dropCreateSchema("CohortsLocal");
+    //    centralSchema = database.dropCreateSchema("CohortsCentral");
+    //    catalogueOntologies = database.dropCreateSchema("CatalogueOntologies");
+    //    catalogueDescriptions = database.dropCreateSchema("CatalogueDescriptions");
+    //    catalogueSourceVariables = database.dropCreateSchema("CatalogueSourceVariables");
+    //    catalogueHarmonizedVariables = database.dropCreateSchema("CatalogueHarmonizedVariables");
+    //    catalogueMappings = database.dropCreateSchema("CatalogueMappings");
   }
 
   @Test
@@ -51,30 +51,21 @@ public class TestCohortCatalogueMultipleSchemas {
     // load data model
     loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", conceptionSchema);
     loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
-
-    loadSchema("CatalogueCentralOntologies.xlsx", centralSchema);
-    assertEquals(18, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
-
-    loadSchema("CatalogueCentralCollections.xlsx", centralSchema);
-    assertEquals(34, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
-
-    loadSchema("CatalogueCentralDictionaries.xlsx", centralSchema);
-    assertEquals(41, TestCohortCatalogueMultipleSchemas.centralSchema.getTableNames().size());
-
-    // submodules for the 'data'
-    loadSchema("CatalogueCentralOntologies.xlsx", catalogueOntologies);
-    assertEquals(18, TestCohortCatalogueMultipleSchemas.catalogueOntologies.getTableNames().size());
-
-    loadSchema("CatalogueLocalSourceVariables.xlsx", catalogueSourceVariables);
-    assertEquals(
-        7, TestCohortCatalogueMultipleSchemas.catalogueSourceVariables.getTableNames().size());
-
-    loadSchema("CatalogueLocalHarmonizedVariables.xlsx", catalogueHarmonizedVariables);
-    assertEquals(
-        7, TestCohortCatalogueMultipleSchemas.catalogueHarmonizedVariables.getTableNames().size());
-
-    loadSchema("CatalogueLocalMappings.xlsx", catalogueMappings);
-    assertEquals(2, TestCohortCatalogueMultipleSchemas.catalogueMappings.getTableNames().size());
+    assertEquals(42, TestCohortCatalogueMultipleSchemas.conceptionSchema.getTableNames().size());
+    //
+    //    loadSchema("CatalogueLocalSourceVariables.xlsx", catalogueSourceVariables);
+    //    assertEquals(
+    //        7,
+    // TestCohortCatalogueMultipleSchemas.catalogueSourceVariables.getTableNames().size());
+    //
+    //    loadSchema("CatalogueLocalHarmonizedVariables.xlsx", catalogueHarmonizedVariables);
+    //    assertEquals(
+    //        7,
+    // TestCohortCatalogueMultipleSchemas.catalogueHarmonizedVariables.getTableNames().size());
+    //
+    //    loadSchema("CatalogueLocalMappings.xlsx", catalogueMappings);
+    //    assertEquals(2,
+    // TestCohortCatalogueMultipleSchemas.catalogueMappings.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) throws IOException {

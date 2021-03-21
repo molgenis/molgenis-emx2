@@ -119,6 +119,7 @@ public class Column {
     refSchema = column.refSchema;
     mappedBy = column.mappedBy;
     validationExpression = column.validationExpression;
+    refJsTemplate = column.refJsTemplate;
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
@@ -507,6 +508,10 @@ public class Column {
                 + "': composite key");
       }
     } else return getColumnType();
+  }
+
+  public String getRefJsTemplateIfSet() {
+    return this.refJsTemplate;
   }
 
   public String getRefJsTemplate() {

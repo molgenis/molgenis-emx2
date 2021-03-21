@@ -18,6 +18,7 @@
             :columnType="column.columnType"
             :table="column.refTable"
             :filter="refLinkFilters[column.name]"
+            :refJsTemplate="column.refJsTemplate"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
@@ -159,10 +160,10 @@ export default {
           delete this.errorPerColumn[column.name];
           // when required
           if (
-            this.value[column.name] == null ||
-            (typeof this.value[column.name] === "number" &&
-              isNaN(this.value[column.name]) &&
-              column.required)
+            column.required &&
+            (this.value[column.name] == null ||
+              (typeof this.value[column.name] === "number" &&
+                isNaN(this.value[column.name])))
           ) {
             this.errorPerColumn[column.name] = column.name + " is required ";
           } else {
@@ -179,6 +180,8 @@ export default {
               );
             } else if (
               column.refLink &&
+              this.value[column.name] &&
+              this.value[column.refLink] &&
               !JSON.stringify(this.value[column.name]).includes(
                 JSON.stringify(this.value[column.refLink])
               )

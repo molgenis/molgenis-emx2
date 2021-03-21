@@ -160,7 +160,13 @@ export default {
         col.columnType == "MREF" ||
         col.columnType == "REFBACK"
       ) {
-        return row[col.name].map((v) => this.flattenObject(v));
+        return row[col.name].map((v) => {
+          if (col.refJsTemplate) {
+            return this.applyJsTemplate(col.refJsTemplate, v);
+          } else {
+            return this.flattenObject(v);
+          }
+        });
       } else if (col.columnType == "REF") {
         if (col.refJsTemplate) {
           return [this.applyJsTemplate(col.refJsTemplate, row[col.name])];

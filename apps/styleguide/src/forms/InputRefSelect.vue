@@ -22,7 +22,7 @@
           selected
           :readonly="readonly"
         >
-          {{ flattenObject(el) }}
+          {{ refJsTemplate ? applyJsTemplate(el) : flattenObject(el) }}
         </option>
       </select>
     </InputAppend>
@@ -93,6 +93,7 @@ export default {
     },
     table: String,
     filter: Object,
+    refJsTemplate: String,
   },
   computed: {
     title() {
@@ -128,6 +129,25 @@ export default {
         }
       });
       return result;
+    },
+    applyJsTemplate(object) {
+      const names = Object.keys(object);
+      const vals = Object.values(object);
+      try {
+        return new Function(...names, "return `" + this.refJsTemplate + "`;")(
+          ...vals
+        );
+      } catch (err) {
+        return (
+          err.message +
+          " we got keys:" +
+          JSON.stringify(names) +
+          " vals:" +
+          JSON.stringify(vals) +
+          " and template: " +
+          this.refJsTemplate
+        );
+      }
     },
   },
 };
