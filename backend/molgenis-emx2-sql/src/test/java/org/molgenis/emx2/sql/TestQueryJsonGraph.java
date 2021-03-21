@@ -116,7 +116,7 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testSearch() {
-    Query s = schema.getTable("Person").query();
+    Query s = this.schema.getTable("Person").query();
     s.select(s("name"));
     s.search("opa");
 
@@ -179,7 +179,7 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testGroupBy() throws JsonProcessingException {
-    schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
+    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
 
     schema.create(
         table(
