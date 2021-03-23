@@ -1,7 +1,7 @@
 <template>
-    <form><slot /></form>
+  <form><slot /></form>
 </template>
 
 <script>
-export default {};
+export default {}
 </script>

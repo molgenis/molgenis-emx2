@@ -1,30 +1,30 @@
 <template>
-    <div>
-        {{ graphqlError }}
-        <div class="row">
-            <div class="col-3">
-                <label>Topics:</label>
-                <TopicFilter
-                    :selected="selectedTopic"
-                    :topics="topics"
-                    @deselect="deselect"
-                    @select="select"
-                />
-            </div>
-            <VariablesList
-                class="col-9"
-                :resource-acronym="resourceAcronym"
-                :topic="selectedTopic"
-            />
-        </div>
+  <div>
+    {{ graphqlError }}
+    <div class="row">
+      <div class="col-3">
+        <label>Topics:</label>
+        <TopicFilter
+          :selected="selectedTopic"
+          :topics="topics"
+          @deselect="deselect"
+          @select="select"
+        />
+      </div>
+      <VariablesList
+        class="col-9"
+        :resource-acronym="resourceAcronym"
+        :topic="selectedTopic"
+      />
     </div>
+  </div>
 </template>
 
 <script>
 
-import { request } from "graphql-request";
-import VariablesList from "./VariablesList.vue";
-import TopicFilter from "./TopicSelector.vue";
+import {request} from 'graphql-request'
+import VariablesList from './VariablesList.vue'
+import TopicFilter from './TopicSelector.vue'
 
 export default {
   components: {
@@ -34,7 +34,7 @@ export default {
   props: {
     resourceAcronym: String,
   },
-  data: function () {
+  data: function() {
     return {
       selectedCollections: [],
       graphqlError: null,
@@ -44,76 +44,76 @@ export default {
       count: 0,
       limit: 20,
       page: 1,
-      search: "",
-      variableSearch: "",
+      search: '',
+      variableSearch: '',
       selectedTopic: null,
       variables: [],
       timestamp: Date.now(),
-    };
+    }
   },
   watch: {
     search() {
-      this.applySearch(this.topics, this.search);
+      this.applySearch(this.topics, this.search)
     },
   },
   created() {
-    this.loadTopics();
+    this.loadTopics()
   },
   methods: {
     select(topic) {
-      this.selectedTopic = topic.name;
+      this.selectedTopic = topic.name
     },
     deselect() {
-      this.selectedTopic = null;
+      this.selectedTopic = null
     },
     loadTopics() {
       request(
-        "graphql",
-        "{Topics(orderby:{order:ASC}){name,parent{name},variables_agg{count},children{name,variables_agg{count},children{name, variables_agg{count},children{name,variables{name},children{name,variables{name},children{name}}}}}}}"
+        'graphql',
+        '{Topics(orderby:{order:ASC}){name,parent{name},variables_agg{count},children{name,variables_agg{count},children{name, variables_agg{count},children{name,variables{name},children{name,variables{name},children{name}}}}}}}',
       )
         .then((data) => {
           this.topics = data.Topics.filter(
-            (t) => t["parentTopic"] == undefined
-          );
-          this.topics = this.topicsWithContents(this.topics);
-          this.applySearch(this.topics, this.search);
+            (t) => t['parentTopic'] == undefined,
+          )
+          this.topics = this.topicsWithContents(this.topics)
+          this.applySearch(this.topics, this.search)
         })
         .catch((error) => {
-          this.graphqlError = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message
         })
         .finally(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
     topicsWithContents(topics) {
-      let result = [];
+      let result = []
       if (topics)
         topics.forEach((t) => {
-          let childTopics = this.topicsWithContents(t.childTopics);
+          let childTopics = this.topicsWithContents(t.childTopics)
           if (t.variables || childTopics.length > 0) {
-            result.push({ name: t.name, childTopics: childTopics });
+            result.push({name: t.name, childTopics: childTopics})
           }
-        });
-      return result;
+        })
+      return result
     },
     applySearch(topics, terms) {
-      let result = false;
+      let result = false
       topics.forEach((t) => {
-        t.match = false;
+        t.match = false
         if (
           terms == null ||
           t.name.toLowerCase().includes(terms.toLowerCase())
         ) {
-          t.match = true;
-          result = true;
+          t.match = true
+          result = true
         }
         if (t.childTopics && this.applySearch(t.childTopics, terms)) {
-          t.match = true;
-          result = true;
+          t.match = true
+          result = true
         }
-      });
-      return result;
+      })
+      return result
     },
   },
-};
+}
 </script>

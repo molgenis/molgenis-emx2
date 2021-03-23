@@ -3,25 +3,25 @@ export default {
   computed: {
     defaultMenu() {
       return [
-        { label: "Tables", href: "../tables/" },
+        {label: 'Tables', href: '../tables/'},
         {
-          label: "Schema",
-          href: "../schema/",
+          label: 'Schema',
+          href: '../schema/',
         },
         {
-          label: "Up/Download",
-          href: "../updownload/",
+          label: 'Up/Download',
+          href: '../updownload/',
         },
         {
-          label: "Graphql",
-          href: "../graphql-playground/",
+          label: 'Graphql',
+          href: '../graphql-playground/',
         },
         {
-          label: "Settings",
-          href: "../settings/",
+          label: 'Settings',
+          href: '../settings/',
         },
-      ];
+      ]
     },
   },
-};
+}
 </script>

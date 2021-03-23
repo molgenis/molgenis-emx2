@@ -1,18 +1,18 @@
 <template>
-    <RowEditModal
-        v-if="open"
-        :graphql-u-r-l="graphqlURL"
-        :pkey="pkey"
-        :table="table"
-        @close="closeForm"
-    />
-    <IconAction v-else icon="pencil" @click="openForm" />
+  <RowEditModal
+    v-if="open"
+    :graphql-u-r-l="graphqlURL"
+    :pkey="pkey"
+    :table="table"
+    @close="closeForm"
+  />
+  <IconAction v-else icon="pencil" @click="openForm" />
 </template>
 
 <script>
-import RowButtonAdd from "./RowButtonAdd.vue";
-import RowEditModal from "./RowEditModal.vue";
-import IconAction from "../forms/IconAction.vue";
+import RowButtonAdd from './RowButtonAdd.vue'
+import RowEditModal from './RowEditModal.vue'
+import IconAction from '../forms/IconAction.vue'
 
 export default {
   components: {
@@ -25,8 +25,8 @@ export default {
   },
   computed: {
     title() {
-      return `Update ${this.table}`;
+      return `Update ${this.table}`
     },
   },
-};
+}
 </script>

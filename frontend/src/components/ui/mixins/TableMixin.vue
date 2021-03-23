@@ -1,14 +1,14 @@
 <template>
-    <ShowMore>
-        <pre>graphqlError = {{ graphqlError }}</pre>
-        <pre>graphql = {{ graphql }}</pre>
-        <pre>data = {{ data }}</pre>
-    </ShowMore>
+  <ShowMore>
+    <pre>graphqlError = {{ graphqlError }}</pre>
+    <pre>graphql = {{ graphql }}</pre>
+    <pre>data = {{ data }}</pre>
+  </ShowMore>
 </template>
 
 <script>
-import { request } from "graphql-request";
-import TableMetadataMixin from "./TableMetadataMixin.vue";
+import {request} from 'graphql-request'
+import TableMetadataMixin from './TableMetadataMixin.vue'
 
 export default {
   extends: TableMetadataMixin,
@@ -18,121 +18,121 @@ export default {
     /** pass filters conform TableMixin */
     filter: {},
   },
-  data: function () {
+  data: function() {
     return {
       data: [],
       count: 0,
       offset: 0,
       limit: 20,
       searchTerms: null,
-    };
+    }
   },
   computed: {
-    //filter can be passed as prop or overridden in subclass
+    // filter can be passed as prop or overridden in subclass
     graphqlFilter() {
       if (this.filter) {
-        return this.filter;
-      } else return {};
+        return this.filter
+      } else return {}
     },
     graphql() {
       if (this.tableMetadata == undefined) {
-        return "";
+        return ''
       }
       let search =
-        this.searchTerms != null && this.searchTerms !== ""
+        this.searchTerms != null && this.searchTerms !== ''
           ? ',search:"' + this.searchTerms + '"'
-          : "";
+          : ''
       return `query ${this.table}($filter:${this.table}Filter){
               ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search}){${this.columnNames}}
-              ${this.table}_agg(filter:$filter${search}){count}}`;
+              ${this.table}_agg(filter:$filter${search}){count}}`
     },
     tableMetadata() {
-      return this.getTable(this.table);
+      return this.getTable(this.table)
     },
     columnNames() {
-      let result = "";
+      let result = ''
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
+            ['REF', 'REF_ARRAY', 'REFBACK', 'MREF'].includes(col.columnType)
           ) {
-            result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
-          } else if (col.columnType == "FILE") {
-            result = result + " " + col.name + "{id,size,extension,url}";
+            result = result + ' ' + col.name + '{' + this.refGraphql(col) + '}'
+          } else if (col.columnType == 'FILE') {
+            result = result + ' ' + col.name + '{id,size,extension,url}'
           } else {
-            result = result + " " + col.name;
+            result = result + ' ' + col.name
           }
-        });
+        })
       }
-      return result;
+      return result
     },
   },
   watch: {
-    searchTerms: "reload",
+    searchTerms: 'reload',
     graphqlFilter: {
       deep: true,
       handler() {
-        this.reload();
+        this.reload()
       },
     },
-    table: "reload",
-    schema: "reload",
-    limit: "reload",
+    table: 'reload',
+    schema: 'reload',
+    limit: 'reload',
   },
   methods: {
     reload() {
       if (this.tableMetadata != undefined) {
-        this.loading = true;
-        this.graphqlError = null;
-        request(this.graphqlURL, this.graphql, { filter: this.graphqlFilter })
+        this.loading = true
+        this.graphqlError = null
+        request(this.graphqlURL, this.graphql, {filter: this.graphqlFilter})
           .then((data) => {
-            this.data = data[this.table];
-            this.count = data[this.table + "_agg"]["count"];
-            this.loading = false;
+            this.data = data[this.table]
+            this.count = data[this.table + '_agg']['count']
+            this.loading = false
           })
           .catch((error) => {
-            this.graphqlError = "internal server graphqlError" + error;
-            this.loading = false;
-          });
+            this.graphqlError = 'internal server graphqlError' + error
+            this.loading = false
+          })
       }
     },
     refGraphql(column) {
-      let graphqlString = "";
+      let graphqlString = ''
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
-          graphqlString += c.name + " ";
-          if (["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(c.columnType)) {
-            graphqlString += "{" + this.refGraphql(c) + "}";
+          graphqlString += c.name + ' '
+          if (['REF', 'REF_ARRAY', 'REFBACK', 'MREF'].includes(c.columnType)) {
+            graphqlString += '{' + this.refGraphql(c) + '}'
           }
         }
-      });
-      return graphqlString;
+      })
+      return graphqlString
     },
     getTable(table) {
-      let result = undefined;
+      let result = undefined
       if (this.schema != null && this.schema.tables != null) {
         this.schema.tables.forEach((t) => {
           if (t.name == table) {
-            result = t;
+            result = t
           }
-        });
+        })
         if (!result) {
-          this.graphqlError = "Table " + table + " not found";
+          this.graphqlError = 'Table ' + table + ' not found'
         }
       }
-      if (result) return result;
+      if (result) return result
     },
     getPkey(row) {
-      let result = {};
+      let result = {}
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (col.key == 1) {
-            result[col.name] = row[col.name];
+            result[col.name] = row[col.name]
           }
-        });
+        })
       }
-      return result;
+      return result
     },
   },
-};
+}
 </script>

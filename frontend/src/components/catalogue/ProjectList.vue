@@ -1,35 +1,35 @@
 <template>
+  <div>
+    <MessageError v-if="graphqlError">
+      {{ graphqlError }}
+    </MessageError>
     <div>
-        <MessageError v-if="graphqlError">
-            {{ graphqlError }}
-        </MessageError>
-        <div>
-            <Pagination
-                v-if="count > 0"
-                v-model="page"
-                class="justify-content-center mb-2"
-                :count="count"
-                :default-value="page"
-                :limit="limit"
-            />
-            <p v-else>
-                No records found.
-            </p>
-        </div>
-        <div class="row">
-            <ProjectCard
-                v-for="project in projects"
-                :key="project.name"
-                :project="project"
-            />
-        </div>
+      <Pagination
+        v-if="count > 0"
+        v-model="page"
+        class="justify-content-center mb-2"
+        :count="count"
+        :default-value="page"
+        :limit="limit"
+      />
+      <p v-else>
+        No records found.
+      </p>
     </div>
+    <div class="row">
+      <ProjectCard
+        v-for="project in projects"
+        :key="project.name"
+        :project="project"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
-import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
-import ProjectCard from "./ProjectCard";
+import {MessageError, Pagination} from '@mswertz/emx2-styleguide'
+import {request} from 'graphql-request'
+import ProjectCard from './ProjectCard'
 
 export default {
   components: {
@@ -42,12 +42,12 @@ export default {
     filter: {
       type: Object,
       default() {
-        return {};
+        return {}
       },
     },
     search: {
       String,
-      default: "",
+      default: '',
     },
   },
   data() {
@@ -58,46 +58,46 @@ export default {
       graphqlError: null,
       loading: false,
       projects: [],
-    };
+    }
   },
   watch: {
     page() {
-      this.reload();
+      this.reload()
     },
     search() {
-      this.reload();
+      this.reload()
     },
   },
   created() {
-    this.reload();
+    this.reload()
   },
   methods: {
     reload() {
-      let searchString = "";
-      if (this.search && this.search.trim() != "") {
-        searchString = `search:"${this.search}",`;
+      let searchString = ''
+      if (this.search && this.search.trim() != '') {
+        searchString = `search:"${this.search}",`
       }
       request(
-        "graphql",
+        'graphql',
         `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name}}
         ,Projects_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
           offset: (this.page - 1) * 10,
           limit: this.limit,
-        }
+        },
       )
         .then((data) => {
-          this.projects = data.Projects;
-          this.count = data.Projects_agg.count;
+          this.projects = data.Projects
+          this.count = data.Projects_agg.count
         })
         .catch((error) => {
-          this.graphqlError = error.response.errors[0].message;
+          this.graphqlError = error.response.errors[0].message
         })
         .finally(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
   },
-};
+}
 </script>

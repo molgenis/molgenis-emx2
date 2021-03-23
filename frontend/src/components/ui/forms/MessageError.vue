@@ -1,5 +1,5 @@
 <template>
-    <div class="alert alert-danger" role="alert">
-        <slot />
-    </div>
+  <div class="alert alert-danger" role="alert">
+    <slot />
+  </div>
 </template>

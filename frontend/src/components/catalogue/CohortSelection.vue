@@ -1,22 +1,22 @@
 <template>
-    <Spinner v-if="loading" />
-    <MessageError v-else-if="graphqlError">
-        {{ graphqlError }}
-    </MessageError>
-    <div v-else>
-        <InputCheckbox
-            v-model="value"
-            label="Choose resource(s)"
-            :list="true"
-            :options="options"
-            @input="emitValue()"
-        />
-    </div>
+  <Spinner v-if="loading" />
+  <MessageError v-else-if="graphqlError">
+    {{ graphqlError }}
+  </MessageError>
+  <div v-else>
+    <InputCheckbox
+      v-model="value"
+      label="Choose resource(s)"
+      :list="true"
+      :options="options"
+      @input="emitValue()"
+    />
+  </div>
 </template>
 
 <script>
-import { InputCheckbox } from "../ui/index.js";
-import { request } from "graphql-request";
+import {InputCheckbox} from '../ui/index.js'
+import {request} from 'graphql-request'
 
 export default {
   components: {
@@ -28,24 +28,24 @@ export default {
       options: [],
       loading: false,
       graphqlError: null,
-    };
+    }
   },
   created() {
-    request("graphql", "{Collections{name}}")
+    request('graphql', '{Collections{name}}')
       .then((data) => {
-        this.options = data.Collections.map((c) => c.name);
+        this.options = data.Collections.map((c) => c.name)
       })
       .catch((error) => {
-        this.graphqlError = error.response.errors[0].message;
+        this.graphqlError = error.response.errors[0].message
       })
       .finally(() => {
-        this.loading = false;
-      });
+        this.loading = false
+      })
   },
   methods: {
     emitValue() {
-      this.$emit("input", this.value);
+      this.$emit('input', this.value)
     },
   },
-};
+}
 </script>

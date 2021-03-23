@@ -1,30 +1,30 @@
 <template>
-    <div class="card" :class="{ 'card-fullscreen': fullscreen }">
-        <div ref="header" class="card-header text-center" @click="toggleCollapse">
-            <h4 v-if="title">
-                {{ title }}
-            </h4>
-            <slot name="header" />
-            <IconAction
-                v-if="!collapse"
-                class="card-fullscreen-icon"
-                :icon="fullscreen ? 'compress' : 'expand'"
-                @click="toggle"
-            />
-        </div>
-        <div
-            v-if="!collapse || !collapsed"
-            class="card-body"
-            :style="bodyheight"
-        >
-            <!-- @slot Use this slot to place the card content -->
-            <slot />
-        </div>
+  <div class="card" :class="{ 'card-fullscreen': fullscreen }">
+    <div ref="header" class="card-header text-center" @click="toggleCollapse">
+      <h4 v-if="title">
+        {{ title }}
+      </h4>
+      <slot name="header" />
+      <IconAction
+        v-if="!collapse"
+        class="card-fullscreen-icon"
+        :icon="fullscreen ? 'compress' : 'expand'"
+        @click="toggle"
+      />
     </div>
+    <div
+      v-if="!collapse || !collapsed"
+      class="card-body"
+      :style="bodyheight"
+    >
+      <!-- @slot Use this slot to place the card content -->
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script>
-import IconAction from "../forms/IconAction.vue"
+import IconAction from '../forms/IconAction.vue'
 
 export default {
 
@@ -32,59 +32,59 @@ export default {
     IconAction,
   },
   props: {
+    /** If the cared should be collapsed **/
+    collapse: {type: Boolean, default: false},
     /** Title that is shown on the card (optional) */
     title: String,
-    /** If the cared should be collapsed **/
-    collapse: { type: Boolean, default: false },
   },
-  data: function () {
+  data: function() {
     return {
-      fullscreen: false,
       collapsed: true,
-    };
+      fullscreen: false,
+    }
   },
   computed: {
     bodyheight() {
       if (this.$refs.header && this.fullscreen) {
-        let header = this.$refs.header.clientHeight;
-        let footer = this.$refs.footer.clientHeight;
-        return `height: calc(100vh - ${header + footer}px)`;
+        let header = this.$refs.header.clientHeight
+        let footer = this.$refs.footer.clientHeight
+        return `height: calc(100vh - ${header + footer}px)`
       }
-      return "";
+      return ''
     },
   },
   methods: {
     toggle() {
-      this.fullscreen = !this.fullscreen;
+      this.fullscreen = !this.fullscreen
     },
     toggleCollapse() {
       if (this.collapse) {
-        this.collapsed = !this.collapsed;
+        this.collapsed = !this.collapsed
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
 .card-fullscreen {
-  display: block;
-  z-index: 9999;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  right: 0;
-  left: 0;
   bottom: 0;
+  display: block;
+  height: 100%;
+  left: 0;
   overflow-y: scroll;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%;
+  z-index: 9999;
 }
 
 .card-fullscreen-icon {
   float: right;
   position: absolute;
-  top: 0px;
   right: 0px;
+  top: 0px;
 }
 
 .card-fullscreen .card-body {

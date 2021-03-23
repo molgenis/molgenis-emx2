@@ -1,9 +1,9 @@
 <template>
-    <div>
-        <label>{{ label }}:</label>&nbsp;
-        <slot v-if="hasSlot" />
-        <span v-else>N/A</span>
-    </div>
+  <div>
+    <label>{{ label }}:</label>&nbsp;
+    <slot v-if="hasSlot" />
+    <span v-else>N/A</span>
+  </div>
 </template>
 
 <script>
@@ -18,9 +18,9 @@ export default {
         this.$slots.default[0] &&
         this.$slots.default[0].text != undefined
       )
-        return this.$slots.default[0].text.trim().length > 0;
-      return this.$slots.default;
+        return this.$slots.default[0].text.trim().length > 0
+      return this.$slots.default
     },
   },
-};
+}
 </script>

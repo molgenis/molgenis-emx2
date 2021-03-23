@@ -1,5 +1,5 @@
 <template>
-    <div />
+  <div />
 </template>
 
 <script>
@@ -9,19 +9,19 @@ export default {
   },
   watch: {
     href() {
-      this.appendFile();
+      this.appendFile()
     },
   },
   mounted() {
-    this.appendFile();
+    this.appendFile()
   },
   methods: {
     appendFile() {
-      let file = document.createElement("link");
-      file.rel = "stylesheet";
-      file.href = this.href;
-      document.head.appendChild(file);
+      let file = document.createElement('link')
+      file.rel = 'stylesheet'
+      file.href = this.href
+      document.head.appendChild(file)
     },
   },
-};
+}
 </script>

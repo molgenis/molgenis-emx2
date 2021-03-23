@@ -1,9 +1,9 @@
 <template>
-    <div class="container bg-white">
-        TODO
-    </div>
+  <div class="container bg-white">
+    TODO
+  </div>
 </template>
 
 <script>
-export default {};
+export default {}
 </script>

@@ -1,8 +1,8 @@
 <template>
-    <button class="btn btn-primary" type="button" @click="onClick">
-        <i v-if="icon" :class="icon" />
-        <slot />
-    </button>
+  <button class="btn btn-primary" type="button" @click="onClick">
+    <i v-if="icon" :class="icon" />
+    <slot />
+  </button>
 </template>
 
 <script>
@@ -12,15 +12,16 @@ export default {
     href: String,
     icon: String,
   },
+  emits: ['click'],
   methods: {
     onClick() {
       if (this.href) {
-        window.open(this.href);
+        window.open(this.href)
       } else {
         /** emitted on click */
-        this.$emit("click");
+        this.$emit('click')
       }
     },
   },
-};
+}
 </script>

@@ -1,25 +1,26 @@
 <template>
-    <ul v-if="databanks">
-        <li v-for="d in databanks" :key="d.acronym">
-            <RouterLink
-                :to="{ name: 'databank', params: { acronym: d.acronym } }"
-            >
-                {{ d.acronym }} - {{ d.name }}
-                <OntologyTerms :inline="true" :terms="d.type" />
-            </RouterLink>
-        </li>
-    </ul>
-    <p v-else>
-        N/A
-    </p>
+  <ul v-if="databanks">
+    <li v-for="d in databanks" :key="d.acronym">
+      <RouterLink
+        :to="{ name: 'databank', params: { acronym: d.acronym } }"
+      >
+        {{ d.acronym }} - {{ d.name }}
+        <OntologyTerms :inline="true" :terms="d.type" />
+      </RouterLink>
+    </li>
+  </ul>
+  <p v-else>
+    N/A
+  </p>
 </template>
+
 <script>
-import OntologyTerms from "./OntologyTerms.vue";
+import OntologyTerms from './OntologyTerms.vue'
 
 export default {
-  components: { OntologyTerms },
+  components: {OntologyTerms},
   props: {
     databanks: Array,
   },
-};
+}
 </script>

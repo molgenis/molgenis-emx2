@@ -1,33 +1,33 @@
 <template>
-    <div v-if="show">
-        <ButtonAlt @click="show = false">
-            {{ hideLabel }}
-        </ButtonAlt>
-        <slot />
-    </div>
-    <ButtonAlt v-else @click="show = true">
-        {{ showLabel }} <br>
+  <div v-if="show">
+    <ButtonAlt @click="show = false">
+      {{ hideLabel }}
     </ButtonAlt>
+    <slot />
+  </div>
+  <ButtonAlt v-else @click="show = true">
+    {{ showLabel }} <br>
+  </ButtonAlt>
 </template>
 
 <script>
-import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonAlt from '../forms/ButtonAlt.vue'
 
 export default {
-  components: { ButtonAlt },
+  components: {ButtonAlt},
   props: {
-    title: { type: String, default: "debug" },
+    title: {type: String, default: 'debug'},
   },
   data() {
-    return { show: false };
+    return {show: false}
   },
   computed: {
     showLabel() {
-      return "show " + this.title;
+      return 'show ' + this.title
     },
     hideLabel() {
-      return "hide " + this.title;
+      return 'hide ' + this.title
     },
   },
-};
+}
 </script>

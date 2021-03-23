@@ -1,7 +1,7 @@
 <template>
-    <ButtonDropdown v-if="visible" :label="title">
-        <slot />
-    </ButtonDropdown>
+  <ButtonDropdown v-if="visible" :label="title">
+    <slot />
+  </ButtonDropdown>
 </template>
 
 <script>
@@ -10,5 +10,5 @@ export default {
     title: String,
     visible: Boolean,
   },
-};
+}
 </script>

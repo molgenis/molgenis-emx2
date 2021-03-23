@@ -1,45 +1,45 @@
 <template>
-    <div id="app">
-        <Molgenis
-            v-model="session"
-            :menu-items="menuItems"
-            title="Welcome to MOLGENIS"
-        >
-            <Groups :key="JSON.stringify(session)" :session="session" />
-        </Molgenis>
-    </div>
+  <div id="app">
+    <Molgenis
+      v-model="session"
+      :menu-items="menuItems"
+      title="Welcome to MOLGENIS"
+    >
+      <Groups :key="JSON.stringify(session)" :session="session" />
+    </Molgenis>
+  </div>
 </template>
 
 <script>
-import Groups from "./components/central/Groups.vue";
-import Molgenis from "./components/ui/layout/Molgenis.vue";
+import Groups from './components/central/Groups.vue'
+import Molgenis from './components/ui/layout/Molgenis.vue'
 
 export default {
   components: {
-    Molgenis,
     Groups,
+    Molgenis,
   },
-  data: function () {
+  data: function() {
     return {
-      page: null,
-      session: {},
       menuItems: [
-        { label: "Databases", href: ".", active: true },
+        {active: true, href: '.', label: 'Databases'},
         {
-          label: "GraphQL API",
-          href: "/apps/graphql-playground/",
+          href: '/apps/graphql-playground/',
+          label: 'GraphQL API',
         },
         {
-          label: "Styleguide",
-          href: "/apps/styleguide/",
+          href: '/apps/styleguide/',
+          label: 'Styleguide',
         },
         {
-          label: "Docs",
-          href: "/apps/docs/",
+          href: '/apps/docs/',
+          label: 'Docs',
           newWindow: true,
         },
       ],
-    };
+      page: null,
+      session: {},
+    }
   },
-};
+}
 </script>

@@ -1,0 +1,53 @@
+{
+    "plugins": ["stylelint-order"],
+    "extends": "stylelint-config-recommended",
+    "rules": {
+        "max-nesting-depth": 4,
+        "property-no-vendor-prefix": true,
+        "max-empty-lines": 2,
+        "indentation": [2, {baseIndentLevel: 0}],
+        "function-calc-no-unspaced-operator": true,
+        "string-quotes": "double",
+        "no-duplicate-selectors": true,
+        "color-hex-case": "lower",
+        "color-named": "never",
+        "selector-max-id": 0,
+        "selector-combinator-space-after": "always",
+        "declaration-block-trailing-semicolon": "always",
+        "declaration-colon-space-before": "never",
+        "declaration-colon-space-after": "always",
+        "rule-empty-line-before": "always-multi-line",
+        "media-feature-range-operator-space-before": "always",
+        "media-feature-range-operator-space-after": "always",
+        "media-feature-parentheses-space-inside": "never",
+        "media-feature-colon-space-before": "never",
+        "media-feature-colon-space-after": "always",
+        "order/order": [
+            [
+                "custom-properties",
+                "dollar-variables",
+                {
+                "type": "at-rule",
+                "name": "extend"
+                },
+                {
+                "type": "at-rule",
+                "name": "include",
+                "hasBlock": false
+                },
+                "declarations",
+                {
+                "type": "at-rule",
+                "name": "include",
+                "hasBlock": true
+                },
+                "rules"
+            ]
+        ],
+        "order/properties-alphabetical-order": true
+    },
+    "ignoreFiles": [
+        "node_modules",
+        "**/*.js"
+    ]
+}
