@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import columnTypes from '../columnTypes'
+import columnTypes from '@/lib/columnTypes.js'
 import {IconAction, IconDanger, InputBoolean, InputSelect, InputString, InputText} from '@/components/ui/index.js'
 
 export default {

@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import ColumnEdit from './ColumnEdit'
+import ColumnEdit from './ColumnEdit.vue'
 import Draggable from 'vuedraggable'
 import {IconAction, InputString, RowFormInput, ShowMore} from '@/components/ui/index.js'
 

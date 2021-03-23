@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import {ButtonAlt, InputCheckbox, Spinner} from '@components/ui/index.js'
+import {ButtonAlt, InputCheckbox, Spinner} from '@/components/ui/index.js'
 
 export default {
   components: {

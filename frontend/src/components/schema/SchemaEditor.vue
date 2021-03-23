@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import columnTypes from '../columnTypes.vue'
+import columnTypes from '@/lib/columnTypes.js'
 import {ShowMore} from '@/components/ui/index.js'
 import TableEditor from './TableEditor.vue'
 

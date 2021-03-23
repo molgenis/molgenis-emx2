@@ -47,7 +47,7 @@ session = {{ session }}
 </template>
 
 <script>
-import MenuDesign from './MenuDesign'
+import MenuDesign from './MenuDesign.vue'
 import {request} from 'graphql-request'
 import {
   ButtonAction,
