@@ -35,21 +35,16 @@
 
 <script>
 import {request} from 'graphql-request'
-import {
-  InputSearch,
-  MessageError,
-  Pagination,
-  ShowMore,
-} from '@mswertz/emx2-styleguide'
 import VariableCard from './VariableCard'
+import {InputSearch, MessageError, Pagination, ShowMore} from '@/components/ui/index.js'
 
 export default {
   components: {
-    Pagination,
-    MessageError,
-    VariableCard,
     InputSearch,
+    MessageError,
+    Pagination,
     ShowMore,
+    VariableCard,
   },
   props: {
     resourceAcronym: String,
@@ -59,25 +54,25 @@ export default {
   },
   data() {
     return {
-      variables: [],
-      search: null,
       count: 0,
       graphqlError: null,
-      page: 1,
       limit: 20,
+      page: 1,
+      search: null,
+      variables: [],
     }
   },
   watch: {
-    resourceAcronym() {
-      this.reload()
-    },
-    tableName() {
-      this.reload()
-    },
     page() {
       this.reload()
     },
+    resourceAcronym() {
+      this.reload()
+    },
     search() {
+      this.reload()
+    },
+    tableName() {
       this.reload()
     },
     topic() {
@@ -114,8 +109,8 @@ export default {
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
-          offset: (this.page - 1) * this.limit,
           limit: this.limit,
+          offset: (this.page - 1) * this.limit,
         },
       )
         .then((data) => {

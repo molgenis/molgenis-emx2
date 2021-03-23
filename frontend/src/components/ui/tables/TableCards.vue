@@ -19,10 +19,11 @@ import RowCard from './RowCard.vue'
 export default {
   components: {RowCard},
   props: {
-    data: Array,
-    columns: Array,
-    tableName: String,
     canEdit: Boolean,
+    columns: Array,
+    data: Array,
+    tableName: String,
   },
+  emits: ['click', 'reload'],
 }
 </script>

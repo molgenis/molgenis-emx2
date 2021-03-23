@@ -13,8 +13,8 @@
 </template>
 
 <script>
-import {IconAction, InputCheckbox, Spinner} from '@mswertz/emx2-styleguide'
 import {request} from 'graphql-request'
+import {IconAction, Spinner} from '@mswertz/emx2-styleguide'
 
 export default {
   components: {IconAction, Spinner},
@@ -27,13 +27,9 @@ export default {
       loading: false,
     }
   },
-  computed: {
-    active() {},
-  },
   methods: {
     toggle() {
       if (this.value.options == undefined) {
-        console.log('reload')
         this.loading = true
         request(
           'graphql',
@@ -50,7 +46,6 @@ export default {
           })
       }
       this.expand = !this.expand
-      console.log(this.value)
     },
   },
 }

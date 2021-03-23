@@ -47,21 +47,16 @@ import IconAction from '../forms/IconAction.vue'
 export default {
   components: {ButtonAlt, ButtonDropdown, IconAction},
   props: {
-    columns: Array,
-    label: String,
-    icon: String,
     checkAttribute: String,
+    columns: Array,
     defaultValue: {type: Boolean, default: false},
+    icon: String,
+    label: String,
   },
+  emits: ['update:columns'],
   methods: {
-    value(col) {
-      return col[this.checkAttribute] == undefined
-        ? this.defaultValue
-        : col[this.checkAttribute]
-    },
     change(key, value) {
       let update = JSON.parse(JSON.stringify(this.columns))
-      console.log(value)
       update[key][this.checkAttribute] = value
       this.$emit('update:columns', update)
     },
@@ -78,6 +73,11 @@ export default {
         update[key][this.checkAttribute] = true
       }
       this.$emit('update:columns', update)
+    },
+    value(col) {
+      return col[this.checkAttribute] == undefined
+        ? this.defaultValue
+        : col[this.checkAttribute]
     },
   },
 }

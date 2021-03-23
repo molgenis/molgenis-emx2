@@ -52,25 +52,26 @@
 
 <script>
 import InputCheckbox from '../forms/InputCheckbox.vue'
-import InputString from '../forms/InputString.vue'
-import InputRangeInt from '../forms/InputRangeInt.vue'
-import InputRangeDecimal from '../forms/InputRangeDecimal.vue'
 import InputRangeDate from '../forms/InputRangeDate.vue'
+import InputRangeDecimal from '../forms/InputRangeDecimal.vue'
+import InputRangeInt from '../forms/InputRangeInt.vue'
 import InputRef from '../forms/InputRef.vue'
+import InputString from '../forms/InputString.vue'
 
 export default {
   components: {
     InputCheckbox,
-    InputString,
-    InputRangeInt,
-    InputRangeDecimal,
     InputRangeDate,
+    InputRangeDecimal,
+    InputRangeInt,
     InputRef,
+    InputString,
   },
   props: {
     columnType: String,
-    refTable: String,
     conditions: Array,
+    refTable: String,
   },
+  emits: ['update:conditions'],
 }
 </script>

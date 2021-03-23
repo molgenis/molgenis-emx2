@@ -48,14 +48,14 @@ export default {
   props: {
     /** the column names */
     columns: Array,
+    /** default value */
+    defaultValue: Array,
     /** list of rows matching column names */
     rows: Array,
     /** set to create select boxes that will yield this columns value when selected. */
     selectColumn: String,
-    /** default value */
-    defaultValue: Array,
   },
-  emits: ['update:modelValue'],
+  emits: ['click', 'deselect', 'select', 'update:modelValue'],
   data: function() {
     return {
       selectedItems: [],

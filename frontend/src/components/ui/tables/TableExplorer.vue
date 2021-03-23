@@ -177,110 +177,97 @@
 </template>
 
 <script>
-import TableMolgenis from './TableMolgenis.vue'
+import ButtonAlt from '../forms/ButtonAlt.vue'
+import ButtonDropdown from '../forms/ButtonDropdown.vue'
 import FilterSidebar from './FilterSidebar.vue'
 import FilterWells from './FilterWells.vue'
+import IconAction from '../forms/IconAction.vue'
+import InputSearch from '../forms/InputSearch.vue'
+import InputSelect from '../forms/InputSelect.vue'
 import MessageError from '../forms/MessageError.vue'
+import Pagination from './Pagination.vue'
 import RowButtonAdd from './RowButtonAdd.vue'
 import RowButtonDelete from './RowButtonDelete.vue'
 import RowButtonEdit from './RowButtonEdit.vue'
-import Spinner from '../layout/Spinner.vue'
-import TableMixin from '../mixins/TableMixin.vue'
-import ShowMore from '../layout/ShowMore.vue'
-import ShowHide from './ShowHide.vue'
-import InputSearch from '../forms/InputSearch.vue'
-import Pagination from './Pagination.vue'
-import ButtonAlt from '../forms/ButtonAlt.vue'
 import SelectionBox from './SelectionBox.vue'
-import ButtonDropdown from '../forms/ButtonDropdown.vue'
-import InputSelect from '../forms/InputSelect.vue'
+import ShowHide from './ShowHide.vue'
+import ShowMore from '../layout/ShowMore.vue'
+import Spinner from '../layout/Spinner.vue'
 import TableCards from './TableCards.vue'
-import IconAction from '../forms/IconAction.vue'
+import TableMixin from '../mixins/TableMixin.vue'
+import TableMolgenis from './TableMolgenis.vue'
 
 export default {
   components: {
-    Spinner,
-    MessageError,
-    TableMolgenis,
-    FilterSidebar,
-    FilterWells,
-    RowButtonEdit,
-    RowButtonAdd,
-    RowButtonDelete,
-    ShowMore,
-    ShowHide,
-    InputSearch,
-    Pagination,
     ButtonAlt,
     ButtonDropdown,
-    SelectionBox,
-    InputSelect,
-    TableCards,
+    FilterSidebar,
+    FilterWells,
     IconAction,
+    InputSearch,
+    InputSelect,
+    MessageError,
+    Pagination,
+    RowButtonAdd,
+    RowButtonDelete,
+    RowButtonEdit,
+    SelectionBox,
+    ShowHide,
+    ShowMore,
+    Spinner,
+    TableCards,
+    TableMolgenis,
   },
   extends: TableMixin,
   props: {
-    value: {
-      type: Array,
-      default: () => [],
-    },
-    showSelect: {
+    showCards: {
       type: Boolean,
-      default: () => false,
-    },
-    showHeader: {
-      type: Boolean,
-      default: () => true,
-    },
-    showFilters: {
-      type: Array,
-      default: () => [],
+      default: false,
     },
     showColumns: {
       type: Array,
       default: () => [],
     },
-    showCards: {
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showHeader: {
       type: Boolean,
-      default: false,
+      default: () => true,
+    },
+    showSelect: {
+      type: Boolean,
+      default: () => false,
+    },
+    value: {
+      type: Array,
+      default: () => [],
     },
   },
+  emits: ['click'],
   data() {
     return {
-      selectedItems: [],
-      page: 1,
-      showSubclass: false,
-      // a copy of column metadata used to show/hide filters and columns
       columns: [],
       layoutTable: true,
+      page: 1,
+      selectedItems: [],
+      showSubclass: false,
+      // a copy of column metadata used to show/hide filters and columns
     }
   },
   computed: {
-    tableMetadataMerged() {
-      let tm = this.tableMetadata
-      tm.columns = this.columns
-      return tm
-    },
-    countFilters() {
-      if (this.columns) {
-        return this.columns.filter((f) => f.showFilter).length
-      }
-      return null
-    },
     countColumns() {
       if (this.columns) {
         return this.columns.filter((f) => f.showColumn).length
       }
       return null
     },
-    hasSubclass() {
-      if (
-        this.columns &&
-        this.columns.filter((c) => c.name == 'mg_tableclass').length > 0
-      ) {
-        return true
+    countFilters() {
+      if (this.columns) {
+        return this.columns.filter((f) => f.showFilter).length
       }
-      return false
+      return null
     },
     // overrides from TableMixin
     graphqlFilter() {
@@ -321,6 +308,20 @@ export default {
         })
       }
       return filter
+    },
+    hasSubclass() {
+      if (
+        this.columns &&
+        this.columns.filter((c) => c.name == 'mg_tableclass').length > 0
+      ) {
+        return true
+      }
+      return false
+    },
+    tableMetadataMerged() {
+      let tm = this.tableMetadata
+      tm.columns = this.columns
+      return tm
     },
   },
   watch: {

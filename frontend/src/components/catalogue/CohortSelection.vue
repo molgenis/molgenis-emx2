@@ -22,12 +22,13 @@ export default {
   components: {
     InputCheckbox,
   },
+  emits: ['update:modelValue'],
   data() {
     return {
-      value: [],
-      options: [],
-      loading: false,
       graphqlError: null,
+      loading: false,
+      options: [],
+      value: [],
     }
   },
   created() {
@@ -44,7 +45,7 @@ export default {
   },
   methods: {
     emitValue() {
-      this.$emit('input', this.value)
+      this.$emit('update:modelValue', this.value)
     },
   },
 }

@@ -66,29 +66,29 @@ schema = {{ JSON.stringify(schema) }}
 </template>
 
 <script>
+import ButtonAction from '../forms/ButtonAction.vue'
+import ButtonAlt from '../forms/ButtonAlt.vue'
+import GraphqlRequestMixin from '../mixins/GraphqlRequestMixin.vue'
 import LayoutForm from '../layout/LayoutForm.vue'
 import LayoutModal from '../layout/LayoutModal.vue'
 import MessageError from '../forms/MessageError.vue'
 import MessageSuccess from '../forms/MessageSuccess.vue'
-import ButtonAction from '../forms/ButtonAction.vue'
-import ButtonAlt from '../forms/ButtonAlt.vue'
-import SigninForm from '../layout/MolgenisSignin.vue'
-import TableMixin from '../mixins/TableMixin.vue'
-import GraphqlRequestMixin from '../mixins/GraphqlRequestMixin.vue'
 import RowFormInput from './RowFormInput.vue'
 import ShowMore from '../layout/ShowMore.vue'
+import SigninForm from '../layout/MolgenisSignin.vue'
+import TableMixin from '../mixins/TableMixin.vue'
 
 export default {
   components: {
-    LayoutForm,
-    RowFormInput,
     ButtonAction,
     ButtonAlt,
+    LayoutForm,
     LayoutModal,
     MessageError,
     MessageSuccess,
-    SigninForm,
+    RowFormInput,
     ShowMore,
+    SigninForm,
   },
   extends: TableMixin,
   mixins: [GraphqlRequestMixin],
@@ -96,12 +96,13 @@ export default {
     /** when updating existing record, this is the primary key value */
     pkey: Object,
   },
+  emits: ['close'],
   data: function() {
     return {
-      showLogin: false,
-      value: {},
       errorPerColumn: {},
+      showLogin: false,
       success: null,
+      value: {},
     }
   },
   computed: {
@@ -138,14 +139,14 @@ export default {
         this.value = defaultValue
       }
     },
-    // validation happens here
-    value: {
+    tableMetadata: {
       handler() {
         this.validate()
       },
       deep: true,
     },
-    tableMetadata: {
+    // validation happens here
+    value: {
       handler() {
         this.validate()
       },
@@ -156,16 +157,12 @@ export default {
     this.validate()
   },
   methods: {
-    reload() {
-      // override superclass
-      if (this.pkey) {
-        TableMixin.methods.reload.call(this)
+    eval(expression) {
+      try {
+        return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
+      } catch (e) {
+        return 'Script error contact admin: ' + e.message
       }
-    },
-    loginSuccess() {
-      this.graphqlError = null
-      this.success = null
-      this.showLogin = false
     },
     executeCommand() {
       this.graphqlError = null
@@ -198,18 +195,15 @@ export default {
           }
         })
     },
-    eval(expression) {
-      try {
-        return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
-      } catch (e) {
-        return 'Script error contact admin: ' + e.message
-      }
+    loginSuccess() {
+      this.graphqlError = null
+      this.success = null
+      this.showLogin = false
     },
-    visible(expression) {
-      if (expression) {
-        return this.eval(expression)
-      } else {
-        return true
+    reload() {
+      // override superclass
+      if (this.pkey) {
+        TableMixin.methods.reload.call(this)
       }
     },
     validate() {
@@ -245,6 +239,13 @@ export default {
             }
           }
         })
+      }
+    },
+    visible(expression) {
+      if (expression) {
+        return this.eval(expression)
+      } else {
+        return true
       }
     },
   },

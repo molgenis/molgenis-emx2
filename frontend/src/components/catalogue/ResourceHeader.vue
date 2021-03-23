@@ -50,9 +50,9 @@
 <script>
 export default {
   props: {
+    headerCss: String,
     resource: Object,
     tableName: String,
-    headerCss: String,
   },
 }
 </script>

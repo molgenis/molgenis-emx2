@@ -45,21 +45,22 @@
 
 <script>
 import RenderValue from './RenderValue.vue'
-import RowButtonEdit from './RowButtonEdit.vue'
 import RowButtonDelete from './RowButtonDelete.vue'
+import RowButtonEdit from './RowButtonEdit.vue'
 
 export default {
   components: {
     RenderValue,
-    RowButtonEdit,
     RowButtonDelete,
+    RowButtonEdit,
   },
   props: {
-    columns: Array,
-    tableName: String,
-    row: Object,
     canEdit: Boolean,
+    columns: Array,
+    row: Object,
+    tableName: String,
   },
+  emits: ['click', 'reload'],
   methods: {
     getKey(row) {
       let result = {}

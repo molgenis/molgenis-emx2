@@ -45,15 +45,14 @@
 <script>
 import ButtonAction from '../forms/ButtonAction.vue'
 import ButtonAlt from '../forms/ButtonAlt.vue'
-import InputString from '../forms/InputString.vue'
 import InputPassword from '../forms/InputPassword.vue'
-import MessageError from '../forms/MessageError.vue'
-import MessageSuccess from '../forms/MessageSuccess.vue'
+import InputString from '../forms/InputString.vue'
 import LayoutForm from './LayoutForm.vue'
 import LayoutModal from './LayoutModal.vue'
-import Spinner from './Spinner.vue'
-
+import MessageError from '../forms/MessageError.vue'
+import MessageSuccess from '../forms/MessageSuccess.vue'
 import {request} from 'graphql-request'
+import Spinner from './Spinner.vue'
 
 export default {
   components: {
@@ -61,22 +60,30 @@ export default {
     ButtonAlt,
     InputPassword,
     InputString,
-    MessageError,
-    MessageSuccess,
     LayoutForm,
     LayoutModal,
+    MessageError,
+    MessageSuccess,
     Spinner,
   },
+  emits: ['cancel', 'signin'],
   data: function() {
     return {
       email: null,
-      password: null,
-      loading: false,
       error: null,
+      loading: false,
+      password: null,
       success: null,
     }
   },
   methods: {
+    cancel() {
+      /**
+       * when cancel is pushed
+       */
+      this.error = null
+      this.$emit('cancel')
+    },
     signin() {
       if (this.email == null || this.password == null) {
         this.error = 'Email and password should be filled in'
@@ -99,13 +106,7 @@ export default {
         this.loading = false
       }
     },
-    cancel() {
-      /**
-       * when cancel is pushed
-       */
-      this.error = null
-      this.$emit('cancel')
-    },
+
   },
 }
 </script>

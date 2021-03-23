@@ -41,21 +41,22 @@ export default {
   name: 'TopicSelector',
   components: {
     IconAction,
+    // eslint-disable-next-line vue/no-unused-components
     'tree-node': this,
   },
   props: {
-    topics: Array, // array of Topic
     selected: String,
+    topics: Array, // array of Topic
   },
+  emits: ['deselect', 'select'],
   data() {
     return {
       timestamp: null,
     }
   },
   methods: {
-    toggle(topic) {
-      topic.expand = !topic.expand
-      this.timestamp = Date.now()
+    deselect() {
+      this.$emit('deselect')
     },
     select(topic) {
       if (this.selected == topic.name) {
@@ -64,9 +65,11 @@ export default {
         this.$emit('select', topic)
       }
     },
-    deselect() {
-      this.$emit('deselect')
+    toggle(topic) {
+      topic.expand = !topic.expand
+      this.timestamp = Date.now()
     },
+
   },
 }
 </script>

@@ -20,25 +20,25 @@
 </template>
 
 <script>
-import InstitutionList from './InstitutionList.vue'
 import ContactList from './ContactList.vue'
-import ReleasesList from './ReleasesList.vue'
-import DocumentationList from './DocumentationList.vue'
-import PublicationList from './PublicationList.vue'
 import ContributorList from './ContributorList.vue'
+import DocumentationList from './DocumentationList.vue'
+import InstitutionList from './InstitutionList.vue'
 import NetworkList from './NetworkList.vue'
 import PartnersList from './PartnersList.vue'
+import PublicationList from './PublicationList.vue'
+import ReleasesList from './ReleasesList.vue'
 
 export default {
   components: {
-    PartnersList,
-    NetworkList,
-    InstitutionList,
     ContactList,
-    ReleasesList,
-    DocumentationList,
-    PublicationList,
     ContributorList,
+    DocumentationList,
+    InstitutionList,
+    NetworkList,
+    PartnersList,
+    PublicationList,
+    ReleasesList,
   },
   props: {
     resource: Object,

@@ -18,10 +18,10 @@ export default {
   },
   data: function() {
     return {
-      session: null,
-      schema: null,
-      loading: true,
       graphqlError: null,
+      loading: true,
+      schema: null,
+      session: null,
     }
   },
   computed: {

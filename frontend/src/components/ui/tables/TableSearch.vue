@@ -56,54 +56,55 @@
 </template>
 
 <script>
+import InputSearch from '../forms/InputSearch.vue'
+import MessageError from '../forms/MessageError.vue'
+import Pagination from './Pagination.vue'
+import SelectionBox from './SelectionBox.vue'
+import Spinner from '../layout/Spinner.vue'
 import TableMixin from '../mixins/TableMixin.vue'
 import TableMolgenis from './TableMolgenis.vue'
-import MessageError from '../forms/MessageError.vue'
-import InputSearch from '../forms/InputSearch.vue'
-import Pagination from './Pagination.vue'
-import Spinner from '../layout/Spinner.vue'
-import SelectionBox from './SelectionBox.vue'
 
 export default {
   components: {
-    SelectionBox,
-    TableMolgenis,
-    MessageError,
     InputSearch,
+    MessageError,
     Pagination,
+    SelectionBox,
     Spinner,
+    TableMolgenis,
   },
   mixins: [TableMixin],
   props: {
     /** two-way binding of the selection */
     selection: {type: Array, default: () => []},
-    /** enables checkbox to select rows */
-    showSelect: {
-      type: Boolean,
-      default: false,
+    showColumns: {
+      type: Array,
     },
     showHeader: {
       type: Boolean,
       default: true,
     },
-    showColumns: {
-      type: Array,
+    /** enables checkbox to select rows */
+    showSelect: {
+      type: Boolean,
+      default: false,
     },
   },
+  emits: ['deselect', 'select', 'update:selection'],
   data: function() {
     return {
-      page: 1,
       loading: true,
+      page: 1,
     }
   },
   computed: {
-    showHeaderIfNeeded() {
-      return this.showHeader || this.count > this.limit
-    },
     columnsVisible() {
       return this.tableMetadata.columns.filter(
         (c) => this.showColumns == null || this.showColumns.includes(c.name),
       )
+    },
+    showHeaderIfNeeded() {
+      return this.showHeader || this.count > this.limit
     },
   },
   watch: {
@@ -114,11 +115,11 @@ export default {
     },
   },
   methods: {
-    select(value) {
-      this.$emit('select', value)
-    },
     deselect(value) {
       this.$emit('deselect', value)
+    },
+    select(value) {
+      this.$emit('select', value)
     },
   },
 }

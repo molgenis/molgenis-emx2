@@ -2,7 +2,7 @@
   <nav aria-label="Pagination">
     <ul class="pagination justify-content-center mb-0">
       <li class="page-item">
-        <a class="page-link" href="#" @click.prevent="$emit('input', 1)">
+        <a class="page-link" href="#" @click.prevent="$emit('update:modelValue', 1)">
           <span aria-hidden="true">&laquo;</span>
           <span class="sr-only">First</span></a>
       </li>
@@ -10,7 +10,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="$emit('input', Math.max(value - 1, 1))"
+          @click.prevent="$emit('update:modelValue', Math.max(value - 1, 1))"
         >
           <span aria-hidden="true">&lsaquo;</span>
           <span class="sr-only">Previous</span>
@@ -26,7 +26,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="$emit('input', Math.min(value + 1, totalPages))"
+          @click.prevent="$emit('update:modelValue', Math.min(value + 1, totalPages))"
         >
           <span aria-hidden="true">&rsaquo;</span>
           <span class="sr-only">Next</span></a>
@@ -35,7 +35,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="$emit('input', totalPages)"
+          @click.prevent="$emit('update:modelValue', totalPages)"
         >
           <span aria-hidden="true">&raquo;</span>
           <span class="sr-only">Last</span></a>
@@ -47,9 +47,9 @@
 <script>
 export default {
   props: {
-    value: {type: Number, default: 1},
     count: Number,
     limit: {type: Number, default: 10},
+    value: {type: Number, default: 1},
   },
   emits: ['update:modelValue'],
   computed: {
@@ -61,14 +61,14 @@ export default {
     },
   },
   watch: {
-    value() {
-      if (this.value < 1) {
-        this.$emit('update:modelValue', 1)
-      }
-    },
     count() {
       // reset page to within range in case count changes
       if (this.page > this.totalPages) {
+        this.$emit('update:modelValue', 1)
+      }
+    },
+    value() {
+      if (this.value < 1) {
         this.$emit('update:modelValue', 1)
       }
     },

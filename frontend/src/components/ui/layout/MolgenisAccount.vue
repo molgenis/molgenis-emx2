@@ -40,22 +40,21 @@
 </template>
 
 <script>
-import LayoutModal from './LayoutModal.vue'
 import ButtonAction from '../forms/ButtonAction.vue'
 import ButtonAlt from '../forms/ButtonAlt.vue'
 import InputPassword from '../forms/InputPassword.vue'
-import MessageSuccess from '../forms/MessageSuccess.vue'
+import LayoutModal from './LayoutModal.vue'
 import MessageError from '../forms/MessageError.vue'
-import Spinner from './Spinner.vue'
-
+import MessageSuccess from '../forms/MessageSuccess.vue'
 import {request} from 'graphql-request'
+import Spinner from './Spinner.vue'
 
 export default {
   components: {
-    LayoutModal,
-    ButtonAlt,
     ButtonAction,
+    ButtonAlt,
     InputPassword,
+    LayoutModal,
     MessageError,
     MessageSuccess,
     Spinner,
@@ -63,18 +62,22 @@ export default {
   props: {
     user: String,
   },
+  emits: ['cancel'],
   data() {
     return {
+      graphqlError: null,
+      loading: false,
       password: null,
       password2: null,
-      loading: false,
-      graphqlError: null,
       success: null,
     }
   },
   methods: {
+    close() {
+      this.error = null
+      this.$emit('cancel')
+    },
     updatePassword() {
-      console.log('start')
       if (this.password !== this.password2) {
         this.error = 'Error: Passwords entered must be the same'
       } else {
@@ -98,10 +101,7 @@ export default {
         this.loading = false
       }
     },
-    close() {
-      this.error = null
-      this.$emit('cancel')
-    },
+
   },
 }
 </script>

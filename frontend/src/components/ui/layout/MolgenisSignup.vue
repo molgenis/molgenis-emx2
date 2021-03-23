@@ -47,15 +47,14 @@
 <script>
 import ButtonAction from '../forms/ButtonAction.vue'
 import ButtonAlt from '../forms/ButtonAlt.vue'
-import InputString from '../forms/InputString.vue'
 import InputPassword from '../forms/InputPassword.vue'
+import InputString from '../forms/InputString.vue'
+import LayoutForm from './LayoutForm.vue'
+import LayoutModal from './LayoutModal.vue'
 import MessageError from '../forms/MessageError.vue'
 import MessageSuccess from '../forms/MessageSuccess.vue'
-import LayoutForm from './LayoutForm.vue'
-import Spinner from './Spinner.vue'
-import LayoutModal from './LayoutModal.vue'
-
 import {request} from 'graphql-request'
+import Spinner from './Spinner.vue'
 
 export default {
   components: {
@@ -63,23 +62,31 @@ export default {
     ButtonAlt,
     InputPassword,
     InputString,
+    LayoutForm,
+    LayoutModal,
     MessageError,
     MessageSuccess,
-    LayoutForm,
     Spinner,
-    LayoutModal,
   },
+  emits: ['cancel'],
   data: function() {
     return {
       email: null,
+      error: null,
+      loading: false,
       password: null,
       password2: null,
-      loading: false,
-      error: null,
       success: null,
     }
   },
   methods: {
+    cancel() {
+      /**
+       * when cancel is pushed
+       */
+      this.error = null
+      this.$emit('cancel')
+    },
     signup() {
       if (
         this.email == null ||
@@ -101,23 +108,14 @@ export default {
             if (data.signup.status === 'SUCCESS') {
               this.success = 'Success. Signed up with email: ' + this.email
             } else {
-              console.log('signup data ' + JSON.stringify(data))
               this.error = 'Signup failed: ' + data.signup.message
             }
           })
           .catch((error) => {
-            console.log('signup error ' + JSON.stringify(error))
             this.error = 'Sign up failed: ' + error.response.message
           })
         this.loading = false
       }
-    },
-    cancel() {
-      /**
-       * when cancel is pushed
-       */
-      this.error = null
-      this.$emit('cancel')
     },
   },
 }

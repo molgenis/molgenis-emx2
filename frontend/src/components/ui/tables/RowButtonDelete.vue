@@ -27,43 +27,44 @@
 </template>
 
 <script>
-import RowButtonAdd from './RowButtonAdd.vue'
-import LayoutModal from '../layout/LayoutModal.vue'
-import IconDanger from '../forms/IconDanger.vue'
-import ButtonAlt from '../forms/ButtonAlt.vue'
 import ButtonAction from '../forms/ButtonAction.vue'
+import ButtonAlt from '../forms/ButtonAlt.vue'
+import IconDanger from '../forms/IconDanger.vue'
+import LayoutModal from '../layout/LayoutModal.vue'
 import MessageError from '../forms/MessageError.vue'
 import MessageSuccess from '../forms/MessageSuccess.vue'
-
 import {request} from 'graphql-request'
+import RowButtonAdd from './RowButtonAdd.vue'
 
 export default {
   components: {
-    LayoutModal,
-    IconDanger,
     ButtonAction,
     ButtonAlt,
-    MessageSuccess,
+    IconDanger,
+    LayoutModal,
     MessageError,
+    MessageSuccess,
   },
   extends: RowButtonAdd,
   props: {
-    pkey: Object,
     graphqlURL: {type: String, default: 'graphql'},
+    pkey: Object,
   },
+  emits: ['close'],
   data: function() {
     return {
-      success: null,
       error: null,
+      success: null,
     }
   },
   computed: {
-    title() {
-      return `Delete from ${this.table}`
-    },
     pkeyAsString() {
       return this.flattenObject(this.pkey)
     },
+    title() {
+      return `Delete from ${this.table}`
+    },
+
   },
   methods: {
     executeDelete() {

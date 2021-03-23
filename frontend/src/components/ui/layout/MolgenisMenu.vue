@@ -71,12 +71,6 @@ export default {
   },
   methods: {
     permitted(item) {
-      console.log(
-        'session: ' +
-          JSON.stringify(this.session) +
-          ' vs ' +
-          JSON.stringify(item),
-      )
       if (!item.role) {
         return true
       }

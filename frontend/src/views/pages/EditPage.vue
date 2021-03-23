@@ -130,6 +130,17 @@ export default {
     this.reload()
   },
   methods: {
+    reload() {
+      if (
+        this.session &&
+        this.session.settings &&
+        this.session.settings['page.' + this.page]
+      ) {
+        this.draft = this.session.settings['page.' + this.page]
+      } else {
+        return 'New page, edit here'
+      }
+    },
     savePage() {
       this.loading = true
       this.graphqlError = null
@@ -154,17 +165,6 @@ export default {
           this.graphqlError = graphqlError.response.errors[0].message
         })
         .finally((this.loading = false))
-    },
-    reload() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings['page.' + this.page]
-      ) {
-        this.draft = this.session.settings['page.' + this.page]
-      } else {
-        return 'New page, edit here'
-      }
     },
   },
 }

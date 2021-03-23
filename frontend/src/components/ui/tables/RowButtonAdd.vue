@@ -9,21 +9,22 @@
 </template>
 
 <script>
-import RowEditModal from './RowEditModal.vue'
 import IconAction from '../forms/IconAction.vue'
+import RowEditModal from './RowEditModal.vue'
 
 export default {
   components: {
-    RowEditModal,
     IconAction,
+    RowEditModal,
   },
   props: {
-    table: String,
     graphqlURL: {
       defaultValue: 'graphql',
       type: String,
     },
+    table: String,
   },
+  emits: ['close'],
   data: function() {
     return {
       open: false,
@@ -35,12 +36,12 @@ export default {
     },
   },
   methods: {
-    openForm() {
-      this.open = true
-    },
     closeForm() {
       this.open = false
       this.$emit('close')
+    },
+    openForm() {
+      this.open = true
     },
   },
 }

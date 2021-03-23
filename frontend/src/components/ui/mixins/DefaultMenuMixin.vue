@@ -3,22 +3,25 @@ export default {
   computed: {
     defaultMenu() {
       return [
-        {label: 'Tables', href: '../tables/'},
         {
-          label: 'Schema',
+          href: '../tables/',
+          label: 'Tables',
+        },
+        {
           href: '../schema/',
+          label: 'Schema',
         },
         {
-          label: 'Up/Download',
           href: '../updownload/',
+          label: 'Up/Download',
         },
         {
-          label: 'Graphql',
           href: '../graphql-playground/',
+          label: 'Graphql',
         },
         {
-          label: 'Settings',
           href: '../settings/',
+          label: 'Settings',
         },
       ]
     },

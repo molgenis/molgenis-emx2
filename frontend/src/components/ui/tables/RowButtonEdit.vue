@@ -10,14 +10,14 @@
 </template>
 
 <script>
+import IconAction from '../forms/IconAction.vue'
 import RowButtonAdd from './RowButtonAdd.vue'
 import RowEditModal from './RowEditModal.vue'
-import IconAction from '../forms/IconAction.vue'
 
 export default {
   components: {
-    RowEditModal,
     IconAction,
+    RowEditModal,
   },
   extends: RowButtonAdd,
   props: {

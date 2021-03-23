@@ -46,6 +46,7 @@ export default {
     /** two-way bindable array of column metadata. Will add 'conditions' property to hold filter values */
     filters: Array,
   },
+  emits: ['update:filters'],
   computed: {
     countFilters() {
       let count = 0
@@ -70,13 +71,6 @@ export default {
     },
   },
   methods: {
-    renderValue(value) {
-      if (typeof value === 'object' && value !== null) {
-        return this.flattenObject(value)
-      } else {
-        return value
-      }
-    },
     flattenObject(object) {
       let result = ''
       Object.keys(object).forEach((key) => {
@@ -103,6 +97,13 @@ export default {
         }
       }
       this.$emit('update:filters', update)
+    },
+    renderValue(value) {
+      if (typeof value === 'object' && value !== null) {
+        return this.flattenObject(value)
+      } else {
+        return value
+      }
     },
   },
 }

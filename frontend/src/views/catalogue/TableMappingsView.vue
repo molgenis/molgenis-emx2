@@ -139,8 +139,8 @@ export default {
     fromTable: String,
     fromVersion: String,
     toAcronym: String,
-    toVersion: String,
     toTable: String,
+    toVersion: String,
   },
   data() {
     return {

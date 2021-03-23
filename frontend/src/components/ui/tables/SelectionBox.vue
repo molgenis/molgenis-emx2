@@ -48,14 +48,14 @@
 </template>
 
 <script>
-import IconAction from '../forms/IconAction.vue'
 import ButtonAlt from '../forms/ButtonAlt.vue'
+import IconAction from '../forms/IconAction.vue'
 import LayoutModal from '../layout/LayoutModal.vue'
 
 export default {
   components: {
-    IconAction,
     ButtonAlt,
+    IconAction,
     LayoutModal,
   },
   props: {
@@ -64,26 +64,22 @@ export default {
       default: () => [],
     },
   },
+  emits: ['update:selection'],
   data() {
     return {
       expand: false,
     }
   },
   methods: {
-    deselect(idx) {
-      let update = this.selection
-      update.splice(idx, 1)
-      console.log('update:selection ' + JSON.stringify(update))
-      this.$emit('update:selection', update)
-    },
     clear() {
       let update = this.selection
       update.splice(0, update.length)
-      console.log('update:selection ' + JSON.stringify(update))
       this.$emit('update:selection', update)
     },
-    toggle() {
-      this.expand = !this.expand
+    deselect(idx) {
+      let update = this.selection
+      update.splice(idx, 1)
+      this.$emit('update:selection', update)
     },
     flattenObject(object) {
       let result = ''
@@ -97,6 +93,9 @@ export default {
         }
       })
       return result.replace(/^\./, '')
+    },
+    toggle() {
+      this.expand = !this.expand
     },
   },
 }

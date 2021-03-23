@@ -104,20 +104,21 @@ import ReadMore from '../layout/ReadMore.vue'
 export default {
   components: {Draggable, ReadMore},
   props: {
-    /** selection, two-way binded*/
-    selection: Array,
     /** column metadata, two-way binded to allow for reorder */
     columns: Array,
-    /** not two way binded, table metadata */
-    tableMetadata: Object,
     /** json structure in molgenis json data format matching the column metadata */
     data: Array,
+    /** selection, two-way binded*/
+    selection: Array,
     /** if select show be shown */
     showSelect: {
       type: Boolean,
       default: false,
     },
+    /** not two way binded, table metadata */
+    tableMetadata: Object,
   },
+  emits: ['click', 'deselect', 'select', 'update:columns', 'update:selection'],
   computed: {
     countColumns() {
       return this.columns.filter((c) => c.showColumn).length
@@ -127,44 +128,6 @@ export default {
     this.initShowColumn()
   },
   methods: {
-    hasColheader() {
-      return (
-        this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader
-      )
-    },
-    initShowColumn() {
-      if (this.columns) {
-        let update = this.columns
-        for (var key in update) {
-          if (update[key].showColumn == undefined) {
-            update[key].showColumn = true
-            this.$emit('update:columns', update)
-          }
-        }
-      }
-    },
-    renderValue(row, col) {
-      if (row[col.name] === undefined) {
-        return []
-      }
-      if (
-        col.columnType == 'REF_ARRAY' ||
-        col.columnType == 'MREF' ||
-        col.columnType == 'REFBACK'
-      ) {
-        return row[col.name].map((v) => this.flattenObject(v))
-      } else if (col.columnType == 'REF') {
-        if (col.refJsTemplate) {
-          return [this.applyJsTemplate(col.refJsTemplate, row[col.name])]
-        } else {
-          return [this.flattenObject(row[col.name])]
-        }
-      } else if (col.columnType.includes('ARRAY')) {
-        return row[col.name]
-      } else {
-        return [row[col.name]]
-      }
-    },
     applyJsTemplate(template, object) {
       const names = Object.keys(object)
       const vals = Object.values(object)
@@ -181,6 +144,29 @@ export default {
           template
         )
       }
+    },
+    /**
+     * Horrible that this is not standard,
+     * found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality
+     */
+    deepEqual(object1, object2) {
+      const keys1 = Object.keys(object1)
+      const keys2 = Object.keys(object2)
+      if (keys1.length !== keys2.length) {
+        return false
+      }
+      for (const key of keys1) {
+        const val1 = object1[key]
+        const val2 = object2[key]
+        const areObjects = this.isObject(val1) && this.isObject(val2)
+        if (
+          (areObjects && !this.deepEqual(val1, val2)) ||
+          (!areObjects && val1 !== val2)
+        ) {
+          return false
+        }
+      }
+      return true
     },
     flattenObject(object) {
       let result = ''
@@ -202,6 +188,25 @@ export default {
         .map((c) => (result[c.name] = row[c.name]))
       return result
     },
+    hasColheader() {
+      return (
+        this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader
+      )
+    },
+    initShowColumn() {
+      if (this.columns) {
+        let update = this.columns
+        for (var key in update) {
+          if (update[key].showColumn == undefined) {
+            update[key].showColumn = true
+            this.$emit('update:columns', update)
+          }
+        }
+      }
+    },
+    isObject(object) {
+      return object != null && typeof object === 'object'
+    },
     isSelected(row) {
       let key = this.getKey(row)
       let found = false
@@ -213,29 +218,6 @@ export default {
         })
       }
       return found
-    },
-    /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
-    deepEqual(object1, object2) {
-      const keys1 = Object.keys(object1)
-      const keys2 = Object.keys(object2)
-      if (keys1.length !== keys2.length) {
-        return false
-      }
-      for (const key of keys1) {
-        const val1 = object1[key]
-        const val2 = object2[key]
-        const areObjects = this.isObject(val1) && this.isObject(val2)
-        if (
-          (areObjects && !this.deepEqual(val1, val2)) ||
-          (!areObjects && val1 !== val2)
-        ) {
-          return false
-        }
-      }
-      return true
-    },
-    isObject(object) {
-      return object != null && typeof object === 'object'
     },
     onRowClick(row) {
       // deep copy
@@ -260,6 +242,7 @@ export default {
       }
       this.$emit('update:selection', update)
     },
+
     renderNumber(number) {
       var SI_SYMBOL = ['', 'k', 'M', 'G', 'T', 'P', 'E']
 
@@ -278,6 +261,28 @@ export default {
 
       // format number and add suffix
       return scaled.toFixed(1) + suffix
+    },
+    renderValue(row, col) {
+      if (row[col.name] === undefined) {
+        return []
+      }
+      if (
+        col.columnType == 'REF_ARRAY' ||
+        col.columnType == 'MREF' ||
+        col.columnType == 'REFBACK'
+      ) {
+        return row[col.name].map((v) => this.flattenObject(v))
+      } else if (col.columnType == 'REF') {
+        if (col.refJsTemplate) {
+          return [this.applyJsTemplate(col.refJsTemplate, row[col.name])]
+        } else {
+          return [this.flattenObject(row[col.name])]
+        }
+      } else if (col.columnType.includes('ARRAY')) {
+        return row[col.name]
+      } else {
+        return [row[col.name]]
+      }
     },
   },
 }

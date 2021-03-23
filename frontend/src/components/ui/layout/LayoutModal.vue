@@ -47,14 +47,15 @@ export default {
     VScrollLock,
   },
   props: {
-    /** Shown as the title of the model */
-    title: {type: String, default: ''},
     /** When true the modal will be shown */
     show: {
       type: Boolean,
       default: true,
     },
+    /** Shown as the title of the model */
+    title: {type: String, default: ''},
   },
+  emits: ['close'],
   methods: {
     close() {
       /** when the close x button is clicked */

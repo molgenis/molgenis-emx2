@@ -22,11 +22,11 @@ import OntologyTerms from './OntologyTerms.vue'
 export default {
   components: {OntologyTerms},
   props: {
-    contributors: Array,
     color: {
       type: String,
       default: () => 'primary',
     },
+    contributors: Array,
   },
 }
 </script>

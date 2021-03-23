@@ -1,6 +1,6 @@
 <script>
-import RecursiveIterator from 'recursive-iterator'
 import objectPath from 'object-path'
+import RecursiveIterator from 'recursive-iterator'
 
 export default {
   methods: {
@@ -46,7 +46,7 @@ export default {
           })
           .catch((error) => {
             alert('catch: ' + error.json())
-            reject({status: error, query: query})
+            reject({query, status: error})
           })
       })
     },

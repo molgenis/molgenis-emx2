@@ -40,21 +40,13 @@ export default {
   props: {
     topic: Object,
   },
+  emits: ['changed'],
   created() {
     if (this.topic.collapsed == undefined) {
       this.topic.collapsed = true
     }
   },
   methods: {
-    selectChildren(topic, checked) {
-      topic.checked = checked
-      if (topic.childTopics) {
-        topic.childTopics.forEach((t) => {
-          t.checked = checked
-          this.selectChildren(t, checked)
-        })
-      }
-    },
     click() {
       if (this.topic.childTopics) {
         this.clickRecursiveIfOne(this.topic)
@@ -68,6 +60,15 @@ export default {
       ) {
         this.clickRecursiveIfOne(topic.childTopics[0])
         topic.childTopics[0].collapsed = !topic.childTopics[0].collapsed
+      }
+    },
+    selectChildren(topic, checked) {
+      topic.checked = checked
+      if (topic.childTopics) {
+        topic.childTopics.forEach((t) => {
+          t.checked = checked
+          this.selectChildren(t, checked)
+        })
       }
     },
   },

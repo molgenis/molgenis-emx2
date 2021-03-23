@@ -78,37 +78,37 @@
 
 <script>
 import _baseInput from '../forms/_baseInput.vue'
-import InputString from '../forms/InputString.vue'
-import InputInt from '../forms/InputInt.vue'
-import InputDecimal from '../forms/InputDecimal.vue'
 import InputBoolean from '../forms/InputBoolean.vue'
 import InputDate from '../forms/InputDate.vue'
 import InputDateTime from '../forms/InputDateTime.vue'
+import InputDecimal from '../forms/InputDecimal.vue'
 import InputFile from '../forms/InputFile.vue'
+import InputInt from '../forms/InputInt.vue'
+import InputString from '../forms/InputString.vue'
 import InputText from '../forms/InputText.vue'
 
 export default {
   name: 'RowFormInput',
   components: {
-    InputString,
-    InputInt,
-    InputDecimal,
     InputBoolean,
-    InputRefSelect: () => import('../forms/InputRefSelect.vue'), // because it uses itself in nested form
     InputDate,
     InputDateTime,
+    InputDecimal,
     InputFile,
+    InputInt,
+    InputRefSelect: () => import('../forms/InputRefSelect.vue'), // because it uses itself in nested form
+    InputString,
     InputText,
   },
   extends: _baseInput,
   props: {
-    schema: String,
     columnType: String,
-    table: String,
     graphqlURL: {
       default: 'graphql',
       type: String,
     },
+    schema: String,
+    table: String,
   },
   emits: ['update:modelValue'],
   data() {
@@ -117,11 +117,11 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.input = this.value
-    },
     input() {
       this.$emit('update:modelValue', this.input)
+    },
+    value() {
+      this.input = this.value
     },
   },
   created() {

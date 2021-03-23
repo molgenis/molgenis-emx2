@@ -37,12 +37,13 @@
 <script>
 export default {
   props: {
-    terms: Array,
-    inline: {type: Boolean, default: () => false},
     color: {
       type: String,
       default: () => 'primary',
     },
+    inline: {type: Boolean, default: () => false},
+    terms: Array,
+
   },
   data() {
     return {

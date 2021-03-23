@@ -84,98 +84,90 @@
 </template>
 
 <script>
-
-import {
-  FilterSidebar,
-  FilterWells,
-  InputCheckbox,
-  InputSearch,
-
-  MessageError,
-  MessageSuccess,
-  Molgenis,
-  ShowMore,
-  Spinner,
-} from '../ui/index.js'
 import {request} from 'graphql-request'
+import {
+  FilterSidebar, FilterWells, InputCheckbox, InputSearch,
+  MessageError, MessageSuccess, Molgenis, ShowMore, Spinner,
+} from '../ui/index.js'
 
 export default {
   components: {
     FilterSidebar,
     FilterWells,
+    InputCheckbox,
     InputSearch,
     MessageError,
     MessageSuccess,
-    Spinner,
     Molgenis,
-    InputCheckbox,
     ShowMore,
+    Spinner,
   },
   data: function() {
     return {
-      selectedDatabanks: [],
-      graphqlError: null,
-      success: null,
-      loading: false,
-      topics: [],
       databanksCount: 0,
-      variableCount: 0,
-      tableCount: 0,
-      limit: 20,
-      page: 1,
-      search: '',
-      variableSearch: '',
-      selectedTopic: null,
-      variables: [],
-      timestamp: Date.now(),
       filters: [
         {
+          columnType: 'REF',
           name: 'Topic',
           refTable: 'Topics',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Population',
           refTable: 'InclusionCriteria',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Inclusion Criteria',
           refTable: 'InclusionCriteria',
-          columnType: 'REF',
         },
 
         {
+          columnType: 'REF',
           name: 'Number Of Participants',
           refTable: 'AgeCategories',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Recruitment age',
           refTable: 'AgeCategories',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Country',
           refTable: 'InclusionCriteria',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Host organisation',
           refTable: 'Institutes',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Format',
           refTable: 'Formats',
-          columnType: 'REF',
         },
         {
+          columnType: 'REF',
           name: 'Unit',
           refTable: 'Units',
-          columnType: 'REF',
         },
       ],
+      graphqlError: null,
+      limit: 20,
+      loading: false,
+      page: 1,
+      search: '',
+      selectedDatabanks: [],
+      selectedTopic: null,
+      success: null,
+      tableCount: 0,
+      timestamp: Date.now(),
+      topics: [],
+      variableCount: 0,
+      variableSearch: '',
+      variables: [],
+
     }
   },
   computed: {
@@ -184,14 +176,14 @@ export default {
     },
   },
   watch: {
+    page() {
+      this.loadVariables()
+    },
     search() {
       this.applySearch(this.topics, this.search)
       this.loadVariables()
     },
     selectedCollections() {
-      this.loadVariables()
-    },
-    page() {
       this.loadVariables()
     },
   },
@@ -200,11 +192,23 @@ export default {
     this.loadVariables()
   },
   methods: {
-    selectedTopics(topics) {
-      if (Array.isArray(topics)) {
-        return topics.filter((t) => t.checked).map((t) => t.name)
-      }
-      return []
+    applySearch(topics, terms) {
+      let result = false
+      topics.forEach((t) => {
+        t.match = false
+        if (
+          terms == null ||
+          t.name.toLowerCase().includes(terms.toLowerCase())
+        ) {
+          t.match = true
+          result = true
+        }
+        if (t.childTopics && this.applySearch(t.childTopics, terms)) {
+          t.match = true
+          result = true
+        }
+      })
+      return result
     },
     loadTopics() {
       request(
@@ -247,10 +251,10 @@ export default {
         ,Variables_agg(${search}filter:$vFilter){count},Tables_agg(${search}filter:$tFilter){count}}`,
         {
           cFilter: filter,
-          vFilter: filter,
-          tFilter: filter,
-          offset: (this.page - 1) * 10,
           limit: this.limit,
+          offset: (this.page - 1) * 10,
+          tFilter: filter,
+          vFilter: filter,
         },
       )
         .then((data) => {
@@ -265,37 +269,28 @@ export default {
           this.loading = false
         })
     },
+    select(topic) {
+      this.selectedTopic = topic.name
+    },
+    selectedTopics(topics) {
+      if (Array.isArray(topics)) {
+        return topics.filter((t) => t.checked).map((t) => t.name)
+      }
+      return []
+    },
     topicsWithContents(topics) {
       let result = []
       if (topics)
         topics.forEach((t) => {
           let childTopics = this.topicsWithContents(t.childTopics)
           if (t.variables || childTopics.length > 0) {
-            result.push({name: t.name, childTopics: childTopics})
+            result.push({
+              childTopics: childTopics,
+              name: t.name,
+            })
           }
         })
       return result
-    },
-    applySearch(topics, terms) {
-      let result = false
-      topics.forEach((t) => {
-        t.match = false
-        if (
-          terms == null ||
-          t.name.toLowerCase().includes(terms.toLowerCase())
-        ) {
-          t.match = true
-          result = true
-        }
-        if (t.childTopics && this.applySearch(t.childTopics, terms)) {
-          t.match = true
-          result = true
-        }
-      })
-      return result
-    },
-    select(topic) {
-      this.selectedTopic = topic.name
     },
   },
 }

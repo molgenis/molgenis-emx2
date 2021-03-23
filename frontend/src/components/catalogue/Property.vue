@@ -7,6 +7,7 @@
 </template>
 
 <script>
+/* eslint-disable vue/require-slots-as-functions */
 export default {
   props: {
     label: String,

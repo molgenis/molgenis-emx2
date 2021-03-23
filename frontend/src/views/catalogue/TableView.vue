@@ -133,8 +133,8 @@ export default {
   },
   props: {
     acronym: String,
-    version: String,
     name: String,
+    version: String,
   },
   data() {
     return {

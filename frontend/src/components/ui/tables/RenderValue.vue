@@ -16,8 +16,8 @@
 <script>
 export default {
   props: {
-    row: Object,
     col: Object,
+    row: Object,
   },
   methods: {
     applyJsTemplate(template, object) {

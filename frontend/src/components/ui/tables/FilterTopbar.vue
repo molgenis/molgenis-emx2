@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import FilterSidebar from './FilterSidebar.vue'
 import FilterDropdown from './FilterDropdown.vue'
+import FilterSidebar from './FilterSidebar.vue'
 
 export default {
   components: {FilterDropdown},

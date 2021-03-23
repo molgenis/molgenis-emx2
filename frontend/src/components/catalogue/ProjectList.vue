@@ -27,24 +27,24 @@
 </template>
 
 <script>
-import {MessageError, Pagination} from '@mswertz/emx2-styleguide'
-import {request} from 'graphql-request'
 import ProjectCard from './ProjectCard'
+import {request} from 'graphql-request'
+import {MessageError, Pagination} from '@mswertz/emx2-styleguide'
 
 export default {
   components: {
-    ProjectCard,
-    Pagination,
     MessageError,
+    Pagination,
+    ProjectCard,
   },
   props: {
-    institutionAcronym: String,
     filter: {
       type: Object,
       default() {
         return {}
       },
     },
+    institutionAcronym: String,
     search: {
       String,
       default: '',
@@ -52,11 +52,11 @@ export default {
   },
   data() {
     return {
-      page: 1,
-      limit: 20,
       count: 0,
       graphqlError: null,
+      limit: 20,
       loading: false,
+      page: 1,
       projects: [],
     }
   },
@@ -83,8 +83,8 @@ export default {
         ,Projects_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,
-          offset: (this.page - 1) * 10,
           limit: this.limit,
+          offset: (this.page - 1) * 10,
         },
       )
         .then((data) => {

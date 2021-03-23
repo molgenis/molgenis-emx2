@@ -9,6 +9,7 @@ export default {
   props: {
     label: String,
   },
+  emits: ['click'],
 }
 </script>
 

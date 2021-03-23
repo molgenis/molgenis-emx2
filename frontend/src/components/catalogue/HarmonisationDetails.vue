@@ -2,13 +2,13 @@
   <div v-if="graphqlError">
     <MessageError>
       {{ graphqlError }}<br>
-      sourceCollection: {{ this.sourceCollection }}<br>
-      sourceTable: {{ this.sourceTable }}<br>
-      targetVariable: {{ this.targetVariable }}<br>
+      sourceCollection: {{ sourceCollection }}<br>
+      sourceTable: {{ sourceTable }}<br>
+      targetVariable: {{ targetVariable }}<br>
       targetResource:
-      {{ this.targetResource }}<br>
+      {{ targetResource }}<br>
       targetTable:
-      {{ this.targetTable }}
+      {{ targetTable }}
     </MessageError>
   </div>
   <div v-else>
@@ -126,35 +126,30 @@
 </template>
 
 <script>
-import {
-  ButtonAction,
-  LayoutModal,
-  MessageError,
-  ShowMore,
-} from '@mswertz/emx2-styleguide'
 import {request} from 'graphql-request'
+import {ButtonAction, LayoutModal, MessageError, ShowMore} from '@/components/ui/.index.js'
 
 export default {
-  components: {LayoutModal, MessageError, ShowMore, ButtonAction},
+  components: {ButtonAction, LayoutModal, MessageError, ShowMore},
   props: {
-    sourceCollection: String,
-    sourceTable: String,
-    sourceVersion: String,
-    targetVariable: String,
-    targetResource: String,
-    targetTable: String,
-    targetVersion: String,
-    match: String,
     compact: {
       type: Boolean,
       default: false,
     },
+    match: String,
+    sourceCollection: String,
+    sourceTable: String,
+    sourceVersion: String,
+    targetResource: String,
+    targetTable: String,
+    targetVariable: String,
+    targetVersion: String,
   },
   data() {
     return {
-      show: false,
-      harmonisation: {},
       graphqlError: null,
+      harmonisation: {},
+      show: false,
     }
   },
   watch: {

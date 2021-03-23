@@ -23,8 +23,8 @@
 <script>
 
 import {request} from 'graphql-request'
-import VariablesList from './VariablesList.vue'
 import TopicFilter from './TopicSelector.vue'
+import VariablesList from './VariablesList.vue'
 
 export default {
   components: {
@@ -36,19 +36,19 @@ export default {
   },
   data: function() {
     return {
-      selectedCollections: [],
-      graphqlError: null,
-      success: null,
-      loading: false,
-      topics: [],
       count: 0,
+      graphqlError: null,
       limit: 20,
+      loading: false,
       page: 1,
       search: '',
-      variableSearch: '',
+      selectedCollections: [],
       selectedTopic: null,
-      variables: [],
+      success: null,
       timestamp: Date.now(),
+      topics: [],
+      variableSearch: '',
+      variables: [],
     }
   },
   watch: {
@@ -60,8 +60,23 @@ export default {
     this.loadTopics()
   },
   methods: {
-    select(topic) {
-      this.selectedTopic = topic.name
+    applySearch(topics, terms) {
+      let result = false
+      topics.forEach((t) => {
+        t.match = false
+        if (
+          terms == null ||
+          t.name.toLowerCase().includes(terms.toLowerCase())
+        ) {
+          t.match = true
+          result = true
+        }
+        if (t.childTopics && this.applySearch(t.childTopics, terms)) {
+          t.match = true
+          result = true
+        }
+      })
+      return result
     },
     deselect() {
       this.selectedTopic = null
@@ -85,33 +100,21 @@ export default {
           this.loading = false
         })
     },
+    select(topic) {
+      this.selectedTopic = topic.name
+    },
     topicsWithContents(topics) {
       let result = []
       if (topics)
         topics.forEach((t) => {
           let childTopics = this.topicsWithContents(t.childTopics)
           if (t.variables || childTopics.length > 0) {
-            result.push({name: t.name, childTopics: childTopics})
+            result.push({
+              childTopics: childTopics,
+              name: t.name,
+            })
           }
         })
-      return result
-    },
-    applySearch(topics, terms) {
-      let result = false
-      topics.forEach((t) => {
-        t.match = false
-        if (
-          terms == null ||
-          t.name.toLowerCase().includes(terms.toLowerCase())
-        ) {
-          t.match = true
-          result = true
-        }
-        if (t.childTopics && this.applySearch(t.childTopics, terms)) {
-          t.match = true
-          result = true
-        }
-      })
       return result
     },
   },

@@ -100,8 +100,8 @@ import Property from './Property.vue'
 export default {
   components: {HarmonisationDetails, Property},
   props: {
-    variable: Object,
     tableName: String,
+    variable: Object,
   },
 }
 </script>

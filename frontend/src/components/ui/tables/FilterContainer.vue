@@ -33,11 +33,12 @@ export default {
     IconAction,
   },
   props: {
-    title: String,
-    visible: Boolean,
     count: Number,
     expanded: {type: Boolean, default: false},
+    title: String,
+    visible: Boolean,
   },
+  emits: ['update:expanded'],
   data() {
     return {hover: false}
   },

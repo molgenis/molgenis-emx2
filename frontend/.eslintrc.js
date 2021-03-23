@@ -102,7 +102,14 @@ module.exports = {
       },
       singleline: 3,
     }],
+    'vue/no-deprecated-slot-attribute': 'off', // TODO: Re-enable me by removing
+    'vue/no-lone-template': 'off', // TODO: Re-enable me by removing
+    'vue/no-mutating-props': 'off', // TODO: Re-enable me by removing
+    'vue/no-v-html': 'off', // TODO: Re-enable me by removing
     'vue/padding-line-between-blocks': [2],
+    'vue/require-default-prop': 'off', // TODO: Re-enable me by removing
+    'vue/require-prop-types': 'off', // TODO: Re-enable me by removing
+    'vue/require-v-for-key': 'off', // TODO: Re-enable me by removing
     'vue/sort-keys': [2, 'asc', {
       caseSensitive: true,
       ignoreChildrenOf: ['model'],
@@ -110,5 +117,7 @@ module.exports = {
       minKeys: 2,
       natural: false,
     }],
+    'vue/valid-v-else': 'off', // TODO: Re-enable me by removing
+    'vue/valid-v-for': 'off', // TODO: Re-enable me by removing
   },
 }

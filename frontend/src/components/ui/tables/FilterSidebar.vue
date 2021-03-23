@@ -34,22 +34,22 @@ filters = {{ filters }}
 </template>
 
 <script>
+import Draggable from 'vuedraggable'
 import FilterContainer from './FilterContainer.vue'
 import FilterInput from './FilterInput.vue'
 import ShowMore from '../layout/ShowMore.vue'
 
-import Draggable from 'vuedraggable'
-
 export default {
   components: {
-    FilterInput,
-    FilterContainer,
     Draggable,
+    FilterContainer,
+    FilterInput,
     ShowMore,
   },
   props: {
     filters: Array,
   },
+  emits: ['update:filters'],
   computed: {
     url() {
       let url = new URL('#')
@@ -104,22 +104,17 @@ export default {
     }
   },
   methods: {
+    collapseFilter(index) {
+      let update = this.filters
+      update[index].expanded = false
+      this.$emit('update:filters', update)
+    },
     count(column) {
       return Array.isArray(column.conditions) ? column.conditions.length : null
     },
     expandFilter(index) {
       let update = this.filters
       update[index].expanded = true
-      this.$emit('update:filters', update)
-    },
-    collapseFilter(index) {
-      let update = this.filters
-      update[index].expanded = false
-      this.$emit('update:filters', update)
-    },
-    hideFilter(idx) {
-      let update = this.filters
-      update[idx].showFilter = false
       this.$emit('update:filters', update)
     },
     flatten(obj, keyName) {
@@ -137,6 +132,12 @@ export default {
       })
       return result
     },
+    hideFilter(idx) {
+      let update = this.filters
+      update[idx].showFilter = false
+      this.$emit('update:filters', update)
+    },
+
   },
 }
 </script>

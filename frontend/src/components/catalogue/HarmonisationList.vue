@@ -46,9 +46,9 @@
 </template>
 
 <script>
-import {request} from 'graphql-request'
-import {MessageError} from '@mswertz/emx2-styleguide'
 import HarmonisationDetails from './HarmonisationDetails'
+import {MessageError} from '@mswertz/emx2-styleguide'
+import {request} from 'graphql-request'
 
 export default {
   components: {
@@ -61,28 +61,14 @@ export default {
   },
   data() {
     return {
-      harmonisations: [],
       count: 0,
       graphqlError: null,
-      page: 1,
+      harmonisations: [],
       limit: 0,
+      page: 1,
     }
   },
   computed: {
-    tables() {
-      return [
-        ...new Set(
-          this.harmonisations.map(
-            (h) => h.sourceRelease.resource.acronym + ':' + h.sourceTable.name,
-          ),
-        ),
-      ].sort()
-    },
-    variables() {
-      return [
-        ...new Set(this.harmonisations.map((h) => h.targetVariable.name)),
-      ].sort()
-    },
     matrix() {
       // create scaffold
       let result = {}
@@ -99,15 +85,29 @@ export default {
       })
       return result
     },
+    tables() {
+      return [
+        ...new Set(
+          this.harmonisations.map(
+            (h) => h.sourceRelease.resource.acronym + ':' + h.sourceTable.name,
+          ),
+        ),
+      ].sort()
+    },
+    variables() {
+      return [
+        ...new Set(this.harmonisations.map((h) => h.targetVariable.name)),
+      ].sort()
+    },
   },
   watch: {
+    page() {
+      this.reload()
+    },
     resourceAcronym() {
       this.reload()
     },
     tableName() {
-      this.reload()
-    },
-    page() {
       this.reload()
     },
   },
@@ -126,7 +126,7 @@ export default {
       if (this.tableName !== undefined) {
         filter.targetVariable.table.name = {equals: this.tableName}
       }
-      console.log(JSON.stringify(filter))
+
       request(
         'graphql',
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
@@ -134,8 +134,8 @@ export default {
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,
-          offset: (this.page - 1) * this.limit,
           limit: this.limit,
+          offset: (this.page - 1) * this.limit,
         },
       )
         .then((data) => {

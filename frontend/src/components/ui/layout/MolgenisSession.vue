@@ -35,27 +35,25 @@
 </template>
 
 <script>
-import Spinner from './Spinner.vue'
 import ButtonAction from '../forms/ButtonAction.vue'
 import ButtonAlt from '../forms/ButtonAlt.vue'
+import ChangePasswordForm from './MolgenisAccount.vue'
 import MessageError from '../forms/MessageError.vue'
-
+import {request} from 'graphql-request'
 import SigninForm from './MolgenisSignin.vue'
 import SignupForm from './MolgenisSignup.vue'
-import ChangePasswordForm from './MolgenisAccount.vue'
-
-import {request} from 'graphql-request'
+import Spinner from './Spinner.vue'
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
   components: {
     ButtonAction,
+    ButtonAlt,
+    ChangePasswordForm,
+    MessageError,
     SigninForm,
     SignupForm,
-    ChangePasswordForm,
     Spinner,
-    ButtonAlt,
-    MessageError,
   },
   props: {
     graphql: {
@@ -66,13 +64,12 @@ export default {
   emits: ['update:modelValue'],
   data: function() {
     return {
-      /** @ignore */
-      showSigninForm: false,
-      showSignupForm: false,
-      showChangePasswordForm: false,
       error: null,
       loading: false,
       session: {},
+      showChangePasswordForm: false,
+      showSigninForm: false,
+      showSignupForm: false,
       version: null,
     }
   },
@@ -86,6 +83,27 @@ export default {
     this.reload()
   },
   methods: {
+    changed() {
+      this.reload()
+      this.showSigninForm = false
+      this.$emit('update:modelValue', this.session)
+    },
+    closeSigninForm() {
+      this.showSigninForm = false
+      this.error = null
+    },
+    closeSignupForm() {
+      this.showSignupForm = false
+      this.error = null
+    },
+    parseJson(value) {
+      try {
+        return JSON.parse(value)
+      } catch (e) {
+        this.error = 'Parsing of settings failed: ' + e + '. value: ' + value
+        return null
+      }
+    },
     reload() {
       this.loading = true
       request(
@@ -119,27 +137,6 @@ export default {
           }
           this.loading = false
         })
-    },
-    parseJson(value) {
-      try {
-        return JSON.parse(value)
-      } catch (e) {
-        this.error = 'Parsing of settings failed: ' + e + '. value: ' + value
-        return null
-      }
-    },
-    changed() {
-      this.reload()
-      this.showSigninForm = false
-      this.$emit('update:modelValue', this.session)
-    },
-    closeSigninForm() {
-      this.showSigninForm = false
-      this.error = null
-    },
-    closeSignupForm() {
-      this.showSignupForm = false
-      this.error = null
     },
     signout() {
       this.loading = true

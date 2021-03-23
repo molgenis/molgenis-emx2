@@ -22,11 +22,11 @@ export default {
     return {show: false}
   },
   computed: {
-    showLabel() {
-      return 'show ' + this.title
-    },
     hideLabel() {
       return 'hide ' + this.title
+    },
+    showLabel() {
+      return 'show ' + this.title
     },
   },
 }

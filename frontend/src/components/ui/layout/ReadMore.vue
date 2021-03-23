@@ -16,11 +16,11 @@
 <script>
 export default {
   props: {
-    text: String,
     length: {
       type: Number,
       default: () => 20,
     },
+    text: String,
   },
   data() {
     return {

@@ -40,17 +40,17 @@
 </template>
 
 <script>
+import DefaultMenuMixin from '../mixins/DefaultMenuMixin.vue'
+import Footer from './MolgenisFooter.vue'
 import MolgenisMenu from './MolgenisMenu.vue'
 import MolgenisSession from './MolgenisSession.vue'
 import MolgenisTheme from './MolgenisTheme.vue'
-import Footer from './MolgenisFooter.vue'
-import DefaultMenuMixin from '../mixins/DefaultMenuMixin.vue'
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: {MolgenisSession, MolgenisMenu, Footer, MolgenisTheme},
+  components: {Footer, MolgenisMenu, MolgenisSession, MolgenisTheme},
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
@@ -59,9 +59,9 @@ export default {
   emits: ['update:modelValue'],
   data: function() {
     return {
-      session: null,
       cssURL: null,
       fullscreen: false,
+      session: null,
     }
   },
   computed: {
@@ -89,7 +89,6 @@ export default {
           this.session.settings &&
           this.session.settings.cssURL
         ) {
-          console.log('changed url ' + this.session.settings.cssURL)
           this.cssURL = this.session.settings.cssURL
         }
         this.$emit('update:modelValue', this.session)

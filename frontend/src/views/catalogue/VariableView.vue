@@ -218,9 +218,9 @@ export default {
   },
   props: {
     acronym: String,
-    version: String,
-    table: String,
     name: String,
+    table: String,
+    version: String,
   },
   data() {
     return {
