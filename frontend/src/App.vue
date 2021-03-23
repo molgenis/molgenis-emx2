@@ -6,6 +6,10 @@
       title="Welcome to MOLGENIS"
     >
       <Groups :key="JSON.stringify(session)" :session="session" />
+      <!-- from catalogue App.vue -->
+      <div class="container-fluid">
+        <RouterView :key="$route.fullPath" :page="page" :session="session" />
+      </div>
     </Molgenis>
   </div>
 </template>

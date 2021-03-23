@@ -63,5 +63,9 @@
       "@semantic-release/git",
       "@semantic-release/github"
     ]
-  }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
 }
