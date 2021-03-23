@@ -43,6 +43,7 @@
 <script>
 import { request } from "graphql-request";
 
+import MessageError from "../ui/forms/MessageError.vue";
 import SchemaCreateModal from "./SchemaCreateModal.vue";
 import SchemaDeleteModal from "./SchemaDeleteModal.vue";
 import {
@@ -56,6 +57,7 @@ import {
 
 export default {
   components: {
+    MessageError,
     TableSimple,
     Spinner,
     SchemaCreateModal,
