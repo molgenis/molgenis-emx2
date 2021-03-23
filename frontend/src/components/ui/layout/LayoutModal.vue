@@ -25,7 +25,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div v-scroll-lock="show" class="modal-body">
+          <div class="modal-body">
             <!-- @slot contents to be shown on the modal -->
             <slot name="body" />
           </div>
@@ -40,12 +40,7 @@
 </template>
 
 <script>
-import VScrollLock from 'v-scroll-lock'
-
 export default {
-  directives: {
-    VScrollLock,
-  },
   props: {
     /** When true the modal will be shown */
     show: {
