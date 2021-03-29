@@ -14,6 +14,7 @@
         <DatabankList :databanks="datasource.databanks" color="warning" />
         <h6>Data use conditions</h6>
         <OntologyTerms :terms="datasource.conditions" color="warning" />
+        <p v-if="datasource.conditionsDescription">{{datasource.conditionsDescription}}</p>
         <h6>Summary statistics<i class="fa fa-caret-down"></i></h6>
         <p v-if="datasource.statistics">{{ datasource.statistics }}</p>
       </div>
@@ -77,7 +78,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}conditions{name,definition}databanks{acronym,name,type{name,definition}},provider{acronym,name} description,homepage}}`,
+        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}conditionsDescription,conditions{name,definition}databanks{acronym,name,type{name,definition}},provider{acronym,name} description,homepage}}`,
         {
           acronym: this.acronym,
         }

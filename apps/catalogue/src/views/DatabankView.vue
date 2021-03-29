@@ -1,4 +1,4 @@
-<template>
+     <template>
   <div class="container bg-white">
     <ResourceHeader
       :resource="databank"
@@ -122,7 +122,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},provider{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,originator,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},provider{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
         {
           acronym: this.acronym,
         }
