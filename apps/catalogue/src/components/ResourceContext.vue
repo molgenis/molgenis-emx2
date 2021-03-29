@@ -1,7 +1,7 @@
 <template>
   <div>
     <h6>Lead institution</h6>
-    <InstitutionList :institutions="resource.provider" />
+    <InstitutionList :institutions="resource.institution" />
     <h6>Lead contact</h6>
     <ContactList :contacts="resource.contact" />
     <h6>Additional institutions</h6>

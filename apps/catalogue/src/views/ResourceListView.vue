@@ -64,7 +64,7 @@ export default {
           this.tableName
         )
       ) {
-        return ["name", "acronym", "type", "recordPrompt", "provider"];
+        return ["name", "acronym", "type", "recordPrompt", "institution"];
       } else if (this.tableName == "Studies") {
         return ["acronym", "name", "keywords"];
       } else if (this.tableName == "Contacts") {

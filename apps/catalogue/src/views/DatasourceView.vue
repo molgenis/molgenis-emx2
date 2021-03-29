@@ -20,7 +20,7 @@
       </div>
       <div class="col-4">
         <h6>Institutions with access</h6>
-        <InstitutionList :institutions="datasource.provider" />
+        <InstitutionList :institutions="datasource.institution" />
         <h6>Documentation</h6>
         <DocumentationList :documentation="datasource.documentation" />
         <h6 v-if="datasource.publications">Publications</h6>
@@ -78,7 +78,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}conditionsDescription,conditions{name,definition}databanks{acronym,name,type{name,definition}},provider{acronym,name} description,homepage}}`,
+        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}conditionsDescription,conditions{name,definition}databanks{acronym,name,type{name,definition}},institution{acronym,name} description,homepage}}`,
         {
           acronym: this.acronym,
         }

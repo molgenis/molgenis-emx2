@@ -64,7 +64,7 @@ export default {
       }
       request(
         "graphql",
-        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,provider{name}}
+        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name}}
         ,Projects_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

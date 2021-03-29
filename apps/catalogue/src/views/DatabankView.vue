@@ -49,7 +49,7 @@
       </div>
       <div class="col">
         <h6>Data access providers</h6>
-        <InstitutionList :institutions="databank.provider" />
+        <InstitutionList :institutions="databank.institution" />
         <h6>Documentation</h6>
         <DocumentationList :documentation="databank.documentation" />
         <h6 v-if="databank.releases">Data releases</h6>
@@ -122,7 +122,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,originator,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},provider{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,originator,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},institution{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
         {
           acronym: this.acronym,
         }

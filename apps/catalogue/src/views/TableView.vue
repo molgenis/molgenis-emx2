@@ -35,8 +35,8 @@
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
-        <h6>Topics</h6>
-        <OntologyTerms :terms="table.topics" color="dark" />
+        <h6>Keywords</h6>
+        <OntologyTerms :terms="table.keywords" color="dark" />
         <h6>Unit of observation</h6>
         <OntologyTerms :terms="[table.unitOfObservation]" color="dark" />
       </div>
@@ -92,8 +92,8 @@
       v-if="tab == 'Variables'"
       table="Variables"
       :showHeader="false"
-      :showFilters="['topics']"
-      :showColumns="['name', 'label', 'format', 'unit', 'mandatory', 'topics']"
+      :showFilters="['keywords']"
+      :showColumns="['name', 'label', 'format', 'unit', 'mandatory', 'keywords']"
       :showCards="true"
       :filter="{
         table: { name: { equals: name } },
@@ -161,7 +161,7 @@ export default {
       request(
         "graphql",
         `query Tables($acronym:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{acronym:{equals:[$acronym]}}},name:{equals:[$name]}})
-        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{acronym,name,mg_tableclass}},topics{name,ontologyTermURI,definition}, description,label,topics{name}
+        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{acronym,name,mg_tableclass}},keywords{name,ontologyTermURI,definition}, description,label,keywords{name}
         mappings{fromRelease{resource{acronym,mg_tableclass}version}fromTable{name}}
          mappingsTo{toRelease{resource{acronym,mg_tableclass}version}toTable{name}}
          }}`,

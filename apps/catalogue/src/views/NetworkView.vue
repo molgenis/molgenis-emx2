@@ -74,7 +74,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,homepage,funding, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name}, releases{resource{acronym,name},version}}}`,
+        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,homepage,funding, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name}, releases{resource{acronym,name},version}}}`,
         {
           acronym: this.acronym,
         }

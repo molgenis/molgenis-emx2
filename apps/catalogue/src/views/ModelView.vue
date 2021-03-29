@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col">
         <h6>Coordinator</h6>
-        <p>{{ model.provider ? model.provider.name : "N/A" }}</p>
+        <p>{{ model.institution ? model.institution.name : "N/A" }}</p>
         <h6>Institutions</h6>
         <PartnersList :institutions="model.partners" />
         <h6>Networks involved</h6>
@@ -72,7 +72,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},provider{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},releases{resource{acronym,name},version}}}`,
+        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},releases{resource{acronym,name},version}}}`,
         {
           acronym: this.acronym,
         }
