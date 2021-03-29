@@ -20,13 +20,7 @@ import org.molgenis.emx2.utils.StopWatch;
 public class TestCohortCatalogueMultipleSchemas {
 
   static Database database;
-  static Schema centralSchema;
-  static Schema localSchema;
-  static Schema catalogueOntologies;
-  static Schema catalogueDescriptions;
-  static Schema catalogueSourceVariables;
-  static Schema catalogueHarmonizedVariables;
-  static Schema catalogueMappings;
+  static Schema cohortsSchema;
   static Schema conceptionSchema;
 
   ;
@@ -35,37 +29,22 @@ public class TestCohortCatalogueMultipleSchemas {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     conceptionSchema = database.dropCreateSchema("Conception");
-    // localSchema = database.dropCreateSchema("CohortsLocal");
-    //    centralSchema = database.dropCreateSchema("CohortsCentral");
-    //    catalogueOntologies = database.dropCreateSchema("CatalogueOntologies");
-    //    catalogueDescriptions = database.dropCreateSchema("CatalogueDescriptions");
-    //    catalogueSourceVariables = database.dropCreateSchema("CatalogueSourceVariables");
-    //    catalogueHarmonizedVariables = database.dropCreateSchema("CatalogueHarmonizedVariables");
-    //    catalogueMappings = database.dropCreateSchema("CatalogueMappings");
+    cohortsSchema = database.dropCreateSchema("CohortNetwork");
   }
 
   @Test
   public void importTest() throws IOException {
     StopWatch.print("begin");
 
+    // load data model 2
+    loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", cohortsSchema);
+    loadSchema("../../data/datacatalogue/Cohorts.xlsx", cohortsSchema);
+    assertEquals(42, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
+
     // load data model
     loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", conceptionSchema);
     loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
     assertEquals(42, TestCohortCatalogueMultipleSchemas.conceptionSchema.getTableNames().size());
-    //
-    //    loadSchema("CatalogueLocalSourceVariables.xlsx", catalogueSourceVariables);
-    //    assertEquals(
-    //        7,
-    // TestCohortCatalogueMultipleSchemas.catalogueSourceVariables.getTableNames().size());
-    //
-    //    loadSchema("CatalogueLocalHarmonizedVariables.xlsx", catalogueHarmonizedVariables);
-    //    assertEquals(
-    //        7,
-    // TestCohortCatalogueMultipleSchemas.catalogueHarmonizedVariables.getTableNames().size());
-    //
-    //    loadSchema("CatalogueLocalMappings.xlsx", catalogueMappings);
-    //    assertEquals(2,
-    // TestCohortCatalogueMultipleSchemas.catalogueMappings.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) throws IOException {
