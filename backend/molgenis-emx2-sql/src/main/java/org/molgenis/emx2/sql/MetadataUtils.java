@@ -97,6 +97,7 @@ public class MetadataUtils {
         config -> {
           DSLContext jooq = config.dsl();
           if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+            jooq.execute("LOCK TABLE pg_catalog.pg_namespace");
             try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
             }

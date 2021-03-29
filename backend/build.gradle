@@ -84,6 +84,10 @@ subprojects {
             showStandardStreams = false
         }
     }
+
+    tasks.withType(Test)  {
+        maxParallelForks = 1
+    }
 }
 
 /* generate java test coverage report*/
