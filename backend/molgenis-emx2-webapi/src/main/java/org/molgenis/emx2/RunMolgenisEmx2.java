@@ -54,7 +54,7 @@ public class RunMolgenisEmx2 {
     dataSource.setPassword(pass);
 
     // setup database
-    Database db = new SqlDatabase(dataSource);
+    Database db = new SqlDatabase(dataSource, false);
     if (db.getSchema("pet store") == null) {
       Schema schema = db.createSchema("pet store");
       PetStoreExample.create(schema.getMetadata());

@@ -20,7 +20,7 @@ public class TestCreateArrayDataTypes {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabaseWithInit();
   }
 
   @Test

@@ -16,7 +16,7 @@ public class TestUsersAndPermissions {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabaseWithInit();
   }
 
   @Test

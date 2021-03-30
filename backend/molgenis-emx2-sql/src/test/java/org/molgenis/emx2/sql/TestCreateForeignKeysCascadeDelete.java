@@ -16,7 +16,7 @@ public class TestCreateForeignKeysCascadeDelete {
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabaseWithInit();
   }
 
   @Test

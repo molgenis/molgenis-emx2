@@ -17,7 +17,7 @@ public class TestComputedValue {
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabaseWithInit();
 
     schema = db.dropCreateSchema(TestComputedValue.class.getSimpleName());
   }

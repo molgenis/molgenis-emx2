@@ -54,16 +54,18 @@ public class SqlDatabase implements Database {
         }
       };
 
-  public SqlDatabase(DataSource source) {
+  public SqlDatabase(DataSource source, boolean init) {
     this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
-    this.init();
+    if (init) {
+      this.init();
+    }
   }
 
   @Override
   public void init() {
-    MetadataUtils.createMetadataSchemaIfNotExists(jooq);
+    MetadataUtils.init(jooq);
     // setup default stuff
 
     synchronized (jooq) {

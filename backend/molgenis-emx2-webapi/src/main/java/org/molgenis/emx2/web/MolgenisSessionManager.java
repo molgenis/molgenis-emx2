@@ -61,7 +61,7 @@ public class MolgenisSessionManager implements DatabaseListener {
     return sessions.computeIfAbsent(
         user,
         t -> {
-          Database database = new SqlDatabase(dataSource);
+          Database database = new SqlDatabase(dataSource, false);
           if (!database.hasUser(user)) {
             throw new MolgenisException("Authentication failed: User " + user + " not known");
           }

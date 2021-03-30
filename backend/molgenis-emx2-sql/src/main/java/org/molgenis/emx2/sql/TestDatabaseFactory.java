@@ -24,53 +24,60 @@ public class TestDatabaseFactory {
     // to hide the public constructor
   }
 
-  public static Database getTestDatabase(DataSource source, boolean deleteAll) {
+  public static synchronized Database getTestDatabaseWithInit() {
     if (db == null) {
-
-      // setup local Jooq
-      jooq = DSL.using(source, SQLDialect.POSTGRES);
-
-      // delete all, only for test databases
-      if (deleteAll) deleteAll();
-
       // get fresh database
-      db = new SqlDatabase(source);
+      db = new SqlDatabase(getDataSource(), true);
     }
     db.clearActiveUser();
     return db;
   }
 
-  public static Database getTestDatabase() {
-    return getTestDatabase(false);
+  /** get existing and already initatiated test database */
+  public static synchronized Database getTestDatabase() {
+    if (db == null) {
+      // get fresh database
+      db = new SqlDatabase(getDataSource(), false);
+    }
+    db.clearActiveUser();
+    return db;
   }
 
-  public static synchronized Database getTestDatabase(boolean deleteAll) {
+  public static DSLContext getJooq() {
+    if (jooq == null) {
+      jooq = DSL.using(getDataSource(), SQLDialect.POSTGRES);
+    }
+    return jooq;
+  }
 
-    String url = (String) getParameter(MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
-    String user = (String) getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
-    String pass = (String) getParameter(MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
-
-    logger.info("Using database:");
-    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
-    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
-    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
-
+  public static DataSource getDataSource() {
     // createColumn data source
     if (dataSource == null) {
+
+      String url = (String) getParameter(MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
+      String user = (String) getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
+      String pass = (String) getParameter(MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
+
+      logger.info("Using database:");
+      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
+      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
+      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
+
       dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
       dataSource.setUsername(user);
       dataSource.setPassword(pass);
     }
-
-    return getTestDatabase(dataSource, deleteAll);
+    return dataSource;
   }
 
-  private static void deleteAll() {
+  public static void deleteAll() {
+
     jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
     deleteAllForeignKeyConstraints();
     deleteAllSchemas();
     deleteAllRoles();
+    db = null;
   }
 
   private static void deleteAllRoles() {

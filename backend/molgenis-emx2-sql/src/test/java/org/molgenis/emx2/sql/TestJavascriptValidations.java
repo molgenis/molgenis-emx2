@@ -17,7 +17,7 @@ public class TestJavascriptValidations {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabaseWithInit();
     schema = database.dropCreateSchema(TestJavascriptValidations.class.getSimpleName());
     PetStoreExample.create(schema.getMetadata());
   }

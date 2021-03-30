@@ -18,7 +18,7 @@ public class TestCrossSchemaForeignKeysAndInheritance {
 
   @BeforeClass
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabaseWithInit();
     schema1 =
         db.dropCreateSchema(TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "1");
     schema2 =

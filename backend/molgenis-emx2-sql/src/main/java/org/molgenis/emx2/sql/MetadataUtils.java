@@ -91,7 +91,7 @@ public class MetadataUtils {
   }
 
   // should never run in parallel
-  protected static synchronized void createMetadataSchemaIfNotExists(DSLContext j) {
+  protected static synchronized void init(DSLContext j) {
 
     j.transaction(
         config -> {

@@ -17,7 +17,7 @@ public class TestSettings {
 
   @BeforeClass
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabaseWithInit();
   }
 
   @Test

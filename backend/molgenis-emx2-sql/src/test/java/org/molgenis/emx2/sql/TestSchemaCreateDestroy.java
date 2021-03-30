@@ -15,7 +15,7 @@ public class TestSchemaCreateDestroy {
 
   @BeforeClass
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getTestDatabaseWithInit();
   }
 
   @Test

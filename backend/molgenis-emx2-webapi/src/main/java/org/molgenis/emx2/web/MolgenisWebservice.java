@@ -63,7 +63,7 @@ public class MolgenisWebservice {
     get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // services (matched in order of creation)
-    AppsProxyService.create(new SqlDatabase(ds));
+    AppsProxyService.create(new SqlDatabase(ds, false));
 
     get(
         "/:schema/api",

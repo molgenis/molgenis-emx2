@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 
-import com.zaxxer.hikari.HikariDataSource;
 import io.restassured.RestAssured;
 import java.io.*;
 import org.junit.AfterClass;
@@ -31,15 +30,8 @@ public class TestWebApi {
   @BeforeClass
   public static void before() throws IOException {
 
-    // create data source
-    HikariDataSource dataSource = new HikariDataSource();
-    String url = "jdbc:postgresql:molgenis";
-    dataSource.setJdbcUrl(url);
-    dataSource.setUsername("molgenis");
-    dataSource.setPassword("molgenis");
-
     // setup test schema
-    db = TestDatabaseFactory.getTestDatabase(dataSource, false);
+    db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
@@ -48,7 +40,7 @@ public class TestWebApi {
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
     // start web service for testing
-    MolgenisWebservice.start(dataSource, 8080);
+    MolgenisWebservice.start(TestDatabaseFactory.getDataSource(), 8080);
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";

@@ -12,7 +12,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestDeferConstrainChecksToEndOfTransaction {
-  Database database = TestDatabaseFactory.getTestDatabase();
+  Database database = TestDatabaseFactory.getTestDatabaseWithInit();
 
   public TestDeferConstrainChecksToEndOfTransaction() {}
 
