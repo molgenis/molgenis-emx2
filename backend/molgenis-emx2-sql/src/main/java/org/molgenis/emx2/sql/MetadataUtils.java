@@ -94,9 +94,6 @@ public class MetadataUtils {
   protected static synchronized void init(DSLContext jooq) {
 
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
-      jooq.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-      jooq.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
-
       try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
         step.execute();
       }

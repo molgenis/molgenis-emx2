@@ -71,6 +71,9 @@ public class SqlDatabase implements Database {
           config -> {
             DSLContext j = config.dsl();
             MetadataUtils.init(j);
+            j.execute("LOCK TABLE pg_catalog.pg_namespace");
+            j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+            j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
           });
     }
 
