@@ -22,7 +22,7 @@ public class TestCompositeForeignKeys {
 
   @Before
   public void setUp() {
-    database = TestDatabaseFactory.getTestDatabaseWithInit();
+    database = TestDatabaseFactory.getTestDatabase();
 
     // create target table
 

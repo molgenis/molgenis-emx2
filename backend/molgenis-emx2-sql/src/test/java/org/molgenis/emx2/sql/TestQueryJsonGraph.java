@@ -31,7 +31,7 @@ public class TestQueryJsonGraph {
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabaseWithInit();
+    db = TestDatabaseFactory.getTestDatabase();
 
     schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName());
 

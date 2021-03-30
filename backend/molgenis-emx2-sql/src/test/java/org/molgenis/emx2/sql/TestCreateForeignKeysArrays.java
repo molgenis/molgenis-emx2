@@ -16,7 +16,7 @@ public class TestCreateForeignKeysArrays {
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabaseWithInit();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

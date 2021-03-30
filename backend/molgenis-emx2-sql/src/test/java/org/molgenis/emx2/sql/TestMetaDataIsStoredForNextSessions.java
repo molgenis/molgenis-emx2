@@ -19,7 +19,7 @@ public class TestMetaDataIsStoredForNextSessions {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabaseWithInit();
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

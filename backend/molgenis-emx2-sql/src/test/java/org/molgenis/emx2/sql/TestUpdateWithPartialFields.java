@@ -16,7 +16,7 @@ public class TestUpdateWithPartialFields {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    db = TestDatabaseFactory.getTestDatabaseWithInit();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

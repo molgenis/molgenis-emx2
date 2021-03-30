@@ -24,20 +24,10 @@ public class TestDatabaseFactory {
     // to hide the public constructor
   }
 
-  public static synchronized Database getTestDatabaseWithInit() {
-    if (db == null) {
-      // get fresh database
-      db = new SqlDatabase(getDataSource(), true);
-    }
-    db.clearActiveUser();
-    return db;
-  }
-
-  /** get existing and already initatiated test database */
   public static synchronized Database getTestDatabase() {
     if (db == null) {
       // get fresh database
-      db = new SqlDatabase(getDataSource(), false);
+      db = new SqlDatabase(getDataSource(), true);
     }
     db.clearActiveUser();
     return db;

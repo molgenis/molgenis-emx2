@@ -19,7 +19,7 @@ public class TestGrantRolesToUsers {
 
   @BeforeClass
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabaseWithInit();
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

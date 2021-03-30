@@ -22,7 +22,7 @@ public class TestQuery {
 
   @BeforeClass
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabaseWithInit();
+    database = TestDatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
     schema = database.dropCreateSchema("TestQuery");

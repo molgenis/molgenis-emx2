@@ -20,7 +20,7 @@ public class TestFullTextSearch {
 
   @BeforeClass
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabaseWithInit();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

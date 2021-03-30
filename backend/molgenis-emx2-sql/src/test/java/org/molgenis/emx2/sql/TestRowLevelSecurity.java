@@ -20,7 +20,7 @@ public class TestRowLevelSecurity {
 
   @BeforeClass
   public static void setUp() throws SQLException {
-    database = TestDatabaseFactory.getTestDatabaseWithInit();
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
