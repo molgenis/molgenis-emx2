@@ -41,8 +41,8 @@ public class Column {
   private Integer position = null; // column order within the table
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private boolean required = false;
-  private String validationExpression = null;
-  private String visibleExpression = null; // javascript expression to influence vibility
+  private String validation = null;
+  private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
   // todo implement below, or remove
@@ -118,14 +118,14 @@ public class Column {
     refLink = column.refLink;
     refSchema = column.refSchema;
     refBack = column.refBack;
-    validationExpression = column.validationExpression;
+    validation = column.validation;
     refLabel = column.refLabel;
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
     columnFormat = column.columnFormat;
-    visibleExpression = column.visibleExpression;
+    visible = column.visible;
   }
 
   public TableMetadata getTable() {
@@ -314,12 +314,12 @@ public class Column {
     return null;
   }
 
-  public String getValidationExpression() {
-    return validationExpression;
+  public String getValidation() {
+    return validation;
   }
 
-  public Column setValidationExpression(String validationExpression) {
-    this.validationExpression = validationExpression;
+  public Column setValidation(String validation) {
+    this.validation = validation;
     return this;
   }
 
@@ -555,12 +555,12 @@ public class Column {
     this.columnFormat = columnFormat;
   }
 
-  public String getVisibleExpression() {
-    return visibleExpression;
+  public String getVisible() {
+    return visible;
   }
 
-  public Column setVisibleExpression(String visibleExpression) {
-    this.visibleExpression = visibleExpression;
+  public Column setVisible(String visible) {
+    this.visible = visible;
     return this;
   }
 

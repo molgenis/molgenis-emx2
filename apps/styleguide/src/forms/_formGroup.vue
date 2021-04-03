@@ -1,18 +1,18 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <div class="form-group m-0">
+  <div class="form-group" :class="inplace ? 'm0' : ''">
     <label v-if="label && !inplace" :for="id">
       <b>{{ label }}</b>
     </label>
     <span v-if="required" class="float-right">(required)</span>
     <slot />
     <small
-      v-if="help && !inplace"
-      :id="id + 'Help'"
+      v-if="description && !inplace"
+      :id="id + 'Description'"
       class="form-text text-muted"
     >
-      {{ help }}
+      {{ description }}
     </small>
     <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
   </div>
@@ -27,8 +27,8 @@ export default {
     placeholder: String,
     /** label to be shown next to the input */
     label: String,
-    /** optional help string shown below */
-    help: String,
+    /** optional description string shown below */
+    description: String,
     /** if required */
     required: Boolean,
     /** String with graphqlError state */

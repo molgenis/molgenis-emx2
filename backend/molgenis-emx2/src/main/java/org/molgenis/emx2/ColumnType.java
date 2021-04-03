@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public enum ColumnType {
-
   // SIMPLE
   BOOL(Boolean.class, "xsd:boolean", EQUALITY_OPERATORS),
   BOOL_ARRAY(Boolean[].class, "xsd:list", EQUALITY_OPERATORS),
@@ -40,7 +39,10 @@ public enum ColumnType {
   REF_ARRAY(Object[].class, "xsd:anySimpleType"),
   // @Deprecated
   // MREF(Object[].class),
-  REFBACK(Object[].class, "xsd:anySimpleType");
+  REFBACK(Object[].class, "xsd:anySimpleType"),
+
+  // LAYOUT and other constants
+  CONSTANT(String.class, null); // use for layout elements or constant values
 
   private Class javaType;
   private Operator[] operators;
@@ -58,10 +60,6 @@ public enum ColumnType {
 
   public Operator[] getOperators() {
     return this.operators;
-  }
-
-  public Object getXsdType() {
-    return this.xsdType;
   }
 
   public boolean isArray() {

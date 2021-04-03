@@ -19,8 +19,8 @@ export default {
     placeholder: String,
     /** label to be shown above the input */
     label: String,
-    /** optional help string shown below input */
-    help: String,
+    /** optional description string shown below input */
+    description: String,
     /** whether input must be required (does not validate, but show option to clear input) */
     required: {
       type: Boolean,

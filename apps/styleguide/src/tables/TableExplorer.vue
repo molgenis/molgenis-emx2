@@ -112,6 +112,7 @@
               <RowButtonAdd
                 v-if="canEdit"
                 :table="table"
+                :graphqlURL="graphqlURL"
                 @close="reload"
                 class="d-inline p-0"
               />
@@ -120,12 +121,14 @@
               <RowButtonEdit
                 v-if="canEdit"
                 :table="table"
+                :graphqlURL="graphqlURL"
                 :pkey="getPkey(slotProps.row)"
                 @close="reload"
               />
               <RowButtonDelete
                 v-if="canEdit"
                 :table="table"
+                :graphqlURL="graphqlURL"
                 :pkey="getPkey(slotProps.row)"
                 @close="reload"
               />
@@ -375,6 +378,25 @@ example (graphqlURL is usually not needed because app is served on right path)
     }, methods: {
       click(event) {
         alert(event);
+      }
+    }
+  }
+</script>
+```
+example (graphqlURL is usually not needed because app is served on right path)
+```
+<template>
+  <TableExplorer
+      table="Pet"
+      graphqlURL="/pet store/graphql"
+      :showSelect="false" @click="click"/>
+  <div v-else>Please sign in.</div>
+</template>
+<script>
+  export default {
+    methods: {
+      click(event) {
+        alert(JSON.stringify(event));
       }
     }
   }

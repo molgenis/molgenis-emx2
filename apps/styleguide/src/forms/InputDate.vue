@@ -62,7 +62,7 @@ Example
 ```
 <template>
   <div>
-    <InputDate v-model="value" label="My date input label" help="Some help needed?"/>
+    <InputDate v-model="value" label="My date input label" description="Some help needed?"/>
     <br/>
     You typed: {{ value }}
   </div>
@@ -83,7 +83,7 @@ Example readonly with default value
 <template>
   <div>
     <InputDate :readonly="true" v-model="value" label="My date input label"
-               help="Some help needed?"/>
+               description="Some help needed?"/>
     <br/>
     You typed: {{ value }}
   </div>
@@ -105,7 +105,7 @@ Example with default value
     <InputDate
         v-model="value"
         label="My date input label"
-        help="Some help needed?"
+        description="Some help needed?"
     />
     <br/>
     You typed: {{ value }}

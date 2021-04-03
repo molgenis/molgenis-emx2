@@ -331,7 +331,7 @@ public class TestGraphqSchemaFields {
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
 
     execute(
-        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", columnFormat:\"Hyperlink\", visibleExpression:\"blaat\"}){message}}");
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", columnFormat:\"Hyperlink\", visible:\"blaat\"}){message}}");
     database.clearCache(); // cannot know here, server clears caches
     assertEquals(
         "Hyperlink",
@@ -348,7 +348,7 @@ public class TestGraphqSchemaFields {
             .getTable("Pet")
             .getMetadata()
             .getColumn("test2")
-            .getVisibleExpression());
+            .getVisible());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
   }
 

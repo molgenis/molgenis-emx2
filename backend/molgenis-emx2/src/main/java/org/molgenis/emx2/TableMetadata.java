@@ -122,6 +122,12 @@ public class TableMetadata {
     return new ArrayList<>(result.values());
   }
 
+  public List<Column> getColumnsWithoutConstant() {
+    return this.getColumns().stream()
+        .filter(c -> !CONSTANT.equals(c.getColumnType()))
+        .collect(Collectors.toList());
+  }
+
   public List<String> getPrimaryKeys() {
     List<String> primaryKey = new ArrayList<>();
     for (Column c : getColumns()) {
@@ -141,7 +147,7 @@ public class TableMetadata {
   }
 
   public List<Column> getMutationColumns() {
-    return getExpandedColumns(getLocalColumns());
+    return getExpandedColumns(getStoredColumns());
   }
 
   /** returns columns including the nested composite key columns, needed to create the table */
@@ -184,6 +190,12 @@ public class TableMetadata {
     } else {
       return new ArrayList<>(this.columns.values());
     }
+  }
+
+  public List<Column> getStoredColumns() {
+    return getLocalColumns().stream()
+        .filter(c -> !CONSTANT.equals(c.getColumnType()))
+        .collect(Collectors.toList());
   }
 
   public List<Column> getLocalColumns() {
@@ -359,7 +371,7 @@ public class TableMetadata {
 
   public List<Column> getKey(int key) {
     List<Column> keyColumns = new ArrayList<>();
-    for (Column c : getLocalColumns()) {
+    for (Column c : getStoredColumns()) {
       if (c.getKey() == key) {
         keyColumns.add(c);
       }
@@ -384,7 +396,7 @@ public class TableMetadata {
 
   public Map<Integer, List<String>> getKeys() {
     Map<Integer, List<String>> keys = new LinkedHashMap<>();
-    for (Column c : getLocalColumns()) {
+    for (Column c : getStoredColumns()) {
       if (c.getKey() > 0) {
         if (keys.get(c.getKey()) == null) {
           keys.put(c.getKey(), new ArrayList<>());
@@ -396,7 +408,7 @@ public class TableMetadata {
   }
 
   public void removeKey(int key) {
-    for (Column c : this.getLocalColumns()) {
+    for (Column c : this.getStoredColumns()) {
       if (c.getKey() == key) {
         c.removeKey();
       }

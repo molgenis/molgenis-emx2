@@ -5,7 +5,6 @@
       :errorMessage="validateName(column.name)"
       label="Name"
     />
-    <InputText v-model="column.description" label="Description" />
     <InputSelect
       v-model="column.columnType"
       :options="columnTypes"
@@ -17,6 +16,7 @@
       :options="['', 'HYPERLINK']"
       label="Column format"
     />
+    <InputText v-model="column.description" label="Description" />
     <div
       v-if="
         column.columnType == 'REF' ||
@@ -51,17 +51,28 @@
       />
     </div>
     <InputSelect
+      v-if="column.columnType != 'CONSTANT'"
       v-model="column.key"
       :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
       label="Key"
     />
-    <InputBoolean v-model="column.required" label="required" />
+    <InputBoolean
+      v-if="column.columnType != 'CONSTANT'"
+      v-model="column.required"
+      label="required"
+    />
 
     <InputText
-      v-model="column.validationExpression"
-      label="validationExpression"
+      v-if="column.columnType != 'CONSTANT'"
+      v-model="column.validation"
+      label="validation"
+      help="Example: if(row.name != 'John') return 'name must be John'"
     />
-    <InputText v-model="column.visibleExpression" label="visibleExpression" />
+    <InputText
+      v-model="column.visible"
+      label="visible"
+      help="Example: if(row.other > '') return true;"
+    />
     <InputString
       v-model="column.semantics"
       :list="true"

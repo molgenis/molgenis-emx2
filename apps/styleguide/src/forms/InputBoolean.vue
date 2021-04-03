@@ -38,7 +38,7 @@ Example
 ```
 <template>
   <div>
-    <InputBoolean v-model="value" label="My first boolean" help="do you need some boolean help?"/>
+    <InputBoolean v-model="value" label="My first boolean" description="do you need some boolean help?"/>
     value: {{ value }}
   </div>
 </template>
@@ -57,7 +57,7 @@ Example with defaultValue
 <template>
   <div>
     <InputBoolean v-model="value" label="My first boolean"
-                  help="do you need some boolean help?"/>
+                  description="do you need some boolean help?"/>
     value: {{ value }}
   </div>
 </template>
@@ -76,7 +76,7 @@ Example inplace
 <template>
   <div>
     <InputBoolean v-model="value" :inplace="true" label="My first boolean"
-                  help="do you need some boolean help?"/>
+                  description="do you need some boolean help?"/>
     value: {{ value }}
   </div>
 </template>

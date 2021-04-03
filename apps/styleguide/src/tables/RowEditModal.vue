@@ -8,13 +8,10 @@
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in tableMetadata.columns" :key="column.name">
           <RowFormInput
-            v-if="
-              visible(column.visibleExpression) &&
-              column.name != 'mg_tableclass'
-            "
+            v-if="visible(column.visible) && column.name != 'mg_tableclass'"
             v-model="value[column.name]"
             :label="column.name"
-            :help="column.description"
+            :description="column.description"
             :columnType="column.columnType"
             :table="column.refTable"
             :filter="refLinkFilters[column.name]"
@@ -171,13 +168,11 @@ export default {
             // when validation
             if (
               typeof this.value[column.name] !== "undefined" &&
-              typeof column.validationExpression !== "undefined"
+              typeof column.validation !== "undefined"
             ) {
               let value = this.value[column.name]; //used for eval, two lines below
               this.errorPerColumn[column.name] = value; //dummy assign
-              this.errorPerColumn[column.name] = this.eval(
-                column.validationExpression
-              );
+              this.errorPerColumn[column.name] = this.eval(column.validation);
             } else if (
               column.refLink &&
               this.value[column.name] &&

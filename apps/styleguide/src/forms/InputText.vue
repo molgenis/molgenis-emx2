@@ -3,7 +3,13 @@
     {{ value ? value : "" }}
     <IconAction class="hoverIcon" icon="pencil" />
   </span>
-  <FormGroup v-else :id="id" :label="label" :help="help" v-bind="$props">
+  <FormGroup
+    v-else
+    :id="id"
+    :label="label"
+    :description="description"
+    v-bind="$props"
+  >
     <InputAppend
       v-for="(el, idx) in valueArray"
       :key="idx"
@@ -142,7 +148,7 @@ Example
           v-model="value"
           label="My text label"
           placholder="type here your text"
-          help="Some help needed?"
+          description="Some help needed?"
       />
     </LayoutForm>
     <br/>
@@ -169,7 +175,7 @@ Example with default value
           :defaultValue="value"
           label="My text label"
           placholder="type here your text"
-          help="Some help needed?"
+          description="Some help needed?"
       />
     </LayoutForm>
     <br/>
@@ -196,7 +202,7 @@ Example with list
           :list="true"
           label="My text label"
           placholder="type here your text"
-          help="Some help needed?"
+          description="Some help needed?"
       />
     </LayoutForm>
     <br/>
@@ -223,7 +229,7 @@ Example with inplace
           :inplace="true"
           label="My text label"
           placholder="type here your text"
-          help="Some help needed?"
+          description="Some help needed?"
       />
     </LayoutForm>
     <br/>

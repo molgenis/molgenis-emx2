@@ -58,7 +58,7 @@ Example with default
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey','armadillo','rino','crocodile','tiger','coyote']"
-        help="some help here"
+        description="some help here"
     />
     Selected: {{ check }}
   </div>

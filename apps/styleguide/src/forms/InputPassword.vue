@@ -1,5 +1,10 @@
 <template>
-  <form-group :id="id" :label="label" :placeholder="placeholder" :help="help">
+  <form-group
+    :id="id"
+    :label="label"
+    :placeholder="placeholder"
+    :description="description"
+  >
     <input
       :id="id"
       v-model="valueArray[0]"
@@ -31,7 +36,7 @@ Examlple
           v-model="value"
           label="My password label"
           placholder="type here your password"
-          help="Some help needed?"
+          description="Some help needed?"
       />
     </LayoutForm>
     <br/>

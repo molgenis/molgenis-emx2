@@ -20,7 +20,7 @@
             <span style="text-align: left"><slot name="colheader" /> </span>
           </th>
           <th
-            v-for="col in columns"
+            v-for="col in columnsWithoutConstant"
             :key="col.name + col.showColumn"
             scope="col"
             class="column-drag-header"
@@ -56,7 +56,7 @@
             </div>
           </td>
           <td
-            v-for="col in columns"
+            v-for="col in columnsWithoutConstant"
             :key="idx + col.name + isSelected(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
@@ -128,7 +128,10 @@ export default {
   },
   computed: {
     countColumns() {
-      return this.columns.filter((c) => c.showColumn).length;
+      return this.columnsWithoutConstant.filter((c) => c.showColumn).length;
+    },
+    columnsWithoutConstant() {
+      return this.columns.filter((c) => c.columnType != "CONSTANT");
     },
   },
   created() {

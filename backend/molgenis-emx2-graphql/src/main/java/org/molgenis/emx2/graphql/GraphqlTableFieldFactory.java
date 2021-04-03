@@ -101,7 +101,7 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLObjectType createTableObjectType(Table table) {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
-    for (Column col : table.getMetadata().getColumns())
+    for (Column col : table.getMetadata().getColumnsWithoutConstant())
       switch (col.getColumnType()) {
         case FILE:
           tableBuilder.field(
@@ -605,7 +605,7 @@ public class GraphqlTableFieldFactory {
   private GraphQLInputObjectType rowInputType(Table table) {
     GraphQLInputObjectType.Builder inputBuilder =
         GraphQLInputObjectType.newInputObject().name(table.getName() + INPUT);
-    for (Column col : table.getMetadata().getColumns()) {
+    for (Column col : table.getMetadata().getColumnsWithoutConstant()) {
       GraphQLInputType type;
       if (col.isReference()) {
         if (REF.equals(col.getColumnType())) {

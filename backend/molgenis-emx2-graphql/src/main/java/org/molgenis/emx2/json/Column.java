@@ -18,8 +18,8 @@ public class Column {
   private Integer position = null;
 
   // private Boolean cascadeDelete = false;
-  private String validationExpression = null;
-  private String visibleExpression = null;
+  private String validation = null;
+  private String visible = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
   private String columnFormat = null;
@@ -53,11 +53,11 @@ public class Column {
     this.refLabel = column.getRefLabel();
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
-    this.validationExpression = column.getValidationExpression();
+    this.validation = column.getValidation();
     this.required = column.isRequired();
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
-    this.visibleExpression = column.getVisibleExpression();
+    this.visible = column.getVisible();
     this.columnFormat = column.getColumnFormat();
 
     // calculated field
@@ -80,10 +80,10 @@ public class Column {
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
     c.setRefBack(refBack);
-    c.setValidationExpression(validationExpression);
+    c.setValidation(validation);
     c.setDescription(description);
     c.setSemantics(semantics);
-    c.setVisibleExpression(visibleExpression);
+    c.setVisible(visible);
     c.setColumnFormat(columnFormat);
     // ignore inherited
     return c;
@@ -145,12 +145,12 @@ public class Column {
     this.columnType = columnType;
   }
 
-  public String getValidationExpression() {
-    return validationExpression;
+  public String getValidation() {
+    return validation;
   }
 
-  public void setValidationExpression(String validationExpression) {
-    this.validationExpression = validationExpression;
+  public void setValidation(String validation) {
+    this.validation = validation;
   }
 
   public String getRefBack() {
@@ -217,12 +217,12 @@ public class Column {
     this.columnFormat = columnFormat;
   }
 
-  public String getVisibleExpression() {
-    return visibleExpression;
+  public String getVisible() {
+    return visible;
   }
 
-  public void setVisibleExpression(String visibleExpression) {
-    this.visibleExpression = visibleExpression;
+  public void setVisible(String visible) {
+    this.visible = visible;
   }
 
   public String getOldName() {

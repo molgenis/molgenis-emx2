@@ -357,13 +357,13 @@ public class MetadataUtils {
             column.getRefLink(),
             column.getRefLabelIfSet(),
             column.getRefBack(),
-            column.getValidationExpression(),
+            column.getValidation(),
             column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription(),
             column.getSemantics(),
-            column.getVisibleExpression(),
+            column.getVisible(),
             column.getColumnFormat())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -376,13 +376,13 @@ public class MetadataUtils {
         .set(COLUMN_REF_LINK, column.getRefLink())
         .set(COLUMN_REF_LABEL, column.getRefLabelIfSet())
         .set(COLUMN_REF_BACK, column.getRefBack())
-        .set(COLUMN_VALIDATION, column.getValidationExpression())
+        .set(COLUMN_VALIDATION, column.getValidation())
         .set(COLUMN_COMPUTED, column.getComputed())
         .set(COLUMN_INDEXED, column.isIndexed())
         .set(COLUMN_CASCADE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
         .set(COLUMN_SEMANTICS, column.getSemantics())
-        .set(COLUMN_VISIBLE, column.getVisibleExpression())
+        .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_FORMAT, column.getColumnFormat())
         .execute();
   }
@@ -454,12 +454,12 @@ public class MetadataUtils {
     c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setRefLabel(col.get(COLUMN_REF_LABEL, String.class));
     c.setRefBack(col.get(COLUMN_REF_BACK, String.class));
-    c.setValidationExpression(col.get(COLUMN_VALIDATION, String.class));
+    c.setValidation(col.get(COLUMN_VALIDATION, String.class));
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
-    c.setVisibleExpression(col.get(COLUMN_VISIBLE, String.class));
+    c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setColumnFormat(col.get(COLUMN_FORMAT, String.class));
     return c;
   }

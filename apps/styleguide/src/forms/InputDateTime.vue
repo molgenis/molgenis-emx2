@@ -18,42 +18,42 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputDateTime v-model="value" label="My date time input label" help="Some help needed?"/>
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example list
-    ```
-    <template>
-        <div>
-            <InputDateTime :list="true" v-model="value" label="My date time input label" help="Some help needed?"/>
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <InputDateTime v-model="value" label="My date time input label" description="Some help needed?"/>
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+Example list
+```
+<template>
+  <div>
+    <InputDateTime :list="true" v-model="value" label="My date time input label" description="Some help needed?"/>
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
 </docs>

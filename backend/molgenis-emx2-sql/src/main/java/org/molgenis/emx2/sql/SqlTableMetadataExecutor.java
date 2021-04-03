@@ -50,7 +50,7 @@ class SqlTableMetadataExecutor {
 
     // then create columns
     int position = 0;
-    for (Column column : table.getLocalColumns()) {
+    for (Column column : table.getStoredColumns()) {
       // check if column adheres to all rules
       validateColumn(column);
       // we force position based on order
@@ -65,7 +65,7 @@ class SqlTableMetadataExecutor {
     createOrReplaceKeys(jooq, table);
 
     // then create (composite) foreign keys
-    for (Column column : table.getLocalColumns()) {
+    for (Column column : table.getStoredColumns()) {
       if ((table.getInherit() == null
               || table.getInheritedTable().getColumn(column.getName()) == null)
           && column.isReference()) {
@@ -173,7 +173,7 @@ class SqlTableMetadataExecutor {
           name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
 
       // drop all triggers from all columns
-      for (Column c : table.getLocalColumns()) {
+      for (Column c : table.getStoredColumns()) {
         executeRemoveColumn(jooq, c);
       }
 
@@ -202,7 +202,7 @@ class SqlTableMetadataExecutor {
         String.format("\"%s\".\"%s\"()", table.getSchema().getName(), triggerName);
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
-    for (Column c : table.getLocalColumns()) {
+    for (Column c : table.getStoredColumns()) {
       if (!c.getName().startsWith("MG_")) {
         if (FILE.equals(c.getColumnType())) {
           // do nothing for now

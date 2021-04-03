@@ -73,7 +73,7 @@ Example
 ```
 <template>
   <div>
-    <InputString v-model="value" label="My string input label" help="Some help needed?"/>
+    <InputString v-model="value" label="My string input label" description="Some help needed?"/>
     You typed: {{ JSON.stringify(value) }}
   </div>
 </template>
@@ -94,7 +94,7 @@ Example with default value
     <InputString
         v-model="value"
         label="My string input label"
-        help="Some help needed?"
+        description="Some help needed?"
     />
     <br/>
     You typed: {{ value }}
@@ -112,14 +112,14 @@ Example with default value
 ```
 Example readonly
 ```
-<InputString label="test" :readonly="true" value="can't change me" help="Should not be able to edit this"/>
+<InputString label="test" :readonly="true" value="can't change me" description="Should not be able to edit this"/>
 ```
 Example list
 ```
 <template>
   <div>
     <InputString v-model="value" :list="true" label="test"
-                 help="should be able to manage a list of values"/>
+                 description="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
   </div>
@@ -139,7 +139,7 @@ Example in place
 <template>
   <div>
     In place some
-    <InputString label="test" v-model="value" :inplace="true" help="Should be able to edit in place"/>
+    <InputString label="test" v-model="value" :inplace="true" description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}
   </div>
@@ -157,7 +157,8 @@ Example list in place
 <template>
   <div>
     In place some
-    <InputString label="test" :list="true" v-model="value" :inplace="true" help="Should be able to edit in place"/>
+    <InputString label="test" :list="true" v-model="value" :inplace="true"
+                 description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}
   </div>

@@ -151,9 +151,9 @@ For example:
 | parts     | productNo  | 2   |                          |
 | parts     | partNo     | 2   |                          |
 
-### validationExpression, visibleExpression
+### validation expression, visible expression
 
-Validation expressions and visibleExpressions are used to finetune forms.
+Validation expressions and visible expressions are used to finetune forms.
 Validation expressions must be valid javascript.
 Validation expression must return null, otherwise will show error message and prevents insert/update.
 Visible expressions must return true, otherwise column stays hidden in user interface.
@@ -161,7 +161,7 @@ In case javascript throws an exception, this is show in user interface/error mes
 
 Example:
 
-| tableName | columnName | type | key | validationExpression                             | visibleExpression  |
+| tableName | columnName | type | key | validation                                       | visible            |
 |-----------|------------|------|-----|--------------------------------------------------|--------------------|
 | person    | id         |      | 1   |                                                  |                    |
 | person    | birth      | date |     | if(birth > death) 'birth should be before death' |                    |

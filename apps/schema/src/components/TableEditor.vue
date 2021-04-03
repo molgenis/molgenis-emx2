@@ -5,7 +5,7 @@
       style="display: inline-block; text-transform: none !important"
       :style="table.drop ? 'text-decoration: line-through' : ''"
     >
-      <InputString v-model="table.name" inplace="true" />
+      <InputString v-model="table.name" :inplace="true" />
     </h4>
     <IconDanger icon="trash" @click="deleteTable" class="btn-sm hoverIcon" />
     <ButtonAction @click="formedit = true" class="hoverIcon float-right">
@@ -13,7 +13,7 @@
     </ButtonAction>
     <div v-if="!table.drop">
       <label>Inherits: </label>
-      <InputString v-model="table.inherit" inplace="true" />
+      <InputString v-model="table.inherit" :inplace="true" />
       <br />
       <label>Description: </label>
       <InputString class="ml-1" v-model="table.description" :inplace="true" />
@@ -62,7 +62,6 @@
             v-model="table.columns[columnIndex]"
             :schema="schema"
             :columnIndex="columnIndex"
-            needsRefBackColumn="needsRefBackColumn"
           />
         </Draggable>
       </table>
@@ -152,7 +151,6 @@ export default {
       }
     },
     emitValue() {
-      console.log("emit(table) " + JSON.stringify(table));
       this.$emit("input", this.table);
     },
     createColumn() {

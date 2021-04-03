@@ -19,4 +19,5 @@ export default [
   "DATETIME_ARRAY",
   "UUID_ARRAY",
   "TEXT_ARRAY",
+    "CONSTANT"
 ];

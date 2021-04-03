@@ -40,6 +40,10 @@ public class PetStoreExample {
             .add(column(NAME).setDescription("the name").setPkey())
             .add(column(CATEGORY_COLUMN).setType(REF).setRefTable(CATEGORY).setRequired(true))
             .add(column("photoUrls").setType(STRING_ARRAY))
+            .add(
+                column("details")
+                    .setType(CONSTANT)
+                    .setDescription("<h1>Details:</h1>")) // add a layout element
             .add(column(STATUS)) // todo enum: available, pending, sold
             .add(column("tags").setType(REF_ARRAY).setRefTable(TAG))
             .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
@@ -52,12 +56,11 @@ public class PetStoreExample {
             .add(
                 column(QUANTITY)
                     .setType(INT)
-                    .setValidationExpression(
-                        "if(value<1)'Must be larger than 1'")) // todo: validation >=1
+                    .setValidation("if(value<1)'Must be larger than 1'")) // todo: validation >=1
             .add(
                 column(PRICE)
                     .setType(DECIMAL)
-                    .setValidationExpression(
+                    .setValidation(
                         "if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
@@ -74,7 +77,7 @@ public class PetStoreExample {
             .add(column("lastName"))
             .add(
                 column(EMAIL)
-                    .setValidationExpression(
+                    .setValidation(
                         "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
             .add(column("password")) // todo: password type
             .add(column("phone")) // todo: validation phone

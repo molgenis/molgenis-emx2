@@ -1,4 +1,4 @@
-tableName,entity,dataType,refEntity,idAttribute,nillable,enumOptions,rangeMin,rangeMax,lookupAttribute,labelAttribute,readOnly,aggregateable,visible,unique,partOfAttribute,expression,validationExpression
+tableName,entity,dataType,refEntity,idAttribute,nillable,enumOptions,rangeMin,rangeMax,lookupAttribute,labelAttribute,readOnly,aggregateable,visible,unique,partOfAttribute,expression,validation
 value,TypeTestRef,string,,TRUE,FALSE,,,,TRUE,,,,,,,,
 label,TypeTestRef,string,,FALSE,FALSE,,,,TRUE,TRUE,,,,,,,
 id,org_molgenis_test_TypeTest,int,,TRUE,FALSE,,,,,,TRUE,,,,,,

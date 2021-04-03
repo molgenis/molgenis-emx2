@@ -14,7 +14,11 @@
       <ButtonAlt @click="hideAll">hide all</ButtonAlt>
 
       <div>
-        <div class="form-check" v-for="(col, key) in columns" :key="key">
+        <div
+          class="form-check"
+          v-for="(col, key) in columnsWithoutConstant"
+          :key="key"
+        >
           <input
             class="form-check-input"
             type="checkbox"
@@ -48,6 +52,11 @@ export default {
     icon: String,
     checkAttribute: String,
     defaultValue: { type: Boolean, default: false },
+  },
+  computed: {
+    columnsWithoutConstant() {
+      return this.columns.filter((c) => c.columnType != "CONSTANT");
+    },
   },
   methods: {
     value(col) {

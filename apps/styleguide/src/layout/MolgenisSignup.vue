@@ -12,19 +12,19 @@
           v-model="email"
           label="Email address"
           placeholder="Enter valid email address"
-          help="Please enter your email address"
+          description="Please enter your email address"
         />
         <InputPassword
           v-model="password"
           label="Password"
           placeholder="Enter password"
-          help="Please enter the password"
+          description="Please enter the password"
         />
         <InputPassword
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
-          help="Please enter the password again"
+          description="Please enter the password again"
           @keyup.enter="signup"
         />
       </LayoutForm>

@@ -10,13 +10,13 @@
           v-model="password"
           label="Password"
           placeholder="Enter password"
-          help="Please enter the password"
+          description="Please enter the password"
         />
         <InputPassword
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
-          help="Please enter the password again"
+          description="Please enter the password again"
         />
       </LayoutForm>
     </template>

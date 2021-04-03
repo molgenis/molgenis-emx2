@@ -2,77 +2,65 @@
   <div v-if="table">
     <div class="row">
       <div class="col">
-        <h2>Form preview</h2>
-        <h1>
-          <InputString v-model="table.name" :inplace="true"></InputString>
-        </h1>
+        <h2>Preview</h2>
+        <form>
+          <Draggable :list="table.columns">
+            <div
+              v-for="(column, idx) in table.columns"
+              :key="column.name + changetime"
+              class="column-hover"
+            >
+              <div v-if="column.name != 'mg_tableclass'">
+                <span class="float-right">
+                  <IconAction
+                    icon="cog"
+                    class="hoverIcon"
+                    @click="
+                      selectedColumn = column;
+                      selectedColumnName = selectedColumn.name;
+                      if (!selectedColumn.oldName) {
+                        selectedColumn.oldName = selectedColumn.name;
+                      }
+                    "
+                  />
+                  <IconAction
+                    icon="trash"
+                    class="mr-2 hoverIcon"
+                    @click="
+                      column.drop = true;
+                      table.columns = table.columns.filter(
+                        (c) => c.name != column.name
+                      );
+                    "
+                  />
+                </span>
+                <div v-if="visible(column.visible)">
+                  <RowFormInput
+                    v-model="example[column.name]"
+                    :label="column.name ? column.name : 'please edit name'"
+                    :description="column.description"
+                    :columnType="column.columnType"
+                    :refTable="column.refTable"
+                    :required="column.required"
+                    :errorMessage="errorPerColumn[column.name]"
+                    class="pl-2 pr-2"
+                  />
+                </div>
+                <p v-else>{{ column.name }} is invisible</p>
+              </div>
+            </div>
+          </Draggable>
+        </form>
         <IconAction
           icon="plus"
           class="mr-2"
           @click="
-            selectedColumn = { name: 'new column' };
+            selectedColumn = { name: 'new' + Math.round(Math.random() * 100) };
             selectedColumn.columnType = 'STRING';
-            table.columns.splice(idx + 1, 0, selectedColumn);
+            table.columns.push(selectedColumn);
             selectedColumnName = selectedColumn.name;
           "
         />
-        <Draggable :list="table.columns">
-          <div
-            v-for="(column, idx) in table.columns"
-            :key="JSON.stringify(column)"
-            class="column-hover"
-          >
-            <div v-if="column.name != 'mg_tableclass'">
-              <span class="float-right">
-                <IconAction
-                  icon="cog"
-                  class="hoverIcon"
-                  @click="
-                    selectedColumn = column;
-                    selectedColumnName = selectedColumn.name;
-                    if (!selectedColumn.oldName) {
-                      selectedColumn.oldName = selectedColumn.name;
-                    }
-                  "
-                />
-                <IconAction
-                  icon="plus"
-                  class="mr-2 hoverIcon"
-                  @click="
-                    selectedColumn = { name: 'new column' };
-                    selectedColumn.columnType = 'STRING';
-                    table.columns.splice(idx + 1, 0, selectedColumn);
-                    selectedColumnName = selectedColumn.name;
-                  "
-                />
-                <IconAction
-                  icon="trash"
-                  class="mr-2 hoverIcon"
-                  @click="
-                    column.drop = true;
-                    table.columns.splice(idx + 1, 0, selectedColumn);
-                  "
-                />
-              </span>
-              <div v-if="visible(column.visibleExpression)">
-                <RowFormInput
-                  v-model="example[column.name]"
-                  :label="column.name ? column.name : 'please edit name'"
-                  :help="column.description"
-                  :columnType="column.columnType"
-                  :refTable="column.refTable"
-                  :required="column.required"
-                  :errorMessage="errorPerColumn[column.name]"
-                  class="pl-2 pr-2"
-                  :class="{
-                    'border border-primary': column.name == selectedColumnName,
-                  }"
-                />
-              </div>
-              <p v-else>{{ column.name }} is invisible</p>
-            </div>
-          </div>
-        </Draggable>
       </div>
       <div v-if="selectedColumnName" class="col">
         <form>
@@ -93,6 +81,7 @@
             :table="table"
             :tables="tables"
             :key="selectedColumnName"
+            @update="changed"
           />
         </form>
       </div>
@@ -163,6 +152,7 @@ export default {
       selectedColumn: null,
       selectedColumnName: null,
       errorPerColumn: {},
+      changetime: Date.now(),
     };
   },
   computed: {
@@ -174,11 +164,15 @@ export default {
     },
   },
   methods: {
+    changed() {
+      console.log("changed");
+      this.changetime = Date.now();
+    },
     eval(expression) {
       try {
         return eval("(function (row) { " + expression + "})")(this.example); // eslint-disable-line
       } catch (e) {
-        return "Script graphqlError contact admin: " + e.message;
+        return "Error in validation script: " + e.message;
       }
     },
     visible(expression) {
@@ -210,13 +204,11 @@ export default {
           // when validation
           if (
             typeof this.example[column.name] !== "undefined" &&
-            typeof column.validationExpression !== "undefined"
+            typeof column.validation !== "undefined"
           ) {
             let value = this.example[column.name]; //used for eval, two lines below
             this.errorPerColumn[column.name] = value; //dummy assign
-            this.errorPerColumn[column.name] = this.eval(
-              column.validationExpression
-            );
+            this.errorPerColumn[column.name] = this.eval(column.validation);
           }
         }
       });

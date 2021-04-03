@@ -88,7 +88,7 @@ Example with defaultValue
         label="Animals"
         v-model="value"
         :options="['lion', 'ape', 'monkey']"
-        help="some help here"
+        description="some help here"
     />
     Selected: {{ value }}
   </div>

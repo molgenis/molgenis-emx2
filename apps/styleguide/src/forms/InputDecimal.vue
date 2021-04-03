@@ -34,43 +34,43 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <InputDecimal v-model="value" label="My decimal input label" help="Some help needed?"/>
-            <br/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example with list
-    ```
-    <template>
-        <div>
-            <InputDecimal :list="true" v-model="value" label="My decimal input label" help="Some help needed?"/>
-            You typed: {{value}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <InputDecimal v-model="value" label="My decimal input label" description="Some help needed?"/>
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+Example with list
+```
+<template>
+  <div>
+    <InputDecimal :list="true" v-model="value" label="My decimal input label" description="Some help needed?"/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
 
 
 </docs>

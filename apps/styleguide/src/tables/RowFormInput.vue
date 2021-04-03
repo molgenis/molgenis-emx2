@@ -1,7 +1,14 @@
 <template>
   <div>
+    <span
+      v-if="columnType === 'CONSTANT' && description"
+      v-html="stripHtml(description)"
+    />
+    <span v-else-if="columnType === 'CONSTANT'">
+      CONSTANT type is empty. Please set text or html in 'description'.
+    </span>
     <InputString
-      v-if="columnType === 'STRING'"
+      v-else-if="columnType === 'STRING'"
       v-bind="$props"
       v-model="input"
     />
@@ -92,6 +99,7 @@ export default {
   props: {
     schema: String,
     columnType: String,
+    description: String,
     filter: Object,
     table: String,
     refLabel: String,
@@ -104,6 +112,15 @@ export default {
     return {
       input: null,
     };
+  },
+  methods: {
+    stripHtml(input) {
+      if (input) {
+        return input.replace(/(<\/?(?:h1|h2|p|label|a)[^>]*>)|<[^>]+>/gi, "$1");
+      } else {
+        return input;
+      }
+    },
   },
   components: {
     InputString,

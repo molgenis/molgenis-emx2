@@ -83,7 +83,7 @@ class SqlTable implements Table {
                         + "\n");
                 for (Row row : rows) {
                   StringBuilder line = new StringBuilder();
-                  for (Column c : this.getMetadata().getLocalColumns()) {
+                  for (Column c : this.getMetadata().getStoredColumns()) {
                     if (!row.containsName(c.getName())) {
                       line.append(",");
                     } else {
@@ -404,7 +404,7 @@ class SqlTable implements Table {
       List<Condition> rowCondition = new ArrayList<>();
       if (getMetadata().getPrimaryKeys().isEmpty()) {
         // when no key, use all columns as id
-        for (Column keyPart : getMetadata().getLocalColumns()) {
+        for (Column keyPart : getMetadata().getStoredColumns()) {
           rowCondition.add(getColumnCondition(r, keyPart));
         }
       } else {

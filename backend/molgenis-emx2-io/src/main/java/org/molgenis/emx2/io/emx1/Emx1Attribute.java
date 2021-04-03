@@ -15,8 +15,8 @@ public class Emx1Attribute {
   private boolean aggregateable = false;
   private boolean labelAttribute = false;
   private boolean readonly = false;
-  private String validationExpression;
-  private String visibleExpression;
+  private String validation;
+  private String visible;
   private String defaultValue;
   private String partOfAttribute;
   private String refEntity;
@@ -51,8 +51,8 @@ public class Emx1Attribute {
     if (row.getBoolean("labelAttribute") != null)
       this.labelAttribute = row.getBoolean("labelAttribute");
     if (row.getBoolean("readonly") != null) this.readonly = row.getBoolean("readonly");
-    this.validationExpression = get(row, "validationExpression");
-    this.visibleExpression = get(row, "visibleExpression");
+    this.validation = get(row, "validation");
+    this.visible = get(row, "visible");
     this.defaultValue = get(row, "defaultValue");
     this.partOfAttribute = get(row, "partOfAttribute");
     this.refEntity = get(row, "refEntity");
@@ -112,8 +112,8 @@ public class Emx1Attribute {
     return readonly;
   }
 
-  public String getValidationExpression() {
-    return validationExpression;
+  public String getValidation() {
+    return validation;
   }
 
   public String getDefaultValue() {
@@ -140,8 +140,8 @@ public class Emx1Attribute {
     return rangeMax;
   }
 
-  public String getVisibleExpression() {
-    return visibleExpression;
+  public String getVisible() {
+    return visible;
   }
 
   public String getRefBack() {
@@ -188,12 +188,12 @@ public class Emx1Attribute {
     this.readonly = readonly;
   }
 
-  public void setValidationExpression(String validationExpression) {
-    this.validationExpression = validationExpression;
+  public void setValidation(String validation) {
+    this.validation = validation;
   }
 
-  public void setVisibleExpression(String visibleExpression) {
-    this.visibleExpression = visibleExpression;
+  public void setVisible(String visible) {
+    this.visible = visible;
   }
 
   public void setDefaultValue(String defaultValue) {
@@ -239,8 +239,8 @@ public class Emx1Attribute {
     r.set("labelAttribute", labelAttribute); // not supported by design
     r.set("defaultValue", defaultValue);
     r.set("expression", expression);
-    r.set("validationExpression", validationExpression);
-    r.set("visibleExpression", visibleExpression);
+    r.set("validation", validation);
+    r.set("visible", visible);
     r.set("rangeMin", rangeMin); // not supported by design
     r.set("rangeMax", rangeMax); // not supported by design
     return r;

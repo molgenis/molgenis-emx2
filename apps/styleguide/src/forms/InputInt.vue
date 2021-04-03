@@ -33,46 +33,46 @@ export default {
 </script>
 
 <docs>
-    Example
-    ```
-    <template>
-        <div>
-            <LayoutForm>
-                <InputInt v-model="value" label="My int input label" help="Some help needed?"/>
-            </LayoutForm>
-            <br/>
-            You typed: {{JSON.stringify(value)}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
-    Example list
-    ```
-    <template>
-        <div>
-            <LayoutForm>
-                <InputInt :list="true" v-model="value" label="My int input label" help="Some help needed?"/>
-            </LayoutForm>
-            <br/>
-            You typed: {{JSON.stringify(value)}}
-        </div>
-    </template>
-    <script>
-        export default {
-            data: function () {
-                return {
-                    value: null
-                };
-            }
-        };
-    </script>
-    ```
+Example
+```
+<template>
+  <div>
+    <LayoutForm>
+      <InputInt v-model="value" label="My int input label" description="Some help needed?"/>
+    </LayoutForm>
+    <br/>
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+Example list
+```
+<template>
+  <div>
+    <LayoutForm>
+      <InputInt :list="true" v-model="value" label="My int input label" description="Some help needed?"/>
+    </LayoutForm>
+    <br/>
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
 </docs>

@@ -2,8 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
@@ -44,18 +43,22 @@ class SqlTableMetadata extends TableMetadata {
                             + ": column exists in inherited class "
                             + getInherit());
                   }
-                  validateColumn(newColumn);
-                  updatePositions(newColumn, this);
-                  executeCreateColumn(getJooq(), newColumn);
-                  super.add(newColumn);
-                  if (newColumn.getKey() > 0) {
-                    createOrReplaceKey(
-                        getJooq(),
-                        newColumn.getTable(),
-                        newColumn.getKey(),
-                        newColumn.getTable().getKeyFields(newColumn.getKey()));
+                  if (!CONSTANT.equals(newColumn.getColumnType())) {
+                    validateColumn(newColumn);
+                    updatePositions(newColumn, this);
+                    executeCreateColumn(getJooq(), newColumn);
+                    super.add(newColumn);
+                    if (newColumn.getKey() > 0) {
+                      createOrReplaceKey(
+                          getJooq(),
+                          newColumn.getTable(),
+                          newColumn.getKey(),
+                          newColumn.getTable().getKeyFields(newColumn.getKey()));
+                    }
+                    executeCreateRefConstraints(getJooq(), newColumn);
+                  } else {
+                    super.add(newColumn);
                   }
-                  executeCreateRefConstraints(getJooq(), newColumn);
                   log(
                       start,
                       "added column '" + newColumn.getName() + "' to table " + getTableName());
@@ -77,7 +80,7 @@ class SqlTableMetadata extends TableMetadata {
                 DSLContext jooq = ((SqlDatabase) dsl).getJooq();
 
                 // drop triggers for this table
-                for (Column column : getLocalColumns()) {
+                for (Column column : getStoredColumns()) {
                   SqlColumnExecutor.executeRemoveRefConstraints(jooq, column);
                 }
 
@@ -89,7 +92,7 @@ class SqlTableMetadata extends TableMetadata {
                 super.alterName(newName);
 
                 // recreate triggers for this table
-                for (Column column : getLocalColumns()) {
+                for (Column column : getStoredColumns()) {
                   SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
                 }
 

@@ -59,7 +59,7 @@ export default {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
             result = result + " " + col.name + "{id,size,extension,url}";
-          } else {
+          } else if (col.columnType != "CONSTANT") {
             result = result + " " + col.name;
           }
         });
