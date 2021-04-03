@@ -171,7 +171,7 @@ public class SqlColumnExecutor {
         && (REF.equals(newColumn.getColumnType()) || REF_ARRAY.equals(newColumn.getColumnType()))) {
       for (Column check : oldColumn.getRefTable().getColumns()) {
         if (REFBACK.equals(check.getColumnType())
-            && oldColumn.getName().equals(check.getMappedBy())) {
+            && oldColumn.getName().equals(check.getRefBack())) {
           check.getTable().dropColumn(check.getName());
           check.getTable().add(check);
         }
@@ -185,7 +185,7 @@ public class SqlColumnExecutor {
             || REF_ARRAY.equals(newColumn.getColumnType()))) {
       for (Column check : oldColumn.getRefTable().getColumns()) {
         if (REFBACK.equals(check.getColumnType())
-            && oldColumn.getName().equals(check.getMappedBy())) {
+            && oldColumn.getName().equals(check.getRefBack())) {
           check.getTable().dropColumn(check.getName());
         }
       }
@@ -257,7 +257,7 @@ public class SqlColumnExecutor {
               + c.getTableName()
               + "."
               + c.getName()
-              + "' failed: 'refTable' required for columns of type ref, ref_array, refback and mref  ");
+              + "' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK");
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {

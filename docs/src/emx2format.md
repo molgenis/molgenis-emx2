@@ -105,10 +105,10 @@ A simple reference:
 | Pet       | owner      | ref  |     | Person   | TRUE     | foreign key to Person     |
 Note: when key=1 then automatically required=TRUE
 
-### mappedBy
-In case you want to create a two-directional relationship you can use columnType=refack + mappedBy.
-The mappedBy should then refer to a column in refTable that is of columnType=ref or columnType=ref_array and refers to this table.
-A refback+mappedBy column behaves as a ref_array, but is in fact either many_to_many or many_to_one, depending if the mappedBy is ref or ref_array.
+### refBack
+In case you want to create a two-directional relationship you can use columnType=refback + refBack=aColumnName.
+The refBack should then refer to a column in refTable that is of columnType=ref or columnType=ref_array and refers to this table.
+A refback column behaves as a ref_array, but is in fact either many_to_many or many_to_one, depending if the refback is ref or ref_array.
 Refback columns are readonly (i.e. you cannot insert/update data in these columns).
 See example below.
 
@@ -121,7 +121,7 @@ See example below:
 
 Example of complex relationships:
 
-| tableName | columName  | type    | key | refTable | refFrom         | refTo              | mappedBy | required | description                 |
+| tableName | columName  | type    | key | refTable | refFrom         | refTo              | refBack | required | description                 |
 |-----------|------------|---------|-----|----------|-----------------|--------------------|----------|----------|-----------------------------|
 | Person    |            |         |     |          |                 |                    |          |          | my person table             |      
 | Person    | firstName  |         | 1   |          |                 |                    |          |          |                             |

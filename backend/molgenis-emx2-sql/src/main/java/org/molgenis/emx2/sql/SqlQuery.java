@@ -81,7 +81,7 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
-        // currently we don't download refback (good) and files (that is bad)
+        // currently we don't download refBack (good) and files (that is bad)
         if (FILE.equals(c.getColumnType())) {
           select.select(c.getName());
         } else if (!REFBACK.equals(c.getColumnType())) {
@@ -90,7 +90,7 @@ public class SqlQuery extends QueryBean {
               select.select(ref.getName());
             }
           } else {
-            // don't include refback or files
+            // don't include refBack or files
             select.select(c.getName());
           }
         }
@@ -195,9 +195,9 @@ public class SqlQuery extends QueryBean {
   private static Field<Object[]> rowMrefSubselect(Column column, String tableAlias) {
     Column reverseToColumn = column.getTable().getPrimaryKeyColumns().get(0);
     // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
-    // mappedBy
+    // refBack
     for (Column c : column.getRefTable().getColumns()) {
-      if (column.getName().equals(c.getMappedBy())) {
+      if (column.getName().equals(c.getRefBack())) {
         reverseToColumn = c;
         break;
       }
@@ -212,15 +212,15 @@ public class SqlQuery extends QueryBean {
 
   private static SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
       Column column, String tableAlias) {
-    Column mappedBy = column.getMappedByColumn();
+    Column refBack = column.getRefBackColumn();
     List<Condition> where = new ArrayList<>();
 
     // might be composite
-    for (Reference ref : mappedBy.getReferences()) {
-      switch (mappedBy.getColumnType()) {
+    for (Reference ref : refBack.getReferences()) {
+      switch (refBack.getColumnType()) {
         case REF:
           where.add(
-              field(name(mappedBy.getTable().getTableName(), ref.getName()))
+              field(name(refBack.getTable().getTableName(), ref.getName()))
                   .eq(field(name(tableAlias, ref.getRefTo()))));
           break;
         case REF_ARRAY:
@@ -228,7 +228,7 @@ public class SqlQuery extends QueryBean {
               condition(
                   ANY_SQL,
                   field(name(tableAlias, ref.getRefTo())),
-                  field(name(mappedBy.getTable().getTableName(), ref.getName()))));
+                  field(name(refBack.getTable().getTableName(), ref.getName()))));
           break;
         default:
           throw new MolgenisException(
@@ -236,7 +236,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return DSL.select(column.getRefTable().getPrimaryKeyFields())
-        .from(name(mappedBy.getSchemaName(), mappedBy.getTableName()))
+        .from(name(refBack.getSchemaName(), refBack.getTableName()))
         .where(where);
   }
 
@@ -410,40 +410,20 @@ public class SqlQuery extends QueryBean {
                   conditions.add(
                       exists(selectFrom(jooq.select(unnest).asTable().naturalJoin(subQuery))));
                 }
-              } else
-              //                if (MREF.equals(c.getColumnType())
-              //                  || (REFBACK.equals(c.getColumnType())
-              //                      && MREF.equals(c.getMappedByColumn().getColumnType()))) {
-              //                // (pkey) in (junctionTable natural join filterQuery)
-              //                List<Field> pkey =
-              //                    c.getTable().getPrimaryKeyColumns().stream()
-              //                        .map(Column::getJooqField)
-              //                        .collect(Collectors.toList());
-              //                Table joinTable = table(name(column.getTableName() + "-" +
-              // column.getName()));
-              //                if (REFBACK.equals(c.getColumnType())) {
-              //                  joinTable = table(name(c.getRefTableName() + "-" +
-              // c.getMappedBy()));
-              //                }
-              //                conditions.add(
-              //                    row(pkey)
-              //
-              // .in(table.getJooq().select(pkey).from(joinTable).naturalJoin(subQuery)));
-              //              } else
-              if (REFBACK.equals(c.getColumnType())) {
-                Column mappedBy = c.getMappedByColumn();
+              } else if (REFBACK.equals(c.getColumnType())) {
+                Column refBack = c.getRefBackColumn();
                 List<Field> pkey =
                     c.getTable().getPrimaryKeyFields().stream().collect(Collectors.toList());
                 List<Field> backRef =
-                    c.getMappedByColumn().getReferences().stream()
+                    c.getRefBackColumn().getReferences().stream()
                         .map(Reference::getJooqField)
                         .collect(Collectors.toList());
                 List<Field> backRefKey =
-                    c.getMappedByColumn().getTable().getPrimaryKeyFields().stream()
+                    c.getRefBackColumn().getTable().getPrimaryKeyFields().stream()
                         .collect(Collectors.toList());
                 // can be ref, ref_array (mref is checked above)
-                if (REF.equals(mappedBy.getColumnType())) {
-                  // pkey in (backref from mappedByTable where backrefKey in subquery)
+                if (REF.equals(refBack.getColumnType())) {
+                  // pkey in (backref from refBack table where backrefKey in subquery)
                   conditions.add(
                       row(pkey)
                           .in(
@@ -457,7 +437,7 @@ public class SqlQuery extends QueryBean {
                       row(pkey)
                           .in(
                               jooq.select(
-                                      c.getMappedByColumn().getReferences().stream()
+                                      c.getRefBackColumn().getReferences().stream()
                                           .map(
                                               bref ->
                                                   bref.isOverlapping()
@@ -915,18 +895,18 @@ public class SqlQuery extends QueryBean {
         foreignKeyMatch.add(row(to).in(DSL.select(unnest)));
       }
     } else if (REFBACK.equals(column.getColumnType())) {
-      Column mappedBy = column.getMappedByColumn();
-      if (REF.equals(mappedBy.getColumnType())) {
+      Column refBack = column.getRefBackColumn();
+      if (REF.equals(refBack.getColumnType())) {
         foreignKeyMatch.addAll(
-            mappedBy.getReferences().stream()
+            refBack.getReferences().stream()
                 .map(
                     ref ->
                         field(name(subAlias, ref.getName()))
                             .eq(field(name(tableAlias, ref.getRefTo()))))
                 .collect(Collectors.toList()));
-      } else if (REF_ARRAY.equals(mappedBy.getColumnType())) {
+      } else if (REF_ARRAY.equals(refBack.getColumnType())) {
         foreignKeyMatch.addAll(
-            mappedBy.getReferences().stream()
+            refBack.getReferences().stream()
                 .map(
                     ref ->
                         ref.isOverlapping() && ref.getOverlapping().getColumnType().equals(REF)

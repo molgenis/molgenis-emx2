@@ -45,24 +45,24 @@
       <InputSelect
         v-if="
           (column.columnType == 'REF' || column.columnType == 'REF_ARRAY') &&
-          reflinkCandidates(tableName, column.name).length > 0
+          refLinkCandidates(tableName, column.name).length > 0
         "
         label="refLink"
         v-model="column.refLink"
-        :options="reflinkCandidates(tableName, column.name)"
+        :options="refLinkCandidates(tableName, column.name)"
         :inplace="true"
       />
       <span v-else class="text-muted small">n/a</span>
     </td>
-    <td v-if="needsMappedByColumn">
+    <td>
       <InputSelect
         v-if="
           column.columnType == 'REFBACK' &&
-          refbackCandidates(column.refTable, tableName).length > 1
+          refBackCandidates(column.refTable, tableName).length > 1
         "
-        label="mappedBy"
-        v-model="column.mappedBy"
-        :options="refbackCandidates(column.refTable, tableName)"
+        label="refBack"
+        v-model="column.refBack"
+        :options="refBackCandidates(column.refTable, tableName)"
         :inplace="true"
       />
       <span v-else class="text-muted small">n/a</span>
@@ -120,7 +120,7 @@ export default {
     tableName: String,
     columnIndex: Number,
     schema: Object,
-    needsMappedByColumn: Boolean,
+    needsRefBackColumn: Boolean,
   },
   methods: {
     tableNames() {
@@ -135,14 +135,14 @@ export default {
       }
       this.timestamp = Date.now();
     },
-    refbackCandidates(fromTable, toTable) {
+    refBackCandidates(fromTable, toTable) {
       return this.schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
     },
-    reflinkCandidates(tableName, columnName) {
+    refLinkCandidates(tableName, columnName) {
       let result = this.schema.tables
         .filter((t) => t.name === tableName)
         .map((t) => t.columns)[0];

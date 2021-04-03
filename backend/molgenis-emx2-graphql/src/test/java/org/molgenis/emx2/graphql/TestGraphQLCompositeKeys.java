@@ -57,10 +57,10 @@ public class TestGraphQLCompositeKeys {
             + "  }\n"
             + "}");
 
-    // add refback (TODO unfortunately cannot yet do that in one call)
+    // add refBack (TODO unfortunately cannot yet do that in one call)
     execute(
-        "mutation {change(columns: [{table: \"TargetTable\" name: \"refbacks\" columnType:"
-            + " \"REFBACK\" refTable: \"RefTable\" mappedBy: \"ref\"}]) {message}}");
+        "mutation {change(columns: [{table: \"TargetTable\" name: \"refBacks\" columnType:"
+            + " \"REFBACK\" refTable: \"RefTable\" refBack: \"ref\"}]) {message}}");
 
     // have to reload graphql
     grapql =
@@ -92,9 +92,9 @@ public class TestGraphQLCompositeKeys {
     assertEquals("Donald", result.at("/RefTable/0/ref/0/firstName").asText());
     assertEquals("Duck", result.at("/RefTable/0/ref/0/lastName").asText());
 
-    // update via refback, only id1=3,id2=1 should now refer to Donald,Duck
+    // update via refbBack, only id1=3,id2=1 should now refer to Donald,Duck
     execute(
-        "mutation{update(TargetTable:[{firstName:\"Donald\",lastName:\"Duck\", refbacks:[{id1:3,id2:\"a\"}]}]){message}}");
+        "mutation{update(TargetTable:[{firstName:\"Donald\",lastName:\"Duck\", refBacks:[{id1:3,id2:\"a\"}]}]){message}}");
 
     String filter = "(filter:{ref:{equals:{firstName:\"Donald\",lastName:\"Duck\"}}})";
     result =

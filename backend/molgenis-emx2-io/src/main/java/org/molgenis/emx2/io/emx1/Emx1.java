@@ -79,15 +79,12 @@ public class Emx1 {
         String refTableName = getTableName(entities, attribute.getRefEntity());
 
         Column c = table.getColumn(attribute.getName()).setRefTable(refTableName);
-        if (attribute.getDataType().contains(ONETOMANY) && attribute.getMappedBy() == null) {
+        if (attribute.getDataType().contains(ONETOMANY) && attribute.getRefBack() == null) {
           throw new MolgenisException(
-              "mappedBy missing for attribute "
-                  + attribute.getEntity()
-                  + "."
-                  + attribute.getName());
+              "refBack missing for attribute " + attribute.getEntity() + "." + attribute.getName());
         }
-        if (attribute.getMappedBy() != null) {
-          c.setMappedBy(attribute.getMappedBy());
+        if (attribute.getRefBack() != null) {
+          c.setRefBack(attribute.getRefBack());
         }
         table.alterColumn(c);
       }

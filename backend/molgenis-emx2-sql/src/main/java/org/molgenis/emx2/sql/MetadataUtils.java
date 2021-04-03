@@ -61,8 +61,8 @@ public class MetadataUtils {
       field(name("ref_link"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_REF_LABEL =
       field(name("refLabel"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_MAPPED_BY =
-      field(name("mappedBy"), VARCHAR.nullable(true));
+  private static final org.jooq.Field COLUMN_REF_BACK =
+      field(name("refBack"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_VALIDATION =
       field(name("validation"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_COMPUTED =
@@ -168,7 +168,7 @@ public class MetadataUtils {
           COLUMN_REF_TABLE,
           COLUMN_REF_LINK,
           COLUMN_REF_LABEL,
-          COLUMN_MAPPED_BY,
+          COLUMN_REF_BACK,
           COLUMN_VALIDATION,
           COLUMN_COMPUTED,
           COLUMN_INDEXED,
@@ -335,7 +335,7 @@ public class MetadataUtils {
             COLUMN_REF_TABLE,
             COLUMN_REF_LINK,
             COLUMN_REF_LABEL,
-            COLUMN_MAPPED_BY,
+            COLUMN_REF_BACK,
             COLUMN_VALIDATION,
             COLUMN_COMPUTED,
             COLUMN_INDEXED,
@@ -356,7 +356,7 @@ public class MetadataUtils {
             column.getRefTableName(),
             column.getRefLink(),
             column.getRefLabelIfSet(),
-            column.getMappedBy(),
+            column.getRefBack(),
             column.getValidationExpression(),
             column.getComputed(),
             column.isIndexed(),
@@ -375,7 +375,7 @@ public class MetadataUtils {
         .set(COLUMN_REF_TABLE, column.getRefTableName())
         .set(COLUMN_REF_LINK, column.getRefLink())
         .set(COLUMN_REF_LABEL, column.getRefLabelIfSet())
-        .set(COLUMN_MAPPED_BY, column.getMappedBy())
+        .set(COLUMN_REF_BACK, column.getRefBack())
         .set(COLUMN_VALIDATION, column.getValidationExpression())
         .set(COLUMN_COMPUTED, column.getComputed())
         .set(COLUMN_INDEXED, column.isIndexed())
@@ -453,7 +453,7 @@ public class MetadataUtils {
     c.setRefTable(col.get(COLUMN_REF_TABLE, String.class));
     c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setRefLabel(col.get(COLUMN_REF_LABEL, String.class));
-    c.setMappedBy(col.get(COLUMN_MAPPED_BY, String.class));
+    c.setRefBack(col.get(COLUMN_REF_BACK, String.class));
     c.setValidationExpression(col.get(COLUMN_VALIDATION, String.class));
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));

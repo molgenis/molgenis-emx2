@@ -60,7 +60,7 @@ public class TestRefBack {
     // add refback, Table Parts(partname,products->refback(product))
     parts
         .getMetadata()
-        .add(column("products").setType(REFBACK).setRefTable("Products").setMappedBy("parts"));
+        .add(column("products").setType(REFBACK).setRefTable("Products").setRefBack("parts"));
 
     // use refback to update indirectly
     parts.update(new Row().set("partname", "bigscreen").set("products", "bigphone"));
@@ -180,7 +180,7 @@ public class TestRefBack {
 
     users
         .getMetadata()
-        .add(column("posts").setType(REFBACK).setRefTable(posts.getName()).setMappedBy("user"));
+        .add(column("posts").setType(REFBACK).setRefTable(posts.getName()).setRefBack("user"));
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));

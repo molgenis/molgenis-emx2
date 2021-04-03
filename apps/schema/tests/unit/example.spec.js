@@ -47,9 +47,9 @@ test("test schema", async () => {
   // Fill //div[normalize-space(.)='Clear']/input
   await page.fill("//div[normalize-space(.)='Clear']/input", "tablex");
 
-  // Click //thead[normalize-space(.)='columnNamecolumnTypekeyrequiredrefTable mappedBy refLinkjsonldTypedescription']/th[1]/button/i
+  // Click //thead[normalize-space(.)='columnNamecolumnTypekeyrequiredrefTable refBack refLinkjsonldTypedescription']/th[1]/button/i
   await page.click(
-    "//thead[normalize-space(.)='columnNamecolumnTypekeyrequiredrefTable mappedBy refLinkjsonldTypedescription']/th[1]/button/i"
+    "//thead[normalize-space(.)='columnNamecolumnTypekeyrequiredrefTable refBack refLinkjsonldTypedescription']/th[1]/button/i"
   );
 
   // Click text="Save"

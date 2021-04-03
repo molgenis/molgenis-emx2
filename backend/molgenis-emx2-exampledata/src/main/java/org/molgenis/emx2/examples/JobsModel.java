@@ -30,9 +30,9 @@ public class JobsModel {
             column("success").setRequired(true),
             column("count").setType(INT).setRequired(true)));
 
-    // refback
+    // refBack
     schema
         .getTableMetadata("Jobs")
-        .add(column("steps").setType(REFBACK).setRefTable("Steps").setMappedBy("job"));
+        .add(column("steps").setType(REFBACK).setRefTable("Steps").setRefBack("job"));
   }
 }

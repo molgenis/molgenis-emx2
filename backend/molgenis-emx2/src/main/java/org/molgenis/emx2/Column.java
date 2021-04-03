@@ -19,10 +19,11 @@ import org.jooq.impl.SQLDataType;
 public class Column {
 
   // basics
-  private TableMetadata table;
+  private TableMetadata table; // table this column is part of
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
-  private ColumnType columnType = STRING;
-  private String columnFormat = null; // influences how data is rendered, in addition to type
+  private ColumnType columnType = STRING; // type of the column
+  private String columnFormat =
+      null; // influences how data is rendered, in addition to type. E.g. hyperlink
 
   // transient for enabling migrations
   @DiffIgnore private String oldName; // use this when wanting to change name
@@ -30,11 +31,10 @@ public class Column {
 
   // relationships
   private String refSchema; // for cross schema references
-  private String refTable;
-  private String refLink; // to allow a reference to depend on another reference.
-  private String refLabel;
-  // for refback
-  private String mappedBy;
+  private String refTable; // table referenced
+  private String refLink; // to allow a reference value to depend on another reference.
+  private String refLabel; // template string influencing how ref value is shown
+  private String refBack; // for REFBACK, indicate the column to be used for linkback
 
   // options
   private String description = null; // long description of the column
@@ -117,7 +117,7 @@ public class Column {
     refTable = column.refTable;
     refLink = column.refLink;
     refSchema = column.refSchema;
-    mappedBy = column.mappedBy;
+    refBack = column.refBack;
     validationExpression = column.validationExpression;
     refLabel = column.refLabel;
     computed = column.computed;
@@ -258,12 +258,12 @@ public class Column {
     return this;
   }
 
-  public String getMappedBy() {
-    return mappedBy;
+  public String getRefBack() {
+    return refBack;
   }
 
-  public Column setMappedBy(String columnName) {
-    this.mappedBy = columnName;
+  public Column setRefBack(String columnName) {
+    this.refBack = columnName;
     return this;
   }
 
@@ -332,8 +332,8 @@ public class Column {
     return this;
   }
 
-  public Column getMappedByColumn() {
-    return getRefTable().getColumn(getMappedBy());
+  public Column getRefBackColumn() {
+    return getRefTable().getColumn(getRefBack());
   }
 
   public DataType getJooqType() {

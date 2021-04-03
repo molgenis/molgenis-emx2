@@ -181,8 +181,8 @@
                     <span v-if="column.refLink">
                       refLink({{ column.refLink }})&nbsp;
                     </span>
-                    <span v-if="column.mappedBy">
-                      mappedBy({{ column.mappedBy }})&nbsp;
+                    <span v-if="column.refBack">
+                      refBack({{ column.refBack }})&nbsp;
                     </span>
                   </td>
                   <td>{{ column.key }}</td>
@@ -324,7 +324,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,required,description,semantics,validationExpression,visibleExpression}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = data._schema.name;

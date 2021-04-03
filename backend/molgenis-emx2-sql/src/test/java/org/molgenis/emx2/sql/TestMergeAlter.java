@@ -20,7 +20,7 @@ public class TestMergeAlter {
   private static final String REF_COLUMN = "ref";
   private static final String REF_ARRAY_TARGET = "RefArrayTarget";
   private static final String REF_ARRAY_TABLE = "RefArrayTable";
-  private static final String REFBACK_COLUMN = "refback";
+  private static final String REFBACK_COLUMN = "refBack";
 
   static Database db;
   static Schema schema;
@@ -50,7 +50,7 @@ public class TestMergeAlter {
             column(REFBACK_COLUMN)
                 .setType(ColumnType.REFBACK)
                 .setRefTable(refTableName)
-                .setMappedBy(REF_COLUMN));
+                .setRefBack(REF_COLUMN));
     newSchema.create(
         table(refTableName)
             .add(column(ID_COLUMN).setPkey())
@@ -73,13 +73,13 @@ public class TestMergeAlter {
       // correct
     }
 
-    // should fail because refback still exists
+    // should fail because refBack still exists
     try {
       schema
           .getTable(refTableName)
           .getMetadata()
           .alterColumn(new Column(REF_COLUMN).setType(STRING));
-      fail("should not be possible to alter ref that has refback");
+      fail("should not be possible to alter ref that has refBack");
     } catch (Exception e) {
       // correct
     }
@@ -89,13 +89,13 @@ public class TestMergeAlter {
           .getTable(refTableName)
           .getMetadata()
           .alterColumn(new Column(REF_COLUMN).setType(STRING));
-      fail("should not be possible to drop ref that has refback");
+      fail("should not be possible to drop ref that has refBack");
     } catch (Exception e) {
       // correct
     }
 
-    // delete refback, than it should work
-    schema.getTable(targetTableName).getMetadata().dropColumn("refback");
+    // delete refBack, than it should work
+    schema.getTable(targetTableName).getMetadata().dropColumn("refBack");
     schema.getTable(refTableName).getMetadata().alterColumn(new Column(REF_COLUMN).setType(STRING));
 
     // this should work
@@ -130,7 +130,7 @@ public class TestMergeAlter {
             new Column(REFBACK_COLUMN)
                 .setType(ColumnType.REFBACK)
                 .setRefTable(refTableName)
-                .setMappedBy(REF_COLUMN));
+                .setRefBack(REF_COLUMN));
 
     // finally check change from ref to ref_array should keep refback
     //    if (REF.equals(refColumnType)) {

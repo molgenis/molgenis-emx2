@@ -116,7 +116,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,mappedBy,required,description,semantics,validationExpression,visibleExpression}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validationExpression,visibleExpression}}}}"
       )
         .then((data) => {
           this.schema = this.addOldNames(data._schema);

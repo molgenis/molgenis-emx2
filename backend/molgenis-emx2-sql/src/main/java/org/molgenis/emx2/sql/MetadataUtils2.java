@@ -35,7 +35,7 @@
 //  private static final String PKEY = "pkey";
 //  private static final String REF_TABLE = "ref_table";
 //  private static final String REF_COLUMN = "ref_column";
-//  private static final String MAPPED_BY = "mappedBy";
+//  private static final String REF_BACK = "refBack";
 //  private static final String VALIDATION_SCRIPT = "validationScript";
 //  private static final String UNIQUE_COLUMNS = "unique_columns";
 //  private static final String INDEXED = "indexed";
@@ -195,7 +195,7 @@
 //    row.set(NULLABLE, column.isNullable());
 //    row.set(REF_TABLE, column.getRefTableName());
 //    row.set(REF_COLUMN, column.getRefColumnNameRaw());
-//    row.set(MAPPED_BY, column.getMappedBy());
+//    row.set(REF_BACK, column.getRefBack());
 //    row.set(VALIDATION_SCRIPT, column.getValidation());
 //    row.set(INDEXED, column.isIndexed());
 //    row.set(COLUMN_DESCRIPTION, column.getDescription());
@@ -262,7 +262,7 @@
 //      c.nullable(col.get(NULLABLE, Boolean.class));
 //      c.refTable(col.get(REF_TABLE, String.class));
 //      c.refColumn(col.get(REF_COLUMN, String.class));
-//      c.mappedBy(col.get(MAPPED_BY, String.class));
+//      c.refBack(col.get(MAPPED_BY, String.class));
 //      c.validation(col.get(VALIDATION_SCRIPT, String.class));
 //      c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
 //      columnList.add(new Column(table, c));

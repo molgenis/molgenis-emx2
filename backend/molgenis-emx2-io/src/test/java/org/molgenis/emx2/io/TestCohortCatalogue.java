@@ -111,7 +111,7 @@
 //                s("harmonisations", s("sourceCollection"), s("sourceTable"),
 // s("sourceVariables")))
 //            .retrieveJSON();
-//    System.out.println("result refback:\n" + result);
+//    System.out.println("result refBack:\n" + result);
 //    assertTrue(result.contains("LifeCycle"));
 //
 //    // REFBACK via subclass

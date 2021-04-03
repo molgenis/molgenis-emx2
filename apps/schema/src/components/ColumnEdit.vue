@@ -41,8 +41,8 @@
       />
       <InputString
         v-if="column.columnType == 'REFBACK'"
-        v-model="column.mappedBy"
-        label="Mapped by"
+        v-model="column.refBack"
+        label="refBack"
       />
       <InputString
         v-if="column.columnType == 'REF' || column.columnType == 'REF_ARRAY'"

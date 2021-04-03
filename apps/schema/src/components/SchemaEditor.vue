@@ -63,7 +63,7 @@ export default {
       });
       this.timestamp = Date.now();
     },
-    refbackCandidates(fromTable, toTable) {
+    refBackCandidates(fromTable, toTable) {
       return this.schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0]

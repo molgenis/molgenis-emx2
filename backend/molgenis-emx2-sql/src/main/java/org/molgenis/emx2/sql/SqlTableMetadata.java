@@ -159,7 +159,7 @@ class SqlTableMetadata extends TableMetadata {
                 newColumn.setRequired(true);
               }
 
-              // if changing 'ref' then check if not refback exists
+              // if changing 'ref' then check if not refBack exists
               if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
                 checkNotRefback(name, oldColumn);
               }
@@ -177,7 +177,7 @@ class SqlTableMetadata extends TableMetadata {
               // drop referential constraints around this column
               executeRemoveRefConstraints(jooq, oldColumn);
 
-              // remove refbacks if exist
+              // remove refBacks if exist
               executeRemoveRefback(oldColumn, newColumn);
 
               // rename and retype if needed
@@ -195,7 +195,7 @@ class SqlTableMetadata extends TableMetadata {
               // reapply ref constrainst
               executeCreateRefConstraints(jooq, newColumn);
 
-              // check if refback constraints need updating
+              // check if refBack constraints need updating
               reapplyRefbackContraints(oldColumn, newColumn);
 
               // create/update key, if touched
@@ -218,14 +218,14 @@ class SqlTableMetadata extends TableMetadata {
       for (Column c : oldColumn.getRefTable().getColumns()) {
         if (REFBACK.equals(c.getColumnType())
             && c.getRefTableName().equals(oldColumn.getTableName())
-            && oldColumn.getName().equals(c.getMappedBy())) {
+            && oldColumn.getName().equals(c.getRefBack())) {
           throw new MolgenisException(
               "Drop/alter column '"
                   + name
-                  + "' failed: cannot remove reference while refback for it exists ("
+                  + "' failed: cannot remove reference while refBack for it exists ("
                   + c.getTableName()
                   + "."
-                  + c.getMappedByColumn());
+                  + c.getRefBackColumn());
         }
       }
     }
@@ -237,7 +237,7 @@ class SqlTableMetadata extends TableMetadata {
     if (column == null) {
       throw new MolgenisException("Drop column " + name + " failed: column does not exist");
     }
-    // if changing 'ref' then check if not refback exists
+    // if changing 'ref' then check if not refBack exists
     checkNotRefback(name, column);
 
     long start = System.currentTimeMillis();

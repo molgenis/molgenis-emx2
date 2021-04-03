@@ -13,7 +13,7 @@ public class Column {
   private String refSchema = null;
   private String refTable = null;
   private String refLink = null;
-  private String mappedBy = null;
+  private String refBack = null;
   private String refLabel;
   private Integer position = null;
 
@@ -52,7 +52,7 @@ public class Column {
     this.refLink = column.getRefLink();
     this.refLabel = column.getRefLabel();
     // this.cascadeDelete = column.isCascadeDelete();
-    this.mappedBy = column.getMappedBy();
+    this.refBack = column.getRefBack();
     this.validationExpression = column.getValidationExpression();
     this.required = column.isRequired();
     this.description = column.getDescription();
@@ -79,7 +79,7 @@ public class Column {
     c.setKey(key);
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
-    c.setMappedBy(mappedBy);
+    c.setRefBack(refBack);
     c.setValidationExpression(validationExpression);
     c.setDescription(description);
     c.setSemantics(semantics);
@@ -153,12 +153,12 @@ public class Column {
     this.validationExpression = validationExpression;
   }
 
-  public String getMappedBy() {
-    return mappedBy;
+  public String getRefBack() {
+    return refBack;
   }
 
-  public void setMappedBy(String mappedBy) {
-    this.mappedBy = mappedBy;
+  public void setRefBack(String refBack) {
+    this.refBack = refBack;
   }
 
   public String getDescription() {

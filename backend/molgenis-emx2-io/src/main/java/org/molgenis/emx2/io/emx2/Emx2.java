@@ -25,7 +25,7 @@ public class Emx2 {
   public static final String REF_TABLE = "refTable";
   public static final String REF_LINK = "refLink";
   public static final String REF_JS_TEMPLATE = "refLabel";
-  public static final String MAPPED_BY = "mappedBy";
+  public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
   private static final String SEMANTICS = "semantics";
@@ -84,7 +84,7 @@ public class Emx2 {
           if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
           if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
           if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
-          if (r.notNull(MAPPED_BY)) column.setMappedBy(r.getString(MAPPED_BY));
+          if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           if (r.notNull(VALIDATION)) column.setValidationExpression(r.getString(VALIDATION));
@@ -130,7 +130,7 @@ public class Emx2 {
       row.setString(REQUIRED, null);
       row.setString(REF_TABLE, null);
       row.setString(REF_LINK, null);
-      row.setString(MAPPED_BY, null);
+      row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
       row.setStringArray(SEMANTICS, t.getSemantics());
       row.setString(DESCRIPTION, t.getDescription());
@@ -155,7 +155,7 @@ public class Emx2 {
             row.setString(REF_SCHEMA, c.getRefTableName());
           if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
           if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
-          if (c.getMappedBy() != null) row.setString(MAPPED_BY, c.getMappedBy());
+          if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidationExpression() != null) row.set(VALIDATION, c.getValidationExpression());
           if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());

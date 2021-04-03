@@ -1,7 +1,5 @@
 package org.molgenis.emx2.io.emx1;
 
-import static org.molgenis.emx2.ColumnType.REF;
-
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 
@@ -23,7 +21,7 @@ public class Emx1Attribute {
   private String partOfAttribute;
   private String refEntity;
   private String expression;
-  private String mappedBy;
+  private String refBack;
   private Integer rangeMin;
   private Integer rangeMax;
 
@@ -33,7 +31,7 @@ public class Emx1Attribute {
     this.setDataType(getEmx1Type(c));
     this.setIdAttribute(c.getKey() == 1);
     this.setRefEntity(c.getRefTableName());
-    this.setMappedBy(c.getMappedBy());
+    this.setRefBack(c.getRefBack());
     this.setNillable(!c.isRequired());
   }
 
@@ -58,7 +56,7 @@ public class Emx1Attribute {
     this.defaultValue = get(row, "defaultValue");
     this.partOfAttribute = get(row, "partOfAttribute");
     this.refEntity = get(row, "refEntity");
-    this.mappedBy = get(row, "mappedBy");
+    this.refBack = get(row, "refBack");
     this.expression = get(row, "expression");
     this.rangeMax = row.getInteger("rangeMax");
     this.rangeMin = row.getInteger("rangeMi");
@@ -146,8 +144,8 @@ public class Emx1Attribute {
     return visibleExpression;
   }
 
-  public String getMappedBy() {
-    return mappedBy;
+  public String getRefBack() {
+    return refBack;
   }
 
   public void setEntity(String entity) {
@@ -214,8 +212,8 @@ public class Emx1Attribute {
     this.expression = expression;
   }
 
-  public void setMappedBy(String mappedBy) {
-    this.mappedBy = mappedBy;
+  public void setRefBack(String refBack) {
+    this.refBack = refBack;
   }
 
   public void setRangeMin(Integer rangeMin) {
@@ -233,7 +231,7 @@ public class Emx1Attribute {
     r.set("label", label); // not supported by design
     r.set("dataType", dataType);
     r.set("refEntity", refEntity);
-    r.set("mappedBy", mappedBy);
+    r.set("refBack", refBack);
     r.set(ID_ATTRIBUTE, idAttribute); // different by design
     r.set("nillable", nillable);
     r.set("readonly", readonly);
@@ -271,12 +269,9 @@ public class Emx1Attribute {
       case REF:
         return "xref";
       case REF_ARRAY:
-        //      case MREF:
-        //        return "mref";
+        return "mref";
       case REFBACK:
-        //        if (REF.equals(c.getMappedByColumn().getColumnType())) return "one_to_many";
-        //        else
-        return "refback unsupported in emx1";
+        return "refBack unsupported in emx1";
       case BOOL_ARRAY:
       case UUID_ARRAY:
       case STRING_ARRAY:

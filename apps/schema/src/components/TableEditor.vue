@@ -39,10 +39,10 @@
           <th scope="col" style="width: 3em">key</th>
           <th scope="col" style="width: 5em">required</th>
           <th scope="col" style="width: 10em">refTable</th>
-          <th scope="col" style="width: 10em" v-if="needsMappedByColumn">
-            mappedBy
-          </th>
           <th scope="col" style="width: 10em">refLink</th>
+          <th scope="col" style="width: 10em">
+            refBack
+          </th>
           <th scope="col" style="width: 10em">semantics</th>
           <th scope="col">description</th>
           <th scope="col" style="width: 3em"></th>
@@ -62,7 +62,7 @@
             v-model="table.columns[columnIndex]"
             :schema="schema"
             :columnIndex="columnIndex"
-            :needsMappedByColumn="needsMappedByColumn"
+            needsRefBackColumn="needsRefBackColumn"
           />
         </Draggable>
       </table>
@@ -170,7 +170,7 @@ export default {
       }
       this.timestamp = Date.now();
     },
-    refbackCandidates(fromTable, toTable) {
+    refBackCandidates(fromTable, toTable) {
       return this.schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0]
@@ -184,23 +184,6 @@ export default {
         return this.schema.tables.map((t) => t.name);
       }
       return [];
-    },
-    needsMappedByColumn() {
-      if (this.schema && this.schema.tables) {
-        return (
-          this.schema.tables.filter(
-            //each table
-            (t) =>
-              t.columns &&
-              t.columns.filter(
-                //has refback column with ambigious mapped by
-                (c) =>
-                  c.columnType === "REFBACK" &&
-                  this.refbackCandidates(c.refTable, t.name).length > 1
-              ).length > 0
-          ).length > 0
-        );
-      }
     },
   },
   watch: {

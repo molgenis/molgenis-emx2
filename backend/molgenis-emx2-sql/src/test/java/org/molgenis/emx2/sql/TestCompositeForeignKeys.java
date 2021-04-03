@@ -154,7 +154,7 @@ public class TestCompositeForeignKeys {
     schema
         .getTable("Person")
         .getMetadata()
-        .add(column("nephew").setType(REFBACK).setRefTable("Person").setMappedBy("uncle"));
+        .add(column("nephew").setType(REFBACK).setRefTable("Person").setRefBack("uncle"));
 
     s.insert(
         new Row()
@@ -242,7 +242,7 @@ public class TestCompositeForeignKeys {
     schema
         .getTable("Person")
         .getMetadata()
-        .add(column("uncles").setType(REFBACK).setRefTable("Person").setMappedBy("cousins"));
+        .add(column("uncles").setType(REFBACK).setRefTable("Person").setRefBack("cousins"));
 
     s.insert(
         new Row()

@@ -62,10 +62,10 @@ public class PetStoreExample {
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
-    // refback
+    // refBack
     schema
         .getTableMetadata(PET)
-        .add(column("orders").setType(REFBACK).setRefTable(ORDER).setMappedBy("pet"));
+        .add(column("orders").setType(REFBACK).setRefTable(ORDER).setRefBack("pet"));
 
     schema.create(
         table(USER)
