@@ -45,11 +45,16 @@ export default {
   props: {
     title: String,
     visible: Boolean,
-    count: Number,
+    conditions: Array,
     expanded: { type: Boolean, default: false },
   },
   data() {
     return { hover: false };
+  },
+  computed: {
+    count() {
+      return Array.isArray(this.conditions) ? this.conditions.length : null;
+    },
   },
 };
 </script>

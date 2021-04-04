@@ -43,6 +43,7 @@
       :value="conditions"
       @input="$emit('update:conditions', $event)"
       :limit="7"
+      :graphqlURL="graphqlURL"
     />
     <div v-else>ERROR {{ column }}</div>
   </div>
@@ -69,6 +70,7 @@ export default {
     columnType: String,
     refTable: String,
     conditions: Array,
+    graphqlURL: String,
   },
 };
 </script>

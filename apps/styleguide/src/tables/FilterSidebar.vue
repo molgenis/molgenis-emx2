@@ -11,21 +11,21 @@
           :expanded.sync="filters[index].expanded"
           :title="column.name"
           :visible="column.showFilter && column.columnType != 'CONSTANT'"
-          :count="count(column)"
+          :conditions="column.conditions"
           :key="column.name"
           :style="column.showFilter ? '' : 'display: none'"
         >
           <FilterInput
             :conditions.sync="filters[index].conditions"
-            @update="$emit('update:filters', filters)"
+            @update:conditions="$emit('update:filters', filters)"
             :columnType="column.columnType"
             :refTable="column.refTable"
+            :graphqlURL="graphqlURL"
           />
         </FilterContainer>
       </Draggable>
       <ShowMore title="debug">
         <pre>
-url = {{ url }}
 filters = {{ filters }}
       </pre
         >
@@ -49,6 +49,7 @@ export default {
   },
   props: {
     filters: Array,
+    graphqlURL: String,
   },
   created() {
     //default expand
@@ -58,55 +59,7 @@ export default {
       }
     }
   },
-  computed: {
-    url() {
-      let url = new URL("#");
-      this.filters.forEach((column) => {
-        if (Array.isArray(column.conditions)) {
-          column.conditions.forEach((value) => {
-            //range filters are nested arrays
-            if (Array.isArray(value)) {
-              let rangeString = "";
-              if (value[0] !== null) rangeString = value[0];
-              rangeString += "..";
-              if (value[1] !== null) rangeString += value[1];
-              if (rangeString !== "..") {
-                url.searchParams.append(
-                  column.name,
-                  encodeURIComponent(rangeString)
-                );
-              }
-            } else if (value !== null) {
-              //refs are objects
-              if (typeof value === "object") {
-                let flatten = this.flatten(value, column.name);
-                Object.keys(flatten).forEach((key) => {
-                  url.searchParams.append(
-                    key,
-                    encodeURIComponent(flatten[key])
-                  );
-                });
-                //otherwise treat as primitive
-              } else {
-                url.searchParams.append(column.name, encodeURIComponent(value));
-              }
-            }
-          });
-        }
-      });
-      if (this.filters.length > 0) {
-        url.searchParams.append(
-          "_show",
-          this.filters.map((column) => column.name).join("-")
-        );
-      }
-      return url.searchParams;
-    },
-  },
   methods: {
-    count(column) {
-      return Array.isArray(column.conditions) ? column.conditions.length : null;
-    },
     expandFilter(index) {
       let update = this.filters;
       update[index].expanded = true;

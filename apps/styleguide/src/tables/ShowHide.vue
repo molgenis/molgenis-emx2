@@ -14,14 +14,11 @@
       <ButtonAlt @click="hideAll">hide all</ButtonAlt>
 
       <div>
-        <div
-          class="form-check"
-          v-for="(col, key) in columnsWithoutConstant"
-          :key="key"
-        >
+        <div class="form-check" v-for="(col, key) in columns" :key="key">
           <input
             class="form-check-input"
             type="checkbox"
+            v-if="col.columnType != 'CONSTANT'"
             :checked="
               col[checkAttribute] == undefined
                 ? defaultValue
@@ -53,11 +50,6 @@ export default {
     checkAttribute: String,
     defaultValue: { type: Boolean, default: false },
   },
-  computed: {
-    columnsWithoutConstant() {
-      return this.columns.filter((c) => c.columnType != "CONSTANT");
-    },
-  },
   methods: {
     value(col) {
       return col[this.checkAttribute] == undefined
@@ -66,7 +58,6 @@ export default {
     },
     change(key, value) {
       let update = JSON.parse(JSON.stringify(this.columns));
-      console.log(value);
       update[key][this.checkAttribute] = value;
       this.$emit("update:columns", update);
     },

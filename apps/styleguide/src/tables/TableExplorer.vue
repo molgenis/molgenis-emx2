@@ -16,6 +16,7 @@
             <ShowHide
               class="navbar-nav"
               :columns.sync="columns"
+              @update:columns="emitFilters"
               checkAttribute="showFilter"
               label="filters"
               icon="filter"
@@ -23,6 +24,7 @@
             <ShowHide
               class="navbar-nav"
               :columns.sync="columns"
+              @update:columns="emitColumns"
               checkAttribute="showColumn"
               label="columns"
               icon="columns"
@@ -73,15 +75,19 @@
       </div>
       <div class="d-flex">
         <div v-if="countFilters" class="col-3 pl-0">
-          <FilterSidebar :filters.sync="columns" />
+          <FilterSidebar
+            :filters.sync="columns"
+            @update:filters="emitConditions"
+            :graphqlURL="graphqlURL"
+          />
         </div>
         <div
           class="flex-grow-1 pr-0 pl-0"
           :class="countFilters > 0 ? 'col-9' : 'col-12'"
         >
           <FilterWells
-            v-if="table"
             :filters.sync="columns"
+            @update:filters="emitConditions"
             class="border-top pt-3 pb-3"
           />
           <div v-if="loading">
@@ -239,6 +245,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    showPage: {
+      type: Number,
+      default: 1,
+    },
+    showLimit: {
+      type: Number,
+      default: 20,
+    },
+    conditions: {
+      type: Object,
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -251,10 +269,33 @@ export default {
     };
   },
   methods: {
+    emitColumns() {
+      let columns = this.columns
+        .filter((c) => c.showColumn && c.columnType != "CONSTANT")
+        .map((c) => c.name);
+      this.$emit("update:showColumns", columns);
+    },
+    emitFilters() {
+      console.log("emitFilters");
+      this.$emit(
+        "update:showFilters",
+        this.columns
+          .filter((c) => c.showFilter && c.columnType != "CONSTANT")
+          .map((c) => c.name)
+      );
+    },
+    emitConditions() {
+      let result = {};
+      this.columns.forEach((c) => {
+        if (c.conditions && c.conditions.length > 0)
+          result[c.name] = c.conditions;
+      });
+      this.$emit("update:conditions", result);
+    },
     setlimit(limit) {
-      console.log("resetpage");
       this.limit = limit;
       this.page = 1;
+      this.$emit("update:showLimit", limit);
     },
   },
   computed: {
@@ -329,9 +370,18 @@ export default {
     page() {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
+      this.$emit("update:showPage", this.page);
       this.reload();
     },
+    showPage() {
+      this.page = this.showPage;
+    },
+    showLimit() {
+      this.limit = this.showLimit;
+    },
     tableMetadata() {
+      this.page = this.showPage;
+      this.limit = this.showLimit;
       if (this.columns.length == 0) {
         this.columns.push(
           ...this.tableMetadata.columns.filter((c) => c.name != "mg_tableclass")
@@ -348,7 +398,15 @@ export default {
         if (this.showCards) {
           this.layoutTable = false;
         }
+        this.columns.forEach((c) => {
+          if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
+            this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
+          } else {
+            delete c.conditions;
+          }
+        });
       }
+      this.reload();
     },
   },
 };
@@ -386,14 +444,28 @@ example (graphqlURL is usually not needed because app is served on right path)
 example (graphqlURL is usually not needed because app is served on right path)
 ```
 <template>
-  <TableExplorer
-      table="Pet"
-      graphqlURL="/pet store/graphql"
-      :showSelect="false" @click="click"/>
-  <div v-else>Please sign in.</div>
+  <div>
+    <TableExplorer
+        table="Variables"
+        graphqlURL="/CohortNetwork/graphql"
+        :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
+        :showPage.sync="page" :showLimit.sync="limit"
+        :conditions.sync="conditions"/>
+    showColumns: {{ showColumns }}<br/>
+    showFilters: {{ showFilters }}<br/>
+    conditions: {{ conditions }} <br/>
+    page: {{ page }}<br/>
+    limit: {{ limit }}
+
+  </div>
 </template>
 <script>
   export default {
+    data() {
+      return {
+        showColumns: ['name'], showFilters: ['name'], conditions: {"name": ["pooky", "spike"]}, page: 1, limit: 10
+      }
+    },
     methods: {
       click(event) {
         alert(JSON.stringify(event));
