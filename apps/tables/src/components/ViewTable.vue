@@ -15,7 +15,6 @@
       @update:showLimit="updateLimit"
       :key="timestamp"
     />
-    {{ conditions }}
   </div>
 </template>
 

@@ -432,10 +432,18 @@ export default {
         );
         // //init settings
         this.columns.forEach((c) => {
-          if (this.showColumns.length > 0 && !this.showColumns.includes(c.name))
+          if (
+            this.showColumns &&
+            this.showColumns.length > 0 &&
+            !this.showColumns.includes(c.name)
+          )
             c.showColumn = false;
           else c.showColumn = true;
-          if (this.showColumns.length > 0 && this.showFilters.includes(c.name))
+          if (
+            this.showFilters &&
+            this.showFilters.length > 0 &&
+            this.showFilters.includes(c.name)
+          )
             c.showFilter = true;
           else c.showFilter = false;
         });
