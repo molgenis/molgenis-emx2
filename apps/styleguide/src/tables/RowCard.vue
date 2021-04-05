@@ -18,7 +18,8 @@
             @close="$emit('reload')"
           />
         </span>
-        <dl>
+        <VueTemplate v-if="template" :template="template" :a="row" />
+        <dl v-else>
           <div v-for="col in columns" :key="col.name">
             <dt
               v-if="
@@ -68,17 +69,20 @@ dd {
 import RenderValue from "./RenderValue";
 import RowButtonEdit from "./RowButtonEdit";
 import RowButtonDelete from "./RowButtonDelete";
+import VueTemplate from "../layout/VueTemplate";
 
 export default {
   components: {
     RenderValue,
     RowButtonEdit,
     RowButtonDelete,
+    VueTemplate,
   },
   props: {
     columns: Array,
     tableName: String,
     row: Object,
+    template: String,
     canEdit: Boolean,
   },
   methods: {

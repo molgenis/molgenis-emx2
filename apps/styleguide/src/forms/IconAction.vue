@@ -1,5 +1,8 @@
 <template>
-  <button class="btn pl-1 pr-1 btn-outline-primary border-0" @click="onClick">
+  <button
+    class="btn pl-1 pr-1 btn-outline-primary border-0"
+    @click.prevent="onClick"
+  >
     <span v-if="label" class="mr-2">{{ label }}</span>
     <i :class="'fa fa-fw fa-' + icon"></i>
   </button>

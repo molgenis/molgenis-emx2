@@ -453,7 +453,7 @@ public class TableMetadata {
   }
 
   public TableMetadata setSetting(String key, String value) {
-    this.settings.put(key, new Setting(key, value));
+    this.setSettings(List.of(new Setting(key, value)));
     return this;
   }
 

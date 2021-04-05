@@ -1,5 +1,5 @@
 <template>
-  <div class="card-columns">
+  <div>
     <RowCard
       v-for="row in data"
       :key="JSON.stringify(row) + template"

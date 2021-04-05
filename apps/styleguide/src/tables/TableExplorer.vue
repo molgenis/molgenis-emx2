@@ -1,6 +1,6 @@
 <template>
   <div class="h-100">
-    <div v-if="columns" clas="overflow-auto">
+    <div v-if="columns" class="overflow-auto">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="bg-white">
         <h1 v-if="showHeader" class="pl-2">
@@ -38,7 +38,7 @@
                 style="margin-top: -10px; margin-right: -10px"
                 @click="scope.close"
               />
-              <h6>Download:</h6>
+              <h6>Download</h6>
               <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
               <br />
               <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
@@ -49,9 +49,9 @@
             </ButtonDropdown>
             <IconAction
               class="ml-2"
-              :label="'layout'"
-              :icon="layoutTable ? 'th' : 'table'"
-              @click="layoutTable = !layoutTable"
+              :label="'view'"
+              :icon="viewIcon"
+              @click="toggleView"
             />
           </div>
           <InputSearch class="navbar-nav" v-model="searchTerms" />
@@ -61,7 +61,7 @@
             :limit="limit"
             :count="count"
           />
-          <div class="btn-group">
+          <div class="btn-group" v-if="view != View.RECORD">
             <span class="btn">Rows per page:</span>
             <InputSelect
               :value="limit"
@@ -85,6 +85,13 @@
           class="flex-grow-1 pr-0 pl-0"
           :class="countFilters > 0 ? 'col-9' : 'col-12'"
         >
+          <TableSettings
+            v-if="canManage"
+            :tableName="table"
+            :cardTemplate.sync="cardTemplate"
+            :recordTemplate.sync="recordTemplate"
+            :graphqlURL="graphqlURL"
+          />
           <FilterWells
             :filters.sync="columns"
             @update:filters="emitConditions"
@@ -94,16 +101,26 @@
             <Spinner />
           </div>
           <TableCards
-            v-if="!loading && !layoutTable"
+            v-if="!loading && view == View.CARDS"
             :data="data"
             :columns="columns"
             :table-name="table"
             @reload="reload"
-            :can-edit="canEdit"
+            :canEdit="canEdit"
             @click="$emit('click', $event)"
+            :template="cardTemplate"
+          />
+          <RecordCard
+            v-if="!loading && view == View.RECORD"
+            :data="data"
+            :table-name="table"
+            :columns="columns"
+            :canEdit="canEdit"
+            @click="$emit('click', $event)"
+            :template="recordTemplate"
           />
           <TableMolgenis
-            v-if="!loading && layoutTable"
+            v-if="!loading && view == View.TABLE"
             :selection.sync="selectedItems"
             :columns.sync="columns"
             :table-metadata="tableMetadata"
@@ -197,6 +214,10 @@ import ButtonDropdown from "../forms/ButtonDropdown";
 import InputSelect from "../forms/InputSelect";
 import TableCards from "./TableCards";
 import IconAction from "../forms/IconAction";
+import RecordCard from "./RecordCard";
+import TableSettings from "./TableSettings";
+
+const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
 export default {
   extends: TableMixin,
@@ -219,6 +240,8 @@ export default {
     InputSelect,
     TableCards,
     IconAction,
+    RecordCard,
+    TableSettings,
   },
   props: {
     value: {
@@ -241,9 +264,9 @@ export default {
       type: Array,
       default: () => [],
     },
-    showCards: {
-      type: Boolean,
-      default: false,
+    showView: {
+      type: String,
+      default: View.TABLE,
     },
     showPage: {
       type: Number,
@@ -260,15 +283,30 @@ export default {
   },
   data() {
     return {
+      View,
+      cardTemplate: null,
+      recordTemplate: null,
       selectedItems: [],
       page: 1,
       showSubclass: false,
       //a copy of column metadata used to show/hide filters and columns
       columns: [],
-      layoutTable: true,
+      view: View.TABLE,
     };
   },
   methods: {
+    toggleView() {
+      if (this.view == View.TABLE) {
+        this.view = View.CARDS;
+        this.limit = this.showLimit;
+      } else if (this.view == View.CARDS) {
+        this.limit = 1;
+        this.view = View.RECORD;
+      } else {
+        this.view = View.TABLE;
+        this.limit = this.showLimit;
+      }
+    },
     emitColumns() {
       let columns = this.columns
         .filter((c) => c.showColumn && c.columnType != "CONSTANT")
@@ -299,6 +337,12 @@ export default {
     },
   },
   computed: {
+    viewIcon() {
+      //icon should be next
+      if (this.view == View.CARDS) return "file-text";
+      else if (this.view == View.TABLE) return "th";
+      else return "table";
+    },
     tableMetadataMerged() {
       let tm = this.tableMetadata;
       tm.columns = this.columns;
@@ -395,8 +439,8 @@ export default {
             c.showFilter = true;
           else c.showFilter = false;
         });
-        if (this.showCards) {
-          this.layoutTable = false;
+        if (this.showView) {
+          this.view = this.showView;
         }
         this.columns.forEach((c) => {
           if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
@@ -405,6 +449,13 @@ export default {
             delete c.conditions;
           }
         });
+        //table settings
+        if (this.tableMetadata.settings) {
+          this.tableMetadata.settings.forEach((s) => {
+            if (s.key == "cardTemplate") this.cardTemplate = s.value;
+            if (s.key == "recordTemplate") this.recordTemplate = s.value;
+          });
+        }
       }
       this.reload();
     },
@@ -413,7 +464,7 @@ export default {
 </script>
 
 <docs>
-example (graphqlURL is usually not needed because app is served on right path)
+example (graphqlURL is usually not needed because graphql is always served on root of app)
 ```
 <template>
   <div>

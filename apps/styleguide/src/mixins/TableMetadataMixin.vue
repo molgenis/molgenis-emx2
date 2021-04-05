@@ -30,7 +30,7 @@ export default {
       this.graphqlError = null;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,description,semantics,columns{name,columnType,key,refTable,refLink,refLabel,required,semantics,description}}}}"
+        "{_session{email,roles}_schema{name,tables{name,description,semantics,columns{name,columnType,key,refTable,refLink,refLabel,required,semantics,description}settings{key,value}}}}"
       )
         .then((data) => {
           this.session = data._session;
@@ -51,6 +51,13 @@ export default {
           (this.session.roles &&
             (this.session.roles.includes("Editor") ||
               this.session.roles.includes("Manager"))))
+      );
+    },
+    canManage() {
+      return (
+        this.session &&
+        (this.session.email == "admin" ||
+          this.session.roles.includes("Manager"))
       );
     },
   },

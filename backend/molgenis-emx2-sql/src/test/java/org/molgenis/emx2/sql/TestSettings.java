@@ -44,20 +44,18 @@ public class TestSettings {
   @Test
   public void testTableSettings() {
     Schema s = db.dropCreateSchema("testTableSettings");
-    List<Setting> settings = List.of(new Setting("key", "value"));
 
     Table t = s.create(table("test").add(column("test")));
-    t.getMetadata().setSettings(settings);
+    t.getMetadata().setSetting("key", "value");
 
-    assertEquals(settings, t.getMetadata().getSettings());
+    db.clearCache();
 
     List<Setting> test =
         db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
-    assertEquals(settings.size(), test.size());
-    assertEquals(settings.get(0).getKey(), test.get(0).getKey());
-    assertEquals(settings.get(0).getValue(), test.get(0).getValue());
+    assertEquals(1, test.size());
+    assertEquals("key", test.get(0).getKey());
+    assertEquals("value", test.get(0).getValue());
 
-    db.clearCache();
     assertEquals(
         "key",
         db.getSchema("testTableSettings")

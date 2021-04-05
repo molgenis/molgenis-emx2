@@ -29,6 +29,8 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
           .build();
   static final GraphQLType outputSettingsMetadataType =
       new GraphQLObjectType.Builder()
@@ -529,7 +531,17 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
       settings.forEach(
-          entry -> schema.getMetadata().setSetting(entry.get("key"), entry.get(VALUE)));
+          entry -> {
+            if (entry.get(TABLE) != null) {
+              Table table = schema.getTable(entry.get(TABLE));
+              if (table == null) {
+                throw new MolgenisException("Table " + entry.get(TABLE) + " not found");
+              }
+              table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            } else {
+              schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            }
+          });
     }
   }
 

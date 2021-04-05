@@ -4384,6 +4384,11 @@ faye-websocket@^0.11.3:
   dependencies:
     websocket-driver ">=0.5.1"
 
+fg-loadcss@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fg-loadcss/-/fg-loadcss-2.1.0.tgz#b3cbdf2ab5ee82a13ddb26340f10e3ac43fe2233"
+  integrity sha512-HpvR2uRoKvrYAEwimw+k4Fr2NVHYPfld5Lc/f9uy3mKeUTXhS5urL24XA2rqyq5b2i410EXCLir4Uhsb8J1QaQ==
+
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
@@ -10017,6 +10022,11 @@ v-click-outside@3.1.2:
   resolved "https://registry.yarnpkg.com/v-click-outside/-/v-click-outside-3.1.2.tgz#1dbaa14bf09a21bd16f23a38f03bfa3988f71281"
   integrity sha512-gMdRqfRE6m6XU6SiFi3dyBlFB2MWogiXpof8Aa3LQysrl9pzTndqp/iEaAphLoadaQUFnQ0ec6fLLaxr7LiY6A==
 
+v-runtime-template@1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/v-runtime-template/-/v-runtime-template-1.10.0.tgz#8ea7066c37cf4be5c701a06ca247e1afda89c4be"
+  integrity sha512-WLlq9jUepSfUrMEenw3mn7FDXX6hhbl11JjC1OKhwLzifHzVrY5a696TUHDPyj9jke3GGnR7b+2T3od/RL5cww==
+
 v-scroll-lock@1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/v-scroll-lock/-/v-scroll-lock-1.3.1.tgz#f1db8e79af0c0337b46164faea5d1782016b3933"
@@ -10178,6 +10188,14 @@ vue-router@3.5.1:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.5.1.tgz#edf3cf4907952d1e0583e079237220c5ff6eb6c9"
   integrity sha512-RRQNLT8Mzr8z7eL4p7BtKvRaTSGdCbTy2+Mm5HTJvLGYSSeG9gDzNasJPP/yOYKLy+/cLG/ftrqq5fvkFwBJEw==
 
+vue-runtime-template-compiler@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/vue-runtime-template-compiler/-/vue-runtime-template-compiler-1.3.0.tgz#0eba086616c18c86520b9e866a319ac5640eeb5e"
+  integrity sha512-JSztrOuMb12YxaKzFvsNlbOmvusulf3NFyqFoUNouUEIvdSPnRHkpyBmY+CTtxo2xBGPeKuhLx3jnAy51GTM5w==
+  dependencies:
+    fg-loadcss "^2.1.0"
+    vue-template-compiler "^2.6.11"
+
 vue-scrollto@2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/vue-scrollto/-/vue-scrollto-2.20.0.tgz#3ba52239a62710c97003d12d4393f1f3393cd5cc"
@@ -10252,7 +10270,7 @@ vue-styleguidist@^4.36.1:
     webpack-dev-server "^3.11.0"
     webpack-merge "^4.0.0"
 
-vue-template-compiler@2.6.12:
+vue-template-compiler@2.6.12, vue-template-compiler@^2.6.11:
   version "2.6.12"
   resolved "https://registry.yarnpkg.com/vue-template-compiler/-/vue-template-compiler-2.6.12.tgz#947ed7196744c8a5285ebe1233fe960437fcc57e"
   integrity sha512-OzzZ52zS41YUbkCBfdXShQTe69j1gQDZ9HIX8miuC9C3rBCk9wIRjLiZZLrmX9V+Ftq/YEyv1JaVr5Y/hNtByg==
