@@ -30,12 +30,12 @@ public class JsonYamlApi {
     // schema level operations
     final String jsonPath = "/:schema/api/json";
     get(jsonPath, JsonYamlApi::getSchemaJSON);
-    post(jsonPath, JsonYamlApi::patchSchemaJSON);
+    post(jsonPath, JsonYamlApi::postSchemaJSON);
     delete(jsonPath, JsonYamlApi::deleteSchemaJSON);
 
     final String yamlPath = "/:schema/api/yaml";
     get(yamlPath, JsonYamlApi::getSchemaYAML);
-    post(yamlPath, JsonYamlApi::patchSchemaYAML);
+    post(yamlPath, JsonYamlApi::postSchemaYAML);
     delete(yamlPath, JsonYamlApi::deleteSchemaYAML);
   }
 
@@ -46,7 +46,7 @@ public class JsonYamlApi {
     return "removed metadata items success";
   }
 
-  static String patchSchemaYAML(Request request, Response response) throws IOException {
+  static String postSchemaYAML(Request request, Response response) throws IOException {
     SchemaMetadata otherSchema = yamlToSchema(request.body());
     getSchema(request).migrate(otherSchema);
     response.status(200);
@@ -72,7 +72,7 @@ public class JsonYamlApi {
     return "removed metadata items success";
   }
 
-  static String patchSchemaJSON(Request request, Response response) throws IOException {
+  static String postSchemaJSON(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
     SchemaMetadata otherSchema = jsonToSchema(request.body());
     schema.migrate(otherSchema);

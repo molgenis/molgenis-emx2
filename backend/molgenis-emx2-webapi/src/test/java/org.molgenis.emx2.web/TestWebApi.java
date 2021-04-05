@@ -71,6 +71,29 @@ public class TestWebApi {
   }
 
   @Test
+  public void testDownloadUploadJsonAndYaml() {
+    String schemaJson = given().when().get("/pet store/api/json").asString();
+
+    db.dropCreateSchema("pet store json");
+
+    given().body(schemaJson).when().post("/pet store json/api/json").then().statusCode(200);
+
+    String schemaJson2 = given().when().get("/pet store json/api/json").asString();
+
+    assertEquals(schemaJson, schemaJson2);
+
+    String schemaYaml = given().when().get("/pet store/api/yaml").asString();
+
+    db.dropCreateSchema("pet store yaml");
+
+    given().body(schemaYaml).when().post("/pet store yaml/api/yaml").then().statusCode(200);
+
+    String schemaYaml2 = given().when().get("/pet store yaml/api/yaml").asString();
+
+    assertEquals(schemaYaml, schemaYaml2);
+  }
+
+  @Test
   public void test3SchemaDownloadUploadExcel() throws IOException {
 
     // download json schema
