@@ -4,13 +4,9 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.molgenis.emx2.Operator;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SelectColumn;
-import org.molgenis.emx2.Table;
+import java.util.*;
+import org.jooq.Field;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -57,6 +53,9 @@ public class Emx2Tables {
   public static void inputTable(TableStore store, Table table) {
     if (store.containsTable(table.getName())) {
 
+      // validation of primary keys
+      store.processTable(table.getName(), new PkeyValidator(table.getMetadata()));
+
       // validation of fkeys
       // store.processTable(table.getName(), new ValidationProcessor(table));
 
@@ -65,6 +64,39 @@ public class Emx2Tables {
       store.processTable(table.getName(), new ImportProcessor(table));
 
       logger.info("Import of table '" + table.getName() + "' completed");
+    }
+  }
+
+  public static class PkeyValidator implements RowProcessor {
+
+    Set<String> duplicates = new HashSet<>();
+    Set<String> keys = new HashSet<>();
+    TableMetadata metadata;
+
+    public PkeyValidator(TableMetadata metadata) {
+      this.metadata = metadata;
+    }
+
+    @Override
+    public void process(Iterator<Row> iterator) {
+      while (iterator.hasNext()) {
+        Row row = iterator.next();
+        String key = null;
+        for (Field f : metadata.getPrimaryKeyFields()) {
+          key += row.getString(f.getName()) + "+";
+        }
+        key = key.substring(0, key.length() - 1);
+        if (keys.contains(key)) {
+          duplicates.add(key);
+          logger.warn("Found duplicate key: " + key);
+        } else {
+          keys.add(key);
+        }
+      }
+      if (duplicates.size() > 0) {
+        throw new MolgenisException(
+            "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
+      }
     }
   }
 

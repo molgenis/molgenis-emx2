@@ -11,7 +11,9 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.emx2.Emx2Tables;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
@@ -39,8 +41,15 @@ public class TestCohortCatalogueMultipleSchemas {
     // load data model 2
     loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", cohortsSchema);
     loadSchema("../../data/datacatalogue/Cohorts.xlsx", cohortsSchema);
+    loadSchema("../../data/datacatalogue/Cohorts_CoreVariables.xlsx", cohortsSchema);
+    // heap space error,
+    // loadSchema("../../data/datacatalogue/Cohorts_SourceVariablesAndMappings.xlsx",
+    // cohortsSchema);
     assertEquals(42, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
+  }
 
+  @Test
+  public void importTest2() throws IOException {
     // load data model
     loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", conceptionSchema);
     loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
@@ -104,8 +113,12 @@ public class TestCohortCatalogueMultipleSchemas {
       TableStoreForXlsxFile store, SchemaMetadata source, Schema target) {
     StopWatch.print("creation of tables complete, now starting import data");
     for (String tableName : target.getTableNames()) {
-      if (store.containsTable(tableName))
-        target.getTable(tableName).update(store.readTable(tableName)); // actually upsert
+      if (store.containsTable(tableName)) {
+        Table table = target.getTable(tableName);
+        store.processTable(table.getName(), new Emx2Tables.PkeyValidator(table.getMetadata()));
+
+        table.update(store.readTable(tableName)); // actually upsert
+      }
     }
   }
 }

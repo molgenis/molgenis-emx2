@@ -123,7 +123,7 @@ public class TableStoreForXlsxFile implements TableStore {
           else {
             Row row = convertRow(sheetName, columnNames, excelRow);
             // ignore empty lines
-            if (row.getValueMap().size() > 0) {
+            if (notEmptyLine(row)) {
               result.add(row);
             }
           }
@@ -136,6 +136,13 @@ public class TableStoreForXlsxFile implements TableStore {
     if (logger.isInfoEnabled()) {
       logger.info("Excel file loaded into memory in {}ms", (System.currentTimeMillis() - start));
     }
+  }
+
+  private static boolean notEmptyLine(Row row) {
+    for (String name : row.getColumnNames()) {
+      if (row.notNull(name)) return true;
+    }
+    return false;
   }
 
   @Override
