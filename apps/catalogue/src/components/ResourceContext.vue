@@ -4,11 +4,13 @@
     <InstitutionList :institutions="resource.institution" />
     <h6>Lead contact</h6>
     <ContactList :contacts="resource.contact" />
-    <h6>Additional institutions</h6>
-    <PartnersList :partners="resource.partners" />
+    <h6 v-if="resource.partners">Additional institutions</h6>
+    <PartnersList v-if="resource.partners" :partners="resource.partners" />
     <h6>Protocols</h6>
     <DocumentationList :documentation="resource.documentation" />
-    <h6 v-if="resource.releases">Mappings to data models</h6>
+    <h6 v-if="resource.models">Common Data Models</h6>
+    <ModelsList v-if="resource.models" :models="resource.models" />
+    <h6 v-if="resource.releases">Releases</h6>
     <ReleasesList v-if="resource.releases" :releases="resource.releases" />
     <h6 v-if="resource.contributors">Contributors</h6>
     <ContributorList
@@ -33,6 +35,7 @@ import PublicationList from "./PublicationList";
 import ContributorList from "./ContributorList";
 import NetworkList from "./NetworkList";
 import PartnersList from "./PartnersList";
+import ModelsList from "./ModelsList";
 
 export default {
   components: {
@@ -45,6 +48,7 @@ export default {
     Conditions,
     PublicationList,
     ContributorList,
+    ModelsList,
   },
   props: {
     resource: Object,

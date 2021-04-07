@@ -8,16 +8,10 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
-        <h6>Coordinator</h6>
-        <p>{{ model.institution ? model.institution.name : "N/A" }}</p>
-        <h6>Institutions</h6>
-        <PartnersList :institutions="model.partners" />
         <h6>Networks involved</h6>
         <NetworkList :networks="model.networks" />
-        <h6>Databanks involved</h6>
-        <DatabankList :databanks="model.databanks" />
-        <h6>Funding</h6>
-        <p>{{ model.funding ? model.funding : "N/A" }}</p>
+        <h6 v-if="model.databanks">Databanks involved (see networks)</h6>
+        <DatabankList v-if="model.databanks" :databanks="model.databanks" />
       </div>
       <div class="col">
         <ResourceContext :resource="model" />
@@ -72,7 +66,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},releases{resource{acronym,name},version}}}`,
+        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){contact{name,email},institution{name,acronym},name,acronym,type{name},networks{name,acronym},institution{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},,releases{resource{acronym,name},version}}}`,
         {
           acronym: this.acronym,
         }

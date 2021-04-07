@@ -39,9 +39,12 @@ public class TestCohortCatalogueMultipleSchemas {
     StopWatch.print("begin");
 
     // load data model 2
-    loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", cohortsSchema);
-    loadSchema("../../data/datacatalogue/Cohorts.xlsx", cohortsSchema);
-    loadSchema("../../data/datacatalogue/Cohorts_CoreVariables.xlsx", cohortsSchema);
+    MolgenisIO.importFromExcelFile(
+        new File("../../data/datacatalogue/_datacatalogue_schema.xlsx").toPath(), cohortsSchema);
+    MolgenisIO.importFromExcelFile(
+        new File("../../data/datacatalogue/Cohorts.xlsx").toPath(), cohortsSchema);
+    MolgenisIO.importFromExcelFile(
+        new File("../../data/datacatalogue/Cohorts_CoreVariables.xlsx").toPath(), cohortsSchema);
     // heap space error,
     // loadSchema("../../data/datacatalogue/Cohorts_SourceVariablesAndMappings.xlsx",
     // cohortsSchema);

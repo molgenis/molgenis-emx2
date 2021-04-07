@@ -1,4 +1,4 @@
-     <template>
+<template>
   <div class="container bg-white">
     <ResourceHeader
       :resource="databank"
@@ -56,6 +56,7 @@
         <ReleasesList v-if="databank.releases" :releases="databank.releases" />
         <h6 v-if="databank.cdms">Common data models</h6>
         <ReleasesList v-if="databank.cdms" :releases="databank.cdms" />
+        <h6 v-if="databank.publications">Publications</h6>
         <PublicationList
           v-if="databank.publications"
           :publications="databank.publications"

@@ -57,8 +57,8 @@
           <p>{{ variable.name }}</p>
           <h6>Variable type</h6>
           <OntologyTerms :terms="[variable.format]" color="dark" />
-          <h6>Variable topics</h6>
-          <OntologyTerms :terms="variable.topics" color="dark" />
+          <h6>Variable keywords</h6>
+          <OntologyTerms :terms="variable.keywords" color="dark" />
           <h6>Variable unit</h6>
           <OntologyTerms :terms="[variable.unit]" color="dark" />
           <h6>Mandatory</h6>
@@ -225,7 +225,7 @@ export default {
       request(
         "graphql",
         `query Variables($acronym:String,$version:String,$table:String,$name:String){Variables(filter:{release:{version:{equals:[$version]},resource:{acronym:{equals:[$acronym]}}},table:{name:{equals:[$table]}},name:{equals:[$name]}})
-        {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},release{version,resource{acronym,name,mg_tableclass}},description,label,topics{name,ontologyTermURI,definition}
+        {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},release{version,resource{acronym,name,mg_tableclass}},description,label,keywords{name,ontologyTermURI,definition}
                 mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromRelease{resource{acronym,mg_tableclass}version}}}}`,
         {
           acronym: this.acronym,

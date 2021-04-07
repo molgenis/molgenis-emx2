@@ -7,8 +7,11 @@
     />
     <div class="row">
       <div class="col">
-        <h6>Datasources involved</h6>
-        <DatasourceList :datasources="network.datasources" />
+        <h6 v-if="network.datasources">Datasources involved</h6>
+        <DatasourceList
+          v-if="network.datasources"
+          :datasources="network.datasources"
+        />
         <h6>Databanks involved</h6>
         <DatabankList :databanks="network.databanks" />
         <h6>Funding</h6>
@@ -74,7 +77,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, description,homepage,funding, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name}, releases{resource{acronym,name},version}}}`,
+        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, contact{name,email},description,homepage,funding, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name},models{acronym,name}, releases{resource{acronym,name},version}}}`,
         {
           acronym: this.acronym,
         }
