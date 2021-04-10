@@ -45,7 +45,7 @@ public class MolgenisIO {
           inputRoles(store, schema);
         });
     if (logger.isInfoEnabled()) {
-      logger.info("Import transaction completed in {0}ms", System.currentTimeMillis() - start);
+      logger.info("Import transaction completed in {} ms", System.currentTimeMillis() - start);
     }
   }
 

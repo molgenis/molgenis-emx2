@@ -46,8 +46,9 @@ public class TestCohortCatalogueMultipleSchemas {
     MolgenisIO.importFromExcelFile(
         new File("../../data/datacatalogue/Cohorts_CoreVariables.xlsx").toPath(), cohortsSchema);
     // heap space error,
-    // loadSchema("../../data/datacatalogue/Cohorts_SourceVariablesAndMappings.xlsx",
-    // cohortsSchema);
+    MolgenisIO.importFromExcelFile(
+        new File("../../data/datacatalogue/Cohorts_SourceVariablesAndMappings.xlsx").toPath(),
+        cohortsSchema);
     assertEquals(42, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
   }
 
