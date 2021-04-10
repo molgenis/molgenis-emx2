@@ -124,4 +124,13 @@ public class SchemaMetadata {
   public void removeSetting(String key) {
     this.settings.remove(key);
   }
+
+  public String getSetting(String key) {
+    for (Setting s : getSettings()) {
+      if (s.getKey().equals(key)) {
+        return s.getValue();
+      }
+    }
+    return null;
+  }
 }

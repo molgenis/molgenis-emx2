@@ -1,7 +1,8 @@
 <template>
   <button
     type="button"
-    class="btn btn-outline-primary border-0"
+    class="btn border-0"
+    :class="light ? 'btn-outline-light' : 'btn-outline-primary'"
     @click="onClick"
   >
     <i v-if="icon" :class="icon" class="mr-2 ml-0"></i>
@@ -15,6 +16,9 @@ import ButtonAction from "./ButtonAction";
 
 export default {
   extends: ButtonAction,
+  props: {
+    light: { type: Boolean, default: false },
+  },
 };
 </script>
 

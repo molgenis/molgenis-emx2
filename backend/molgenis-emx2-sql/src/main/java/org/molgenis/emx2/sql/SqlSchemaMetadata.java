@@ -93,6 +93,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SqlSchemaMetadata setSetting(String key, String value) {
     MetadataUtils.saveSetting(getDatabase().getJooq(), this, null, new Setting(key, value));
+    // clear caches
+    this.settings.clear();
     return this;
   }
 
@@ -107,6 +109,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public void removeSetting(String key) {
     MetadataUtils.deleteSetting(getDatabase().getJooq(), this, null, new Setting(key, null));
+    // clear caches
+    this.settings.clear();
     super.removeSetting(key);
   }
 

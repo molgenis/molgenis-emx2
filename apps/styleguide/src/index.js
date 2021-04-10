@@ -2,6 +2,7 @@ import ButtonAction from "./forms/ButtonAction";
 import ButtonAlt from "./forms/ButtonAlt";
 import ButtonDanger from "./forms/ButtonDanger";
 import ButtonDropdown from "./forms/ButtonDropdown";
+import ButtonOutline from "./forms/ButtonOutline";
 
 import Footer from "./layout/MolgenisFooter";
 import FilterSidebar from "./tables/FilterSidebar";
@@ -71,6 +72,7 @@ export {
   ButtonAlt,
   ButtonDanger,
   ButtonDropdown,
+  ButtonOutline,
   DefaultMenuMixin,
   Footer,
   FilterSidebar,

@@ -76,6 +76,7 @@ public class MolgenisWebservice {
     JsonYamlApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
+    BootstrapThemeService.create();
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();

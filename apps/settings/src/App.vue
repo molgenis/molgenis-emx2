@@ -4,7 +4,7 @@
       <div
         v-if="
           session.email == 'admin' ||
-            (session.roles && session.roles.includes('Manager'))
+          (session.roles && session.roles.includes('Manager'))
         "
         class="card"
       >
@@ -14,9 +14,9 @@
               class="nav-item"
               v-for="(label, key) in {
                 members: 'Members',
-                layout: 'Layout',
+                theme: 'Theme',
                 menu: 'Menu',
-                pages: 'Pages'
+                pages: 'Pages',
               }"
             >
               <router-link
@@ -33,28 +33,28 @@
         </div>
       </div>
       <div v-else>
-        You have to be logged in with right permissionsto see settings
+        You have to be logged in with right permissions to see and edit settings
       </div>
     </Molgenis>
   </div>
 </template>
 
 <script>
-import {Molgenis} from "@mswertz/emx2-styleguide";
+import { Molgenis } from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
-    Molgenis
+    Molgenis,
   },
   data() {
     return {
-      session: {}
+      session: {},
     };
   },
   computed: {
     selected() {
       return this.$route.name;
-    }
-  }
+    },
+  },
 };
 </script>

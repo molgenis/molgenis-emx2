@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 
+import graphql.Assert;
 import io.restassured.RestAssured;
 import java.io.*;
 import org.junit.AfterClass;
@@ -188,6 +189,17 @@ public class TestWebApi {
 
     // some unique text content
     assertTrue(result.contains("molgenis-catalogue-templates"));
+  }
+
+  @Test
+  public void testThemeGenerator() {
+    // should success
+    String css = given().when().get("/pet store/tables/theme.css?primary=123123").asString();
+    Assert.assertTrue(css.contains("123123"));
+
+    // should fail
+    css = given().when().get("/pet store/tables/theme.css?primary=pink").asString();
+    Assert.assertTrue(css.contains("pink"));
   }
 
   @AfterClass

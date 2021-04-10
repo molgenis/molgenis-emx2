@@ -12,17 +12,21 @@
           :error="error"
           @cancel="showChangePasswordForm = false"
         />
-        <ButtonAction @click="signout">Sign out</ButtonAction>
+        <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
-        <ButtonAction @click="showSigninForm = true">Sign in</ButtonAction>
+        <ButtonOutline @click="showSigninForm = true" :light="true">
+          Sign in</ButtonOutline
+        >
         <SigninForm
           v-if="showSigninForm"
           :error="error"
           @signin="changed"
           @cancel="closeSigninForm"
         />
-        <ButtonAlt @click="showSignupForm = true">Sign up</ButtonAlt>
+        <ButtonAlt @click="showSignupForm = true" :light="true"
+          >Sign up</ButtonAlt
+        >
         <SignupForm
           v-if="showSignupForm"
           :error="error"
@@ -35,7 +39,7 @@
 
 <script>
 import Spinner from "./Spinner";
-import ButtonAction from "../forms/ButtonAction";
+import ButtonOutline from "../forms/ButtonOutline";
 import ButtonAlt from "../forms/ButtonAlt";
 import MessageError from "../forms/MessageError";
 
@@ -48,7 +52,7 @@ import { request } from "graphql-request";
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
   components: {
-    ButtonAction,
+    ButtonOutline,
     SigninForm,
     SignupForm,
     ChangePasswordForm,
@@ -107,6 +111,7 @@ export default {
           );
           this.session.manifest = data._manifest;
           this.loading = false;
+          console.log("reloaded session: " + JSON.stringify(this.session));
           this.$emit("input", this.session);
         })
         .catch((error) => {

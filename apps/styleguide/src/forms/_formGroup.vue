@@ -3,7 +3,7 @@
 <template>
   <div class="form-group" :class="inplace ? 'm0' : ''">
     <label v-if="label && !inplace" :for="id">
-      <b>{{ label }}</b>
+      {{ label }}
     </label>
     <span v-if="required" class="float-right">(required)</span>
     <slot />

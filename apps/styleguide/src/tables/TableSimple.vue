@@ -10,7 +10,7 @@
             <slot name="colheader" />
           </th>
           <th v-for="col in columns" :key="col" scope="col">
-            <b>{{ col }}</b>
+            {{ col }}
           </th>
         </tr>
       </thead>

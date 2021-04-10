@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar bg-primary navbar-expand-lg navbar-dark">
     <button
       class="navbar-toggler"
       type="button"
@@ -12,7 +12,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <a v-if="logo" class="navbar-brand" href="/">
-      <img :src="logo" alt="brand-logo" class="molgenis-navbar-logo" />
+      <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav" v-if="items">

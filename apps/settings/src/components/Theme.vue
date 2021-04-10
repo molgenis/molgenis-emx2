@@ -3,17 +3,31 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <Spinner v-if="loading" />
     <div v-else>
-      <h5 class="card-title">Manage layout settings</h5>
-      <p>Use settings below to change look and feel of your group:</p>
+      <p>Use settings below to change look and feel:</p>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <InputString name="primary color" v-model="theme_primary" />
-      <InputString name="secondary color" v-model="theme_secondary" />
-      <ButtonAction @click="saveSettings">Save settings</ButtonAction>
+      <label>Choose primary color</label><br />
+      <v-swatches class="mb-2" v-model="primary" show-fallback />
+      <InputString label="Set logo url" v-model="logoURL" />
+      <!--      <div class="form-group form-inline">-->
+      <!--        <label>secondary color</label>-->
+      <!--        <v-swatches-->
+      <!--          class="ml-2"-->
+      <!--          v-model="secondary"-->
+      <!--          shapes="circles"-->
+      <!--          popover-x="left"-->
+      <!--          swatches="text-advanced"-->
+      <!--          show-fallback-->
+      <!--        />-->
+      <!--    </div>-->
+      <ButtonAction @click="saveSettings">Save theme</ButtonAction>
+      <br /><br />
+      <a :href="this.session.settings.cssURL">view theme css</a>
     </div>
     <ShowMore title="debug">
       <pre>
+primary: {{ primary }}
+logoURL: {{ logoURL }}
 session: {{ session }}
-
         </pre
       >
     </ShowMore>
@@ -28,7 +42,9 @@ import {
   MessageSuccess,
   ShowMore,
 } from "@mswertz/emx2-styleguide";
+import VSwatches from "vue-swatches";
 import { request } from "graphql-request";
+import "vue-swatches/dist/vue-swatches.css";
 
 export default {
   components: {
@@ -37,33 +53,65 @@ export default {
     MessageError,
     MessageSuccess,
     ShowMore,
+    VSwatches,
   },
   props: {
     session: Object,
   },
   data() {
     return {
-      theme_primary: null,
-      theme_secondary: null,
+      primary: null,
+      secondary: null,
+      logoURL: null,
       loading: false,
       graphqlError: null,
       success: null,
     };
   },
+  created() {
+    this.loadSettings();
+  },
+  watch: {
+    session() {
+      this.loadSettings();
+    },
+  },
   methods: {
+    loadSettings() {
+      if (this.session.settings.cssURL) {
+        this.logoURL = this.session.settings.logoURL;
+        console.log("load url " + this.session.settings.cssURL);
+        const urlParams = new URL(
+          this.session.settings.cssURL,
+          document.baseURI
+        ).searchParams;
+        this.primary = urlParams.get("primary")
+          ? "#" + urlParams.get("primary")
+          : null;
+        this.secondary = urlParams.get("secondary")
+          ? "#" + urlParams.get("secondary")
+          : null;
+      }
+    },
     saveSettings() {
       let settingsAlter = [];
       let settingsDrop = [];
-      if (this.theme_primary || this.theme_secondary) {
-        let cssUrl = "theme.css?";
-        if (this.theme_primary) cssUrl += "primary=" + this.theme_primary + "&";
-        if (this.theme_secondary)
-          cssUrl += "secondary=" + this.theme_secondary + "&";
+      let cssUrl = "theme.css?";
+      if (this.primary || this.secondary) {
+        if (this.primary) cssUrl += "primary=" + this.primary.substr(1) + "&";
+        if (this.secondary)
+          cssUrl += "secondary=" + this.secondary.substr(1) + "&";
         cssUrl = cssUrl.substr(0, cssUrl.length - 1);
         settingsAlter.push({ key: "cssURL", value: cssUrl });
       } else {
         settingsDrop.push({ key: "cssURL" });
       }
+      if (this.logoURL) {
+        settingsAlter.push({ key: "logoURL", value: this.logoURL });
+      } else {
+        settingsDrop.push({ key: "logoURL" });
+      }
+      this.$emit("reload");
       console.log(JSON.stringify(settingsAlter));
       this.loading = true;
       this.loading = true;

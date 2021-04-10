@@ -1,7 +1,6 @@
 <template>
   <div>
     <div style="background-color: #f4f4f4; min-height: calc(100vh - 70px)">
-      <MolgenisTheme :href="css" />
       <MolgenisTheme
         href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
       />
@@ -9,12 +8,12 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
       />
       <MolgenisMenu
-        logo="/apps/styleguide/assets/img/molgenis_logo.png"
+        :logo="logo"
         active="My search"
         :items="menu"
         :session="session"
       >
-        <MolgenisSession v-model="session" />
+        <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
@@ -58,14 +57,20 @@ export default {
     return {
       session: null,
       cssURL: null,
+      logoURL: null,
+      cssLoaded: false,
       fullscreen: false,
+      timestamp: Date.now(),
     };
   },
   computed: {
+    logo() {
+      if (this.logoURL) return this.logoURL;
+      else return "/apps/styleguide/assets/img/molgenis_logo_white.png";
+    },
     css() {
       if (this.cssURL) return this.cssURL;
-      else
-        return "/public_html/apps/styleguide/assets/css/bootstrap-molgenis-blue.css";
+      else return "theme.css";
     },
     menu() {
       if (this.session && this.session.settings && this.session.settings.menu) {
@@ -81,14 +86,22 @@ export default {
     session: {
       deep: true,
       handler() {
-        if (
-          this.session != undefined &&
-          this.session.settings &&
-          this.session.settings.cssURL
-        ) {
-          console.log("changed url " + this.session.settings.cssURL);
-          this.cssURL = this.session.settings.cssURL;
+        console.log("loading session");
+        if (this.session != undefined && this.session.settings) {
+          if (this.session.settings.cssURL) {
+            console.log("changed url " + this.session.settings.cssURL);
+            this.cssURL = this.session.settings.cssURL;
+          }
+          if (this.session.settings.logoURL) {
+            console.log("changed url " + this.session.settings.logoURL);
+            this.logoURL = this.session.settings.logoURL;
+          }
         }
+        //load themeCss
+        fetch(this.css).then(() => {
+          this.cssLoaded = true;
+          console.log("loaded");
+        });
         this.$emit("input", this.session);
       },
     },

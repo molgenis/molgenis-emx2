@@ -1,11 +1,12 @@
 <template>
   <div class="text-center">
-    This database was created using the open source
+    This database was created using the
     <a href="http://molgenis.org">MOLGENIS</a>&nbsp;
-    <a href="http://github.com/mswertz/molgenis-emx2">
-      molgenis-emx2 open source
-    </a>
-    software.
+    <a href="http://github.com/mswertz/molgenis-emx2"> molgenis-emx2 </a>
+    open source software (license:
+    <a href="https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE"
+      >LGPLv3</a
+    >).
     <slot />
     . <br />Please cite
     <a href="https://www.ncbi.nlm.nih.gov/pubmed/30165396">

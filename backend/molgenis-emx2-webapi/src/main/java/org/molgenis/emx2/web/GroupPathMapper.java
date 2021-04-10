@@ -29,6 +29,9 @@ public class GroupPathMapper {
     get("/:schema/:appname/graphql", GraphqlApi::handleSchemaRequests);
     post("/:schema/:appname/graphql", GraphqlApi::handleSchemaRequests);
 
+    // redirect theme
+    get("/:schema/:appname/theme.css", BootstrapThemeService::getCss);
+
     // return index.html file when in root
     get("/*/:appname/", GroupPathMapper::returnIndexFile);
 

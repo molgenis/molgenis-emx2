@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
 import Members from "./components/Members";
-import Layout from "./components/Layout";
+import Theme from "./components/Theme";
 import MenuManager from "./components/MenuManager";
 import PageManager from "./components/PageManager";
 
@@ -14,33 +14,33 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     {
-      name: "Layout",
-      path: "/Layout",
-      component: Layout
+      name: "Theme",
+      path: "/Theme",
+      component: Theme,
     },
     {
       name: "Members",
       path: "/Members",
-      component: Members
+      component: Members,
     },
     {
       name: "Menu",
       path: "/Menu",
-      component: MenuManager
+      component: MenuManager,
     },
     {
       name: "Pages",
       path: "/Pages",
-      component: PageManager
+      component: PageManager,
     },
     {
       path: "/",
-      redirect: "/members"
-    }
-  ]
+      redirect: "/members",
+    },
+  ],
 });
 
 new Vue({
   router,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");
