@@ -74,7 +74,7 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 }
 jib {
     from {
-        image = 'openjdk:13-alpine'
+        image = 'adoptopenjdk:13-jdk-hotspot-bionic'
     }
     to {
         image = imageName
