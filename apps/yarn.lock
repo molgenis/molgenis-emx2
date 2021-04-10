@@ -10205,10 +10205,10 @@ void-elements@^3.1.0:
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-3.1.0.tgz#614f7fbf8d801f0bb5f0661f5b2f5785750e4f09"
   integrity sha1-YU9/v42AHwu18GYfWy9XhXUOTwk=
 
-vue-cli-plugin-styleguidist@4.37.1:
-  version "4.37.1"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.37.1.tgz#e3b7a386155bd5a710a910e493f02808c1ae1940"
-  integrity sha512-G92YX68HB7b92aZ6TEahTbsqDWVc+SzrpmI2JGgUxUolSHE0U38PNIP42W2tVhMYC/uyvzi9YZz2+WRyMSUwzg==
+vue-cli-plugin-styleguidist@4.37.2:
+  version "4.37.2"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.37.2.tgz#fad8fd6e213549dffed7c4164dc290b64929f1f9"
+  integrity sha512-KilaD20a7+j5m7S/N7q+VxbbOwmJIVsHqZErw9SN5oY7lg0msvWeUHquXtpzJaFTGLi333e+bQD+WzkNrKkrJQ==
   dependencies:
     vue-styleguidist "^4.37.1"
     webpack-merge "^4.2.2"
