@@ -31,12 +31,15 @@
 * bookmarkable data explorer state, including back button
 * add form elements that are not columns, such as sections (CONSTANT)
 * add templates for row and record view to tables, including save as settings
+* added theming options by incorporating scss bootstrap service
+* changed excel to use streaming APIs to reduce danger of heapspace errors (still all is cached in mem so there are
+  limits)
+* can upload all subclasses within same Excel/CSV sheet (reduce lookup hell)
 
 ### todo first
 
-* test ERN data models against EMX2 (to see if we need additional visible/validation options)
-* can upload all subclasses within same Excel/CSV sheet (reduce lookup hell)
 * implement order by in table view
+* test ERN data models against EMX2 (to see if we need additional visible/validation options)
 * as admin can use user manager so I can update passwords for users
 * extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
 * oicd integration
