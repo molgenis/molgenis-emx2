@@ -49,6 +49,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // check setNullable ok
     Row row = new Row();
+    row.setString("id", "test1");
     row.setUuid("Test_uuid", java.util.UUID.randomUUID());
     row.setString("Test_string", "test");
     row.setBool("Test_bool", true);
@@ -91,8 +92,6 @@ public class TestCreateBasicDataColumnTypeColumns {
       assert (res.getText("Test_text") instanceof String);
       assert (res.getBoolean("Test_bool") instanceof Boolean);
       assert (res.getUuid("Test_uuid") instanceof java.util.UUID);
-
-      t2.insert(res);
     }
 
     StopWatch.print("checked getters");

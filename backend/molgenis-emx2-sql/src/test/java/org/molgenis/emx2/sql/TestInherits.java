@@ -8,6 +8,7 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.LIKE;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -172,5 +173,29 @@ public class TestInherits {
     assertEquals(1, studentTable.retrieveRows().size());
     assertEquals(1, employeeTable.retrieveRows().size());
     assertEquals(0, ceoTable.retrieveRows().size());
+
+    // test multi add
+    personTable.insert(
+        row(MG_TABLECLASS, "Manager", "fullName", "popeye"),
+        row(MG_TABLECLASS, "Employee", "fullName", "goofy"));
+    assertEquals(4, personTable.retrieveRows().size());
+    assertEquals(1, studentTable.retrieveRows().size());
+    assertEquals(3, employeeTable.retrieveRows().size());
+    assertEquals(1, manager.retrieveRows().size());
+    assertEquals(0, ceoTable.retrieveRows().size());
+
+    try {
+      personTable.insert(row(MG_TABLECLASS, "Wrong", "fullName", "popeye"));
+      fail("should error");
+    } catch (Exception e) {
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
+    try {
+      personTable.insert(row(MG_TABLECLASS, "Blaat.Wrong", "fullName", "popeye"));
+      fail("should error");
+    } catch (Exception e) {
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
   }
 }

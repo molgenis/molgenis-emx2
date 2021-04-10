@@ -19,11 +19,14 @@ public class TableSort {
     ArrayList<TableMetadata> result = new ArrayList<>();
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
 
+    // dependency come from foreign key and from inheritance
+
     while (!todo.isEmpty()) {
       int size = todo.size();
       for (int i = 0; i < todo.size(); i++) {
         TableMetadata current = todo.get(i);
         boolean depends = false;
+
         for (int j = 0; j < todo.size(); j++) {
           if (current.getInherit() != null
               && current.getImportSchema() == null

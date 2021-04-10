@@ -278,8 +278,9 @@ public class TestMergeAlter {
   private void executeAlterType(
       ColumnType fromType, Object fromVal, ColumnType toType, Object toVal, boolean roundtrip) {
     String tableName = "TEST_ALTER_" + fromType.toString() + "_TO_" + toType.toString();
-    schema.create(new TableMetadata(tableName).add(new Column("col1").setType(fromType)));
-    schema.getTable(tableName).insert(new Row().set("col1", fromVal));
+    schema.create(
+        new TableMetadata(tableName).add(column("id").setPkey(), column("col1").setType(fromType)));
+    schema.getTable(tableName).insert(new Row().set("id", "test1").set("col1", fromVal));
     schema.getTable(tableName).getMetadata().alterColumn(new Column("col1").setType(toType));
 
     if (toVal instanceof Object[]) {

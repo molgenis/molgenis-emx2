@@ -33,7 +33,8 @@ public class TestCopy {
             row("A", "a1", "B", List.of("b\"11\"", "b1,2")),
             row("A", "a2", "B", List.of("b21", "b22")));
 
-    schema.create(table("test", column("A"), column("B").setType(ColumnType.STRING_ARRAY)));
+    schema.create(
+        table("test", column("A").setPkey(), column("B").setType(ColumnType.STRING_ARRAY)));
 
     // copyOut
     SqlTable table = (SqlTable) schema.getTable("test");
@@ -46,7 +47,7 @@ public class TestCopy {
     // copyIn
     System.out.println("CopyIn");
 
-    schema.create(table("test2", column("A")));
+    schema.create(table("test2", column("A").setPkey()));
     table = (SqlTable) schema.getTable("test2");
     table.copyIn(rows);
     writer = new StringWriter();
