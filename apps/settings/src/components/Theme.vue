@@ -6,19 +6,14 @@
       <h5 class="card-title">Manage layout settings</h5>
       <p>Use settings below to change look and feel of your group:</p>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <InputString
-        label="cssURL"
-        v-model="settings['cssURL']"
-        :defaultValue="session.settings['cssURL']"
-        help="url of the bootstrap css you want to use"
-      />
+      <InputString name="primary color" v-model="theme_primary" />
+      <InputString name="secondary color" v-model="theme_secondary" />
       <ButtonAction @click="saveSettings">Save settings</ButtonAction>
     </div>
     <ShowMore title="debug">
       <pre>
 session: {{ session }}
 
-settings: {{ settings }}
         </pre
       >
     </ShowMore>
@@ -48,7 +43,8 @@ export default {
   },
   data() {
     return {
-      settings: {},
+      theme_primary: null,
+      theme_secondary: null,
       loading: false,
       graphqlError: null,
       success: null,
@@ -58,13 +54,17 @@ export default {
     saveSettings() {
       let settingsAlter = [];
       let settingsDrop = [];
-      Object.keys(this.settings).forEach((key) => {
-        if (this.settings[key] != undefined) {
-          settingsAlter.push({ key: key, value: this.settings[key] });
-        } else {
-          settingsDrop.push({ key: key });
-        }
-      });
+      if (this.theme_primary || this.theme_secondary) {
+        let cssUrl = "theme.css?";
+        if (this.theme_primary) cssUrl += "primary=" + this.theme_primary + "&";
+        if (this.theme_secondary)
+          cssUrl += "secondary=" + this.theme_secondary + "&";
+        cssUrl = cssUrl.substr(0, cssUrl.length - 1);
+        settingsAlter.push({ key: "cssURL", value: cssUrl });
+      } else {
+        settingsDrop.push({ key: "cssURL" });
+      }
+      console.log(JSON.stringify(settingsAlter));
       this.loading = true;
       this.loading = true;
       this.graphqlError = null;
@@ -74,7 +74,7 @@ export default {
         request(
           "graphql",
           `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
-          { settings: settingsAlter }
+          { alter: settingsAlter }
         )
           .then((data) => {
             this.success = data.change.message;
@@ -89,7 +89,7 @@ export default {
         request(
           "graphql",
           `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
-          { settings: settingsDrop }
+          { drop: settingsDrop }
         )
           .then((data) => {
             this.success = data.drop.message;
