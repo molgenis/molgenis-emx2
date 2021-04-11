@@ -8,7 +8,6 @@ import javax.sql.DataSource;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-public class MolgenisSessionManager implements DatabaseListener {
+public class MolgenisSessionManager {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
   private static final String SESSION_ATTRIBUTE = "session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
@@ -65,8 +64,8 @@ public class MolgenisSessionManager implements DatabaseListener {
           if (!database.hasUser(user)) {
             throw new MolgenisException("Authentication failed: User " + user + " not known");
           }
-          database.setListener(this);
           database.setActiveUser(user);
+          database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
           logger.info("Initializing session for user: {}", database.getActiveUser());
           MolgenisSession session = new MolgenisSession(database);
           logger.info("Initializing session complete");
@@ -105,25 +104,9 @@ public class MolgenisSessionManager implements DatabaseListener {
     }
   }
 
-  @Override
-  public void schemaRemoved(String schemaName) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Schema changed/removed, clearing from caches: {0}", schemaName);
-    }
-    for (MolgenisSession session : sessions.values()) {
-      session.clearSchemaCache(schemaName);
-    }
-  }
-
-  @Override
-  public void userChanged() {
+  void clearAllCaches() {
     for (MolgenisSession session : sessions.values()) {
       session.clearCache();
     }
-  }
-
-  @Override
-  public void schemaChanged(String schemaName) {
-    schemaRemoved(schemaName);
   }
 }

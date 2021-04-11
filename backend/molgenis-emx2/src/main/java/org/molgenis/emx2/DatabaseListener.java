@@ -7,4 +7,6 @@ public interface DatabaseListener {
   void userChanged();
 
   void schemaChanged(String schemaName);
+
+  void afterCommit();
 }

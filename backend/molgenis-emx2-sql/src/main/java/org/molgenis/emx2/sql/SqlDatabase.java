@@ -7,10 +7,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -34,10 +31,13 @@ public class SqlDatabase implements Database {
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private DatabaseListener listener =
       new DatabaseListener() {
+        private boolean reloadOnCommit = false;
+        private Set<String> reloadSchemas = new HashSet<>();
+
         @Override
         public void schemaRemoved(String name) {
-          schemaCache.remove(name);
-          schemaNames.remove(name);
+          clearCache();
+          logger.info("clear cache schemaRemoved");
         }
 
         @Override
@@ -50,6 +50,24 @@ public class SqlDatabase implements Database {
           // wait until end of transaction
           if (!inTx) {
             getSchema(schemaName).getMetadata().reload();
+            logger.info("reload schema " + schemaName + " on schemaChanged");
+          } else {
+            reloadOnCommit = true;
+            reloadSchemas.add(schemaName);
+          }
+        }
+
+        @Override
+        public void afterCommit() {
+          if (reloadOnCommit) {
+            for (String schemaName : reloadSchemas) {
+              if (getSchema(schemaName) != null) {
+                getSchema(schemaName).getMetadata().reload();
+              }
+              logger.info("reload schema " + schemaName + " on afterCommit");
+            }
+            reloadOnCommit = false;
+            reloadSchemas.clear();
           }
         }
       };
@@ -153,7 +171,7 @@ public class SqlDatabase implements Database {
   public Schema dropCreateSchema(String name) {
     tx(
         db -> {
-          if (db.getSchemaNames().contains(name)) {
+          if (getSchema(name) != null) {
             db.dropSchema(name);
           }
           db.createSchema(name);
@@ -303,14 +321,20 @@ public class SqlDatabase implements Database {
       } finally {
         this.inTx = false;
         jooq = originalContext;
+        listener.afterCommit();
       }
     }
   }
 
   @Override
+  public boolean inTx() {
+    return inTx;
+  }
+
+  @Override
   public void clearCache() {
-    this.schemaCache = new LinkedHashMap<>();
-    this.schemaNames = new ArrayList<>();
+    this.schemaCache.clear();
+    this.schemaNames.clear();
   }
 
   protected DSLContext getJooq() {

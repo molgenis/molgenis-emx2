@@ -62,15 +62,11 @@ public class MolgenisSession {
     return createTime;
   }
 
-  public void clearSchemaCache(String schemaName) {
-    this.graphqlPerSchema.remove(schemaName);
-    this.database.clearCache();
-    logger.info("cleared schema cache {} for user {}", schemaName, getSessionUser());
-  }
-
   public void clearCache() {
     this.graphqlPerSchema.clear();
-    logger.info("cleared schema for user {}", getSessionUser());
+    this.graphqlForDatabase = null;
+    this.database.clearCache();
+    logger.info("cleared database and caches for user {}", getSessionUser());
   }
 
   public void setCreateTime(DateTime newTime) {

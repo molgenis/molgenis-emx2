@@ -44,7 +44,7 @@
           <a :href="'../api/ttl'">ttl</a> /
           <a :href="'../api/jsonld'">jsonld</a>
         </p>
-        <div v-if="tables">
+        <div v-if="tables" :key="tablesHash">
           Export specific tables:
           <ul>
             <li v-for="table in tables" :key="table.name">
@@ -95,6 +95,14 @@ export default {
       loading: false,
     };
   },
+  computed: {
+    tablesHash() {
+      if (this.tables) {
+        this.tables.map((t) => t.name).join("-");
+      }
+      return null;
+    },
+  },
   methods: {
     loadSchema() {
       this.loading = true;
@@ -138,6 +146,7 @@ export default {
               console.log("finally");
               _this.file = null;
               _this.loading = false;
+              this.loadSchema();
             });
         };
       } else {
@@ -168,6 +177,7 @@ export default {
           .finally(() => {
             this.file = null;
             this.loading = false;
+            this.loadSchema();
           });
       }
     },

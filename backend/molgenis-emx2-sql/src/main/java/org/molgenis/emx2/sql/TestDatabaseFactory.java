@@ -63,7 +63,7 @@ public class TestDatabaseFactory {
 
   public static void deleteAll() {
 
-    jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
+    getJooq().dropSchemaIfExists("MOLGENIS").cascade().execute();
     deleteAllForeignKeyConstraints();
     deleteAllSchemas();
     deleteAllRoles();

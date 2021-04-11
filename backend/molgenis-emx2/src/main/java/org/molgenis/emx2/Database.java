@@ -40,5 +40,7 @@ public interface Database {
 
   DatabaseListener getListener();
 
+  boolean inTx();
+
   void clearCache();
 }
