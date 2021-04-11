@@ -6,6 +6,9 @@ module.exports = {
       "^/graphql": {
         target: "http://localhost:8080/CohortNetwork",
       },
+      "^/theme.css": {
+        target: "http://localhost:8080/CohortNetwork",
+      },
       "/apps": { target: "http://localhost:8080" },
     },
   },

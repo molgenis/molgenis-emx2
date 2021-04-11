@@ -11,40 +11,21 @@
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
-      <table class="table" v-if="schema.tables">
+      <table class="table bg-white" v-if="schema.tables">
         <thead>
           <tr>
-            <th scope="col">
-              Table
-              <div class="form-check form-check-inline">
-                <InputCheckbox
-                  class="ml-2"
-                  v-model="tableFilter"
-                  :defaultValue="tableFilter"
-                  :options="['external']"
-                  :clear="false"
-                />
-              </div>
-            </th>
-            <th scope="col" v-if="tableFilter.includes('external')">
-              externalSchema
-            </th>
+            <th scope="col">Table</th>
             <th scope="col">Description</th>
           </tr>
         </thead>
         <tr
           v-for="table in schema.tables.filter(
-            (table) =>
-              table.externalSchema == undefined ||
-              tableFilter.includes('external')
+            (table) => table.externalSchema == undefined
           )"
           :key="table.name"
         >
           <td>
             <router-link :to="table.name">{{ table.name }}</router-link>
-          </td>
-          <td v-if="tableFilter.includes('external')">
-            {{ table.externalSchema }}
           </td>
           <td>{{ table.description }}</td>
         </tr>

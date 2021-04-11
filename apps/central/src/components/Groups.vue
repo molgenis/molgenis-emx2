@@ -14,6 +14,7 @@
       :columns="['name', 'description']"
       :rows="schemas"
       @click="openGroup"
+      class="bg-white"
     >
       <template v-slot:rowheader="slotProps">
         <IconDanger
