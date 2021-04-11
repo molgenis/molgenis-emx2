@@ -2,7 +2,7 @@
   <div class="table-responsive">
     <table
       class="table table-bordered table-condensed"
-      :class="{ 'table-hover': selectColumn }"
+      :class="{ 'table-hover': tableHover }"
     >
       <thead>
         <tr>
@@ -14,28 +14,35 @@
           </th>
         </tr>
       </thead>
-      <tr v-for="row in rows" :key="JSON.stringify(row)">
-        <td v-if="hasColheader">
-          <slot name="rowheader" :row="row" />
-          <input
-            v-if="selectColumn"
-            type="checkbox"
-            :checked="isSelected(row)"
+      <tbody>
+        <tr v-for="row in rows" :key="JSON.stringify(row)">
+          <td v-if="hasColheader">
+            <div style="display: flex">
+              <slot name="rowheader" :row="row" />
+              <input
+                class="form-check form-check-inline mr-1"
+                v-if="selectColumn"
+                type="checkbox"
+                :checked="isSelected(row)"
+                @click="onRowClick(row)"
+              />
+            </div>
+          </td>
+          <td
+            v-for="col in columns"
+            :key="col"
             @click="onRowClick(row)"
-          />
-        </td>
-        <td
-          v-for="col in columns"
-          :key="col"
-          @click="onRowClick(row)"
-          style="cursor: pointer"
-        >
-          <ul v-if="Array.isArray(row[col])" class="list-unstyled">
-            <li v-for="(item, index3) in row[col]" :key="index3">{{ item }}</li>
-          </ul>
-          <span v-else-if="row[col]">{{ flattenObject(row[col]) }}</span>
-        </td>
-      </tr>
+            style="cursor: pointer"
+          >
+            <ul v-if="Array.isArray(row[col])" class="list-unstyled">
+              <li v-for="(item, index3) in row[col]" :key="index3">
+                {{ item }}
+              </li>
+            </ul>
+            <span v-else-if="row[col]">{{ flattenObject(row[col]) }}</span>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>
@@ -71,6 +78,9 @@ export default {
     }
   },
   computed: {
+    tableHover() {
+      return this.selectColumn || (this.$listeners && this.$listeners.click);
+    },
     hasColheader() {
       return (
         this.selectColumn ||
