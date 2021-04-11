@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div style="background-color: #f4f4f4; min-height: calc(100vh - 70px)">
+  <div style="background-color: #f4f4f4">
+    <div style="min-height: calc(100vh - 70px)">
       <MolgenisTheme
         href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
       />
