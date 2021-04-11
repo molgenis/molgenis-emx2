@@ -4,7 +4,11 @@
     <div>
       <MessageError v-if="error">{{ error }}</MessageError>
       <span v-if="session.email && session.email != 'anonymous'">
-        <a href="#" @click.prevent="showChangePasswordForm = true">
+        <a
+          href="#"
+          @click.prevent="showChangePasswordForm = true"
+          class="text-light"
+        >
           Hi {{ session.email }}</a
         >&nbsp;
         <ChangePasswordForm
@@ -30,7 +34,7 @@
         <SignupForm
           v-if="showSignupForm"
           :error="error"
-          @cancel="closeSignupForm"
+          @close="closeSignupForm"
         />
       </span>
     </div>

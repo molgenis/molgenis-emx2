@@ -1,9 +1,13 @@
 <template>
   <Spinner v-if="loading" />
-  <div v-else-if="success">
-    <MessageSuccess>{{ success }}</MessageSuccess>
-    <ButtonAlt @click="cancel">Close</ButtonAlt>
-  </div>
+  <LayoutModal v-else-if="success" title="Sign up" :show="true">
+    <template v-slot:body>
+      <MessageSuccess>{{ success }}</MessageSuccess>
+    </template>
+    <template v-slot:footer>
+      <ButtonAlt @click="close">Close</ButtonAlt>
+    </template>
+  </LayoutModal>
   <LayoutModal v-else title="Sign up" :show="true">
     <template v-slot:body>
       <LayoutForm>
@@ -30,7 +34,7 @@
       </LayoutForm>
     </template>
     <template v-slot:footer>
-      <ButtonAlt @click="cancel">Cancel</ButtonAlt>
+      <ButtonAlt @click="close">Cancel</ButtonAlt>
       <ButtonAction @click="signup">Sign up</ButtonAction>
     </template>
   </LayoutModal>
@@ -104,12 +108,12 @@ export default {
         this.loading = false;
       }
     },
-    cancel() {
+    close() {
       /**
-       * when cancel is pushed
+       * when close is pushed
        */
       this.error = null;
-      this.$emit("cancel");
+      this.$emit("close");
     },
   },
 };
@@ -121,7 +125,7 @@ Example
 <template>
   <div>
     <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
-    <MolgenisSignup v-else @signup="SignupTest" @cancel="display = false"/>
+    <MolgenisSignup v-else @signup="SignupTest" @close="display = false"/>
   </div>
 </template>
 <script>
