@@ -46,6 +46,8 @@
 
 ### todo next
 
+* add favicon and fonts to the theme settings
+* enable upload of logo and favicon files instead of linking them
 * check roundtrip download/update of data and model and settings ('all')
 * add audit trail log
 * download using filter that is applied in explorer view
