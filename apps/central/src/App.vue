@@ -1,10 +1,6 @@
 <template>
   <div id="app">
-    <Molgenis
-      title="Welcome to MOLGENIS"
-      :menuItems="menuItems"
-      v-model="session"
-    >
+    <Molgenis :menuItems="menuItems" v-model="session">
       <Groups :session="session" :key="JSON.stringify(session)" />
     </Molgenis>
   </div>
@@ -29,14 +25,15 @@ export default {
           href: "/apps/graphql-playground/",
         },
         {
-          label: "Styleguide",
+          label: "Styleguide (for developers)",
           href: "/apps/styleguide/",
         },
-        {
-          label: "Docs",
-          href: "/apps/docs/",
-          newWindow: true,
-        },
+        // remove docs until available
+        // {
+        //   label: "Docs",
+        //   href: "/apps/docs/",
+        //   newWindow: true,
+        // },
       ],
     };
   },

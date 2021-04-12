@@ -9,17 +9,13 @@
 </template>
 
 <script>
+import ButtonAction from "./ButtonAction";
+
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
+  extends: ButtonAction,
   props: {
     icon: String,
-    label: String,
-  },
-  methods: {
-    onClick() {
-      /** emitted on click */
-      this.$emit("click");
-    },
   },
 };
 </script>

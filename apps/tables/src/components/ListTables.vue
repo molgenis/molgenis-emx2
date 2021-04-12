@@ -1,17 +1,19 @@
 <template>
-  <div v-if="schema">
+  <div v-if="schema" class="container">
     <h1>Tables in '{{ schema.name }}'</h1>
-    <MessageError v-if="!schema">
-      No tables found. Might you need to login?
-    </MessageError>
-    <MessageError v-if="!schema.tables">
-      No tables found. Might you need to create them?
-    </MessageError>
+    <MessageWarning v-if="!schema">
+      No tables found. Might you need to sign in?
+    </MessageWarning>
+    <MessageWarning v-if="!schema.tables">
+      No tables found. You might want to go to design
+      <a href="../schema/">design</a> or
+      <a href="../updownload/">upload</a> your schema to create them.
+    </MessageWarning>
     <div v-else>
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
-      <table class="table bg-white" v-if="schema.tables">
+      <table class="table bg-white table-hover" v-if="schema.tables">
         <thead>
           <tr>
             <th scope="col">Table</th>
@@ -23,14 +25,19 @@
             (table) => table.externalSchema == undefined
           )"
           :key="table.name"
+          @click="router.push({ path: table.name })"
         >
           <td>
-            <router-link :to="table.name">{{ table.name }}</router-link>
+            <router-link :to="table.name"> {{ table.name }}</router-link>
           </td>
           <td>{{ table.description }}</td>
         </tr>
       </table>
     </div>
+    <ShowMore title="debug">
+      session: {{ session }} <br /><br />
+      schema: {{ schema }}
+    </ShowMore>
   </div>
 </template>
 
@@ -39,16 +46,18 @@ import {
   ButtonDropdown,
   DataTable,
   InputCheckbox,
-  MessageError,
+  MessageWarning,
+  ShowMore,
 } from "@mswertz/emx2-styleguide";
 
 export default {
   name: "App",
   components: {
     DataTable,
-    MessageError,
+    MessageWarning,
     InputCheckbox,
     ButtonDropdown,
+    ShowMore,
   },
   props: {
     session: Object,

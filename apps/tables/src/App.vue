@@ -6,21 +6,16 @@
       :schema="schema"
       :key="JSON.stringify(session)"
     />
-    <ShowMore title="debug">
-      session: {{ session }} <br /><br />
-      schema: {{ schema }}
-    </ShowMore>
   </Molgenis>
 </template>
 
 <script>
-import { Molgenis, ShowMore } from "@mswertz/emx2-styleguide";
+import { Molgenis } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
 export default {
   components: {
     Molgenis,
-    ShowMore,
   },
   data() {
     return {

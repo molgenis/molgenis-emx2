@@ -7,17 +7,10 @@
 
 <script>
 /** Button that is shown as a icon */
+import IconAction from "./IconAction";
+
 export default {
-  props: {
-    icon: String,
-    label: String,
-  },
-  methods: {
-    onClick() {
-      /** emitted on click */
-      this.$emit("click");
-    },
-  },
+  extends: IconAction,
 };
 </script>
 

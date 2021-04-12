@@ -1,6 +1,7 @@
 <template>
   <Spinner v-if="loading" />
-  <div v-else>
+  <div v-else class="container">
+    <h1>Welcome to MOLGENIS</h1>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <IconBar>
       <MessageWarning v-if="count == 0 && session.email == 'anonymous'">
@@ -23,26 +24,33 @@
         placholder="search by name"
         v-model="search"
       />
-      <TableSimple
-        :columns="['name', 'description']"
-        :rows="schemasFiltered"
-        @click="openGroup"
-        class="bg-white"
-      >
-        <template v-slot:rowheader="slotProps">
-          <IconAction
-            icon="external-link"
-            @click="openGroup(slotProps.row)"
-            :key="slotProps.row.name + 'open'"
-          />
-          <IconDanger
-            v-if="session && session.email == 'admin'"
-            icon="trash"
-            @click="openDeleteSchema(slotProps.row.name)"
-            :key="slotProps.row.name"
-          />
-        </template>
-      </TableSimple>
+      <table class="table table-hover table-bordered bg-white">
+        <thead>
+          <th style="width: 1px"></th>
+          <th>name</th>
+          <th>description</th>
+        </thead>
+        <tbody>
+          <tr v-for="schema in schemasFiltered" :key="schema.name">
+            <td>
+              <div style="display: flex">
+                <IconAction icon="external-link" @click="openGroup()" />
+                <IconDanger
+                  v-if="session && session.email == 'admin'"
+                  icon="trash"
+                  @click="openDeleteSchema(schema.name)"
+                />
+              </div>
+            </td>
+            <td>
+              <a href="#" @click.prevent="openGroup(schema.name)">{{
+                schema.name
+              }}</a>
+            </td>
+            <td>{{ schema.description }}</td>
+          </tr>
+        </tbody>
+      </table>
       <SchemaCreateModal v-if="showCreateSchema" @close="closeCreateSchema" />
       <SchemaDeleteModal
         v-if="showDeleteSchema"
@@ -116,8 +124,8 @@ export default {
     this.getSchemaList();
   },
   methods: {
-    openGroup(group) {
-      window.open("/" + group.name + "/tables/", "_blank");
+    openGroup(name) {
+      window.open("/" + name + "/tables/", "_blank");
     },
     openCreateSchema() {
       this.showCreateSchema = true;

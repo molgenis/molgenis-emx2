@@ -1,9 +1,6 @@
 <template>
   <div class="table-responsive">
-    <table
-      class="table table-bordered table-condensed"
-      :class="{ 'table-hover': tableHover }"
-    >
+    <table class="table table-bordered" :class="{ 'table-hover': tableHover }">
       <thead>
         <tr>
           <th scope="col" style="width: 1px" v-if="hasColheader">
