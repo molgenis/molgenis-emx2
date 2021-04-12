@@ -137,8 +137,7 @@ public class SqlDatabase implements Database {
             db.getSchema(metadata.getName())
                 .addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
-          schemaCache.put(name, metadata);
-          schemaNames.add(name);
+          getListener().schemaChanged(metadata.getName());
         });
     this.log(start, "created schema " + name);
     return new SqlSchema(this, metadata);
