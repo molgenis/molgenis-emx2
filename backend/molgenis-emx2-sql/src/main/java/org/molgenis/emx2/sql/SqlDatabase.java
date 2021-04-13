@@ -50,6 +50,7 @@ public class SqlDatabase implements Database {
           // wait until end of transaction
           if (!inTx) {
             getSchema(schemaName).getMetadata().reload();
+            clearCache();
             logger.info("reload schema " + schemaName + " on schemaChanged");
           } else {
             reloadOnCommit = true;
@@ -66,6 +67,7 @@ public class SqlDatabase implements Database {
               }
               logger.info("reload schema " + schemaName + " on afterCommit");
             }
+            clearCache();
             reloadOnCommit = false;
             reloadSchemas.clear();
           }
@@ -137,8 +139,8 @@ public class SqlDatabase implements Database {
             db.getSchema(metadata.getName())
                 .addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
-          getListener().schemaChanged(metadata.getName());
         });
+    getListener().schemaChanged(metadata.getName());
     this.log(start, "created schema " + name);
     return new SqlSchema(this, metadata);
   }
@@ -310,10 +312,8 @@ public class SqlDatabase implements Database {
                   this.clearActiveUser();
                 });
       } catch (MolgenisException me) {
-        clearCache();
         throw me;
       } catch (DataAccessException dae) {
-        clearCache();
         throw new SqlMolgenisException(dae);
       } catch (SQLException e) {
         throw new MolgenisException("Transaction failed", e);
