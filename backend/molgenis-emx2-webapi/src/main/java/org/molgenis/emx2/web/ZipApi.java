@@ -64,7 +64,8 @@ public class ZipApi {
     }
   }
 
-  static String postZip(Request request, Response response) throws IOException, ServletException {
+  static String postZip(Request request, Response response)
+      throws MolgenisException, IOException, ServletException {
     Long start = System.currentTimeMillis();
     Schema schema = getSchema(request);
     // get uploaded file

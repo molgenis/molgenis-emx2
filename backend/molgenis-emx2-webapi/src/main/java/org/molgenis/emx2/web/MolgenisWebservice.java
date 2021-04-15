@@ -13,7 +13,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
-import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,23 +84,7 @@ public class MolgenisWebservice {
 
     // handling of exceptions
     exception(
-        NullPointerException.class,
-        (e, req, res) -> {
-          logger.error(e.getMessage());
-          res.status(400);
-          res.type(ACCEPT_JSON);
-          res.body(e.getMessage());
-        });
-    exception(
-        MolgenisException.class,
-        (e, req, res) -> {
-          logger.error(e.getMessage());
-          res.status(400);
-          res.type(ACCEPT_JSON);
-          res.body(molgenisExceptionToJson(e));
-        });
-    exception(
-        GraphqlException.class,
+        Exception.class,
         (e, req, res) -> {
           logger.error(e.getMessage());
           res.status(400);

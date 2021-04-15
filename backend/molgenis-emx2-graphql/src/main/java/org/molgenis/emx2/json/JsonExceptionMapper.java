@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.MolgenisException;
 
 public class JsonExceptionMapper {
 
@@ -13,7 +12,7 @@ public class JsonExceptionMapper {
     // hide public constructor
   }
 
-  public static String molgenisExceptionToJson(MolgenisException e) {
+  public static String molgenisExceptionToJson(Exception e) {
     Map<String, String> map = new LinkedHashMap<>();
     map.put("message", e.getMessage());
 
