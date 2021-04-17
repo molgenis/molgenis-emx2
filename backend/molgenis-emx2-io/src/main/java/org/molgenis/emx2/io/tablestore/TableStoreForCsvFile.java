@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -40,5 +42,10 @@ public class TableStoreForCsvFile implements TableStore {
   @Override
   public boolean containsTable(String name) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection<String> tableNames() {
+    return List.of(csvFile.toFile().getName());
   }
 }

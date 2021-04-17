@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import spark.Request;
 import spark.Response;
@@ -82,7 +83,12 @@ public class ZipApi {
       String fileName = request.raw().getPart("file").getSubmittedFileName();
 
       if (fileName.endsWith(".zip")) {
-        MolgenisIO.fromZipFile(tempFile.toPath(), schema);
+        if (request.queryParams("async") != null) {
+          String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema));
+          return new TaskReference(id, schema).toString();
+        } else {
+          MolgenisIO.fromZipFile(tempFile.toPath(), schema);
+        }
       } else if (fileName.endsWith(".xlsx")) {
         MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
       } else {
@@ -95,7 +101,9 @@ public class ZipApi {
       response.status(200);
       return "Import success in " + (System.currentTimeMillis() - start) + "ms";
     } finally {
-      Files.delete(tempFile.toPath());
+      if (request.queryParams("async") == null) {
+        Files.delete(tempFile.toPath());
+      }
     }
   }
 

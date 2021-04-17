@@ -1,11 +1,8 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.io.emx2.Emx2.inputMetadata;
 import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
-import static org.molgenis.emx2.io.emx2.Emx2Roles.inputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Roles.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
-import static org.molgenis.emx2.io.emx2.Emx2Tables.inputTable;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 
 import java.nio.file.Path;
@@ -16,37 +13,13 @@ import org.molgenis.emx2.io.tablestore.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Short hands for running the tasks */
 public class MolgenisIO {
 
   private static final Logger logger = LoggerFactory.getLogger(MolgenisIO.class.getName());
 
   private MolgenisIO() {
     // hide constructor
-  }
-
-  static void inputAll(TableStore store, Schema schema) {
-    long start = System.currentTimeMillis();
-    schema.tx(
-        db -> {
-          // read emx1 metadata, if available (to be removed in future versions)
-          if (store.containsTable("attributes")) {
-            Emx1.uploadFromStoreToSchema(store, schema);
-          } else if (store.containsTable("molgenis")) {
-            inputMetadata(store, schema);
-          }
-
-          for (Table table : schema.getTablesSorted()) {
-            inputTable(store, table);
-          }
-
-          // read settings
-
-          // read user roles
-          inputRoles(store, schema);
-        });
-    if (logger.isInfoEnabled()) {
-      logger.info("Import transaction completed in {} ms", System.currentTimeMillis() - start);
-    }
   }
 
   private static void outputAll(TableStore store, Schema schema) {
@@ -97,14 +70,18 @@ public class MolgenisIO {
   }
 
   public static void fromDirectory(Path directory, Schema schema) {
-    inputAll(new TableStoreForCsvFilesDirectory(directory), schema);
+    new ImportDirectoryTask(directory, schema);
   }
 
   public static void fromZipFile(Path zipFile, Schema schema) {
-    inputAll(new TableStoreForCsvInZipFile(zipFile), schema);
+    new ImportCsvZipTask(zipFile, schema);
   }
 
   public static void importFromExcelFile(Path excelFile, Schema schema) {
-    inputAll(new TableStoreForXlsxFile(excelFile), schema);
+    new ImportExcelTask(excelFile, schema).run();
+  }
+
+  public static void fromStore(TableStore store, Schema schema) {
+    new ImportSchemaTask(store, schema).run();
   }
 }

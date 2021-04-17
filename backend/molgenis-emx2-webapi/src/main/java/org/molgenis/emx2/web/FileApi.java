@@ -16,7 +16,6 @@ import spark.Response;
 
 public class FileApi {
   public static void create() {
-    /// :schema/api/file/:table/:column/:id
     get("/:schema/api/file/:table/:column/:id", FileApi::getFile);
   }
 

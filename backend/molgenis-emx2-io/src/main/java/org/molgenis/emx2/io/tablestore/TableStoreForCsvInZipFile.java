@@ -6,9 +6,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
@@ -132,6 +130,25 @@ public class TableStoreForCsvInZipFile implements TableStore {
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed: ", ioe);
     }
+  }
+
+  @Override
+  public Collection<String> tableNames() {
+    List<String> result = new ArrayList<>();
+    try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
+      zf.stream()
+          .forEach(
+              e -> {
+                String name = e.getName();
+                if (name.toLowerCase().endsWith(".csv") || name.toLowerCase().endsWith(".tsv")) {
+                  name = name.substring(0, name.length() - 4);
+                }
+                result.add(name);
+              });
+    } catch (IOException ioe) {
+      throw new MolgenisException("Import failed: ", ioe);
+    }
+    return result;
   }
 
   // magic function to allow file in subfolder

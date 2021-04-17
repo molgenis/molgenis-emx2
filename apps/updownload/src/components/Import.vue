@@ -1,62 +1,83 @@
 <template>
-  <Molgenis :title="'Up/Download for ' + schema">
+  <Molgenis v-model="session">
     <Spinner v-if="loading" />
-    <div v-else>
+    <div v-else class="bg-white container">
+      <h1>Up/Download for {{ schema }}</h1>
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <p>
-        Import and export data (tables) and metadata (schema, settings) in bulk.
-      </p>
-      <h4>Upload</h4>
-      <div class="mb-2">
-        <p>
-          Import data by uploading files in excel, zip, json or yaml format.
-        </p>
-        <form class="form-inline">
-          <InputFile v-model="file" />
-          <ButtonAction @click="upload('excel')" v-if="file != undefined">
-            Import Excel
-          </ButtonAction>
-          <ButtonAction @click="upload('zip')" v-if="file != undefined">
-            Import Zip
-          </ButtonAction>
-          <ButtonAction @click="upload('json')" v-if="file != undefined">
-            Import JSON
-          </ButtonAction>
-          <ButtonAction @click="upload('yaml')" v-if="file != undefined">
-            Import YAML
-          </ButtonAction>
-        </form>
-        <br />
+      <div v-if="taskUrl">
+        <h4>Progress of current upload:</h4>
+        <ul class="fa-ul">
+          <Task :task="task" />
+        </ul>
+        <ButtonAction
+          v-if="task.status == 'COMPLETED' || task.status == 'ERROR'"
+          @click="done"
+        >
+          Done
+        </ButtonAction>
       </div>
-      <h4>Download</h4>
-      <p>Export data by downloading various file formats:</p>
-      <div>
-        <p>
-          Export schema as <a :href="'../api/csv'">csv</a> /
-          <a :href="'../api/json'">json</a> /
-          <a :href="'../api/yaml'">yaml</a>
-        </p>
-        <p>
-          Export all data as
-          <a :href="'../api/excel'">excel</a> /
-          <a :href="'../api/zip'">csv.zip</a> /
-          <a :href="'../api/ttl'">ttl</a> /
-          <a :href="'../api/jsonld'">jsonld</a>
-        </p>
-        <div v-if="tables" :key="tablesHash">
-          Export specific tables:
-          <ul>
-            <li v-for="table in tables" :key="table.name">
-              {{ table.name }}: <a :href="'../api/csv/' + table.name">csv</a> /
-              <a :href="'../api/excel/' + table.name">excel</a>
-            </li>
-          </ul>
+      <div v-else class="mb-2">
+        <MessageWarning
+          v-if="
+            !session ||
+            !(
+              session.email == 'admin' ||
+              ['Manager', 'Editor'].includes(session.roles)
+            )
+          "
+        >
+          You don't have permission to upload data. Might you need to login?
+        </MessageWarning>
+        <div v-else>
+          <p>
+            Import and export data (tables) and metadata (schema, settings) in
+            bulk.
+          </p>
+          <h4>Upload</h4>
+          <div>
+            <p>
+              Import data by uploading files in excel, zip, json or yaml format.
+            </p>
+            <form class="form-inline">
+              <InputFile v-model="file" />
+              <ButtonAction @click="upload" v-if="file != undefined">
+                Import
+              </ButtonAction>
+            </form>
+            <br />
+          </div>
         </div>
-        <p>
-          Note to programmers: the GET endpoints above also accept http POST
-          command for updates, and DELETE commands for deletions.
-        </p>
+        <h4>Download</h4>
+        <p>Export data by downloading various file formats:</p>
+        <div>
+          <p>
+            Export schema as <a :href="'../api/csv'">csv</a> /
+            <a :href="'../api/json'">json</a> /
+            <a :href="'../api/yaml'">yaml</a>
+          </p>
+          <p>
+            Export all data as
+            <a :href="'../api/excel'">excel</a> /
+            <a :href="'../api/zip'">csv.zip</a> /
+            <a :href="'../api/ttl'">ttl</a> /
+            <a :href="'../api/jsonld'">jsonld</a>
+          </p>
+          <div v-if="tables" :key="tablesHash">
+            Export specific tables:
+            <ul>
+              <li v-for="table in tables" :key="table.name">
+                {{ table.name }}:
+                <a :href="'../api/csv/' + table.name">csv</a> /
+                <a :href="'../api/excel/' + table.name">excel</a>
+              </li>
+            </ul>
+          </div>
+          <p>
+            Note to programmers: the GET endpoints above also accept http POST
+            command for updates, and DELETE commands for deletions.
+          </p>
+        </div>
       </div>
     </div>
   </Molgenis>
@@ -65,34 +86,39 @@
 <script>
 import {
   ButtonAction,
-  ButtonAlt,
   InputFile,
   MessageError,
   MessageSuccess,
+  MessageWarning,
   Molgenis,
   Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
+import Task from "./Task";
 
 /** Data import tool */
 export default {
   components: {
     ButtonAction,
-    ButtonAlt,
     InputFile,
     MessageError,
     MessageSuccess,
+    MessageWarning,
     Spinner,
     Molgenis,
+    Task,
   },
   data: function () {
     return {
+      session: null,
       schema: null,
       tables: [],
       file: null,
       error: null,
       success: null,
       loading: false,
+      taskUrl: null,
+      task: null,
     };
   },
   computed: {
@@ -104,6 +130,49 @@ export default {
     },
   },
   methods: {
+    done() {
+      this.task = null;
+      this.taskUrl = null;
+    },
+    monitorTask() {
+      fetch(this.taskUrl)
+        .then((response) => {
+          if (response.ok) {
+            response.json().then((task) => {
+              this.task = task;
+              if (!["COMPLETED", "ERROR"].includes(this.task.status)) {
+                setTimeout(this.monitorTask, 250);
+              } else {
+                if (this.task.status == "ERROR") {
+                  this.error = this.task.status.description;
+                  this.success = null;
+                } else {
+                  this.error = null;
+                  this.success = this.task.status.description;
+                }
+              }
+            });
+          } else {
+            response.text().then((error) => {
+              this.error = error;
+              if (!["COMPLETED", "ERROR"].includes(this.task.status)) {
+                setTimeout(this.monitorTask, 250);
+              } else {
+                if (this.task.status == "ERROR") {
+                  this.error = this.task.status.description;
+                  this.success = null;
+                } else {
+                  this.error = null;
+                  this.success = this.task.status.description;
+                }
+              }
+            });
+          }
+        })
+        .catch((error) => {
+          this.error = error;
+        });
+    },
     loadSchema() {
       this.loading = true;
       request("graphql", "{_schema{name,tables{name}}}")
@@ -116,11 +185,13 @@ export default {
         })
         .finally((this.loading = false));
     },
-    upload(type) {
+    upload() {
       this.error = null;
       this.success = null;
       this.loading = true;
       //upload file contents
+      let type = this.file.name.split(".").pop();
+      console.log(type);
       if (["csv", "json", "yaml"].includes(type)) {
         let reader = new FileReader();
         reader.readAsText(this.file);
@@ -149,20 +220,25 @@ export default {
               this.loadSchema();
             });
         };
-      } else {
+      } else if (["xlsx", "zip"].includes(type)) {
         let formData = new FormData();
         formData.append("file", this.file);
-        let url = "/" + this.schema + "/api/" + type;
+        let url =
+          "/" +
+          this.schema +
+          "/api/" +
+          (type == "xlsx" ? "excel" : "zip") +
+          "?async=true";
         fetch(url, {
           method: "POST",
           body: formData,
         })
           .then((response) => {
             if (response.ok) {
-              // todo make proper json
-              response.text().then((success) => {
-                this.success = success;
+              response.json().then((task) => {
+                this.taskUrl = task.url;
                 this.error = null;
+                this.monitorTask();
               });
             } else {
               response.json().then((error) => {
@@ -179,6 +255,8 @@ export default {
             this.loading = false;
             this.loadSchema();
           });
+      } else {
+        this.error = "File extension " + type + " not supported";
       }
     },
   },

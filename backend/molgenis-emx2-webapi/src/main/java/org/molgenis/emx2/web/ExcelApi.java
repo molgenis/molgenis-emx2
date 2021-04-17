@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import spark.Request;
 import spark.Response;
@@ -42,7 +43,7 @@ public class ExcelApi {
     get(tablePath, ExcelApi::getExcelTable);
   }
 
-  static String postExcel(Request request, Response response) throws IOException, ServletException {
+  static Object postExcel(Request request, Response response) throws IOException, ServletException {
     Long start = System.currentTimeMillis();
     Schema schema = getSchema(request);
 
@@ -55,9 +56,14 @@ public class ExcelApi {
     try (InputStream input = request.raw().getPart("file").getInputStream()) {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-    MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
-    response.status(200);
-    return "Import success in " + (System.currentTimeMillis() - start) + "ms";
+    if (request.queryParams("async") != null) {
+      String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema));
+      return new TaskReference(id, schema).toString();
+    } else {
+      MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
+      response.status(200);
+      return "Import success in " + (System.currentTimeMillis() - start) + "ms";
+    }
   }
 
   static String getExcel(Request request, Response response) throws IOException {

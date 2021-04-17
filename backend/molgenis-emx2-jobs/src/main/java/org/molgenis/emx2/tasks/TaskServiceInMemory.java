@@ -1,6 +1,5 @@
-package org.molgenis.emx2.jobs;
+package org.molgenis.emx2.tasks;
 
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -10,39 +9,40 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class JobServiceInMemory implements JobService {
+public class TaskServiceInMemory implements TaskService {
   private ExecutorService executorService;
-  private Map<String, Job> jobs = new LinkedHashMap<>();
+  private Map<String, Task> tasks = new LinkedHashMap<>();
 
-  public JobServiceInMemory() {
+  public TaskServiceInMemory() {
     executorService =
         new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
   }
 
   @Override
-  public String add(Job job) {
+  public String submit(Task task) {
     String id = UUID.randomUUID().toString();
-    jobs.put(id, job);
-    executorService.submit(job);
+    tasks.put(id, task);
+    executorService.submit(task);
     return id;
   }
 
   @Override
   public Set<String> getJobIds() {
-    return jobs.keySet();
+    return tasks.keySet();
   }
 
   @Override
-  public Job getJob(String id) {
-    return jobs.get(id);
+  public Task getTask(String id) {
+    return tasks.get(id);
   }
 
   @Override
-  public void removeBeforeTime(LocalDateTime before) {
-    Set<String> keys = jobs.keySet();
+  public void removeOlderThan(long milliseconds) {
+    Set<String> keys = tasks.keySet();
     for (String key : keys) {
-      if (jobs.get(key).getEndTime() != null && jobs.get(key).getEndTime().isBefore(before)) {
-        jobs.remove(key);
+      if (tasks.get(key).end != 0
+          && tasks.get(key).end < System.currentTimeMillis() - milliseconds) {
+        tasks.remove(key);
       }
     }
   }

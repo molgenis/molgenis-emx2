@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
@@ -50,6 +51,11 @@ public class TableStoreForCsvInMemory implements TableStore {
   @Override
   public boolean containsTable(String name) {
     return store.containsKey(name);
+  }
+
+  @Override
+  public Collection<String> tableNames() {
+    return this.store.keySet();
   }
 
   public String viewContents(String name) {

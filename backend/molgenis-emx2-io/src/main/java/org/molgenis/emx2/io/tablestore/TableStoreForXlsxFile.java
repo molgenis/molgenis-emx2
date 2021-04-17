@@ -27,6 +27,14 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
+  public Collection<String> tableNames() {
+    if (this.cache == null) {
+      this.cache();
+    }
+    return this.cache.keySet();
+  }
+
+  @Override
   public void writeTable(String name, Iterable<Row> rows) {
     try {
       if (name.length() > 30)

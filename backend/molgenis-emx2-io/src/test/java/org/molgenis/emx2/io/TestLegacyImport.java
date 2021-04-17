@@ -67,7 +67,7 @@ public class TestLegacyImport {
   //  }
 
   private void executeTest(TableStore store, Schema schema) {
-    MolgenisIO.inputAll(store, schema);
+    MolgenisIO.fromStore(store, schema);
 
     assertEquals(22, schema.getTableNames().size());
 

@@ -20,6 +20,7 @@ public class MolgenisSessionManager {
   private static final String SESSION_ATTRIBUTE = "session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
 
+  // key is the user, might lead to trouble
   private Map<String, MolgenisSession> sessions = new LinkedHashMap<>();
   private DataSource dataSource;
 
@@ -28,8 +29,6 @@ public class MolgenisSessionManager {
   }
 
   public synchronized MolgenisSession getSession(Request request) {
-    // todo authentication
-
     // already in a session, then return that
     if (request.session().attribute(SESSION_ATTRIBUTE) != null) {
       MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);

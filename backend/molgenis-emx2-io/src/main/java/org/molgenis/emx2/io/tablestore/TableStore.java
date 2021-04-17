@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.tablestore;
 
+import java.util.Collection;
 import org.molgenis.emx2.Row;
 
 public interface TableStore {
@@ -11,4 +12,6 @@ public interface TableStore {
   void processTable(String name, RowProcessor processor);
 
   boolean containsTable(String name);
+
+  Collection<String> tableNames();
 }

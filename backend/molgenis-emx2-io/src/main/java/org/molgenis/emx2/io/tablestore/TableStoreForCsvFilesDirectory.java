@@ -1,10 +1,13 @@
 package org.molgenis.emx2.io.tablestore;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
@@ -64,5 +67,14 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   public boolean containsTable(String name) {
     Path path = directoryPath.resolve(name + CSV_EXTENSION);
     return path.toFile().exists();
+  }
+
+  @Override
+  public Collection<String> tableNames() {
+    List<String> result = new ArrayList<>();
+    for (File f : directoryPath.toFile().listFiles()) {
+      result.add(f.getName()); // todo strip extension
+    }
+    return result;
   }
 }

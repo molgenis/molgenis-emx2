@@ -73,6 +73,7 @@ public class MolgenisWebservice {
     ExcelApi.create();
     FileApi.create();
     JsonYamlApi.create();
+    TaskApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     BootstrapThemeService.create();
