@@ -51,7 +51,10 @@ public class ImportSchemaTask extends Task {
             // warn for unknown sheet names
             Collection<String> tableNames = schema.getTableNames();
             for (String sheet : store.tableNames()) {
-              if (!"molgenis".equals(sheet) && !tableNames.contains(sheet)) {
+              if (!"molgenis".equals(sheet)
+                  && !"molgenis_settings".equals(sheet)
+                  && !"molgenis_members".equals(sheet)
+                  && !tableNames.contains(sheet)) {
                 this.step(
                         "Sheet with name '"
                             + sheet
