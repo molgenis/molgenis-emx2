@@ -1,7 +1,6 @@
 <template>
   <Molgenis v-model="session">
-    <Spinner v-if="loading" />
-    <div v-else class="bg-white container">
+    <div class="bg-white container" :key="JSON.stringify(session)">
       <h1>Up/Download for {{ schema }}</h1>
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -18,12 +17,13 @@
         </ButtonAction>
       </div>
       <div v-else class="mb-2">
+        <h4>Upload</h4>
         <MessageWarning
           v-if="
             !session ||
-            !(
-              session.email == 'admin' ||
-              ['Manager', 'Editor'].includes(session.roles)
+            !session.roles ||
+            !['Manager', 'Editor', 'Owner'].some((r) =>
+              session.roles.includes(r)
             )
           "
         >
@@ -34,7 +34,6 @@
             Import and export data (tables) and metadata (schema, settings) in
             bulk.
           </p>
-          <h4>Upload</h4>
           <div>
             <p>
               Import data by uploading files in excel, zip, json or yaml format.
@@ -48,38 +47,62 @@
             <br />
           </div>
         </div>
+        <div
+          v-if="
+            session &&
+            session.roles &&
+            ['Manager', 'Editor', 'Viewer', 'Owner'].some((r) =>
+              session.roles.includes(r)
+            )
+          "
+        ></div>
         <h4>Download</h4>
-        <p>Export data by downloading various file formats:</p>
-        <div>
-          <p>
-            Export schema as <a :href="'../api/csv'">csv</a> /
-            <a :href="'../api/json'">json</a> /
-            <a :href="'../api/yaml'">yaml</a>
-          </p>
-          <p>
-            Export all data as
-            <a :href="'../api/excel'">excel</a> /
-            <a :href="'../api/zip'">csv.zip</a> /
-            <a :href="'../api/ttl'">ttl</a> /
-            <a :href="'../api/jsonld'">jsonld</a>
-          </p>
-          <div v-if="tables" :key="tablesHash">
-            Export specific tables:
-            <ul>
-              <li v-for="table in tables" :key="table.name">
-                {{ table.name }}:
-                <a :href="'../api/csv/' + table.name">csv</a> /
-                <a :href="'../api/excel/' + table.name">excel</a>
-              </li>
-            </ul>
+        <MessageWarning
+          v-if="!session || !session.roles || session.roles.length == 0"
+        >
+          You don't have permission to download data. Might you need to login?
+        </MessageWarning>
+        <div v-else>
+          <p>Export data by downloading various file formats:</p>
+          <div>
+            <p>
+              Export schema as <a :href="'../api/csv'">csv</a> /
+              <a :href="'../api/json'">json</a> /
+              <a :href="'../api/yaml'">yaml</a>
+            </p>
+            <p>
+              Export all data as
+              <a :href="'../api/excel'">excel</a> /
+              <a :href="'../api/zip'">csv.zip</a> /
+              <a :href="'../api/ttl'">ttl</a> /
+              <a :href="'../api/jsonld'">jsonld</a>
+            </p>
+            <div v-if="tables" :key="tablesHash">
+              Export specific tables:
+              <ul>
+                <li v-for="table in tables" :key="table.name">
+                  {{ table.name }}:
+                  <a :href="'../api/csv/' + table.name">csv</a> /
+                  <a :href="'../api/excel/' + table.name">excel</a>
+                </li>
+              </ul>
+            </div>
+            <p>
+              Note to programmers: the GET endpoints above also accept http POST
+              command for updates, and DELETE commands for deletions.
+            </p>
           </div>
-          <p>
-            Note to programmers: the GET endpoints above also accept http POST
-            command for updates, and DELETE commands for deletions.
-          </p>
         </div>
       </div>
     </div>
+    <ShowMore>
+      <pre>
+        session = {{ session }}
+        taskUrl = {{ taskUrl }}
+        task = {{ task }}
+        file = {{ file }}
+      </pre>
+    </ShowMore>
   </Molgenis>
 </template>
 
@@ -92,6 +115,7 @@ import {
   MessageWarning,
   Molgenis,
   Spinner,
+  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 import Task from "./Task";
@@ -107,6 +131,7 @@ export default {
     Spinner,
     Molgenis,
     Task,
+    ShowMore,
   },
   data: function () {
     return {
@@ -134,43 +159,37 @@ export default {
       this.task = null;
       this.taskUrl = null;
     },
+    startMonitorTask() {
+      if (!this.task || !["COMPLETED", "ERROR"].includes(this.task.status)) {
+        setTimeout(this.monitorTask, 500);
+      } else {
+        if (this.task.status == "ERROR") {
+          this.error = this.task.status.description;
+          this.success = null;
+        } else {
+          this.error = null;
+          this.success = this.task.status.description;
+        }
+      }
+    },
     monitorTask() {
       fetch(this.taskUrl)
         .then((response) => {
           if (response.ok) {
             response.json().then((task) => {
               this.task = task;
-              if (!["COMPLETED", "ERROR"].includes(this.task.status)) {
-                setTimeout(this.monitorTask, 250);
-              } else {
-                if (this.task.status == "ERROR") {
-                  this.error = this.task.status.description;
-                  this.success = null;
-                } else {
-                  this.error = null;
-                  this.success = this.task.status.description;
-                }
-              }
+              this.startMonitorTask();
             });
           } else {
             response.text().then((error) => {
               this.error = error;
-              if (!["COMPLETED", "ERROR"].includes(this.task.status)) {
-                setTimeout(this.monitorTask, 250);
-              } else {
-                if (this.task.status == "ERROR") {
-                  this.error = this.task.status.description;
-                  this.success = null;
-                } else {
-                  this.error = null;
-                  this.success = this.task.status.description;
-                }
-              }
+              this.startMonitorTask();
             });
           }
         })
         .catch((error) => {
           this.error = error;
+          this.startMonitorTask();
         });
     },
     loadSchema() {
@@ -260,8 +279,12 @@ export default {
       }
     },
   },
-  created() {
-    this.loadSchema();
+  watch: {
+    session() {
+      if (this.session && this.session.roles) {
+        this.loadSchema();
+      }
+    },
   },
 };
 </script>

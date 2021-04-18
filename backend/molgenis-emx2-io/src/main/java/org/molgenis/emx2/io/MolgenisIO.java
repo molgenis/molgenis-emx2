@@ -70,11 +70,11 @@ public class MolgenisIO {
   }
 
   public static void fromDirectory(Path directory, Schema schema) {
-    new ImportDirectoryTask(directory, schema);
+    new ImportDirectoryTask(directory, schema).run();
   }
 
   public static void fromZipFile(Path zipFile, Schema schema) {
-    new ImportCsvZipTask(zipFile, schema);
+    new ImportCsvZipTask(zipFile, schema).run();
   }
 
   public static void importFromExcelFile(Path excelFile, Schema schema) {
