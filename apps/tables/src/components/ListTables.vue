@@ -13,7 +13,12 @@
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
-      <table class="table bg-white table-hover" v-if="schema.tables">
+      <InputSearch
+        v-if="count > 10"
+        placholder="search by name"
+        v-model="search"
+      />
+      <table class="table bg-white table-hover" v-if="tablesFiltered">
         <thead>
           <tr>
             <th scope="col">Table</th>
@@ -21,9 +26,7 @@
           </tr>
         </thead>
         <tr
-          v-for="table in schema.tables.filter(
-            (table) => table.externalSchema == undefined
-          )"
+          v-for="table in tablesFiltered"
           :key="table.name"
           @click="router.push({ path: table.name })"
         >
@@ -47,6 +50,7 @@ import {
   DataTable,
   InputCheckbox,
   MessageWarning,
+  InputSearch,
   ShowMore,
 } from "@mswertz/emx2-styleguide";
 
@@ -57,6 +61,7 @@ export default {
     MessageWarning,
     InputCheckbox,
     ButtonDropdown,
+    InputSearch,
     ShowMore,
   },
   props: {
@@ -66,6 +71,7 @@ export default {
   data() {
     return {
       tableFilter: [],
+      search: null,
     };
   },
   computed: {
@@ -74,6 +80,24 @@ export default {
         return 0;
       }
       return this.schema.tables.length;
+    },
+    tablesFiltered() {
+      if (!this.schema || !this.schema.tables) {
+        return [];
+      }
+      if (this.search && this.search.trim().length > 0) {
+        let terms = this.search.toLowerCase().split(" ");
+        return this.schema.tables
+          .filter((table) => table.externalSchema == undefined)
+          .filter((t) =>
+            terms.every(
+              (v) =>
+                t.name.toLowerCase().includes(v) ||
+                (t.description && t.description.toLowerCase().includes(v))
+            )
+          );
+      }
+      return this.schema.tables;
     },
   },
 };
