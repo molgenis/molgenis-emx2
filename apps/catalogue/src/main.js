@@ -16,6 +16,7 @@ import StudiesView from "./views/StudiesView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
+import LifeCycleView from "./views/LifeCycleView"
 
 Vue.config.productionTip = false;
 
@@ -25,6 +26,7 @@ const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
+    { name: "LifeCycle", path: "/lifecycle", component: LifeCycleView },
     //list views
     {
       name: "list",

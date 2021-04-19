@@ -4,10 +4,10 @@ module.exports = {
     port: "9090",
     proxy: {
       "^/graphql": {
-        target: "http://localhost:8080/Conception",
+        target: "https://emx2-catalogue.test.molgenis.org/LifeCycle",
       },
-      "/api": { target: "http://localhost:8080" },
-      "/apps": { target: "http://localhost:8080" },
+      "/api": { target: "https://emx2-catalogue.test.molgenis.org" },
+      "/apps": { target: "https://emx2-catalogue.test.molgenis.org" },
     },
   },
 };
