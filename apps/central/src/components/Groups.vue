@@ -112,9 +112,13 @@ export default {
     },
     schemasFiltered() {
       if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.split(" ");
+        let terms = this.search.toLowerCase().split(" ");
         return this.schemas.filter((s) =>
-          terms.every((v) => s.name.includes(v))
+          terms.every(
+            (v) =>
+              s.name.toLowerCase().includes(v) ||
+              (s.description && s.description.toLowerCase().includes(v))
+          )
         );
       }
       return this.schemas;
