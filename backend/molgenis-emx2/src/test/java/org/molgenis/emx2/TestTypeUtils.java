@@ -41,4 +41,13 @@ public class TestTypeUtils {
     assertNull((Object[]) TypeUtils.getTypedValue(null, type));
     assertNull(TypeUtils.getTypedValue("", type));
   }
+
+  @Test
+  public void testCommaInCsvString() {
+    String test = "\"value with, comma\",\"and, another\"";
+
+    String[] result = TypeUtils.toStringArray(test);
+    assertEquals("value with, comma", result[0]);
+    assertEquals("and, another", result[1]);
+  }
 }
