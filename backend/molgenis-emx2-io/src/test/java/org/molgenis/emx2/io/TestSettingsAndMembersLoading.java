@@ -4,24 +4,18 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.nio.file.Path;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestSettingsAndMembersLoading {
-
-  private static Schema schema;
-
-  @BeforeClass
-  public static void setup() {
-    Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestSettingsAndMembersLoading.class.getSimpleName());
-  }
-
   @Test
   public void testExcelTypesCast() {
+
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(TestSettingsAndMembersLoading.class.getSimpleName());
+
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("settings_and_members.xlsx").getFile()).toPath();
 
@@ -38,5 +32,7 @@ public class TestSettingsAndMembersLoading {
     assertEquals("Viewer", schema.getMembers().get(0).getRole());
     assertEquals("admin", schema.getMembers().get(1).getUser());
     assertEquals("Manager", schema.getMembers().get(1).getRole());
+
+    database.dropSchema(schema.getName());
   }
 }
