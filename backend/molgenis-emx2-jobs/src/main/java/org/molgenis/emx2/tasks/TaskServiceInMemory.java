@@ -40,7 +40,7 @@ public class TaskServiceInMemory implements TaskService {
   @Override
   public Task getTask(String id) {
     // delete older than a day
-    removeOlderThan(24 * 60 * 60 * 1000);
+    removeOlderThan(24L * 60 * 60 * 1000);
     return tasks.get(id);
   }
 
