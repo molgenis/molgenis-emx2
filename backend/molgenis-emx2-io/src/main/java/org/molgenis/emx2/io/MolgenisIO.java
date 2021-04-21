@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
 import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
-import static org.molgenis.emx2.io.emx2.Emx2Roles.outputRoles;
+import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 
