@@ -67,7 +67,11 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public void removeTask(String id) {
+    if (id == null) return;
+    id = id.replaceAll("[\n|\r|\t]", "_"); // sanitize
+
     Task task = getTask(id);
+
     if (task == null) {
       logger.info("skipped delete task " + id + "because not found");
       throw new MolgenisException("Task with id '" + id + "' not found");
