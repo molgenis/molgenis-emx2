@@ -121,6 +121,11 @@ public class TestWebApi {
 
     Map<String, String> val = new ObjectMapper().readValue(message, Map.class);
     String url = val.get("url");
+    String id = val.get("id");
+
+    // check if in tasks list
+    assertTrue(
+        given().multiPart(excelFile).when().get("/pet store/api/tasks").asString().contains(id));
 
     // poll task until complete
     String poll = given().when().get(url).asString();
