@@ -6,15 +6,18 @@ import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import java.io.*;
+import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
@@ -95,7 +98,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void test3SchemaDownloadUploadExcel() throws IOException {
+  public void test3SchemaDownloadUploadExcel() throws IOException, InterruptedException {
 
     // download json schema
     String schemaCSV = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
@@ -109,11 +112,32 @@ public class TestWebApi {
     File excelFile = createTempFile(excelContents, ".xlsx");
 
     // upload excel into new schema
-    given().multiPart(excelFile).when().post("/pet store excel/api/excel").then().statusCode(200);
+    String message =
+        given()
+            .multiPart(excelFile)
+            .when()
+            .post("/pet store excel/api/excel?async=true")
+            .asString();
+
+    Map<String, String> val = new ObjectMapper().readValue(message, Map.class);
+    String url = val.get("url");
+
+    // poll task until complete
+    String poll = given().when().get(url).asString();
+    int count = 0;
+    while (poll.contains("RUNNING")) {
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      poll = given().when().get(url).asString();
+      Thread.sleep(500);
+    }
 
     // check if schema equal using json representation
     String schemaCSV2 =
         given().accept(ACCEPT_CSV).when().get("/pet store excel/api/csv").asString();
+
+    assertTrue(schemaCSV2.contains("Pet"));
 
     // delete a new schema for excel
     db.dropSchema("pet store excel");
