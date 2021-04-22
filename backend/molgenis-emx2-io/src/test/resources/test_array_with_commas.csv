@@ -1,0 +1,2 @@
+release.version,table,name,collectionEvent.resource,collectionEvent.name,label,format,unit,references.table,references.name,mandatory,description,order,exampleValues,
+1.0.0,core,allergy_any_m,,,Maternal history of any allergy before pregnancy (of index child),boolean,,,,,,,,"Respiratory, allergy and skin characteristics",,LifeCycle
