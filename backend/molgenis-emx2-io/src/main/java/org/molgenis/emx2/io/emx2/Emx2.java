@@ -162,7 +162,7 @@ public class Emx2 {
     return result;
   }
 
-  public static SchemaMetadata loadEmx2File(File file, Character separator) throws IOException {
-    return fromRowList(CsvTableReader.read(file, separator));
+  public static SchemaMetadata loadEmx2File(File file) throws IOException {
+    return fromRowList(CsvTableReader.read(file));
   }
 }

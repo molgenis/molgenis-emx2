@@ -45,4 +45,29 @@ public class TestTypesImport {
           "Respiratory, allergy and skin characteristics2", r.getStringArray("string_array2")[1]);
     }
   }
+
+  @Test
+  public void testTsvTypeCast() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path path = new File(classLoader.getResource("TypeTest.tsv").getFile()).toPath();
+    TableStore store = new TableStoreForCsvFile(path);
+
+    for (Row r : store.readTable("Sheet1")) {
+      assertEquals("1", r.getString("column1"));
+      assertEquals("2", r.getString("column2"));
+    }
+  }
+
+  @Test
+  public void testSemiColonTypeCast() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path path = new File(classLoader.getResource("TypeTestSemiColon.csv").getFile()).toPath();
+    TableStore store = new TableStoreForCsvFile(path);
+
+    for (Row r : store.readTable("Sheet1")) {
+      assertEquals("a", r.getString("string"));
+      assertEquals("b", r.getStringArray("string_array")[1]);
+      assertEquals("a,b", r.getStringArray("string_array2")[0]);
+    }
+  }
 }

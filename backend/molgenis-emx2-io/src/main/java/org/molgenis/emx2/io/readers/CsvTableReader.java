@@ -15,18 +15,32 @@ public class CsvTableReader {
   }
 
   public static Iterable<Row> read(File f) throws IOException {
-    return read(new FileReader(f), ',');
+    return read(new FileReader(f));
   }
 
-  public static Iterable<Row> read(File file, Character separator) throws FileNotFoundException {
-    return read(new FileReader(file), separator);
-  }
-
-  public static Iterable<Row> read(Reader in, Character separator) {
+  public static Iterable<Row> read(Reader in) {
     try {
+      BufferedReader bufferedReader = new BufferedReader(in);
+      bufferedReader.mark(2000000);
+      String firstLine = bufferedReader.readLine();
+      char separator = ',';
+      if (firstLine.contains("\t")) {
+        separator = '\t';
+      }
+      if (firstLine.contains(";")) {
+        separator = ';';
+      }
+
+      // push back in
+      bufferedReader.reset();
+
       // don't use buffered, it is slower
       Iterator<LinkedHashMap> iterator =
-          CsvParser.dsl().separator(separator).trimSpaces().mapTo(LinkedHashMap.class).iterator(in);
+          CsvParser.dsl()
+              .separator(separator)
+              .trimSpaces()
+              .mapTo(LinkedHashMap.class)
+              .iterator(bufferedReader);
 
       return () ->
           new Iterator<>() {
