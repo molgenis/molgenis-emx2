@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.jooq.Field;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
@@ -61,16 +62,20 @@ public class ImportTableTask extends Task {
 
       while (iterator.hasNext()) {
         Row row = iterator.next();
-        String key = "";
+        String keyValue = "";
         for (Field f : metadata.getPrimaryKeyFields()) {
-          key += row.getString(f.getName()) + "+";
+          keyValue += row.getString(f.getName()) + ",";
         }
-        key = key.substring(0, key.length() - 1);
-        if (keys.contains(key)) {
-          duplicates.add(key);
-          task.step("Found duplicate key: " + key).error();
+        keyValue = keyValue.substring(0, keyValue.length() - 1);
+        if (keys.contains(keyValue)) {
+          duplicates.add(keyValue);
+          String keyFields =
+              metadata.getPrimaryKeyFields().stream()
+                  .map(f -> f.getName())
+                  .collect(Collectors.joining(","));
+          task.step("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
         } else {
-          keys.add(key);
+          keys.add(keyValue);
         }
         task.setIndex(task.getIndex());
       }
@@ -102,9 +107,9 @@ public class ImportTableTask extends Task {
         index++;
         if (batch.size() >= 1000) {
           table.update(batch);
-          batch.clear();
           task.setIndex(index);
           task.setDescription("Imported " + task.getIndex() + " rows into " + table.getName());
+          batch.clear();
         }
       }
       // remaining

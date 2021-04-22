@@ -34,11 +34,6 @@ public class Emx2 {
     // hidden
   }
 
-  public static void inputMetadata(TableStore store, Schema schema) {
-    SchemaMetadata emx2Schema = Emx2.fromRowList(store.readTable("molgenis"));
-    schema.migrate(emx2Schema);
-  }
-
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {
     SchemaMetadata schema = new SchemaMetadata();
     int lineNo = 1;

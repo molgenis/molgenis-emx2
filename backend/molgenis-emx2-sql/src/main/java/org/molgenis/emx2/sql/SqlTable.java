@@ -149,11 +149,9 @@ class SqlTable implements Table {
           db2 -> {
             for (Row row : rows) {
 
-              // keep count
-              count.set(count.get() + 1);
-
-              // set table class if not set
-              if (row.notNull(MG_TABLECLASS)) {
+              // set table class if not set, and see for first time
+              if (row.notNull(MG_TABLECLASS)
+                  && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
                 // validate
                 String tableName = row.getString(MG_TABLECLASS);
                 if (!tableName.contains(".")) {
@@ -201,9 +199,9 @@ class SqlTable implements Table {
                 // execute
                 SqlTable table = (SqlTable) getSchema().getTable(subclassName.split("\\.")[1]);
                 if (isUpdate) {
-                  table.updateBatch(subclassRows.get(subclassName));
+                  count.set(count.get() + table.updateBatch(subclassRows.get(subclassName)));
                 } else {
-                  table.insertBatch(subclassRows.get(subclassName));
+                  count.set(count.get() + table.insertBatch(subclassRows.get(subclassName)));
                 }
                 // clear the list
                 subclassRows.get(subclassName).clear();
@@ -213,12 +211,13 @@ class SqlTable implements Table {
             // execute any remaining batches
             for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
               // execute
-              String tableName = batch.getKey().split("\\.")[1];
+              String subclassName = batch.getKey().split("\\.")[1];
+              SqlTable table = (SqlTable) getSchema().getTable(subclassName);
               if (batch.getValue().size() > 0) {
                 if (isUpdate) {
-                  ((SqlTable) getSchema().getTable(tableName)).updateBatch(batch.getValue());
+                  count.set(count.get() + table.updateBatch(batch.getValue()));
                 } else {
-                  ((SqlTable) getSchema().getTable(tableName)).insertBatch(batch.getValue());
+                  count.set(count.get() + table.insertBatch(batch.getValue()));
                 }
               }
             }
@@ -231,11 +230,16 @@ class SqlTable implements Table {
       }
     }
 
-    log(start, count, isUpdate ? "updated" : "inserted");
+    log(
+        start,
+        count,
+        isUpdate
+            ? "updated (incl subclass if applicable)"
+            : "inserted (incl subclass if applicable)");
     return count.get();
   }
 
-  private void insertBatch(List<Row> rows) {
+  private int insertBatch(List<Row> rows) {
     if (getMetadata().getInherit() != null) {
       getInheritedTable().insertBatch(rows);
     }
@@ -258,10 +262,10 @@ class SqlTable implements Table {
     for (Row row : rows) {
       step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
     }
-    step.execute();
+    return step.execute();
   }
 
-  private void updateBatch(Iterable<Row> rows) {
+  private int updateBatch(Iterable<Row> rows) {
     if (getMetadata().getInherit() != null) {
       getInheritedTable().updateBatch(rows);
     }
@@ -273,18 +277,24 @@ class SqlTable implements Table {
     List<Column> columns = new ArrayList<>();
     List<Field> fields = new ArrayList<>();
 
+    AtomicInteger count = new AtomicInteger(0);
+    List<Column> mutationColumns = tableMetadata.getMutationColumns();
     for (Row row : rows) {
       // to compare if columns change between rows
       Collection<String> rowFields = new ArrayList<>();
-      for (Column c : tableMetadata.getMutationColumns()) {
+      for (Column c : mutationColumns) {
         if (c != null && row.containsName(c.getName())) {
           rowFields.add(c.getName());
         }
       }
 
       // execute when rowFields differ from previous FieldNames
-      if (!(fieldNames.containsAll(rowFields) && rowFields.containsAll(fieldNames))) {
-        updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
+      if (batch.size() > 0
+          && !(fieldNames.containsAll(rowFields) && rowFields.containsAll(fieldNames))) {
+        count.set(
+            count.get()
+                + updateBatch(
+                    batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields()));
         batch.clear();
         fieldNames.clear();
         fields.clear();
@@ -293,7 +303,7 @@ class SqlTable implements Table {
 
       // add field metadata if first row of this batch
       if (fieldNames.isEmpty()) {
-        for (Column c : tableMetadata.getMutationColumns()) {
+        for (Column c : mutationColumns) {
           if (rowFields.contains(c.getName())) {
             fields.add(c.getJooqField());
             columns.add(c);
@@ -305,19 +315,23 @@ class SqlTable implements Table {
     }
 
     // execute the remaining batch, if any
-    updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
+    if (batch.size() > 0) {
+      return count.get()
+          + updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
+    } else {
+      return count.get();
+    }
   }
 
-  private void updateBatch(
+  private int updateBatch(
       Collection<Row> rows,
       org.jooq.Table<org.jooq.Record> t,
       List<String> fieldNames,
       List<Column> columns,
       List<Field> fields,
       List<Field> keyField) {
-    long start = System.currentTimeMillis();
-
     if (!rows.isEmpty()) {
+      long start = System.currentTimeMillis();
 
       // createColumn multi-value insert
       InsertValuesStepN<org.jooq.Record> step =
@@ -339,12 +353,13 @@ class SqlTable implements Table {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(keyField.toArray(new Field<?>[keyField.size()])).doUpdate();
       for (String name : fieldNames) {
-        step2 =
-            step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
+        step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
       }
-      step.execute();
-      log(start, new AtomicInteger(rows.size()), "updated ");
+      int result = step.execute();
+      this.log(start, new AtomicInteger(result), "updated");
+      return result;
     }
+    return 0;
   }
 
   @Override

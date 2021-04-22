@@ -7,7 +7,6 @@ import com.monitorjbl.xlsx.StreamingReader;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.ZoneId;
 import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -196,17 +195,13 @@ public class TableStoreForXlsxFile implements TableStore {
 
   private void convertCellToRowValue(Row row, Cell cell, CellType cellType, String colName) {
     switch (cellType) {
-      case STRING:
-        row.set(colName, cell.getRichStringCellValue().getString().trim());
+      case BLANK:
+        row.set(colName, null);
         break;
+      case STRING:
       case NUMERIC:
-        if (DateUtil.isCellDateFormatted(cell)) {
-          row.setDate(
-              colName,
-              cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-        } else {
-          row.setDecimal(colName, cell.getNumericCellValue());
-        }
+        // don't use the auto guessing of Excel; we will do the cast ourselves
+        row.setString(colName, cell.getStringCellValue().trim());
         break;
       case BOOLEAN:
         row.setBool(colName, cell.getBooleanCellValue());
@@ -214,9 +209,6 @@ public class TableStoreForXlsxFile implements TableStore {
       case FORMULA:
         throw new UnsupportedOperationException(
             "Found formula in Excel file; should not happen in this function");
-      case BLANK:
-        row.set(colName, null);
-        break;
       default:
         throw new UnsupportedOperationException(
             "Found unknown type "

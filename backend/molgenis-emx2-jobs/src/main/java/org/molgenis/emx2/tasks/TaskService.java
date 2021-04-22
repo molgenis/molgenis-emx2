@@ -12,4 +12,8 @@ public interface TaskService {
   void removeOlderThan(long milliseconds);
 
   void shutdown();
+
+  void removeTask(String id);
+
+  void clear();
 }

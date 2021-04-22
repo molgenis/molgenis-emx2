@@ -280,74 +280,12 @@ public class TestCompositeForeignKeys {
   }
 
   //  @Test
-  //  public void testCompositeMref() {
-  //    Schema schema =
-  //        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "Mref");
+  //  public void testCompositeRefArrayWithInheritance() {
   //
-  //    schema.create(
-  //        table(
-  //            "Person2",
-  //            column("firstName").setPkey(),
-  //            column("lastName").setPkey(),
-  //            column("father", REF).setRefTable("Person2"),
-  //            column("mother", REF).setRefTable("Person2"),
-  //            column("children_firstName", MREF).setRefTable("Person2")));
+  //    String schemaName = TestCompositeForeignKeys.class.getSimpleName() +
+  // "RefArrayWithInheritance";
+  //    Schema schema = database.dropCreateSchema(schemaName);
   //
-  //    assertEquals(1, schema.getTableNames().size());
-  //  }
-
-  //  @Test
-  //  public void testCompositeRefWithLinkToOtherColumn() {
-  //    Schema schema =
-  //        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "LinkedRef");
-  //
-  //    schema.create(table("Collection", column("name").setPkey()));
-  //    schema.create(
-  //        table(
-  //            "Table",
-  //            column("name").setPkey(),
-  //            column("collection").setRefTable("Collection").setPkey()));
-  //    schema.create(
-  //        table(
-  //            "Variable",
-  //            column("name").setPkey(),
-  //            column("collection")
-  //                .setType(REF)
-  //                .setRefTable("Table")
-  //                .setRefTo("table")
-  //                .setRefName("table"),
-  //            column("table")
-  //                .setType(REF)
-  //                .setRefTable("Table")
-  //                .setRefTo("name")
-  //                .setRefName("table")
-  //                .setRefParts(new String[] {"collection"})));
-  //
-  //    schema.getTable("Collection").insert(new Row().set("name", "LifeCycle"));
-  //    schema.getTable("Table").insert(new Row().set("name", "Table1").set("collection",
-  // "LifeCycle"));
-  //    schema
-  //        .getTable("Variable")
-  //        .insert(
-  //            new Row()
-  //                .set("name", "Variable1")
-  //                .set("collection", "LifeCycle")
-  //                .set("table", "Table1"));
-  //
-  //    try {
-  //      schema
-  //          .getTable("Variable")
-  //          .insert(
-  //              new Row()
-  //                  .set("name", "Variable1")
-  //                  .set("collection", "LifeCycle")
-  //                  .set("table", "Table2"));
-  //      fail("should have failed");
-  //    } catch (Exception e) {
-  //      System.out.println("Error correct: " + e.getMessage());
-  //    }
-  //
-  //    assertEquals(
-  //        "Table1", schema.getTable("Variable").query().retrieveRows().get(0).getString("table"));
+  //    schema.create(table("AllVariables"));
   //  }
 }

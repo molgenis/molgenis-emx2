@@ -29,9 +29,9 @@ public class ImportSchemaTask extends Task {
   public void run() {
     this.start();
 
-    schema.tx(
-        s -> {
-          try {
+    try {
+      schema.tx(
+          s -> {
             // import metadata, if any
             Task metadataTask = new ImportMetadataTask(schema, store);
             this.add(metadataTask);
@@ -67,13 +67,12 @@ public class ImportSchemaTask extends Task {
             if (skipped) {
               this.step("Import data skipped: No data sheet included").skipped();
             }
-          } catch (MolgenisException e) {
-            this.error(e.getMessage());
-            this.rollback(this);
-            throw e;
-          }
-        });
-
+          });
+    } catch (Exception e) {
+      this.error(e.getMessage());
+      this.rollback(this);
+      throw new MolgenisException("Import failed", e);
+    }
     this.complete();
   }
 
