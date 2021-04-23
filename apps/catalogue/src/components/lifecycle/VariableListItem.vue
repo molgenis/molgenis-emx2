@@ -4,33 +4,45 @@
     @click="onItemClicked"
   >
     <div class="d-flex w-100 justify-content-between">
-      <span class="mb-1">{{ variable.label }}</span>
+      <span class="text-capitalize"><strong>{{ variable.label }}</strong></span>
       <span v-if="variable.repeats" class="badge badge-primary badge-pill">{{ variable.repeats.length }} repeats</span>
     </div>
 
-    <p class="mb-1" v-if="showDetail">
+    <p class="mt-3" v-if="showDetail">
       <template v-if="variableDetails">
         <dl class="row">
-          <dt class="col-sm-3">Name</dt>
-          <dd class="col-sm-9">A description list is perfect for defining terms.</dd>
-          <dt class="col-sm-3" v-if="variableDetails.description">Description</dt>
-          <dd class="col-sm-9" v-if="variableDetails.description">{{ variableDetails.description }}</dd>
-          <dt class="col-sm-3">Unit</dt>
-          <dd class="col-sm-9" v-if="variableDetails.unit">{{ variableDetails.unit.name}}</dd>
-          <dt class="col-sm-3">Format</dt>
-          <dd class="col-sm-9" v-if="variableDetails.format">{{ variableDetails.format.name}}</dd>
+          <dt class="col-2">variable</dt>
+          <dd class="col-10" >
+            {{variableDetails.name}}
+          </dd>
+          <dt class="col-2">description</dt>
+          <dd class="col-10">
+            <span v-if="variableDetails.description">{{ variableDetails.description }}</span>
+            <span v-else>-</span>
+          </dd>
+          <dt class="col-2">unit</dt>
+          <dd class="col-10">
+            <span v-if="variableDetails.unit">{{ variableDetails.unit.name}}</span>
+            <span v-else>-</span>
+            </dd>
+          <dt class="col-2">format</dt>
+          <dd class="col-10">
+            <span v-if="variableDetails.format">{{ variableDetails.format.name}}</span>
+            <span v-else>-</span>
+            </dd>
         </dl>
 
         <div v-if="variableDetails.repeats">
+          <label>Measurements</label>
           <ul class="list-group">
             <li class="list-group-item"  v-for="(repeat, index) in variableDetails.repeats" :key=index >
-              <small class="text-muted">{{repeat.name}}</small>
+              {{repeat.name}}
             </li>
           </ul>
         </div>
       </template>
     </p>
-    
+
   </button>
 </template>
 
