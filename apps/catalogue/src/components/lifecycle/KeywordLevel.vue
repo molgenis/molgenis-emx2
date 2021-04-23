@@ -1,6 +1,11 @@
 <template>
   <div class="list-group text-nowrap ">
-    <keyword-tree-item v-for="(keyword, index) in keywords" :key=index :keyword="keyword" />
+    <keyword-tree-item 
+      v-for="(keyword, index) in keywords" 
+      :key=index 
+      :keyword="keyword"
+      :handleChange="handleChange" 
+    />
   </div>
 </template>
 
@@ -12,6 +17,7 @@ export default {
     components: { KeywordTreeItem },
     props: {
       keywords: Array,
+      handleChange: Function
     }
 }
 </script>

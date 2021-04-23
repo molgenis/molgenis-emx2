@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-3">
         <h3>Topics</h3>
-        <keyword-level :keywords="Object.values(keywordTree)"></keyword-level>
+        <keyword-tree :keywordTree="keywordTree" :selectedKeywords="selectedKeywords"></keyword-tree>
       </div>
       <div class="col-9">
         <h3>Variables</h3>
@@ -24,19 +24,20 @@
 <script>
 import { request, gql } from "graphql-request"
 import VariableListItem from '../components/lifecycle/VariableListItem.vue'
-import KeywordLevel from '../components/lifecycle/KeywordLevel.vue'
+import KeywordTree from '../components/lifecycle/KeywordTree.vue'
 export default {
   name: "LifeCycleView",
-  components: { VariableListItem, KeywordLevel},
+  components: { VariableListItem, KeywordTree},
   data() {
     return {
       loading: true,
       variables: [],
       keywords: [],
-      keywordTree: {},
+      keywordTree: [],
       detailsShown: [],
-      variableDetails: {}
-    };
+      variableDetails: {},
+      selectedKeywords: []
+    }
   },
   methods: {
     async onVariableClicked (name) {
@@ -77,20 +78,22 @@ export default {
           "name": {
             "like": [`${variableName}`]
           },
-          "release": 
-            {"equals": [
+          "release": {
+            "equals": [
               {"resource": {
                  "acronym": "LifeCycle"
                },
                "version": "1.0.0"
-              }]
-            }
+              }
+            ]
+          }
         }
       }
+
       const resp = await request('graphql', query, variables).catch(this.onError)
       this.$set(this.variableDetails, variableName, resp.Variables[0])
     },
-    async reload() {
+    async reload(selectedKeywords) {
       this.loading = true
       const query = gql`query Variables ($search: String, $filter: VariablesFilter) { 
         Variables (limit: 100, search: $search, filter: $filter){ 
@@ -107,8 +110,7 @@ export default {
           } 
         } 
       }`
-      const variables = {
-        // "search": "height",
+      let variables = {
         "filter": {
           "release": 
             {"equals": [
@@ -120,6 +122,11 @@ export default {
             }
         }
       }
+
+      if(selectedKeywords && selectedKeywords.length) {
+        variables.filter.keywords = {"equals": selectedKeywords.map(sk => ({name: sk}))}  
+      }
+
       const resp = await request('graphql', query, variables).catch(this.onError)
       this.variables = resp.Variables
 
@@ -156,6 +163,11 @@ export default {
     },
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e
+    }
+  },
+  watch: {
+    selectedKeywords () {
+      this.reload(this.selectedKeywords)
     }
   },
   created() {
