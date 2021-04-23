@@ -1,7 +1,14 @@
 <template>
     <div class="list-group-item list-group-item-action text-lowercase">
       <div class="form-check text-truncate">
-        <input class="form-check-input" type="checkbox" value="" id="key-check-input">
+        <input
+          v-if="!hasChildren" 
+          id="key-check-input"
+          class="form-check-input" 
+          type="checkbox" 
+          v-model="isChecked" 
+          @change="handleChange(keyword.name)"
+        >
         <label class="form-check-label" for="key-check-input">
           {{ keyword.definition }} 
         </label>
@@ -10,7 +17,11 @@
           class="float-right fa fa-caret-up"
           @click="isCollapsed = !isCollapsed"
         ></i>
-        <keyword-level v-if="hasChildren && !isCollapsed" :keywords="keyword.children"></keyword-level>
+        <keyword-level 
+          v-if="hasChildren && !isCollapsed" 
+          :keywords="keyword.children"
+          :handleChange="handleChange"
+        ></keyword-level>
       </div>
     </div>
 </template>
@@ -23,9 +34,11 @@ export default {
     },
     props: {
       keyword: Object,
+      handleChange: Function
     },
     data () {
       return {
+        isChecked: false,
         isCollapsed: true
       }
     },
