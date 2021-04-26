@@ -32,7 +32,6 @@ const router = new VueRouter({
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
     { 
-      name: "LifeCycle",
       path: "/lifecycle", component: LifeCycleView,
       children: [
         {

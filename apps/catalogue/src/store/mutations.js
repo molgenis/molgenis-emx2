@@ -13,5 +13,8 @@ export default {
   setKeywords (state, keywords) {
     state.keywords = keywords
   },
+  setHarmonizations (state, harmonizations) {
+    Vue.set(state, 'harmonizations', harmonizations)
+  }
 }
   
