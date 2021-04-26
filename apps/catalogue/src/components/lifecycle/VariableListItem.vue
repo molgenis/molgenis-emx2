@@ -1,12 +1,12 @@
 <template>
-  <button 
-    class="list-group-item list-group-item-action " 
-    @click="onItemClicked"
-  >
-    <div class="d-flex w-100 justify-content-between">
-      <span class="text-capitalize"><strong>{{ variable.label }}</strong></span>
-      <span v-if="variable.repeats" class="badge badge-primary badge-pill">{{ variable.repeats.length }} repeats</span>
-    </div>
+  <button class="list-group-item list-group-item-action " >
+      <span class="text-capitalize mg-variable-header" @click="toggleShowDetail">
+        <strong>
+        <i v-if="!showDetail" class="fa fa-caret-up mr-2"></i>
+        <i v-else class="fa fa-caret-down mr-2"></i>
+          {{ variable.label }}
+        </strong>
+      </span>
 
     <p class="mt-3" v-if="showDetail">
       <template v-if="variableDetails">
@@ -33,10 +33,14 @@
         </dl>
 
         <div v-if="variableDetails.repeats">
-          <label>Measurements</label>
-          <ul class="list-group">
-            <li class="list-group-item"  v-for="(repeat, index) in variableDetails.repeats" :key=index >
-              {{repeat.name}}
+          <label class="font-weight-lighter mg-repeats-label" @click="showRepeats = !showRepeats">
+            {{variableDetails.repeats.length}} repeated measurements
+            <i v-if="!showRepeats" class="fa fa-caret-up mr-2"></i>
+            <i v-else class="fa fa-caret-down mr-2"></i>
+          </label> 
+          <ul v-if="showRepeats" class="list-unstyled ml-2">
+            <li v-for="(repeat, index) in variableDetails.repeats" :key=index >
+              {{repeat.label}}
             </li>
           </ul>
         </div>
@@ -56,10 +60,11 @@ export default {
   data() {
     return {
       showDetail: false,
+      showRepeats: false
     }
   },
   methods: {
-    onItemClicked () {
+    toggleShowDetail () {
       if(!this.showDetail) {
         this.$emit('request-variable-detail', this.variable.name)
         this.showDetail = true
@@ -72,8 +77,13 @@ export default {
 </script>
 
 <style scoped>
-.list-group-item, .list-group-item-action:hover {
+.mg-variable-header:hover {
   cursor: pointer;
+}
+
+.mg-repeats-label:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style>
 

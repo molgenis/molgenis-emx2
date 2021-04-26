@@ -9,13 +9,18 @@
           v-model="isChecked" 
           @change="handleChange(keyword.name)"
         >
-        <label class="form-check-label" for="key-check-input">
+        <label class="form-check-label" for="key-check-input" @click="handleClick">
           {{ keyword.definition }} 
         </label>
         <i 
-          v-if="hasChildren" 
+          v-if="hasChildren && isCollapsed" 
           class="float-right fa fa-caret-up"
-          @click="isCollapsed = !isCollapsed"
+          @click="handleClick"
+        ></i>
+        <i 
+          v-if="hasChildren && !isCollapsed" 
+          class="float-right fa fa-caret-down"
+          @click="handleClick"
         ></i>
         <keyword-level 
           v-if="hasChildren && !isCollapsed" 
@@ -45,6 +50,14 @@ export default {
     computed: {
       hasChildren () {
         return this.keyword.children.length
+      }
+    },
+    methods: {
+      handleClick(event) {
+        console.log(event.target)
+        if (this.hasChildren) {
+          this.isCollapsed = !this.isCollapsed
+        }
       }
     }
 }

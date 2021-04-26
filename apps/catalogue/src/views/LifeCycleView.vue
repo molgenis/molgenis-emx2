@@ -1,12 +1,12 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-3">
+      <div class="col-4">
         <h3>Topics</h3>
         <keyword-tree :keywordTree="keywordTree" :selectedKeywords="selectedKeywords"></keyword-tree>
       </div>
-      <div class="col-9">
-        <h3>Variables</h3>
+      <div class="col-8">
+        <h3>{{ variableCount}} Variables</h3>
         <div class="list-group">
           <variable-list-item 
             v-for="(variable, index) in variables" :key=index 
@@ -32,6 +32,7 @@ export default {
     return {
       loading: true,
       variables: [],
+      variableCount: [],
       keywords: [],
       keywordTree: [],
       detailsShown: [],
@@ -106,9 +107,13 @@ export default {
           },
           label, 
           repeats { 
-            name 
+            name,
+            description
           } 
         } 
+        Variables_agg(filter:$filter){
+          count
+        }
       }`
       let variables = {
         "filter": {
@@ -129,6 +134,7 @@ export default {
 
       const resp = await request('graphql', query, variables).catch(this.onError)
       this.variables = resp.Variables
+      this.variableCount = resp.Variables_agg.count
 
       const keywordQuery = gql`query Keywords  { 
         Keywords{ 
