@@ -107,9 +107,7 @@ export default {
           },
           label, 
           repeats { 
-            name,
-            description
-          } 
+            name          } 
         } 
         Variables_agg(filter:$filter){
           count
