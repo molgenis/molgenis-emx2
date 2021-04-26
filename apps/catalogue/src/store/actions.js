@@ -97,5 +97,19 @@ export default {
     }`
     const keyWordResp = await request('graphql', keywordQuery).catch(e => console.error(e))
     commit('setKeywords', keyWordResp.Keywords)
+  },
+  fetchHarmonizations: async ({ commit }) => {
+    const query = gql`query Databanks  { 
+      Databanks{ 
+        acronym,
+        name,
+        type {
+          name 
+        }
+      } 
+    }`
+    //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
+    const resp = await request('graphql', query).catch(e => console.error(e))
+    commit('setHarmonizations', resp.Databanks)
   }
 }

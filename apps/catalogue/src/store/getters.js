@@ -6,4 +6,5 @@ export default {
   variableDetails: (state) => state.variableDetails,
   keywords: (state) => state.keywords,
   selectedKeywords: (state) => state.selectedKeywords,
+  harmonizations: (state) => state.harmonizations
 }

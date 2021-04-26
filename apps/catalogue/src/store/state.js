@@ -3,7 +3,8 @@ const state = {
   variableDetails: {},
   variableCount: [],
   keywords: [],
-  selectedKeywords: []
+  selectedKeywords: [],
+  harmonizations: []
 }
 
 export default state
