@@ -1,6 +1,6 @@
 <template>
   <keyword-level 
-    :keywords="Object.values(keywordTree)"
+    :keywords="keywordTree"
     @change-keyword-check="handleKeywordSelectionChange"
     :handleChange="handleKeywordSelectionChange"
   >
@@ -14,15 +14,31 @@ export default {
   name: 'KeywordTree',
   components: { KeywordLevel },
   props: {
-    keywordTree: Array,
-    selectedKeywords: Array
+    keywords: Array,
+    value: Array
+  },
+  computed: {
+    keywordTree () {
+      // normalize array, fill out empty parents
+      const normalized = this.keywords.map(keyword => !keyword.parent ? {...keyword, parent: { name: null }} : keyword)
+
+      // recursive list to tree function
+      const nest = (items, name = null) => {
+        return items
+          .filter(item => item.parent.name === name)
+          .map(item => ({ ...item, children: nest(items, item.name) }))
+      }
+       
+      // create tree from list
+      return nest(normalized)
+    }
   },
   methods: {
     handleKeywordSelectionChange (name) {
-        if(this.selectedKeywords.includes(name)) {
-          this.selectedKeywords.splice(this.selectedKeywords.indexOf(name), 1)
+        if(this.value.includes(name)) {
+          this.value.splice(this.value.indexOf(name), 1)
         } else {
-          this.selectedKeywords.push(name)
+          this.value.push(name)
         }
     }
   }

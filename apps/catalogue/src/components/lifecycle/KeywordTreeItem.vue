@@ -54,7 +54,6 @@ export default {
     },
     methods: {
       handleClick(event) {
-        console.log(event.target)
         if (this.hasChildren) {
           this.isCollapsed = !this.isCollapsed
         }

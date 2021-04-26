@@ -16,17 +16,38 @@ import StudiesView from "./views/StudiesView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
+import store from './store/store'
 import LifeCycleView from "./views/LifeCycleView"
+import LifeCycleVariablesView from "./views/LifeCycleVariablesView"
+import LifeCycleHarmonizationView from "./views/LifeCycleHarmonizationView"
+
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
+  linkActiveClass: 'active', // bootstrap 4 active tab class
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
-    { name: "LifeCycle", path: "/lifecycle", component: LifeCycleView },
+    { 
+      name: "LifeCycle",
+      path: "/lifecycle", component: LifeCycleView,
+      children: [
+        {
+          name: "LifeCycleVariablesView",
+          path: 'variables',
+          component: LifeCycleVariablesView
+        },
+        {
+          name: "LifeCycleHarmonizationView",
+          path: 'harmonization',
+          component: LifeCycleHarmonizationView
+        },
+        { path: '', component: LifeCycleVariablesView },
+      ]
+     },
     //list views
     {
       name: "list",
@@ -121,4 +142,5 @@ const router = new VueRouter({
 new Vue({
   router,
   render: (h) => h(App),
+  store
 }).$mount("#app");

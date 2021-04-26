@@ -40,7 +40,7 @@
           </label> 
           <ul v-if="showRepeats" class="list-unstyled ml-2">
             <li v-for="(repeat, index) in variableDetails.repeats" :key=index >
-              {{repeat.label}}
+              {{repeat.name}}
             </li>
           </ul>
         </div>
