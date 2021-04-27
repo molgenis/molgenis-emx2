@@ -101,9 +101,9 @@ Update helm repository to get newest release
 ```console
 helm repo update
 ```
-  
+
 Alternatively, [download latest helm chart](https://github.com/mswertz/molgenis-emx2/tree/master/docs/helm-charts)
 
 # For developers
 
-Find developer documentation [here](../blob/master/DEVELOP.md)
+Find developer documentation [here](../master/DEVELOP.md)
