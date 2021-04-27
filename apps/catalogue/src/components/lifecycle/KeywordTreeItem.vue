@@ -3,13 +3,13 @@
       <div class="form-check text-truncate">
         <input
           v-if="!hasChildren" 
-          id="key-check-input"
+          :id="'check-input-' + keyword.name"
           class="form-check-input" 
           type="checkbox" 
           v-model="isChecked" 
           @change="handleChange(keyword.name)"
         >
-        <label class="form-check-label" for="key-check-input" @click="handleClick">
+        <label class="form-check-label" :for="'check-input-' + keyword.name" @click="handleClick">
           {{ keyword.definition }} 
         </label>
         <i 
