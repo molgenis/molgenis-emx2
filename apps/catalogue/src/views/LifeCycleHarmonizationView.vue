@@ -1,11 +1,10 @@
 <template>
 <div>
-  <h3>Harmonizarion</h3>
   <table class="table ">
     <thead>
       <tr>
-        <th scope="col" :key=index >#</th>
-        <th class="rotated-text text-nowrap" scope="col" v-for="(harmonization, index) in harmonizations" :key=index >
+        <th scope="col"></th>
+        <th class="rotated-text text-nowrap" scope="col" v-for="(harmonization) in harmonizations" :key=harmonization.acronym >
           <div>
             <span>{{harmonization.acronym}}</span>
           </div>
@@ -13,17 +12,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th class="text-nowrap" scope="row">variable 1</th>
-        <td v-for="(harmonization, index) in harmonizations" :key=index >#</td>
-      </tr>
-      <tr>
-        <th class="text-nowrap" scope="row">variable 2</th>
-        <td v-for="(harmonization, index) in harmonizations" :key=index >#</td>
-      </tr>
-      <tr>
-        <th class="text-nowrap" scope="row">variable 3</th>
-        <td v-for="(harmonization, index) in harmonizations" :key=index >#</td>
+      <tr v-for="(variable) in variables" :key=variable.name >
+        <th class="text-nowrap" scope="row">{{variable.name}}</th>
+        <td v-for="(harmonization) in harmonizations" :key=harmonization.acronym >#</td>
       </tr>
     </tbody>
   </table>
@@ -36,13 +27,14 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: "LifeCycleHarmonizationView",
   computed: {
-    ...mapGetters(['harmonizations']),
+    ...mapGetters(['harmonizations', 'variables']),
   },
   methods: {
-    ...mapActions(['fetchHarmonizations'])
+    ...mapActions(['fetchHarmonizations', 'fetchMappings'])
   },
   mounted () {
     this.fetchHarmonizations()
+    this.fetchMappings()
   }
 }
 </script>

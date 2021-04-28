@@ -15,6 +15,9 @@ export default {
   },
   setHarmonizations (state, harmonizations) {
     Vue.set(state, 'harmonizations', harmonizations)
+  },
+  setVariableMappings (state, variableMappings) {
+    Vue.set(state, 'variableMappings', variableMappings)
   }
 }
   

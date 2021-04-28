@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h3>Variables ({{ variableCount}})</h3>
     <div class="list-group">
       <variable-list-item 
         v-for="(variable, index) in variables" :key=index 
