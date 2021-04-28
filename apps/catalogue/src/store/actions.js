@@ -42,6 +42,7 @@ export default {
     commit('setVariables', resp.Variables)
     commit('setVariableCount', resp.Variables_agg.count)
   },
+
   fetchVariableDetails: async ({ commit, getters }, variableName) => {
     if(getters.variableDetails[variableName]) {
       // cache hit
@@ -84,6 +85,7 @@ export default {
     const resp = await request('graphql', query, variables).catch(e => console.error(e))
     commit('setVariableDetails', { variableName, variableDetails: resp.Variables[0]})
   },
+
   fetchKeywords: async ({ commit }) => {
     const keywordQuery = gql`query Keywords  { 
       Keywords{ 
@@ -98,6 +100,7 @@ export default {
     const keyWordResp = await request('graphql', keywordQuery).catch(e => console.error(e))
     commit('setKeywords', keyWordResp.Keywords)
   },
+
   fetchHarmonizations: async ({ commit }) => {
     const query = gql`query Databanks  { 
       Databanks{ 
@@ -111,5 +114,28 @@ export default {
     //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
     const resp = await request('graphql', query).catch(e => console.error(e))
     commit('setHarmonizations', resp.Databanks)
+  },
+
+  fetchMappings: async ({ commit }) => {
+    const query = gql`query VariableMappings ($filter: VariableMappingsFilter) { 
+      VariableMappings (filter: $filter) { 
+        fromTable {
+          release {
+            resource {
+              acronym
+            }
+            version
+          }
+          name 
+        }
+        match {
+          name
+        }
+      } 
+    }`
+    //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
+    const resp = await request('graphql', query).catch(e => console.error(e))
+    commit('variableMappings', resp.VariableMappings)
+    console.log(resp.VariableMappings)
   }
 }

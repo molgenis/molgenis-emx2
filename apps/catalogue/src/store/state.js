@@ -4,7 +4,8 @@ const state = {
   variableCount: [],
   keywords: [],
   selectedKeywords: [],
-  harmonizations: []
+  harmonizations: [],
+  variableMappings: []
 }
 
 export default state

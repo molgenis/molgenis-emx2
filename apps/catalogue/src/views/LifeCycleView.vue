@@ -1,17 +1,23 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-4">
-        <h3>Topics</h3>
+      <div class="col-12">
+        <h1>Cohort catalogue</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-3">
+        <h5>Topics</h5>
         <keyword-tree :keywords="keywords" v-model="selectedKeywords"></keyword-tree>
       </div>
-      <div class="col-8">
+      <div class="col-9">
+        <h5>Variables ({{ variableCount}})</h5>
         <ul class="nav nav-tabs">
           <li class="nav-item">
             <router-link 
               class="nav-link" 
               :to="{ name: 'LifeCycleVariablesView'}">
-              Variables
+              Details
             </router-link>
              
           </li>
@@ -44,7 +50,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['keywords']),
+    ...mapGetters(['variableCount', 'keywords']),
     selectedKeywords: {
       get () {
         return this.$store.state.selectedKeywords
