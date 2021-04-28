@@ -135,7 +135,7 @@ export default {
     }`
     //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
     const resp = await request('graphql', query).catch(e => console.error(e))
-    commit('variableMappings', resp.VariableMappings)
+    commit('setVariableMappings', resp.VariableMappings)
     console.log(resp.VariableMappings)
   }
 }
