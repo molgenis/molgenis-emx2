@@ -6,7 +6,7 @@
           :id="'check-input-' + keyword.name"
           class="form-check-input" 
           type="checkbox" 
-          v-model="isChecked" 
+          :checked="isSelected" 
           @change="handleChange(keyword.name)"
         >
         <label class="form-check-label" :for="'check-input-' + keyword.name" @click="handleClick">
@@ -26,6 +26,7 @@
           v-if="hasChildren && !isCollapsed" 
           :keywords="keyword.children"
           :handleChange="handleChange"
+          :selectedKeywordNames="selectedKeywordNames"
         ></keyword-level>
       </div>
     </div>
@@ -39,17 +40,20 @@ export default {
     },
     props: {
       keyword: Object,
-      handleChange: Function
+      handleChange: Function,
+      selectedKeywordNames: Array
     },
     data () {
       return {
-        isChecked: false,
         isCollapsed: true
       }
     },
     computed: {
       hasChildren () {
         return this.keyword.children.length
+      },
+      isSelected () {
+        return this.selectedKeywordNames.includes(this.keyword.name)
       }
     },
     methods: {

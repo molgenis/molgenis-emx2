@@ -4,6 +4,7 @@
       v-for="(keyword, index) in keywords" 
       :key=index 
       :keyword="keyword"
+      :selectedKeywordNames="selectedKeywordNames"
       :handleChange="handleChange" 
     />
   </div>
@@ -17,6 +18,7 @@ export default {
     components: { KeywordTreeItem },
     props: {
       keywords: Array,
+      selectedKeywordNames: Array,
       handleChange: Function
     }
 }
