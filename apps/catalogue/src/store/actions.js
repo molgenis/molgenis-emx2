@@ -101,7 +101,7 @@ export default {
     commit('setKeywords', keyWordResp.Keywords)
   },
 
-  fetchHarmonizations: async ({ commit }) => {
+  fetchCohorts: async ({ commit }) => {
     const query = gql`query Databanks  { 
       Databanks{ 
         acronym,
@@ -113,7 +113,7 @@ export default {
     }`
     //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
     const resp = await request('graphql', query).catch(e => console.error(e))
-    commit('setHarmonizations', resp.Databanks)
+    commit('setCohorts', resp.Databanks)
   },
 
   fetchMappings: async ({ commit }) => {
@@ -128,6 +128,25 @@ export default {
           }
           name 
         }
+        # toTable {
+        #   release {
+        #     resource {
+        #       acronym
+        #     }
+        #   }
+        # }
+        toVariable {
+          table {
+            release {
+              resource {
+                acronym
+              },
+              version
+            },
+            name
+          },
+          name
+        },
         match {
           name
         }
@@ -136,6 +155,5 @@ export default {
     //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
     const resp = await request('graphql', query).catch(e => console.error(e))
     commit('setVariableMappings', resp.VariableMappings)
-    console.log(resp.VariableMappings)
   }
 }

@@ -4,9 +4,9 @@
     <thead>
       <tr>
         <th scope="col"></th>
-        <th class="rotated-text text-nowrap" scope="col" v-for="(harmonization) in harmonizations" :key=harmonization.acronym >
+        <th class="rotated-text text-nowrap" scope="col" v-for="(cohort) in cohorts" :key=cohort.acronym >
           <div>
-            <span>{{harmonization.acronym}}</span>
+            <span>{{cohort.acronym}}</span>
           </div>
         </th>
       </tr>
@@ -14,7 +14,7 @@
     <tbody>
       <tr v-for="(variable) in variables" :key=variable.name >
         <th class="text-nowrap" scope="row">{{variable.name}}</th>
-        <td v-for="(harmonization) in harmonizations" :key=harmonization.acronym >#</td>
+        <td v-for="(cohort) in cohorts" :key=cohort.acronym >{{getMatchStatus(variable.name, cohort.acronym)}}</td>
       </tr>
     </tbody>
   </table>
@@ -27,13 +27,20 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: "LifeCycleHarmonizationView",
   computed: {
-    ...mapGetters(['harmonizations', 'variables']),
+    ...mapGetters(['cohorts', 'variables', 'harmonizationGrid']),
   },
   methods: {
-    ...mapActions(['fetchHarmonizations', 'fetchMappings'])
+    ...mapActions(['fetchCohorts', 'fetchMappings']),
+    getMatchStatus(variableName, cohortAcronym) {
+      if(!this.harmonizationGrid[variableName] || !this.harmonizationGrid[variableName][cohortAcronym]) {
+        return 'na' // not mapped
+      }
+
+      return this.harmonizationGrid[variableName][cohortAcronym]
+    }
   },
   mounted () {
-    this.fetchHarmonizations()
+    this.fetchCohorts()
     this.fetchMappings()
   }
 }

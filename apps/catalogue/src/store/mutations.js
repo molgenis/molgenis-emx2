@@ -13,8 +13,8 @@ export default {
   setKeywords (state, keywords) {
     state.keywords = keywords
   },
-  setHarmonizations (state, harmonizations) {
-    Vue.set(state, 'harmonizations', harmonizations)
+  setCohorts (state, cohorts) {
+    Vue.set(state, 'cohorts', cohorts)
   },
   setVariableMappings (state, variableMappings) {
     Vue.set(state, 'variableMappings', variableMappings)
