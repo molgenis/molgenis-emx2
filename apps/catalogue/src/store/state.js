@@ -4,7 +4,7 @@ const state = {
   variableCount: [],
   keywords: [],
   selectedKeywords: [],
-  harmonizations: [],
+  cohorts: [],
   variableMappings: []
 }
 
