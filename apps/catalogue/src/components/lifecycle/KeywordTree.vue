@@ -1,6 +1,7 @@
 <template>
   <keyword-level 
     :keywords="keywordTree"
+    :selectedKeywordNames="value"
     @change-keyword-check="handleKeywordSelectionChange"
     :handleChange="handleKeywordSelectionChange"
   >
