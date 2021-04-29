@@ -44,7 +44,7 @@ const router = new VueRouter({
           path: 'harmonization',
           component: LifeCycleHarmonizationView
         },
-        { path: '', component: LifeCycleVariablesView },
+        { path: '', redirect: '/lifecycle/variables' },
       ]
      },
     //list views
