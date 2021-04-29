@@ -1,6 +1,6 @@
 <template>
 <div>
-  <table class="table ">
+  <table class="table table-sm table-hover">
     <thead>
       <tr>
         <th scope="col"></th>
@@ -14,7 +14,11 @@
     <tbody>
       <tr v-for="(variable) in variables" :key=variable.name >
         <th class="text-nowrap" scope="row">{{variable.name}}</th>
-        <td v-for="(cohort) in cohorts" :key=cohort.acronym >{{getMatchStatus(variable.name, cohort.acronym)}}</td>
+        <td 
+          v-for="(cohort) in cohorts" :key=cohort.acronym 
+          :class="'table-'+getMatchStatus(variable.name, cohort.acronym)">
+          <!-- {{getMatchStatus(variable.name, cohort.acronym)}} -->
+        </td>
       </tr>
     </tbody>
   </table>
@@ -32,6 +36,9 @@ export default {
   methods: {
     ...mapActions(['fetchCohorts', 'fetchMappings']),
     getMatchStatus(variableName, cohortAcronym) {
+      // mock status filling
+      return  ['success', 'danger', 'warning'][Math.floor(Math.random() * 3)];
+
       if(!this.harmonizationGrid[variableName] || !this.harmonizationGrid[variableName][cohortAcronym]) {
         return 'na' // not mapped
       }
@@ -62,4 +69,5 @@ th.rotated-text > div {
 th.rotated-text > div > span {
     padding: 5px 10px;
 }
+
 </style>
