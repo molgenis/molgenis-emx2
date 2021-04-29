@@ -1,26 +1,24 @@
 <template>
-    <div class="list-group-item list-group-item-action text-lowercase">
+    <div class="list-group-item list-group-item-action text-lowercase" @click.stop="handleClick">
       <div class="form-check text-truncate">
         <input
           v-if="!hasChildren" 
           :id="'check-input-' + keyword.name"
           class="form-check-input" 
-          type="checkbox" 
+          type="checkbox"
           :checked="isSelected" 
           @change="handleChange(keyword.name)"
         >
-        <label class="form-check-label" :for="'check-input-' + keyword.name" @click="handleClick">
+        <label class="form-check-label" :for="'check-input-' + keyword.name">
           {{ keyword.definition }} 
         </label>
         <i 
           v-if="hasChildren && isCollapsed" 
           class="float-right fa fa-caret-up"
-          @click="handleClick"
         ></i>
         <i 
           v-if="hasChildren && !isCollapsed" 
           class="float-right fa fa-caret-down"
-          @click="handleClick"
         ></i>
         <keyword-level 
           v-if="hasChildren && !isCollapsed" 
@@ -65,3 +63,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+
+
+
+</style>
