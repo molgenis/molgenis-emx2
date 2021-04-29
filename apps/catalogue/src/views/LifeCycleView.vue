@@ -1,8 +1,10 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-12">
+      <div class="col-3">
         <h1>Cohort catalogue</h1>
+      </div>
+      <div class="col-9">
       </div>
     </div>
     <div class="row">
@@ -11,6 +13,16 @@
         <keyword-tree :keywords="keywords" v-model="selectedKeywords"></keyword-tree>
       </div>
       <div class="col-9">
+        <div class="mb-3">
+          <span><strong>Selected topics: </strong></span> 
+          <a 
+            class="mg-selected-topic-bage badge badge-pill badge-light mr-1" 
+            href="#"
+            v-for="(selectedKeywordsObject, index) in selectedKeywordsObjects" :key=index 
+            @click="removeKeywordFromSelection(selectedKeywordsObject.name)"
+          >{{selectedKeywordsObject.definition}} x
+          </a>
+        </div>
         <h5>Variables ({{ variableCount}})</h5>
         <ul class="nav nav-tabs">
           <li class="nav-item">
@@ -39,7 +51,7 @@
 <script>
 import VariableListItem from '../components/lifecycle/VariableListItem.vue'
 import KeywordTree from '../components/lifecycle/KeywordTree.vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: "LifeCycleView",
@@ -58,10 +70,14 @@ export default {
       set (value) {
         this.$store.commit('setSelectedKeywords', value)
       }
+    },
+    selectedKeywordsObjects () {
+      return this.selectedKeywords.map(selecteName => this.keywords.find((k) => k.name === selecteName))
     }
   },
   methods: {
     ...mapActions(['fetchVariables', 'fetchKeywords']),
+    ...mapMutations(['removeKeywordFromSelection']),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e
     }
@@ -77,3 +93,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .mg-selected-topic-bage:hover {
+    text-decoration: line-through;
+  }
+</style>

@@ -18,6 +18,9 @@ export default {
   },
   setVariableMappings (state, variableMappings) {
     Vue.set(state, 'variableMappings', variableMappings)
+  },
+  removeKeywordFromSelection(state, keywordName) {
+    state.selectedKeywords = state.selectedKeywords.filter(sk => sk !== keywordName)
   }
 }
   
