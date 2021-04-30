@@ -1,8 +1,8 @@
 <template>
-  <button class="list-group-item list-group-item-action " >
-      <span class="text-capitalize mg-variable-header" @click="toggleShowDetail">
+  <button class="list-group-item list-group-item-action">
+      <span class="text-capitalize mg-variable-header mg-list-group-item-header" @click="toggleShowDetail">
         <strong>
-        <i v-if="!showDetail" class="fa fa-caret-up mr-2"></i>
+        <i v-if="!showDetail" class="fa fa-caret-up mr-2 hover-rotate-clockwize"></i>
         <i v-else class="fa fa-caret-down mr-2"></i>
           {{ variable.label }}
         </strong>
@@ -85,5 +85,18 @@ export default {
   cursor: pointer;
   text-decoration: underline;
 }
+
+.mg-list-group-item-header {
+  display: block;
+  width: 100%;
+  font-weight: bolder;
+}
+
+.list-group-item:hover .hover-rotate-clockwize{
+  transform: rotate(90deg); 
+  transition: transform 0.2s;
+}
+
+
 </style>
 

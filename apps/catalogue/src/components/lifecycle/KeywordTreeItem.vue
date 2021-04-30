@@ -55,9 +55,11 @@ export default {
       }
     },
     methods: {
-      handleClick(event) {
+      handleClick() {
         if (this.hasChildren) {
           this.isCollapsed = !this.isCollapsed
+        } else {
+          this.handleChange(this.keyword.name)
         }
       }
     }
@@ -66,6 +68,8 @@ export default {
 
 <style scoped>
 
-
+.list-group-item:hover, .form-check-label:hover, form-check-input:hover {
+  cursor: pointer;
+}
 
 </style>
