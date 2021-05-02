@@ -63,7 +63,7 @@ public class TestRefBack {
         .add(column("products").setType(REFBACK).setRefTable("Products").setRefBack("parts"));
 
     // use refback to update indirectly
-    parts.update(new Row().set("partname", "bigscreen").set("products", "bigphone"));
+    parts.save(new Row().set("partname", "bigscreen").set("products", "bigphone"));
 
     // so now bigphone.parts = [bigscreen]
     assertEquals(
@@ -76,7 +76,7 @@ public class TestRefBack {
             .getStringArray("parts")[0]);
 
     // if refback is not updated then nothing happens
-    parts.update(new Row().set("partname", "bigscreen"));
+    parts.save(new Row().set("partname", "bigscreen"));
 
     // so now bigphone.parts = [bigscreen]
     assertEquals(
@@ -89,7 +89,7 @@ public class TestRefBack {
             .getStringArray("parts")[0]);
 
     // if refback is set to null all are remove
-    parts.update(new Row().set("partname", "bigscreen").set("products", null));
+    parts.save(new Row().set("partname", "bigscreen").set("products", null));
 
     // so now bigphone.parts = [] or null
     assertNull(
@@ -111,7 +111,7 @@ public class TestRefBack {
     // via insert, bigphone and smallphone products should now have headphones as part, i.e.
     // bigphone=bigscreen,battery,headphone,
     // smallphone=battery+headphone+smallscreen+smallbutton
-    parts.update(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
+    parts.save(new Row().set("partname", "headphones").set("products", "bigphone,smallphone"));
 
     List<Row> pTest = products.query().orderBy("productname").retrieveRows();
 
@@ -187,7 +187,7 @@ public class TestRefBack {
     posts.insert(new Row().set("title", "joes post").set("user", "joe"));
 
     // now the magic, using refback update posts.user => 'jack'
-    users.update(new Row().set("username", "jack").set("posts", "joes post"));
+    users.save(new Row().set("username", "jack").set("posts", "joes post"));
 
     // check via query we have now post for jack
     assertEquals(

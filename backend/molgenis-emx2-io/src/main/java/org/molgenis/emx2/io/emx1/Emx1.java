@@ -46,7 +46,7 @@ public class Emx1 {
       if (store.containsTable(tableToSheet.get(table.getTableName()))) {
         targetSchema
             .getTable(table.getTableName())
-            .update(store.readTable(tableToSheet.get(table.getTableName()))); // actually upsert
+            .save(store.readTable(tableToSheet.get(table.getTableName()))); // actually upsert
       }
     }
 

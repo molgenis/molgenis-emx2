@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
@@ -30,11 +31,14 @@ class SqlTableMetadata extends TableMetadata {
             dsl -> {
               // first per-column actions, then multi-column action such as composite keys/refs
               for (Column c : column) {
-                if (getColumn(c.getName()) != null) {
+                if (getLocalColumn(c.getName()) != null) {
                   alterColumn(c);
                 } else {
                   Column newColumn = new Column(this, c);
-                  if (getInherit() != null && getInheritedTable().getColumn(c.getName()) != null) {
+                  if (getInherit() != null
+                      && getInheritedTable().getColumn(c.getName()) != null
+                      // this column is replicated in all subclass tables
+                      && !c.getName().equals(MG_TABLECLASS)) {
                     throw new MolgenisException(
                         "Cannot add column "
                             + getTableName()

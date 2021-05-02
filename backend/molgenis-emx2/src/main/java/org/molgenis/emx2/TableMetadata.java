@@ -206,6 +206,7 @@ public class TableMetadata {
         result.put(pkey.getName(), pkey);
       }
     }
+
     // get all implemented columns (keep superclass because of type)
     List<Column> columnList = new ArrayList<>(columns.values());
     columnList.sort(Comparator.comparing(Column::getPosition));
@@ -415,7 +416,7 @@ public class TableMetadata {
     }
   }
 
-  protected Column getLocalColumn(String name) {
+  public Column getLocalColumn(String name) {
     return columns.get(name);
   }
 

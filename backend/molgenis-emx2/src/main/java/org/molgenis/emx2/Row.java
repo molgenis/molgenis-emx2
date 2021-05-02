@@ -256,7 +256,7 @@ public class Row {
     return this.values;
   }
 
-  public Collection<String> getColumnNames() {
+  public Set<String> getColumnNames() {
     return this.values.keySet();
   }
 
@@ -327,5 +327,9 @@ public class Row {
 
   public boolean notNull(String columnName) {
     return values.get(columnName) != null;
+  }
+
+  public Object get(Column column) {
+    return get(column.getName(), column.getColumnType());
   }
 }

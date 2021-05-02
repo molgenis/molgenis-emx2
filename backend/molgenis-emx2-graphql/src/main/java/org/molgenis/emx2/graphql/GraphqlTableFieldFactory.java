@@ -10,20 +10,11 @@ import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 
 public class GraphqlTableFieldFactory {
-
-  private enum MutationType {
-    INSERT,
-    UPDATE,
-    DELETE
-  }
 
   // static types
   private static final GraphQLEnumType orderByEnum =
@@ -506,13 +497,12 @@ public class GraphqlTableFieldFactory {
     };
   }
 
-  public GraphQLFieldDefinition insertMutation(Schema schema) {
+  private GraphQLFieldDefinition getMutationDefinition(Schema schema, MutationType type) {
     GraphQLFieldDefinition.Builder fieldBuilder =
         GraphQLFieldDefinition.newFieldDefinition()
-            .name("insert")
+            .name(type.name().toLowerCase())
             .type(typeForMutationResult)
-            .dataFetcher(fetcher(schema, MutationType.INSERT));
-
+            .dataFetcher(fetcher(schema, type));
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       if (table.getMetadata().getColumns().size() > 0) {
@@ -525,24 +515,16 @@ public class GraphqlTableFieldFactory {
     return fieldBuilder.build();
   }
 
-  public GraphQLFieldDefinition updateMutation(Schema schema) {
-    GraphQLFieldDefinition.Builder fieldBuilder =
-        GraphQLFieldDefinition.newFieldDefinition()
-            .name("update")
-            .type(typeForMutationResult)
-            .dataFetcher(fetcher(schema, MutationType.UPDATE));
+  public GraphQLFieldDefinition insertMutation(Schema schema) {
+    return getMutationDefinition(schema, MutationType.INSERT);
+  }
 
-    for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      if (table.getMetadata().getColumns().size() > 0) {
-        fieldBuilder.argument(
-            GraphQLArgument.newArgument()
-                .name(tableName)
-                // reuse same input as insert
-                .type(GraphQLList.list(GraphQLTypeReference.typeRef(table.getName() + INPUT))));
-      }
-    }
-    return fieldBuilder.build();
+  public GraphQLFieldDefinition updateMutation(Schema schema) {
+    return getMutationDefinition(schema, MutationType.UPDATE);
+  }
+
+  public GraphQLFieldDefinition upsertMutation(Schema schema) {
+    return getMutationDefinition(schema, MutationType.SAVE);
   }
 
   public GraphQLFieldDefinition deleteMutation(Schema schema) {
@@ -587,6 +569,12 @@ public class GraphqlTableFieldFactory {
                       GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
+            case SAVE:
+              count =
+                  table.save(
+                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              result.append("upserted " + count + " records to " + tableName + "\n");
+              break;
             case DELETE:
               count =
                   table.delete(
@@ -602,25 +590,30 @@ public class GraphqlTableFieldFactory {
     };
   }
 
+  private Map<String, GraphQLInputObjectType> rowInputTypes = new LinkedHashMap<>();
+
   private GraphQLInputObjectType rowInputType(Table table) {
-    GraphQLInputObjectType.Builder inputBuilder =
-        GraphQLInputObjectType.newInputObject().name(table.getName() + INPUT);
-    for (Column col : table.getMetadata().getColumnsWithoutConstant()) {
-      GraphQLInputType type;
-      if (col.isReference()) {
-        if (REF.equals(col.getColumnType())) {
-          type = getPrimaryKeyInput(col.getRefTable());
+    if (rowInputTypes.get(table.getName()) == null) {
+      GraphQLInputObjectType.Builder inputBuilder =
+          GraphQLInputObjectType.newInputObject().name(table.getName() + INPUT);
+      for (Column col : table.getMetadata().getColumnsWithoutConstant()) {
+        GraphQLInputType type;
+        if (col.isReference()) {
+          if (REF.equals(col.getColumnType())) {
+            type = getPrimaryKeyInput(col.getRefTable());
+          } else {
+            type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
+          }
         } else {
-          type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
+          ColumnType columnType = col.getPrimitiveColumnType();
+          type = getGraphQLInputType(columnType);
         }
-      } else {
-        ColumnType columnType = col.getPrimitiveColumnType();
-        type = getGraphQLInputType(columnType);
+        inputBuilder.field(
+            GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(type));
       }
-      inputBuilder.field(
-          GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(type));
+      rowInputTypes.put(table.getName(), inputBuilder.build());
     }
-    return inputBuilder.build();
+    return rowInputTypes.get(table.getName());
   }
 
   private Map<String, GraphQLInputObjectType> refTypes = new LinkedHashMap<>();
