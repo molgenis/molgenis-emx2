@@ -34,7 +34,10 @@
           <tr v-for="schema in schemasFiltered" :key="schema.name">
             <td>
               <div style="display: flex">
-                <IconAction icon="external-link" @click="openGroup()" />
+                <IconAction
+                  icon="external-link"
+                  @click="openGroup(schema.name)"
+                />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
@@ -70,7 +73,6 @@ import { request } from "graphql-request";
 import SchemaCreateModal from "./SchemaCreateModal";
 import SchemaDeleteModal from "./SchemaDeleteModal";
 import {
-  TableSimple,
   IconAction,
   IconBar,
   IconDanger,
@@ -82,7 +84,6 @@ import {
 
 export default {
   components: {
-    TableSimple,
     Spinner,
     SchemaCreateModal,
     SchemaDeleteModal,
