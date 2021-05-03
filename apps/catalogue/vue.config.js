@@ -4,7 +4,7 @@ module.exports = {
     port: "9090",
     proxy: {
       "^/graphql": {
-        target: "https://emx2-catalogue.test.molgenis.org/LifeCycle3",
+        target: "https://emx2-catalogue.test.molgenis.org/LifeCycle4",
       },
       "/api": { target: "https://emx2-catalogue.test.molgenis.org" },
       "/apps": { target: "https://emx2-catalogue.test.molgenis.org" },
