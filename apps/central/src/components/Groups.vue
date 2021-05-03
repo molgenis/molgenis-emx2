@@ -11,22 +11,19 @@
         You don't have permission to view any database. Please ask a database
         owner for permission to see their data.
       </MessageWarning>
-      <label v-else>{{ count }} databases found</label>
-      <IconAction
-        v-if="session && session.email == 'admin'"
-        icon="plus"
-        @click="openCreateSchema"
-      />
     </IconBar>
-    <div v-if="count > 0">
-      <InputSearch
-        v-if="count > 10"
-        placholder="search by name"
-        v-model="search"
-      />
+    <div v-if="count > 0 || search">
+      <InputSearch placholder="search by name" v-model="search" />
+      <label>{{ count }} databases found</label>
       <table class="table table-hover table-bordered bg-white">
         <thead>
-          <th style="width: 1px"></th>
+          <th style="width: 1px">
+            <IconAction
+              v-if="session && session.email == 'admin'"
+              icon="plus"
+              @click="openCreateSchema"
+            />
+          </th>
           <th>name</th>
           <th>description</th>
         </thead>
@@ -109,7 +106,7 @@ export default {
   },
   computed: {
     count() {
-      return this.schemas.length;
+      return this.schemasFiltered.length;
     },
     schemasFiltered() {
       if (this.search && this.search.trim().length > 0) {
