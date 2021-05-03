@@ -58,9 +58,7 @@ export default {
       handleClick() {
         if (this.hasChildren) {
           this.isCollapsed = !this.isCollapsed
-        } else {
-          this.handleChange(this.keyword.name)
-        }
+        } 
       }
     }
 }
