@@ -40,6 +40,7 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
+import FormGroup from "./_formGroup";
 import IconAction from "./IconAction";
 
 export default {
