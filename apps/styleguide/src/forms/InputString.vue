@@ -29,9 +29,9 @@
       </InputAppend>
     </FormGroup>
     <IconAction
-      v-if="inplace"
+      v-if="inplace && !focus"
       class="hoverIcon"
-      :icon="focus ? 'times' : 'pencil'"
+      icon="pencil"
       @click="toggleFocus"
     />
   </span>
@@ -40,7 +40,6 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import FormGroup from "./_formGroup";
 import IconAction from "./IconAction";
 
 export default {
