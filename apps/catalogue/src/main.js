@@ -1,5 +1,20 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import Vue from "vue"
+import VueRouter from "vue-router"
+import { BootstrapVue } from 'bootstrap-vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {
+  faCaretRight,
+  faExclamationTriangle,
+  faSpinner,
+  faTimes,
+  faFolderOpen,
+  faFolder,
+  faSearch,
+  faCheckCircle,
+  faQuestion
+} from '@fortawesome/free-solid-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import draggable from 'vuedraggable'
 import App from "./App.vue";
 import CatalogueView from "./views/CatalogueView";
 import InstitutionView from "./views/InstitutionView";
@@ -20,11 +35,18 @@ import store from './store/store'
 import LifeCycleView from "./views/LifeCycleView"
 import LifeCycleVariablesView from "./views/LifeCycleVariablesView"
 import LifeCycleHarmonizationView from "./views/LifeCycleHarmonizationView"
-
+import TreeFilter from "./components/lifecycle/TreeFilter"
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.config.productionTip = false;
 
+Vue.use(BootstrapVue)
+Vue.component('draggable', draggable)
+Vue.component('TreeFilter', TreeFilter)
+
 Vue.use(VueRouter);
+Vue.component('FontAwesomeIcon', FontAwesomeIcon)
+library.add(faCaretRight, faExclamationTriangle, faSpinner, faTimes, faFolderOpen, faFolder, faSearch, faCheckCircle, faQuestion)
 
 const router = new VueRouter({
   linkActiveClass: 'active', // bootstrap 4 active tab class
