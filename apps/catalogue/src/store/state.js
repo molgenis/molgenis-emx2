@@ -1,11 +1,12 @@
 const state = {
   variables: [],
   variableDetails: {},
-  variableCount: [],
   keywords: [],
-  selectedKeywords: [],
   cohorts: [],
-  variableMappings: []
+  variableMappings: [],
+  filters: {
+    keywords: []
+  }
 }
 
 export default state

@@ -1,9 +1,9 @@
 import { request, gql } from "graphql-request"
 
 export default {
-  fetchVariables: async ({ commit, getters }) => {
+  fetchVariables: async ({ commit }) => {
     const query = gql`query Variables ($search: String, $filter: VariablesFilter) { 
-      Variables (limit: 100, search: $search, filter: $filter){ 
+      Variables (search: $search, filter: $filter){ 
         name,
         release {
           resource {
@@ -13,11 +13,12 @@ export default {
         },
         label, 
         repeats { 
-          name          } 
+          name          
+        },
+        keywords {
+          name
+        }
       } 
-      Variables_agg(filter:$filter){
-        count
-      }
     }`
     let variables = {
       "filter": {
@@ -32,21 +33,14 @@ export default {
       }
     }
 
-    if(getters.selectedKeywords.length) {
-      variables.filter.keywords = {
-        "equals": getters.selectedKeywords.map(sk => ({ name: sk }))
-      }  
-    }
-
     const resp = await request('graphql', query, variables).catch(e => console.error(e))
     commit('setVariables', resp.Variables)
-    commit('setVariableCount', resp.Variables_agg.count)
   },
 
-  fetchVariableDetails: async ({ commit, getters }, variableName) => {
-    if(getters.variableDetails[variableName]) {
+  fetchVariableDetails: async ({ commit, state }, variableName) => {
+    if(state.variableDetails[variableName]) {
       // cache hit
-      return getters.variableDetails[variableName]
+      return state.variableDetails[variableName]
     }
     // else fetch 
     const query = gql`query Variables ($filter: VariablesFilter) { 

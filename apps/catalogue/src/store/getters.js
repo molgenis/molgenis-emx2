@@ -1,12 +1,17 @@
 import state from "./state"
 
 export default {
-  variables: (state) => state.variables,
-  variableCount: (state) => state.variableCount,
-  variableDetails: (state) => state.variableDetails,
-  keywords: (state) => state.keywords,
-  selectedKeywords: (state) => state.selectedKeywords,
-  cohorts: (state) => state.cohorts,
+  filteredVariables: (state) => {
+    if(state.filters.keywords && state.filters.keywords.length > 0) {
+      return state.variables.filter((variable) => {
+        return variable.keywords && state.filters.keywords.some(keyword => variable.keywords.map(keyword => keyword.name).includes(keyword))
+      })
+    } else {
+      return state.variables
+    }
+  },
+  variableCount: (state, {filteredVariables}) => filteredVariables.length,
+
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
