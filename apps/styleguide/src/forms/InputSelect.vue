@@ -38,9 +38,8 @@
       v-for="(el, idx) in valueArray"
       :key="idx + '.' + valueArray.length"
       v-bind="$props"
-      @clear="clearValue(idx)"
       :showPlus="showPlus(idx)"
-      :showClear="showClear(idx)"
+      :showClear="false"
       @add="addRow"
     >
       <MessageError v-if="!options">No options provided</MessageError>
