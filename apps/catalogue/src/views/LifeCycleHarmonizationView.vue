@@ -26,18 +26,19 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 
 export default {
   name: "LifeCycleHarmonizationView",
   computed: {
-    ...mapGetters(['cohorts', 'variables', 'harmonizationGrid']),
+    ...mapGetters(['harmonizationGrid']),
+    ...mapState(['cohorts', 'variables'])
   },
   methods: {
     ...mapActions(['fetchCohorts', 'fetchMappings']),
     getMatchStatus(variableName, cohortAcronym) {
       // mock status filling
-      return  ['success', 'danger', 'warning'][Math.floor(Math.random() * 3)];
+      // return  ['success', 'danger', 'warning'][Math.floor(Math.random() * 3)];
 
       if(!this.harmonizationGrid[variableName] || !this.harmonizationGrid[variableName][cohortAcronym]) {
         return 'na' // not mapped

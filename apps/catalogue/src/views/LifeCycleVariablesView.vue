@@ -2,7 +2,7 @@
   <div>
     <div class="list-group">
       <variable-list-item 
-        v-for="(variable, index) in variables" :key=index 
+        v-for="(variable, index) in filteredVariables" :key=index
         :variable="variable"
         :variableDetails="variableDetails[variable.name]"
         @request-variable-detail="fetchVariableDetails(variable.name)">
@@ -12,13 +12,14 @@
 </template>
 
 <script>
-import VariableListItem from '../components/lifecycle/VariableListItem.vue'
-import { mapGetters, mapActions } from 'vuex'
+import VariableListItem from '@/components/lifecycle/VariableListItem.vue'
+import { mapGetters, mapState, mapActions } from 'vuex'
 export default {
   name: "LifeCycleVariablesView",
   components: { VariableListItem},
   computed: {
-    ...mapGetters(['variables', 'variableCount', 'variableDetails']),
+    ...mapState(['variableDetails']),
+    ...mapGetters(['variableCount', 'filteredVariables'])
   },
   methods: {
     ...mapActions(['fetchVariableDetails'])
