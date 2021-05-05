@@ -11,6 +11,7 @@
       v-else-if="columnType === 'STRING'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputText
       v-else-if="columnType === 'TEXT'"
