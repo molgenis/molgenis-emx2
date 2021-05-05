@@ -21,6 +21,7 @@
       @add="addRow"
     >
       <textarea
+        v-focus="inplace && !list"
         v-autogrow
         ref="textarea"
         :id="id + idx"
@@ -31,6 +32,7 @@
         :readonly="readonly"
         @input="emitValue($event, idx)"
         style="resize: none"
+        @blur="toggleFocus"
       />
     </InputAppend>
   </FormGroup>
