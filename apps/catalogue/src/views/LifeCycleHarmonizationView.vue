@@ -37,14 +37,28 @@ export default {
   methods: {
     ...mapActions(['fetchCohorts', 'fetchMappings']),
     getMatchStatus(variableName, cohortAcronym) {
-      // mock status filling
-      // return  ['success', 'danger', 'warning'][Math.floor(Math.random() * 3)];
-
       if(!this.harmonizationGrid[variableName] || !this.harmonizationGrid[variableName][cohortAcronym]) {
-        return 'na' // not mapped
+        return 'danger' // not mapped
       }
 
-      return this.harmonizationGrid[variableName][cohortAcronym]
+      const match = this.harmonizationGrid[variableName][cohortAcronym]
+      switch(match) {
+        case 'zna':
+        case 'zna':
+          return 'danger'
+        case 'partial':
+          return 'warning'
+        case 'complete':
+          return 'success'
+        default:
+          return 'danger'
+      }
+
+    }
+  },
+  watch: {
+    variables () {
+      this.fetchMappings()
     }
   },
   mounted () {

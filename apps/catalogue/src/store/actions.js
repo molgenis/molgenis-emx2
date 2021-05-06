@@ -110,9 +110,9 @@ export default {
     commit('setCohorts', resp.Databanks)
   },
 
-  fetchMappings: async ({ commit }) => {
+  fetchMappings: async ({ commit, getters }) => {
     const query = gql`query VariableMappings ($filter: VariableMappingsFilter) { 
-      VariableMappings (filter: $filter) { 
+      VariableMappings (limit: 100, filter: $filter) { 
         fromTable {
           release {
             resource {
@@ -122,13 +122,6 @@ export default {
           }
           name 
         }
-        # toTable {
-        #   release {
-        #     resource {
-        #       acronym
-        #     }
-        #   }
-        # }
         toVariable {
           table {
             release {
@@ -146,8 +139,24 @@ export default {
         }
       } 
     }`
-    //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
-    const resp = await request('graphql', query).catch(e => console.error(e))
+
+    const variables = getters.variables.map(v => {
+      return {
+        release: {
+          resource: {
+            acronym: 'LifeCycle'
+          },
+          version: "1.0.0" 
+        } ,
+        name: v.name
+      }
+    })
+
+    const filter = variables.length ? {
+      'filter': { 'toVariable':  { 'equals': variables } }
+    } : {}
+
+    const resp = await request('graphql', query, filter).catch(e => console.error(e))
     commit('setVariableMappings', resp.VariableMappings)
   }
 }
