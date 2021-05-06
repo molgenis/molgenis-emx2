@@ -42,9 +42,9 @@
 
 <script>
 import VariableListItem from '@/components/lifecycle/VariableListItem'
-import {mapActions, mapGetters, mapMutations} from 'vuex'
 import Filters from '@/views/Filters'
 import SelectedFilters from "@/views/SelectedFilters";
+import {mapActions, mapState} from 'vuex'
 
 export default {
   name: "LifeCycleView",
@@ -55,7 +55,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['variableCount']),
+    ...mapState(['variableCount', 'filters']),
+  },
+  watch: {
+    filters () {
+      this.fetchVariables()
+    }
   },
   methods: {
     ...mapActions(['fetchVariables']),

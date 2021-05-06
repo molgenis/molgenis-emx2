@@ -16,8 +16,7 @@
         <th class="text-nowrap" scope="row">{{variable.name}}</th>
         <td 
           v-for="(cohort) in cohorts" :key=cohort.acronym 
-          :class="'table-'+getMatchStatus(variable.name, cohort.acronym)">
-          <!-- {{getMatchStatus(variable.name, cohort.acronym)}} -->
+          :class="'table-'+getMatchStatus(variable.name, cohort.acronym)" >
         </td>
       </tr>
     </tbody>

@@ -1,7 +1,7 @@
 import { request, gql } from "graphql-request"
 
 export default {
-  fetchVariables: async ({ commit }) => {
+  fetchVariables: async ({ commit, state }) => {
     const query = gql`query Variables ($search: String, $filter: VariablesFilter) { 
       Variables (search: $search, filter: $filter){ 
         name,
@@ -19,6 +19,9 @@ export default {
           name
         }
       } 
+      Variables_agg(filter: $filter){
+        count
+      }
     }`
     let variables = {
       "filter": {
@@ -33,8 +36,15 @@ export default {
       }
     }
 
+    if(state.filters.keywords && state.filters.keywords.length) {
+      variables.filter.keywords = {
+        "equals": state.filters.keywords.map(keyword => ({ name: keyword }))
+      }  
+    }
+
     const resp = await request('graphql', query, variables).catch(e => console.error(e))
     commit('setVariables', resp.Variables)
+    commit('setVariableCount', resp.Variables_agg.count)
   },
 
   fetchVariableDetails: async ({ commit, state }, variableName) => {
@@ -110,7 +120,7 @@ export default {
     commit('setCohorts', resp.Databanks)
   },
 
-  fetchMappings: async ({ commit, getters }) => {
+  fetchMappings: async ({ commit, state }) => {
     const query = gql`query VariableMappings ($filter: VariableMappingsFilter) { 
       VariableMappings (limit: 100, filter: $filter) { 
         fromTable {
@@ -140,7 +150,7 @@ export default {
       } 
     }`
 
-    const variables = getters.variables.map(v => {
+    const variables = state.variables.map(variable => {
       return {
         release: {
           resource: {
@@ -148,7 +158,7 @@ export default {
           },
           version: "1.0.0" 
         } ,
-        name: v.name
+        name: variable.name
       }
     })
 
@@ -158,5 +168,5 @@ export default {
 
     const resp = await request('graphql', query, filter).catch(e => console.error(e))
     commit('setVariableMappings', resp.VariableMappings)
-  }
+  },
 }

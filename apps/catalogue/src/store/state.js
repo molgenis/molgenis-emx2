@@ -1,9 +1,10 @@
 const state = {
   variables: [],
   variableDetails: {},
+  variableCount: 0,
+  variableMappings: [],
   keywords: [],
   cohorts: [],
-  variableMappings: [],
   filters: {
     keywords: []
   }
