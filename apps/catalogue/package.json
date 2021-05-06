@@ -16,6 +16,7 @@
     "core-js": "3.11.2",
     "bootstrap-vue": "^2.21.2",
     "graphql-request": "3.4.0",
+    "highlight.js": "^10.7.2",
     "vue": "2.6.12",
     "vue-multilevel-accordion": "^1.0.8",
     "vue-router": "3.5.1",

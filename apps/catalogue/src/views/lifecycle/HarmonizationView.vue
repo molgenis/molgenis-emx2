@@ -16,7 +16,7 @@
         <th class="text-nowrap" scope="row">{{variable.name}}</th>
         <td 
           v-for="(cohort) in cohorts" :key=cohort.acronym 
-          :class="'table-'+getMatchStatus(variable.name, cohort.acronym)" >
+          :class="'table-'+getMatchStatus(variable.name, cohort.acronym)" @click="harmonizationDetails(variable.name, cohort.acronym)" >
         </td>
       </tr>
     </tbody>
@@ -28,9 +28,9 @@
 import { mapGetters, mapActions, mapState } from 'vuex'
 
 export default {
-  name: "LifeCycleHarmonizationView",
+  name: "HarmonizationView",
   computed: {
-    ...mapGetters(['harmonizationGrid']),
+    ...mapGetters(['harmonization', 'getMapping']),
     ...mapState(['cohorts', 'variables'])
   },
   methods: {
@@ -52,7 +52,11 @@ export default {
         default:
           return 'danger'
       }
-
+    },
+    harmonizationDetails(variable, cohort) {
+      const mapping = this.getMapping(variable, cohort)
+      console.log(mapping)
+      this.$router.push({name: 'HarmonizationDetailsView', path: 'harmonization/detail', params: { harmonization: mapping }}) 
     }
   },
   watch: {

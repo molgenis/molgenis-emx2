@@ -15,7 +15,7 @@
 import VariableListItem from '@/components/lifecycle/VariableListItem.vue'
 import { mapState, mapActions } from 'vuex'
 export default {
-  name: "LifeCycleVariablesView",
+  name: "VariablesListView",
   components: { VariableListItem},
   computed: {
     ...mapState(['variableDetails', 'variables'])

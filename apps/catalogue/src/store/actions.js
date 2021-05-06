@@ -3,7 +3,7 @@ import { request, gql } from "graphql-request"
 export default {
   fetchVariables: async ({ commit, state }) => {
     const query = gql`query Variables ($search: String, $filter: VariablesFilter) { 
-      Variables (search: $search, filter: $filter){ 
+      Variables (limit: 100, search: $search, filter: $filter){ 
         name,
         release {
           resource {
@@ -132,6 +132,9 @@ export default {
           }
           name 
         }
+        fromVariable {
+          name
+        }
         toVariable {
           table {
             release {
@@ -147,6 +150,7 @@ export default {
         match {
           name
         }
+        syntax
       } 
     }`
 

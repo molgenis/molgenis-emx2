@@ -8,7 +8,7 @@ module.exports = {
       },
       "/api": { target: "https://emx2-catalogue.test.molgenis.org" },
       "/apps": { target: "https://emx2-catalogue.test.molgenis.org" },
-      "^/theme.css": { target: "https://emx2-catalogue.test.molgenis.org/LifeCycle4" },
+      "^/theme.css": { target: "https://emx2-catalogue.test.molgenis.org" },
     },
   },
 };

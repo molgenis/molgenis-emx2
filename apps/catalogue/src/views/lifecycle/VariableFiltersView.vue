@@ -1,5 +1,5 @@
 <template>
-  <FilterContainer
+  <filter-container
       v-if="keywords && keywords.length"
       :value="selection"
       :filters="filters"
@@ -13,6 +13,7 @@ import { FilterContainer } from '@molgenis-ui/components-library'
 import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
+  name: 'VariableFiltersView',
   components: {
     FilterContainer
   },

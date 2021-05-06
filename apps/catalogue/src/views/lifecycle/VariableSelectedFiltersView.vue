@@ -11,6 +11,7 @@ import ActiveFilters from '@/components/lifecycle/ActiveFilters.vue'
 import { mapState, mapMutations } from 'vuex'
 
 export default {
+  name: "VariablesSelectedFiltersView",
   components: {
     ActiveFilters
   },

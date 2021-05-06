@@ -26,10 +26,13 @@
 <script>
 import TreeNode from './TreeNode'
 import SearchBox from './SearchBox'
+import { BLink } from 'bootstrap-vue'
+
 export default {
   components: {
     TreeNode,
-    SearchBox
+    SearchBox,
+    BLink
   },
   props: {
     options: {

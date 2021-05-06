@@ -1,6 +1,18 @@
-import state from "./state"
-
 export default {
+  getMapping: (state) => (variable, cohort) => {
+    const mapping = state.variableMappings.find(mapping => mapping.toVariable.name === variable && mapping.fromTable.release.resource.acronym === cohort)
+    const toVariable = state.variables.find(variable => variable.name === mapping.toVariable.name)
+    console.log(toVariable)
+    return {
+        variable: {
+          name: toVariable.name, 
+          description: toVariable.label
+        }, 
+        sources: mapping.fromVariable, 
+        syntax: mapping.syntax
+      }
+  },
+
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
