@@ -1,5 +1,5 @@
 <template>
-  <FormGroup v-bind="$props">
+  <FormGroup v-bind="$props" v-on="$listeners">
     <div
       class="form-check custom-control custom-checkbox"
       v-for="row in data"

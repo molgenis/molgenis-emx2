@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props">
+  <form-group v-bind="$props" v-on="$listeners">
     <!-- hidden input-->
     <div class="input-group">
       <input

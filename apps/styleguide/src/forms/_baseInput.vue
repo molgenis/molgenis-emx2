@@ -120,7 +120,7 @@ export default {
     },
     //always show on empty lines in list view
     showClear() {
-      return this.clear && !this.readonly && this.value;
+      return this.clear && !this.readonly && this.value != null;
     },
     showMinus(idx) {
       return this.list && !this.showPlus(idx);

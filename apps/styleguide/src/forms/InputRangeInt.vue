@@ -1,5 +1,5 @@
 <template>
-  <FormGroup v-bind="$props" class="input-group-range">
+  <FormGroup v-bind="$props" class="input-group-range" v-on="$listeners">
     <InputAppend
       v-for="(item, idx) in valueArray"
       :key="idx + '.' + valueArray.length"

@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props">
+  <form-group v-bind="$props" v-on="$listeners">
     <InputAppend
       v-for="(el, idx) in valueArray"
       :key="idx + valueArray.length"
@@ -33,6 +33,7 @@
 
 <script>
 import _baseInput from "./_baseInput.vue";
+import FormGroup from "./_formGroup";
 import FlatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import InputAppend from "./_inputAppend";
@@ -43,6 +44,7 @@ export default {
   components: {
     FlatPickr,
     InputAppend,
+    FormGroup,
   },
   computed: {
     config() {

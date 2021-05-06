@@ -9,6 +9,7 @@
     :label="label"
     :description="description"
     v-bind="$props"
+    v-on="$listeners"
   >
     <InputAppend
       v-for="(el, idx) in valueArray"
@@ -41,7 +42,6 @@
 <script>
 import _baseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import FormGroup from "./_formGroup";
 import IconAction from "./IconAction";
 
 /** Input for text */
@@ -49,7 +49,7 @@ export default {
   extends: _baseInput,
   components: {
     InputAppend,
-    FormGroup,
+    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
     IconAction,
   },
   directives: {

@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props" class="checkbox-form-group">
+  <form-group v-bind="$props" class="checkbox-form-group" v-on="$listeners">
     <div>
       <div
         v-for="(item, index) in options"

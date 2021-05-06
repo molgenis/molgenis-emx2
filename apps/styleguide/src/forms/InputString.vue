@@ -4,7 +4,7 @@
       <span v-if="list && value">{{ value.join(", ") }}</span>
       <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
     </span>
-    <FormGroup v-else v-bind="$props">
+    <FormGroup v-else v-bind="$props" v-on="$listeners">
       <InputAppend
         v-for="(item, idx) in valueArray"
         :key="idx"
@@ -40,14 +40,13 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import FormGroup from "./_formGroup";
 import IconAction from "./IconAction";
 
 export default {
   extends: BaseInput,
   components: {
     InputAppend,
-    FormGroup,
+    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
     IconAction,
   },
   methods: {
@@ -167,6 +166,26 @@ Example list in place
   export default {
     data() {
       return {value: ['aap', 'noot']}
+    }
+  }
+</script>
+```
+
+Metadata edit example
+```
+<template>
+  <div>
+    <InputString :label.sync="column.label" v-model="column.value" :editMeta="true"
+                 :description.sync="column.description"/>
+    text.<br/>
+    column :
+    <pre>{{ column }}</pre>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {column: {value: null, label: 'testlabel', description: 'test description'}}
     }
   }
 </script>

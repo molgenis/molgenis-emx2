@@ -5,8 +5,8 @@
     :class="light ? 'btn-outline-light' : 'btn-outline-primary'"
     @click="onClick"
   >
-    <i v-if="icon" :class="icon" class="mr-2 ml-0"></i>
     <slot />
+    <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
   </button>
 </template>
 

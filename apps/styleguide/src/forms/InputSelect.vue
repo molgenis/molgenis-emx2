@@ -1,11 +1,6 @@
 <template>
   <span v-if="inplace">
-    <div
-      v-if="focus"
-      style="display: inline-block"
-      class="dropdown show"
-      v-click-outside="toggleFocus"
-    >
+    <div v-if="focus" class="dropdown show" v-click-outside="toggleFocus">
       <div
         v-for="(el, idx) in valueArray"
         :key="idx"
@@ -27,13 +22,14 @@
       @mouseover="hover = true"
       @mouseleave="hover = false"
       style="min-width: 1em"
+      class="d-flex flex-nowrap"
     >
       {{ value ? value : "&zwnj;&zwnj;" }}
       <IconAction icon="pencil" class="hoverIcon" />
       <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
     </span>
   </span>
-  <FormGroup v-else v-bind="$props">
+  <FormGroup v-else v-bind="$props" v-on="$listeners">
     <InputAppend
       v-for="(el, idx) in valueArray"
       :key="idx + '.' + valueArray.length"
