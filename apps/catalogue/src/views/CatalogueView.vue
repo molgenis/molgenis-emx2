@@ -85,31 +85,12 @@
           databanks and common models.
         </p>
       </RouterLink>
-      <RouterLink to="/list/Variables" class="btn btn-outline-dark col-2">
+      <RouterLink to="/lifecycle/variables" class="btn btn-outline-dark col-2">
         <span class="badge badge-light">{{ variables }}</span>
         <h3>Variables</h3>
         <p class="text-left">
           Raw listing of all variables described across all releases of all
           databanks and common models.
-        </p>
-      </RouterLink>
-      <RouterLink to="/list/TableMappings" class="btn btn-outline-dark col-2">
-        <span class="badge badge-light">{{ tableMappings }}</span>
-        <h3>Table Mappings</h3>
-        <p class="text-left">
-          Raw listing of all mappings described between tables in databanks and
-          those in common data models.
-        </p>
-      </RouterLink>
-      <RouterLink
-        to="/list/VariableMappings"
-        class="btn btn-outline-dark col-2"
-      >
-        <span class="badge badge-light">{{ variableMappings }}</span>
-        <h3>Variable Mappings</h3>
-        <p class="text-left">
-          List of all mappings described variables in databanks and those in
-          common data models.
         </p>
       </RouterLink>
     </div>

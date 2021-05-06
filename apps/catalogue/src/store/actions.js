@@ -1,7 +1,7 @@
 import { request, gql } from "graphql-request"
 
 export default {
-  fetchVariables: async ({ commit, state }) => {
+  fetchVariables: async ({ commit, getters }) => {
     const query = gql`query Variables ($search: String, $filter: VariablesFilter) { 
       Variables (limit: 100, search: $search, filter: $filter){ 
         name,
@@ -19,35 +19,25 @@ export default {
           name
         }
       } 
-      Variables_agg(filter: $filter){
+      Variables_agg(filter: $filter, search: $search){
         count
       }
     }`
+    
     let variables = {
-      "filter": {
-        "release": 
-          {"equals": [
-            {"resource": {
-               "acronym": "LifeCycle"
-             },
-             "version": "1.0.0"
-            }]
-          }
-      }
+      "filter": {}
     }
 
-    if(state.filters.keywords && state.filters.keywords.length) {
-      variables.filter.keywords = {
-        "equals": state.filters.keywords.map(keyword => ({ name: keyword }))
-      }  
-    }
+    variables = getters.getSearchFilters(variables)
+    variables = getters.getKeywordFilters(variables)
+    variables = getters.getAcronymFilters(variables)
 
     const resp = await request('graphql', query, variables).catch(e => console.error(e))
     commit('setVariables', resp.Variables)
     commit('setVariableCount', resp.Variables_agg.count)
   },
 
-  fetchVariableDetails: async ({ commit, state }, variableName) => {
+  fetchVariableDetails: async ({ commit, state, getters }, variableName) => {
     if(state.variableDetails[variableName]) {
       // cache hit
       return state.variableDetails[variableName]
@@ -69,29 +59,22 @@ export default {
         } 
       } 
     }`
-    const variables = {
+    let variables = {
       "filter": {
         "name": {
           "like": [`${variableName}`]
-        },
-        "release": {
-          "equals": [
-            {"resource": {
-                "acronym": "LifeCycle"
-              },
-              "version": "1.0.0"
-            }
-          ]
         }
       }
     }
+
+    variables = getters.getAcronymFilters(variables)
 
     const resp = await request('graphql', query, variables).catch(e => console.error(e))
     commit('setVariableDetails', { variableName, variableDetails: resp.Variables[0]})
   },
 
   fetchKeywords: async ({ commit }) => {
-    const keywordQuery = gql`query Keywords  { 
+    const query = gql`query Keywords  { 
       Keywords{ 
         name,
         definition,
@@ -101,11 +84,11 @@ export default {
         }
       } 
     }`
-    const keyWordResp = await request('graphql', keywordQuery).catch(e => console.error(e))
-    commit('setKeywords', keyWordResp.Keywords)
+    const resp = await request('graphql', query).catch(e => console.error(e))
+    commit('setKeywords', resp.Keywords)
   },
 
-  fetchCohorts: async ({ commit }) => {
+  fetchDatabanks: async ({ commit }) => {
     const query = gql`query Databanks  { 
       Databanks{ 
         acronym,
@@ -117,10 +100,22 @@ export default {
     }`
     //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
     const resp = await request('graphql', query).catch(e => console.error(e))
-    commit('setCohorts', resp.Databanks)
+    commit('setDatabanks', resp.Databanks)
   },
 
-  fetchMappings: async ({ commit, state }) => {
+  fetchNetworks: async ({ commit }) => {
+    const query = gql`query Networks  { 
+      Networks{ 
+        acronym,
+        name
+      } 
+    }`
+    //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
+    const resp = await request('graphql', query).catch(e => console.error(e))
+    commit('setNetworks', resp.Networks)
+  },
+
+  fetchMappings: async ({ commit, state, getters }) => {
     const query = gql`query VariableMappings ($filter: VariableMappingsFilter) { 
       VariableMappings (limit: 100, filter: $filter) { 
         fromTable {
@@ -154,21 +149,12 @@ export default {
       } 
     }`
 
-    const variables = state.variables.map(variable => {
-      return {
-        release: {
-          resource: {
-            acronym: 'LifeCycle'
-          },
-          version: "1.0.0" 
-        } ,
-        name: variable.name
-      }
-    })
-
+    let variables = state.variables.map(variable => ({ name: variable.name }))
     const filter = variables.length ? {
       'filter': { 'toVariable':  { 'equals': variables } }
     } : {}
+
+    variables = getters.getAcronymFilters(variables)
 
     const resp = await request('graphql', query, filter).catch(e => console.error(e))
     commit('setVariableMappings', resp.VariableMappings)

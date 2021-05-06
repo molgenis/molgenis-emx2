@@ -16,26 +16,56 @@ export default {
     ActiveFilters
   },
   computed: {
-    ...mapState({ active: 'filters', keywords: 'keywords' }),
+    ...mapState({ active: 'filters', keywords: 'keywords', databanks: 'databanks', networks: 'networks' }),
     filters () {
       return [
+          {
+          name: 'networks',
+          label: 'Networks',
+          options: this.networkOptions || [],
+          type: 'checkbox-filter'
+        },
         {
           name: 'keywords',
           label: 'Keywords',
-          options: this.keywordNodes,
+          options: this.keywordNodes || [],
           type: 'tree-filter'
-        }
+        },
+        {
+          name: 'databanks',
+          label: 'Databanks',
+          options: this.databankOptions || [],
+          type: 'checkbox-filter'
+        },
       ]
     }
   },
   methods: {
     ...mapMutations(['setFilters']),
-    async keywordNodes () {
+    async keywordOptions () {
       return (
           this.keywords &&
           this.keywords.map(keyword => ({
             text: this.pathText(this.keywords, keyword.id),
             value: keyword.id
+          }))
+      )
+    },
+    async networkOptions () {
+      return (
+          this.networks &&
+          this.networks.map(network => ({
+            value: network.acronym,
+            text: network.name
+          }))
+      )
+    },
+    async databankOptions () {
+      return (
+          this.databanks &&
+          this.databanks.map(databank => ({
+            value: databank.acronym,
+            text: databank.name
           }))
       )
     },

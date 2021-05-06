@@ -35,8 +35,8 @@ import TableMappingsView from "./views/TableMappingsView";
 import store from './store/store'
 import BrowseVariablesView from "./views/lifecycle/BrowseVariablesView"
 import VariablesView from "./views/lifecycle/VariablesView"
-import HarmonizationView from "./views/lifecycle/HarmonizationView"
-import HarmonizationDetailsView from "./views/lifecycle/HarmonizationDetailsView"
+import MappingView from "./views/lifecycle/MappingView"
+import MappingDetailView from "./views/lifecycle/MappingDetailView"
 import TreeFilter from "./components/lifecycle/TreeFilter"
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
@@ -67,14 +67,14 @@ const router = new VueRouter({
           component: VariablesView
         },
         {
-          name: "HarmonizationView",
-          path: 'harmonization',
-          component: HarmonizationView
+          name: "MappingView",
+          path: 'mapping',
+          component: MappingView
         },
         {
-          name: "HarmonizationDetailsView",
-          path: 'harmonization/detail',
-          component: HarmonizationDetailsView,
+          name: "MappingDetailView",
+          path: 'mapping/detail',
+          component: MappingDetailView,
           props: true
         },
         { 

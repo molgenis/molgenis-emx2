@@ -13,6 +13,9 @@ export default {
   setFilters(state, filters) {
     state.filters = filters
   },
+  setVariableSearch(state, variableSearch) {
+    state.variableSearch = variableSearch
+  },
   setKeywords(state, keywords) {
     state.keywords = keywords.map(item => ({
       id: item.name,
@@ -21,8 +24,11 @@ export default {
       order: item.order
     }))
   },
-  setCohorts (state, cohorts) {
-    Vue.set(state, 'cohorts', cohorts)
+  setDatabanks (state, databanks) {    
+    state.databanks = databanks
+  },
+  setNetworks (state, networks) {
+    state.networks = networks
   },
   setVariableMappings (state, variableMappings) {
     Vue.set(state, 'variableMappings', variableMappings)

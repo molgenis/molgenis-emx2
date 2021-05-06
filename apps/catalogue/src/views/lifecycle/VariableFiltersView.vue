@@ -1,9 +1,9 @@
 <template>
   <filter-container
-      v-if="keywords && keywords.length"
+      v-if="keywords && keywords.length && networks && networks.length && databanks && databanks.length"
       :value="selection"
       :filters="filters"
-      :filters-shown="['keywords']"
+      :filters-shown="['networks', 'keywords', 'databanks']"
       @input="setFilters"
   />
 </template>
@@ -18,28 +18,54 @@ export default {
     FilterContainer
   },
   computed: {
-    ...mapState({ selection: 'filters', keywords: 'keywords' }),
+    ...mapState({ selection: 'filters', keywords: 'keywords', networks: 'networks', databanks: 'databanks' }),
     filters () {
       return [
+        {
+          name: 'networks',
+          label: 'Networks',
+          collapsed: false,
+          options: this.networkOptions,
+          initialDisplayItems: 2,
+          type: 'checkbox-filter',
+          bulkOperation: true
+        },
         {
           name: 'keywords',
           label: 'Keywords',
           collapsed: false,
           type: 'tree-filter',
-          options: this.keywordNodes
-        }
+          options: this.keywordOptions
+        },
+        {
+          name: 'databanks',
+          label: 'Databanks',
+          collapsed: true,
+          options: this.databankOptions,
+          initialDisplayItems: 2,
+          type: 'checkbox-filter',
+          bulkOperation: true
+        },
       ]
     }
   },
   methods: {
     ...mapMutations(['setFilters']),
-    ...mapActions(['fetchKeywords']),
-    keywordNodes () {
-      return new Promise((resolve) => resolve(this.keywords))
+    ...mapActions(['fetchKeywords', 'fetchDatabanks', 'fetchNetworks']),
+    async keywordOptions () {
+      return this.keywords || []
+    },
+    async networkOptions () {
+      return this.networks.map(network => ({ value: network.acronym, text: network.acronym})) || []
+    },
+    async databankOptions () {
+      return this.databanks.map(databank => ({ value: databank.acronym, text: databank.acronym})) || []
     }
   },
   async created() {
     await this.fetchKeywords()
+    await this.fetchDatabanks()
+    await this.fetchNetworks()
   }
 }
 </script>

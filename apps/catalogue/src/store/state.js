@@ -4,10 +4,14 @@ const state = {
   variableCount: 0,
   variableMappings: [],
   keywords: [],
-  cohorts: [],
+  databanks: [],
+  networks: [],
   filters: {
-    keywords: []
-  }
+    keywords: [],
+    networks: ['LifeCycle'],
+    databanks: []
+  },
+  variableSearch: ''
 }
 
 export default state

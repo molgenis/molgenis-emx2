@@ -1,8 +1,29 @@
 export default {
+  getSearchFilters: (state) => (variables) => {
+    if(state.variableSearch.length > 0) {
+      variables.search = state.variableSearch
+    }
+    return variables
+  },
+  getKeywordFilters: (state) => (variables) => {
+    if(state.filters.keywords && state.filters.keywords.length) {
+      variables.filter.keywords = {
+        "equals": state.filters.keywords.map(keyword => ({ name: keyword }))
+      }
+    }
+    return variables
+  },
+  getAcronymFilters: (state) => (variables) => {    
+    const databanksFilter = state.filters.databanks && state.filters.databanks.map(databank => ({ resource: { acronym: databank }, version: "1.0.0" })) || []
+    const networksFilter = state.filters.networks && state.filters.networks.map(network => ({ resource: { acronym: network }, version: "1.0.0" })) || []
+
+    variables.filter.release = { "equals": [...databanksFilter, ...networksFilter] }
+
+    return variables
+  },
   getMapping: (state) => (variable, cohort) => {
     const mapping = state.variableMappings.find(mapping => mapping.toVariable.name === variable && mapping.fromTable.release.resource.acronym === cohort)
     const toVariable = state.variables.find(variable => variable.name === mapping.toVariable.name)
-    console.log(toVariable)
     return {
         variable: {
           name: toVariable.name, 
@@ -27,7 +48,7 @@ export default {
    * }
    * 
    */
-  harmonizationGrid: (state) => {
+  mappings: (state) => {
     const harmonizationGrid = {}
 
     state.variableMappings.forEach(mapping => {

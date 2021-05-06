@@ -4,9 +4,9 @@
     <thead>
       <tr>
         <th scope="col"></th>
-        <th class="rotated-text text-nowrap" scope="col" v-for="(cohort) in cohorts" :key=cohort.acronym >
+        <th class="rotated-text text-nowrap" scope="col" v-for="(databank) in databanks" :key=databank.acronym >
           <div>
-            <span>{{cohort.acronym}}</span>
+            <span>{{databank.acronym}}</span>
           </div>
         </th>
       </tr>
@@ -15,8 +15,8 @@
       <tr v-for="(variable) in variables" :key=variable.name >
         <th class="text-nowrap" scope="row">{{variable.name}}</th>
         <td 
-          v-for="(cohort) in cohorts" :key=cohort.acronym 
-          :class="'table-'+getMatchStatus(variable.name, cohort.acronym)" @click="harmonizationDetails(variable.name, cohort.acronym)" >
+          v-for="(databank) in databanks" :key=databank.acronym 
+          :class="'table-'+getMatchStatus(variable.name, databank.acronym)" @click="mappingDetails(variable.name, databank.acronym)" >
         </td>
       </tr>
     </tbody>
@@ -28,19 +28,19 @@
 import { mapGetters, mapActions, mapState } from 'vuex'
 
 export default {
-  name: "HarmonizationView",
+  name: "MappingView",
   computed: {
-    ...mapGetters(['harmonization', 'getMapping']),
-    ...mapState(['cohorts', 'variables'])
+    ...mapGetters(['mappings', 'getMapping']),
+    ...mapState(['databanks', 'variables'])
   },
   methods: {
     ...mapActions(['fetchCohorts', 'fetchMappings']),
-    getMatchStatus(variableName, cohortAcronym) {
-      if(!this.harmonizationGrid[variableName] || !this.harmonizationGrid[variableName][cohortAcronym]) {
+    getMatchStatus(variableName, databankAcronym) {
+      if(!this.mappings[variableName] || !this.mappings[variableName][databankAcronym]) {
         return 'danger' // not mapped
       }
 
-      const match = this.harmonizationGrid[variableName][cohortAcronym]
+      const match = this.mappings[variableName][databankAcronym]
       switch(match) {
         case 'zna':
         case 'zna':
@@ -53,10 +53,9 @@ export default {
           return 'danger'
       }
     },
-    harmonizationDetails(variable, cohort) {
-      const mapping = this.getMapping(variable, cohort)
-      console.log(mapping)
-      this.$router.push({name: 'HarmonizationDetailsView', path: 'harmonization/detail', params: { harmonization: mapping }}) 
+    mappingDetails(variable, databank) {
+      const mapping = this.getMapping(variable, databank)
+      this.$router.push({name: 'MappingDetailView', path: '/mapping/detail', params: { mapping: mapping }}) 
     }
   },
   watch: {
@@ -65,7 +64,6 @@ export default {
     }
   },
   mounted () {
-    this.fetchCohorts()
     this.fetchMappings()
   }
 }

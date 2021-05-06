@@ -1,11 +1,11 @@
 <template>
-  <span v-if="harmonization">
-  <b-card :title="harmonization.variable.name" :sub-title="harmonization.variable.description">
-    <div v-if="harmonization.sources">
+  <div v-if="mapping">
+  <b-card :title="mapping.variable.name" :sub-title="mapping.variable.description">
+    <div v-if="mapping.sources">
       <h6 class="pt-2">Source variables</h6>
       <b-list-group>
         <b-list-group-item
-          v-for="(source, index) in harmonization.sources"
+          v-for="(source, index) in mapping.sources"
           :key="index"
           class="flex-column align-items-start"
         >
@@ -19,35 +19,34 @@
         </b-list-group-item>
       </b-list-group>
     </div>
-    <div v-if="harmonization.syntax">
+    <div v-if="mapping.syntax">
       <h6 class="pt-2">Syntax</h6>
       <p>
       <highlightjs
         autodetect
-        :code="harmonization.syntax"
+        :code="mapping.syntax"
       />
       </p>
     </div>
   </b-card>
-  </span>
-  <span v-else style="margin:10rem">
-    <p>There is no harmonization specified</p>
-  </span>
+  </div>
+  <div v-else style="margin:10rem">
+    <p>There is no mapping specified</p>
+  </div>
 </template>
 
 <script>
 
-import { BListGroupItem, BCard } from 'bootstrap-vue'
+import { BListGroupItem, BCard, BButton } from 'bootstrap-vue'
 import 'highlight.js/styles/atom-one-light.css'
-import Spinner from '../../../../styleguide/src/layout/Spinner.vue'
 
 export default {
-  name: 'HarmonizationDetailsView',
-  props: ['harmonization'],
+  name: 'MappingDetailView',
+  props: ['mapping'],
   components: {
     BListGroupItem,
-    BCard,
-    Spinner
+    BButton,
+    BCard
   }
 }
 </script>
