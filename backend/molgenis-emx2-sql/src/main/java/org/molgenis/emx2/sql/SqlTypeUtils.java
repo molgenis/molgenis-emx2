@@ -3,9 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnValue;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
@@ -18,9 +16,13 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static Collection<Object> getValuesAsCollection(Row row, List<Column> columns) {
+  static Collection<Object> getValuesAsCollection(Row row, Collection<Column> columns) {
+    return getValuesAsMap(row, columns).values();
+  }
+
+  static Map<String, Object> getValuesAsMap(Row row, Collection<Column> columns) {
     try {
-      Collection<Object> values = new ArrayList<>();
+      Map<String, Object> values = new LinkedHashMap<>();
       for (Column c : columns) {
 
         Object value;
@@ -52,9 +54,9 @@ public class SqlTypeUtils extends TypeUtils {
 
         // get value
         if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
-          values.add(Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
+          values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
         } else {
-          values.add(value);
+          values.put(c.getName(), value);
         }
       }
       return values;

@@ -106,7 +106,7 @@ public class ImportTableTask extends Task {
         batch.add(iterator.next());
         index++;
         if (batch.size() >= 1000) {
-          table.update(batch);
+          table.save(batch);
           task.setIndex(index);
           task.setDescription("Imported " + task.getIndex() + " rows into " + table.getName());
           batch.clear();
@@ -114,7 +114,7 @@ public class ImportTableTask extends Task {
       }
       // remaining
       if (!batch.isEmpty()) {
-        table.update(batch);
+        table.save(batch);
         task.setIndex(index);
       }
     }

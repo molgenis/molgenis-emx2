@@ -176,6 +176,7 @@ public class GraphqlApiFactory {
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
+    mutationBuilder.field(tableField.upsertMutation(schema));
     mutationBuilder.field(tableField.deleteMutation(schema));
 
     // assemble and return

@@ -2,7 +2,6 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.OpenApiYamlGenerator.*;
 import static spark.Spark.*;
 
 import java.io.*;
@@ -80,14 +79,14 @@ public class CsvApi {
   }
 
   private static String tableUpdate(Request request, Response response) {
-    int count = MolgenisWebservice.getTable(request).update(getRowList(request));
+    int count = MolgenisWebservice.getTable(request).save(getRowList(request));
     response.status(200);
     response.type(ACCEPT_CSV);
     return "" + count;
   }
 
   private static Iterable<Row> getRowList(Request request) {
-    return CsvTableReader.read(new StringReader(request.body()), getSeperator(request));
+    return CsvTableReader.read(new StringReader(request.body()));
   }
 
   private static String tableDelete(Request request, Response response) {

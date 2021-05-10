@@ -20,6 +20,8 @@ import spark.Response;
 /**
  * On purpose we don't want here full fledged proxy because we don't want cookies etc to be passed.
  * We only proxy dumb resources
+ *
+ * <p>TODO: add this to grouppath mapper
  */
 public class AppsProxyService {
   private AppsProxyService() {
@@ -48,13 +50,14 @@ public class AppsProxyService {
     // load some defaults
     schema
         .getTable("Apps")
-        .update(
+        .save(
             new Row()
                 .set("path", "ui")
                 .set(SOURCE, "https://www.unpkg.com/@mswertz/molgenis-emx2-ui/"),
             new Row().set("path", "nu").set(SOURCE, "http://www.nu.nl"),
             new Row()
                 .set("path", "molgenis-app-reports")
+                // https://unpkg.com/@mswertz/molgenis-app-reports@0.1.12
                 .set(SOURCE, "http://unpkg.com/@mswertz/molgenis-app-reports@0.1.12/"));
 
     get(PATH_FILTER, AppsProxyService::handleRequest);

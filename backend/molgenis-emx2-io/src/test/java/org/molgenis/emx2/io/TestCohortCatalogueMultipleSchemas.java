@@ -117,9 +117,11 @@ public class TestCohortCatalogueMultipleSchemas {
 
     Path excelFile = tempDir.resolve("download.xlsx");
     MolgenisIO.toExcelFile(excelFile, schema);
+    StopWatch.print("Export to Excel completed");
 
     Path zipFile = tempDir.resolve("download.zip");
     MolgenisIO.toZipFile(zipFile, schema);
+    StopWatch.print("Export to Zipfile completed");
   }
 
   private void runImportProcedure(

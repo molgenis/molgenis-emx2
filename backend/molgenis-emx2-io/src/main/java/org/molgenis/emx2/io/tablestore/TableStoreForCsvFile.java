@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 
 /** can only handle one table */
@@ -31,7 +32,11 @@ public class TableStoreForCsvFile implements TableStore {
 
   @Override
   public Iterable<Row> readTable(String name) {
-    throw new UnsupportedOperationException();
+    try {
+      return CsvTableReader.read(csvFile.toFile());
+    } catch (Exception e) {
+      throw new MolgenisException("Parse of CSV file failed", e);
+    }
   }
 
   @Override

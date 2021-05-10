@@ -40,7 +40,7 @@ public class TableStoreForCsvInMemory implements TableStore {
           "Import failed: Table not found. File with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
-    return CsvTableReader.read(reader, separator);
+    return CsvTableReader.read(reader);
   }
 
   @Override

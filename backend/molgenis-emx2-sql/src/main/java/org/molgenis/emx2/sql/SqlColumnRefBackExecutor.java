@@ -1,11 +1,13 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
+import org.jooq.RowCountQuery;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
@@ -53,7 +55,10 @@ class SqlColumnRefBackExecutor {
       ColumnType refBackType = refBack.getColumnType();
       switch (refBackType) {
         case REF:
-          createTriggerForRef(jooq, ref);
+          // createTriggerForRef(jooq, ref);
+          createTriggerForRef(jooq, ref, true);
+          createTriggerForRef(jooq, ref, false);
+
           break;
         case REF_ARRAY:
           createTriggerForRefArray(jooq, ref);
@@ -83,7 +88,7 @@ class SqlColumnRefBackExecutor {
   private static void createTriggerForRefArray(DSLContext jooq, Column ref2) {
 
     String schemaName = ref2.getTable().getSchema().getName();
-    String updateTriggerName = refBackUpdateTriggerName(ref2);
+    String updateTriggerName = refBackUpdateTriggerName(ref2) + "_UPSERT";
     List<Reference> columns = ref2.getReferences();
 
     // ref
@@ -286,6 +291,153 @@ class SqlColumnRefBackExecutor {
         name(schemaName, deleteTriggerName));
   }
 
+  private static void createTriggerForRef(DSLContext jooq, Column column, boolean isUpdateTrigger) {
+    // check if any refBack array has non-existing pkey
+    // remove refs from other table if not any more in refBack array
+    // update refs from other table to new identifier ( automatic via cascade , nothing to
+    // do here)
+    // add refs from other table if new in refBack array
+
+    String schemaName = column.getTable().getSchema().getName();
+
+    String triggerName =
+        refBackUpdateTriggerName(column) + (isUpdateTrigger ? "_UPDATE" : "_INSERT");
+    List<Reference> columns = column.getReferences();
+
+    // begin
+    String sql =
+        "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ " + "\nDECLARE my_row RECORD;" + "\nBEGIN";
+
+    // add check if the refs actually exist
+    sql +=
+        "\n\t-- raise error for first refColumn value that does not in refTable key values "
+            + "\n\tFOR my_row IN SELECT {1} FROM newtab EXCEPT (SELECT {2} FROM {3}) LOOP"
+            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', "
+            + "\n\t\tMESSAGE = 'insert on table '||{4}||' violates foreign key constraint for refback column(s)',"
+            + "\n\t\tDETAIL = 'Key ('||{5}||')=('|| {6} ||') is not present in table '||{7}||', column '||{8};"
+            + "\n\tEND LOOP;";
+
+    // in case of update, we should also remove the references not in the 'old'
+    if (isUpdateTrigger) {
+      sql +=
+          "\n\t-- remove ref to 'oldtable'.key if not anymore in refarray"
+              + "\n\tFOR my_row IN SELECT {13},{1} FROM oldtab EXCEPT (SELECT {13},{1} FROM newtab) LOOP"
+              + "\n\t\tUPDATE {3} set {9} WHERE {12};"
+              + "\n\tEND LOOP;";
+      sql +=
+          "\n\t-- set to ref to 'newtable'.key if in refBack values list"
+              + "\n\tFOR my_row IN SELECT {13},{1} FROM newtab EXCEPT (SELECT {13},{1} FROM oldtab) LOOP"
+              + "\n\t\tUPDATE {3} set {11} WHERE {12};"
+              + "\n\tEND LOOP;";
+    } else {
+      // in case of insert
+      sql +=
+          "\n\t-- set to ref to 'newtable'.key if in refBack values list"
+              + "\n\tFOR my_row IN SELECT {13},{1} FROM newtab LOOP"
+              + "\n\t\tUPDATE {3} set {11} WHERE {12};"
+              + "\n\tEND LOOP;";
+    }
+
+    // end
+    sql += "\n\tRETURN NEW;" + "\nEND; $BODY$ LANGUAGE plpgsql;";
+
+    RowCountQuery q =
+        jooq.query(
+            sql,
+            // 0 function name
+            name(schemaName, triggerName),
+            // 1 selection of unnested inputs
+            keyword(
+                columns.stream()
+                    .map(r -> "unnest(" + name(r.getName()) + ") as " + name(r.getName()))
+                    .collect(Collectors.joining(","))),
+            // 2 foreign key column names refBack refers to
+            keyword(
+                columns.stream()
+                    .map(r -> name(r.getRefTo()).toString())
+                    .collect(Collectors.joining(","))),
+            // 3 refTable
+            table(name(schemaName, column.getRefTableName())),
+            // 4 inline string of table for debug message
+            inline(column.getTable().getTableName()),
+            // 5 inline columns
+            keyword(
+                columns.stream()
+                    .map(r -> inline(r.getName()).toString())
+                    .collect(Collectors.joining("||','||"))),
+            // 6 concat of the error column values
+            keyword(
+                columns.stream()
+                    .map(r -> "COALESCE(my_row." + name(r.getRefTo()).toString() + ",'NULL')")
+                    .collect(Collectors.joining("||','||"))),
+            // 7 inline refTable
+            inline(column.getRefTable().getTableName()),
+            // 8 inline toColumns
+            keyword(
+                columns.stream()
+                    .map(r -> inline(r.getRefTo()).toString())
+                    .collect(Collectors.joining("||','||"))),
+            // 9 set refBack to null
+            keyword(
+                column.getRefBackColumn().getReferences().stream()
+                    .map(r -> name(r.getName()) + "=NULL")
+                    .collect(Collectors.joining(","))),
+            // 10 where references old key and not new key
+            keyword(
+                column.getRefBackColumn().getReferences().stream()
+                    .map(r -> name(r.getName()) + "=OLD." + name(r.getRefTo()))
+                    .collect(Collectors.joining(" AND "))),
+            // 11 set to point to this.key(s)
+            keyword(
+                column.getRefBackColumn().getReferences().stream()
+                    .map(r -> name(r.getName()) + "=my_row." + name(r.getRefTo()))
+                    .collect(Collectors.joining(","))),
+            // 12 where reftable.key=refback
+            keyword(
+                columns.stream()
+                    .map(r -> name(r.getRefTo()) + "=my_row." + name(r.getName()))
+                    .collect(Collectors.joining(" AND "))),
+            // 13 keys of this table
+            keyword(
+                column.getRefBackColumn().getReferences().stream()
+                    .map(r -> name(r.getRefTo()).toString())
+                    .collect(Collectors.joining(","))),
+            // 14 where this keys
+            keyword(
+                column.getRefBackColumn().getReferences().stream()
+                    .map(Reference::getRefTo)
+                    .map(s -> name(s) + "=NEW." + name(s))
+                    .collect(Collectors.joining(" AND "))));
+
+    // System.out.println("sql: " + q.getSQL());
+    q.execute();
+
+    String trigger =
+        isUpdateTrigger
+            ? "CREATE TRIGGER {0} "
+                + "\n\tAFTER UPDATE ON {2}"
+                + "\n\tREFERENCING NEW TABLE AS newtab OLD TABLE AS oldtab"
+                + "\n\tEXECUTE PROCEDURE {3}()"
+            : "CREATE TRIGGER {0} "
+                + "\n\tAFTER INSERT ON {2}"
+                + "\n\tREFERENCING NEW TABLE AS newtab"
+                + "\n\tEXECUTE PROCEDURE {3}()";
+
+    jooq.execute(
+        trigger,
+        // 0 name of the trigger
+        name(triggerName),
+        // 1 the columns of the refBack that should be set to trigger the trigger
+        keyword(
+            columns.stream()
+                .map(r -> name(r.getName()).toString())
+                .collect(Collectors.joining(","))),
+        // name of the table
+        name(schemaName, column.getTable().getTableName()),
+        // reference to the trigger function
+        name(schemaName, triggerName));
+  }
+
   private static void createTriggerForRef(DSLContext jooq, Column column) {
 
     // check if any refBack array has non-existing pkey
@@ -405,9 +557,19 @@ class SqlColumnRefBackExecutor {
     jooq.execute(
         "DROP FUNCTION IF EXISTS {0} CASCADE",
         name(column.getSchemaName(), refBackDeleteTriggerName(column)));
-    jooq.execute(
-        "DROP FUNCTION IF EXISTS {0} CASCADE",
-        name(column.getSchemaName(), refBackUpdateTriggerName(column)));
+
+    if (REF.equals(column.getRefBackColumn().getColumnType())) {
+      jooq.execute(
+          "DROP FUNCTION IF EXISTS {0} CASCADE",
+          name(column.getSchemaName(), refBackUpdateTriggerName(column) + "_INSERT"));
+      jooq.execute(
+          "DROP FUNCTION IF EXISTS {0} CASCADE",
+          name(column.getSchemaName(), refBackUpdateTriggerName(column) + "_UPDATE"));
+    } else {
+      jooq.execute(
+          "DROP FUNCTION IF EXISTS {0} CASCADE",
+          name(column.getSchemaName(), refBackUpdateTriggerName(column) + "_UPSERT"));
+    }
   }
 
   private static String refBackDeleteTriggerName(Column... column) {
@@ -419,6 +581,6 @@ class SqlColumnRefBackExecutor {
   }
 
   private static String refBackUpdateTriggerName(Column... column) {
-    return "1" + column[0].getTable().getTableName() + "-" + getNames(column) + "_UPDATE";
+    return "1" + column[0].getTable().getTableName() + "-" + getNames(column);
   }
 }

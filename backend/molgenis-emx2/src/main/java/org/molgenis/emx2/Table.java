@@ -18,9 +18,15 @@ public interface Table {
 
   int update(Iterable<Row> rows); // wish list: update based on secondary key.
 
+  int save(Row... row);
+
+  int save(Iterable<Row> rows);
+
   int delete(Row... row);
 
   int delete(Iterable<Row> rows);
+
+  void truncate();
 
   Query select(SelectColumn... columns);
 

@@ -86,9 +86,9 @@ public class TableStoreForCsvInZipFile implements TableStore {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader, comma).iterator());
+        processor.process(CsvTableReader.read(reader).iterator());
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader, tab).iterator());
+        processor.process(CsvTableReader.read(reader).iterator());
       } else {
         throw new MolgenisException(
             "Import failed: Table '"
@@ -106,10 +106,10 @@ public class TableStoreForCsvInZipFile implements TableStore {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader, comma).spliterator(), false)
+        return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false)
             .collect(Collectors.toList());
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader, tab).spliterator(), false)
+        return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false)
             .collect(Collectors.toList());
       } else {
         throw new MolgenisException(

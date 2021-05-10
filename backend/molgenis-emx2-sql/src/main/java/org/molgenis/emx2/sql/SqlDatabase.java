@@ -86,28 +86,37 @@ public class SqlDatabase implements Database {
   @Override
   public void init() { // setup default stuff
 
-    // short transaction
-    jooq.transaction(
-        config -> {
-          DSLContext j = config.dsl();
-          j.execute("LOCK TABLE pg_catalog.pg_namespace");
-          j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-          j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
-        });
+    try {
+      // short transaction
+      jooq.transaction(
+          config -> {
+            DSLContext j = config.dsl();
+            j.execute("LOCK TABLE pg_catalog.pg_namespace");
+            j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+            j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
+          });
 
-    MetadataUtils.init(jooq);
+      MetadataUtils.init(jooq);
 
-    if (!hasUser(ANONYMOUS)) {
-      addUser(ANONYMOUS); // used when not logged in
-    }
-    if (!hasUser(USER)) {
-      addUser(USER); // used as role to identify all users except anonymous
-    }
-    if (!hasUser(ADMIN)) {
-      addUser(ADMIN);
-      setUserPassword(
-          ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
-      jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
+      if (!hasUser(ANONYMOUS)) {
+        addUser(ANONYMOUS); // used when not logged in
+      }
+      if (!hasUser(USER)) {
+        addUser(USER); // used as role to identify all users except anonymous
+      }
+      if (!hasUser(ADMIN)) {
+        addUser(ADMIN);
+        setUserPassword(
+            ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
+        jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
+      }
+    } catch (Exception e) {
+      // this happens if multiple inits run at same time, totally okay to ignore
+      if (!e.getMessage()
+          .contains(
+              "duplicate key value violates unique constraint \"pg_type_typname_nsp_index\"")) {
+        throw e;
+      }
     }
   }
 

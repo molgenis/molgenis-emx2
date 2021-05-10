@@ -324,6 +324,12 @@ public class Column {
   }
 
   public Column setPkey() {
+    if (getColumnType().isArray()) {
+      throw new MolgenisException(
+          "Set primary key failed on column '"
+              + getName()
+              + "': Cannot make primary key from an array column");
+    }
     return this.setKey(1).setRequired(true);
   }
 

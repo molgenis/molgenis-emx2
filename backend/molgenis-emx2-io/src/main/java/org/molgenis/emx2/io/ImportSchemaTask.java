@@ -37,29 +37,35 @@ public class ImportSchemaTask extends Task {
             this.add(metadataTask);
             metadataTask.run();
 
-            // create task for the import, including subtasks for each sheet
+            // in case of emx1
             boolean skipped = true;
-            for (Table table : schema.getTablesSorted()) {
-              if (store.containsTable(table.getName())) {
-                ImportTableTask importTableTask = new ImportTableTask(store, table);
-                this.add(importTableTask);
-                importTableTask.run();
-                skipped = false;
-              }
-            }
+            if (store.containsTable("attributes")) {
 
-            // warn for unknown sheet names
-            Collection<String> tableNames = schema.getTableNames();
-            for (String sheet : store.tableNames()) {
-              if (!"molgenis".equals(sheet)
-                  && !"molgenis_settings".equals(sheet)
-                  && !"molgenis_members".equals(sheet)
-                  && !tableNames.contains(sheet)) {
-                this.step(
-                        "Sheet with name '"
-                            + sheet
-                            + "' was skipped: no table with that name found")
-                    .skipped();
+            } else {
+
+              // create task for the import, including subtasks for each sheet
+              for (Table table : schema.getTablesSorted()) {
+                if (store.containsTable(table.getName())) {
+                  ImportTableTask importTableTask = new ImportTableTask(store, table);
+                  this.add(importTableTask);
+                  importTableTask.run();
+                  skipped = false;
+                }
+              }
+
+              // warn for unknown sheet names
+              Collection<String> tableNames = schema.getTableNames();
+              for (String sheet : store.tableNames()) {
+                if (!"molgenis".equals(sheet)
+                    && !"molgenis_settings".equals(sheet)
+                    && !"molgenis_members".equals(sheet)
+                    && !tableNames.contains(sheet)) {
+                  this.step(
+                          "Sheet with name '"
+                              + sheet
+                              + "' was skipped: no table with that name found")
+                      .skipped();
+                }
               }
             }
 

@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.FILE;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
@@ -125,17 +126,15 @@ class SqlTableMetadataExecutor {
       executeSetRequired(jooq, copy);
       copyTm.add(copy);
     }
-    // add column to root superclass table
-    TableMetadata root = other;
-    while (root.getInherit() != null) {
-      root = root.getInheritedTable();
-    }
-    if (root.getColumn(org.molgenis.emx2.Constants.MG_TABLECLASS) == null) {
-      root.add(
-          column(org.molgenis.emx2.Constants.MG_TABLECLASS)
+    // add column to superclass table
+    if (other.getLocalColumn(MG_TABLECLASS) == null) {
+      other.add(
+          column(MG_TABLECLASS)
               .setReadonly(true)
               .setDefaultValue(
-                  root.getSchemaName() + "." + root.getTableName())); // should not be user editable
+                  other.getSchemaName()
+                      + "."
+                      + other.getTableName())); // should not be user editable
     }
     createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
   }

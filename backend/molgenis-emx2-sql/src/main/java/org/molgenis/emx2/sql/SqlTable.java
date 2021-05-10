@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
@@ -108,13 +109,18 @@ class SqlTable implements Table {
             });
   }
 
-  public int insert(Iterable<Row> rows) {
-    return executeTransaction(rows, false);
-  }
-
   @Override
   public int insert(Row... rows) {
     return insert(Arrays.asList(rows));
+  }
+
+  @Override
+  public int insert(Iterable<Row> rows) {
+    try {
+      return executeTransaction(rows, INSERT);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
+    }
   }
 
   @Override
@@ -124,17 +130,63 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
-    return this.executeTransaction(rows, true);
+    try {
+      return this.executeTransaction(rows, UPDATE);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
+    }
+  }
+
+  @Override
+  public int save(Row... rows) {
+    return save(Arrays.asList(rows));
+  }
+
+  @Override
+  public int save(Iterable<Row> rows) {
+    try {
+      return this.executeTransaction(rows, SAVE);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed.", e);
+    }
+  }
+
+  @Override
+  public void truncate() {
+    // if part of inheritance tree then only delete the relevant part
+    if (getMetadata().getLocalColumn(MG_TABLECLASS) != null) {
+      this.truncate(getMgTableClass(this.getMetadata()));
+    }
+    // in normal table it is a real truncate
+    else {
+      db.getJooq().truncate(getJooqTable()).execute();
+    }
+    // in case inherited we must also truncate parent
+    if (getMetadata().getInherit() != null) {
+      getInheritedTable().truncate(getMgTableClass(this.getMetadata()));
+    }
+  }
+
+  private void truncate(String mg_tableclass) {
+    if (getMetadata().getInherit() != null) {
+      getInheritedTable().truncate(mg_tableclass);
+    }
+    db.getJooq()
+        .deleteFrom(getJooqTable())
+        .where(field(MG_TABLECLASS).equal(mg_tableclass))
+        .execute();
   }
 
   private String getMgTableClass(TableMetadata table) {
     return table.getSchemaName() + "." + table.getTableName();
   }
 
-  private int executeTransaction(Iterable<Row> rows, boolean isUpdate) {
+  private int executeTransaction(Iterable<Row> rows, MutationType transactionType) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
+    final Map<String, Set<String>> columnsProvided = new LinkedHashMap<>();
+
     String tableClass = getMgTableClass(getMetadata());
 
     // validate
@@ -144,222 +196,198 @@ class SqlTable implements Table {
               + getName()
               + " cannot process row insert/update/delete requests because no primary key is defined");
 
-    try {
-      db.tx(
-          db2 -> {
-            for (Row row : rows) {
+    db.tx(
+        db2 -> {
+          for (Row row : rows) {
 
-              // set table class if not set, and see for first time
-              if (row.notNull(MG_TABLECLASS)
-                  && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
-                // validate
-                String tableName = row.getString(MG_TABLECLASS);
-                if (!tableName.contains(".")) {
-                  if (this.getSchema().getTable(tableName) != null) {
-                    row.setString(MG_TABLECLASS, getSchema().getName() + "." + tableName);
-                  } else {
-                    throw new MolgenisException(
-                        MG_TABLECLASS
-                            + " value failed in row "
-                            + count.get()
-                            + ": found '"
-                            + tableName
-                            + "'");
-                  }
+            // set table class if not set, and see for first time
+            if (row.notNull(MG_TABLECLASS)
+                && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
+
+              // validate
+              String tableName = row.getString(MG_TABLECLASS);
+              if (!tableName.contains(".")) {
+                if (this.getSchema().getTable(tableName) != null) {
+                  row.setString(MG_TABLECLASS, getSchema().getName() + "." + tableName);
                 } else {
-                  String schemaName = tableName.split("\\.")[0];
-                  String tableName2 = tableName.split("\\.")[1];
-                  if (this.getSchema().getDatabase().getSchema(schemaName) == null
-                      || this.getSchema().getDatabase().getSchema(schemaName).getTable(tableName2)
-                          == null) {
-                    throw new MolgenisException(
-                        "invalid value in column '"
-                            + MG_TABLECLASS
-                            + "' on row "
-                            + count.get()
-                            + ": found '"
-                            + tableName
-                            + "'");
-                  }
+                  throw new MolgenisException(
+                      MG_TABLECLASS
+                          + " value failed in row "
+                          + count.get()
+                          + ": found '"
+                          + tableName
+                          + "'");
                 }
               } else {
-                row.set(MG_TABLECLASS, tableClass);
-              }
-
-              // create batches for each table class
-              String subclassName = row.getString(MG_TABLECLASS);
-              if (!subclassRows.containsKey(subclassName)) {
-                subclassRows.put(subclassName, new ArrayList<>());
-              }
-
-              // add to batch list, and execute if batch is large enough
-              subclassRows.get(subclassName).add(row);
-
-              if (subclassRows.get(subclassName).size() >= 1000) {
-                // execute
-                SqlTable table = (SqlTable) getSchema().getTable(subclassName.split("\\.")[1]);
-                if (isUpdate) {
-                  count.set(count.get() + table.updateBatch(subclassRows.get(subclassName)));
-                } else {
-                  count.set(count.get() + table.insertBatch(subclassRows.get(subclassName)));
-                }
-                // clear the list
-                subclassRows.get(subclassName).clear();
-              }
-            }
-
-            // execute any remaining batches
-            for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
-              // execute
-              String subclassName = batch.getKey().split("\\.")[1];
-              SqlTable table = (SqlTable) getSchema().getTable(subclassName);
-              if (batch.getValue().size() > 0) {
-                if (isUpdate) {
-                  count.set(count.get() + table.updateBatch(batch.getValue()));
-                } else {
-                  count.set(count.get() + table.insertBatch(batch.getValue()));
+                String schemaName = tableName.split("\\.")[0];
+                String tableName2 = tableName.split("\\.")[1];
+                if (this.getSchema().getDatabase().getSchema(schemaName) == null
+                    || this.getSchema().getDatabase().getSchema(schemaName).getTable(tableName2)
+                        == null) {
+                  throw new MolgenisException(
+                      "invalid value in column '"
+                          + MG_TABLECLASS
+                          + "' on row "
+                          + count.get()
+                          + ": found '"
+                          + tableName
+                          + "'");
                 }
               }
+            } else {
+              row.set(MG_TABLECLASS, tableClass);
             }
-          });
-    } catch (Exception e) {
-      if (isUpdate) {
-        throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
-      } else {
-        throw new SqlMolgenisException("Insert into table '" + getName() + "' failed.", e);
-      }
-    }
 
-    log(
-        start,
-        count,
-        isUpdate
-            ? "updated (incl subclass if applicable)"
-            : "inserted (incl subclass if applicable)");
+            // create batches for each table class
+            String subclassName = row.getString(MG_TABLECLASS);
+            if (!subclassRows.containsKey(subclassName)) {
+              subclassRows.put(subclassName, new ArrayList<>());
+            }
+
+            // check columns provided didn't change
+            if (columnsProvided.get(subclassName) == null) {
+              columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
+            }
+
+            // execute batch if 1000 rows, or columns provided changes
+            if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
+                || subclassRows.get(subclassName).size() >= 1000) {
+              executeBatch(
+                  transactionType,
+                  count,
+                  subclassRows,
+                  subclassName,
+                  columnsProvided.get(subclassName));
+              // reset columns provided
+              columnsProvided.get(subclassName).clear();
+              columnsProvided.get(subclassName).addAll(row.getColumnNames());
+            }
+
+            // add to batch list, and execute if batch is large enough
+            subclassRows.get(subclassName).add(row);
+          }
+
+          // execute any remaining batches
+          for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
+            if (batch.getValue().size() > 0) {
+              executeBatch(
+                  transactionType,
+                  count,
+                  subclassRows,
+                  batch.getKey(),
+                  columnsProvided.get(batch.getKey()));
+            }
+          }
+        });
+
+    log(start, count, transactionType.name().toLowerCase() + "d (incl subclass if applicable)");
     return count.get();
   }
 
-  private int insertBatch(List<Row> rows) {
+  private boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
+    if (columnsProvided.size() == 0 || columnsProvided.equals(row.getColumnNames())) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private void executeBatch(
+      MutationType transactionType,
+      AtomicInteger count,
+      Map<String, List<Row>> subclassRows,
+      String subclassName,
+      Set<String> columnsProvided) {
+
+    // execute
+    SqlTable table = (SqlTable) getSchema().getTable(subclassName.split("\\.")[1]);
+    if (UPDATE.equals(transactionType)) {
+      count.set(count.get() + table.updateBatch(subclassRows.get(subclassName), columnsProvided));
+    } else if (SAVE.equals(transactionType)) {
+      count.set(
+          count.get() + table.insertBatch(subclassRows.get(subclassName), true, columnsProvided));
+    } else if (INSERT.equals(transactionType)) {
+      count.set(
+          count.get() + table.insertBatch(subclassRows.get(subclassName), false, columnsProvided));
+    } else {
+      throw new MolgenisException(
+          "Internal error in executeBatch: transaction type "
+              + transactionType
+              + " not allowed here");
+    }
+    // clear the list
+    subclassRows.get(subclassName).clear();
+  }
+
+  private int insertBatch(List<Row> rows, boolean updateOnConflict, Set<String> updateColumns) {
     if (getMetadata().getInherit() != null) {
-      getInheritedTable().insertBatch(rows);
+      getInheritedTable().insertBatch(rows, updateOnConflict, updateColumns);
     }
 
     // get metadata
-    List<String> fieldNames = new ArrayList<>();
-    List<Column> columns = new ArrayList<>();
-    List<Field<?>> fields = new ArrayList<>();
-    for (Column c : getMetadata().getMutationColumns()) {
-      fieldNames.add(c.getName());
-      columns.add(c);
-      fields.add(c.getJooqField());
-    }
+    Set<Column> columns = getColumnsToBeUpdated(updateColumns);
+    Field[] fields = columns.stream().map(c -> c.getJooqField()).toArray(Field[]::new);
 
     // define the insert step
-    InsertValuesStepN<org.jooq.Record> step =
-        db.getJooq().insertInto(getJooqTable(), fields.toArray(new Field[fields.size()]));
+    InsertValuesStepN<org.jooq.Record> step = db.getJooq().insertInto(getJooqTable(), fields);
 
     // add all the rows as steps
     for (Row row : rows) {
       step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
     }
+
+    // optionally, add conflict clause
+    if (updateOnConflict) {
+      InsertOnDuplicateSetStep<org.jooq.Record> step2 =
+          step.onConflict(getMetadata().getPrimaryKeyFields().toArray(new Field[0])).doUpdate();
+      for (Column column : columns) {
+        step2.set(
+            column.getJooqField(),
+            (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
+      }
+    }
+
     return step.execute();
   }
 
-  private int updateBatch(Iterable<Row> rows) {
-    if (getMetadata().getInherit() != null) {
-      getInheritedTable().updateBatch(rows);
-    }
-
-    // execute in batches (batch by size or because columns set change)
-    TableMetadata tableMetadata = getMetadata();
-    List<Row> batch = new ArrayList<>();
-    List<String> fieldNames = new ArrayList<>();
-    List<Column> columns = new ArrayList<>();
-    List<Field> fields = new ArrayList<>();
-
-    AtomicInteger count = new AtomicInteger(0);
-    List<Column> mutationColumns = tableMetadata.getMutationColumns();
-    for (Row row : rows) {
-      // to compare if columns change between rows
-      Collection<String> rowFields = new ArrayList<>();
-      for (Column c : mutationColumns) {
-        if (c != null && row.containsName(c.getName())) {
-          rowFields.add(c.getName());
-        }
-      }
-
-      // execute when rowFields differ from previous FieldNames
-      if (batch.size() > 0
-          && !(fieldNames.containsAll(rowFields) && rowFields.containsAll(fieldNames))) {
-        count.set(
-            count.get()
-                + updateBatch(
-                    batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields()));
-        batch.clear();
-        fieldNames.clear();
-        fields.clear();
-        columns.clear();
-      }
-
-      // add field metadata if first row of this batch
-      if (fieldNames.isEmpty()) {
-        for (Column c : mutationColumns) {
-          if (rowFields.contains(c.getName())) {
-            fields.add(c.getJooqField());
-            columns.add(c);
-            fieldNames.add(c.getName());
-          }
-        }
-      }
-      batch.add(row);
-    }
-
-    // execute the remaining batch, if any
-    if (batch.size() > 0) {
-      return count.get()
-          + updateBatch(batch, getJooqTable(), fieldNames, columns, fields, getPrimaryKeyFields());
-    } else {
-      return count.get();
-    }
+  private Set<Column> getColumnsToBeUpdated(Set<String> updateColumns) {
+    return getMetadata().getMutationColumns().stream()
+        .filter(
+            c ->
+                c.getComputed() != null
+                    || updateColumns.size() == 0
+                    || updateColumns.contains(c.getName()))
+        .collect(Collectors.toSet());
   }
 
-  private int updateBatch(
-      Collection<Row> rows,
-      org.jooq.Table<org.jooq.Record> t,
-      List<String> fieldNames,
-      List<Column> columns,
-      List<Field> fields,
-      List<Field> keyField) {
-    if (!rows.isEmpty()) {
-      long start = System.currentTimeMillis();
-
-      // createColumn multi-value insert
-      InsertValuesStepN<org.jooq.Record> step =
-          db.getJooq().insertInto(t, fields.toArray(new Field[fields.size()]));
-
-      for (Row row : rows) {
-        // ignore total null rows
-        Collection<Object> values = SqlTypeUtils.getValuesAsCollection(row, columns);
-        boolean hasNotNull =
-            values.stream().anyMatch(v -> v != null && !row.getString(MG_TABLECLASS).equals(v));
-        if (hasNotNull) {
-          step.values(values);
-        } else {
-          logger.debug("skipping empty row: {0}", row);
-        }
-      }
-
-      // on duplicate key update using same record via "excluded" keyword in postgres
-      InsertOnDuplicateSetStep<org.jooq.Record> step2 =
-          step.onConflict(keyField.toArray(new Field<?>[keyField.size()])).doUpdate();
-      for (String name : fieldNames) {
-        step2.set(field(name(name)), (Object) field(unquotedName("excluded.\"" + name + "\"")));
-      }
-      int result = step.execute();
-      this.log(start, new AtomicInteger(result), "updated");
-      return result;
+  private int updateBatch(List<Row> rows, Set<String> updateColumns) {
+    if (getMetadata().getInherit() != null) {
+      getInheritedTable().updateBatch(rows, updateColumns);
     }
-    return 0;
+
+    // get metadata
+    Set<Column> columns = getColumnsToBeUpdated(updateColumns);
+    List<Column> pkeyFields = getMetadata().getPrimaryKeyColumns();
+
+    // create batch of updates
+    List<UpdateConditionStep> list = new ArrayList();
+    for (Row row : rows) {
+      list.add(
+          db.getJooq()
+              .update(getJooqTable())
+              .set(SqlTypeUtils.getValuesAsMap(row, columns))
+              .where(getUpdateCondition(row, pkeyFields)));
+    }
+
+    return Arrays.stream(db.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
+  }
+
+  private Condition getUpdateCondition(Row row, List<Column> pkeyFields) {
+    List<Condition> result = new ArrayList<>();
+    for (Column key : pkeyFields) {
+      result.add(key.getJooqField().eq(row.get(key)));
+    }
+    return and(result);
   }
 
   @Override
@@ -500,10 +528,6 @@ class SqlTable implements Table {
   @Override
   public String getName() {
     return getMetadata().getTableName();
-  }
-
-  private List<Field> getPrimaryKeyFields() {
-    return getMetadata().getPrimaryKeyFields();
   }
 
   protected org.jooq.Table<org.jooq.Record> getJooqTable() {
