@@ -67,6 +67,8 @@ import TableSearch from "./tables/TableSearch";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
+import TreeComponent from "./tree/TreeComponent";
+
 export {
   ButtonAction,
   ButtonAlt,
@@ -126,4 +128,5 @@ export {
   TableExplorer,
   TableSimple,
   TableSearch,
+  TreeComponent,
 };
