@@ -4,7 +4,7 @@
       v-for="(item, index) in items"
       :key="index"
       :item="item"
-      :selectedItems="selectedItems"
+      :selectedItemIds="selectedItemIds"
       :handleChange="handleChange"
     />
   </div>
@@ -17,7 +17,7 @@ export default {
   components: { TreeItem },
   props: {
     items: Array,
-    selectedItems: Array,
+    selectedItemIds: Array,
     handleChange: Function,
   },
 };

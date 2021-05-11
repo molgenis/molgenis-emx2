@@ -27,7 +27,7 @@
         v-if="hasChildren && !isCollapsed"
         :items="item.children"
         :handleChange="handleChange"
-        :selectedItems="selectedItems"
+        :selectedItemIds="selectedItemIds"
       ></tree-level>
     </div>
   </div>
@@ -42,7 +42,7 @@ export default {
   props: {
     item: Object,
     handleChange: Function,
-    selectedItems: Array,
+    selectedItemIds: Array,
   },
   data() {
     return {
@@ -54,9 +54,7 @@ export default {
       return this.item.children.length;
     },
     isSelected() {
-      return this.selectedItems
-        .map((item) => item.name)
-        .includes(this.item.name);
+      return this.selectedItemIds.includes(this.item.name);
     },
   },
   methods: {

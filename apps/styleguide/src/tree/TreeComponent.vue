@@ -1,7 +1,7 @@
 <template>
   <tree-level
     :items="itemsAsTree"
-    :selectedItems="value"
+    :selectedItemIds="selectedItemIds"
     @change-keyword-check="handleSelectionChange"
     :handleChange="handleSelectionChange"
   >
@@ -13,6 +13,11 @@ import TreeLevel from "./_TreeLevel.vue";
 export default {
   name: "TreeComponent",
   components: { TreeLevel },
+  data() {
+    return {
+      selectedItemIds: this.value,
+    };
+  },
   props: {
     /**
      * Array of items that form the tree
@@ -21,6 +26,9 @@ export default {
       type: Array,
       default: () => [],
     },
+    /**
+     * Array of selected item id's
+     */
     value: {
       type: Array,
       default: () => [],
@@ -44,8 +52,13 @@ export default {
     },
   },
   methods: {
-    handleSelectionChange() {
-      console.log("handleSelectionChange");
+    handleSelectionChange(itemId) {
+      if (this.selectedItemIds.includes(itemId)) {
+        this.selectedItemIds.splice(this.selectedItemIds.indexOf(itemId), 1);
+      } else {
+        this.selectedItemIds.push(itemId);
+      }
+      this.$emit("change", this.selectedItemIds);
     },
   },
 };
@@ -66,10 +79,17 @@ const treeItems = [
   { name: 'wood', definition: 'Wood', parent: {name: 'toys'} },
   { name: 'outside', definition: 'Outside', parent: {name: 'toys'} },
 ]
+
+const selected = []
+<p class="mt-1">
+  <span style="font-weight: bold">Selected items:</span> {{selected.join(', ')}}
+  <span v-if="!selected.length" style="font-style: italic;">None<span>
+</p>
 <div class="row">
   <div class="col-5">
-    <tree-component :items=treeItems></tree-component>
+    <tree-component :items=treeItems v-model="selected"></tree-component>
   </div>
 </div>
+
 ```
 </docs>
