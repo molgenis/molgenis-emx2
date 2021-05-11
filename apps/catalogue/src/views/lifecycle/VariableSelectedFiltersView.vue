@@ -1,5 +1,5 @@
 <template>
-  <active-filters
+  <div
       :value="active"
       :filters="filters"
       @input="setFilters"
@@ -7,14 +7,10 @@
 </template>
 
 <script>
-import ActiveFilters from '@/components/lifecycle/ActiveFilters.vue'
 import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: "VariablesSelectedFiltersView",
-  components: {
-    ActiveFilters
-  },
   computed: {
     ...mapState({ active: 'filters', keywords: 'keywords', databanks: 'databanks', networks: 'networks' }),
     filters () {

@@ -19,7 +19,7 @@
         <div class="row">
           <div class="col-12">
             <div class="mb-3 mt-3">
-              <variable-selected-filters-view />
+           
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ import VariableListItem from "@/components/lifecycle/VariableListItem";
 import { mapActions, mapState, mapMutations } from "vuex";
 import VariableFiltersView from "@/views/lifecycle/VariableFiltersView";
 import VariableSelectedFiltersView from "@/views/lifecycle/VariableSelectedFiltersView";
-import SearchBox from "@/components/lifecycle/SearchBox.vue";
+import { InputSearch } from '@mswertz/emx2-styleguide'
 
 export default {
   name: "VariablesView",
@@ -75,7 +75,7 @@ export default {
     VariableSelectedFiltersView,
     VariableListItem,
     VariableFiltersView,
-    SearchBox,
+    InputSearch,
   },
   data() {
     return {

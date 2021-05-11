@@ -1,5 +1,5 @@
 <template>
-  <filter-container
+  <filter-sidebar
       v-if="keywords && keywords.length && networks && networks.length && databanks && databanks.length"
       :value="selection"
       :filters="filters"
@@ -9,13 +9,13 @@
 </template>
 
 <script>
-import { FilterContainer } from '@molgenis-ui/components-library'
 import { mapState, mapMutations, mapActions } from 'vuex'
-
+import { FilterSidebar } from '@mswertz/emx2-styleguide'
+ 
 export default {
   name: 'VariableFiltersView',
   components: {
-    FilterContainer
+    FilterSidebar
   },
   computed: {
     ...mapState({ selection: 'filters', keywords: 'keywords', networks: 'networks', databanks: 'databanks' }),

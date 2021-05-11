@@ -14,25 +14,21 @@
           v-bind="node"
       />
     </ul>
-    <b-link
+    <a href="#"
         class="toggle-select card-link"
         @click.prevent="toggleSelect"
     >
       {{ toggleSelectText }}
-    </b-link>
+    </a>
   </div>
 </template>
 
 <script>
 import TreeNode from './TreeNode'
-import SearchBox from './SearchBox'
-import { BLink } from 'bootstrap-vue'
 
 export default {
   components: {
-    TreeNode,
-    SearchBox,
-    BLink
+    TreeNode
   },
   props: {
     options: {
