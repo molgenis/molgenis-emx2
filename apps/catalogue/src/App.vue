@@ -7,7 +7,7 @@
         <h1 class="text-centered">You have to login to view the data.</h1>
       </div>
       <div v-else class="container-fluid">
-        <RouterView :key="$route.fullPath" />
+        <RouterView />
       </div>
     </Molgenis>
   </div>

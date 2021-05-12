@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
+import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
 import InstitutionView from "./views/InstitutionView";
 import DatabankView from "./views/DatabankView";
@@ -16,12 +17,16 @@ import StudiesView from "./views/StudiesView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
+import VariableExplorer from "./views/VariableExplorer";
+import VariablesDetailsView from "./views/VariablesDetailsView";
+import HarmonizationView from "./views/HarmonizationView";
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
+  linkActiveClass: "active", // bootstrap 4 active tab class
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
@@ -113,10 +118,28 @@ const router = new VueRouter({
       props: true,
       component: TableMappingsView,
     },
+    {
+      path: "/explorer",
+      component: VariableExplorer,
+      children: [
+        {
+          name: "variableDetails",
+          path: "details",
+          component: VariablesDetailsView,
+        },
+        {
+          name: "variableHarmonization",
+          path: "harmonization",
+          component: HarmonizationView,
+        },
+        { path: "", redirect: "/explorer/details" },
+      ],
+    },
   ],
 });
 
 new Vue({
   router,
   render: (h) => h(App),
+  store,
 }).$mount("#app");
