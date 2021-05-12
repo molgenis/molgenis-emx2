@@ -12,7 +12,8 @@
     "core-js": "3.11.2",
     "graphql-request": "3.4.0",
     "vue": "2.6.12",
-    "vue-router": "3.5.1"
+    "vue-router": "3.5.1",
+    "vuex": "^3.6.2"
   },
   "eslintConfig": {
     "root": true,
