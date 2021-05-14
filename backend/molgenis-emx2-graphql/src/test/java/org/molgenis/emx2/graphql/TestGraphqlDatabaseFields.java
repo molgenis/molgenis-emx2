@@ -32,16 +32,14 @@ public class TestGraphqlDatabaseFields {
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
+    synchronized(this) {
+      var name = schemaName + Math.floor(Math.random() * 10000);
+      execute("mutation{createSchema(name:\"" + name + "\"){message}}");
+      Assert.assertTrue(database.getSchemaNames().contains(name));
 
-    // ensure schema doesn't exist
-    int realLength = database.getSchemaNames().size();
-    int length = execute("{Schemas{name}}").at("/data/Schemas").size();
-    assertEquals(realLength, length);
-    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    Assert.assertEquals(length + 1, database.getSchemaNames().size());
-
-    execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
-    Assert.assertEquals(length, database.getSchemaNames().size());
+      execute("mutation{deleteSchema(name:\"" + name + "\"){message}}");
+      Assert.assertFalse(database.getSchemaNames().contains(name));
+    }
   }
 
   @Test
