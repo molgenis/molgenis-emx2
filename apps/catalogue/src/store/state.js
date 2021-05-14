@@ -1,4 +1,5 @@
 const state = {
+  isLoading: false,
   variables: [],
   variableDetails: {},
   variableCount: undefined,
@@ -6,6 +7,7 @@ const state = {
   selectedKeywords: [],
   cohorts: [],
   variableMappings: [],
+  searchInput: "",
 };
 
 export default state;

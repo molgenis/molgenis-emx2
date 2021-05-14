@@ -2,6 +2,10 @@ export default {
   variables: (state) => state.variables,
   variableCount: (state) => state.variableCount,
   variableDetails: (state) => state.variableDetails,
+  searchString: (state) =>
+    state.searchInput === null || state.searchInput.trim() === ""
+      ? null
+      : state.searchInput.trim(),
   keywords: (state) => state.keywords,
   selectedKeywords: (state) => state.selectedKeywords,
   cohorts: (state) => state.cohorts,

@@ -1,7 +1,8 @@
 import { request, gql } from "graphql-request";
 
 export default {
-  fetchVariables: async ({ commit, getters }) => {
+  fetchVariables: async ({ state, commit, getters }) => {
+    state.isLoading = true;
     const query = gql`
       query Variables($search: String, $filter: VariablesFilter) {
         Variables(limit: 100, search: $search, filter: $filter) {
@@ -17,12 +18,12 @@ export default {
             name
           }
         }
-        Variables_agg(filter: $filter) {
+        Variables_agg(search: $search, filter: $filter) {
           count
         }
       }
     `;
-    let variables = {
+    let queryVariables = {
       filter: {
         release: {
           equals: [
@@ -38,16 +39,22 @@ export default {
     };
 
     if (getters.selectedKeywords.length) {
-      variables.filter.keywords = {
+      queryVariables.filter.keywords = {
         equals: getters.selectedKeywords.map((sk) => ({ name: sk })),
       };
     }
 
-    const resp = await request("graphql", query, variables).catch((e) =>
-      console.error(e)
-    );
+    if (getters.searchString) {
+      queryVariables.search = getters.searchString;
+    }
+
+    const resp = await request("graphql", query, queryVariables).catch((e) => {
+      console.error(e);
+      state.isLoading = false;
+    });
     commit("setVariables", resp.Variables);
     commit("setVariableCount", resp.Variables_agg.count);
+    state.isLoading = false;
   },
 
   fetchVariableDetails: async ({ commit, getters }, variableName) => {
