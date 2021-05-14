@@ -20,6 +20,7 @@ import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariablesDetailsView from "./views/VariablesDetailsView";
 import HarmonizationView from "./views/HarmonizationView";
+import VariableDetailView from "./views/VariableDetailView";
 
 Vue.config.productionTip = false;
 
@@ -134,6 +135,12 @@ const router = new VueRouter({
         },
         { path: "", redirect: "/explorer/details" },
       ],
+    },
+    {
+      name: "variable-detail",
+      path: "/explorer/details/:name",
+      component: VariableDetailView,
+      props: true,
     },
   ],
 });

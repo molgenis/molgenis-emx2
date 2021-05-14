@@ -36,7 +36,7 @@ export default {
   name: "VariableExplorer",
   components: { InputSearch },
   computed: {
-    ...mapGetters(["variableCount", "searchString"]),
+    ...mapGetters(["variables", "variableCount", "searchString"]),
     searchInput: {
       get() {
         return this.$store.state.searchInput;
@@ -61,7 +61,10 @@ export default {
     },
   },
   created() {
-    this.fetchVariables();
+    if (!this.variables.lenght) {
+      // Only on initial creation
+      this.fetchVariables();
+    }
   },
 };
 </script>
