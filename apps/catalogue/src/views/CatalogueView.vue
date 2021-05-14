@@ -136,6 +136,7 @@ export default {
     return {
       institutions: null,
       databanks: null,
+      networks: null,
       projects: null,
       models: null,
       datasources: null,
