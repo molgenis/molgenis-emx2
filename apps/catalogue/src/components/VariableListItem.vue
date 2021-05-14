@@ -15,6 +15,11 @@
     </span>
 
     <p class="mt-3" v-if="showDetail">
+      <router-link
+        class="nav-link"
+        :to="{ name: 'variable-detail', params: { name: variable.name } }"
+        >view details
+      </router-link>
       <template v-if="variableDetails">
         <dl class="row">
           <dt class="col-2">variable</dt>
@@ -92,5 +97,9 @@ export default {
 .list-group-item:hover .hover-rotate-clockwize {
   transform: rotate(90deg);
   transition: transform 0.2s;
+}
+
+.list-group-item .nav-link {
+  padding-left: 0;
 }
 </style>
