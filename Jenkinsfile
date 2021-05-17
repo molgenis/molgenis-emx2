@@ -1,4 +1,4 @@
-podTemplate(inheritFrom:'shared', containers: [
+podTemplate(inheritFrom: 'shared', containers: [
     containerTemplate(
       name: 'java',
       image: 'adoptopenjdk:13-jdk-hotspot-bionic',
@@ -20,6 +20,7 @@ podTemplate(inheritFrom:'shared', containers: [
         envVar(key: 'POSTGRES_USER', value: 'molgenis'),
         envVar(key: 'POSTGRES_PASSWORD', value: 'molgenis'),
         envVar(key: 'POSTGRES_DB', value: 'molgenis')
+        envVar(key: 'CHART_VERSION', value: '0.0.13')
       ]
     )
   ]) {
@@ -46,10 +47,7 @@ podTemplate(inheritFrom:'shared', containers: [
         dir("${JENKINS_AGENT_WORKDIR}/.rancher") {
             stash includes: 'cli2.json', name: 'rancher-config'
         }
-    }
-    stage('Build, Test') {
         container('java') {
-            checkout scm
             sh "apt update"
             sh "apt -y install git"
             sh "apt -y install docker.io"
@@ -58,9 +56,30 @@ podTemplate(inheritFrom:'shared', containers: [
             sh "git config user.name \"molgenis-jenkins\""
             sh "git config url.https://.insteadOf git://"
             sh "echo \"${DOCKER_PASSWORD}\" | docker login -u \"${DOCKER_USERNAME}\" --password-stdin"
+        }
+    }
+    stage('PR') {
+        when {
+            changeRequest()
+        }
+        container('java') {
+          sh "./gradlew test jacocoMergedReport sonarqube shadowJar jib release \
+            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
+        }
+    }
+    stage('Build, Test') {
+        when {
+          branch 'master'
+        }
+        container('java') {
             sh "./gradlew test jacocoMergedReport sonarqube shadowJar jib release \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password "
+            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
+        }
+        container('rancher') {
+            sh "rancher context switch dev-molgenis"
+            sh "rancher apps upgrade --set image.tag=latest molgenis-emx2 ${CHART_VERSION}"
         }
     }
 
