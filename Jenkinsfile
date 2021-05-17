@@ -70,7 +70,7 @@ podTemplate(inheritFrom: 'shared', containers: [
     }
     stage('Build, Test') {
         when {
-          branch 'master'
+            branch 'master'
         }
         container('java') {
             sh "./gradlew test jacocoMergedReport sonarqube shadowJar jib release \
