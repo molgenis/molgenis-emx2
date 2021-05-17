@@ -1,22 +1,15 @@
 <template>
   <div v-if="schema.tables">
-    <ButtonAlt @click="imgFullscreen = !imgFullscreen"
-      >{{ imgFullscreen ? "show small size" : "show full size" }}
-    </ButtonAlt>
     <InputCheckbox
       v-model="showAttributes"
       :defaultValue="showAttributes"
       :options="['attributes', 'external']"
     />
-    <div
-      v-scroll-lock="imgFullscreen"
-      :style="{
-        height: imgFullscreen ? 'auto' : '300px',
-      }"
-      style="text-align: center; overflow: scroll"
-    >
+    <div style="text-align: center" class="overflow-auto">
       <Spinner v-if="loadingYuml" />
       <img
+        :class="imgFullscreen ? '' : 'img-fluid'"
+        @click="imgFullscreen = !imgFullscreen"
         v-else
         :key="JSON.stringify(showAttributes)"
         :src="yuml"
@@ -58,8 +51,8 @@ export default {
       return this.schema.tables;
     },
     yuml() {
+      if (!this.tables || this.tables.length === 0) return "";
       this.loadingYuml = true;
-      if (!this.tables) return "";
       let res = "https://yuml.me/diagram/plain;dir:bt/class/";
       // classes
       this.tables

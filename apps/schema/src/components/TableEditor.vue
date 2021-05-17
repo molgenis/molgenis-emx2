@@ -1,83 +1,95 @@
 <template>
-  <div :key="timestamp" class="tableContainer">
-    <h4
-      :id="table.name"
-      style="display: inline-block; text-transform: none !important"
-      :style="table.drop ? 'text-decoration: line-through' : ''"
-    >
-      <InputString v-model="table.name" :inplace="true" />
-    </h4>
-    <IconDanger icon="trash" @click="deleteTable" class="btn-sm hoverIcon" />
-    <ButtonAction @click="formedit = true" class="hoverIcon float-right">
-      Open form editor
-    </ButtonAction>
-    <div v-if="!table.drop">
-      <label>Inherits: </label>
-      <InputString v-model="table.inherit" :inplace="true" />
-      <br />
-      <label>Description: </label>
-      <InputString class="ml-1" v-model="table.description" :inplace="true" />
-      <br />
-      <label>semantics:</label>
-      <InputString
-        class="ml-1"
-        v-model="table.semantics"
-        :list="true"
-        :inplace="true"
-      />
-      <table class="table table-sm" :key="timestamp">
-        <thead class="font-weight-bold">
-          <th style="width: 2em">
-            <IconAction
-              icon="plus"
-              @click="createColumn"
-              class="btn-sm hoverIcon"
-            />
-          </th>
-          <th scope="col" style="width: 10em">columnName</th>
-          <th scope="col" style="width: 8em">columnType</th>
-          <th scope="col" style="width: 3em">key</th>
-          <th scope="col" style="width: 5em">required</th>
-          <th scope="col" style="width: 10em">refTable</th>
-          <th scope="col" style="width: 10em">refLink</th>
-          <th scope="col" style="width: 10em">
-            refBack
-          </th>
-          <th scope="col" style="width: 10em">semantics</th>
-          <th scope="col">description</th>
-          <th scope="col" style="width: 3em"></th>
-        </thead>
-        <Draggable
-          v-model="table.columns"
-          tag="tbody"
-          @end="
-            timestamp = Date.now();
-            applyPosition();
-          "
-          :key="timestamp"
+  <div>
+    <div :key="timestamp">
+      <div class="hoverContainer">
+        <h4
+          :id="table.name"
+          style="display: inline-block; text-transform: none !important"
+          :style="table.drop ? 'text-decoration: line-through' : ''"
         >
-          <ColumnEditor
-            v-for="columnIndex in table.columns.keys()"
-            :key="columnIndex"
-            v-model="table.columns[columnIndex]"
-            :schema="schema"
-            :columnIndex="columnIndex"
+          <InputString v-model="table.name" :inplace="true" />
+        </h4>
+        <IconDanger
+          icon="trash"
+          @click="deleteTable"
+          class="btn-sm hoverIcon"
+        />
+        <ButtonAction @click="formedit = true" class="hoverIcon float-right">
+          Open form editor
+        </ButtonAction>
+        <div v-if="!table.drop">
+          <label>Inherits: </label>
+          <InputString v-model="table.inherit" :inplace="true" />
+          <br />
+          <label>Description: </label>
+          <InputString
+            class="ml-1"
+            v-model="table.description"
+            :inplace="true"
           />
-        </Draggable>
-      </table>
-      <LayoutModal
-        :show="formedit"
-        title="Form editor"
-        @close="
-          formedit = false;
-          timestamp = Date.now();
-        "
-      >
-        <template v-slot:body>
-          <FormEdit :schema="schema" v-model="table" />
-        </template>
-      </LayoutModal>
+          <br />
+          <label>Semantics:</label>
+          <InputString
+            class="ml-1"
+            v-model="table.semantics"
+            :list="true"
+            :inplace="true"
+          />
+        </div>
+
+        <table class="table table-sm" :key="timestamp">
+          <thead class="font-weight-bold">
+            <th style="width: 2em">
+              <IconAction
+                icon="plus"
+                @click="createColumn"
+                class="btn-sm hoverIcon"
+              />
+            </th>
+            <th scope="col" style="width: 10em">columnName</th>
+            <th scope="col" style="width: 8em">columnType</th>
+            <th scope="col" style="width: 3em">key</th>
+            <th scope="col" style="width: 5em">required</th>
+            <th scope="col" style="width: 10em">refTable</th>
+            <th scope="col" style="width: 10em">refLink</th>
+            <th scope="col" style="width: 10em">refBack</th>
+            <th scope="col" style="width: 10em">semantics</th>
+            <th scope="col">description</th>
+            <th scope="col" style="width: 3em"></th>
+          </thead>
+          <Draggable
+            v-model="table.columns"
+            tag="tbody"
+            @end="
+              timestamp = Date.now();
+              applyPosition();
+            "
+            :key="timestamp"
+          >
+            <ColumnEditor
+              class="hoverContainer"
+              v-for="columnIndex in table.columns.keys()"
+              :key="columnIndex"
+              v-model="table.columns[columnIndex]"
+              :schema="schema"
+              :columnIndex="columnIndex"
+            />
+          </Draggable>
+        </table>
+      </div>
     </div>
+    <LayoutModal
+      :show="formedit"
+      title="Form editor"
+      @close="
+        formedit = false;
+        timestamp = Date.now();
+      "
+    >
+      <template v-slot:body>
+        <FormEdit :schema="schema" v-model="table" />
+      </template>
+    </LayoutModal>
   </div>
 </template>
 
@@ -86,7 +98,7 @@
   visibility: hidden;
 }
 
-.tableContainer:hover .hoverIcon {
+.hoverContainer:hover .hoverIcon {
   visibility: visible;
 }
 </style>
