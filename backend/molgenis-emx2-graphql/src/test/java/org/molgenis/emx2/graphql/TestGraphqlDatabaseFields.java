@@ -32,7 +32,6 @@ public class TestGraphqlDatabaseFields {
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
-
     // ensure schema doesn't exist
     int realLength = database.getSchemaNames().size();
     int length = execute("{Schemas{name}}").at("/data/Schemas").size();
@@ -43,6 +42,7 @@ public class TestGraphqlDatabaseFields {
     execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
     Assert.assertEquals(length, database.getSchemaNames().size());
   }
+
 
   @Test
   public void testRegisterAndLoginUsers() throws IOException {

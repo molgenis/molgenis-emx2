@@ -26,6 +26,7 @@
           <dd class="col-10">
             {{ variableDetails.name }}
           </dd>
+
           <dt class="col-2">description</dt>
           <dd class="col-10">
             <span v-if="variableDetails.description">{{
@@ -33,6 +34,7 @@
             }}</span>
             <span v-else>-</span>
           </dd>
+
           <dt class="col-2">unit</dt>
           <dd class="col-10">
             <span v-if="variableDetails.unit">{{
@@ -40,6 +42,7 @@
             }}</span>
             <span v-else>-</span>
           </dd>
+
           <dt class="col-2">format</dt>
           <dd class="col-10">
             <span v-if="variableDetails.format">{{
@@ -47,11 +50,25 @@
             }}</span>
             <span v-else>-</span>
           </dd>
+
           <dt class="col-2">n repeats</dt>
           <dd class="col-10">
             <span v-if="variableDetails.repeats">{{
               variableDetails.repeats.length
             }}</span>
+            <span v-else>none</span>
+          </dd>
+
+          <dt class="col-2">mapped by</dt>
+          <dd class="col-10">
+            <span v-if="variableDetails.mappings">
+              <span
+                v-for="mapping in variableDetails.mappings"
+                :key="mapping.fromTable.release.acronym"
+              >
+               {{mapping.fromTable.release.resource.acronym}} 
+              </span>
+            </span>
             <span v-else>none</span>
           </dd>
         </dl>
