@@ -25,6 +25,7 @@ podTemplate(inheritFrom:'shared', containers: [
   ]) {
   node(POD_LABEL) {
     environment {
+        CHART_VERSION = '0.0.13'
         TIMESTAMP = sh(returnStdout: true, script: "date -u +'%F_%H-%M-%S'").trim()
     }
     stage('Retrieve build secrets') {
@@ -62,7 +63,10 @@ podTemplate(inheritFrom:'shared', containers: [
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password "
         }
+        container('rancher') {
+            sh "rancher context switch dev-molgenis"
+            sh "rancher apps upgrade --set image.tag=latest molgenis-emx2 ${CHART_VERSION}"
+        }
     }
-
   }
 }
