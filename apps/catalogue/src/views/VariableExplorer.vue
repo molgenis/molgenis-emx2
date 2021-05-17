@@ -21,7 +21,7 @@
       </li>
       <li class="nav-item">
         <router-link class="nav-link" :to="{ name: 'variableHarmonization' }">
-          Harmonizarion
+          Harmonization
         </router-link>
       </li>
     </ul>

@@ -34,6 +34,19 @@
           }}</span>
           <span v-else>none</span>
         </dd>
+
+        <dt class="col-2">mapped by</dt>
+        <dd class="col-10">
+          <span v-if="variableDetails.mappings">
+            <span
+              v-for="mapping in variableDetails.mappings"
+              :key="mapping.fromTable.release.acronym"
+            >
+              {{ mapping.fromTable.release.resource.acronym }}
+            </span>
+          </span>
+          <span v-else>none</span>
+        </dd>
       </dl>
     </template>
   </p>

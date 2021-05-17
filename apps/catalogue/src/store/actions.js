@@ -102,9 +102,57 @@ export default {
     const resp = await request("graphql", query, variables).catch((e) =>
       console.error(e)
     );
+
+    let variableDetails = resp.Variables[0];
+
+    const mappingQuery = gql`
+      query VariableMappings($filter: VariableMappingsFilter) {
+        VariableMappings(filter: $filter) {
+          fromTable {
+            release {
+              resource {
+                acronym
+              }
+              version
+            }
+            name
+          }
+          match {
+            name
+          }
+        }
+      }
+    `;
+
+    const mappingQueryVariables = {
+      filter: {
+        toVariable: {
+          equals: [
+            {
+              release: {
+                resource: {
+                  acronym: "LifeCycle",
+                },
+                version: "1.0.0",
+              },
+              name: variableName,
+            },
+          ],
+        },
+      },
+    };
+
+    const mappingQueryResp = await request(
+      "graphql",
+      mappingQuery,
+      mappingQueryVariables
+    ).catch((e) => console.error(e));
+
+    variableDetails.mappings = mappingQueryResp.VariableMappings;
+
     commit("setVariableDetails", {
       variableName,
-      variableDetails: resp.Variables[0],
+      variableDetails,
     });
   },
 
