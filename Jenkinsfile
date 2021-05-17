@@ -61,7 +61,7 @@ podTemplate(inheritFrom:'shared', containers: [
         }
         container('rancher') {
             sh "rancher context switch dev-molgenis"
-            sh "rancher apps upgrade --set image.tag=latest molgenis-emx2 0.0.13"
+            sh "rancher apps upgrade --set image.tag=latest --force molgenis-emx2 0.0.13"
         }
     }
   }
