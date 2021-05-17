@@ -24,10 +24,6 @@ podTemplate(inheritFrom:'shared', containers: [
     )
   ]) {
   node(POD_LABEL) {
-    environment {
-        CHART_VERSION = '0.0.13'
-        TIMESTAMP = sh(returnStdout: true, script: "date -u +'%F_%H-%M-%S'").trim()
-    }
     stage('Retrieve build secrets') {
         container('vault') {
             script {
@@ -65,7 +61,7 @@ podTemplate(inheritFrom:'shared', containers: [
         }
         container('rancher') {
             sh "rancher context switch dev-molgenis"
-            sh "rancher apps upgrade --set image.tag=latest molgenis-emx2 ${CHART_VERSION}"
+            sh "rancher apps upgrade --set image.tag=latest molgenis-emx2 0.0.13"
         }
     }
   }
