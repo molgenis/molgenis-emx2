@@ -4,7 +4,6 @@
     :label="label"
     :placeholder="placeholder"
     :description="description"
-    v-on="$listeners"
   >
     <input
       :id="id"
