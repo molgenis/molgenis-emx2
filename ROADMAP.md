@@ -105,7 +105,7 @@
 * throw graphqlError when webservice is called with only csv header and no values
 * update is actually upsert (insert ... on conflict update) -> can we make it idempotent 'save' (how to update pkey
   then?)
-* job api to have long running requests wrapped in a job. Should be same as normal api, but then wrapped
+* taskList api to have long running requests wrapped in a taskList. Should be same as normal api, but then wrapped
 * reduce build+test times back to under a minute (LOL)
 * decide to store both ends of ref; added value might be order of items and query speed
 * cross-schema foreign keys, do we need/want those?
