@@ -1,4 +1,4 @@
-podTemplate(inheritFrom: 'shared', containers: [
+podTemplate(inheritFrom:'shared', containers: [
     containerTemplate(
       name: 'java',
       image: 'adoptopenjdk:13-jdk-hotspot-bionic',
