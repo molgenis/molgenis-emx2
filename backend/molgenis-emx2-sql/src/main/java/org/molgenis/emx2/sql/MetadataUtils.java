@@ -96,7 +96,7 @@ public class MetadataUtils {
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
       // wait a little to ensure it is really not there, to prevent race conditions
       try {
-        Thread.sleep(500);
+        Thread.sleep((long) Math.random() * 1000);
       } catch (Exception e) {
         // should never happen
       }
