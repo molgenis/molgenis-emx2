@@ -17,7 +17,7 @@
     <p class="mt-3" v-if="showDetail">
       <router-link
         class="nav-link"
-        :to="{ name: 'variable-detail', params: { name: variable.name } }"
+        :to="{ name: 'singleVariableDetails', params: { name: variable.name } }"
         >view details
       </router-link>
       <template v-if="variableDetails">
@@ -64,9 +64,9 @@
             <span v-if="variableDetails.mappings">
               <span
                 v-for="mapping in variableDetails.mappings"
-                :key="mapping.fromTable.release.acronym"
+                :key="mapping.fromTable.release.resource.acronym"
               >
-               {{mapping.fromTable.release.resource.acronym}} 
+                {{ mapping.fromTable.release.resource.acronym }}
               </span>
             </span>
             <span v-else>none</span>
