@@ -20,6 +20,7 @@
     v-model="valueArray[0]"
     :options="[true, false]"
     @input="emitValue"
+    v-on="$listeners"
   />
 </template>
 

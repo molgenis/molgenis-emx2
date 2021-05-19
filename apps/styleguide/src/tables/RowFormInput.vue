@@ -1,36 +1,39 @@
 <template>
   <div>
-    <span
-      v-if="columnType === 'CONSTANT' && description"
-      v-html="stripHtml(description)"
+    <InputConstant
+      v-if="columnType === 'CONSTANT'"
+      v-bind="$props"
+      v-on="$listeners"
     />
-    <span v-else-if="columnType === 'CONSTANT'">
-      CONSTANT type is empty. Please set text or html in 'description'.
-    </span>
     <InputString
       v-else-if="columnType === 'STRING'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputText
       v-else-if="columnType === 'TEXT'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputInt
       v-else-if="columnType === 'INT'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputDecimal
       v-else-if="columnType === 'DECIMAL'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputBoolean
       v-else-if="columnType === 'BOOL'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputRefSelect
       v-else-if="columnType === 'REF'"
@@ -38,16 +41,19 @@
       v-model="input"
       :filter="filter"
       :table="table"
+      v-on="$listeners"
     />
     <InputDate
       v-else-if="columnType === 'DATE'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputDateTime
       v-else-if="columnType === 'DATETIME'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputRefSelect
       :list="true"
@@ -60,23 +66,27 @@
       v-model="input"
       :table="table"
       :graphqlURL="graphqlURL"
+      v-on="$listeners"
     />
     <InputString
       v-else-if="columnType === 'STRING_ARRAY'"
       :list="true"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputText
       v-else-if="columnType === 'TEXT_ARRAY'"
       :list="true"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <InputFile
       v-else-if="columnType === 'FILE'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
@@ -92,11 +102,14 @@ import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
+import InputConstant from "../forms/InputConstant";
 
 export default {
   name: "RowFormInput",
   extends: _baseInput,
   props: {
+    /** enable editing of label and description*/
+    editMeta: Boolean,
     schema: String,
     columnType: String,
     description: String,
@@ -113,15 +126,6 @@ export default {
       input: null,
     };
   },
-  methods: {
-    stripHtml(input) {
-      if (input) {
-        return input.replace(/(<\/?(?:h1|h2|p|label|a)[^>]*>)|<[^>]+>/gi, "$1");
-      } else {
-        return input;
-      }
-    },
-  },
   components: {
     InputString,
     InputInt,
@@ -132,6 +136,7 @@ export default {
     InputDateTime,
     InputFile,
     InputText,
+    InputConstant,
   },
   created() {
     this.input = this.value;
@@ -159,4 +164,5 @@ Example:
   <RowFormInput columnType="DATE" label="Test Date"/>
 </div>
 ```
+
 </docs>

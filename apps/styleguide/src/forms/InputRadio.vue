@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props" class="radio-form-group">
+  <form-group v-bind="$props" class="radio-form-group" v-on="$listeners">
     <div>
       <div
         v-for="(item, idx) in options"

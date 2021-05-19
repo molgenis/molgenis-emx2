@@ -1,6 +1,5 @@
 <template>
   <div :key="timestamp">
-    <a href="#" @click.prevent="createTable"> create table </a>
     <div v-if="schema.tables && schema.tables.length > 0">
       <TableEditor
         v-for="tableIndex in schema.tables.keys()"
@@ -52,17 +51,6 @@ export default {
     };
   },
   methods: {
-    createTable() {
-      if (!this.schema.tables) {
-        this.schema.tables = [];
-      }
-      let name = "NewTable";
-      this.schema.tables.unshift({
-        name: name,
-        columns: [],
-      });
-      this.timestamp = Date.now();
-    },
     refBackCandidates(fromTable, toTable) {
       return this.schema.tables
         .filter((t) => t.name === fromTable)

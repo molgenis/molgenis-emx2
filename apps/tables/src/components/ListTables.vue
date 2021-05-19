@@ -88,7 +88,7 @@ export default {
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
-          .filter((table) => table.externalSchema == undefined)
+          .filter((table) => !table.externalSchema)
           .filter((t) =>
             terms.every(
               (v) =>
@@ -96,8 +96,9 @@ export default {
                 (t.description && t.description.toLowerCase().includes(v))
             )
           );
+      } else {
+        return this.schema.tables.filter((table) => !table.externalSchema);
       }
-      return this.schema.tables;
     },
   },
 };

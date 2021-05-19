@@ -1,5 +1,5 @@
 <template>
-  <form-group v-bind="$props">
+  <form-group v-bind="$props" v-on="$listeners">
     <div class="input-group">
       <span class="input-group-prepend">
         <button

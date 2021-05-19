@@ -93,6 +93,13 @@ public class MetadataUtils {
   // should never run in parallel
   protected static synchronized void init(DSLContext jooq) {
 
+    // wait a little to ensure in tests, they are not created on same time
+    try {
+      Thread.sleep((long) Math.random() * 1000);
+    } catch (Exception e) {
+      // should never happen
+    }
+
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
       try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
         step.execute();

@@ -1,52 +1,89 @@
 <template>
   <div v-if="table">
     <div class="row">
-      <div class="col">
-        <h2>Preview</h2>
+      <div class="col bg-white">
+        <div class="row bg-white column-hover">
+          <div class="col pl-4 pr-4">
+            <h2>
+              <InputString :inplace="true" v-model="table.name" @input="emit" />
+            </h2>
+            <p>
+              <InputText
+                :inplace="true"
+                v-model="table.description"
+                @input="emit"
+              />
+            </p>
+          </div>
+        </div>
         <form>
           <Draggable :list="table.columns">
-            <div
-              v-for="(column, idx) in table.columns"
-              :key="column.name + changetime"
-              class="column-hover"
-            >
-              <div v-if="column.name != 'mg_tableclass'">
-                <span class="float-right">
-                  <IconAction
-                    icon="cog"
-                    class="hoverIcon"
-                    @click="
-                      selectedColumn = column;
-                      selectedColumnName = selectedColumn.name;
-                      if (!selectedColumn.oldName) {
-                        selectedColumn.oldName = selectedColumn.name;
-                      }
-                    "
-                  />
-                  <IconAction
-                    icon="trash"
-                    class="mr-2 hoverIcon"
-                    @click="
-                      column.drop = true;
-                      table.columns = table.columns.filter(
-                        (c) => c.name != column.name
-                      );
-                    "
-                  />
-                </span>
-                <div v-if="visible(column.visible)">
-                  <RowFormInput
-                    v-model="example[column.name]"
-                    :label="column.name ? column.name : 'please edit name'"
-                    :description="column.description"
-                    :columnType="column.columnType"
-                    :refTable="column.refTable"
-                    :required="column.required"
-                    :errorMessage="errorPerColumn[column.name]"
-                    class="pl-2 pr-2"
-                  />
+            <div v-for="(column, idx) in table.columns" :key="idx + changed">
+              <div
+                v-if="column.name != 'mg_tableclass'"
+                class="row mt-1 pt-1 column-hover"
+                :class="{ 'border border-primary': selectedColumn == idx }"
+              >
+                <div class="col bg-white">
+                  <div>
+                    <IconAction
+                      class="hoverIcon float-right align-bottom"
+                      :icon="selectedColumn == idx ? 'chevron-up' : 'cog'"
+                      @click="
+                        selectedColumn = selectedColumn == idx ? null : idx
+                      "
+                    />
+                    <RowFormInput
+                      v-if="visible(column.visibleIf)"
+                      v-model="example[column.name]"
+                      :editMeta="true"
+                      :label.sync="column.name"
+                      :description.sync="column.description"
+                      :columnType="column.columnType"
+                      :refTable="column.refTable"
+                      :required="column.required"
+                      :errorMessage="errorPerColumn[column.name]"
+                      :key="idx + changetime"
+                      class="pl-2 pr-2 mb-0"
+                    />
+                    <label v-else class="pl-2 pr-2 text-muted">
+                      <i>
+                        {{ column.name }} is not visible because of expression
+                        '{{ column.visibleIf }}'
+                      </i>
+                    </label>
+                  </div>
+                  <div v-if="selectedColumn == idx" class="bg-light p-2">
+                    <IconAction
+                      icon="plus"
+                      class="mr-2"
+                      @click="
+                        newcol = {
+                          name: 'new',
+                        };
+                        newcol.columnType = 'STRING';
+                        table.columns.push(newcol);
+                      "
+                    />
+                    <IconAction
+                      icon="trash"
+                      class="mr-2"
+                      @click="
+                        column.drop = true;
+                        table.columns = table.columns.filter(
+                          (c) => c.name != column.name
+                        );
+                      "
+                    />
+                    <ColumnEdit
+                      v-model="table.columns[idx]"
+                      :table="table"
+                      :schema="schema"
+                      :hide-name-description="visible(column.visibleIf)"
+                      @update="changed"
+                    />
+                  </div>
                 </div>
-                <p v-else>{{ column.name }} is invisible</p>
               </div>
             </div>
           </Draggable>
@@ -55,37 +92,15 @@
           icon="plus"
           class="mr-2"
           @click="
-            selectedColumn = { name: 'new' + Math.round(Math.random() * 100) };
+            selectedColumn = {
+              name: 'new',
+            };
             selectedColumn.columnType = 'STRING';
             table.columns.push(selectedColumn);
             selectedColumnName = selectedColumn.name;
           "
         />
       </div>
-      <div v-if="selectedColumnName" class="col">
-        <form>
-          <div class="d-flex justify-content-between">
-            <h2>column settings</h2>
-            <IconAction
-              icon="close"
-              @click="selectedColumnName = null"
-              class="float-right"
-            />
-          </div>
-          <p v-if="selectedColumn.inherited">
-            Cannot edit this column because it is inherited.
-          </p>
-          <ColumnEdit
-            v-else
-            v-model="selectedColumn"
-            :table="table"
-            :tables="tables"
-            :key="selectedColumnName"
-            @update="changed"
-          />
-        </form>
-      </div>
-      <div v-else class="col"></div>
     </div>
     <ShowMore title="debug">
       columns: {{ table }} <br />
@@ -120,17 +135,18 @@ import {
   MessageError,
   ButtonAction,
   ButtonDanger,
+  InputText,
+  ButtonAlt,
 } from "@mswertz/emx2-styleguide";
 import Draggable from "vuedraggable";
-import ColumnEditModal from "./ColumnEditModal";
 import ColumnEdit from "./ColumnEdit";
 
 export default {
   components: {
     ColumnEdit,
+    ButtonAlt,
     IconAction,
     InputString,
-    ColumnEditModal,
     RowFormInput,
     InputSelect,
     ShowMore,
@@ -138,6 +154,7 @@ export default {
     MessageError,
     ButtonAction,
     ButtonDanger,
+    InputText,
     Draggable,
   },
   props: {
@@ -164,13 +181,21 @@ export default {
     },
   },
   methods: {
+    emit() {
+      this.selectedColumn = null;
+      this.validate();
+      this.$emit("input", this.table);
+    },
     changed() {
       console.log("changed");
       this.changetime = Date.now();
     },
     eval(expression) {
       try {
-        return eval("(function (row) { " + expression + "})")(this.example); // eslint-disable-line
+        let args = Object.keys(this.example).join(",");
+        let func = `(function (${args}) { return ${expression}; })`;
+        console.log(func);
+        return eval(func)(Object.values(this.example)); // eslint-disable-line
       } catch (e) {
         return "Error in validation script: " + e.message;
       }
@@ -204,11 +229,15 @@ export default {
           // when validation
           if (
             typeof this.example[column.name] !== "undefined" &&
-            typeof column.validation !== "undefined"
+            typeof column.validationExpression !== "undefined"
           ) {
-            let value = this.example[column.name]; //used for eval, two lines below
-            this.errorPerColumn[column.name] = value; //dummy assign
-            this.errorPerColumn[column.name] = this.eval(column.validation);
+            if (!this.eval(column.validationExpression)) {
+              if (column.validationMessage) {
+                this.errorPerColumn[column.name] = column.validationMessage;
+              } else {
+                this.errorPerColumn[column.name] = "value invalid";
+              }
+            }
           }
         }
       });
@@ -219,13 +248,6 @@ export default {
       deep: true,
       handler() {
         this.validate();
-      },
-    },
-    table: {
-      deep: true,
-      handler() {
-        this.validate();
-        this.$emit("input", this.table);
       },
     },
     value() {

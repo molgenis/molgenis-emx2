@@ -9,6 +9,7 @@
     :label="label"
     :description="description"
     v-bind="$props"
+    v-on="$listeners"
   >
     <InputAppend
       v-for="(el, idx) in valueArray"
@@ -21,6 +22,7 @@
       @add="addRow"
     >
       <textarea
+        v-focus="inplace && !list"
         v-autogrow
         ref="textarea"
         :id="id + idx"
@@ -31,6 +33,7 @@
         :readonly="readonly"
         @input="emitValue($event, idx)"
         style="resize: none"
+        @blur="toggleFocus"
       />
     </InputAppend>
   </FormGroup>
@@ -39,7 +42,6 @@
 <script>
 import _baseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import FormGroup from "./_formGroup";
 import IconAction from "./IconAction";
 
 /** Input for text */
@@ -47,7 +49,7 @@ export default {
   extends: _baseInput,
   components: {
     InputAppend,
-    FormGroup,
+    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
     IconAction,
   },
   directives: {

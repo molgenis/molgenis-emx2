@@ -15,6 +15,7 @@ import IconBar from "./forms/IconBar";
 import IconDanger from "./forms/IconDanger";
 
 import InputBoolean from "./forms/InputBoolean";
+import InputConstant from "./forms/InputConstant";
 import InputDate from "./forms/InputDate";
 import InputDateTime from "./forms/InputDateTime";
 import InputDecimal from "./forms/InputDecimal";
@@ -86,6 +87,7 @@ export {
   IconDanger,
   InputBoolean,
   InputCheckbox,
+  InputConstant,
   InputDate,
   InputDateTime,
   InputDecimal,

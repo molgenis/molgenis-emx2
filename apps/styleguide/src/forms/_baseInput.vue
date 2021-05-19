@@ -2,14 +2,9 @@
 guide */
 
 <script>
-import _formGroup from "./_formGroup.vue";
-
 const uuidv4 = require("uuid/v4");
 
 export default {
-  components: {
-    "form-group": _formGroup,
-  },
   props: {
     /**  value */
     value: { type: [String, Number, Object, Array, Boolean], default: null },
@@ -45,6 +40,8 @@ export default {
     },
     /** parse function, such as parseInt to type value*/
     parser: Function,
+    /** whether metadata can be edited */
+    editMeta: Boolean,
   },
   data() {
     return {
@@ -123,7 +120,7 @@ export default {
     },
     //always show on empty lines in list view
     showClear() {
-      return this.clear && !this.readonly;
+      return this.clear && !this.readonly && this.value != null;
     },
     showMinus(idx) {
       return this.list && !this.showPlus(idx);

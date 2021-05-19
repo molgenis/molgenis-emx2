@@ -43,7 +43,6 @@ public class TestGraphqlDatabaseFields {
     Assert.assertEquals(length, database.getSchemaNames().size());
   }
 
-
   @Test
   public void testRegisterAndLoginUsers() throws IOException {
 

@@ -1,31 +1,33 @@
 <template>
   <div class="container-fluid">
-    <ButtonAlt class="pl-0" v-if="!toc" @click="toc = true">
-      show table of contents
-    </ButtonAlt>
+    <div class="d-flex justify-content-between">
+      <div class="form-inline">
+        <h1>Schema editor: {{ schema.name }}</h1>
+        <ButtonAction @click="saveSchema" class="ml-2">Save</ButtonAction>&nbsp;
+        <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
+      </div>
+      <div>
+        <ButtonAction @click="showDiagram = !showDiagram">
+          {{ showDiagram ? "Hide" : "Show" }} Diagram
+        </ButtonAction>
+      </div>
+    </div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <div class="row">
-      <div v-if="toc" class="col-2 bg-white">
+      <div class="col-2 bg-white">
         <div class="fixedContainer">
-          <ButtonAlt class="pl-0" @click="toc = false">
-            hide table of contents
-          </ButtonAlt>
-          <br />
-          <ButtonAction @click="saveSchema">Save</ButtonAction>&nbsp;
-          <ButtonAction @click="loadSchema">Reset</ButtonAction>
-          <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-          <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-          <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
-          <SchemaToc :tables="schema.tables" />
+          <SchemaToc :tables.sync="schema.tables" />
         </div>
       </div>
-      <div
-        class="bg-white"
-        :class="toc ? 'col-10' : 'col-12'"
-        style="overflow-y: scroll"
-      >
+      <div class="bg-white col ml-2" style="overflow-y: scroll">
         <Spinner v-if="loading" />
         <div v-else :key="timestamp">
-          <Yuml :schema="schema" :key="JSON.stringify(schema)" />
+          <Yuml
+            :schema="schema"
+            :key="JSON.stringify(schema)"
+            v-if="showDiagram"
+          />
           <SchemaEditor v-model="schema" />
         </div>
       </div>
@@ -79,7 +81,7 @@ export default {
       warning: null,
       success: null,
       timestamp: Date.now(),
-      toc: true,
+      showDiagram: false,
     };
   },
   methods: {

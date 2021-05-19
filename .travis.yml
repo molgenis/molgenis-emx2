@@ -5,12 +5,12 @@ jdk:
   - openjdk13
 services:
   - postgresql
-  - docker
+#  - docker
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
 before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  #  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - git fetch --unshallow
   - git config user.email "m.a.swertz@rug.nl"
   - git config user.name "Travis-CI"
@@ -29,7 +29,7 @@ addons:
 jobs:
   include:
     - stage: release
-      script: ./gradlew -i jacocoMergedReport sonarqube shadowJar -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+      script: ./gradlew test jacocoMergedReport sonarqube -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
