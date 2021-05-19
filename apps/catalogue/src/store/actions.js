@@ -272,10 +272,14 @@ export default {
     const query = gql`
       query VariableMappings($filter: VariableMappingsFilter) {
         VariableMappings(filter: $filter) {
+          syntax
+          description
           match {
             name
           }
-          syntax
+          fromVariable {
+            name
+          }
         }
       }
     `;

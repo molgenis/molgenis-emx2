@@ -1,5 +1,19 @@
 <template>
   <dl v-if="details" class="mt-3 row">
+    <dt class="col-2 mb-3">description</dt>
+    <dd class="col-10">
+      <pre>{{ details.description }}</pre>
+    </dd>
+
+    <dt class="col-2 mb-3">variables used</dt>
+    <dd class="col-10">
+      <ul class="list-unstyled">
+        <li v-for="variable in details.fromVariable" :key="variable.name">
+          {{ variable.name }}
+        </li>
+      </ul>
+    </dd>
+
     <dt class="col-2">syntax</dt>
     <dd class="col-10">
       <pre>{{ details.syntax }}</pre>
