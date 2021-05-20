@@ -235,6 +235,17 @@ public class TableMetadata {
     return result;
   }
 
+  public List<String> getNonInheritedColumnNames() {
+    // skip inherited
+    if (getInherit() != null) {
+      TableMetadata inheritedTable = getInheritedTable();
+      return getColumnNames().stream()
+          .filter(c -> inheritedTable.getColumn(c) == null)
+          .collect(Collectors.toList());
+    }
+    return getColumnNames();
+  }
+
   public Column getColumn(String name) {
     if (columns.containsKey(name)) return new Column(this, columns.get(name));
     if (inherit != null) {

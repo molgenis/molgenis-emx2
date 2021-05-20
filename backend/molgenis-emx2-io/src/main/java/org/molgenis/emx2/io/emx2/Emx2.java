@@ -132,16 +132,7 @@ public class Emx2 {
       row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
 
-      List<String> columnNames = new ArrayList<>(t.getColumnNames());
-
-      // skip inherited
-      if (t.getInherit() != null) {
-        TableMetadata inheritedTable = t.getInheritedTable();
-        columnNames =
-            columnNames.stream()
-                .filter(c -> inheritedTable.getColumn(c) == null)
-                .collect(Collectors.toList());
-      }
+      List<String> columnNames = new ArrayList<>(t.getNonInheritedColumnNames());
 
       // export column metadata
       for (String columnName : columnNames) {

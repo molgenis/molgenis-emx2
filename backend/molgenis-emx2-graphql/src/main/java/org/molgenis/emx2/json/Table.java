@@ -35,7 +35,7 @@ public class Table {
     this.description = tableMetadata.getDescription();
     this.semantics = tableMetadata.getSemantics();
     this.settings = tableMetadata.getSettings();
-    for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
+    for (org.molgenis.emx2.Column column : tableMetadata.getNonInheritedColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
   }
