@@ -70,10 +70,12 @@ public class CsvApi {
   }
 
   private static String tableRetrieve(Request request, Response response) throws IOException {
-    List<Row> rows = MolgenisWebservice.getTable(request).retrieveRows();
+    Table table = MolgenisWebservice.getTable(request);
+    List<Row> rows = table.retrieveRows();
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(rows, writer, getSeperator(request));
     response.type(ACCEPT_CSV);
+    response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     response.status(200);
     return writer.toString();
   }
