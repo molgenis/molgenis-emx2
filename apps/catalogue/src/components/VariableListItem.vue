@@ -4,20 +4,18 @@
       class="text-capitalize mg-variable-header mg-list-group-item-header"
       @click="toggleShowDetail"
     >
-      <strong>
-        <i
-          v-if="!showDetail"
-          class="fa fa-caret-up mr-2 hover-rotate-clockwize"
-        ></i>
-        <i v-else class="fa fa-caret-down mr-2"></i>
-        {{ variable.label }}
-      </strong>
+      <i
+        v-if="!showDetail"
+        class="fa fa-caret-up mr-2 hover-rotate-clockwize"
+      ></i>
+      <i v-else class="fa fa-caret-down mr-2"></i>
+      {{ variable.label }}
     </span>
 
     <p class="mt-3" v-if="showDetail">
       <router-link
         class="nav-link"
-        :to="{ name: 'variable-detail', params: { name: variable.name } }"
+        :to="{ name: 'singleVariableDetails', params: { name: variable.name } }"
         >view details
       </router-link>
       <template v-if="variableDetails">
@@ -64,9 +62,9 @@
             <span v-if="variableDetails.mappings">
               <span
                 v-for="mapping in variableDetails.mappings"
-                :key="mapping.fromTable.release.acronym"
+                :key="mapping.fromTable.release.resource.acronym"
               >
-               {{mapping.fromTable.release.resource.acronym}} 
+                {{ mapping.fromTable.release.resource.acronym }}
               </span>
             </span>
             <span v-else>none</span>
@@ -109,7 +107,6 @@ export default {
 .mg-list-group-item-header {
   display: block;
   width: 100%;
-  font-weight: bolder;
 }
 .list-group-item:hover .hover-rotate-clockwize {
   transform: rotate(90deg);

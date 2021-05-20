@@ -1,4 +1,5 @@
 import { request, gql } from "graphql-request";
+import getters from "./getters";
 
 export default {
   fetchVariables: async ({ state, commit, getters }) => {
@@ -52,9 +53,16 @@ export default {
       console.error(e);
       state.isLoading = false;
     });
-    commit("setVariables", resp.Variables);
-    commit("setVariableCount", resp.Variables_agg.count);
-    state.isLoading = false;
+
+    // check if result is still the relevant
+    if (
+      getters.searchString === null ||
+      getters.searchString === queryVariables.search
+    ) {
+      commit("setVariables", resp.Variables);
+      commit("setVariableCount", resp.Variables_agg.count);
+      state.isLoading = false;
+    }
   },
 
   fetchVariableDetails: async ({ commit, getters }, variableName) => {
@@ -148,15 +156,29 @@ export default {
       mappingQueryVariables
     ).catch((e) => console.error(e));
 
-    variableDetails.mappings = mappingQueryResp.VariableMappings;
+    // Put list in to map, use acronym as key
+    const mappingsByAcronym = mappingQueryResp.VariableMappings.reduce(
+      (accum, item) => {
+        accum[item.fromTable.release.resource.acronym] = item;
+        return accum;
+      },
+      {}
+    );
+    variableDetails.mappings = mappingsByAcronym;
 
     commit("setVariableDetails", {
       variableName,
       variableDetails,
     });
+
+    return variableDetails;
   },
 
-  fetchKeywords: async ({ commit }) => {
+  fetchKeywords: async ({state, commit }) => {
+    if(state.keywords.length) {
+      return state.keywords
+    }
+
     const keywordQuery = gql`
       query Keywords {
         Keywords {
@@ -173,6 +195,7 @@ export default {
       console.error(e)
     );
     commit("setKeywords", keyWordResp.Keywords);
+    return state.keywords
   },
 
   fetchCohorts: async ({ commit }) => {
@@ -246,5 +269,66 @@ export default {
       console.error(e)
     );
     commit("setVariableMappings", resp.VariableMappings);
+  },
+
+  fetchMappingDetails: async ({ commit, getters }, { name, acronym }) => {
+    if (!getters.variableDetails[name]) {
+      return undefined;
+    }
+    const query = gql`
+      query VariableMappings($filter: VariableMappingsFilter) {
+        VariableMappings(filter: $filter) {
+          syntax
+          description
+          match {
+            name
+          }
+          fromVariable {
+            name
+          }
+        }
+      }
+    `;
+
+    const mappingQueryVariables = {
+      filter: {
+        toVariable: {
+          equals: [
+            {
+              release: {
+                resource: {
+                  acronym: "LifeCycle",
+                },
+                version: "1.0.0",
+              },
+              name: name,
+            },
+          ],
+        },
+        fromTable: {
+          equals: [
+            {
+              release: {
+                resource: {
+                  acronym: acronym,
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    const resp = await request(
+      "graphql",
+      query,
+      mappingQueryVariables
+    ).catch((e) => console.error(e));
+
+    commit("setVariableMappingDetails", {
+      variableName: name,
+      mappingName: acronym,
+      details: resp.VariableMappings[0],
+    });
   },
 };

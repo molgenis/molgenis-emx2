@@ -21,6 +21,9 @@ import VariableExplorer from "./views/VariableExplorer";
 import VariablesDetailsView from "./views/VariablesDetailsView";
 import HarmonizationView from "./views/HarmonizationView";
 import VariableDetailView from "./views/VariableDetailView";
+import SingleVarDetailsView from "./views/SingleVarDetailsView";
+import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
+import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
 
 Vue.config.productionTip = false;
 
@@ -141,6 +144,28 @@ const router = new VueRouter({
       path: "/explorer/details/:name",
       component: VariableDetailView,
       props: true,
+      children: [
+        {
+          name: "singleVariableDetails",
+          path: "details",
+          component: SingleVarDetailsView,
+          props: true,
+        },
+        {
+          name: "singleVariableHarmonization",
+          path: "harmonization",
+          component: SingleVarHarmonizationView,
+          props: true,
+          children: [
+            {
+              name: "resourceHarmonizationDetails",
+              path: ":acronym",
+              component: ResourceHarmonizationDetails,
+              props: true,
+            },
+          ],
+        },
+      ],
     },
   ],
 });

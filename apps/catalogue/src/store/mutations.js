@@ -10,6 +10,13 @@ export default {
   setVariableDetails(state, { variableName, variableDetails }) {
     Vue.set(state.variableDetails, variableName, variableDetails);
   },
+  setVariableMappingDetails(state, { variableName, mappingName, details }) {
+    Vue.set(
+      state.variableDetails[variableName].mappings[mappingName],
+      "details",
+      details
+    );
+  },
   setSearchInput(state, searchInput) {
     state.searchInput = searchInput;
   },

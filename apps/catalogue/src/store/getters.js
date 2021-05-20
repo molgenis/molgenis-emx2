@@ -2,12 +2,25 @@ export default {
   variables: (state) => state.variables,
   variableCount: (state) => state.variableCount,
   variableDetails: (state) => state.variableDetails,
+  variableDetailsByName: (state) => (name) => state.variableDetails[name],
+  mappingDetailsByVariableAndMapping: (state) => (name, mapping) => {
+    if (
+      state.variableDetails[name] &&
+      state.variableDetails[name].mappings[mapping] &&
+      state.variableDetails[name].mappings[mapping].details
+    ) {
+      return state.variableDetails[name].mappings[mapping].details;
+    } else {
+      return {};
+    }
+  },
   searchString: (state) =>
-    state.searchInput === null || state.searchInput.trim() === ""
+    state.searchInput === null || state.searchInput.trim() === ''
       ? null
       : state.searchInput.trim(),
-  keywords: (state) => state.keywords,
-  selectedKeywords: (state) => state.selectedKeywords,
+  selectedKeywords: (state) => {
+    return state.filters.find(filters => filters.name === 'keywords').conditions
+  },
   cohorts: (state) => state.cohorts,
   /**
    * @returns Grid like object o[x][y], where;
