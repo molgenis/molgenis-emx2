@@ -36,9 +36,10 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["fetchMappingDetails"]),
+    ...mapActions(["fetchVariableDetails", "fetchMappingDetails"]),
   },
-  created() {
+  async created() {
+    await this.fetchVariableDetails(this.name);
     this.fetchMappingDetails({ name: this.name, acronym: this.acronym });
   },
 };
