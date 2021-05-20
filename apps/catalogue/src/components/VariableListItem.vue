@@ -4,14 +4,12 @@
       class="text-capitalize mg-variable-header mg-list-group-item-header"
       @click="toggleShowDetail"
     >
-      <strong>
-        <i
-          v-if="!showDetail"
-          class="fa fa-caret-up mr-2 hover-rotate-clockwize"
-        ></i>
-        <i v-else class="fa fa-caret-down mr-2"></i>
-        {{ variable.label }}
-      </strong>
+      <i
+        v-if="!showDetail"
+        class="fa fa-caret-up mr-2 hover-rotate-clockwize"
+      ></i>
+      <i v-else class="fa fa-caret-down mr-2"></i>
+      {{ variable.label }}
     </span>
 
     <p class="mt-3" v-if="showDetail">
@@ -109,7 +107,6 @@ export default {
 .mg-list-group-item-header {
   display: block;
   width: 100%;
-  font-weight: bolder;
 }
 .list-group-item:hover .hover-rotate-clockwize {
   transform: rotate(90deg);

@@ -15,11 +15,12 @@ export default {
     }
   },
   searchString: (state) =>
-    state.searchInput === null || state.searchInput.trim() === ""
+    state.searchInput === null || state.searchInput.trim() === ''
       ? null
       : state.searchInput.trim(),
-  keywords: (state) => state.keywords,
-  selectedKeywords: (state) => state.selectedKeywords,
+  selectedKeywords: (state) => {
+    return state.filters.find(filters => filters.name === 'keywords').conditions
+  },
   cohorts: (state) => state.cohorts,
   /**
    * @returns Grid like object o[x][y], where;

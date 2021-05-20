@@ -1,4 +1,5 @@
 import { request, gql } from "graphql-request";
+import getters from "./getters";
 
 export default {
   fetchVariables: async ({ state, commit, getters }) => {
@@ -173,7 +174,11 @@ export default {
     return variableDetails;
   },
 
-  fetchKeywords: async ({ commit }) => {
+  fetchKeywords: async ({state, commit }) => {
+    if(state.keywords.length) {
+      return state.keywords
+    }
+
     const keywordQuery = gql`
       query Keywords {
         Keywords {
@@ -190,6 +195,7 @@ export default {
       console.error(e)
     );
     commit("setKeywords", keyWordResp.Keywords);
+    return state.keywords
   },
 
   fetchCohorts: async ({ commit }) => {
