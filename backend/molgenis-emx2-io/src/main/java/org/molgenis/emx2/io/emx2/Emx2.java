@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -132,31 +133,37 @@ public class Emx2 {
       result.add(row);
 
       List<String> columnNames = new ArrayList<>(t.getColumnNames());
+
+      // skip inherited
+      if (t.getInherit() != null) {
+        TableMetadata inheritedTable = t.getInheritedTable();
+        columnNames =
+            columnNames.stream()
+                .filter(c -> inheritedTable.getColumn(c) == null)
+                .collect(Collectors.toList());
+      }
+
+      // export column metadata
       for (String columnName : columnNames) {
-
         Column c = t.getColumn(columnName);
+        row = new Row();
 
-        // only non-inherited
-        if (c.getTableName().equals(t.getTableName())) {
-          row = new Row();
+        row.setString(TABLE_NAME, t.getTableName());
+        row.setString(COLUMN_NAME, c.getName());
+        if (!c.getColumnType().equals(STRING))
+          row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
+        if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+        if (c.getKey() > 0) row.setInt(KEY, c.getKey());
+        if (!c.getRefSchema().equals(c.getSchemaName()))
+          row.setString(REF_SCHEMA, c.getRefTableName());
+        if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
+        if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
+        if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
+        if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
+        if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+        if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
 
-          row.setString(TABLE_NAME, t.getTableName());
-          row.setString(COLUMN_NAME, c.getName());
-          if (!c.getColumnType().equals(STRING))
-            row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-          if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
-          if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-          if (!c.getRefSchema().equals(c.getSchemaName()))
-            row.setString(REF_SCHEMA, c.getRefTableName());
-          if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
-          if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
-          if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
-          if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-          if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
-          if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
-
-          result.add(row);
-        }
+        result.add(row);
       }
     }
     return result;
