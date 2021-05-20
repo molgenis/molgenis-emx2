@@ -7,66 +7,85 @@
         <tree-component :items="keywords" v-model="selected"></tree-component>
       </div>
       <div class="col-9">
-        <h5>
-          Variables <span v-if="variableCount">({{ variableCount }})</span>
-        </h5>
-      </div>
-      <div class="col">
-        <InputSearch v-model="search" placeholder="Search variables" />
+        <div class="row">
+          <div class="col-3">
+            <h5>
+              Variables <span v-if="variableCount">({{ variableCount }})</span>
+            </h5>
+          </div>
+          <div class="col-9">
+            <InputSearch v-model="searchInput" placeholder="Search variables" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <filter-wells :filters="filters"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <router-link class="nav-link" :to="{ name: 'variableDetails' }">
+                  Details
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link
+                  class="nav-link"
+                  :to="{ name: 'variableHarmonization' }"
+                >
+                  Harmonization
+                </router-link>
+              </li>
+            </ul>
+            <router-view></router-view>
+          </div>
+        </div>
       </div>
     </div>
-
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <router-link class="nav-link" :to="{ name: 'variableDetails' }">
-          Details
-        </router-link>
-      </li>
-      <li class="nav-item">
-        <router-link class="nav-link" :to="{ name: 'variableHarmonization' }">
-          Harmonization
-        </router-link>
-      </li>
-    </ul>
-    <router-view></router-view>
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
-import { InputSearch, TreeComponent } from "@mswertz/emx2-styleguide";
+import { FilterWells, InputSearch, TreeComponent } from "@mswertz/emx2-styleguide";
+
 export default {
   name: "VariableExplorer",
-  components: { 
+  components: {
     InputSearch,
-    TreeComponent
+    TreeComponent,
+    FilterWells
   },
   computed: {
-    ...mapState(['keywords', 'selectedKeywords', 'searchInput']),
-    ...mapGetters(["variables", "variableCount", "searchString"]),
-    ...mapMutations(['setSelectedKeywords', 'setSearchInput']),
-    search: {
+    ...mapState(["filters", "searchInput", "keywords"]),
+    ...mapGetters(["variables", "variableCount", "searchString", "selectedKeywords"]),
+    ...mapMutations(["setSelectedKeywords", "setSearchInput"]),
+    searchInput: {
       get() {
-        return this.searchInput;
+        return this.$store.state.searchInput
       },
       set(value) {
-        this.setSearchInput(value);
+        this.$store.commit('setSearchInput', value);
       },
     },
     selected: {
-      get () {
-        return this.selectedKeywords
+      get() {
+        return this.selectedKeywords;
       },
-      set (value) {
-        this.setSelectedKeywords(value)
-      }
+      set(value) {
+        this.setSelectedKeywords(value);
+      },
     },
-    selectedKeywordsObjects () {
-      return this.selectedKeywords.map(selecteName => this.keywords.find((k) => k.name === selecteName))
-    }
+    selectedKeywordsObjects() {
+      return this.selectedKeywords.map((selecteName) =>
+        this.keywords.find((k) => k.name === selecteName)
+      );
+    },
   },
   methods: {
-    ...mapActions(['fetchVariables', 'fetchKeywords']),
+    ...mapActions(["fetchVariables", "fetchKeywords"]),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e;
     },

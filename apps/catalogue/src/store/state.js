@@ -4,6 +4,12 @@ const state = {
   variableDetails: {},
   variableCount: undefined,
   keywords: [],
+  filters: [
+    {
+      name: 'keywords',
+      conditions: []
+    }
+  ],
   selectedKeywords: [],
   cohorts: [],
   variableMappings: [],
