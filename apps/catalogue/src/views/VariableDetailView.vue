@@ -11,16 +11,29 @@
       </ol>
     </nav>
     <h3 v-if="details">{{ details.label }}</h3>
-    <variable-details v-if="details" :variableDetails="details" />
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <router-link class="nav-link" :to="{ name: 'singleVariableDetails' }">
+          Details
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <router-link
+          class="nav-link"
+          :to="{ name: 'singleVariableHarmonization' }"
+        >
+          Harmonization
+        </router-link>
+      </li>
+    </ul>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import VariableDetails from "../components/VariableDetails.vue";
 export default {
   name: "VariableDetailView",
-  components: { VariableDetails },
   props: {
     name: String,
   },
