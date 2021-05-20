@@ -4,6 +4,12 @@
 
     <div class="row">
       <div class="col-3">
+        <h5>
+          Filters
+        </h5>
+        <h6>
+          Topics
+        </h6>
         <tree-component :items="keywords" v-model="selected"></tree-component>
       </div>
       <div class="col-9">
