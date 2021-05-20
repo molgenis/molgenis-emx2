@@ -59,9 +59,9 @@ export default {
     FilterWells
   },
   computed: {
-    ...mapState(["filters", "searchInput", "keywords"]),
+    ...mapState(["filters", "keywords"]),
     ...mapGetters(["variables", "variableCount", "searchString", "selectedKeywords"]),
-    ...mapMutations(["setSelectedKeywords", "setSearchInput"]),
+    ...mapMutations(["setSelectedKeywords"]),
     searchInput: {
       get() {
         return this.$store.state.searchInput
