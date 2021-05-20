@@ -2,7 +2,7 @@
   <dl v-if="details" class="mt-3 row">
     <dt class="col-2 mb-3">description</dt>
     <dd class="col-10">
-      <pre>{{ details.description }}</pre>
+      {{ details.description }}
     </dd>
 
     <dt class="col-2 mb-3">variables used</dt>
