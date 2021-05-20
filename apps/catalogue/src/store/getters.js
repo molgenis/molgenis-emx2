@@ -18,7 +18,6 @@ export default {
     state.searchInput === null || state.searchInput.trim() === ""
       ? null
       : state.searchInput.trim(),
-  keywords: (state) => state.keywords,
   selectedKeywords: (state) => state.selectedKeywords,
   cohorts: (state) => state.cohorts,
   /**

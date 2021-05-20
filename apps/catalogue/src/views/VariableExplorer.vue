@@ -3,13 +3,16 @@
     <h1>Variable Explorer</h1>
 
     <div class="row">
-      <div class="col">
+      <div class="col-3">
+        <tree-component :items="keywords" v-model="selected"></tree-component>
+      </div>
+      <div class="col-9">
         <h5>
           Variables <span v-if="variableCount">({{ variableCount }})</span>
         </h5>
       </div>
       <div class="col">
-        <InputSearch v-model="searchInput" placeholder="Search variables" />
+        <InputSearch v-model="search" placeholder="Search variables" />
       </div>
     </div>
 
@@ -30,24 +33,40 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
-import { InputSearch } from "@mswertz/emx2-styleguide";
+import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
+import { InputSearch, TreeComponent } from "@mswertz/emx2-styleguide";
 export default {
   name: "VariableExplorer",
-  components: { InputSearch },
+  components: { 
+    InputSearch,
+    TreeComponent
+  },
   computed: {
+    ...mapState(['keywords', 'selectedKeywords', 'searchInput']),
     ...mapGetters(["variables", "variableCount", "searchString"]),
-    searchInput: {
+    ...mapMutations(['setSelectedKeywords', 'setSearchInput']),
+    search: {
       get() {
-        return this.$store.state.searchInput;
+        return this.searchInput;
       },
       set(value) {
-        this.$store.commit("setSearchInput", value);
+        this.setSearchInput(value);
       },
     },
+    selected: {
+      get () {
+        return this.selectedKeywords
+      },
+      set (value) {
+        this.setSelectedKeywords(value)
+      }
+    },
+    selectedKeywordsObjects () {
+      return this.selectedKeywords.map(selecteName => this.keywords.find((k) => k.name === selecteName))
+    }
   },
   methods: {
-    ...mapActions(["fetchVariables"]),
+    ...mapActions(['fetchVariables', 'fetchKeywords']),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e;
     },
@@ -65,6 +84,7 @@ export default {
       // Only on initial creation
       this.fetchVariables();
     }
+    this.fetchKeywords();
   },
 };
 </script>
