@@ -72,6 +72,12 @@ if (version.toString().endsWith('-SNAPSHOT')) {
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
     tagName = "${project.version.toString()}-${ext.hash}"
 }
+// write a file to pickup in deployment to use specific tags in upgrade
+task ci(type: WriteProperties) {
+  outputFile file('build/ci.properties')
+  property 'tagName', tagName
+}
+
 jib {
     from {
         image = 'adoptopenjdk:13-jdk-hotspot-bionic'
