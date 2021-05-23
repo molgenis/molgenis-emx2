@@ -95,9 +95,10 @@ public class MetadataUtils {
 
     // wait a little to ensure in tests, they are not created on same time
     try {
-      Thread.sleep((long) Math.random() * 1000);
+      Thread.sleep((long) Math.random() * 1000); // NOSONAR
     } catch (Exception e) {
       // should never happen
+      throw new MolgenisException("Internal error in MetaDataUtils", e);
     }
 
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
