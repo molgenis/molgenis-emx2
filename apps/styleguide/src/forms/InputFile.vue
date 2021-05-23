@@ -67,9 +67,11 @@
 
 <script>
 import _baseInput from "./_baseInput.vue";
+import FormGroup from "./_formGroup";
 
 export default {
   extends: _baseInput,
+  components: { FormGroup },
   computed: {
     filename() {
       if (this.value) return this.value.name;
