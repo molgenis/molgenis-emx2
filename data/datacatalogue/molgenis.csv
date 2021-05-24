@@ -5,7 +5,6 @@ AllVariables,,release,ref,1,true,Releases,,,,,release this table definition is p
 AllVariables,,table,ref,1,true,Tables,release,,,,table this variable is part of
 AllVariables,,name,,1,true,,,,,,"name of the variable, unique within a table"
 AllVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllVariables,,mg_tableclass,,,,,,,,,
 AllVariables,,mappings,refback,,,VariableMappings,,toVariable,,,listing of the VariableMappings defined between this variable and standard/harmonized variables
 CollectionEvents,,,,,,,,,,,Definition of an action of data collection for a resource
 CollectionEvents,,resource,ref,1,true,Resources,,,,,
@@ -105,7 +104,6 @@ OntologyTerms,,comments,text,,,,,,,,
 OntologyTerms,,parent,ref,,,OntologyTerms,,,,,link to a more broad term
 OntologyTerms,,ontologyTermURI,,3,,,,,,,
 OntologyTerms,,children,refback,,,OntologyTerms,,parent,,,link to more specific terms
-OntologyTerms,,mg_tableclass,,,,,,,,,
 PartnerRoles,OntologyTerms,,,,,,,,,,
 Partners,,,,,,,,,,,Institutions that partnered in the creation of a resource
 Partners,,resource,ref,1,true,Resources,,,,,resource institution has contributed to
