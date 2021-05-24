@@ -3990,10 +3990,10 @@ eslint-loader@^2.2.1:
     object-hash "^1.1.4"
     rimraf "^2.6.1"
 
-eslint-plugin-autofix@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-autofix/-/eslint-plugin-autofix-1.0.4.tgz#0d127252d01e1353b9a5e77fd8398a719f285041"
-  integrity sha512-WPnVpIb8udaacPinJj/U1GpVUe6URhgYFWkv2qiZFFtYDtgxoOS3LfuFPPK0CpJFQqG4D80OjUxGnz3jMF4egg==
+eslint-plugin-autofix@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-autofix/-/eslint-plugin-autofix-1.0.5.tgz#6a8dc9bd58add5b3894e8e2f39bf6682f550f5bf"
+  integrity sha512-zhjgtUBy5h8T7yzsgWQokbunHjXOk/UlUH5eNYgu7Yr3K0Sfv9VvtIFyrXcqciJZt7oKyYGyShzn+0DIF+C0JQ==
   dependencies:
     eslint-rule-composer "^0.3.0"
     espree "^7.3.1"
