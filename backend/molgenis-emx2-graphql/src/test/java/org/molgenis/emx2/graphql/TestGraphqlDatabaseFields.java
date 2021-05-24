@@ -33,7 +33,9 @@ public class TestGraphqlDatabaseFields {
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
     // ensure schema doesn't exist
-    database.dropSchema(schemaName + "B");
+    if (database.getSchema(schemaName + "B") != null) {
+      database.dropSchema(schemaName + "B");
+    }
 
     int realLength = database.getSchemaNames().size();
     int length = execute("{Schemas{name}}").at("/data/Schemas").size();
