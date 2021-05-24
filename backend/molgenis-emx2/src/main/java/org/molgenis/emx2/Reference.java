@@ -22,6 +22,7 @@ public class Reference {
 
   private ColumnType type;
   private ColumnType primitiveType;
+  private boolean isArray;
   private boolean required;
 
   public Reference(
@@ -30,6 +31,7 @@ public class Reference {
       String toColumn,
       ColumnType type,
       ColumnType primitiveType,
+      boolean isArray,
       String targetTable,
       String targetColumn,
       boolean required,
@@ -40,6 +42,7 @@ public class Reference {
     this.type = type;
     this.primitiveType = primitiveType;
     this.targetTable = targetTable;
+    this.isArray = isArray;
     this.targetColumn = targetColumn;
     this.required = required;
     this.path = path;
@@ -99,5 +102,9 @@ public class Reference {
 
   public String getTargetColumn() {
     return this.targetColumn;
+  }
+
+  public boolean isArray() {
+    return isArray;
   }
 }

@@ -5,8 +5,6 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import org.jooq.CreateSchemaFinalStep;
 import org.jooq.CreateTableColumnStep;
 import org.jooq.DSLContext;
