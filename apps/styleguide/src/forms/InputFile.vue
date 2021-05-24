@@ -55,7 +55,6 @@
         Previous value: {{ name }}.{{ val.extension }}
       </a>
     </div>
-    <br />
   </form-group>
 </template>
 
