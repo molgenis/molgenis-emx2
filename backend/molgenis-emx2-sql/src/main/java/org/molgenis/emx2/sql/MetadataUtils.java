@@ -10,18 +10,25 @@ import org.jooq.CreateTableColumnStep;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.molgenis.emx2.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
+  private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
 
   private static final String MOLGENIS = "MOLGENIS";
   private static final String NOT_PROVIDED = "NOT_PROVIDED";
   // tables
+  private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+
+  // version
+  private static final org.jooq.Field VERSION = field(name("version"), VARCHAR.nullable(false));
 
   // table
   private static final org.jooq.Field TABLE_SCHEMA =
@@ -90,6 +97,13 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
+  protected static synchronized String getVersion(DSLContext jooq) {
+    if (jooq.meta().getTables(VERSION_METADATA.getName()).size() > 0) {
+      return (String) jooq.selectFrom(VERSION_METADATA).fetchOne(VERSION);
+    }
+    return null;
+  }
+
   // should never run in parallel
   protected static synchronized void init(DSLContext jooq) {
 
@@ -102,12 +116,22 @@ public class MetadataUtils {
     }
 
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+      logger.info("INITIALIZING MOLGENIS METADATA SCHEMA");
+
       try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
         step.execute();
       }
       jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
       jooq.execute(
           "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC", name(MOLGENIS));
+
+      // set version
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
+        t.columns(VERSION).execute();
+        jooq.insertInto(VERSION_METADATA)
+            .set(VERSION, "3." + Version.getSpecificationVersion())
+            .execute();
+      }
 
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
         t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
@@ -157,6 +181,8 @@ public class MetadataUtils {
             .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
             .execute();
       }
+
+      logger.info("INITIALIZING MOLGENIS METADATA SCHEMA COMPLETE");
     }
 
     // this way more robust for non breaking changes

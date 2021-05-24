@@ -17,7 +17,7 @@ public class RunMolgenisEmx2 {
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static void main(String[] args) {
-    logger.info("Starting MOLGENIS EMX2 Version=" + Version.getVersion());
+    logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
     String url =
         (String)
@@ -55,6 +55,7 @@ public class RunMolgenisEmx2 {
 
     // setup database
     Database db = new SqlDatabase(dataSource, true);
+
     if (db.getSchema("pet store") == null) {
       Schema schema = db.createSchema("pet store");
       PetStoreExample.create(schema.getMetadata());

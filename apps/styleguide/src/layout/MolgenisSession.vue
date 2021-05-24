@@ -96,7 +96,7 @@ export default {
       this.loading = true;
       request(
         this.graphql,
-        `{_session{email,roles},_settings{key,value},_manifest{ImplementationVersion,SpecificationVersion}}`
+        `{_session{email,roles},_settings{key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
       )
         .then((data) => {
           if (data._session != undefined) {
