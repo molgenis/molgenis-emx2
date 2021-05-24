@@ -128,9 +128,7 @@ public class MetadataUtils {
       // set version
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
         t.columns(VERSION).execute();
-        jooq.insertInto(VERSION_METADATA)
-            .set(VERSION, "3." + Version.getSpecificationVersion())
-            .execute();
+        jooq.insertInto(VERSION_METADATA).set(VERSION, Version.getSpecificationVersion()).execute();
       }
 
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
