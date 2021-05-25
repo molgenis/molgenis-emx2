@@ -5,11 +5,11 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
-import org.jooq.CreateSchemaFinalStep;
-import org.jooq.CreateTableColumnStep;
-import org.jooq.DSLContext;
-import org.jooq.Field;
+
+import org.jooq.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +28,7 @@ public class MetadataUtils {
       table(name(MOLGENIS, "settings_metadata"));
 
   // version
+  private static final org.jooq.Field VERSION_ID = field(name("id"), VARCHAR.nullable(false));
   private static final org.jooq.Field VERSION = field(name("version"), VARCHAR.nullable(false));
 
   // table
@@ -99,7 +100,10 @@ public class MetadataUtils {
 
   protected static synchronized String getVersion(DSLContext jooq) {
     if (jooq.meta().getTables(VERSION_METADATA.getName()).size() > 0) {
-      return (String) jooq.selectFrom(VERSION_METADATA).fetchOne(VERSION);
+      Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      if (result.size() > 0) {
+        return (String) result.get(0).get(VERSION);
+      }
     }
     return null;
   }
@@ -129,6 +133,17 @@ public class MetadataUtils {
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
         t.columns(VERSION).execute();
         jooq.insertInto(VERSION_METADATA).set(VERSION, Version.getSpecificationVersion()).execute();
+
+        //    try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
+        //      t.columns(VERSION_ID, VERSION).constraint(primaryKey(VERSION_ID)).execute();
+        //    }
+        //
+        //    jooq.insertInto(VERSION_METADATA)
+        //            .set(VERSION_ID, 1)
+        //            .set(VERSION, Version.getSpecificationVersion())
+        //            .onDuplicateKeyUpdate()
+        //            .set(VERSION, (Object) field(unquotedName("excluded.\"" + VERSION + "\"")))
+        //            .execute(); // set version
       }
 
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
