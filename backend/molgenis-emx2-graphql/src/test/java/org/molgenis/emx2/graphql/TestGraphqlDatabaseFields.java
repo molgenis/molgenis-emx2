@@ -37,14 +37,17 @@ public class TestGraphqlDatabaseFields {
       database.dropSchema(schemaName + "B");
     }
 
-    int realLength = database.getSchemaNames().size();
-    int length = execute("{Schemas{name}}").at("/data/Schemas").size();
-    assertEquals(realLength, length);
+    assertNull(database.getSchema(schemaName + "B"));
+    String result = execute("{Schemas{name}}").at("/data/Schemas").toString();
+    assertFalse(result.contains(schemaName + "B"));
+
     execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    Assert.assertEquals(length + 1, database.getSchemaNames().size());
+    assertNotNull(database.getSchema(schemaName + "B"));
+    result = execute("{Schemas{name}}").at("/data/Schemas").toString();
+    assertTrue(result.contains(schemaName + "B"));
 
     execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
-    Assert.assertEquals(length, database.getSchemaNames().size());
+    assertNull(database.getSchema(schemaName + "B"));
   }
 
   @Test
