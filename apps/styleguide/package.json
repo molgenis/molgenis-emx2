@@ -34,7 +34,7 @@
     "eslint-plugin-prettier": "3.4.0",
     "eslint-plugin-vue": "7.9.0",
     "prettier": "2.3.0",
-    "vue-cli-plugin-styleguidist": "4.38.2",
+    "vue-cli-plugin-styleguidist": "4.39.0",
     "vue-template-compiler": "2.6.12"
   },
   "eslintConfig": {
