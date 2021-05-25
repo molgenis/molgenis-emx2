@@ -1,5 +1,4 @@
 import { request, gql } from "graphql-request";
-import getters from "./getters";
 
 export default {
   fetchVariables: async ({ state, commit, getters }) => {
@@ -174,9 +173,9 @@ export default {
     return variableDetails;
   },
 
-  fetchKeywords: async ({state, commit }) => {
-    if(state.keywords.length) {
-      return state.keywords
+  fetchKeywords: async ({ state, commit }) => {
+    if (state.keywords.length) {
+      return state.keywords;
     }
 
     const keywordQuery = gql`
@@ -195,7 +194,7 @@ export default {
       console.error(e)
     );
     commit("setKeywords", keyWordResp.Keywords);
-    return state.keywords
+    return state.keywords;
   },
 
   fetchCohorts: async ({ commit }) => {
@@ -218,7 +217,7 @@ export default {
   fetchMappings: async ({ commit, getters }) => {
     const query = gql`
       query VariableMappings($filter: VariableMappingsFilter) {
-        VariableMappings(limit: 100, filter: $filter) {
+        VariableMappings(limit: 1000, filter: $filter) {
           fromTable {
             release {
               resource {
@@ -228,6 +227,9 @@ export default {
             }
             name
           }
+          # fromVariable {
+          #   name
+          # }
           toVariable {
             table {
               release {
@@ -247,8 +249,23 @@ export default {
       }
     `;
 
-    const variables = getters.variables.map((v) => {
-      return {
+    const variables = getters.variables.reduce((accum, v) => {
+      if (v.repeats) {
+        const repeatFilters = v.repeats.map((rv) => {
+          return {
+            release: {
+              resource: {
+                acronym: "LifeCycle",
+              },
+              version: "1.0.0",
+            },
+            name: rv.name,
+          };
+        });
+        accum = accum.concat(repeatFilters);
+      }
+
+      const parentFilter = {
         release: {
           resource: {
             acronym: "LifeCycle",
@@ -257,7 +274,9 @@ export default {
         },
         name: v.name,
       };
-    });
+      accum.push(parentFilter);
+      return accum;
+    }, []);
 
     const filter = variables.length
       ? {
