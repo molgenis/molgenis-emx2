@@ -50,4 +50,13 @@ We gonna create a new database and download the contents from pet store.
 * Click 'browse' and choose to the file you just download and click 'Import Excel'
 * On main menu choose 'tables' and then you can see the contents
 
+# Verify more complex data model works
+
+We gonna use the cohort catalogue for this
+
+* Upload cohort catalogue model
+  from https://github.com/molgenis/molgenis-emx2/blob/master/data/datacatalogue/molgenis.csv
+* Browse 'Databank' and enter a new record, including contributions (this uses complex composite foreign keys, probably
+  the most advanced bit of EMX2)
+
 

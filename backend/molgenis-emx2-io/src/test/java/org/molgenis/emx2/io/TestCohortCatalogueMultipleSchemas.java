@@ -12,6 +12,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
@@ -36,12 +37,10 @@ public class TestCohortCatalogueMultipleSchemas {
   public void importTest() throws IOException {
     StopWatch.print("begin");
 
-    // load data model 2
-    ImportExcelTask task =
-        new ImportExcelTask(
-            new File("../../data/datacatalogue/_datacatalogue_schema.xlsx").toPath(),
-            cohortsSchema);
-    task.run();
+    // load data model
+    SchemaMetadata schema =
+        Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
+    cohortsSchema.migrate(schema);
 
     ImportExcelTask task2 =
         new ImportExcelTask(
@@ -64,7 +63,10 @@ public class TestCohortCatalogueMultipleSchemas {
   @Test
   public void importTest2() throws IOException {
     // load data model
-    loadSchema("../../data/datacatalogue/_datacatalogue_schema.xlsx", conceptionSchema);
+    SchemaMetadata schema =
+        Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
+    conceptionSchema.migrate(schema);
+
     loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
     assertEquals(42, TestCohortCatalogueMultipleSchemas.conceptionSchema.getTableNames().size());
   }

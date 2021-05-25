@@ -43,4 +43,6 @@ public interface Database {
   boolean inTx();
 
   void clearCache();
+
+  String getDatabaseVersion();
 }

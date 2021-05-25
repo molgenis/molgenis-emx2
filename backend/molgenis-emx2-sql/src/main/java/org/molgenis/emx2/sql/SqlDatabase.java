@@ -23,6 +23,7 @@ public class SqlDatabase implements Database {
   public static final String USER = "user";
 
   private DataSource source;
+  private String databaseVersion;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
@@ -81,6 +82,9 @@ public class SqlDatabase implements Database {
     if (init) {
       this.init();
     }
+    // get database version if exists
+    databaseVersion = MetadataUtils.getVersion(jooq);
+    logger.info("Database was created using version: " + this.databaseVersion);
   }
 
   @Override
@@ -347,5 +351,10 @@ public class SqlDatabase implements Database {
 
   protected DSLContext getJooq() {
     return jooq;
+  }
+
+  @Override
+  public String getDatabaseVersion() {
+    return databaseVersion;
   }
 }

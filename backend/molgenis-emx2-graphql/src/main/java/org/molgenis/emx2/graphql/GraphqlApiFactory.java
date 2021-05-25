@@ -117,7 +117,7 @@ public class GraphqlApiFactory {
 
     // add login
     // all the same between schemas
-    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
+    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(database));
 
     // acount operations
     GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
@@ -150,7 +150,7 @@ public class GraphqlApiFactory {
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // queries
-    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField());
+    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(schema.getDatabase()));
 
     // account operations
     GraphqlSessionFieldFactory accountFactory = new GraphqlSessionFieldFactory();

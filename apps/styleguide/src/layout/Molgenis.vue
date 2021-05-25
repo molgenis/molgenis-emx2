@@ -16,21 +16,33 @@
         <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
       <div class="container-fluid p-3" style="padding-bottom: 50px">
+        <MessageWarning v-if="majorDatabaseVersionToOldError"
+          >{{ majorDatabaseVersionToOldError }}
+        </MessageWarning>
         <h1 v-if="title">{{ title }}</h1>
         <slot />
       </div>
     </div>
     <Footer>
       <span v-if="session && session.manifest">
-        Version:
+        Software version:
         <a
           :href="
             'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
             session.manifest.SpecificationVersion
           "
+          >{{ session.manifest.SpecificationVersion }}</a
+        >.
+        <span v-if="session.manifest.DatabaseVersion"
+          >Database version:
+          <a
+            :href="
+              'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
+              session.manifest.DatabaseVersion
+            "
+            >{{ session.manifest.DatabaseVersion }}</a
+          >.</span
         >
-          {{ session.manifest.SpecificationVersion }}
-        </a>
       </span>
     </Footer>
   </div>
@@ -42,12 +54,19 @@ import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
+import MessageWarning from "../forms/MessageWarning";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
-  components: { MolgenisSession, MolgenisMenu, Footer, MolgenisTheme },
+  components: {
+    MessageWarning,
+    MolgenisSession,
+    MolgenisMenu,
+    Footer,
+    MolgenisTheme,
+  },
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
@@ -64,6 +83,22 @@ export default {
     };
   },
   computed: {
+    majorDatabaseVersionToOldError() {
+      if (this.session) {
+        let dbVer = this.session.manifest.DatabaseVersion;
+        let swVer = this.session.manifest.SpecificationVersion;
+        if (dbVer != null && dbVer.split(".")[0] != swVer.split(".")[0]) {
+          return (
+            "Database has different major version " +
+            dbVer +
+            " then Software version " +
+            swVer +
+            ". It is recommended to downgrade software to match database version, and export/import all data before continuing"
+          );
+        }
+      }
+      return null;
+    },
     logo() {
       if (this.logoURL) return this.logoURL;
       else return "/apps/styleguide/assets/img/molgenis_logo_white.png";

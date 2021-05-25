@@ -10,7 +10,7 @@ dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser:2.0.25'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'com.squareup.okhttp3:okhttp-brotli:4.9.1'
-    testImplementation 'io.rest-assured:rest-assured:4.3.3'
+    testImplementation 'io.rest-assured:rest-assured:4.4.0'
     implementation 'io.bit3:jsass:5.10.4'
 
 }

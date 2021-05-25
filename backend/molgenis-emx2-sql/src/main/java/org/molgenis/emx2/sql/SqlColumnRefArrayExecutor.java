@@ -249,13 +249,22 @@ class SqlColumnRefArrayExecutor {
                 })
             .collect(Collectors.joining(","));
 
+    String nonRefLinkFieldsAreNotNull =
+        references.stream()
+            .filter(r -> !r.isOverlapping())
+            .map(r2 -> "error_row." + name(r2.getRefTo()) + " IS NOT NULL ")
+            .collect(Collectors.joining(" OR "));
+
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
             + "\nDECLARE error_row RECORD;"
             + "\nBEGIN"
             + "\n\tFOR error_row IN SELECT {1} EXCEPT SELECT {2} FROM {3} WHERE {10} LOOP"
-            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'insert or update on table \"'||{9}||'\" violates foreign key (ref_array) constraint'"
+            // exclude if only refLink fields are set
+            + "\n\t\tIF {11} THEN"
+            + "\n\t\t\tRAISE EXCEPTION USING ERRCODE='23503', MESSAGE = 'insert or update on table \"'||{9}||'\" violates foreign key (ref_array) constraint'"
             + " , DETAIL = 'Key ('||{6}||')=('|| {5} ||') is not present in table \"'||{7}||'\", column(s)('||{8}||')';"
+            + "\n\t\tEND IF;"
             + "\n\tEND LOOP;"
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;",
@@ -280,7 +289,9 @@ class SqlColumnRefArrayExecutor {
         // 9
         inline(column.getTableName()),
         // 10
-        keyword(exceptFilter));
+        keyword(exceptFilter),
+        // 11
+        keyword(nonRefLinkFieldsAreNotNull));
 
     // add the trigger
     jooq.execute(

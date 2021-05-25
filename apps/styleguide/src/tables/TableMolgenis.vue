@@ -17,7 +17,9 @@
               #
               <!--@slot Use this to add values or actions buttons header -->
             </h6>
-            <span style="text-align: left"><slot name="colheader" /> </span>
+            <span style="text-align: left; font-weight: normal"
+              ><slot name="colheader" />
+            </span>
           </th>
           <th
             v-for="col in columnsWithoutConstant"

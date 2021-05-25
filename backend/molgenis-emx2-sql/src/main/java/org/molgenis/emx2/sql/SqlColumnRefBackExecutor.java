@@ -141,6 +141,33 @@ class SqlColumnRefBackExecutor {
             .map(r -> name(r.getName()).toString())
             .collect(Collectors.joining(","));
 
+    // refBack from has two clauses
+    String refBackFrom2 =
+        refBackColumns.stream()
+            .filter(r -> !r.isArray())
+            .map(r -> name(r.getName()) + " as " + name(r.getRefTo()))
+            .collect(Collectors.joining(","));
+    if (!refBackFrom2.equals("")) {
+      refBackFrom2 = "(select " + refBackFrom2 + ") as a";
+    }
+    String refBackFromUnnest =
+        refBackColumns.stream()
+            .filter(r -> r.isArray())
+            .map(r -> name(r.getName()).toString())
+            .collect(Collectors.joining(","));
+    String refBackFromUnnestAs =
+        refBackColumns.stream()
+            .filter(r -> r.isArray())
+            .map(r -> name(r.getRefTo()).toString())
+            .collect(Collectors.joining(","));
+
+    if (!refBackFromUnnest.equals("")) {
+      if (!refBackFrom2.equals("")) {
+        refBackFrom2 += ",";
+      }
+      refBackFrom2 += "UNNEST(" + refBackFromUnnest + ") as u(" + refBackFromUnnestAs + ")";
+    }
+
     String refBackFromErrorRow =
         refBackColumns.stream()
             .map(r -> "error_row." + name(r.getName()).toString())
@@ -174,7 +201,7 @@ class SqlColumnRefBackExecutor {
             // === (1) remove references that are not needed
             + "\n\t\tFOR error_row IN SELECT {19},{3} FROM {2} "
             // where OLD ids in the list
-            + "\n\t\t\tWHERE ({4}) IN (SELECT * FROM UNNEST({3}) as u({21}))"
+            + "\n\t\t\tWHERE ({4}) IN (SELECT * FROM {23})"
             // but not in the refback
             + "\n\t\t\tAND ({6}) NOT IN (SELECT * FROM UNNEST({5}) as u({6})) "
             + "\n\t\tLOOP UPDATE {2} AS t SET {1} FROM ("
@@ -188,7 +215,7 @@ class SqlColumnRefBackExecutor {
             // in the refback
             + "\n\t\t\tWHERE ({6}) IN (SELECT * FROM UNNEST({5}) as u({6})) "
             // and not yet in the ref_array
-            + "\n\t\t\t AND ({14}) NOT IN (SELECT * FROM UNNEST({3}) as u({21})) "
+            + "\n\t\t\t AND ({14}) NOT IN (SELECT * FROM {23}) "
             // update arrays to include the new refback
             + "\n\t\tLOOP UPDATE {2} AS t SET {1} FROM ("
             + "\n\t\t\tSELECT {17} FROM ("
@@ -246,7 +273,9 @@ class SqlColumnRefBackExecutor {
         // 21
         keyword(refBackTo),
         // 22
-        keyword(oldRefTo));
+        keyword(oldRefTo),
+        // 23
+        keyword(refBackFrom2));
 
     // attach the trigger
 

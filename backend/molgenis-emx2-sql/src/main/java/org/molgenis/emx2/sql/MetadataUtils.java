@@ -5,23 +5,31 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
-import org.jooq.CreateSchemaFinalStep;
-import org.jooq.CreateTableColumnStep;
-import org.jooq.DSLContext;
-import org.jooq.Field;
+
+import org.jooq.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
+  private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
 
   private static final String MOLGENIS = "MOLGENIS";
   private static final String NOT_PROVIDED = "NOT_PROVIDED";
   // tables
+  private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+
+  // version
+  private static final org.jooq.Field VERSION_ID = field(name("id"), VARCHAR.nullable(false));
+  private static final org.jooq.Field VERSION = field(name("version"), VARCHAR.nullable(false));
 
   // table
   private static final org.jooq.Field TABLE_SCHEMA =
@@ -90,23 +98,53 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
+  protected static synchronized String getVersion(DSLContext jooq) {
+    if (jooq.meta().getTables(VERSION_METADATA.getName()).size() > 0) {
+      Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      if (result.size() > 0) {
+        return (String) result.get(0).get(VERSION);
+      }
+    }
+    return null;
+  }
+
   // should never run in parallel
   protected static synchronized void init(DSLContext jooq) {
 
     // wait a little to ensure in tests, they are not created on same time
     try {
-      Thread.sleep((long) Math.random() * 1000);
-    } catch (Exception e) {
+      Thread.sleep((long) Math.random() * 1000); // NOSONAR
+    } catch (InterruptedException e) {
       // should never happen
+      Thread.currentThread().interrupt();
     }
 
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+      logger.info("INITIALIZING MOLGENIS METADATA SCHEMA");
+
       try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
         step.execute();
       }
       jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
       jooq.execute(
           "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC", name(MOLGENIS));
+
+      // set version
+      try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
+        t.columns(VERSION).execute();
+        jooq.insertInto(VERSION_METADATA).set(VERSION, Version.getSpecificationVersion()).execute();
+
+        //    try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
+        //      t.columns(VERSION_ID, VERSION).constraint(primaryKey(VERSION_ID)).execute();
+        //    }
+        //
+        //    jooq.insertInto(VERSION_METADATA)
+        //            .set(VERSION_ID, 1)
+        //            .set(VERSION, Version.getSpecificationVersion())
+        //            .onDuplicateKeyUpdate()
+        //            .set(VERSION, (Object) field(unquotedName("excluded.\"" + VERSION + "\"")))
+        //            .execute(); // set version
+      }
 
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
         t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
@@ -156,6 +194,8 @@ public class MetadataUtils {
             .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
             .execute();
       }
+
+      logger.info("INITIALIZING MOLGENIS METADATA SCHEMA COMPLETE");
     }
 
     // this way more robust for non breaking changes
