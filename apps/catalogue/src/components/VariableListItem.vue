@@ -71,13 +71,16 @@
           </dd>
         </dl>
       </template>
+      <template v-else> <Spinner class="mt-2" /> Fetching data.. </template>
     </p>
   </button>
 </template>
 
 <script>
+import { Spinner } from "@mswertz/emx2-styleguide";
 export default {
   name: "VariableListItem",
+  components: { Spinner },
   props: {
     variable: Object,
     variableDetails: Object,

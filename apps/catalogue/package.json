@@ -38,5 +38,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "devDependencies": {
+    "webpack-graphql-loader": "1.0.2"
+  }
 }
