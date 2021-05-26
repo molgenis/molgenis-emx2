@@ -25,10 +25,10 @@
         </div>
         <div class="row">
           <div class="col-12">
-            <filter-wells :filters="filters"/>
+            <filter-wells :filters="filters" />
           </div>
         </div>
-        <div class="row">
+        <!-- <div class="row">
           <div class="col">
             <ul class="nav nav-tabs">
               <li class="nav-item">
@@ -47,7 +47,8 @@
             </ul>
             <router-view></router-view>
           </div>
-        </div>
+        </div> -->
+        <router-view></router-view>
       </div>
     </div>
   </div>
