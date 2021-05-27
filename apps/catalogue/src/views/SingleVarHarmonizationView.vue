@@ -39,7 +39,21 @@ export default {
   },
   methods: {
     async fetch(name) {
-      const params = { filter: { name: { equals: name } } };
+      const params = {
+        filter: {
+          name: { equals: name },
+          release: {
+            equals: [
+              {
+                resource: {
+                  acronym: "LifeCycle",
+                },
+                version: "1.0.0",
+              },
+            ],
+          },
+        },
+      };
       const resp = await request("graphql", variableDetails, params).catch(
         (e) => console.error(e)
       );
@@ -49,7 +63,11 @@ export default {
   async created() {
     await this.fetch(this.name);
     // initialy select the first mapping
-    if (this.variable.mappings[0] && !this.$route.params.acronym) {
+    if (
+      this.variable.mappings &&
+      this.variable.mappings[0] &&
+      !this.$route.params.acronym
+    ) {
       this.$router.push({
         name: "resourceHarmonizationDetails",
         params: {

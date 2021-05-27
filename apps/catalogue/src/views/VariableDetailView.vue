@@ -17,14 +17,16 @@
           Details
         </router-link>
       </li>
-      <li class="nav-item">
+      <li v-if="variable.mappings" class="nav-item">
         <router-link
           class="nav-link"
           :to="{ name: 'singleVariableHarmonization' }"
-          :disabled="!variable.mappings" 
         >
           Harmonization
         </router-link>
+      </li>
+      <li v-else class="nav-item" disabled>
+        <a class="nav-link">Harmonization</a>
       </li>
     </ul>
     <router-view></router-view>
@@ -47,7 +49,21 @@ export default {
   },
   methods: {
     async fetch(name) {
-      const params = { filter: { name: { equals: name } } };
+      const params = {
+        filter: {
+          name: { equals: name },
+          release: {
+            equals: [
+              {
+                resource: {
+                  acronym: "LifeCycle",
+                },
+                version: "1.0.0",
+              },
+            ],
+          },
+        },
+      };
       const resp = await request("graphql", variableDetails, params).catch(
         (e) => console.error(e)
       );
