@@ -4,12 +4,8 @@
 
     <div class="row">
       <div class="col-3">
-        <h5>
-          Filters
-        </h5>
-        <h6>
-          Topics
-        </h6>
+        <h5>Filters</h5>
+        <h6>Topics</h6>
         <tree-component :items="keywords" v-model="selected"></tree-component>
       </div>
       <div class="col-9">
@@ -56,25 +52,34 @@
 
 <script>
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
-import { FilterWells, InputSearch, TreeComponent } from "@mswertz/emx2-styleguide";
+import {
+  FilterWells,
+  InputSearch,
+  TreeComponent,
+} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "VariableExplorer",
   components: {
     InputSearch,
     TreeComponent,
-    FilterWells
+    FilterWells,
   },
   computed: {
     ...mapState(["filters", "keywords"]),
-    ...mapGetters(["variables", "variableCount", "searchString", "selectedKeywords"]),
+    ...mapGetters([
+      "variables",
+      "variableCount",
+      "searchString",
+      "selectedKeywords",
+    ]),
     ...mapMutations(["setSelectedKeywords"]),
     searchInput: {
       get() {
-        return this.$store.state.searchInput
+        return this.$store.state.searchInput;
       },
       set(value) {
-        this.$store.commit('setSearchInput', value);
+        this.$store.commit("setSearchInput", value);
       },
     },
     selected: {
