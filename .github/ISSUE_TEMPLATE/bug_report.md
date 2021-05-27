@@ -6,6 +6,8 @@ labels: ''
 assignees: ''
 
 ---
+**What version of EMX2 are you using (see footer)**
+vxx.yy.zz
 
 **Describe the bug**
 A clear and concise description of what the bug is.

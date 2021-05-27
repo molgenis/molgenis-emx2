@@ -1,0 +1,64 @@
+query Variables($filter: VariablesFilter) {
+  Variables(limit: 1, filter: $filter) {
+    name
+    label
+    description
+    format {
+      name
+    }
+    unit {
+      name
+    }
+    mappings {
+      syntax
+      description
+      match {
+        name
+      }
+      fromRelease {
+        resource {
+          acronym
+        }
+      }
+      fromVariable {
+        name
+      }
+      fromTable {
+        release {
+          resource {
+            acronym
+          }
+          version
+        }
+        name
+      }
+    }
+    repeats {
+      name
+      mappings {
+        syntax
+        description
+        match {
+          name
+        }
+        fromRelease {
+          resource {
+            acronym
+          }
+        }
+        fromVariable {
+          name
+        }
+        fromTable {
+          release {
+            resource {
+              acronym
+            }
+            version
+          }
+          name
+        }
+      }
+    }
+  }
+}

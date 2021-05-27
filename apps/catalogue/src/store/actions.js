@@ -1,5 +1,4 @@
 import { request, gql } from "graphql-request";
-import getters from "./getters";
 
 export default {
   fetchVariables: async ({ state, commit, getters }) => {
@@ -92,7 +91,7 @@ export default {
     const variables = {
       filter: {
         name: {
-          like: [`${variableName}`],
+          equals: [`${variableName}`],
         },
         release: {
           equals: [
@@ -174,9 +173,9 @@ export default {
     return variableDetails;
   },
 
-  fetchKeywords: async ({state, commit }) => {
-    if(state.keywords.length) {
-      return state.keywords
+  fetchKeywords: async ({ state, commit }) => {
+    if (state.keywords.length) {
+      return state.keywords;
     }
 
     const keywordQuery = gql`
@@ -195,7 +194,7 @@ export default {
       console.error(e)
     );
     commit("setKeywords", keyWordResp.Keywords);
-    return state.keywords
+    return state.keywords;
   },
 
   fetchCohorts: async ({ commit }) => {
@@ -319,11 +318,9 @@ export default {
       },
     };
 
-    const resp = await request(
-      "graphql",
-      query,
-      mappingQueryVariables
-    ).catch((e) => console.error(e));
+    const resp = await request("graphql", query, mappingQueryVariables).catch(
+      (e) => console.error(e)
+    );
 
     commit("setVariableMappingDetails", {
       variableName: name,
