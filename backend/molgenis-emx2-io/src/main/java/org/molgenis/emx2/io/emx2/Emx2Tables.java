@@ -22,7 +22,7 @@ public class Emx2Tables {
     SelectColumn[] select =
         table.getMetadata().getDownloadColumnNames().stream()
             .map(c -> c.getName())
-            .filter(n -> !n.equals(MG_TABLECLASS))
+            .filter(n -> !n.startsWith("mg_"))
             .map(c -> s(c))
             .toArray(SelectColumn[]::new);
 

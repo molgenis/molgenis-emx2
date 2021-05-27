@@ -12,6 +12,7 @@ module.exports = {
     devServer: {
       proxy: {
         "/graphql": "http://localhost:8080/CohortsCentral/graphql",
+        "/apps/resources": "http://localhost:8080/apps/resources",
         "**/graphql": "http://localhost:8080/",
         apps: "http://localhost:8080/",
       },
@@ -24,8 +25,7 @@ module.exports = {
       links: [
         {
           rel: "stylesheet",
-          href:
-            "https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap",
+          href: "https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap",
         },
         {
           rel: "stylesheet",
@@ -35,8 +35,7 @@ module.exports = {
         },
         {
           rel: "stylesheet",
-          href:
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+          href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
         },
       ],
     },

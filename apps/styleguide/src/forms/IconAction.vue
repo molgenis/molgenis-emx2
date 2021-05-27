@@ -4,7 +4,7 @@
     @click.prevent="onClick"
   >
     <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fa fa-fw fa-' + icon"></i>
+    <i :class="'fas fa-fw fa-' + icon"></i>
   </button>
 </template>
 

@@ -225,7 +225,7 @@ public class TestQueryJsonGraph {
         mapper.readValue(
             schema.agg("Test").select(s("groupBy", s("count"), s("tag"))).retrieveJSON(),
             Map.class);
-    assertEquals(2, result.get("Test_agg").get("groupBy").get(0).get("count"));
+    assertEquals(2, result.get("Test_agg").get("groupBy").get(1).get("count"));
 
     result =
         mapper.readValue(

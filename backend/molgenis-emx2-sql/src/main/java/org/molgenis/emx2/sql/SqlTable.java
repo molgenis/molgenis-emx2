@@ -2,12 +2,14 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
 import java.io.Writer;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -167,14 +169,11 @@ class SqlTable implements Table {
     }
   }
 
-  private void truncate(String mg_tableclass) {
+  private void truncate(String mg_table) {
     if (getMetadata().getInherit() != null) {
-      getInheritedTable().truncate(mg_tableclass);
+      getInheritedTable().truncate(mg_table);
     }
-    db.getJooq()
-        .deleteFrom(getJooqTable())
-        .where(field(MG_TABLECLASS).equal(mg_tableclass))
-        .execute();
+    db.getJooq().deleteFrom(getJooqTable()).where(field(MG_TABLECLASS).equal(mg_table)).execute();
   }
 
   private String getMgTableClass(TableMetadata table) {
@@ -284,6 +283,14 @@ class SqlTable implements Table {
     return count.get();
   }
 
+  private void checkRequired(Row row, Collection<Column> columns) {
+    for (Column c : columns) {
+      if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
+        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+      }
+    }
+  }
+
   private boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
     if (columnsProvided.size() == 0 || columnsProvided.equals(row.getColumnNames())) {
       return false;
@@ -320,20 +327,43 @@ class SqlTable implements Table {
   }
 
   private int insertBatch(List<Row> rows, boolean updateOnConflict, Set<String> updateColumns) {
-    if (getMetadata().getInherit() != null) {
+    boolean inherit = getMetadata().getInherit() != null;
+    if (inherit) {
       getInheritedTable().insertBatch(rows, updateOnConflict, updateColumns);
     }
 
     // get metadata
     Set<Column> columns = getColumnsToBeUpdated(updateColumns);
-    Field[] fields = columns.stream().map(c -> c.getJooqField()).toArray(Field[]::new);
+    List<Column> allColumns = getMetadata().getMutationColumns();
+    List<Field> insertFields =
+        columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
+    if (!inherit) {
+      insertFields.add(field(name(MG_INSERTEDBY)));
+      insertFields.add(field(name(MG_INSERTEDON)));
+    }
 
     // define the insert step
-    InsertValuesStepN<org.jooq.Record> step = db.getJooq().insertInto(getJooqTable(), fields);
+    InsertValuesStepN<org.jooq.Record> step =
+        db.getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
 
     // add all the rows as steps
+    String user = getSchema().getDatabase().getActiveUser();
+    if (user == null) {
+      user = ADMIN;
+    }
+    LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      step.values(SqlTypeUtils.getValuesAsCollection(row, columns));
+      // when insert, we should include all columns, not only 'updateColumns'
+      if (!row.isDraft()) {
+        checkRequired(row, allColumns);
+      }
+      // get values
+      Map values = SqlTypeUtils.getValuesAsMap(row, columns);
+      if (!inherit) {
+        values.put(MG_INSERTEDBY, user);
+        values.put(MG_INSERTEDON, now);
+      }
+      step.values(values.values());
     }
 
     // optionally, add conflict clause
@@ -345,6 +375,14 @@ class SqlTable implements Table {
             column.getJooqField(),
             (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
       }
+      if (!inherit) {
+        step2.set(
+            field(name(MG_UPDATEDBY)),
+            (Object) field(unquotedName("excluded.\"" + MG_INSERTEDBY + "\"")));
+        step2.set(
+            field(name(MG_UPDATEDON)),
+            (Object) field(unquotedName("excluded.\"" + MG_INSERTEDON + "\"")));
+      }
     }
 
     return step.execute();
@@ -354,14 +392,19 @@ class SqlTable implements Table {
     return getMetadata().getMutationColumns().stream()
         .filter(
             c ->
-                c.getComputed() != null
-                    || updateColumns.size() == 0
-                    || updateColumns.contains(c.getName()))
+                !(c.getName().equals(MG_INSERTEDBY)
+                        || c.getName().equals(MG_INSERTEDON)
+                        || c.getName().equals(MG_UPDATEDBY)
+                        || c.getName().equals(MG_UPDATEDON))
+                    && (c.getComputed() != null
+                        || updateColumns.size() == 0
+                        || updateColumns.contains(c.getName())))
         .collect(Collectors.toSet());
   }
 
   private int updateBatch(List<Row> rows, Set<String> updateColumns) {
-    if (getMetadata().getInherit() != null) {
+    boolean inherit = getMetadata().getInherit() != null;
+    if (inherit) {
       getInheritedTable().updateBatch(rows, updateColumns);
     }
 
@@ -371,11 +414,26 @@ class SqlTable implements Table {
 
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
+    String user = getSchema().getDatabase().getActiveUser();
+    if (user == null) {
+      user = ADMIN;
+    }
+    LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
+      Map values = SqlTypeUtils.getValuesAsMap(row, columns);
+      if (!inherit) {
+        values.put(MG_UPDATEDBY, user);
+        values.put(MG_INSERTEDON, now);
+      }
+
+      if (!row.isDraft()) {
+        checkRequired(row, columns);
+      }
+
       list.add(
           db.getJooq()
               .update(getJooqTable())
-              .set(SqlTypeUtils.getValuesAsMap(row, columns))
+              .set(values)
               .where(getUpdateCondition(row, pkeyFields)));
     }
 

@@ -6,7 +6,7 @@
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
-        <span v-for="column in tableMetadata.columns" :key="column.name">
+        <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
             v-if="visible(column.visible) && column.name != 'mg_tableclass'"
             v-model="value[column.name]"
@@ -46,7 +46,8 @@ schema = {{ JSON.stringify(schema, null, 2) }}
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction @click="executeCommand">{{ title }}</ButtonAction>
+      <ButtonOutline @click="saveDraft">Save draft</ButtonOutline>
+      <ButtonAction @click="save">Save {{ table }}</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -58,6 +59,7 @@ import MessageError from "../forms/MessageError";
 import MessageSuccess from "../forms/MessageSuccess";
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonOutline from "../forms/ButtonOutline";
 import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
@@ -89,6 +91,7 @@ export default {
     MessageSuccess,
     SigninForm,
     ShowMore,
+    ButtonOutline,
   },
   methods: {
     reload() {
@@ -102,11 +105,25 @@ export default {
       this.success = null;
       this.showLogin = false;
     },
-    executeCommand() {
+    saveDraft() {
+      this.executeCommand(true);
+    },
+    save() {
+      this.executeCommand(false);
+    },
+    executeCommand(isDraft) {
       this.graphqlError = null;
       this.success = null;
       // todo spinner
       let name = this.table;
+
+      // indicate if draft
+      if (isDraft) {
+        this.value["mg_draft"] = true;
+      } else {
+        this.value["mg_draft"] = false;
+      }
+
       let variables = { value: [this.value] };
       let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
       if (this.pkey) {
@@ -193,6 +210,11 @@ export default {
     },
   },
   computed: {
+    columnsWithoutMeta() {
+      return this.tableMetadata.columns.filter(
+        (c) => !c.name.startsWith("mg_")
+      );
+    },
     refLinkFilters() {
       let filter = {};
       if (this.tableMetadata) {

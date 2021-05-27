@@ -258,7 +258,7 @@ public class TableMetadata {
   public TableMetadata add(Column... column) {
     for (Column c : column) {
       if (c.getPosition() == null) {
-        c.setPosition(columns.size() + 1);
+        c.setPosition(columns.size());
       }
       columns.put(c.getName(), new Column(this, c));
       c.setTable(this);

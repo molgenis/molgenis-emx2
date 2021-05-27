@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Constants.MG_DRAFT;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -329,7 +331,16 @@ public class Row {
     return values.get(columnName) != null;
   }
 
+  public boolean isNull(String columnName, ColumnType type) {
+    return get(columnName, type) == null;
+  }
+
   public Object get(Column column) {
     return get(column.getName(), column.getColumnType());
+  }
+
+  public boolean isDraft() {
+    Boolean result = getBoolean(MG_DRAFT);
+    return result != null && result == true;
   }
 }

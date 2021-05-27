@@ -6,7 +6,7 @@
     :pkey="pkey"
     @close="closeForm"
   />
-  <IconAction v-else icon="pencil" @click="openForm" />
+  <IconAction v-else icon="pencil-alt" @click="openForm" />
 </template>
 
 <script>
