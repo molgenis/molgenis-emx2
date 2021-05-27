@@ -21,6 +21,7 @@
         <router-link
           class="nav-link"
           :to="{ name: 'singleVariableHarmonization' }"
+          :disabled="!variable.mappings" 
         >
           Harmonization
         </router-link>

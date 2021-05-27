@@ -49,7 +49,7 @@ export default {
   async created() {
     await this.fetch(this.name);
     // initialy select the first mapping
-    if (!this.$route.params.acronym) {
+    if (this.variable.mappings[0] && !this.$route.params.acronym) {
       this.$router.push({
         name: "resourceHarmonizationDetails",
         params: {
