@@ -91,7 +91,7 @@ export default {
     const variables = {
       filter: {
         name: {
-          like: [`${variableName}`],
+          equals: [`${variableName}`],
         },
         release: {
           equals: [
