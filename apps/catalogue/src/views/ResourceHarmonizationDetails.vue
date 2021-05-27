@@ -29,12 +29,24 @@ export default {
   },
   methods: {
     async fetch(name) {
-      const params = { filter: { name: { equals: name } } };
-      const resp = await request(
-        "graphql",
-        variableDetails,
-        params
-      ).catch((e) => console.error(e));
+      const params = {
+        filter: {
+          name: { equals: name },
+          release: {
+            equals: [
+              {
+                resource: {
+                  acronym: "LifeCycle",
+                },
+                version: "1.0.0",
+              },
+            ],
+          },
+        },
+      };
+      const resp = await request("graphql", variableDetails, params).catch(
+        (e) => console.error(e)
+      );
       this.variable = resp.Variables[0];
     },
   },
