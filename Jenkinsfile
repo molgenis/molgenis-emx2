@@ -65,7 +65,7 @@ podTemplate(inheritFrom:'shared', containers: [
             }
             container('rancher') {
                 script {
-                    if (env.TAG_NAME && !env.TAG_NAME.contains('-PR-')) {
+                    if (env.TAG_NAME && !env.TAG_NAME.contains('-SNAPSHOT')) {
                         sh 'rancher context switch dev-molgenis'
                         sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 0.0.13"
                     }
