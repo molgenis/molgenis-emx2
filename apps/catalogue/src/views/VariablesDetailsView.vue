@@ -30,7 +30,21 @@ export default {
     ...mapGetters(["variables", "variableCount", "variableDetails"]),
   },
   methods: {
-    ...mapActions(["fetchVariableDetails"]),
+    ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
+    handleScroll() {
+      let bottomOfWindow =
+        document.documentElement.scrollTop + window.innerHeight ===
+        document.documentElement.offsetHeight;
+      if (bottomOfWindow) {
+        this.fetchAdditionalVariables();
+      }
+    },
+  },
+  created() {
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  destroyed() {
+    window.removeEventListener("scroll", this.handleScroll);
   },
 };
 </script>

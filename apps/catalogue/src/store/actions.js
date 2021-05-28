@@ -2,11 +2,11 @@ import { request, gql } from "graphql-request";
 import databanks from "./query/databanks.gql";
 
 export default {
-  fetchVariables: async ({ state, commit, getters }) => {
+  fetchVariables: async ({ state, commit, getters }, offset = 0) => {
     state.isLoading = true;
     const query = gql`
       query Variables($search: String, $filter: VariablesFilter) {
-        Variables(limit: 100, search: $search, filter: $filter) {
+        Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter) {
           name
           release {
             resource {
@@ -59,10 +59,21 @@ export default {
       getters.searchString === null ||
       getters.searchString === queryVariables.search
     ) {
-      commit("setVariables", resp.Variables);
+      if (offset === 0) {
+        commit("setVariables", resp.Variables);
+      } else {
+        // add for infinite scroll
+        commit("addVariables", resp.Variables);
+      }
       commit("setVariableCount", resp.Variables_agg.count);
       state.isLoading = false;
     }
+
+    return resp.Variables;
+  },
+
+  fetchAdditionalVariables: async ({ state, dispatch }) => {
+    dispatch("fetchVariables", state.variables.length);
   },
 
   fetchVariableDetails: async ({ commit, getters }, variableName) => {
