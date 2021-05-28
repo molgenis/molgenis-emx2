@@ -33,7 +33,23 @@
                 v-for="databank in databanks"
                 :key="databank.acronym"
                 class="colored-grid-cell"
-                :class="'table-' + getMatchStatus(databank.acronym)"
+                :class="'table-' + getMatchStatus(variable, databank.acronym)"
+              ></td>
+            </tr>
+            <tr
+              v-for="repeatedVariable in variable.repeats"
+              :key="repeatedVariable.name"
+            >
+              <th class="table-label text-nowrap" scope="row">
+                {{ repeatedVariable.name }}
+              </th>
+              <td
+                v-for="databank in databanks"
+                :key="databank.acronym"
+                class="colored-grid-cell"
+                :class="
+                  'table-' + getMatchStatus(repeatedVariable, databank.acronym)
+                "
               ></td>
             </tr>
           </tbody>
@@ -82,56 +98,23 @@ export default {
       );
       this.variable = resp.Variables[0];
     },
-    getMatchStatus(cohortName) {
-      if (!this.variable.repeats) {
-        const cohortMapping = this.variable.mappings.find((mapping) => {
-          return mapping.fromRelease.resource.acronym === cohortName;
-        });
-        if (!cohortMapping) {
-          return "danger"; // not mapped
-        }
-        const match = cohortMapping.match.name;
-        switch (match) {
-          case "zna":
-            return "danger";
-          case "partial":
-            return "success";
-          case "complete":
-            return "success";
-          default:
-            return "danger";
-        }
-      } else {
-        const allVars = this.variable.repeats.concat([this.variable]);
-
-        const mappedRepeats = allVars.map((repeat) => {
-          const cohortMapping = repeat.mappings.find((mapping) => {
-            return mapping.fromRelease.resource.acronym === cohortName;
-          });
-          if (!cohortMapping) {
-            return "danger"; // not mapped
-          }
-          const match = cohortMapping.match.name;
-          switch (match) {
-            case "zna":
-              return "danger";
-            case "partial":
-              return "warning";
-            case "complete":
-              return "success";
-            default:
-              return "danger";
-          }
-        });
-
-        return mappedRepeats.filter(
-          (mappedRepeat) => mappedRepeat === "success"
-        ).lenght
-          ? "success" // if all repeats are mapped
-          : mappedRepeats.includes("success") || // if some repeats are (partial) mapped
-            mappedRepeats.includes("warning")
-          ? "success"
-          : "danger"; // if none of the repeats are mapped
+    getMatchStatus(variable, cohortName) {
+      const cohortMapping = variable.mappings.find((mapping) => {
+        return mapping.fromRelease.resource.acronym === cohortName;
+      });
+      if (!cohortMapping) {
+        return "danger"; // not mapped
+      }
+      const match = cohortMapping.match.name;
+      switch (match) {
+        case "zna":
+          return "danger";
+        case "partial":
+          return "warning";
+        case "complete":
+          return "success";
+        default:
+          return "danger";
       }
     },
   },
