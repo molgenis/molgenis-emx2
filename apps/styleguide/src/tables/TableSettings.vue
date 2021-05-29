@@ -1,14 +1,7 @@
 <template>
-  <IconAction
-    v-if="!show"
-    icon="cog"
-    @click="show = true"
-    class="float-right"
-  />
-  <div v-else style="background-color: #eee">
-    <IconAction icon="times" @click="show = false" class="float-right" />
-    <div class="container">
-      <h2>Table settings</h2>
+  <IconAction v-if="!show" icon="cog" @click="show = true" />
+  <LayoutModal v-else title="Table Settings" @close="show = false" :show="show">
+    <template v-slot:body>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <Spinner v-if="loading" />
@@ -32,10 +25,11 @@
           :value="recordTemplate"
           @input="emitRecordTemplate"
         />
+        <ButtonAlt @click="show = false">Close</ButtonAlt>
         <ButtonAction @click="saveSettings">Save settings</ButtonAction>
       </form>
-    </div>
-  </div>
+    </template>
+  </LayoutModal>
 </template>
 
 <script>
@@ -46,6 +40,8 @@ import MessageSuccess from "../forms/MessageSuccess";
 import MessageError from "../forms/MessageError";
 import { request } from "graphql-request";
 import Spinner from "../layout/Spinner";
+import LayoutModal from "../layout/LayoutModal";
+import ButtonAlt from "../forms/ButtonAlt";
 
 export default {
   components: {
@@ -55,6 +51,8 @@ export default {
     IconAction,
     InputText,
     ButtonAction,
+    LayoutModal,
+    ButtonAlt,
   },
   props: {
     graphqlURL: {

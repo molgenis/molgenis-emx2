@@ -143,6 +143,7 @@ class SqlTableMetadataExecutor {
       other.add(
           column(MG_TABLECLASS)
               .setReadonly(true)
+              .setPosition(10005)
               .setDefaultValue(
                   other.getSchemaName()
                       + "."

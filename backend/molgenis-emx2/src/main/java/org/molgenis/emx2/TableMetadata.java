@@ -105,10 +105,15 @@ public class TableMetadata {
 
   public List<Column> getColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
+    Map<String, Column> meta = new LinkedHashMap<>();
     if (getInheritedTable() != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
-        result.put(col.getName(), new Column(getInheritedTable(), col));
+        if (col.getName().startsWith("mg_")) {
+          meta.put(col.getName(), new Column(getInheritedTable(), col));
+        } else {
+          result.put(col.getName(), new Column(getInheritedTable(), col));
+        }
       }
     }
 
@@ -118,6 +123,9 @@ public class TableMetadata {
         result.put(col.getName(), new Column(col.getTable(), col));
       }
     }
+
+    // add meta at the end
+    result.putAll(meta);
 
     return new ArrayList<>(result.values());
   }

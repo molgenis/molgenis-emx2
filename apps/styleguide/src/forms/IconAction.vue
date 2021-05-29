@@ -15,6 +15,7 @@ import ButtonAction from "./ButtonAction";
 export default {
   extends: ButtonAction,
   props: {
+    label: String,
     icon: String,
   },
 };

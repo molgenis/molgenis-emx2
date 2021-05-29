@@ -12,9 +12,8 @@ module.exports = {
     devServer: {
       proxy: {
         "/graphql": "http://localhost:8080/CohortsCentral/graphql",
-        "/apps/resources": "http://localhost:8080/apps/resources",
         "**/graphql": "http://localhost:8080/",
-        apps: "http://localhost:8080/",
+        "/apps": "http://localhost:8080",
       },
     },
   },
@@ -29,13 +28,7 @@ module.exports = {
         },
         {
           rel: "stylesheet",
-          href:
-            // 'https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css'
-            "assets/css/bootstrap-molgenis-blue.css",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+          href: "/apps/central/theme.css",
         },
       ],
     },

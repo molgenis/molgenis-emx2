@@ -340,6 +340,8 @@ class SqlTable implements Table {
     if (!inherit) {
       insertFields.add(field(name(MG_INSERTEDBY)));
       insertFields.add(field(name(MG_INSERTEDON)));
+      insertFields.add(field(name(MG_UPDATEDBY)));
+      insertFields.add(field(name(MG_UPDATEDON)));
     }
 
     // define the insert step
@@ -362,6 +364,8 @@ class SqlTable implements Table {
       if (!inherit) {
         values.put(MG_INSERTEDBY, user);
         values.put(MG_INSERTEDON, now);
+        values.put(MG_UPDATEDBY, user);
+        values.put(MG_UPDATEDON, now);
       }
       step.values(values.values());
     }
@@ -376,12 +380,8 @@ class SqlTable implements Table {
             (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
       }
       if (!inherit) {
-        step2.set(
-            field(name(MG_UPDATEDBY)),
-            (Object) field(unquotedName("excluded.\"" + MG_INSERTEDBY + "\"")));
-        step2.set(
-            field(name(MG_UPDATEDON)),
-            (Object) field(unquotedName("excluded.\"" + MG_INSERTEDON + "\"")));
+        step2.set(field(name(MG_UPDATEDBY)), user);
+        step2.set(field(name(MG_UPDATEDON)), now);
       }
     }
 
@@ -423,7 +423,7 @@ class SqlTable implements Table {
       Map values = SqlTypeUtils.getValuesAsMap(row, columns);
       if (!inherit) {
         values.put(MG_UPDATEDBY, user);
-        values.put(MG_INSERTEDON, now);
+        values.put(MG_UPDATEDON, now);
       }
 
       if (!row.isDraft()) {
