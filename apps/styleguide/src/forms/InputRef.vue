@@ -1,105 +1,110 @@
 <template>
   <FormGroup v-bind="$props" v-on="$listeners">
-    <div v-if="list && count > maxNum">
-      <FilterWell
-        v-for="(item, key) in selection"
-        :key="JSON.stringify(item)"
-        :label="flattenObject(item)"
-        @click="deselect(key)"
-      />
-      <ButtonAlt class="pl-1" icon="fa fa-clear" @click="emitClear">
-        clear selection
-      </ButtonAlt>
-    </div>
+    <Spinner v-if="loading" />
     <div v-else>
-      <ButtonAlt
-        v-if="selection.length > 0"
-        class="pl-1"
-        icon="fa fa-clear"
-        @click="emitClear"
-      >
-        clear selection
-      </ButtonAlt>
-    </div>
-    <div
-      :class="multipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''"
-    >
-      <div
-        class="form-check custom-control custom-checkbox"
-        :class="multipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-        v-for="row in notSelectedRows"
-        :key="JSON.stringify(row)"
-      >
-        <input
-          v-if="list"
-          class="form-check-input"
-          type="checkbox"
-          :value="getPkey(row)"
-          v-model="selection"
-          @change="$emit('input', selection)"
+      <div v-if="list && count > maxNum">
+        <FilterWell
+          v-for="(item, key) in selection"
+          :key="JSON.stringify(item)"
+          :label="flattenObject(item)"
+          @click="deselect(key)"
         />
-        <input
-          v-else
-          class="form-check-input"
-          :name="id"
-          type="radio"
-          :value="getPkey(row)"
-          v-model="selection"
-          @change="$emit('input', getPkey(row))"
-        />
-        <label class="form-check-label">
-          {{ flattenObject(getPkey(row)) }}
-        </label>
+        <ButtonAlt class="pl-1" icon="fa fa-clear" @click="emitClear">
+          clear selection
+        </ButtonAlt>
       </div>
-      <ButtonAlt
-        class="pl-0"
-        :class="multipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-        icon="fa fa-search"
-        @click="showSelect = true"
+      <div v-else>
+        <ButtonAlt
+          v-if="selection.length > 0"
+          class="pl-1"
+          icon="fa fa-clear"
+          @click="emitClear"
+        >
+          clear selection
+        </ButtonAlt>
+      </div>
+      <div
+        :class="
+          showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
+        "
       >
-        {{
-          count > limit
-            ? "view " + (count - maxNum - selection.length) + " more"
-            : "view as table"
-        }}
-      </ButtonAlt>
+        <div
+          class="form-check custom-control custom-checkbox"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          v-for="row in notSelectedRows"
+          :key="JSON.stringify(row)"
+        >
+          <input
+            v-if="list"
+            class="form-check-input"
+            type="checkbox"
+            :value="getPkey(row)"
+            v-model="selection"
+            @change="$emit('input', selection)"
+          />
+          <input
+            v-else
+            class="form-check-input"
+            :name="id"
+            type="radio"
+            :value="getPkey(row)"
+            v-model="selection"
+            @change="$emit('input', getPkey(row))"
+          />
+          <label class="form-check-label">
+            {{ flattenObject(getPkey(row)) }}
+          </label>
+        </div>
+        <ButtonAlt
+          class="pl-0"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          icon="fa fa-search"
+          @click="showSelect = true"
+        >
+          {{
+            count > limit
+              ? "view " + (count - maxNum - selection.length) + " more"
+              : "view as table"
+          }}
+        </ButtonAlt>
+      </div>
+      <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
+        <template v-slot:body>
+          <MessageError v-if="errorMessage">{{ graphqlError }}</MessageError>
+          <TableSearch
+            v-if="list"
+            :selection.sync="selection"
+            :table="table"
+            :filter="filter"
+            :graphqlURL="graphqlURL"
+            :showSelect="true"
+            :limit="10"
+          >
+            <template name="colheader">
+              <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
+            </template>
+          </TableSearch>
+          <TableSearch
+            v-else
+            :selection="[valueArray[0]]"
+            :table="table"
+            :filter="filter"
+            @select="select($event)"
+            @deselect="emitClear"
+            :graphqlURL="graphqlURL"
+            :showSelect="true"
+            :limit="10"
+          >
+            <template name="colheader">
+              <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
+            </template>
+          </TableSearch>
+        </template>
+        <template v-slot:footer>
+          <ButtonAlt @click="closeSelect">Close</ButtonAlt>
+        </template>
+      </LayoutModal>
     </div>
-    <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
-      <template v-slot:body>
-        <MessageError v-if="errorMessage">{{ graphqlError }}</MessageError>
-        <TableSearch
-          v-if="list"
-          :selection.sync="selection"
-          :table="table"
-          :filter="filter"
-          :graphqlURL="graphqlURL"
-          :showSelect="true"
-          :limit="10"
-        >
-          <template name="colheader">
-            <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
-          </template>
-        </TableSearch>
-        <TableSearch
-          v-else
-          :selection="[valueArray[0]]"
-          :table="table"
-          :filter="filter"
-          @select="select($event)"
-          @deselect="emitClear"
-          :graphqlURL="graphqlURL"
-          :showSelect="true"
-          :limit="10"
-        >
-          <template name="colheader">
-            <RowButtonAdd v-if="canEdit" :table="table" @close="reload" />
-          </template>
-        </TableSearch>
-      </template>
-      <template v-slot:footer>
-        <ButtonAlt @click="closeSelect">Close</ButtonAlt>
-      </template>
-    </LayoutModal>
   </FormGroup>
 </template>
 
@@ -112,6 +117,7 @@ import FormGroup from "./_formGroup";
 import ButtonAlt from "./ButtonAlt";
 import TableMixin from "../mixins/TableMixin";
 import FilterWell from "../tables/FilterWell";
+import Spinner from "../layout/Spinner";
 
 export default {
   extends: _baseInput,
@@ -126,6 +132,7 @@ export default {
     };
   },
   components: {
+    Spinner,
     TableSearch,
     MessageError,
     LayoutModal,
@@ -162,6 +169,9 @@ export default {
         return result;
       }
       return [];
+    },
+    showMultipleColumns() {
+      return this.multipleColumns && this.count > 12;
     },
   },
   methods: {

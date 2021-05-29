@@ -3,7 +3,7 @@
 <template>
   <div class="form-group" :class="inplace ? 'm0' : ''">
     <label v-if="label && !inplace && !editMeta" :for="id">
-      {{ label }}
+      <b>{{ label }}</b>
     </label>
     <label v-else-if="editMeta">
       <InputString
