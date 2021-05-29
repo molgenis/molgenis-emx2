@@ -55,8 +55,10 @@
       v-model="input"
       v-on="$listeners"
     />
-    <InputRefSelect
+    <InputRef
       :list="true"
+      :multiple-columns="true"
+      :max-num="35"
       v-else-if="
         columnType === 'REF_ARRAY' ||
         columnType === 'REFBACK' ||
@@ -103,6 +105,7 @@ import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 import InputConstant from "../forms/InputConstant";
+import InputRef from "../forms/InputRef";
 
 export default {
   name: "RowFormInput",
@@ -137,6 +140,7 @@ export default {
     InputFile,
     InputText,
     InputConstant,
+    InputRef,
   },
   created() {
     this.input = this.value;

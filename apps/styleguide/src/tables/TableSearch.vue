@@ -96,7 +96,9 @@ export default {
     },
     columnsVisible() {
       return this.tableMetadata.columns.filter(
-        (c) => this.showColumns == null || this.showColumns.includes(c.name)
+        (c) =>
+          (this.showColumns == null && !c.name.startsWith("mg_")) ||
+          (this.showColumns != null && this.showColumns.includes(c.name))
       );
     },
   },
