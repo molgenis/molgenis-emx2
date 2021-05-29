@@ -1,4 +1,5 @@
 import { request, gql } from "graphql-request";
+import databanks from "./query/databanks.gql";
 
 export default {
   fetchVariables: async ({ state, commit, getters }) => {
@@ -198,19 +199,9 @@ export default {
   },
 
   fetchCohorts: async ({ commit }) => {
-    const query = gql`
-      query Databanks {
-        Databanks {
-          acronym
-          name
-          type {
-            name
-          }
-        }
-      }
-    `;
-    //{filter: {type: {equals: [{name: "cohort"}, {name: "harmonisation"}]}}}
-    const resp = await request("graphql", query).catch((e) => console.error(e));
+    const resp = await request("graphql", databanks).catch((e) =>
+      console.error(e)
+    );
     commit("setCohorts", resp.Databanks);
   },
 
