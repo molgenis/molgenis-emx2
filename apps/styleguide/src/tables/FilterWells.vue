@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <div v-if="countFilters > 0">
       {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (<a
         href="#"
@@ -37,7 +37,7 @@
         </span>
       </span>
     </div>
-  </div>
+  </span>
 </template>
 <script>
 import FilterWell from "./FilterWell";
