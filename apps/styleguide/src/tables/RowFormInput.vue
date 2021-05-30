@@ -105,7 +105,6 @@ import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 import InputConstant from "../forms/InputConstant";
-import InputRef from "../forms/InputRef";
 
 export default {
   name: "RowFormInput",
@@ -140,7 +139,7 @@ export default {
     InputFile,
     InputText,
     InputConstant,
-    InputRef,
+    InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
   },
   created() {
     this.input = this.value;

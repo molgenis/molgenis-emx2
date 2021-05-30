@@ -8,7 +8,6 @@
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
-            class="bg-white rounded p-2 mb-2"
             v-if="visible(column.visible) && column.name != 'mg_tableclass'"
             v-model="value[column.name]"
             :label="column.name"
