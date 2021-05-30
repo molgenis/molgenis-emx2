@@ -92,6 +92,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public synchronized List<String> getInheritedRolesForUser(String user) {
+    if (user == null) return new ArrayList<>();
     user = user.trim();
     // elevate permissions temporarily
     String current = db.getActiveUser();
