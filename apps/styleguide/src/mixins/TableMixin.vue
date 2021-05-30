@@ -114,7 +114,7 @@ export default {
       let result = {};
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
-          if (col.key == 1) {
+          if (col.key == 1 && row[col.name]) {
             result[col.name] = row[col.name];
           }
         });

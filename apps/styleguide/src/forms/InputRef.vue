@@ -63,7 +63,7 @@
         >
           {{
             count > limit
-              ? "view " + (count - maxNum - selection.length) + " more"
+              ? "view all " + (count - maxNum - selection.length) + " options."
               : "view as table"
           }}
         </ButtonAlt>

@@ -8,7 +8,12 @@
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
-            v-if="visible(column.visible) && column.name != 'mg_tableclass'"
+            v-if="
+              (visibleColumns == null ||
+                visibleColumns.includes(column.name)) &&
+              visible(column.visible) &&
+              column.name != 'mg_tableclass'
+            "
             v-model="value[column.name]"
             :label="column.name"
             :description="column.description"
@@ -16,16 +21,23 @@
             :table="column.refTable"
             :filter="refLinkFilters[column.name]"
             :refLabel="column.refLabel"
+            :refBack="column.refBack"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
             :graphqlURL="graphqlURL"
+            :refBackType="getRefBackType(column)"
+            :pkey="getPkey(value)"
           />
         </span>
       </LayoutForm>
       <ShowMore title="debug">
         <pre>
 
+defaultValue = {{ defaultValue }}
+
+visibleColumns = {{ visibleColumns }}
+          
 value={{ JSON.stringify(value) }}
 
 data={{ JSON.stringify(data) }}
@@ -80,6 +92,10 @@ export default {
   props: {
     /** when updating existing record, this is the primary key value */
     pkey: Object,
+    /** visible columns, useful if you only want to allow partial edit (array of strings) */
+    visibleColumns: Array,
+    /** whebn creating new record, this is initialization value */
+    defaultValue: Object,
   },
   components: {
     LayoutForm,
@@ -94,6 +110,14 @@ export default {
     ButtonOutline,
   },
   methods: {
+    getRefBackType(column) {
+      if (column.columnType === "REFBACK") {
+        //get the other table, find the refback column and check its type
+        return this.getTable(column.refTable)
+          .columns.filter((c) => c.name === column.refBack)
+          .map((c) => c.columnType)[0];
+      }
+    },
     reload() {
       //override superclass
       if (this.pkey) {
@@ -137,7 +161,6 @@ export default {
           if (data.update) {
             this.success = data.update.message;
           }
-          this.defaultValue = this.value;
           this.$emit("close");
         })
         .catch((error) => {
@@ -150,6 +173,7 @@ export default {
           }
         });
     },
+
     eval(expression) {
       try {
         return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
@@ -290,6 +314,10 @@ export default {
     },
   },
   created() {
+    //pass by value
+    if (this.defaultValue) {
+      this.value = JSON.parse(JSON.stringify(this.defaultValue));
+    }
     this.validate();
   },
 };
