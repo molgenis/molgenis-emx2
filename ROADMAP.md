@@ -35,17 +35,37 @@
 * changed excel to use streaming APIs to reduce danger of heapspace errors (still all is cached in mem so there are
   limits)
 * can upload all subclasses within same Excel/CSV sheet (reduce lookup hell)
+* implemented version number in the database to signal incompatible updates
+* implement 'draft' so long forms can be saved even when not valid, only pkey is always required
+* select for ref/ref_array popup should not show mg_ columns
+* in forms show ref/ref_array/refback as checkboxes/radio buttons; show in multiple columns;
+* make lookup editable
 
 ### todo first
 
-* implement order by in table view
+* first save draft with pkeys only
+
+* in catalogue replace 'publications' lookup with a text area for the citation
+* in catalogue, change 'release' to 'model'
+* in catalogue, seperate 'harmonized' and 'sourcevariables'
+* implement order by in table view (not having sorting sucks!)
+
+### todo second
+
+* enable autosave; first only show pkey and then all items (like 'new' and 'save')
+* enable a 'not null' filter
+* for ref/ref_array/refback show only filter options for which you have values, incl counts
 * test ERN data models against EMX2 (to see if we need additional visible/validation options)
 * as admin can use user manager so I can update passwords for users
 * extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
 * oicd integration
+* hide mg_modifiedBy columns when not editor
+* enable tagging of tables as 'metadata' (or create seperate view for ontologies???)
+* group subclasses in a tree? remodel repeated variables?
 
 ### todo next
 
+* enable ref_array to have a 'format' in which it is shown as a sub table
 * add favicon and fonts to the theme settings
 * enable upload of logo and favicon files instead of linking them
 * check roundtrip download/update of data and model and settings ('all')
