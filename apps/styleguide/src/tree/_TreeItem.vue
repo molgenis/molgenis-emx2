@@ -19,7 +19,7 @@
         :for="'check-input-' + item.name"
         :class="{ 'mb-1': hasChildren && !isCollapsed }"
       >
-        {{ item.definition }}
+        {{ item.name }}
       </label>
       <tree-level
         v-if="hasChildren && !isCollapsed"
