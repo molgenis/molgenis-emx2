@@ -37,7 +37,7 @@
 defaultValue = {{ defaultValue }}
 
 visibleColumns = {{ visibleColumns }}
-          
+
 value={{ JSON.stringify(value) }}
 
 data={{ JSON.stringify(data) }}

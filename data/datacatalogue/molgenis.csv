@@ -1,11 +1,86 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-AgeCategories,OntologyTerms,,,,,,,,,,e.g. '8 week'
-AllVariables,,,,,,,,,,,"Generic listing of all variables. Should not be used directly, please use Variables or RepeatedVariables instead"
-AllVariables,,release,ref,1,true,Releases,,,,,release this table definition is part of
-AllVariables,,table,ref,1,true,Tables,release,,,,table this variable is part of
-AllVariables,,name,,1,true,,,,,,"name of the variable, unique within a table"
-AllVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllVariables,,mappings,refback,,,VariableMappings,,toVariable,,,listing of the VariableMappings defined between this variable and standard/harmonized variables
+InstitutionTypes,OntologyTerms,,,,,,,,,,
+Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
+Institutions,,acronym,,1,true,,,,,,Unique code identifying this institution
+Institutions,,name,,2,,,,,,,Human readable name that this institution is known by
+Institutions,,type,ref,,,InstitutionTypes,,,,,Type of organisation
+Institutions,,description,text,,,,,,,,General description
+Institutions,,country,ref,,,Regions,,,,,Country were this institution is based
+Institutions,,homepage,,,,,,,,,Link to the homepage of this institution
+Institutions,,logo,file,,,,,,,,Logo to be shown when viewing this institution
+Institutions,,providerOf,refback,,,Resources,,institution,,,"Query that lists all resources (datasources, databanks, networks) that this institution is access provider of"
+Institutions,,partnerIn,refback,,,Partners,,institution,,,List of partner roles this institution has in various resources
+Resources,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Resources,,acronym,,1,true,,,,,,Unique identifier within this catalogue
+Resources,,name,,2,,,,,,,Human readible name of this resource
+Resources,,type,ref_array,,,ResourceTypes,,,,,"Codes that characterises the organisation and design of this resource, e.g. registry, cohort, etc."
+Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
+Resources,,contact,ref_array,,,Contacts,,,,,Whom to contact for information and access
+Resources,,startYear,int,,,,,,,,Date of first collected data
+Resources,,endYear,int,,,,,,,,Date of last collected data. Leave empty if collection is ongoing
+Resources,,population,ref_array,,,Regions,,,,,Populations that this resource provides data on
+Resources,,inclusionCriteria,ref_array,,,InclusionCriteria,,,,,Inclusion criteria applied to these populations
+Resources,,keywords,ref_array,,,Keywords,,,,,Keywords that characterise the contents of this resource
+Resources,,description,text,,,,,,,,General description
+Resources,,publication,text,,,,,,,,Marker publication(s) about this resource
+Resources,,logo,file,,,,,,,,Logo for use on homepages etc.
+Resources,,homepage,,,,,,,,,Link to the home page
+Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
+Resources,,partners,refback,,,Partners,,resource,,,Institutions involved in the creation of this resource
+Resources,,conditions,ref_array,,,Conditions,,,,,Codes defining access and use conditions
+Resources,,conditionsDescription,text,,,,,,,,Human readible description of access and use conditions and procedures
+Resources,,fundingType,ref_array,,,FundingTypes,,,,,Funding type
+Resources,,fundingStatement,text,,,,,,,,Funding statement
+Resources,,acknowledgements,text,,,,,,,,"Acknowledgement statement, to be used when citing this resource"
+Resources,,releases,refback,,,Releases,,resource,,,Releases available from this resource
+Resources,,documentation,refback,,,Documentation,,resource,,,List of documentation available for this resource
+Resources,,noParticipants,int,,,,,,,,total number of individuals of which data is collected
+Resources,,noParticipantsWithSamples,int,,,,,,,,number of individuals of which samples are collected
+Resources,,collectionEvents,refback,,,CollectionEvents,,resource,,,
+Resources,,subcohorts,refback,,,Subcohorts,,resource,,,
+Partners,,,,,,,,,,,Institutions that partnered in the creation of a resource
+Partners,,resource,ref,1,true,Resources,,,,,resource institution has contributed to
+Partners,,institution,ref,1,true,Institutions,,,,,institution that contributed
+Partners,,department,text,,,,,,,,"optionally, the institutational unit(s) that play a role in this resource"
+Partners,,role,ref,,,PartnerRoles,,,,,role in this resource
+Partners,,roleDescription,text,,,,,,,,human readible description of the role in this resource
+Contributions,,,,,,,,,,,Persons that contributed to the creation of a resource
+Contributions,,resource,ref,1,true,Resources,,,,,resource person has contributed to
+Contributions,,contact,ref,1,true,Contacts,,,,,person who has contributed to this resource
+Contributions,,contributionType,ref_array,,,ContributionTypes,,,,,type of the contribution
+Contributions,,contributionDescription,text,,,,,,,,"longer description, typically used as homepage text for a consortium"
+Contacts,,name,,1,true,,,,,,name of the person who contributed
+Contacts,,institution,ref,,,Institutions,,,,,context for this context
+Contacts,,department,text,,,,,,,,"optionally, the unit from which the contribution was made (as used in publications)"
+Contacts,,orcid,,3,,,,,,,
+Contacts,,homepage,,,,,,,,,
+Contacts,,email,,2,,,,,,,"email, ideally institute email to be used for this contribution"
+Contacts,,photo,file,,,,,,,,photo to make user interface look nice
+Documentation,,,,,,,,,,,Documentation attached to a resource
+Documentation,,resource,ref,1,true,Resources,,,,,The resource this documentation is for
+Documentation,,name,,1,true,,,,,,"name of the document, unique within the resource"
+Documentation,,type,ref,,,DocumentTypes,,,,,"type of documentation, e.g. protocol"
+Documentation,,description,text,,,,,,,,description of the documentation
+Documentation,,url,,,,,,,,,hyperlink to the source of the documentation
+Documentation,,file,file,,,,,,,,optional file attachment containing the documentation
+Databanks,Resources,,,,,,,,,,Data collections such as registries or biobanks
+Databanks,,datasource,ref,,,Datasources,,,,,"what datasource this databank is part of, if applicable"
+Databanks,,noParticipants,int,,,,,,,,number of individuals of which data is collected
+Databanks,,originator,text,,,,,,,,
+Databanks,,recordPrompt,ref_array,,,Prompts,,,,,what triggers data collection
+Databanks,,recordPromptDescription,text,,,,,,,,
+Databanks,,updateFrequency,ref,,,UpdateFrequency,,,,,how often the data is updated
+Databanks,,lagTime,text,,,,,,,,how long it takes for a update to become available
+Databanks,,subcohorts,refback,,,Subcohorts,,resource,,,
+Databanks,,networks,refback,,,Networks,,databanks,,,
+Databanks,,cdms,refback,,,Releases,,databanks,,,
+Datasources,Resources,,,,,,,,,,Collections of data banks covering the same population
+Datasources,,databanks,refback,,,Databanks,,datasource,,,List of databanks that are included in this datasource
+Datasources,,networks,refback,,,Networks,,datasources,,,List of networks that this datasource is associated with
+Cohorts,Resources,,,,,,,,,,Collections of data banks covering the same population
+Cohorts,,dataCategories,ref_array,,,DataCategories,,resource,,,
+Cohorts,,sampleCategories,ref_array,,,SampleCategories,,resource,,,
+Cohorts,,networks,refback,,,Networks,,cohorts,,,
 CollectionEvents,,,,,,,,,,,Definition of an action of data collection for a resource
 CollectionEvents,,resource,ref,1,true,Resources,,,,,
 CollectionEvents,,name,,1,true,,,,,,
@@ -15,77 +90,21 @@ CollectionEvents,,endYear,int,,,,,,,,period of collection end
 CollectionEvents,,ageMin,ref,,,AgeCategories,,,,,"minimum ages included, if applicable"
 CollectionEvents,,ageMax,ref,,,AgeCategories,,,,,"maximum ages included, if applicable"
 CollectionEvents,,noParticipants,int,,,,,,,,number of participants sampled in this event
-CollectionEvents,,populations,ref_array,,,Subpopulations,resource,,,,(sub)populations that are targetted with this collection event
+CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,(sub)populations that are targetted with this collection event
+CollectionEvents,,dataCategories,ref_array,,,DataCategories,,resource,,,
+CollectionEvents,,sampleCategories,ref_array,,,SampleCategories,,resource,,,
 CollectionEvents,,supplementaryInformation,text,,,,,,,,any other information
-Conditions,OntologyTerms,,,,,,,,,,
-Contacts,,,,,,,,,,,Contact details of a natural person
-Contacts,,name,,1,true,,,,,,unique name to display this person properly
-Contacts,,institution,ref_array,,,Institutions,,,,,One or more instutions this contact is employed by
-Contacts,,affiliation,ref_array,,,InstitutionUnits,institution,,,,One or more organisational units within institutions this person is part of
-Contacts,,about,text,,,,,,,,
-Contacts,,photo,file,,,,,,,,photo to make user interface look nice
-Contacts,,email,,2,,,,,,,"email, ideally institute email"
-Contacts,,orcid,,3,,,,,,,
-Contacts,,twitter,,6,,,,,,,
-Contacts,,homepage,,,,,,,,,
-Contacts,,linkedin,,4,,,,,,,
-Contacts,,researchgate,,5,,,,,,,
-Contacts,,publications,ref_array,,,Publications,,,,,
-Contacts,,contributedTo,refback,,,Contributions,,contact,,,
-ContributionTypes,OntologyTerms,,,,,,,,,,
-Contributions,,,,,,,,,,,Persons that contributed to the creation of a resource
-Contributions,,resource,ref,1,true,Resources,,,,,resource person has contributed to
-Contributions,,contact,ref,1,true,Contacts,,,,,contact information of the person who contributed
-Contributions,,institution,ref,,,Institutions,,,,,type of contribution
-Contributions,,affiliation,ref_array,,,InstitutionUnits,institution,,,,"optionally, the unit from which the contribution was made"
-Contributions,,contributionType,ref_array,,,ContributionTypes,,,,,description of the contribution
-Contributions,,contributionDescription,text,,,,,,,,"longer description, typically used as homepage text for a consortium"
-Databanks,Resources,,,,,,,,,,Data collections such as registries or biobanks
-Databanks,,datasource,ref,,,Datasources,,,,,"what datasource this databank is part of, if applicable"
-Databanks,,noParticipants,int,,,,,,,,number of individuals of which data is collected
-Databanks,,originator,text,,,,,,,,
-Databanks,,recordPrompt,ref_array,,,Prompts,,,,,what triggers data collection
-Databanks,,recordPromptDescription,text,,,,,,,,
-Databanks,,updateFrequency,ref,,,UpdateFrequency,,,,,how often the data is updated
-Databanks,,lagTime,text,,,,,,,,how long it takes for a update to become available
-Databanks,,subpopulations,refback,,,Subpopulations,,resource,,,
-Databanks,,networks,refback,,,Networks,,databanks,,,
-Databanks,,cdms,refback,,,Releases,,databanks,,,
-Datasources,Resources,,,,,,,,,,Collections of data banks covering the same population
-Datasources,,databanks,refback,,,Databanks,,datasource,,,List of databanks that are included in this datasource
-Datasources,,networks,refback,,,Networks,,datasources,,,List of networks that this datasource is associated with
-DocumentTypes,OntologyTerms,,,,,,,,,,
-Documentation,,,,,,,,,,,Documentation attached to a resource
-Documentation,,resource,ref,1,true,Resources,,,,,The resource this documentation is for
-Documentation,,name,,1,true,,,,,,"name of the document, unique within the resource"
-Documentation,,type,ref,,,DocumentTypes,,,,,"type of documentation, e.g. protocol"
-Documentation,,description,text,,,,,,,,description of the documentation
-Documentation,,url,,,,,,,,,hyperlink to the source of the documentation
-Documentation,,file,file,,,,,,,,optional file attachment containing the documentation
-Formats,OntologyTerms,,,,,,,,,,
-InclusionCriteria,OntologyTerms,,,,,,,,,,
-InstitutionTypes,OntologyTerms,,,,,,,,,,
-Institutions,,,,,,,,,,,"Contributors to the catalogue such as universities, companies, medical centres and research institutes"
-Institutions,,acronym,,1,true,,,,,,Unique code identifying this institution
-Institutions,,name,,2,,,,,,,Human readable name that this institution is known by
-Institutions,,type,ref,,,InstitutionTypes,,,,,Type of organisation
-Institutions,,description,text,,,,,,,,General description
-Institutions,,country,ref,,,Regions,,,,,Country were this institution is based
-Institutions,,homepage,,,,,,,,,Link to the homepage of this institution
-Institutions,,logo,file,,,,,,,,Logo to be shown when viewing this institution
-Institutions,,publications,ref_array,,,Publications,,,,,List of relevant publications for this institution
-Institutions,,providerOf,refback,,,Resources,,institution,,,"Query that lists all resources (datasources, databanks, networks) that this institution is access provider of"
-Institutions,,partnerIn,refback,,,Partners,,institution,,,List of partner roles this institution has in various resources
-InstitutionUnits,,,,,,,,,,,"Description of an organisational unit (team, group) within an Institution that people like to use"
-InstitutionUnits,,institution,ref,1,,Institutions,,,,,institution that is responsible for this unit
-InstitutionUnits,,name,,1,true,,,,,,short name of this affiliation that is unique within the institution
-InstitutionUnits,,label,,,,,,,,,"complete human readible label of this affiliation, as used in publications"
-InstitutionUnits,,homepage,,,,,,,,,link to the homepage of this affiliation
-InstitutionUnits,,description,text,,,,,,,,short description of the affiliation used for profile pages
-InstitutionUnits,,publications,ref_array,,,Publications,,,,,list of key publications for this affiliation
-InstitutionUnits,,partnerIn,refback,,,Partners,,affiliation,,,list of partner roles this institution has in various resources
-InstitutionUnits,,contributions,refback,,,Contributions,,affiliation,,,list of partner roles this institution has in various resources
-Keywords,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
+Subcohorts,,,,,,,,,,,Subpopulations defined in this resource
+Subcohorts,,resource,ref,1,true,Resources,,,,,"E.g. 'Mothers in first trimester','newborns'"
+Subcohorts,,name,,1,true,,,,,,"E.g. 'Mothers in first trimester','newborns'"
+Subcohorts,,noParticipants,int,,,,,,,,
+Subcohorts,,description,text,,,,,,,,
+Subcohorts,,ageCategories,ref_array,,,AgeCategories,,,,,
+Subcohorts,,disease,ref_array,,,Diseases,,,,,
+Subcohorts,,etnicities,ref_array,,,Etnicities,,,,,
+Subcohorts,,inclusionCriteria,ref_array,,,InclusionCriteria,,,,,
+Subcohorts,,geographicRegion,ref_array,,,Regions,,,,,e.g. province
+Subcohorts,,supplementaryInformation,text,,,,,,,,
 Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
 Models,,networks,ref_array,,,Networks,,,,,
 Models,,datasources,ref_array,,,Datasources,,,,,
@@ -93,131 +112,26 @@ Models,,databanks,ref_array,,,Databanks,,,,,
 Networks,Resources,,,,,,,,,,Collaborations of multiple institutions
 Networks,,datasources,ref_array,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,Databanks,,,,,
+Networks,,cohorts,ref_array,,,Cohorts,,,,,
 Networks,,models,refback,,,Models,,networks,,,
-ObservationTargets,OntologyTerms,,,,,,,,,,
-OntologyTerms,,,,,,,,,,,OntologyTerm table is superclass for all stuff that links to ontology terms
-OntologyTerms,,name,,1,true,,,,,,
-OntologyTerms,,code,,2,,,,,,,identifier used for this code with the ontology
-OntologyTerms,,order,int,,,,,,,,
-OntologyTerms,,definition,text,,,,,,,,
-OntologyTerms,,comments,text,,,,,,,,
-OntologyTerms,,parent,ref,,,OntologyTerms,,,,,link to a more broad term
-OntologyTerms,,ontologyTermURI,,3,,,,,,,
-OntologyTerms,,children,refback,,,OntologyTerms,,parent,,,link to more specific terms
-PartnerRoles,OntologyTerms,,,,,,,,,,
-Partners,,,,,,,,,,,Institutions that partnered in the creation of a resource
-Partners,,resource,ref,1,true,Resources,,,,,resource institution has contributed to
-Partners,,institution,ref,1,true,Institutions,,,,,insitution that contributed
-Partners,,affiliation,ref_array,,,InstitutionUnits,institution,,,,"optionally, the institutational unit(s) that play a role in this resource"
-Partners,,role,ref,,,PartnerRoles,,,,,role in this resource
-Partners,,roleDescription,text,,,,,,,,human readible description of the role in this resource
-Prompts,OntologyTerms,,,,,,,,,,
-Publications,,,,,,,,,,,publications following bibtex format
-Publications,,doi,,1,true,,,,,,digital object identifier
-Publications,,title,,,true,,,,,,The title of the work
-Publications,,authors,string_array,,,,,,,,"List of authors, one string per author"
-Publications,,year,int,,,,,,,,"The year of publication (or, if unpublished, the year of creation)"
-Publications,,journal,,,,,,,,,The journal or magazine the work was published in
-Publications,,volume,int,,,,,,,,The volume of a journal or multi-volume book
-Publications,,number,int,,,,,,,,"The ""(issue) number"" of a journal, magazine, or tech-report, if applicable. Note that this is not the ""article number"" assigned by some journals."
-Publications,,pagination,,,,,,,,,"Page numbers, separated either by commas or double-hyphens."
-Publications,,publisher,,,,,,,,,The publisher's name
-Publications,,school,,,,,,,,,(in case of thesis) The school where the thesis was written
-Publications,,abstract,text,,,,,,,,
-Publications,,resources,refback,,,Resources,,publications,,,list of resources that refer to this publication
-Regions,OntologyTerms,,,,,,,,,,"Countries, states, provinces and other geographic areas (e.g. using ISO_3166)"
+Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
+Studies,,networks,ref_array,,,Networks,,,,,
+Studies,,datasources,ref_array,,,Datasources,,,,,
+Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
 Releases,,,,,,,,,,,"Definition of a data relase, in case of Model this will not include data"
 Releases,,resource,ref,1,true,Resources,,,,,Link to the resource of which contents has been released
 Releases,,version,,1,true,,,,,,version of the release
 Releases,,models,ref_array,,,Releases,,,,,existing data models that are used to produce this release
 Releases,,databanks,ref_array,,,Databanks,,,,,"in case of a network/study, it will only contain data of particular databanks involved"
+Releases,,cohorts,ref_array,,,Cohorts,,,,,"in case of a network/study, it will only contain data of particular cohorts involved"
 Releases,,date,date,,,,,,,,date of the release
 Releases,,description,text,,,,,,,,notes specific to this release
-RepeatedVariables,AllVariables,,,,,,,,,,Definition of a repeated variable. Refers to another variable for its definition.
-RepeatedVariables,,isRepeatOf,ref,,true,Variables,release,,,,reference to the definition of the variable that is being repeated
-ResourceTypes,OntologyTerms,,,,,,,,,,
-ResourceTypes,,originator,,,,,,,,,
-ResourceTypes,,collectingOrganizations,,,,,,,,,
-ResourceTypes,,recordPrompt,text,,,,,,,,
-ResourceTypes,,typicalContent,text,,,,,,,,
-ResourceTypes,,lessCommonContent,text,,,,,,,,
-Resources,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Resources,,acronym,,1,true,,,,,,Unique identifier within this catalogue
-Resources,,name,,2,,,,,,,Human readible name of this resource
-Resources,,type,ref_array,,,ResourceTypes,,,,,"Codes that characterises the organisation and design of this resource, e.g. registry, cohort, etc."
-Resources,,logo,file,,,,,,,,Logo for use on homepages etc.
-Resources,,homepage,,,,,,,,,Link to the home page
-Resources,,description,text,,,,,,,,General description
-Resources,,keywords,ref_array,,,Keywords,,,,,Topics that characterise the contents of this resource
-Resources,,contact,ref_array,,,Contacts,,,,,Whom to contact for information and access
-Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
-Resources,,startYear,int,,,,,,,,Date of first collected data
-Resources,,endYear,int,,,,,,,,Date of last collected data. Leave empty if collection is ongoing
-Resources,,conditions,ref_array,,,Conditions,,,,,Codes defining access and use conditions
-Resources,,conditionsDescription,text,,,,,,,,Human readible description of access and use conditions
-Resources,,funding,text,,,,,,,,Funding statement
-Resources,,acknowledgements,text,,,,,,,,"Acknowledgement statement, to be used when citing this resource"
-Resources,,publications,ref_array,,,Publications,,,,,Publications about this resource
-Resources,,population,ref_array,,,Regions,,,,,Populations that this resource provides data on
-Resources,,inclusionCriteria,ref_array,,,InclusionCriteria,,,,,Inclusion criteria applied to these populations
-Resources,,partners,refback,,,Partners,,resource,,,Institutions involved in the creation of this resource
-Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
-Resources,,releases,refback,,,Releases,,resource,,,Releases available from this resource
-Resources,,documentation,refback,,,Documentation,,resource,,,List of documentation available for this resource
-Status,OntologyTerms,,,,,,,,,,
-StatusDetails,OntologyTerms,,,,,,,,,,
-Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
-Studies,,networks,ref_array,,,Networks,,,,,
-Studies,,datasources,ref_array,,,Datasources,,,,,
-Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
-Subpopulations,,,,,,,,,,,Subpopulations defined in this resource
-Subpopulations,,resource,ref,1,true,Resources,,,,,"E.g. 'Mothers in first trimester','newborns'"
-Subpopulations,,name,,1,true,,,,,,"E.g. 'Mothers in first trimester','newborns'"
-Subpopulations,,noParticipants,int,,,,,,,,
-Subpopulations,,description,text,,,,,,,,
-Subpopulations,,InclusionCriteria,ref_array,,,InclusionCriteria,,,,,
-Subpopulations,,geographicRegion,ref_array,,,Regions,,,,,e.g. province
-Subpopulations,,supplementaryInformation,text,,,,,,,,
-TableMappings,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-TableMappings,,fromRelease,ref,1,true,Releases,,,,,"release being mapped from, i.e. fromRelease.resource + fromRelease.version"
-TableMappings,,fromTable,ref,1,true,Tables,fromRelease,,,,name of the table being mapped from
-TableMappings,,toRelease,ref,1,true,Releases,,,,,"release being mapped to, i.e. toRelease.resource + toRelease.version"
-TableMappings,,toTable,ref,1,true,Tables,toRelease,,,,name of the table being mapped to
-TableMappings,,order,int,,,,,,,,Order in which table ETLs should be executed for this source-target combination
-TableMappings,,description,text,,,,,,,,human readible description of the mapping
-TableMappings,,syntax,text,,,,,,,,"formal definition of the mapping, ideally executable code"
-Tables,,,,,,,,,,,Definition of a table within a data release
-Tables,,release,ref,1,true,Releases,,,,,resource + version this table is defined for
-Tables,,name,,1,true,,,,,,unique name in the release
-Tables,,label,,,,,,,,,short human readible description
-Tables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record in this table describes
-Tables,,keywords,ref_array,,,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
-Tables,,description,text,,,,,,,,description of the role/function of this table
-Tables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
-Tables,,mappings,refback,,,TableMappings,,toTable,,,list of mappings between this table and standard/harmonized tables
-Tables,,mappingsTo,refback,,,TableMappings,,fromTable,,,
-Units,OntologyTerms,,,,,,,,,,
-UpdateFrequency,OntologyTerms,,,,,,,,,,may want to use SNOMED-CT codes
-VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
-VariableMappings,,fromRelease,ref,1,true,Releases,,,,,
-VariableMappings,,fromTable,ref,1,true,Tables,fromRelease,,,,
-VariableMappings,,fromVariable,ref_array,,,AllVariables,fromTable,,,,"optional, variable. Initially one may only define mapping between releases"
-VariableMappings,,toRelease,ref,1,true,Releases,,,,,
-VariableMappings,,toTable,ref,1,true,Tables,toRelease,,,,
-VariableMappings,,toVariable,ref,1,true,AllVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
-VariableMappings,,match,ref,,true,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
-VariableMappings,,status,ref,,,Status,,,,,whether harmonisation is still draft or final
-VariableMappings,,description,text,,,,,,,,human readible description of the mapping
-VariableMappings,,comments,text,,,,,,,,additional notes and comments
-VariableMappings,,syntax,text,,,,,,,,"formal definition of the mapping, ideally executable code"
-VariableValues,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-VariableValues,,release,ref,1,true,Releases,,,,,
-VariableValues,,variable,ref,1,true,Variables,release,,,,e.g. PATO
-VariableValues,,value,,1,true,,,,,,e.g. '1'
-VariableValues,,label,,,true,,,,,,
-VariableValues,,order,int,,,,,,,,
-VariableValues,,isMissing,bool,,,,,,,,
-VariableValues,,ontologyTermIRI,,,,,,,,,reference to ontology term that defines this categorical value
+AllVariables,,,,,,,,,,,"Generic listing of all variables. Should not be used directly, please use Variables or RepeatedVariables instead"
+AllVariables,,release,ref,1,true,Releases,,,,,release this table definition is part of
+AllVariables,,table,ref,1,true,Tables,release,,,,table this variable is part of
+AllVariables,,name,,1,true,,,,,,"name of the variable, unique within a table"
+AllVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+AllVariables,,mappings,refback,,,VariableMappings,,toVariable,,,listing of the VariableMappings defined between this variable and standard/harmonized variables
 Variables,AllVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
 Variables,,label,,,,,,,,,
 Variables,,format,ref,,,Formats,,,,,"string,int,decimal,date,datetime etc"
@@ -231,4 +145,81 @@ Variables,,permittedValues,refback,,,VariableValues,,variable,,,
 Variables,,keywords,ref_array,,,Keywords,,,,,
 Variables,,repeats,refback,,,RepeatedVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
 Variables,,vocabularies,ref_array,,,Vocabularies,,,,,
+RepeatedVariables,AllVariables,,,,,,,,,,Definition of a repeated variable. Refers to another variable for its definition.
+RepeatedVariables,,isRepeatOf,ref,,true,Variables,release,,,,reference to the definition of the variable that is being repeated
+Tables,,,,,,,,,,,Definition of a table within a data release
+Tables,,release,ref,1,true,Releases,,,,,resource + version this table is defined for
+Tables,,name,,1,true,,,,,,unique name in the release
+Tables,,label,,,,,,,,,short human readible description
+Tables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record in this table describes
+Tables,,keywords,ref_array,,,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
+Tables,,description,text,,,,,,,,description of the role/function of this table
+Tables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
+Tables,,mappings,refback,,,TableMappings,,toTable,,,list of mappings between this table and standard/harmonized tables
+Tables,,mappingsTo,refback,,,TableMappings,,fromTable,,,
+TableMappings,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
+TableMappings,,fromRelease,ref,1,true,Releases,,,,,"release being mapped from, i.e. fromRelease.resource + fromRelease.version"
+TableMappings,,fromTable,ref,1,true,Tables,fromRelease,,,,name of the table being mapped from
+TableMappings,,toRelease,ref,1,true,Releases,,,,,"release being mapped to, i.e. toRelease.resource + toRelease.version"
+TableMappings,,toTable,ref,1,true,Tables,toRelease,,,,name of the table being mapped to
+TableMappings,,order,int,,,,,,,,Order in which table ETLs should be executed for this source-target combination
+TableMappings,,description,text,,,,,,,,human readible description of the mapping
+TableMappings,,syntax,text,,,,,,,,"formal definition of the mapping, ideally executable code"
+VariableValues,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
+VariableValues,,release,ref,1,true,Releases,,,,,
+VariableValues,,variable,ref,1,true,Variables,release,,,,e.g. PATO
+VariableValues,,value,,1,true,,,,,,e.g. '1'
+VariableValues,,label,,,true,,,,,,
+VariableValues,,order,int,,,,,,,,
+VariableValues,,isMissing,bool,,,,,,,,
+VariableValues,,ontologyTermIRI,,,,,,,,,reference to ontology term that defines this categorical value
+VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
+VariableMappings,,fromRelease,ref,1,true,Releases,,,,,
+VariableMappings,,fromTable,ref,1,true,Tables,fromRelease,,,,
+VariableMappings,,fromVariable,ref_array,,,AllVariables,fromTable,,,,"optional, variable. Initially one may only define mapping between releases"
+VariableMappings,,toRelease,ref,1,true,Releases,,,,,
+VariableMappings,,toTable,ref,1,true,Tables,toRelease,,,,
+VariableMappings,,toVariable,ref,1,true,AllVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
+VariableMappings,,match,ref,,true,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
+VariableMappings,,status,ref,,,Status,,,,,whether harmonisation is still draft or final
+VariableMappings,,description,text,,,,,,,,human readible description of the mapping
+VariableMappings,,comments,text,,,,,,,,additional notes and comments
+VariableMappings,,syntax,text,,,,,,,,"formal definition of the mapping, ideally executable code"
+OntologyTerms,,,,,,,,,,,OntologyTerm table is superclass for all stuff that links to ontology terms
+OntologyTerms,,name,,1,true,,,,,,
+OntologyTerms,,code,,2,,,,,,,identifier used for this code with the ontology
+OntologyTerms,,order,int,,,,,,,,
+OntologyTerms,,definition,text,,,,,,,,
+OntologyTerms,,comments,text,,,,,,,,
+OntologyTerms,,parent,ref,,,OntologyTerms,,,,,link to a more broad term
+OntologyTerms,,ontologyTermURI,,3,,,,,,,
+OntologyTerms,,children,refback,,,OntologyTerms,,parent,,,link to more specific terms
 Vocabularies,OntologyTerms,,,,,,,,,,
+FundingTypes,OntologyTerms,,,,,,,,,,
+Etnicities,OntologyTerms,,,,,,,,,,
+CollectionTypes,OntologyTerms,,,,,,,,,,
+SampleCategories,OntologyTerms,,,,,,,,,,
+DataCategories,OntologyTerms,,,,,,,,,,
+Diseases,OntologyTerms,,,,,,,,,,
+Conditions,OntologyTerms,,,,,,,,,,
+ContributionTypes,OntologyTerms,,,,,,,,,,
+DocumentTypes,OntologyTerms,,,,,,,,,,
+Formats,OntologyTerms,,,,,,,,,,
+InclusionCriteria,OntologyTerms,,,,,,,,,,
+Keywords,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
+Data,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
+AgeCategories,OntologyTerms,,,,,,,,,,e.g. '8 week'
+ObservationTargets,OntologyTerms,,,,,,,,,,
+PartnerRoles,OntologyTerms,,,,,,,,,,
+Prompts,OntologyTerms,,,,,,,,,,
+Regions,OntologyTerms,,,,,,,,,,"Countries, states, provinces and other geographic areas (e.g. using ISO_3166)"
+ResourceTypes,OntologyTerms,,,,,,,,,,
+ResourceTypes,,originator,,,,,,,,,
+ResourceTypes,,collectingOrganizations,,,,,,,,,
+ResourceTypes,,recordPrompt,text,,,,,,,,
+ResourceTypes,,typicalContent,text,,,,,,,,
+ResourceTypes,,lessCommonContent,text,,,,,,,,
+Status,OntologyTerms,,,,,,,,,,
+StatusDetails,OntologyTerms,,,,,,,,,,
+Units,OntologyTerms,,,,,,,,,,
+UpdateFrequency,OntologyTerms,,,,,,,,,,may want to use SNOMED-CT codes
