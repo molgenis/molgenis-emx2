@@ -62,7 +62,7 @@ export default {
       if (offset === 0) {
         commit("setVariables", resp.Variables);
       } else {
-        // add for infinite scroll
+        // add for show more variables
         commit("addVariables", resp.Variables);
       }
       commit("setVariableCount", resp.Variables_agg.count);
