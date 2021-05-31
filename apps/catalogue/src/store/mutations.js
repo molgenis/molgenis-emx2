@@ -4,6 +4,9 @@ export default {
   setVariables(state, variables) {
     Vue.set(state, "variables", Array.isArray(variables) ? variables : []);
   },
+  addVariables(state, variables) {
+    state.variables = state.variables.concat(variables);
+  },
   setVariableCount(state, variableCount) {
     state.variableCount = variableCount;
   },
