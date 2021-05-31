@@ -13,7 +13,7 @@
         @change="handleChange(item.name)"
       />
       <label class="form-check-label" :for="'check-input-' + item.name">
-        {{ item.definition }}
+        {{ item.name }}
       </label>
       <i
         v-if="hasChildren && isCollapsed"

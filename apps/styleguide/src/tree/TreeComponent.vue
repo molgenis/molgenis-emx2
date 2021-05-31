@@ -67,17 +67,17 @@ export default {
 <docs>
 ```
 const treeItems = [
-  { name: 'fruit', definition: 'Fruit' },
-  { name: 'apple', definition: 'Apple', parent: {name: 'fruit'} },
-  { name: 'peer', definition: 'Peer', parent: {name: 'fruit'} },
-  { name: 'cars',definition: 'Cars' },
-  { name: 'sports', definition: 'Sports', parent: {name: 'cars'} },
-  { name: '4x4', definition: '4 Wheel drive', parent: {name: 'cars'} },
-  { name: 'landrover', definition: 'Land Rover', parent: {name: '4x4'} },
-  { name: 'ferari', definition: 'Ferari', parent: {name: 'sports'} },
-  { name: 'toys', definition: 'Toys' },
-  { name: 'wood', definition: 'Wood', parent: {name: 'toys'} },
-  { name: 'outside', definition: 'Outside', parent: {name: 'toys'} },
+  { name: 'fruit' },
+  { name: 'apple', parent: {name: 'fruit'} },
+  { name: 'peer', parent: {name: 'fruit'} },
+  { name: 'cars' },
+  { name: 'sports', parent: {name: 'cars'} },
+  { name: '4 x 4', parent: {name: 'cars'} },
+  { name: 'Land Rover', parent: {name: '4 x 4'} },
+  { name: 'ferari', parent: {name: 'sports'} },
+  { name: 'toys' },
+  { name: 'wood', parent: {name: 'toys'} },
+  { name: 'Outside toys of children', parent: {name: 'toys'} },
 ]
 
 const selected = []
