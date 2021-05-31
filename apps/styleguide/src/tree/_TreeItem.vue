@@ -1,9 +1,9 @@
 <template>
   <div
-    class="list-group-item list-group-item-action text-lowercase"
+    class="mg-tree-item list-group-item list-group-item-action text-lowercase"
     @click.stop="handleClick"
   >
-    <div :class="{ 'form-check': !hasChildren }" class="text-truncate">
+    <div :class="{ 'form-check': !hasChildren }">
       <input
         v-if="!hasChildren"
         :id="'check-input-' + item.name"
@@ -12,17 +12,15 @@
         :checked="isSelected"
         @change="handleChange(item.name)"
       />
-      <label class="form-check-label" :for="'check-input-' + item.name">
+      <i v-if="hasChildren && isCollapsed" class="mr-2 fa fa-caret-up"></i>
+      <i v-if="hasChildren && !isCollapsed" class="mr-2 fa fa-caret-down"></i>
+      <label
+        class="form-check-label"
+        :for="'check-input-' + item.name"
+        :class="{ 'mb-1': hasChildren && !isCollapsed }"
+      >
         {{ item.name }}
       </label>
-      <i
-        v-if="hasChildren && isCollapsed"
-        class="float-right fa fa-caret-up"
-      ></i>
-      <i
-        v-if="hasChildren && !isCollapsed"
-        class="float-right fa fa-caret-down"
-      ></i>
       <tree-level
         v-if="hasChildren && !isCollapsed"
         :items="item.children"
@@ -72,5 +70,13 @@ export default {
 .form-check-label:hover,
 form-check-input:hover {
   cursor: pointer;
+}
+
+.mg-tree-item {
+  overflow: hidden;
+}
+
+.mg-tree-item label {
+  font-size: smaller;
 }
 </style>
