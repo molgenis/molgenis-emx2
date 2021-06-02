@@ -9,8 +9,11 @@ const state = {
       name: "keywords",
       conditions: [],
     },
+    {
+      name: "networks",
+      conditions: [],
+    },
   ],
-  selectedKeywords: [],
   cohorts: [],
   variableMappings: [],
   searchInput: "",

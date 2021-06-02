@@ -15,11 +15,16 @@ export default {
     }
   },
   searchString: (state) =>
-    state.searchInput === null || state.searchInput.trim() === ''
+    state.searchInput === null || state.searchInput.trim() === ""
       ? null
       : state.searchInput.trim(),
   selectedKeywords: (state) => {
-    return state.filters.find(filters => filters.name === 'keywords').conditions
+    return state.filters.find((filters) => filters.name === "keywords")
+      .conditions;
+  },
+  selectedNetworks: (state) => {
+    return state.filters.find((filters) => filters.name === "networks")
+      .conditions;
   },
   cohorts: (state) => state.cohorts,
   /**

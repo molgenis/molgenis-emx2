@@ -24,20 +24,28 @@ export default {
         }
       }
     `;
-    let queryVariables = {
-      filter: {
-        release: {
-          equals: [
-            {
-              resource: {
-                acronym: "LifeCycle",
-              },
-              version: "1.0.0",
-            },
-          ],
+
+    let queryVariables = { filter: {} };
+
+    queryVariables.filter = {
+      release: {
+        resource: {
+          // todo replace 'lifecycle' with dynamic schema name
+          mg_tableclass: { equals: ["lifecycle.Networks"] },
         },
       },
     };
+
+    if (getters.selectedNetworks.length) {
+      queryVariables.filter.release = {
+        equals: getters.selectedNetworks.map((selectedNetwork) => {
+          return {
+            version: "1.0.0",
+            resource: selectedNetwork,
+          };
+        }),
+      };
+    }
 
     if (getters.selectedKeywords.length) {
       queryVariables.filter.keywords = {
