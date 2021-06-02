@@ -62,9 +62,7 @@
           @click="showSelect = true"
         >
           {{
-            count > limit
-              ? "view all " + (count - maxNum - selection.length) + " options."
-              : "view as table"
+            count > limit ? "view all " + count + " options." : "view as table"
           }}
         </ButtonAlt>
       </div>
