@@ -2,7 +2,7 @@
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="!this.tableMetadata" />
     <TableMolgenis
-      v-else-if="Object.keys(pkey).length > 0"
+      v-else-if="pkey"
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"
@@ -49,8 +49,8 @@
         />
       </template>
     </TableMolgenis>
-    <MessageWarning v-else
-      >Primary key incomplete [todo: change this never happens]
+    <MessageWarning v-else>
+      This can only be filled in after you have saved (or saved draft).
     </MessageWarning>
   </FormGroup>
 </template>

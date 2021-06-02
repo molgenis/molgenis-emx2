@@ -40,15 +40,26 @@
 * select for ref/ref_array popup should not show mg_ columns
 * in forms show ref/ref_array/refback as checkboxes/radio buttons; show in multiple columns;
 * make lookup editable
+* in catalogue replace 'publications' lookup with a text area for the citation
 
 ### todo first
 
 * first save draft with pkeys only
 
-* in catalogue replace 'publications' lookup with a text area for the citation
+cohort catalogue
+
 * in catalogue, change 'release' to 'model'
 * in catalogue, seperate 'harmonized' and 'sourcevariables'
 * implement order by in table view (not having sorting sucks!)
+
+conception
+
+* Databank.type should only types relevant to conception (but we also want type on this position)
+* Enable column order to be different in subclasses????
+* Databank.institution we would like custom refLabel
+* Add refLabel as option in schema
+
+* hide 'ontology' tables
 
 ### todo second
 

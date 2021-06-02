@@ -97,6 +97,7 @@ export default {
     },
     closeSelect() {
       this.showSelect = false;
+      this.reload();
     },
     openSelect(idx) {
       this.showSelect = true;
