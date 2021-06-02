@@ -6,9 +6,9 @@ const state = {
   keywords: [],
   filters: [
     {
-      name: 'keywords',
-      conditions: []
-    }
+      name: "keywords",
+      conditions: [],
+    },
   ],
   selectedKeywords: [],
   cohorts: [],
