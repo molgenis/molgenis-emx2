@@ -101,7 +101,9 @@ public class SqlSchema implements Schema {
       return SqlSchemaMetadataExecutor.getInheritedRoleForUser(
           db.getJooq(), this.getMetadata().getName(), user);
     } finally {
-      db.setActiveUser(current);
+      if (current != null) {
+        db.setActiveUser(current);
+      }
     }
   }
 
