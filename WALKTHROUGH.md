@@ -58,6 +58,5 @@ We gonna use the cohort catalogue for this
   from https://github.com/molgenis/molgenis-emx2/blob/master/data/datacatalogue/molgenis.csv
 * Browse 'Databank' and enter a new record, including contributions (this uses complex composite foreign keys, probably
   the most advanced bit of EMX2)
-* Download the metadata in excel, csv, json, yaml and verify there is no "mg_" metadata included 
 
 

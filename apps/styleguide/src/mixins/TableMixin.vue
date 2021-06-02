@@ -111,12 +111,10 @@ export default {
       if (result) return result;
     },
     getPkey(row) {
-      //we only have pkey when the record has been saved
-      if (!row["mg_insertedOn"]) return null;
       let result = {};
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
-          if (col.key == 1 && row[col.name]) {
+          if (col.key == 1) {
             result[col.name] = row[col.name];
           }
         });

@@ -4,6 +4,9 @@
       <MolgenisTheme
         href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
       />
+      <MolgenisTheme
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+      />
       <MolgenisMenu
         :logo="logo"
         active="My search"

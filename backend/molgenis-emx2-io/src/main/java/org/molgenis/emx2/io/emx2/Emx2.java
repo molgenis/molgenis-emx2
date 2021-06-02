@@ -135,27 +135,25 @@ public class Emx2 {
 
       // export column metadata
       for (String columnName : columnNames) {
-        if (!columnName.startsWith("mg_")) {
-          Column c = t.getColumn(columnName);
-          row = new Row();
+        Column c = t.getColumn(columnName);
+        row = new Row();
 
-          row.setString(TABLE_NAME, t.getTableName());
-          row.setString(COLUMN_NAME, c.getName());
-          if (!c.getColumnType().equals(STRING))
-            row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-          if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
-          if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-          if (!c.getRefSchema().equals(c.getSchemaName()))
-            row.setString(REF_SCHEMA, c.getRefTableName());
-          if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
-          if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
-          if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
-          if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-          if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
-          if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
+        row.setString(TABLE_NAME, t.getTableName());
+        row.setString(COLUMN_NAME, c.getName());
+        if (!c.getColumnType().equals(STRING))
+          row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
+        if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+        if (c.getKey() > 0) row.setInt(KEY, c.getKey());
+        if (!c.getRefSchema().equals(c.getSchemaName()))
+          row.setString(REF_SCHEMA, c.getRefTableName());
+        if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
+        if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
+        if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
+        if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
+        if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+        if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
 
-          result.add(row);
-        }
+        result.add(row);
       }
     }
     return result;

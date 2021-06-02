@@ -31,7 +31,7 @@
     <IconAction
       v-if="inplace && !focus"
       class="hoverIcon"
-      icon="pencil-alt"
+      icon="pencil"
       @click="toggleFocus"
     />
   </span>

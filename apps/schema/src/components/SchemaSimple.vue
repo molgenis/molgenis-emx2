@@ -121,7 +121,7 @@ export default {
         "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
-          this.schema = this.addOldNamesAndRemoveMeta(data._schema);
+          this.schema = this.addOldNames(data._schema);
           this.timestamp = Date.now();
         })
         .catch((error) => {
@@ -140,14 +140,13 @@ export default {
           this.warning = null;
         });
     },
-    addOldNamesAndRemoveMeta(schema) {
+    addOldNames(schema) {
       if (schema) {
         if (schema.tables) {
           schema.tables.forEach((t) => {
             t.oldName = t.name;
             if (t.columns) {
               t.columns = t.columns
-                .filter((c) => !c.name.startsWith("mg_"))
                 .map((c) => {
                   c.oldName = c.name;
                   return c;

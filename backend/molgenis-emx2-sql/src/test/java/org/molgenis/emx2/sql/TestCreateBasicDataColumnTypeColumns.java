@@ -72,7 +72,6 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setDate("Test_date_nillable", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test_datetime_nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
     try {
-      // should fail on all non _nillable columns
       t2.insert(row);
       fail("Should not be able to insert null in not-null columns"); // should not reach this one
       // because all not null are null

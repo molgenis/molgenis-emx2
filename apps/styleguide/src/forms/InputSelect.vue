@@ -25,7 +25,7 @@
       class="d-flex flex-nowrap"
     >
       {{ value ? value : "&zwnj;&zwnj;" }}
-      <IconAction icon="pencil-alt" class="hoverIcon" />
+      <IconAction icon="pencil" class="hoverIcon" />
       <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
     </span>
   </span>
