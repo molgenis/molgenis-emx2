@@ -8,6 +8,7 @@
         :variableDetails="variableDetails[variable.name]"
         @request-variable-detail="fetchVariableDetails(variable.name)"
       />
+      <button class="btn btn-link mt-2 mb-3" v-if="showMoreVisible" @click="fetchAdditionalVariables">Show more variables</button>
     </div>
     <p v-else-if="!isLoading" class="text-center font-italic pt-3">
       No variables found matching the given filters
@@ -28,10 +29,11 @@ export default {
   computed: {
     ...mapState(["isLoading"]),
     ...mapGetters(["variables", "variableCount", "variableDetails"]),
+    showMoreVisible () { return this.variables.length < this.variableCount }
   },
   methods: {
-    ...mapActions(["fetchVariableDetails"]),
-  },
+    ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"])
+  }
 };
 </script>
 

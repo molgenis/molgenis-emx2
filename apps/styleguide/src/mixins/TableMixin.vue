@@ -111,6 +111,8 @@ export default {
       if (result) return result;
     },
     getPkey(row) {
+      //we only have pkey when the record has been saved
+      if (!row["mg_insertedOn"]) return null;
       let result = {};
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {

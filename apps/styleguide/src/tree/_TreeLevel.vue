@@ -1,5 +1,5 @@
 <template>
-  <div class="list-group text-nowrap">
+  <div class="list-group">
     <tree-item
       v-for="(item, index) in items"
       :key="index"

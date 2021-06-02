@@ -137,9 +137,7 @@ export default {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns.filter(
-        (c) => c.columnType != "CONSTANT" && c.name != "mg_draft"
-      );
+      return this.columns.filter((c) => c.columnType != "CONSTANT");
     },
   },
   created() {
