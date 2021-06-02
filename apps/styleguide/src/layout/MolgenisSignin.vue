@@ -10,9 +10,9 @@
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
           v-model="email"
-          label="Email"
+          label="Username"
           placeholder="Enter email adress"
-          description="Please enter the provided email address"
+          description="Please enter the provided username"
         />
         <InputPassword
           v-model="password"

@@ -146,13 +146,15 @@ public class TypeUtils {
     if (v instanceof LocalDateTime) return (LocalDateTime) v;
     if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
     if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
+    // add 'T' because loose users of iso8601 (postgres!) use space instead of T
+    String str = v.toString().replace(" ", "T");
     TemporalAccessor temporalAccessor =
         DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
-            .parseBest(v.toString(), ZonedDateTime::from, LocalDate::from);
+            .parseBest(str, ZonedDateTime::from, LocalDate::from);
     if (temporalAccessor instanceof ZonedDateTime) {
       return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
     }
-    return LocalDateTime.parse(v.toString());
+    return LocalDateTime.parse(str);
   }
 
   public static LocalDateTime[] toDateTimeArray(Object v) {

@@ -56,11 +56,6 @@
         <ReleasesList v-if="databank.releases" :releases="databank.releases" />
         <h6 v-if="databank.cdms">Common data models</h6>
         <ReleasesList v-if="databank.cdms" :releases="databank.cdms" />
-        <h6 v-if="databank.publications">Publications</h6>
-        <PublicationList
-          v-if="databank.publications"
-          :publications="databank.publications"
-        />
       </div>
     </div>
   </div>
@@ -123,7 +118,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,originator,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},institution{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},publications{doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract},networks{acronym,name},acknowledgements,funding}}`,
+        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,originator,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},institution{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},networks{acronym,name},acknowledgements,fundingStatement}}`,
         {
           acronym: this.acronym,
         }
@@ -131,9 +126,8 @@ export default {
         .then((data) => {
           this.databank = data.Databanks[0];
           if (this.databank.releases) {
-            this.version = this.databank.releases[
-              this.databank.releases.length - 1
-            ].version;
+            this.version =
+              this.databank.releases[this.databank.releases.length - 1].version;
           }
         })
         .catch((error) => {
