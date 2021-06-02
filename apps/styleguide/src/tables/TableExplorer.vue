@@ -10,7 +10,17 @@
           {{ tableMetadata.description }}
         </p>
         <div
-          class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
+          class="
+            navbar
+            pl-0
+            ml-0
+            shadow-none
+            navbar-expand-lg
+            justify-content-between
+            mb-3
+            pt-3
+            bg-white
+          "
         >
           <div class="btn-group">
             <ShowHide
