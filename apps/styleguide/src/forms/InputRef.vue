@@ -184,6 +184,7 @@ export default {
     },
     closeSelect() {
       this.showSelect = false;
+      this.reload();
       if (this.list) {
         this.$emit("input", this.selection);
       }
