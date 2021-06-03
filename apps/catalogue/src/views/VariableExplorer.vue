@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     ...mapMutations(["setSelectedNetworks"]),
-    ...mapActions(["fetchVariables", "fetchKeywords"]),
+    ...mapActions(["fetchVariables", "fetchKeywords", "fetchSchema"]),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e;
     },
@@ -114,7 +114,8 @@ export default {
       this.fetchVariables();
     },
   },
-  created() {
+  async created() {
+    await this.fetchSchema()
     if (!this.variables.lenght) {
       // Only on initial creation
       this.fetchVariables();

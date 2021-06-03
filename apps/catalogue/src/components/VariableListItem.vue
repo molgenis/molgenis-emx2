@@ -1,6 +1,6 @@
 <template>
   <button class="list-group-item list-group-item-action">
-    <span
+    <div
       class="text-capitalize mg-variable-header mg-list-group-item-header"
       @click="toggleShowDetail"
     >
@@ -10,7 +10,11 @@
       ></i>
       <i v-else class="fa fa-caret-down mr-2"></i>
       {{ variable.label }}
-    </span>
+      <span class="mg-network-label">
+        {{ variable.release.resource.acronym }}
+      </span>
+    </div>
+    
 
     <p class="mt-3" v-if="showDetail">
       <router-link
@@ -104,6 +108,10 @@ export default {
 </script>
 
 <style scoped>
+.mg-network-label {
+  float: right;
+}
+
 .mg-variable-header:hover {
   cursor: pointer;
 }

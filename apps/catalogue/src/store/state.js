@@ -1,5 +1,6 @@
 const state = {
   isLoading: false,
+  schema: null,
   variables: [],
   variableDetails: {},
   variableCount: undefined,

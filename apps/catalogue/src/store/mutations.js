@@ -36,4 +36,7 @@ export default {
   setVariableMappings(state, variableMappings) {
     Vue.set(state, "variableMappings", variableMappings);
   },
+  setSchema(state, schema) {
+    state.schema = schema
+  }
 };
