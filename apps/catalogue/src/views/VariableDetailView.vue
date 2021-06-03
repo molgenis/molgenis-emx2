@@ -41,6 +41,8 @@ export default {
   name: "VariableDetailView",
   props: {
     name: String,
+    network: String,
+    version: String,
   },
   data() {
     return {
@@ -48,7 +50,7 @@ export default {
     };
   },
   methods: {
-    async fetch(name) {
+    async fetch(name, network, version) {
       const params = {
         filter: {
           name: { equals: name },
@@ -56,9 +58,9 @@ export default {
             equals: [
               {
                 resource: {
-                  acronym: "LifeCycle",
+                  acronym: network,
                 },
-                version: "1.0.0",
+                version: version,
               },
             ],
           },
@@ -71,7 +73,7 @@ export default {
     },
   },
   created() {
-    this.fetch(this.name);
+    this.fetch(this.name, this.network, this.version);
   },
 };
 </script>

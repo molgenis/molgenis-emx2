@@ -20,7 +20,9 @@ export default {
   components: { Spinner, HarmonizationDefinition },
   props: {
     name: String,
-    acronym: String,
+    network: String,
+    version: String,
+    sourceCohort: String,
   },
   data() {
     return {
@@ -28,7 +30,7 @@ export default {
     };
   },
   methods: {
-    async fetch(name) {
+    async fetch(name, network, version) {
       const params = {
         filter: {
           name: { equals: name },
@@ -36,9 +38,9 @@ export default {
             equals: [
               {
                 resource: {
-                  acronym: "LifeCycle",
+                  acronym: network,
                 },
-                version: "1.0.0",
+                version: version,
               },
             ],
           },
@@ -57,7 +59,7 @@ export default {
           ...this.variable,
           cohortMapping: this.variable.mappings.find(
             (mapping) =>
-              mapping.fromTable.release.resource.acronym === this.acronym
+              mapping.fromTable.release.resource.acronym === this.sourceCohort
           ),
         },
       ];
@@ -67,7 +69,8 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.fromTable.release.resource.acronym === this.acronym
+                  mapping.fromTable.release.resource.acronym ===
+                  this.sourceCohort
               );
             }
             return repeat;
@@ -78,7 +81,7 @@ export default {
     },
   },
   created() {
-    this.fetch(this.name);
+    this.fetch(this.name, this.network, this.version);
   },
 };
 </script>
