@@ -12,7 +12,9 @@
             name: 'resourceHarmonizationDetails',
             params: {
               name,
-              acronym: mapping.fromTable.release.resource.acronym,
+              version,
+              network,
+              sourceCohort: mapping.fromTable.release.resource.acronym,
             },
           }"
         >
@@ -31,6 +33,8 @@ export default {
   name: "SingleVarHarmonizationView",
   props: {
     name: String,
+    network: String,
+    version: String,
   },
   data() {
     return {
@@ -38,7 +42,7 @@ export default {
     };
   },
   methods: {
-    async fetch(name) {
+    async fetch(name, network, version) {
       const params = {
         filter: {
           name: { equals: name },
@@ -46,9 +50,9 @@ export default {
             equals: [
               {
                 resource: {
-                  acronym: "LifeCycle",
+                  acronym: network,
                 },
-                version: "1.0.0",
+                version,
               },
             ],
           },
@@ -61,7 +65,7 @@ export default {
     },
   },
   async created() {
-    await this.fetch(this.name);
+    await this.fetch(this.name, this.network, this.version);
     // initialy select the first mapping
     if (
       this.variable.mappings &&
@@ -72,7 +76,10 @@ export default {
         name: "resourceHarmonizationDetails",
         params: {
           name: this.name,
-          acronym: this.variable.mappings[0].fromTable.release.resource.acronym,
+          network: this.network,
+          version: this.version,
+          sourceCohort:
+            this.variable.mappings[0].fromTable.release.resource.acronym,
         },
       });
     }

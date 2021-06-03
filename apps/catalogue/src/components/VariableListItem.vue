@@ -14,12 +14,17 @@
         {{ variable.release.resource.acronym }}
       </span>
     </div>
-    
-
     <p class="mt-3" v-if="showDetail">
       <router-link
         class="nav-link"
-        :to="{ name: 'singleVariableDetails', params: { name: variable.name } }"
+        :to="{
+          name: 'singleVariableDetails',
+          params: {
+            network: variable.release.resource.acronym,
+            version: variable.release.version,
+            name: variable.name,
+          },
+        }"
         >view details
       </router-link>
       <template v-if="variableDetails">
