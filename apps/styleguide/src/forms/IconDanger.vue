@@ -1,7 +1,7 @@
 <template>
   <button class="btn pl-1 pr-1 btn-outline-danger border-0" @click="onClick">
     <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fas fa-fw fa-' + icon"></i>
+    <i :class="'fa fa-fw fa-' + icon"></i>
   </button>
 </template>
 

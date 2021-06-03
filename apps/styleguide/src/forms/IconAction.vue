@@ -4,7 +4,7 @@
     @click.prevent="onClick"
   >
     <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fas fa-fw fa-' + icon"></i>
+    <i :class="'fa fa-fw fa-' + icon"></i>
   </button>
 </template>
 
@@ -15,7 +15,6 @@ import ButtonAction from "./ButtonAction";
 export default {
   extends: ButtonAction,
   props: {
-    label: String,
     icon: String,
   },
 };

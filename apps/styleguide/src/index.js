@@ -26,7 +26,6 @@ import InputPassword from "./forms/InputPassword";
 import InputRadio from "./forms/InputRadio";
 import InputRef from "./forms/InputRef";
 import InputRefSelect from "./forms/InputRefSelect";
-import InputRefback from "./forms/InputRefback";
 import InputRangeDate from "./forms/InputRangeDate";
 import InputRangeDecimal from "./forms/InputRangeDecimal";
 import InputRangeInt from "./forms/InputRangeInt";
@@ -97,7 +96,6 @@ export {
   InputPassword,
   InputRadio,
   InputRef,
-  InputRefback,
   InputRefSelect,
   InputRangeInt,
   InputRangeDecimal,

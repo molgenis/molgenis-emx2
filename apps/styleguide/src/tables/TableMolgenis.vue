@@ -22,7 +22,7 @@
             </span>
           </th>
           <th
-            v-for="col in columnsWithoutMeta"
+            v-for="col in columnsWithoutConstant"
             :key="col.name + col.showColumn"
             scope="col"
             class="column-drag-header"
@@ -36,10 +36,7 @@
         <tr
           v-for="(row, idx) in data"
           :key="idx + JSON.stringify(row) + isSelected(row)"
-          :class="
-            (isSelected(row) ? 'table-primary' : 'table-hover') +
-            (row['mg_draft'] ? 'alert alert-warning' : '')
-          "
+          :class="isSelected(row) ? 'table-primary' : 'table-hover'"
         >
           <td v-if="hasColheader">
             <div style="display: flex">
@@ -59,10 +56,9 @@
                 :rowkey="getKey(row)"
               />
             </div>
-            <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
           </td>
           <td
-            v-for="col in columnsWithoutMeta"
+            v-for="col in columnsWithoutConstant"
             :key="idx + col.name + isSelected(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
@@ -134,9 +130,9 @@ export default {
   },
   computed: {
     countColumns() {
-      return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
+      return this.columnsWithoutConstant.filter((c) => c.showColumn).length;
     },
-    columnsWithoutMeta() {
+    columnsWithoutConstant() {
       return this.columns.filter((c) => c.columnType != "CONSTANT");
     },
   },
