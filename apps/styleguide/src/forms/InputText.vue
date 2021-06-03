@@ -1,7 +1,7 @@
 <template>
   <span v-if="inplace && !focus" @click="toggleFocus">
     {{ value ? value : "" }}
-    <IconAction class="hoverIcon" icon="pencil" />
+    <IconAction class="hoverIcon" icon="pencil-alt" />
   </span>
   <FormGroup
     v-else

@@ -19,7 +19,7 @@
       <IconAction
         v-if="(inplace || editMeta) && !focus"
         class="hoverIcon align-top"
-        icon="pencil"
+        icon="pencil-alt"
         @click="toggleFocus"
       />
     </div>

@@ -32,7 +32,7 @@
             <td>
               <div style="display: flex">
                 <IconAction
-                  icon="external-link"
+                  icon="external-link-alt"
                   @click="openGroup(schema.name)"
                 />
                 <IconDanger
