@@ -2,11 +2,12 @@
   <FormGroup v-bind="$props" v-on="$listeners">
     <div
       class="form-check custom-control custom-checkbox"
-      v-for="row in data"
-      :key="JSON.stringify(row)"
+      v-for="(row, index) in data"
+      :key="index"
     >
       <input
         v-if="list"
+        :id="id + index"
         class="form-check-input"
         type="checkbox"
         :value="getPkey(row)"
@@ -15,6 +16,7 @@
       />
       <input
         v-else
+        :id="id + index"
         class="form-check-input"
         :name="id"
         type="radio"
@@ -22,7 +24,7 @@
         v-model="selection"
         @change="$emit('input', getPkey(row))"
       />
-      <label class="form-check-label">
+      <label class="form-check-label" :for="id + index">
         {{ flattenObject(getPkey(row)) }}
       </label>
     </div>
