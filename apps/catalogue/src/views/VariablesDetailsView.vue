@@ -5,8 +5,8 @@
         v-for="(variable, index) in variables"
         :key="index"
         :variable="variable"
-        :variableDetails="variableDetails[variable.name]"
-        @request-variable-detail="fetchVariableDetails(variable.name)"
+        :variableDetails="variableDetails"
+        @request-variable-detail="handleVariableDetailsRequest(variable)"
       />
       <button
         class="btn btn-link mt-2 mb-3"
@@ -32,15 +32,24 @@ import { mapGetters, mapActions, mapState } from "vuex";
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },
+  data () {
+    return {
+      variableDetails: {}
+    }
+  },
   computed: {
     ...mapState(["isLoading"]),
-    ...mapGetters(["variables", "variableCount", "variableDetails"]),
+    ...mapGetters(["variables", "variableCount"]),
     showMoreVisible() {
       return this.variables.length < this.variableCount;
     },
   },
   methods: {
     ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
+    async handleVariableDetailsRequest (variable) {
+      const result = await this.fetchVariableDetails(variable)
+      this.variableDetails = result
+    }
   },
 };
 </script>
