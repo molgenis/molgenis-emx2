@@ -60,10 +60,9 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
 import VariableDetails from "../components/VariableDetails.vue";
-import variableDetails from "../store/query/variableDetails.gql";
 import { fetchDatabanks } from "../store/repository/databankRepository";
+import { fetchDetails } from "../store/repository/variableRepository";
 export default {
   name: "SingleVarDetailsView",
   components: { VariableDetails },
@@ -79,27 +78,6 @@ export default {
     };
   },
   methods: {
-    async fetch(name, network, version) {
-      const params = {
-        filter: {
-          name: { equals: name },
-          release: {
-            equals: [
-              {
-                resource: {
-                  acronym: network,
-                },
-                version: version,
-              },
-            ],
-          },
-        },
-      };
-      const resp = await request("graphql", variableDetails, params).catch(
-        (e) => console.error(e)
-      );
-      this.variable = resp.Variables[0];
-    },
     getMatchStatus(variable, cohortName) {
       const cohortMapping = variable.mappings.find((mapping) => {
         return mapping.fromRelease.resource.acronym === cohortName;
@@ -121,7 +99,7 @@ export default {
     },
   },
   async created() {
-    this.fetch(this.name, this.network, this.version);
+    this.variable = await fetchDetails(this.name, this.network, this.version);
     this.databanks = await fetchDatabanks();
   },
 };
