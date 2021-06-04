@@ -1,6 +1,7 @@
 import { request, gql } from "graphql-request";
 import databanks from "./query/databanks.gql";
 import schema from "./query/schema.gql";
+import mappings from "./query/mappings.gql";
 
 export default {
   fetchSchema: async ({ state, commit }) => {
@@ -221,59 +222,33 @@ export default {
     commit("setCohorts", resp.Databanks);
   },
 
-  fetchMappings: async ({ commit, getters }) => {
-    const query = gql`
-      query VariableMappings($filter: VariableMappingsFilter) {
-        VariableMappings(limit: 100, filter: $filter) {
-          fromTable {
-            release {
-              resource {
-                acronym
-              }
-              version
-            }
-            name
-          }
-          toVariable {
-            table {
-              release {
-                resource {
-                  acronym
-                }
-                version
-              }
-              name
-            }
-            name
-          }
-          match {
-            name
-          }
-        }
-      }
-    `;
+  fetchMappings: async (context, variable) => {
+    let nameFilter = [variable.name];
+    if (variable.repeats) {
+      nameFilter = nameFilter.concat(variable.repeats.map((r) => r.name));
+    }
 
-    const variables = getters.variables.map((v) => {
-      return {
+    const filter = {
+      toVariable: {
+        name: {
+          equals: nameFilter,
+        },
         release: {
           resource: {
-            acronym: v.release.resource.acronym,
+            equals: {
+              acronym: variable.release.resource.acronym,
+            },
           },
-          version: v.release.version,
+          version: {
+            equals: variable.release.version,
+          },
         },
-        name: v.name,
-      };
-    });
+      },
+    };
 
-    const filter = variables.length
-      ? {
-          filter: { toVariable: { equals: variables } },
-        }
-      : {};
-
-    const resp = await request("graphql", query, filter).catch((e) =>
+    const resp = await request("graphql", mappings, { filter }).catch((e) =>
       console.error(e)
     );
-    commit("setVariableMappings", resp.VariableMappings);
+    return resp.VariableMappings;
   },
 };

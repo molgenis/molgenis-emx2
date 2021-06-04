@@ -16,7 +16,7 @@ const state = {
     },
   ],
   cohorts: [],
-  variableMappings: [],
+  variableMappings: {},
   searchInput: "",
 };
 

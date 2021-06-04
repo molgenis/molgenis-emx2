@@ -33,10 +33,7 @@ export default {
   setCohorts(state, cohorts) {
     Vue.set(state, "cohorts", cohorts);
   },
-  setVariableMappings(state, variableMappings) {
-    Vue.set(state, "variableMappings", variableMappings);
-  },
   setSchema(state, schema) {
-    state.schema = schema
-  }
+    state.schema = schema;
+  },
 };

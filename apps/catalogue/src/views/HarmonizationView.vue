@@ -17,17 +17,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="variable in variables" :key="variable.name">
-          <th class="table-label text-nowrap" scope="row">{{ variable.name }}</th>
-          <td
-            v-for="cohort in cohorts"
-            :key="cohort.acronym"
-            class="colored-grid-cell"
-            :class="'table-' + getMatchStatus(variable.name, cohort.acronym)"
-          >
-            <!-- {{getMatchStatus(variable.name, cohort.acronym)}} -->
-          </td>
-        </tr>
+        <template v-for="variable in variables">
+          <harmonization-row
+            :key="variable.name"
+            :variable="variable"
+            :cohorts="cohorts"
+          />
+        </template>
       </tbody>
     </table>
   </div>
@@ -35,41 +31,19 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import HarmonizationRow from "./HarmonizationRow.vue";
+
 export default {
   name: "HarmonizationView",
+  components: { HarmonizationRow },
   computed: {
-    ...mapGetters(["cohorts", "variables", "harmonizationGrid"]),
+    ...mapGetters(["cohorts", "variables"]),
   },
   methods: {
-    ...mapActions(["fetchCohorts", "fetchMappings"]),
-    getMatchStatus(variableName, cohortAcronym) {
-      if (
-        !this.harmonizationGrid[variableName] ||
-        !this.harmonizationGrid[variableName][cohortAcronym]
-      ) {
-        return "danger"; // not mapped
-      }
-      const match = this.harmonizationGrid[variableName][cohortAcronym];
-      switch (match) {
-        case "zna":
-          return "danger";
-        case "partial":
-          return "warning";
-        case "complete":
-          return "success";
-        default:
-          return "danger";
-      }
-    },
+    ...mapActions(["fetchCohorts"])
   },
-  watch: {
-    variables() {
-      this.fetchMappings();
-    },
-  },
-  mounted() {
-    this.fetchCohorts();
-    this.fetchMappings();
+  async mounted() {
+    await this.fetchCohorts();
   },
 };
 </script>
@@ -95,7 +69,8 @@ td.colored-grid-cell {
   font-size: 0.8rem;
 }
 
-.table-bordered th, .table-bordered td {
+.table-bordered th,
+.table-bordered td {
   border: 1px solid #6c757d;
 }
 </style>
