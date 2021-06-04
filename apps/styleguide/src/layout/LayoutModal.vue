@@ -23,7 +23,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div v-scroll-lock="show" class="modal-body bg-light">
+          <div v-scroll-lock="show" class="modal-body">
             <!-- @slot contents to be shown on the modal -->
             <slot name="body" />
           </div>

@@ -12,7 +12,9 @@
             name: 'resourceHarmonizationDetails',
             params: {
               name,
-              acronym: mapping.fromTable.release.resource.acronym,
+              version,
+              network,
+              sourceCohort: mapping.fromTable.release.resource.acronym,
             },
           }"
         >
@@ -25,54 +27,35 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import variableDetails from "../store/query/variableDetails.gql";
+import { fetchDetails } from "../store/repository/variableRepository";
 export default {
   name: "SingleVarHarmonizationView",
   props: {
     name: String,
+    network: String,
+    version: String,
   },
   data() {
     return {
       variable: {},
     };
   },
-  methods: {
-    async fetch(name) {
-      const params = {
-        filter: {
-          name: { equals: name },
-          release: {
-            equals: [
-              {
-                resource: {
-                  acronym: "LifeCycle",
-                },
-                version: "1.0.0",
-              },
-            ],
-          },
-        },
-      };
-      const resp = await request("graphql", variableDetails, params).catch(
-        (e) => console.error(e)
-      );
-      this.variable = resp.Variables[0];
-    },
-  },
   async created() {
-    await this.fetch(this.name);
+    this.variable = await fetchDetails(this.name, this.network, this.version);
     // initialy select the first mapping
     if (
       this.variable.mappings &&
       this.variable.mappings[0] &&
       !this.$route.params.acronym
     ) {
-      this.$router.push({
+      this.$router.replace({
         name: "resourceHarmonizationDetails",
         params: {
           name: this.name,
-          acronym: this.variable.mappings[0].fromTable.release.resource.acronym,
+          network: this.network,
+          version: this.version,
+          sourceCohort:
+            this.variable.mappings[0].fromTable.release.resource.acronym,
         },
       });
     }

@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <div>
     <div v-if="countFilters > 0">
       {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (<a
         href="#"
@@ -37,7 +37,7 @@
         </span>
       </span>
     </div>
-  </span>
+  </div>
 </template>
 <script>
 import FilterWell from "./FilterWell";
@@ -103,7 +103,7 @@ export default {
       let update = this.filters;
       for (var idx in update) {
         if (Array.isArray(update[idx].conditions)) {
-          update[idx].conditions = [];
+          update[idx].conditions.splice(0); // use splice to avoid removing vue reactivity
         }
       }
       this.$emit("update:filters", update);

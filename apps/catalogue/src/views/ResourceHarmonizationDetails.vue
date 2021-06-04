@@ -10,8 +10,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import variableDetails from "../store/query/variableDetails.gql";
+import { fetchDetails } from "../store/repository/variableRepository";
 import { Spinner } from "@mswertz/emx2-styleguide";
 import HarmonizationDefinition from "../components/HarmonizationDefinition.vue";
 
@@ -20,35 +19,14 @@ export default {
   components: { Spinner, HarmonizationDefinition },
   props: {
     name: String,
-    acronym: String,
+    network: String,
+    version: String,
+    sourceCohort: String,
   },
   data() {
     return {
       variable: null,
     };
-  },
-  methods: {
-    async fetch(name) {
-      const params = {
-        filter: {
-          name: { equals: name },
-          release: {
-            equals: [
-              {
-                resource: {
-                  acronym: "LifeCycle",
-                },
-                version: "1.0.0",
-              },
-            ],
-          },
-        },
-      };
-      const resp = await request("graphql", variableDetails, params).catch(
-        (e) => console.error(e)
-      );
-      this.variable = resp.Variables[0];
-    },
   },
   computed: {
     repeats() {
@@ -57,7 +35,7 @@ export default {
           ...this.variable,
           cohortMapping: this.variable.mappings.find(
             (mapping) =>
-              mapping.fromTable.release.resource.acronym === this.acronym
+              mapping.fromTable.release.resource.acronym === this.sourceCohort
           ),
         },
       ];
@@ -67,7 +45,8 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.fromTable.release.resource.acronym === this.acronym
+                  mapping.fromTable.release.resource.acronym ===
+                  this.sourceCohort
               );
             }
             return repeat;
@@ -77,8 +56,8 @@ export default {
       return repeats;
     },
   },
-  created() {
-    this.fetch(this.name);
+  async created() {
+    this.variable = await fetchDetails(this.name, this.network, this.version);
   },
 };
 </script>

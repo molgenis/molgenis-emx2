@@ -15,7 +15,7 @@
         <h6>Databanks involved</h6>
         <DatabankList :databanks="network.databanks" />
         <h6>Funding</h6>
-        <p>{{ network.fundingStatement ? network.fundingStatement : "N/A" }}</p>
+        <p>{{ network.funding ? network.funding : "N/A" }}</p>
       </div>
       <div class="col">
         <ResourceContext :resource="network" />
@@ -77,7 +77,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, contact{name,email},description,homepage,fundingStatement, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name},models{acronym,name}, releases{resource{acronym,name},version}}}`,
+        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, contact{name,email},description,homepage,funding, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name},models{acronym,name}, releases{resource{acronym,name},version}}}`,
         {
           acronym: this.acronym,
         }

@@ -36,6 +36,10 @@ public class SqlColumnExecutor {
       case REF_ARRAY:
         isRequired = column.getReferences().stream().allMatch(Reference::isRequired) && isRequired;
         break;
+        //      case MREF:
+        //        // nullability checked on the jointable
+        //        isNullable = true;
+        //        break;
       default:
         // if has default, we will first update all 'null' to default
         if (column.isRequired() && column.getDefaultValue() != null) {
@@ -204,11 +208,7 @@ public class SqlColumnExecutor {
             }
           }
         }
-
-        // we only have hard not null in case of primary key
-        if (column.isPrimaryKey()) {
-          executeSetRequired(jooq, column);
-        }
+        executeSetRequired(jooq, column);
       } else if (FILE.equals(column.getColumnType())) {
         for (Field f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
@@ -216,11 +216,7 @@ public class SqlColumnExecutor {
       } else {
         jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
         executeSetDefaultValue(jooq, column);
-
-        // we only have hard not null in case of primary key
-        if (column.isPrimaryKey()) {
-          executeSetRequired(jooq, column);
-        }
+        executeSetRequired(jooq, column);
       }
       // central constraints
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
@@ -363,23 +359,15 @@ public class SqlColumnExecutor {
   }
 
   static void updatePositions(Column column, TableMetadata existingTable) {
-    if (!column.getName().startsWith("mg_")) {
-      if (column.getPosition() == null
-          || column.getPosition() > existingTable.getColumns().size()) {
-        if (existingTable.getInherit() == null) {
-          // should before the mg_ columns, currently 5
-          column.setPosition(existingTable.getLocalColumns().size() - 5);
-        } else {
-          column.setPosition(existingTable.getLocalColumns().size());
-        }
-      } else {
-        // if needed move other columns positions
-        for (Column c : existingTable.getLocalColumns()) {
-          // check for position, don't update columns from parent
-          if (c.getPosition() >= column.getPosition()
-              && c.getTableName().equals(existingTable.getTableName())) {
-            existingTable.alterColumn(c.getName(), c.setPosition(c.getPosition() + 1));
-          }
+    if (column.getPosition() == null || column.getPosition() > existingTable.getColumns().size()) {
+      column.setPosition(existingTable.getLocalColumns().size());
+    } else {
+      // if needed move other columns positions
+      for (Column c : existingTable.getLocalColumns()) {
+        // check for position, don't update columns from parent
+        if (c.getPosition() >= column.getPosition()
+            && c.getTableName().equals(existingTable.getTableName())) {
+          existingTable.alterColumn(c.getName(), c.setPosition(c.getPosition() + 1));
         }
       }
     }

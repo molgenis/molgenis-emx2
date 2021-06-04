@@ -90,8 +90,8 @@ public class SqlQuery extends QueryBean {
             for (Reference ref : c.getReferences()) {
               select.select(ref.getName());
             }
-          } else if (!c.getName().startsWith("mg_")) {
-            // don't include refBack or files or mg_ columns
+          } else {
+            // don't include refBack or files
             select.select(c.getName());
           }
         }

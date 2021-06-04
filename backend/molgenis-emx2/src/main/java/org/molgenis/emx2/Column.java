@@ -604,8 +604,4 @@ public class Column {
   public void setRefLink(String refLink) {
     this.refLink = refLink;
   }
-
-  public boolean isPrimaryKey() {
-    return getKey() == 1;
-  }
 }

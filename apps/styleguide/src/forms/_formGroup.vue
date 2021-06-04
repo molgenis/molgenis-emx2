@@ -1,9 +1,9 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <div class="form-group" :class="inplace ? 'm0' : 'bg-white rounded p-2 mb-2'">
-    <label v-if="label && !inplace && !editMeta" :for="id" class="mb-0">
-      <b>{{ label }}</b>
+  <div class="form-group" :class="inplace ? 'm0' : ''">
+    <label v-if="label && !inplace && !editMeta" :for="id">
+      {{ label }}
     </label>
     <label v-else-if="editMeta">
       <InputString
@@ -13,6 +13,7 @@
       />
     </label>
     <span v-if="required" class="float-right">(required)</span>
+    <slot />
     <small
       v-if="description && !inplace && !editMeta"
       :id="id + 'Description'"
@@ -31,10 +32,7 @@
         @input="$emit('update:description', $event)"
       />
     </small>
-    <slot />
-    <small v-if="errorMessage" class="text-danger form-text">{{
-      errorMessage
-    }}</small>
+    <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
   </div>
 </template>
 
