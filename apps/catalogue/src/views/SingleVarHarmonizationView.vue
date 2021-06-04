@@ -48,7 +48,7 @@ export default {
       this.variable.mappings[0] &&
       !this.$route.params.acronym
     ) {
-      this.$router.push({
+      this.$router.replace({
         name: "resourceHarmonizationDetails",
         params: {
           name: this.name,
