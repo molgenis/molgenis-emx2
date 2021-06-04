@@ -27,8 +27,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import variableDetails from "../store/query/variableDetails.gql";
+import { fetchDetails } from "../store/repository/variableRepository";
 export default {
   name: "SingleVarHarmonizationView",
   props: {
@@ -41,31 +40,8 @@ export default {
       variable: {},
     };
   },
-  methods: {
-    async fetch(name, network, version) {
-      const params = {
-        filter: {
-          name: { equals: name },
-          release: {
-            equals: [
-              {
-                resource: {
-                  acronym: network,
-                },
-                version,
-              },
-            ],
-          },
-        },
-      };
-      const resp = await request("graphql", variableDetails, params).catch(
-        (e) => console.error(e)
-      );
-      this.variable = resp.Variables[0];
-    },
-  },
   async created() {
-    await this.fetch(this.name, this.network, this.version);
+    this.variable = await fetchDetails(this.name, this.network, this.version);
     // initialy select the first mapping
     if (
       this.variable.mappings &&
