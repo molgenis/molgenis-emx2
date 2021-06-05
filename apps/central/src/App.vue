@@ -28,12 +28,11 @@ export default {
           label: "Styleguide (for developers)",
           href: "/apps/styleguide/",
         },
-        // remove docs until available
-        // {
-        //   label: "Docs",
-        //   href: "/apps/docs/",
-        //   newWindow: true,
-        // },
+        {
+          label: "Docs",
+          href: "/apps/docs/",
+          newWindow: true,
+        },
       ],
     };
   },
