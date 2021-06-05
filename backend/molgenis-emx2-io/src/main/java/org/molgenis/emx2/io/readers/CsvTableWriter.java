@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.readers;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvWriter;
 
@@ -20,6 +21,9 @@ public class CsvTableWriter {
     for (Row r : rows) {
       columnNames.addAll(r.getColumnNames());
     }
+    // we filter mg_ columns. TODO make option to choose
+    columnNames =
+        columnNames.stream().filter(name -> !name.startsWith("mg_")).collect(Collectors.toSet());
 
     CsvWriter.CsvWriterDSL<Map> writerDsl =
         CsvWriter.from(Map.class).columns(columnNames.toArray(new String[columnNames.size()]));
