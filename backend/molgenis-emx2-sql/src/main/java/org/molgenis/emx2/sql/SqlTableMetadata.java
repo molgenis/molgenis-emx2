@@ -110,6 +110,9 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata alterColumn(String name, Column column) {
+    // ignore mg_ columns
+    if (column.getName().startsWith("mg_")) return this;
+
     Column oldColumn = getColumn(name);
     if (oldColumn == null) {
       throw new MolgenisException(
@@ -192,7 +195,10 @@ class SqlTableMetadata extends TableMetadata {
               executeAlterName(jooq, oldColumn, newColumn);
 
               // change required?
-              if (oldColumn.isRequired() && !oldColumn.isRequired() == newColumn.isRequired()) {
+              // only applies to key=1
+              if ((oldColumn.isPrimaryKey() || newColumn.isPrimaryKey())
+                  && oldColumn.isRequired()
+                  && !oldColumn.isRequired() == newColumn.isRequired()) {
                 executeSetRequired(jooq, newColumn);
               }
 

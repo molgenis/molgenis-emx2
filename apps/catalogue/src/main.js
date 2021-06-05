@@ -11,7 +11,6 @@ import ReleasesView from "./views/ReleasesView";
 import DatasourceView from "./views/DatasourceView";
 import ModelView from "./views/ModelView";
 import ResourceListView from "./views/ResourceListView";
-import AffiliationView from "./views/AffiliationView";
 import ContactView from "./views/ContactView";
 import StudiesView from "./views/StudiesView";
 import VariableView from "./views/VariableView";
@@ -80,12 +79,6 @@ const router = new VueRouter({
       component: NetworkView,
     },
     {
-      name: "affiliation",
-      path: "/affiliations/:acronym",
-      props: true,
-      component: AffiliationView,
-    },
-    {
       name: "contact",
       path: "/contacts/:name",
       props: true,
@@ -117,8 +110,7 @@ const router = new VueRouter({
     },
     {
       name: "tablemapping",
-      path:
-        "/tablemappings/:fromAcronym/:fromVersion/:fromTable/:toAcronym/:toVersion/:toTable",
+      path: "/tablemappings/:fromAcronym/:fromVersion/:fromTable/:toAcronym/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },

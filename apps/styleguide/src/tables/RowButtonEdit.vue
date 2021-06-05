@@ -5,8 +5,9 @@
     :graphqlURL="graphqlURL"
     :pkey="pkey"
     @close="closeForm"
+    :visible-columns="visibleColumns"
   />
-  <IconAction v-else icon="pencil" @click="openForm" />
+  <IconAction v-else icon="pencil-alt" @click="openForm" />
 </template>
 
 <script>
@@ -22,6 +23,7 @@ export default {
   },
   props: {
     pkey: Object,
+    visibleColumns: Array,
   },
   computed: {
     title() {

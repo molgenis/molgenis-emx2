@@ -55,18 +55,25 @@
       v-model="input"
       v-on="$listeners"
     />
-    <InputRefSelect
+    <InputRef
       :list="true"
+      :multiple-columns="true"
+      :max-num="35"
       v-else-if="
         columnType === 'REF_ARRAY' ||
-        columnType === 'REFBACK' ||
-        columnType === 'MREF'
+        columnType === 'MREF' ||
+        refBackType === 'REF_ARRAY'
       "
       v-bind="$props"
       v-model="input"
       :table="table"
       :graphqlURL="graphqlURL"
       v-on="$listeners"
+    />
+    <inputRefback
+      v-else-if="refBackType == 'REF'"
+      v-bind="$props"
+      :table="table"
     />
     <InputString
       v-else-if="columnType === 'STRING_ARRAY'"
@@ -116,6 +123,9 @@ export default {
     filter: Object,
     table: String,
     refLabel: String,
+    refBack: String,
+    refBackType: String,
+    pkey: Object,
     graphqlURL: {
       default: "graphql",
       type: String,
@@ -137,6 +147,8 @@ export default {
     InputFile,
     InputText,
     InputConstant,
+    InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
+    InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
   },
   created() {
     this.input = this.value;

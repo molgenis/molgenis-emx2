@@ -91,7 +91,7 @@ public class SqlQuery extends QueryBean {
               select.select(ref.getName());
             }
           } else {
-            // don't include refBack or files
+            // don't include refBack or files or mg_ columns
             select.select(c.getName());
           }
         }

@@ -62,11 +62,6 @@
         <h3>Contacts</h3>
         <p class="text-left">Researchers, data managers,</p>
       </RouterLink>
-      <RouterLink to="list/Affiliations" class="btn btn-info col-2">
-        <span class="badge badge-light">{{ affiliations }}</span>
-        <h3>Affiliations</h3>
-        <p class="text-left">Departments, divisions and research groups.</p>
-      </RouterLink>
     </div>
     <h2>Browse data definitions</h2>
     <div class="row justify-content-between container-fluid mt-4 mb-4">
@@ -147,14 +142,13 @@ export default {
       variableMappings: null,
       tableMappings: null,
       studies: null,
-      affiliations: null,
     };
   },
   methods: {
     reload() {
       request(
         "graphql",
-        `query {Institutions_agg{count}, Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Affiliations_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
+        `query {Institutions_agg{count}, Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
       )
         .then((data) => {
           this.institutions = data.Institutions_agg.count;
