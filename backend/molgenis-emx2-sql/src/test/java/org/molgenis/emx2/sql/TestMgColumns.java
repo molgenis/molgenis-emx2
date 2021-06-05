@@ -49,6 +49,26 @@ public class TestMgColumns {
     // verify
     Assert.assertEquals(1, t.retrieveRows().size());
     Assert.assertEquals("somevalue2", t.retrieveRows().get(0).getString("notrequired"));
+
+    // to make sure also test with subclass
+    t = schema.create(table("MgDraftSuper", column("id").setPkey()));
+    t =
+        schema.create(
+            table("MgDraftSub", column("required").setRequired(true), column("notrequired"))
+                .setInherit("MgDraftSuper"));
+
+    try {
+      t.insert(row("id", 1, "notrequired", "somevalue1"));
+      fail("should fail");
+    } catch (Exception e) {
+      // ok
+    }
+
+    try {
+      t.insert(row("id", 1, "notrequired", "somevalue2").setDraft(true));
+    } catch (Exception e) {
+      fail("should succeed");
+    }
   }
 
   @Test
@@ -57,6 +77,20 @@ public class TestMgColumns {
 
     t.insert(row("id", 1));
     Row r = t.retrieveRows().get(0);
+    Assert.assertNotNull(r.getDateTime(MG_INSERTEDON));
+    Assert.assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
+    Assert.assertNotNull(r.getString(MG_INSERTEDBY));
+    Assert.assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
+
+    t.update(r);
+    r = t.retrieveRows().get(0);
+    Assert.assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
+
+    // to make sure also test with subclass
+    t = schema.create(table("UpdatedOnSub").setInherit("UpdatedOn"));
+
+    t.insert(row("id", 2));
+    r = t.retrieveRows().get(0);
     Assert.assertNotNull(r.getDateTime(MG_INSERTEDON));
     Assert.assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
     Assert.assertNotNull(r.getString(MG_INSERTEDBY));
