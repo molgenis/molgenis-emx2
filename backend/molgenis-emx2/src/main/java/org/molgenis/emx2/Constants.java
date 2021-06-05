@@ -20,7 +20,14 @@ public class Constants {
   public static final String ROLE = "role";
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
+
   public static final String MG_TABLECLASS = "mg_tableclass";
+  public static final String MG_DRAFT = "mg_draft";
+  public static final String MG_INSERTEDBY = "mg_insertedBy";
+  public static final String MG_INSERTEDON = "mg_insertedOn";
+  public static final String MG_UPDATEDBY = "mg_updatedBy";
+  public static final String MG_UPDATEDON = "mg_updatedOn";
+
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
   public static final String SETTINGS_NAME = "key";

@@ -10,11 +10,20 @@
       <h6>
         {{ label }}
       </h6>
-      <ButtonAlt @click="showAll">show all</ButtonAlt>
-      <ButtonAlt @click="hideAll">hide all</ButtonAlt>
-
-      <div>
-        <div class="form-check" v-for="(col, key) in columns" :key="key">
+      <b>
+        data (
+        <ButtonAlt class="pl-0" @click="showAll(true)">all</ButtonAlt>
+        <ButtonAlt class="p-0" @click="hideAll(true)">none</ButtonAlt>
+        )
+      </b>
+      <div v-for="(col, key) in columns" :key="key">
+        <b class="ml-0" v-if="col.name == 'mg_draft'">
+          metadata (
+          <ButtonAlt class="pl-0" @click="showAll(false)">all</ButtonAlt>
+          <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
+          )
+        </b>
+        <div class="form-check">
           <input
             class="form-check-input"
             type="checkbox"
@@ -61,17 +70,27 @@ export default {
       update[key][this.checkAttribute] = value;
       this.$emit("update:columns", update);
     },
-    hideAll() {
+    hideAll(data) {
       let update = JSON.parse(JSON.stringify(this.columns));
       for (var key in update) {
-        update[key][this.checkAttribute] = false;
+        if (
+          (data && !update[key].name.startsWith("mg_")) ||
+          (!data && update[key].name.startsWith("mg_"))
+        ) {
+          update[key][this.checkAttribute] = false;
+        }
       }
       this.$emit("update:columns", update);
     },
-    showAll() {
+    showAll(data) {
       let update = JSON.parse(JSON.stringify(this.columns));
       for (var key in update) {
-        update[key][this.checkAttribute] = true;
+        if (
+          (data && !update[key].name.startsWith("mg_")) ||
+          (!data && update[key].name.startsWith("mg_"))
+        ) {
+          update[key][this.checkAttribute] = true;
+        }
       }
       this.$emit("update:columns", update);
     },

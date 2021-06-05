@@ -59,7 +59,7 @@
             </ButtonDropdown>
             <IconAction
               class="ml-2"
-              :label="'view'"
+              label="view"
               :icon="viewIcon"
               @click="toggleView"
             />
@@ -71,16 +71,24 @@
             :limit="limit"
             :count="count"
           />
-          <div class="btn-group" v-if="view != View.RECORD">
+          <div class="btn-group m-0" v-if="view != View.RECORD">
             <span class="btn">Rows per page:</span>
             <InputSelect
               :value="limit"
               :options="[10, 20, 50, 100]"
               :clear="false"
               @input="setlimit($event)"
+              class="mb-0"
+            />
+            <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
+            <TableSettings
+              v-if="canManage"
+              :tableName="table"
+              :cardTemplate.sync="cardTemplate"
+              :recordTemplate.sync="recordTemplate"
+              :graphqlURL="graphqlURL"
             />
           </div>
-          <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
         </div>
       </div>
       <div class="d-flex">
@@ -95,13 +103,6 @@
           class="flex-grow-1 pr-0 pl-0"
           :class="countFilters > 0 ? 'col-9' : 'col-12'"
         >
-          <TableSettings
-            v-if="canManage"
-            :tableName="table"
-            :cardTemplate.sync="cardTemplate"
-            :recordTemplate.sync="recordTemplate"
-            :graphqlURL="graphqlURL"
-          />
           <FilterWells
             :filters.sync="columns"
             @update:filters="emitConditions"
@@ -349,9 +350,9 @@ export default {
   computed: {
     viewIcon() {
       //icon should be next
-      if (this.view == View.CARDS) return "file-text";
+      if (this.view == View.CARDS) return "list-alt";
       else if (this.view == View.TABLE) return "th";
-      else return "table";
+      else return "th-list";
     },
     tableMetadataMerged() {
       let tm = this.tableMetadata;
@@ -437,25 +438,35 @@ export default {
       this.page = this.showPage;
       this.limit = this.showLimit;
       if (this.columns.length == 0) {
-        this.columns.push(
-          ...this.tableMetadata.columns.filter((c) => c.name != "mg_tableclass")
-        );
+        this.columns.push(...this.tableMetadata.columns);
         // //init settings
         this.columns.forEach((c) => {
-          if (
-            this.showColumns &&
-            this.showColumns.length > 0 &&
-            !this.showColumns.includes(c.name)
-          )
-            c.showColumn = false;
-          else c.showColumn = true;
-          if (
-            this.showFilters &&
-            this.showFilters.length > 0 &&
-            this.showFilters.includes(c.name)
-          )
-            c.showFilter = true;
-          else c.showFilter = false;
+          //show columns
+          if (this.showColumns && this.showColumns.length > 0) {
+            if (this.showColumns.includes(c.name)) {
+              c.showColumn = true;
+            } else {
+              c.showColumn = false;
+            }
+          } else {
+            //default we show all non mg_ columns
+            if (!c.name.startsWith("mg_")) {
+              c.showColumn = true;
+            } else {
+              c.showColumn = false;
+            }
+          }
+          //show filters
+          if (this.showFilters && this.showFilters.length > 0) {
+            if (this.showFilters.includes(c.name)) {
+              c.showFilter = true;
+            } else {
+              c.showFilter = false;
+            }
+          } else {
+            //default we hide all filters
+            c.showFilter = false;
+          }
         });
         if (this.showView) {
           this.view = this.showView;
@@ -482,41 +493,13 @@ export default {
 </script>
 
 <docs>
-example (graphqlURL is usually not needed because graphql is always served on root of app)
-```
-<template>
-  <div>
-    <Molgenis v-model="session">
-      <TableExplorer v-if="session && session.roles && session.roles.includes('Viewer')" :session="session"
-                     table="VariableMappings" :showColumns="['name']" :showFilters="['table']" :showCards="true"
-                     graphqlURL="/Conception/graphql"
-                     :showSelect="false" @click="click"/>
-      <div v-else>Please sign in.</div>
-    </Molgenis>
-    session: {{ session }}
-  </div>
-</template>
-<script>
-  export default {
-    data() {
-      return {
-        session: null
-      }
-    }, methods: {
-      click(event) {
-        alert(event);
-      }
-    }
-  }
-</script>
-```
 example (graphqlURL is usually not needed because app is served on right path)
 ```
 <template>
   <div>
     <TableExplorer
-        table="Variables"
-        graphqlURL="/CohortNetwork/graphql"
+        table="Pet"
+        graphqlURL="/pet store/graphql"
         :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
         :showPage.sync="page" :showLimit.sync="limit"
         :conditions.sync="conditions"/>

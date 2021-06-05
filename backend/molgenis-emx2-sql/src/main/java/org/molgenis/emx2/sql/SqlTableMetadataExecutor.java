@@ -2,9 +2,8 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.FILE;
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 import java.util.ArrayList;
@@ -52,8 +51,10 @@ class SqlTableMetadataExecutor {
     // then create columns
     int position = 0;
     for (Column column : table.getStoredColumns()) {
+
       // check if column adheres to all rules
       validateColumn(column);
+
       // we force position based on order
       if (table.getInherit() == null
           || table.getInheritedTable().getColumn(column.getName()) == null) {
@@ -73,7 +74,14 @@ class SqlTableMetadataExecutor {
         SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
       }
     }
+
+    // add search column
     executeEnableSearch(jooq, table);
+
+    // add meta columns (only superclass table)
+    if (table.getInherit() == null) {
+      executeAddMetaColumns(table);
+    }
   }
 
   static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {
@@ -117,6 +125,10 @@ class SqlTableMetadataExecutor {
               + table.getInherit()
               + "' because table primary key is null");
     }
+
+    // remove meta, we use super class meta
+    executeRemoveMetaColumns(jooq, table);
+
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInherit(other.getTableName());
     for (Column pkey : other.getPrimaryKeyColumns()) {
@@ -131,6 +143,7 @@ class SqlTableMetadataExecutor {
       other.add(
           column(MG_TABLECLASS)
               .setReadonly(true)
+              .setPosition(10005)
               .setDefaultValue(
                   other.getSchemaName()
                       + "."
@@ -258,6 +271,23 @@ class SqlTableMetadataExecutor {
             + triggerfunction,
         searchColumnName,
         name(table.getSchemaName(), tableName));
+  }
+
+  private static void executeAddMetaColumns(TableMetadata table) {
+    table.add(column(MG_DRAFT).setType(BOOL).setPosition(10000));
+    table.add(column(MG_INSERTEDBY).setPosition(10001));
+    table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(10002));
+    table.add(column(MG_UPDATEDBY).setPosition(10003));
+    table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(10004));
+  }
+
+  private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {
+    // don't delete superclass columns so check local colum
+    if (table.getLocalColumn(MG_DRAFT) != null) table.dropColumn(MG_DRAFT);
+    if (table.getLocalColumn(MG_INSERTEDBY) != null) table.dropColumn(MG_INSERTEDBY);
+    if (table.getLocalColumn(MG_INSERTEDON) != null) table.dropColumn(MG_INSERTEDON);
+    if (table.getLocalColumn(MG_UPDATEDBY) != null) table.dropColumn(MG_UPDATEDBY);
+    if (table.getLocalColumn(MG_UPDATEDON) != null) table.dropColumn(MG_UPDATEDON);
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {

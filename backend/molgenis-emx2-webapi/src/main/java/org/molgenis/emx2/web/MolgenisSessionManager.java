@@ -67,7 +67,7 @@ public class MolgenisSessionManager {
           database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
           logger.info("Initializing session for user: {}", database.getActiveUser());
           MolgenisSession session = new MolgenisSession(database);
-          logger.info("Initializing session complete");
+          logger.info("Initializing session complete for user: {}", database.getActiveUser());
           return session;
         });
   }

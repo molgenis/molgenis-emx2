@@ -91,8 +91,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<String> getInheritedRolesForUser(String user) {
-    if (user == null) user = ANONYMOUS;
+  public synchronized List<String> getInheritedRolesForUser(String user) {
+    if (user == null) return new ArrayList<>();
     user = user.trim();
     // elevate permissions temporarily
     String current = db.getActiveUser();
@@ -101,7 +101,9 @@ public class SqlSchema implements Schema {
       return SqlSchemaMetadataExecutor.getInheritedRoleForUser(
           db.getJooq(), this.getMetadata().getName(), user);
     } finally {
-      db.setActiveUser(current);
+      if (current != null) {
+        db.setActiveUser(current);
+      }
     }
   }
 
