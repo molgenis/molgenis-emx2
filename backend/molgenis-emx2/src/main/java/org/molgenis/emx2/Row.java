@@ -343,4 +343,9 @@ public class Row {
     Boolean result = getBoolean(MG_DRAFT);
     return result != null && result == true;
   }
+
+  public Row setDraft(boolean isDraft) {
+    this.values.put(MG_DRAFT, isDraft);
+    return this;
+  }
 }

@@ -34,44 +34,22 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import variableDetails from "../store/query/variableDetails.gql";
+import { fetchDetails } from "../store/repository/variableRepository";
 
 export default {
   name: "VariableDetailView",
   props: {
     name: String,
+    network: String,
+    version: String,
   },
   data() {
     return {
       variable: {},
     };
   },
-  methods: {
-    async fetch(name) {
-      const params = {
-        filter: {
-          name: { equals: name },
-          release: {
-            equals: [
-              {
-                resource: {
-                  acronym: "LifeCycle",
-                },
-                version: "1.0.0",
-              },
-            ],
-          },
-        },
-      };
-      const resp = await request("graphql", variableDetails, params).catch(
-        (e) => console.error(e)
-      );
-      this.variable = resp.Variables[0];
-    },
-  },
-  created() {
-    this.fetch(this.name);
+  async created() {
+    this.variable = await fetchDetails(this.name, this.network, this.version);
   },
 };
 </script>
