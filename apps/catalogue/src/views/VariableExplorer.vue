@@ -5,13 +5,13 @@
     <div class="row">
       <div class="col-3">
         <h5>Filters</h5>
+        <h6 class="mt-3">Networks</h6>
+        <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
         <h6 class="mt-3">Topics</h6>
         <tree-component
           :items="keywords"
           v-model="selectedKeywords"
         ></tree-component>
-        <h6 class="mt-3">Networks</h6>
-        <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
       </div>
       <div class="col-9">
         <div class="row">
@@ -115,7 +115,7 @@ export default {
     },
   },
   async created() {
-    await this.fetchSchema()
+    await this.fetchSchema();
     if (!this.variables.lenght) {
       // Only on initial creation
       this.fetchVariables();
