@@ -33,7 +33,7 @@
     "eslint-plugin-autofix": "1.0.5",
     "eslint-plugin-prettier": "3.4.0",
     "eslint-plugin-vue": "7.10.0",
-    "prettier": "2.3.0",
+    "prettier": "2.3.1",
     "vue-cli-plugin-styleguidist": "4.39.0",
     "vue-template-compiler": "2.6.12"
   },
