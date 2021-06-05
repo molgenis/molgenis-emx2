@@ -41,6 +41,7 @@
 * in forms show ref/ref_array/refback as checkboxes/radio buttons; show in multiple columns;
 * make lookup editable
 * in catalogue replace 'publications' lookup with a text area for the citation
+* breaking change: mg_* columns
 
 ### todo first
 
