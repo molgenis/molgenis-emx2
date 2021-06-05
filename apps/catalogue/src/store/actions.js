@@ -1,7 +1,15 @@
 import { request, gql } from "graphql-request";
 import databanks from "./query/databanks.gql";
+import schema from "./query/schema.gql";
 
 export default {
+  fetchSchema: async ({ state, commit }) => {
+    const resp = await request("graphql", schema).catch((e) => {
+      console.error(e);
+      state.isLoading = false;
+    });
+    commit("setSchema", resp._schema.name);
+  },
   fetchVariables: async ({ state, commit, getters }, offset = 0) => {
     state.isLoading = true;
     const query = gql`
@@ -24,20 +32,27 @@ export default {
         }
       }
     `;
-    let queryVariables = {
-      filter: {
-        release: {
-          equals: [
-            {
-              resource: {
-                acronym: "LifeCycle",
-              },
-              version: "1.0.0",
-            },
-          ],
+
+    let queryVariables = { filter: {} };
+
+    queryVariables.filter = {
+      release: {
+        resource: {
+          mg_tableclass: { equals: [`${state.schema}.Networks`] },
         },
       },
     };
+
+    if (getters.selectedNetworks.length) {
+      queryVariables.filter.release = {
+        equals: getters.selectedNetworks.map((selectedNetwork) => {
+          return {
+            version: "1.0.0",
+            resource: selectedNetwork,
+          };
+        }),
+      };
+    }
 
     if (getters.selectedKeywords.length) {
       queryVariables.filter.keywords = {
@@ -76,12 +91,7 @@ export default {
     dispatch("fetchVariables", state.variables.length);
   },
 
-  fetchVariableDetails: async ({ commit, getters }, variableName) => {
-    if (getters.variableDetails[variableName]) {
-      // cache hit
-      return getters.variableDetails[variableName];
-    }
-    // else fetch
+  fetchVariableDetails: async (context, variable) => {
     const query = gql`
       query Variables($filter: VariablesFilter) {
         Variables(limit: 1, filter: $filter) {
@@ -103,15 +113,15 @@ export default {
     const variables = {
       filter: {
         name: {
-          equals: [`${variableName}`],
+          equals: [`${variable.name}`],
         },
         release: {
           equals: [
             {
               resource: {
-                acronym: "LifeCycle",
+                acronym: variable.release.resource.acronym,
               },
-              version: "1.0.0",
+              version: variable.release.version,
             },
           ],
         },
@@ -150,11 +160,11 @@ export default {
             {
               release: {
                 resource: {
-                  acronym: "LifeCycle",
+                  acronym: variable.release.resource.acronym,
                 },
-                version: "1.0.0",
+                version: variable.release.version,
               },
-              name: variableName,
+              name: variable.name,
             },
           ],
         },
@@ -176,11 +186,6 @@ export default {
       {}
     );
     variableDetails.mappings = mappingsByAcronym;
-
-    commit("setVariableDetails", {
-      variableName,
-      variableDetails,
-    });
 
     return variableDetails;
   },
@@ -252,9 +257,9 @@ export default {
       return {
         release: {
           resource: {
-            acronym: "LifeCycle",
+            acronym: v.release.resource.acronym,
           },
-          version: "1.0.0",
+          version: v.release.version,
         },
         name: v.name,
       };
@@ -270,64 +275,5 @@ export default {
       console.error(e)
     );
     commit("setVariableMappings", resp.VariableMappings);
-  },
-
-  fetchMappingDetails: async ({ commit, getters }, { name, acronym }) => {
-    if (!getters.variableDetails[name]) {
-      return undefined;
-    }
-    const query = gql`
-      query VariableMappings($filter: VariableMappingsFilter) {
-        VariableMappings(filter: $filter) {
-          syntax
-          description
-          match {
-            name
-          }
-          fromVariable {
-            name
-          }
-        }
-      }
-    `;
-
-    const mappingQueryVariables = {
-      filter: {
-        toVariable: {
-          equals: [
-            {
-              release: {
-                resource: {
-                  acronym: "LifeCycle",
-                },
-                version: "1.0.0",
-              },
-              name: name,
-            },
-          ],
-        },
-        fromTable: {
-          equals: [
-            {
-              release: {
-                resource: {
-                  acronym: acronym,
-                },
-              },
-            },
-          ],
-        },
-      },
-    };
-
-    const resp = await request("graphql", query, mappingQueryVariables).catch(
-      (e) => console.error(e)
-    );
-
-    commit("setVariableMappingDetails", {
-      variableName: name,
-      mappingName: acronym,
-      details: resp.VariableMappings[0],
-    });
   },
 };

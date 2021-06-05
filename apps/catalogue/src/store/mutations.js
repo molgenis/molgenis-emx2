@@ -23,6 +23,10 @@ export default {
   setSearchInput(state, searchInput) {
     state.searchInput = searchInput;
   },
+  setSelectedNetworks(state, selectedNetworks) {
+    state.filters.find((f) => f.name === "networks").conditions =
+      selectedNetworks;
+  },
   setKeywords(state, keywords) {
     state.keywords = keywords;
   },
@@ -32,9 +36,7 @@ export default {
   setVariableMappings(state, variableMappings) {
     Vue.set(state, "variableMappings", variableMappings);
   },
-  removeKeywordFromSelection(state, keywordName) {
-    state.selectedKeywords = state.selectedKeywords.filter(
-      (sk) => sk !== keywordName
-    );
-  },
+  setSchema(state, schema) {
+    state.schema = schema
+  }
 };

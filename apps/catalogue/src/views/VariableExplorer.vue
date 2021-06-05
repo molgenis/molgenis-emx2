@@ -5,8 +5,13 @@
     <div class="row">
       <div class="col-3">
         <h5>Filters</h5>
-        <h6>Topics</h6>
-        <tree-component :items="keywords" v-model="selected"></tree-component>
+        <h6 class="mt-3">Topics</h6>
+        <tree-component
+          :items="keywords"
+          v-model="selectedKeywords"
+        ></tree-component>
+        <h6 class="mt-3">Networks</h6>
+        <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
       </div>
       <div class="col-9">
         <div class="row">
@@ -52,11 +57,10 @@
 
 <script>
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
-import {
-  FilterWells,
-  InputSearch,
-  TreeComponent,
-} from "@mswertz/emx2-styleguide";
+import { InputSearch } from "@mswertz/emx2-styleguide";
+import TreeComponent from "../../../styleguide/src/tree/TreeComponent";
+import InputRef from "../../../styleguide/src/forms/InputRef";
+import FilterWells from "../../../styleguide/src/tables/FilterWells";
 
 export default {
   name: "VariableExplorer",
@@ -64,6 +68,7 @@ export default {
     InputSearch,
     TreeComponent,
     FilterWells,
+    InputRef,
   },
   computed: {
     ...mapState(["filters", "keywords"]),
@@ -72,8 +77,8 @@ export default {
       "variableCount",
       "searchString",
       "selectedKeywords",
+      "selectedNetworks",
     ]),
-    ...mapMutations(["setSelectedKeywords"]),
     searchInput: {
       get() {
         return this.$store.state.searchInput;
@@ -82,22 +87,18 @@ export default {
         this.$store.commit("setSearchInput", value);
       },
     },
-    selected: {
+    networks: {
       get() {
-        return this.selectedKeywords;
+        return this.selectedNetworks;
       },
       set(value) {
-        this.setSelectedKeywords(value);
+        this.setSelectedNetworks(value);
       },
-    },
-    selectedKeywordsObjects() {
-      return this.selectedKeywords.map((selecteName) =>
-        this.keywords.find((k) => k.name === selecteName)
-      );
     },
   },
   methods: {
-    ...mapActions(["fetchVariables", "fetchKeywords"]),
+    ...mapMutations(["setSelectedNetworks"]),
+    ...mapActions(["fetchVariables", "fetchKeywords", "fetchSchema"]),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e;
     },
@@ -109,8 +110,12 @@ export default {
     searchString() {
       this.fetchVariables();
     },
+    selectedNetworks() {
+      this.fetchVariables();
+    },
   },
-  created() {
+  async created() {
+    await this.fetchSchema()
     if (!this.variables.lenght) {
       // Only on initial creation
       this.fetchVariables();

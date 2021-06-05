@@ -1,5 +1,6 @@
 const state = {
   isLoading: false,
+  schema: null,
   variables: [],
   variableDetails: {},
   variableCount: undefined,
@@ -9,8 +10,11 @@ const state = {
       name: "keywords",
       conditions: [],
     },
+    {
+      name: "networks",
+      conditions: [],
+    },
   ],
-  selectedKeywords: [],
   cohorts: [],
   variableMappings: [],
   searchInput: "",

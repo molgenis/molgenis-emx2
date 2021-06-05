@@ -133,7 +133,7 @@ const router = new VueRouter({
     },
     {
       name: "variable-detail",
-      path: "/explorer/details/:name",
+      path: "/explorer/details/:network/:version/:name",
       component: VariableDetailView,
       props: true,
       children: [
@@ -151,7 +151,7 @@ const router = new VueRouter({
           children: [
             {
               name: "resourceHarmonizationDetails",
-              path: ":acronym",
+              path: ":sourceCohort",
               component: ResourceHarmonizationDetails,
               props: true,
             },
