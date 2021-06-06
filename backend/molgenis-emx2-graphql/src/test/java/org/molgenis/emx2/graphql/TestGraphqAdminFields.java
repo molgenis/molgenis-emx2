@@ -39,9 +39,6 @@ public class TestGraphqAdminFields {
       TestCase.assertEquals(
           count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
 
-      TestCase.assertTrue(
-          execute("{_admin{users(limit:10,offset:0){username}}}").toString().contains("pietje"));
-
       // test that only admin can do this
       database.setActiveUser(null);
       grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
