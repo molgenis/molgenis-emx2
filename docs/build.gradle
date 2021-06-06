@@ -1,45 +1,30 @@
-apply plugin: "com.github.node-gradle.node"
-
-node {
-    version = '14.16.0'
-    yarnVersion = '1.22.10'
-    npmVersion = "6.14.18"
-    download = true
+plugins {
+    id 'base'
 }
 
-task build(type: YarnTask, dependsOn: yarn_install) {
+task copyDistFiles(type: Copy) {
+    from "."
+    exclude 'build'
+    into "${project.buildDir}/resources/main/public_html/apps/${project.name}"
+    outputs.dir("${project.buildDir}/resources/main/public_html/apps/${project.name}")
+    outputs.cacheIf { true }
+}
 
-    node {
-        version = '14.16.0'
-        yarnVersion = '1.22.10'
-        npmVersion = "6.14.18"
+task createJar(type: Zip, dependsOn: copyDistFiles) {
+    baseName 'docs'
+    extension 'jar'
+    destinationDir file("${buildDir}/build/libs")
+    from('build/resources/main')
+}
+
+configurations {
+    appResources
+}
+configurations.default.extendsFrom(configurations.appResources)
+
+artifacts {
+    appResources(createJar.getArchiveFile()) {
+        builtBy createJar
+        type "jar"
     }
-
-    inputs.files(fileTree('src'))
-    inputs.files(fileTree('public'))
-    inputs.file('package.json')
-    outputs.dir('src/.vitepress/dist')
-
-    // tell gradle to apply the build cache
-    outputs.cacheIf { true }
-
-    //first install the workspace
-    args = ['run', 'build']
-
-    //remove the target folder with copy of all build materials
-    delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-}
-
-task copyDistFiles(type: Copy, dependsOn: buildDocs) {
-    from "src/.vitepress/dist"
-    inputs.dir("src/.vitepress/dist")
-
-    into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-    outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-    outputs.cacheIf { true }
-}
-
-clean.doLast {
-    project.delete(files("src/.vitepress/dist"))
-    project.delete(files("node_modules"))
 }

@@ -4,12 +4,10 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 
 public class TestUsersAndPermissions {
   static Database database;
@@ -17,6 +15,19 @@ public class TestUsersAndPermissions {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+  }
+
+  @Test
+  public void getUsers() {
+
+    List<User> users = database.getUsers(1000, 0);
+    assertTrue(users.size() > 0);
+
+    int count = database.countUsers();
+    assertEquals(count, users.size());
+
+    users = database.getUsers(1000, 2);
+    assertEquals(count - 2, users.size());
   }
 
   @Test

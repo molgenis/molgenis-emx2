@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface Database {
 
@@ -26,6 +27,8 @@ public interface Database {
 
   boolean hasUser(String user);
 
+  List<User> getUsers(int limit, int offset);
+
   void removeUser(String name);
 
   void setActiveUser(String username);
@@ -45,4 +48,6 @@ public interface Database {
   void clearCache();
 
   String getDatabaseVersion();
+
+  int countUsers();
 }
