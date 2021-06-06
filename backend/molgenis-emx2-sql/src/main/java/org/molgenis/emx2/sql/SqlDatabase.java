@@ -244,6 +244,14 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public List<User> getUsers(int limit, int offset) {
+    if (!ADMIN.equals(getActiveUser()) && getActiveUser() != null) {
+      throw new MolgenisException("getUsers denied");
+    }
+    return MetadataUtils.loadUsers(getJooq(), limit, offset);
+  }
+
+  @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
     if (!hasUser(user))
@@ -356,5 +364,13 @@ public class SqlDatabase implements Database {
   @Override
   public String getDatabaseVersion() {
     return databaseVersion;
+  }
+
+  @Override
+  public int countUsers() {
+    if (!ADMIN.equals(getActiveUser()) && getActiveUser() != null) {
+      throw new MolgenisException("countUsers denied");
+    }
+    return MetadataUtils.countUsers(getJooq());
   }
 }

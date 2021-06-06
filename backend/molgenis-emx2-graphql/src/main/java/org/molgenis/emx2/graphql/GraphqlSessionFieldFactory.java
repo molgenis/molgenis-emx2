@@ -3,8 +3,8 @@ package org.molgenis.emx2.graphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.EMAIL;
-import static org.molgenis.emx2.graphql.GraphqlConstants.PASSWORD;
+import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -124,15 +124,23 @@ public class GraphqlSessionFieldFactory {
   }
 
   public GraphQLFieldDefinition changePasswordField(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("changePassword")
-        .type(typeForMutationResult)
+    GraphQLFieldDefinition.Builder builder =
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name("changePassword")
+            .type(typeForMutationResult);
+    if (ADMIN.equals(database.getActiveUser())) {
+      builder.argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString));
+    }
+    return builder
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
+              String username = dataFetchingEnvironment.getArgument(USERNAME);
+              if (username == null) {
+                username = database.getActiveUser();
+              }
               if (password != null) {
-                String username = database.getActiveUser();
                 database.setUserPassword(username, password);
                 return new GraphqlApiMutationResult(SUCCESS, "Password changed");
               } else {

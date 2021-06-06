@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@mswertz/emx2-styleguide": "*",
+    "vue-router": "3.5.1",
     "core-js": "3.13.1",
     "graphql-request": "3.4.0",
     "v-scroll-lock": "1.3.1",
