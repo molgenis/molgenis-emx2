@@ -93,6 +93,7 @@ export default {
             if (data.signup.status === "SUCCESS") {
               this.alterSuccess =
                 "Success. Created/altered user: " + this.username;
+              this.getUserList();
             } else {
               console.log("Alter data " + JSON.stringify(data));
               this.alterError =
