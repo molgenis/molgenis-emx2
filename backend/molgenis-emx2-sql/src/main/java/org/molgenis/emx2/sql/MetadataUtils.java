@@ -99,7 +99,7 @@ public class MetadataUtils {
 
   protected static synchronized String getVersion(DSLContext jooq) {
     try {
-      Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
         return (String) result.get(0).get(VERSION);
       }
@@ -319,8 +319,7 @@ public class MetadataUtils {
             .offset(offset)
             .fetch()
             .getValues(USER_NAME)) {
-      User u = new User();
-      u.setUsername((String) username);
+      User u = new User((String) username);
       users.add(u);
     }
     return users;
