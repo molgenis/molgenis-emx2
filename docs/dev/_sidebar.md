@@ -1,1 +1,0 @@
-- [How to develop EMX2](README.md)

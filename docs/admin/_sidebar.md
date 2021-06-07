@@ -1,1 +1,0 @@
-- [How to instal](install.md)

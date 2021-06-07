@@ -8,7 +8,7 @@ You can start molgenis-emx2:
 
 Details below:
 
-## 1. Using docker compose
+## Using docker compose
 
 * Install [Docker compose](https://docs.docker.com/compose/install/).
 * Download
@@ -37,7 +37,7 @@ N.B.
   particular [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
   then add version in docker-compose.yml file 'molgenis/molgenis-emx2:version'
 
-## 2. Using java and your own postgresql
+## Using java and your own postgresql
 
 * Install java (we use java 11 or higher)
 * Download a molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
@@ -67,7 +67,7 @@ For example:
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
 ```
 
-## 3. Using Helm on Kubernetes
+## Using Helm on Kubernetes
 
 If you have Kubernetes server then you can install using [Helm](https://helm.sh/docs/).
 
