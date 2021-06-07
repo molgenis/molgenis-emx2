@@ -21,7 +21,7 @@ export default {
           href: "../settings/",
         },
         {
-          label: "Docs",
+          label: "Help",
           href: "../docs/",
         },
       ];
