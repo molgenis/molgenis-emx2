@@ -20,6 +20,10 @@ export default {
           label: "Settings",
           href: "../settings/",
         },
+        {
+          label: "Help",
+          href: "../docs/",
+        },
       ];
     },
   },
