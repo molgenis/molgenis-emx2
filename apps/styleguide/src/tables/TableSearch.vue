@@ -4,7 +4,7 @@
     <div v-else style="text-align: center">
       <form
         v-if="showHeaderIfNeeded"
-        class="form-inline justify-content-between mb-2"
+        class="form-inline justify-content-between mb-2 bg-white"
       >
         <InputSearch v-if="table" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
@@ -26,6 +26,10 @@
           @select="select"
           @deselect="deselect"
         >
+          <template v-slot:header>
+            <slot name="colheader" v-bind="$props" />
+            <label>{{ count }} records found</label>
+          </template>
           <template v-slot:colheader>
             <slot
               name="colheader"
@@ -33,6 +37,13 @@
               :canEdit="canEdit"
               :reload="reload"
               :grapqlURL="graphqlURL"
+            />
+            <RowButtonAdd
+              v-if="canEdit"
+              :table="table"
+              :graphqlURL="graphqlURL"
+              @close="reload"
+              class="d-inline p-0"
             />
           </template>
           <template v-slot:rowheader="slotProps">
@@ -42,10 +53,32 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
+            <RowButtonEdit
+              v-if="canEdit"
+              :table="table"
+              :graphqlURL="graphqlURL"
+              :pkey="getPkey(slotProps.row)"
+              @close="reload"
+            />
+            <RowButtonDelete
+              v-if="canEdit"
+              :table="table"
+              :graphqlURL="graphqlURL"
+              :pkey="getPkey(slotProps.row)"
+              @close="reload"
+            />
           </template>
         </TableMolgenis>
       </div>
     </div>
+    <ShowMore title="debug">
+      <pre>
+canEdit = {{ canEdit }}
+session = {{ session }}
+schema = {{ schema }}
+data = {{ data }}
+      </pre>
+    </ShowMore>
   </div>
 </template>
 
@@ -57,6 +90,10 @@ import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import SelectionBox from "./SelectionBox";
+import ShowMore from "../layout/ShowMore";
+import RowButtonAdd from "./RowButtonAdd";
+import RowButtonEdit from "./RowButtonEdit";
+import RowButtonDelete from "./RowButtonDelete";
 
 export default {
   components: {
@@ -66,6 +103,10 @@ export default {
     InputSearch,
     Pagination,
     Spinner,
+    ShowMore,
+    RowButtonEdit,
+    RowButtonDelete,
+    RowButtonAdd,
   },
   mixins: [TableMixin],
   props: {
@@ -96,7 +137,9 @@ export default {
     },
     columnsVisible() {
       return this.tableMetadata.columns.filter(
-        (c) => this.showColumns == null || this.showColumns.includes(c.name)
+        (c) =>
+          (this.showColumns == null && !c.name.startsWith("mg_")) ||
+          (this.showColumns != null && this.showColumns.includes(c.name))
       );
     },
   },

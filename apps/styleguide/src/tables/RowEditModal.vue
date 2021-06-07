@@ -6,9 +6,14 @@
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
-        <span v-for="column in tableMetadata.columns" :key="column.name">
+        <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
-            v-if="visible(column.visible) && column.name != 'mg_tableclass'"
+            v-if="
+              (visibleColumns == null ||
+                visibleColumns.includes(column.name)) &&
+              visible(column.visible) &&
+              column.name != 'mg_tableclass'
+            "
             v-model="value[column.name]"
             :label="column.name"
             :description="column.description"
@@ -16,15 +21,22 @@
             :table="column.refTable"
             :filter="refLinkFilters[column.name]"
             :refLabel="column.refLabel"
+            :refBack="column.refBack"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
             :readonly="column.readonly || (pkey && column.key == 1)"
             :graphqlURL="graphqlURL"
+            :refBackType="getRefBackType(column)"
+            :pkey="getPkey(value)"
           />
         </span>
       </LayoutForm>
       <ShowMore title="debug">
         <pre>
+
+defaultValue = {{ defaultValue }}
+
+visibleColumns = {{ visibleColumns }}
 
 value={{ JSON.stringify(value) }}
 
@@ -46,7 +58,8 @@ schema = {{ JSON.stringify(schema, null, 2) }}
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction @click="executeCommand">{{ title }}</ButtonAction>
+      <ButtonOutline @click="saveDraft">Save draft</ButtonOutline>
+      <ButtonAction @click="save">Save {{ table }}</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -58,6 +71,7 @@ import MessageError from "../forms/MessageError";
 import MessageSuccess from "../forms/MessageSuccess";
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonOutline from "../forms/ButtonOutline";
 import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
@@ -78,6 +92,10 @@ export default {
   props: {
     /** when updating existing record, this is the primary key value */
     pkey: Object,
+    /** visible columns, useful if you only want to allow partial edit (array of strings) */
+    visibleColumns: Array,
+    /** whebn creating new record, this is initialization value */
+    defaultValue: Object,
   },
   components: {
     LayoutForm,
@@ -89,8 +107,17 @@ export default {
     MessageSuccess,
     SigninForm,
     ShowMore,
+    ButtonOutline,
   },
   methods: {
+    getRefBackType(column) {
+      if (column.columnType === "REFBACK") {
+        //get the other table, find the refback column and check its type
+        return this.getTable(column.refTable)
+          .columns.filter((c) => c.name === column.refBack)
+          .map((c) => c.columnType)[0];
+      }
+    },
     reload() {
       //override superclass
       if (this.pkey) {
@@ -102,11 +129,25 @@ export default {
       this.success = null;
       this.showLogin = false;
     },
-    executeCommand() {
+    saveDraft() {
+      this.executeCommand(true);
+    },
+    save() {
+      this.executeCommand(false);
+    },
+    executeCommand(isDraft) {
       this.graphqlError = null;
       this.success = null;
       // todo spinner
       let name = this.table;
+
+      // indicate if draft
+      if (isDraft) {
+        this.value["mg_draft"] = true;
+      } else {
+        this.value["mg_draft"] = false;
+      }
+
       let variables = { value: [this.value] };
       let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
       if (this.pkey) {
@@ -120,7 +161,6 @@ export default {
           if (data.update) {
             this.success = data.update.message;
           }
-          this.defaultValue = this.value;
           this.$emit("close");
         })
         .catch((error) => {
@@ -133,6 +173,7 @@ export default {
           }
         });
     },
+
     eval(expression) {
       try {
         return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
@@ -193,6 +234,11 @@ export default {
     },
   },
   computed: {
+    columnsWithoutMeta() {
+      return this.tableMetadata.columns.filter(
+        (c) => !c.name.startsWith("mg_")
+      );
+    },
     refLinkFilters() {
       let filter = {};
       if (this.tableMetadata) {
@@ -268,6 +314,10 @@ export default {
     },
   },
   created() {
+    //pass by value
+    if (this.defaultValue) {
+      this.value = JSON.parse(JSON.stringify(this.defaultValue));
+    }
     this.validate();
   },
 };
