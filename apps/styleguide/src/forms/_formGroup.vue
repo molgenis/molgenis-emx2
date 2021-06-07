@@ -1,8 +1,8 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <div class="form-group" :class="inplace ? 'm0' : 'bg-white rounded p-2 mb-2'">
-    <label v-if="label && !inplace && !editMeta" :for="id" class="mb-0">
+  <div class="form-group" :class="inplace ? 'm0' : 'bg-white rounded p-2'">
+    <label v-if="label && !inplace && !editMeta" :for="id" class="mb-0 mr-2">
       <b>{{ label }}</b>
     </label>
     <label v-else-if="editMeta">
