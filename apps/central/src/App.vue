@@ -31,7 +31,6 @@ export default {
         {
           label: "Help",
           href: "/apps/docs/",
-          newWindow: true,
         },
       ],
     };
