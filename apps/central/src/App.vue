@@ -29,7 +29,7 @@ export default {
           href: "/apps/styleguide/",
         },
         {
-          label: "Docs",
+          label: "Help",
           href: "/apps/docs/",
           newWindow: true,
         },
