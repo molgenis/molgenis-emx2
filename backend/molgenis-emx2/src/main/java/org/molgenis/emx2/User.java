@@ -5,11 +5,17 @@ import java.util.Objects;
 public class User {
   String username;
 
+  public User(String username) {
+    assert username != null;
+    this.username = username;
+  }
+
   public String getUsername() {
     return username;
   }
 
   public void setUsername(String username) {
+    assert username != null;
     this.username = username;
   }
 

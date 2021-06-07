@@ -319,9 +319,7 @@ public class MetadataUtils {
             .offset(offset)
             .fetch()
             .getValues(USER_NAME)) {
-      User u = new User();
-      u.setUsername((String) username);
-      users.add(u);
+      users.add(new User((String) username));
     }
     return users;
   }
