@@ -19,7 +19,7 @@
           v-model="password"
           placeholder="Enter password"
         />
-        <ButtonAction @click="alterUser">Update user</ButtonAction>
+        <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
       </form>
       <h2>User list</h2>
       <TableSimple class="bg-white" :rows="users" :columns="['username']" />
