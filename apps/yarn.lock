@@ -954,11 +954,6 @@
     cssnano-preset-default "^4.0.0"
     postcss "^7.0.0"
 
-"@molgenis/expressions@^0.16.4":
-  version "0.16.4"
-  resolved "https://registry.yarnpkg.com/@molgenis/expressions/-/expressions-0.16.4.tgz#b92abbecdd08f435aee3b266feb65c5735f6183c"
-  integrity sha512-vikZ43Grd6dfR7ueF5sKklu/El0aPFW4eoZLfLfkV4fG3i+sTsd+UJ2Wtf1KxMt4yQaM353rDmHTOd7uMVJPgw==
-
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
