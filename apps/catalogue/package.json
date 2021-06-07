@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@mswertz/emx2-styleguide": "*",
-    "core-js": "3.13.1",
+    "core-js": "3.14.0",
     "graphql-request": "3.4.0",
-    "vue": "2.6.12",
+    "vue": "2.6.13",
     "vue-router": "3.5.1",
     "vuex": "3.6.2"
   },
