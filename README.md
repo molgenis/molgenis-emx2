@@ -6,7 +6,7 @@
 # molgenis-emx2 BETA
 
 This is a BETA implementation of new MOLGENIS/EMX2 data service. Core differences with molgenis/molgenis include that it
-is simpler to setup and operate, it allows multiple data schemas and that for developers it exposes data via a
+is simpler to setup and operate, it allows multiple data schemas and for developers it exposes data via a
 self-documenting graphql api.
 
 Demo server: https://emx2.test.molgenis.org/
