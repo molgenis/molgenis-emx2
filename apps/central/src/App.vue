@@ -1,24 +1,26 @@
 <template>
   <div id="app">
     <Molgenis :menuItems="menuItems" v-model="session">
-      <Groups :session="session" :key="JSON.stringify(session)" />
+      <RouterView :session="session" :key="JSON.stringify(session)" />
     </Molgenis>
   </div>
 </template>
 
 <script>
-import Groups from "./components/Groups";
 import { Molgenis } from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
     Molgenis,
-    Groups,
   },
   data: function () {
     return {
       session: {},
-      menuItems: [
+    };
+  },
+  computed: {
+    menuItems() {
+      let result = [
         { label: "Databases", href: ".", active: true },
         {
           label: "GraphQL API",
@@ -32,8 +34,15 @@ export default {
           label: "Help",
           href: "/apps/docs/",
         },
-      ],
-    };
+      ];
+      if (this.session && this.session.email == "admin") {
+        result.push({
+          label: "Admin",
+          href: "/apps/central/#/admin",
+        });
+      }
+      return result;
+    },
   },
 };
 </script>

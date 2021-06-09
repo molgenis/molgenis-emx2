@@ -1,9 +1,9 @@
-# For developers
+# Architecture notes
 
 EMX2 consists of a 'server' and a 'client' part. The server code is written in java and can be found in 'backend'. The
 client code is writen in vue and can be found in 'apps'. Most interaction between client and server uses GraphQL.
 
-## Organised in schemas
+## Uses postgresql schemas
 
 Core of EMX2 is that data is organised using Postgresql schemas. Each schema has roles 'manager', 'editor', 'viewer'.
 Each schema is served on its own path. E.g. http://localhost:8080/pet%20store

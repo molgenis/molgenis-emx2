@@ -11,8 +11,8 @@
         <InputString
           v-model="email"
           label="Username"
-          placeholder="Enter email adress"
-          description="Please enter the provided username"
+          placeholder="Enter username"
+          description="Please enter username"
         />
         <InputPassword
           v-model="password"

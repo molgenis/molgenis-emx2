@@ -6,6 +6,9 @@ module.exports = {
       "/graphql": { target: "http://localhost:8080/api" },
       "/theme.css": { target: "http://localhost:8080/apps/central" },
       "/apps": { target: "http://localhost:8080" },
+      "^/theme.css": {
+        target: "http://localhost:8080/apps/central",
+      },
     },
   },
 };

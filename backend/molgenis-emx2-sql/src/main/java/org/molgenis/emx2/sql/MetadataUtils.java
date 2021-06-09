@@ -7,6 +7,7 @@ import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
 import java.util.*;
 import org.jooq.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.User;
 import org.molgenis.emx2.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,6 +307,25 @@ public class MetadataUtils {
         .set(TABLE_NAME, newName)
         .where(TABLE_SCHEMA.eq(table.getSchemaName()), TABLE_NAME.eq(table.getTableName()))
         .execute();
+  }
+
+  protected static List<User> loadUsers(DSLContext jooq, int limit, int offset) {
+    List<User> users = new ArrayList<>();
+    for (Object username :
+        jooq.select(USER_NAME)
+            .from(USERS_METADATA)
+            .orderBy(USER_NAME)
+            .limit(limit)
+            .offset(offset)
+            .fetch()
+            .getValues(USER_NAME)) {
+      users.add(new User((String) username));
+    }
+    return users;
+  }
+
+  public static int countUsers(DSLContext jooq) {
+    return jooq.select(count()).from(USERS_METADATA).fetchOne(count());
   }
 
   protected static Collection<TableMetadata> loadTables(DSLContext jooq, SchemaMetadata schema) {

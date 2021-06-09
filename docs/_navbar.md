@@ -1,3 +1,0 @@
-- [How to use](/user/)
-- [Installation](/admin/)
-- [Developers](/dev/)
