@@ -104,6 +104,13 @@ export default {
             name
           }
           description
+          permittedValues {
+            value
+            label
+            order
+            isMissing
+            ontologyTermIRI
+          }
           repeats {
             name
           }

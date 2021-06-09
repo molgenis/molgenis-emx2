@@ -58,6 +58,21 @@
             <span v-else>-</span>
           </dd>
 
+          <template v-if="variableDetails.permittedValues">
+            <dt class="col-2">permitted values</dt>
+            <dd class="col-10">
+              <ul class="list-inline">
+                <li
+                  class="list-inline-item"
+                  v-for="(permittedValue, index) in permittedValuesByOrder"
+                  :key="index"
+                >
+                  {{ permittedValue.label }} = {{ permittedValue.value }}
+                </li>
+              </ul>
+            </dd>
+          </template>
+
           <dt class="col-2">n repeats</dt>
           <dd class="col-10">
             <span v-if="variableDetails.repeats">{{
@@ -98,6 +113,13 @@ export default {
     return {
       showDetail: false,
     };
+  },
+  computed: {
+    permittedValuesByOrder() {
+      return this.variableDetails.permittedValues
+        .map((pv) => pv) // clone to avoid prop mutation
+        .sort((a, b) => a.order <= b.order);
+    },
   },
   methods: {
     toggleShowDetail() {
