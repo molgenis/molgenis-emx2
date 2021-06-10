@@ -6,6 +6,7 @@
         <dd class="col-10">
           {{ variableDetails.name }}
         </dd>
+
         <dt class="col-2">description</dt>
         <dd class="col-10">
           <span v-if="variableDetails.description">{{
@@ -13,6 +14,7 @@
           }}</span>
           <span v-else>-</span>
         </dd>
+
         <dt class="col-2">unit</dt>
         <dd class="col-10">
           <span v-if="variableDetails.unit">{{
@@ -20,6 +22,7 @@
           }}</span>
           <span v-else>-</span>
         </dd>
+
         <dt class="col-2">format</dt>
         <dd class="col-10">
           <span v-if="variableDetails.format">{{
@@ -27,6 +30,22 @@
           }}</span>
           <span v-else>-</span>
         </dd>
+
+        <template v-if="variableDetails.permittedValues">
+          <dt class="col-2">permitted values</dt>
+          <dd class="col-10">
+            <ul class="list-inline">
+              <li
+                class="list-inline-item"
+                v-for="(permittedValue, index) in permittedValuesByOrder"
+                :key="index"
+              >
+                {{ permittedValue.label }} = {{ permittedValue.value }}
+              </li>
+            </ul>
+          </dd>
+        </template>
+
         <dt class="col-2">n repeats</dt>
         <dd class="col-10">
           <span v-if="variableDetails.repeats">{{
@@ -57,6 +76,13 @@ export default {
   name: "VariableDetails",
   props: {
     variableDetails: Object,
+  },
+  computed: {
+    permittedValuesByOrder() {
+      return this.variableDetails.permittedValues
+        .map((pv) => pv) // clone to avoid prop mutation
+        .sort((a, b) => a.order <= b.order);
+    },
   },
 };
 </script>

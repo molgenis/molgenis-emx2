@@ -9,6 +9,13 @@ query Variables($filter: VariablesFilter) {
     unit {
       name
     }
+    permittedValues {
+      value
+      label
+      order
+      isMissing
+      ontologyTermIRI
+    }
     mappings {
       syntax
       description
