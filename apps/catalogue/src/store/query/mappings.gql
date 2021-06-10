@@ -1,0 +1,28 @@
+query VariableMappings($filter: VariableMappingsFilter) {
+  VariableMappings(limit: 200, filter: $filter) {
+    fromTable {
+      release {
+        resource {
+          acronym
+        }
+        version
+      }
+      name
+    }
+    toVariable {
+      table {
+        release {
+          resource {
+            acronym
+          }
+          version
+        }
+        name
+      }
+      name
+    }
+    match {
+      name
+    }
+  }
+}

@@ -1,75 +1,83 @@
 <template>
   <div class="mt-3">
-    <table class="table table-bordered table-sm">
-      <thead>
-        <tr>
-          <th scope="col"></th>
-          <th
-            class="rotated-text text-nowrap"
-            scope="col"
-            v-for="cohort in cohorts"
-            :key="cohort.acronym"
-          >
-            <div>
-              <span class="table-label">{{ cohort.acronym }}</span>
-            </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="variable in variables" :key="variable.name">
-          <th class="table-label text-nowrap" scope="row">{{ variable.name }}</th>
-          <td
-            v-for="cohort in cohorts"
-            :key="cohort.acronym"
-            class="colored-grid-cell"
-            :class="'table-' + getMatchStatus(variable.name, cohort.acronym)"
-          >
-            <!-- {{getMatchStatus(variable.name, cohort.acronym)}} -->
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-if="variables.length && cohorts.length">
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th
+              class="rotated-text text-nowrap"
+              scope="col"
+              v-for="cohort in cohorts"
+              :key="cohort.acronym"
+            >
+              <div>
+                <span class="table-label">{{ cohort.acronym }}</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="variable in variablePage">
+            <harmonization-row
+              :key="variable.name"
+              :variable="variable"
+              :cohorts="cohorts"
+            />
+          </template>
+        </tbody>
+      </table>
+      <p v-if="pageSize < variables.length">
+        <span class="mg-btn-align text-muted">
+          {{ pageSize }} of {{ variables.length }} matching variables</span
+        >
+        <button
+          class="btn btn-link"
+          v-if="variables.length"
+          @click="fetchNextPage"
+        >
+          Load more
+        </button>
+      </p>
+    </template>
+    <div v-else><Spinner /></div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import HarmonizationRow from "./HarmonizationRow.vue";
+import { Spinner } from "@mswertz/emx2-styleguide";
+
+const INITIAL_PAGE_SIZE = 10;
+
 export default {
   name: "HarmonizationView",
+  components: { HarmonizationRow, Spinner },
+  data() {
+    return {
+      pageSize: INITIAL_PAGE_SIZE,
+    };
+  },
   computed: {
-    ...mapGetters(["cohorts", "variables", "harmonizationGrid"]),
+    ...mapGetters(["cohorts", "variables"]),
+    variablePage() {
+      return this.variables.slice(0, this.pageSize);
+    },
   },
   methods: {
-    ...mapActions(["fetchCohorts", "fetchMappings"]),
-    getMatchStatus(variableName, cohortAcronym) {
-      if (
-        !this.harmonizationGrid[variableName] ||
-        !this.harmonizationGrid[variableName][cohortAcronym]
-      ) {
-        return "danger"; // not mapped
-      }
-      const match = this.harmonizationGrid[variableName][cohortAcronym];
-      switch (match) {
-        case "zna":
-          return "danger";
-        case "partial":
-          return "warning";
-        case "complete":
-          return "success";
-        default:
-          return "danger";
-      }
+    ...mapActions(["fetchCohorts"]),
+    fetchNextPage() {
+      this.pageSize += 10;
     },
   },
   watch: {
     variables() {
-      this.fetchMappings();
+      this.pageSize = INITIAL_PAGE_SIZE;
     },
   },
-  mounted() {
-    this.fetchCohorts();
-    this.fetchMappings();
+  async mounted() {
+    await this.fetchCohorts();
   },
 };
 </script>
@@ -95,7 +103,12 @@ td.colored-grid-cell {
   font-size: 0.8rem;
 }
 
-.table-bordered th, .table-bordered td {
+.table-bordered th,
+.table-bordered td {
   border: 1px solid #6c757d;
+}
+
+.mg-btn-align {
+  vertical-align: middle;
 }
 </style>
