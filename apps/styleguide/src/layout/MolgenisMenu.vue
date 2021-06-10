@@ -30,6 +30,7 @@
             v-if="item.submenu && item.submenu.length > 0"
             :label="item.label"
             icon="caret-down"
+            isMenuItem="true"
           >
             <a
               v-for="sub in item.submenu"

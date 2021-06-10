@@ -5,6 +5,7 @@
         class="btn btn-outline-primary border-0"
         :class="{
           'dropdown-toggle': !icon,
+          'nav-link': isMenuItem,
         }"
         type="button"
         data-toggle="dropdown"
@@ -40,6 +41,7 @@ export default {
   props: {
     label: String,
     icon: String,
+    isMenuItem: Boolean,
   },
   data() {
     return {
