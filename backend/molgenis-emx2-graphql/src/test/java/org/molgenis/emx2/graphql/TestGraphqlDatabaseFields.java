@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqlDatabaseFields {
 
@@ -24,7 +23,7 @@ public class TestGraphqlDatabaseFields {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     grapql = new GraphqlApiFactory().createGraphqlForDatabase(database);

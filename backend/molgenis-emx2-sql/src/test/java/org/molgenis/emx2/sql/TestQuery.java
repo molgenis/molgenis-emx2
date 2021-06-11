@@ -1,15 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -30,12 +25,12 @@ public class TestQuery {
     // createColumn some tables with contents
     Table person =
         schema.create(
-            table(PERSON)
-                .add(column("ID").setType(INT).setPkey())
-                .add(column("First_Name").setKey(2).setRequired(true))
-                .add(column("Last_Name").setKey(2).setRequired(true))
-                .add(column("Father").setType(REF).setRefTable(PERSON))
-                .add(column("Mother").setType(REF).setRefTable(PERSON)));
+            TableMetadata.table(PERSON)
+                .add(Column.column("ID").setType(ColumnType.INT).setPkey())
+                .add(Column.column("First_Name").setKey(2).setRequired(true))
+                .add(Column.column("Last_Name").setKey(2).setRequired(true))
+                .add(Column.column("Father").setType(ColumnType.REF).setRefTable(PERSON))
+                .add(Column.column("Mother").setType(ColumnType.REF).setRefTable(PERSON)));
 
     Row donald =
         new Row().setInt("ID", 1).setString("First_Name", "Donald").setString("Last_Name", "Duck");
@@ -83,14 +78,16 @@ public class TestQuery {
     Query q =
         s.query(
             "Person",
-            s("First_Name"),
-            s("Last_Name"),
-            s("Father", s("First_Name"), s("Last_Name")));
-    q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
+            SelectColumn.s("First_Name"),
+            SelectColumn.s("Last_Name"),
+            SelectColumn.s("Father", SelectColumn.s("First_Name"), SelectColumn.s("Last_Name")));
+    q.where(
+        FilterBean.f("Last_Name", Operator.EQUALS, "Duck"),
+        FilterBean.f("Father", FilterBean.f("First_Name", Operator.EQUALS, "Donald")));
 
     System.out.println(q.retrieveJSON());
 
-    assertEquals(3, q.retrieveRows().size());
+    Assert.assertEquals(3, q.retrieveRows().size());
   }
 
   @Test
@@ -103,8 +100,13 @@ public class TestQuery {
     StopWatch.print("got schema");
 
     Query q = s.getTable("Person").query();
-    q.select(s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name")));
-    q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
+    q.select(
+        SelectColumn.s("First_Name"),
+        SelectColumn.s("Last_Name"),
+        SelectColumn.s("Father", SelectColumn.s("First_Name"), SelectColumn.s("Last_Name")));
+    q.where(
+        FilterBean.f("Last_Name", Operator.EQUALS, "Duck"),
+        FilterBean.f("Father", FilterBean.f("First_Name", Operator.EQUALS, "Donald")));
 
     StopWatch.print("created query");
 
@@ -119,8 +121,13 @@ public class TestQuery {
     StopWatch.print("query complete");
 
     q = s.getTable("Person").query();
-    q.select(s("First_Name"), s("Last_Name"), s("Father", s("Last_Name"), s("First_Name")));
-    q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
+    q.select(
+        SelectColumn.s("First_Name"),
+        SelectColumn.s("Last_Name"),
+        SelectColumn.s("Father", SelectColumn.s("Last_Name"), SelectColumn.s("First_Name")));
+    q.where(
+        FilterBean.f("Last_Name", Operator.EQUALS, "Duck"),
+        FilterBean.f("Father", FilterBean.f("First_Name", Operator.EQUALS, "Donald")));
 
     rows = q.retrieveRows();
     assertEquals(3, rows.size());
@@ -134,16 +141,16 @@ public class TestQuery {
         schema
             .getTable(PERSON)
             .select(
-                s("ID"),
-                s("First_Name"),
-                s("Last_Name"),
-                s("Mother").select("ID", "First_Name", "Last_Name"))
-            .where(f("Mother", f("ID", EQUALS, 2)))
+                SelectColumn.s("ID"),
+                SelectColumn.s("First_Name"),
+                SelectColumn.s("Last_Name"),
+                SelectColumn.s("Mother").select("ID", "First_Name", "Last_Name"))
+            .where(FilterBean.f("Mother", FilterBean.f("ID", Operator.EQUALS, 2)))
             .limit(1)
             .offset(1)
             .retrieveRows();
 
     assertEquals(1, rows.size());
-    assertEquals((Integer) 2, rows.get(0).getInteger("Mother-ID"));
+    Assert.assertEquals((Integer) 2, rows.get(0).getInteger("Mother-ID"));
   }
 }

@@ -1,11 +1,11 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.molgenis.emx2.SelectColumn.s;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
@@ -29,15 +29,25 @@ public class TestCrossSchemaForeignKeysAndInheritance {
 
   @Test
   public void testRef() {
-    Query q = schema2.getTable("Child").select(s("name"), s("parent", s("name"), s("hobby")));
+    Query q =
+        schema2
+            .getTable("Child")
+            .select(
+                SelectColumn.s("name"),
+                SelectColumn.s("parent", SelectColumn.s("name"), SelectColumn.s("hobby")));
     assertTrue(q.retrieveJSON().contains("stamps"));
-    assertEquals("stamps", q.retrieveRows().get(0).getString("parent-hobby"));
+    Assert.assertEquals("stamps", q.retrieveRows().get(0).getString("parent-hobby"));
   }
 
   @Test
   public void testRefArray() {
-    Query q = schema2.getTable("PetLover").select(s("name"), s("pets", s("name"), s("species")));
-    assertEquals("dog", q.retrieveRows().get(1).getString("pets-species"));
+    Query q =
+        schema2
+            .getTable("PetLover")
+            .select(
+                SelectColumn.s("name"),
+                SelectColumn.s("pets", SelectColumn.s("name"), SelectColumn.s("species")));
+    Assert.assertEquals("dog", q.retrieveRows().get(1).getString("pets-species"));
 
     System.out.println(q.retrieveJSON());
     assertTrue(q.retrieveJSON().contains("dog"));
@@ -45,10 +55,10 @@ public class TestCrossSchemaForeignKeysAndInheritance {
 
   @Test
   public void testInheritance() {
-    Query q = schema2.getTable("Mouse").select(s("name"), s("species"));
-    assertEquals("mickey", q.retrieveRows().get(0).getString("name"));
+    Query q = schema2.getTable("Mouse").select(SelectColumn.s("name"), SelectColumn.s("species"));
+    Assert.assertEquals("mickey", q.retrieveRows().get(0).getString("name"));
 
-    q = schema1.getTable("Pet").select(s("name"), s("species"));
-    assertEquals(3, q.retrieveRows().size());
+    q = schema1.getTable("Pet").select(SelectColumn.s("name"), SelectColumn.s("species"));
+    Assert.assertEquals(3, q.retrieveRows().size());
   }
 }

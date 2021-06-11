@@ -21,7 +21,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /* this is a smoke test for the integration of web api with the database layer */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -35,7 +34,7 @@ public class TestWebApi {
   public static void before() throws IOException {
 
     // setup test schema
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getDatabase();
     Schema schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
@@ -44,7 +43,7 @@ public class TestWebApi {
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
     // start web service for testing
-    MolgenisWebservice.start(TestDatabaseFactory.getDataSource(), 8080);
+    MolgenisWebservice.start(8080);
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";

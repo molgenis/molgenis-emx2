@@ -1,16 +1,12 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Setting;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestSettings {
   private static Database db;
@@ -25,19 +21,19 @@ public class TestSettings {
     Schema s = db.dropCreateSchema("testSchemaSettings");
     s.getMetadata().setSetting("key", "value");
 
-    assertEquals("key", s.getMetadata().getSettings().get(0).getKey());
-    assertEquals("value", s.getMetadata().getSettings().get(0).getValue());
+    Assert.assertEquals("key", s.getMetadata().getSettings().get(0).getKey());
+    Assert.assertEquals("value", s.getMetadata().getSettings().get(0).getValue());
 
-    assertEquals(
+    Assert.assertEquals(
         "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
-    assertEquals(
+    Assert.assertEquals(
         "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
 
     db.clearCache();
 
-    assertEquals(
+    Assert.assertEquals(
         "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
-    assertEquals(
+    Assert.assertEquals(
         "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
   }
 
@@ -45,7 +41,7 @@ public class TestSettings {
   public void testTableSettings() {
     Schema s = db.dropCreateSchema("testTableSettings");
 
-    Table t = s.create(table("test").add(column("test")));
+    Table t = s.create(TableMetadata.table("test").add(Column.column("test")));
     t.getMetadata().setSetting("key", "value");
 
     db.clearCache();
@@ -53,10 +49,10 @@ public class TestSettings {
     List<Setting> test =
         db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
     assertEquals(1, test.size());
-    assertEquals("key", test.get(0).getKey());
-    assertEquals("value", test.get(0).getValue());
+    Assert.assertEquals("key", test.get(0).getKey());
+    Assert.assertEquals("value", test.get(0).getValue());
 
-    assertEquals(
+    Assert.assertEquals(
         "key",
         db.getSchema("testTableSettings")
             .getTable("test")
@@ -64,7 +60,7 @@ public class TestSettings {
             .getSettings()
             .get(0)
             .getKey());
-    assertEquals(
+    Assert.assertEquals(
         "value",
         db.getSchema("testTableSettings")
             .getTable("test")

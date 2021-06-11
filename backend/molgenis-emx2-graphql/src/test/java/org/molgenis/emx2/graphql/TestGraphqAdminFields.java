@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqAdminFields {
 
@@ -23,7 +22,7 @@ public class TestGraphqAdminFields {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getDatabase();
     //    PetStoreExample.create(schema.getMetadata());
     //    PetStoreExample.populate(schema);
   }

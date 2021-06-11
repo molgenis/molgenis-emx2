@@ -1,10 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Arrays;
 import org.junit.BeforeClass;
@@ -37,7 +33,7 @@ public class TestCreateForeignKeysArrays {
 
   @Test
   public void testIntRef() {
-    executeTest(INT, new Integer[] {5, 6, 7});
+    executeTest(ColumnType.INT, new Integer[] {5, 6, 7});
   }
 
   @Test
@@ -78,7 +74,9 @@ public class TestCreateForeignKeysArrays {
     Schema schema = db.dropCreateSchema("TestRefArray" + columnType.toString().toUpperCase());
 
     String aKey = "A" + columnType + "Key";
-    Table aTable = schema.create(table("A").add(column(aKey).setType(columnType).setPkey()));
+    Table aTable =
+        schema.create(
+            TableMetadata.table("A").add(Column.column(aKey).setType(columnType).setPkey()));
 
     Row aRow = new Row().set(aKey, testValues[0]);
     Row aRow2 = new Row().set(aKey, testValues[1]);
@@ -87,10 +85,13 @@ public class TestCreateForeignKeysArrays {
     String refToA = columnType + "RefToA";
     Table bTable =
         schema.create(
-            table("B")
-                .add(column("id").setPkey())
-                .add(column(refToA).setType(REF_ARRAY).setRefTable("A"))
-                .add(column(refToA + "Nullable").setType(REF_ARRAY).setRefTable("A")));
+            TableMetadata.table("B")
+                .add(Column.column("id").setPkey())
+                .add(Column.column(refToA).setType(ColumnType.REF_ARRAY).setRefTable("A"))
+                .add(
+                    Column.column(refToA + "Nullable")
+                        .setType(ColumnType.REF_ARRAY)
+                        .setRefTable("A")));
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set("id", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 3));

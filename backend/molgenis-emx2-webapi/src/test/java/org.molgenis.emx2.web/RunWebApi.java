@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RunWebApi {
 
@@ -20,11 +19,11 @@ public class RunWebApi {
     dataSource.setPassword("molgenis");
 
     // setup
-    Database db = TestDatabaseFactory.getTestDatabase();
+    Database db = TestDatabaseFactory.getDatabase();
     Schema schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
-    MolgenisWebservice.start(dataSource, 8080);
+    MolgenisWebservice.start(8080);
   }
 }

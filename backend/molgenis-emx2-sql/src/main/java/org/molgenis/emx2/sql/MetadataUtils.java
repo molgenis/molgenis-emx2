@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
-import static org.molgenis.emx2.sql.Constants.MG_ROLE_PREFIX;
+import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
 import org.jooq.*;
@@ -99,7 +99,7 @@ public class MetadataUtils {
 
   protected static synchronized String getVersion(DSLContext jooq) {
     try {
-      Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
         return (String) result.get(0).get(VERSION);
       }

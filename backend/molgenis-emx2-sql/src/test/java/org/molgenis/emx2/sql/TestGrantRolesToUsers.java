@@ -2,13 +2,12 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Arrays;
 import java.util.List;
+import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -32,15 +31,15 @@ public class TestGrantRolesToUsers {
         first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
 
     schema.addMember("user1", "Viewer");
-    assertEquals(1, schema.getMembers().size());
+    Assert.assertEquals(1, schema.getMembers().size());
 
     schema.addMember("user1", "Editor"); // should override previous
-    assertEquals(1, schema.getMembers().size());
-    assertEquals("Editor", schema.getRoleForUser("user1"));
+    Assert.assertEquals(1, schema.getMembers().size());
+    Assert.assertEquals("Editor", schema.getRoleForUser("user1"));
 
     schema.removeMember("user1");
 
-    assertEquals(0, schema.getMembers().size());
+    Assert.assertEquals(0, schema.getMembers().size());
   }
 
   @Test
@@ -69,7 +68,7 @@ public class TestGrantRolesToUsers {
       database.setActiveUser("user_testRolePermissions_viewer");
       database.tx(
           db -> {
-            db.getSchema("testRolePermissions").create(table("Test"));
+            db.getSchema("testRolePermissions").create(TableMetadata.table("Test"));
             fail("role(viewers) should not be able to createColumn tables");
             // should not happen
           });
@@ -83,7 +82,7 @@ public class TestGrantRolesToUsers {
       database.setActiveUser("user_testRolePermissions_editor");
       database.tx(
           db -> {
-            db.getSchema("testRolePermissions").create(table("Test"));
+            db.getSchema("testRolePermissions").create(TableMetadata.table("Test"));
             fail("role(editors) should not be able to createColumn tables");
             // should not happen
           });
@@ -97,7 +96,7 @@ public class TestGrantRolesToUsers {
       database.tx(
           db -> {
             try {
-              db.getSchema("testRolePermissions").create(table("Test"));
+              db.getSchema("testRolePermissions").create(TableMetadata.table("Test"));
               //                  .getMetadata()
               //                  .addColumn("ID", ColumnType.INT);
             } catch (Exception e) {
@@ -142,33 +141,33 @@ public class TestGrantRolesToUsers {
       // should not be able to see as user, until permission (later)
       database.setActiveUser("testuser");
       assertNull(schema.getRoleForActiveUser()); // should have no role in this schema
-      assertEquals(0, database.getSchemaNames().size()); // should see no schema
+      Assert.assertEquals(0, database.getSchemaNames().size()); // should see no schema
       assertNull(database.getSchema("testRole"));
 
       database.clearActiveUser();
 
       schema.addMember("testadmin", Privileges.OWNER.toString());
-      assertEquals(Privileges.OWNER.toString(), schema.getRoleForUser("testadmin"));
+      Assert.assertEquals(Privileges.OWNER.toString(), schema.getRoleForUser("testadmin"));
 
-      assertTrue(
+      TestCase.assertTrue(
           schema.getInheritedRolesForUser("testadmin").contains(Privileges.OWNER.toString()));
-      assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
+      Assert.assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
 
       database.setActiveUser("testadmin");
-      assertEquals(Privileges.OWNER.toString(), schema.getRoleForActiveUser());
+      Assert.assertEquals(Privileges.OWNER.toString(), schema.getRoleForActiveUser());
       database.clearActiveUser();
 
       schema.create(
-          table("Person")
-              .add(column("id").setPkey())
-              .add(column("FirstName"))
-              .add(column("LastName")));
+          TableMetadata.table("Person")
+              .add(Column.column("id").setPkey())
+              .add(Column.column("FirstName"))
+              .add(Column.column("LastName")));
 
       try {
         database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");
         database.tx(
             db -> {
-              db.getSchema("testRole").create(table("Test"));
+              db.getSchema("testRole").create(TableMetadata.table("Test"));
             });
         // should throw exception, otherwise fail
         fail();
@@ -181,7 +180,7 @@ public class TestGrantRolesToUsers {
         database.setActiveUser("testadmin");
         database.tx(
             db -> {
-              db.getSchema("testRole").create(table("Test"));
+              db.getSchema("testRole").create(TableMetadata.table("Test"));
               // this is soo cooool
               db.getSchema("testRole").addMember("testuser", Privileges.VIEWER.toString());
             });

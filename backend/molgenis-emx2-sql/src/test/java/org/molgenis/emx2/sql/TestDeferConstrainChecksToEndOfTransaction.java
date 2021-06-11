@@ -1,10 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.fail;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.UUID;
 import org.junit.Test;
@@ -24,13 +20,16 @@ public class TestDeferConstrainChecksToEndOfTransaction {
   public void runTestCase(Database db) {
     Schema schema = db.dropCreateSchema("TestDeffered");
 
-    Table subjectTable = schema.create(table("Subject").add(column("ID").setType(INT).setPkey()));
+    Table subjectTable =
+        schema.create(
+            TableMetadata.table("Subject")
+                .add(Column.column("ID").setType(ColumnType.INT).setPkey()));
 
     Table sampleTable =
         schema.create(
-            table("Sample")
-                .add(column("ID").setType(INT).setPkey())
-                .add(column("subject").setType(REF).setRefTable("Subject")));
+            TableMetadata.table("Sample")
+                .add(Column.column("ID").setType(ColumnType.INT).setPkey())
+                .add(Column.column("subject").setType(ColumnType.REF).setRefTable("Subject")));
 
     StopWatch.print("schema created");
 
@@ -50,11 +49,16 @@ public class TestDeferConstrainChecksToEndOfTransaction {
           db -> {
             Schema schema = db.dropCreateSchema("TestDeffered3");
 
-            Table subjectTable = schema.create(table("Subject", column("id").setPkey()));
+            Table subjectTable =
+                schema.create(TableMetadata.table("Subject", Column.column("id").setPkey()));
 
             Table sampleTable =
                 schema.create(
-                    table("Sample").add(column("subject").setType(REF).setRefTable("Subject")));
+                    TableMetadata.table("Sample")
+                        .add(
+                            Column.column("subject")
+                                .setType(ColumnType.REF)
+                                .setRefTable("Subject")));
 
             StopWatch.print("schema created");
 

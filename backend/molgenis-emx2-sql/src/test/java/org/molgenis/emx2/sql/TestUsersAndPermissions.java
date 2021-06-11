@@ -2,9 +2,10 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -41,7 +42,7 @@ public class TestUsersAndPermissions {
       if (database.hasUser(user1)) database.removeUser(user1);
       database.addUser(user1);
       database.setActiveUser(user1);
-      assertEquals(user1, database.getActiveUser());
+      Assert.assertEquals(user1, database.getActiveUser());
 
       // remove active user
       database.clearActiveUser();
@@ -53,7 +54,7 @@ public class TestUsersAndPermissions {
       // create table without permission should fail
       database.setActiveUser(user1);
       try {
-        schema1.create(table("Test"));
+        schema1.create(TableMetadata.table("Test"));
         fail("should have failed");
       } catch (MolgenisException e) {
         System.out.println("Failed correctly on create schema:\n" + e.toString());
@@ -64,7 +65,7 @@ public class TestUsersAndPermissions {
       schema1.addMember(user1, Privileges.MANAGER.toString());
       database.setActiveUser(user1);
       try {
-        schema1.create(table("Test"));
+        schema1.create(TableMetadata.table("Test"));
       } catch (MolgenisException e) {
         fail("should be permitted");
       }
@@ -79,12 +80,12 @@ public class TestUsersAndPermissions {
     try {
       database.addUser("donald");
       database.setUserPassword("donald", "blaat");
-      assertTrue(database.checkUserPassword("donald", "blaat"));
+      TestCase.assertTrue(database.checkUserPassword("donald", "blaat"));
       assertFalse(database.checkUserPassword("donald", "blaat2"));
 
       // check if user can change their own password
       database.setActiveUser("donald");
-      assertTrue(database.checkUserPassword("donald", "blaat"));
+      TestCase.assertTrue(database.checkUserPassword("donald", "blaat"));
       assertFalse(database.checkUserPassword("donald", "blaat2"));
 
       // ensure otherwise fails

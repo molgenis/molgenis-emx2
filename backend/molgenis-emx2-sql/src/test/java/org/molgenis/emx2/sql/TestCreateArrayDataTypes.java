@@ -1,11 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -26,7 +21,7 @@ public class TestCreateArrayDataTypes {
   @Test
   public void testUUIDArray() {
     executeTest(
-        UUID_ARRAY,
+        ColumnType.UUID_ARRAY,
         new java.util.UUID[] {
           java.util.UUID.fromString("f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4"),
           java.util.UUID.fromString("f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5"),
@@ -36,35 +31,35 @@ public class TestCreateArrayDataTypes {
 
   @Test
   public void testStringArray() {
-    executeTest(STRING_ARRAY, new String[] {"aap", "noot", "mies"});
+    executeTest(ColumnType.STRING_ARRAY, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
   public void testIntArray() {
-    executeTest(INT_ARRAY, new Integer[] {5, 6});
+    executeTest(ColumnType.INT_ARRAY, new Integer[] {5, 6});
   }
 
   @Test
   public void testDateArray() {
-    executeTest(DATE_ARRAY, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
+    executeTest(ColumnType.DATE_ARRAY, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
   public void xtestDateTimeArray() {
     executeTest(
-        DATETIME_ARRAY,
+        ColumnType.DATETIME_ARRAY,
         new String[] {"2013-01-01T18:00:00.0", "2013-01-01T18:00:01.0", "2013-01-01T18:00:02.0"});
   }
 
   @Test
   public void testDecimalArray() {
-    executeTest(DECIMAL_ARRAY, new Double[] {5.0, 6.0, 7.0});
+    executeTest(ColumnType.DECIMAL_ARRAY, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
   public void testTextArray() {
     executeTest(
-        TEXT_ARRAY,
+        ColumnType.TEXT_ARRAY,
         new String[] {
           "This is a hello world", "This is a hello back to you", "This is a hello some more"
         });
@@ -73,7 +68,7 @@ public class TestCreateArrayDataTypes {
   @Test
   public void testJSON() {
     executeTest(
-        JSONB_ARRAY,
+        ColumnType.JSONB_ARRAY,
         new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
   }
 
@@ -89,7 +84,9 @@ public class TestCreateArrayDataTypes {
 
     String aFieldName = columnType + "Col";
     Table tableA =
-        schema.create(table("A", column("id").setPkey(), column(aFieldName).setType(columnType)));
+        schema.create(
+            TableMetadata.table(
+                "A", Column.column("id").setPkey(), Column.column(aFieldName).setType(columnType)));
 
     Row aRow = new Row().set("id", "one").set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);
@@ -99,10 +96,11 @@ public class TestCreateArrayDataTypes {
     tableA.update(aRow);
 
     // check query
-    List<Row> result = tableA.query().where(f(aFieldName, EQUALS, values[0])).retrieveRows();
+    List<Row> result =
+        tableA.query().where(FilterBean.f(aFieldName, Operator.EQUALS, values[0])).retrieveRows();
     assertEquals(1, result.size());
     for (Row r : result) {
-      if (DATETIME_ARRAY.equals(columnType)) {
+      if (ColumnType.DATETIME_ARRAY.equals(columnType)) {
         // TODO fix test
       } else {
         assertEquals(

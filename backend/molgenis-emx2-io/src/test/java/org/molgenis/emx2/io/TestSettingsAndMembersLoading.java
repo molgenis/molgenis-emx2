@@ -7,13 +7,12 @@ import java.nio.file.Path;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestSettingsAndMembersLoading {
   @Test
   public void testExcelTypesCast() {
 
-    Database database = TestDatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getDatabase();
     Schema schema = database.dropCreateSchema(TestSettingsAndMembersLoading.class.getSimpleName());
 
     ClassLoader classLoader = getClass().getClassLoader();

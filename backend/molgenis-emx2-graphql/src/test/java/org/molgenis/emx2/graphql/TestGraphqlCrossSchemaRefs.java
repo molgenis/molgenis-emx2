@@ -13,7 +13,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.CrossSchemaReferenceExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqlCrossSchemaRefs {
 
@@ -26,7 +25,7 @@ public class TestGraphqlCrossSchemaRefs {
 
   @BeforeClass
   public static void setup() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getDatabase();
     schema1 = database.dropCreateSchema(schemaName1);
     schema2 = database.dropCreateSchema(schemaName2);
 

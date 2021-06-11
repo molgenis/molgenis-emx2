@@ -1,13 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.TEXT;
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.FilterBean.or;
-import static org.molgenis.emx2.TableMetadata.table;
-
 import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,10 +22,10 @@ public class TestFullTextSearch {
     Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName());
     Table aTable =
         schema.create(
-            table("TestFullTextSearch")
-                .add(column("sub").setPkey())
-                .add(column("body").setType(TEXT))
-                .add(column("year").setType(INT)));
+            TableMetadata.table("TestFullTextSearch")
+                .add(Column.column("sub").setPkey())
+                .add(Column.column("body").setType(ColumnType.TEXT))
+                .add(Column.column("year").setType(ColumnType.INT)));
     // aTable.getMetadata().enableSearch();
 
     aTable.insert(
@@ -52,13 +44,13 @@ public class TestFullTextSearch {
             .setInt("year", 1977));
 
     // search in one table
-    assertEquals(1, aTable.query().search("test").retrieveRows().size());
+    Assert.assertEquals(1, aTable.query().search("test").retrieveRows().size());
 
-    assertEquals(1, aTable.query().search("another").retrieveRows().size());
+    Assert.assertEquals(1, aTable.query().search("another").retrieveRows().size());
 
-    assertEquals(0, aTable.query().search("test").search("another").retrieveRows().size());
+    Assert.assertEquals(0, aTable.query().search("test").search("another").retrieveRows().size());
 
-    assertEquals(1, aTable.query().search("c.19239T>G").retrieveRows().size());
+    Assert.assertEquals(1, aTable.query().search("c.19239T>G").retrieveRows().size());
 
     // match by position
     // assertEquals(1, aTable.query().search("19239").retrieve().size());
@@ -66,7 +58,7 @@ public class TestFullTextSearch {
     // assertEquals(1, aTable.query().search("c.19239").retrieve().size());
 
     // match by mutation
-    assertEquals(1, aTable.query().search("T>G").retrieveRows().size());
+    Assert.assertEquals(1, aTable.query().search("T>G").retrieveRows().size());
 
     // don't match other mutation
     // assertEquals(0, aTable.query().search("c.19239T>C").getRows().size());
@@ -81,7 +73,7 @@ public class TestFullTextSearch {
     PetStoreExample.populate(schema);
 
     List<Row> result =
-        schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();
+        schema.query("Order").where(FilterBean.f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();
     Assert.assertEquals(result.size(), 1);
 
     // nesting example 3
@@ -89,21 +81,28 @@ public class TestFullTextSearch {
         schema
             .query("Order")
             .where(
-                or(
-                    f(Operator.TRIGRAM_SEARCH, "approved"),
-                    f("pet", f(Operator.TRIGRAM_SEARCH, "cat"))))
+                FilterBean.or(
+                    FilterBean.f(Operator.TRIGRAM_SEARCH, "approved"),
+                    FilterBean.f("pet", FilterBean.f(Operator.TRIGRAM_SEARCH, "cat"))))
             .retrieveRows();
     Assert.assertEquals(2, result.size());
 
-    result = schema.query("Order").where(f(Operator.TEXT_SEARCH, "cat")).retrieveRows();
+    result = schema.query("Order").where(FilterBean.f(Operator.TEXT_SEARCH, "cat")).retrieveRows();
     Assert.assertEquals(0, result.size());
 
     // nesting example 1
-    result = schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveRows();
+    result =
+        schema
+            .query("Order")
+            .where(FilterBean.f("pet", FilterBean.f(Operator.TEXT_SEARCH, "cat")))
+            .retrieveRows();
     Assert.assertEquals(1, result.size());
 
     String json =
-        schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveJSON();
+        schema
+            .query("Order")
+            .where(FilterBean.f("pet", FilterBean.f(Operator.TEXT_SEARCH, "cat")))
+            .retrieveJSON();
     // would exclude approved order
     Assert.assertTrue(!json.contains("approved"));
 
@@ -112,7 +111,9 @@ public class TestFullTextSearch {
         schema
             .query("Order")
             .where(
-                or(f(Operator.TEXT_SEARCH, "approved"), f("pet", f(Operator.TEXT_SEARCH, "cat"))))
+                FilterBean.or(
+                    FilterBean.f(Operator.TEXT_SEARCH, "approved"),
+                    FilterBean.f("pet", FilterBean.f(Operator.TEXT_SEARCH, "cat"))))
             .retrieveJSON();
     // would include approved
     Assert.assertTrue(json.contains("approved"));

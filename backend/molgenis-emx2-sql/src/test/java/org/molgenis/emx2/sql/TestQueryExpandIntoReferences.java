@@ -1,13 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -32,11 +25,11 @@ public class TestQueryExpandIntoReferences {
     schema
         .getMetadata()
         .create(
-            table(PERSON)
-                .add(column("ID").setType(INT).setPkey())
-                .add(column("First_Name").setKey(2).setRequired(true))
-                .add(column("Father").setType(REF).setRefTable(PERSON))
-                .add(column("Last_Name").setKey(2).setRequired(true)));
+            TableMetadata.table(PERSON)
+                .add(Column.column("ID").setType(ColumnType.INT).setPkey())
+                .add(Column.column("First_Name").setKey(2).setRequired(true))
+                .add(Column.column("Father").setType(ColumnType.REF).setRefTable(PERSON))
+                .add(Column.column("Last_Name").setKey(2).setRequired(true)));
 
     Row father =
         new Row().setInt("ID", 1).setString("First_Name", "Donald").setString("Last_Name", "Duck");
@@ -64,8 +57,13 @@ public class TestQueryExpandIntoReferences {
     Query query1 =
         schema
             .query("Person")
-            .select(s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name")))
-            .where(f("Last_Name", EQUALS, "Duck"), f("Father", f("Last_Name", EQUALS, "Duck")));
+            .select(
+                SelectColumn.s("First_Name"),
+                SelectColumn.s("Last_Name"),
+                SelectColumn.s("Father", SelectColumn.s("First_Name"), SelectColumn.s("Last_Name")))
+            .where(
+                FilterBean.f("Last_Name", Operator.EQUALS, "Duck"),
+                FilterBean.f("Father", FilterBean.f("Last_Name", Operator.EQUALS, "Duck")));
 
     StopWatch.print("created query");
 
@@ -80,11 +78,11 @@ public class TestQueryExpandIntoReferences {
         schema
             .query("Person")
             .select(
-                s("First_Name"),
-                s("Last_Name"),
-                s("Father").select("Last_Name").select("First_Name"))
-            .where(f("Last_Name", EQUALS, "Duck"))
-            .where(f("Father", f("Last_Name", EQUALS, "Duck")));
+                SelectColumn.s("First_Name"),
+                SelectColumn.s("Last_Name"),
+                SelectColumn.s("Father").select("Last_Name").select("First_Name"))
+            .where(FilterBean.f("Last_Name", Operator.EQUALS, "Duck"))
+            .where(FilterBean.f("Father", FilterBean.f("Last_Name", Operator.EQUALS, "Duck")));
 
     rows = query1.retrieveRows();
     for (Row r : rows) System.out.println(r);
@@ -105,7 +103,10 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("tables created");
 
     Query q = schema.query("Product");
-    q.select(s("name"), s("components", s("name"), s("parts", s("name"))));
+    q.select(
+        SelectColumn.s("name"),
+        SelectColumn.s(
+            "components", SelectColumn.s("name"), SelectColumn.s("parts", SelectColumn.s("name"))));
 
     List<Row> rows = q.retrieveRows();
     assertEquals(3, rows.size());
@@ -123,7 +124,10 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("cleared cache");
 
     Query q2 = schema.query("Product");
-    q2.select(s("name"), s("components", s("name"), s("parts", s("name"))));
+    q2.select(
+        SelectColumn.s("name"),
+        SelectColumn.s(
+            "components", SelectColumn.s("name"), SelectColumn.s("parts", SelectColumn.s("name"))));
 
     // todo query expansion! q2.where("components", "parts",
     // "weight").eq(50).and("name").eq("explorer", "navigator");

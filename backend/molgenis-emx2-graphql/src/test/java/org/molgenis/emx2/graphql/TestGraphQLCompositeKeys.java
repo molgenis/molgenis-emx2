@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphQLCompositeKeys {
 
@@ -26,7 +25,7 @@ public class TestGraphQLCompositeKeys {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }

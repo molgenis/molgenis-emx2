@@ -11,7 +11,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.CompareTools;
 import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestImportExportEmx2MetadataIODataAndMetadata {
@@ -20,7 +19,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getDatabase();
   }
 
   @Test

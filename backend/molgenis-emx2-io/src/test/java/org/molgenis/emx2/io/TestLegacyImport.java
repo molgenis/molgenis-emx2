@@ -14,14 +14,13 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestLegacyImport {
   static Database db;
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = TestDatabaseFactory.getDatabase();
   }
 
   @Test
