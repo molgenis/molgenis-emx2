@@ -171,37 +171,6 @@
         </div>
       </div>
     </div>
-    <ShowMore title="debug">
-      <pre>
-        columns = {{ columns }}
-
-        selection = {{ selectedItems }}
-
-      graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
-
-      session = {{ session }}
-
-        graphqlError = {{ graphqlError }}
-
-        schema = {{ schema }}
-
-
-      columns = {{ JSON.stringify(columns) }}
-
-      table = {{ table }} }
-
-      graphql={{ JSON.stringify(graphql) }}
-
-      columnNames = {{ columnNames }}
-
-      rows = {{ data }}
-
-      tableMetadata={{ JSON.stringify(tableMetadata, null, "\t") }}
-
-    data={{ JSON.stringify(data, null, "\t") }}
-    </pre
-      >
-    </ShowMore>
   </div>
 </template>
 
@@ -215,7 +184,6 @@ import RowButtonDelete from "./RowButtonDelete";
 import RowButtonEdit from "./RowButtonEdit";
 import Spinner from "../layout/Spinner";
 import TableMixin from "../mixins/TableMixin";
-import ShowMore from "../layout/ShowMore";
 import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
@@ -241,7 +209,6 @@ export default {
     RowButtonEdit,
     RowButtonAdd,
     RowButtonDelete,
-    ShowMore,
     ShowHide,
     InputSearch,
     Pagination,

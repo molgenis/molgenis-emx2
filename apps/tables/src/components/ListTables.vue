@@ -37,10 +37,6 @@
         </tr>
       </table>
     </div>
-    <ShowMore title="debug">
-      session: {{ session }} <br /><br />
-      schema: {{ schema }}
-    </ShowMore>
   </div>
 </template>
 
@@ -51,7 +47,6 @@ import {
   InputCheckbox,
   MessageWarning,
   InputSearch,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -62,7 +57,6 @@ export default {
     InputCheckbox,
     ButtonDropdown,
     InputSearch,
-    ShowMore,
   },
   props: {
     session: Object,

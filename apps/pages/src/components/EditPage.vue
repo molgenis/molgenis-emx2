@@ -11,17 +11,6 @@
         <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
       </div>
     </div>
-    <br />
-    <br />
-    <ShowMore title="debug">
-      <pre>
-page = {{ page }}
-
-draft = {{ draft }}
-
-session = {{ session }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -32,7 +21,6 @@ import {
   ButtonAlt,
   MessageError,
   MessageSuccess,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
@@ -41,7 +29,6 @@ export default {
     ckeditor: CKEditor.component,
     ButtonAction,
     ButtonAlt,
-    ShowMore,
     MessageError,
     MessageSuccess,
   },

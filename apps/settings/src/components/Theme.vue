@@ -23,14 +23,6 @@
       <br /><br />
       <a :href="this.session.settings.cssURL">view theme css</a>
     </div>
-    <ShowMore title="debug">
-      <pre>
-primary: {{ primary }}
-logoURL: {{ logoURL }}
-session: {{ session }}
-        </pre
-      >
-    </ShowMore>
   </div>
 </template>
 
@@ -40,7 +32,6 @@ import {
   InputString,
   MessageError,
   MessageSuccess,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import VSwatches from "vue-swatches";
 import { request } from "graphql-request";
@@ -52,7 +43,6 @@ export default {
     ButtonAction,
     MessageError,
     MessageSuccess,
-    ShowMore,
     VSwatches,
   },
   props: {

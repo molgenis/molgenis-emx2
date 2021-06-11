@@ -22,17 +22,6 @@
         <ButtonAction @click="saveSettings">Save</ButtonAction>
       </div>
     </div>
-    <br />
-    <br />
-    <ShowMore title="debug">
-      <pre>
-draft = {{ draft }}
-
-menu = {{ menu }}
-
-session = {{ session }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -44,7 +33,6 @@ import {
   IconAction,
   MessageError,
   MessageSuccess,
-  ShowMore,
   DefaultMenuMixin,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
@@ -53,7 +41,6 @@ export default {
   mixins: [DefaultMenuMixin],
   components: {
     MenuDesign,
-    ShowMore,
     IconAction,
     ButtonAlt,
     ButtonAction,

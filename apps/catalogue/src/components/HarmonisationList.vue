@@ -51,7 +51,7 @@ dd {
 
 <script>
 import { request } from "graphql-request";
-import { MessageError, Pagination, ShowMore } from "@mswertz/emx2-styleguide";
+import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
 import HarmonisationDetails from "./HarmonisationDetails";
 
 export default {
@@ -59,7 +59,6 @@ export default {
     HarmonisationDetails,
     Pagination,
     MessageError,
-    ShowMore,
   },
   props: {
     resourceAcronym: String,

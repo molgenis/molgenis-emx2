@@ -19,12 +19,6 @@
         </td>
       </tr>
     </table>
-
-    <ShowMore title="debug">
-      <pre>
-session = {{ session }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
