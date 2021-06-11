@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import { fetchFromVariableDetails } from "../store/repository/variableRepository";
 import { Spinner } from "@mswertz/emx2-styleguide";
 import HarmonizationDefinition from "../components/HarmonizationDefinition.vue";
 import { mapActions } from "vuex";
@@ -60,27 +59,6 @@ export default {
   },
   methods: {
     ...mapActions(["fetchSchema"]),
-  },
-  async created() {
-    if (this.variable.mappings) {
-      const fromNames = this.variable.mappings
-        .filter(
-          (mapping) =>
-            mapping.fromRelease.resource.acronym === this.sourceCohort
-        )
-        .flatMap((cohortMapping) =>
-          cohortMapping.fromVariable
-            ? cohortMapping.fromVariable.flatMap((fv) => fv.name)
-            : []
-        );
-      const schema = await this.fetchSchema();
-      const resp = await fetchFromVariableDetails(
-        fromNames,
-        schema,
-        this.version
-      );
-      this.fromVariables = resp;
-    }
   },
 };
 </script>

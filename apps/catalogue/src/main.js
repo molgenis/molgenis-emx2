@@ -23,6 +23,7 @@ import VariableDetailView from "./views/VariableDetailView";
 import SingleVarDetailsView from "./views/SingleVarDetailsView";
 import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
 import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
+import FromVariableDetails from "./views/FromVariableDetails";
 
 Vue.config.productionTip = false;
 
@@ -158,6 +159,12 @@ const router = new VueRouter({
           ],
         },
       ],
+    },
+    {
+      name: "fromVariableDetails",
+      path: "/explorer/source/:network/:version/:name/from/:sourceCohort/:fromName",
+      component: FromVariableDetails,
+      props: true,
     },
   ],
 });

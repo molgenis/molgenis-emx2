@@ -26,15 +26,12 @@ const fetchDetails = async (name, network, version) => {
   ).Variables[0];
 };
 
-const fetchFromVariableDetails = async (names, schema, version) => {
+const fetchFromVariableDetails = async (names, network, version) => {
   const params = {
     filter: {
       name: { equals: names },
       release: {
-        version: { equals: version },
-        resource: {
-          mg_tableclass: { equals: [`${schema}.Databanks`] },
-        },
+        equals: [{ resource: { acronym: network }, version: version }],
       },
     },
   };
@@ -43,7 +40,7 @@ const fetchFromVariableDetails = async (names, schema, version) => {
     await request("graphql", fromVariableDetails, params).catch((e) =>
       console.error(e)
     )
-  ).Variables;
+  ).Variables[0];
 };
 
 export { fetchDetails, fetchFromVariableDetails };

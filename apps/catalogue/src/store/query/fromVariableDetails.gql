@@ -1,8 +1,5 @@
 query Variables($filter: VariablesFilter) {
-  Variables_agg(filter: $filter) {
-    count
-  }
-  Variables(limit: 20, filter: $filter) {
+  Variables(limit: 1, filter: $filter) {
     name
     label
     description

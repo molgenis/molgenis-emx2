@@ -1,10 +1,10 @@
 <template>
   <div>
-    <nav aria-label="breadcrumb">
+    <nav class="mg-page-nav" aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
           <router-link :to="{ name: 'variableDetails' }">
-            Variables
+            variables
           </router-link>
         </li>
         <li class="breadcrumb-item active" aria-current="page">{{ name }}</li>
@@ -53,11 +53,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-nav {
-  margin-top: -1rem;
-  margin-left: -2rem;
-  margin-right: -2rem;
-}
-</style>
