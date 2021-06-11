@@ -22,26 +22,20 @@
         </router-link>
       </li>
     </ul>
-    <router-view :key="$route.fullPath"></router-view>
+    <router-view :key="$route.fullPath" :variable="variable"></router-view>
   </div>
 </template>
 
 <script>
-import { fetchDetails } from "../store/repository/variableRepository";
 export default {
   name: "SingleVarHarmonizationView",
   props: {
     name: String,
     network: String,
     version: String,
-  },
-  data() {
-    return {
-      variable: {},
-    };
+    variable: Object,
   },
   async created() {
-    this.variable = await fetchDetails(this.name, this.network, this.version);
     // initialy select the first mapping
     if (
       this.variable.mappings &&
