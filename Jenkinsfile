@@ -1,7 +1,7 @@
 podTemplate(inheritFrom:'shared', containers: [
     containerTemplate(
       name: 'java',
-      image: 'adoptopenjdk:13-jdk-hotspot-bionic',
+      image: 'adoptopenjdk:16-jdk-hotspot-focal',
       ttyEnabled: true,
       command: 'cat',
       args: '',

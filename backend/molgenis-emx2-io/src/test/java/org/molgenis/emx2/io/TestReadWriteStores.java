@@ -91,7 +91,7 @@ public class TestReadWriteStores {
           new Row()
               .setString("stringCol", "test" + i)
               .setInt("intCol", i)
-              .setDecimal("decimalCol", new Double(new Double(i) / 2))
+              .setDecimal("decimalCol", Double.valueOf(i / 2))
               .setUuid("uuidCol", UUID.randomUUID())
               .setDate("dateCol", LocalDate.of(2019, 12, 12))
               .setDateTime("datetimeCol", LocalDateTime.now())
