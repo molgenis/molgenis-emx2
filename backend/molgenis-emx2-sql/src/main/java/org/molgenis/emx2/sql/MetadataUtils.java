@@ -116,10 +116,11 @@ public class MetadataUtils {
 
       try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
         step.execute();
+        jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+        jooq.execute(
+            "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC",
+            name(MOLGENIS));
       }
-      jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-      jooq.execute(
-          "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC", name(MOLGENIS));
 
       // set version
       try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
