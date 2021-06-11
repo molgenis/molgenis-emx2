@@ -87,11 +87,6 @@
       </div>
       <div v-else class="col"></div>
     </div>
-    <ShowMore title="debug">
-      columns: {{ table }} <br />
-      selectedColumn: {{ selectedColumn }} <br />
-      errorPerColumn: {{ errorPerColumn }} <br />
-    </ShowMore>
   </div>
 </template>
 
@@ -114,7 +109,6 @@ import {
   IconAction,
   RowFormInput,
   InputSelect,
-  ShowMore,
   InputString,
   MessageSuccess,
   MessageError,
@@ -133,7 +127,6 @@ export default {
     ColumnEditModal,
     RowFormInput,
     InputSelect,
-    ShowMore,
     MessageSuccess,
     MessageError,
     ButtonAction,

@@ -1,11 +1,3 @@
-<template>
-  <ShowMore>
-    <pre>graphqlError = {{ graphqlError }}</pre>
-    <pre>session = {    { session }}</pre>
-    <pre>schema = {{ schema }}</pre>
-  </ShowMore>
-</template>
-
 <script>
 import { request } from "graphql-request";
 

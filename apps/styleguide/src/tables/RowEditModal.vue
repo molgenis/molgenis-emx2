@@ -31,28 +31,6 @@
           />
         </span>
       </LayoutForm>
-      <ShowMore title="debug">
-        <pre>
-
-defaultValue = {{ defaultValue }}
-
-visibleColumns = {{ visibleColumns }}
-
-value={{ JSON.stringify(value) }}
-
-data={{ JSON.stringify(data) }}
-
-graphql = {{ JSON.stringify(graphql) }}
-
-filter = {{ JSON.stringify(filter) }}
-
-errorPerColumn = {{ JSON.stringify(errorPerColumn) }}
-
-schema = {{ JSON.stringify(schema, null, 2) }}
-
-
-        </pre>
-      </ShowMore>
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -76,7 +54,6 @@ import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
-import ShowMore from "../layout/ShowMore";
 
 export default {
   extends: TableMixin,
@@ -106,7 +83,6 @@ export default {
     MessageError,
     MessageSuccess,
     SigninForm,
-    ShowMore,
     ButtonOutline,
   },
   methods: {

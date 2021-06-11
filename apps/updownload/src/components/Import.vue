@@ -95,14 +95,6 @@
         </div>
       </div>
     </div>
-    <ShowMore>
-      <pre>
-        session = {{ session }}
-        taskUrl = {{ taskUrl }}
-        task = {{ task }}
-        file = {{ file }}
-      </pre>
-    </ShowMore>
   </Molgenis>
 </template>
 
@@ -115,7 +107,6 @@ import {
   MessageWarning,
   Molgenis,
   Spinner,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 import Task from "./Task";
@@ -131,7 +122,6 @@ export default {
     Spinner,
     Molgenis,
     Task,
-    ShowMore,
   },
   data: function () {
     return {

@@ -57,9 +57,6 @@
         @close="closeDeleteSchema"
         :schemaName="showDeleteSchema"
       />
-      <ShowMore title="debug"
-        >session = {{ session }}, schemas = {{ schemas }}
-      </ShowMore>
     </div>
   </div>
 </template>
@@ -73,7 +70,6 @@ import {
   IconAction,
   IconBar,
   IconDanger,
-  ShowMore,
   Spinner,
   MessageWarning,
   InputSearch,
@@ -87,7 +83,6 @@ export default {
     IconBar,
     IconAction,
     IconDanger,
-    ShowMore,
     MessageWarning,
     InputSearch,
   },

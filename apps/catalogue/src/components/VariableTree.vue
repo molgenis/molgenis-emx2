@@ -39,7 +39,6 @@ import {
   MessageSuccess,
   Molgenis,
   Pagination,
-  ShowMore,
   Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
@@ -65,7 +64,6 @@ export default {
     InputCheckbox,
     InputString,
     InputSelect,
-    ShowMore,
     VariablesList,
   },
   props: {

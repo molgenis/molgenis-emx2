@@ -24,12 +24,6 @@
           />
         </FilterContainer>
       </Draggable>
-      <ShowMore title="debug">
-        <pre>
-filters = {{ filters }}
-      </pre
-        >
-      </ShowMore>
     </div>
   </div>
 </template>
@@ -37,7 +31,6 @@ filters = {{ filters }}
 <script>
 import FilterContainer from "./FilterContainer";
 import FilterInput from "./FilterInput";
-import ShowMore from "../layout/ShowMore";
 import Draggable from "vuedraggable";
 
 export default {
@@ -45,7 +38,6 @@ export default {
     FilterInput,
     FilterContainer,
     Draggable,
-    ShowMore,
   },
   props: {
     filters: Array,
