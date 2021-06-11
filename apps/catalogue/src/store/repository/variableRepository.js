@@ -1,5 +1,6 @@
 import { request } from "graphql-request";
 import variableDetails from "../query/variableDetails.gql";
+import fromVariableDetails from "../query/fromVariableDetails.gql";
 
 const fetchDetails = async (name, network, version) => {
   const params = {
@@ -25,4 +26,24 @@ const fetchDetails = async (name, network, version) => {
   ).Variables[0];
 };
 
-export { fetchDetails };
+const fetchFromVariableDetails = async (names, schema, version) => {
+  const params = {
+    filter: {
+      name: { equals: names },
+      release: {
+        version: { equals: version },
+        resource: {
+          mg_tableclass: { equals: [`${schema}.Databanks`] },
+        },
+      },
+    },
+  };
+
+  return (
+    await request("graphql", fromVariableDetails, params).catch((e) =>
+      console.error(e)
+    )
+  ).Variables;
+};
+
+export { fetchDetails, fetchFromVariableDetails };
