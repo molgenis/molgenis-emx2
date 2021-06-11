@@ -62,7 +62,6 @@
 <script>
 import VariableDetails from "../components/VariableDetails.vue";
 import { fetchDatabanks } from "../store/repository/databankRepository";
-import { fetchDetails } from "../store/repository/variableRepository";
 export default {
   name: "SingleVarDetailsView",
   components: { VariableDetails },
@@ -70,10 +69,10 @@ export default {
     name: String,
     network: String,
     version: String,
+    variable: Object,
   },
   data() {
     return {
-      variable: null,
       databanks: null,
     };
   },
@@ -99,7 +98,6 @@ export default {
     },
   },
   async created() {
-    this.variable = await fetchDetails(this.name, this.network, this.version);
     this.databanks = await fetchDatabanks();
   },
 };
