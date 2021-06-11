@@ -46,9 +46,7 @@
 </template>
 
 <script>
-import Spinner from "../../../styleguide/src/layout/Spinner.vue";
 export default {
-  components: { Spinner },
   name: "HarmonizationDefinition",
   props: {
     variable: Object,

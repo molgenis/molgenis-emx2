@@ -10,6 +10,7 @@ export default {
       state.isLoading = false;
     });
     commit("setSchema", resp._schema.name);
+    return resp._schema.name;
   },
   fetchVariables: async ({ state, commit, getters }, offset = 0) => {
     state.isLoading = true;

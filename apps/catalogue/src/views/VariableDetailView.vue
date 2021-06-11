@@ -29,7 +29,7 @@
         <a class="nav-link">Harmonization</a>
       </li>
     </ul>
-    <router-view></router-view>
+    <router-view :variable="variable"></router-view>
   </div>
 </template>
 
