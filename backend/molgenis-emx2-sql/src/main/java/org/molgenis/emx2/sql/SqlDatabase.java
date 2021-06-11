@@ -82,40 +82,42 @@ public class SqlDatabase implements Database {
       };
 
   public SqlDatabase(boolean init) {
-    String url =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI,
-                "jdbc:postgresql:molgenis",
-                STRING);
-    String user =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
-    String pass =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
-    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
-    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
-    logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
+    if (source == null) {
+      String url =
+          (String)
+              EnvironmentProperty.getParameter(
+                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI,
+                  "jdbc:postgresql:molgenis",
+                  STRING);
+      String user =
+          (String)
+              EnvironmentProperty.getParameter(
+                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
+      String pass =
+          (String)
+              EnvironmentProperty.getParameter(
+                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
+      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
+      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
+      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
 
-    if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
-      logger.error(
-          "Error: invalid "
-              + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI
-              + " string. Found :"
-              + url);
-      return;
+      if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
+        logger.error(
+            "Error: invalid "
+                + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI
+                + " string. Found :"
+                + url);
+        return;
+      }
+
+      // create data source
+      HikariDataSource dataSource = new HikariDataSource();
+      dataSource.setJdbcUrl(url);
+      dataSource.setUsername(user);
+      dataSource.setPassword(pass);
+
+      source = dataSource;
     }
-
-    // create data source
-    HikariDataSource dataSource = new HikariDataSource();
-    dataSource.setJdbcUrl(url);
-    dataSource.setUsername(user);
-    dataSource.setPassword(pass);
-
-    source = dataSource;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     if (init) {
@@ -127,7 +129,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public void init() { // setup default stuff
+  public synchronized void init() { // setup default stuff
 
     try {
       // short transaction

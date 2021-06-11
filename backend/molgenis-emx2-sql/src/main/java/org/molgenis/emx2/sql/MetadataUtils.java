@@ -111,15 +111,6 @@ public class MetadataUtils {
 
   // should never run in parallel
   protected static synchronized void init(DSLContext jooq) {
-
-    // wait a little to ensure in tests, they are not created on same time
-    try {
-      Thread.sleep((long) Math.random() * 1000); // NOSONAR
-    } catch (InterruptedException e) {
-      // should never happen
-      Thread.currentThread().interrupt();
-    }
-
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
       logger.info("INITIALIZING MOLGENIS METADATA SCHEMA");
 
@@ -191,36 +182,36 @@ public class MetadataUtils {
       }
 
       logger.info("INITIALIZING MOLGENIS METADATA SCHEMA COMPLETE");
-    }
 
-    // this way more robust for non breaking changes
-    for (Field field :
-        new Field[] {TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, TALBE_SEMANTICS}) {
-      jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
-    }
+      // this way more robust for non breaking changes
+      for (Field field :
+          new Field[] {TABLE_INHERITS, TABLE_IMPORT_SCHEMA, TABLE_DESCRIPTION, TALBE_SEMANTICS}) {
+        jooq.alterTable(TABLE_METADATA).addColumnIfNotExists(field).execute();
+      }
 
-    // this way more robust for non-breaking changes
-    for (Field field :
-        new Field[] {
-          COLUMN_TYPE,
-          COLUMN_KEY,
-          COLUMN_POSITION,
-          COLUMN_REQUIRED,
-          COLUMN_REF_SCHEMA,
-          COLUMN_REF_TABLE,
-          COLUMN_REF_LINK,
-          COLUMN_REF_LABEL,
-          COLUMN_REF_BACK,
-          COLUMN_VALIDATION,
-          COLUMN_COMPUTED,
-          COLUMN_INDEXED,
-          COLUMN_CASCADE,
-          COLUMN_DESCRIPTION,
-          COLUMN_SEMANTICS,
-          COLUMN_VISIBLE,
-          COLUMN_FORMAT
-        }) {
-      jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
+      // this way more robust for non-breaking changes
+      for (Field field :
+          new Field[] {
+            COLUMN_TYPE,
+            COLUMN_KEY,
+            COLUMN_POSITION,
+            COLUMN_REQUIRED,
+            COLUMN_REF_SCHEMA,
+            COLUMN_REF_TABLE,
+            COLUMN_REF_LINK,
+            COLUMN_REF_LABEL,
+            COLUMN_REF_BACK,
+            COLUMN_VALIDATION,
+            COLUMN_COMPUTED,
+            COLUMN_INDEXED,
+            COLUMN_CASCADE,
+            COLUMN_DESCRIPTION,
+            COLUMN_SEMANTICS,
+            COLUMN_VISIBLE,
+            COLUMN_FORMAT
+          }) {
+        jooq.alterTable(COLUMN_METADATA).addColumnIfNotExists(field).execute();
+      }
     }
   }
 
