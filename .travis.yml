@@ -1,6 +1,8 @@
 language: java
 os: linux
 dist: focal
+git:
+  depth: false
 jdk:
   - openjdk13
 services:
