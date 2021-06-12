@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 
 import java.util.List;
@@ -21,7 +21,19 @@ class SqlDatabaseExecutor {
       List<Record> result =
           jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
       if (result.isEmpty()) {
-        jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
+        jooq.execute(
+            "DO\n"
+                + "$do$\n"
+                + "BEGIN\n"
+                + "   IF NOT EXISTS (\n"
+                + "      SELECT FROM pg_catalog.pg_roles  -- SELECT list can be empty for this\n"
+                + "      WHERE  rolname = '{1}') THEN\n"
+                + "\n"
+                + "      CREATE ROLE {0} WITH NOLOGIN;\n"
+                + "   END IF;\n"
+                + "END\n"
+                + "$do$;",
+            name(userName), userName);
 
         if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
           // non-system users get role 'user' as way to identify all users

@@ -11,7 +11,6 @@ import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestEmx2Settings {
   private static Schema schema;

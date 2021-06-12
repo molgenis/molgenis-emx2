@@ -1,7 +1,7 @@
 podTemplate(inheritFrom:'shared', containers: [
     containerTemplate(
       name: 'java',
-      image: 'adoptopenjdk:13-jdk-hotspot-bionic',
+      image: 'adoptopenjdk:16-jdk-hotspot-focal',
       ttyEnabled: true,
       command: 'cat',
       args: '',
@@ -51,7 +51,7 @@ podTemplate(inheritFrom:'shared', containers: [
                     sh 'apt update'
                     sh 'apt -y install git'
                     sh 'apt -y install docker.io'
-                    sh 'git fetch --depth 1000'
+                    sh 'git fetch --depth 10000'
                     sh "git config user.email \"m.a.swertz@rug.nl\""
                     sh "git config user.name \"molgenis-jenkins\""
                     sh 'git config url.https://.insteadOf git://'
