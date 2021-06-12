@@ -34,7 +34,7 @@ public class TestWebApi {
   public static void before() throws IOException {
 
     // setup test schema
-    db = TestDatabaseFactory.getDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);

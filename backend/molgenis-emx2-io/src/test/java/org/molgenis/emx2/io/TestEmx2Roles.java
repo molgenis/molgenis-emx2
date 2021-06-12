@@ -17,7 +17,7 @@ public class TestEmx2Roles {
 
   @BeforeClass
   public static void setup() {
-    Database database = TestDatabaseFactory.getDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestEmx2Roles.class.getSimpleName());
   }
 

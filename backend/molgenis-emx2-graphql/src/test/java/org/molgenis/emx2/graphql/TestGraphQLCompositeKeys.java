@@ -25,7 +25,7 @@ public class TestGraphQLCompositeKeys {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }

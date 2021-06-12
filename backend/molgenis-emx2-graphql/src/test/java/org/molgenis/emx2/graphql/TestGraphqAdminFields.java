@@ -22,7 +22,7 @@ public class TestGraphqAdminFields {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
     //    PetStoreExample.create(schema.getMetadata());
     //    PetStoreExample.populate(schema);
   }

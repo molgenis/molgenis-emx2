@@ -27,7 +27,7 @@ public class TestCohortCatalogueMultipleSchemas {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
     conceptionSchema = database.dropCreateSchema("Conception");
     cohortsSchema = database.dropCreateSchema("CohortNetwork");
   }

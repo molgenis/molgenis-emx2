@@ -23,7 +23,7 @@ public class LinkedDataServiceTest {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
     fdpSchema = database.dropCreateSchema("fdpTest");
     patientSchema = database.dropCreateSchema("patientTest");
   }

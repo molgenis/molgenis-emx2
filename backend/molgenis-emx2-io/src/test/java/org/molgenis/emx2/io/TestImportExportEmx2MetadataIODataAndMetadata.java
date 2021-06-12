@@ -19,7 +19,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
 
   @BeforeClass
   public static void setup() {
-    database = TestDatabaseFactory.getDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

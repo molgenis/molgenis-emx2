@@ -6,7 +6,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 public class TestDatabaseFactory {
   private static Database db;
 
-  public static Database getDatabase() {
+  public static Database getTestDatabase() {
     if (db == null) {
       db = new SqlDatabase(false);
     }

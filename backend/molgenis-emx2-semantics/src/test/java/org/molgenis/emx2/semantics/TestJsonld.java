@@ -16,7 +16,7 @@ public class TestJsonld {
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestJsonld.class.getSimpleName());
   }
 

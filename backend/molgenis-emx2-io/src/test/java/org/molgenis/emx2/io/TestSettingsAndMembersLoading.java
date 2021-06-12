@@ -12,7 +12,7 @@ public class TestSettingsAndMembersLoading {
   @Test
   public void testExcelTypesCast() {
 
-    Database database = TestDatabaseFactory.getDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(TestSettingsAndMembersLoading.class.getSimpleName());
 
     ClassLoader classLoader = getClass().getClassLoader();

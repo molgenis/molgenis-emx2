@@ -17,7 +17,7 @@ public class TestEmx2Settings {
 
   @BeforeClass
   public static void setup() {
-    Database database = TestDatabaseFactory.getDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestEmx2Settings.class.getSimpleName());
   }
 

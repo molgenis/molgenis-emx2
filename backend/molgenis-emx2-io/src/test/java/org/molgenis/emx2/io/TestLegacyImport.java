@@ -20,7 +20,7 @@ public class TestLegacyImport {
 
   @BeforeClass
   public static void setup() {
-    db = TestDatabaseFactory.getDatabase();
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

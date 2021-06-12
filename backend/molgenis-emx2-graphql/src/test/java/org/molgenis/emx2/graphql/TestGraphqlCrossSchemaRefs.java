@@ -25,7 +25,7 @@ public class TestGraphqlCrossSchemaRefs {
 
   @BeforeClass
   public static void setup() {
-    Database database = TestDatabaseFactory.getDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     schema1 = database.dropCreateSchema(schemaName1);
     schema2 = database.dropCreateSchema(schemaName2);
 
