@@ -13,7 +13,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.CrossSchemaReferenceExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqlCrossSchemaRefs {
 
