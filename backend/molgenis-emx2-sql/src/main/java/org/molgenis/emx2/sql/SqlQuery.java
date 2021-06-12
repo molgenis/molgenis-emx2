@@ -674,7 +674,7 @@ public class SqlQuery extends QueryBean {
       }
     }
 
-    SelectJoinStep<org.jooq.Record> groupByQuery =
+    SelectJoinStep<Record> groupByQuery =
         table.getJooq().select(selectFields).from(subQuery.get(0));
     for (int i = 1; i < subQuery.size(); i++) {
       groupByQuery = groupByQuery.naturalJoin(subQuery.get(i));

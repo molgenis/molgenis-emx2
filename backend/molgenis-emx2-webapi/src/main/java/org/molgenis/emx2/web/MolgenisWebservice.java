@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import javax.sql.DataSource;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -30,9 +31,9 @@ public class MolgenisWebservice {
     // hide constructor
   }
 
-  public static void start(int port) {
+  public static void start(DataSource ds, int port) {
 
-    sessionManager = new MolgenisSessionManager();
+    sessionManager = new MolgenisSessionManager(ds);
     port(port);
 
     staticFiles.location("/public_html");
@@ -61,7 +62,7 @@ public class MolgenisWebservice {
     get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
 
     // services (matched in order of creation)
-    AppsProxyService.create(new SqlDatabase(false));
+    AppsProxyService.create(new SqlDatabase(ds, false));
 
     get(
         "/:schema/api",

@@ -13,6 +13,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class LinkedDataServiceTest {

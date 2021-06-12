@@ -11,6 +11,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.emx2.Emx2Members;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestEmx2Roles {
   private static Schema schema;

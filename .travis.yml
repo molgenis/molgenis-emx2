@@ -1,8 +1,6 @@
 language: java
 os: linux
 dist: focal
-git:
-  depth: 10000
 jdk:
   - openjdk13
 services:
@@ -13,7 +11,7 @@ branches:
     - /^v\d+\.\d+\.\d+$/
 before_install:
   #  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - git fetch --depth=10000
+  - git fetch --unshallow
   - git config user.email "m.a.swertz@rug.nl"
   - git config user.name "Travis-CI"
   - git config url.https://.insteadOf git://

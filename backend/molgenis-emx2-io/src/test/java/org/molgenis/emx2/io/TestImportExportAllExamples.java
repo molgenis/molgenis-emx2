@@ -12,6 +12,7 @@ import org.molgenis.emx2.examples.synthetic.ArrayTypeTestExample;
 import org.molgenis.emx2.examples.synthetic.RefAndRefArrayTestExample;
 import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
 import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestImportExportAllExamples {
 

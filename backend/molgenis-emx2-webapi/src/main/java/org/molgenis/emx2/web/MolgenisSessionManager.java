@@ -4,6 +4,7 @@ import static org.joda.time.Minutes.minutesBetween;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.sql.DataSource;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.molgenis.emx2.Database;
@@ -21,8 +22,11 @@ public class MolgenisSessionManager {
 
   // key is the user, might lead to trouble
   private Map<String, MolgenisSession> sessions = new LinkedHashMap<>();
+  private DataSource dataSource;
 
-  public MolgenisSessionManager() {}
+  public MolgenisSessionManager(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
 
   public synchronized MolgenisSession getSession(Request request) {
     // already in a session, then return that
@@ -55,7 +59,7 @@ public class MolgenisSessionManager {
     return sessions.computeIfAbsent(
         user,
         t -> {
-          Database database = new SqlDatabase(false);
+          Database database = new SqlDatabase(dataSource, false);
           if (!database.hasUser(user)) {
             throw new MolgenisException("Authentication failed: User " + user + " not known");
           }

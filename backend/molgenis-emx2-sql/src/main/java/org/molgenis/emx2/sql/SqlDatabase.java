@@ -1,23 +1,19 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
-import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +22,7 @@ public class SqlDatabase implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
 
-  // shared between all instances
-  private static DataSource source;
-
+  private DataSource source;
   private String databaseVersion;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
@@ -81,43 +75,8 @@ public class SqlDatabase implements Database {
         }
       };
 
-  public SqlDatabase(boolean init) {
-    if (source == null) {
-      String url =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI,
-                  "jdbc:postgresql:molgenis",
-                  STRING);
-      String user =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
-      String pass =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
-      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
-      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
-      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
-
-      if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
-        logger.error(
-            "Error: invalid "
-                + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI
-                + " string. Found :"
-                + url);
-        return;
-      }
-
-      // create data source
-      HikariDataSource dataSource = new HikariDataSource();
-      dataSource.setJdbcUrl(url);
-      dataSource.setUsername(user);
-      dataSource.setPassword(pass);
-
-      source = dataSource;
-    }
+  public SqlDatabase(DataSource source, boolean init) {
+    this.source = source;
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     if (init) {
@@ -129,7 +88,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public synchronized void init() { // setup default stuff
+  public void init() { // setup default stuff
 
     try {
       // short transaction

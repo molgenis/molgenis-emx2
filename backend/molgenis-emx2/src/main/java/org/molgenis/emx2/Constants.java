@@ -4,10 +4,6 @@ import static org.molgenis.emx2.Operator.*;
 
 public class Constants {
 
-  public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
-  public static final String MG_ROLE_PREFIX = "MG_ROLE_";
-  public static final String MG_USER_PREFIX = "MG_USER_";
-
   public static final String COMPOSITE_REF_SEPARATOR = ".";
   public static final String REF_SCHEMA_NAME = "refSchema";
   public static final String REF_TABLE_NAME = "refTable";

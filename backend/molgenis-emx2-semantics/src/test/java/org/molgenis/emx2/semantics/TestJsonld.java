@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.JsonLdExample;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestJsonld {
   private static Database db;
