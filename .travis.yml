@@ -2,7 +2,7 @@ language: java
 os: linux
 dist: focal
 git:
-  depth: 1000
+  depth: 10000
 jdk:
   - openjdk13
 services:
