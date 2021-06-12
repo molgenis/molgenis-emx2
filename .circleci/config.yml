@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:openjdk-16-buster
+      - image: adoptopenjdk:13-jdk-hotspot-bionic
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
