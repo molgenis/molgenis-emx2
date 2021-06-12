@@ -22,6 +22,12 @@ jobs:
       TERM: dumb
 
     steps:
+      - run:
+          name: Env setup
+          command: |
+            apt update
+            apt -y install git
+    
       - checkout
 
       # Download and cache dependencies
