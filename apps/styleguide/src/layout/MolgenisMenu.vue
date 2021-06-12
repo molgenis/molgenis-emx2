@@ -11,13 +11,13 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a v-if="logo" class="navbar-brand" href="/">
+    <a v-if="logo" class="navbar-brand" :href="homeUrl">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav" v-if="items">
         <li
-          v-for="item in items.filter((i) => permitted(i))"
+          v-for="item in permittedItems"
           :key="item.label"
           class="nav-item"
           :class="{
@@ -70,6 +70,25 @@ export default {
     logo: String,
     /** session information, so we can check role permissions */
     session: Object,
+  },
+  computed: {
+    permittedItems() {
+      return this.items.filter((i) => this.permitted(i));
+    },
+    homeUrl() {
+      //will be first non-submenu item that is permitted
+      if (this.permittedItems.length > 0) {
+        let firstItem = this.permittedItems[0];
+        // in case it is a item with submenu and without href, find first submenu item
+        while (firstItem && firstItem.href == null && firstItem.submenu) {
+          let sub = firstItem.submenu.filter((i) => this.permitted(i));
+          firstItem = sub[0];
+        }
+        if (firstItem && firstItem.href) return firstItem.href;
+      }
+      //defaut: go home
+      return "../";
+    },
   },
   methods: {
     permitted(item) {
