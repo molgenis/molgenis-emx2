@@ -418,7 +418,7 @@ public class MetadataUtils {
             column.getRefLink(),
             column.getRefLabelIfSet(),
             column.getRefBack(),
-            column.getValidation(),
+            column.getValidIf(),
             column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
@@ -437,7 +437,7 @@ public class MetadataUtils {
         .set(COLUMN_REF_LINK, column.getRefLink())
         .set(COLUMN_REF_LABEL, column.getRefLabelIfSet())
         .set(COLUMN_REF_BACK, column.getRefBack())
-        .set(COLUMN_VALIDATION, column.getValidation())
+        .set(COLUMN_VALIDATION, column.getValidIf())
         .set(COLUMN_COMPUTED, column.getComputed())
         .set(COLUMN_INDEXED, column.isIndexed())
         .set(COLUMN_CASCADE, column.isCascadeDelete())
@@ -515,7 +515,7 @@ public class MetadataUtils {
     c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setRefLabel(col.get(COLUMN_REF_LABEL, String.class));
     c.setRefBack(col.get(COLUMN_REF_BACK, String.class));
-    c.setValidation(col.get(COLUMN_VALIDATION, String.class));
+    c.setValidIf(col.get(COLUMN_VALIDATION, String.class));
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));

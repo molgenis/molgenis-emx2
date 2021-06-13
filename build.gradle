@@ -37,6 +37,9 @@ repositories {
     maven {
         url = 'https://repo.maven.apache.org/maven2'
     }
+    maven {
+        url = "https://registry.molgenis.org/repository/maven-public"
+    }
 }
 
 dependencies {
@@ -74,8 +77,8 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
-  outputFile file('build/ci.properties')
-  property 'tagName', tagName
+    outputFile file('build/ci.properties')
+    property 'tagName', tagName
 }
 
 jib {

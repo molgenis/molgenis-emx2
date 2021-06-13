@@ -428,6 +428,7 @@ class SqlTable implements Table {
 
       if (!row.isDraft()) {
         checkRequired(row, columns);
+        // checkValidation(row, columns);
       }
 
       list.add(

@@ -82,7 +82,7 @@ public class Emx2 {
           if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
-          if (r.notNull(VALIDATION)) column.setValidation(r.getString(VALIDATION));
+          if (r.notNull(VALIDATION)) column.setValidIf(r.getString(VALIDATION));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
 
@@ -151,7 +151,7 @@ public class Emx2 {
           if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
           if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-          if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+          if (c.getValidIf() != null) row.set(VALIDATION, c.getValidIf());
           if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
 
           result.add(row);

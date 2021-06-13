@@ -41,7 +41,7 @@ public class Column {
   private Integer position = null; // column order within the table
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private boolean required = false;
-  private String validation = null;
+  private String validIf = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
@@ -118,7 +118,7 @@ public class Column {
     refLink = column.refLink;
     refSchema = column.refSchema;
     refBack = column.refBack;
-    validation = column.validation;
+    validIf = column.validIf;
     refLabel = column.refLabel;
     computed = column.computed;
     description = column.description;
@@ -314,12 +314,12 @@ public class Column {
     return null;
   }
 
-  public String getValidation() {
-    return validation;
+  public String getValidIf() {
+    return validIf;
   }
 
-  public Column setValidation(String validation) {
-    this.validation = validation;
+  public Column setValidIf(String validIf) {
+    this.validIf = validIf;
     return this;
   }
 

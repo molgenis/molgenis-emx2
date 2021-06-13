@@ -53,7 +53,7 @@ public class Column {
     this.refLabel = column.getRefLabel();
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
-    this.validation = column.getValidation();
+    this.validation = column.getValidIf();
     this.required = column.isRequired();
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
@@ -80,7 +80,7 @@ public class Column {
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
     c.setRefBack(refBack);
-    c.setValidation(validation);
+    c.setValidIf(validation);
     c.setDescription(description);
     c.setSemantics(semantics);
     c.setVisible(visible);
