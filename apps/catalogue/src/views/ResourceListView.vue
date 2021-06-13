@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div>
     <div class="p-2 mb-2" :class="headerCss">
       <h6>
         <RouterLink to="/" :class="headerCss"> home</RouterLink>
@@ -20,11 +20,12 @@
 import { TableExplorer } from "@mswertz/emx2-styleguide";
 
 const css = {
-  Institutions: "bg-info text-white",
-  Datasources: "bg-warning text-dark",
-  Databanks: "bg-danger text-white",
-  Models: "bg-secondary text-white",
-  Networks: "bg-primary text-white",
+  Institutions: "bg-dark text-white",
+  Datasources: "bg-secondary text-white",
+  Databanks: "bg-info text-white",
+  Cohorts: "bg-primary text-white",
+  Models: "bg-warning text-dark",
+  Networks: "bg-danger text-white",
   Studies: "bg-success text-white",
   Contacts: "bg-info text-white",
   Affiliations: "bg-info text-white",
@@ -65,6 +66,8 @@ export default {
         )
       ) {
         return ["name", "acronym", "type", "recordPrompt", "institution"];
+      } else if (this.tableName == "Cohorts") {
+        return ["acronym", "name", "keywords", "noParticipants"];
       } else if (this.tableName == "Studies") {
         return ["acronym", "name", "keywords"];
       } else if (this.tableName == "Contacts") {
@@ -111,6 +114,9 @@ export default {
       }
       if (this.tableName == "Databanks") {
         return ["keywords", "recordPrompt"];
+      }
+      if (this.tableName == "Cohorts") {
+        return ["sampleCategories", "dataCategories", "noParticipants"];
       }
       return [];
     },

@@ -2,21 +2,21 @@
   <div class="container bg-white">
     <ResourceHeader
       :resource="institution"
-      header-css="bg-info text-white"
+      header-css="bg-dark text-white"
       table-name="Institutions"
     />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <hr class="border-info" />
+    <hr class="border-dark" />
     <div class="row">
       <div class="col-7">
         <h5>Provider of:</h5>
         <div class="m-4">
           <h6>Datasources</h6>
-          <DatasourceList :datasources="datasources" />
+          <DatasourceList :datasources="datasources" color="dark" />
           <h6>Databanks</h6>
-          <DatabankList :databanks="databanks" />
+          <DatabankList :databanks="databanks" color="dark" />
           <h6>Networks</h6>
-          <NetworkList :networks="networks" />
+          <NetworkList :networks="networks" color="dark" />
         </div>
         <h5>Partner in:</h5>
         <PartnerInList :partnerIn="institution.partnerIn" />
