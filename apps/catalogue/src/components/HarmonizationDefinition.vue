@@ -27,7 +27,14 @@
               v-for="fromVariable in variable.cohortMapping.fromVariable"
               :key="fromVariable.name"
             >
-              {{ fromVariable.name }}
+              <router-link
+                :to="{
+                  name: 'fromVariableDetails',
+                  params: { ...$route.paramns, fromName: fromVariable.name },
+                }"
+              >
+                {{ fromVariable.name }}
+              </router-link>
             </li>
           </ul>
           <span v-else> - </span>

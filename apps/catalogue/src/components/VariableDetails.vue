@@ -54,18 +54,20 @@
           <span v-else>none</span>
         </dd>
 
-        <dt class="col-2">mapped by</dt>
-        <dd class="col-10">
-          <span v-if="variableDetails.mappings">
-            <span
-              v-for="mapping in variableDetails.mappings"
-              :key="mapping.fromTable.release.acronym"
-            >
-              {{ mapping.fromTable.release.resource.acronym }}
+        <template v-if="showMappedBy">
+          <dt class="col-2">mapped by</dt>
+          <dd class="col-10">
+            <span v-if="variableDetails.mappings">
+              <span
+                v-for="mapping in variableDetails.mappings"
+                :key="mapping.fromTable.release.acronym"
+              >
+                {{ mapping.fromTable.release.resource.acronym }}
+              </span>
             </span>
-          </span>
-          <span v-else>none</span>
-        </dd>
+            <span v-else>none</span>
+          </dd>
+        </template>
       </dl>
     </template>
   </p>
@@ -76,6 +78,10 @@ export default {
   name: "VariableDetails",
   props: {
     variableDetails: Object,
+    showMappedBy: {
+      type: Boolean,
+      default: () => true
+    }
   },
   computed: {
     permittedValuesByOrder() {
