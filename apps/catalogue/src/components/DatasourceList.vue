@@ -7,6 +7,11 @@
           params: { acronym: d.acronym },
         }"
         >{{ d.acronym }} - {{ d.name }}
+        <OntologyTerms
+          :terms="d.type"
+          :inline="true"
+          :color="color"
+        ></OntologyTerms>
       </RouterLink>
     </li>
   </ul>
@@ -14,8 +19,14 @@
 </template>
 
 <script>
+import OntologyTerms from "./OntologyTerms";
+
 export default {
+  components: {
+    OntologyTerms,
+  },
   props: {
+    color: String,
     datasources: Array,
   },
 };
