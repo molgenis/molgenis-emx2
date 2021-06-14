@@ -99,7 +99,7 @@ public class MetadataUtils {
 
   protected static synchronized String getVersion(DSLContext jooq) {
     try {
-      Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
         return (String) result.get(0).get(VERSION);
       }
