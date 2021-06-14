@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
@@ -66,10 +67,10 @@ public class TestRowLevelSecurity {
                 .insert(
                     new Row()
                         .setString("col1", "Hello World")
-                        .set(Constants.MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
+                        .set(MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
                     new Row()
                         .setString("col1", "Hello World2")
-                        .set(Constants.MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
+                        .set(MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
           });
 
       // let the second admin see it
