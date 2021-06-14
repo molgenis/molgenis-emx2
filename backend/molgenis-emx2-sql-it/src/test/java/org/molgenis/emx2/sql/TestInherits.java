@@ -2,9 +2,17 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.LIKE;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -22,48 +30,42 @@ public class TestInherits {
 
     Schema s = db.dropCreateSchema("TestExtends");
 
-    Table person = s.create(TableMetadata.table("Person"));
+    Table person = s.create(table("Person"));
 
     // test if fails if no primary key
     try {
-      s.create(TableMetadata.table("Employee").setInherit(person.getName()));
+      s.create(table("Employee").setInherit(person.getName()));
       fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.create(TableMetadata.table("Employee").setInherit("fake_table"));
+      s.create(table("Employee").setInherit("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     // set pkey and a property
-    person.getMetadata().add(Column.column("fullName").setPkey());
-    person.getMetadata().add(Column.column("birthDate").setType(ColumnType.DATE));
+    person.getMetadata().add(column("fullName").setPkey());
+    person.getMetadata().add(column("birthDate").setType(DATE));
 
     // create first extended table
     Table employee =
-        s.create(
-            TableMetadata.table("Employee")
-                .setInherit(person.getName())
-                .add(Column.column("salary").setType(ColumnType.INT)));
+        s.create(table("Employee").setInherit(person.getName()).add(column("salary").setType(INT)));
 
     Table manager =
         s.create(
-            TableMetadata.table("Manager")
+            table("Manager")
                 .setInherit("Employee")
-                .add(
-                    Column.column("directs")
-                        .setType(ColumnType.REF_ARRAY)
-                        .setRefTable("Employee")));
+                .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
-    Table ceo = s.create(TableMetadata.table("CEO").setInherit("Manager"));
+    Table ceo = s.create(table("CEO").setInherit("Manager"));
 
     // try to add column that already exists in parent
     try {
-      employee.getMetadata().add(Column.column("birthDate").setType(ColumnType.DATE));
+      employee.getMetadata().add(column("birthDate").setType(DATE));
       fail("should fail: cannot add column to subclass that already exists in superclass");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -79,9 +81,7 @@ public class TestInherits {
 
     // create another extended table
     s.create(
-        TableMetadata.table("Student")
-            .setInherit(person.getName())
-            .add(Column.column("averageGrade").setType(ColumnType.INT)));
+        table("Student").setInherit(person.getName()).add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");
@@ -104,18 +104,18 @@ public class TestInherits {
     ceoTable.insert(managerRow);
 
     Table personTable = s.getTable("Person");
-    Assert.assertEquals(3, personTable.retrieveRows().size());
-    Assert.assertEquals(1, studentTable.retrieveRows().size());
-    Assert.assertEquals(2, employeeTable.retrieveRows().size());
-    Assert.assertEquals(1, ceoTable.retrieveRows().size());
+    assertEquals(3, personTable.retrieveRows().size());
+    assertEquals(1, studentTable.retrieveRows().size());
+    assertEquals(2, employeeTable.retrieveRows().size());
+    assertEquals(1, ceoTable.retrieveRows().size());
 
     // retrieve
-    Assert.assertEquals(
+    assertEquals(
         (Integer) 1000000,
         employeeTable
             .query()
-            .select(SelectColumn.s("salary"))
-            .where(FilterBean.f("fullName", Operator.EQUALS, "Dagobert Duck"))
+            .select(s("salary"))
+            .where(f("fullName", EQUALS, "Dagobert Duck"))
             .retrieveRows()
             .get(0)
             .getInteger("salary"));
@@ -123,90 +123,76 @@ public class TestInherits {
     // TODO test RLS
 
     // test search
-    Assert.assertEquals(1, personTable.search("Dagobert").retrieveRows().size());
-    Assert.assertEquals(1, employeeTable.search("Dagobert").retrieveRows().size());
+    assertEquals(1, personTable.search("Dagobert").retrieveRows().size());
+    assertEquals(1, employeeTable.search("Dagobert").retrieveRows().size());
 
     // update
     managerRow.setDate("birthDate", LocalDate.of(1900, 12, 01));
     ceoTable.update(managerRow);
-    Assert.assertEquals(
-        LocalDate.of(1900, 12, 01), ceoTable.retrieveRows().get(0).getDate("birthDate"));
+    assertEquals(LocalDate.of(1900, 12, 01), ceoTable.retrieveRows().get(0).getDate("birthDate"));
 
     // test graph query
     // simple
-    String result =
-        ceoTable.select(SelectColumn.s("fullName"), SelectColumn.s("salary")).retrieveJSON();
+    String result = ceoTable.select(s("fullName"), s("salary")).retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Dagobert"));
     // nested relation
     result =
-        ceoTable
-            .select(
-                SelectColumn.s("fullName"),
-                SelectColumn.s("salary"),
-                SelectColumn.s("directs", SelectColumn.s("fullName")))
-            .retrieveJSON();
+        ceoTable.select(s("fullName"), s("salary"), s("directs", s("fullName"))).retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));
     // filtering (erroroneous)
     result =
         ceoTable
-            .select(
-                SelectColumn.s("fullName"),
-                SelectColumn.s("salary"),
-                SelectColumn.s("directs", SelectColumn.s("fullName")))
-            .where(FilterBean.f("directs", FilterBean.f("fullName", Operator.LIKE, "Pietje")))
+            .select(s("fullName"), s("salary"), s("directs", s("fullName")))
+            .where(f("directs", f("fullName", LIKE, "Pietje")))
             .retrieveJSON();
     System.out.println(result);
     assertFalse(result.contains("Katrien"));
     // filtering (correct)
     result =
         ceoTable
-            .select(
-                SelectColumn.s("fullName"),
-                SelectColumn.s("salary"),
-                SelectColumn.s("directs", SelectColumn.s("fullName")))
-            .where(FilterBean.f("directs", FilterBean.f("fullName", Operator.LIKE, "Katrien")))
+            .select(s("fullName"), s("salary"), s("directs", s("fullName")))
+            .where(f("directs", f("fullName", LIKE, "Katrien")))
             .retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Katrien"));
 
     // filtering on mg_tableclass
-    Assert.assertEquals(
+    assertEquals(
         1,
         personTable
             .query()
-            .where(
-                FilterBean.f(Constants.MG_TABLECLASS, Operator.EQUALS, s.getName() + ".Employee"))
+            .where(f(MG_TABLECLASS, EQUALS, s.getName() + ".Employee"))
             .retrieveRows()
             .size());
 
     // delete
     ceoTable.delete(managerRow);
-    Assert.assertEquals(2, personTable.retrieveRows().size());
-    Assert.assertEquals(1, studentTable.retrieveRows().size());
-    Assert.assertEquals(1, employeeTable.retrieveRows().size());
-    Assert.assertEquals(0, ceoTable.retrieveRows().size());
+    assertEquals(2, personTable.retrieveRows().size());
+    assertEquals(1, studentTable.retrieveRows().size());
+    assertEquals(1, employeeTable.retrieveRows().size());
+    assertEquals(0, ceoTable.retrieveRows().size());
 
     // test multi add
     personTable.insert(
-        Row.row(Constants.MG_TABLECLASS, "Manager", "fullName", "popeye"),
-        Row.row(Constants.MG_TABLECLASS, "Employee", "fullName", "goofy"));
-    Assert.assertEquals(4, personTable.retrieveRows().size());
-    Assert.assertEquals(1, studentTable.retrieveRows().size());
-    Assert.assertEquals(3, employeeTable.retrieveRows().size());
-    Assert.assertEquals(1, manager.retrieveRows().size());
-    Assert.assertEquals(0, ceoTable.retrieveRows().size());
+        row(MG_TABLECLASS, "Manager", "fullName", "popeye"),
+        row(MG_TABLECLASS, "Employee", "fullName", "goofy"));
+    assertEquals(4, personTable.retrieveRows().size());
+    assertEquals(1, studentTable.retrieveRows().size());
+    assertEquals(3, employeeTable.retrieveRows().size());
+    assertEquals(1, manager.retrieveRows().size());
+    assertEquals(0, ceoTable.retrieveRows().size());
 
     try {
-      personTable.insert(Row.row(Constants.MG_TABLECLASS, "Wrong", "fullName", "popeye"));
+      personTable.insert(row(MG_TABLECLASS, "Wrong", "fullName", "popeye"));
       fail("should error");
     } catch (Exception e) {
       System.out.println("Errored correctly: " + e.getMessage());
     }
 
     try {
-      personTable.insert(Row.row(Constants.MG_TABLECLASS, "Blaat.Wrong", "fullName", "popeye"));
+      personTable.insert(row(MG_TABLECLASS, "Blaat.Wrong", "fullName", "popeye"));
       fail("should error");
     } catch (Exception e) {
       System.out.println("Errored correctly: " + e.getMessage());

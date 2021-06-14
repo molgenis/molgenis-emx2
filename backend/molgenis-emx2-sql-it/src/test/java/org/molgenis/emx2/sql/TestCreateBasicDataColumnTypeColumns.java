@@ -2,13 +2,16 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -100,7 +103,7 @@ public class TestCreateBasicDataColumnTypeColumns {
   @Test
   public void testUUID() {
     executeTest(
-        ColumnType.UUID,
+        UUID,
         new java.util.UUID[] {
           java.util.UUID.fromString("f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4"),
           java.util.UUID.fromString("f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5"),
@@ -110,35 +113,35 @@ public class TestCreateBasicDataColumnTypeColumns {
 
   @Test
   public void testString() {
-    executeTest(ColumnType.STRING, new String[] {"aap", "noot", "mies"});
+    executeTest(STRING, new String[] {"aap", "noot", "mies"});
   }
 
   @Test
   public void testInt() {
-    executeTest(ColumnType.INT, new Integer[] {5, 6, 7});
+    executeTest(INT, new Integer[] {5, 6, 7});
   }
 
   @Test
   public void testDate() {
-    executeTest(ColumnType.DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
+    executeTest(DATE, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }
 
   @Test
   public void testDateTime() {
     executeTest(
-        ColumnType.DATETIME,
+        DATETIME,
         new String[] {"2013-01-01T18:00:00", "2013-01-01T18:00:01", "2013-01-01T18:00:02"});
   }
 
   @Test
   public void testDecimal() {
-    executeTest(ColumnType.DECIMAL, new Double[] {5.0, 6.0, 7.0});
+    executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
 
   @Test
   public void testText() {
     executeTest(
-        ColumnType.TEXT,
+        TEXT,
         new String[] {
           "This is a hello world", "This is a hello back to you", "This is a hello some more"
         });
@@ -147,7 +150,7 @@ public class TestCreateBasicDataColumnTypeColumns {
   @Test
   public void testJSON() {
     executeTest(
-        ColumnType.JSONB,
+        JSONB,
         new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
   }
 
@@ -161,9 +164,9 @@ public class TestCreateBasicDataColumnTypeColumns {
     String aColumn = columnType + "Col";
     Table aTable =
         schema.create(
-            TableMetadata.table("A")
-                .add(Column.column(aKey).setType(columnType).setPkey())
-                .add(Column.column(aColumn).setType(columnType)));
+            table("A")
+                .add(column(aKey).setType(columnType).setPkey())
+                .add(column(aColumn).setType(columnType)));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);
@@ -174,11 +177,10 @@ public class TestCreateBasicDataColumnTypeColumns {
     aTable.update(aRow);
 
     // check query
-    List<Row> result =
-        aTable.query().where(FilterBean.f(aColumn, Operator.EQUALS, values[0])).retrieveRows();
+    List<Row> result = aTable.query().where(f(aColumn, EQUALS, values[0])).retrieveRows();
     assertEquals(0, result.size());
 
-    result = aTable.query().where(FilterBean.f(aColumn, Operator.EQUALS, values[2])).retrieveRows();
+    result = aTable.query().where(f(aColumn, EQUALS, values[2])).retrieveRows();
     assertEquals(1, result.size());
     for (Row r : result) {
       System.out.println(r);
@@ -186,6 +188,6 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // delete
     aTable.delete(aRow, aRow2);
-    Assert.assertEquals(0, aTable.retrieveRows().size());
+    assertEquals(0, aTable.retrieveRows().size());
   }
 }

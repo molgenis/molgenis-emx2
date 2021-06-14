@@ -1,11 +1,13 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 
 public class TestTransaction {
   private static Database db;
@@ -23,8 +25,8 @@ public class TestTransaction {
     try {
       db.tx(
           db -> {
-            s.create(TableMetadata.table("a"));
-            s.create(TableMetadata.table("b"));
+            s.create(table("a"));
+            s.create(table("b"));
             throw new RuntimeException("transaction stopped to check if it rolled back");
           });
     } catch (Exception e) {

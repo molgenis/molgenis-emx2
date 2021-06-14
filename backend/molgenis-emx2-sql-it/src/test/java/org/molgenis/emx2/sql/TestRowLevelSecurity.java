@@ -1,10 +1,17 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
+import static org.molgenis.emx2.TableMetadata.table;
+
 import java.sql.SQLException;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Privileges;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
 
 public class TestRowLevelSecurity {
   public static final String TEST_RLS_HAS_NO_PERMISSION = "test_rls_has_no_permission";
@@ -25,7 +32,7 @@ public class TestRowLevelSecurity {
 
       // create two users
       database.addUser(TEST_RLS_HAS_NO_PERMISSION);
-      Assert.assertEquals(true, database.hasUser(TEST_RLS_HAS_NO_PERMISSION));
+      assertEquals(true, database.hasUser(TEST_RLS_HAS_NO_PERMISSION));
 
       database.addUser(TESTRLS_HAS_RLS_VIEW);
 
@@ -41,8 +48,7 @@ public class TestRowLevelSecurity {
       database.setActiveUser("testrls1");
       database.tx(
           db -> {
-            db.getSchema(TEST_RLS)
-                .create(TableMetadata.table(TEST_RLS).add(Column.column("col1").setPkey()));
+            db.getSchema(TEST_RLS).create(table(TEST_RLS).add(column("col1").setPkey()));
           });
 
       // let the other user add RLS
@@ -61,29 +67,29 @@ public class TestRowLevelSecurity {
                 .insert(
                     new Row()
                         .setString("col1", "Hello World")
-                        .set(Constants.MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
+                        .set(MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
                     new Row()
                         .setString("col1", "Hello World2")
-                        .set(Constants.MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
+                        .set(MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
           });
 
       // let the second admin see it
       database.setActiveUser("testrls2");
       database.tx(
           db -> {
-            Assert.assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
+            assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
           });
 
       // have RLS user query and see one row
       database.setActiveUser(TESTRLS_HAS_RLS_VIEW);
       database.tx(
           db -> {
-            Assert.assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
+            assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
           });
 
       database.clearActiveUser();
       database.removeUser(TESTRLS_HAS_RLS_VIEW);
-      Assert.assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
+      assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
     } finally {
       database.clearActiveUser();
     }

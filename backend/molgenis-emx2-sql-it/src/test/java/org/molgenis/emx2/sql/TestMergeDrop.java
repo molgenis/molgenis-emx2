@@ -1,11 +1,16 @@
 package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
 
-import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
 
 public class TestMergeDrop {
   static Database db;
@@ -20,46 +25,46 @@ public class TestMergeDrop {
   @Test
   public void testDrop() {
     SchemaMetadata newSchema = new SchemaMetadata();
-    newSchema.create(TableMetadata.table("Person", Column.column("name")));
+    newSchema.create(table("Person", column("name")));
 
     schema.migrate(newSchema);
     // idempotent
     schema.migrate(newSchema);
 
-    TestCase.assertNotNull(schema.getTable("Person"));
+    assertNotNull(schema.getTable("Person"));
 
     newSchema = new SchemaMetadata();
-    newSchema.create(TableMetadata.table("Person").drop());
+    newSchema.create(table("Person").drop());
 
     schema.migrate(newSchema);
     // should be idempotent
     schema.migrate(newSchema);
 
-    TestCase.assertNull(schema.getTable("Person"));
+    assertNull(schema.getTable("Person"));
 
     // now more complex, with dependency
     newSchema = new SchemaMetadata();
-    newSchema.create(TableMetadata.table("Person", Column.column("name").setPkey()));
+    newSchema.create(table("Person", column("name").setPkey()));
     newSchema.create(
-        TableMetadata.table(
+        table(
             "Pet",
-            Column.column("name").setPkey(),
-            Column.column("owner").setType(ColumnType.REF).setRefTable("Person")));
+            column("name").setPkey(),
+            column("owner").setType(ColumnType.REF).setRefTable("Person")));
 
     schema.migrate(newSchema);
     // should be idempotent so repeat
     schema.migrate(newSchema);
 
-    TestCase.assertNotNull(schema.getTable("Person"));
-    TestCase.assertNotNull(schema.getTable("Pet"));
+    assertNotNull(schema.getTable("Person"));
+    assertNotNull(schema.getTable("Pet"));
 
-    schema.getTable("Person").insert(Row.row("name", "Donald"));
-    schema.getTable("Pet").insert(Row.row("name", "Pluto", "owner", "Donald"));
+    schema.getTable("Person").insert(row("name", "Donald"));
+    schema.getTable("Pet").insert(row("name", "Pluto", "owner", "Donald"));
 
     // should fail
     newSchema = new SchemaMetadata();
     try {
-      newSchema.create(TableMetadata.table("Person").drop());
+      newSchema.create(table("Person").drop());
       schema.migrate(newSchema);
       fail("should fail because of foreign key");
     } catch (Exception e) {
@@ -67,12 +72,12 @@ public class TestMergeDrop {
     }
 
     // should succeed
-    newSchema.create(TableMetadata.table("Pet").drop());
+    newSchema.create(table("Pet").drop());
     schema.migrate(newSchema);
     // should be idempotent so repeat
     schema.migrate(newSchema);
 
-    TestCase.assertNull(schema.getTable("Person"));
-    TestCase.assertNull(schema.getTable("Pet"));
+    assertNull(schema.getTable("Person"));
+    assertNull(schema.getTable("Pet"));
   }
 }

@@ -1,9 +1,12 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.FILE;
+import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -20,32 +23,16 @@ public class TestFileType {
 
   @Test
   public void test3() {
-    Table t =
-        schema.create(
-            TableMetadata.table(
-                "test1",
-                Column.column("id").setPkey(),
-                Column.column("image").setType(ColumnType.FILE)));
+    Table t = schema.create(table("test1", column("id").setPkey(), column("image").setType(FILE)));
     File image = getFile();
     t.insert(new Row("id", 1, "image", image));
 
-    Assert.assertEquals(
+    assertEquals(
         (Integer) 37458,
-        t.query()
-            .select(SelectColumn.s("image", SelectColumn.s("size")))
-            .retrieveRows()
-            .get(0)
-            .getInteger("image_size"));
+        t.query().select(s("image", s("size"))).retrieveRows().get(0).getInteger("image_size"));
 
     String result =
-        t.query()
-            .select(
-                SelectColumn.s(
-                    "image",
-                    SelectColumn.s("size"),
-                    SelectColumn.s("extension"),
-                    SelectColumn.s("mimetype")))
-            .retrieveJSON();
+        t.query().select(s("image", s("size"), s("extension"), s("mimetype"))).retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("37458"));
   }
@@ -53,17 +40,17 @@ public class TestFileType {
   @Test
   public void testBinaryFileWrapper() {
     BinaryFileWrapper w = new BinaryFileWrapper(getFile());
-    Assert.assertEquals("image/png", w.getMimeType());
-    Assert.assertEquals("png", w.getExtension());
-    Assert.assertEquals(37458, w.getSize());
+    assertEquals("image/png", w.getMimeType());
+    assertEquals("png", w.getExtension());
+    assertEquals(37458, w.getSize());
     assertNotNull(w.getContents());
-    Assert.assertEquals(37458, w.getContents().length);
+    assertEquals(37458, w.getContents().length);
   }
 
   @Test
   public void testRowWithFileType() {
     Row r = new Row("image", getFile());
-    Assert.assertEquals("png", r.getString("image_extension"));
+    assertEquals("png", r.getString("image_extension"));
   }
 
   private File getFile() {
