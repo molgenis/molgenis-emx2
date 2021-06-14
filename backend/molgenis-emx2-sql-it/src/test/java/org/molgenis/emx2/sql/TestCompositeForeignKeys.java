@@ -2,11 +2,16 @@ package org.molgenis.emx2.sql;
 
 import static graphql.Assert.assertTrue;
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.FilterBean.*;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -29,11 +34,11 @@ public class TestCompositeForeignKeys {
         database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "Ref");
 
     schema.create(
-        TableMetadata.table(
+        table(
             "Person",
-            Column.column("firstName").setPkey(),
-            Column.column("lastName").setPkey(),
-            Column.column("uncle", ColumnType.REF).setRefTable("Person")));
+            column("firstName").setPkey(),
+            column("lastName").setPkey(),
+            column("uncle", REF).setRefTable("Person")));
 
     Table p = schema.getTable("Person");
 
@@ -79,7 +84,7 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
-    schema.create(TableMetadata.table("Student").setInherit("Person"));
+    schema.create(table("Student").setInherit("Person"));
     Table s = schema.getTable("Student");
     s.insert(
         new Row()
@@ -92,25 +97,21 @@ public class TestCompositeForeignKeys {
         schema
             .query(
                 "Student",
-                SelectColumn.s("firstName"),
-                SelectColumn.s("lastName"),
-                SelectColumn.s("uncle", SelectColumn.s("firstName"), SelectColumn.s("lastName")),
-                SelectColumn.s("uncle", SelectColumn.s("firstName"), SelectColumn.s("lastName")))
+                s("firstName"),
+                s("lastName"),
+                s("uncle", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
             .retrieveJSON();
     System.out.println(result);
 
     result =
         schema
             .query("Student")
-            .select(SelectColumn.s("firstName"), SelectColumn.s("lastName"))
+            .select(s("firstName"), s("lastName"))
             .where(
-                FilterBean.or(
-                    FilterBean.and(
-                        FilterBean.f("firstName", Operator.EQUALS, "Donald"),
-                        FilterBean.f("lastName", Operator.EQUALS, "Duck")),
-                    FilterBean.and(
-                        FilterBean.f("firstName", Operator.EQUALS, "Mickey"),
-                        FilterBean.f("lastName", Operator.EQUALS, "Mouse"))))
+                or(
+                    and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
+                    and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse"))))
             .retrieveJSON();
 
     System.out.println(result);
@@ -120,15 +121,11 @@ public class TestCompositeForeignKeys {
     result =
         schema
             .query("Person")
-            .select(SelectColumn.s("firstName"), SelectColumn.s("lastName"))
+            .select(s("firstName"), s("lastName"))
             .where(
-                FilterBean.or(
-                    FilterBean.and(
-                        FilterBean.f("firstName", Operator.EQUALS, "Donald"),
-                        FilterBean.f("lastName", Operator.EQUALS, "Duck")),
-                    FilterBean.and(
-                        FilterBean.f("firstName", Operator.EQUALS, "Mickey"),
-                        FilterBean.f("lastName", Operator.EQUALS, "Mouse"))))
+                or(
+                    and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
+                    and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse"))))
             .retrieveJSON();
 
     System.out.println(result);
@@ -139,18 +136,14 @@ public class TestCompositeForeignKeys {
     result =
         schema
             .query("Person")
-            .select(SelectColumn.s("firstName"), SelectColumn.s("lastName"))
+            .select(s("firstName"), s("lastName"))
             // composite filter, should result in 'donald duck' OR 'mickey mouse'
             .where(
-                FilterBean.f(
+                f(
                     "uncle",
-                    FilterBean.or(
-                        FilterBean.and(
-                            FilterBean.f("firstName", Operator.EQUALS, "Donald"),
-                            FilterBean.f("lastName", Operator.EQUALS, "Duck")),
-                        FilterBean.and(
-                            FilterBean.f("firstName", Operator.EQUALS, "Mickey"),
-                            FilterBean.f("lastName", Operator.EQUALS, "Mouse")))))
+                    or(
+                        and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
+                        and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse")))))
             .retrieveJSON();
 
     System.out.println(result);
@@ -161,11 +154,7 @@ public class TestCompositeForeignKeys {
     schema
         .getTable("Person")
         .getMetadata()
-        .add(
-            Column.column("nephew")
-                .setType(ColumnType.REFBACK)
-                .setRefTable("Person")
-                .setRefBack("uncle"));
+        .add(column("nephew").setType(REFBACK).setRefTable("Person").setRefBack("uncle"));
 
     s.insert(
         new Row()
@@ -178,13 +167,11 @@ public class TestCompositeForeignKeys {
         List.of(
                 s.query()
                     .select(
-                        SelectColumn.s("firstName"),
-                        SelectColumn.s("lastName"),
-                        SelectColumn.s(
-                            "nephew", SelectColumn.s("firstName"), SelectColumn.s("lastName")),
-                        SelectColumn.s(
-                            "uncle", SelectColumn.s("firstName"), SelectColumn.s("lastName")))
-                    .where(FilterBean.f("firstName", Operator.EQUALS, "Katrien"))
+                        s("firstName"),
+                        s("lastName"),
+                        s("nephew", s("firstName"), s("lastName")),
+                        s("uncle", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Katrien"))
                     .retrieveRows()
                     .get(0)
                     .getStringArray("nephew-firstName"))
@@ -193,13 +180,11 @@ public class TestCompositeForeignKeys {
         List.of(
                 p.query()
                     .select(
-                        SelectColumn.s("firstName"),
-                        SelectColumn.s("lastName"),
-                        SelectColumn.s(
-                            "nephew", SelectColumn.s("firstName"), SelectColumn.s("lastName")),
-                        SelectColumn.s(
-                            "uncle", SelectColumn.s("firstName"), SelectColumn.s("lastName")))
-                    .where(FilterBean.f("firstName", Operator.EQUALS, "Kwik"))
+                        s("firstName"),
+                        s("lastName"),
+                        s("nephew", s("firstName"), s("lastName")),
+                        s("uncle", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Kwik"))
                     .retrieveRows()
                     .get(0)
                     .getStringArray("uncle-firstName"))
@@ -212,11 +197,11 @@ public class TestCompositeForeignKeys {
         database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "RefArray");
 
     schema.create(
-        TableMetadata.table(
+        table(
             "Person",
-            Column.column("firstName").setPkey(),
-            Column.column("lastName").setPkey(),
-            Column.column("cousins", ColumnType.REF_ARRAY).setRefTable("Person")));
+            column("firstName").setPkey(),
+            column("lastName").setPkey(),
+            column("cousins", REF_ARRAY).setRefTable("Person")));
 
     Table p = schema.getTable("Person");
 
@@ -236,7 +221,7 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
-    schema.create(TableMetadata.table("Student").setInherit("Person"));
+    schema.create(table("Student").setInherit("Person"));
     Table s = schema.getTable("Student");
     s.insert(
         new Row()
@@ -248,10 +233,7 @@ public class TestCompositeForeignKeys {
     String result =
         schema
             .query("Student")
-            .select(
-                SelectColumn.s("firstName"),
-                SelectColumn.s("lastName"),
-                SelectColumn.s("cousins", SelectColumn.s("firstName"), SelectColumn.s("lastName")))
+            .select(s("firstName"), s("lastName"), s("cousins", s("firstName"), s("lastName")))
             .retrieveJSON();
 
     System.out.println(result);
@@ -260,11 +242,7 @@ public class TestCompositeForeignKeys {
     schema
         .getTable("Person")
         .getMetadata()
-        .add(
-            Column.column("uncles")
-                .setType(ColumnType.REFBACK)
-                .setRefTable("Person")
-                .setRefBack("cousins"));
+        .add(column("uncles").setType(REFBACK).setRefTable("Person").setRefBack("cousins"));
 
     s.insert(
         new Row()
@@ -277,13 +255,11 @@ public class TestCompositeForeignKeys {
         List.of(
                 s.query()
                     .select(
-                        SelectColumn.s("firstName"),
-                        SelectColumn.s("lastName"),
-                        SelectColumn.s(
-                            "uncles", SelectColumn.s("firstName"), SelectColumn.s("lastName")),
-                        SelectColumn.s(
-                            "cousins", SelectColumn.s("firstName"), SelectColumn.s("lastName")))
-                    .where(FilterBean.f("firstName", Operator.EQUALS, "Kwok"))
+                        s("firstName"),
+                        s("lastName"),
+                        s("uncles", s("firstName"), s("lastName")),
+                        s("cousins", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Kwok"))
                     .retrieveRows()
                     .get(0)
                     .getStringArray("uncles-firstName"))
@@ -292,13 +268,11 @@ public class TestCompositeForeignKeys {
         List.of(
                 p.query()
                     .select(
-                        SelectColumn.s("firstName"),
-                        SelectColumn.s("lastName"),
-                        SelectColumn.s(
-                            "cousins", SelectColumn.s("firstName"), SelectColumn.s("lastName")),
-                        SelectColumn.s(
-                            "uncles", SelectColumn.s("firstName"), SelectColumn.s("lastName")))
-                    .where(FilterBean.f("firstName", Operator.EQUALS, "Donald"))
+                        s("firstName"),
+                        s("lastName"),
+                        s("cousins", s("firstName"), s("lastName")),
+                        s("uncles", s("firstName"), s("lastName")))
+                    .where(f("firstName", EQUALS, "Donald"))
                     .retrieveRows()
                     .get(1) //
                     .getStringArray("cousins-firstName")) // TODO should be array?

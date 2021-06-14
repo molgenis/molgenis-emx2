@@ -3,11 +3,14 @@ package org.molgenis.emx2.sql;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
@@ -30,10 +33,7 @@ public class TestBatchRequestsForSpeed {
     Schema schema = db.dropCreateSchema("testBatch");
     Table testBatchTable =
         schema.create(
-            TableMetadata.table(
-                "TestBatchRequestsForSpeed",
-                Column.column("test").setPkey(),
-                Column.column("testint", ColumnType.INT)));
+            table("TestBatchRequestsForSpeed", column("test").setPkey(), column("testint", INT)));
 
     int size = 10000;
     StopWatch.print("Schema created");
@@ -87,22 +87,22 @@ public class TestBatchRequestsForSpeed {
     String PERSON = "Person";
     Table personTable =
         schema.create(
-            TableMetadata.table(
+            table(
                 PERSON,
-                Column.column("ID").setType(ColumnType.INT).setPkey(),
-                Column.column("First_Name").setRequired(true).setKey(2),
-                Column.column("Last_Name").setKey(2).setRequired(true),
-                Column.column("Father").setType(ColumnType.REF).setRefTable(PERSON)));
+                column("ID").setType(INT).setPkey(),
+                column("First_Name").setRequired(true).setKey(2),
+                column("Last_Name").setKey(2).setRequired(true),
+                column("Father").setType(REF).setRefTable(PERSON)));
 
     for (int i = 0; i < 10; i++) {
       String name = PERSON + i;
       schema.create(
-          TableMetadata.table(
+          table(
               name,
-              Column.column("ID").setType(ColumnType.INT).setPkey(),
-              Column.column("First_Name").setRequired(true).setKey(2),
-              Column.column("Last_Name").setKey(2).setRequired(true),
-              Column.column("Father").setType(ColumnType.REF).setRefTable(name)));
+              column("ID").setType(INT).setPkey(),
+              column("First_Name").setRequired(true).setKey(2),
+              column("Last_Name").setKey(2).setRequired(true),
+              column("Father").setType(REF).setRefTable(name)));
     }
     StopWatch.print("Created tables");
 
@@ -111,7 +111,7 @@ public class TestBatchRequestsForSpeed {
 
     db.clearCache();
     schema = db.getSchema("testCreate");
-    TestCase.assertEquals(11, schema.getTableNames().size());
+    assertEquals(11, schema.getTableNames().size());
     StopWatch.print("reloading complete");
 
     // insert
@@ -138,12 +138,12 @@ public class TestBatchRequestsForSpeed {
     personTableReloaded.delete(rows);
     StopWatch.print("Delete", count);
 
-    TestCase.assertEquals(0, schema.getTable("Person").retrieveRows().size());
-    TestCase.assertEquals(2, personTableReloaded.getMetadata().getKeys().size());
-    TestCase.assertEquals(2, personTable.getMetadata().getKeys().size());
+    assertEquals(0, schema.getTable("Person").retrieveRows().size());
+    assertEquals(2, personTableReloaded.getMetadata().getKeys().size());
+    assertEquals(2, personTable.getMetadata().getKeys().size());
     personTable.getMetadata().removeKey(2);
-    TestCase.assertEquals(1, personTable.getMetadata().getKeys().size());
-    TestCase.assertEquals(9, personTable.getMetadata().getColumns().size());
+    assertEquals(1, personTable.getMetadata().getKeys().size());
+    assertEquals(9, personTable.getMetadata().getColumns().size());
     try {
       personTable.getMetadata().dropColumn("ID");
       fail("you shouldn't be allowed to remove primary key column");
@@ -151,7 +151,7 @@ public class TestBatchRequestsForSpeed {
       // good stuff
     }
     personTable.getMetadata().dropColumn("Father");
-    TestCase.assertEquals(8, personTable.getMetadata().getColumns().size());
+    assertEquals(8, personTable.getMetadata().getColumns().size());
 
     // drop a fromTable
     db.getSchema("testCreate").getMetadata().drop(personTable.getName());

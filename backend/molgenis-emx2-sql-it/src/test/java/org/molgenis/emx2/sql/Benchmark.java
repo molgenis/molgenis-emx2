@@ -1,8 +1,11 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.TableMetadata.table;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -19,14 +22,14 @@ public class Benchmark {
     int aSize = 50;
     int bSize = 100000;
 
-    Table a = schema.create(TableMetadata.table("TableA").add(Column.column("ID").setPkey()));
+    Table a = schema.create(table("TableA").add(column("ID").setPkey()));
     List<String> values = new ArrayList<>();
 
     Table b =
         schema.create(
-            TableMetadata.table("TableB")
-                .add(Column.column("ID").setPkey())
-                .add(Column.column("ref").setType(ColumnType.REF_ARRAY).setRefTable("TableA")));
+            table("TableB")
+                .add(column("ID").setPkey())
+                .add(column("ref").setType(REF_ARRAY).setRefTable("TableA")));
 
     //    Table c =
     //        schema.create(

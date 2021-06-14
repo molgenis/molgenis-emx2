@@ -1,11 +1,14 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.Assert.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
+
 import java.io.StringWriter;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
@@ -27,14 +30,11 @@ public class TestCopy {
   public void test() {
     List<Row> rows =
         List.of(
-            Row.row("A", "a1", "B", List.of("b\"11\"", "b1,2")),
-            Row.row("A", "a2", "B", List.of("b21", "b22")));
+            row("A", "a1", "B", List.of("b\"11\"", "b1,2")),
+            row("A", "a2", "B", List.of("b21", "b22")));
 
     schema.create(
-        TableMetadata.table(
-            "test",
-            Column.column("A").setPkey(),
-            Column.column("B").setType(ColumnType.STRING_ARRAY)));
+        table("test", column("A").setPkey(), column("B").setType(ColumnType.STRING_ARRAY)));
 
     // copyOut
     SqlTable table = (SqlTable) schema.getTable("test");
@@ -47,14 +47,14 @@ public class TestCopy {
     // copyIn
     System.out.println("CopyIn");
 
-    schema.create(TableMetadata.table("test2", Column.column("A").setPkey()));
+    schema.create(table("test2", column("A").setPkey()));
     table = (SqlTable) schema.getTable("test2");
     table.copyIn(rows);
     writer = new StringWriter();
     table.copyOut(writer);
     System.out.println(writer);
 
-    Assert.assertEquals(2, schema.getTable("test2").retrieveRows().size());
+    assertEquals(2, schema.getTable("test2").retrieveRows().size());
   }
 
   //  @Test
