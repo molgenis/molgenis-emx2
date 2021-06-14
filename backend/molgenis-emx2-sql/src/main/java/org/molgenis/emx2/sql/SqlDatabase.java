@@ -129,7 +129,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public synchronized void init() { // setup default stuff
+  public void init() { // setup default stuff
 
     try {
       // short transaction
