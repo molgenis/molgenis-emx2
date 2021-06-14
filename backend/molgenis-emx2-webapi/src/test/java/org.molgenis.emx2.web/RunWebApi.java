@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RunWebApi {
 

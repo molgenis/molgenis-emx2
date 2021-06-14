@@ -21,6 +21,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /* this is a smoke test for the integration of web api with the database layer */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import org.junit.Test;
 
-public class TestDatabaseFactory {
+public class InitTestDatabase {
 
   @Test
   public void createDatabase() {
