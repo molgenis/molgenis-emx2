@@ -21,19 +21,7 @@ class SqlDatabaseExecutor {
       List<Record> result =
           jooq.fetch("SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", userName);
       if (result.isEmpty()) {
-        jooq.execute(
-            "DO\n"
-                + "$do$\n"
-                + "BEGIN\n"
-                + "   IF NOT EXISTS (\n"
-                + "      SELECT FROM pg_catalog.pg_roles  -- SELECT list can be empty for this\n"
-                + "      WHERE  rolname = '{1}') THEN\n"
-                + "\n"
-                + "      CREATE ROLE {0} WITH NOLOGIN;\n"
-                + "   END IF;\n"
-                + "END\n"
-                + "$do$;",
-            name(userName), userName);
+        jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
 
         if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
           // non-system users get role 'user' as way to identify all users
