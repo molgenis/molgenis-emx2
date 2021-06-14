@@ -25,7 +25,7 @@
     <div v-if="variable">
       <h3>{{ variable.label }}</h3>
       <div class="row">
-        <variable-details class="col" :variableDetails="variable" />
+        <variable-details class="col" :variableDetails="variable" :showMappedBy="false" />
       </div>
     </div>
     <variable-details></variable-details>
@@ -44,7 +44,7 @@ export default {
     network: String,
     version: String,
     sourceCohort: String,
-    fromName: String,
+    fromName: String
   },
   data() {
     return {
