@@ -8,6 +8,7 @@
         }"
       >
         {{ p.institution.acronym }} - {{ p.institution.name }}
+        <OntologyTerms :terms="[p.role]" :inline="true" :color="color" />
       </RouterLink>
     </li>
   </ul>
@@ -15,9 +16,18 @@
 </template>
 
 <script>
+import OntologyTerms from "./OntologyTerms";
+
 export default {
+  components: {
+    OntologyTerms,
+  },
   props: {
     partners: Array,
+    color: {
+      type: String,
+      default: () => "primary",
+    },
   },
 };
 </script>
