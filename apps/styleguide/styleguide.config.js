@@ -15,11 +15,12 @@ module.exports = {
     devServer: {
       port: "9090",
       proxy: {
-        "^/graphql": {
+        "/graphql": {
           target: `${HOST}/${SCHEMA}`,
           changeOrigin: true,
           secure: false,
         },
+        "**/graphql": { target: `${HOST}`, changeOrigin: true, secure: false },
         "/api": { target: `${HOST}`, changeOrigin: true, secure: false },
         "/apps": { target: `${HOST}`, changeOrigin: true, secure: false },
         "^/theme.css": {
