@@ -43,7 +43,7 @@ subprojects {
         implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.3'
         implementation 'com.graphql-java:graphql-java:16.2'
         implementation 'com.sparkjava:spark-core:2.9.3'
-        implementation 'org.javers:javers-core:6.1.1'
+        implementation 'org.javers:javers-core:6.2.0'
 
         //also used outside test
         implementation 'junit:junit:4.13.2'
@@ -72,7 +72,11 @@ subprojects {
     }
 
 
+    if (project.name != "molgenis-emx2-sql") {
+        test.dependsOn(":backend:molgenis-emx2-sql:test")
+    }
     test {
+        maxParallelForks = Runtime.runtime.availableProcessors() / 2
         failFast true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"

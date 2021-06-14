@@ -2,19 +2,21 @@
   <div class="container bg-white">
     <ResourceHeader
       :resource="datasource"
-      headerCss="bg-warning text-dark"
+      headerCss="bg-secondary text-white"
       table-name="Datasources"
     />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col-8">
         <h6>Population</h6>
-        <OntologyTerms :terms="datasource.population" color="warning" />
+        <OntologyTerms :terms="datasource.population" color="secondary" />
         <h6>Databanks</h6>
-        <DatabankList :databanks="datasource.databanks" color="warning" />
+        <DatabankList :databanks="datasource.databanks" color="secondary" />
         <h6>Data use conditions</h6>
-        <OntologyTerms :terms="datasource.conditions" color="warning" />
-        <p v-if="datasource.conditionsDescription">{{datasource.conditionsDescription}}</p>
+        <OntologyTerms :terms="datasource.conditions" color="secondary" />
+        <p v-if="datasource.conditionsDescription">
+          {{ datasource.conditionsDescription }}
+        </p>
         <h6>Summary statistics<i class="fa fa-caret-down"></i></h6>
         <p v-if="datasource.statistics">{{ datasource.statistics }}</p>
       </div>
@@ -87,9 +89,10 @@ export default {
           console.log(data);
           this.datasource = data.Datasources[0];
           if (this.datasource.releases) {
-            this.version = this.datasource.releases[
-              this.datasource.releases.length - 1
-            ].version;
+            this.version =
+              this.datasource.releases[
+                this.datasource.releases.length - 1
+              ].version;
           }
         })
         .catch((error) => {

@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.sql.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 
 import java.util.List;

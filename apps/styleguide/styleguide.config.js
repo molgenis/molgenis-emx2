@@ -1,3 +1,6 @@
+const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet%20store";
+
 module.exports = {
   // set your styleguidist configuration here
   title: "MOLGENIS EMX2 Style Guide",
@@ -10,10 +13,20 @@ module.exports = {
   assetsDir: "public",
   webpackConfig: {
     devServer: {
+      port: "9090",
       proxy: {
-        "/graphql": "http://localhost:8080/CohortsCentral/graphql",
-        "**/graphql": "http://localhost:8080/",
-        "/apps": "http://localhost:8080",
+        "^/graphql": {
+          target: `${HOST}/${SCHEMA}`,
+          changeOrigin: true,
+          secure: false,
+        },
+        "/api": { target: `${HOST}`, changeOrigin: true, secure: false },
+        "/apps": { target: `${HOST}`, changeOrigin: true, secure: false },
+        "^/theme.css": {
+          target: `${HOST}/${SCHEMA}`,
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
   },

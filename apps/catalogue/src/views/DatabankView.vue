@@ -2,29 +2,29 @@
   <div class="container bg-white">
     <ResourceHeader
       :resource="databank"
-      headerCss="bg-danger text-white"
+      headerCss="bg-info text-white"
       table-name="Databanks"
     />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <hr class="border-danger" />
+    <hr class="border-info" />
     <div class="row">
       <div class="col">
         <h6 v-if="databank.datasource">Part of datasource</h6>
         <DatasourceList :datasources="[databank.datasource]" />
         <h6>Population</h6>
-        <OntologyTerms :terms="databank.population" color="danger" />
+        <OntologyTerms :terms="databank.population" color="info" />
         <h6>Contents</h6>
-        <OntologyTerms :terms="databank.keywords" color="danger" />
+        <OntologyTerms :terms="databank.keywords" color="info" />
         <h6 v-if="databank.noParticipants">Number of participants:</h6>
         <p v-if="databank.noParticipants">{{ databank.noParticipants }}</p>
-        <hr class="border-danger" />
+        <hr class="border-info" />
         <h6>Orginator</h6>
         <p>{{ databank.originator ? databank.originator : "N/A" }}</p>
         <h6>
           Record prompt:
           <OntologyTerms
             :terms="databank.recordPrompt"
-            color="danger"
+            color="info"
             :inline="true"
           />
         </h6>
@@ -44,7 +44,7 @@
         <p>
           {{ databank.collectionEvents ? databank.collectionEvents : "N/A" }}
         </p>
-        <hr class="border-danger" />
+        <hr class="border-info" />
         <Conditions :resource="databank" />
       </div>
       <div class="col">

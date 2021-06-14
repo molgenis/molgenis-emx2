@@ -23,6 +23,8 @@ import VariableDetailView from "./views/VariableDetailView";
 import SingleVarDetailsView from "./views/SingleVarDetailsView";
 import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
 import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
+import FromVariableDetails from "./views/FromVariableDetails";
+import CohortView from "./views/CohortView";
 
 Vue.config.productionTip = false;
 
@@ -59,7 +61,12 @@ const router = new VueRouter({
       component: DatabankView,
       props: true,
     },
-
+    {
+      name: "cohort",
+      path: "/cohorts/:acronym",
+      component: CohortView,
+      props: true,
+    },
     {
       name: "datasource",
       path: "/datasources/:acronym",
@@ -158,6 +165,12 @@ const router = new VueRouter({
           ],
         },
       ],
+    },
+    {
+      name: "fromVariableDetails",
+      path: "/explorer/source/:network/:version/:name/from/:sourceCohort/:fromName",
+      component: FromVariableDetails,
+      props: true,
     },
   ],
 });

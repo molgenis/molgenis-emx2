@@ -1,7 +1,7 @@
 <template>
   <div class="container bg-white">
     <ResourceHeader
-      header-css="bg-secondary text-white"
+      header-css="bg-warning text-dark"
       table-name="Models"
       :resource="model"
     />
