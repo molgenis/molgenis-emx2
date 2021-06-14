@@ -1,0 +1,20 @@
+query Variables($filter: VariablesFilter) {
+  Variables(limit: 1, filter: $filter) {
+    name
+    label
+    description
+    format {
+      name
+    }
+    unit {
+      name
+    }
+    release {
+      resource {
+        mg_tableclass
+        acronym
+      }
+      version
+    }
+  }
+}

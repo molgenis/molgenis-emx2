@@ -10,9 +10,9 @@
 </template>
 
 <script>
-import { fetchDetails } from "../store/repository/variableRepository";
 import { Spinner } from "@mswertz/emx2-styleguide";
 import HarmonizationDefinition from "../components/HarmonizationDefinition.vue";
+import { mapActions } from "vuex";
 
 export default {
   name: "ResourceHarmonizationDetails",
@@ -22,10 +22,11 @@ export default {
     network: String,
     version: String,
     sourceCohort: String,
+    variable: Object,
   },
   data() {
     return {
-      variable: null,
+      fromVariables: null,
     };
   },
   computed: {
@@ -56,8 +57,8 @@ export default {
       return repeats;
     },
   },
-  async created() {
-    this.variable = await fetchDetails(this.name, this.network, this.version);
+  methods: {
+    ...mapActions(["fetchSchema"]),
   },
 };
 </script>
