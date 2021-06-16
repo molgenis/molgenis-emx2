@@ -73,7 +73,7 @@ export default {
   },
   computed: {
     permittedItems() {
-      return this.items.filter((i) => this.permitted(i));
+      return this.items.filter(this.permitted);
     },
     homeUrl() {
       //will be first non-submenu item that is permitted
