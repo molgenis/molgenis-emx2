@@ -112,7 +112,6 @@ import {
   ButtonAlt,
   IconDanger,
   IconAction,
-  ShowMore,
   LayoutModal,
 } from "@mswertz/emx2-styleguide";
 import columnTypes from "../columnTypes";
@@ -131,7 +130,6 @@ export default {
     InputText,
     ButtonAlt,
     IconDanger,
-    ShowMore,
     ColumnEditor,
     LayoutModal,
     Draggable,

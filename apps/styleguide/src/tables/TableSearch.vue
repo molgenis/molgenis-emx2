@@ -71,14 +71,6 @@
         </TableMolgenis>
       </div>
     </div>
-    <ShowMore title="debug">
-      <pre>
-canEdit = {{ canEdit }}
-session = {{ session }}
-schema = {{ schema }}
-data = {{ data }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -90,7 +82,6 @@ import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import SelectionBox from "./SelectionBox";
-import ShowMore from "../layout/ShowMore";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonEdit from "./RowButtonEdit";
 import RowButtonDelete from "./RowButtonDelete";
@@ -103,7 +94,6 @@ export default {
     InputSearch,
     Pagination,
     Spinner,
-    ShowMore,
     RowButtonEdit,
     RowButtonDelete,
     RowButtonAdd,

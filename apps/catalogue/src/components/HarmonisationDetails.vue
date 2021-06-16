@@ -107,14 +107,6 @@
             </table>
           </div>
         </span>
-        <ShowMore title="debug">
-          <pre>
-          {{ JSON.stringify(harmonisation) }}
-
-          match = {{ match }}
-       </pre
-          >
-        </ShowMore>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="show = false">Close</ButtonAction>
@@ -143,12 +135,11 @@ import {
   ButtonAlt,
   LayoutModal,
   MessageError,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
 export default {
-  components: { LayoutModal, ButtonAlt, MessageError, ShowMore, ButtonAction },
+  components: { LayoutModal, ButtonAlt, MessageError, ButtonAction },
   props: {
     sourceCollection: String,
     sourceTable: String,

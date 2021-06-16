@@ -19,9 +19,6 @@
         />
       </div>
     </div>
-    <ShowMore title="debug">
-      {{ variables }}
-    </ShowMore>
   </div>
 </template>
 
@@ -45,7 +42,6 @@ import {
   InputSearch,
   MessageError,
   Pagination,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import HarmonisationDetails from "./HarmonisationDetails";
 import VariableCard from "./VariableCard";
@@ -57,7 +53,6 @@ export default {
     MessageError,
     VariableCard,
     InputSearch,
-    ShowMore,
   },
   props: {
     resourceAcronym: String,

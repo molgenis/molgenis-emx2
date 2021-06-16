@@ -1,11 +1,3 @@
-<template>
-  <ShowMore>
-    <pre>graphqlError = {{ graphqlError }}</pre>
-    <pre>graphql = {{ graphql }}</pre>
-    <pre>data = {{ data }}</pre>
-  </ShowMore>
-</template>
-
 <script>
 import { request } from "graphql-request";
 import TableMetadataMixin from "./TableMetadataMixin";

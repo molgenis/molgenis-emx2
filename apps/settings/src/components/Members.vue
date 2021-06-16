@@ -46,19 +46,6 @@
       </TableSimple>
     </div>
     <div v-else>Not a member, cannot see settings</div>
-
-    <ShowMore title="debug">
-      <br />
-      members: {{ JSON.stringify(members) }}
-      <br />
-      roles: {{ JSON.stringify(roles) }}
-      <br />
-      selectedItems: {{ JSON.stringify(selectedItems) }}
-      <br />
-      editMember: {{ JSON.stringify(editMember) }}
-      <br />
-      session: {{ JSON.stringify(session) }}
-    </ShowMore>
   </div>
 </template>
 
@@ -74,7 +61,6 @@ import {
   LayoutCard,
   MessageError,
   MessageSuccess,
-  ShowMore,
   Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
@@ -92,7 +78,6 @@ export default {
     InputCheckbox,
     InputString,
     InputSelect,
-    ShowMore,
   },
   props: {
     session: Object,
