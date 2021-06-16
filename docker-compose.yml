@@ -6,8 +6,8 @@ services:
       - POSTGRES_USER=molgenis
       - POSTGRES_PASSWORD=molgenis
       - POSTGRES_DB=molgenis
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - ./psql_data:/var/lib/postgresql/data
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
