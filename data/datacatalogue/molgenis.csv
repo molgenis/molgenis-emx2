@@ -39,8 +39,8 @@ Resources,,noParticipantsWithSamples,int,,,,,,,,number of individuals of which s
 Resources,,collectionEvents,refback,,,CollectionEvents,,resource,,,
 Resources,,subcohorts,refback,,,Subcohorts,,resource,,,
 Publications,,,,,,,,,,,publications following bibtex format
-Publications,,doi,,1,true,,,,,,digital object identifier
-Publications,,title,,,true,,,,,,The title of the work
+Publications,,doi,,1,TRUE,,,,,,digital object identifier
+Publications,,title,,,TRUE,,,,,,The title of the work
 Publications,,authors,string_array,,,,,,,,"List of authors, one string per author"
 Publications,,year,int,,,,,,,,"The year of publication (or, if unpublished, the year of creation)"
 Publications,,journal,,,,,,,,,The journal or magazine the work was published in
@@ -131,6 +131,7 @@ Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing 
 Studies,,networks,ref_array,,,Networks,,,,,
 Studies,,datasources,ref_array,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
+Studies,,cohorts,ref_array,,,Cohorts,,,,,Cohorts that provided data into this study
 Releases,,,,,,,,,,,"Definition of a data relase, in case of Model this will not include data"
 Releases,,resource,ref,1,TRUE,Resources,,,,,Link to the resource of which contents has been released
 Releases,,version,,1,TRUE,,,,,,version of the release
