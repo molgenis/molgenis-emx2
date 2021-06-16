@@ -76,18 +76,24 @@ export default {
       return this.items.filter(this.permitted);
     },
     homeUrl() {
-      //will be first non-submenu item that is permitted
-      if (this.permittedItems.length > 0) {
-        let firstItem = this.permittedItems[0];
-        // in case it is a item with submenu and without href, find first submenu item
-        while (firstItem && firstItem.href == null && firstItem.submenu) {
-          let sub = firstItem.submenu.filter((i) => this.permitted(i));
-          firstItem = sub[0];
-        }
-        if (firstItem && firstItem.href) return firstItem.href;
-      }
+      const findFirst = (menu) => {
+        return menu.find((item) => {
+          //will be first non-submenu item that is permitted
+          if (item.href) {
+            return item;
+          }
+
+          // in case it is a item with submenu and without href, find first submenu item
+          if (item.submenu) {
+            return findFirst(item.submenu.filter(this.permitted));
+          }
+        });
+      };
+
+      const firstItem = findFirst(this.permittedItems);
+
       //defaut: go home
-      return "../";
+      return firstItem || "../";
     },
   },
   methods: {
