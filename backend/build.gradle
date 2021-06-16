@@ -55,8 +55,8 @@ subprojects {
         }
     }
 
-    targetCompatibility = '11'
-    sourceCompatibility = '11'
+    targetCompatibility = '16'
+    sourceCompatibility = '16'
 
     jar {
         reproducibleFileOrder = true

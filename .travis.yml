@@ -4,7 +4,7 @@ dist: focal
 git:
   depth: 10000
 jdk:
-  - openjdk13
+  - openjdk16
 services:
   - postgresql
 #  - docker

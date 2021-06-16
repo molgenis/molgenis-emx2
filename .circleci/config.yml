@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: adoptopenjdk:13-jdk-hotspot-bionic
+      - image: adoptopenjdk:16-jdk-hotspot-focal
       - image: postgres:13-alpine
         environment:
           POSTGRES_USER: molgenis
@@ -32,7 +32,7 @@ jobs:
           command: |
             apt update
             apt -y install git
-    
+
       - checkout
 
       # Download and cache dependencies
