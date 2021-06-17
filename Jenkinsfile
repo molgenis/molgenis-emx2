@@ -48,6 +48,9 @@ podTemplate(inheritFrom:'shared', containers: [
             container('java') {
                 script {
                     checkout scm
+                    sh 'apt update'
+                    sh 'apt -y install git'
+                    sh 'apt -y install docker.io'
                     sh 'git fetch --depth 10000'
                     sh "git config user.email \"m.a.swertz@rug.nl\""
                     sh "git config user.name \"molgenis-jenkins\""
