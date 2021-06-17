@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: adoptopenjdk:16-jdk-hotspot-focal
+      - image: gradle:jdk16-hotspot
       - image: postgres:13-alpine
         environment:
           POSTGRES_USER: molgenis
@@ -27,12 +27,6 @@ jobs:
       TERM: dumb
 
     steps:
-      - run:
-          name: Env setup
-          command: |
-            apt update
-            apt -y install git
-
       - checkout
 
       # Download and cache dependencies
