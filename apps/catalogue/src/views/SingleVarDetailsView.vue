@@ -15,11 +15,11 @@
               <th
                 class="rotated-text text-nowrap"
                 scope="col"
-                v-for="databank in databanks"
-                :key="databank.acronym"
+                v-for="cohort in cohorts"
+                :key="cohort.acronym"
               >
                 <div>
-                  <span class="table-label">{{ databank.acronym }}</span>
+                  <span class="table-label">{{ cohort.acronym }}</span>
                 </div>
               </th>
             </tr>
@@ -30,10 +30,10 @@
                 {{ variable.name }}
               </th>
               <td
-                v-for="databank in databanks"
-                :key="databank.acronym"
+                v-for="cohort in cohorts"
+                :key="cohort.acronym"
                 class="colored-grid-cell"
-                :class="'table-' + getMatchStatus(variable, databank.acronym)"
+                :class="'table-' + getMatchStatus(variable, cohort.acronym)"
               ></td>
             </tr>
             <tr
@@ -44,11 +44,11 @@
                 {{ repeatedVariable.name }}
               </th>
               <td
-                v-for="databank in databanks"
-                :key="databank.acronym"
+                v-for="cohort in cohorts"
+                :key="cohort.acronym"
                 class="colored-grid-cell"
                 :class="
-                  'table-' + getMatchStatus(repeatedVariable, databank.acronym)
+                  'table-' + getMatchStatus(repeatedVariable, cohort.acronym)
                 "
               ></td>
             </tr>
@@ -61,7 +61,7 @@
 
 <script>
 import VariableDetails from "../components/VariableDetails.vue";
-import { fetchDatabanks } from "../store/repository/databankRepository";
+import { fetchCohorts } from "../store/repository/cohortRepository";
 export default {
   name: "SingleVarDetailsView",
   components: { VariableDetails },
@@ -73,7 +73,7 @@ export default {
   },
   data() {
     return {
-      databanks: null,
+      cohorts: null,
     };
   },
   methods: {
@@ -101,7 +101,7 @@ export default {
     },
   },
   async created() {
-    this.databanks = await fetchDatabanks();
+    this.cohorts = await fetchCohorts();
   },
 };
 </script>

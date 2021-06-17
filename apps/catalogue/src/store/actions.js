@@ -1,7 +1,7 @@
 import { request, gql } from "graphql-request";
-import databanks from "./query/databanks.gql";
 import schema from "./query/schema.gql";
 import mappings from "./query/mappings.gql";
+import { fetchCohorts } from "./repository/cohortRepository";
 
 export default {
   fetchSchema: async ({ state, commit }) => {
@@ -224,10 +224,8 @@ export default {
   },
 
   fetchCohorts: async ({ commit }) => {
-    const resp = await request("graphql", databanks).catch((e) =>
-      console.error(e)
-    );
-    commit("setCohorts", resp.Databanks);
+    const cohorts = await fetchCohorts();
+    commit("setCohorts", cohorts);
   },
 
   fetchMappings: async (context, variable) => {
