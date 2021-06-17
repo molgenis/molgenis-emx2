@@ -22,7 +22,8 @@ Resources,,population,ref_array,,,Regions,,,,,Populations that this resource pro
 Resources,,inclusionCriteria,ref_array,,,InclusionCriteria,,,,,Inclusion criteria applied to these populations
 Resources,,keywords,ref_array,,,Keywords,,,,,Keywords that characterise the contents of this resource
 Resources,,description,text,,,,,,,,General description
-Resources,,publications,ref_array,,,Publications,,,,,Marker publication(s) about this resource
+Resources,,markerPublication,ref,,,Publications,,,,,Marker publication about this resource
+Resources,,publications,ref_array,,,Publications,,,,,Other publication(s) about this resource
 Resources,,logo,file,,,,,,,,Logo for use on homepages etc.
 Resources,,homepage,,,,,,,,,Link to the home page
 Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
