@@ -4,11 +4,13 @@
       {{ variable.name }}
     </th>
     <td
-      v-for="cohort in cohorts"
+      v-for="cohort in cohortsWithStatus"
       :key="cohort.acronym"
       class="colored-grid-cell"
       :class="'table-' + getCellClass(cohort)"
-    ></td>
+    >
+      {{ cellValue(cohort.cellStatus) }}
+    </td>
   </tr>
 </template>
 
@@ -23,6 +25,7 @@ export default {
   data() {
     return {
       cohortMappings: undefined,
+      cohortsWithStatus: JSON.parse(JSON.stringify(this.cohorts)), // deep copy for inernal use
     };
   },
   methods: {
@@ -32,6 +35,16 @@ export default {
     },
     async fetchData() {
       this.cohortMappings = await this.fetchMappings(this.variable);
+    },
+    cellValue(status) {
+      switch (status) {
+        case "danger":
+          return "x";
+        case "success":
+          return "o";
+        default:
+          return "o";
+      }
     },
     getMatchStatus(cohort) {
       if (this.variable.repeats) {
@@ -47,11 +60,14 @@ export default {
         });
 
         if (statusList.includes("complete")) {
-          return "success";
+          cohort.cellStatus = "success";
+          return cohort.cellStatus;
         } else if (statusList.includes("partial")) {
-          return "success";
+          cohort.cellStatus = "success";
+          return cohort.cellStatus;
         } else {
-          return "danger";
+          cohort.cellStatus = "danger";
+          return cohort.cellStatus;
         }
       } else {
         const cohortMapping = this.cohortMappings.find((mapping) => {
@@ -59,18 +75,23 @@ export default {
         });
 
         if (!cohortMapping) {
-          return "danger";
+          cohort.cellStatus = "danger";
+          return cohort.cellStatus;
         }
 
         switch (cohortMapping.match.name) {
           case "zna":
-            return "danger";
+            cohort.cellStatus = "danger";
+            return cohort.cellStatus;
           case "partial":
-            return "success";
+            cohort.cellStatus = "success";
+            return cohort.cellStatus;
           case "complete":
-            return "success";
+            cohort.cellStatus = "success";
+            return cohort.cellStatus;
           default:
-            return "danger";
+            cohort.cellStatus = "danger";
+            return cohort.cellStatus;
         }
       }
     },
@@ -83,7 +104,9 @@ export default {
 
 <style scoped>
 td.colored-grid-cell {
-  padding: 0.97rem;
+  text-align: center;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 
 .table-label {

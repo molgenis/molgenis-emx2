@@ -88,8 +88,8 @@ th.rotated-text {
   padding: 0;
 }
 th.rotated-text > div {
-  transform: translate(7px, 4px) rotate(270deg);
-  width: 1.4rem;
+  transform: rotate(270deg);
+  width: 1.8rem;
 }
 th.rotated-text > div > span {
   padding: 5px 10px;
