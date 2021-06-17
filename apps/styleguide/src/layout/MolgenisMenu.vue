@@ -93,7 +93,7 @@ export default {
       const firstItem = findFirst(this.permittedItems);
 
       //defaut: go home
-      return firstItem || "../";
+      return firstItem ? firstItem.href : "../";
     },
   },
   methods: {
