@@ -52,6 +52,7 @@ public class TestUsersAndPermissions {
 
       // create table without permission should fail
       database.setActiveUser(user1);
+
       try {
         schema1.create(table("Test"));
         fail("should have failed");

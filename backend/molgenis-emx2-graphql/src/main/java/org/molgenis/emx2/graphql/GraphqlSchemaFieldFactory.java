@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlSchemaMetadata;
 
 public class GraphqlSchemaFieldFactory {
 
@@ -353,13 +354,19 @@ public class GraphqlSchemaFieldFactory {
   private static DataFetcher<?> dropFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       StringBuilder message = new StringBuilder();
-      schema.tx(
-          db -> {
-            dropTables(schema, dataFetchingEnvironment, message);
-            dropMembers(schema, dataFetchingEnvironment, message);
-            dropColumns(schema, dataFetchingEnvironment, message);
-            dropSettings(schema, dataFetchingEnvironment, message);
-          });
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                Schema s = db.getSchema(schema.getName());
+                dropTables(s, dataFetchingEnvironment, message);
+                dropMembers(s, dataFetchingEnvironment, message);
+                dropColumns(s, dataFetchingEnvironment, message);
+                dropSettings(s, dataFetchingEnvironment, message);
+                // this sync is a bit sad.
+                ((SqlSchemaMetadata) schema.getMetadata())
+                    .sync((SqlSchemaMetadata) s.getMetadata());
+              });
       Map result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
       return result;
@@ -403,6 +410,7 @@ public class GraphqlSchemaFieldFactory {
                 "Cannot remove setting because table " + setting.get("table") + " does not exist");
           }
           table.getMetadata().removeSetting(setting.get("key"));
+          message.append("Removed table setting '" + (setting.get("key")) + "'\n");
         } else {
           schema.getMetadata().removeSetting(setting.get("key"));
           message.append("Removed schema setting '" + (setting.get("key")) + "'\n");
@@ -467,17 +475,23 @@ public class GraphqlSchemaFieldFactory {
 
   private DataFetcher<?> changeFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      schema.tx(
-          db -> {
-            try {
-              changeTables(schema, dataFetchingEnvironment);
-              changeMembers(schema, dataFetchingEnvironment);
-              changeColumns(schema, dataFetchingEnvironment);
-              changeSettings(schema, dataFetchingEnvironment);
-            } catch (IOException e) {
-              throw new GraphqlException("Save metadata failed", e);
-            }
-          });
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                try {
+                  Schema s = db.getSchema(schema.getName());
+                  changeTables(s, dataFetchingEnvironment);
+                  changeMembers(s, dataFetchingEnvironment);
+                  changeColumns(s, dataFetchingEnvironment);
+                  changeSettings(s, dataFetchingEnvironment);
+                  // this sync is a bit sad.
+                  ((SqlSchemaMetadata) schema.getMetadata())
+                      .sync((SqlSchemaMetadata) s.getMetadata());
+                } catch (IOException e) {
+                  throw new GraphqlException("Save metadata failed", e);
+                }
+              });
       return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
     };
   }

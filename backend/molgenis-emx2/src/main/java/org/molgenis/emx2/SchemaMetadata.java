@@ -7,9 +7,9 @@ public class SchemaMetadata {
 
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
   protected Map<String, Setting> settings = new LinkedHashMap<>();
-  private String name;
+  protected String name;
   // optional
-  private Database database;
+  protected Database database;
 
   public SchemaMetadata() {}
 
@@ -121,8 +121,9 @@ public class SchemaMetadata {
     this.database = database;
   }
 
-  public void removeSetting(String key) {
+  public SchemaMetadata removeSetting(String key) {
     this.settings.remove(key);
+    return this;
   }
 
   public String getSetting(String key) {
