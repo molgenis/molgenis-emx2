@@ -12,6 +12,9 @@
       >
         <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
+      <small>
+        <Breadcrumb v-if="Object.keys(crumbs).length > 0" :crumbs="crumbs" />
+      </small>
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <MessageWarning v-if="majorDatabaseVersionToOldError"
           >{{ majorDatabaseVersionToOldError }}
@@ -52,6 +55,7 @@ import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
 import MessageWarning from "../forms/MessageWarning";
+import Breadcrumb from "./Breadcrumb";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -63,6 +67,7 @@ export default {
     MolgenisMenu,
     Footer,
     MolgenisTheme,
+    Breadcrumb,
   },
   mixins: [DefaultMenuMixin],
   props: {
@@ -80,6 +85,31 @@ export default {
     };
   },
   computed: {
+    crumbs() {
+      this.$route;
+      let path = decodeURI(window.location.pathname).split("/");
+      let url = "/";
+      let result = { molgenis: url };
+      if (window.location.pathname != "/apps/central/") {
+        path.forEach((el) => {
+          if (el != "") {
+            url += el + "/";
+            result[el] = url;
+          }
+        });
+      }
+      if (this.$route) {
+        path = decodeURI(location.hash).substr(1).split("/");
+        url += "#";
+        path.forEach((el) => {
+          if (el != "") {
+            url += "/" + el;
+            result[el] = url;
+          }
+        });
+      }
+      return result;
+    },
     majorDatabaseVersionToOldError() {
       if (this.session) {
         let dbVer = this.session.manifest.DatabaseVersion;
