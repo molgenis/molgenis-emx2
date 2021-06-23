@@ -31,13 +31,14 @@ public class TestWebApi {
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   private static Database db;
+  private static Schema schema;
 
   @BeforeClass
   public static void before() throws IOException {
 
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
-    Schema schema = db.dropCreateSchema("pet store");
+    schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
@@ -255,12 +256,13 @@ public class TestWebApi {
 
   @Test
   public void redirectToFirstMenuItem() {
+    schema.getMetadata().setSetting("menu", "[{\"label\":\"home\",\"href\":\"../blaat\"}]");
     given()
         .redirects()
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/tables"))
+        .header("Location", is("http://localhost:8080/pet store/blaat"))
         .when()
         .get("/pet store/");
   }
