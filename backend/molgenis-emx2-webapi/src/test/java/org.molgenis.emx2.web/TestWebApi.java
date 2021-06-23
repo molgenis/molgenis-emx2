@@ -256,7 +256,10 @@ public class TestWebApi {
 
   @Test
   public void redirectToFirstMenuItem() {
-    schema.getMetadata().setSetting("menu", "[{\"label\":\"home\",\"href\":\"../blaat\"}]");
+    schema
+        .getMetadata()
+        .setSetting("menu", "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"}]");
+    db.setActiveUser("admin");
     given()
         .redirects()
         .follow(false)
@@ -266,6 +269,7 @@ public class TestWebApi {
         .when()
         .get("/pet store/");
     schema.getMetadata().removeSetting("menu");
+    db.clearActiveUser();
   }
 
   @AfterClass
