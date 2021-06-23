@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
@@ -229,6 +230,27 @@ public class TestWebApi {
     // should fail
     css = given().when().get("/pet store/tables/theme.css?primary=pink").asString();
     Assert.assertTrue(css.contains("pink"));
+  }
+
+  @Test
+  public void redirectWhenSlash() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/"))
+        .when()
+        .get("/pet store");
+
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/tables/"))
+        .when()
+        .get("/pet store/tables");
   }
 
   @AfterClass
