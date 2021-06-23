@@ -7,7 +7,6 @@
       style="display: block"
       tabindex="-1"
       aria-modal="true"
-      @click="closeUnlessInDialog"
     >
       <div v-if="show" class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -92,11 +91,6 @@ export default {
     close() {
       /** when the close x button is clicked */
       this.$emit("close");
-    },
-    closeUnlessInDialog() {
-      if (event.target === event.currentTarget) {
-        this.$emit("close");
-      }
     },
   },
 };
