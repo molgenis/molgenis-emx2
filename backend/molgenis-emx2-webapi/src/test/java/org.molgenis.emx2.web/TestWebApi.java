@@ -256,10 +256,20 @@ public class TestWebApi {
 
   @Test
   public void redirectToFirstMenuItem() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/tables"))
+        .when()
+        .get("/pet store/");
+
     schema
         .getMetadata()
         .setSetting("menu", "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"}]");
     db.setActiveUser("admin");
+
     given()
         .redirects()
         .follow(false)
@@ -268,6 +278,7 @@ public class TestWebApi {
         .header("Location", is("http://localhost:8080/pet store/blaat"))
         .when()
         .get("/pet store/");
+
     schema.getMetadata().removeSetting("menu");
     db.clearActiveUser();
   }
