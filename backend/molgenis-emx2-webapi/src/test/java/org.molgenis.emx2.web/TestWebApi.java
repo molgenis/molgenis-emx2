@@ -265,6 +265,7 @@ public class TestWebApi {
         .header("Location", is("http://localhost:8080/pet store/blaat"))
         .when()
         .get("/pet store/");
+    schema.getMetadata().removeSetting("menu");
   }
 
   @AfterClass
