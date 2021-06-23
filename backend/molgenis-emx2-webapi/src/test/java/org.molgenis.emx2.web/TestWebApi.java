@@ -253,6 +253,18 @@ public class TestWebApi {
         .get("/pet store/tables");
   }
 
+  @Test
+  public void redirectToFirstMenuItem() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/tables"))
+        .when()
+        .get("/pet store/");
+  }
+
   @AfterClass
   public static void after() {
     MolgenisWebservice.stop();
