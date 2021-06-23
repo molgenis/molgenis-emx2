@@ -17,7 +17,7 @@ public class TestTask {
     Assert.assertEquals(1, taskService.getJobIds().size());
 
     while (!StepStatus.COMPLETED.equals(taskService.getTask(id).getStatus())) {
-      Thread.sleep(50);
+      Thread.sleep(100);
       System.out.println(task);
     }
     System.out.println("Completed ...");
