@@ -267,10 +267,24 @@ public class TestWebApi {
 
     schema
         .getMetadata()
-        .setSetting("menu", "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"}]");
-    db.setActiveUser("admin");
+        .setSetting(
+            "menu",
+            "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
+
+    RestAssured.requestSpecification = null;
 
     given()
+        .redirects()
+        .follow(false)
+        .header(MOLGENIS_TOKEN, "shopviewer")
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/blaat2"))
+        .when()
+        .get("/pet store/");
+
+    given()
+        .header(MOLGENIS_TOKEN, "shopmanager")
         .redirects()
         .follow(false)
         .expect()
@@ -278,6 +292,8 @@ public class TestWebApi {
         .header("Location", is("http://localhost:8080/pet store/blaat"))
         .when()
         .get("/pet store/");
+
+    RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, "admin");
 
     schema.getMetadata().removeSetting("menu");
     db.clearActiveUser();
