@@ -15,11 +15,11 @@
               <th
                 class="rotated-text text-nowrap"
                 scope="col"
-                v-for="cohort in cohorts"
-                :key="cohort.acronym"
+                v-for="resource in resources"
+                :key="resource.acronym"
               >
                 <div>
-                  <span class="table-label">{{ cohort.acronym }}</span>
+                  <span class="table-label">{{ resource.acronym }}</span>
                 </div>
               </th>
             </tr>
@@ -30,10 +30,10 @@
                 {{ variable.name }}
               </th>
               <td
-                v-for="cohort in cohorts"
-                :key="cohort.acronym"
+                v-for="resource in resources"
+                :key="resource.acronym"
                 class="colored-grid-cell"
-                :class="'table-' + getMatchStatus(variable, cohort.acronym)"
+                :class="'table-' + getMatchStatus(variable, resource.acronym)"
               ></td>
             </tr>
             <tr
@@ -44,11 +44,11 @@
                 {{ repeatedVariable.name }}
               </th>
               <td
-                v-for="cohort in cohorts"
-                :key="cohort.acronym"
+                v-for="resource in resources"
+                :key="resource.acronym"
                 class="colored-grid-cell"
                 :class="
-                  'table-' + getMatchStatus(repeatedVariable, cohort.acronym)
+                  'table-' + getMatchStatus(repeatedVariable, resource.acronym)
                 "
               ></td>
             </tr>
@@ -61,7 +61,7 @@
 
 <script>
 import VariableDetails from "../components/VariableDetails.vue";
-import { fetchCohorts } from "../store/repository/cohortRepository";
+import { fetchResources } from "../store/repository/resourceRepository";
 export default {
   name: "SingleVarDetailsView",
   components: { VariableDetails },
@@ -73,21 +73,21 @@ export default {
   },
   data() {
     return {
-      cohorts: null,
+      resources: null,
     };
   },
   methods: {
-    getMatchStatus(variable, cohortName) {
+    getMatchStatus(variable, resourceName) {
       if (!variable.mappings) {
         return "danger"; // not mapped
       }
-      const cohortMapping = variable.mappings.find((mapping) => {
-        return mapping.fromRelease.resource.acronym === cohortName;
+      const resourceMapping = variable.mappings.find((mapping) => {
+        return mapping.fromRelease.resource.acronym === resourceName;
       });
-      if (!cohortMapping) {
+      if (!resourceMapping) {
         return "danger"; // not mapped
       }
-      const match = cohortMapping.match.name;
+      const match = resourceMapping.match.name;
       switch (match) {
         case "zna":
           return "danger";
@@ -101,7 +101,7 @@ export default {
     },
   },
   async created() {
-    this.cohorts = await fetchCohorts();
+    this.resources = await fetchResources();
   },
 };
 </script>

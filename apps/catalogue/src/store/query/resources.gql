@@ -1,5 +1,5 @@
-query Cohorts {
-  Cohorts {
+query Resources {
+  Resources {
     acronym
     name
     type {
