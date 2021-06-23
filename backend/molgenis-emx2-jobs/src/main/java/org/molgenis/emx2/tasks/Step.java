@@ -18,10 +18,10 @@ public class Step {
       new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
   private Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-  private Integer index;
+  private int index;
   private String description;
   StepStatus status = WAITING;
-  private Integer total;
+  private int total;
   private long start = System.currentTimeMillis();
   long end;
 
