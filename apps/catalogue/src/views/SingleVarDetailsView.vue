@@ -78,6 +78,9 @@ export default {
   },
   methods: {
     getMatchStatus(variable, cohortName) {
+      if (!variable.mappings) {
+        return "danger"; // not mapped
+      }
       const cohortMapping = variable.mappings.find((mapping) => {
         return mapping.fromRelease.resource.acronym === cohortName;
       });

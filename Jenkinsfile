@@ -1,7 +1,7 @@
 podTemplate(inheritFrom:'shared', containers: [
     containerTemplate(
       name: 'java',
-      image: 'adoptopenjdk:16-jdk-hotspot-focal',
+      image: 'gradle:jdk16-hotspot',
       ttyEnabled: true,
       command: 'cat',
       args: '',
@@ -49,7 +49,6 @@ podTemplate(inheritFrom:'shared', containers: [
                 script {
                     checkout scm
                     sh 'apt update'
-                    sh 'apt -y install git'
                     sh 'apt -y install docker.io'
                     sh 'git fetch --depth 10000'
                     sh "git config user.email \"m.a.swertz@rug.nl\""
