@@ -49,7 +49,7 @@ public class TaskServiceInMemory implements TaskService {
     Set<String> keys = tasks.keySet();
     for (String key : keys) {
       if (tasks.get(key).end != 0
-          && tasks.get(key).end <= System.currentTimeMillis() - milliseconds) {
+          && tasks.get(key).end < System.currentTimeMillis() - milliseconds) {
         try {
           tasks.remove(key);
         } catch (Exception e) {
