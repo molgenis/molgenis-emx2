@@ -92,7 +92,7 @@ public class MolgenisWebservice {
     before(
         "/:schema/:app",
         (req, res) -> {
-          if (!req.params("app").equals("graphql")) {
+          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
             res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
           }
         });
