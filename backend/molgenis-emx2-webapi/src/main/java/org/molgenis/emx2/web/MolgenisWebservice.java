@@ -67,21 +67,7 @@ public class MolgenisWebservice {
     // services (matched in order of creation)
     AppsProxyService.create(new SqlDatabase(false));
 
-    // add trailing /
-    get(
-        "/:schema",
-        (req, res) -> {
-          res.redirect("/" + req.params("schema") + "/");
-          return null;
-        });
-    get(
-        "/:schema/:app",
-        (req, res) -> {
-          res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
-          return null;
-        });
-
-    get("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     get(
         "/:schema/api",
@@ -96,6 +82,20 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     BootstrapThemeService.create();
+
+    // add trailing /
+    before(
+        "/:schema",
+        (req, res) -> {
+          res.redirect("/" + req.params("schema") + "/");
+        });
+    before(
+        "/:schema/:app",
+        (req, res) -> {
+          if (!req.params("app").equals("graphql")) {
+            res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
+          }
+        });
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
@@ -116,7 +116,7 @@ public class MolgenisWebservice {
     afterAfter(sessionManager::updateSession);
   }
 
-  private static Object redirectSchemaToFirstMenuItem(Request request, Response response) {
+  private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
     try {
       Schema schema = getSchema(request);
       String role = schema.getRoleForActiveUser();
@@ -139,14 +139,12 @@ public class MolgenisWebservice {
       if (menu.size() > 0) {
         response.redirect(
             "/" + request.params("schema") + "/" + menu.get(0).get("href").replace("../", ""));
-        return null;
       }
     } catch (Exception e) {
       // silly default
       logger.debug(e.getMessage());
     }
     response.redirect("/" + request.params("schema") + "/tables");
-    return null;
   }
 
   public static void stop() {
