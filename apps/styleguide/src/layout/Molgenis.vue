@@ -12,9 +12,7 @@
       >
         <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
-      <small>
-        <Breadcrumb v-if="Object.keys(crumbs).length > 1" :crumbs="crumbs" />
-      </small>
+      <Breadcrumb v-if="Object.keys(crumbs).length > 1" :crumbs="crumbs" />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <MessageWarning v-if="majorDatabaseVersionToOldError"
           >{{ majorDatabaseVersionToOldError }}

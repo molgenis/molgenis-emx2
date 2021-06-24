@@ -35,11 +35,80 @@ const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
-    //list views
     {
-      name: "list",
-      path: "/list/:tableName",
-      props: true,
+      name: "databanks",
+      path: "/databanks",
+      props: { tableName: "Databanks" },
+      component: ResourceListView,
+    },
+    {
+      name: "cohorts",
+      path: "/cohorts",
+      props: { tableName: "Cohorts" },
+      component: ResourceListView,
+    },
+    {
+      name: "institutions",
+      path: "/institutions",
+      props: { tableName: "Institutions" },
+      component: ResourceListView,
+    },
+    {
+      name: "datasources",
+      path: "/datasources",
+      props: { tableName: "Datasources" },
+      component: ResourceListView,
+    },
+    {
+      name: "networks",
+      path: "/networks",
+      props: { tableName: "Networks" },
+      component: ResourceListView,
+    },
+    {
+      name: "models",
+      path: "/models",
+      props: { tableName: "Models" },
+      component: ResourceListView,
+    },
+    {
+      name: "studies",
+      path: "/studies",
+      props: { tableName: "Studies" },
+      component: ResourceListView,
+    },
+    {
+      name: "releases",
+      path: "/releases",
+      props: { tableName: "Releases" },
+      component: ResourceListView,
+    },
+    {
+      path: "/releases/:acronym",
+      redirect: "/releases",
+    },
+    {
+      name: "variables",
+      path: "/variables",
+      props: { tableName: "Variables" },
+      component: ResourceListView,
+    },
+    {
+      name: "tables",
+      path: "/tables",
+      props: { tableName: "Tables" },
+      component: ResourceListView,
+    },
+    {
+      name: "tablemappings",
+      path: "/tablemappings",
+      props: { tableName: "TableMappings" },
+      component: ResourceListView,
+    },
+    {
+      name: "variablemappings",
+      path: "/variablesmappings",
+      props: { tableName: "VariableMappings" },
       component: ResourceListView,
     },
     {
@@ -48,7 +117,6 @@ const router = new VueRouter({
       component: InstitutionView,
       props: true,
     },
-
     {
       name: "release",
       path: "/releases/:acronym/:version",
@@ -137,6 +205,22 @@ const router = new VueRouter({
         },
         { path: "", redirect: "/explorer/details" },
       ],
+    },
+    {
+      path: "/explorer/details/:acronym",
+      redirect: "/networks/:acronym",
+    },
+    {
+      path: "/explorer/details/:acronym/:version",
+      redirect: "/releases/:acronym/:version",
+    },
+    {
+      path: "/explorer/details/:network/:version/:name/harmonization",
+      redirect: "/explorer/details/:network/:version/:name/details",
+    },
+    {
+      path: "/explorer/details/:network/:version/:name",
+      redirect: "/explorer/details/:network/:version/:name/details",
     },
     {
       name: "variable-detail",

@@ -11,7 +11,7 @@
     </p>
     <h2>Collected data</h2>
     <div class="row justify-content-between">
-      <RouterLink to="list/Institutions" class="btn btn-dark col m-2">
+      <RouterLink to="institutions" class="btn btn-dark col m-2">
         <span class="badge badge-light">{{ institutions }}</span>
         <h3>Institutions</h3>
         <p class="text-left">
@@ -19,20 +19,20 @@
           centres and research institutes
         </p>
       </RouterLink>
-      <RouterLink to="/list/Datasources" class="btn btn-secondary col m-2">
+      <RouterLink to="datasources" class="btn btn-secondary col m-2">
         <span class="badge badge-light">{{ datasources }}</span>
         <h3>Data sources</h3>
         <p class="text-left">
           Collections of data banks covering the same population
         </p>
       </RouterLink>
-      <RouterLink to="/list/Databanks" class="btn btn-info col m-2">
+      <RouterLink to="databanks" class="btn btn-info col m-2">
         <span class="badge badge-light">{{ databanks }}</span>
         <h3>Data banks</h3>
         <p class="text-left">Data collections such as registries or biobanks</p>
       </RouterLink>
       <RouterLink
-        to="/list/Cohorts"
+        to="cohorts"
         class="btn btn-primary col m-2"
         v-if="cohorts > 0"
       >
@@ -45,19 +45,19 @@
     </div>
     <h2>Data use</h2>
     <div class="row justify-content-around mt-4">
-      <RouterLink to="/list/Networks" class="btn btn-danger col-3 m-2">
+      <RouterLink to="networks" class="btn btn-danger col-3 m-2">
         <span class="badge badge-light">{{ networks }}</span>
         <h3>Networks</h3>
         <p class="text-left">Collaborations of multiple institutions</p>
       </RouterLink>
-      <RouterLink to="/list/Models" class="btn btn-warning col-3 m-2">
+      <RouterLink to="models" class="btn btn-warning col-3 m-2">
         <span class="badge badge-light">{{ models }}</span>
         <h3>Common data models</h3>
         <p class="text-left">
           Common Data Element models and Harmonization models
         </p>
       </RouterLink>
-      <RouterLink to="/list/Studies" class="btn btn-success col-3 m-2">
+      <RouterLink to="studies" class="btn btn-success col-3 m-2">
         <span class="badge badge-light">{{ studies }}</span>
         <h3>Studies</h3>
         <p class="text-left">
@@ -68,14 +68,14 @@
     </div>
     <h2>Browse data definitions</h2>
     <div class="row justify-content-between container-fluid mt-4 mb-4">
-      <RouterLink to="/list/Releases" class="btn btn-outline-dark col-2">
+      <RouterLink to="releases" class="btn btn-outline-dark col-2">
         <span class="badge badge-light">{{ releases }}</span>
         <h3>Releases</h3>
         <p class="text-left">
           Data releases from databanks, models or networks.
         </p>
       </RouterLink>
-      <RouterLink to="/list/Tables" class="btn btn-outline-dark col-2">
+      <RouterLink to="tables" class="btn btn-outline-dark col-2">
         <span class="badge badge-light">{{ tables }}</span>
         <h3>Tables</h3>
         <p class="text-left">
@@ -83,7 +83,7 @@
           databanks and common models.
         </p>
       </RouterLink>
-      <RouterLink to="/list/Variables" class="btn btn-outline-dark col-2">
+      <RouterLink to="variables" class="btn btn-outline-dark col-2">
         <span class="badge badge-light">{{ variables }}</span>
         <h3>Variables</h3>
         <p class="text-left">
@@ -91,7 +91,7 @@
           databanks and common models.
         </p>
       </RouterLink>
-      <RouterLink to="/list/TableMappings" class="btn btn-outline-dark col-2">
+      <RouterLink to="tablemappings" class="btn btn-outline-dark col-2">
         <span class="badge badge-light">{{ tableMappings }}</span>
         <h3>Table Mappings</h3>
         <p class="text-left">
