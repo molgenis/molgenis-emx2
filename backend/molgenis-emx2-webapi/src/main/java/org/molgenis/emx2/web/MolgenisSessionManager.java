@@ -79,7 +79,8 @@ public class MolgenisSessionManager {
     }
 
     // check if session state and session user map still in sync
-    if (!session.getSessionUser().equals(session.getDatabase().getActiveUser())) {
+    if (session.getSessionUser() != null
+        && !session.getSessionUser().equals(session.getDatabase().getActiveUser())) {
       // remove old sessions
       sessions.remove(session.getSessionUser());
       request.session(false);
