@@ -51,7 +51,7 @@ Publications,,pagination,,,,,,,,,"Page numbers, separated either by commas or do
 Publications,,publisher,,,,,,,,,The publisher's name
 Publications,,school,,,,,,,,,(in case of thesis) The school where the thesis was written
 Publications,,abstract,text,,,,,,,,
-Publications,,resources,refback,,,Resources,,publications,,,list of resources that refer to this publication
+Publications,,resources,refback,,,Resources,,otherPublications,,,list of resources that refer to this publication
 Partners,,,,,,,,,,,Institutions that partnered in the creation of a resource
 Partners,,resource,ref,1,TRUE,Resources,,,,,resource institution has contributed to
 Partners,,institution,ref,1,TRUE,Institutions,,,,,institution that contributed
