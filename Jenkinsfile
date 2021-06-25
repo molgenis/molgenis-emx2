@@ -59,7 +59,7 @@ podTemplate(inheritFrom:'shared', containers: [
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"  
                     def props = readProperties file: 'build/ci.properties'
-                    env['TAG_NAME'] = props['tagName']
+                    env.TAG_NAME = props.tagName
                 }
             }
             container('rancher') {
