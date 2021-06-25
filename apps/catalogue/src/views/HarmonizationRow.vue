@@ -4,7 +4,7 @@
       {{ variable.name }}
     </th>
     <td
-      v-for="cohort in cohorts"
+      v-for="cohort in resources"
       :key="cohort.acronym"
       class="colored-grid-cell"
       :class="'table-' + getCellClass(cohort)"
@@ -18,32 +18,32 @@ export default {
   name: "HarmonizationRow",
   props: {
     variable: Object,
-    cohorts: Array,
+    resources: Array,
   },
   data() {
     return {
-      cohortMappings: undefined,
+      resourceMappings: undefined,
     };
   },
   methods: {
     ...mapActions(["fetchMappings"]),
     getCellClass(cohort) {
-      return this.cohortMappings ? this.getMatchStatus(cohort) : null;
+      return this.resourceMappings ? this.getMatchStatus(cohort) : null;
     },
     async fetchData() {
-      this.cohortMappings = await this.fetchMappings(this.variable);
+      this.resourceMappings = await this.fetchMappings(this.variable);
     },
-    getMatchStatus(cohort) {
+    getMatchStatus(resource) {
       if (this.variable.repeats) {
         const statusList = this.variable.repeats.map((repeatedVariable) => {
-          const cohortMapping = this.cohortMappings.find((mapping) => {
+          const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
               mapping.toVariable.name === repeatedVariable.name &&
-              mapping.fromTable.release.resource.acronym === cohort.acronym
+              mapping.fromTable.release.resource.acronym === resource.acronym
             );
           });
 
-          return cohortMapping ? cohortMapping.match.name : "zna";
+          return resourceMapping ? resourceMapping.match.name : "zna";
         });
 
         if (statusList.includes("complete")) {
@@ -54,15 +54,17 @@ export default {
           return "danger";
         }
       } else {
-        const cohortMapping = this.cohortMappings.find((mapping) => {
-          return mapping.fromTable.release.resource.acronym === cohort.acronym;
+        const resourceMapping = this.resourceMappings.find((mapping) => {
+          return (
+            mapping.fromTable.release.resource.acronym === resource.acronym
+          );
         });
 
-        if (!cohortMapping) {
+        if (!resourceMapping) {
           return "danger";
         }
 
-        switch (cohortMapping.match.name) {
+        switch (resourceMapping.match.name) {
           case "zna":
             return "danger";
           case "partial":

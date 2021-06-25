@@ -26,7 +26,7 @@ export default {
     return state.filters.find((filters) => filters.name === "networks")
       .conditions;
   },
-  cohorts: (state) => state.cohorts,
+  resources: (state) => state.resources,
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,

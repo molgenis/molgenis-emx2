@@ -30,8 +30,8 @@ export default {
   setKeywords(state, keywords) {
     state.keywords = keywords;
   },
-  setCohorts(state, cohorts) {
-    Vue.set(state, "cohorts", cohorts);
+  setResources(state, resources) {
+    Vue.set(state, "resources", resources);
   },
   setSchema(state, schema) {
     state.schema = schema;
