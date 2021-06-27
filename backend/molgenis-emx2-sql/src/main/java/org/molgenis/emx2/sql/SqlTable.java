@@ -285,8 +285,23 @@ class SqlTable implements Table {
 
   private void checkRequired(Row row, Collection<Column> columns) {
     for (Column c : columns) {
-      if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
-        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+      if (c.isReference() && c.getReferences().size() > 1) {
+        for (Reference r : c.getReferences()) {
+          if (c.isRequired() && row.isNull(r.getName(), r.getColumnType())) {
+            throw new MolgenisException(
+                "composite column '"
+                    + c.getName()
+                    + "' is required in "
+                    + row
+                    + ". Part "
+                    + r.getName()
+                    + " is missing.");
+          }
+        }
+      } else {
+        if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
+          throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+        }
       }
     }
   }
@@ -410,7 +425,7 @@ class SqlTable implements Table {
 
     // get metadata
     Set<Column> columns = getColumnsToBeUpdated(updateColumns);
-    List<Column> pkeyFields = getMetadata().getPrimaryKeyColumns();
+    List<Field> pkeyFields = getMetadata().getPrimaryKeyFields();
 
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
@@ -440,10 +455,10 @@ class SqlTable implements Table {
     return Arrays.stream(db.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
   }
 
-  private Condition getUpdateCondition(Row row, List<Column> pkeyFields) {
+  private Condition getUpdateCondition(Row row, List<Field> pkeyFields) {
     List<Condition> result = new ArrayList<>();
-    for (Column key : pkeyFields) {
-      result.add(key.getJooqField().eq(row.get(key)));
+    for (Field key : pkeyFields) {
+      result.add(key.eq(row.getValueMap().get(key.getName())));
     }
     return and(result);
   }

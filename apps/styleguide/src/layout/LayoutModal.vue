@@ -37,26 +37,6 @@
 </template>
 
 <style scoped>
-/*@media (max-width: 576px) {*/
-/*    .modal-dialog {*/
-/*        width: 100%;*/
-/*        height: 100%;*/
-/*        padding: 0;*/
-/*        margin: 0;*/
-/*        left: 0px;*/
-/*        top: 0px;*/
-/*    }*/
-
-/*    .modal-content {*/
-/*        height: 100%;*/
-/*        padding: 0px;*/
-/*    }*/
-
-/*    .modal-body {*/
-/*        max-height: 100vh;*/
-/*    }*/
-/*}*/
-
 .modal {
   height: 100%;
   overflow: scroll;
@@ -66,7 +46,7 @@
 
 .modal-body {
   /** leave room for header and foot*/
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 200px - 28px);
   overflow-y: auto;
 }
 </style>

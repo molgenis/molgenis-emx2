@@ -3,17 +3,13 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <SigninForm @login="loginSuccess" @cancel="cancel" />
   </div>
-  <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
+  <LayoutModal v-else :title="title" :show="true" @close="close()">
     <template v-slot:body>
+      <!-- wait until metadata loaded, and in case of update (pkey!=null) also the value -->
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in columnsWithoutMeta" :key="column.name">
+          <!-- in case of 'create' (value == null) only show pkey inputs -->
           <RowFormInput
-            v-if="
-              (visibleColumns == null ||
-                visibleColumns.includes(column.name)) &&
-              visible(column.visible) &&
-              column.name != 'mg_tableclass'
-            "
             v-model="value[column.name]"
             :label="column.name"
             :description="column.description"
@@ -33,11 +29,20 @@
       </LayoutForm>
     </template>
     <template v-slot:footer>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonOutline @click="saveDraft">Save draft</ButtonOutline>
-      <ButtonAction @click="save">Save {{ table }}</ButtonAction>
+      <div class="container-fluid p-0">
+        <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+      </div>
+      <ButtonAlt @click="close()">Close</ButtonAlt>
+      <ButtonOutline v-if="isUpdate" @click="saveDraft">
+        Save draft
+      </ButtonOutline>
+      <ButtonAction v-if="isUpdate" @click="save">
+        Save {{ table }}
+      </ButtonAction>
+      <ButtonAction v-if="!isUpdate" @click="saveEditDraft">
+        Create
+      </ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -69,9 +74,9 @@ export default {
   props: {
     /** when updating existing record, this is the primary key value */
     pkey: Object,
-    /** visible columns, useful if you only want to allow partial edit (array of strings) */
+    /** (optional) visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
-    /** whebn creating new record, this is initialization value */
+    /** (optional) when creating new record, this is initialization value */
     defaultValue: Object,
   },
   components: {
@@ -86,6 +91,9 @@ export default {
     ButtonOutline,
   },
   methods: {
+    close() {
+      this.$emit("close");
+    },
     getRefBackType(column) {
       if (column.columnType === "REFBACK") {
         //get the other table, find the refback column and check its type
@@ -106,6 +114,9 @@ export default {
       this.showLogin = false;
     },
     saveDraft() {
+      this.executeCommand(true);
+    },
+    saveEditDraft() {
       this.executeCommand(true);
     },
     save() {
@@ -131,25 +142,29 @@ export default {
       }
       this.requestMultipart(this.graphqlURL, query, variables)
         .then((data) => {
-          if (data.insert) {
-            this.success = data.insert.message;
+          console.log(JSON.stringify(data));
+          console.log(JSON.stringify(data.data.insert));
+          if (data.data.insert) {
+            console.log("insert");
+            this.success = data.data.insert.message;
+            this.$emit("update:pkey", this.value);
           }
-          if (data.update) {
-            this.success = data.update.message;
+          if (data.data.update) {
+            this.success = data.data.update.message;
           }
-          this.$emit("close");
         })
         .catch((error) => {
           if (error.status === 403) {
             this.graphqlError =
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
             this.showLogin = true;
+          } else if (Array.isArray(error.errors)) {
+            this.graphqlError = error.errors[0].message;
           } else {
-            this.graphqlError = error.errors;
+            this.graphqlError = error;
           }
         });
     },
-
     eval(expression) {
       try {
         return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
@@ -210,9 +225,21 @@ export default {
     },
   },
   computed: {
+    isUpdate() {
+      return this.pkey;
+    },
     columnsWithoutMeta() {
       return this.tableMetadata.columns.filter(
-        (c) => !c.name.startsWith("mg_")
+        (c) =>
+          //remove mg_columns
+          !c.name.startsWith("mg_") &&
+          //only visibleColumns
+          (this.visibleColumns == null ||
+            this.visibleColumns.includes(c.name)) &&
+          //in case of 'insert' only the pkey
+          (c.key == 1 || this.pkey) &&
+          //apply visible expression
+          this.visible(c)
       );
     },
     refLinkFilters() {
@@ -255,9 +282,9 @@ export default {
     // override from tableMixin
     title() {
       if (this.pkey) {
-        return `update ${this.table}`;
+        return `edit ${this.table}`;
       } else {
-        return `insert ${this.table}`;
+        return `create ${this.table}`;
       }
     },
   },
