@@ -460,7 +460,7 @@ class SqlTable implements Table {
     for (Column key : pkeyFields) {
       if (key.isReference()) {
         for (Reference r : key.getReferences()) {
-          result.add(r.getJooqField().eq(row.get(r.getName(), r.getColumnType())));
+          result.add(r.getJooqField().eq(row.get(r.getName(), r.getPrimitiveType())));
         }
       } else {
         result.add(key.getJooqField().eq(row.get(key)));

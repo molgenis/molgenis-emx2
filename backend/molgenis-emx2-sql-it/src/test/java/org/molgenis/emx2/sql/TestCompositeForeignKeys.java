@@ -6,16 +6,14 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestCompositeForeignKeys {
   private Database database;
@@ -295,4 +293,44 @@ public class TestCompositeForeignKeys {
   //
   //    schema.create(table("AllVariables"));
   //  }
+
+  @Test
+  public void testCompositeKeyThatIsReference() {
+    Schema schema =
+        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "RefAsKey");
+
+    schema.create(table("Target", column("firstName").setPkey(), column("lastName").setPkey()));
+    schema.create(
+        table(
+            "Source",
+            column("person").setType(REF).setPkey().setRefTable("Target"),
+            column("name").setPkey(),
+            column("someValue").setRequired(true)));
+
+    Table target = schema.getTable("Target");
+    target.insert(row("firstName", "Donald", "lastName", "Duck"));
+
+    Table source = schema.getTable("Source");
+    source.insert(
+        row(
+            "person.firstName",
+            "Donald",
+            "person.lastName",
+            "Duck",
+            "name",
+            "Kwik",
+            "someValue",
+            "foo"));
+    source.update(
+        row(
+            "person.firstName",
+            "Donald",
+            "person.lastName",
+            "Duck",
+            "name",
+            "Kwik",
+            "someValue",
+            "bar"));
+    assertEquals("bar", source.retrieveRows().get(0).getString("someValue"));
+  }
 }
