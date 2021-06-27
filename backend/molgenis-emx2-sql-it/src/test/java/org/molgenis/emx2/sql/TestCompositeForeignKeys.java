@@ -311,6 +311,13 @@ public class TestCompositeForeignKeys {
     target.insert(row("firstName", "Donald", "lastName", "Duck"));
 
     Table source = schema.getTable("Source");
+
+    try {
+      source.insert(row("person.firstName", "Donald", "person.lastName", "Duck", "name", "Kwik"));
+      fail("Should fail on required");
+    } catch (Exception e) {
+      // should fail
+    }
     source.insert(
         row(
             "person.firstName",
