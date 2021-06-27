@@ -56,12 +56,19 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
-    p.insert(
-        new Row()
-            .setString("firstName", "Kwik")
-            .setString("lastName", "Duck")
-            .setString("uncle.firstName", "Donald")
-            .setString("uncle.lastName", "Duck"));
+    p.insert(new Row().setString("firstName", "Kwik").setString("lastName", "Duck"));
+    assertNull(p.retrieveRows().get(1).getString("uncle.firstName"));
+
+    int count =
+        p.update(
+            new Row()
+                .setString("firstName", "Kwik")
+                .setString("lastName", "Duck")
+                .setString("uncle.firstName", "Donald")
+                .setString("uncle.lastName", "Duck"));
+
+    assertEquals(1, count);
+    assertNotNull(p.retrieveRows().get(1).getString("uncle.firstName"));
 
     p.insert(
         new Row()
