@@ -425,7 +425,7 @@ class SqlTable implements Table {
 
     // get metadata
     Set<Column> columns = getColumnsToBeUpdated(updateColumns);
-    List<Field> pkeyFields = getMetadata().getPrimaryKeyFields();
+    List<Column> pkeyFields = getMetadata().getPrimaryKeyColumns();
 
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
@@ -455,10 +455,16 @@ class SqlTable implements Table {
     return Arrays.stream(db.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
   }
 
-  private Condition getUpdateCondition(Row row, List<Field> pkeyFields) {
+  private Condition getUpdateCondition(Row row, List<Column> pkeyFields) {
     List<Condition> result = new ArrayList<>();
-    for (Field key : pkeyFields) {
-      result.add(key.eq(row.getValueMap().get(key.getName())));
+    for (Column key : pkeyFields) {
+      if (key.isReference()) {
+        for (Reference r : key.getReferences()) {
+          result.add(r.getJooqField().eq(row.get(r.getName(), r.getColumnType())));
+        }
+      } else {
+        result.add(key.getJooqField().eq(row.get(key)));
+      }
     }
     return and(result);
   }
