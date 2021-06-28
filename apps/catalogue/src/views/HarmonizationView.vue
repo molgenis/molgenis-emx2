@@ -1,6 +1,6 @@
 <template>
   <div class="mt-3">
-    <template v-if="variables.length && cohorts.length">
+    <template v-if="variables.length && resources.length">
       <table class="table table-bordered table-sm">
         <thead>
           <tr>
@@ -8,11 +8,11 @@
             <th
               class="rotated-text text-nowrap"
               scope="col"
-              v-for="cohort in cohorts"
-              :key="cohort.acronym"
+              v-for="resource in resources"
+              :key="resource.acronym"
             >
               <div>
-                <span class="table-label">{{ cohort.acronym }}</span>
+                <span class="table-label">{{ resource.acronym }}</span>
               </div>
             </th>
           </tr>
@@ -22,7 +22,7 @@
             <harmonization-row
               :key="variable.name"
               :variable="variable"
-              :cohorts="cohorts"
+              :resources="resources"
             />
           </template>
         </tbody>
@@ -60,13 +60,13 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["cohorts", "variables"]),
+    ...mapGetters(["resources", "variables"]),
     variablePage() {
       return this.variables.slice(0, this.pageSize);
     },
   },
   methods: {
-    ...mapActions(["fetchCohorts"]),
+    ...mapActions(["fetchResources"]),
     fetchNextPage() {
       this.pageSize += 10;
     },
@@ -77,7 +77,7 @@ export default {
     },
   },
   async mounted() {
-    await this.fetchCohorts();
+    await this.fetchResources();
   },
 };
 </script>
