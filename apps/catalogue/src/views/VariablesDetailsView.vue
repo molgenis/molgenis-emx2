@@ -1,6 +1,6 @@
 <template>
   <div class="mt-1">
-    <div v-if="variables.length" class="list-group">
+    <ul v-if="variables.length" class="list-group">
       <variable-list-item
         v-for="(variable, index) in variables"
         :key="index"
@@ -15,7 +15,7 @@
       >
         Show more variables
       </button>
-    </div>
+    </ul>
     <p v-else-if="!isLoading" class="text-center font-italic pt-3">
       No variables found matching the given filters
     </p>
@@ -32,10 +32,10 @@ import { mapGetters, mapActions, mapState } from "vuex";
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },
-  data () {
+  data() {
     return {
-      variableDetails: {}
-    }
+      variableDetails: {},
+    };
   },
   computed: {
     ...mapState(["isLoading"]),
@@ -46,10 +46,10 @@ export default {
   },
   methods: {
     ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
-    async handleVariableDetailsRequest (variable) {
-      const result = await this.fetchVariableDetails(variable)
-      this.variableDetails = result
-    }
+    async handleVariableDetailsRequest(variable) {
+      const result = await this.fetchVariableDetails(variable);
+      this.variableDetails = result;
+    },
   },
 };
 </script>

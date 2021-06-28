@@ -15,7 +15,7 @@ const state = {
       conditions: [],
     },
   ],
-  cohorts: [],
+  resources: [],
   variableMappings: {},
   searchInput: "",
 };
