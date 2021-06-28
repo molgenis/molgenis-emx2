@@ -31,13 +31,16 @@ export default {
   },
   computed: {
     repeats() {
+      const cohortMapping = !this.variable.mappings
+        ? undefined
+        : this.variable.mappings.find(
+            (mapping) =>
+              mapping.fromTable.release.resource.acronym === this.sourceCohort
+          );
       let repeats = [
         {
           ...this.variable,
-          cohortMapping: this.variable.mappings.find(
-            (mapping) =>
-              mapping.fromTable.release.resource.acronym === this.sourceCohort
-          ),
+          cohortMapping,
         },
       ];
       if (this.variable.repeats) {

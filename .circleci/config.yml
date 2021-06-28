@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: adoptopenjdk:16-jdk-hotspot-focal
+      - image: gradle:jdk16-hotspot
       - image: postgres:13-alpine
         environment:
           POSTGRES_USER: molgenis
@@ -27,12 +27,6 @@ jobs:
       TERM: dumb
 
     steps:
-      - run:
-          name: Env setup
-          command: |
-            apt update
-            apt -y install git
-
       - checkout
 
       # Download and cache dependencies
@@ -50,4 +44,4 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # run tests!
-      - run: ./gradlew test
+      - run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password

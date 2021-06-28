@@ -1,7 +1,7 @@
 podTemplate(inheritFrom:'shared', containers: [
     containerTemplate(
       name: 'java',
-      image: 'adoptopenjdk:16-jdk-hotspot-focal',
+      image: 'gradle:jdk16-hotspot',
       ttyEnabled: true,
       command: 'cat',
       args: '',
@@ -49,7 +49,6 @@ podTemplate(inheritFrom:'shared', containers: [
                 script {
                     checkout scm
                     sh 'apt update'
-                    sh 'apt -y install git'
                     sh 'apt -y install docker.io'
                     sh 'git fetch --depth 10000'
                     sh "git config user.email \"m.a.swertz@rug.nl\""
@@ -60,7 +59,7 @@ podTemplate(inheritFrom:'shared', containers: [
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"  
                     def props = readProperties file: 'build/ci.properties'
-                    env['TAG_NAME'] = props['tagName']
+                    env.TAG_NAME = props.tagName
                 }
             }
             container('rancher') {
