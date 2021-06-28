@@ -1,5 +1,5 @@
 <template>
-  <button
+  <li
     class="list-group-item"
     :class="{ 'list-group-item-action': !showDetail }"
     @click.stop="toggleShowDetail(false)"
@@ -101,7 +101,7 @@
       </template>
       <template v-else> <Spinner class="mt-2" /> Fetching data.. </template>
     </p>
-  </button>
+  </li>
 </template>
 
 <script>
