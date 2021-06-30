@@ -4,7 +4,6 @@
     network = {{ network }} <br />
     table = {{ table }} <br />
     variable = {{ variable }}
-    {{ mappings }}
     <table class="table bg-white">
       <thead>
         <th>Source</th>
@@ -17,7 +16,9 @@
         <tr v-for="m in mappings">
           <td>{{ m.fromRelease.resource.acronym }}</td>
           <td>{{ m.match.name }}</td>
-          <td>{{ m.syntax }}</td>
+          <td>
+            <pre>{{ m.syntax }}</pre>
+          </td>
           <td>{{ m.description }}</td>
           <td>{{ m.fromVariables }}</td>
         </tr>

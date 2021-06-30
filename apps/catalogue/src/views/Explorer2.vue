@@ -15,7 +15,12 @@
       <div class="col-9">
         <FilterWells :filters.sync="filters" />
         <InputSearch v-model="searchInput" placeholder="Search variables" />
-        <div v-if="!filters[0].conditions || filters[0].conditions.length == 0">
+        <div
+          v-if="
+            (!filters[0].conditions || filters[0].conditions.length == 0) &&
+            !network
+          "
+        >
           <- Select network
         </div>
         <table v-else class="table bg-white">
