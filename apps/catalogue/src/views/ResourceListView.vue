@@ -116,7 +116,12 @@ export default {
         return ["keywords", "recordPrompt"];
       }
       if (this.tableName == "Cohorts") {
-        return ["sampleCategories", "dataCategories", "noParticipants"];
+        return [
+          "sampleCategories",
+          "dataCategories",
+          "noParticipants",
+          "ageCategories",
+        ];
       }
       return [];
     },
