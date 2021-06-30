@@ -3,6 +3,7 @@ const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet%20store";
 
 module.exports = {
   // set your styleguidist configuration here
+  require: ["./styleguidist-setup.js"],
   title: "MOLGENIS EMX2 Style Guide",
   theme: {
     color: {

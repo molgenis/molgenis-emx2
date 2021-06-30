@@ -40,6 +40,7 @@ import LayoutForm from "./layout/LayoutForm";
 import LayoutModal from "./layout/LayoutModal";
 import LayoutNavTabs from "./layout/NavTabs";
 import NavTabs from "./layout/NavTabs";
+import BreadCrumbs from "./layout/BreadCrumbs";
 
 import MessageSuccess from "./forms/MessageSuccess";
 import MessageError from "./forms/MessageError";
@@ -72,6 +73,7 @@ import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 import TreeComponent from "./tree/TreeComponent";
 
 export {
+  BreadCrumbs,
   ButtonAction,
   ButtonAlt,
   ButtonDanger,

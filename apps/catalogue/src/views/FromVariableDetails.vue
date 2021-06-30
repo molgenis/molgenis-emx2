@@ -1,31 +1,13 @@
 <template>
   <div>
-    <nav class="mg-page-nav" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <router-link :to="{ name: 'variableDetails' }">
-            variables
-          </router-link>
-        </li>
-        <li class="breadcrumb-item">
-          <router-link :to="{ name: 'singleVariableDetails' }">
-            {{ name }}
-          </router-link>
-        </li>
-        <li class="breadcrumb-item" aria-current="page">
-          <router-link :to="{ name: 'resourceHarmonizationDetails' }">
-            {{ sourceCohort }}
-          </router-link>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-          {{ fromName }}
-        </li>
-      </ol>
-    </nav>
     <div v-if="variable">
       <h3>{{ variable.label }}</h3>
       <div class="row">
-        <variable-details class="col" :variableDetails="variable" :showMappedBy="false" />
+        <variable-details
+          class="col"
+          :variableDetails="variable"
+          :showMappedBy="false"
+        />
       </div>
     </div>
     <variable-details></variable-details>
@@ -35,6 +17,7 @@
 <script>
 import { fetchFromVariableDetails } from "../store/repository/variableRepository";
 import VariableDetails from "../components/VariableDetails.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "FromVariableDetails",
@@ -44,12 +27,15 @@ export default {
     network: String,
     version: String,
     sourceCohort: String,
-    fromName: String
+    fromName: String,
   },
   data() {
     return {
       variable: {},
     };
+  },
+  methods: {
+    ...mapMutations(["setBreadCrumbs"]),
   },
   async created() {
     this.variable = await fetchFromVariableDetails(
@@ -57,6 +43,15 @@ export default {
       this.sourceCohort,
       this.version
     );
+    this.setBreadCrumbs([
+      { label: "variable explorer", to: { name: "variableDetails" } },
+      { label: this.name, to: { name: "singleVariableDetails" } },
+      {
+        label: this.sourceCohort,
+        to: { name: "resourceHarmonizationDetails" },
+      },
+      { label: this.fromName },
+    ]);
   },
 };
 </script>

@@ -1,7 +1,5 @@
 <template>
   <div class="container-fluid">
-    <h1>Variable Explorer</h1>
-
     <div class="row">
       <div class="col-3">
         <h5>Filters</h5>
@@ -96,7 +94,7 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["setSelectedNetworks"]),
+    ...mapMutations(["setSelectedNetworks", "setBreadCrumbs"]),
     ...mapActions(["fetchVariables", "fetchKeywords", "fetchSchema"]),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e;
@@ -114,6 +112,7 @@ export default {
     },
   },
   async created() {
+    this.setBreadCrumbs([{ label: "variable explorer" }]);
     await this.fetchSchema();
     if (!this.variables.lenght) {
       // Only on initial creation

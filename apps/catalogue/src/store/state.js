@@ -1,5 +1,6 @@
 const state = {
   isLoading: false,
+  breadCrumbs: [],
   schema: null,
   variables: [],
   variableDetails: {},

@@ -17,6 +17,7 @@
           >{{ majorDatabaseVersionToOldError }}
         </MessageWarning>
         <h1 v-if="title">{{ title }}</h1>
+        <slot name="breadCrumb">auto gen cumbs</slot>
         <slot />
       </div>
     </div>

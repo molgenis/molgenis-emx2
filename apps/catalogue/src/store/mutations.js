@@ -36,4 +36,7 @@ export default {
   setSchema(state, schema) {
     state.schema = schema;
   },
+  setBreadCrumbs(state, breadCrumbs) {
+    Vue.set(state, "breadCrumbs", breadCrumbs);
+  },
 };
