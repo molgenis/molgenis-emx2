@@ -25,6 +25,8 @@ import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
 import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
 import FromVariableDetails from "./views/FromVariableDetails";
 import CohortView from "./views/CohortView";
+import Explorer2 from "./views/Explorer2";
+import Explorer2Details from "./views/Explorer2Details";
 
 Vue.config.productionTip = false;
 
@@ -189,6 +191,7 @@ const router = new VueRouter({
       props: true,
       component: TableMappingsView,
     },
+    ,
     {
       path: "/explorer",
       component: VariableExplorer,
@@ -207,8 +210,9 @@ const router = new VueRouter({
       ],
     },
     {
-      path: "/explorer/details/:acronym",
-      redirect: "/networks/:acronym",
+      path: "/explorer/details/:selectedNetwork",
+      component: VariableExplorer,
+      props: true,
     },
     {
       path: "/explorer/details/:acronym/:version",
@@ -254,6 +258,26 @@ const router = new VueRouter({
       name: "fromVariableDetails",
       path: "/explorer/source/:network/:version/:name/from/:sourceCohort/:fromName",
       component: FromVariableDetails,
+      props: true,
+    },
+    {
+      path: "/explorer2",
+      component: Explorer2,
+    },
+    {
+      path: "/explorer2/:network",
+      component: Explorer2,
+      props: true,
+    },
+    {
+      path: "/explorer2/:network/:table",
+      component: Explorer2,
+      props: true,
+    },
+    {
+      name: "explorer2details",
+      path: "/explorer2/:network/:table/:variable",
+      component: Explorer2Details,
       props: true,
     },
   ],
