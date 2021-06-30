@@ -57,7 +57,7 @@ public class TestCohortCatalogueMultipleSchemas {
     //    MolgenisIO.importFromExcelFile(
     //        new File("../../data/datacatalogue/Cohorts_SourceVariablesAndMappings.xlsx").toPath(),
     //        cohortsSchema);
-    assertEquals(48, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
+    assertEquals(49, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
   }
 
   @Test
