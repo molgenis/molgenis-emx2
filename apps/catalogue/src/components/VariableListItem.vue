@@ -1,8 +1,12 @@
 <template>
-  <button class="list-group-item list-group-item-action">
+  <li
+    class="list-group-item"
+    :class="{ 'list-group-item-action': !showDetail }"
+    @click.stop="toggleShowDetail(false)"
+  >
     <div
+      @click.stop="toggleShowDetail(true)"
       class="text-capitalize mg-variable-header mg-list-group-item-header"
-      @click="toggleShowDetail"
     >
       <i
         v-if="!showDetail"
@@ -97,7 +101,7 @@
       </template>
       <template v-else> <Spinner class="mt-2" /> Fetching data.. </template>
     </p>
-  </button>
+  </li>
 </template>
 
 <script>
@@ -122,11 +126,11 @@ export default {
     },
   },
   methods: {
-    toggleShowDetail() {
+    toggleShowDetail(isHeaderClicked) {
       if (!this.showDetail) {
         this.$emit("request-variable-detail", this.variable.name);
         this.showDetail = true;
-      } else {
+      } else if (isHeaderClicked) {
         this.showDetail = false;
       }
     },
