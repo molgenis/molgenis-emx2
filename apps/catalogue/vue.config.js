@@ -1,5 +1,6 @@
-const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "Conception";
+const HOST =
+  process.env.MOLGENIS_APPS_HOST || "https://data-catalogue.molgeniscloud.org";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "catalogue";
 
 module.exports = {
   publicPath: "", // to ensure relative paths are used
