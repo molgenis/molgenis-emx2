@@ -87,17 +87,17 @@ export default {
         this.alterLoading = true;
         request(
           "graphql",
-          `mutation{signup(email: "${this.username}", password: "${this.password}"){status,message}}`
+          `mutation{changePassword(username: "${this.username}", password: "${this.password}"){status,message}}`
         )
           .then((data) => {
-            if (data.signup.status === "SUCCESS") {
+            if (data.changePassword.status === "SUCCESS") {
               this.alterSuccess =
                 "Success. Created/altered user: " + this.username;
               this.getUserList();
             } else {
               console.log("Alter data " + JSON.stringify(data));
               this.alterError =
-                "Create/alter user failed: " + data.signup.message;
+                "Create/alter user failed: " + data.changePassword.message;
             }
           })
           .catch((error) => {
