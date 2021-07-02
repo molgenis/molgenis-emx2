@@ -12,6 +12,7 @@
       >
         <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
+      <BreadCrumbsBar v-if="showCrumbs" :crumbs="crumbs" />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <MessageWarning v-if="majorDatabaseVersionToOldError"
           >{{ majorDatabaseVersionToOldError }}
@@ -52,6 +53,7 @@ import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
 import MessageWarning from "../forms/MessageWarning";
+import BreadCrumbsBar from "../layout/BreadCrumbsBar";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -63,11 +65,17 @@ export default {
     MolgenisMenu,
     Footer,
     MolgenisTheme,
+    BreadCrumbsBar,
   },
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
     title: String,
+    showCrumbs: {
+      type: Boolean,
+      required: false,
+      default: () => true,
+    },
   },
   data: function () {
     return {
@@ -112,6 +120,31 @@ export default {
       } else {
         return this.defaultMenu;
       }
+    },
+    crumbs() {
+      let path = decodeURI(window.location.pathname).split("/");
+      let url = "/";
+      const crumbs = [{ label: "molgenis", to: url }];
+      // todo central ??
+      if (window.location.pathname != "/apps/central/") {
+        path.forEach((pathComponent) => {
+          if (pathComponent != "") {
+            url += pathComponent + "/";
+            crumbs.push({ label: pathComponent, to: url });
+          }
+        });
+      }
+      if (this.$route) {
+        path = decodeURI(location.hash).substr(1).split("/");
+        url += "#";
+        path.forEach((el) => {
+          if (el != "") {
+            url += "/" + el;
+            crumbs.push({ label: el, to: url });
+          }
+        });
+      }
+      return crumbs;
     },
   },
   watch: {

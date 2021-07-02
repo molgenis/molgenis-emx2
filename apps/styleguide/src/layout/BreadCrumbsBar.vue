@@ -30,15 +30,6 @@ export default {
 };
 </script>
 
-<style>
-/* remove default margins to get full width style within page */
-nav.mg-page-nav {
-  margin-top: -1rem;
-  margin-left: -1rem;
-  margin-right: -1rem;
-}
-</style>
-
 <docs>
 Single item example
 ```

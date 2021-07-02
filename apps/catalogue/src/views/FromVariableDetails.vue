@@ -61,4 +61,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+nav.mg-page-nav {
+  margin-top: -1rem;
+  margin-left: -2rem;
+  margin-right: -2rem;
+}
+</style>
