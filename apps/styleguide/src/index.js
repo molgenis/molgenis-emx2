@@ -1,3 +1,4 @@
+import BreadCrumbsBar from "./layout/BreadCrumbsBar";
 import ButtonAction from "./forms/ButtonAction";
 import ButtonAlt from "./forms/ButtonAlt";
 import ButtonDanger from "./forms/ButtonDanger";
@@ -72,6 +73,7 @@ import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 import TreeComponent from "./tree/TreeComponent";
 
 export {
+  BreadCrumbsBar,
   ButtonAction,
   ButtonAlt,
   ButtonDanger,

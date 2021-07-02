@@ -10,6 +10,7 @@ module.exports = {
     },
     maxWidth: "auto",
   },
+  require: ["./styleguidist-setup.js"],
   assetsDir: "public",
   webpackConfig: {
     devServer: {
