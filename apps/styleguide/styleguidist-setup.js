@@ -5,7 +5,7 @@ import Vue from "vue";
 Vue.component("RouterLink", {
   props: {
     tag: { type: String, default: "a" },
-    to: { type: String, default: "https://molgenis.org" },
+    to: { type: Object, default: () => ({ path: "https://molgenis.org" }) },
   },
   render(createElement) {
     console.log(this.to);
