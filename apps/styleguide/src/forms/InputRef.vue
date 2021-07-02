@@ -300,8 +300,8 @@ Example with list
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRef :list="true"
               v-model="value"
-              table="Variables"
-              graphqlURL="/CohortNetwork/graphql"
+              table="Pet"
+              graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
   </div>
