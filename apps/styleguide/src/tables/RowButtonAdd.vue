@@ -44,7 +44,6 @@ export default {
   },
   methods: {
     openForm() {
-      //on open of plus we reset the pkey
       this.pkey = null;
       this.open = true;
     },

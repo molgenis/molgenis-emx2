@@ -142,10 +142,7 @@ export default {
       }
       this.requestMultipart(this.graphqlURL, query, variables)
         .then((data) => {
-          console.log(JSON.stringify(data));
-          console.log(JSON.stringify(data.data.insert));
           if (data.data.insert) {
-            console.log("insert");
             this.success = data.data.insert.message;
             this.$emit("update:pkey", this.value);
           }
@@ -158,7 +155,7 @@ export default {
             this.graphqlError =
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
             this.showLogin = true;
-          } else if (Array.isArray(error.errors)) {
+          } else if (Array.isArray(error.errors) && error.errors.length > 0) {
             this.graphqlError = error.errors[0].message;
           } else {
             this.graphqlError = error;
