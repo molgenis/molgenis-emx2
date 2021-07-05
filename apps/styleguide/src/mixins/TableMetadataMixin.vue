@@ -1,3 +1,6 @@
+<template>
+  <div>schema = {{ schema }}</div>
+</template>
 <script>
 import { request } from "graphql-request";
 

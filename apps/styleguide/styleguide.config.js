@@ -12,6 +12,7 @@ module.exports = {
   },
   assetsDir: "public",
   webpackConfig: {
+    devtool: "source-map",
     devServer: {
       port: "9090",
       proxy: {
@@ -23,7 +24,7 @@ module.exports = {
         "**/graphql": { target: `${HOST}`, changeOrigin: true, secure: false },
         "/api": { target: `${HOST}`, changeOrigin: true, secure: false },
         "/apps": { target: `${HOST}`, changeOrigin: true, secure: false },
-        "^/theme.css": {
+        "/theme.css": {
           target: `${HOST}/${SCHEMA}`,
           changeOrigin: true,
           secure: false,
