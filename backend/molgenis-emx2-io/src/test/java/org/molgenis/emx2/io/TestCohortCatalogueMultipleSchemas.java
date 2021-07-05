@@ -57,7 +57,7 @@ public class TestCohortCatalogueMultipleSchemas {
     //    MolgenisIO.importFromExcelFile(
     //        new File("../../data/datacatalogue/Cohorts_SourceVariablesAndMappings.xlsx").toPath(),
     //        cohortsSchema);
-    assertEquals(48, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
+    assertEquals(49, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
   }
 
   @Test
@@ -68,7 +68,7 @@ public class TestCohortCatalogueMultipleSchemas {
     conceptionSchema.migrate(schema);
 
     loadSchema("../../data/datacatalogue/Conception.xlsx", conceptionSchema);
-    assertEquals(48, TestCohortCatalogueMultipleSchemas.conceptionSchema.getTableNames().size());
+    assertEquals(49, TestCohortCatalogueMultipleSchemas.conceptionSchema.getTableNames().size());
   }
 
   private void loadSchema(String fileName, Schema schema) throws IOException {
