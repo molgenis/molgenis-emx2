@@ -7,7 +7,8 @@
           params: { acronym: p.institution.acronym },
         }"
       >
-        {{ p.institution.acronym }} - {{ p.institution.name }}
+        {{ p.institution.acronym }} {{ p.institution.name }}
+        {{ p.department }}
         <OntologyTerms :terms="[p.role]" :inline="true" :color="color" />
       </RouterLink>
     </li>
