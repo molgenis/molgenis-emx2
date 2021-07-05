@@ -1,5 +1,15 @@
 <template>
   <div>
+    <nav class="mg-page-nav" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <router-link :to="{ name: 'variableDetails' }">
+            variables
+          </router-link>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{{ name }}</li>
+      </ol>
+    </nav>
     <h3 v-if="variable">{{ variable.label }}</h3>
     <ul class="nav nav-tabs">
       <li class="nav-item">

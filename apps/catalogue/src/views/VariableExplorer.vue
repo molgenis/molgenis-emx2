@@ -69,9 +69,6 @@ export default {
     FilterWells,
     InputRef,
   },
-  props: {
-    selectedNetwork: null,
-  },
   computed: {
     ...mapState(["filters", "keywords"]),
     ...mapGetters([
@@ -106,14 +103,6 @@ export default {
     },
   },
   watch: {
-    selectedNetwork() {
-      if (this.selectedNetwork) {
-        this.setSelectedNetworks([{ acronym: this.selectedNetwork }]);
-      } else {
-        this.setSelectedNetworks([]);
-      }
-      this.fetchVariables();
-    },
     selectedKeywords() {
       this.fetchVariables();
     },
@@ -126,7 +115,7 @@ export default {
   },
   async created() {
     await this.fetchSchema();
-    if (!this.variables && !this.variables.length) {
+    if (!this.variables.lenght) {
       // Only on initial creation
       this.fetchVariables();
     }

@@ -12,7 +12,10 @@
       >
         <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
-      <Breadcrumb v-if="Object.keys(crumbs).length > 1" :crumbs="crumbs" />
+      <Breadcrumb
+        v-if="showCrumbs && Object.keys(crumbs).length > 1"
+        :crumbs="crumbs"
+      />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <MessageWarning v-if="majorDatabaseVersionToOldError"
           >{{ majorDatabaseVersionToOldError }}
@@ -71,6 +74,10 @@ export default {
   props: {
     menuItems: Array,
     title: String,
+    showCrumbs: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -87,7 +94,7 @@ export default {
       this.$route;
       let path = decodeURI(window.location.pathname).split("/");
       let url = "/";
-      let result = { molgenis: url };
+      let result = { databases: url };
       if (window.location.pathname != "/apps/central/") {
         path.forEach((el) => {
           if (el != "") {

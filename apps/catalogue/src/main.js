@@ -119,6 +119,7 @@ const router = new VueRouter({
       component: InstitutionView,
       props: true,
     },
+
     {
       name: "release",
       path: "/releases/:acronym/:version",
@@ -191,7 +192,6 @@ const router = new VueRouter({
       props: true,
       component: TableMappingsView,
     },
-    ,
     {
       path: "/explorer",
       component: VariableExplorer,
@@ -208,23 +208,6 @@ const router = new VueRouter({
         },
         { path: "", redirect: "/explorer/details" },
       ],
-    },
-    {
-      path: "/explorer/details/:selectedNetwork",
-      component: VariableExplorer,
-      props: true,
-    },
-    {
-      path: "/explorer/details/:acronym/:version",
-      redirect: "/releases/:acronym/:version",
-    },
-    {
-      path: "/explorer/details/:network/:version/:name/harmonization",
-      redirect: "/explorer/details/:network/:version/:name/details",
-    },
-    {
-      path: "/explorer/details/:network/:version/:name",
-      redirect: "/explorer/details/:network/:version/:name/details",
     },
     {
       name: "variable-detail",

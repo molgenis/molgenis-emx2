@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <Molgenis v-model="session" :key="JSON.stringify(session)">
+    <Molgenis
+      v-model="session"
+      :key="JSON.stringify(session)"
+      :showCrumbs="showCrumbs"
+    >
       <div
         v-if="!session || !session.roles || !session.roles.includes('Viewer')"
       >
@@ -25,13 +29,11 @@ export default {
       session: {},
     };
   },
+  computed: {
+    //temporary until variable explorer is fixed
+    showCrumbs() {
+      return !this.$route.path.startsWith("/explorer");
+    },
+  },
 };
 </script>
-
-<style>
-nav.mg-page-nav {
-  margin-top: -1rem;
-  margin-left: -2rem;
-  margin-right: -2rem;
-}
-</style>
