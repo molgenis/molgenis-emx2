@@ -1,13 +1,23 @@
-# Welcome to MOLGENIS manual
+# How to develop docs
 
-Choose user, installation or developer manual from the navbar menu shown above.
+Docs are automatically generated into emx2.jar file as well as to http://molgenis.github.com/molgenis-emx2/
 
-## About these docs
+You can serve docs locally to ease development as follows:
 
-These docs where created using docsify.
+First time, install docsify
 
-Install with
-`npm i docsify-cli -g`
+```aidl
+npm i docsify-cli -g
+```
 
-Run with
-`docsify serve docs`
+Then you can serve the dev in this directory using
+
+```aidl
+docsify serve
+```
+
+And view the result on
+
+```aidl
+http://localhost:3000
+```
