@@ -303,9 +303,9 @@ public class TestCompositeForeignKeys {
     schema.create(
         table(
             "Source",
-            column("person").setType(REF).setPkey().setRefTable("Target"),
+            column("person").setType(REF).setPkey().setRefTable("Target").setRequired(true),
             column("name").setPkey(),
-            column("someValue").setRequired(true)));
+            column("someValue")));
 
     Table target = schema.getTable("Target");
     target.insert(row("firstName", "Donald", "lastName", "Duck"));
@@ -313,11 +313,12 @@ public class TestCompositeForeignKeys {
     Table source = schema.getTable("Source");
 
     try {
-      source.insert(row("person.firstName", "Donald", "person.lastName", "Duck", "name", "Kwik"));
+      source.insert(row("person.firstName", "Donald", "name", "Kwik"));
       fail("Should fail on required");
     } catch (Exception e) {
-      // should fail
+      System.out.println("errored correctly: " + e);
     }
+
     source.insert(
         row(
             "person.firstName",

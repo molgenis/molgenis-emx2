@@ -285,23 +285,8 @@ class SqlTable implements Table {
 
   private void checkRequired(Row row, Collection<Column> columns) {
     for (Column c : columns) {
-      if (c.isReference() && c.getReferences().size() > 1) {
-        for (Reference r : c.getReferences()) {
-          if (c.isRequired() && row.isNull(r.getName(), r.getColumnType())) {
-            throw new MolgenisException(
-                "composite column '"
-                    + c.getName()
-                    + "' is required in "
-                    + row
-                    + ". Part "
-                    + r.getName()
-                    + " is missing.");
-          }
-        }
-      } else {
-        if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
-          throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
-        }
+      if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
+        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       }
     }
   }

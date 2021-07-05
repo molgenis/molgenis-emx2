@@ -180,7 +180,9 @@ public class TableMetadata {
           if (!ref.isOverlapping()) { // only add overlapping once
             result.put(
                 ref.getName(),
-                new Column(c.getTable(), ref.getName(), true).setType(ref.getPrimitiveType()));
+                new Column(c.getTable(), ref.getName(), true)
+                    .setType(ref.getPrimitiveType())
+                    .setRequired(c.isRequired()));
           }
         }
       } else {
