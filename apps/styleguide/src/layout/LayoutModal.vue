@@ -8,7 +8,7 @@
       tabindex="-1"
       aria-modal="true"
     >
-      <div v-if="show" class="modal-dialog modal-xl" role="document">
+      <div v-if="show" class="modal-dialog modal-xl mt-0" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{{ title }}</h5>
@@ -46,7 +46,7 @@
 
 .modal-body {
   /** leave room for header and foot*/
-  max-height: calc(100vh - 200px - 28px);
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
 }
 </style>
