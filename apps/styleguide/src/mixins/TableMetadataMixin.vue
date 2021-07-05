@@ -33,7 +33,9 @@ export default {
           this.loading = false;
         })
         .catch((error) => {
-          this.graphqlError = "internal server graphqlError" + error;
+          this.graphqlError =
+            "Internal server error: database unknown. Might you need to sign in?";
+          console.error(error);
           this.loading = false;
         });
     },
