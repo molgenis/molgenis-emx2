@@ -76,6 +76,11 @@ export default {
       return this.items.filter(this.permitted);
     },
     homeUrl() {
+      // Editor, Manager and Admin back to cental, other users to the first permitted menu item
+      if (this.isUserEditor() || this.isUserManager() || this.isUserAdmin()) {
+        return "/apps/central/";
+      }
+
       const findFirst = (menu) => {
         return menu.find((item) => {
           //will be first non-submenu item that is permitted
@@ -95,14 +100,26 @@ export default {
       //defaut: go home
       return firstItem ? firstItem.href : "../";
     },
+    hasSessionRole() {
+      return this.session && Array.isArray(this.session.roles);
+    },
+    isUserEditor() {
+      return this.hasSessionRole() && this.session.roles.includes("Editor");
+    },
+    isUserManager() {
+      return this.hasSessionRole() && this.session.roles.includes("Manager");
+    },
+    isUserAdmin() {
+      return this.session && this.session.email === "admin";
+    },
   },
   methods: {
     permitted(item) {
       if (!item.role) {
         return true;
       }
-      if (this.session && Array.isArray(this.session.roles)) {
-        if (this.session.email == "admin") {
+      if (this.hasSessionRole()) {
+        if (this.isUserAdmin()) {
           return true;
         }
         if (item.role == "Viewer") {
