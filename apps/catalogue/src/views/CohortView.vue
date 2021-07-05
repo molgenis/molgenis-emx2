@@ -16,28 +16,39 @@
         </p>
         <h6>Population</h6>
         <OntologyTerms :terms="cohort.population" color="primary" />
-        <h6>Data</h6>
+        <h6>Available data</h6>
         <OntologyTerms :terms="cohort.dataCategories" color="primary" />
-        <h6>Samples</h6>
+        <h6>Available samples</h6>
         <OntologyTerms :terms="cohort.sampleCategories" color="primary" />
         <h6 v-if="cohort.noParticipants">Number of participants:</h6>
         <p v-if="cohort.noParticipants">{{ cohort.noParticipants }}</p>
         <h6>Collection events</h6>
-        <CollectionEventsList :collection-events="cohort.collectionEvents" />
+        <div v-if="!cohort.collectionEvents">N/A</div>
+        <CollectionEventsList
+          v-else
+          :collection-events="cohort.collectionEvents"
+        />
         <h6>Subcohorts</h6>
-        <SubcohortList :subcohorts="cohort.subcohorts" color="primary" />
+        <div v-if="!cohort.subcohorts">N/A</div>
+        <SubcohortList v-else :subcohorts="cohort.subcohorts" color="primary" />
         <Conditions :resource="cohort" color="primary" />
+        <h6>Linkage options</h6>
+        <div v-if="!cohort.linkageOptions">N/A</div>
+        <div v-else>{{ cohort.linkageOptions }}</div>
+        <h6>Marker publication</h6>
+        <div v-if="!cohort.publication">N/A</div>
+        <div v-else>{{ cohort.publication }}</div>
       </div>
       <div class="col-4">
-        <h6>Data access providers</h6>
+        <h6>Data access provider(s):</h6>
         <InstitutionList :institutions="cohort.institution" />
-        <h6>Contributors</h6>
+        <h6>Contributors:</h6>
         <ContributorList :contributors="cohort.contributors" color="primary" />
-        <h6>Partners</h6>
+        <h6>Partners:</h6>
         <PartnersList :partners="cohort.partners" color="primary" />
-        <h6>Networks</h6>
+        <h6>Networks:</h6>
         <NetworkList :networks="cohort.networks" color="primary" />
-        <h6>Documentation</h6>
+        <h6>Documentation:</h6>
         <DocumentationList :documentation="cohort.documentation" />
         <h6 v-if="cohort.releases">Data releases</h6>
         <ReleasesList v-if="cohort.releases" :releases="cohort.releases" />
@@ -154,6 +165,7 @@ export default {
               population {
                 name
               }
+              linkageOptions
               noParticipants
               conditionsDescription
               conditions {
@@ -199,6 +211,7 @@ export default {
               }
               acknowledgements
               fundingStatement
+              publication
               collectionEvents {
                 name, startYear, endYear, ageMin{name}, ageMax{name}
               }
