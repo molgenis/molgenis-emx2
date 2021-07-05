@@ -1,25 +1,18 @@
-# Terminology
+# Permissions
 
-## Databases with schemas
+## Standard roles
 
-MOLGENIS enable creation of multiple databases on one server. Technically these are postgresql schemas, hence we use '
-database' and 'schema' interchangeably. A database is defined as a collection of tables (i.e. schema). In addition each
-database can have settings, members, menu and theme.
-
-## Schema consists of tables
-
-The contents of each molgenis database is defined as tables. A table is defined by its columns (i.e. metadata) and
-contains data in rows. The metadata describing the tables and columns we call 'schema'.
-
-## Users can become members
-
-Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
-database/schema. See: database settings. Currently we have as standard roles:
+Currently we have as standard roles:
 
 * manager - context: schema. Has permissions to assign roles to users in its schema. Can create/change/remove tables and
   columns (i.e. change the schema)
 * editor - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
 * viewer - context: schema. Has permission to view data.
+
+## Users can get roles in a schema
+
+Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
+database/schema. See: database settings.
 
 In addition there are two special users:
 
