@@ -25,8 +25,9 @@ public class TestTransaction {
     try {
       db.tx(
           db -> {
-            s.create(table("a"));
-            s.create(table("b"));
+            Schema s2 = db.getSchema("testTransaction");
+            s2.create(table("a"));
+            s2.create(table("b"));
             throw new RuntimeException("transaction stopped to check if it rolled back");
           });
     } catch (Exception e) {

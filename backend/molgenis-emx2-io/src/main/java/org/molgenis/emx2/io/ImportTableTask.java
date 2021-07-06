@@ -116,6 +116,7 @@ public class ImportTableTask extends Task {
       if (!batch.isEmpty()) {
         table.save(batch);
         task.setIndex(index);
+        task.setDescription("Imported " + task.getIndex() + " rows into " + table.getName());
       }
     }
   }

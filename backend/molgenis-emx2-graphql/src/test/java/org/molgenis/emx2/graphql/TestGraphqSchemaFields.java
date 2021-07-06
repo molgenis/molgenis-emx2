@@ -23,11 +23,12 @@ public class TestGraphqSchemaFields {
   private static GraphQL grapql;
   private static Database database;
   private static final String schemaName = "TestGraphqlSchemaFields";
+  private static Schema schema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(schemaName);
+    schema = database.dropCreateSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
@@ -76,6 +77,7 @@ public class TestGraphqSchemaFields {
     // remove value
     execute("mutation{drop(settings:[{table:\"Pet\", key:\"test\"}]){message}}");
 
+    assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
     assertEquals(
         0,
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());

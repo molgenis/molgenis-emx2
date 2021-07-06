@@ -13,7 +13,7 @@ import org.jooq.impl.DSL;
 public class TableMetadata {
 
   // if a table extends another table (optional)
-  protected String inherit = null;
+  public String inherit = null;
   // to allow indicate that a table should be dropped
   protected boolean drop = false;
   // for refenence to another schema (rare use)
@@ -27,7 +27,7 @@ public class TableMetadata {
   // link to the schema this table is part of (optional)
   private SchemaMetadata schema;
   // name unique within this schema (required)
-  private String tableName;
+  protected String tableName;
   // old name, useful for alter table
   private String oldName;
 
@@ -60,7 +60,7 @@ public class TableMetadata {
   public TableMetadata(SchemaMetadata schema, TableMetadata metadata) {
     this.clearCache();
     this.schema = schema;
-    this.copy(metadata);
+    this.sync(metadata);
   }
 
   public static TableMetadata table(String tableName) {
@@ -75,20 +75,23 @@ public class TableMetadata {
     return tm;
   }
 
-  protected void copy(TableMetadata metadata) {
-    clearCache();
-    this.tableName = metadata.getTableName();
-    this.description = metadata.getDescription();
-    this.oldName = metadata.getOldName();
-    for (Setting setting : metadata.getSettings()) {
-      this.settings.put(setting.getKey(), setting);
+  public void sync(TableMetadata metadata) {
+    // skip if same object!
+    if (this != metadata) {
+      clearCache();
+      this.tableName = metadata.getTableName();
+      this.description = metadata.getDescription();
+      this.oldName = metadata.getOldName();
+      for (Setting setting : metadata.getSettings()) {
+        this.settings.put(setting.getKey(), setting);
+      }
+      for (Column c : metadata.columns.values()) {
+        this.columns.put(c.getName(), new Column(this, c));
+      }
+      this.inherit = metadata.getInherit();
+      this.importSchema = metadata.getImportSchema();
+      this.semantics = metadata.getSemantics();
     }
-    for (Column c : metadata.columns.values()) {
-      this.columns.put(c.getName(), new Column(this, c));
-    }
-    this.inherit = metadata.getInherit();
-    this.importSchema = metadata.getImportSchema();
-    this.semantics = metadata.getSemantics();
   }
 
   public String getTableName() {
@@ -368,6 +371,7 @@ public class TableMetadata {
 
   public void clearCache() {
     columns = new LinkedHashMap<>();
+    settings = new LinkedHashMap<>();
     inherit = null;
     importSchema = null;
   }
