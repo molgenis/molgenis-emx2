@@ -60,12 +60,12 @@ public class GraphqlSessionFieldFactory {
               database.tx(
                   db -> {
                     // uplift permissions
-                    String active = db.getActiveUser();
+                    String activeUser = db.getActiveUser();
                     db.clearActiveUser();
                     db.addUser(userName);
                     db.setUserPassword(userName, passWord);
                     // and lift down again
-                    db.setActiveUser(active);
+                    db.setActiveUser(activeUser);
                   });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);

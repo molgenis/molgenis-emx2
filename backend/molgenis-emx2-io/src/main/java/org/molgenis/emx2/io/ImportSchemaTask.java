@@ -3,7 +3,6 @@ package org.molgenis.emx2.io;
 import static org.molgenis.emx2.tasks.StepStatus.*;
 
 import java.util.Collection;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -28,12 +27,12 @@ public class ImportSchemaTask extends Task {
 
   public void run() {
     this.start();
-
     try {
       schema.tx(
-          s -> {
+          db -> {
             // import metadata, if any
-            Task metadataTask = new ImportMetadataTask(schema, store);
+            Schema s = db.getSchema(schema.getName());
+            Task metadataTask = new ImportMetadataTask(s, store);
             this.add(metadataTask);
             metadataTask.run();
 
@@ -44,7 +43,7 @@ public class ImportSchemaTask extends Task {
             } else {
 
               // create task for the import, including subtasks for each sheet
-              for (Table table : schema.getTablesSorted()) {
+              for (Table table : s.getTablesSorted()) {
                 if (store.containsTable(table.getName())) {
                   ImportTableTask importTableTask = new ImportTableTask(store, table);
                   this.add(importTableTask);
@@ -54,7 +53,7 @@ public class ImportSchemaTask extends Task {
               }
 
               // warn for unknown sheet names
-              Collection<String> tableNames = schema.getTableNames();
+              Collection<String> tableNames = s.getTableNames();
               for (String sheet : store.tableNames()) {
                 if (!"molgenis".equals(sheet)
                     && !"molgenis_settings".equals(sheet)
@@ -73,11 +72,16 @@ public class ImportSchemaTask extends Task {
             if (skipped) {
               this.step("Import data skipped: No data sheet included").skipped();
             }
+
+            // commit
+            this.step("Committing data (may take a while)").start();
           });
+      this.getSteps().get(this.getSteps().size() - 1).setDescription("Committed data").complete();
     } catch (Exception e) {
-      this.error(e.getMessage());
+      this.getSteps().get(this.getSteps().size() - 1).error("Commit failed: " + e.getMessage());
       this.rollback(this);
-      throw new MolgenisException("Import failed", e);
+      this.error("Import failed: " + e.getMessage());
+      throw e;
     }
     this.complete();
   }

@@ -70,8 +70,9 @@ public class Step {
     }
   }
 
-  public void setDescription(String description) {
+  public Step setDescription(String description) {
     this.description = description;
+    return this;
   }
 
   public StepStatus getStatus() {

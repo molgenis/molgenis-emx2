@@ -24,7 +24,7 @@ public class MolgenisSessionManager {
 
   public MolgenisSessionManager() {}
 
-  public synchronized MolgenisSession getSession(Request request) {
+  public MolgenisSession getSession(Request request) {
     // already in a session, then return that
     if (request.session().attribute(SESSION_ATTRIBUTE) != null) {
       MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);
