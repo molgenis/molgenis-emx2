@@ -23,7 +23,7 @@ modular Java framework for RDF data, [HikariCP](https://github.com/brettwooldrid
 log4j, junit, javers, font-awesome, vue-swatches, vuedraggable, v-scroll-lock, ckeditor4-vue, vue-flatpickr-component,
 vue-runtime-template-compiler.
 
-##  
+## Build/deploy tools
 
 For development support, we thank [IntelliJ IDEA](https://www.jetbrains.com/idea/) development
 environment, [SonarCloud](https://sonarcloud.io/) Continuous Code Quality & Code Security
