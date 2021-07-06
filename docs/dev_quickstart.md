@@ -17,21 +17,22 @@ cd molgenis-emx
 git checkout <branch name here>
 ```
 
-Then you can either build + run the whole molgenis.jar, or only one app, described below. Or you can run inside
-IntelliJ.
+Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate backend and only run one
+app, described below. Or you can run inside IntelliJ.
 
 ## Build whole system
 
 Requires [Postgresql 13](https://www.postgresql.org/download/) and java (we use
 adopt [OpenJDK 16](https://adoptopenjdk.net/)):
 
+On Linux/Mac this could go as follows (Windows user, please tell us if this works for you too):
+
 * Optionally, drop a previous version of molgenis database (caution: destroys previous data!)
   ```console
   sudo -u postgres psql
   postgres=# drop database molgenis;
   ```
-* If not already done, create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On
-  Linux/Mac commandline:
+* If not already done, create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'.
   ```console
   sudo -u postgres psql
   postgres=# create database molgenis;
