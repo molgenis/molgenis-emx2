@@ -2,6 +2,16 @@
   <div class="mt-3">
     <template v-if="variables.length && resources.length">
       <table class="table table-bordered table-sm">
+        <caption>
+          <span
+            ><span class="table-success"><i class="fa fa-fw fa-check" /></span>
+            = completed,
+          </span>
+          <span
+            ><span class="table-danger"><i class="fa fa-fw fa-times" /></span> =
+            unharmonized or partially harmonized</span
+          >
+        </caption>
         <thead>
           <tr>
             <th scope="col"></th>
@@ -83,6 +93,10 @@ export default {
 </script>
 
 <style scoped>
+caption {
+  caption-side: top;
+}
+
 th.rotated-text {
   height: 13rem;
   padding: 0;
@@ -93,10 +107,6 @@ th.rotated-text > div {
 }
 th.rotated-text > div > span {
   padding: 5px 10px;
-}
-
-td.colored-grid-cell {
-  padding: 0.97rem;
 }
 
 .table-label {
