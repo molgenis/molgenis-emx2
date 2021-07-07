@@ -25,52 +25,59 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata add(Column... column) {
-    long start = System.currentTimeMillis();
     getDatabase()
         .tx(
-            dsl -> {
-              // first per-column actions, then multi-column action such as composite keys/refs
-              for (Column c : column) {
-                if (getLocalColumn(c.getName()) != null) {
-                  alterColumn(c);
-                } else {
-                  Column newColumn = new Column(this, c);
-                  if (getInherit() != null
-                      && getInheritedTable().getColumn(c.getName()) != null
-                      // this column is replicated in all subclass tables
-                      && !c.getName().equals(MG_TABLECLASS)) {
-                    throw new MolgenisException(
-                        "Cannot add column "
-                            + getTableName()
-                            + "."
-                            + c.getName()
-                            + ": column exists in inherited class "
-                            + getInherit());
-                  }
-                  if (!CONSTANT.equals(newColumn.getColumnType())) {
-                    validateColumn(newColumn);
-                    updatePositions(newColumn, this);
-                    executeCreateColumn(getJooq(), newColumn);
-                    super.add(newColumn);
-                    if (newColumn.getKey() > 0) {
-                      createOrReplaceKey(
-                          getJooq(),
-                          newColumn.getTable(),
-                          newColumn.getKey(),
-                          newColumn.getTable().getKeyFields(newColumn.getKey()));
-                    }
-                    executeCreateRefConstraints(getJooq(), newColumn);
-                  } else {
-                    super.add(newColumn);
-                  }
-                  log(
-                      start,
-                      "added column '" + newColumn.getName() + "' to table " + getTableName());
-                }
-              }
+            db -> {
+              sync(addTransaction(db, getSchemaName(), getTableName(), column));
             });
-    getDatabase().getListener().schemaChanged(getSchemaName());
     return this;
+  }
+
+  // static to ensure we don't touch 'this' until complete
+  private static SqlTableMetadata addTransaction(
+      Database db, String schemaName, String tableName, Column[] column) {
+    SqlTableMetadata tm =
+        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+
+    // first per-column actions, then multi-column action such as composite keys/refs
+    for (Column c : column) {
+      long start = System.currentTimeMillis();
+      if (tm.getLocalColumn(c.getName()) != null) {
+        tm.alterColumn(c);
+      } else {
+        Column newColumn = new Column(tm, c);
+        if (tm.getInherit() != null
+            && tm.getInheritedTable().getColumn(c.getName()) != null
+            // this column is replicated in all subclass tables
+            && !c.getName().equals(MG_TABLECLASS)) {
+          throw new MolgenisException(
+              "Cannot add column "
+                  + tm.getTableName()
+                  + "."
+                  + c.getName()
+                  + ": column exists in inherited class "
+                  + tm.getInherit());
+        }
+        if (!CONSTANT.equals(newColumn.getColumnType())) {
+          validateColumn(newColumn);
+          updatePositions(newColumn, tm);
+          executeCreateColumn(tm.getJooq(), newColumn);
+          tm.columns.put(c.getName(), newColumn);
+          if (newColumn.getKey() > 0) {
+            createOrReplaceKey(
+                tm.getJooq(),
+                newColumn.getTable(),
+                newColumn.getKey(),
+                newColumn.getTable().getKeyFields(newColumn.getKey()));
+          }
+          executeCreateRefConstraints(tm.getJooq(), newColumn);
+        } else {
+          tm.columns.put(c.getName(), newColumn);
+        }
+        log(tm, start, "added column '" + newColumn.getName() + "' to table " + tm.getTableName());
+      }
+    }
+    return tm;
   }
 
   @Override
@@ -80,27 +87,8 @@ class SqlTableMetadata extends TableMetadata {
     if (!getTableName().equals(newName)) {
       getDatabase()
           .tx(
-              dsl -> {
-                DSLContext jooq = ((SqlDatabase) dsl).getJooq();
-
-                // drop triggers for this table
-                for (Column column : getStoredColumns()) {
-                  SqlColumnExecutor.executeRemoveRefConstraints(jooq, column);
-                }
-
-                // rename table and triggers
-                SqlTableMetadataExecutor.executeAlterName(jooq, this, newName);
-
-                // update metadata
-                MetadataUtils.alterTableName(jooq, this, newName);
-                super.alterName(newName);
-
-                // recreate triggers for this table
-                for (Column column : getStoredColumns()) {
-                  SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
-                }
-
-                // reroute inherits in meta of other tables
+              db -> {
+                sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName));
               });
       getDatabase().getListener().schemaChanged(getSchemaName());
       log(start, "altered table from '" + oldName + "' to  " + getTableName());
@@ -108,12 +96,38 @@ class SqlTableMetadata extends TableMetadata {
     return this;
   }
 
+  // ensure the transaction has no side effects on 'this' until completed
+  private static SqlTableMetadata alterNameTransaction(
+      Database db, String schemaName, String tableName, String newName) {
+    SqlTableMetadata tm =
+        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+
+    // drop triggers for this table
+    for (Column column : tm.getStoredColumns()) {
+      SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
+    }
+
+    // rename table and triggers
+    SqlTableMetadataExecutor.executeAlterName(tm.getJooq(), tm, newName);
+
+    // update metadata
+    MetadataUtils.alterTableName(tm.getJooq(), tm, newName);
+    tm.tableName = newName;
+
+    // recreate triggers for this table
+    for (Column column : tm.getStoredColumns()) {
+      SqlColumnExecutor.executeCreateRefConstraints(tm.getJooq(), column);
+    }
+
+    return tm;
+  }
+
   @Override
-  public TableMetadata alterColumn(String name, Column column) {
+  public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
     if (column.getName().startsWith("mg_")) return this;
 
-    Column oldColumn = getColumn(name);
+    Column oldColumn = getColumn(columnName);
     if (oldColumn == null) {
       throw new MolgenisException(
           "Alter column failed: Column  '"
@@ -122,12 +136,12 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInherit() != null && getInheritedTable().getColumn(name) != null) {
+    if (getInherit() != null && getInheritedTable().getColumn(columnName) != null) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
-              + name
+              + columnName
               + " failed: column is part of inherited table "
               + getInherit());
     }
@@ -136,7 +150,7 @@ class SqlTableMetadata extends TableMetadata {
           "Rename column from "
               + getTableName()
               + "."
-              + name
+              + columnName
               + " to "
               + getTableName()
               + "."
@@ -149,81 +163,93 @@ class SqlTableMetadata extends TableMetadata {
     getDatabase()
         .tx(
             db -> {
-              DSLContext jooq = ((SqlDatabase) db).getJooq();
-              Column newColumn = new Column(this, column);
-              validateColumn(newColumn);
-
-              // check if reference and of different size
-              if (REF_ARRAY.equals(newColumn.getColumnType())
-                  && !newColumn.getName().equals(oldColumn.getName())
-                  && !newColumn.getColumnType().equals(oldColumn.getColumnType())
-                  && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
-                throw new MolgenisException(
-                    "Alter column of '"
-                        + oldColumn.getName()
-                        + " failed: REF_ARRAY is not supported for composite keys of table "
-                        + newColumn.getRefTableName());
-              }
-
-              if (newColumn.getKey() == 1) {
-                newColumn.setRequired(true);
-              }
-
-              // if changing 'ref' then check if not refBack exists
-              if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-                checkNotRefback(name, oldColumn);
-              }
-
-              // change positions if needed
-              if (!oldColumn.getPosition().equals(newColumn.getPosition())) {
-                updatePositions(newColumn, this);
-              }
-
-              // drop old key, if touched
-              if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
-                executeDropKey(jooq, oldColumn.getTable(), oldColumn.getKey());
-              }
-
-              // drop referential constraints around this column
-              executeRemoveRefConstraints(jooq, oldColumn);
-
-              // remove refBacks if exist
-              executeRemoveRefback(oldColumn, newColumn);
-
-              // rename and retype if needed
-              executeAlterType(jooq, oldColumn, newColumn);
-              executeAlterName(jooq, oldColumn, newColumn);
-
-              // change required?
-              // only applies to key=1
-              if ((oldColumn.isPrimaryKey() || newColumn.isPrimaryKey())
-                  && oldColumn.isRequired()
-                  && !oldColumn.isRequired() == newColumn.isRequired()) {
-                executeSetRequired(jooq, newColumn);
-              }
-
-              // update the metadata so we can use it for new keys and references
-              super.alterColumn(name, newColumn);
-
-              // reapply ref constrainst
-              executeCreateRefConstraints(jooq, newColumn);
-
-              // check if refBack constraints need updating
-              reapplyRefbackContraints(oldColumn, newColumn);
-
-              // create/update key, if touched
-              if (newColumn.getKey() != oldColumn.getKey()) {
-                createOrReplaceKey(
-                    jooq, this, newColumn.getKey(), getKeyFields(newColumn.getKey()));
-              }
-
-              // delete old column if name changed, then save any other metadata changes
-              if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(jooq, oldColumn);
-              saveColumnMetadata(jooq, newColumn);
+              sync(alterColumnTransaction(getSchemaName(), getTableName(), columnName, column, db));
             });
-    getDatabase().getListener().schemaChanged(getSchemaName());
-
     return this;
+  }
+
+  // static to ensure we don't touch 'this' until transaction succesfull
+  private static SqlTableMetadata alterColumnTransaction(
+      String schemaName, String tableName, String columnName, Column column, Database db) {
+    SqlTableMetadata tm =
+        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+    Column newColumn = new Column(tm, column);
+    Column oldColumn = tm.getColumn(columnName);
+    validateColumn(newColumn);
+
+    // check if reference and of different size
+    if (REF_ARRAY.equals(newColumn.getColumnType())
+        && !newColumn.getName().equals(oldColumn.getName())
+        && !newColumn.getColumnType().equals(oldColumn.getColumnType())
+        && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
+      throw new MolgenisException(
+          "Alter column of '"
+              + oldColumn.getName()
+              + " failed: REF_ARRAY is not supported for composite keys of table "
+              + newColumn.getRefTableName());
+    }
+
+    if (newColumn.getKey() == 1) {
+      newColumn.setRequired(true);
+    }
+
+    // if changing 'ref' then check if not refBack exists
+    if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
+      tm.checkNotRefback(columnName, oldColumn);
+    }
+
+    // change positions if needed
+    if (!oldColumn.getPosition().equals(newColumn.getPosition())) {
+      updatePositions(newColumn, tm);
+    }
+
+    // drop old key, if touched
+    if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
+      executeDropKey(tm.getJooq(), oldColumn.getTable(), oldColumn.getKey());
+    }
+
+    // drop referential constraints around this column
+    executeRemoveRefConstraints(tm.getJooq(), oldColumn);
+
+    // remove refBacks if exist
+    executeRemoveRefback(oldColumn, newColumn);
+
+    // rename and retype if needed
+    executeAlterType(tm.getJooq(), oldColumn, newColumn);
+    executeAlterName(tm.getJooq(), oldColumn, newColumn);
+
+    // change required?
+    // only applies to key=1
+    if ((oldColumn.isPrimaryKey() || newColumn.isPrimaryKey())
+        && oldColumn.isRequired()
+        && !oldColumn.isRequired() == newColumn.isRequired()) {
+      executeSetRequired(tm.getJooq(), newColumn);
+    }
+    // update the metadata so we can use it for new keys and references
+    if (column.getPosition() == null) {
+      column.setPosition(tm.columns.get(columnName).getPosition());
+    }
+    // remove the old
+    tm.columns.remove(columnName);
+    // add the new
+    tm.columns.put(column.getName(), column);
+
+    // reapply ref constrainst
+    executeCreateRefConstraints(tm.getJooq(), newColumn);
+
+    // check if refBack constraints need updating
+    reapplyRefbackContraints(oldColumn, newColumn);
+
+    // create/update key, if touched
+    if (newColumn.getKey() != oldColumn.getKey()) {
+      createOrReplaceKey(tm.getJooq(), tm, newColumn.getKey(), tm.getKeyFields(newColumn.getKey()));
+    }
+
+    // delete old column if name changed, then save any other metadata changes
+    if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(tm.getJooq(), oldColumn);
+    saveColumnMetadata(tm.getJooq(), newColumn);
+
+    return tm;
   }
 
   private void checkNotRefback(String name, Column oldColumn) {
@@ -257,12 +283,20 @@ class SqlTableMetadata extends TableMetadata {
     if (getColumn(name) == null) return; // return silently, idempotent
     getDatabase()
         .tx(
-            dsl -> {
-              SqlColumnExecutor.executeRemoveColumn(getJooq(), getColumn(name));
-              super.columns.remove(name);
+            db -> {
+              sync(dropColumnTransaction(db, getSchemaName(), getTableName(), name));
             });
-    getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "removed column '" + name + "' from ");
+  }
+
+  private static SqlTableMetadata dropColumnTransaction(
+      Database db, String schemaName, String tableName, String columnName) {
+    SqlTableMetadata tm =
+        (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
+    DSLContext jooq = ((SqlDatabase) db).getJooq();
+    SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
+    tm.columns.remove(columnName);
+    return tm;
   }
 
   @Override
@@ -322,13 +356,24 @@ class SqlTableMetadata extends TableMetadata {
               // extends means we copy primary key column from parent to child, make it foreign key
               // to
               // parent, and make it primary key of this table also.
-              executeSetInherit(getJooq(), this, other);
-              super.setInherit(otherTable);
-              MetadataUtils.saveTableMetadata(getJooq(), this);
+              sync(setInheritTransaction(tdb, getSchemaName(), getTableName(), otherTable));
             });
-    getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "set inherit on ");
+    super.setInherit(otherTable);
     return this;
+  }
+
+  // static function to ensure this is not altered until end of transaction
+  private static SqlTableMetadata setInheritTransaction(
+      Database db, String schemaName, String tableName, String inheritedName) {
+    DSLContext jooq = ((SqlDatabase) db).getJooq();
+    SqlTableMetadata tm =
+        (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
+    TableMetadata om = db.getSchema(schemaName).getTable(inheritedName).getMetadata();
+    executeSetInherit(jooq, tm, om);
+    tm.inherit = inheritedName;
+    MetadataUtils.saveTableMetadata(jooq, tm);
+    return tm;
   }
 
   @Override
@@ -338,18 +383,45 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public SqlTableMetadata setSettings(List<Setting> settings) {
-    super.setSettings(settings);
-    for (Setting setting : settings) {
-      MetadataUtils.saveSetting(getJooq(), this.getSchema(), this, setting);
-    }
+    getDatabase()
+        .tx(
+            db ->
+                sync(
+                    setSettingTransaction(
+                        (SqlDatabase) db, getSchemaName(), getTableName(), settings)));
     getDatabase().getListener().schemaChanged(getSchemaName());
     return this;
   }
 
+  private static SqlTableMetadata setSettingTransaction(
+      SqlDatabase db, String schemaName, String tableName, List<Setting> settings) {
+    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    SqlTableMetadata tm = schema.getTableMetadata(tableName);
+    for (Setting setting : settings) {
+      MetadataUtils.saveSetting(db.getJooq(), schema, tm, setting);
+      tm.settings.put(setting.getKey(), setting);
+    }
+    return tm;
+  }
+
   @Override
   public void removeSetting(String key) {
-    MetadataUtils.deleteSetting(getJooq(), getSchema(), this, new Setting(key, null));
-    super.removeSetting(key);
+    getDatabase()
+        .tx(
+            db ->
+                sync(
+                    removeSettingTransaction(
+                        (SqlDatabase) db, getSchemaName(), getTableName(), key)));
+    getDatabase().getListener().schemaChanged(getSchemaName());
+  }
+
+  private static SqlTableMetadata removeSettingTransaction(
+      SqlDatabase db, String schemaName, String tableName, String key) {
+    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    SqlTableMetadata tm = schema.getTableMetadata(tableName);
+    MetadataUtils.deleteSetting(db.getJooq(), schema, tm, new Setting(key, null));
+    tm.settings.remove(key);
+    return tm;
   }
 
   @Override
@@ -389,6 +461,19 @@ class SqlTableMetadata extends TableMetadata {
     return getDatabase().getJooq();
   }
 
+  private static void log(SqlTableMetadata tableMetadata, long start, String message) {
+    String user = tableMetadata.getDatabase().getActiveUser();
+    if (user == null) user = "molgenis";
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "{} {} {} in {}ms",
+          user,
+          message,
+          tableMetadata.getJooqTable(),
+          (System.currentTimeMillis() - start));
+    }
+  }
+
   private void log(long start, String message) {
     String user = getDatabase().getActiveUser();
     if (user == null) user = "molgenis";
@@ -408,12 +493,17 @@ class SqlTableMetadata extends TableMetadata {
     getDatabase()
         .tx(
             db -> {
-              DSLContext jooq = ((SqlDatabase) db).getJooq();
-              executeDropTable(jooq, this);
-              MetadataUtils.deleteTable(jooq, this);
+              dropTransaction(db, getSchemaName(), getTableName());
             });
     getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "dropped");
     return this;
+  }
+
+  private static void dropTransaction(Database db, String schemaName, String tableName) {
+    DSLContext jooq = ((SqlDatabase) db).getJooq();
+    TableMetadata tm = db.getSchema(schemaName).getTable(tableName).getMetadata();
+    executeDropTable(jooq, tm);
+    MetadataUtils.deleteTable(jooq, tm);
   }
 }

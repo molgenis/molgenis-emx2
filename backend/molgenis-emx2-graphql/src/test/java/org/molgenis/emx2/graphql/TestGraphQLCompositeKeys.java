@@ -74,8 +74,9 @@ public class TestGraphQLCompositeKeys {
             + "\n{firstName:\"Donald\",lastName:\"Duck\"}"
             + "\n{firstName:\"Katrien\",lastName:\"Duck\"}"
             + "\n{firstName:\"Katrien\",lastName:\"Mouse\"}"
-            + "\n{firstName:\"Donald\",lastName:\"Mouse\"}"
-            + "\n], RefTable:["
+            + "\n{firstName:\"Donald\",lastName:\"Mouse\"}]){message}}");
+    execute(
+        "mutation{insert(RefTable:["
             + "\n{id1:1,id2:\"a\", ref:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}"
             + "\n{id1:2,id2:\"a\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"},{firstName:\"Donald\",lastName:\"Mouse\"}]}"
             + "\n{id1:3,id2:\"a\", ref:[{firstName:\"Katrien\",lastName:\"Duck\"}]}"

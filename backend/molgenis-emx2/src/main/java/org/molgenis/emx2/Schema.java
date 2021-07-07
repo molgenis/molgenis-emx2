@@ -29,9 +29,9 @@ public interface Schema {
 
   Query query(String field, SelectColumn... selection);
 
-  void tx(Transaction transaction);
-
   void migrate(SchemaMetadata from);
+
+  void tx(Transaction transaction);
 
   void discard(SchemaMetadata schema);
 

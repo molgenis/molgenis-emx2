@@ -7,8 +7,6 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
@@ -81,7 +79,37 @@ public class SqlDatabase implements Database {
         }
       };
 
+  // copy constructor for transactions; only with its own jooq instance that contains tx
+  private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
+    this.connectionProvider = new SqlUserAwareConnectionProvider(source);
+    this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
+    this.jooq = jooq;
+    databaseVersion = MetadataUtils.getVersion(jooq);
+
+    // copy all schemas
+    this.schemaNames.addAll(copy.schemaNames);
+    for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
+      this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
+    }
+  }
+
+  private void setJooq(DSLContext ctx) {
+    this.jooq = ctx;
+  }
+
   public SqlDatabase(boolean init) {
+    initDataSource();
+    this.connectionProvider = new SqlUserAwareConnectionProvider(source);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+    if (init) {
+      this.init();
+    }
+    // get database version if exists
+    databaseVersion = MetadataUtils.getVersion(jooq);
+    logger.info("Database was created using version: " + this.databaseVersion);
+  }
+
+  private void initDataSource() {
     if (source == null) {
       String url =
           (String)
@@ -118,14 +146,6 @@ public class SqlDatabase implements Database {
 
       source = dataSource;
     }
-    this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
-    if (init) {
-      this.init();
-    }
-    // get database version if exists
-    databaseVersion = MetadataUtils.getVersion(jooq);
-    logger.info("Database was created using version: " + this.databaseVersion);
   }
 
   @Override
@@ -184,19 +204,23 @@ public class SqlDatabase implements Database {
   @Override
   public SqlSchema createSchema(String name) {
     long start = System.currentTimeMillis();
-    SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
     this.tx(
         db -> {
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name);
           executeCreateSchema((SqlDatabase) db, metadata);
+          // copy
+          SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
           // make current user a manager
           if (db.getActiveUser() != null) {
-            db.getSchema(metadata.getName())
-                .addMember(db.getActiveUser(), Privileges.MANAGER.toString());
+            schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
+          // copy metadata to our cache
+          this.schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
+          this.schemaNames.add(name);
         });
-    getListener().schemaChanged(metadata.getName());
+    getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
-    return new SqlSchema(this, metadata);
+    return getSchema(name);
   }
 
   @Override
@@ -217,7 +241,13 @@ public class SqlDatabase implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    tx(d -> SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) d, name));
+    tx(
+        database -> {
+          SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) database, name);
+          ((SqlDatabase) database).schemaNames.remove(name);
+          ((SqlDatabase) database).schemaCache.remove(name);
+        });
+
     listener.schemaRemoved(name);
     log(start, "dropped schema " + name);
   }
@@ -227,9 +257,11 @@ public class SqlDatabase implements Database {
     tx(
         db -> {
           if (getSchema(name) != null) {
-            db.dropSchema(name);
+            SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) db, name);
           }
-          db.createSchema(name);
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name);
+          executeCreateSchema((SqlDatabase) db, metadata);
+          ((SqlDatabase) db).schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
         });
     return getSchema(name);
   }
@@ -250,7 +282,7 @@ public class SqlDatabase implements Database {
     String currentUser = getActiveUser();
     try {
       clearActiveUser();
-      tx(d -> executeCreateUser(getJooq(), user));
+      tx(db -> executeCreateUser(((SqlDatabase) db).getJooq(), user));
     } finally {
       if (currentUser != null) {
         setActiveUser(currentUser);
@@ -273,7 +305,7 @@ public class SqlDatabase implements Database {
       throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
     }
     long start = System.currentTimeMillis();
-    tx(d -> MetadataUtils.setUserPassword(getJooq(), user, password));
+    tx(db -> MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), user, password));
     log(start, "set password for user '" + user + "'");
   }
 
@@ -298,7 +330,7 @@ public class SqlDatabase implements Database {
     if (!hasUser(user))
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
-    tx(d -> jooq.execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
+    tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
   }
 
@@ -311,7 +343,7 @@ public class SqlDatabase implements Database {
   @Override
   public void grantCreateSchema(String user) {
     long start = System.currentTimeMillis();
-    tx(d -> executeGrantCreateSchema(getJooq(), user));
+    tx(db -> executeGrantCreateSchema(((SqlDatabase) db).getJooq(), user));
     log(start, "granted create schema to user " + user);
   }
 
@@ -324,9 +356,12 @@ public class SqlDatabase implements Database {
         throw new SqlMolgenisException("Set active user failed", dae);
       }
     } else {
-      clearCache();
-      this.connectionProvider.setActiveUser(username);
+      if (username == null && connectionProvider.getActiveUser() != null
+          || username != null && !username.equals(connectionProvider.getActiveUser())) {
+        clearCache();
+      }
     }
+    this.connectionProvider.setActiveUser(username);
     listener.userChanged();
   }
 
@@ -346,44 +381,73 @@ public class SqlDatabase implements Database {
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Clear active user failed", dae);
       }
-    } else {
-      this.connectionProvider.clearActiveUser();
     }
+    this.connectionProvider.clearActiveUser();
   }
 
   @Override
-  public synchronized void tx(Transaction transaction) {
+  public void tx(Transaction transaction) {
     if (inTx) {
       // we do not nest transactions
       transaction.run(this);
     } else {
-      // createColumn independent merge of database with transaction connection
-      DSLContext originalContext = jooq;
-      try (Connection conn = source.getConnection()) {
-        this.inTx = true;
-        DSL.using(conn, SQLDialect.POSTGRES)
-            .transaction(
-                config -> {
-                  DSLContext ctx = DSL.using(config);
-                  ctx.execute("SET CONSTRAINTS ALL DEFERRED");
-                  this.jooq = ctx;
-                  if (connectionProvider.getActiveUser() != null) {
-                    this.setActiveUser(connectionProvider.getActiveUser());
-                  }
-                  transaction.run(this);
-                  this.clearActiveUser();
-                });
-      } catch (MolgenisException me) {
-        throw me;
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException(dae);
-      } catch (SQLException e) {
-        throw new MolgenisException("Transaction failed", e);
-      } finally {
-        this.inTx = false;
-        jooq = originalContext;
-        listener.afterCommit();
+      // we create a new instance, isolated from 'this' until end of transaction
+      SqlDatabase db = new SqlDatabase(jooq, this);
+      try {
+        // createColumn independent merge of database with transaction connection
+        jooq.transaction(
+            config -> {
+              DSLContext ctx = DSL.using(config);
+              ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+              db.setJooq(ctx);
+              db.inTx = true;
+              try {
+                transaction.run(db);
+                // update any changes to schema
+                db.sync(db);
+              } finally {
+                // not really needed because this instance is destroyed end of transaction
+                db.inTx = false;
+              }
+            });
+        // only when commit succeeds we copy state to 'this'
+        this.sync(db);
+      } catch (DataAccessException e) {
+        throw new SqlMolgenisException("Transaction failed", e);
+      } catch (Exception e) {
+        throw new SqlMolgenisException("Transaction failed", e);
       }
+    }
+  }
+
+  private synchronized void sync(SqlDatabase from) {
+    if (from != this) {
+      // don't sync tx
+
+      // active user
+      this.connectionProvider.setActiveUser(from.connectionProvider.getActiveUser());
+      this.listener = from.listener;
+      this.databaseVersion = from.databaseVersion;
+
+      this.schemaNames = from.schemaNames;
+
+      // remove schemas that were dropped
+      this.schemaCache.keySet().stream()
+          .filter(s -> !from.schemaCache.keySet().contains(s))
+          .forEach(s -> this.schemaCache.remove(s));
+
+      // sync the existing schema cache, add missing
+      from.schemaCache
+          .entrySet()
+          .forEach(
+              s -> {
+                if (this.schemaCache.containsKey(s.getKey())) {
+                  this.schemaCache.get(s.getKey()).sync(s.getValue());
+                } else {
+                  this.schemaCache.put(
+                      s.getKey(), new SqlSchemaMetadata(this, from.schemaCache.get(s.getKey())));
+                }
+              });
     }
   }
 

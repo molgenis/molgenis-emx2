@@ -19,14 +19,16 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
 
   @Override
   public Connection acquire() {
+    Connection connection = null;
     try {
-      Connection connection = super.acquire();
+      connection = super.acquire();
       if (activeUser != null) {
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + activeUser));
       }
       return connection;
     } catch (DataAccessException dae) {
+      super.release(connection);
       throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }

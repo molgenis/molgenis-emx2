@@ -97,7 +97,7 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
-  protected static synchronized String getVersion(DSLContext jooq) {
+  protected static String getVersion(DSLContext jooq) {
     try {
       Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
@@ -325,32 +325,29 @@ public class MetadataUtils {
       // tables
       List<org.jooq.Record> tableRecords =
           jooq.selectFrom(TABLE_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetch();
-      for (org.jooq.Record r : tableRecords) {
-        TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-        table.setInherit(r.get(TABLE_INHERITS, String.class));
-        table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
-        table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
-        table.setSemantics(r.get(TALBE_SEMANTICS, String[].class));
-        result.put(table.getTableName(), table);
-      }
-
       // settings
       List<org.jooq.Record> settingRecords =
           jooq.selectFrom(SETTINGS_METADATA)
               .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.notEqual(NOT_PROVIDED))
               .fetch();
-      for (org.jooq.Record r : settingRecords) {
-        result
-            .get(r.get(SETTINGS_TABLE_NAME, String.class))
-            .setSetting(r.get(SETTINGS_NAME, String.class), r.get(SETTINGS_VALUE, String.class));
-      }
-
       // columns
       List<org.jooq.Record> columnRecords =
           jooq.selectFrom(COLUMN_METADATA)
               .where(TABLE_SCHEMA.eq(schema.getName()))
               .orderBy(COLUMN_POSITION.asc())
               .fetch();
+
+      for (org.jooq.Record r : tableRecords) {
+        TableMetadata table = recordToTable(r);
+        result.put(table.getTableName(), table);
+      }
+
+      for (org.jooq.Record r : settingRecords) {
+        result
+            .get(r.get(SETTINGS_TABLE_NAME, String.class))
+            .setSetting(r.get(SETTINGS_NAME, String.class), r.get(SETTINGS_VALUE, String.class));
+      }
+
       for (org.jooq.Record r : columnRecords) {
         result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));
       }
@@ -358,6 +355,45 @@ public class MetadataUtils {
     } catch (Exception e) {
       throw new MolgenisException("load of table metadata failed", e);
     }
+  }
+
+  protected static TableMetadata loadTable(DSLContext jooq, String schemaName, String tableName) {
+    org.jooq.Record tableRecord =
+        jooq.selectFrom(TABLE_METADATA)
+            .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
+            .fetchOne();
+
+    List<org.jooq.Record> columnRecords =
+        jooq.selectFrom(COLUMN_METADATA)
+            .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
+            .orderBy(COLUMN_POSITION.asc())
+            .fetch();
+
+    List<org.jooq.Record> settingRecords =
+        jooq.selectFrom(SETTINGS_METADATA)
+            .where(
+                TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)),
+                SETTINGS_TABLE_NAME.notEqual(NOT_PROVIDED))
+            .fetch();
+
+    TableMetadata table = recordToTable(tableRecord);
+    for (org.jooq.Record r : columnRecords) {
+      table.add(recordToColumn(r));
+    }
+    for (org.jooq.Record r : settingRecords) {
+      table.setSetting(r.get(SETTINGS_NAME, String.class), r.get(SETTINGS_VALUE, String.class));
+    }
+
+    return table;
+  }
+
+  private static TableMetadata recordToTable(org.jooq.Record r) {
+    TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
+    table.setInherit(r.get(TABLE_INHERITS, String.class));
+    table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
+    table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
+    table.setSemantics(r.get(TALBE_SEMANTICS, String[].class));
+    return table;
   }
 
   protected static void deleteTable(DSLContext jooq, TableMetadata table) {
