@@ -1,10 +1,12 @@
 # Schema definition
 
-MOLGENIS enables rich data modeling using tables, columns and relationships. You can create complete custom database
-schema's using molgenis schema editor or by uploading 'EMX2' file format. Therefore in Excel file create a sheet named '
-molgenis'. Or create a molgenis.csv or molgenis.tsv sheets and upload as part of a zip file. Note: you can upload the
-data as well in same file For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis metadata
-sheet.
+A MOLGENIS [database](use_database.md) is defined by its schema. The schema enables rich data modeling using tables,
+columns and relationships.
+
+You can create complete custom database schema's using molgenis schema editor or by uploading 'EMX2' schema file format.
+Therefore in Excel file create a sheet named `molgenis`. Or create a molgenis.csv or molgenis.tsv sheets and upload as
+part of a zip file. Note: you can upload the data as well in same file For that make sure each Excel sheet or .tsv/.csv
+file is named in your molgenis metadata sheet.
 
 ## Example 'molgenis' schema
 
