@@ -25,6 +25,8 @@ import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
 import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
 import FromVariableDetails from "./views/FromVariableDetails";
 import CohortView from "./views/CohortView";
+import Explorer2 from "./views/Explorer2";
+import Explorer2Details from "./views/Explorer2Details";
 
 Vue.config.productionTip = false;
 
@@ -35,11 +37,80 @@ const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
-    //list views
     {
-      name: "list",
-      path: "/list/:tableName",
-      props: true,
+      name: "databanks",
+      path: "/databanks",
+      props: { tableName: "Databanks" },
+      component: ResourceListView,
+    },
+    {
+      name: "cohorts",
+      path: "/cohorts",
+      props: { tableName: "Cohorts" },
+      component: ResourceListView,
+    },
+    {
+      name: "institutions",
+      path: "/institutions",
+      props: { tableName: "Institutions" },
+      component: ResourceListView,
+    },
+    {
+      name: "datasources",
+      path: "/datasources",
+      props: { tableName: "Datasources" },
+      component: ResourceListView,
+    },
+    {
+      name: "networks",
+      path: "/networks",
+      props: { tableName: "Networks" },
+      component: ResourceListView,
+    },
+    {
+      name: "models",
+      path: "/models",
+      props: { tableName: "Models" },
+      component: ResourceListView,
+    },
+    {
+      name: "studies",
+      path: "/studies",
+      props: { tableName: "Studies" },
+      component: ResourceListView,
+    },
+    {
+      name: "releases",
+      path: "/releases",
+      props: { tableName: "Releases" },
+      component: ResourceListView,
+    },
+    {
+      path: "/releases/:acronym",
+      redirect: "/releases",
+    },
+    {
+      name: "variables",
+      path: "/variables",
+      props: { tableName: "Variables" },
+      component: ResourceListView,
+    },
+    {
+      name: "tables",
+      path: "/tables",
+      props: { tableName: "Tables" },
+      component: ResourceListView,
+    },
+    {
+      name: "tablemappings",
+      path: "/tablemappings",
+      props: { tableName: "TableMappings" },
+      component: ResourceListView,
+    },
+    {
+      name: "variablemappings",
+      path: "/variablesmappings",
+      props: { tableName: "VariableMappings" },
       component: ResourceListView,
     },
     {
@@ -170,6 +241,26 @@ const router = new VueRouter({
       name: "fromVariableDetails",
       path: "/explorer/source/:network/:version/:name/from/:sourceCohort/:fromName",
       component: FromVariableDetails,
+      props: true,
+    },
+    {
+      path: "/explorer2",
+      component: Explorer2,
+    },
+    {
+      path: "/explorer2/:network",
+      component: Explorer2,
+      props: true,
+    },
+    {
+      path: "/explorer2/:network/:table",
+      component: Explorer2,
+      props: true,
+    },
+    {
+      name: "explorer2details",
+      path: "/explorer2/:network/:table/:variable",
+      component: Explorer2Details,
       props: true,
     },
   ],

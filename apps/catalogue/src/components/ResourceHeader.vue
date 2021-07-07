@@ -1,16 +1,9 @@
 <template>
   <div>
     <div class="p-2 mb-2" :class="headerCss">
-      <h6>
-        <RouterLink to="/" :class="headerCss"> home</RouterLink>
-        /
-        <RouterLink :to="'/list/' + tableName" :class="headerCss">
-          {{ tableName }}
-        </RouterLink>
-        /
-      </h6>
+      {{ tableName }}
     </div>
-    <div class="row">
+    <div class="row m-2">
       <div class="col">
         <h4>
           <span

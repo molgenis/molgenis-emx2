@@ -1,11 +1,5 @@
 <template>
   <div>
-    <div class="p-2 mb-2" :class="headerCss">
-      <h6>
-        <RouterLink to="/" :class="headerCss"> home</RouterLink>
-        /
-      </h6>
-    </div>
     <TableExplorer
       :showColumns="defaultColumns"
       :showFilters="defaultFilters"

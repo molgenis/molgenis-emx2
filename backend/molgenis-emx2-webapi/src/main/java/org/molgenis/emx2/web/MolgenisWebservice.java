@@ -4,10 +4,14 @@ import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson
 import static org.molgenis.emx2.web.Constants.*;
 import static spark.Spark.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -63,6 +67,8 @@ public class MolgenisWebservice {
     // services (matched in order of creation)
     AppsProxyService.create(new SqlDatabase(false));
 
+    before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+
     get(
         "/:schema/api",
         (request, response) -> "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>");
@@ -76,6 +82,20 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     BootstrapThemeService.create();
+
+    // add trailing /
+    before(
+        "/:schema",
+        (req, res) -> {
+          res.redirect("/" + req.params("schema") + "/");
+        });
+    before(
+        "/:schema/:app",
+        (req, res) -> {
+          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
+            res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
+          }
+        });
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
@@ -94,6 +114,37 @@ public class MolgenisWebservice {
 
     // after handle session changes
     afterAfter(sessionManager::updateSession);
+  }
+
+  private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
+    try {
+      Schema schema = getSchema(request);
+      String role = schema.getRoleForActiveUser();
+      List<Map<String, String>> menu =
+          new ObjectMapper().readValue(schema.getMetadata().getSetting("menu"), List.class);
+      menu =
+          menu.stream()
+              .filter(
+                  el ->
+                      role == null
+                          || role.equals("admin")
+                          || el.get("role") == null
+                          || el.get("role").equals("Viewer")
+                              && List.of("Viewer", "Editor", "Manager").contains(role)
+                          || el.get("role").equals("Editor")
+                              && List.of("Editor", "Manager").contains(role)
+                          || el.get("role").equals("Manager") && role.equals("Manager"))
+              .collect(Collectors.toList());
+
+      if (menu.size() > 0) {
+        response.redirect(
+            "/" + request.params("schema") + "/" + menu.get(0).get("href").replace("../", ""));
+      }
+    } catch (Exception e) {
+      // silly default
+      logger.debug(e.getMessage());
+    }
+    response.redirect("/" + request.params("schema") + "/tables");
   }
 
   public static void stop() {

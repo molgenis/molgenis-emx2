@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
@@ -30,13 +31,14 @@ public class TestWebApi {
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   private static Database db;
+  private static Schema schema;
 
   @BeforeClass
   public static void before() throws IOException {
 
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
-    Schema schema = db.dropCreateSchema("pet store");
+    schema = db.dropCreateSchema("pet store");
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
 
@@ -229,6 +231,72 @@ public class TestWebApi {
     // should fail
     css = given().when().get("/pet store/tables/theme.css?primary=pink").asString();
     Assert.assertTrue(css.contains("pink"));
+  }
+
+  @Test
+  public void redirectWhenSlash() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/"))
+        .when()
+        .get("/pet store");
+
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/tables/"))
+        .when()
+        .get("/pet store/tables");
+  }
+
+  @Test
+  public void redirectToFirstMenuItem() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/tables"))
+        .when()
+        .get("/pet store/");
+
+    schema
+        .getMetadata()
+        .setSetting(
+            "menu",
+            "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
+
+    RestAssured.requestSpecification = null;
+
+    given()
+        .redirects()
+        .follow(false)
+        .header(MOLGENIS_TOKEN, "shopviewer")
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/blaat2"))
+        .when()
+        .get("/pet store/");
+
+    given()
+        .header(MOLGENIS_TOKEN, "shopmanager")
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:8080/pet store/blaat"))
+        .when()
+        .get("/pet store/");
+
+    RestAssured.requestSpecification = given().header(MOLGENIS_TOKEN, "admin");
+
+    schema.getMetadata().removeSetting("menu");
+    db.clearActiveUser();
   }
 
   @AfterClass
