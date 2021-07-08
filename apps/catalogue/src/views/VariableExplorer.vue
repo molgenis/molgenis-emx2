@@ -46,7 +46,12 @@
                 </router-link>
               </li>
             </ul>
-            <router-view></router-view>
+            <template v-if="$route.query.tab === 'harmonization'">
+              <harmonization-view />
+            </template>
+            <template v-else>
+              <variables-details-view />
+            </template>
           </div>
         </div>
       </div>
@@ -55,6 +60,8 @@
 </template>
 
 <script>
+import VariablesDetailsView from "./VariablesDetailsView";
+import HarmonizationView from "./HarmonizationView";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import { InputSearch } from "@mswertz/emx2-styleguide";
 import TreeComponent from "../../../styleguide/src/tree/TreeComponent";
@@ -64,6 +71,8 @@ import FilterWells from "../../../styleguide/src/tables/FilterWells";
 export default {
   name: "VariableExplorer",
   components: {
+    VariablesDetailsView,
+    HarmonizationView,
     InputSearch,
     TreeComponent,
     FilterWells,

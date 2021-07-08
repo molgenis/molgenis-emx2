@@ -17,8 +17,6 @@ import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
-import VariablesDetailsView from "./views/VariablesDetailsView";
-import HarmonizationView from "./views/HarmonizationView";
 import VariableDetailView from "./views/VariableDetailView";
 import SingleVarDetailsView from "./views/SingleVarDetailsView";
 import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
@@ -191,21 +189,9 @@ const router = new VueRouter({
       component: TableMappingsView,
     },
     {
-      path: "/explorer",
+      path: "/variable-explorer",
+      props: true,
       component: VariableExplorer,
-      children: [
-        {
-          name: "variableDetails",
-          path: "details",
-          component: VariablesDetailsView,
-        },
-        {
-          name: "variableHarmonization",
-          path: "harmonization",
-          component: HarmonizationView,
-        },
-        { path: "", redirect: "/explorer/details" },
-      ],
     },
     {
       name: "variable-detail",

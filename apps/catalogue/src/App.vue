@@ -3,7 +3,6 @@
     <Molgenis
       v-model="session"
       :key="JSON.stringify(session)"
-      :showCrumbs="showCrumbs"
     >
       <div
         v-if="!session || !session.roles || !session.roles.includes('Viewer')"
