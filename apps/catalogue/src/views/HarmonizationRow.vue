@@ -3,19 +3,23 @@
     <th class="table-label text-nowrap" scope="row">
       {{ variable.name }}
     </th>
-    <td
-      v-for="cohort in resources"
-      :key="cohort.acronym"
+
+    <harmonization-cell
+      v-for="resource in resources"
+      :key="resource.acronym"
       class="colored-grid-cell"
-      :class="'table-' + getCellClass(cohort)"
-    ></td>
+      :status="getCellClass(resource)"
+    />
   </tr>
 </template>
 
 <script>
+import Vue from "vue";
 import { mapActions } from "vuex";
+import HarmonizationCell from "../components/harmonization/HarmonizationCell";
 export default {
   name: "HarmonizationRow",
+  components: { HarmonizationCell },
   props: {
     variable: Object,
     resources: Array,
@@ -23,6 +27,7 @@ export default {
   data() {
     return {
       resourceMappings: undefined,
+      resourceStatusMap: undefined,
     };
   },
   methods: {
@@ -32,6 +37,10 @@ export default {
     },
     async fetchData() {
       this.resourceMappings = await this.fetchMappings(this.variable);
+      this.resourceStatusMap = this.resources.reduce((statusMap, resource) => {
+        Vue.set(statusMap, resource.acronym, this.getMatchStatus(resource));
+        return statusMap;
+      }, {});
     },
     getMatchStatus(resource) {
       if (this.variable.repeats) {
@@ -47,11 +56,11 @@ export default {
         });
 
         if (statusList.includes("complete")) {
-          return "success";
+          return "complete";
         } else if (statusList.includes("partial")) {
-          return "success";
+          return "complete";
         } else {
-          return "danger";
+          return "unmapped";
         }
       } else {
         const resourceMapping = this.resourceMappings.find((mapping) => {
@@ -65,14 +74,14 @@ export default {
         }
 
         switch (resourceMapping.match.name) {
-          case "zna":
-            return "danger";
+          case "na":
+            return "unmapped";
           case "partial":
-            return "success";
+            return "complete";
           case "complete":
-            return "success";
+            return "complete";
           default:
-            return "danger";
+            return "unmapped";
         }
       }
     },
@@ -84,10 +93,6 @@ export default {
 </script>
 
 <style scoped>
-td.colored-grid-cell {
-  padding: 0.97rem;
-}
-
 .table-label {
   font-size: 0.8rem;
 }

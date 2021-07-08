@@ -7,7 +7,25 @@
       <div class="col">
         <table class="table table-bordered table-sm">
           <caption>
-            Harmonization summary
+            <h5>Harmonization status</h5>
+            <span
+              ><span class="table-success"
+                ><i class="fa fa-fw fa-check"
+              /></span>
+              = completed,
+            </span>
+            <span
+              ><span class="table-warning"
+                ><i class="fa fa-fw fa-percent"
+              /></span>
+              = partial,
+            </span>
+            <span
+              ><span class="table-light"
+                ><i class="fa fa-fw fa-question"
+              /></span>
+              = unharmonized</span
+            >
           </caption>
           <thead>
             <tr>
@@ -29,12 +47,11 @@
               <th class="table-label text-nowrap" scope="row">
                 {{ variable.name }}
               </th>
-              <td
+              <harmonization-cell
                 v-for="resource in resources"
                 :key="resource.acronym"
-                class="colored-grid-cell"
-                :class="'table-' + getMatchStatus(variable, resource.acronym)"
-              ></td>
+                :status="getMatchStatus(variable, resource.acronym)"
+              />
             </tr>
             <tr
               v-for="repeatedVariable in variable.repeats"
@@ -43,14 +60,12 @@
               <th class="table-label text-nowrap" scope="row">
                 {{ repeatedVariable.name }}
               </th>
-              <td
+
+              <harmonization-cell
                 v-for="resource in resources"
                 :key="resource.acronym"
-                class="colored-grid-cell"
-                :class="
-                  'table-' + getMatchStatus(repeatedVariable, resource.acronym)
-                "
-              ></td>
+                :status="getMatchStatus(repeatedVariable, resource.acronym)"
+              />
             </tr>
           </tbody>
         </table>
@@ -62,9 +77,11 @@
 <script>
 import VariableDetails from "../components/VariableDetails.vue";
 import { fetchResources } from "../store/repository/resourceRepository";
+import HarmonizationCell from "../components/harmonization/HarmonizationCell";
+
 export default {
   name: "SingleVarDetailsView",
-  components: { VariableDetails },
+  components: { VariableDetails, HarmonizationCell },
   props: {
     name: String,
     network: String,
@@ -79,24 +96,24 @@ export default {
   methods: {
     getMatchStatus(variable, resourceName) {
       if (!variable.mappings) {
-        return "danger"; // not mapped
+        return "unmapped"; // not mapped
       }
       const resourceMapping = variable.mappings.find((mapping) => {
         return mapping.fromRelease.resource.acronym === resourceName;
       });
       if (!resourceMapping) {
-        return "danger"; // not mapped
+        return "unmapped"; // not mapped
       }
       const match = resourceMapping.match.name;
       switch (match) {
-        case "zna":
-          return "danger";
+        case "na":
+          return "unmapped";
         case "partial":
-          return "warning";
+          return "partial";
         case "complete":
-          return "success";
+          return "complete";
         default:
-          return "danger";
+          return "unmapped";
       }
     },
   },
@@ -107,14 +124,20 @@ export default {
 </script>
 
 <style scoped>
+caption {
+  caption-side: top;
+}
+
 th.rotated-text {
   height: 13rem;
   padding: 0;
 }
+
 th.rotated-text > div {
   transform: translate(7px, 4px) rotate(270deg);
   width: 1.4rem;
 }
+
 th.rotated-text > div > span {
   padding: 5px 10px;
 }
