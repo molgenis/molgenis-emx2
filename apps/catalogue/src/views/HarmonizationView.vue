@@ -8,8 +8,8 @@
             = completed,
           </span>
           <span
-            ><span class="table-danger"><i class="fa fa-fw fa-times" /></span> =
-            unharmonized or partially harmonized</span
+            ><span class="table-light"><i class="fa fa-fw fa-question" /></span>
+            = unharmonized or partially harmonized</span
           >
         </caption>
         <thead>

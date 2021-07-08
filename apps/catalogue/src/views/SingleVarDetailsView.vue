@@ -21,7 +21,9 @@
               = partial,
             </span>
             <span
-              ><span class="table-danger"><i class="fa fa-fw fa-times" /></span>
+              ><span class="table-light"
+                ><i class="fa fa-fw fa-question"
+              /></span>
               = unharmonized</span
             >
           </caption>

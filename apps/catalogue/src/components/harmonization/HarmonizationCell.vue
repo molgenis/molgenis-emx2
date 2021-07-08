@@ -14,25 +14,25 @@ export default {
     iconClass() {
       switch (this.status) {
         case "unmapped":
-          return "fa-times";
+          return "fa-question";
         case "partial":
           return "fa-percent";
         case "complete":
           return "fa-check";
         default:
-          return "fa-times";
+          return "fa-question";
       }
     },
     tableClass() {
       switch (this.status) {
         case "unmapped":
-          return "table-danger";
+          return "table-light";
         case "partial":
           return "table-warning";
         case "complete":
           return "table-success";
         default:
-          return "table-danger";
+          return "table-light";
       }
     },
   },

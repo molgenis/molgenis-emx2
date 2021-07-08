@@ -80,8 +80,8 @@ export default {
     variableDetails: Object,
     showMappedBy: {
       type: Boolean,
-      default: () => true
-    }
+      default: () => true,
+    },
   },
   computed: {
     permittedValuesByOrder() {
