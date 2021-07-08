@@ -1,6 +1,7 @@
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+adminPassword: admin
 image:
   repository: "mswertz/emx2"
   tag: "latest"
