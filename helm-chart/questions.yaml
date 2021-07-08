@@ -8,3 +8,10 @@ questions:
     required: true
     default: "emx2.test.molgenis.org"
     group: "Loadbalancing"
+  - variable: adminPassword
+    label: Admoinistrator password
+    description: "Specify an administrator password"
+    type: password
+    required: true
+    default: ""
+    group: "Provisioning"

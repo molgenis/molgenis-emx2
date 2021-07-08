@@ -60,6 +60,7 @@ Optionally, you can change defaults using either java properties or using env va
 * MOLGENIS_POSTGRES_USER
 * MOLGENIS_POSTGRES_PASS
 * MOLGENIS_HTTP_PORT
+* MOLGENIS_ADMIN_PW
 
 For example:
 

@@ -34,6 +34,8 @@ public class SqlDatabase implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private String INITIAL_ADMIN_PW =
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN, STRING);
   private DatabaseListener listener =
       new DatabaseListener() {
         private boolean reloadOnCommit = false;
@@ -172,7 +174,8 @@ public class SqlDatabase implements Database {
       if (!hasUser(ADMIN)) {
         addUser(ADMIN);
         setUserPassword(
-            ADMIN, ADMIN); // TODO should be able to pass this as param so secure on deploy
+            ADMIN,
+            INITIAL_ADMIN_PW);
         jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
       }
     } catch (Exception e) {

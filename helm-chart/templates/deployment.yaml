@@ -23,15 +23,14 @@ spec:
           env:
             - name: jdbc
               value: jdbc:postgresql:molgenis
-          #          resources:
-          #            requests:
-          #              cpu: 1
-          #              memory: 2.5Gi
-          #            limits:
-          #              cpu: 1
-          #              memory: 2.5Gi
           ports:
             - containerPort: 8080
+          env:
+            - name: MOLGENIS_ADMIN_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}
+                  key: adminpassword
         - image: postgres:11-alpine
           name: postgres
           args:
