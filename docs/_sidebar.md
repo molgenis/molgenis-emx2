@@ -21,5 +21,9 @@
     - [Batch API](dev_batchapi.md)
     - [App development](dev_apps.md)
     - [Principles](dev_principles.md)
-
+- **Catalogue guide**
+    - [General information](cat_general-information.md)
+    - [Researcher](cat_researcher.md)
+    - [Cohort data manager](cat_cohort-data-manager.md)
+    - [Network data manager](cat_network-data-manager.md)
 
