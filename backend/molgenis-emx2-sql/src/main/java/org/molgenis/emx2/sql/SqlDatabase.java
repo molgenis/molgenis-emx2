@@ -175,7 +175,7 @@ public class SqlDatabase implements Database {
         addUser(ADMIN);
         setUserPassword(
             ADMIN,
-            INITIAL_ADMIN_PW); // TODO should be able to pass this as param so secure on deploy
+            INITIAL_ADMIN_PW);
         jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
       }
     } catch (Exception e) {
