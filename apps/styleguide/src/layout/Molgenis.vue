@@ -92,7 +92,9 @@ export default {
   computed: {
     crumbs() {
       this.$route;
-      let path = decodeURI(window.location.pathname).split("/");
+      let path = decodeURI(
+        window.location.pathname.replace(location.search, "")
+      ).split("/");
       let url = "/";
       let result = { databases: url };
       if (window.location.pathname != "/apps/central/") {
@@ -104,7 +106,7 @@ export default {
         });
       }
       if (this.$route) {
-        path = decodeURI(location.hash).substr(1).split("/");
+        path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
         url += "#";
         path.forEach((el) => {
           if (el != "") {

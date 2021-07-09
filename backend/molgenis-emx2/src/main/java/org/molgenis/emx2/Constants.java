@@ -41,6 +41,7 @@ public class Constants {
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";
   public static final String MOLGENIS_HTTP_PORT = "MOLGENIS_HTTP_PORT";
+  public static final String MOLGENIS_ADMIN_PW = "MOLGENIS_ADMIN_PW";
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
   protected static final Operator[] STRING_OPERATORS = {
