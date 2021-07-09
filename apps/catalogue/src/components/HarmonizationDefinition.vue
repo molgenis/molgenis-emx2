@@ -29,8 +29,8 @@
             >
               <router-link
                 :to="{
-                  name: 'fromVariableDetails',
-                  params: { ...$route.paramns, fromName: fromVariable.name },
+                  name: 'VariableDetailView',
+                  query: { ...$route.query, fromName: fromVariable.name },
                 }"
               >
                 {{ fromVariable.name }}

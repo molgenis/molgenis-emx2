@@ -18,10 +18,6 @@ import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
-import SingleVarDetailsView from "./views/SingleVarDetailsView";
-import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
-import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
-import FromVariableDetails from "./views/FromVariableDetails";
 import CohortView from "./views/CohortView";
 
 Vue.config.productionTip = false;
@@ -29,7 +25,6 @@ Vue.config.productionTip = false;
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-  linkActiveClass: "active", // bootstrap 4 active tab class
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
@@ -194,38 +189,10 @@ const router = new VueRouter({
       component: VariableExplorer,
     },
     {
-      name: "variable-detail",
-      path: "/explorer/details/:network/:version/:name",
+      name: "VariableDetailView",
+      path: "/variable-explorer/:name",
+      props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
       component: VariableDetailView,
-      props: true,
-      children: [
-        {
-          name: "singleVariableDetails",
-          path: "details",
-          component: SingleVarDetailsView,
-          props: true,
-        },
-        {
-          name: "singleVariableHarmonization",
-          path: "harmonization",
-          component: SingleVarHarmonizationView,
-          props: true,
-          children: [
-            {
-              name: "resourceHarmonizationDetails",
-              path: ":sourceCohort",
-              component: ResourceHarmonizationDetails,
-              props: true,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "fromVariableDetails",
-      path: "/explorer/source/:network/:version/:name/from/:sourceCohort/:fromName",
-      component: FromVariableDetails,
-      props: true,
     },
   ],
 });

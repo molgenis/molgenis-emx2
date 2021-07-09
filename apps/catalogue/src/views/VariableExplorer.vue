@@ -1,7 +1,5 @@
 <template>
   <div class="container-fluid">
-    <h1>Variable Explorer</h1>
-
     <div class="row">
       <div class="col-3">
         <h5>Filters</h5>
@@ -16,9 +14,9 @@
       <div class="col-9">
         <div class="row">
           <div class="col-3">
-            <h5>
+            <h3>
               Variables <span v-if="variableCount">({{ variableCount }})</span>
-            </h5>
+            </h3>
           </div>
           <div class="col-9">
             <InputSearch v-model="searchInput" placeholder="Search variables" />
@@ -33,14 +31,22 @@
           <div class="col">
             <ul class="nav nav-tabs">
               <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'variableDetails' }">
+                <router-link
+                  class="nav-link"
+                  :class="{ active: $route.query.tab !== 'harmonization' }"
+                  :to="{ path: 'variable-explorer', query: { tab: 'detail' } }"
+                >
                   Details
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link
                   class="nav-link"
-                  :to="{ name: 'variableHarmonization' }"
+                  :class="{ active: $route.query.tab === 'harmonization' }"
+                  :to="{
+                    path: 'variable-explorer',
+                    query: { tab: 'harmonization' },
+                  }"
                 >
                   Harmonization
                 </router-link>
