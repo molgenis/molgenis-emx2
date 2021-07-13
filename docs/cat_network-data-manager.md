@@ -11,15 +11,14 @@ MOLGENIS Data Catalogue (sometimes also called 'EMX2 catalogue') provides a fram
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
 This document explains how to submit the 'target variables' (also called the harmonized model) into the Data Catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or LongITools. This document assumes you have received login details to access MOLGENIS Data Catalogue.
-
-#### Define variable metadata using the *NetworkDictionary* template
+### Define variable metadata using the *NetworkDictionary* template
 The _NetworkDictionary_ template consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue.The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for _AllTargetVariables_. This table is a generic listing of all variables entered for the cohort; it shows _TargetVariables_ and _RepeatedTargetVariables_ in one table.
 
 It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [Upload template](resources/NetworkDictionary.xlsx) to the [Data Catalogue](https://data-catalogue.molgeniscloud.org).
 
 ![](img/cat_tables-in-catalogue.png)
 *Figure 1. Tables in a Network’s staging area in the Data Catalogue.*
-##### *Releases* sheet
+#### *Releases* sheet
 Versioning of the network's data model is defined in the *Releases* sheet. Columns with an asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
@@ -27,29 +26,28 @@ Versioning of the network's data model is defined in the *Releases* sheet. Colum
 | resource \* | Name of the network. | e.g LifeCycle, LONGITOOLS or ATHLETE |
 | version \* | Version of the data release. | e.g. 1.1 |
 
-*Table 1. Description of the columns that can be filled out for Releases. \* = mandatory*
+<sub><sup>*Table 1. Description of the columns that can be filled out for Releases. \* = mandatory*</sup></sub>
 
-[](img/cat_target-release-sheet.png)
-*Figure 2. Example of Releases filled out in Excel.*
-##### *TargetTables* sheet
+![Figure 2. Example of Releases filled out in Excel.](img/cat_target-release-sheet.png ':size=150')
+
+<sub><sup>*Figure 2. Example of Releases filled out in Excel.*</sup></sub>
+#### *TargetTables* sheet
 The cohort tables are defined in the *SourceTables* sheet. Columns with an asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | release.resource \* | Name of the network. | e.g LifeCycle, LONGITOOLS or ATHLETE |
 | release.version \* | Release version this table is part of. | e.g. 1.0.1 |
-| name \* | Unique table name. |
- |
-| label | Table label. |
- |
-| description | Table description. |
- |
+| name \* | Unique table name. | |
+| label | Table label. | |
+| description | Table description. | |
 
-*Table 2. Description of the columns that can be filled out for TargetTables. \* = mandatory*
+<sub><sup>*Table 2. Description of the columns that can be filled out for TargetTables. \* = mandatory*</sup></sub>
 
-[](img/cat_target-tables-sheet.png)
-*Figure 3. Example of TargetTables filled out in Excel.*
-##### *TargetVariables* sheet
+![Figure 3. Example of TargetTables filled out in Excel.](img/cat_target-tables-sheet.png ':size=600')
+
+<sub><sup>*Figure 3. Example of TargetTables filled out in Excel.*</sup></sub>
+#### *TargetVariables* sheet
 The cohort variables are defined in the *TargetVariables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
@@ -57,29 +55,26 @@ The cohort variables are defined in the *TargetVariables* sheet.
 | release.resource \* | Name of the network that contains this variable. | e.g LifeCycle, LONGITOOLS or ATHLETE |
 | release.version \* | Release version this variable is part of. | e.g. 1.0.1 |
 | table \* | Table that contains the variable. | Tables must be predefined in the TargetTables sheet. |
-| name \* | Variable name, unique within a table. |
- |
-| label | Human readable variable label. |
- |
+| name \* | Variable name, unique within a table. | |
+| label | Human readable variable label. | |
 | format | The data type of the variable. | Find list to choose from in CatalogueOntologies \&gt; Formats |
 | unit | Unit in case of a continuous or integer format. | Find list to choose from in CatalogueOntologies \&gt; Units1 |
-| description | Description of the variable. |
- |
+| description | Description of the variable. | |
 | keywords | Enables grouping of variables into topics and displaying in a tree. | Find list to choose from in CatalogueOntologies \&gt; Keywords1 |
 | exampleValues | Examples of values in a comma separated list. | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| mandatory | Whether this variable is required within this collection. |
- |
+| mandatory | Whether this variable is required within this collection. | |
 | vocabularies | Refer to ontologies being used. | Find list to choose from in CatalogueOntologies \&gt; Vocabularies1, e.g. ICD10 |
 | collectionEvent.resource | Refer to the resource that contains the collectionEvent. | e.g. LifeCycle |
 | collectionEvent.name | Refer to a collection event. | e.g. y1 or y2 |
 
-*Table 3. Description of the columns that can be filled out for TargetVariables. \* = mandatory;* *1* *contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add Vocabularies, Keywords or Units*
+<sub><sup>*Table 3. Description of the columns that can be filled out for TargetVariables. \* = mandatory;* *1* *contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add Vocabularies, Keywords or Units*</sup></sub>
 
-[](img/cat_target-variables-sheet.png)
+![](img/cat_target-variables-sheet.png ':size=950')
 
-[](img/cat_keywords-sheet.png)
-*Figure 4. Example of TargetVariables filled out in Excel.*
-##### *TargetVariableValues* sheet
+![](img/cat_keywords-sheet.png ':size=650')
+
+<sub><sup>*Figure 4. Example of TargetVariables filled out in Excel.*</sup></sub>
+#### *TargetVariableValues* sheet
 The coding of categorical variables is defined in the *TargetVariableValues* sheet. This sheet is optional, but it is highly recommended to fill out the codes and values for your categorical variables, so that your data becomes more insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
@@ -94,11 +89,12 @@ The coding of categorical variables is defined in the *TargetVariableValues* she
 | isMissing | Whether this value indicates a missing field. | TRUE or FALSE |
 | ontologyTermIRI | Reference to an ontology term that defines this categorical value. | e.g. http://purl.obolibrary.org/obo/DOID\_1094 |
 
-*Table 4. Description of the columns that can be filled out for TargetVariableValues. \* = mandatory*
+<sub><sup>*Table 4. Description of the columns that can be filled out for TargetVariableValues. \* = mandatory*</sup></sub>
 
-[](img/cat_target-variable-sheet.png)
-*Figure 5. Example of TargetVariableValues filled out in Excel.*
-##### *RepeatedTargetVariables* sheet
+![](img/cat_target-variable-sheet.png ':size=650')
+
+<sub><sup>*Figure 5. Example of TargetVariableValues filled out in Excel.*</sup></sub>
+#### *RepeatedTargetVariables* sheet
 The *RepeatedTargetVariables* sheet is optional.Variables that are repeats of a variable defined in the sheet _TargetVariables_ are defined in the *RepeatedTargetVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
 
 | *Column name* | *Description* | *Remarks* |
@@ -112,12 +108,13 @@ The *RepeatedTargetVariables* sheet is optional.Variables that are repeats of a 
 | collectionEvent.resource | Refer to the network that contains the collection event. | e.g. LifeCycle |
 | collectionEvent.name | Refer to the name of a collection event. | The collectionEvent needs to be predefined in the *CollectionEvents* sheet; e.g. y1 or y2 |
 
-*Table 5. Description of the columns that can be filled out for RepeatedTargetVariables. \* = mandatory*
+<sub><sup>*Table 5. Description of the columns that can be filled out for RepeatedTargetVariables. \* = mandatory*</sup></sub>
 
-[](img/cat_target-repeated-variable-sheet.png)
-*Figure 6. Example of RepeatedTargetVariables filled out in Excel.*
+![](img/cat_target-repeated-variable-sheet.png ':size=650')
 
-##### *CollectionEvents* sheet
+<sub><sup>*Figure 6. Example of RepeatedTargetVariables filled out in Excel.*</sup></sub>
+
+#### *CollectionEvents* sheet
 
 The *CollectionEvents* sheet is optional. The timing of data collection in events is defined in the *CollectionEvents* sheet. It can be used to describe time periods within which the data for variables are collected. The events are defined here and referred to from the sheets *TargetVariables* and/or *RepeatedTargetVariables*.
 
@@ -130,30 +127,31 @@ The *CollectionEvents* sheet is optional. The timing of data collection in event
 | ageMax | The maximum age for this collection event. | Find list to choose from in CatalogueOntologies \&gt; AgeCategories1 |
 | subcohorts | Subcohorts or subpopulations that are targeted with this variable. | Subcohorts need to be predefined in the _Subcohorts_ sheet. |
 
-*Table 6. Description of the columns that can be filled out for CollectionEvents. \* = mandatory;* *1* *contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add AgeCategories*
+<sub><sup>*Table 6. Description of the columns that can be filled out for CollectionEvents. \* = mandatory;* *1* *contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add AgeCategories*</sup></sub>
 
-[](img/cat_target-collection-events-sheet.png)
-*Figure 7. Example of CollectionEvents filled out in Excel.*
+![](img/cat_target-collection-events-sheet.png ':size=500')
 
-##### *Subcohorts* sheet
+<sub><sup>*Figure 7. Example of CollectionEvents filled out in Excel.*
+
+#### *Subcohorts* sheet
 The sheet *Subcohorts* is optional. Here you may describe populations that can be linked to collection events.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | resource | Name of the network that contains this subcohort. | e.g LifeCycle, LONGITOOLS or ATHLETE |
 | name \* | Name of the subpopulation or subcohort. | e.g. mothers or children |
-| description | Subpopulation description |
- |
+| description | Subpopulation description | |
 
-*Table 7. Description of the columns that can be filled out for Subpopulations. \* = mandatory*
+<sub><sup>*Table 7. Description of the columns that can be filled out for Subpopulations. \* = mandatory*</sup></sub>
 
-[](img/target_subcohorts-sheet.png)
-*Figure 8. Example of Subcohorts filled out in Excel.*
+![](img/cat_target-subcohorts-sheet.png ':size=300')
 
-#### Upload to the catalogue
-When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your network's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
-### Request access
+<sub><sup>*Figure 8. Example of Subcohorts filled out in Excel.*</sup></sub>
+### Request access to the catalogue
 Send an email to [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to apply for an account on the catalogue server.
+
+### Upload to the catalogue
+When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your network's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
 ## Armadillo
 The [Armadillo](https://github.com/molgenis/molgenis-service-armadillo/blob/master/README.md) is an application which allows you to share your data in a federated way.
 
