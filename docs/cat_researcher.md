@@ -9,22 +9,22 @@ You can use the filters and search bar to subset the variables.
 
 You can search on the variables.
 
-*screenshot 2*
+![Variable explorer search](https://github.com/molgenis/molgenis-emx2/blob/feat/add-docs/docs/img/cat_search-variables.png)
 
-In the future you will be able to use the shopping card to select all variables of interest and create an overview.
+*In the future you will be able to use the shopping card to select all variables of interest and create an overview.*
 
-*screenshot 3*
 
 ### Find harmonisation specifications
 The harmonisation view allows you to see for which cohorts the variable of your interest is (partially) harmonized and available for analysis.
 
-*screenshot 4*
+![Variable explorer harmonisation specifications](https://github.com/molgenis/molgenis-emx2/blob/feat/add-docs/docs/img/cat_harmonisation-specifications.png)
 
 You can view how a specific cohort has harmonised a specific variable.
 
-*screenshot 5*
+![Variable explorer cohort harmonisation specification](https://github.com/molgenis/molgenis-emx2/blob/feat/add-docs/docs/img/cat_cohort-harmonised-variable.png)
+
 ## Armadillo
-The Armadillo allows you to analyse data uploaded in the Armadillo in a federated way. This means that you send the analysis to the Armadillo and results come back from the Armadillo to the researcher.
+[MOLGENIS Armadillo](https://github.com/molgenis/molgenis-r-armadillo) allows you to analyse data uploaded in the Armadillo in a federated way. This means that you send the analysis to the Armadillo and results come back from the Armadillo to the researcher.
 
 Harmonized data uploaded by a cohort data manager into a local Armadillo/Opal instance to make it available for the researcher to run analysis.
 ### Request permissions
@@ -32,11 +32,10 @@ You need to request access by sending an email to the cohort data managers. You 
 
 After the correct authentication and authorization steps have been set up you will be able to analyse the cohort’s data via DataSHIELD.
 ### Use DataSHIELD
-Login on the
+> DataSHIELD is an infrastructure and series of R packages that enables the remote and non-disclosive analyses of sensitive research data. Users are note required to have prior knowledge of R ([datashield.org](https://www.datashield.org/)).
 
-[https://www.datashield.org/](https://www.datashield.org/)
+In order to access and analyse data you need to log into a central login server, this is done with [DSMolgenisArmadillo](https://molgenis.github.io/molgenis-r-datashield/) through an R instance.
 
-[https://molgenis.github.io/molgenis-r-datashield](https://molgenis.github.io/molgenis-r-datashield)
 ## Analysis environment
 The analysis environment is centralized. You will be using a web based RStudio which is available here: [https://analysis.gcc.rug.nl](https://analysis.gcc.rug.nl).
 ### Request access
@@ -47,4 +46,4 @@ You need at least 3 packages to work with DataSHIELD on the central analysis ser
 - [DSOpal](https://github.com/datashield/DSOpal) → allowes you to connect to the Opals
 - [DSMolgenisArmadillo](https://cran.r-project.org/web/packages/DSMolgenisArmadillo/index.html) → allowes you to connect to the Armadilllo’s
 
-These packages are preinstalled. You won’t have to install them again. In the future we are going to support profiles which you can choose when you logon.
+These packages are preinstalled. You won’t have to install them again. In the future we are going to support profiles which you can choose when you login.
