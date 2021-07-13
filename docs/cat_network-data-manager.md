@@ -14,7 +14,7 @@ This document explains how to submit the 'target variables' (also called the har
 ### Define variable metadata using the *NetworkDictionary* template
 The _NetworkDictionary_ template consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue.The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for _AllTargetVariables_. This table is a generic listing of all variables entered for the cohort; it shows _TargetVariables_ and _RepeatedTargetVariables_ in one table.
 
-It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [Upload template](resources/NetworkDictionary.xlsx) to the [Data Catalogue](https://data-catalogue.molgeniscloud.org).
+It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [Upload template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) to the [Data Catalogue](https://data-catalogue-staging.molgeniscloud.org).
 
 ![](img/cat_tables-in-catalogue.png)
 *Figure 1. Tables in a Network’s staging area in the Data Catalogue.*
