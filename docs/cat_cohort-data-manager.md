@@ -15,8 +15,8 @@ Describe the mapping of the source variables to the harmonised model - network m
 
 https://docs.google.com/document/d/1FpOX-ziYNp-S5hAsa-R1PycJstHer1pU/edit#
 
-
-
+template cohort source vars: https://drive.google.com/file/d/1GtS-mjCrm4CbeByqa_B3zLyxionDtu82/view?usp=sharing
+template mappings: https://drive.google.com/file/d/1cb33bJUUjuxooChc-BNLjk_rGjBPa3ip/view?usp=sharing
 
 ### Cohort harmonisation
 
