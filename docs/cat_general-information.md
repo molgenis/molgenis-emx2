@@ -22,6 +22,6 @@ We distinguish 3 roles within each federated network.
 | Armadillo | Give permissions on the data | | X | |
 | Armadillo | Quality control | | X | |
 | Armadillo | Use DataSHIELD | X | | |
-| Armadillo | Request permissions | X | X | X |
+| Armadillo | Request permissions | X | X | |
 | Analysis environment | Request access | X | | |
 
