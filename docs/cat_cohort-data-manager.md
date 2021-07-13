@@ -4,8 +4,22 @@
 
 ### Data harmonisation
 Each cohort harmonises the data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally, not in MOLGENIS catalogue.
+
+
 ### Cohort metadata description
 Each cohort decides how each of its variables (original cohort data) is harmonised to the CDM and uploads this information as a source data model into the MOLGENIS catalogue (harmonise the data). For every variable the following syntax needs to be described for harmonisation: attributes, data type, description (harmonised set).
+
+Describe of the model of the cohort (source variables - model of the collected data)
+
+Describe the mapping of the source variables to the harmonised model - network model (consortium wide)
+
+https://docs.google.com/document/d/1FpOX-ziYNp-S5hAsa-R1PycJstHer1pU/edit#
+
+
+
+
+### Cohort harmonisation
+
 ### Find harmonisation specifications
 
 ### Request access
