@@ -153,7 +153,7 @@ Harmonization procedures at the variable level are defined in the *VariableMappi
 
 ### Request access to the catalogue
 If you do not have an account on the catalogue yet, please email [molgenis-support](mailto:molgenis-support@umcg.nl) to apply for an account.
-## Upload cohort metadata descriptions
+### Upload cohort metadata descriptions
 
 When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
 
