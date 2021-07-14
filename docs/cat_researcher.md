@@ -47,6 +47,7 @@ You need to request access by sending an email to the cohort data managers. You 
 After the correct authentication and authorization steps have been set up you will be able to analyse the cohort’s data via DataSHIELD.
 
 ## Analysis environment
+
 Some networks use the analysis environment instead or next to the locally installed MOLGENIS Armadillo. The analysis environment is centralized. You will be using a web based RStudio which is available here: [https://analysis.gcc.rug.nl](https://analysis.gcc.rug.nl).
 ![Rstudio analysis envirioment login](img/cat_rstudio-login.png)
 ### Request access
