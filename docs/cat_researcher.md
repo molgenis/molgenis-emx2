@@ -27,10 +27,7 @@ You can view how a specific cohort has harmonised a specific variable.
 [MOLGENIS Armadillo](https://github.com/molgenis/molgenis-r-armadillo) allows you to analyse data uploaded in the Armadillo in a federated way. This means that you send the analysis to the Armadillo and results come back from the Armadillo to the researcher.
 
 Harmonized data uploaded by a cohort data manager into a local Armadillo/Opal instance to make it available for the researcher to run analysis.
-### Request permissions
-You need to request access by sending an email to the cohort data managers. You will need to specify which variables you want to use. Be specific about this. The cohort data manager can then grant you access to the data that you requested.
 
-After the correct authentication and authorization steps have been set up you will be able to analyse the cohort’s data via DataSHIELD.
 ### Use DataSHIELD
 > DataSHIELD is an infrastructure and series of R packages that enables the remote and non-disclosive analyses of sensitive research data. Users are note required to have prior knowledge of R ([datashield.org](https://www.datashield.org/)).
 
@@ -43,6 +40,11 @@ After successful authentication you need [DSMolgenisArmadillo](https://molgenis.
 
     install.packages("DSI")
     install.packages("DSMolgenisArmadillo")
+
+### Request permissions
+You need to request access by sending an email to the cohort data managers. You will need to specify which variables you want to use. Be specific about this. The cohort data manager can then grant you access to the data that you requested.
+
+After the correct authentication and authorization steps have been set up you will be able to analyse the cohort’s data via DataSHIELD.
 
 ## Analysis environment
 Some networks use the analysis environment instead or next to the locally installed MOLGENIS Armadillo. The analysis environment is centralized. You will be using a web based RStudio which is available here: [https://analysis.gcc.rug.nl](https://analysis.gcc.rug.nl).

@@ -11,7 +11,7 @@ MOLGENIS Data Catalogue (sometimes also called 'EMX2 catalogue') provides a fram
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
 This document explains how to submit the 'target variables' (also called the harmonized model) into the Data Catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or LongITools. This document assumes you have received login details to access MOLGENIS Data Catalogue.
-### Define variable metadata using the *NetworkDictionary* template
+#### Define variable metadata using the *NetworkDictionary* template
 The _NetworkDictionary_ template consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue.The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllTargetVariables*. This table is a generic listing of all variables entered for the cohort; it shows *TargetVariables* and *RepeatedTargetVariables* in one table.
 
 It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [Upload template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) to the [Data Catalogue](https://data-catalogue-staging.molgeniscloud.org).
@@ -151,8 +151,11 @@ The sheet *Subcohorts* is optional. Here you may describe populations that can b
 ### Request access to the catalogue
 Send an email to [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to apply for an account on the catalogue server.
 
-### Upload to the catalogue
+#### Upload to the catalogue
 When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your network's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
+
+### Request access
+
 ## Armadillo
 The [Armadillo](https://github.com/molgenis/molgenis-service-armadillo/blob/master/README.md) is an application which allows you to share your data in a federated way.
 
