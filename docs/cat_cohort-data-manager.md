@@ -159,14 +159,24 @@ When you log in to MOLGENIS Data Catalogue you will see a listing of databases t
 
 Please report any bugs or difficulties to [molgenis-support@umcg.nl](mailto:molgenis-support@umcg.nl).
 ### Find harmonisation specifications
+If you uploaded the data into the catalogue you can find your own harmonised variables in variable details.
 
+Search on the variable you want to see.
+
+![](img/cat_variable-open.png)
+
+Click on "variable details"
+
+![](img/cat_variable-detail.png)
+
+Click on "Harmonizations"
+
+![](img/cat_variable-mapping.png)
 
 
 ## Armadillo
-
-### Initial data upload
 Upload harmonized data into a local Armadillo/Opal instance in order to make it available for DataSHIELD to run analysis. Note that MOLGENIS catalogue does not communicate or has access to any data stored in Armadillo/Opal.
-
+### Initial data upload
 There are 2 phases in uploading the data to the Armadillo. You have the initial upload which transform your source data to the right format for the analysis Besides this you have the data manipulation on the initially uploaded data. 
 
 The initial upload can be done with the [dsUpload](https://lifecycle-project.github.io/ds-upload).
@@ -174,9 +184,24 @@ The initial upload can be done with the [dsUpload](https://lifecycle-project.git
 To manipulate the data after the initial upload you can use the [MolgenisArmadillo](https://molgenis.github.io/molgenis-r-armadillo) client.
 In the [MolgenisArmadillo](https://molgenis.github.io/molgenis-r-armadillo) you can create subsets for the data as well. Check the [documentation](https://molgenis.github.io/molgenis-r-armadillo/articles/creating_data_subsets.html) to create the subsets.
 ### Quality control
-For now quality
+There are 2 levels of quality control, central and local. Local quality control you can perform yourself. This is done on the dataset you harmonised for the project. Useually the local quality control scripts are developed and distributed in the harmonisation manual. You can find them there. 
+
+For the central quality control we use the [dsUpload](https://lifecycle-project.github.io/ds-upload/articles/qualityControl.html) package. We are now developing quality control measures for the different variables. Continues, repeated etc. This is not finished yet. We will let you know when this is useable.
 ### Give permissions on the data
-After the correct authentication and authorization steps have been set up researchers will be able to analyse the cohort’s data via DataSHIELD. We use the authentication service to 
+After the correct authentication and authorization steps have been set up researchers will be able to analyse the cohort’s data via DataSHIELD. We use the authentication service to give people permission to the data. There are several steps you need to perform to give people access to the data.
+
+- create a role
+- register a user
+- give a user a role
+
+We assume you have already created the necessary data sets for the researcher in question. After that you can navigate to the authentication service of the Armadillo. In the [manual](https://molgenis.github.io/molgenis-js-auth) is described how to assign permissions to researchers.
+
+
+
+
+
+
+
 
 
 
