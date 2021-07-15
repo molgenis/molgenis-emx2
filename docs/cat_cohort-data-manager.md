@@ -2,7 +2,7 @@
 ## Catalogue
 ### Data harmonisation
 Each cohort harmonises the data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally, not in MOLGENIS catalogue.
-#### Describe and upload cohort variable metadata
+### Define cohort metadata
 MOLGENIS Data Catalogue provides a framework to describe in detail cohort metadata, description of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
 
 - The cohort metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
@@ -12,9 +12,8 @@ MOLGENIS Data Catalogue provides a framework to describe in detail cohort metada
 
 This document explains how to submit the 'source variables' + 'mappings from source variables to target variables' into the Data Catalogue. Expected users of this 'how to' are data managers within the cohorts. This document assumes you have received login details for upload of your cohort.
 
-#### Define variable metadata using the *CohortDictionary* template
-
-The *CohortDictionary template* consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1).The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables_ and *RepeatedVariables* in one table.
+#### Define variable metadata
+We use the [*Cohortdictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortDictionary.xlsx) to define variable metadata. The [*CohortDictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortDictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1).The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables_ and *RepeatedVariables* in one table.
 
 It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [*upload template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortDictionary.xlsx) to the [*Data Catalogue*](https://data-catalogue-staging.molgeniscloud.org).
 
@@ -128,8 +127,8 @@ The sheet *Subcohorts* is optional. Here you may describe populations that can b
 
 <sub><sup>*Figure 7. Example of Subpopulations filled out in Excel.*</sup></sub>
 
-#### Define variable harmonizations using the _CohortMappings_ template
-The *CohortMappings* [*upload template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortMappings.xlsx) consists of one sheet. It is used to define the mappings from source variables to target variables.
+#### Define harmonisations
+We use the [*CohortMappings* template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortMappings.xlsx) to describe the harmonisations. The [*CohortMappings* template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortMappings.xlsx) consists of one sheet. It is used to define the mappings from source variables to target variables.
 
 #### *VariableMappings* sheet
 Harmonization procedures at the variable level are defined in the *VariableMappings* sheet.
@@ -151,15 +150,11 @@ Harmonization procedures at the variable level are defined in the *VariableMappi
 
 <sub><sup>*Figure 8. Example of VariableMappings filled out in Excel.*</sup></sub>
 
-
-#### Upload cohort metadata descriptions
-
-When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
+#### Upload metadata
+When you filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
 
 Please report any bugs or difficulties to [molgenis-support@umcg.nl](mailto:molgenis-support@umcg.nl).
-### Cohort metadata description
-Each cohort decides how each of its variables (original cohort data) is harmonised to the CDM and uploads this information as a source data model into the MOLGENIS catalogue (harmonise the data). For every variable the following syntax needs to be described for harmonisation: attributes, data type, description (harmonised set).
-### Find harmonisation specifications
+#### Find harmonisations
 If you uploaded the data into the catalogue you can find your own harmonised variables in variable details.
 
 Search on the variable you want to see.
@@ -179,15 +174,15 @@ If you do not have an account on the catalogue yet, please email [molgenis-suppo
 
 ## Armadillo
 Upload harmonized data into a local Armadillo/Opal instance in order to make it available for DataSHIELD to run analysis. Note that MOLGENIS catalogue does not communicate or has access to any data stored in Armadillo/Opal.
-### Initial data upload
+### Initial upload
 There are 2 phases in uploading the data to the Armadillo. You have the initial upload which transform your source data to the right format for the analysis Besides this you have the data manipulation on the initially uploaded data. 
 
 The initial upload can be done with the [dsUpload](https://lifecycle-project.github.io/ds-upload).
-### Create subsets of the data
+### Create subsets
 To manipulate the data after the initial upload you can use the [MolgenisArmadillo](https://molgenis.github.io/molgenis-r-armadillo) client.
 In the [MolgenisArmadillo](https://molgenis.github.io/molgenis-r-armadillo) you can create subsets for the data as well. Check the [documentation](https://molgenis.github.io/molgenis-r-armadillo/articles/creating_data_subsets.html) to create the subsets.
 
-### Give permissions on the data
+### Assign permissions
 After the correct authentication and authorization steps have been set up researchers will be able to analyse the cohort’s data via DataSHIELD. We use the authentication service to give people permission to the data. There are several steps you need to perform to give people access to the data.
 
 - create a role
