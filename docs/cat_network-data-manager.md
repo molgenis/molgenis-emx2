@@ -1,20 +1,20 @@
 # Network data manager
-Each cohort needs to organise together with their IT department all the necessary technical server requirements needed for federated analysis if this is a requirement of the consortium.
+The Network data manager is responsible for uploading the common data model to the Data Catalogue.
 ## Catalogue
 
 ### Define network metadata
-MOLGENIS Data Catalogue (sometimes also called 'EMX2 catalogue') provides a framework to describe in detail cohort metadata, descriptions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
+MOLGENIS Data Catalogue (sometimes also called 'EMX2 catalogue') provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables') and mappings to common data models (aka 'target variables). Its purpose is to facilitate pooled data analysis of multiple cohorts.
 
 - The cohort metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
 - The variable metadata (or 'source variables') can be considered as a codebook or data dictionary of a cohort (e.g. ALSPAC).
 - Similarly, the common data model metadata (or 'target variables') can be considered the codebook of a network of cohorts working together (e.g. LifeCycle)
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
-This document explains how to submit the 'target variables' (also called the harmonized model) into the Data Catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or LongITools. This document assumes you have received login details to access MOLGENIS Data Catalogue.
+This section explains how to submit the 'target variables' (also called the harmonised model or common data model) into the Data Catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or LongITools. You will need login details to upload data to MOLGENIS Data Catalogue.
 #### Define common data elements
 We use the [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) to describe the common data model elements. The [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue.The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllTargetVariables*. This table is a generic listing of all variables entered for the cohort; it shows *TargetVariables* and *RepeatedTargetVariables* in one table.
 
-It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [upload template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) to the [Data Catalogue](https://data-catalogue-staging.molgeniscloud.org).
+It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section To upload the metadata to the Data Catalogue see the section [Upload metadata](cat_network-data-manager.md#upload-metadata) to the Data Catalogue.to the [Data Catalogue](https://data-catalogue-staging.molgeniscloud.org).
 
 ![](img/cat_tables-in-catalogue.png)
 
@@ -151,9 +151,9 @@ The sheet *Subcohorts* is optional. Here you may describe populations that can b
 <sub><sup>*Figure 8. Example of Subcohorts filled out in Excel.*</sup></sub>
 
 ### Request access
-Send an email to [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to apply for an account on the catalogue server.
+Send an email to [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to apply for an account to upload data to the Data Catalogue.
 
-#### Upload metadata
+### Upload metadata
 When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your network's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
 
 ## Armadillo
@@ -162,4 +162,4 @@ The [Armadillo](https://github.com/molgenis/molgenis-service-armadillo/blob/mast
 ### Deploy an instance
 To get the Armadillo installed at your institute you need to contact your IT-department. The installation manual you can find here: https://galaxy.ansible.com/molgenis/armadillo. 
 
-The system administrator needs to have specific information to setup the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
+The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.

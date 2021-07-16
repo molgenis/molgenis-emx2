@@ -5,9 +5,7 @@ We facilitate federated analysis. Federated analysis allows researchers to carry
 
 To **find** the data we developed a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/explorer/details). Here you can find the metadata of the cohorts and the common data model. To **access** the data you need the MOLGENIS Armadillo. This is a platform which uses [DataSHIELD](https://datashield.org/) to perform the analysis.
 
-*TODO: FAIR principles*
-
-We distinguish 3 roles within each federated network.
+We distinguish three roles within each federated network.
 
 |     |     | [Researcher](cat_researcher.md) | [Cohort data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
 | --- | --- | --- | --- | --- |
