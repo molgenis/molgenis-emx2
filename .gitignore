@@ -39,6 +39,7 @@ mvnw.cmd
 .mvn/wrapper/maven-wrapper.properties
 release.properties
 tls
+**/**/bin/
 
 yarn_error.log
 .nyc_output
