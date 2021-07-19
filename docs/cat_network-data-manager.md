@@ -160,6 +160,6 @@ When you log in to MOLGENIS Data Catalogue you will see a listing of databases t
 The [Armadillo](https://github.com/molgenis/molgenis-service-armadillo/blob/master/README.md) is an application which allows you to share your data in a federated way.
 
 ### Deploy an instance
-To get the Armadillo installed at your institute you need to contact your IT-department. The installation manual you can find here: https://galaxy.ansible.com/molgenis/armadillo. 
+To get the Armadillo installed at your institute you need to contact your IT-department. You can find the installation manual here: https://galaxy.ansible.com/molgenis/armadillo. 
 
 The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
