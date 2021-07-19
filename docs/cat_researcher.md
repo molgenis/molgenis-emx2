@@ -7,11 +7,11 @@ You can use the filters and search bar to subset variables. In the example below
 
 ![Variable explorer filters](img/cat-var-explorer-1.png)
 
-You can search for variables (for example: `agebirth`) with filters in place.
+You can search on variables (for example: `agebirth`) with filters already set in place.
 
 ![Variable explorer search](img/cat_search-variables.png)
 
-*In the future you will be able to use the shopping cart to select your variables of interest and create an overview.*
+*In the future you will be able to use the shopping cart to select all variables of interest and create an overview.*
 
 
 ### Find harmonisation details
@@ -34,7 +34,7 @@ Harmonised data is uploaded by a cohort data manager into a local Armadillo/Opal
 In order to access and analyse data, you need to log into a central login server as depicted in the example below.
 ![Armadillo LifeCycle Authentication](img/cat_armadillo-lifecycle-login.png)
 
-We encourage users to move towards central authentication used by different consortia. This means that we aim to let users use their institution accounts to login to all the cohort federated platforms, as far as possible. [ELIXIR](https://elixir-europe.org/) is a European platform which has contracts with most of research institutes, which allows you to login with your own account. This is used for all Armadillo instances, the MOLGENIS catalogue, and for the central analysis server as well. Visit: [https://elixir-europe.org/](https://elixir-europe.org/) for more information.
+We encourage users to move towards central authentication used by different consortia. Which means that we try to use the accounts of as many of the institutions as possible for logins to all the cohort federated platforms. [ELIXIR](https://elixir-europe.org/) is a European platform which has contracts with most of the research institutes; it allows you to login with your own account. This is used for all Armadillo instances, the MOLGENIS catalogue, and for the central analysis server as well. Visit: [https://elixir-europe.org/](https://elixir-europe.org/) for more information.
 
 After successful authentication you need [DSMolgenisArmadillo](https://molgenis.github.io/molgenis-r-datashield/) installed locally on your machine in order to analyse data shared on [MOLGENIS Armadillo](https://github.com/molgenis/molgenis-service-armadillo) servers using DataSHIELD.
 
@@ -42,7 +42,7 @@ After successful authentication you need [DSMolgenisArmadillo](https://molgenis.
     install.packages("DSMolgenisArmadillo")
 
 ### Request permissions
-You need to request access by sending an email to the cohort data managers. You will need to specify which variables you want to use. Be specific about this. The cohort data manager can then grant you access to the data that you requested.
+You need to request access by sending an email to the relevant cohort data manager(s). You will need to specify which variables you want to use. Be specific about this. The cohort data manager can then grant you access to the data that you requested.
 
 After the correct authentication and authorisation steps have been set up you will be able to analyse the cohort’s data via DataSHIELD.
 
