@@ -26,7 +26,7 @@ You can view how a specific cohort has harmonised a specific variable.
 ## Armadillo
 [MOLGENIS Armadillo](https://github.com/molgenis/molgenis-r-armadillo) allows you to analyse data uploaded in the Armadillo in a federated way. This means that you send the analysis to the Armadillo and results come back from the Armadillo to the researcher.
 
-Harmonized data is uploaded by a cohort data manager into a local Armadillo/Opal instance to make it available for the researcher to run analysis.
+Harmonised data is uploaded by a cohort data manager into a local Armadillo/Opal instance to make it available for the researcher to run analysis.
 
 ### Use DataSHIELD
 > DataSHIELD is an infrastructure and series of R packages that enables the remote and non-disclosive analyses of sensitive research data. Users are not required to have prior knowledge of R ([datashield.org](https://www.datashield.org/)).
