@@ -12,7 +12,7 @@ MOLGENIS Data Catalogue (sometimes also called 'EMX2 catalogue') provides a fram
 
 This section explains how to submit the 'target variables' (also called the harmonised model or common data model) into the Data Catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or LongITools. You will need login details to upload data to MOLGENIS Data Catalogue.
 #### Define common data elements
-We use the [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) to describe the common data model elements. The [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue.The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllTargetVariables*. This table is a generic listing of all variables entered for the cohort; it shows *TargetVariables* and *RepeatedTargetVariables* in one table.
+We use the [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) to describe the common data model elements. The [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/NetworkDictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue. The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllTargetVariables*. This table is a generic listing of all variables entered for the cohort; it shows *TargetVariables* and *RepeatedTargetVariables* in one table.
 
 It is good practice to try out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section To upload the metadata to the Data Catalogue see the section [Upload metadata](cat_network-data-manager.md#upload-metadata) to the Data Catalogue.to the [Data Catalogue](https://data-catalogue-staging.molgeniscloud.org).
 
@@ -97,7 +97,7 @@ The coding of categorical variables is defined in the *TargetVariableValues* she
 
 <sub><sup>*Figure 5. Example of TargetVariableValues filled out in Excel.*</sup></sub>
 #### *RepeatedTargetVariables* sheet
-The *RepeatedTargetVariables* sheet is optional.Variables that are repeats of a variable defined in the sheet _TargetVariables_ are defined in the *RepeatedTargetVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
+The *RepeatedTargetVariables* sheet is optional. Variables that are repeats of a variable defined in the sheet _TargetVariables_ are defined in the *RepeatedTargetVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
