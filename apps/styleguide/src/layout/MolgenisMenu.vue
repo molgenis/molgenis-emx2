@@ -111,7 +111,7 @@ export default {
           );
         } else if (item.role == "Editor") {
           return this.session.roles.some((r) =>
-            [("Editor", "Manager", "Owner")].includes(r)
+            ["Editor", "Manager", "Owner"].includes(r)
           );
         } else if (item.role == "Manager") {
           return this.session.roles.some((r) =>
