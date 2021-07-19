@@ -1,7 +1,5 @@
 <template>
   <div class="container-fluid">
-    <h1>Variable Explorer</h1>
-
     <div class="row">
       <div class="col-3">
         <h5>Filters</h5>
@@ -16,9 +14,9 @@
       <div class="col-9">
         <div class="row">
           <div class="col-3">
-            <h5>
+            <h3>
               Variables <span v-if="variableCount">({{ variableCount }})</span>
-            </h5>
+            </h3>
           </div>
           <div class="col-9">
             <InputSearch v-model="searchInput" placeholder="Search variables" />
@@ -33,20 +31,33 @@
           <div class="col">
             <ul class="nav nav-tabs">
               <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'variableDetails' }">
+                <router-link
+                  class="nav-link"
+                  :class="{ active: $route.query.tab !== 'harmonization' }"
+                  :to="{ path: 'variable-explorer', query: { tab: 'detail' } }"
+                >
                   Details
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link
                   class="nav-link"
-                  :to="{ name: 'variableHarmonization' }"
+                  :class="{ active: $route.query.tab === 'harmonization' }"
+                  :to="{
+                    path: 'variable-explorer',
+                    query: { tab: 'harmonization' },
+                  }"
                 >
                   Harmonization
                 </router-link>
               </li>
             </ul>
-            <router-view></router-view>
+            <template v-if="$route.query.tab === 'harmonization'">
+              <harmonization-view />
+            </template>
+            <template v-else>
+              <variables-details-view />
+            </template>
           </div>
         </div>
       </div>
@@ -55,6 +66,8 @@
 </template>
 
 <script>
+import VariablesDetailsView from "./VariablesDetailsView";
+import HarmonizationView from "./HarmonizationView";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import { InputSearch } from "@mswertz/emx2-styleguide";
 import TreeComponent from "../../../styleguide/src/tree/TreeComponent";
@@ -64,6 +77,8 @@ import FilterWells from "../../../styleguide/src/tables/FilterWells";
 export default {
   name: "VariableExplorer",
   components: {
+    VariablesDetailsView,
+    HarmonizationView,
     InputSearch,
     TreeComponent,
     FilterWells,

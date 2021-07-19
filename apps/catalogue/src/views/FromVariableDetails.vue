@@ -1,34 +1,29 @@
 <template>
   <div>
-    <nav class="mg-page-nav" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <router-link :to="{ name: 'variableDetails' }">
-            variables
-          </router-link>
-        </li>
-        <li class="breadcrumb-item">
-          <router-link :to="{ name: 'singleVariableDetails' }">
-            {{ name }}
-          </router-link>
-        </li>
-        <li class="breadcrumb-item" aria-current="page">
-          <router-link :to="{ name: 'resourceHarmonizationDetails' }">
-            {{ sourceCohort }}
-          </router-link>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-          {{ fromName }}
-        </li>
-      </ol>
-    </nav>
     <div v-if="variable">
-      <h3>{{ variable.label }}</h3>
+      <h5>
+        <router-link
+          :to="{
+            name: 'VariableDetailView',
+            query: {
+              ...$route.query,
+              fromName: '',
+            },
+          }"
+        >
+          {{ toName }}
+        </router-link>
+        >
+        {{ variable.label }}
+      </h5>
       <div class="row">
-        <variable-details class="col" :variableDetails="variable" :showMappedBy="false" />
+        <variable-details
+          class="col"
+          :variableDetails="variable"
+          :showMappedBy="false"
+        />
       </div>
     </div>
-    <variable-details></variable-details>
   </div>
 </template>
 
@@ -40,11 +35,10 @@ export default {
   name: "FromVariableDetails",
   components: { VariableDetails },
   props: {
-    name: String,
-    network: String,
     version: String,
     sourceCohort: String,
-    fromName: String
+    fromName: String,
+    toName: String,
   },
   data() {
     return {

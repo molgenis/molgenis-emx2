@@ -22,11 +22,13 @@
       <router-link
         class="nav-link"
         :to="{
-          name: 'singleVariableDetails',
+          name: 'VariableDetailView',
           params: {
+            name: variable.name,
+          },
+          query: {
             network: variable.release.resource.acronym,
             version: variable.release.version,
-            name: variable.name,
           },
         }"
         >view details
