@@ -1,7 +1,7 @@
 # Cohort data manager
 ## Catalogue
 ### Data harmonisation
-Each cohort harmonises their data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo). The cohort metadata is uploaded to so-called staging areas of the [*Data Catalogue*](https://data-catalogue-staging.molgeniscloud.org). You will need credentials to log in and upload metadata for your cohort.
+Each cohort harmonises their data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo). The cohort metadata is uploaded to what are called "staging areas" of the [*Data Catalogue*](https://data-catalogue-staging.molgeniscloud.org). You will need credentials to log in and upload metadata for your cohort.
 ### Define cohort metadata
 MOLGENIS Data Catalogue provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
 
@@ -79,7 +79,7 @@ The coding of categorical variables is defined in the *SourceVariableValues* she
 
 #### *RepeatedSourceVariables* sheet
 
-The *RepeatedSourceVariables* sheet is optional.Variables that are repeats of a variable defined in the sheet *SourceVariables* are defined in the *RepeatedSourceVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
+The *RepeatedSourceVariables* sheet is optional. Variables that are repeats of a variable defined in the sheet *SourceVariables* are defined in the *RepeatedSourceVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -131,7 +131,7 @@ The sheet *Subcohorts* is optional. Here you may describe populations that can b
 We use the [*CohortMappings* template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortMappings.xlsx) to describe the harmonisations. The [*CohortMappings* template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/CohortMappings.xlsx) consists of one sheet. It is used to define the mappings from source variables to target variables.
 
 #### *VariableMappings* sheet
-Harmonization procedures at the variable level are defined in the *VariableMappings* sheet.
+Harmonisation procedures at the variable level are defined in the *VariableMappings* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -140,9 +140,9 @@ Harmonization procedures at the variable level are defined in the *VariableMappi
 | toNetwork \* | Network name that contains the variable to map to. | e.g. LifeCycle or LONGITOOLS or ATHLETE |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
 | toVariable \* | Target variable name. | Map to a variable that is defined in a common data model. |
-| match | Whether the harmonization is partial, complete or NA (non-existent). | Find list to choose from in CatalogueOntologies \&gt; StatusDetails |
-| description | Description of the harmonization. | |
-| syntax | Syntax used for this harmonization. | |
+| match | Whether the harmonisation is partial, complete or NA (non-existent). | Find list to choose from in CatalogueOntologies \&gt; StatusDetails |
+| description | Description of the harmonisation. | |
+| syntax | Syntax used for this harmonisation. | |
 
 <sub><sup>*Table 7. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup></sub>
 
@@ -165,7 +165,7 @@ Click on "variable details"
 
 ![](img/cat_variable-detail.png)
 
-Click on "Harmonizations"
+Click on "Harmonisations"
 
 ![](img/cat_variable-mapping.png)
 
@@ -173,9 +173,9 @@ Click on "Harmonizations"
 If you do not have an account to upload data to the Data Catalogue yet, please e-mail [molgenis-support](mailto:molgenis-support@umcg.nl) to apply for an account.
 
 ## Armadillo
-Upload harmonised data into a local Armadillo/Opal instance in order to make it available for DataSHIELD to run analyses. Note that MOLGENIS Data Catalogue does not communicate or has access to any data stored in Armadillo/Opal.
+Upload harmonised data into a local Armadillo/Opal instance in order to make it available for DataSHIELD to run analyses. Note that MOLGENIS Data Catalogue does not communicate or have access to any data stored in Armadillo/Opal.
 ### Deploy an instance
-To get the Armadillo installed at your institute you need to contact your IT-department. The installation manual you can find here: https://galaxy.ansible.com/molgenis/armadillo.
+To get the Armadillo installed at your institute you need to contact your IT-department. You can find the installation manual here: https://galaxy.ansible.com/molgenis/armadillo.
 
 The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
 ### Initial upload
@@ -187,7 +187,7 @@ To manipulate the data after the initial upload you can use the [MolgenisArmadil
 You can use the [MolgenisArmadillo](https://molgenis.github.io/molgenis-r-armadillo) to create data subsets. Check the [documentation](https://molgenis.github.io/molgenis-r-armadillo/articles/creating_data_subsets.html) to create subsets.
 
 ### Assign permissions
-After the correct authentication and authorization steps have been set up researchers will be able to analyse the cohort’s data via DataSHIELD. We use the authentication service to give people permission to analyse the data. There are several steps you need to perform to give people access:
+After the correct authentication and authorisation steps have been set up, researchers will be able to analyse the cohort’s data via DataSHIELD. We use the authentication service to give people permission to analyse the data. There are several steps you need to perform to give people access:
 
 - create a role
 - register a user
