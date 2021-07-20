@@ -8,7 +8,7 @@
       tabindex="-1"
       aria-modal="true"
     >
-      <div v-if="show" class="modal-dialog modal-xl" role="document">
+      <div v-if="show" class="modal-dialog modal-xl mt-0" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{{ title }}</h5>
@@ -37,26 +37,6 @@
 </template>
 
 <style scoped>
-/*@media (max-width: 576px) {*/
-/*    .modal-dialog {*/
-/*        width: 100%;*/
-/*        height: 100%;*/
-/*        padding: 0;*/
-/*        margin: 0;*/
-/*        left: 0px;*/
-/*        top: 0px;*/
-/*    }*/
-
-/*    .modal-content {*/
-/*        height: 100%;*/
-/*        padding: 0px;*/
-/*    }*/
-
-/*    .modal-body {*/
-/*        max-height: 100vh;*/
-/*    }*/
-/*}*/
-
 .modal {
   height: 100%;
   overflow: scroll;

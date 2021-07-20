@@ -170,9 +170,9 @@ Example:
 <div>
   <RowFormInput columnType="STRING" label="Test String"/>
   <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
-  <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/Pet store/graphql"/>
+  <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/pet store/graphql"/>
   <RowFormInput columnType="REF_ARRAY" label="Test ref" table="Pet" :defaultValue="[{name:'spike'}]"
-                graphqlURL="/Pet store/graphql"/>
+                graphqlURL="/pet store/graphql"/>
   <RowFormInput columnType="DATE" label="Test Date"/>
 </div>
 ```

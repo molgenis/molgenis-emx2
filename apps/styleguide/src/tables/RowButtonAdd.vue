@@ -1,13 +1,16 @@
 <template>
-  <RowEditModal
-    v-if="open"
-    :table="table"
-    :defaultValue="defaultValue"
-    @close="closeForm"
-    :graphqlURL="graphqlURL"
-    :visible-columns="visibleColumns"
-  />
-  <IconAction v-else icon="plus" @click="openForm" />
+  <div>
+    <RowEditModal
+      v-if="open"
+      :table="table"
+      :pkey.sync="pkey"
+      :defaultValue="defaultValue"
+      @close="closeForm"
+      :graphqlURL="graphqlURL"
+      :visible-columns="visibleColumns"
+    />
+    <IconAction v-else icon="plus" @click="openForm" />
+  </div>
 </template>
 
 <script>
@@ -15,9 +18,10 @@ import RowEditModal from "./RowEditModal.vue";
 import IconAction from "../forms/IconAction";
 
 export default {
-  data: function () {
+  data() {
     return {
       open: false,
+      pkey: null,
     };
   },
   components: {
@@ -40,6 +44,7 @@ export default {
   },
   methods: {
     openForm() {
+      this.pkey = null;
       this.open = true;
     },
     closeForm() {
@@ -54,6 +59,6 @@ export default {
 Example
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<RowButtonAdd table="Variables" graphqlURL="/CohortNetwork/graphql"/>
+<RowButtonAdd table="Pet" graphqlURL="/pet store/graphql"/>
 ```
 </docs>

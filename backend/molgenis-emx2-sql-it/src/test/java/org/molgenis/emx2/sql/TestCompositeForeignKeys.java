@@ -6,16 +6,14 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestCompositeForeignKeys {
   private Database database;
@@ -56,12 +54,19 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
-    p.insert(
-        new Row()
-            .setString("firstName", "Kwik")
-            .setString("lastName", "Duck")
-            .setString("uncle.firstName", "Donald")
-            .setString("uncle.lastName", "Duck"));
+    p.insert(new Row().setString("firstName", "Kwik").setString("lastName", "Duck"));
+    assertNull(p.retrieveRows().get(1).getString("uncle.firstName"));
+
+    int count =
+        p.update(
+            new Row()
+                .setString("firstName", "Kwik")
+                .setString("lastName", "Duck")
+                .setString("uncle.firstName", "Donald")
+                .setString("uncle.lastName", "Duck"));
+
+    assertEquals(1, count);
+    assertNotNull(p.retrieveRows().get(1).getString("uncle.firstName"));
 
     p.insert(
         new Row()
@@ -288,4 +293,52 @@ public class TestCompositeForeignKeys {
   //
   //    schema.create(table("AllVariables"));
   //  }
+
+  @Test
+  public void testCompositeKeyThatIsReference() {
+    Schema schema =
+        database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "RefAsKey");
+
+    schema.create(table("Target", column("firstName").setPkey(), column("lastName").setPkey()));
+    schema.create(
+        table(
+            "Source",
+            column("person").setType(REF).setPkey().setRefTable("Target").setRequired(true),
+            column("name").setPkey(),
+            column("someValue")));
+
+    Table target = schema.getTable("Target");
+    target.insert(row("firstName", "Donald", "lastName", "Duck"));
+
+    Table source = schema.getTable("Source");
+
+    try {
+      source.insert(row("person.firstName", "Donald", "name", "Kwik"));
+      fail("Should fail on required");
+    } catch (Exception e) {
+      System.out.println("errored correctly: " + e);
+    }
+
+    source.insert(
+        row(
+            "person.firstName",
+            "Donald",
+            "person.lastName",
+            "Duck",
+            "name",
+            "Kwik",
+            "someValue",
+            "foo"));
+    source.update(
+        row(
+            "person.firstName",
+            "Donald",
+            "person.lastName",
+            "Duck",
+            "name",
+            "Kwik",
+            "someValue",
+            "bar"));
+    assertEquals("bar", source.retrieveRows().get(0).getString("someValue"));
+  }
 }

@@ -174,7 +174,8 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // and update
     aRow.set(aColumn, values[2]);
-    aTable.update(aRow);
+    int count = aTable.update(aRow);
+    assertEquals(1, count);
 
     // check query
     List<Row> result = aTable.query().where(f(aColumn, EQUALS, values[0])).retrieveRows();

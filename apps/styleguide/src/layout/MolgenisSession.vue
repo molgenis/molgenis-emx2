@@ -115,7 +115,6 @@ export default {
           );
           this.session.manifest = data._manifest;
           this.loading = false;
-          console.log("reloaded session: " + JSON.stringify(this.session));
           this.$emit("input", this.session);
         })
         .catch((error) => {

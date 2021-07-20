@@ -464,7 +464,13 @@ class SqlTable implements Table {
   private Condition getUpdateCondition(Row row, List<Column> pkeyFields) {
     List<Condition> result = new ArrayList<>();
     for (Column key : pkeyFields) {
-      result.add(key.getJooqField().eq(row.get(key)));
+      if (key.isReference()) {
+        for (Reference r : key.getReferences()) {
+          result.add(r.getJooqField().eq(row.get(r.getName(), r.getPrimitiveType())));
+        }
+      } else {
+        result.add(key.getJooqField().eq(row.get(key)));
+      }
     }
     return and(result);
   }

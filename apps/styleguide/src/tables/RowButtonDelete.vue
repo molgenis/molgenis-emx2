@@ -17,11 +17,11 @@
       </ButtonAction>
     </template>
   </LayoutModal>
-  <IconDanger v-else icon="trash" @click="openForm" />
+  <IconDanger v-else icon="trash" @click="openForm" :label="label" />
 </template>
 
 <script>
-import RowButtonAdd from "./RowButtonAdd";
+import RowButtonEdit from "./RowButtonEdit";
 import LayoutModal from "../layout/LayoutModal";
 import IconDanger from "../forms/IconDanger";
 import ButtonAlt from "../forms/ButtonAlt";
@@ -31,7 +31,10 @@ import MessageSuccess from "../forms/MessageSuccess";
 import { request } from "graphql-request";
 
 export default {
-  extends: RowButtonAdd,
+  extends: RowButtonEdit,
+  props: {
+    label: String,
+  },
   data: function () {
     return {
       success: null,
@@ -45,10 +48,6 @@ export default {
     ButtonAlt,
     MessageSuccess,
     MessageError,
-  },
-  props: {
-    pkey: Object,
-    graphqlURL: { type: String, default: "graphql" },
   },
   computed: {
     title() {
