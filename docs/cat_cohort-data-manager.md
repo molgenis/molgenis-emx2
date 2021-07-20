@@ -165,7 +165,7 @@ Click on "variable details"
 
 ![](img/cat_variable-detail.png)
 
-Click on "Harmonisations"
+Click on "Harmonization"
 
 ![](img/cat_variable-mapping.png)
 
