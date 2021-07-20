@@ -177,7 +177,7 @@ Upload harmonised data into a local Armadillo/Opal instance in order to make it 
 ### Deploy an instance
 To get the Armadillo installed at your institute you need to contact your IT-department. You can find the installation manual here: https://galaxy.ansible.com/molgenis/armadillo.
 
-The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
+The system administrators need to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
 ### Initial upload
 There are two phases to uploading data to the Armadillo. The initial upload transforms your source data to the right format for analysis. Besides this you can perform some data manipulation on the initially uploaded data. 
 
