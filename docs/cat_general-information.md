@@ -10,17 +10,16 @@ We distinguish three roles within each federated network.
 |     |     | [Researcher](cat_researcher.md) | [Cohort data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
 | --- | --- | --- | --- | --- |
 | Catalogue | Data harmonisation | | [X](cat_cohort-data-manager.md#data-harmonisation) | |
-| Catalogue | Cohort metadata description | | [X](cat_cohort-data-manager.md#) | |
-| Catalogue | Describe and upload common data model | | | [X](cat_network-data-manager.md#describe-and-upload-common-data-model) |
-| Catalogue | Find (harmonised) variables | [X](cat_researcher.md#find-harmonised-variables) | | |
-| Catalogue | Find harmonisation specifications | [X](cat_researcher.md#find-harmonisation-specifications) | [X](cat_cohort-data-manager.md#find-harmonisation-specifications) | |
-| Catalogue | Request access | | [X](cat_cohort-data-manager.md#) | X |
+| Catalogue | Cohort metadata description | | [X](cat_cohort-data-manager.md#define-cohort-metadata) | |
+| Catalogue | Describe and upload common data model | | | [X](cat_network-data-manager.md#define-network-metadata) |
+| Catalogue | Find (harmonised) variables | [X](cat_researcher.md#find-variables) | | |
+| Catalogue | Find harmonisation specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
+| Catalogue | Request access | | [X](cat_cohort-data-manager.md#request-access) | [X](cat_network-data-manager.md#request-access) |
 | Armadillo | Initial data upload | | [X](cat_cohort-data-manager.md#initial-data-upload) | |
-| Armadillo | Create subsets of the data | | [X](cat_cohort-data-manager.md#create-subsets-of-the-data) | |
+| Armadillo | Create subsets of the data | | [X](cat_cohort-data-manager.md#create-subsets) | |
 | Armadillo | Give permissions on the data | | [X](cat_cohort-data-manager.md#give-permissions-on-the-data) | |
 | Armadillo | Quality control | | [X](cat_cohort-data-manager.md#quality-control) | |
 | Armadillo | Use DataSHIELD | [X](cat_researcher.md#use-datashield) | | |
 | Armadillo | Request permissions | [X](cat_researcher.md#request-permissions) | [X](cat_cohort-data-manager.md#request-permissions) | |
-| Armadillo | Deploy an instance | | | [X](cat_network-data-manager.md#request-access) |
+| Armadillo | Deploy an instance | | | [X](cat_network-data-manager.md#deploy-an-instance) |
 | Analysis environment | Request access | [X](cat_researcher.md#request-access) | | |
-
