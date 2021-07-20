@@ -1,7 +1,7 @@
 # General information
 We facilitate federated analysis. Federated analysis allows researchers to carry out analysis over data in multiple cohorts a) without having access to individual data and b) without individual data needing to leave the cohort. Federated analysis allows GDPR-proof research.
 
-![Figure 1: Federated analysis](img/cat-federated-analysis.png)
+![Figure 1: Federated analysis](img/cat_federated-analysis.png)
 
 To **find** the data we developed a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/explorer/details). Here you can find the metadata of the cohorts and the common data model. To **access** the data you need the MOLGENIS Armadillo. This is a platform which uses [DataSHIELD](https://datashield.org/) to perform the analysis.
 

@@ -5,7 +5,7 @@ When you have defined a research question it is time to find the relevant variab
 ### Find variables
 You can use the filters and search bar to subset variables. In the example below, four filters are used, one network filter and three topic filters.
 
-![Variable explorer filters](img/cat-var-explorer-1.png)
+![Variable explorer filters](img/cat_variable-explorer.png)
 
 You can search on variables (for example: `agebirth`) with filters already set in place.
 
