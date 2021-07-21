@@ -17,7 +17,7 @@ public class MolgenisSessionManager {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
   private static final String SESSION_ATTRIBUTE = "molgenis_session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
-  private static final int SESSION_TIMEOUT = 1;
+  private static final int SESSION_TIMEOUT = 30;
 
   // map so we can track the sessions
   // session id is the key, todo in case of session less requests outside browser
