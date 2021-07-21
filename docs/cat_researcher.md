@@ -56,6 +56,6 @@ Access to the analysis environment is centralised, which means that you have to 
 You need at least 3 packages to work with DataSHIELD on the central analysis server:
 - [dsBaseClient](https://github.com/datashield/dsBaseClient) → is the DataSHIELD analysis packages
 - [DSOpal](https://github.com/datashield/DSOpal) → allowes you to connect to the Opals
-- [DSMolgenisArmadillo](https://cran.r-project.org/web/packages/DSMolgenisArmadillo/index.html) → allows you to connect to the Armadillos
+- [DSMolgenisArmadillo](https://molgenis.github.io/molgenis-r-datashield) → allows you to connect to the Armadillos
 
 These packages are pre-installed. You will not have to install them again. In the future we will support profiles which you can choose when you login.
