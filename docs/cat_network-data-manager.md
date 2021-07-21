@@ -3,7 +3,7 @@ The Network data manager is responsible for uploading the common data model to t
 ## Catalogue
 
 ### Define network metadata
-MOLGENIS Data Catalogue (sometimes also called 'EMX2 catalogue') provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables') and mappings to common data models (aka 'target variables). Its purpose is to facilitate pooled data analysis of multiple cohorts.
+[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) (sometimes also called 'EMX2 catalogue') provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables') and mappings to common data models (aka 'target variables). Its purpose is to facilitate pooled data analysis of multiple cohorts.
 
 - The cohort metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
 - The variable metadata (or 'source variables') can be considered as a codebook or data dictionary of a cohort (e.g. ALSPAC).
