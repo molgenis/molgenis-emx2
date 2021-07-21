@@ -31,10 +31,6 @@
           <tr v-for="schema in schemasFiltered" :key="schema.name">
             <td>
               <div style="display: flex">
-                <IconAction
-                  icon="external-link-alt"
-                  @click="openGroup(schema.name)"
-                />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
@@ -122,7 +118,7 @@ export default {
   },
   methods: {
     openGroup(name) {
-      window.open("/" + name + "/tables/", "_blank");
+      window.open("/" + name + "/tables/", "_self");
     },
     openCreateSchema() {
       this.showCreateSchema = true;
