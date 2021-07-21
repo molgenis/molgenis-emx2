@@ -14,15 +14,15 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
 
-  private String sessionUser;
+  private String token;
   private Database database;
   private GraphQL graphqlForDatabase;
   private DateTime createTime;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
 
-  public MolgenisSession(Database database) {
+  public MolgenisSession(Database database, String token) {
+    this.token = token;
     this.database = database;
-    this.sessionUser = database.getActiveUser();
     this.createTime = DateTime.now();
   }
 
@@ -55,7 +55,7 @@ public class MolgenisSession {
   }
 
   public String getSessionUser() {
-    return sessionUser;
+    return database.getActiveUser();
   }
 
   public DateTime getCreateTime() {
@@ -71,5 +71,9 @@ public class MolgenisSession {
 
   public void setCreateTime(DateTime newTime) {
     this.createTime = newTime;
+  }
+
+  public String getToken() {
+    return token;
   }
 }

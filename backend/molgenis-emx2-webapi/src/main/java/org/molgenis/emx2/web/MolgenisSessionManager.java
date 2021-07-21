@@ -52,35 +52,41 @@ public class MolgenisSessionManager {
       return session;
     }
 
-    // else create session
-    else {
-      // todo: implement tokens. Now removed.
-      //    final String user =
-      //        request.headers(MOLGENIS_TOKEN) == null
-      //            ? "anonymous"
-      //            : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
-      String user = "anonymous"; // default user
-
-      // create new session
-      Database database = new SqlDatabase(false);
-      if (!database.hasUser(user)) {
-        throw new MolgenisException("Authentication failed: User " + user + " not known");
+    // else check if token session
+    // todo, enable persistent tokens beyond session lifetime
+    else if (request.headers(MOLGENIS_TOKEN) != null) {
+      String token = request.headers(MOLGENIS_TOKEN);
+      if (sessions.containsKey(token)) {
+        return sessions.get(token);
       }
-      database.setActiveUser(user);
-      database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
-      logger.info("Initializing session for user: {}", database.getActiveUser());
-      MolgenisSession session = new MolgenisSession(database);
-      logger.info("Initializing session complete for user: {}", database.getActiveUser());
-
-      // put in session lists so we can easily access all session
-      sessions.put(request.session().id(), session);
-
-      // put in request session so we can easily access for this session
-      request.session().attribute(SESSION_ATTRIBUTE, session);
-
-      // return
-      return session;
     }
+    // default
+    MolgenisSession session = createSession(request.session().id());
+
+    // put in request session so we can easily access for this session
+    request.session().attribute(SESSION_ATTRIBUTE, session);
+
+    // return
+    return session;
+  }
+
+  public MolgenisSession createSession(String token) {
+    // default user
+    String user = "anonymous"; // default user
+    // create new session
+    Database database = new SqlDatabase(false);
+    if (!database.hasUser(user)) {
+      throw new MolgenisException("Authentication failed: User " + user + " not known");
+    }
+    database.setActiveUser(user);
+    database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
+    logger.info("Initializing session for user: {}", database.getActiveUser());
+    MolgenisSession session = new MolgenisSession(database, token);
+    logger.info("Initializing session complete for user: {}", database.getActiveUser());
+
+    // put in session lists so we can easily access all session
+    sessions.put(session.getToken(), session);
+    return session;
   }
 
   void clearAllCaches() {
