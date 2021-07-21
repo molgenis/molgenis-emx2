@@ -19,6 +19,7 @@ public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private static final int SESSION_TIMEOUT = 1;
 
+  // map so we can track the sessions
   // session id is the key, todo in case of session less requests outside browser
   private Map<String, MolgenisSession> sessions = new LinkedHashMap<>();
 
@@ -26,7 +27,7 @@ public class MolgenisSessionManager {
 
   public MolgenisSession getSession(Request request) {
 
-    // check if already in valid session
+    // check if already in session
     if (request.session().attribute(SESSION_ATTRIBUTE) != null) {
       MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);
 
@@ -34,12 +35,10 @@ public class MolgenisSessionManager {
       if (minutesBetween(session.getCreateTime(), DateTime.now())
           .isGreaterThan(Minutes.minutes(SESSION_TIMEOUT))) {
 
-        if (logger.isInfoEnabled()) {
-          logger.info(
-              "Invalidating session for user({}) because timeout more than {} mins",
-              session.getSessionUser(),
-              SESSION_TIMEOUT);
-        }
+        logger.info(
+            "Invalidating session for user({}) because timeout more than {} mins",
+            session.getSessionUser(),
+            SESSION_TIMEOUT);
 
         // invalidate the session by signing out
         session.getDatabase().setActiveUser("anonymous");
@@ -53,33 +52,35 @@ public class MolgenisSessionManager {
       return session;
     }
 
-    // if no session try tokens (also in case of sessionless requests)
-    // todo: implement tokens. Now removed.
-    //    final String user =
-    //        request.headers(MOLGENIS_TOKEN) == null
-    //            ? "anonymous"
-    //            : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
-    String user = "anonymous"; // default user
+    // else create session
+    else {
+      // todo: implement tokens. Now removed.
+      //    final String user =
+      //        request.headers(MOLGENIS_TOKEN) == null
+      //            ? "anonymous"
+      //            : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
+      String user = "anonymous"; // default user
 
-    MolgenisSession result =
-        sessions.computeIfAbsent(
-            request.session().id(),
-            t -> {
-              Database database = new SqlDatabase(false);
-              if (!database.hasUser(user)) {
-                throw new MolgenisException("Authentication failed: User " + user + " not known");
-              }
-              database.setActiveUser(user);
-              database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
-              logger.info("Initializing session for user: {}", database.getActiveUser());
-              MolgenisSession session = new MolgenisSession(database);
-              logger.info("Initializing session complete for user: {}", database.getActiveUser());
-              return session;
-            });
+      // create new session
+      Database database = new SqlDatabase(false);
+      if (!database.hasUser(user)) {
+        throw new MolgenisException("Authentication failed: User " + user + " not known");
+      }
+      database.setActiveUser(user);
+      database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
+      logger.info("Initializing session for user: {}", database.getActiveUser());
+      MolgenisSession session = new MolgenisSession(database);
+      logger.info("Initializing session complete for user: {}", database.getActiveUser());
 
-    // put in the session (in case is new) and return
-    request.session().attribute(SESSION_ATTRIBUTE, result);
-    return result;
+      // put in session lists so we can easily access all session
+      sessions.put(request.session().id(), session);
+
+      // put in request session so we can easily access for this session
+      request.session().attribute(SESSION_ATTRIBUTE, session);
+
+      // return
+      return session;
+    }
   }
 
   void clearAllCaches() {
