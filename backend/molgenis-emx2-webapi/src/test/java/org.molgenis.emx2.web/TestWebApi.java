@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
@@ -47,6 +48,14 @@ public class TestWebApi {
     db.grantCreateSchema(PET_SHOP_OWNER);
     // start web service for testing
     MolgenisWebservice.start(8080);
+
+    // simulate token until persistent token system is officially implemented
+    MolgenisSession session = sessionManager.createSession("admin");
+    session.getDatabase().setActiveUser("admin");
+    session = sessionManager.createSession("shopviewer");
+    session.getDatabase().setActiveUser("shopviewer");
+    session = sessionManager.createSession("shopmanager");
+    session.getDatabase().setActiveUser("shopmanager");
 
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
