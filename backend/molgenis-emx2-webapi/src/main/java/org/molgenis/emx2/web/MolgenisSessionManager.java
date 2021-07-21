@@ -18,6 +18,7 @@ public class MolgenisSessionManager {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
   private static final String SESSION_ATTRIBUTE = "session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
+  private static final int SESSION_TIMEOUT = 30;
 
   // key is the user, might lead to trouble
   private Map<String, MolgenisSession> sessions = new LinkedHashMap<>();
@@ -28,19 +29,22 @@ public class MolgenisSessionManager {
     // already in a session, then return that
     if (request.session().attribute(SESSION_ATTRIBUTE) != null) {
       MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);
+
       // timeout
       if (minutesBetween(session.getCreateTime(), DateTime.now())
-          .isGreaterThan(Minutes.minutes(30))) {
-        request.session(false); // destroy session
+          .isGreaterThan(Minutes.minutes(SESSION_TIMEOUT))) {
+        request.session().removeAttribute(SESSION_ATTRIBUTE); // destroy session
         if (logger.isInfoEnabled()) {
           logger.info(
-              "Destroyed session for user({0}) because timeout more than 30mins",
-              session.getSessionUser());
+              "Destroyed session for user({}) because timeout more than {} mins",
+              session.getSessionUser(),
+              SESSION_TIMEOUT);
         }
 
       } else {
         logger.info("Reusing session for user({})", session.getSessionUser());
-        // refresh timeout
+
+        // refresh timeout to 'now'
         session.setCreateTime(DateTime.now());
         return session;
       }
@@ -83,13 +87,12 @@ public class MolgenisSessionManager {
         && !session.getSessionUser().equals(session.getDatabase().getActiveUser())) {
       // remove old sessions
       sessions.remove(session.getSessionUser());
-      request.session(false);
+      request.session().removeAttribute(SESSION_ATTRIBUTE); // clear session
       logger.info("Destroyed session because user {} logged out", session.getSessionUser());
 
       // only create new session is user != null
       if (session.getDatabase().getActiveUser() != null) {
         MolgenisSession newSession = new MolgenisSession(session.getDatabase());
-        request.session(true);
         request.session().attribute(SESSION_ATTRIBUTE, newSession);
         sessions.put(newSession.getSessionUser(), newSession);
         logger.info(
