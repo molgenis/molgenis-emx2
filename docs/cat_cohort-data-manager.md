@@ -3,7 +3,7 @@
 ### Data harmonisation
 Each cohort harmonises their data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo). The cohort metadata is uploaded to what are called "staging areas" of the [*Data Catalogue*](https://data-catalogue-staging.molgeniscloud.org). You will need credentials to log in and upload metadata for your cohort.
 ### Define cohort metadata
-MOLGENIS Data Catalogue provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
+[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
 
 - The cohort metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
 - The variable metadata (or 'source variables') can be considered as a codebook or data dictionary of a cohort (e.g. ALSPAC).
