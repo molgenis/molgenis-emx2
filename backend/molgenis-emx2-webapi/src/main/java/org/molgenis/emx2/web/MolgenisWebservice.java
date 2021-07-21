@@ -111,9 +111,6 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
         });
-
-    // after handle session changes
-    afterAfter(sessionManager::updateSession);
   }
 
   private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
