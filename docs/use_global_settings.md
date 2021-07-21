@@ -1,7 +1,7 @@
 # Admin settings
 
-You can find 'admin' menu when on start page of MOLGENIS, when you view the list of databases (click logo to get there).
-Only when signed in as 'admin' user this menu item will be shown.
+You can find the 'admin' menu when on the MOLGENIS start page, when you view the list of databases (click the MOLGENIS logo to get there).
+Only when signed in as 'admin' user will this menu item be shown.
 
 ## User management
 
