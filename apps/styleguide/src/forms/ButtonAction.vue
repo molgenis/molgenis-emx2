@@ -15,7 +15,7 @@ export default {
   methods: {
     onClick() {
       if (this.href) {
-        window.open(this.href);
+        window.open(this.href, "_self");
       } else {
         /** emitted on click */
         this.$emit("click");
