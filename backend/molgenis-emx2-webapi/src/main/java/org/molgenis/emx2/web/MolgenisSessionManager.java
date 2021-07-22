@@ -7,7 +7,6 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,48 +24,43 @@ public class MolgenisSessionManager {
 
   public MolgenisSessionManager() {}
 
-  public MolgenisSession getSession(Request request) {
+  public synchronized MolgenisSession getSession(Request request) {
 
-    // check if already in session
-    if (request.session().attribute(SESSION_ATTRIBUTE) != null) {
-      MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);
-
-      // check session is invalid
-      if (minutesBetween(session.getCreateTime(), DateTime.now())
-          .isGreaterThan(Minutes.minutes(SESSION_TIMEOUT))) {
-
-        logger.info(
-            "Invalidating session for user({}) because timeout more than {} mins",
-            session.getSessionUser(),
-            SESSION_TIMEOUT);
-
-        // invalidate the session by signing out
-        session.getDatabase().setActiveUser("anonymous");
-
-        // else return session
-      }
-      // refresh timeout to 'now'
-      session.setCreateTime(DateTime.now());
-
-      logger.info("Reusing session for user({})", session.getSessionUser());
-      return session;
-    }
-
-    // else check if token session
-    // todo, enable persistent tokens beyond session lifetime
-    else if (request.headers(MOLGENIS_TOKEN) != null) {
+    // if valid token return session from token
+    if (request.headers(MOLGENIS_TOKEN) != null) {
       String token = request.headers(MOLGENIS_TOKEN);
       if (sessions.containsKey(token)) {
         return sessions.get(token);
       }
     }
-    // default
-    MolgenisSession session = createSession(request.session().id());
 
-    // put in request session so we can easily access for this session
-    request.session().attribute(SESSION_ATTRIBUTE, session);
+    // if new session create a MolgenisSession object
+    if (request.session().isNew()) {
+      // add session into session pool
+      MolgenisSession session = createSession(request.session().id());
+      // put in request session so we can easily access for this session
+      request.session().attribute(SESSION_ATTRIBUTE, session);
+    }
 
-    // return
+    // get the session
+    MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);
+
+    // check session is invalid
+    if (minutesBetween(session.getCreateTime(), DateTime.now())
+        .isGreaterThan(Minutes.minutes(SESSION_TIMEOUT))) {
+
+      logger.info(
+          "Invalidating session for user({}) because timeout more than {} mins",
+          session.getSessionUser(),
+          SESSION_TIMEOUT);
+
+      // invalidate the session by signing out
+      session.getDatabase().setActiveUser("anonymous");
+    }
+    // refresh timeout to 'now'
+    session.setCreateTime(DateTime.now());
+
+    logger.info("Reusing session for user({})", session.getSessionUser());
     return session;
   }
 
