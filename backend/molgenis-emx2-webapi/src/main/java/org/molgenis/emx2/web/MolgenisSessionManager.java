@@ -36,6 +36,7 @@ public class MolgenisSessionManager {
 
     // if new session create a MolgenisSession object
     if (request.session().isNew()) {
+      request.session(true);
       // add session into session pool
       MolgenisSession session = createSession(request.session().id());
       // put in request session so we can easily access for this session
