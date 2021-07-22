@@ -12,14 +12,11 @@ import org.slf4j.LoggerFactory;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
-
-  private String token;
   private Database database;
   private GraphQL graphqlForDatabase;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
 
-  public MolgenisSession(Database database, String token) {
-    this.token = token;
+  public MolgenisSession(Database database) {
     this.database = database;
   }
 
@@ -60,9 +57,5 @@ public class MolgenisSession {
     this.graphqlForDatabase = null;
     this.database.clearCache();
     logger.info("cleared database and caches for user {}", getSessionUser());
-  }
-
-  public String getToken() {
-    return token;
   }
 }
