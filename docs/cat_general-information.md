@@ -14,12 +14,13 @@ We distinguish three roles within each federated network.
 | Catalogue | Describe and upload common data model | | | [X](cat_network-data-manager.md#define-network-metadata) |
 | Catalogue | Find (harmonised) variables | [X](cat_researcher.md#find-variables) | | |
 | Catalogue | Find harmonisation specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
-| Catalogue | Request access | | [X](cat_cohort-data-manager.md#request-access) | [X](cat_network-data-manager.md#request-access) |
+| Catalogue | Request access | | [X](cat_cohort-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
 | Armadillo | Initial data upload | | [X](cat_cohort-data-manager.md#initial-data-upload) | |
+| Armadillo | Request access | [X](cat_researcher.md#request-access) | [X](cat_cohort-data-manager.md#request-access-armadillo) | |
+| Armadillo | Request permissions | [X](cat_researcher.md#request-permissions) | [X](cat_cohort-data-manager.md#assign-permissions) | |
 | Armadillo | Create subsets of the data | | [X](cat_cohort-data-manager.md#create-subsets) | |
 | Armadillo | Give permissions on the data | | [X](cat_cohort-data-manager.md#give-permissions-on-the-data) | |
 | Armadillo | Quality control | | [X](cat_cohort-data-manager.md#quality-control) | |
 | Armadillo | Use DataSHIELD | [X](cat_researcher.md#use-datashield) | | |
-| Armadillo | Request permissions | [X](cat_researcher.md#request-permissions) | [X](cat_cohort-data-manager.md#request-permissions) | |
-| Armadillo | Deploy an instance | | | [X](cat_network-data-manager.md#deploy-an-instance) |
+| Armadillo | Deploy an instance | | | [X](cat_cohort-data-manager.md#deploy-an-instance) |
 | Analysis environment | Request access | [X](cat_researcher.md#request-access) | | |
