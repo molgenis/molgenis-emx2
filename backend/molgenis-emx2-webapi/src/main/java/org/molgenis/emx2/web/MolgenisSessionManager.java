@@ -72,12 +72,9 @@ public class MolgenisSessionManager {
 
   public MolgenisSession createSession(String token) {
     // default user
-    String user = "anonymous"; // default user
+    String user = "anonymous";
     // create new session
     Database database = new SqlDatabase(false);
-    if (!database.hasUser(user)) {
-      throw new MolgenisException("Authentication failed: User " + user + " not known");
-    }
     database.setActiveUser(user);
     database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
     logger.info("Initializing session for user: {}", database.getActiveUser());
