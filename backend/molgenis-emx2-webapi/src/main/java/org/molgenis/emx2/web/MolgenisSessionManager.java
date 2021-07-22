@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import org.eclipse.jetty.server.Server;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import spark.embeddedserver.EmbeddedServers;
 
 public class MolgenisSessionManager {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
-  private static final String MOLGENIS_SESSION_ATTRIBUTE = "molgenis_session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
 
   // map so we can track the sessions
@@ -30,9 +28,7 @@ public class MolgenisSessionManager {
 
               public void sessionCreated(HttpSessionEvent httpSessionEvent) {
                 // add session into session pool
-                MolgenisSession session = createSession(httpSessionEvent.getSession().getId());
-                // put in request session so we can easily access for this session
-                httpSessionEvent.getSession().setAttribute(MOLGENIS_SESSION_ATTRIBUTE, session);
+                createSession(httpSessionEvent.getSession().getId());
                 logger.info("session created: " + httpSessionEvent.getSession().getId());
               }
 
@@ -62,7 +58,7 @@ public class MolgenisSessionManager {
     }
 
     // get the session
-    MolgenisSession session = request.session().attribute(MOLGENIS_SESSION_ATTRIBUTE);
+    MolgenisSession session = sessions.get(request.session().id());
     logger.info("get session for user({})", session.getSessionUser());
     return session;
   }
