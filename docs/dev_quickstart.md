@@ -27,6 +27,7 @@ adopt [OpenJDK 16](https://adoptopenjdk.net/)):
 
 On Linux/Mac this could go as follows (Windows user, please tell us if this works for you too):
 
+**Start postgres using a native postgres installation**
 * Optionally, drop a previous version of molgenis database (caution: destroys previous data!)
   ```console
   sudo -u postgres psql
@@ -39,7 +40,24 @@ On Linux/Mac this could go as follows (Windows user, please tell us if this work
   postgres=# create user molgenis with superuser encrypted password 'molgenis';
   postgres=# grant all privileges on database molgenis to molgenis;
   ```
-* change into molgenis-emx2 directory and then compile and run via command
+
+**Start postgres using docker-compose**
+You can start postgres using `docker-compose`. The data will be mounted in a directory called `psql_data` where you start the docker-compose (default: repo root-directory)
+
+* Start postgres
+  ```console
+  cd molgenis-emx2
+  docker-compose up -d postgres
+  ```
+
+* Dropping the molgenis scheme can be done by deleting the mounted directory on your repo root-directory.
+  ```console
+  cd molgenis-emx2
+  rm -rf psql_data
+  ```
+
+**Start developing using gradle**
+* Change into molgenis-emx2 directory and then compile and run via command
    ```
    cd molgenis-emx2
    ./gradlew run
