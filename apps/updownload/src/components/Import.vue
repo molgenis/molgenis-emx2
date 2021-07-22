@@ -1,6 +1,5 @@
 <template>
   <Molgenis v-model="session">
-    taskList {{ taskList }}
     <div class="bg-white container" :key="JSON.stringify(session)">
       <h1>Up/Download for {{ schema }}</h1>
       <MessageError v-if="error">{{ error }}</MessageError>
@@ -135,7 +134,6 @@ export default {
       loading: false,
       taskUrl: null,
       task: null,
-      taskList: [],
     };
   },
   computed: {
@@ -163,24 +161,6 @@ export default {
           this.success = this.task.status.description;
         }
       }
-    },
-    listTasks() {
-      fetch("../api/tasks")
-        .then((response) => {
-          if (response.ok) {
-            alert(JSON.stringify(response));
-            response.json().then((taskList) => {
-              this.taskList = taskList;
-            });
-          } else {
-            response.text().then((error) => {
-              this.error = error;
-            });
-          }
-        })
-        .catch((error) => {
-          this.error = error;
-        });
     },
     monitorTask() {
       fetch(this.taskUrl)
@@ -295,12 +275,6 @@ export default {
         this.loadSchema();
       }
     },
-    schema() {
-      this.listTasks();
-    },
-  },
-  created() {
-    this.listTasks();
   },
 };
 </script>
