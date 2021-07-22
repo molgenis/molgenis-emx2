@@ -16,19 +16,18 @@ public class MolgenisSessionManager {
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
   private static final String MOLGENIS_SESSION_ATTRIBUTE = "molgenis_session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
-  private static Server server;
 
   // map so we can track the sessions
   // session id is the key
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
   public MolgenisSessionManager() {
-    // Register custom server that listens to the sessions
+    // Register custom server to sparkjava that listens to the session changes
     EmbeddedServers.add(
         EmbeddedServers.Identifiers.JETTY,
         new SessionListeningJettyFactory(
             new HttpSessionListener() {
-              @Override
+
               public void sessionCreated(HttpSessionEvent httpSessionEvent) {
                 // add session into session pool
                 MolgenisSession session = createSession(httpSessionEvent.getSession().getId());
@@ -37,7 +36,6 @@ public class MolgenisSessionManager {
                 logger.info("session created: " + httpSessionEvent.getSession().getId());
               }
 
-              @Override
               public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
                 // remove from session pool
                 sessions.remove(httpSessionEvent.getSession().getId());
@@ -49,7 +47,8 @@ public class MolgenisSessionManager {
   public MolgenisSession getSession(Request request) {
 
     // if valid token return session from token
-    // todo: this is only for testing, we will implement JWT tokens properly later
+    // todo: this is only for testing where we inject into this.sessions; we will implement JWT
+    // tokens properly later
     if (request.headers(MOLGENIS_TOKEN) != null) {
       String token = request.headers(MOLGENIS_TOKEN);
       if (sessions.containsKey(token)) {
@@ -64,8 +63,7 @@ public class MolgenisSessionManager {
 
     // get the session
     MolgenisSession session = request.session().attribute(MOLGENIS_SESSION_ATTRIBUTE);
-
-    logger.info("Reusing session for user({})", session.getSessionUser());
+    logger.info("get session for user({})", session.getSessionUser());
     return session;
   }
 
