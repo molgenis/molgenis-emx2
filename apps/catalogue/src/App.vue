@@ -1,9 +1,8 @@
 <template>
   <div id="app">
     <Molgenis v-model="session" :key="JSON.stringify(session)">
-      <div
-        v-if="!session || !session.roles || !session.roles.includes('Viewer')"
-      >
+      <Spinner v-if="!session || !session.roles" />
+      <div v-else-if="!session.roles || !session.roles.includes('Viewer')">
         <h1 class="text-centered">You have to login to view the data.</h1>
       </div>
       <div v-else class="container-fluid">
@@ -14,11 +13,12 @@
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
+import { Molgenis, Spinner } from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
     Molgenis,
+    Spinner,
   },
   data() {
     return {
