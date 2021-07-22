@@ -31,7 +31,7 @@ public class TestWebApi {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
-  public static final String TOKEN_ADMIN = "admin";
+  public static final String ADMIN_SESSION_ID = "admin";
   private static Database db;
   private static Schema schema;
 
@@ -52,7 +52,7 @@ public class TestWebApi {
 
     // simulate token until persistent token system is officially implemented
     MolgenisSession session = sessionManager.createSession("admin");
-    session.getDatabase().setActiveUser("admin");
+    session.getDatabase().setActiveUser(ADMIN_SESSION_ID);
     session = sessionManager.createSession("shopviewer");
     session.getDatabase().setActiveUser("shopviewer");
     session = sessionManager.createSession("shopmanager");
@@ -67,7 +67,7 @@ public class TestWebApi {
     // get original schema
     String schemaCsv =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get(DATA_PET_STORE)
@@ -79,7 +79,7 @@ public class TestWebApi {
     // download zip contents of old schema
     byte[] zipContents =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .accept(ACCEPT_ZIP)
             .when()
             .get("/pet store/api/zip")
@@ -88,7 +88,7 @@ public class TestWebApi {
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .multiPart(zipFile)
         .when()
         .post("/pet store zip/api/zip")
@@ -98,7 +98,7 @@ public class TestWebApi {
     // check if schema equal using json representation
     String schemaCsv2 =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store zip/api/csv")
@@ -112,12 +112,16 @@ public class TestWebApi {
   @Test
   public void testDownloadUploadJsonAndYaml() {
     String schemaJson =
-        given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).when().get("/pet store/api/json").asString();
+        given()
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .when()
+            .get("/pet store/api/json")
+            .asString();
 
     db.dropCreateSchema("pet store json");
 
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .body(schemaJson)
         .when()
         .post("/pet store json/api/json")
@@ -126,7 +130,7 @@ public class TestWebApi {
 
     String schemaJson2 =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .when()
             .get("/pet store json/api/json")
             .asString();
@@ -134,12 +138,16 @@ public class TestWebApi {
     assertEquals(schemaJson, schemaJson2);
 
     String schemaYaml =
-        given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).when().get("/pet store/api/yaml").asString();
+        given()
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .when()
+            .get("/pet store/api/yaml")
+            .asString();
 
     db.dropCreateSchema("pet store yaml");
 
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .body(schemaYaml)
         .when()
         .post("/pet store yaml/api/yaml")
@@ -148,7 +156,7 @@ public class TestWebApi {
 
     String schemaYaml2 =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .when()
             .get("/pet store yaml/api/yaml")
             .asString();
@@ -162,7 +170,7 @@ public class TestWebApi {
     // download json schema
     String schemaCSV =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store/api/csv")
@@ -174,7 +182,7 @@ public class TestWebApi {
     // download excel contents from schema
     byte[] excelContents =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .accept(ACCEPT_EXCEL)
             .when()
             .get("/pet store/api/excel")
@@ -184,7 +192,7 @@ public class TestWebApi {
     // upload excel into new schema
     String message =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .multiPart(excelFile)
             .when()
             .post("/pet store excel/api/excel?async=true")
@@ -197,7 +205,7 @@ public class TestWebApi {
     // check if in tasks list
     assertTrue(
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .multiPart(excelFile)
             .when()
             .get("/pet store/api/tasks")
@@ -205,20 +213,20 @@ public class TestWebApi {
             .contains(id));
 
     // poll task until complete
-    String poll = given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).when().get(url).asString();
+    String poll = given().header(MOLGENIS_TOKEN, ADMIN_SESSION_ID).when().get(url).asString();
     int count = 0;
     while (poll.contains("RUNNING")) {
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
-      poll = given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).when().get(url).asString();
+      poll = given().header(MOLGENIS_TOKEN, ADMIN_SESSION_ID).when().get(url).asString();
       Thread.sleep(500);
     }
 
     // check if schema equal using json representation
     String schemaCSV2 =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store excel/api/csv")
@@ -247,12 +255,17 @@ public class TestWebApi {
 
     String exp1 = "name\r\nred\r\ngreen\r\n";
     String result =
-        given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).accept(ACCEPT_CSV).when().get(path).asString();
+        given()
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get(path)
+            .asString();
     assertEquals(exp1, result);
 
     String update = "name\r\nyellow\r\n";
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .body(update)
         .when()
         .post(path)
@@ -261,11 +274,16 @@ public class TestWebApi {
 
     String exp2 = "name\r\nred\r\ngreen\r\nyellow\r\n";
     result =
-        given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).accept(ACCEPT_CSV).when().get(path).asString();
+        given()
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get(path)
+            .asString();
     assertEquals(exp2, result);
 
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .body(update)
         .when()
         .delete(path)
@@ -273,7 +291,12 @@ public class TestWebApi {
         .statusCode(200);
 
     result =
-        given().header(MOLGENIS_TOKEN, TOKEN_ADMIN).accept(ACCEPT_CSV).when().get(path).asString();
+        given()
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get(path)
+            .asString();
     assertEquals(exp1, result);
   }
 
@@ -337,7 +360,7 @@ public class TestWebApi {
   public void appProxySmokeTest() throws IOException {
     String result =
         given()
-            .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
             .when()
             .get("/plugin/molgenis-app-reports/dist/index.html")
             .asString();
@@ -360,7 +383,7 @@ public class TestWebApi {
   @Test
   public void redirectWhenSlash() {
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .redirects()
         .follow(false)
         .expect()
@@ -370,7 +393,7 @@ public class TestWebApi {
         .get("/pet store");
 
     given()
-        .header(MOLGENIS_TOKEN, TOKEN_ADMIN)
+        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
         .redirects()
         .follow(false)
         .expect()
