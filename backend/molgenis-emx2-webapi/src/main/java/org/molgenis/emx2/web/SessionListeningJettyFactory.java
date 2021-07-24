@@ -14,7 +14,12 @@ import spark.http.matching.MatcherFilter;
 import spark.route.Routes;
 import spark.staticfiles.StaticFilesConfiguration;
 
-// copied from EmbeddedJettyFactory
+/**
+ * This class only exsists to enable adding a HttpSessionListener because it is otherwise impossible
+ * to access session handler
+ *
+ * <p>copied the code from EmbeddedJettyFactory
+ */
 public class SessionListeningJettyFactory implements EmbeddedServerFactory {
   private static int SESSION_TIMEOUT_SECONDS = 60 * 30; // 30 minutes timeout
   private JettyServerFactory serverFactory;
