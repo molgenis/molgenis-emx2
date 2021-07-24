@@ -5,8 +5,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.MolgenisSessionManager.MOLGENIS_TOKEN;
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
@@ -25,15 +23,15 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-/* this is a smoke test for the integration of web api with the database layer */
+/* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TestWebApi {
+public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
-  public static final String ADMIN_SESSION_ID = "admin";
   private static Database db;
   private static Schema schema;
+  public static String SESSION_ID; // to toss around a session for the tests
 
   @BeforeClass
   public static void before() throws IOException {
@@ -47,31 +45,29 @@ public class TestWebApi {
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
+
     // start web service for testing
     MolgenisWebservice.start(8080);
 
-    // simulate token until persistent token system is officially implemented
-    MolgenisSession session = sessionManager.createSession("admin");
-    session.getDatabase().setActiveUser(ADMIN_SESSION_ID);
-    session = sessionManager.createSession("shopviewer");
-    session.getDatabase().setActiveUser("shopviewer");
-    session = sessionManager.createSession("shopmanager");
-    session.getDatabase().setActiveUser("shopmanager");
-
+    // set default rest assured settings
     RestAssured.port = Integer.valueOf(8080);
     RestAssured.baseURI = "http://localhost";
+
+    // create an admin session to work with
+    SESSION_ID =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+            .when()
+            .post("api/graphql")
+            .sessionId();
   }
 
   @Test
-  public void test2SchemaDownloadUploadZip() throws IOException {
+  public void testCsvApi_zipUploadDownload() throws IOException {
     // get original schema
     String schemaCsv =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get(DATA_PET_STORE)
-            .asString();
+        given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
     db.dropCreateSchema("pet store zip");
@@ -79,7 +75,7 @@ public class TestWebApi {
     // download zip contents of old schema
     byte[] zipContents =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .accept(ACCEPT_ZIP)
             .when()
             .get("/pet store/api/zip")
@@ -88,7 +84,7 @@ public class TestWebApi {
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
     given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+        .sessionId(SESSION_ID)
         .multiPart(zipFile)
         .when()
         .post("/pet store zip/api/zip")
@@ -98,7 +94,7 @@ public class TestWebApi {
     // check if schema equal using json representation
     String schemaCsv2 =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store zip/api/csv")
@@ -110,18 +106,13 @@ public class TestWebApi {
   }
 
   @Test
-  public void testDownloadUploadJsonAndYaml() {
-    String schemaJson =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .when()
-            .get("/pet store/api/json")
-            .asString();
+  public void testJsonYamlApi() {
+    String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
     db.dropCreateSchema("pet store json");
 
     given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+        .sessionId(SESSION_ID)
         .body(schemaJson)
         .when()
         .post("/pet store json/api/json")
@@ -129,25 +120,16 @@ public class TestWebApi {
         .statusCode(200);
 
     String schemaJson2 =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .when()
-            .get("/pet store json/api/json")
-            .asString();
+        given().sessionId(SESSION_ID).when().get("/pet store json/api/json").asString();
 
     assertEquals(schemaJson, schemaJson2);
 
-    String schemaYaml =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .when()
-            .get("/pet store/api/yaml")
-            .asString();
+    String schemaYaml = given().sessionId(SESSION_ID).when().get("/pet store/api/yaml").asString();
 
     db.dropCreateSchema("pet store yaml");
 
     given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+        .sessionId(SESSION_ID)
         .body(schemaYaml)
         .when()
         .post("/pet store yaml/api/yaml")
@@ -155,22 +137,18 @@ public class TestWebApi {
         .statusCode(200);
 
     String schemaYaml2 =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .when()
-            .get("/pet store yaml/api/yaml")
-            .asString();
+        given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2);
   }
 
   @Test
-  public void test3SchemaDownloadUploadExcel() throws IOException, InterruptedException {
+  public void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
     String schemaCSV =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store/api/csv")
@@ -182,7 +160,7 @@ public class TestWebApi {
     // download excel contents from schema
     byte[] excelContents =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .accept(ACCEPT_EXCEL)
             .when()
             .get("/pet store/api/excel")
@@ -192,7 +170,7 @@ public class TestWebApi {
     // upload excel into new schema
     String message =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .multiPart(excelFile)
             .when()
             .post("/pet store excel/api/excel?async=true")
@@ -205,7 +183,7 @@ public class TestWebApi {
     // check if in tasks list
     assertTrue(
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .multiPart(excelFile)
             .when()
             .get("/pet store/api/tasks")
@@ -213,20 +191,20 @@ public class TestWebApi {
             .contains(id));
 
     // poll task until complete
-    String poll = given().header(MOLGENIS_TOKEN, ADMIN_SESSION_ID).when().get(url).asString();
+    String poll = given().sessionId(SESSION_ID).when().get(url).asString();
     int count = 0;
     while (poll.contains("RUNNING")) {
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
-      poll = given().header(MOLGENIS_TOKEN, ADMIN_SESSION_ID).when().get(url).asString();
+      poll = given().sessionId(SESSION_ID).when().get(url).asString();
       Thread.sleep(500);
     }
 
     // check if schema equal using json representation
     String schemaCSV2 =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store excel/api/csv")
@@ -249,62 +227,33 @@ public class TestWebApi {
   }
 
   @Test
-  public void test5TableGetPostDeleteCSV() {
+  public void testCsvApi_tableCsvUploadDownload() {
 
     String path = "/pet store/api/csv/Tag";
 
     String exp1 = "name\r\nred\r\ngreen\r\n";
-    String result =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get(path)
-            .asString();
+    String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
 
     String update = "name\r\nyellow\r\n";
-    given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-        .body(update)
-        .when()
-        .post(path)
-        .then()
-        .statusCode(200);
+    given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
 
     String exp2 = "name\r\nred\r\ngreen\r\nyellow\r\n";
-    result =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get(path)
-            .asString();
+    result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp2, result);
 
-    given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-        .body(update)
-        .when()
-        .delete(path)
-        .then()
-        .statusCode(200);
+    given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
 
-    result =
-        given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get(path)
-            .asString();
+    result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
     assertEquals(exp1, result);
   }
 
   @Test
-  public void test6SmokeTestGraphqlWithSession() {
+  public void testGraphqlApi() {
     db.setUserPassword("admin", "admin");
     String path = "/api/graphql";
 
+    // create a new session, separate from the session shared in these tests
     String sessionId =
         given().body("{\"query\":\"{_session{email}}\"}").when().post(path).sessionId();
 
@@ -357,10 +306,10 @@ public class TestWebApi {
   }
 
   @Test
-  public void appProxySmokeTest() throws IOException {
+  public void testAppsProxyService() {
     String result =
         given()
-            .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+            .sessionId(SESSION_ID)
             .when()
             .get("/plugin/molgenis-app-reports/dist/index.html")
             .asString();
@@ -370,7 +319,7 @@ public class TestWebApi {
   }
 
   @Test
-  public void testThemeGenerator() {
+  public void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primary=123123").asString();
     Assert.assertTrue(css.contains("123123"));
@@ -381,9 +330,9 @@ public class TestWebApi {
   }
 
   @Test
-  public void redirectWhenSlash() {
+  public void testMolgenisWebservice_redirectWhenSlash() {
     given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+        .sessionId(SESSION_ID)
         .redirects()
         .follow(false)
         .expect()
@@ -393,7 +342,7 @@ public class TestWebApi {
         .get("/pet store");
 
     given()
-        .header(MOLGENIS_TOKEN, ADMIN_SESSION_ID)
+        .sessionId(SESSION_ID)
         .redirects()
         .follow(false)
         .expect()
@@ -420,18 +369,36 @@ public class TestWebApi {
             "menu",
             "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
 
+    // sign in as shopviewer
+    String shopViewerSessionId =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .sessionId();
+
     given()
+        .sessionId(shopViewerSessionId)
         .redirects()
         .follow(false)
-        .header(MOLGENIS_TOKEN, "shopviewer")
         .expect()
         .statusCode(302)
         .header("Location", is("http://localhost:8080/pet store/blaat2"))
         .when()
         .get("/pet store/");
 
+    // sign in as shopviewer
+    String shopManagerSessionId =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .sessionId();
+
     given()
-        .header(MOLGENIS_TOKEN, "shopmanager")
+        .sessionId(shopManagerSessionId)
         .redirects()
         .follow(false)
         .expect()
