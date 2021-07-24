@@ -67,7 +67,7 @@ public class MolgenisWebservice {
     // services (matched in order of creation)
     AppsProxyService.create(new SqlDatabase(false));
 
-    before("/:schema/", MolgenisWebservice::testMolgenisWebservice_redirectSchemaToFirstMenuItem);
+    before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     get(
         "/:schema/api",
@@ -113,8 +113,7 @@ public class MolgenisWebservice {
         });
   }
 
-  private static void testMolgenisWebservice_redirectSchemaToFirstMenuItem(
-      Request request, Response response) {
+  private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
     try {
       Schema schema = getSchema(request);
       String role = schema.getRoleForActiveUser();

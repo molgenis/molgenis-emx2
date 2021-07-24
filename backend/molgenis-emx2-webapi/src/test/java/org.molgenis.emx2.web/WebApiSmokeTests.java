@@ -353,7 +353,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void redirectToFirstMenuItem() {
+  public void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()
         .follow(false)
