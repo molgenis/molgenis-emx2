@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     openPageEdit(page) {
-      window.open("../pages/#/" + page + "/edit", "_blank");
+      window.open("../pages/#/" + page + "/edit", "_self");
     },
   },
   computed: {

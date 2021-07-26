@@ -2,7 +2,7 @@
 
 MOLGENIS allows you to create multiple databases on one server.
 
-When you go to the root of you server you will see listing of the databases. If you don't have permission to see any of
+When you go to the root of your server you will see a listing of the databases. If you don't have permission to see any of
 the databases then a warning will be shown.
 
 If you cannot find it please go to [https://SERVERNAME/apps/central](../apps/central/)

@@ -118,7 +118,7 @@ public class AppsProxyService {
     res.status(proxyResponse.code());
 
     // return result
-    return res.raw();
+    return res.body();
   }
 
   private static String getPath(String url) {

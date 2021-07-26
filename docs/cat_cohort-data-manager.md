@@ -3,7 +3,7 @@
 ### Data harmonisation
 Each cohort harmonises their data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo). The cohort metadata is uploaded to what are called "staging areas" of the [*Data Catalogue*](https://data-catalogue-staging.molgeniscloud.org). You will need credentials to log in and upload metadata for your cohort.
 ### Define cohort metadata
-MOLGENIS Data Catalogue provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
+[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
 
 - The cohort metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
 - The variable metadata (or 'source variables') can be considered as a codebook or data dictionary of a cohort (e.g. ALSPAC).
@@ -165,19 +165,19 @@ Click on "variable details"
 
 ![](img/cat_variable-detail.png)
 
-Click on "Harmonisations"
+Click on "Harmonization"
 
 ![](img/cat_variable-mapping.png)
 
-#### Request access
+#### Request access (catalogue)
 If you do not have an account to upload data to the Data Catalogue yet, please e-mail [molgenis-support](mailto:molgenis-support@umcg.nl) to apply for an account.
 
 ## Armadillo
 Upload harmonised data into a local Armadillo/Opal instance in order to make it available for DataSHIELD to run analyses. Note that MOLGENIS Data Catalogue does not communicate or have access to any data stored in Armadillo/Opal.
-### Deploy an instance
-To get the Armadillo installed at your institute you need to contact your IT-department. You can find the installation manual here: https://galaxy.ansible.com/molgenis/armadillo.
 
-The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
+### Request access (Armadillo)
+The Armadillo works with a central authentication service. This means to work with the Armadillo you need to have an account on the central authentication service. To acquire an account please follow instructions on [this video](https://youtu.be/Gj0uANX8nIw).
+
 ### Initial upload
 There are two phases to uploading data to the Armadillo. The initial upload transforms your source data to the right format for analysis. Besides this you can perform some data manipulation on the initially uploaded data. 
 
@@ -200,6 +200,7 @@ There are two levels of quality control, central and local. You can perform loca
 
 For central quality control we use the [dsUpload](https://lifecycle-project.github.io/ds-upload/articles/qualityControl.html) package. We are now developing quality control measures for the different variables. Continues, repeated etc. This is not finished yet. We will let you know when this is useable.
 
-### Request permissions
+### Deploy an instance
+To get the Armadillo installed at your institute you need to contact your IT-department and send the [installation manual](https://galaxy.ansible.com/molgenis/armadillo).
 
-After the correct authentication and authorisation steps have been set up researchers will be able to analyse the cohort’s harmonised data via DataSHIELD.
+The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.

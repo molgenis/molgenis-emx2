@@ -118,7 +118,7 @@ export default {
       return result;
     },
     majorDatabaseVersionToOldError() {
-      if (this.session) {
+      if (this.session && this.session.email == "admin") {
         let dbVer = this.session.manifest.DatabaseVersion;
         let swVer = this.session.manifest.SpecificationVersion;
         if (dbVer != null && dbVer.split(".")[0] != swVer.split(".")[0]) {

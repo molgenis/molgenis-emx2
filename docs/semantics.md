@@ -1,11 +1,11 @@
 # Using semantic feature
 
-You can create useful json-ld or ttl output (see table viewer) by annotating our model
-Therefore you use the 'semantics' column in EMX2. Columns without semantics will be omitted
+You can create useful json-ld or ttl output (see table viewer) by annotating our model.
+For this you use the 'semantics' column in EMX2. Columns without semantics will be omitted.
 
 ## Example
 Below, we define that 
-* table 'patients' contains record of semantic type 'http://purl.obolibrary.org/obo/NCIT_C16960'
+* table 'patients' contains a record of semantic type 'http://purl.obolibrary.org/obo/NCIT_C16960'
 * column 'patients.id' contains an logical 'http://purl.obolibrary.org/obo/NCIT_C83083'
 * column 'patient.phenotypes' contains phenotypes 'http://purl.obolibrary.org/obo/NCIT_C16977'
 * column 'hpo.termIRI' should be used as the '@id' for 'patients.phenotypes' 
