@@ -1,0 +1,39 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+AllVariables,,,,,,,,,,,,"Generic listing of all variables. Should not be used directly, please use Variables or RepeatedVariables instead"
+AllVariables,,network,ref,1,TRUE,,Networks,,,,,release this table definition is part of
+AllVariables,,table,ref,1,TRUE,,Tables,network,,,,table this variable is part of
+AllVariables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
+Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
+RepeatedVariables,AllVariables,,,,,,,,,,,Definition of a repeated variable. Refers to another variable for its definition.
+RepeatedVariables,,isRepeatOf,ref,,TRUE,,Variables,network,,,,reference to the definition of the variable that is being repeated
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Resources,,acronym,,1,TRUE,,,,,,,Unique identifier within this catalogue
+Resources,,name,,2,,,,,,,,Human readible name of this resource
+Tables,,,,,,,,,,,,Definition of a table within a data release
+Tables,,network,ref,1,TRUE,,Networks,,,,,resource + version this table is defined for
+Tables,,name,,1,TRUE,,,,,,,unique name in the release
+Tables,,label,,,,,,,,,,short human readible description
+Tables,,keywords,ref_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
+Tables,,description,text,,,,,,,,,description of the role/function of this table
+Tables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
+VariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
+VariableValues,,network,ref,1,TRUE,,Networks,,,,,
+VariableValues,,variable,ref,1,TRUE,,Variables,network,,,,e.g. PATO
+VariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
+VariableValues,,label,,,TRUE,,,,,,,
+VariableValues,,order,int,,,,,,,,,
+VariableValues,,isMissing,bool,,,,,,,,,
+VariableValues,,ontologyTermIRI,,,,,,,,,,reference to ontology term that defines this categorical value
+Variables,AllVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
+Variables,,label,,,,,,,,,,
+Variables,,format,ref,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
+Variables,,unit,ref,,,CatalogueOntologies,Units,,,,,unit ontology
+Variables,,references,ref,,,,Variables,network,,,,to define foreigh key relationships between variables within or across tables
+Variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
+Variables,,description,text,,,,,,,,,
+Variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
+Variables,,exampleValues,string_array,,,,,,,,,
+Variables,,permittedValues,refback,,,,VariableValues,,variable,,,
+Variables,,repeats,refback,,,,RepeatedVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
+Variables,,keywords,ref_array,,,CatalogueOntologies,Keywords,,,,,
+Variables,,vocabularies,ref_array,,,CatalogueOntologies,Vocabularies,,,,,

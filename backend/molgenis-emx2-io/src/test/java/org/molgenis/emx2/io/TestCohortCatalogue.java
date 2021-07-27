@@ -17,7 +17,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
 /** representative import file for testing */
-public class TestCohortCatalogueMultipleSchemas {
+public class TestCohortCatalogue {
 
   static Database database;
   static Schema cohortsSchema;
@@ -50,7 +50,7 @@ public class TestCohortCatalogueMultipleSchemas {
             cohortsSchema);
     task3.run();
 
-    assertEquals(49, TestCohortCatalogueMultipleSchemas.cohortsSchema.getTableNames().size());
+    assertEquals(49, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }
