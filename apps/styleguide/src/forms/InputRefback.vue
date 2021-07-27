@@ -84,6 +84,16 @@ export default {
     /** pkey of the current table that refback should point to */
     pkey: Object,
   },
+  methods: {
+    //overrides TableMixin
+    reload() {
+      //skip unnecessary loading (and associated error logs)
+      if (this.pkey) {
+        console.log("found " + this.pkey);
+        this.$parent.reload();
+      }
+    },
+  },
   computed: {
     defaultValue() {
       var result = new Object();
