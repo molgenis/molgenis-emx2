@@ -10,7 +10,7 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
-public class TableMetadata {
+public class TableMetadata implements Comparable {
 
   // if a table extends another table (optional)
   public String inherit = null;
@@ -502,5 +502,17 @@ public class TableMetadata {
   public TableMetadata alterName(String name) {
     this.tableName = name;
     return this;
+  }
+
+  @Override
+  public int compareTo(Object o) {
+    if (o instanceof TableMetadata) {
+      return getTableName().compareTo(((TableMetadata) o).getTableName());
+    }
+    return 0;
+  }
+
+  public Table getTable() {
+    return getSchema().getDatabase().getSchema(this.getSchemaName()).getTable(getTableName());
   }
 }
