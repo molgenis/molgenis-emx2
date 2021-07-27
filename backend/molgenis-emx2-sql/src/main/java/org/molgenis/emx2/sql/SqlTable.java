@@ -620,7 +620,8 @@ class SqlTable implements Table {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
-  private SqlTable getInheritedTable() {
+  @Override
+  public SqlTable getInheritedTable() {
     if (getMetadata().getImportSchema() != null) {
       return (SqlTable)
           getSchema()
