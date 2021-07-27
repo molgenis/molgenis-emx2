@@ -503,13 +503,12 @@ public class GraphqlTableFieldFactory {
             .name(type.name().toLowerCase())
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
-    for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      if (table.getMetadata().getColumns().size() > 0) {
+    for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
+      if (table.getColumnsWithoutConstant().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
-                .name(tableName)
-                .type(GraphQLList.list(rowInputType(table))));
+                .name(table.getTableName())
+                .type(GraphQLList.list(rowInputType(table.getTable()))));
       }
     }
     return fieldBuilder.build();
@@ -551,10 +550,12 @@ public class GraphqlTableFieldFactory {
     return dataFetchingEnvironment -> {
       StringBuilder result = new StringBuilder();
       boolean any = false;
-      for (String tableName : schema.getTableNames()) {
-        List<Map<String, Object>> rowsAslistOfMaps = dataFetchingEnvironment.getArgument(tableName);
+      for (TableMetadata tableMetadata : schema.getMetadata().getTablesIncludingExternal()) {
+        List<Map<String, Object>> rowsAslistOfMaps =
+            dataFetchingEnvironment.getArgument(tableMetadata.getTableName());
         if (rowsAslistOfMaps != null) {
-          Table table = schema.getTable(tableName);
+          String tableName = tableMetadata.getTableName();
+          Table table = tableMetadata.getTable();
           int count = 0;
           switch (mutationType) {
             case UPDATE:

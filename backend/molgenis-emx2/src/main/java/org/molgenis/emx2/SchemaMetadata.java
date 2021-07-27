@@ -134,4 +134,31 @@ public class SchemaMetadata {
     }
     return null;
   }
+
+  public List<TableMetadata> getTablesIncludingExternal() {
+    Map<String, TableMetadata> tables = new LinkedHashMap<>();
+    for (String tableName : getTableNames()) {
+      tables.put(tableName, getTableMetadata(tableName));
+    }
+    // add exteral references recursively
+    for (String tableName : getTableNames()) {
+      addExternalTablesRecursive(tables, getTableMetadata(tableName));
+    }
+
+    return new ArrayList<>(tables.values());
+  }
+
+  private void addExternalTablesRecursive(
+      Map<String, TableMetadata> tables, TableMetadata current) {
+    if (current.getInheritedTable() != null && !tables.containsKey(current.getInherit())) {
+      tables.put(current.getInherit(), current.getInheritedTable());
+      addExternalTablesRecursive(tables, current.getInheritedTable());
+    }
+    for (Column c : current.getColumns()) {
+      if (c.getRefTableName() != null && !tables.containsKey(c.getRefTableName())) {
+        tables.put(c.getRefTableName(), c.getRefTable());
+        addExternalTablesRecursive(tables, c.getRefTable());
+      }
+    }
+  }
 }

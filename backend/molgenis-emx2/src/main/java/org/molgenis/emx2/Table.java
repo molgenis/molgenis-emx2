@@ -41,4 +41,6 @@ public interface Table {
   Query agg();
 
   List<Row> retrieveRows();
+
+  Table getInheritedTable();
 }
