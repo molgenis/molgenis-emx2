@@ -12,7 +12,9 @@
               (visibleColumns == null ||
                 visibleColumns.includes(column.name)) &&
               visible(column.visible) &&
-              column.name != 'mg_tableclass'
+              column.name != 'mg_tableclass' &&
+              //if dependent, show only if dependent value is set
+              (!column.refLink || value[column.refLink])
             "
             v-model="value[column.name]"
             :label="column.name"
