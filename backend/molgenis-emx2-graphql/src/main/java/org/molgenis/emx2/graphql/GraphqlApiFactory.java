@@ -181,9 +181,11 @@ public class GraphqlApiFactory {
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
     Set<String> importedTables = new HashSet<>();
-    for (String tableName : schema.getTableNames()) {
-      addImportedTablesRecursively(
-          schema, queryBuilder, tableField, importedTables, schema.getTable(tableName));
+    for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
+      if (table.getColumns().size() > 0) {
+        queryBuilder.field(tableField.tableQueryField(table.getTable()));
+        queryBuilder.field(tableField.tableAggField(table.getTable()));
+      }
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
@@ -211,44 +213,5 @@ public class GraphqlApiFactory {
     }
 
     return result;
-  }
-
-  private void addImportedTablesRecursively(
-      Schema schema,
-      GraphQLObjectType.Builder queryBuilder,
-      GraphqlTableFieldFactory tableField,
-      Set<String> importedTables,
-      Table table) {
-    // only add tables that have columns, otherwise will be error
-    if (table.getMetadata().getColumns().size() > 0) {
-      queryBuilder.field(tableField.tableQueryField(table));
-      queryBuilder.field(tableField.tableAggField(table));
-    }
-    for (Column column : table.getMetadata().getColumns()) {
-      if (column.isReference()
-          && !column.getRefSchema().equals(schema.getName())
-          && !importedTables.contains(column.getRefTableName())) {
-        Table importedTable =
-            schema
-                .getDatabase()
-                .getSchema(column.getRefSchema())
-                .getTable(column.getRefTableName());
-        importedTables.add(importedTable.getName());
-
-        addImportedTablesRecursively(
-            schema,
-            queryBuilder,
-            tableField,
-            importedTables,
-            column
-                .getRefTable()
-                .getSchema()
-                .getDatabase()
-                .getSchema(column.getRefTable().getSchemaName())
-                .getTable(column.getRefTableName())); // lolwut, should probably merge
-        // table+tablemetadata
-
-      }
-    }
   }
 }
