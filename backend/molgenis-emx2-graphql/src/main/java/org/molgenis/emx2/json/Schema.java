@@ -27,7 +27,7 @@ public class Schema {
     Collections.sort(list);
     // add these tables
     for (TableMetadata t : list) {
-      tables.add(new Table(t, minimal));
+      tables.add(new Table(schema, t, minimal));
     }
   }
 
