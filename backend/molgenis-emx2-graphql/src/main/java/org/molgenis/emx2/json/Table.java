@@ -3,6 +3,7 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 
@@ -23,11 +24,11 @@ public class Table {
     // for json serialisation
   }
 
-  public Table(TableMetadata tableMetadata) {
-    this(tableMetadata, false);
+  public Table(SchemaMetadata schema, TableMetadata tableMetadata) {
+    this(schema, tableMetadata, false);
   }
 
-  public Table(TableMetadata tableMetadata, boolean minimal) {
+  public Table(SchemaMetadata schema, TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
@@ -35,6 +36,9 @@ public class Table {
     this.description = tableMetadata.getDescription();
     this.semantics = tableMetadata.getSemantics();
     this.settings = tableMetadata.getSettings();
+    if (!tableMetadata.getSchemaName().equals(schema.getName())) {
+      this.externalSchema = tableMetadata.getSchemaName();
+    }
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
