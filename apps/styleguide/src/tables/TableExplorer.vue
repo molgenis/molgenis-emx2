@@ -171,7 +171,6 @@
         </div>
       </div>
     </div>
-    {{ data }}
   </div>
 </template>
 
