@@ -351,12 +351,6 @@ export default {
     graphqlFilter() {
       let filter = this.filter ? this.filter : {};
       if (this.columns) {
-        //filter on subclass, if exists
-        if (this.hasSubclass) {
-          filter.mg_tableclass = {
-            equals: this.schema.name + "." + this.tableMetadata.name,
-          };
-        }
         this.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
             ? col.conditions.filter((f) => f !== "" && f != undefined)
