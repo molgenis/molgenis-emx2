@@ -65,7 +65,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public void removeMembers(List<Member> members) {
-    tx(database -> executeRemoveMembers(getMetadata().getJooq(), this, members));
+    tx(database -> executeRemoveMembers((SqlDatabase) database, getName(), members));
   }
 
   @Override
@@ -228,15 +228,16 @@ public class SqlSchema implements Schema {
   public void migrate(SchemaMetadata mergeSchema) {
     tx(
         database -> {
-          Schema targetSchema = getDatabase().getSchema(getName());
-          migrateTransaction((SqlSchema) targetSchema, mergeSchema, database);
+          migrateTransaction(getName(), mergeSchema, database);
         });
     this.getMetadata().reload();
     db.getListener().schemaChanged(getName());
   }
 
   private static void migrateTransaction(
-      SqlSchema targetSchema, SchemaMetadata mergeSchema, Database database) {
+      String targetSchemaName, SchemaMetadata mergeSchema, Database database) {
+    SqlSchema targetSchema = (SqlSchema) database.getSchema(targetSchemaName);
+
     // create list, sort dependency order
     List<TableMetadata> mergeTableList = new ArrayList<>();
     mergeSchema.setDatabase(database);

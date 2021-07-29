@@ -385,10 +385,11 @@ class SqlTableMetadata extends TableMetadata {
   public SqlTableMetadata setSettings(List<Setting> settings) {
     getDatabase()
         .tx(
-            db ->
-                sync(
-                    setSettingTransaction(
-                        (SqlDatabase) db, getSchemaName(), getTableName(), settings)));
+            db -> {
+              sync(
+                  setSettingTransaction(
+                      (SqlDatabase) db, getSchemaName(), getTableName(), settings));
+            });
     getDatabase().getListener().schemaChanged(getSchemaName());
     return this;
   }
@@ -488,7 +489,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata drop() {
+  public void drop() {
     long start = System.currentTimeMillis();
     getDatabase()
         .tx(
@@ -497,7 +498,6 @@ class SqlTableMetadata extends TableMetadata {
             });
     getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "dropped");
-    return this;
   }
 
   private static void dropTransaction(Database db, String schemaName, String tableName) {
