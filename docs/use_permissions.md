@@ -12,7 +12,7 @@ Currently we have as standard roles:
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
-database/schema. See: database settings.
+database/schema. See: [database settings](use_database_settings.md).
 
 In addition there are two special users:
 
