@@ -119,7 +119,7 @@ class SqlTable implements Table {
   @Override
   public int insert(Iterable<Row> rows) {
     try {
-      return executeTransaction(rows, INSERT);
+      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -133,7 +133,7 @@ class SqlTable implements Table {
   @Override
   public int update(Iterable<Row> rows) {
     try {
-      return this.executeTransaction(rows, UPDATE);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -147,7 +147,7 @@ class SqlTable implements Table {
   @Override
   public int save(Iterable<Row> rows) {
     try {
-      return this.executeTransaction(rows, SAVE);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed.", e);
     }
@@ -186,23 +186,30 @@ class SqlTable implements Table {
     db.getJooq().deleteFrom(getJooqTable()).where(field(MG_TABLECLASS).equal(mg_table)).execute();
   }
 
-  private String getMgTableClass(TableMetadata table) {
+  private static String getMgTableClass(TableMetadata table) {
     return table.getSchemaName() + "." + table.getTableName();
   }
 
-  private int executeTransaction(Iterable<Row> rows, MutationType transactionType) {
+  private static int executeTransaction(
+      Database db,
+      String schemaName,
+      String tableName,
+      Iterable<Row> rows,
+      MutationType transactionType) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
     final Map<String, Set<String>> columnsProvided = new LinkedHashMap<>();
 
-    String tableClass = getMgTableClass(getMetadata());
+    SqlSchema schema = (SqlSchema) db.getSchema(schemaName);
+    SqlTable table = schema.getTable(tableName);
+    String tableClass = getMgTableClass(table.getMetadata());
 
     // validate
-    if (getMetadata().getPrimaryKeys().isEmpty())
+    if (table.getMetadata().getPrimaryKeys().isEmpty())
       throw new MolgenisException(
           "Transaction failed: Table "
-              + getName()
+              + table.getName()
               + " cannot process row insert/update/delete requests because no primary key is defined");
 
     db.tx(
@@ -214,32 +221,31 @@ class SqlTable implements Table {
                 && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
 
               // validate
-              String tableName = row.getString(MG_TABLECLASS);
-              if (!tableName.contains(".")) {
-                if (this.getSchema().getTable(tableName) != null) {
-                  row.setString(MG_TABLECLASS, getSchema().getName() + "." + tableName);
+              String rowTableName = row.getString(MG_TABLECLASS);
+              if (!rowTableName.contains(".")) {
+                if (schema.getTable(rowTableName) != null) {
+                  row.setString(MG_TABLECLASS, schemaName + "." + rowTableName);
                 } else {
                   throw new MolgenisException(
                       MG_TABLECLASS
                           + " value failed in row "
                           + count.get()
                           + ": found '"
-                          + tableName
+                          + rowTableName
                           + "'");
                 }
               } else {
-                String schemaName = tableName.split("\\.")[0];
-                String tableName2 = tableName.split("\\.")[1];
-                if (this.getSchema().getDatabase().getSchema(schemaName) == null
-                    || this.getSchema().getDatabase().getSchema(schemaName).getTable(tableName2)
-                        == null) {
+                String rowSchemaName = rowTableName.split("\\.")[0];
+                String rowTableName2 = rowTableName.split("\\.")[1];
+                if (db.getSchema(rowSchemaName) == null
+                    || db.getSchema(rowSchemaName).getTable(rowTableName2) == null) {
                   throw new MolgenisException(
                       "invalid value in column '"
                           + MG_TABLECLASS
                           + "' on row "
                           + count.get()
                           + ": found '"
-                          + tableName
+                          + rowTableName
                           + "'");
                 }
               }
@@ -262,7 +268,7 @@ class SqlTable implements Table {
             if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
                 || subclassRows.get(subclassName).size() >= 1000) {
               executeBatch(
-                  (SqlSchema) db2.getSchema(getSchema().getName()),
+                  (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
                   transactionType,
                   count,
                   subclassRows,
@@ -281,7 +287,7 @@ class SqlTable implements Table {
           for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
             if (batch.getValue().size() > 0) {
               executeBatch(
-                  (SqlSchema) db2.getSchema(getSchema().getName()),
+                  (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
                   transactionType,
                   count,
                   subclassRows,
@@ -291,7 +297,12 @@ class SqlTable implements Table {
           }
         });
 
-    log(start, count, transactionType.name().toLowerCase() + "d (incl subclass if applicable)");
+    log(
+        db.getActiveUser(),
+        table.getJooqTable().getName(),
+        start,
+        count,
+        transactionType.name().toLowerCase() + "d (incl subclass if applicable)");
     return count.get();
   }
 
@@ -303,7 +314,7 @@ class SqlTable implements Table {
     }
   }
 
-  private boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
+  private static boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
     if (columnsProvided.size() == 0 || columnsProvided.equals(row.getColumnNames())) {
       return false;
     } else {
@@ -479,15 +490,7 @@ class SqlTable implements Table {
           db2 -> {
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
 
-            // first update superclass
-            if (table.getMetadata().getInherit() != null) {
-              table.getInheritedTable().delete(rows);
-            }
-
-            // because of expensive jTable scanning and smaller queryOld string size this batch
-            // should be
-            // larger
-            // than insert/update
+            // delete in batches
             int batchSize = 100000;
             List<Row> batch = new ArrayList<>();
             for (Row row : rows) {
@@ -498,13 +501,20 @@ class SqlTable implements Table {
                 batch.clear();
               }
             }
+
+            // delete remaining elements
             deleteBatch(table, batch);
+
+            // finally delete in superclass
+            if (table.getMetadata().getInherit() != null) {
+              table.getInheritedTable().delete(rows);
+            }
           });
     } catch (Exception e) {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
     }
 
-    log(start, count, "deleted");
+    log(db.getActiveUser(), getName(), start, count, "deleted");
 
     return count.get();
   }
@@ -633,8 +643,8 @@ class SqlTable implements Table {
     }
   }
 
-  private void log(long start, AtomicInteger count, String message) {
-    String user = db.getActiveUser();
+  private static void log(
+      String user, String table, long start, AtomicInteger count, String message) {
     if (user == null) user = "molgenis";
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -642,7 +652,7 @@ class SqlTable implements Table {
           user,
           message,
           count.get(),
-          getJooqTable(),
+          table,
           (System.currentTimeMillis() - start));
     }
   }

@@ -494,9 +494,8 @@ public class TableMetadata implements Comparable {
     return drop;
   }
 
-  public TableMetadata drop() {
+  public void drop() {
     this.drop = true;
-    return this;
   }
 
   public TableMetadata alterName(String name) {
