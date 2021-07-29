@@ -5,6 +5,7 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Arrays;
@@ -58,7 +59,7 @@ public class TestGrantRolesToUsers {
     database.addUser("user_testRolePermissions_manager");
 
     // grant proper roles
-    schema.addMember("user_testRolePermissions_viewer", Privileges.VIEWER.toString());
+    schema.addMember("user_testRolePermissions_viewer", VIEWER.toString());
     schema.addMember("user_testRolePermissions_editor", Privileges.EDITOR.toString());
     schema.addMember("user_testRolePermissions_manager", Privileges.MANAGER.toString());
 
@@ -183,7 +184,7 @@ public class TestGrantRolesToUsers {
             db -> {
               db.getSchema("testRole").create(table("Test"));
               // this is soo cooool
-              db.getSchema("testRole").addMember("testuser", Privileges.VIEWER.toString());
+              db.getSchema("testRole").addMember("testuser", VIEWER.toString());
             });
 
       } catch (Exception e) {
@@ -194,5 +195,20 @@ public class TestGrantRolesToUsers {
     } finally {
       database.clearActiveUser();
     }
+  }
+
+  @Test
+  public void testCaseSensitiveSchemaNames() {
+    // following bug
+    Schema s1 = database.dropCreateSchema("testCaseSensitiveSchemaNames");
+    s1.addMember("testCaseSensitiveSchemaNamesUser", VIEWER.toString());
+    assertEquals(1, s1.getMembers().size());
+
+    Schema s2 = database.dropCreateSchema("testCaseSensitiveSchemaNAMES");
+    assertEquals(0, s2.getMembers().size());
+
+    database.dropSchema(s2.getName());
+    database.dropSchema(s1.getName());
+    database.removeUser("testCaseSensitiveSchemaNamesUser");
   }
 }

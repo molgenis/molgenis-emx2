@@ -173,9 +173,7 @@ public class SqlDatabase implements Database {
       }
       if (!hasUser(ADMIN)) {
         addUser(ADMIN);
-        setUserPassword(
-            ADMIN,
-            INITIAL_ADMIN_PW);
+        setUserPassword(ADMIN, INITIAL_ADMIN_PW);
         jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
       }
     } catch (Exception e) {
