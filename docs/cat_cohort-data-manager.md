@@ -2,7 +2,7 @@
 ## Catalogue
 ### Data harmonisation
 Each cohort harmonises their data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo). 
-###Staging areas for uploads
+### Staging areas
 The cohort or DAP metadata is uploaded to what are called "staging areas" of the Data Catalogue.
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).
 ConcePTION uses [*emx2-conception*](https://emx2-conception.test.molgenis.org).
