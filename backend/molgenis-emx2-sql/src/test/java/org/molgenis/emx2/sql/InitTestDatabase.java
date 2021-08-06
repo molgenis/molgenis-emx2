@@ -1,6 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import org.junit.Test;
+import org.molgenis.emx2.Database;
+
+import static org.junit.Assert.assertTrue;
 
 public class InitTestDatabase {
 
@@ -10,6 +13,8 @@ public class InitTestDatabase {
     // AND we want run all other tests in parallel
     // so tests are in molgenis-emx2-sql-it ('integration test')
     // and 'init' only happence once, here
-    new SqlDatabase(true);
+    Database db = new SqlDatabase(true);
+
+    assertTrue(db.getDatabaseVersion() > 0);
   }
 }
