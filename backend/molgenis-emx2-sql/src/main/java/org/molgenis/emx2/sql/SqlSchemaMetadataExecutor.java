@@ -161,8 +161,10 @@ class SqlSchemaMetadataExecutor {
     return members;
   }
 
-  static void executeRemoveMembers(DSLContext jooq, SqlSchema schema, List<Member> members) {
+  static void executeRemoveMembers(SqlDatabase db, String schemaName, List<Member> members) {
     try {
+      SqlSchema schema = db.getSchema(schemaName);
+
       List<String> usernames = new ArrayList<>();
       for (Member m : members) usernames.add(m.getUser());
 
@@ -172,9 +174,10 @@ class SqlSchemaMetadataExecutor {
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
 
-          jooq.execute(
-              "REVOKE {0} FROM {1}",
-              name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
+          db.getJooq()
+              .execute(
+                  "REVOKE {0} FROM {1}",
+                  name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
         }
       }
     } catch (DataAccessException dae) {

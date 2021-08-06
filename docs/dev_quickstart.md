@@ -23,7 +23,7 @@ app, described below. Or you can run it inside IntelliJ.
 ## Build whole system
 
 Requires [Postgresql 13](https://www.postgresql.org/download/) and java (we use
-adopt [OpenJDK 16](https://adoptopenjdk.net/)):
+[adopt OpenJDK 16](https://adoptopenjdk.net/)):
 
 On Linux/Mac this could go as follows (Windows users, please tell us if this works for you too):
 
@@ -130,7 +130,3 @@ Sometimes it help to reset gradle cache and stop the gradle daemon
 
 If you want to delete all the schemas in the database, run
 ```molgenis-emx2-sql/test/java/.../AToolToCleanDatabase```
-
-
-
-

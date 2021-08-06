@@ -38,46 +38,11 @@ public class SqlDatabase implements Database {
       (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN, STRING);
   private DatabaseListener listener =
       new DatabaseListener() {
-        private boolean reloadOnCommit = false;
-        private Set<String> reloadSchemas = new HashSet<>();
-
-        @Override
-        public void schemaRemoved(String name) {
-          clearCache();
-          logger.info("clear cache schemaRemoved");
-        }
-
-        @Override
-        public void userChanged() {
-          // dummy
-        }
-
-        @Override
-        public void schemaChanged(String schemaName) {
-          // wait until end of transaction
-          if (!inTx) {
-            getSchema(schemaName).getMetadata().reload();
-            clearCache();
-            logger.info("reload schema " + schemaName + " on schemaChanged");
-          } else {
-            reloadOnCommit = true;
-            reloadSchemas.add(schemaName);
-          }
-        }
-
         @Override
         public void afterCommit() {
-          if (reloadOnCommit) {
-            for (String schemaName : reloadSchemas) {
-              if (getSchema(schemaName) != null) {
-                getSchema(schemaName).getMetadata().reload();
-              }
-              logger.info("reload schema " + schemaName + " on afterCommit");
-            }
-            clearCache();
-            reloadOnCommit = false;
-            reloadSchemas.clear();
-          }
+          clearCache();
+          super.afterCommit();
+          logger.info("cleared caches after commit that includes changes on schema(s)");
         }
       };
 
@@ -215,9 +180,8 @@ public class SqlDatabase implements Database {
           if (db.getActiveUser() != null) {
             schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
-          // copy metadata to our cache
-          this.schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
-          this.schemaNames.add(name);
+          // refresh
+          db.clearCache();
         });
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
@@ -363,7 +327,6 @@ public class SqlDatabase implements Database {
       }
     }
     this.connectionProvider.setActiveUser(username);
-    listener.userChanged();
   }
 
   @Override
@@ -395,24 +358,19 @@ public class SqlDatabase implements Database {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
       try {
-        // createColumn independent merge of database with transaction connection
         jooq.transaction(
             config -> {
+              db.inTx = true;
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               db.setJooq(ctx);
-              db.inTx = true;
-              try {
-                transaction.run(db);
-                // update any changes to schema
-                db.sync(db);
-              } finally {
-                // not really needed because this instance is destroyed end of transaction
-                db.inTx = false;
-              }
+              transaction.run(db);
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
+        if (db.getListener().isDirty()) {
+          this.getListener().afterCommit();
+        }
       } catch (DataAccessException e) {
         throw new SqlMolgenisException("Transaction failed", e);
       } catch (Exception e) {
@@ -423,11 +381,7 @@ public class SqlDatabase implements Database {
 
   private synchronized void sync(SqlDatabase from) {
     if (from != this) {
-      // don't sync tx
-
-      // active user
       this.connectionProvider.setActiveUser(from.connectionProvider.getActiveUser());
-      this.listener = from.listener;
       this.databaseVersion = from.databaseVersion;
 
       this.schemaNames = from.schemaNames;

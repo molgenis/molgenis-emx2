@@ -34,7 +34,8 @@ public class TestMergeDrop {
     assertNotNull(schema.getTable("Person"));
 
     newSchema = new SchemaMetadata();
-    newSchema.create(table("Person").drop());
+    newSchema.create(table("Person"));
+    newSchema.getTableMetadata("Person").drop();
 
     schema.migrate(newSchema);
     // should be idempotent
@@ -64,7 +65,8 @@ public class TestMergeDrop {
     // should fail
     newSchema = new SchemaMetadata();
     try {
-      newSchema.create(table("Person").drop());
+      newSchema.create(table("Person"));
+      newSchema.getTableMetadata("Person").drop();
       schema.migrate(newSchema);
       fail("should fail because of foreign key");
     } catch (Exception e) {
@@ -72,7 +74,8 @@ public class TestMergeDrop {
     }
 
     // should succeed
-    newSchema.create(table("Pet").drop());
+    newSchema.create(table("Pet"));
+    newSchema.getTableMetadata("Pet").drop();
     schema.migrate(newSchema);
     // should be idempotent so repeat
     schema.migrate(newSchema);
