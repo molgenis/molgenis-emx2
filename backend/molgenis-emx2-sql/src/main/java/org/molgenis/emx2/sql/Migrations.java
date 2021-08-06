@@ -7,6 +7,8 @@ import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public class Migrations {
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -33,9 +35,7 @@ public class Migrations {
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       db.getJooq().execute(sql);
       logger.debug("applied migration: " + sqlFile);
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException(dae);
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new MolgenisException(e.getMessage());
     }
   }
