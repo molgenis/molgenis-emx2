@@ -5,7 +5,7 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.Privileges.VIEWER;
+import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class TestGrantRolesToUsers {
     // grant proper roles
     schema.addMember("user_testRolePermissions_viewer", VIEWER.toString());
     schema.addMember("user_testRolePermissions_editor", Privileges.EDITOR.toString());
-    schema.addMember("user_testRolePermissions_manager", Privileges.MANAGER.toString());
+    schema.addMember("user_testRolePermissions_manager", MANAGER.toString());
 
     StopWatch.print("testRolePermissions schema created");
 
@@ -148,15 +148,14 @@ public class TestGrantRolesToUsers {
 
       database.clearActiveUser();
 
-      schema.addMember("testadmin", Privileges.OWNER.toString());
-      assertEquals(Privileges.OWNER.toString(), schema.getRoleForUser("testadmin"));
+      schema.addMember("testadmin", OWNER.toString());
+      assertEquals(OWNER.toString(), schema.getRoleForUser("testadmin"));
 
-      assertTrue(
-          schema.getInheritedRolesForUser("testadmin").contains(Privileges.OWNER.toString()));
+      assertTrue(schema.getInheritedRolesForUser("testadmin").contains(OWNER.toString()));
       assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
 
       database.setActiveUser("testadmin");
-      assertEquals(Privileges.OWNER.toString(), schema.getRoleForActiveUser());
+      assertEquals(OWNER.toString(), schema.getRoleForActiveUser());
       database.clearActiveUser();
 
       schema.create(
@@ -199,16 +198,33 @@ public class TestGrantRolesToUsers {
 
   @Test
   public void testCaseSensitiveSchemaNames() {
-    // following bug
+    // following bug #405
     Schema s1 = database.dropCreateSchema("testCaseSensitiveSchemaNames");
-    s1.addMember("testCaseSensitiveSchemaNamesUser", VIEWER.toString());
+
+    // add member to schema
+    final String USER = "testCaseSensitiveSchemaNamesMANAGER";
+    s1.addMember(USER, MANAGER.toString());
     assertEquals(1, s1.getMembers().size());
 
+    // create another schema with case insensitive equal name
     Schema s2 = database.dropCreateSchema("testCaseSensitiveSchemaNAMES");
     assertEquals(0, s2.getMembers().size());
 
-    database.dropSchema(s2.getName());
-    database.dropSchema(s1.getName());
-    database.removeUser("testCaseSensitiveSchemaNamesUser");
+    // proof that USER can only add tables in one schema/drop in one schema
+    database.setActiveUser(USER);
+    s1.create(table("ATable", column("id").setPkey()));
+
+    // proof that user can NOT add in other schema
+    try {
+      s2.create(table("ATable", column("id").setPkey()));
+      fail("user should not be able to add tables in schema it has no permissions on");
+    } catch (Exception e) {
+      // correct
+    }
+
+    // proof user can drop
+    database.clearActiveUser(); // reset to default user
+    database.dropSchema(s2.getName()); // clean up
+    database.removeUser(USER);
   }
 }
