@@ -1,9 +1,9 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.molgenis.emx2.Database;
-
-import static org.junit.Assert.assertTrue;
 
 public class InitTestDatabase {
 

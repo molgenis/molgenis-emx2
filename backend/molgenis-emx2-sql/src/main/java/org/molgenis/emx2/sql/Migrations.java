@@ -11,7 +11,7 @@ public class Migrations {
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static void initOrMigrate(SqlDatabase db) {
-    int version = getDatabaseVersion(db);
+    int version = MetadataUtils.getVersion(db.getJooq());
 
     // migration steps
     if (version < 0) MetadataUtils.init(db.getJooq());
@@ -32,17 +32,6 @@ public class Migrations {
     } catch (IOException e) {
       throw new MolgenisException(e.getMessage());
     }
-  }
-
-  /**
-   * returns -1 if no schema exists <br>
-   * returns 0 if no version number exists
-   */
-  private static int getDatabaseVersion(SqlDatabase db) {
-    if (db.getJooq().meta().getSchemas(MOLGENIS).size() == 0) {
-      return -1;
-    }
-    return MetadataUtils.getVersion(db.getJooq());
   }
 
   private static void updateDatabaseVersion(SqlDatabase db, int newVersion) {
