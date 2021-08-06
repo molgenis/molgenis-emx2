@@ -2,12 +2,10 @@ package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.sql.MetadataUtils.MOLGENIS;
 
-import org.jooq.exception.DataAccessException;
+import java.io.IOException;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class Migrations {
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
@@ -15,14 +13,10 @@ public class Migrations {
   public static void initOrMigrate(SqlDatabase db) {
     int version = getDatabaseVersion(db);
 
-    if (version < 0) {
-      // steps to clean database
-      MetadataUtils.init(db.getJooq());
-      executeFile(db, "migration1.sql");
-    } else {
-      // steps for migrations go here
-      if (version < 1) executeFile(db, "migration1.sql");
-    }
+    // migration steps
+    if (version < 0) MetadataUtils.init(db.getJooq());
+    if (version < 1)
+      executeMigrationFile(db, "migration1.sql", "upgraded MOLGENIS.version_metadata");
 
     // if cannot migrate then throw a MolgenisException
 
@@ -30,11 +24,11 @@ public class Migrations {
     updateDatabaseVersion(db, 1);
   }
 
-  private static void executeFile(SqlDatabase db, String sqlFile) {
+  private static void executeMigrationFile(SqlDatabase db, String sqlFile, String message) {
     try {
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       db.getJooq().execute(sql);
-      logger.debug("applied migration: " + sqlFile);
+      logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException(e.getMessage());
     }
