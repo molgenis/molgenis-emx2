@@ -13,7 +13,7 @@ Institutions,,partnerIn,refback,,,Partners,,institution,,,List of partner roles 
 Resources,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Resources,,acronym,,1,TRUE,,,,,,Unique identifier within this catalogue
 Resources,,name,,2,,,,,,,Human readible name of this resource
-Resources,,externalIdentifier(s),,,,,,,,,External identifier for this resource
+Resources,,externalIdentifiers,,,,,,,,,External identifier for this resource
 Resources,,type,ref_array,,,ResourceTypes,,,,,"Codes that characterises the organisation and design of this resource, e.g. registry, cohort, etc."
 Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
 Resources,,contact,ref_array,,,Contacts,,,,,Whom to contact for information and access
@@ -109,9 +109,9 @@ CollectionEvents,,ageMin,ref,,,AgeCategories,,,,,"minimum ages included, if appl
 CollectionEvents,,ageMax,ref,,,AgeCategories,,,,,"maximum ages included, if applicable"
 CollectionEvents,,noParticipants,int,,,,,,,,number of participants sampled in this event
 CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,(sub)populations that are targetted with this collection event
-CollectionEvents,,dataCategories,ref_array,,,DataCategories,,,,,
-CollectionEvents,,sampleCategories,ref_array,,,SampleCategories,,,,,
-CollectionEvents,,areasOfInterest,ref_array,,,AreasOfInterest,,,,,
+CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,
+CollectionEvents,,dataSources,ref_array,,,DataSources,,,,,
+CollectionEvents,,sampleSources,ref_array,,,SampleSources,,,,,
 CollectionEvents,,supplementaryInformation,text,,,,,,,,any other information
 Subcohorts,,,,,,,,,,,Subpopulations defined in this resource
 Subcohorts,,resource,ref,1,true,Resources,,,,,"E.g. 'Mothers in first trimester','newborns'"
@@ -213,14 +213,14 @@ OntologyTerms,,comments,text,,,,,,,,
 OntologyTerms,,parent,ref,,,OntologyTerms,,,,,link to a more broad term
 OntologyTerms,,ontologyTermURI,,3,,,,,,,
 OntologyTerms,,children,refback,,,OntologyTerms,,parent,,,link to more specific terms
-AreasOfInterest,OntologyTerms,,,,,,,,,,
+AreasOfInformation,OntologyTerms,,,,,,,,,,
 Vocabularies,OntologyTerms,,,,,,,,,,
 FundingTypes,OntologyTerms,,,,,,,,,,
 Ethnicities,OntologyTerms,,,,,,,,,,
 CohortDesigns,OntologyTerms,,,,,,,,,,
 CollectionTypes,OntologyTerms,,,,,,,,,,
-SampleCategories,OntologyTerms,,,,,,,,,,
-DataCategories,OntologyTerms,,,,,,,,,,
+SampleSources,OntologyTerms,,,,,,,,,,
+DataSources,OntologyTerms,,,,,,,,,,
 Diseases,OntologyTerms,,,,,,,,,,
 Conditions,OntologyTerms,,,,,,,,,,
 ContributionTypes,OntologyTerms,,,,,,,,,,
