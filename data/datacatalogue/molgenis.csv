@@ -109,9 +109,9 @@ CollectionEvents,,ageMin,ref,,,AgeCategories,,,,,"minimum ages included, if appl
 CollectionEvents,,ageMax,ref,,,AgeCategories,,,,,"maximum ages included, if applicable"
 CollectionEvents,,noParticipants,int,,,,,,,,number of participants sampled in this event
 CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,(sub)populations that are targetted with this collection event
-CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,
-CollectionEvents,,dataSources,ref_array,,,DataSources,,,,,
-CollectionEvents,,sampleSources,ref_array,,,SampleSources,,,,,
+CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,Areas of information that were extract using below data and samples sources
+CollectionEvents,,dataSources,ref_array,,,DataSources,,,,,Methods of data collection used in this collection event
+CollectionEvents,,sampleSources,ref_array,,,SampleSources,,,,,Samples that were collected in this collection even
 CollectionEvents,,supplementaryInformation,text,,,,,,,,any other information
 Subcohorts,,,,,,,,,,,Subpopulations defined in this resource
 Subcohorts,,resource,ref,1,true,Resources,,,,,"E.g. 'Mothers in first trimester','newborns'"
