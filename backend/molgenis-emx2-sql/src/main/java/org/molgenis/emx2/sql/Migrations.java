@@ -1,7 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.sql.MetadataUtils.MOLGENIS;
-
 import java.io.IOException;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
