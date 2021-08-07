@@ -27,7 +27,7 @@ public class MetadataUtils {
 
   // version
   private static final org.jooq.Field VERSION_ID = field(name("id"), INTEGER.nullable(false));
-  private static final org.jooq.Field VERSION = field(name("version"), INTEGER.nullable(false));
+  private static final org.jooq.Field VERSION = field(name("version"), VARCHAR.nullable(false));
 
   // table
   private static final org.jooq.Field TABLE_SCHEMA =
