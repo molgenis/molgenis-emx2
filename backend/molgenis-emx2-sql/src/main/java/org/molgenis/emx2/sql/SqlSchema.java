@@ -95,19 +95,9 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<String> getInheritedRolesForUser(String user) {
-    if (user == null) return new ArrayList<>();
-    user = user.trim();
-    // elevate permissions temporarily
-    String current = db.getActiveUser();
-    db.clearActiveUser();
-    try {
-      return SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-          db.getJooq(), this.getMetadata().getName(), user);
-    } finally {
-      if (current != null) {
-        db.setActiveUser(current);
-      }
-    }
+    // moved implementation to SqlSchemaMetadata so can be cached
+    // while being reloaded in case of transactions
+    return getMetadata().getIneritedRolesForUser(user);
   }
 
   @Override
