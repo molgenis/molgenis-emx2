@@ -1,7 +1,7 @@
 <template>
   <div>
     <h6>Access conditions</h6>
-    <OntologyTerms :terms="resource.conditions" color="color" />
+    <OntologyTerms :terms="resource.conditions" :color="color" />
     <p v-if="resource.conditionsDescription">
       {{ resource.conditionsDescription }}
     </p>
