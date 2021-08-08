@@ -43,7 +43,7 @@ public class MolgenisSessionManager {
     MolgenisSession session = sessions.get(request.session().id());
     if (session.getSessionUser() == null) {
       logger.error(
-          "get session for user({}) and key ({})",
+          "got user is NULL for session key ({}). Setting user=anonymous.",
           session.getSessionUser(),
           request.session().id());
       // should never happen, but in previous bug user could be null
