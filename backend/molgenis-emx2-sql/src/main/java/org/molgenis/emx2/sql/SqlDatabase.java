@@ -243,16 +243,15 @@ public class SqlDatabase implements Database {
   public void addUser(String user) {
     if (hasUser(user)) return; // idempotent
     long start = System.currentTimeMillis();
-    // need elevated privileges, so not as active user
-    String currentUser = getActiveUser();
-    try {
-      clearActiveUser();
-      tx(db -> executeCreateUser(((SqlDatabase) db).getJooq(), user));
-    } finally {
-      if (currentUser != null) {
-        setActiveUser(currentUser);
-      }
-    }
+    // need elevated privileges, so clear user and run as root
+    // this is not thread safe therefore must be in a transaction
+    tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          db.clearActiveUser();
+          executeCreateUser(((SqlDatabase) db).getJooq(), user);
+          db.setActiveUser(currentUser);
+        });
     log(start, "created user " + user);
   }
 
@@ -315,10 +314,14 @@ public class SqlDatabase implements Database {
   @Override
   public void setActiveUser(String username) {
     if (inTx) {
-      try {
-        jooq.execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + username));
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException("Set active user failed", dae);
+      if (username == null) {
+        this.clearActiveUser();
+      } else {
+        try {
+          jooq.execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + username));
+        } catch (DataAccessException dae) {
+          throw new SqlMolgenisException("Set active user failed", dae);
+        }
       }
     } else {
       if (username == null && connectionProvider.getActiveUser() != null
