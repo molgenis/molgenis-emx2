@@ -235,12 +235,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public List<String> getIneritedRolesForUser(String user) {
     if (user == null) return new ArrayList<>();
-    // add cache because this funciton is called often
+    // add cache because this function is called often
     if (rolesCache != null) return rolesCache;
     final String username = user.trim();
     List<String> result = new ArrayList<>();
-    // elevate permissions temporarily
-    // not thread safe so therefore in a tx
+    // need elevated privileges, so clear user and run as root
+    // this is not thread safe therefore must be in a transaction
     getDatabase()
         .tx(
             tdb -> {

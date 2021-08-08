@@ -47,7 +47,7 @@ public class MolgenisSessionManager {
           session.getSessionUser(),
           request.session().id());
       // should never happen, but in previous bug user could be null
-      // thereofre make anonymous so session is valid and user can log in again
+      // therefore make anonymous so session is valid and user can log in again
       session.getDatabase().setActiveUser("anonymous");
     } else {
       logger.info(
