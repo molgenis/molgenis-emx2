@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class MetadataUtils {
   private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
 
-  public static final String MOLGENIS = "MOLGENIS";
+  private static final String MOLGENIS = "MOLGENIS";
   private static final String NOT_PROVIDED = "NOT_PROVIDED";
   // tables
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
