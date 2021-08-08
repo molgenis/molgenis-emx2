@@ -41,7 +41,20 @@ public class MolgenisSessionManager {
 
     // get the session
     MolgenisSession session = sessions.get(request.session().id());
-    logger.info("get session for user({})", session.getSessionUser());
+    if (session.getSessionUser() == null) {
+      logger.error(
+          "get session for user({}) and key ({})",
+          session.getSessionUser(),
+          request.session().id());
+      // should never happen, but in previous bug user could be null
+      // thereofre make anonymous so session is valid and user can log in again
+      session.getDatabase().setActiveUser("anonymous");
+    } else {
+      logger.info(
+          "get session for user({}) and key ({})",
+          session.getSessionUser(),
+          request.session().id());
+    }
     return session;
   }
 
