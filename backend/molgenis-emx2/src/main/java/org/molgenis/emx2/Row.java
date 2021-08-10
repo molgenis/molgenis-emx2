@@ -303,7 +303,7 @@ public class Row {
         return (T) getUuidArray(name);
       default:
         throw new MolgenisException(
-            "Unknown type: Cannot cast column to java columnType"
+            "Unknown type: Cannot cast column to java columnType. "
                 + "Row.get(Class,name) not implemented for Class = "
                 + type.getCanonicalName());
     }

@@ -3,7 +3,7 @@
     <div class="p-2 mb-2" :class="headerCss">
       {{ tableName }}
     </div>
-    <div class="row m-2">
+    <div class="row">
       <div class="col">
         <h4>
           <span
