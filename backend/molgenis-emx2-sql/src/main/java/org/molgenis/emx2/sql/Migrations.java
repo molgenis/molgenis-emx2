@@ -25,7 +25,9 @@ public class Migrations {
           // this ensures 'new' and 'updated' servers are equal and same logic is not specified 2x
           // (one for 'new' and one for 'migration')
           if (version < 1)
-            executeMigrationFile(tdb, "migration1.sql", "upgraded MOLGENIS.version_metadata");
+            executeMigrationFile(tdb, "migration1.sql", "database migration: MOLGENIS.version_metadata tracks int database version number checks against code instead of string version number from released jar");
+          if(version< 2)
+              executeMigrationFile(tdb, "migration2.sql", "database migration: role names are made case-sensitive matching schema names, to fix issue where roles where conflicting between schemas with same uppercase(name)");
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.
