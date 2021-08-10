@@ -96,26 +96,34 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
+  /**
+   * Returns version number. Returns -1 if metadata does not exist (i.e. MOLGENIS schema does not
+   * exist)
+   *
+   * @param jooq
+   * @return
+   */
   protected static Integer getVersion(DSLContext jooq) {
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+      // schema does not exist
       return -1;
     } else {
-      try {
-        Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
-        if (result.size() > 0) {
-          Object version = result.get(0).get(VERSION);
-          try {
-            // in previous version this was a string so have to do it like this
-            return (Integer) version;
-          } catch (Exception e) {
-          }
+      Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      if (result.size() > 0) {
+        Object version = result.get(0).get(VERSION);
+        try {
+          // in previous version this was a string so might not be integer
+          return (Integer) version;
+        } catch (NumberFormatException e) {
+          // this is to handle the legacy systems: before Migration system we used version string of
+          // software
+          logger.debug(
+              "Updating from old 'x.y.z' based database version number to numeric database version number");
         }
-      } catch (Exception e) {
-        // nothing
       }
+      // default
+      return 0;
     }
-    // default
-    return 0;
   }
 
   // should never run in parallel

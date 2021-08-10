@@ -1,31 +1,42 @@
 package org.molgenis.emx2.sql;
 
 import java.io.IOException;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Migrations {
+  // version the current software needs to work
+  private static final int SOFTWARE_DATABASE_VERSION = 1;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
-  public static void initOrMigrate(SqlDatabase db) {
-    int version = MetadataUtils.getVersion(db.getJooq());
+  public static synchronized void initOrMigrate(SqlDatabase db) {
+    db.tx(
+        tdb -> {
+          int version = MetadataUtils.getVersion(db.getJooq());
 
-    // migration steps
-    if (version < 0) MetadataUtils.init(db.getJooq());
-    if (version < 1)
-      executeMigrationFile(db, "migration1.sql", "upgraded MOLGENIS.version_metadata");
+          // -1 getVersion indicates schema does not exist
+          if (version < 0) MetadataUtils.init(((SqlDatabase) tdb).getJooq());
 
-    // if cannot migrate then throw a MolgenisException
+          // migration steps to update from a previous version to SOFTWARE_DATABASE_VERSION
+            // idea is that all steps need to be run when initializing empty server
+            // this ensures 'new' and 'updated' servers are equal and same logic is not specified 2x (one for 'new' and one for 'migration')
+          if (version < 1)
+            executeMigrationFile(tdb, "migration1.sql", "upgraded MOLGENIS.version_metadata");
 
-    // update version, change this number if you create breaking change
-    updateDatabaseVersion(db, 1);
+          // if cannot migrate then throw a MolgenisException. This happens in case of breaking
+          // change for database backend.
+
+          // if success, update version to SOFTWARE_DATABASE_VERSION
+          updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
+        });
   }
 
-  private static void executeMigrationFile(SqlDatabase db, String sqlFile, String message) {
+  private static void executeMigrationFile(Database db, String sqlFile, String message) {
     try {
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
-      db.getJooq().execute(sql);
+      ((SqlDatabase) db).getJooq().execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException(e.getMessage());
