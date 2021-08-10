@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.javers.common.collections.Lists;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -236,7 +237,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public List<String> getIneritedRolesForUser(String user) {
     if (user == null) return new ArrayList<>();
     // add cache because this function is called often
-    if (rolesCache != null) return rolesCache;
+    if (rolesCache != null) return Lists.immutableCopyOf(rolesCache);
     final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
