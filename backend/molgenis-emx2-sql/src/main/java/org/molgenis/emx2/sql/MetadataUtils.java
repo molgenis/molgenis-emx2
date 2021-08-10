@@ -114,7 +114,7 @@ public class MetadataUtils {
         try {
           // in previous version this was a string so might not be integer
           return (Integer) version;
-        } catch (NumberFormatException e) {
+        } catch (ClassCastException e) {
           // this is to handle the legacy systems: before Migration system we used version string of
           // software
           logger.debug(

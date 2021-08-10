@@ -417,7 +417,7 @@ public class SqlDatabase implements Database {
     this.schemaNames.clear();
   }
 
-  protected DSLContext getJooq() {
+  public DSLContext getJooq() {
     return jooq;
   }
 
