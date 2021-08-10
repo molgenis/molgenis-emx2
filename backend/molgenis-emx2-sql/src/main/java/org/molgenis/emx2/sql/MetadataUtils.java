@@ -8,7 +8,6 @@ import java.util.*;
 import org.jooq.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
-import org.molgenis.emx2.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,7 @@ public class MetadataUtils {
 
   // version
   private static final org.jooq.Field VERSION_ID = field(name("id"), INTEGER.nullable(false));
-  private static final org.jooq.Field VERSION = field(name("version"), VARCHAR.nullable(false));
+  private static final org.jooq.Field VERSION = field(name("version"), INTEGER.nullable(false));
 
   // table
   private static final org.jooq.Field TABLE_SCHEMA =
@@ -97,16 +96,34 @@ public class MetadataUtils {
     // to hide the public constructor
   }
 
-  protected static String getVersion(DSLContext jooq) {
-    try {
+  /**
+   * Returns version number. Returns -1 if metadata does not exist (i.e. MOLGENIS schema does not
+   * exist)
+   *
+   * @param jooq
+   * @return
+   */
+  protected static Integer getVersion(DSLContext jooq) {
+    if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+      // schema does not exist
+      return -1;
+    } else {
       Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
-        return (String) result.get(0).get(VERSION);
+        Object version = result.get(0).get(VERSION);
+        try {
+          // in previous version this was a string so might not be integer
+          return (Integer) version;
+        } catch (NumberFormatException e) {
+          // this is to handle the legacy systems: before Migration system we used version string of
+          // software
+          logger.debug(
+              "Updating from old 'x.y.z' based database version number to numeric database version number");
+        }
       }
-    } catch (Exception e) {
-      // nothing
+      // default
+      return 0;
     }
-    return null;
   }
 
   // should never run in parallel
@@ -127,12 +144,6 @@ public class MetadataUtils {
             // set version
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
               t.columns(VERSION_ID, VERSION).constraints(primaryKey(VERSION_ID)).execute();
-              jooq.insertInto(VERSION_METADATA, VERSION_ID, VERSION)
-                  .values(1, Version.getSpecificationVersion())
-                  .onConflict(VERSION_ID)
-                  .doUpdate()
-                  .set(VERSION, Version.getSpecificationVersion())
-                  .execute();
             }
 
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
@@ -570,5 +581,14 @@ public class MetadataUtils {
             .fetchOne();
 
     return result != null && result.get("matches", Boolean.class);
+  }
+
+  public static void setVersion(DSLContext jooq, int newVersion) {
+    jooq.insertInto(VERSION_METADATA, VERSION_ID, VERSION)
+        .values(1, newVersion)
+        .onConflict(VERSION_ID)
+        .doUpdate()
+        .set(VERSION, newVersion)
+        .execute();
   }
 }

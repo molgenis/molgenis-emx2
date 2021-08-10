@@ -19,7 +19,7 @@ public class GraphqlManifesFieldFactory {
         .name("_manifest")
         .dataFetcher(
             dataFetchingEnvironment -> {
-              Map<String, String> result = new HashMap<>();
+              Map<String, Object> result = new HashMap<>();
               result.put(IMPLEMENTATION_VERSION, Version.getImplementationVersion());
               result.put(SPECIFICATION_VERSION, Version.getSpecificationVersion());
               result.put(DATABASE_VERSION, db.getDatabaseVersion());
