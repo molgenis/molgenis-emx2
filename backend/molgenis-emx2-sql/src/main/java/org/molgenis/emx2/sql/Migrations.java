@@ -13,6 +13,7 @@ public class Migrations {
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
     db.tx(
+        // transaction ensures migration succeeds completely or is rolled back completely
         tdb -> {
           int version = MetadataUtils.getVersion(db.getJooq());
 
@@ -20,8 +21,9 @@ public class Migrations {
           if (version < 0) MetadataUtils.init(((SqlDatabase) tdb).getJooq());
 
           // migration steps to update from a previous version to SOFTWARE_DATABASE_VERSION
-            // idea is that all steps need to be run when initializing empty server
-            // this ensures 'new' and 'updated' servers are equal and same logic is not specified 2x (one for 'new' and one for 'migration')
+          // idea is that all steps need to be run when initializing empty server
+          // this ensures 'new' and 'updated' servers are equal and same logic is not specified 2x
+          // (one for 'new' and one for 'migration')
           if (version < 1)
             executeMigrationFile(tdb, "migration1.sql", "upgraded MOLGENIS.version_metadata");
 
