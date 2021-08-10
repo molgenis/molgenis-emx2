@@ -1,5 +1,6 @@
 <template>
-  <div class="container bg-white">
+  <Spinner v-if="loading" />
+  <div v-else class="container bg-white">
     <ResourceHeader
       :resource="cohort"
       headerCss="bg-primary text-white"
@@ -8,7 +9,12 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <hr class="border-primary" />
     <div class="row">
-      <div class="col-8">
+      <div class="col-7">
+        <h4>Summary</h4>
+        <h6>Design</h6>
+        <OntologyTerms :terms="[cohort.design]" color="primary" />
+        <h6>Collection type</h6>
+        <OntologyTerms :terms="cohort.collectionType" color="primary" />
         <h6>Start/End year</h6>
         <p>
           {{ cohort.startYear ? cohort.startYear : "N/A" }} -
@@ -16,30 +22,17 @@
         </p>
         <h6>Population</h6>
         <OntologyTerms :terms="cohort.population" color="primary" />
-        <h6>Available data</h6>
-        <OntologyTerms :terms="cohort.dataCategories" color="primary" />
-        <h6>Available samples</h6>
-        <OntologyTerms :terms="cohort.sampleCategories" color="primary" />
         <h6 v-if="cohort.noParticipants">Number of participants:</h6>
         <p v-if="cohort.noParticipants">{{ cohort.noParticipants }}</p>
-        <h6>Collection events</h6>
-        <div v-if="!cohort.collectionEvents">N/A</div>
-        <CollectionEventsList
-          v-else
-          :collection-events="cohort.collectionEvents"
-        />
-        <h6>Subcohorts</h6>
-        <div v-if="!cohort.subcohorts">N/A</div>
-        <SubcohortList v-else :subcohorts="cohort.subcohorts" color="primary" />
-        <Conditions :resource="cohort" color="primary" />
         <h6>Linkage options</h6>
-        <div v-if="!cohort.linkageOptions">N/A</div>
-        <div v-else>{{ cohort.linkageOptions }}</div>
+        <p>{{ cohort.linkageOptions ? cohort.linkageOptions : "N/A" }}</p>
         <h6>Marker publication</h6>
-        <div v-if="!cohort.publication">N/A</div>
-        <div v-else>{{ cohort.publication }}</div>
+        <p>{{ cohort.publication ? cohort.publication : "N/A" }}</p>
       </div>
-      <div class="col-4">
+      <div class="col-5 border-left border-primary">
+        <h4>Organisation</h4>
+        <h6>Contact</h6>
+        <ContactList :contacts="cohort.contact" />
         <h6>Data access provider(s):</h6>
         <InstitutionList :institutions="cohort.institution" />
         <h6>Contributors:</h6>
@@ -48,12 +41,38 @@
         <PartnersList :partners="cohort.partners" color="primary" />
         <h6>Networks:</h6>
         <NetworkList :networks="cohort.networks" color="primary" />
-        <h6>Documentation:</h6>
-        <DocumentationList :documentation="cohort.documentation" />
         <h6 v-if="cohort.releases">Data releases</h6>
         <ReleasesList v-if="cohort.releases" :releases="cohort.releases" />
         <h6 v-if="cohort.cdms">Common data models</h6>
         <ReleasesList v-if="cohort.cdms" :releases="cohort.cdms" />
+        <h6>External identifiers</h6>
+        <p>
+          {{ cohort.externalIdentifiers ? cohort.externalIdentifiers : "N/A" }}
+        </p>
+      </div>
+    </div>
+    <hr class="border-primary" />
+    <div class="row">
+      <div class="col">
+        <h4>Contents</h4>
+        <h6>Subcohorts</h6>
+        <div v-if="!cohort.subcohorts">N/A</div>
+        <SubcohortList v-else :subcohorts="cohort.subcohorts" color="primary" />
+        <h6>Collection events</h6>
+        <div v-if="!cohort.collectionEvents">N/A</div>
+        <CollectionEventsList
+          v-else
+          :collection-events="cohort.collectionEvents"
+        />
+        <h6>Documentation:</h6>
+        <DocumentationList :documentation="cohort.documentation" />
+      </div>
+    </div>
+    <hr class="border-primary" />
+    <div class="row">
+      <div class="col">
+        <h4>Conditions of use</h4>
+        <Conditions :resource="cohort" color="primary" />
       </div>
     </div>
   </div>
@@ -66,6 +85,7 @@ import {
   ReadMore,
   InputSelect,
   NavTabs,
+  Spinner,
 } from "@mswertz/emx2-styleguide";
 import VariablesList from "../components/VariablesList";
 import OntologyTerms from "../components/OntologyTerms";
@@ -108,12 +128,14 @@ export default {
     DocumentationList,
     Conditions,
     ContributorList,
+    Spinner,
   },
   props: {
     acronym: String,
   },
   data() {
     return {
+      loading: false,
       graphqlError: null,
       cohort: {},
       version: null,
@@ -122,6 +144,7 @@ export default {
   },
   methods: {
     reload() {
+      this.loading = true;
       request(
         "graphql",
         `
@@ -131,17 +154,12 @@ export default {
               logo {
                 url
               }
-              keywords {
-                name
-                definition
-              }
-              sampleCategories {
-                name
-              }
-              dataCategories {
-                name
-              }
+              design{name}
+              collectionType{name}
+              keywords
               acronym
+              externalIdentifiers
+              contact{name,email}
               contributors {
                 contact {
                   name
@@ -174,10 +192,6 @@ export default {
                 code
                 definition
               }
-              inclusionCriteria {
-                name
-                definition
-              }
               startYear
               endYear
               type {
@@ -197,7 +211,6 @@ export default {
                 }
                 version
               }
-
               documentation {
                 name
                 file {
@@ -213,10 +226,10 @@ export default {
               fundingStatement
               publication
               collectionEvents {
-                name, startYear, endYear, ageMin{name}, ageMax{name}
+                name, startYear, endYear,noParticipants, ageMin{name}, ageMax{name},dataSources{name},sampleSources{name},areasOfInformation{name},subcohorts{name}
               }
               subcohorts {
-                name,noParticipants,ageCategories{name},disease{name},geographicRegion{name}
+                name,noParticipants,ageCategories{name},disease{name},geographicRegion{name},inclusionCriteria,supplementaryInformation
               }
             }
           }

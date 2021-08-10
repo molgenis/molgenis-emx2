@@ -50,7 +50,7 @@ public class TestCohortCatalogue {
             cohortsSchema);
     task3.run();
 
-    assertEquals(49, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    assertEquals(52, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }

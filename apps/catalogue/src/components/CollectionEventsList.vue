@@ -1,26 +1,46 @@
 <template>
-  <table class="table table-bordered table-sm table-">
-    <thead>
-      <th>Name</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Age</th>
-    </thead>
-    <tbody>
-      <tr v-for="e in collectionEvents" :key="e.name">
-        <td>{{ e.name }}</td>
-        <td>{{ e.startYear }}</td>
-        <td>{{ e.endYear }}</td>
-        <td>
-          {{ e.ageMin ? e.ageMin.name : "" }} -
-          {{ e.ageMax ? e.ageMax.name : "" }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm">
+      <thead class="text-nowrap">
+        <th>Name</th>
+        <th>Description</th>
+        <th>noParticipants</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Subcohorts</th>
+        <th>Data sources</th>
+        <th>Sample sources</th>
+        <th>Areas of information</th>
+      </thead>
+      <tbody>
+        <tr v-for="e in collectionEvents" :key="e.name">
+          <td>{{ e.name }}</td>
+          <td>{{ e.description ? e.description : "N/A" }}</td>
+          <td>{{ e.noParticipants }}</td>
+          <td>{{ e.startYear }}</td>
+          <td>{{ e.endYear }}</td>
+          <td>
+            <OntologyTerms :terms="e.subcohorts" />
+          </td>
+          <td>
+            <OntologyTerms :terms="e.dataSources" />
+          </td>
+          <td>
+            <OntologyTerms :terms="e.sampleSources" />
+          </td>
+          <td>
+            <OntologyTerms :terms="e.areasOfInformation" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 <script>
+import OntologyTerms from "./OntologyTerms";
+
 export default {
+  components: { OntologyTerms },
   props: {
     collectionEvents: Array,
     color: String,
