@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +43,8 @@ public class MolgenisSessionManager {
     // get the session
     MolgenisSession session = sessions.get(request.session().id());
     if (session.getSessionUser() == null) {
-      logger.error(
-          "got user is NULL for session key ({}). Setting user=anonymous.",
-          session.getSessionUser(),
-          request.session().id());
-      // should never happen, but in previous bug user could be null
-      // therefore make anonymous so session is valid and user can log in again
-      session.getDatabase().setActiveUser("anonymous");
+      throw new MolgenisException(
+          "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
       logger.info(
           "get session for user({}) and key ({})",
