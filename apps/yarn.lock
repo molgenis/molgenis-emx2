@@ -3239,10 +3239,10 @@ core-js-compat@^3.6.5, core-js-compat@^3.8.0:
     browserslist "^4.16.3"
     semver "7.0.0"
 
-core-js@3.16.0:
-  version "3.16.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.16.0.tgz#1d46fb33720bc1fa7f90d20431f36a5540858986"
-  integrity sha512-5+5VxRFmSf97nM8Jr2wzOwLqRo6zphH2aX+7KsAUONObyzakDNq2G/bgbhinxB4PoV9L3aXQYhiDKyIKWd2c8g==
+core-js@3.16.1:
+  version "3.16.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.16.1.tgz#f4485ce5c9f3c6a7cb18fa80488e08d362097249"
+  integrity sha512-AAkP8i35EbefU+JddyWi12AWE9f2N/qr/pwnDtWz4nyUIBGMJPX99ANFFRSw6FefM374lDujdtLDyhN2A/btHw==
 
 core-js@^2.5.3:
   version "2.6.12"
@@ -4121,10 +4121,10 @@ eslint-plugin-prettier@3.4.0:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-eslint-plugin-vue@7.15.1:
-  version "7.15.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-7.15.1.tgz#699c1f3ce2032ea8843b8d5d1adb863b7979965c"
-  integrity sha512-4/r+n/i+ovyeW2gVRRH92kpy4lkpFbyPR4BMxGBTLtGnwqOKKzjSo6EMSaT0RhWPvEjK9uifcY8e7z5n8BIEgw==
+eslint-plugin-vue@7.16.0:
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-7.16.0.tgz#7fe9fea039a190b108319c1380adf543ef57707d"
+  integrity sha512-0E2dVvVC7I2Xm1HXyx+ZwPj9CNX4NJjs4K4r+GVsHWyt5Pew3JLD4fI7A91b2jeL0TXE7LlszrwLSTJU9eqehw==
   dependencies:
     eslint-utils "^2.1.0"
     natural-compare "^1.4.0"

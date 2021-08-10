@@ -50,6 +50,7 @@
 * oicd integration
 * test ERN data models against EMX2 (to see if we need additional visible/validation options)
 * enable autosave; first only show pkey and then all items (like 'new' and 'save')
+* add query option to per table csv/excel endpoints to download what you see
 
 cohort catalogue
 
