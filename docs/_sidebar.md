@@ -20,10 +20,11 @@
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
     - [App development](dev_apps.md)
+    - [Migrations](dev_migrations.md)
     - [Principles](dev_principles.md)
 - **Catalogue guide**
     - [General information](cat_general-information.md)
     - [Researcher](cat_researcher.md)
-    - [Cohort data manager](cat_cohort-data-manager.md)
-    - [Network data manager](cat_network-data-manager.md)
+    - [Cohort/DAP data manager](cat_cohort-data-manager.md)
+    - [CDM/Network data manager](cat_network-data-manager.md)
 
