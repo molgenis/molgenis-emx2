@@ -39,6 +39,11 @@ public class SqlDatabase implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
+        public void userChanged() {
+          clearCache();
+        }
+
+        @Override
         public void afterCommit() {
           clearCache();
           super.afterCommit();
@@ -327,6 +332,7 @@ public class SqlDatabase implements Database {
       if (username == null && connectionProvider.getActiveUser() != null
           || username != null && !username.equals(connectionProvider.getActiveUser())) {
         clearCache();
+        listener.userChanged();
       }
     }
     this.connectionProvider.setActiveUser(username);

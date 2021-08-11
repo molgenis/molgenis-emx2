@@ -119,13 +119,15 @@ public class MolgenisSessionManager {
         // create private database wrapper to session
         Database database = new SqlDatabase(false);
         database.setActiveUser("anonymous"); // set default use to "anonymous"
-        database.setListener(new MolgenisSessionManagerDatabaseListener(_this, database));
 
         // create session and add to sessions lists so we can also access all active
         // sessions
         MolgenisSession molgenisSession = new MolgenisSession(database);
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
+
+        // create listener
+        database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
       }
 
       public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {

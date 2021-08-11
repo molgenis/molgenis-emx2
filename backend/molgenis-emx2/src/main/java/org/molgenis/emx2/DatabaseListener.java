@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DatabaseListener {
+public abstract class DatabaseListener {
   private Set<String> schemaChanged = new HashSet<>();
   private Set<String> schemaRemoved = new HashSet<>();
 
@@ -22,6 +22,8 @@ public class DatabaseListener {
   public Set<String> getSchemaRemoved() {
     return this.schemaRemoved;
   }
+
+  public abstract void userChanged();
 
   /** Abstract method, called on each commit. When override call to reset the listener */
   public void afterCommit() {
