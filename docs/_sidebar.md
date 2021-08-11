@@ -22,8 +22,8 @@
     - [App development](dev_apps.md)
     - [Principles](dev_principles.md)
 - **Catalogue guide**
-    - [General information](cat_general-information.md)
-    - [Researcher](cat_researcher.md)
-    - [Cohort/DAP data manager](cat_cohort-data-manager.md)
-    - [CDM/Network data manager](cat_network-data-manager.md)
+    - [Overview](cat_general-information.md)
+    - [Researcher guide](cat_researcher.md)
+    - [Cohort/DAP data manager guide](cat_cohort-data-manager.md)
+    - [CDM/Network data manager guide](cat_network-data-manager.md)
 

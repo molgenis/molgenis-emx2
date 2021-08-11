@@ -1,11 +1,15 @@
-# General information
-We facilitate federated analysis. Federated analysis allows researchers to carry out analysis over data in multiple cohorts a) without having access to individual data and b) without individual data needing to leave the cohort. Federated analysis allows GDPR-proof research.
+# Catalogue overview
+Mission of the catalogue is to facilitate multi-center pooled analysis, e.g. using a central analysis site or using federated analysis engine such as DataSHIELD. 
+Federated analysis allows researchers to carry out analysis over data in multiple cohorts a) without having access to individual data and b) without individual data needing to leave the cohort. Federated analysis allows GDPR-proof research.
 
 ![Figure 1: Federated analysis](img/cat_federated-analysis.png)
 
-To **find** the data we developed a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/). Here you can find the metadata of the cohorts and the common data model. To **access** the data you need the MOLGENIS Armadillo. This is a platform which uses [DataSHIELD](https://datashield.org/) to perform the analysis.
+To **find** the data we developed a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/). Here you can find the metadata of the cohorts and the common data model. 
 
-We distinguish three roles within each federated network.
+To **access** the data we recommend MOLGENIS Armadillo. This is a platform which uses [DataSHIELD](https://datashield.org/) to perform the analysis.
+
+
+We distinguish three roles that might use MOLGENIS Catalogue and MOLGENIS Armadillo:
 
 |     |     | [Researcher](cat_researcher.md) | [Cohort data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
 | --- | --- | --- | --- | --- |
