@@ -330,7 +330,6 @@ public class SqlDatabase implements Database {
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        clearCache();
         listener.userChanged();
       }
     }
