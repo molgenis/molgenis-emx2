@@ -1,30 +1,30 @@
 # Cohort, Databank or DAP data manager
 ## Catalogue
 ### Data harmonisation
-Each cohort, databank or data access provider (DAP) (generally known as 'resource') harmonises their data according to the consortium’s  protocols into a common data model (CDM) format which has been centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo) DataSHIELD server. 
+Each organization with access to data (which may be a cohort, or to a data source composed by one or more data banks) harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo) DataSHIELD server. 
 ### Staging areas for uploads
-The cohort or DAP metadata is uploaded to what are called "staging areas" of the Data Catalogue. You will need credentials to log in and upload metadata.  
+The metadata of the cohort or of the data source is uploaded to what are called "staging areas" of the Data Catalogue. You will need credentials to log in and upload metadata.  
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
 ConcePTION uses [*emx2-conception*](https://emx2-conception.test.molgenis.org).
 
 When you log in, you will be able to at least see the following databases:  
 -Catalogue: The common data models of your consortia, which you need to use in the mappings or ETL.  
 -CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us at [molgenis-support](mailto:molgenis-support@umcg.nl).  
--Your own cohort's or DAP's database that you can use to upload the filled out templates.
+-The database of your own cohort or data source, that you can use to upload the templates once you have filled them out.
 
 ![](img/cat_databases.png)
 
 <sub><sup>*Figure 1. Databases in the Data Catalogue staging area.*</sup></sub>
 
-### Define cohort or DAP metadata
-[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
+### Define metedata of cohorts or data sources
+[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a framework to describe in detail metadata of cohorts and of data sources, definitions of the variables collected in cohorts and in the data banks composing the data sources (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together, and multi-data source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
-- The cohort or DAP metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
-- The collected variable metadata (also known as 'data dictionary' or 'source variables') can be considered as a codebook or data dictionary of a cohort or data access provider (DAP) (e.g. ALSPAC or CHUT).
-- Similarly, the common data model (or 'target variables') can be considered the codebook of a network of cohorts or DAPs working together (e.g. LifeCycle or ConcePTION_WP7)
+- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design. The metadata of data sources, of the correspending data banks and of the institutions that provide access to them, include descriptive information such as contact details, reason for existence of the data banks, what prompt the records in the data bank, and lag time for updating and accessing data.
+- The metadata of the source variables (also known as 'data dictionary') can be considered as a codebook or data dictionary of a cohort (e.g. ALSPAC) and of the tables composing the data banks of data sources (e.g. the Danish Healthcare Registries).
+- Similarly, the common data models (or 'target variables') can be considered the codebook of a network of institutions with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
-This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into the Data Catalogue. Expected users of this 'how to' are data managers within the cohorts. This document assumes you have received login details for upload of your cohort. You can also watch this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
+This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into the Data Catalogue. Expected users of this 'how to' are data managers within the institutions with access to cohorts or data sources. This document assumes you have received login details for upload of your metadata. You can also watch this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
 
 #### Define source variable metadata / data dictionary
 We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) to define variable metadata. The [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables_ and *RepeatedVariables* in one table.
