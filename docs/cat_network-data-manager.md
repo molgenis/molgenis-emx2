@@ -1,8 +1,9 @@
-# Network data manager
-The Network data manager is responsible for uploading the common data model to the Data Catalogue.
+# CDM / Network data manager
+The Network data manager is responsible for uploading the common data model (CDM) to the Data Catalogue.
+
 ## Catalogue
 
-### Define network metadata
+### Define CDM metadata
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) (sometimes also called 'EMX2 catalogue') provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables') and mappings to common data models (aka 'target variables). Its purpose is to facilitate pooled data analysis of multiple cohorts.
 
 - The cohort metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.

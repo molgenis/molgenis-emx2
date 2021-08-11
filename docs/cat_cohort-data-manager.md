@@ -1,7 +1,7 @@
-# Cohort or DAP data manager
+# Cohort, Databank or DAP data manager
 ## Catalogue
 ### Data harmonisation
-Each cohort harmonises their data according to the consortium’s harmonisation protocols into the CDM format which has been centrally agreed on and stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo). 
+Each cohort, databank or DAP (generally know as 'resource' harmonises their data according to the consortium’s  protocols into a common data model (CDM) format which has been centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo) DataSHIELD server. 
 ###Staging areas for uploads
 The cohort or DAP metadata is uploaded to what are called "staging areas" of the Data Catalogue.
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).
@@ -24,13 +24,13 @@ When you log in, you will be able to at least see the following databases:
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
 
 - The cohort or DAP metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
-- The variable metadata (or 'source variables') can be considered as a codebook or data dictionary of a cohort or data access provider (DAP) (e.g. ALSPAC or CHUT).
+- The collected variable metadata (also known as 'data dictionnary' or 'source variables') can be considered as a codebook or data dictionary of a cohort or data access provider (DAP) (e.g. ALSPAC or CHUT).
 - Similarly, the common data model (or 'target variables') can be considered the codebook of a network of cohorts or DAPs working together (e.g. LifeCycle or ConcePTION_WP7)
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
 This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into the Data Catalogue. Expected users of this 'how to' are data managers within the cohorts. This document assumes you have received login details for upload of your cohort.
 
-#### Define variable metadata
+#### Define source variable metadata / data dictionary
 We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) to define variable metadata. The [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables_ and *RepeatedVariables* in one table.
 
 It is good practice trying out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata) to the Data Catalogue.
