@@ -1,20 +1,16 @@
 # Cohort, Databank or DAP data manager
 ## Catalogue
 ### Data harmonisation
-Each cohort, databank or DAP (generally know as 'resource' harmonises their data according to the consortium’s  protocols into a common data model (CDM) format which has been centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo) DataSHIELD server. 
-###Staging areas for uploads
-The cohort or DAP metadata is uploaded to what are called "staging areas" of the Data Catalogue.
-LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).
+Each cohort, databank or data access provider (DAP) (generally known as 'resource') harmonises their data according to the consortium’s  protocols into a common data model (CDM) format which has been centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo) DataSHIELD server. 
+### Staging areas for uploads
+The cohort or DAP metadata is uploaded to what are called "staging areas" of the Data Catalogue. You will need credentials to log in and upload metadata.  
+LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
 ConcePTION uses [*emx2-conception*](https://emx2-conception.test.molgenis.org).
-You will need credentials to log in and upload metadata for your cohort.
 
-When you log in, you will be able to at least see the following databases:
-
--Catalogue: The common data models of your consortia, which you need to use in the mappings or ETL.
-
--CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us at [molgenis-support](mailto:molgenis-support@umcg.nl).
-
--You own cohort's or DAP's database that you can use to upload the filled out templates.
+When you log in, you will be able to at least see the following databases:  
+-Catalogue: The common data models of your consortia, which you need to use in the mappings or ETL.  
+-CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us at [molgenis-support](mailto:molgenis-support@umcg.nl).  
+-Your own cohort's or DAP's database that you can use to upload the filled out templates.
 
 ![](img/cat_databases.png)
 
@@ -24,11 +20,11 @@ When you log in, you will be able to at least see the following databases:
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a framework to describe in detail cohort metadata, definitions of the data variables collected (aka 'source variables'), and mappings to common data models (aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together.
 
 - The cohort or DAP metadata provides descriptive information such as contact details, name of the cohort, and high level summary of contents and cohort design.
-- The collected variable metadata (also known as 'data dictionnary' or 'source variables') can be considered as a codebook or data dictionary of a cohort or data access provider (DAP) (e.g. ALSPAC or CHUT).
+- The collected variable metadata (also known as 'data dictionary' or 'source variables') can be considered as a codebook or data dictionary of a cohort or data access provider (DAP) (e.g. ALSPAC or CHUT).
 - Similarly, the common data model (or 'target variables') can be considered the codebook of a network of cohorts or DAPs working together (e.g. LifeCycle or ConcePTION_WP7)
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
-This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into the Data Catalogue. Expected users of this 'how to' are data managers within the cohorts. This document assumes you have received login details for upload of your cohort.
+This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into the Data Catalogue. Expected users of this 'how to' are data managers within the cohorts. This document assumes you have received login details for upload of your cohort. You can also watch this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
 
 #### Define source variable metadata / data dictionary
 We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) to define variable metadata. The [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables_ and *RepeatedVariables* in one table.
@@ -125,8 +121,7 @@ The *CollectionEvents* sheet is optional. The timing of data collection in event
 | description | Event description. | e.g. Between 9 and 10 years. |
 | ageMin | The minimum age for this collection event. | Find list to choose from in CatalogueOntologies \&gt; AgeCategories |
 | ageMax | The maximum age for this collection event. | Find list to choose from in CatalogueOntologies \&gt; AgeCategories |
-| subcohorts | (sub)populations that are targeted with this collection event
- | e.g. women or children |
+| subcohorts | (sub)populations that are targeted with this collection event | e.g. women or children |
 
 <sub><sup>*Table 5. Description of the columns that can be filled out for SourceCollectionEvents. \* = mandatory*</sup></sub>
 
@@ -192,7 +187,7 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 ### Upload metadata
 When you filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Move to 'Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view your data under 'Tables'.
 
-Please report any bugs or difficulties to [molgenis-support@umcg.nl](mailto:molgenis-support@umcg.nl).
+Please report any bugs or difficulties to [molgenis-support](mailto:molgenis-support@umcg.nl).
 #### Find harmonisations
 When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details.
 
@@ -209,7 +204,7 @@ Click on "Harmonization"
 ![](img/cat_variable-mapping.png)
 
 #### Request access (catalogue)
-If you do not have an account to upload data to the Data Catalogue yet, please e-mail [molgenis-support](mailto:molgenis-support@umcg.nl) to apply for an account.
+If you do not have an account to upload data to the Data Catalogue yet, please email [molgenis-support](mailto:molgenis-support@umcg.nl) to apply for an account.
 
 ## Armadillo
 Upload harmonised data into a local Armadillo/Opal instance in order to make it available for DataSHIELD to run analyses. Note that MOLGENIS Data Catalogue does not communicate or have access to any data stored in Armadillo/Opal.
@@ -242,4 +237,4 @@ For central quality control we use the [dsUpload](https://lifecycle-project.gith
 ### Deploy an instance
 To get the Armadillo installed at your institute you need to contact your IT-department and send the [installation manual](https://galaxy.ansible.com/molgenis/armadillo).
 
-The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
+The system administrator needs to have specific information to set up the Armadillo. Each Armadillo is bound to a central authentication server. There needs to be an entry in this central authentication server for the Armadillo. You can email [*molgenis-support*](mailto:molgenis-support@umcg.nl) to get the specific information that applies to your Armadillo instance.
