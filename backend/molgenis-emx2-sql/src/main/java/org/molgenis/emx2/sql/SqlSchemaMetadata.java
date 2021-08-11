@@ -237,22 +237,23 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public List<String> getIneritedRolesForUser(String user) {
     if (user == null) return new ArrayList<>();
     // add cache because this function is called often
-    if (rolesCache != null) return Lists.immutableCopyOf(rolesCache);
-    final String username = user.trim();
-    List<String> result = new ArrayList<>();
-    // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
-    getDatabase()
-        .tx(
-            tdb -> {
-              String current = tdb.getActiveUser();
-              tdb.clearActiveUser();
-              result.addAll(
-                  SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                      ((SqlDatabase) tdb).getJooq(), getName(), username));
-              tdb.setActiveUser(current);
-            });
-    rolesCache = result;
-    return result;
+    if (rolesCache == null) {
+      final String username = user.trim();
+      List<String> result = new ArrayList<>();
+      // need elevated privileges, so clear user and run as root
+      // this is not thread safe therefore must be in a transaction
+      getDatabase()
+          .tx(
+              tdb -> {
+                String current = tdb.getActiveUser();
+                tdb.clearActiveUser();
+                result.addAll(
+                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                        ((SqlDatabase) tdb).getJooq(), getName(), username));
+                tdb.setActiveUser(current);
+              });
+      rolesCache = result;
+    }
+    return Lists.immutableCopyOf(rolesCache);
   }
 }
