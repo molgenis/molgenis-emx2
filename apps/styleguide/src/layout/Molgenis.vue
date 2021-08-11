@@ -17,9 +17,6 @@
         :crumbs="crumbs"
       />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
-        <MessageWarning v-if="majorDatabaseVersionToOldError"
-          >{{ majorDatabaseVersionToOldError }}
-        </MessageWarning>
         <h1 v-if="title">{{ title }}</h1>
         <slot />
       </div>
@@ -55,7 +52,6 @@ import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
-import MessageWarning from "../forms/MessageWarning";
 import Breadcrumb from "./Breadcrumb";
 
 /**
@@ -63,7 +59,6 @@ import Breadcrumb from "./Breadcrumb";
  */
 export default {
   components: {
-    MessageWarning,
     MolgenisSession,
     MolgenisMenu,
     Footer,
@@ -116,22 +111,6 @@ export default {
         });
       }
       return result;
-    },
-    majorDatabaseVersionToOldError() {
-      if (this.session && this.session.email == "admin") {
-        let dbVer = this.session.manifest.DatabaseVersion;
-        let swVer = this.session.manifest.SpecificationVersion;
-        if (dbVer != null && dbVer.split(".")[0] != swVer.split(".")[0]) {
-          return (
-            "Database has different major version " +
-            dbVer +
-            " then Software version " +
-            swVer +
-            ". It is recommended to downgrade software to match database version, and export/import all data before continuing"
-          );
-        }
-      }
-      return null;
     },
     logo() {
       if (this.logoURL) return this.logoURL;
