@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,15 @@ public class MolgenisSessionManager {
 
     // get the session
     MolgenisSession session = sessions.get(request.session().id());
-    logger.info("get session for user({})", session.getSessionUser());
+    if (session.getSessionUser() == null) {
+      throw new MolgenisException(
+          "Invalid session found with user == null. This should not happen so please report as a bug");
+    } else {
+      logger.info(
+          "get session for user({}) and key ({})",
+          session.getSessionUser(),
+          request.session().id());
+    }
     return session;
   }
 

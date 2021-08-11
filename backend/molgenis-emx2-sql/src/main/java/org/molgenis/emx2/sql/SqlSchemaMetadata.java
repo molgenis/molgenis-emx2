@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.javers.common.collections.Lists;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
+  // cache for retrieved roles
+  private List<String> rolesCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -76,6 +79,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     long start = System.currentTimeMillis();
     this.tables.clear();
     this.settings.clear();
+    this.rolesCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -228,5 +232,28 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     sm.tables.remove(tableName);
     sm.tables.put(newName, tm);
     return sm;
+  }
+
+  public List<String> getIneritedRolesForUser(String user) {
+    if (user == null) return new ArrayList<>();
+    // add cache because this function is called often
+    if (rolesCache == null) {
+      final String username = user.trim();
+      List<String> result = new ArrayList<>();
+      // need elevated privileges, so clear user and run as root
+      // this is not thread safe therefore must be in a transaction
+      getDatabase()
+          .tx(
+              tdb -> {
+                String current = tdb.getActiveUser();
+                tdb.clearActiveUser();
+                result.addAll(
+                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                        ((SqlDatabase) tdb).getJooq(), getName(), username));
+                tdb.setActiveUser(current);
+              });
+      rolesCache = result;
+    }
+    return Lists.immutableCopyOf(rolesCache);
   }
 }
