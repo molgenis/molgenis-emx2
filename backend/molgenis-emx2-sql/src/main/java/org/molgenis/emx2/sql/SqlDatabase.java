@@ -329,8 +329,7 @@ public class SqlDatabase implements Database {
         }
       }
     } else {
-      if (username == null && connectionProvider.getActiveUser() != null
-          || username != null && !username.equals(connectionProvider.getActiveUser())) {
+      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
         clearCache();
         listener.userChanged();
       }
