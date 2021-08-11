@@ -3,6 +3,12 @@ package org.molgenis.emx2;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Allows SqlDatabase to notify users that important changes have happened.
+ *
+ * <p>In particular, we use it now to ensure sessions are refreshed if users change, or if there are
+ * transactions that may have changed schema structure and/or permissions.
+ */
 public abstract class DatabaseListener {
   private Set<String> schemaChanged = new HashSet<>();
   private Set<String> schemaRemoved = new HashSet<>();
