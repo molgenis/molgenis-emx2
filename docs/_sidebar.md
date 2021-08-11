@@ -20,6 +20,7 @@
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
     - [App development](dev_apps.md)
+    - [Migrations](dev_migrations.md)
     - [Principles](dev_principles.md)
 - **Catalogue guide**
     - [General information](cat_general-information.md)

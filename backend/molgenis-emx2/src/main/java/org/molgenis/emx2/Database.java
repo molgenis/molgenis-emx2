@@ -47,7 +47,7 @@ public interface Database {
 
   void clearCache();
 
-  String getDatabaseVersion();
+  Integer getDatabaseVersion();
 
   int countUsers();
 }

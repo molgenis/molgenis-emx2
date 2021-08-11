@@ -27,7 +27,7 @@ public class SqlDatabase implements Database {
   // shared between all instances
   private static DataSource source;
 
-  private String databaseVersion;
+  private Integer databaseVersion;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
@@ -128,7 +128,7 @@ public class SqlDatabase implements Database {
             j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
           });
 
-      MetadataUtils.init(jooq);
+      Migrations.initOrMigrate(this);
 
       if (!hasUser(ANONYMOUS)) {
         addUser(ANONYMOUS); // used when not logged in
@@ -425,7 +425,7 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public String getDatabaseVersion() {
+  public Integer getDatabaseVersion() {
     return databaseVersion;
   }
 
