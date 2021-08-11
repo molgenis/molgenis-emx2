@@ -377,6 +377,9 @@ public class SqlDatabase implements Database {
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
+        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
+          db.getListener().userChanged();
+        }
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }

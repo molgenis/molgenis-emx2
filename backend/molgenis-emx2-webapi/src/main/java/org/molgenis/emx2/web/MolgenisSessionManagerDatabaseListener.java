@@ -27,6 +27,7 @@ public class MolgenisSessionManagerDatabaseListener extends DatabaseListener {
   public void afterCommit() {
     super.afterCommit();
     sessionManager.clearAllCaches();
-    logger.info("cleared all caches after commit that may include changes on schema(s) or permissions");
+    logger.info(
+        "cleared all caches after commit that may include changes on schema(s) or permissions");
   }
 }
