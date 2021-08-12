@@ -1,4 +1,4 @@
-# Data manager of a cohort or of a data sources
+# Data manager of a cohort or data source
 ## Catalogue
 ### Data harmonisation
 Each organization with access to data (which may be a cohort, or to a data source composed by one or more data banks) harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores the data locally in [MOLGENIS Armadillo](cat_cohort-data-manager.md#armadillo) DataSHIELD server. 
@@ -29,7 +29,7 @@ This section explains how to submit the 'source variables' + 'mappings from sour
 #### Define source variable metadata / data dictionary
 We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) to define variable metadata. The [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Dictionary.xlsx) consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data upload. 
 
-<sub><sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables_ and *RepeatedVariables* in one table.</sup></sub>
+<sub><sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for the cohort; it shows *SourceVariables* and *RepeatedVariables* in one table.</sup></sub>
 
 It is good practice trying out adding a few variables to the template first and see whether your upload succeeds. To upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata) to the Data Catalogue.
 
@@ -57,7 +57,7 @@ The tables in a cohort or in the data banks of a data source are defined in the 
 
 #### *SourceVariables* sheet
 
-The variables of the tables specified above in the *SourceTables* sheet are defined in the *SourceVariables* sheet.
+The variables of the tables specified in the *SourceTables* sheet are defined in the *SourceVariables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -98,7 +98,7 @@ The coding of categorical variables is defined in the *SourceVariableValues* she
 
 #### *RepeatedSourceVariables* sheet
 
-The *RepeatedSourceVariables* sheet is optional, and is most often used in the case of cohorts whose variables are observed repeatedly. Variables that are repeats of a variable defined in the sheet *SourceVariables* are defined in the *RepeatedSourceVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
+The *RepeatedSourceVariables* sheet is optional, and is most often used by cohorts whose variables are observed repeatedly. Variables that are repeats of a variable defined in the sheet *SourceVariables* are defined in the *RepeatedSourceVariables* sheet. Defining your repeated variables using this sheet will limit the amount of information that has to be repeated when filling out repeated variables. This sheet is optional.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -115,7 +115,7 @@ The *RepeatedSourceVariables* sheet is optional, and is most often used in the c
 <sub><sup>*Figure 6. Example of RepeatedSourceVariables filled out in Excel.*</sup></sub>
 
 #### *CollectionEvents* sheet
-The *CollectionEvents* sheet is optional, and is most often used in the case of cohorts. The timing of data collection in events is defined in the *CollectionEvents* sheet. It can be used to describe time periods within which the data for variables are collected. The events are defined here and referred to from the sheets *SourceVariables* and/or *RepeatedSourceVariables*.
+The *CollectionEvents* sheet is optional, and is most often used by cohorts. The timing of data collection in events is defined in the *CollectionEvents* sheet. It can be used to describe time periods within which the data for variables are collected. The events are defined here and referred to from the sheets *SourceVariables* and/or *RepeatedSourceVariables*.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -132,7 +132,7 @@ The *CollectionEvents* sheet is optional, and is most often used in the case of 
 <sub><sup>*Figure 7. Example of CollectionEvents filled out in Excel.*</sup></sub>
 
 #### *Subcohorts* sheet
-The sheet *Subcohorts* is optional, and is most often used in the case of cohorts. Here you may describe populations that can be linked to collection events.
+The sheet *Subcohorts* is optional, and is most often used by cohorts. Here you may describe populations that can be linked to collection events.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -143,7 +143,7 @@ The sheet *Subcohorts* is optional, and is most often used in the case of cohort
 
 ![](img/cat_cohort-subpopulations-sheet.png ':size=200')
 
-<sub><sup>*Figure 8. Example of Subpopulations filled out in Excel.*</sup></sub>
+<sub><sup>*Figure 8. Example of Subcohorts filled out in Excel.*</sup></sub>
 
 #### Define harmonisations
 We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Mappings.xlsx) to describe the harmonisations. The [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/blob/master/docs/resources/Mappings.xlsx) consists of one sheet. It is used to define the mappings from source variables to target variables, or the Extraction, Transformation and Load (ETL) process from a data source to a common data model (CDM).
@@ -154,7 +154,7 @@ Harmonisation procedures at the table level are defined in the *TableMappings* s
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
-| toNetwork \* | Name of the target network or common data model. | e.g. LifeCycle or LongITools or ATHLETE or ConcePTION CDM |
+| toNetwork \* | Name of the target network or common data model. | e.g. LifeCycle, LongITools or ATHLETE or ConcePTION_WP7 |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
 | description | Description of the harmonisation. | |
 | syntax | Syntax used for this harmonisation. | |
@@ -173,7 +173,7 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 | --- | --- | --- |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
 | fromVariable | Source variable name(s). | Variables must be predefined in the _SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v\_1,v\_2,v\_3. |
-| toNetwork \* | Network name that contains the variable to map to. | e.g. LifeCycle or LONGITOOLS or ATHLETE |
+| toNetwork \* | Name of the target network or common data model.  | e.g. LifeCycle, LONGITOOLS or ATHLETE |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
 | toVariable \* | Target variable name. | Map to a variable that is defined in a common data model. |
 | match | Whether the harmonisation is partial, complete or NA (non-existent). | Find list to choose from in CatalogueOntologies \&gt; StatusDetails |
