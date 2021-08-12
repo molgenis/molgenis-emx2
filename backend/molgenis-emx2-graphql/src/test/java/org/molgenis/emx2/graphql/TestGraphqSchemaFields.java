@@ -42,8 +42,7 @@ public class TestGraphqSchemaFields {
       // first become other user
       database.setActiveUser("shopmanager");
 
-      TestCase.assertEquals(
-          "Manager", execute("{_session{email,roles}}").at("/_session/roles/2").textValue());
+      TestCase.assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.clearActiveUser();
     }
