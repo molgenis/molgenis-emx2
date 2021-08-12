@@ -43,7 +43,7 @@ public class Migrations {
         });
   }
 
-  private static void executeMigrationFile(Database db, String sqlFile, String message) {
+  static void executeMigrationFile(Database db, String sqlFile, String message) {
     try {
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       ((SqlDatabase) db).getJooq().execute(sql);
