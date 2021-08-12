@@ -39,6 +39,11 @@ public class SqlDatabase implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
+        public void userChanged() {
+          clearCache();
+        }
+
+        @Override
         public void afterCommit() {
           clearCache();
           super.afterCommit();
@@ -324,9 +329,8 @@ public class SqlDatabase implements Database {
         }
       }
     } else {
-      if (username == null && connectionProvider.getActiveUser() != null
-          || username != null && !username.equals(connectionProvider.getActiveUser())) {
-        clearCache();
+      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
+        listener.userChanged();
       }
     }
     this.connectionProvider.setActiveUser(username);
@@ -371,6 +375,9 @@ public class SqlDatabase implements Database {
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
+        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
+          this.getListener().userChanged();
+        }
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
