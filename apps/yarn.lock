@@ -2776,10 +2776,10 @@ ckeditor4-integrations-common@^0.2.0:
   dependencies:
     load-script "^1.0.0"
 
-ckeditor4-vue@1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.3.1.tgz#6deeec83de607b3cbfdf5cc2ee49923bc4840809"
-  integrity sha512-F5abagv2OXKbLuZjIea6BhxEoe54FtWDNRGZFnKNm9YcY24/W9VRedWuUCFwWVHFB+Gm4F5hcfF3aqoK7hPy8A==
+ckeditor4-vue@1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.3.2.tgz#b2d596066710cb4d3fcbe279b90a93df99a5e97a"
+  integrity sha512-fke3mzWz/9GrBS/sfeJIRzkqDkfocY2hI268zgb5nwzfWMV87k5zXtbZgCn8vhNg48f69AFDdJ5Oh4/Wa5GTag==
   dependencies:
     ckeditor4-integrations-common "^0.2.0"
 
