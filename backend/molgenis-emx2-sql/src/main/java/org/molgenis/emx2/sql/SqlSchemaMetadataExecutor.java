@@ -124,14 +124,14 @@ class SqlSchemaMetadataExecutor {
   }
 
   static String getRolePrefix(String name) {
-    return Constants.MG_ROLE_PREFIX + name.toUpperCase() + "/";
+    return Constants.MG_ROLE_PREFIX + name + "/";
   }
 
   static List<String> getInheritedRoleForUser(DSLContext jooq, String schemaName, String user) {
     String roleFilter = getRolePrefix(schemaName);
     List<Record> roles =
         jooq.fetch(
-            "SELECT a.oid, a.rolname FROM pg_authid a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname ILIKE {1}",
+            "SELECT a.oid, a.rolname FROM pg_authid a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname LIKE {1}",
             Constants.MG_USER_PREFIX + user, roleFilter + "%");
     return roles.stream()
         .map(r -> r.get("rolname", String.class).substring(roleFilter.length()))
@@ -146,11 +146,11 @@ class SqlSchemaMetadataExecutor {
     String userFilter = Constants.MG_USER_PREFIX;
     List<Record> result =
         jooq.fetch(
-            "select m.rolname as member, r.rolname as role"
+            "select distinct m.rolname as member, r.rolname as role"
                 + " from pg_catalog.pg_auth_members am "
                 + " join pg_catalog.pg_roles m on (m.oid = am.member)"
                 + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                + "where r.rolname ILIKE {0} and m.rolname ILIKE {1}",
+                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
             roleFilter + "%", userFilter + "%");
     for (Record r : result) {
       String memberName = r.getValue("member", String.class).substring(userFilter.length());
