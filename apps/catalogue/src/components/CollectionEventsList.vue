@@ -23,10 +23,10 @@
             <OntologyTerms :terms="e.subcohorts" />
           </td>
           <td>
-            <OntologyTerms :terms="e.dataSources" />
+            <OntologyTerms :terms="e.dataCategories" />
           </td>
           <td>
-            <OntologyTerms :terms="e.sampleSources" />
+            <OntologyTerms :terms="e.sampleCategories" />
           </td>
           <td>
             <OntologyTerms :terms="e.areasOfInformation" />
