@@ -34,6 +34,7 @@ public class Emx2 {
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {
     SchemaMetadata schema = new SchemaMetadata();
     int lineNo = 1; // use as position
+    int columnPosition = 0;
 
     for (Row r : rows) {
       String tableName = r.getString(TABLE_NAME);
@@ -84,7 +85,8 @@ public class Emx2 {
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
           else
             column.setPosition(
-                lineNo); // this ensures positions accross table hiearchy matches those in imported
+                columnPosition++); // this ensures positions accross table hiearchy matches those in
+          // imported
           // file
 
           schema.getTableMetadata(tableName).add(column);

@@ -38,7 +38,11 @@ public class Column implements Comparable {
 
   // options
   private String description = null; // long description of the column
-  private Integer position = null; // column order within the table
+
+  @DiffIgnore
+  private Integer position =
+      null; // column order within the table. During import/export these may change
+
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private boolean required = false;
   private String validation = null;
