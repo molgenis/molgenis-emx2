@@ -35,6 +35,8 @@ podTemplate(inheritFrom:'shared', containers: [
                     env.GITHUB_TOKEN = sh(script: 'vault read -field=token-emx2 secret/ops/token/github', returnStdout: true)
                     env.DOCKER_USERNAME = sh(script: 'vault read -field=username secret/gcc/account/dockerhub', returnStdout: true)
                     env.DOCKER_PASSWORD = sh(script: 'vault read -field=password secret/gcc/account/dockerhub', returnStdout: true)
+                    env.NEXUS_USER = sh(script: 'vault read -field=username secret/ops/account/nexus', returnStdout: true)
+                    env.NEXUS_PWD = sh(script: 'vault read -field=password secret/ops/account/nexus', returnStdout: true)
                 }
             }
             dir("${JENKINS_AGENT_WORKDIR}/.m2") {
@@ -57,7 +59,9 @@ podTemplate(inheritFrom:'shared', containers: [
                     sh "set +x && echo \"${DOCKER_PASSWORD}\" | docker login -u \"${DOCKER_USERNAME}\" --password-stdin"
                     sh "./gradlew test jacocoMergedReport sonarqube shadowJar jib release ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-                        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"  
+                        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
+                    sh "./gradlew helmLintMainChart --info"
+                    sh "./gradlew helmPackageMainChart helmPublishMainChart"
                     def props = readProperties file: 'build/ci.properties'
                     env.TAG_NAME = props.tagName
                 }
