@@ -3,15 +3,32 @@ categories:
 questions:
   - variable: ingress.hosts[0].name
     label: Hostname(s)
-    description: "Specify a hostname for this EMX2  instance"
+    description: "Specify a hostname for this EMX2 instance"
     type: string
     required: true
     default: "emx2.test.molgenis.org"
     group: "Loadbalancing"
+  - variable: image.repository
+    label: Repository
+    description: "Specify a repository"
+    type: enum
+    required: true
+    options:
+      - molgenis/molgenis-emx2
+      - molgenis/molgenis-emx2-snapshot
+    default: "molgenis/molgenis-emx2"
+    group: "Provisioning"
+  - variable: image.tag
+    label: Version
+    description: "Specify a version of the application"
+    type: string
+    required: true
+    default: "latest"
+    group: "Provisioning"
   - variable: adminPassword
     label: Admoinistrator password
     description: "Specify an administrator password"
     type: password
     required: true
     default: ""
-    group: "Provisioning"
+    
