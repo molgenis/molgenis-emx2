@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: java
+    image: gradle:jdk16-hotspot
+    imagePullPolicy: IfNotPresent
+    command:
+    - cat
+    tty: true
+    resources:
+      requests:
+        cpu: 2
+        memory: 4Gi
+      limits:
+        cpu: 2
+        memory: 4Gi
+  - name: postgres
+    image: postgres:13-alpine
+    imagePullPolicy: IfNotPresent
+    args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
+    tty: true
+    resources:
+      requests:
+        cpu: 2
+        memory: 2Gi
+      limits:
+        cpu: 2
+        memory: 2Gi
+    env:
+      - name: POSTGRES_USER
+        value: molgenis  
+      - name: POSTGRES_PASSWORD
+        value: molgenis  
+      - name: POSTGRES_DB
+        value: molgenis  
+  restartPolicy: Never
