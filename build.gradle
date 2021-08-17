@@ -98,8 +98,6 @@ jib {
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
 def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null
 helm {
-    filtering.enabled = false
-
     publishing {
         repositories {
             nexus {
