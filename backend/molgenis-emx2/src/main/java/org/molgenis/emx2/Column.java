@@ -16,7 +16,7 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column implements Comparable {
+public class Column implements Comparable<Column> {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -614,8 +614,13 @@ public class Column implements Comparable {
   }
 
   @Override
-  public int compareTo(Object o) {
-    // position is required in backend
-    return getPosition().compareTo(((Column) o).getPosition());
+  public int compareTo(Column o) {
+    if (this.getPosition() > o.getPosition()) {
+      return 1;
+    } else if (this.getPosition() < o.getPosition()) {
+      return -1;
+    } else {
+      return this.getName().compareTo(o.getName());
+    }
   }
 }
