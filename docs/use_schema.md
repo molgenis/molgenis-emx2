@@ -3,10 +3,10 @@
 A MOLGENIS [database](use_database.md) is defined by its schema. The schema enables rich data modelling using tables,
 columns and relationships.
 
-You can create complete custom database schemas using the molgenis schema editor or by uploading a 'EMX2' schema file format.
-First create a sheet in Excel named `molgenis`. Or create a molgenis.csv or molgenis.tsv sheet and upload it as
-part of a zip file. Note: you can upload the data in the same file as well. For that make sure each Excel sheet or .tsv/.csv
-file is named in your molgenis metadata sheet.
+You can create complete custom database schemas using the molgenis schema editor or by uploading a 'EMX2' schema file
+format. First create a sheet in Excel named `molgenis`. Or create a molgenis.csv or molgenis.tsv sheet and upload it as
+part of a zip file. Note: you can upload the data in the same file as well. For that make sure each Excel sheet or
+.tsv/.csv file is named in your molgenis metadata sheet.
 
 ## Example of a 'molgenis' schema
 
@@ -35,8 +35,8 @@ a-zAZ1-3. Maximum length 31 characters. Default value: empty
 
 ### columnType
 
-Will be the type of column. Ignored if columnName is empty. See section on columnTypes below. Default value: string. MOLGENIS
-supports the following types (type names are case insensitive):
+Will be the type of column. Ignored if columnName is empty. See section on columnTypes below. Default value: string.
+MOLGENIS supports the following types (type names are case insensitive):
 
 Basic type:
 
@@ -70,8 +70,8 @@ Arrays (i.e. list of values)
 ### key
 
 Will indicate that a column is part of a key. Ignored if columnName is empty. Key means values in this column should be
-unique within the table. When key=1 this is used as the primary key in the user interface, upload and API. Other key>1 can be
-used to create a secondary key. Default value: empty
+unique within the table. When key=1 this is used as the primary key in the user interface, upload and API. Other key>1
+can be used to create a secondary key. Default value: empty
 
 ### required
 
@@ -110,9 +110,9 @@ Note: when key=1 then automatically required=TRUE
 
 ### refBack
 
-If you want to create a two-directional relationship, you can use columnType=refback + refBack=aColumnName. The
-refBack should then refer to a column in refTable that is of columnType=ref or columnType=ref_array and refers to this
-table. A refback column behaves as a ref_array, but is in fact either many_to_many or many_to_one, depending on whether the
+If you want to create a two-directional relationship, you can use columnType=refback + refBack=aColumnName. The refBack
+should then refer to a column in refTable that is of columnType=ref or columnType=ref_array and refers to this table. A
+refback column behaves as a ref_array, but is in fact either many_to_many or many_to_one, depending on whether the
 refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
 the example below.
 
@@ -120,8 +120,8 @@ the example below.
 
 When refTable has multiple primary key columns (i.e. column with key=1) then you must also define how you want to name
 the fields that are part of this column. The values in refTo must match the primary key columns of refTable. The values
-in refFrom can be chosen freely, but must be unique. Optionally, you can name them the same as an existing columnName, but only
-if the relationships overlap. See the example below:
+in refFrom can be chosen freely, but must be unique. Optionally, you can name them the same as an existing columnName,
+but only if the relationships overlap. See the example below:
 
 Example of complex relationships:
 
@@ -141,9 +141,9 @@ You can further finetune the behaviour of tables using javascript expressions. N
 
 ### computedValue
 
-Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn must
-contain valid javascript returning the value. All columns of the table are available as variable. Computed values are
-read-only in the user interface.
+Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn
+must contain valid javascript returning the value. All columns of the table are available as variable. Computed values
+are read-only in the user interface.
 
 For example:
 
@@ -156,9 +156,9 @@ For example:
 ### validation expression, visible expression
 
 Validation expressions and visible expressions are used to finetune forms. Validation expressions must be valid
-javascript. Validation expressions must return null, otherwise they will show an error message and prevent insert/update.
-Visible expressions must return true, otherwise the column stays hidden in the user interface. In the event that javascript throws an
-exception, this is shown in user interface/error message.
+javascript. Validation expressions must return null, otherwise they will show an error message and prevent
+insert/update. Visible expressions must return true, otherwise the column stays hidden in the user interface. In the
+event that javascript throws an exception, this is shown in user interface/error message.
 
 Example:
 
@@ -174,22 +174,42 @@ You can reuse table definitions, and make more specialised tables using 'tableEx
 
 ### tableExtends
 
-Should contain the value of an existing tableName. When providing tableExtends, the column with 'columnName' should be empty.
-It means the columns defined in that tableName will be added to this table. In addition, rows added to this table, will
-also be visible in the table that is extended.
+Should contain the value of an existing tableName. When providing tableExtends, the column with 'columnName' should be
+empty. It means the columns defined in that tableName will be added to this table. In addition, rows added to this
+table, will also be visible in the table that is extended.
 
 ## Cross schema references/extends
 
 Usually it is good practice to keep all tables you work with in one schema, so you can upload/download them as a unit.
-However, there might be cases where you want to refer to data in other schemas. For example, large reference sets, or
-a situation in which you have multiple organisations contributing data. For these cases you can use 'refSchema'.
+However, there might be cases where you want to refer to data in other schemas. For example, large reference sets, or a
+situation in which you have multiple organisations contributing data. For these cases you can use 'refSchema'.
 
 ### refSchema
 
 Using meta data 'refSchema' you can indicate that a refTable or tableExtends should look into other schema. In addition,
 binding to a particular schema greatly limits flexibility of the data structure. An additional requirement is that the
-table from the other schema should not have a name conflict with any table in the current schema. This is because in practice, the
-table from the other schema will be imported into the current schema.
+table from the other schema should not have a name conflict with any table in the current schema. This is because in
+practice, the table from the other schema will be imported into the current schema.
+
+## columnFormat to change column layout
+
+As experimental feature molgenis now enables schema designer to set 'columnFormat' for a column. This provides the user
+interface with a hint to show the input in a different way.
+
+Currently implemented formats:
+
+* OntologyTerm: when applied to a ref or ref_array it will show checkboxes in a tree in forms, when 'parent' column in
+  the refTable is set.
+
+For example:
+
+| tableName | columnName | type | refTable | key | columnFormat       | description                                   |
+|-----------|------------|------|----------|-----|--------------------|-----------------------------------------------|
+| person    | id         |      |          | 1   |                    |                                               |
+| person    | birth      | date |          |     |                    |                                               |
+| person    | disease    | ref  | ontology |     | OntologyTerm       | will be shown as tree because of columnFormat | 
+| ontology  | term       |      |          |1    |                    |                                               |
+| ontology  | parent     | ref  | ontology |     |                    | Will be used to structure the tree            |
 
 ## FAQ
 
