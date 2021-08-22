@@ -22,6 +22,8 @@ import InputDecimal from "./forms/InputDecimal";
 import InputCheckbox from "./forms/InputCheckbox";
 import InputFile from "./forms/InputFile";
 import InputInt from "./forms/InputInt";
+import InputOntology from "./forms/InputOntology";
+import InputOntologySubtree from "./forms/InputOntologySubtree";
 import InputPassword from "./forms/InputPassword";
 import InputRadio from "./forms/InputRadio";
 import InputRef from "./forms/InputRef";
@@ -94,6 +96,8 @@ export {
   InputDecimal,
   InputFile,
   InputInt,
+  InputOntology,
+  InputOntologySubtree,
   InputPassword,
   InputRadio,
   InputRef,
