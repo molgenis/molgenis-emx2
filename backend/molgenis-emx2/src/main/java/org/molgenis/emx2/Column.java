@@ -559,8 +559,9 @@ public class Column {
     return columnFormat;
   }
 
-  public void setColumnFormat(String columnFormat) {
+  public Column setColumnFormat(String columnFormat) {
     this.columnFormat = columnFormat;
+    return this;
   }
 
   public String getVisible() {
