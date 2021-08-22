@@ -20,6 +20,7 @@
             :label="column.name"
             :description="column.description"
             :columnType="column.columnType"
+            :columnFormat="column.columnFormat"
             :table="column.refTable"
             :filter="refLinkFilters[column.name]"
             :refLabel="column.refLabel"
