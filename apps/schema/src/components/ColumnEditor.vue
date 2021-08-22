@@ -71,6 +71,9 @@
       <InputString v-model="column.semantics" :list="true" :inplace="true" />
     </td>
     <td>
+      <InputString v-model="column.columnFormat" :inplace="true" />
+    </td>
+    <td>
       <InputText v-model="column.description" :inplace="true" />
     </td>
     <td>

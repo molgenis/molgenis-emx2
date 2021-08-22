@@ -40,6 +40,7 @@
                       :label.sync="column.name"
                       :description.sync="column.description"
                       :columnType="column.columnType"
+                      :columnFormat="column.columnFormat"
                       :refTable="column.refTable"
                       :required="column.required"
                       :errorMessage="errorPerColumn[column.name]"

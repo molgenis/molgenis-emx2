@@ -32,12 +32,13 @@
           label="key"
         />
       </div>
-      <div class="col-4" v-if="column.columnType == 'STRING'">
-        <InputSelect
-          v-model="column.columnFormat"
-          :options="['HYPERLINK']"
-          label="columnFormat"
-        />
+      {{
+        /* this we would like to generalize using some kind of 'format' plugin
+              registry so we can merge this with the columnType somehow. Meanwhile this
+              is super flexible */
+      }}
+      <div class="col-4">
+        <InputString v-model="column.columnFormat" label="columnFormat" />
       </div>
       <div
         class="col-4"
