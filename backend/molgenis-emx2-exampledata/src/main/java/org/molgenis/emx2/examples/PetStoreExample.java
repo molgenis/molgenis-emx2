@@ -46,7 +46,11 @@ public class PetStoreExample {
                     .setDescription("<h1>Details:</h1>")) // add a layout element
             .add(column(STATUS)) // todo enum: available, pending, sold
             .add(column("tags").setType(REF_ARRAY).setRefTable(TAG))
-            .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
+            .add(
+                column(WEIGHT)
+                    .setType(DECIMAL)
+                    .setRequired(true)
+                    .setColumnFormat("DummyFormatForTestingOnly"))
             .setDescription("My pet store example table"));
 
     schema.create(
