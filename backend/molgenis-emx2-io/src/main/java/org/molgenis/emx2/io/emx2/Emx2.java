@@ -20,6 +20,7 @@ public class Emx2 {
   public static final String DESCRIPTION = "description";
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
+  public static final String COLUMN_FORMAT = "columnFormat";
   public static final String KEY = "key";
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
@@ -74,7 +75,7 @@ public class Emx2 {
           Column column = column(r.getString(COLUMN_NAME));
           if (r.notNull(COLUMN_TYPE))
             column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
-
+          if (r.notNull(COLUMN_FORMAT)) column.setColumnFormat(r.getString(COLUMN_FORMAT));
           if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
           if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
           if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
@@ -129,6 +130,7 @@ public class Emx2 {
       row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
       row.setStringArray(SEMANTICS, t.getSemantics());
+      row.setString(COLUMN_FORMAT, null);
       row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
 
@@ -154,6 +156,7 @@ public class Emx2 {
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
           if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
+          if (c.getColumnFormat() != null) row.set(COLUMN_FORMAT, c.getColumnFormat());
 
           result.add(row);
         }
