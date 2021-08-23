@@ -1,0 +1,2 @@
+datasource,databank,linkageStrategy,linkageVariable,linkageVariableUnique,linkageCompleteness
+testds,testdb,Probabilistic,someid,false,not so complete

@@ -22,12 +22,14 @@ public class TestCohortCatalogue {
   static Database database;
   static Schema cohortsSchema;
   static Schema conceptionSchema;
+  static Schema rweSchema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     conceptionSchema = database.dropCreateSchema("Conception");
     cohortsSchema = database.dropCreateSchema("CohortNetwork");
+    rweSchema = database.dropCreateSchema("RWENetwork");
   }
 
   @Test
@@ -51,6 +53,26 @@ public class TestCohortCatalogue {
     task3.run();
 
     assertEquals(52, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+
+    // export import schema to compare
+  }
+
+  @Test
+  public void importTestRWE() throws IOException {
+    StopWatch.print("begin");
+
+    // load data model
+    SchemaMetadata schema =
+        Emx2.fromRowList(
+            CsvTableReader.read(new File("../../data/datacatalogue/molgenis_draft.csv")));
+    rweSchema.migrate(schema);
+
+    ImportDirectoryTask task2 =
+        new ImportDirectoryTask(
+            new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema);
+    task2.run();
+
+    assertEquals(70, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }
