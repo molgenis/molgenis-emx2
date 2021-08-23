@@ -84,7 +84,11 @@ export default {
             this.loading = false;
           })
           .catch((error) => {
-            this.graphqlError = "internal server graphqlError" + error;
+            if (Array.isArray(error.response.errors)) {
+              this.graphqlError = error.response.errors[0].message;
+            } else {
+              this.graphqlError = error;
+            }
             this.loading = false;
           });
       }
