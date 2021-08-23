@@ -26,7 +26,7 @@ questions:
     default: "latest"
     group: "Provisioning"
   - variable: adminPassword
-    label: Admoinistrator password
+    label: Administrator password
     description: "Specify an administrator password"
     type: password
     required: true
