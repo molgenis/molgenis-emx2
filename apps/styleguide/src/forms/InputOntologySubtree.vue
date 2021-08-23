@@ -24,6 +24,7 @@
         :expanded="expanded"
         :selection="selection"
         :terms="term.children"
+        :list="list"
         @select="select(term, $event)"
         @deselect="$emit('deselect', $event)"
         @toggleExpand="$emit('toggleExpand', $event)"
@@ -39,6 +40,7 @@ export default {
     terms: Array,
     selection: Array,
     expanded: Array,
+    list: { type: Boolean, default: false },
   },
   computed: {
     hasChildren() {
@@ -68,16 +70,16 @@ export default {
     },
     selectState(item) {
       if (this.selection.includes(item.name)) {
-        return "fas fa-check-square";
+        return this.list ? "fas fa-check-square" : "fas fa-check-circle";
       } else if (
         item.children &&
         item.children
           .map((c) => c.name)
           .some((c) => this.selection.indexOf(c) != -1)
       ) {
-        return "far fa-check-square ";
+        return this.list ? "far fa-check-square" : "far fa-circle";
       } else {
-        return "far fa-square";
+        return this.list ? "far fa-square" : "far fa-circle";
       }
     },
     getAllChildNames(term) {
@@ -96,8 +98,12 @@ export default {
         if (this.expanded.indexOf(term.name) === -1) {
           this.$emit("toggleExpand", term.name);
         }
-        //select children, recursively
-        this.$emit("select", this.getAllChildNames(term));
+        //select children, recursively in case of list
+        if (this.list) {
+          this.$emit("select", this.getAllChildNames(term));
+        } else {
+          this.$emit("select", [term.name]);
+        }
       } else {
         this.$emit("deselect", this.getAllChildNames(term));
       }
