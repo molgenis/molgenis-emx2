@@ -1,6 +1,6 @@
 name,description,parent
 Geographic regions,Are data on geographic region available?,
-Family linkage,Is any linkage available in the data bank between any of the following persons?
+Family linkage,Is any linkage available in the data bank between any of the following persons?,
 Household linkage,,Family linkage
 Mother-child linkage,,Family linkage
 Father-child linkage,,Family linkage
