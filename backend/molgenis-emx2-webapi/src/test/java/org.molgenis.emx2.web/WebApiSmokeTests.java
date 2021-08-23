@@ -2,8 +2,7 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -266,6 +265,16 @@ public class WebApiSmokeTests {
             .asString();
     assertTrue(result.contains("anonymous"));
 
+    // if anonymous then should not be able to see users
+    result =
+        given()
+            .sessionId(sessionId)
+            .body("{\"query\":\"{_admin{userCount}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("Error"));
+
     result =
         given()
             .sessionId(sessionId)
@@ -285,6 +294,16 @@ public class WebApiSmokeTests {
             .asString();
     assertTrue(result.contains("admin"));
 
+    // if admin then should  be able to see users
+    result =
+        given()
+            .sessionId(sessionId)
+            .body("{\"query\":\"{_admin{userCount}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertFalse(result.contains("Error"));
+
     String schemaPath = "/pet store/api/graphql";
     result =
         given()
@@ -303,6 +322,16 @@ public class WebApiSmokeTests {
             .post(path)
             .asString();
     assertTrue(result.contains("signed out"));
+
+    // if anonymous then should not be able to see users
+    result =
+        given()
+            .sessionId(sessionId)
+            .body("{\"query\":\"{_admin{userCount}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("Error"));
   }
 
   @Test

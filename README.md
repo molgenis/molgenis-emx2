@@ -34,6 +34,9 @@ own 'apps'.
 * [docker compose](https://molgenis.github.io/molgenis-emx2/#/run_docker)
 * [using kubernetes](https://molgenis.github.io/molgenis-emx2/#/run_helm)
 
+Note: when updating to newer version MOLGENIS will attempt to migrate your postgresql backend to match.
+However, this might not 'fix' your data so please read release notes on breaking changes.
+
 ## How to contribute
 
 * [Build the source code](https://molgenis.github.io/molgenis-emx2/#/dev_quickstart)

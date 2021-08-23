@@ -1,6 +1,7 @@
 # Quickstart / Pull request review
 
-Below are the steps to checkout the code, optionally a specific branch, build, and then look at the current functionality.
+Below are the steps to checkout the code, optionally a specific branch, build, and then look at the current
+functionality.
 
 ## Clone the code
 
@@ -17,8 +18,8 @@ cd molgenis-emx
 git checkout <branch name here>
 ```
 
-Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate the backend and only run one
-app, described below. Or you can run it inside IntelliJ.
+Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate the backend and only run
+one app, described below. Or you can run it inside IntelliJ.
 
 ## Build whole system
 
@@ -28,6 +29,7 @@ Requires [Postgresql 13](https://www.postgresql.org/download/) and java (we use
 On Linux/Mac this could go as follows (Windows users, please tell us if this works for you too):
 
 **Start postgres using a native postgres installation**
+
 * Optionally, drop a previous version of molgenis database (caution: destroys previous data!)
   ```console
   sudo -u postgres psql
@@ -42,7 +44,8 @@ On Linux/Mac this could go as follows (Windows users, please tell us if this wor
   ```
 
 **Start postgres using docker-compose**
-You can start postgres using `docker-compose`. The data will be mounted in a directory called `psql_data` where you start the docker-compose (default: repo root-directory)
+You can start postgres using `docker-compose`. The data will be mounted in a directory called `psql_data` where you
+start the docker-compose (default: repo root-directory)
 
 * Start postgres
   ```console
@@ -57,6 +60,7 @@ You can start postgres using `docker-compose`. The data will be mounted in a dir
   ```
 
 **Start developing using gradle**
+
 * Change into molgenis-emx2 directory and then compile and run via command
    ```
    cd molgenis-emx2
@@ -126,7 +130,8 @@ Sometimes it help to reset gradle cache and stop the gradle daemon
 ./gradlew --stop rm -rf $HOME/.gradle/
 ```
 
-### Delete all schemas tool
+### Delete all schemas (destroys all your data!)
 
-If you want to delete all the schemas in the database, run
-```molgenis-emx2-sql/test/java/.../AToolToCleanDatabase```
+If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state,
+run
+```gradle cleandb```

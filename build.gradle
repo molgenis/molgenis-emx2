@@ -132,3 +132,10 @@ jar {
     }
 }
 
+task cleandb(type:JavaExec) {
+    group = "Execution"
+    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "org.molgenis.emx2.AToolToCleanDatabase"
+}
+

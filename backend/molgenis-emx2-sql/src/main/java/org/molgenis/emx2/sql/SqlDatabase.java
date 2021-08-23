@@ -27,7 +27,7 @@ public class SqlDatabase implements Database {
   // shared between all instances
   private static DataSource source;
 
-  private String databaseVersion;
+  private Integer databaseVersion;
   private DSLContext jooq;
   private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
@@ -38,6 +38,11 @@ public class SqlDatabase implements Database {
       (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN, STRING);
   private DatabaseListener listener =
       new DatabaseListener() {
+        @Override
+        public void userChanged() {
+          clearCache();
+        }
+
         @Override
         public void afterCommit() {
           clearCache();
@@ -128,7 +133,7 @@ public class SqlDatabase implements Database {
             j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
           });
 
-      MetadataUtils.init(jooq);
+      Migrations.initOrMigrate(this);
 
       if (!hasUser(ANONYMOUS)) {
         addUser(ANONYMOUS); // used when not logged in
@@ -324,9 +329,8 @@ public class SqlDatabase implements Database {
         }
       }
     } else {
-      if (username == null && connectionProvider.getActiveUser() != null
-          || username != null && !username.equals(connectionProvider.getActiveUser())) {
-        clearCache();
+      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
+        listener.userChanged();
       }
     }
     this.connectionProvider.setActiveUser(username);
@@ -371,6 +375,9 @@ public class SqlDatabase implements Database {
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
+        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
+          this.getListener().userChanged();
+        }
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
@@ -420,12 +427,12 @@ public class SqlDatabase implements Database {
     this.schemaNames.clear();
   }
 
-  protected DSLContext getJooq() {
+  public DSLContext getJooq() {
     return jooq;
   }
 
   @Override
-  public String getDatabaseVersion() {
+  public Integer getDatabaseVersion() {
     return databaseVersion;
   }
 

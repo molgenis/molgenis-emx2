@@ -12,7 +12,7 @@
   },
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "dependencies": {
-    "core-js": "3.16.1",
+    "core-js": "3.16.2",
     "graphql": "15.5.1",
     "graphql-request": "3.5.0",
     "object-path": "0.11.5",
@@ -31,10 +31,10 @@
     "babel-eslint": "10.1.0",
     "eslint": "7.32.0",
     "eslint-plugin-autofix": "1.0.5",
-    "eslint-plugin-prettier": "3.4.0",
+    "eslint-plugin-prettier": "3.4.1",
     "eslint-plugin-vue": "7.16.0",
     "prettier": "2.3.2",
-    "vue-cli-plugin-styleguidist": "4.40.0",
+    "vue-cli-plugin-styleguidist": "4.41.1",
     "vue-template-compiler": "2.6.14"
   },
   "eslintConfig": {

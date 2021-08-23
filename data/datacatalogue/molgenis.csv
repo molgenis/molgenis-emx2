@@ -70,11 +70,11 @@ Contributions,,contributionDescription,text,,,,,,,,"longer description, typicall
 Contacts,,name,,1,TRUE,,,,,,name of the person who contributed
 Contacts,,institution,ref,,,Institutions,,,,,context for this context
 Contacts,,department,text,,,,,,,,"optionally, the unit from which the contribution was made (as used in publications)"
-Contacts,,expertise,,,,,,,,,
 Contacts,,orcid,,3,,,,,,,
 Contacts,,homepage,,,,,,,,,
 Contacts,,email,,2,,,,,,,"email, ideally institute email to be used for this contribution"
 Contacts,,photo,file,,,,,,,,photo to make user interface look nice
+Contacts,,expertise,,,,,,,,,
 Documentation,,,,,,,,,,,Documentation attached to a resource
 Documentation,,resource,ref,1,TRUE,Resources,,,,,The resource this documentation is for
 Documentation,,name,,1,TRUE,,,,,,"name of the document, unique within the resource"
@@ -83,7 +83,7 @@ Documentation,,description,text,,,,,,,,description of the documentation
 Documentation,,url,,,,,,,,,hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,optional file attachment containing the documentation
 Databanks,Resources,,,,,,,,,,Data collections such as registries or biobanks
-Databanks,,datasource,ref,,,Datasources,,,,,"what datasource this databank is part of, if applicable"
+Databanks,,datasource,ref_array,,,Datasources,,,,,"what datasource(s) this databank is part of, if applicable"
 Databanks,,originator,text,,,,,,,,
 Databanks,,recordPrompt,ref_array,,,Prompts,,,,,what triggers data collection
 Databanks,,recordPromptDescription,text,,,,,,,,
@@ -110,8 +110,8 @@ CollectionEvents,,ageMax,ref,,,AgeCategories,,,,,"maximum ages included, if appl
 CollectionEvents,,noParticipants,int,,,,,,,,number of participants sampled in this event
 CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,(sub)populations that are targetted with this collection event
 CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,Areas of information that were extract using below data and samples sources
-CollectionEvents,,dataSources,ref_array,,,DataSources,,,,,Methods of data collection used in this collection event
-CollectionEvents,,sampleSources,ref_array,,,SampleSources,,,,,Samples that were collected in this collection even
+CollectionEvents,,dataCategories,ref_array,,,DataCategories,,,,,Methods of data collection used in this collection event
+CollectionEvents,,sampleCategories,ref_array,,,SampleCategories,,,,,Samples that were collected in this collection even
 CollectionEvents,,supplementaryInformation,text,,,,,,,,any other information
 Subcohorts,,,,,,,,,,,Subpopulations defined in this resource
 Subcohorts,,resource,ref,1,true,Resources,,,,,"E.g. 'Mothers in first trimester','newborns'"
@@ -119,8 +119,10 @@ Subcohorts,,name,,1,true,,,,,,"E.g. 'Mothers in first trimester','newborns'"
 Subcohorts,,noParticipants,int,,,,,,,,
 Subcohorts,,description,text,,,,,,,,
 Subcohorts,,ageCategories,ref_array,,,AgeCategories,,,,,
-Subcohorts,,inclusionCriteria,text,,,,,,,,
+Subcohorts,,inclusionStart,int,,,,,,,,Date of first collected data
+Subcohorts,,inclusionEnd,int,,,,,,,,Date of last collected data. Leave empty if collection is ongoing
 Subcohorts,,disease,ref_array,,,Diseases,,,,,
+Subcohorts,,inclusionCriteria,text,,,,,,,,
 Subcohorts,,geographicRegion,ref_array,,,Regions,,,,,e.g. province
 Subcohorts,,supplementaryInformation,text,,,,,,,,
 Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
@@ -219,8 +221,8 @@ FundingTypes,OntologyTerms,,,,,,,,,,
 Ethnicities,OntologyTerms,,,,,,,,,,
 CohortDesigns,OntologyTerms,,,,,,,,,,
 CollectionTypes,OntologyTerms,,,,,,,,,,
-SampleSources,OntologyTerms,,,,,,,,,,
-DataSources,OntologyTerms,,,,,,,,,,
+SampleCategories,OntologyTerms,,,,,,,,,,
+DataCategories,OntologyTerms,,,,,,,,,,
 Diseases,OntologyTerms,,,,,,,,,,
 Conditions,OntologyTerms,,,,,,,,,,
 ContributionTypes,OntologyTerms,,,,,,,,,,

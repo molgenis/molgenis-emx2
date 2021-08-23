@@ -94,6 +94,14 @@ public class TestGraphqlDatabaseFields {
     database.clearActiveUser();
   }
 
+  @Test
+  public void testDatabaseVersion() throws IOException {
+    String result =
+        execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
+    // should be a number
+    assertTrue(Integer.valueOf(result) > 0);
+  }
+
   private JsonNode execute(String query) throws IOException {
     return new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
   }
