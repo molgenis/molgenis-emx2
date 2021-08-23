@@ -70,6 +70,7 @@ pipeline {
                         "c-qx6c7:nexus-helm3-emx2 " +
                         "${NAME} " +
                         "--no-prompt " +
+                        "--set adminPassword=admin " +
                         "--set image.tag=${TAG_NAME} " +
                         "--set image.repository=molgenis/molgenis-emx2-snapshot " +
                         "--set image.pullPolicy=Always " +
