@@ -63,8 +63,7 @@ public class TestCohortCatalogue {
 
     // load data model
     SchemaMetadata schema =
-        Emx2.fromRowList(
-            CsvTableReader.read(new File("../../data/datacatalogue/molgenis_draft.csv")));
+        Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     rweSchema.migrate(schema);
 
     ImportDirectoryTask task2 =
@@ -72,7 +71,7 @@ public class TestCohortCatalogue {
             new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema);
     task2.run();
 
-    assertEquals(70, TestCohortCatalogue.rweSchema.getTableNames().size());
+    assertEquals(72, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }
