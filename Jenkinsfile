@@ -74,8 +74,8 @@ pipeline {
                         "--set image.tag=${TAG_NAME} " +
                         "--set image.repository=molgenis/molgenis-emx2-snapshot " +
                         "--set image.pullPolicy=Always " +
-                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org"
-                        "--set nginx.ingress.kubernetes.io/proxy-body-size=0"
+                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org " +
+                        "--set nginx.ingress.kubernetes.io/proxy-body-size=0 "
                 }
             }
             post {
