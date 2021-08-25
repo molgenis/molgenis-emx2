@@ -184,6 +184,7 @@ const router = new VueRouter({
       component: TableMappingsView,
     },
     {
+      name: "variableExplorer",
       path: "/variable-explorer",
       props: true,
       component: VariableExplorer,
