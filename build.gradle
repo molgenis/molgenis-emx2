@@ -10,6 +10,9 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '3.1.1'
+    id 'org.unbroken-dome.helm' version '1.6.1'
+    id 'org.unbroken-dome.helm-publish' version '1.6.1'
+    id 'org.unbroken-dome.helm-commands' version '1.6.1'
 }
 
 
@@ -92,6 +95,37 @@ jib {
     }
 }
 
+def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
+def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null
+helm {
+    downloadClient {
+        enabled = true
+    }
+    
+    publishing {
+        repositories {
+            nexus {
+                url = uri('https://registry.molgenis.org/')
+                repository = 'helm'
+                apiVersion = 'v1'
+                credentials {
+                    username = "${nexusUser}"
+                    password = "${nexusPassword}"
+                }
+            }
+        }
+    }
+
+    charts {
+        main {
+            sourceDir = file('helm-chart')
+            lint {
+               strict = true
+            }
+        }
+    }
+}
+
 String getGitHash() {
     // git hash
     def command = Runtime.getRuntime().exec("git rev-parse --short HEAD")
@@ -103,12 +137,6 @@ String getGitHash() {
     String gitCommitHash = command.inputStream.text.trim()
 
     return gitCommitHash
-}
-
-//gradle cleanTest test --no-build-cache
-task createHelm(type: Exec) {
-    commandLine 'helm', 'package', 'deploy/helm-chart/', '-d', 'docs/helm-charts/'
-    commandLine 'helm', 'repo', 'index', 'docs/helm-charts', '--url', 'http://mswertz.github.io/molgenis-emx2/helm-charts'
 }
 
 ext {

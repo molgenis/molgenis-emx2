@@ -29,6 +29,7 @@ derby.log
 .idea/*
 .idea/fileTemplates/*/
 !.idea/fileTemplates/
+.vscode/*
 **/npm-debug.log
 **/.factorypath
 **/node_modules

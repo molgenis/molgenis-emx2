@@ -3,13 +3,16 @@ kind: Service
 metadata:
   name: {{ include "emx2.fullname" . }}
   labels:
-    {{- include "emx2.labels" . | nindent 4 }}
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: 8088
-      protocol: TCP
+    - port: {{ .Values.service.port }}
       targetPort: 8080
+      protocol: TCP
   selector:
     {{- include "emx2.selectorLabels" . | nindent 4}}
 status:
