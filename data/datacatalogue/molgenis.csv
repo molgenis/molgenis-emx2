@@ -1,87 +1,87 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
-Institutions,,acronym,,1,TRUE,,,,,,Unique code identifying this institution
-Institutions,,name,,2,,,,,,,Human readable name that this institution is known by
+Institutions,,acronym,,1,TRUE,,,,,,Institution acronym
+Institutions,,name,,2,,,,,,,Institution name
 Institutions,,type,ref,,,InstitutionTypes,,,,,Type of organisation
-Institutions,,description,text,,,,,,,,General description
-Institutions,,country,ref,,,Regions,,,,,Country were this institution is based
-Institutions,,homepage,,,,,,,,,Link to the homepage of this institution
-Institutions,,logo,file,,,,,,,,Logo to be shown when viewing this institution
-Institutions,,providerOf,refback,,,Resources,,institution,,,"Query that lists all resources (datasources, databanks, networks) that this institution is access provider of"
-Institutions,,partnerIn,refback,,,Partners,,institution,,,List of partner roles this institution has in various resources
-Resources,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Resources,,acronym,,1,TRUE,,,,,,Unique identifier within this catalogue
-Resources,,name,,2,,,,,,,Human readible name of this resource
+Institutions,,description,text,,,,,,,,General description of the institution
+Institutions,,country,ref,,,Regions,,,,,Country where the institution is based
+Institutions,,homepage,,,,,,,,,Link to the institution's homepage
+Institutions,,logo,file,,,,,,,,Institution logo
+Institutions,,providerOf,refback,,,Resources,,institution,,,"Query that lists all resources (datasources, databanks, networks) that the institution provides access to"
+Institutions,,partnerIn,refback,,,Partners,,institution,,,List of partner roles the institution has in various resources
+Resources,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks, Cohorts and Studies"
+Resources,,acronym,,1,TRUE,,,,,,Resource acronym
+Resources,,name,,2,,,,,,,Resource name
 Resources,,externalIdentifiers,,,,,,,,,External identifier for this resource
-Resources,,type,ref_array,,,ResourceTypes,,,,,"Codes that characterises the organisation and design of this resource, e.g. registry, cohort, etc."
+Resources,,type,ref_array,,,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
-Resources,,contact,ref_array,,,Contacts,,,,,Whom to contact for information and access
-Resources,,startYear,int,,,,,,,,Date of first collected data
-Resources,,endYear,int,,,,,,,,Date of last collected data. Leave empty if collection is ongoing
+Resources,,contact,ref_array,,,Contacts,,,,,Primary contact person for this resource
+Resources,,startYear,int,,,,,,,,Year when first data was collected
+Resources,,endYear,int,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Resources,,population,ref_array,,,Regions,,,,,Populations that this resource provides data on
-Resources,,inclusionCriteria,text,,,InclusionCriteria,,,,,Inclusion criteria applied to these populations
-Resources,,keywords,text,,,,,,,,Keywords to increase findability of this rescource. Try to use words that are not used in the description.
-Resources,,ageCategories,ref_array,,,AgeCategories,,,,,
-Resources,,description,text,,,,,,,,General description
-Resources,,noParticipants,int,,,,,,,,total number of individuals of which data is collected
-Resources,,noParticipantsWithSamples,int,,,,,,,,number of individuals of which samples are collected
-Resources,,publication,text,,,Publications,,,,,Marker publication(s) about this resource
+Resources,,inclusionCriteria,text,,,InclusionCriteria,,,,,Inclusion criteria applied to this resource
+Resources,,keywords,text,,,,,,,,Keywords to increase findability of this rescource
+Resources,,ageCategories,ref_array,,,AgeCategories,,,,,Age categories of the participants of this resource
+Resources,,description,text,,,,,,,,Short description of this resource
+Resources,,noParticipants,int,,,,,,,,Total number of individuals for which data is collected
+Resources,,noParticipantsWithSamples,int,,,,,,,,Number of individuals for which samples are collected
+Resources,,publication,text,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Resources,,otherPublications,ref_array,,,Publications,,,,,Other publication(s) about this resource
-Resources,,logo,file,,,,,,,,Logo for use on homepages etc.
-Resources,,homepage,,,,,,,,,Link to the home page
+Resources,,logo,file,,,,,,,,"Logo for use on homepages, etc."
+Resources,,homepage,,,,,,,,,Link to the homepage of this resource
 Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
-Resources,,partners,refback,,,Partners,,resource,,,Institutions involved in the creation of this resource
-Resources,,conditions,ref_array,,,Conditions,,,,,Codes defining access and use conditions
-Resources,,conditionsDescription,text,,,,,,,,Human readible description of access and use conditions and procedures
-Resources,,linkageOptions,text,,,,,,,,Linkage options
-Resources,,releases,refback,,,Releases,,resource,,,Releases available from this resource
+Resources,,partners,refback,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
+Resources,,conditions,ref_array,,,Conditions,,,,,Codes defining data access terms and use conditions
+Resources,,conditionsDescription,text,,,,,,,,Description of data access terms and use conditions
+Resources,,linkageOptions,text,,,,,,,,Linkage options with additional data sources that are available for this resource
+Resources,,releases,refback,,,Releases,,resource,,,Releases available for this resource
 Resources,,releaseType,ref,,,ReleaseTypes,,,,,"Whether this resource releases data continuously, or at a termly basis"
-Resources,,releaseDescription,,,,,,,,,Description of the release cycle of this resource
+Resources,,releaseDescription,text,,,,,,,,Description of the release cycle of this resource
 Resources,,documentation,refback,,,Documentation,,resource,,,List of documentation available for this resource
-Resources,,fundingStatement,text,,,,,,,,Funding statement
-Resources,,acknowledgements,text,,,,,,,,"Acknowledgement statement, to be used when citing this resource"
-Resources,,subcohorts,refback,,,Subcohorts,,resource,,,
-Resources,,collectionEvents,refback,,,CollectionEvents,,resource,,,
-Publications,,,,,,,,,,,publications following bibtex format
-Publications,,doi,,1,TRUE,,,,,,digital object identifier
-Publications,,title,,,TRUE,,,,,,The title of the work
-Publications,,authors,string_array,,,,,,,,"List of authors, one string per author"
-Publications,,year,int,,,,,,,,"The year of publication (or, if unpublished, the year of creation)"
-Publications,,journal,,,,,,,,,The journal or magazine the work was published in
-Publications,,volume,int,,,,,,,,The volume of a journal or multi-volume book
-Publications,,number,int,,,,,,,,"The ""(issue) number"" of a journal, magazine, or tech-report, if applicable. Note that this is not the ""article number"" assigned by some journals."
-Publications,,pagination,,,,,,,,,"Page numbers, separated either by commas or double-hyphens."
-Publications,,publisher,,,,,,,,,The publisher's name
-Publications,,school,,,,,,,,,(in case of thesis) The school where the thesis was written
-Publications,,abstract,text,,,,,,,,
-Publications,,resources,refback,,,Resources,,otherPublications,,,list of resources that refer to this publication
+Resources,,fundingStatement,text,,,,,,,,Description of funding for this resource
+Resources,,acknowledgements,text,,,,,,,,Acknowledgement statement and citation regulation for this resource
+Resources,,subcohorts,refback,,,Subcohorts,,resource,,,List of subcohorts for this resource
+Resources,,collectionEvents,refback,,,CollectionEvents,,resource,,,List of collection events defined for this resource
+Publications,,,,,,,,,,,Publications in bibtex format
+Publications,,doi,,1,TRUE,,,,,,Digital object identifier
+Publications,,title,,,TRUE,,,,,,Publication title
+Publications,,authors,string_array,,,,,,,,"List of authors, separated by commas"
+Publications,,year,int,,,,,,,,"Year of publication (or, if unpublished, year of creation)"
+Publications,,journal,,,,,,,,,Journal or magazine the work was published in
+Publications,,volume,int,,,,,,,,Journal or magazine volume 
+Publications,,number,int,,,,,,,,Journal or maragzine issue number
+Publications,,pagination,,,,,,,,,"Page numbers, separated either by commas or double-hyphens"
+Publications,,publisher,,,,,,,,,Publisher's name
+Publications,,school,,,,,,,,,School where the thesis was written (in case of thesis)
+Publications,,abstract,text,,,,,,,,Publication abstract
+Publications,,resources,refback,,,Resources,,otherPublications,,,List of resources that refer to this publication
 Partners,,,,,,,,,,,Institutions that partnered in the creation of a resource
-Partners,,resource,ref,1,TRUE,Resources,,,,,resource institution has contributed to
-Partners,,institution,ref,1,TRUE,Institutions,,,,,institution that contributed
-Partners,,department,text,,,,,,,,"optionally, the institutational unit(s) that play a role in this resource"
-Partners,,role,ref,,,PartnerRoles,,,,,role in this resource
-Partners,,roleDescription,text,,,,,,,,human readible description of the role in this resource
-Contributions,,,,,,,,,,,Persons that contributed to the creation of a resource
-Contributions,,resource,ref,1,TRUE,Resources,,,,,resource person has contributed to
-Contributions,,contact,ref,1,TRUE,Contacts,,,,,person who has contributed to this resource
-Contributions,,contributionType,ref_array,,,ContributionTypes,,,,,type of the contribution
-Contributions,,contributionDescription,text,,,,,,,,"longer description, typically used as homepage text for a consortium"
-Contacts,,name,,1,TRUE,,,,,,name of the person who contributed
-Contacts,,institution,ref,,,Institutions,,,,,context for this context
-Contacts,,department,text,,,,,,,,"optionally, the unit from which the contribution was made (as used in publications)"
-Contacts,,orcid,,3,,,,,,,
-Contacts,,homepage,,,,,,,,,
-Contacts,,email,,2,,,,,,,"email, ideally institute email to be used for this contribution"
-Contacts,,photo,file,,,,,,,,photo to make user interface look nice
-Contacts,,expertise,,,,,,,,,
+Partners,,resource,ref,1,TRUE,Resources,,,,,Resource that is contributed to
+Partners,,institution,ref,1,TRUE,Institutions,,,,,Institution that contributed
+Partners,,department,text,,,,,,,,"Optionally, the institutional unit(s) that play a role in this resource"
+Partners,,role,ref,,,PartnerRoles,,,,,Role in this resource
+Partners,,roleDescription,text,,,,,,,,Description of the role in this resource
+Contributions,,,,,,,,,,,Persons that contributed to the creation of this resource
+Contributions,,resource,ref,1,TRUE,Resources,,,,,Resource person has contributed to
+Contributions,,contact,ref,1,TRUE,Contacts,,,,,Person who contributed to this resource
+Contributions,,contributionType,ref_array,,,ContributionTypes,,,,,Type of contribution
+Contributions,,contributionDescription,text,,,,,,,,Contribution description
+Contacts,,name,,1,TRUE,,,,,,Name of the contact person
+Contacts,,institution,ref,,,Institutions,,,,,Affiliated institution of the contact person
+Contacts,,department,text,,,,,,,,Affiliated department of the contact person
+Contacts,,orcid,,3,,,,,,,Orcid of the contact person
+Contacts,,homepage,,,,,,,,,Link to contact's homepage
+Contacts,,email,,2,,,,,,,Contact's email address
+Contacts,,photo,file,,,,,,,,Contact's photograph
+Contacts,,expertise,,,,,,,,,Description of contact's expertise
 Documentation,,,,,,,,,,,Documentation attached to a resource
 Documentation,,resource,ref,1,TRUE,Resources,,,,,The resource this documentation is for
-Documentation,,name,,1,TRUE,,,,,,"name of the document, unique within the resource"
-Documentation,,type,ref,,,DocumentTypes,,,,,"type of documentation, e.g. protocol"
-Documentation,,description,text,,,,,,,,description of the documentation
-Documentation,,url,,,,,,,,,hyperlink to the source of the documentation
-Documentation,,file,file,,,,,,,,optional file attachment containing the documentation
+Documentation,,name,,1,TRUE,,,,,,Document name
+Documentation,,type,ref,,,DocumentTypes,,,,,Type of document
+Documentation,,description,text,,,,,,,,Description of the documentation
+Documentation,,url,,,,,,,,,Hyperlink to the source of the documentation
+Documentation,,file,file,,,,,,,,Optional file attachment containing the documentation
 Databanks,Resources,,,,,,,,,,Data collections such as registries or biobanks
 Databanks,,datasource,ref_array,,,Datasources,,,,,"what datasource(s) this databank is part of, if applicable"
 Databanks,,originator,text,,,,,,,,
@@ -96,35 +96,34 @@ Datasources,Resources,,,,,,,,,,Collections of data banks covering the same popul
 Datasources,,databanks,refback,,,Databanks,,datasource,,,List of databanks that are included in this datasource
 Datasources,,networks,refback,,,Networks,,datasources,,,List of networks that this datasource is associated with
 Cohorts,Resources,,,,,,,,,,Collections of data banks covering the same population
-Cohorts,,design,ref,,,CohortDesigns,,,,,is the study design of this cohort cross-sectional or longitudinal?
-Cohorts,,collectionType,ref_array,,,CollectionTypes,,,,,"is the data collection retrosepctive, prospective? If both, select both."
-Cohorts,,networks,refback,,,Networks,,cohorts,,,
-CollectionEvents,,,,,,,,,,,Definition of an action of data collection for a resource
-CollectionEvents,,resource,ref,1,true,Resources,,,,,
-CollectionEvents,,name,,1,true,,,,,,
-CollectionEvents,,description,,,,,,,,,
-CollectionEvents,,startYear,int,,,,,,,,period of collection start
-CollectionEvents,,endYear,int,,,,,,,,period of collection end
-CollectionEvents,,ageMin,ref,,,AgeCategories,,,,,"minimum ages included, if applicable"
-CollectionEvents,,ageMax,ref,,,AgeCategories,,,,,"maximum ages included, if applicable"
-CollectionEvents,,noParticipants,int,,,,,,,,number of participants sampled in this event
-CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,(sub)populations that are targetted with this collection event
-CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,Areas of information that were extract using below data and samples sources
+Cohorts,,design,ref,,,CohortDesigns,,,,,"The study design of this cohort, e.g. cross-sectional or longitudinal"
+Cohorts,,collectionType,ref_array,,,CollectionTypes,,,,,"The data collection type of this cohort, e.g. retrospective or prospective; if both, select both."
+Cohorts,,networks,refback,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
+CollectionEvents,,,,,,,,,,,Definition of a data collection event for a resource
+CollectionEvents,,resource,ref,1,TRUE,Resources,,,,,Resource this collection event is part of
+CollectionEvents,,name,,1,TRUE,,,,,,Name of the collection event
+CollectionEvents,,description,,,,,,,,,Description of the collection event
+CollectionEvents,,startYear,int,,,,,,,,Start year of data collection
+CollectionEvents,,endYear,int,,,,,,,,End year of data collection
+CollectionEvents,,ageCategories,ref_array,,,AgeCategories,,,,,Ages included in this data collection event
+CollectionEvents,,noParticipants,int,,,,,,,,Number of participants sampled in this data collection event
+CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
+CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
 CollectionEvents,,dataCategories,ref_array,,,DataCategories,,,,,Methods of data collection used in this collection event
-CollectionEvents,,sampleCategories,ref_array,,,SampleCategories,,,,,Samples that were collected in this collection even
-CollectionEvents,,supplementaryInformation,text,,,,,,,,any other information
-Subcohorts,,,,,,,,,,,Subpopulations defined in this resource
-Subcohorts,,resource,ref,1,true,Resources,,,,,"E.g. 'Mothers in first trimester','newborns'"
-Subcohorts,,name,,1,true,,,,,,"E.g. 'Mothers in first trimester','newborns'"
-Subcohorts,,noParticipants,int,,,,,,,,
-Subcohorts,,description,text,,,,,,,,
-Subcohorts,,ageCategories,ref_array,,,AgeCategories,,,,,
-Subcohorts,,inclusionStart,int,,,,,,,,Date of first collected data
-Subcohorts,,inclusionEnd,int,,,,,,,,Date of last collected data. Leave empty if collection is ongoing
-Subcohorts,,disease,ref_array,,,Diseases,,,,,
-Subcohorts,,inclusionCriteria,text,,,,,,,,
-Subcohorts,,geographicRegion,ref_array,,,Regions,,,,,e.g. province
-Subcohorts,,supplementaryInformation,text,,,,,,,,
+CollectionEvents,,sampleCategories,ref_array,,,SampleCategories,,,,,Samples that were collected in this collection event
+CollectionEvents,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this collection event
+Subcohorts,,,,,,,,,,,Subcohorts defined for this resource
+Subcohorts,,resource,ref,1,TRUE,Resources,,,,,Resource this subcohort is part of
+Subcohorts,,name,,1,TRUE,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
+Subcohorts,,noParticipants,int,,,,,,,,Number of participants in this subcohort
+Subcohorts,,description,text,,,,,,,,Subcohort description
+Subcohorts,,ageCategories,ref_array,,,AgeCategories,,,,,Age categories within this subcohort
+Subcohorts,,inclusionStart,int,,,,,,,,Year of first included participant
+Subcohorts,,inclusionEnd,int,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
+Subcohorts,,disease,ref_array,,,Diseases,,,,,Disease groups of this subcohort
+Subcohorts,,inclusionCriteria,text,,,,,,,,Inclusion criteria applied to this subcohort
+Subcohorts,,geographicRegion,ref_array,,,Regions,,,,,Geographic regions for this subcohort
+Subcohorts,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
 Models,,networks,ref_array,,,Networks,,,,,
 Models,,datasources,ref_array,,,Datasources,,,,,
@@ -139,9 +138,9 @@ Studies,,networks,ref_array,,,Networks,,,,,
 Studies,,datasources,ref_array,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
 Studies,,cohorts,ref_array,,,Cohorts,,,,,Cohorts that provided data into this study
-Releases,,,,,,,,,,,"Definition of a data relase, in case of Model this will not include data"
+Releases,,,,,,,,,,,"Definition of a data release, in case of Model this will not include data"
 Releases,,resource,ref,1,TRUE,Resources,,,,,Link to the resource of which contents has been released
-Releases,,version,,1,TRUE,,,,,,version of the release
+Releases,,version,,1,TRUE,,,,,,Release version
 Releases,,models,ref_array,,,Releases,,,,,existing data models that are used to produce this release
 Releases,,databanks,ref_array,,,Databanks,,,,,"in case of a network/study, it will only contain data of particular databanks involved"
 Releases,,cohorts,ref_array,,,Cohorts,,,,,"in case of a network/study, it will only contain data of particular cohorts involved"
@@ -231,7 +230,7 @@ Formats,OntologyTerms,,,,,,,,,,
 InclusionCriteria,OntologyTerms,,,,,,,,,,
 Keywords,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
 Data,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
-AgeCategories,OntologyTerms,,,,,,,,,,e.g. '8 week'
+AgeCategories,OntologyTerms,,,,,,,,,,Participant and population age categories
 ObservationTargets,OntologyTerms,,,,,,,,,,
 PartnerRoles,OntologyTerms,,,,,,,,,,
 Prompts,OntologyTerms,,,,,,,,,,
