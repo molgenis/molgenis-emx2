@@ -105,8 +105,7 @@ CollectionEvents,,name,,1,TRUE,,,,,,Name of the collection event
 CollectionEvents,,description,,,,,,,,,Description of the collection event
 CollectionEvents,,startYear,int,,,,,,,,Start year of data collection
 CollectionEvents,,endYear,int,,,,,,,,End year of data collection
-CollectionEvents,,ageMin,ref,,,AgeRanges,,,,,Minimum ages included in this data collection event
-CollectionEvents,,ageMax,ref,,,AgeRanges,,,,,Maximum ages included in this data collection event
+CollectionEvents,,ageCategories,ref_array,,,AgeCategories,,,,,Ages included in this data collection event
 CollectionEvents,,noParticipants,int,,,,,,,,Number of participants sampled in this data collection event
 CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
 CollectionEvents,,areasOfInformation,ref_array,,,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
@@ -232,7 +231,6 @@ InclusionCriteria,OntologyTerms,,,,,,,,,,
 Keywords,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
 Data,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
 AgeCategories,OntologyTerms,,,,,,,,,,Participant and population age categories
-AgeRanges,OntologyTerms,,,,,,,,,,
 ObservationTargets,OntologyTerms,,,,,,,,,,
 PartnerRoles,OntologyTerms,,,,,,,,,,
 Prompts,OntologyTerms,,,,,,,,,,
