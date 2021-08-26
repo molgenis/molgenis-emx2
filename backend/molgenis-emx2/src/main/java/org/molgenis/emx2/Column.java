@@ -16,7 +16,7 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column {
+public class Column implements Comparable<Column> {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -38,7 +38,11 @@ public class Column {
 
   // options
   private String description = null; // long description of the column
-  private Integer position = null; // column order within the table
+
+  @DiffIgnore
+  private Integer position =
+      null; // column order within the table. During import/export these may change
+
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private boolean required = false;
   private String validation = null;
@@ -607,5 +611,16 @@ public class Column {
 
   public boolean isPrimaryKey() {
     return getKey() == 1;
+  }
+
+  @Override
+  public int compareTo(Column o) {
+    if (this.getPosition() > o.getPosition()) {
+      return 1;
+    } else if (this.getPosition() < o.getPosition()) {
+      return -1;
+    } else {
+      return this.getName().compareTo(o.getName());
+    }
   }
 }

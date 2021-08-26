@@ -107,30 +107,53 @@ public class TableMetadata implements Comparable {
   }
 
   public List<Column> getColumns() {
-    Map<String, Column> result = new LinkedHashMap<>();
+    // we want to sort on position,
+    // first external schema (because their positions local to that schema)
+    // last we attach the 'meta
+    Map<String, Column> external = new LinkedHashMap<>(); // external schema has own ordering
+    Map<String, Column> internal = new LinkedHashMap<>();
     Map<String, Column> meta = new LinkedHashMap<>();
+
     if (getInheritedTable() != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         if (col.getName().startsWith("mg_")) {
           meta.put(col.getName(), new Column(getInheritedTable(), col));
+          // sorting of external schema is seperate from internal schema
+        } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
+          external.put(col.getName(), new Column(getInheritedTable(), col));
         } else {
-          result.put(col.getName(), new Column(getInheritedTable(), col));
+          internal.put(col.getName(), new Column(getInheritedTable(), col));
         }
       }
     }
 
     // ignore primary key from child class because that is same as in inheritedTable
     for (Column col : getLocalColumns()) {
-      if (!result.containsKey(col.getName())) {
-        result.put(col.getName(), new Column(col.getTable(), col));
+      if (!internal.containsKey(col.getName()) && !external.containsKey(col.getName())) {
+        if (col.getName().startsWith("mg_")) {
+          meta.put(col.getName(), new Column(col.getTable(), col));
+          // sorting of external schema is seperate from internal schema
+        } else {
+          internal.put(col.getName(), new Column(col.getTable(), col));
+        }
       }
     }
 
-    // add meta at the end
-    result.putAll(meta);
+    // sort by position
+    List<Column> externalList = new ArrayList<>(external.values());
+    List<Column> internalList = new ArrayList<>(internal.values());
+    List<Column> metaList = new ArrayList<>(meta.values());
 
-    return new ArrayList<>(result.values());
+    Collections.sort(externalList);
+    Collections.sort(internalList);
+    Collections.sort(metaList);
+
+    List<Column> finalResult = new ArrayList<>();
+    finalResult.addAll(externalList);
+    finalResult.addAll(internalList);
+    finalResult.addAll(metaList);
+    return finalResult;
   }
 
   public List<Column> getColumnsWithoutConstant() {
@@ -211,7 +234,7 @@ public class TableMetadata implements Comparable {
 
   public List<Column> getLocalColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
-    // get primary key from parent
+    // get primary key from parent, always first
     if (getInheritedTable() != null) {
       for (Column pkey : getInheritedTable().getPrimaryKeyColumns()) {
         result.put(pkey.getName(), pkey);
@@ -219,23 +242,32 @@ public class TableMetadata implements Comparable {
     }
 
     // get all implemented columns (keep superclass because of type)
-    List<Column> columnList = new ArrayList<>(columns.values());
-    columnList.sort(Comparator.comparing(Column::getPosition));
+    List<Column> columnList =
+        new ArrayList<>(
+            columns.values().stream()
+                .filter(c -> !c.getName().startsWith("mg_"))
+                .collect(Collectors.toList()));
+    Collections.sort(columnList);
+
+    // add meta behind non-meta
+    List<Column> metaList =
+        new ArrayList<>(
+            columns.values().stream()
+                .filter(c -> c.getName().startsWith("mg_"))
+                .collect(Collectors.toList()));
+    columnList.addAll(metaList);
+
     for (Column c : columnList) {
       if (!result.containsKey(c.getName())) {
         result.put(c.getName(), c);
       }
     }
+
     return new ArrayList<>(result.values());
   }
 
   public List<String> getColumnNames() {
-    List<String> result = new ArrayList<>();
-    if (inherit != null) {
-      result.addAll(getInheritedTable().getColumnNames());
-    }
-    result.addAll(getLocalColumnNames());
-    return result;
+    return getColumns().stream().map(c -> c.getName()).collect(Collectors.toList());
   }
 
   public List<String> getLocalColumnNames() {
@@ -513,5 +545,11 @@ public class TableMetadata implements Comparable {
 
   public Table getTable() {
     return getSchema().getDatabase().getSchema(this.getSchemaName()).getTable(getTableName());
+  }
+
+  public List<Column> getColumnsWithoutMetadata() {
+    return getColumns().stream()
+        .filter(c -> !c.getName().startsWith("mg_"))
+        .collect(Collectors.toList());
   }
 }
