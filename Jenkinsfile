@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         DOCKER_CONFIG = "/root/.docker"
-        CHART_VERSION = "0.0.13"
+        CHART_VERSION = "8.6.2"
     }
     stages {
         stage('Prepare') {
