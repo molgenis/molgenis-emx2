@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         DOCKER_CONFIG = "/root/.docker"
-        CHART_VERSION = "8.6.2"
+        CHART_VERSION = "8.6.3"
     }
     stages {
         stage('Prepare') {
@@ -102,7 +102,7 @@ pipeline {
                 container('rancher') {
                     script {
                         sh 'rancher context switch dev-molgenis'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 0.0.13"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 ${CHART_VERSION}"
                     }
                 }
             }
