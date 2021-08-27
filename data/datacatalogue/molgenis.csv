@@ -21,7 +21,7 @@ Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used direc
 RWEresources,Resources,,,,,,,,,,,Resources for real world evidence such as data source and databanks,,,,,,,,,,,,
 Databanks,RWEresources,,,,,,,,,,,Data collections such as registries or biobanks,,,,,,,,,,,,
 Datasources,RWEresources,,,,,,,,,,,Collections of data banks covering the same population,,,,,,,,,,,,
-Resources,,general overview,constant,,,,,,,h2,,General information about this resource,,,,,,,,,,,,
+Resources,,overview,constant,,,,,,,h2,,General information about this resource,,,,,,,,,,,,
 Resources,,pid,,1,TRUE,,,,,,,Persistent identifier for this resource,,,,,,,,,,,,
 Resources,,name,,2,TRUE,,,,,,,Name used in European projects,,,,,,,,,,,,
 Resources,,localName,,,,,,,,,,"If different from above, name in the national language",,,,,,,,,,,,
