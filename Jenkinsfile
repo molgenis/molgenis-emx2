@@ -66,15 +66,15 @@ pipeline {
                     sh "rancher apps delete ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
                     sh "rancher apps install " + 
-                        "-n ${NAME} " +
-                        "p-vx5vf:molgenis-helm3-emx2 " +
-                        "${NAME} " +
-                        "--no-prompt " +
-                        "--set adminPassword=admin " +
-                        "--set image.tag=${TAG_NAME} " +
-                        "--set image.repository=molgenis/molgenis-emx2-snapshot " +
-                        "--set image.pullPolicy=Always " +
-                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org"
+                      "-n ${NAME} " +
+                      "p-vx5vf:molgenis-helm3-emx2 " +
+                      "${NAME} " +
+                      "--no-prompt " +
+                      "--set adminPassword=admin " +
+                      "--set image.tag=${TAG_NAME} " +
+                      "--set image.repository=molgenis/molgenis-emx2-snapshot " +
+                      "--set image.pullPolicy=Always " +
+                      "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org"
                 }
             }
             post {
@@ -102,7 +102,11 @@ pipeline {
                 container('rancher') {
                     script {
                         sh 'rancher context switch dev-molgenis'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 ${CHART_VERSION}"
+                        if (env.TAG_NAME.toString().endsWith('-SNAPSHOT')) {
+                            sh "rancher apps upgrade --set image.tag=${TAG_NAME} --image.repository=molgenis/molgenis-emx2-snapshot --force molgenis-emx2 ${CHART_VERSION}"
+                        } else {
+                            sh "rancher apps upgrade --set image.tag=${TAG_NAME} --image.repository=molgenis/molgenis-emx2 --force molgenis-emx2 ${CHART_VERSION}"
+                        }
                     }
                 }
             }
