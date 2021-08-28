@@ -1,14 +1,14 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-3">
+      <div class="col-6 col-sm-5 col-md-4 col-lg-3">
         <h5>Filters</h5>
         <h6 class="mt-3">Networks</h6>
         <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
         <h6 class="mt-3">Topics</h6>
         <InputOntology table="Keywords" v-model="keywords" :list="true" />
       </div>
-      <div class="col-9">
+      <div class="col-6 col-sm-7 col-md-8 col-lg-9">
         <div class="row">
           <div class="col-3">
             <h3>
