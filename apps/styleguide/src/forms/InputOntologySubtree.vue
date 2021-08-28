@@ -3,18 +3,16 @@
     <li v-for="term in terms" :key="term.name">
       <div class="d-flex">
         <i
-          class="fa-fw pl-2 pt-1"
+          class="fa-fw pl-2 pt-1" role="button"
           :class="expandState(term)"
           @click="toggleExpand(term)"
-          >&nbsp;</i
-        >
+         />
         <i
           class="fa-fw text-primary pl-2 pt-1"
           :class="selectState(term)"
-          @click="toggleSelect(term)"
-          >&nbsp;</i
-        >
-        <span @click="toggleExpand(term)" class="flex-grow-1 pl-2">
+          @click="toggleSelect(term)"  role="button"
+          />
+        <span @click="toggleExpandOrSelect(term)" class="flex-grow-1 pl-2"  role="button">
           {{ term.name }}
           <span v-if="term.children">({{ term.children.length }})</span></span
         >
@@ -90,6 +88,16 @@ export default {
         });
       }
       return result;
+    },
+    toggleExpandOrSelect(term) {
+      //if node  expand,
+      if(term.children) {
+        this.toggleExpand(term);
+      }
+      //leafs select
+      else {
+        this.toggleSelect(term);
+      }
     },
     toggleSelect(term) {
       //if selecting then also expand
