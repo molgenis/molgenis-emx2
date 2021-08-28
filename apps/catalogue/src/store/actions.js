@@ -15,25 +15,25 @@ export default {
   fetchVariables: async ({ state, commit, getters }, offset = 0) => {
     state.isLoading = true;
     const query = gql`
-            query Variables($search: String, $filter: VariablesFilter) {
-                Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter) {
-                    name
-                    release {
-                        resource {
-                            acronym
-                        }
-                        version
-                    }
-                    label
-                    repeats {
-                        name
-                    }
-                }
-                Variables_agg(search: $search, filter: $filter) {
-                    count
-                }
+      query Variables($search: String, $filter: VariablesFilter) {
+        Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter) {
+          name
+          release {
+            resource {
+              acronym
             }
-        `;
+            version
+          }
+          label
+          repeats {
+            name
+          }
+        }
+        Variables_agg(search: $search, filter: $filter) {
+          count
+        }
+      }
+    `;
 
     let queryVariables = { filter: {} };
 
