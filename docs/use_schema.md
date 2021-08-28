@@ -52,7 +52,9 @@ Basic type:
 Relationships:
 
 * ref : foreign key (aka many to one)
+  * ontology: is a ref that is rendered as ontology tree (if refTable has 'parent')
 * ref_array : multiple foreign key (aka many to many)
+  * ontology_array: is ref_array  that is rendered as ontology tree (if refTable has 'parent')
 * refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
 Arrays (i.e. list of values)
@@ -190,26 +192,6 @@ Using meta data 'refSchema' you can indicate that a refTable or tableExtends sho
 binding to a particular schema greatly limits flexibility of the data structure. An additional requirement is that the
 table from the other schema should not have a name conflict with any table in the current schema. This is because in
 practice, the table from the other schema will be imported into the current schema.
-
-## columnFormat to change column layout
-
-As experimental feature molgenis now enables schema designer to set 'columnFormat' for a column. This provides the user
-interface with a hint to show the input in a different way.
-
-Currently implemented formats:
-
-* OntologyTerm: when applied to a ref or ref_array it will show checkboxes in a tree in forms, when 'parent' column in
-  the refTable is set.
-
-For example:
-
-| tableName | columnName | type | refTable | key | columnFormat       | description                                   |
-|-----------|------------|------|----------|-----|--------------------|-----------------------------------------------|
-| person    | id         |      |          | 1   |                    |                                               |
-| person    | birth      | date |          |     |                    |                                               |
-| person    | disease    | ref  | ontology |     | OntologyTerm       | will be shown as tree because of columnFormat | 
-| ontology  | term       |      |          |1    |                    |                                               |
-| ontology  | parent     | ref  | ontology |     |                    | Will be used to structure the tree            |
 
 ## FAQ
 
