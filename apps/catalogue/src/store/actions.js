@@ -187,14 +187,19 @@ export default {
     ).catch((e) => console.error(e));
 
     // Put list in to map, use acronym as key
-    const mappingsByAcronym = mappingQueryResp.VariableMappings.reduce(
-      (accum, item) => {
-        accum[item.fromTable.release.resource.acronym] = item;
-        return accum;
-      },
-      {}
-    );
-    variableDetails.mappings = mappingsByAcronym;
+    if (
+      mappingQueryResp.VariableMappings &&
+      mappingQueryResp.VariableMappings.length
+    ) {
+      const mappingsByAcronym = mappingQueryResp.VariableMappings.reduce(
+        (accum, item) => {
+          accum[item.fromTable.release.resource.acronym] = item;
+          return accum;
+        },
+        {}
+      );
+      variableDetails.mappings = mappingsByAcronym;
+    }
 
     return variableDetails;
   },

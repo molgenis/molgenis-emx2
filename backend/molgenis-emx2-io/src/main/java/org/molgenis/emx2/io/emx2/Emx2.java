@@ -4,13 +4,9 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2 {
@@ -29,6 +25,7 @@ public class Emx2 {
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
   private static final String SEMANTICS = "semantics";
+  private static final String COLUMN_POSITION = "position";
 
   private Emx2() {
     // hidden
@@ -36,7 +33,8 @@ public class Emx2 {
 
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {
     SchemaMetadata schema = new SchemaMetadata();
-    int lineNo = 1;
+    int lineNo = 1; // use as position
+    int columnPosition = 0;
 
     for (Row r : rows) {
       String tableName = r.getString(TABLE_NAME);
@@ -84,6 +82,12 @@ public class Emx2 {
           if (r.notNull(VALIDATION)) column.setValidation(r.getString(VALIDATION));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
+          if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
+          else
+            column.setPosition(
+                columnPosition++); // this ensures positions accross table hiearchy matches those in
+          // imported
+          // file
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
@@ -103,16 +107,21 @@ public class Emx2 {
     store.writeTable("molgenis", toRowList(schema));
   }
 
+  /** Outputs tables + columns. */
   public static List<Row> toRowList(SchemaMetadata schema) {
+
+    // get the metadata in right order
+    List<TableMetadata> tables = schema.getTables();
+    List<Column> columns =
+        schema.getTables().stream()
+            .map(t -> t.getNonInheritedColumns())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+    // sort on position
+    Collections.sort(columns);
+
     List<Row> result = new ArrayList<>();
-
-    // deterministic order
-    List<String> tableNames = new ArrayList<>();
-    tableNames.addAll(schema.getTableNames());
-    Collections.sort(tableNames);
-
-    for (String tableName : tableNames) {
-      TableMetadata t = schema.getTableMetadata(tableName);
+    for (TableMetadata t : schema.getTables()) {
 
       Row row = new Row();
       // set null columns to ensure sensible order
@@ -130,38 +139,29 @@ public class Emx2 {
       row.setStringArray(SEMANTICS, t.getSemantics());
       row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
+    }
 
-      List<String> columnNames = new ArrayList<>(t.getNonInheritedColumnNames());
-
-      // export column metadata
-      for (String columnName : columnNames) {
-        if (!columnName.startsWith("mg_")) {
-          Column c = t.getColumn(columnName);
-          row = new Row();
-
-          row.setString(TABLE_NAME, t.getTableName());
-          row.setString(COLUMN_NAME, c.getName());
-          if (!c.getColumnType().equals(STRING))
-            row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-          if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
-          if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-          if (!c.getRefSchema().equals(c.getSchemaName()))
-            row.setString(REF_SCHEMA, c.getRefSchema());
-          if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
-          if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
-          if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
-          if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-          if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
-          if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
-
-          result.add(row);
-        }
+    // output the columns
+    for (Column c : columns) {
+      if (!c.getName().startsWith("mg_")) {
+        Row row = new Row();
+        row.setString(TABLE_NAME, c.getTableName());
+        row.setString(COLUMN_NAME, c.getName());
+        if (!c.getColumnType().equals(STRING))
+          row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
+        if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+        if (c.getKey() > 0) row.setInt(KEY, c.getKey());
+        if (!c.getRefSchema().equals(c.getSchemaName()))
+          row.setString(REF_SCHEMA, c.getRefSchema());
+        if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
+        if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
+        if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
+        if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
+        if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+        if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
+        result.add(row);
       }
     }
     return result;
-  }
-
-  public static SchemaMetadata loadEmx2File(File file) throws IOException {
-    return fromRowList(CsvTableReader.read(file));
   }
 }

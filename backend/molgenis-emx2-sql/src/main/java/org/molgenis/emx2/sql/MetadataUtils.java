@@ -585,4 +585,18 @@ public class MetadataUtils {
         .set(VERSION, newVersion)
         .execute();
   }
+
+  public static int getMaxPosition(DSLContext jooq, String schemaName) {
+    Integer result =
+        jooq.select(max(COLUMN_POSITION).as(COLUMN_POSITION.getName()))
+            .from(COLUMN_METADATA)
+            .where(TABLE_SCHEMA.eq(schemaName))
+            .fetchOne()
+            .get(COLUMN_POSITION.getName(), Integer.class);
+    if (result == null) {
+      return 0;
+    } else {
+      return result;
+    }
+  }
 }

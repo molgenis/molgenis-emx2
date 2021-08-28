@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         DOCKER_CONFIG = "/root/.docker"
-        CHART_VERSION = "0.0.13"
+        CHART_VERSION = "8.6.3"
     }
     stages {
         stage('Prepare') {
@@ -67,7 +67,7 @@ pipeline {
                     sh "sleep 15s" // wait for deletion
                     sh "rancher apps install " + 
                         "-n ${NAME} " +
-                        "c-qx6c7:nexus-helm3-emx2 " +
+                        "p-vx5vf:molgenis-helm3-emx2 " +
                         "${NAME} " +
                         "--no-prompt " +
                         "--set adminPassword=admin " +
@@ -102,7 +102,7 @@ pipeline {
                 container('rancher') {
                     script {
                         sh 'rancher context switch dev-molgenis'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 0.0.13"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 ${CHART_VERSION}"
                     }
                 }
             }

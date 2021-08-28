@@ -16,7 +16,6 @@ import org.jooq.Table;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
-import org.molgenis.emx2.TableMetadata;
 
 public class SqlColumnExecutor {
   private SqlColumnExecutor() {
@@ -327,29 +326,6 @@ public class SqlColumnExecutor {
       removeRefArrayConstraints(jooq, column);
     } else if (column.isRefback()) {
       removeRefBackConstraints(jooq, column);
-    }
-  }
-
-  static void updatePositions(Column column, TableMetadata existingTable) {
-    if (!column.getName().startsWith("mg_")) {
-      if (column.getPosition() == null
-          || column.getPosition() > existingTable.getColumns().size()) {
-        if (existingTable.getInherit() == null) {
-          // should before the mg_ columns, currently 5
-          column.setPosition(existingTable.getLocalColumns().size() - 5);
-        } else {
-          column.setPosition(existingTable.getLocalColumns().size());
-        }
-      } else {
-        // if needed move other columns positions
-        for (Column c : existingTable.getLocalColumns()) {
-          // check for position, don't update columns from parent
-          if (c.getPosition() >= column.getPosition()
-              && c.getTableName().equals(existingTable.getTableName())) {
-            existingTable.alterColumn(c.getName(), c.setPosition(c.getPosition() + 1));
-          }
-        }
-      }
     }
   }
 

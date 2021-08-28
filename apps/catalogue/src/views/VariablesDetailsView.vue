@@ -5,7 +5,6 @@
         v-for="(variable, index) in variables"
         :key="index"
         :variable="variable"
-        :variableDetails="variableDetails"
         @request-variable-detail="handleVariableDetailsRequest(variable)"
       />
       <button
@@ -32,11 +31,6 @@ import { mapGetters, mapActions, mapState } from "vuex";
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },
-  data() {
-    return {
-      variableDetails: {},
-    };
-  },
   computed: {
     ...mapState(["isLoading"]),
     ...mapGetters(["variables", "variableCount"]),
@@ -48,7 +42,7 @@ export default {
     ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
     async handleVariableDetailsRequest(variable) {
       const result = await this.fetchVariableDetails(variable);
-      this.variableDetails = result;
+      this.$set(variable, "variableDetails", result);
     },
   },
 };

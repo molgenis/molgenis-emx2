@@ -31,7 +31,7 @@
                 <router-link
                   class="nav-link"
                   :class="{ active: $route.query.tab !== 'harmonization' }"
-                  :to="{ path: 'variable-explorer', query: { tab: 'detail' } }"
+                  :to="{ name: 'variableExplorer', query: { tab: 'detail' } }"
                 >
                   Details
                 </router-link>
@@ -41,7 +41,7 @@
                   class="nav-link"
                   :class="{ active: $route.query.tab === 'harmonization' }"
                   :to="{
-                    path: 'variable-explorer',
+                    name: 'variableExplorer',
                     query: { tab: 'harmonization' },
                   }"
                 >

@@ -33,38 +33,38 @@
         }"
         >view details
       </router-link>
-      <template v-if="variableDetails">
+      <template v-if="variable.variableDetails">
         <dl class="row">
           <dt class="col-2">variable</dt>
           <dd class="col-10">
-            {{ variableDetails.name }}
+            {{ variable.variableDetails.name }}
           </dd>
 
           <dt class="col-2">description</dt>
           <dd class="col-10">
-            <span v-if="variableDetails.description">{{
-              variableDetails.description
+            <span v-if="variable.variableDetails.description">{{
+              variable.variableDetails.description
             }}</span>
             <span v-else>-</span>
           </dd>
 
           <dt class="col-2">unit</dt>
           <dd class="col-10">
-            <span v-if="variableDetails.unit">{{
-              variableDetails.unit.name
+            <span v-if="variable.variableDetails.unit">{{
+              variable.variableDetails.unit.name
             }}</span>
             <span v-else>-</span>
           </dd>
 
           <dt class="col-2">format</dt>
           <dd class="col-10">
-            <span v-if="variableDetails.format">{{
-              variableDetails.format.name
+            <span v-if="variable.variableDetails.format">{{
+              variable.variableDetails.format.name
             }}</span>
             <span v-else>-</span>
           </dd>
 
-          <template v-if="variableDetails.permittedValues">
+          <template v-if="variable.variableDetails.permittedValues">
             <dt class="col-2">permitted values</dt>
             <dd class="col-10">
               <ul class="list-inline">
@@ -81,17 +81,17 @@
 
           <dt class="col-2">n repeats</dt>
           <dd class="col-10">
-            <span v-if="variableDetails.repeats">{{
-              variableDetails.repeats.length
+            <span v-if="variable.variableDetails.repeats">{{
+              variable.variableDetails.repeats.length
             }}</span>
             <span v-else>none</span>
           </dd>
 
           <dt class="col-2">mapped by</dt>
           <dd class="col-10">
-            <span v-if="variableDetails.mappings">
+            <span v-if="variable.variableDetails.mappings">
               <span
-                v-for="mapping in variableDetails.mappings"
+                v-for="mapping in variable.variableDetails.mappings"
                 :key="mapping.fromTable.release.resource.acronym"
               >
                 {{ mapping.fromTable.release.resource.acronym }}
@@ -113,7 +113,6 @@ export default {
   components: { Spinner },
   props: {
     variable: Object,
-    variableDetails: Object,
   },
   data() {
     return {
@@ -122,7 +121,7 @@ export default {
   },
   computed: {
     permittedValuesByOrder() {
-      return this.variableDetails.permittedValues
+      return this.variable.variableDetails.permittedValues
         .map((pv) => pv) // clone to avoid prop mutation
         .sort((a, b) => a.order <= b.order);
     },
