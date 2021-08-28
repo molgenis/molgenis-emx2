@@ -54,7 +54,6 @@
             <th scope="col" style="width: 10em">refLink</th>
             <th scope="col" style="width: 10em">refBack</th>
             <th scope="col" style="width: 10em">semantics</th>
-            <th scope="col" style="width: 10em">columnFormat</th>
             <th scope="col">description</th>
             <th scope="col" style="width: 3em"></th>
           </thead>

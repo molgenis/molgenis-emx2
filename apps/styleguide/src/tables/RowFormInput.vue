@@ -36,7 +36,7 @@
       v-on="$listeners"
     />
     <InputOntology
-      v-else-if="columnFormat === 'OntologyTerm'"
+      v-else-if="columnType.startsWith('ONTOLOGY')"
       v-bind="$props"
       v-model="input"
       :table="table"
@@ -128,7 +128,6 @@ export default {
     editMeta: Boolean,
     schema: String,
     columnType: String,
-    columnFormat: String,
     description: String,
     filter: Object,
     table: String,
@@ -185,7 +184,7 @@ Example:
   <RowFormInput columnType="REF_ARRAY" label="Test ref" table="Pet" :defaultValue="[{name:'spike'}]"
                 graphqlURL="/Pet store/graphql"/>
   <RowFormInput columnType="DATE" label="Test Date"/>
-  <RowFormInput columnType="REF_ARRAY" columnFormat="OntologyTerm" label="Test ontology" table="AreasOfInformation"
+  <RowFormInput columnType="ONTOLOGY_ARRAY" label="Test ontology" table="AreasOfInformation"
                 graphqlURL="/CohortNetwork/graphql"/>
 </div>
 ```

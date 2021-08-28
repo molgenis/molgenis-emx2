@@ -1,7 +1,5 @@
 package org.molgenis.emx2.utils;
 
-import static org.molgenis.emx2.ColumnType.REFBACK;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +35,7 @@ public class TableSort {
         }
         if (!depends)
           for (Column c : current.getColumns()) {
-            if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
+            if (c.getRefTableName() != null && !c.isRefback()) {
               for (int j = 0; j < todo.size(); j++) {
                 if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
                   depends = true;

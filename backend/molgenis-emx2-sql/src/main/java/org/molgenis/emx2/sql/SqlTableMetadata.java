@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
@@ -58,7 +57,7 @@ class SqlTableMetadata extends TableMetadata {
                   + ": column exists in inherited class "
                   + tm.getInherit());
         }
-        if (!CONSTANT.equals(newColumn.getColumnType())) {
+        if (!newColumn.isConstant()) {
           validateColumn(newColumn);
           updatePositions(newColumn, tm);
           executeCreateColumn(tm.getJooq(), newColumn);
@@ -178,7 +177,7 @@ class SqlTableMetadata extends TableMetadata {
     validateColumn(newColumn);
 
     // check if reference and of different size
-    if (REF_ARRAY.equals(newColumn.getColumnType())
+    if (newColumn.isRefArray()
         && !newColumn.getName().equals(oldColumn.getName())
         && !newColumn.getColumnType().equals(oldColumn.getColumnType())
         && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
@@ -255,7 +254,7 @@ class SqlTableMetadata extends TableMetadata {
   private void checkNotRefback(String name, Column oldColumn) {
     if (oldColumn.isReference()) {
       for (Column c : oldColumn.getRefTable().getColumns()) {
-        if (REFBACK.equals(c.getColumnType())
+        if (c.isRefback()
             && c.getRefTableName().equals(oldColumn.getTableName())
             && oldColumn.getName().equals(c.getRefBack())) {
           throw new MolgenisException(

@@ -37,8 +37,8 @@
       @input="$emit('update:conditions', $event)"
     />
     <InputOntology
-      :list="true"
-      v-else-if="columnFormat && columnFormat.startsWith('OntologyTerm')"
+      :list="columnType.endsWith('ARRAY')"
+      v-else-if="columnType.startsWith('ONTOLOGY')"
       :table="refTable"
       :value="conditions"
       @input="$emit('update:conditions', $event)"
@@ -79,7 +79,6 @@ export default {
   },
   props: {
     columnType: String,
-    columnFormat: String,
     refTable: String,
     conditions: Array,
     graphqlURL: String,

@@ -97,10 +97,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(COLUMN_FORMAT)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(INHERITED)
                   .type(Scalars.GraphQLBoolean))
           .field(
@@ -226,10 +222,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_POSITION)
                   .type(Scalars.GraphQLInt))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(COLUMN_FORMAT)
-                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(Constants.KEY)

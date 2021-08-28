@@ -152,8 +152,8 @@ public class TableMetadata implements Comparable {
   public List<Column> getDownloadColumnNames() {
     return getExpandedColumns(
         getColumns().stream()
-            .filter(c -> !c.getColumnType().equals(REFBACK))
-            .map(c2 -> c2.getColumnType().equals(FILE) ? column(c2.getName()) : c2)
+            .filter(c -> !c.isRefback())
+            .map(c2 -> c2.isFile() ? column(c2.getName()) : c2)
             .collect(Collectors.toList()));
   }
 
@@ -166,7 +166,7 @@ public class TableMetadata implements Comparable {
     Map<String, Column> result =
         new LinkedHashMap<>(); // overlapping references can lead to duplicates
     for (Column c : columns) {
-      if (FILE.equals(c.getColumnType())) {
+      if (c.isFile()) {
         result.put(c.getName(), new Column(c.getTable(), c.getName()));
         result.put(
             c.getName() + "_contents",

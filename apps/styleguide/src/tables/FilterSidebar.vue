@@ -20,7 +20,6 @@
             @update:conditions="$emit('update:filters', filters)"
             :columnType="column.columnType"
             :refTable="column.refTable"
-            :columnFormat="column.columnFormat"
             :graphqlURL="graphqlURL"
           />
         </FilterContainer>

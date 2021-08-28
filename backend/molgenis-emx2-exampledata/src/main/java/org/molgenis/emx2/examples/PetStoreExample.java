@@ -34,6 +34,7 @@ public class PetStoreExample {
 
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
+    // parent makes it behave as ontology
     schema.create(
         table(TAG).add(column(NAME).setPkey(), column(PARENT).setType(REF).setRefTable(TAG)));
 
@@ -47,12 +48,8 @@ public class PetStoreExample {
                     .setType(CONSTANT)
                     .setDescription("<h1>Details:</h1>")) // add a layout element
             .add(column(STATUS)) // todo enum: available, pending, sold
-            .add(column("tags").setType(REF_ARRAY).setRefTable(TAG))
-            .add(
-                column(WEIGHT)
-                    .setType(DECIMAL)
-                    .setRequired(true)
-                    .setColumnFormat("DummyFormatForTestingOnly"))
+            .add(column("tags").setType(ONTOLOGY_ARRAY).setRefTable(TAG))
+            .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
             .setDescription("My pet store example table"));
 
     schema.create(

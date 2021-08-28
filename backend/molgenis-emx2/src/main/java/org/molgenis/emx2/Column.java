@@ -22,8 +22,6 @@ public class Column {
   private TableMetadata table; // table this column is part of
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
   private ColumnType columnType = STRING; // type of the column
-  private String columnFormat =
-      null; // influences how data is rendered, in addition to type. E.g. hyperlink
 
   // transient for enabling migrations
   @DiffIgnore private String oldName; // use this when wanting to change name
@@ -124,7 +122,6 @@ public class Column {
     description = column.description;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
-    columnFormat = column.columnFormat;
     visible = column.visible;
   }
 
@@ -273,7 +270,7 @@ public class Column {
   }
 
   public Column setCascadeDelete(Boolean cascadeDelete) {
-    if (cascadeDelete && !REF.equals(this.columnType)) {
+    if (cascadeDelete && !isRef()) {
       throw new MolgenisException(
           "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
     }
@@ -354,11 +351,12 @@ public class Column {
     return getTable().getJooqTable();
   }
 
+  public boolean isRef() {
+    return getColumnType().isRef();
+  }
+
   public boolean isReference() {
-    return REF.equals(getColumnType())
-        //        || MREF.equals(getColumnType())
-        || REF_ARRAY.equals(getColumnType())
-        || REFBACK.equals(getColumnType());
+    return getColumnType().isReference();
   }
 
   public String getSchemaName() {
@@ -393,7 +391,7 @@ public class Column {
   }
 
   public Boolean isArray() {
-    return this.columnType.toString().endsWith("ARRAY") || this.columnType.equals(REFBACK);
+    return this.columnType.isArray();
   }
 
   /** will return self in case of single, and multiple in case of composite key wrapper */
@@ -423,7 +421,7 @@ public class Column {
       if (keyPart.isReference()) {
         for (Reference ref : keyPart.getReferences()) {
           ColumnType type = ref.getPrimitiveType();
-          if (!REF.equals(getColumnType())) {
+          if (!isRef()) {
             type = getArrayType(type);
           }
           List<String> path = ref.getPath();
@@ -460,7 +458,7 @@ public class Column {
         ColumnType type = keyPart.getColumnType();
 
         // all but ref is array
-        if (!REF.equals(getColumnType())) {
+        if (!isRef()) {
           type = getArrayType(type);
         }
 
@@ -506,7 +504,7 @@ public class Column {
     if (isReference()) {
       List<Reference> refs = getReferences();
       if (refs.size() == 1) {
-        return refs.get(0).getPrimitiveType();
+        return refs.get(0).getPrimitiveType().getBaseType();
       } else {
         throw new MolgenisException(
             "Cannot get columnType for column '"
@@ -515,7 +513,7 @@ public class Column {
                 + getName()
                 + "': composite key");
       }
-    } else return getColumnType();
+    } else return getColumnType().getBaseType();
   }
 
   public String getRefLabelIfSet() {
@@ -552,15 +550,6 @@ public class Column {
 
   public Column setRefSchema(String refSchema) {
     this.refSchema = refSchema;
-    return this;
-  }
-
-  public String getColumnFormat() {
-    return columnFormat;
-  }
-
-  public Column setColumnFormat(String columnFormat) {
-    this.columnFormat = columnFormat;
     return this;
   }
 
@@ -608,5 +597,21 @@ public class Column {
 
   public boolean isPrimaryKey() {
     return getKey() == 1;
+  }
+
+  public boolean isRefArray() {
+    return getColumnType().isRefArray();
+  }
+
+  public boolean isRefback() {
+    return getColumnType().isRefback();
+  }
+
+  public boolean isFile() {
+    return getColumnType().isFile();
+  }
+
+  public boolean isConstant() {
+    return this.getColumnType().isConstant();
   }
 }

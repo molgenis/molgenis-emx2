@@ -216,7 +216,7 @@ class SqlTableMetadataExecutor {
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getStoredColumns()) {
       if (!c.getName().startsWith("MG_")) {
-        if (FILE.equals(c.getColumnType())) {
+        if (c.isFile()) {
           // do nothing for now
         } else if (c.isReference()) {
           for (Reference r : c.getReferences()) {
