@@ -97,11 +97,11 @@ Requires only [docker compose](https://docs.docker.com/compose/) and [yarn 1.x](
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 
-## Tips
+## FAQ
 
 last updated 15 nov 2020
 
-### IntelliJ plugins
+### What IntelliJ plugins do you use?
 
 * We use IntelliJ 2020.2 with
     * vue plugin
@@ -109,7 +109,7 @@ last updated 15 nov 2020
     * prettier plugin, set run for files to include '.vue' and 'on save'
     * auto save and auto format using 'save actions' plugin
 
-### Pre-commit hook
+### How to setup pre-commit hook?
 
 We use pre-commit build hook in .git/hooks/pre-push to ensure we don't push stuff that breaks the build.
 
@@ -122,7 +122,7 @@ fi
 exit 0
 ```
 
-### Reset gradle cache/deamon
+### How to reset gradle cache/deamon
 
 Sometimes it help to reset gradle cache and stop the gradle daemon
 
@@ -130,8 +130,15 @@ Sometimes it help to reset gradle cache and stop the gradle daemon
 ./gradlew --stop rm -rf $HOME/.gradle/
 ```
 
-### Delete all schemas (destroys all your data!)
+### How to delete all schemas (destroys all your data!)
 
 If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state,
 run
 ```gradle cleandb```
+
+### Build+test drop/creates schemas in my database
+
+Build test ('gradle test') will create database schemas, users, roles and passwords. 
+If you don't like that than please consider to use a different database instance for 'test'.
+You can use environment variables MOLGENIS_POSTGRES_** for this.
+See [Installation guide](run).

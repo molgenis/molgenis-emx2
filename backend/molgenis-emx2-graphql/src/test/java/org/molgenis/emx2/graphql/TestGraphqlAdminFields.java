@@ -15,11 +15,11 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class TestGraphqAdminFields {
+public class TestGraphqlAdminFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = "TestGraphqlAdminFields";
+  private static final String schemaName = TestGraphqlAdminFields.class.getName();
 
   @BeforeClass
   public static void setup() {
@@ -31,7 +31,7 @@ public class TestGraphqAdminFields {
   @Test
   public void testUsers() throws IOException {
     try {
-      database.setActiveUser("admin");
+      database.becomeAdmin();
       Schema schema = database.dropCreateSchema(schemaName);
       grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
       int count = database.countUsers();

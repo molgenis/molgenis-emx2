@@ -55,11 +55,15 @@ public class TestGraphqlDatabaseFields {
 
     // todo: default user should be anonymous?
     assertNull(database.getActiveUser());
-    database.setUserPassword("admin", "admin");
 
-    // login is admin
-    execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
-    Assert.assertEquals("admin", database.getActiveUser());
+    // read admin password from environment if necessary
+    execute(
+        "mutation { signin(email: \""
+            + database.getAdminUserName()
+            + "\",password:\""
+            + database.getAdminPasswordDefault()
+            + "\") {message}}");
+    Assert.assertTrue(database.isAdmin());
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
@@ -71,7 +75,8 @@ public class TestGraphqlDatabaseFields {
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
-    Assert.assertEquals("admin", database.getActiveUser());
+    // still admin
+    Assert.assertTrue(database.isAdmin());
 
     TestCase.assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")

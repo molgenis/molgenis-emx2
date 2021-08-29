@@ -124,7 +124,7 @@ public class MolgenisWebservice {
               .filter(
                   el ->
                       role == null
-                          || role.equals("admin")
+                          || role.equals(schema.getDatabase().getAdminUserName())
                           || el.get("role") == null
                           || el.get("role").equals("Viewer")
                               && List.of("Viewer", "Editor", "Manager").contains(role)

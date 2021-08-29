@@ -56,7 +56,11 @@ public class WebApiSmokeTests {
     SESSION_ID =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + db.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + db.getAdminPasswordDefault()
+                    + "\\\"){message}}\"}")
             .when()
             .post("api/graphql")
             .sessionId();
@@ -249,7 +253,6 @@ public class WebApiSmokeTests {
 
   @Test
   public void testGraphqlApi() {
-    db.setUserPassword("admin", "admin");
     String path = "/api/graphql";
 
     // create a new session, separate from the session shared in these tests
@@ -275,11 +278,16 @@ public class WebApiSmokeTests {
             .asString();
     assertTrue(result.contains("Error"));
 
+    // read admin password from environment if necessary
     result =
         given()
             .sessionId(sessionId)
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + db.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + db.getAdminPasswordDefault()
+                    + "\\\"){message}}\"}")
             .when()
             .post(path)
             .asString();
@@ -292,7 +300,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("admin"));
+    assertTrue(result.contains(db.getAdminUserName()));
 
     // if admin then should  be able to see users
     result =
