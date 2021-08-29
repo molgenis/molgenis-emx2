@@ -57,14 +57,17 @@ public interface Database {
   /** for testing purposes, normally you change password externally */
   String getAdminPasswordDefault();
 
-  /** check if the user that is logged in is admin
+  /**
+   * check if the user that is logged in is admin
    *
-   * Shorthand for getAdminUserName().equals(getActiveUser()) to help understand code
-   * */
+   * <p>Shorthand for getAdminUserName().equals(getActiveUser()) to help understand code
+   */
   boolean isAdmin();
 
-  /** change active user to admin
+  /**
+   * change active user to admin
    *
-   * Shorthand for setActiveUser(getAdminUserName()) to help understand code */
+   * <p>Shorthand for setActiveUser(getAdminUserName()) to help understand code
+   */
   void becomeAdmin();
 }
