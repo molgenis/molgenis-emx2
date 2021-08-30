@@ -60,6 +60,7 @@ public class ImportTableTask extends Task {
     public void process(Iterator<Row> iterator) {
 
       task.setIndex(0);
+      int index = 0;
 
       while (iterator.hasNext()) {
         Row row = iterator.next();
@@ -84,7 +85,7 @@ public class ImportTableTask extends Task {
                       + warningColumns
                       + " in sheet "
                       + metadata.getTableName(),
-                  StepStatus.WARN);
+                  StepStatus.WARNING);
             }
           }
         }
@@ -105,7 +106,7 @@ public class ImportTableTask extends Task {
         } else {
           keys.add(keyValue);
         }
-        task.setIndex(task.getIndex());
+        task.setIndex(++index);
       }
       if (duplicates.size() > 0) {
         task.completeWithError(

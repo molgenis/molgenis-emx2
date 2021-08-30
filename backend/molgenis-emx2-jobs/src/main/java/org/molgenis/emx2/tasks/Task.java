@@ -1,7 +1,5 @@
 package org.molgenis.emx2.tasks;
 
-import static org.molgenis.emx2.tasks.StepStatus.*;
-
 import java.util.*;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
