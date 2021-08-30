@@ -110,7 +110,6 @@ public class TypeUtils {
           || "yes".equalsIgnoreCase(((String) v).trim())) return true;
       if ("false".equalsIgnoreCase(((String) v).trim())
           || "no".equalsIgnoreCase(((String) v).trim())) return false;
-      if ("".equals(((String) v).trim())) return null;
     }
     try {
       return (Boolean) v;
