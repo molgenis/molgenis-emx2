@@ -45,6 +45,7 @@ public enum ColumnType {
   // format flavors that extend a baseType
   ONTOLOGY(REF),
   ONTOLOGY_ARRAY(REF_ARRAY),
+  H1(CONSTANT),
   H2(CONSTANT);
 
   private Class javaType;

@@ -77,6 +77,7 @@ class SqlTableMetadata extends TableMetadata {
         } else {
           tm.columns.put(c.getName(), newColumn);
         }
+        saveColumnMetadata(tm.getJooq(), newColumn);
         log(tm, start, "added column '" + newColumn.getName() + "' to table " + tm.getTableName());
       }
     }
