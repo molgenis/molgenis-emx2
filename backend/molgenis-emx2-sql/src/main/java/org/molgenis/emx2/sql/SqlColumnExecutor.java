@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
@@ -210,6 +211,7 @@ public class SqlColumnExecutor {
       // central constraints
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
           jooq, column.getTable(), column.getTableName());
+      saveColumnMetadata(jooq, column);
     } catch (Exception e) {
       if (e.getMessage() != null && e.getMessage().contains("null values")) {
         throw new MolgenisException(
