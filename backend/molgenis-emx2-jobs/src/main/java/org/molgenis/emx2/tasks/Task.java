@@ -11,18 +11,18 @@ public class Task extends Step implements Runnable, Iterable<Task> {
   private Logger logger = LoggerFactory.getLogger(getClass().getName());
   private List<Step> steps = new ArrayList<>();
 
-  public Task(String message) {
-    super(message);
+  public Task(String message, boolean strict) {
+    super(message, strict);
   }
 
   public Step step(String message) {
-    Step step = new Step(message);
+    Step step = new Step(message, false);
     this.steps.add(step);
     return step;
   }
 
   public Step step(String message, StepStatus status) {
-    Step step = new Step(message, status);
+    Step step = new Step(message, status, false);
     this.steps.add(step);
     return step;
   }

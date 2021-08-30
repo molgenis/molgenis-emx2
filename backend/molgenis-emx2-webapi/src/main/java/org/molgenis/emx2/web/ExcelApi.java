@@ -57,10 +57,10 @@ public class ExcelApi {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
     if (request.queryParams("async") != null) {
-      String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema));
+      String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema, false));
       return new TaskReference(id, schema).toString();
     } else {
-      MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
+      MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
       response.status(200);
       return "Import success in " + (System.currentTimeMillis() - start) + "ms";
     }

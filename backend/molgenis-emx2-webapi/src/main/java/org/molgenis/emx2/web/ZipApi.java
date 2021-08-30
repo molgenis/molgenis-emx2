@@ -84,13 +84,13 @@ public class ZipApi {
 
       if (fileName.endsWith(".zip")) {
         if (request.queryParams("async") != null) {
-          String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema));
+          String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema, false));
           return new TaskReference(id, schema).toString();
         } else {
-          MolgenisIO.fromZipFile(tempFile.toPath(), schema);
+          MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);
         }
       } else if (fileName.endsWith(".xlsx")) {
-        MolgenisIO.importFromExcelFile(tempFile.toPath(), schema);
+        MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
       } else {
         throw new IOException(
             "File upload failed: extension "
