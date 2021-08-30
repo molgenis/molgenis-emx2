@@ -13,7 +13,7 @@
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "dependencies": {
     "core-js": "3.16.4",
-    "graphql": "15.5.1",
+    "graphql": "15.5.2",
     "graphql-request": "3.5.0",
     "object-path": "0.11.7",
     "recursive-iterator": "3.3.0",
