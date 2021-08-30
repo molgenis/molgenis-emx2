@@ -137,7 +137,7 @@ export default {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns.filter((c) => c.columnType != "CONSTANT");
+      return this.columns.filter((c) => c.columnType != "H2" && c.columnType != "H1");
     },
   },
   created() {
