@@ -56,12 +56,12 @@ export default {
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
+            ["REF", "REF_ARRAY", "REFBACK", "MREF","ONTOLOGY","ONTOLOGY_ARRAY"].includes(col.columnType)
           ) {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
             result = result + " " + col.name + "{id,size,extension,url}";
-          } else if (col.columnType != "CONSTANT") {
+          } else if (col.columnType != "H1" && col.columnType != "H2") {
             result = result + " " + col.name;
           }
         });

@@ -1,7 +1,7 @@
 <template>
   <div>
     <InputConstant
-      v-if="columnType === 'CONSTANT'"
+      v-if="columnType === 'H1' || columnType === 'H2'"
       v-bind="$props"
       v-on="$listeners"
     />
@@ -178,6 +178,7 @@ export default {
 Example:
 ```
 <div>
+  <RowFormInput columnType="H1" label="my header" description="my description"/>
   <RowFormInput columnType="STRING" label="Test String"/>
   <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
   <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/Pet store/graphql"/>

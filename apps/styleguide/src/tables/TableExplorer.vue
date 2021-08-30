@@ -121,7 +121,7 @@
             @click="$emit('click', $event)"
             :template="cardTemplate"
           />
-          <RecordCard
+          <RowPage
             v-if="!loading && view == View.RECORD"
             :data="data"
             :table-name="table"
@@ -137,7 +137,7 @@
             :table-metadata="tableMetadata"
             :data="data"
             :showSelect="showSelect"
-            @click="$emit('click', $event)"
+            @click="handleRowClick"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
@@ -193,7 +193,7 @@ import ButtonDropdown from "../forms/ButtonDropdown";
 import InputSelect from "../forms/InputSelect";
 import TableCards from "./TableCards";
 import IconAction from "../forms/IconAction";
-import RecordCard from "./RecordCard";
+import RowPage from "./RowPage";
 import TableSettings from "./TableSettings";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
@@ -218,7 +218,7 @@ export default {
     InputSelect,
     TableCards,
     IconAction,
-    RecordCard,
+    RowPage,
     TableSettings,
   },
   props: {
@@ -273,16 +273,44 @@ export default {
     };
   },
   methods: {
+    handleRowClick(event) {
+       this.$emit('click', event);
+       
+      //TODO, default to internal card
+      //if listener then emit
+      // if(this.$listeners && this.$listeners.click) {
+      //   this.$emit('click', event);
+      // }
+      // //otherwise change view
+      // else {
+      //   let page = this.limit * (this.page - 1);
+      //   for(let i = 0; i < this.data.length; i++) {
+      //     page++;
+      //     if(JSON.stringify(this.getPkey(this.data[i])).includes(JSON.stringify(this.getPkey(event)))) {
+      //       break;
+      //     }
+      //   }
+      //   this.view = View.RECORD;
+      //   this.limit = 1;
+      //   this.page = page;
+      // }
+    },
     toggleView() {
       if (this.view == View.TABLE) {
         this.view = View.CARDS;
-        this.limit = this.showLimit;
+        //limit and page don't change
+        this.reload();
       } else if (this.view == View.CARDS) {
+        this.page = this.limit * (this.page - 1) + 1;
         this.limit = 1;
         this.view = View.RECORD;
+        this.reload();
       } else {
+        //from record to table
         this.view = View.TABLE;
+        this.page = Math.floor(this.page/this.showLimit) + 1;
         this.limit = this.showLimit;
+        this.reload();
       }
     },
     emitColumns() {
