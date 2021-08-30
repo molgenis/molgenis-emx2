@@ -157,7 +157,7 @@ public class TableMetadata implements Comparable {
   }
 
   public List<Column> getColumnsWithoutConstant() {
-    return this.getColumns().stream().filter(c -> !c.isConstant()).collect(Collectors.toList());
+    return this.getColumns().stream().filter(c -> !c.isConstant()).toList();
   }
 
   public List<String> getPrimaryKeys() {
