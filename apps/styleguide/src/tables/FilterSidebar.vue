@@ -144,8 +144,7 @@ examples
               "name": "tags",
               "refTable": "AreasOfInformation",
               "graphqlURL": "/CohortNetworks/graphql",
-              "columnType": "REF_ARRAY",
-              "columnFormat": "OntologyTerm",
+              "columnType": "ONTOLOGY_ARRAY",
               "showFilter": true
             }]
         }
