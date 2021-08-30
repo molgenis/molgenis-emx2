@@ -35,6 +35,14 @@
       v-model="input"
       v-on="$listeners"
     />
+    <InputOntology
+      v-else-if="columnType.startsWith('ONTOLOGY')"
+      v-bind="$props"
+      v-model="input"
+      :table="table"
+      :list="columnType.includes('ARRAY')"
+      v-on="$listeners"
+    />
     <InputRefSelect
       v-else-if="columnType === 'REF'"
       v-bind="$props"
@@ -110,6 +118,7 @@ import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 import InputConstant from "../forms/InputConstant";
+import InputOntology from "../forms/InputOntology";
 
 export default {
   name: "RowFormInput",
@@ -147,6 +156,7 @@ export default {
     InputFile,
     InputText,
     InputConstant,
+    InputOntology,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
     InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
   },
@@ -174,6 +184,8 @@ Example:
   <RowFormInput columnType="REF_ARRAY" label="Test ref" table="Pet" :defaultValue="[{name:'spike'}]"
                 graphqlURL="/Pet store/graphql"/>
   <RowFormInput columnType="DATE" label="Test Date"/>
+  <RowFormInput columnType="ONTOLOGY_ARRAY" label="Test ontology" table="AreasOfInformation"
+                graphqlURL="/CohortNetwork/graphql"/>
 </div>
 ```
 

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
 
 import java.util.Collection;
@@ -37,13 +36,6 @@ class SqlColumnRefArrayExecutor {
         "DROP TRIGGER  {0} ON {1}",
         name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
     jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
-
-    //    jooq.execute(
-    //        "DROP TRIGGER {0} ON {1}", name(getUpdateTriggerName(ref)),
-    // ref.getRefTable().asJooqTable());
-    //    jooq.execute(
-    //        "DROP FUNCTION {0}",
-    //        name(SqlColumnExecutor.getSchemaName(ref), getUpdateTriggerName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
@@ -98,7 +90,7 @@ class SqlColumnRefArrayExecutor {
             .map(
                 r -> {
                   // can be overlapping with non_array reference
-                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                  if (r.isOverlappingRef()) {
                     return name(r.getName()) + " AS " + name(r.getRefTo());
                   } else {
                     return "UNNEST(" + name(r.getName()) + ") AS " + name(r.getRefTo());
@@ -111,7 +103,7 @@ class SqlColumnRefArrayExecutor {
             .map(
                 r -> {
                   // can be overlapping with non_array reference
-                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                  if (r.isOverlappingRef()) {
                     return "OLD." + name(r.getRefTo()) + "=" + name(r.getName());
                   } else {
                     return "OLD." + name(r.getRefTo()) + "=ANY(" + name(r.getName()) + ")";
@@ -228,7 +220,7 @@ class SqlColumnRefArrayExecutor {
         references.stream()
             .map(
                 r -> {
-                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                  if (r.isOverlappingRef()) {
                     return name(r.getRefTo()) + " = NEW." + name(r.getName());
                   } else {
                     return name(r.getRefTo()) + " = ANY (NEW." + name(r.getName()) + ")";
@@ -241,7 +233,7 @@ class SqlColumnRefArrayExecutor {
             .map(
                 r -> {
                   // can be overlapping with non_array reference
-                  if (r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)) {
+                  if (r.isOverlappingRef()) {
                     return "NEW." + name(r.getName()) + " AS " + name(r.getRefTo());
                   } else {
                     return "UNNEST(NEW." + name(r.getName()) + ") AS " + name(r.getRefTo());

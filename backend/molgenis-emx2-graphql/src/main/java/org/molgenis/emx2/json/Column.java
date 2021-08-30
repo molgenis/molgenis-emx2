@@ -22,7 +22,6 @@ public class Column {
   private String visible = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
-  private String columnFormat = null;
   private String[] semantics = null;
 
   private boolean inherited = false;
@@ -45,7 +44,6 @@ public class Column {
     if (!minimal || !ColumnType.STRING.equals(column.getColumnType())) {
       this.columnType = column.getColumnType();
     }
-    this.columnFormat = column.getColumnFormat();
     this.refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
@@ -58,7 +56,6 @@ public class Column {
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
-    this.columnFormat = column.getColumnFormat();
 
     // calculated field
     if (table.getInherit() != null)
@@ -70,7 +67,6 @@ public class Column {
     c.setOldName(oldName);
     c.setType(columnType);
     if (drop) c.drop();
-    c.setColumnFormat(columnFormat);
     c.setRequired(required);
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
@@ -84,7 +80,6 @@ public class Column {
     c.setDescription(description);
     c.setSemantics(semantics);
     c.setVisible(visible);
-    c.setColumnFormat(columnFormat);
     // ignore inherited
     return c;
   }
@@ -207,14 +202,6 @@ public class Column {
 
   public void setRefSchema(String refSchema) {
     this.refSchema = refSchema;
-  }
-
-  public String getColumnFormat() {
-    return columnFormat;
-  }
-
-  public void setColumnFormat(String columnFormat) {
-    this.columnFormat = columnFormat;
   }
 
   public String getVisible() {

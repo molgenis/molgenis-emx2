@@ -58,7 +58,7 @@ export default {
 
     if (getters.selectedKeywords.length) {
       queryVariables.filter.keywords = {
-        equals: getters.selectedKeywords.map((sk) => ({ name: sk })),
+        equals: getters.selectedKeywords,
       };
     }
 
