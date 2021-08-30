@@ -1,0 +1,11 @@
+query SearchAgg($search: String) {
+  Institutions_agg(search: $search) {
+    count
+  }
+  Cohorts_agg(search: $search) {
+    count
+  }
+  Network_agg(search: $search) {
+    count
+  }
+}

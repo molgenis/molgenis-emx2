@@ -19,6 +19,8 @@ import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
+import SearchAll from "./views/SearchAll";
+import SearchResults from "./views/SearchResults";
 
 Vue.config.productionTip = false;
 
@@ -27,6 +29,13 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
+    { name: "SearchAll", path: "/search-all", component: SearchAll },
+    {
+      name: "SearchResults",
+      path: "/search-results",
+      props: (route) => ({ query: route.query.q }),
+      component: SearchResults,
+    },
     { name: "Cohorts", path: "/alt", component: NetworkView },
     {
       name: "databanks",

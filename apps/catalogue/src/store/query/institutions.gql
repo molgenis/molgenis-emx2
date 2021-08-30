@@ -1,0 +1,12 @@
+query Institutions($search: String) {
+  Institutions (search: $search){
+    acronym
+    name
+    type {
+      name
+    }
+  }
+  Institutions_agg(search: $search) {
+    count
+  }
+}
