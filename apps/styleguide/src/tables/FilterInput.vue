@@ -36,9 +36,18 @@
       :value="conditions"
       @input="$emit('update:conditions', $event)"
     />
+    <InputOntology
+      :list="columnType.endsWith('ARRAY')"
+      v-else-if="columnType.startsWith('ONTOLOGY')"
+      :table="refTable"
+      :value="conditions"
+      @input="$emit('update:conditions', $event)"
+      :limit="7"
+      :graphqlURL="graphqlURL"
+    />
     <InputRef
       :list="true"
-      v-else-if="columnType.startsWith('REF') || columnType == 'MREF'"
+      v-else-if="columnType.startsWith('REF')"
       :table="refTable"
       :value="conditions"
       @input="$emit('update:conditions', $event)"
@@ -56,6 +65,7 @@ import InputRangeInt from "../forms/InputRangeInt";
 import InputRangeDecimal from "../forms/InputRangeDecimal";
 import InputRangeDate from "../forms/InputRangeDate";
 import InputRef from "../forms/InputRef";
+import InputOntology from "../forms/InputOntology";
 
 export default {
   components: {
@@ -65,6 +75,7 @@ export default {
     InputRangeDecimal,
     InputRangeDate,
     InputRef,
+    InputOntology,
   },
   props: {
     columnType: String,

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
 
 import java.util.List;
@@ -10,7 +9,6 @@ import org.jooq.DSLContext;
 import org.jooq.RowCountQuery;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 
@@ -52,27 +50,20 @@ class SqlColumnRefBackExecutor {
                 + ref.getRefBack()
                 + "'not found");
       }
-      ColumnType refBackType = refBack.getColumnType();
-      switch (refBackType) {
-        case REF:
-          // createTriggerForRef(jooq, ref);
-          createTriggerForRef(jooq, ref, true);
-          createTriggerForRef(jooq, ref, false);
-
-          break;
-        case REF_ARRAY:
-          createTriggerForRefArray(jooq, ref);
-          break;
-          // todo case MREF:
-        default:
-          throw new MolgenisException(
-              "Create column failed: Create of REFBACK column(s) '"
-                  + ref.getTableName()
-                  + "."
-                  + getNames(ref)
-                  + "' failed because refBack '"
-                  + ref.getRefBack()
-                  + "' was not of type REF, REF_ARRAY");
+      if (refBack.isRef()) {
+        createTriggerForRef(jooq, ref, true);
+        createTriggerForRef(jooq, ref, false);
+      } else if (refBack.isRefArray()) {
+        createTriggerForRefArray(jooq, ref);
+      } else {
+        throw new MolgenisException(
+            "Create column failed: Create of REFBACK column(s) '"
+                + ref.getTableName()
+                + "."
+                + getNames(ref)
+                + "' failed because refBack '"
+                + ref.getRefBack()
+                + "' was not of type REF, REF_ARRAY");
       }
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(
@@ -587,7 +578,7 @@ class SqlColumnRefBackExecutor {
         "DROP FUNCTION IF EXISTS {0} CASCADE",
         name(column.getSchemaName(), refBackDeleteTriggerName(column)));
 
-    if (REF.equals(column.getRefBackColumn().getColumnType())) {
+    if (column.getRefBackColumn().isRef()) {
       jooq.execute(
           "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(column.getSchemaName(), refBackUpdateTriggerName(column) + "_INSERT"));

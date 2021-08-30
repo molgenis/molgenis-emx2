@@ -19,11 +19,7 @@ public class TestOpenApi {
 
     TableMetadata table = schema.create(TableMetadata.table("TypeTest"));
     for (ColumnType columnType : ColumnType.values()) {
-      if (
-      // MREF.equals(columnType) ||
-      ColumnType.REF.equals(columnType)
-          || ColumnType.REF_ARRAY.equals(columnType)
-          || ColumnType.REFBACK.equals(columnType)) {
+      if (columnType.isReference()) {
         // TODO: outside of test for now
       } else {
         table.add(

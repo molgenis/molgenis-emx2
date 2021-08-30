@@ -93,7 +93,7 @@ examples
   <div>
     <div class="row">
       <div class="col-3">
-        <FilterSidebar :filters.sync="table.filters"/>
+        <FilterSidebar :filters.sync="table.filters" graphqlURL="/CohortNetwork/graphql"/>
       </div>
       <div class="col-9">
         <FilterWells :filters.sync="table.filters"/>
@@ -139,6 +139,14 @@ examples
             {
               "name": "birthday",
               "columnType": "DATE", showFilter: true
+            },
+            {
+              "name": "tags",
+              "refTable": "AreasOfInformation",
+              "graphqlURL": "/CohortNetworks/graphql",
+              "columnType": "REF_ARRAY",
+              "columnFormat": "OntologyTerm",
+              "showFilter": true
             }]
         }
       }

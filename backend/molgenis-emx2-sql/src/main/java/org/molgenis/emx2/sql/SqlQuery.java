@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
@@ -83,9 +82,9 @@ public class SqlQuery extends QueryBean {
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
         // currently we don't download refBack (good) and files (that is bad)
-        if (FILE.equals(c.getColumnType())) {
+        if (c.isFile()) {
           select.select(c.getName());
-        } else if (!REFBACK.equals(c.getColumnType())) {
+        } else if (!c.isRefback()) {
           if (c.isReference()) {
             for (Reference ref : c.getReferences()) {
               select.select(ref.getName());
@@ -137,7 +136,7 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn select : selection.getSubselect()) {
       Column column = isValidColumn(table, select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
-      if (FILE.equals(column.getColumnType())) {
+      if (column.isFile()) {
         // check what they want to get, contents, mimetype, size and/or extension
         if (select.getSubselect().size() == 0 || select.has("id")) {
           fields.add(field(name(column.getName())));
@@ -163,11 +162,7 @@ public class SqlQuery extends QueryBean {
                 tableAlias + "-" + column.getName(),
                 columnAlias,
                 selection.getSubselect(column.getName())));
-      } else
-      //        if (MREF.equals(column.getColumnType())) {
-      //        fields.add(rowMrefSubselect(column, tableAlias).as(columnAlias));
-      //      } else
-      if (REFBACK.equals(column.getColumnType())) {
+      } else if (column.isRefback()) {
         fields.add(
             field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
       } else if (column.isReference()) { // REF and REF_ARRAY
@@ -218,22 +213,19 @@ public class SqlQuery extends QueryBean {
 
     // might be composite
     for (Reference ref : refBack.getReferences()) {
-      switch (refBack.getColumnType()) {
-        case REF:
-          where.add(
-              field(name(refBack.getTable().getTableName(), ref.getName()))
-                  .eq(field(name(tableAlias, ref.getRefTo()))));
-          break;
-        case REF_ARRAY:
-          where.add(
-              condition(
-                  ANY_SQL,
-                  field(name(tableAlias, ref.getRefTo())),
-                  field(name(refBack.getTable().getTableName(), ref.getName()))));
-          break;
-        default:
-          throw new MolgenisException(
-              "Internal error: Refback for type not matched for column " + column.getName());
+      if (refBack.isRef()) {
+        where.add(
+            field(name(refBack.getTable().getTableName(), ref.getName()))
+                .eq(field(name(tableAlias, ref.getRefTo()))));
+      } else if (refBack.isRefArray()) {
+        where.add(
+            condition(
+                ANY_SQL,
+                field(name(tableAlias, ref.getRefTo())),
+                field(name(refBack.getTable().getTableName(), ref.getName()))));
+      } else {
+        throw new MolgenisException(
+            "Internal error: Refback for type not matched for column " + column.getName());
       }
     }
     return DSL.select(column.getRefTable().getPrimaryKeyFields())
@@ -323,8 +315,7 @@ public class SqlQuery extends QueryBean {
       from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
     }
 
-    String agg =
-        column != null && REF.equals(column.getColumnType()) ? ROW_TO_JSON_SQL : JSON_AGG_SQL;
+    String agg = column != null && column.isRef() ? ROW_TO_JSON_SQL : JSON_AGG_SQL;
 
     return field(jooq.select(field(agg)).from(orderBy(select, from).asTable(ITEM)))
         .as(select.getColumn());
@@ -391,7 +382,7 @@ public class SqlQuery extends QueryBean {
                     f,
                     new String[0]);
             if (subQuery != null) {
-              if (REF_ARRAY.equals(c.getColumnType())) {
+              if (c.isRefArray()) {
                 // if not composite it is simple array overlap
                 if (c.getReferences().size() == 1) {
                   conditions.add(condition("{0} && ARRAY({1})", name(c.getName()), subQuery));
@@ -401,8 +392,7 @@ public class SqlQuery extends QueryBean {
                       c.getReferences().stream()
                           .map(
                               ref ->
-                                  ref.isOverlapping()
-                                          && ref.getOverlapping().getColumnType().equals(REF)
+                                  ref.isOverlappingRef()
                                       ? field(name(ref.getName())).as(name(ref.getRefTo()))
                                       : field("UNNEST({0})", name(ref.getName()))
                                           .as(name(ref.getRefTo())))
@@ -411,7 +401,7 @@ public class SqlQuery extends QueryBean {
                   conditions.add(
                       exists(selectFrom(jooq.select(unnest).asTable().naturalJoin(subQuery))));
                 }
-              } else if (REFBACK.equals(c.getColumnType())) {
+              } else if (c.isRefback()) {
                 Column refBack = c.getRefBackColumn();
                 List<Field> pkey =
                     c.getTable().getPrimaryKeyFields().stream().collect(Collectors.toList());
@@ -423,7 +413,7 @@ public class SqlQuery extends QueryBean {
                     c.getRefBackColumn().getTable().getPrimaryKeyFields().stream()
                         .collect(Collectors.toList());
                 // can be ref, ref_array (mref is checked above)
-                if (REF.equals(refBack.getColumnType())) {
+                if (refBack.isRef()) {
                   // pkey in (backref from refBack table where backrefKey in subquery)
                   conditions.add(
                       row(pkey)
@@ -441,10 +431,7 @@ public class SqlQuery extends QueryBean {
                                       c.getRefBackColumn().getReferences().stream()
                                           .map(
                                               bref ->
-                                                  bref.isOverlapping()
-                                                          && bref.getOverlapping()
-                                                              .getColumnType()
-                                                              .equals(REF)
+                                                  bref.isOverlappingRef()
                                                       ? field(name(bref.getName()))
                                                       : field("UNNEST({0})", name(bref.getName()))
                                                           .as(name(bref.getName())))
@@ -516,7 +503,7 @@ public class SqlQuery extends QueryBean {
               : isValidColumn(table, select.getColumn());
 
       // add the fields, using subselects for references
-      if (FILE.equals(column.getColumnType())) {
+      if (column.isFile()) {
         fields.add(jsonFileField((SqlTableMetadata) table, tableAlias, select, column));
       } else if (column.isReference() && select.getColumn().endsWith("_agg")) {
         // aggregation subselect
@@ -851,7 +838,7 @@ public class SqlQuery extends QueryBean {
   private static Condition refJoinCondition(Column column, String tableAlias, String subAlias) {
     List<Condition> foreignKeyMatch = new ArrayList<>();
 
-    if (REF.equals(column.getColumnType())) {
+    if (column.isRef()) {
       if (column.getReferences().size() == 1) {
         Reference ref = column.getReferences().get(0);
         foreignKeyMatch.add(
@@ -873,7 +860,7 @@ public class SqlQuery extends QueryBean {
                                     .eq(field(name(tableAlias, ref.getName()))))
                         .collect(Collectors.toList()))));
       }
-    } else if (REF_ARRAY.equals(column.getColumnType())) {
+    } else if (column.isRefArray()) {
       if (column.getReferences().size() == 1) {
         Reference ref = column.getReferences().get(0);
         // simple array comparison
@@ -891,15 +878,15 @@ public class SqlQuery extends QueryBean {
             column.getReferences().stream()
                 .map(
                     r ->
-                        r.isOverlapping() && r.getOverlapping().getColumnType().equals(REF)
+                        r.isOverlappingRef()
                             ? field(name(tableAlias, r.getName()))
                             : field("UNNEST({0})", name(tableAlias, r.getName())))
                 .collect(Collectors.toList());
         foreignKeyMatch.add(row(to).in(DSL.select(unnest)));
       }
-    } else if (REFBACK.equals(column.getColumnType())) {
+    } else if (column.isRefback()) {
       Column refBack = column.getRefBackColumn();
-      if (REF.equals(refBack.getColumnType())) {
+      if (refBack.isRef()) {
         foreignKeyMatch.addAll(
             refBack.getReferences().stream()
                 .map(
@@ -907,12 +894,12 @@ public class SqlQuery extends QueryBean {
                         field(name(subAlias, ref.getName()))
                             .eq(field(name(tableAlias, ref.getRefTo()))))
                 .collect(Collectors.toList()));
-      } else if (REF_ARRAY.equals(refBack.getColumnType())) {
+      } else if (refBack.isRefArray()) {
         foreignKeyMatch.addAll(
             refBack.getReferences().stream()
                 .map(
                     ref ->
-                        ref.isOverlapping() && ref.getOverlapping().getColumnType().equals(REF)
+                        ref.isOverlappingRef()
                             ? field(name(tableAlias, ref.getRefTo()))
                                 .eq(field(name(subAlias, ref.getName())))
                             : condition(
@@ -921,29 +908,7 @@ public class SqlQuery extends QueryBean {
                                 field(name(subAlias, ref.getName()))))
                 .collect(Collectors.toList()));
       }
-    }
-    //    else if (MREF.equals(column.getColumnType())) {
-    //      String joinTable = column.getTableName() + "-" + column.getName();
-    //      String joinTableAlias = "joinTable";
-    //      List<Condition> where = new ArrayList<>();
-    //      // MTM table should match on the remote key
-    //      for (Reference ref : column.getReferences()) {
-    //        where.add(
-    //            field(name(subAlias, ref.getRefTo())).eq(field(name(joinTableAlias,
-    // ref.getName()))));
-    //      }
-    //      // MTM table should match on primary key
-    //      for (Column key : column.getTable().getPrimaryKeyColumns()) {
-    //        where.add(
-    //            field(name(tableAlias, key.getName())).eq(field(name(joinTableAlias,
-    // key.getName()))));
-    //      }
-    //      foreignKeyMatch.add(
-    //          exists(
-    //              selectFrom(table(name(column.getSchemaName(), joinTable)).as(joinTableAlias))
-    //                  .where(where)));
-    //    }
-    else {
+    } else {
       throw new SqlQueryException(
           "Internal error: For column "
               + column.getTable().getTableName()
@@ -994,7 +959,7 @@ public class SqlQuery extends QueryBean {
             conditions.add(
                 whereConditionsFilter(
                     column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
-          } else if (FILE.equals(column.getColumnType())) {
+          } else if (column.isFile()) {
             Filter sub = filters.getSubfilter("id");
             // todo expand properly
             if (sub != null && EQUALS.equals(sub.getOperator())) {
@@ -1316,7 +1281,7 @@ public class SqlQuery extends QueryBean {
       }
       // is file?
       for (Column c : table.getColumns()) {
-        if (c.getColumnType().equals(FILE) && columnName.startsWith(c.getName())) {
+        if (c.isFile() && columnName.startsWith(c.getName())) {
           if (columnName.equals(c.getName())
               || columnName.endsWith("_mimetype")
               || columnName.endsWith("_extension")
