@@ -16,7 +16,11 @@ class SqlDatabaseExecutor {
   static void executeCreateUser(DSLContext jooq, String user) {
     try {
       String userName = MG_USER_PREFIX + user;
-      jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
+      // idempotent, if user exist we skip
+      jooq.execute(
+          "DO $$ BEGIN CREATE ROLE {0} WITH NOLOGIN; "
+              + "EXCEPTION WHEN DUPLICATE_OBJECT THEN NULL; END $$;",
+          name(userName));
       if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users
         jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));
