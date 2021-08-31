@@ -58,7 +58,7 @@ class SqlTableMetadata extends TableMetadata {
                   + ": column exists in inherited class "
                   + tm.getInherit());
         }
-        if (!newColumn.isConstant()) {
+        if (!newColumn.isHeading()) {
           validateColumn(newColumn);
           if (newColumn.getPosition() == null) {
             // positions are asumed to number up in a schema

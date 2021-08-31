@@ -93,7 +93,7 @@ public class GraphqlTableFieldFactory {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
     for (Column col : table.getMetadata().getColumnsWithoutConstant())
       switch (col.getColumnType().getBaseType()) {
-        case CONSTANT:
+        case HEADING:
           // nothing to do
           break;
         case FILE:
