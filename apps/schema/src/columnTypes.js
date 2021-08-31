@@ -20,6 +20,5 @@ export default [
   "DATETIME_ARRAY",
   "UUID_ARRAY",
   "TEXT_ARRAY",
-  "H1",
-  "H2"
+  "HEADING",
 ];

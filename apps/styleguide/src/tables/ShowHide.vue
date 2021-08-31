@@ -23,7 +23,7 @@
           <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
           )
         </b>
-        <div class="form-check" v-if="col.columnType != 'H1' && col.columnType != 'H2'">
+        <div class="form-check" v-if="col.columnType != 'HEADING'">
           <input
             class="form-check-input"
             type="checkbox"

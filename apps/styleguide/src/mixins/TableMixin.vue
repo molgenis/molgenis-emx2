@@ -61,7 +61,7 @@ export default {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
             result = result + " " + col.name + "{id,size,extension,url}";
-          } else if (col.columnType != "H1" && col.columnType != "H2") {
+          } else if (col.columnType != "HEADING") {
             result = result + " " + col.name;
           }
         });

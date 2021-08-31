@@ -1,11 +1,7 @@
 <template>
   <div class="d-flex form-group bg-white rounded p-2">
-    <span v-if="!focus && columnType == 'H1'">
+    <span v-if="!focus">
       <h1>{{ label }}</h1>
-      <p>{{ description }}</p>
-    </span>
-    <span v-else-if="!focus && columnType == 'H2'">
-      <h2>{{ label }}</h2>
       <p>{{ description }}</p>
     </span>
     <textarea
@@ -49,6 +45,16 @@ export default {
     toggleFocus() {
       this.focus = !this.focus;
     },
+    stripHtml(input) {
+      if (input) {
+        return input.replace(
+          /(<\/?(?:h1|h2|h3|h4|p|label|a)[^>]*>)|<[^>]+>/gi,
+          "$1"
+        );
+      } else {
+        return input;
+      }
+    },
   },
 };
 </script>
@@ -56,13 +62,13 @@ export default {
 <docs>
 structured, using format as parameter
 ```
-<InputConstant label="About" description="My about section" columnType="H2"/>
+<InputHeader label="About" description="My about section" />
 ```
 editable
 ```
 <template>
   <div>
-    <InputConstant :description.sync="description" :label.sync="label" columnType="H2" :inplace="true"/>
+    <InputHeader :description.sync="description" :label.sync="label" :inplace="true"/>
     {{ description }}
   </div>
 </template>
