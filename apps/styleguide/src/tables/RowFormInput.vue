@@ -1,6 +1,6 @@
 <template>
   <div>
-    <InputHeader
+    <InputHeading
       v-if="columnType === 'HEADING'"
       v-bind="$props"
       v-on="$listeners"
@@ -117,7 +117,7 @@ import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
-import InputHeader from "../forms/InputHeader";
+import InputHeading from "../forms/InputHeading";
 import InputOntology from "../forms/InputOntology";
 
 export default {
@@ -155,7 +155,7 @@ export default {
     InputDateTime,
     InputFile,
     InputText,
-    InputHeader,
+    InputHeading,
     InputOntology,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
     InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,

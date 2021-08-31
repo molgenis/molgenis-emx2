@@ -62,13 +62,13 @@ export default {
 <docs>
 structured, using format as parameter
 ```
-<InputHeader label="About" description="My about section" />
+<InputHeading label="About" description="My about section" />
 ```
 editable
 ```
 <template>
   <div>
-    <InputHeader :description.sync="description" :label.sync="label" :inplace="true"/>
+    <InputHeading :description.sync="description" :label.sync="label" :inplace="true"/>
     {{ description }}
   </div>
 </template>
