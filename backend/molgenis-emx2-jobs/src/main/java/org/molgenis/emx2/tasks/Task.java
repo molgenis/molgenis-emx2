@@ -8,19 +8,21 @@ import org.slf4j.LoggerFactory;
 public class Task extends Step implements Runnable, Iterable<Task> {
   private Logger logger = LoggerFactory.getLogger(getClass().getName());
   private List<Step> steps = new ArrayList<>();
+  private boolean strict = false;
 
   public Task(String message, boolean strict) {
-    super(message, strict);
+    super(message);
+    this.strict = strict;
   }
 
   public Step step(String message) {
-    Step step = new Step(message, false);
+    Step step = new Step(message);
     this.steps.add(step);
     return step;
   }
 
   public Step step(String message, StepStatus status) {
-    Step step = new Step(message, status, false);
+    Step step = new Step(message, status);
     this.steps.add(step);
     return step;
   }
@@ -49,5 +51,9 @@ public class Task extends Step implements Runnable, Iterable<Task> {
   @Override
   public Spliterator spliterator() {
     return this.steps.spliterator();
+  }
+
+  public boolean isStrict() {
+    return strict;
   }
 }

@@ -24,15 +24,13 @@ public class Step {
   private Integer total;
   private long start = System.currentTimeMillis();
   long end;
-  private boolean strict = false;
 
-  public Step(String description, boolean strict) {
+  public Step(String description) {
     this.description = description;
-    this.strict = strict;
   }
 
-  public Step(String description, StepStatus status, boolean strict) {
-    this(description, strict);
+  public Step(String description, StepStatus status) {
+    this(description);
     this.status = status;
   }
 
@@ -156,9 +154,5 @@ public class Step {
   public void error(String description) {
     this.error();
     this.setDescription(description);
-  }
-
-  public boolean isStrict() {
-    return strict;
   }
 }
