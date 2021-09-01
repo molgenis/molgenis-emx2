@@ -1,0 +1,54 @@
+pid,name,type,institution,contact,homepage,publications,conditions,description,population,inclusionCriteria,recordPromptDescription,startYear,endYear,noParticipants,noParticipantsWithSamples,supplementaryInformation,fundingStatement,externalIdentifiers,keywords,ageCategories,publication,releaseDescription,acknowledements,design,collectionType
+TestCohort,My test cohort,cohort,UMCG,Morris Swertz,http://molgenis.org,10.1093/ije/dys064,not for profit use only,Just a test,Netherlands,"Children,Mothers,Partners",Some prompt,2021,2021,1,1,here suppl info,No funding,test:123,Test,"0y,1y",None,we release monthly,"all MOLGENIS volunteers, sponsors and coworkers",longitudinal,Prospective
+ALSPAC,Avon Longitudinal Study of Parents and Children,cohort,UOB,"ALSPAC General enquiries,ALSPAC Data enquiries,ALSPAC Lab enquiries",http://www.bristol.ac.uk/alspac/,10.1093/ije/dys064,not for profit use only,"Based at the University of Bristol, the Avon Longitudinal Study of Parents and Children (ALSPAC), also known as Children of the 90s, is a world-leading birth cohort study.
+
+Between April 1991 and December 1992 we recruited more than 14,000 pregnant women into the study and these women (some of whom had two pregnancies or multiple births during the recruitment period), the children arising from the pregnancy, and their partners have been followed up intensively over two decades.
+
+We are the most detailed study of its kind in the world and we provide the international research community with a rich resource for the study of the environmental and genetic factors that affect a person’s health and development. Through our research we aim to inform policy and practices that will provide a better life for future generations.",United Kingdom,"Children,Mothers,Partners","During the index pregnancy, most women were sent 3 questionnaires. Since then, over a period of some 25 years, women have been sent 22 additional questionnaires that refer to their own health and well-being. Since 2008, women have attended four focus clinical ssessments
+
+Assessments of the children have been administered frequently, with 64 data collection time points between birth and 24 years of age. These include 34 child-completed questionnaires, 20 focus clinical assessments and 23 questionnaires about the child completed by the mother or other main caregiver.
+
+Partners have been sent 17 questionnaires and have attended 1 focus clinic assessment.
+
+Siblings and grandparents have been recruited.",1990,,42710,,,"“The UK Medical Research Council and Wellcome (Grant ref: 217065/Z/19/Z) and the University of Bristol provide core support for ALSPAC. This publication is the work of the authors and <INSERT NAMES> will serve as guarantors for the contents of this paper.”
+
+In addition, you are expected to acknowledge the grant(s) which supported the collection of the primary exposure(s) and outcome(s) used in your study and any other grants in the checklist, which are pertinent to your study. The following sentences should be included with the above section:
+
+ “A comprehensive list of grants funding (PDF, 330KB) is available on the ALSPAC website. This research was specifically funded by <INSERT DETAILS FOR SPECIFIC PROJECT(S) WHERE APPROPRIATE, including grant number(s)>.”",,"Birth Cohort, Cross-generation","0y,1y","Boyd A, Golding J, Macleod J, Lawlor DA, Fraser A, Henderson J, Molloy L,
+Ness A, Ring S, Davey Smith G. Cohort Profile: the 'children of the 90s'--the
+index offspring of the Avon Longitudinal Study of Parents and Children. Int J
+Epidemiol. 2013 Feb;42(1):111-27. doi: 10.1093/ije/dys064. Epub 2012 Apr 16.
+PMID: 22507743; PMCID: PMC3600618.",,,,
+BIB,Born in Bradford,cohort,BRI,BIB team,https://borninbradford.nhs.uk/,,,,,,,,,,,,,,,,,,,,
+GECKO,The Groningen Expert Center for Kids with Obesity Drenthe cohort,cohort,UMCG,Eva Corpeleijn,https://www.rug.nl/research/portal/datasets/gecko-drenthe-cohort(3e14f7ca-a55d-41d9-9803-19302aa4ea87).html,,,,,,,,,,,,,,,,,,,,
+Gen R,The Generation R Study,cohort,ERASMUS,Vincent Jaddoe,https://generationr.nl/,,,,,,,,,,,,,,,,,,,,
+NFBC86,The Northern Finland Birth Cohort Study 1986,cohort,UOULU,Minna Ruddock,www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,,,,
+MoBa,"The Norwegian Mother, Father and Child Cohort Study",cohort,NIPH,Per Minor Magnus,https://www.fhi.no/en/studies/moba/,,,,,,,,,,,,,,,,,,,,
+ELFE,"Etude Longitudinale Française depuis l'Enfance""  (French longitudinal study of children)",cohort,INSERM,Marie Aline Charles,https://www.elfe-france.fr/en/,,,,,,,,,,,,,,,,,,,,
+EDEN,Study on the pre and early postnatal determinants of child health and development,cohort,INSERM,Barbara Heude,http://eden.vjf.inserm.fr/index.php/fr/,,,,,,,,,,,,,,,,,,,,
+NFBC66,The Northern Finland Birth Cohort Study 1966,cohort,UOULU,Minna Ruddock,www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,,,,
+DNBC,The Danish National Birth Cohort,cohort,UCPH,Inger Kristine Meder,https://www.dnbc.dk,,,,,,,,,,,,,,,,,,,,
+HBCS,Helsinki Birth Cohort Study,cohort,THL,Tuija Mikkola,https://thl.fi/en/web/thlfi-en/research-and-expertwork/projects-and-programmes/helsinki-birth-cohort-study-hbcs-idefix,,,,,,,,,,,,,,,,,,,,
+NINFEA,Nascita ed INFanzia: gli Effetti dell'Ambiente,cohort,UNITO,Lorenzo Richiardi,https://www.progettoninfea.it/index_en,,,,,,,,,,,,,,,,,,,,
+SWS,Southampton Women’s Survey,cohort,SOTON,Hazel Inskip,https://www.mrc.soton.ac.uk/sws/,,,,,,,,,,,,,,,,,,,,
+RAINE,The West Australian Pregnancy Cohort,cohort,UWA,Raineadmin,https://rainestudy.org.au/,,,,,,,,,,,,,,,,,,,,
+RHEA,"RHEA - Mother Child Cohort in Crete, Greece",cohort,UOC,Marina Vafeiadi,http://www.rhea.gr/,,,,,,,,,,,,,,,,,,,,
+CHOP,Childhood Obesity Programme,cohort,LMU,Berthold Koletzko,http://www.metabolic-programming.org/obesity/,,,,,,,,,,,,,,,,,,,,
+INMA,INfancia y Medio Ambiente [Environment and Childhood] Project,cohort,ISGLOBAL,Mònica Guxens,https://www.proyectoinma.org/en/#,,,,,,,,,,,,,,,,,,,,
+Borealis,Borealis Biobank,biobank,UOULU,,,,,,,,,,,,,,,,,,,,,,
+CONSTANCES,Cohorte des Consultants des Centres d’Examens de Santé,cohort,INSERM,,,,,,,,,,,,,,,,,,,,,,
+DFBC,Dutch Famine Birth Cohort study,cohort,AMC,,,,,,,,,,,,,,,,,,,,,,
+ELIPA,Elintarvikkeita Painonhallintaan,cohort,UEF,,,,,,,,,,,,,,,,,,,,,,
+FEF,Fibrefects,cohort,UEF,,,,,,,,,,,,,,,,,,,,,,
+FinnGeDi,Finnish Gestational Diabetes Study,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
+FMC,Finnish Maternity Cohort,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
+FR,Finnish Register Sample,,UOULU,,,,,,,,,,,,,,,,,,,,,,
+NOMA,NOMA,,UiO,,,,,,,,,,,,,,,,,,,,,,
+OULU1935,Born in Oulu in 1935,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
+OULU1945,Born in Oulu in 1945,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
+PANIC,Physical Activity and Nutrition In Children,cohort,UEF,,,,,,,,,,,,,,,,,,,,,,
+RCGP RSC,Royal College of General Practitioners Research & Surveillance Centre,,SURREY,,,,,,,,,,,,,,,,,,,,,,
+ERGO,Rotterdam Study,cohort,ERASMUS,,,,,,,,,,,,,,,,,,,,,,
+SYSDIMET,SYSDIMET,,UEF,,,,,,,,,,,,,,,,,,,,,,
+UK Biobank,United Kingdom Biobank,biobank,SURREY,,,,,,,,,,,,,,,,,,,,,,
+NFBC66 G0,Parents of NFBC1966,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,

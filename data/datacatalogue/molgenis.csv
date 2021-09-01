@@ -96,7 +96,7 @@ Databanks,,prompt,heading,,,,,,,,,,,,,,,,,,,,Information on which event(s) trigg
 Databanks,,recordPrompt,text,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",,,,,,,,,,,,
 Databanks,,unitOfObservation,text,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",,,,,,,,,,,,
 Databanks,,multipleEntries,bool,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",,,,,,,,,,,,
-Databanks,,updates,constant,,,,,,,,Information on the regularity of updates and time lags,,,,,,,,,,,,
+Databanks,,updates,heading,,,,,,,,Information on the regularity of updates and time lags,,,,,,,,,,,,
 Databanks,,refresh,heading,,,,,,,,Average number of days between refresh of data bank with new records,,,,,,,,,,,,
 Databanks,,refreshPeriod,ref_array,,,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",,,,,,,,,,,,
 Databanks,,lagTime,int,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",,,,,,,,,,,,

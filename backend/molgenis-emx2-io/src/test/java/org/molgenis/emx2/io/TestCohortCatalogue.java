@@ -41,9 +41,9 @@ public class TestCohortCatalogue {
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     cohortsSchema.migrate(schema);
 
-    ImportExcelTask task2 =
-        new ImportExcelTask(
-            new File("../../data/datacatalogue/Cohorts.xlsx").toPath(), cohortsSchema);
+    ImportDirectoryTask task2 =
+        new ImportDirectoryTask(
+            new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema);
     task2.run();
 
     ImportExcelTask task3 =
@@ -52,7 +52,7 @@ public class TestCohortCatalogue {
             cohortsSchema);
     task3.run();
 
-    assertEquals(72, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    assertEquals(69, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }
@@ -71,7 +71,7 @@ public class TestCohortCatalogue {
             new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema);
     task2.run();
 
-    assertEquals(72, TestCohortCatalogue.rweSchema.getTableNames().size());
+    assertEquals(69, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }
