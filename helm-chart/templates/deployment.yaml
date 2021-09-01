@@ -3,7 +3,10 @@ kind: Deployment
 metadata:
   name: {{ include "emx2.fullname" . }}
   labels:
-    {{- include "emx2.labels" . | nindent 4 }}
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
 spec:
   replicas: 1
   selector:
@@ -45,13 +48,6 @@ spec:
               value: molgenis
             - name: POSTGRES_USER
               value: molgenis
-          #          resources:
-          #            requests:
-          #              cpu: 1
-          #              memory: 2.5Gi
-          #            limits:
-          #              cpu: 1
-          #              memory: 2.5Gi
           ports:
             - containerPort: 5432
           volumeMounts:

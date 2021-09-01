@@ -8,25 +8,24 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "emx2.fullname" . }}
+  labels:
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   rules:
   {{- range .Values.ingress.hosts }}
-  - http:
+  - host: {{ .host | quote }}
+    http:
       paths:
         - path: {{ default "/" .path }}
           backend:
             serviceName: {{ $fullName }}
-            servicePort: 8088
-  {{- end }}
-  {{- if .tls }}
-  tls:
-    - hosts:
-      {{- range .Values.ingress.hosts }}
-      - {{ .name }}
-      {{- end }}
-      secretName: {{ .Values.ingress.tlsSecret }}
+            servicePort: {{ $.Values.service.port }}
   {{- end }}
 ---
 {{- end }}

@@ -24,6 +24,7 @@ public class PetStoreExample {
   public static final String PRICE = "price";
   public static final String COMPLETE = "complete";
   public static final String EMAIL = "email";
+  public static final String PARENT = "parent";
 
   private PetStoreExample() {
     // hide public constructor
@@ -33,7 +34,9 @@ public class PetStoreExample {
 
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
-    schema.create(table(TAG).add(column(NAME).setPkey()));
+    // parent makes it behave as ontology
+    schema.create(
+        table(TAG).add(column(NAME).setPkey(), column(PARENT).setType(REF).setRefTable(TAG)));
 
     schema.create(
         table(PET)
@@ -42,10 +45,10 @@ public class PetStoreExample {
             .add(column("photoUrls").setType(STRING_ARRAY))
             .add(
                 column("details")
-                    .setType(CONSTANT)
+                    .setType(HEADING)
                     .setDescription("<h1>Details:</h1>")) // add a layout element
             .add(column(STATUS)) // todo enum: available, pending, sold
-            .add(column("tags").setType(REF_ARRAY).setRefTable(TAG))
+            .add(column("tags").setType(ONTOLOGY_ARRAY).setRefTable(TAG))
             .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
             .setDescription("My pet store example table"));
 
@@ -97,7 +100,17 @@ public class PetStoreExample {
     schema.getDatabase().setUserPassword(shopviewer, shopviewer);
 
     schema.getTable(CATEGORY).insert(new Row().set(NAME, "cat"), new Row().set(NAME, "dog"));
-    schema.getTable(TAG).insert(new Row().set(NAME, "red"), new Row().set(NAME, "green"));
+    schema
+        .getTable(TAG)
+        .insert(
+            new Row().set(NAME, "colors"),
+            new Row().set(NAME, "red").set(PARENT, "colors"),
+            new Row().set(NAME, "green").set(PARENT, "colors"),
+            new Row().set(NAME, "species"),
+            new Row().set(NAME, "mammals").set(PARENT, "species"),
+            new Row().set(NAME, "carnivorous mammals").set(PARENT, "mammals"),
+            new Row().set(NAME, "herbivorous mammals").set(PARENT, "mammals"),
+            new Row().set(NAME, "birds").set(PARENT, "species"));
 
     schema
         .getTable(PET)

@@ -49,16 +49,13 @@ class SqlTableMetadataExecutor {
     }
 
     // then create columns
-    int position = 0;
     for (Column column : table.getStoredColumns()) {
 
       // check if column adheres to all rules
       validateColumn(column);
 
-      // we force position based on order
       if (table.getInherit() == null
           || table.getInheritedTable().getColumn(column.getName()) == null) {
-        column.setPosition(position++);
         executeCreateColumn(jooq, column);
       }
     }
@@ -216,7 +213,7 @@ class SqlTableMetadataExecutor {
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getStoredColumns()) {
       if (!c.getName().startsWith("MG_")) {
-        if (FILE.equals(c.getColumnType())) {
+        if (c.isFile()) {
           // do nothing for now
         } else if (c.isReference()) {
           for (Reference r : c.getReferences()) {
@@ -274,11 +271,12 @@ class SqlTableMetadataExecutor {
   }
 
   private static void executeAddMetaColumns(TableMetadata table) {
-    table.add(column(MG_DRAFT).setType(BOOL).setPosition(10000));
-    table.add(column(MG_INSERTEDBY).setPosition(10001));
-    table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(10002));
-    table.add(column(MG_UPDATEDBY).setPosition(10003));
-    table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(10004));
+    // negative positions so they don't interfere with the positions of user provided columns
+    table.add(column(MG_DRAFT).setType(BOOL).setPosition(-5));
+    table.add(column(MG_INSERTEDBY).setPosition(-4));
+    table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(-3));
+    table.add(column(MG_UPDATEDBY).setPosition(-2));
+    table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
   }
 
   private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {

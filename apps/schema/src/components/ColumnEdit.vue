@@ -32,20 +32,14 @@
           label="key"
         />
       </div>
-      <div class="col-4" v-if="column.columnType == 'STRING'">
-        <InputSelect
-          v-model="column.columnFormat"
-          :options="['HYPERLINK']"
-          label="columnFormat"
-        />
-      </div>
       <div
         class="col-4"
         v-if="
           column.columnType == 'REF' ||
           column.columnType == 'REF_ARRAY' ||
-          column.columnType == 'MREF' ||
-          column.columnType == 'REFBACK'
+          column.columnType == 'REFBACK' ||
+          column.columnType == 'ONTOLOGY' ||
+          column.columnType == 'ONTOLOGY_ARRAY'
         "
       >
         <InputSelect

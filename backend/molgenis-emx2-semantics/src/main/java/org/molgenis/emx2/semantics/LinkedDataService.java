@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics;
 
-import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.SelectColumn.s;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -143,7 +142,7 @@ public class LinkedDataService {
             }
             final Column ref = temp;
             final String prefix = prefixTemp;
-            if (REF.equals(c.getColumnType())) {
+            if (c.isRef()) {
               row.put(c.getName(), ((Map<String, Object>) row.get(c.getName())).get(ref.getName()));
             } else {
               // list of maps

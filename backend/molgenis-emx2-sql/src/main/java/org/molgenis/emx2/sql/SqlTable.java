@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
@@ -591,9 +590,7 @@ class SqlTable implements Table {
 
   private Condition getColumnCondition(Row r, Column key) {
     List<Condition> columnCondition = new ArrayList<>();
-    if (REF.equals(key.getColumnType()) || REF_ARRAY.equals(key.getColumnType())
-    //       || MREF.equals(key.getColumnType())
-    ) {
+    if (key.isRef() || key.isRefArray()) {
       for (Reference ref : key.getReferences()) {
         if (!ref.isOverlapping()) {
           columnCondition.add(
@@ -601,7 +598,7 @@ class SqlTable implements Table {
                   .eq(cast(r.get(ref.getName(), ref.getPrimitiveType()), ref.getJooqField())));
         }
       }
-    } else if (REFBACK.equals(key.getColumnType())) {
+    } else if (key.isRefback()) {
       // do nothing
     } else {
       columnCondition.add(

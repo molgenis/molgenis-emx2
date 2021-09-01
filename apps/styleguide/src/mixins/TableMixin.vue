@@ -9,6 +9,8 @@ export default {
     table: String,
     /** pass filters conform TableMixin */
     filter: {},
+    /** pass orderBy as Object {field1: 'ASC', field2 {field3:'ASC'}}*/
+    orderBy: {},
   },
   data: function () {
     return {
@@ -34,24 +36,32 @@ export default {
         this.searchTerms != null && this.searchTerms !== ""
           ? ',search:"' + this.searchTerms + '"'
           : "";
-      return `query ${this.table}($filter:${this.table}Filter){
-              ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search}){${this.columnNames}}
+      return `query ${this.table}($filter:${this.table}Filter, $orderby:${this.table}orderby){
+              ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search},orderby:$orderby){${this.columnNames}}
               ${this.table}_agg(filter:$filter${search}){count}}`;
     },
     tableMetadata() {
       return this.getTable(this.table);
+    },
+    //this method allows overrides
+    orderByObject() {
+      if (this.orderBy) {
+        return this.orderBy;
+      } else {
+        return {};
+      }
     },
     columnNames() {
       let result = "";
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
+            ["REF", "REF_ARRAY", "REFBACK", "MREF","ONTOLOGY","ONTOLOGY_ARRAY"].includes(col.columnType)
           ) {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
             result = result + " " + col.name + "{id,size,extension,url}";
-          } else if (col.columnType != "CONSTANT") {
+          } else if (col.columnType != "HEADING") {
             result = result + " " + col.name;
           }
         });
@@ -64,14 +74,21 @@ export default {
       if (this.tableMetadata != undefined) {
         this.loading = true;
         this.graphqlError = null;
-        request(this.graphqlURL, this.graphql, { filter: this.graphqlFilter })
+        request(this.graphqlURL, this.graphql, {
+          filter: this.graphqlFilter,
+          orderby: this.orderByObject,
+        })
           .then((data) => {
             this.data = data[this.table];
             this.count = data[this.table + "_agg"]["count"];
             this.loading = false;
           })
           .catch((error) => {
-            this.graphqlError = "internal server graphqlError" + error;
+            if (Array.isArray(error.response.errors)) {
+              this.graphqlError = error.response.errors[0].message;
+            } else {
+              this.graphqlError = error;
+            }
             this.loading = false;
           });
       }

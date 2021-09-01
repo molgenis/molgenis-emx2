@@ -110,7 +110,6 @@ public class TypeUtils {
           || "yes".equalsIgnoreCase(((String) v).trim())) return true;
       if ("false".equalsIgnoreCase(((String) v).trim())
           || "no".equalsIgnoreCase(((String) v).trim())) return false;
-      if ("".equals(((String) v).trim())) return null;
     }
     try {
       return (Boolean) v;
@@ -207,7 +206,7 @@ public class TypeUtils {
   }
 
   public static ColumnType getNonArrayType(ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case UUID_ARRAY:
         return ColumnType.UUID;
       case STRING_ARRAY:
@@ -230,7 +229,7 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case UUID:
         return ColumnType.UUID_ARRAY;
       case STRING:
@@ -294,7 +293,7 @@ public class TypeUtils {
   }
 
   public static DataType toJooqType(ColumnType type) {
-    switch (type) {
+    switch (type.getBaseType()) {
       case FILE:
         return SQLDataType.BINARY;
       case UUID:
@@ -340,7 +339,7 @@ public class TypeUtils {
   }
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case UUID:
         return TypeUtils.toUuid(v);
       case UUID_ARRAY:

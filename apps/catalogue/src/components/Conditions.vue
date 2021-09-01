@@ -7,7 +7,7 @@
     </p>
     <h6>Funding statement</h6>
     <p>
-      {{ resource.funding ? resource.funding : "N/A" }}
+      {{ resource.fundingStatement ? resource.fundingStatement : "N/A" }}
     </p>
     <h6>Acknowledgement statement</h6>
     <p>

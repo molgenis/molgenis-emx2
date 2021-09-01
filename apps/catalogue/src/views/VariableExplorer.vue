@@ -1,17 +1,14 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-3">
+      <div class="col-6 col-sm-5 col-md-4 col-lg-3">
         <h5>Filters</h5>
         <h6 class="mt-3">Networks</h6>
         <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
         <h6 class="mt-3">Topics</h6>
-        <tree-component
-          :items="keywords"
-          v-model="selectedKeywords"
-        ></tree-component>
+        <InputOntology table="Keywords" v-model="keywords" :list="true" />
       </div>
-      <div class="col-9">
+      <div class="col-6 col-sm-7 col-md-8 col-lg-9">
         <div class="row">
           <div class="col-3">
             <h3>
@@ -34,7 +31,7 @@
                 <router-link
                   class="nav-link"
                   :class="{ active: $route.query.tab !== 'harmonization' }"
-                  :to="{ path: 'variable-explorer', query: { tab: 'detail' } }"
+                  :to="{ name: 'variableExplorer', query: { tab: 'detail' } }"
                 >
                   Details
                 </router-link>
@@ -44,7 +41,7 @@
                   class="nav-link"
                   :class="{ active: $route.query.tab === 'harmonization' }"
                   :to="{
-                    path: 'variable-explorer',
+                    name: 'variableExplorer',
                     query: { tab: 'harmonization' },
                   }"
                 >
@@ -69,10 +66,12 @@
 import VariablesDetailsView from "./VariablesDetailsView";
 import HarmonizationView from "./HarmonizationView";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
-import { InputSearch } from "@mswertz/emx2-styleguide";
-import TreeComponent from "../../../styleguide/src/tree/TreeComponent";
-import InputRef from "../../../styleguide/src/forms/InputRef";
-import FilterWells from "../../../styleguide/src/tables/FilterWells";
+import {
+  InputSearch,
+  InputOntology,
+  InputRef,
+  FilterWells,
+} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "VariableExplorer",
@@ -80,18 +79,18 @@ export default {
     VariablesDetailsView,
     HarmonizationView,
     InputSearch,
-    TreeComponent,
+    InputOntology,
     FilterWells,
     InputRef,
   },
   computed: {
-    ...mapState(["filters", "keywords"]),
+    ...mapState(["filters"]),
     ...mapGetters([
       "variables",
       "variableCount",
       "searchString",
-      "selectedKeywords",
       "selectedNetworks",
+      "selectedKeywords",
     ]),
     searchInput: {
       get() {
@@ -109,9 +108,17 @@ export default {
         this.setSelectedNetworks(value);
       },
     },
+    keywords: {
+      get() {
+        return this.selectedKeywords;
+      },
+      set(value) {
+        this.setSelectedKeywords(value);
+      },
+    },
   },
   methods: {
-    ...mapMutations(["setSelectedNetworks"]),
+    ...mapMutations(["setSelectedNetworks", "setSelectedKeywords"]),
     ...mapActions(["fetchVariables", "fetchKeywords", "fetchSchema"]),
     onError(e) {
       this.graphqlError = e.response ? e.response.errors[0].message : e;
@@ -130,7 +137,7 @@ export default {
   },
   async created() {
     await this.fetchSchema();
-    if (!this.variables.lenght) {
+    if (!this.variables.length) {
       // Only on initial creation
       this.fetchVariables();
     }

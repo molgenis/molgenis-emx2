@@ -52,7 +52,6 @@ public class MetadataUtils {
       field(name("description"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_VISIBLE =
       field(name("visible"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_FORMAT = field(name("format"), VARCHAR.nullable(true));
   private static final org.jooq.Field COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
   private static final org.jooq.Field COLUMN_TYPE =
@@ -200,8 +199,7 @@ public class MetadataUtils {
                           COLUMN_CASCADE,
                           COLUMN_DESCRIPTION,
                           COLUMN_SEMANTICS,
-                          COLUMN_VISIBLE,
-                          COLUMN_FORMAT)
+                          COLUMN_VISIBLE)
                       .constraints(
                           primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
                           foreignKey(TABLE_SCHEMA, TABLE_NAME)
@@ -441,8 +439,7 @@ public class MetadataUtils {
             COLUMN_CASCADE,
             COLUMN_DESCRIPTION,
             COLUMN_SEMANTICS,
-            COLUMN_VISIBLE,
-            COLUMN_FORMAT)
+            COLUMN_VISIBLE)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -462,8 +459,7 @@ public class MetadataUtils {
             column.isCascadeDelete(),
             column.getDescription(),
             column.getSemantics(),
-            column.getVisible(),
-            column.getColumnFormat())
+            column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_TYPE, column.getColumnType())
@@ -482,7 +478,6 @@ public class MetadataUtils {
         .set(COLUMN_DESCRIPTION, column.getDescription())
         .set(COLUMN_SEMANTICS, column.getSemantics())
         .set(COLUMN_VISIBLE, column.getVisible())
-        .set(COLUMN_FORMAT, column.getColumnFormat())
         .execute();
   }
 
@@ -559,7 +554,6 @@ public class MetadataUtils {
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
-    c.setColumnFormat(col.get(COLUMN_FORMAT, String.class));
     return c;
   }
 
@@ -590,5 +584,19 @@ public class MetadataUtils {
         .doUpdate()
         .set(VERSION, newVersion)
         .execute();
+  }
+
+  public static int getMaxPosition(DSLContext jooq, String schemaName) {
+    Integer result =
+        jooq.select(max(COLUMN_POSITION).as(COLUMN_POSITION.getName()))
+            .from(COLUMN_METADATA)
+            .where(TABLE_SCHEMA.eq(schemaName))
+            .fetchOne()
+            .get(COLUMN_POSITION.getName(), Integer.class);
+    if (result == null) {
+      return 0;
+    } else {
+      return result;
+    }
   }
 }

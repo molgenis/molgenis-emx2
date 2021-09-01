@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
@@ -40,6 +39,7 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
 
     // first per-column actions, then multi-column action such as composite keys/refs
+    int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
     for (Column c : column) {
       long start = System.currentTimeMillis();
       if (tm.getLocalColumn(c.getName()) != null) {
@@ -58,9 +58,12 @@ class SqlTableMetadata extends TableMetadata {
                   + ": column exists in inherited class "
                   + tm.getInherit());
         }
-        if (!CONSTANT.equals(newColumn.getColumnType())) {
+        if (!newColumn.isHeading()) {
           validateColumn(newColumn);
-          updatePositions(newColumn, tm);
+          if (newColumn.getPosition() == null) {
+            // positions are asumed to number up in a schema
+            newColumn.setPosition(position++);
+          }
           executeCreateColumn(tm.getJooq(), newColumn);
           tm.columns.put(c.getName(), newColumn);
           if (newColumn.getKey() > 0) {
@@ -72,6 +75,7 @@ class SqlTableMetadata extends TableMetadata {
           }
           executeCreateRefConstraints(tm.getJooq(), newColumn);
         } else {
+          saveColumnMetadata(tm.getJooq(), newColumn);
           tm.columns.put(c.getName(), newColumn);
         }
         log(tm, start, "added column '" + newColumn.getName() + "' to table " + tm.getTableName());
@@ -178,7 +182,7 @@ class SqlTableMetadata extends TableMetadata {
     validateColumn(newColumn);
 
     // check if reference and of different size
-    if (REF_ARRAY.equals(newColumn.getColumnType())
+    if (newColumn.isRefArray()
         && !newColumn.getName().equals(oldColumn.getName())
         && !newColumn.getColumnType().equals(oldColumn.getColumnType())
         && newColumn.getRefTable().getPrimaryKeyFields().size() > 1) {
@@ -196,11 +200,6 @@ class SqlTableMetadata extends TableMetadata {
     // if changing 'ref' then check if not refBack exists
     if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
       tm.checkNotRefback(columnName, oldColumn);
-    }
-
-    // change positions if needed
-    if (!oldColumn.getPosition().equals(newColumn.getPosition())) {
-      updatePositions(newColumn, tm);
     }
 
     // drop old key, if touched
@@ -255,7 +254,7 @@ class SqlTableMetadata extends TableMetadata {
   private void checkNotRefback(String name, Column oldColumn) {
     if (oldColumn.isReference()) {
       for (Column c : oldColumn.getRefTable().getColumns()) {
-        if (REFBACK.equals(c.getColumnType())
+        if (c.isRefback()
             && c.getRefTableName().equals(oldColumn.getTableName())
             && oldColumn.getName().equals(c.getRefBack())) {
           throw new MolgenisException(
@@ -356,7 +355,13 @@ class SqlTableMetadata extends TableMetadata {
               // extends means we copy primary key column from parent to child, make it foreign key
               // to
               // parent, and make it primary key of this table also.
-              sync(setInheritTransaction(tdb, getSchemaName(), getTableName(), otherTable));
+              sync(
+                  setInheritTransaction(
+                      tdb,
+                      getSchemaName(),
+                      getTableName(),
+                      getImportSchema() != null ? getImportSchema() : getSchemaName(),
+                      otherTable));
             });
     log(start, "set inherit on ");
     super.setInherit(otherTable);
@@ -365,11 +370,15 @@ class SqlTableMetadata extends TableMetadata {
 
   // static function to ensure this is not altered until end of transaction
   private static SqlTableMetadata setInheritTransaction(
-      Database db, String schemaName, String tableName, String inheritedName) {
+      Database db,
+      String schemaName,
+      String tableName,
+      String inheritSchema,
+      String inheritedName) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlTableMetadata tm =
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
-    TableMetadata om = db.getSchema(schemaName).getTable(inheritedName).getMetadata();
+    TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
     executeSetInherit(jooq, tm, om);
     tm.inherit = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);

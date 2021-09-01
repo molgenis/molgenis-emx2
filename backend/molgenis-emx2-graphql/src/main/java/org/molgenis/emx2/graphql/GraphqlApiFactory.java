@@ -1,6 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +25,7 @@ public class GraphqlApiFactory {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
         if (object.containsKey(column.getName())) {
-          if (column.isReference() && REF.equals(column.getColumnType())) {
+          if (column.isRef()) {
             convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY

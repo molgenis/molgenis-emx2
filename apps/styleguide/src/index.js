@@ -15,13 +15,15 @@ import IconBar from "./forms/IconBar";
 import IconDanger from "./forms/IconDanger";
 
 import InputBoolean from "./forms/InputBoolean";
-import InputConstant from "./forms/InputConstant";
+import InputHeading from "./forms/InputHeading";
 import InputDate from "./forms/InputDate";
 import InputDateTime from "./forms/InputDateTime";
 import InputDecimal from "./forms/InputDecimal";
 import InputCheckbox from "./forms/InputCheckbox";
 import InputFile from "./forms/InputFile";
 import InputInt from "./forms/InputInt";
+import InputOntology from "./forms/InputOntology";
+import InputOntologySubtree from "./forms/InputOntologySubtree";
 import InputPassword from "./forms/InputPassword";
 import InputRadio from "./forms/InputRadio";
 import InputRef from "./forms/InputRef";
@@ -69,8 +71,6 @@ import TableSearch from "./tables/TableSearch";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
-import TreeComponent from "./tree/TreeComponent";
-
 export {
   ButtonAction,
   ButtonAlt,
@@ -88,12 +88,14 @@ export {
   IconDanger,
   InputBoolean,
   InputCheckbox,
-  InputConstant,
+  InputHeading,
   InputDate,
   InputDateTime,
   InputDecimal,
   InputFile,
   InputInt,
+  InputOntology,
+  InputOntologySubtree,
   InputPassword,
   InputRadio,
   InputRef,
@@ -131,6 +133,5 @@ export {
   TableMolgenis,
   TableExplorer,
   TableSimple,
-  TableSearch,
-  TreeComponent,
+  TableSearch
 };
