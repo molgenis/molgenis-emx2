@@ -11,6 +11,10 @@ export default {
     filter: {},
     /** pass orderBy as Object {field1: 'ASC', field2 {field3:'ASC'}}*/
     orderBy: {},
+    searchTerms: {
+      type: String,
+      default: () => null,
+    },
   },
   data: function () {
     return {
@@ -18,7 +22,6 @@ export default {
       count: 0,
       offset: 0,
       limit: 20,
-      searchTerms: null,
     };
   },
   computed: {
