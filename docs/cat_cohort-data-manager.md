@@ -1,5 +1,65 @@
 # Data manager of a cohort or data source
 
+## Cohort rich metadata
+The Data Catalogue contains rich metadata from cohorts.
+
+### Enter cohort data via forms
+In a web browser enter the url that was presented to you and log in to the Data Catalogue with your credentials.
+Navigate to ....
+
+#### How to enter data by filling out the online form
+The tables below explain the data items in the form per subheading. *Format* is the data type of the data item, the descriptions gives pointers on how to fill out the data. Most descriptions are also given in the form itself.  
+
+
+**Overview**
+
+| *Data item* | *Format* | *Description* |
+| ------------- | --- | --- |
+| Name | text | Enter the cohort name used in European projects. |
+| Local name | text |  Fill out if the name in the national language is different from above. |
+| Acronym | text | Cohort acronym or abbreviation, if applicable. |
+| Type | dropdown | Choose one or more types from a list of cohort types. |
+| Type other | text | If the above type is ‘other’, enter other type here. |
+| Design | dropdown | Is the design of the cohort cross-sectional or longitudinal? Cross-sectional cohorts take data at one time point, longitudinal cohorts gather data at multiple times. |
+| Collection type | dropdown | Choose whether data collection of the cohort was retrospective, prospective, or both. Retrospective data collection means that participants were included when data was already gathered, and prospective that data was gathered after participants were included. |
+| Institution | dropdown | The institution(s) responsible for this cohort. Choose one or more from the listed institutions. Add an institution if not listed by clicking on the plus sign. |
+| Description | text| Give a short description of the cohort. |
+| Logo | file | Add a file for the logo of the cohort. |
+| Homepage | url | Give the url to the homepage of the cohort, if applicable. | 
+| Contributions | dropdown | Choose from a list of entered contacts. Add a contact and a contribution type |
+
+**Population**
+
+| *Data item* | *Format* | *Description* |
+| ------------- | --- | --- |
+| Number of participants | integer | Enter the number of participants in the cohort. |
+| Number of participants with samples | integer | Enter the number of participants with samples in the cohort. |
+| Countries | dropdown | The countries that the participants of the cohort are from. |
+| Regions | dropdown | The regions that the participants of the cohort are from. |
+| Inclusion criteria | text | Other inclusion criteria that were applied to the cohort's participants. |
+| Subcohorts | dropdown | Fill out subcohorts one by one in the online form or fill out and upload the [Subcohorts](cat_cohort-data-manager.md#Subcohorts) template if you have many subcohorts. |
+
+
+#### Subcohorts 
+You can either fill out subcohorts via the online form or use the [*Subcohorts template*](). The table below explains how to fill out the template. The online form is self-explanatory.
+
+| *Data item* | *Format* | *Description* |
+|---|---|---|
+| Resource | text | Cohort acronym |
+| Name | text | Subcohort name |
+| Number of participants | integer | The number of participants of the subcohort. |
+| Description | text | Short description of the subcohort. |
+| AgeGroups | dropdown | Select the age groups that the subcohort partcipants belong to. |
+| Inclusion start | integer | Enter the start year of inclusion for the subcohort. | 
+| Inclusion end | integer | Enter the end year of inclusion for the subcohort. Leave empty if inclusion is ongoing. |
+| Disease | dropdown | Select one or more disease groups that were used as an inclusion criterium for the subcohort. |
+| Country | dropdown | Select one or more countries that the participants of the subcohort belong to. |
+| Region | dropdown | Select one or more regions that the participants of the subcohort belong to. |
+| Inclusion criteria | text | Enter other inclusion criteria that were applied to the subcohort's participants. |
+| Supplementary information | text | Enter any other information that you would like to disclose for the subcohort. |
+
+
+
 ## Catalogue
 
 ### Data harmonisation
@@ -8,7 +68,7 @@ Each organization with access to data (which may be a cohort, or to a data sourc
 
 ### Staging areas for uploads
 
-The metadata of the cohort or of the data source is uploaded to what are called "staging areas" of the Data Catalogue. You will need credentials to log in and upload metadata.  
+The variable metadata of the cohort or of the data source is uploaded to what are called "staging areas" of the Data Catalogue. You will need credentials to log in and upload metadata.  
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
 ConcePTION uses [*emx2-conception*](https://emx2-conception.test.molgenis.org).
 
