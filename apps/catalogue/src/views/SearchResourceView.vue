@@ -3,19 +3,7 @@
     <div class="row justify-content-md-center">
       <div class="col-sm-12 col-md-8">
         <main>
-          <form v-on:submit.prevent="onSubmit" class="form-horizontal">
-            <div class="input-group">
-              <input
-                type="text"
-                class="form-control form-control-lg"
-                v-model="query"
-                placeholder="Search"
-              />
-              <button type="submit" class="btn btn-primary btn-lg">
-                Search
-              </button>
-            </div>
-          </form>
+          <search-resource :resourceType="resourceType" />
         </main>
       </div>
     </div>
@@ -23,25 +11,15 @@
 </template>
 
 <script>
+import SearchResource from "../components/SearchResource";
+
 export default {
   name: "SearchResourceView",
+  components: { SearchResource },
   props: {
     resourceType: {
       type: String, // one of Resource
       default: () => "institutions",
-    },
-  },
-  data() {
-    return {
-      query: "",
-    };
-  },
-  methods: {
-    onSubmit() {
-      this.$router.push({
-        name: this.resourceType,
-        query: { q: this.query },
-      });
     },
   },
 };
