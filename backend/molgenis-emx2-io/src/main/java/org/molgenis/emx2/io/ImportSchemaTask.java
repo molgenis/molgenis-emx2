@@ -13,14 +13,14 @@ public class ImportSchemaTask extends Task {
   private TableStore store;
   private Schema schema;
 
-  public ImportSchemaTask(String description, TableStore store, Schema schema) {
-    super(description);
+  public ImportSchemaTask(String description, TableStore store, Schema schema, boolean strict) {
+    super(description, strict);
     this.store = store;
     this.schema = schema;
   }
 
-  public ImportSchemaTask(TableStore store, Schema schema) {
-    super("Import from store");
+  public ImportSchemaTask(TableStore store, Schema schema, boolean strict) {
+    super("Import from store", strict);
     this.store = store;
     this.schema = schema;
   }
@@ -32,7 +32,7 @@ public class ImportSchemaTask extends Task {
           db -> {
             // import metadata, if any
             Schema s = db.getSchema(schema.getName());
-            Task metadataTask = new ImportMetadataTask(s, store);
+            Task metadataTask = new ImportMetadataTask(s, store, isStrict());
             this.add(metadataTask);
             metadataTask.run();
 
@@ -45,7 +45,7 @@ public class ImportSchemaTask extends Task {
               // create task for the import, including subtasks for each sheet
               for (Table table : s.getTablesSorted()) {
                 if (store.containsTable(table.getName())) {
-                  ImportTableTask importTableTask = new ImportTableTask(store, table);
+                  ImportTableTask importTableTask = new ImportTableTask(store, table, isStrict());
                   this.add(importTableTask);
                   importTableTask.run();
                   skipped = false;

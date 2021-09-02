@@ -5,7 +5,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 
 public class ImportExcelTask extends ImportSchemaTask {
-  public ImportExcelTask(Path excelFile, Schema schema) {
-    super("Import excel file", new TableStoreForXlsxFile(excelFile), schema);
+  public ImportExcelTask(Path excelFile, Schema schema, boolean strict) {
+    super("Import excel file", new TableStoreForXlsxFile(excelFile), schema, strict);
   }
 }

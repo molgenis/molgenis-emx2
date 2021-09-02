@@ -12,8 +12,8 @@ public class ImportMetadataTask extends Task {
   private TableStore store;
   private Schema schema;
 
-  public ImportMetadataTask(Schema schema, TableStore store) {
-    super("Import metadata");
+  public ImportMetadataTask(Schema schema, TableStore store, boolean strict) {
+    super("Import metadata", strict);
     this.schema = schema;
     this.store = store;
   }

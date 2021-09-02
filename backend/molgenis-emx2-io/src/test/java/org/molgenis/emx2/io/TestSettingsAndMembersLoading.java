@@ -19,7 +19,7 @@ public class TestSettingsAndMembersLoading {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("settings_and_members.xlsx").getFile()).toPath();
 
-    new ImportExcelTask(path, schema).run();
+    new ImportExcelTask(path, schema, true).run();
 
     assertEquals("key1", schema.getTable("table1").getMetadata().getSettings().get(0).getKey());
     assertEquals("value1", schema.getTable("table1").getMetadata().getSettings().get(0).getValue());

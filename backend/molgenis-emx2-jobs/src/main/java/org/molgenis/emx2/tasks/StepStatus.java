@@ -5,6 +5,6 @@ public enum StepStatus {
   RUNNING,
   COMPLETED,
   SKIPPED,
-  WARN,
+  WARNING,
   ERROR
 }
