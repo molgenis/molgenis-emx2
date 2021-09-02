@@ -4,8 +4,8 @@
       <button class="btn float-right" v-on:click="editMode = !editMode">
         Edit
       </button>
-      <h1>{{ title }}</h1>
-      <h3 v-show="blurb" class="text-secondary">{{ blurb }}</h3>
+      <h1 class="text-center">{{ title }}</h1>
+      <h3 class="text-center text-secondary" v-show="blurb">{{ blurb }}</h3>
       <div v-for="wiget in activeWigets" :key="wiget.name">
         <keep-alive>
           <component v-bind:is="wiget.component"></component>
@@ -62,8 +62,8 @@ export default {
   data() {
     return {
       editMode: false,
-      title: "Catalogue",
-      blurb: "",
+      title: "Cohorts, biobanks and dataset of the UMCG",
+      blurb: "Universitair Medisch Centrum Groningen, the Netherlands",
       wigets: [
         { name: "Comp1", active: false, component: null },
         { name: "Comp2", active: false, component: null },
