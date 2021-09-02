@@ -226,7 +226,7 @@ export default {
               fundingStatement
               publication
               collectionEvents {
-                name, startYear, endYear,noParticipants, ageMin{name}, ageMax{name},dataCategories{name},sampleCategories{name},areasOfInformation{name},subcohorts{name}
+                name, startYear, endYear, ageCategories{name},noParticipants,dataCategories{name},sampleCategories{name},areasOfInformation{name},subcohorts{name}
               }
               subcohorts {
                 name,noParticipants,ageCategories{name},disease{name},geographicRegion{name},inclusionCriteria,supplementaryInformation
