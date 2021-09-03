@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div :class="editMode ? 'col-6' : 'col-12'">
+    <div v-show="loaded" :class="editMode ? 'col-6' : 'col-12'">
       <button class="btn float-right" v-on:click="editMode = !editMode">
         Edit
       </button>
@@ -12,7 +12,7 @@
         </keep-alive>
       </div>
     </div>
-    <div v-if="editMode" class="col-6 mg-editor">
+    <div v-if="loaded && editMode" class="col-6 mg-editor">
       <form action="">
         <div class="form-group">
           <label for="title">Title</label>
@@ -24,27 +24,17 @@
           <input id="blurb" type="text" class="form-control" v-model="blurb" />
         </div>
 
-        <div class="form-check">
+        <div class="form-check" v-for="wiget in wigets" :key="wiget.name">
           <input
             class="form-check-input"
             type="checkbox"
-            value=""
-            id="defaultCheck1"
-            v-model="wigets[0].active"
-            @change="toggleWiget('Comp1')"
+            :id="wiget.name"
+            v-model="wiget.active"
+            @change="toggleWiget(wiget.name)"
           />
-          <label class="form-check-label" for="defaultCheck1"> Comp 1 </label>
-        </div>
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            value=""
-            id="defaultCheck2"
-            v-model="wigets[1].active"
-            @change="toggleWiget('Comp2')"
-          />
-          <label class="form-check-label" for="defaultCheck2"> Comp 2 </label>
+          <label class="form-check-label" :for="wiget.name">
+            {{ wiget.name }}
+          </label>
         </div>
       </form>
     </div>
@@ -52,22 +42,23 @@
 </template>
 
 <script>
+import { request, gql } from "graphql-request";
+
 const loadWidget = (widget) => {
   widget += ".vue";
   console.log("Load " + widget);
   return import("../components/home-page/" + widget);
 };
+
 export default {
   name: "HomeView",
   data() {
     return {
+      loaded: false,
       editMode: false,
-      title: "Cohorts, biobanks and dataset of the UMCG",
-      blurb: "Universitair Medisch Centrum Groningen, the Netherlands",
-      wigets: [
-        { name: "Comp1", active: false, component: null },
-        { name: "Comp2", active: false, component: null },
-      ],
+      title: "My title",
+      blurb: "this is your home page",
+      wigets: [],
     };
   },
   computed: {
@@ -83,7 +74,37 @@ export default {
         wiget.component = res.default;
       }
     },
-  }
+    async querySettings() {
+      const fetchHomeSettings = gql`
+        query HomePage {
+          HomePage(limit: 1) {
+            name
+            title
+            subTitle
+            component
+          }
+        }
+      `;
+      const resp = await request("graphql", fetchHomeSettings).catch((e) =>
+        console.error(e)
+      );
+      return resp.HomePage[0];
+    },
+    parseSettings(settings) {
+      this.title = settings.title;
+      this.blurb = settings.subTitle;
+      this.wigets = JSON.parse(settings.component);
+
+      this.activeWigets.forEach((aw) => {
+        this.toggleWiget(aw.name);
+      });
+    },
+  },
+  async created() {
+    const settings = await this.querySettings();
+    this.parseSettings(settings);
+    this.loaded = true;
+  },
 };
 </script>
 
