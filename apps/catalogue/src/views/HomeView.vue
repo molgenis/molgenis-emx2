@@ -8,10 +8,6 @@
       >
         Edit
       </button>
-      <h1 class="text-center">{{ settings.title }}</h1>
-      <h3 class="text-center text-secondary" v-show="settings.subTitle">
-        {{ settings.subTitle }}
-      </h3>
       <div v-for="wiget in activeWigets" :key="wiget.name">
         <keep-alive>
           <component
@@ -23,7 +19,7 @@
     </div>
     <div v-if="loaded && editMode" class="col-6 mg-editor">
       <button
-        class="btn btn-outline-secondary"
+        class="btn btn-outline-secondary mr-1"
         v-on:click="editMode = !editMode"
       >
         Close
@@ -32,32 +28,10 @@
         Save
       </button>
       <p v-show="saving">Saving...</p>
-      <form action="">
-        <div class="form-group">
-          <label for="title">Title</label>
-          <input
-            id="title"
-            type="text"
-            class="form-control"
-            v-model="settings.title"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="title">Sub title</label>
-          <input
-            id="subTitle"
-            type="text"
-            class="form-control"
-            v-model="settings.subTitle"
-          />
-        </div>
-
-        <div
-          class="form-check"
-          v-for="wiget in settings.wigets"
-          :key="wiget.name"
-        >
+      <h2 class="mt-1">Wigets settings</h2>
+      <form class="mt-1" action="">
+        <div class="form-check" v-for="wiget in wigets" :key="wiget.name">
+          <hr />
           <input
             class="form-check-input"
             type="checkbox"
@@ -68,6 +42,20 @@
           <label class="form-check-label" :for="wiget.name">
             {{ wiget.name }}
           </label>
+          <ul class="un">
+            <li v-for="(value, name) in wiget.props" :key="name">
+              <div class="form-group">
+                <label for="name">{{ name }}</label>
+                <input
+                  :id="name"
+                  type="text"
+                  class="form-control"
+                  :value="value"
+                  @keyup="updateProp(wiget.name, name, $event)"
+                />
+              </div>
+            </li>
+          </ul>
         </div>
       </form>
     </div>
@@ -83,6 +71,15 @@ const loadWidget = (widget) => {
   return import("../components/home-page/" + widget);
 };
 
+const WIGETS_DEFAULTS = [
+  {
+    name: "HeadingWiget",
+    active: false,
+    props: { title: "Your Title", subTitle: "Your sub title can go here " },
+  },
+  { name: "SearchComp", active: true, props: { resourceType: "cohorts" } },
+];
+
 export default {
   name: "HomeView",
   data() {
@@ -91,16 +88,12 @@ export default {
       saving: false,
       editMode: false,
       componentStore: {},
-      settings: {
-        title: "My title",
-        subTitle: "this is your home page",
-        wigets: [],
-      },
+      wigets: [],
     };
   },
   computed: {
     activeWigets() {
-      return this.settings.wigets.filter((w) => w.active);
+      return this.wigets.filter((w) => w.active);
     },
     canEdit() {
       return !!(
@@ -111,10 +104,10 @@ export default {
   },
   methods: {
     async toggleWiget(name) {
-      const wiget = this.settings.wigets.find((w) => w.name === name);
+      const wiget = this.wigets.find((w) => w.name === name);
       if (wiget.active && !this.componentStore[name]) {
         const res = await loadWidget(wiget.name);
-        this.componentStore[wiget.name] = res.default;
+        this.$set(this.componentStore, wiget.name, res.default);
       }
     },
     async loadSettings() {
@@ -149,7 +142,7 @@ export default {
       const resp = await request("graphql", settingsMutation, {
         settings: {
           key: "home-page",
-          value: JSON.stringify(this.settings),
+          value: JSON.stringify(this.wigets),
         },
       }).catch((e) => {
         console.error(e);
@@ -160,12 +153,28 @@ export default {
     },
     parseSettings(settingsString) {
       if (settingsString) {
-        this.settings = JSON.parse(settingsString);
+        const loadedWigets = JSON.parse(settingsString);
+        // Merge loaded setting with the defaults
+        this.wigets = WIGETS_DEFAULTS.reduce((accum, defaultWiget) => {
+          // If the wiget was not loaded from the backend
+          if (!accum.find((w) => w.name === defaultWiget.name)) {
+            // Use the default add add it at the default position
+            const position = WIGETS_DEFAULTS.findIndex(
+              (wd) => wd.name === defaultWiget.name
+            );
+            accum.splice(position, 0, defaultWiget);
+          }
+          return accum;
+        }, loadedWigets);
       }
 
       this.activeWigets.forEach((aw) => {
         this.toggleWiget(aw.name);
       });
+    },
+    updateProp(wigetName, propName, event) {
+      this.wigets.find((w) => w.name === wigetName).props[propName] =
+        event.target.value;
     },
   },
   async created() {
