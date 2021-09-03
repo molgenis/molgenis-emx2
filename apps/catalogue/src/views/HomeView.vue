@@ -8,7 +8,10 @@
       <h3 class="text-center text-secondary" v-show="blurb">{{ blurb }}</h3>
       <div v-for="wiget in activeWigets" :key="wiget.name">
         <keep-alive>
-          <component v-bind:is="wiget.component"></component>
+          <component
+            v-bind:is="wiget.component"
+            v-bind="wiget.props"
+          ></component>
         </keep-alive>
       </div>
     </div>
