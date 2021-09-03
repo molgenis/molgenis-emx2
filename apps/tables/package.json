@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "core-js": "3.17.1",
+    "core-js": "3.17.2",
     "graphql-request": "3.5.0",
     "vue": "2.6.14",
     "vue-router": "3.5.2"
