@@ -46,7 +46,8 @@ public class PetStoreExample {
             .add(
                 column("details")
                     .setType(HEADING)
-                    .setDescription("<h1>Details:</h1>")) // add a layout element
+                    .setDescription(
+                        "Details")) // add a layout element, for now html formatting not allowed
             .add(column(STATUS)) // todo enum: available, pending, sold
             .add(column("tags").setType(ONTOLOGY_ARRAY).setRefTable(TAG))
             .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
