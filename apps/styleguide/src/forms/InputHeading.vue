@@ -29,6 +29,10 @@
 <script>
 import IconAction from "./IconAction";
 
+/**
+ * This is an component that does not have an input field but instead shows an header.
+ * Otherwise it uses same mechanism as other input hence name 'InputHeader'
+ */
 export default {
   components: { IconAction },
   props: {

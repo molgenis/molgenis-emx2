@@ -70,7 +70,7 @@ Arrays (i.e. list of values)
 * text_array
 
 Layout (static content, not an input): 
-* header: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
+* heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
 
 ### key
 

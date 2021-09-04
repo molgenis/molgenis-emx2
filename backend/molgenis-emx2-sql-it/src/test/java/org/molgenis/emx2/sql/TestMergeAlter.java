@@ -4,6 +4,7 @@ import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
@@ -238,6 +239,22 @@ public class TestMergeAlter {
     t.getMetadata().alterColumn("Name", column("Name").setKey(2));
 
     assertEquals(2, t.getMetadata().getColumn("Name").getKey());
+  }
+
+  @Test
+  public void testFromAndToHeading() {
+    Table t = schema.create(table("TestHeading", column("ID").setKey(1), column("Name")));
+    t.insert(row("ID", "1", "Name", "bla"));
+    assertEquals("bla", t.retrieveRows().get(0).getString("Name"));
+
+    // make to a heading
+    t.getMetadata().alterColumn("Name", t.getMetadata().getColumn("Name").setType(HEADING));
+    assertNull(null, t.retrieveRows().get(0).getString("Name"));
+
+    // and back again
+    t.getMetadata().alterColumn("Name", t.getMetadata().getColumn("Name").setType(STRING));
+    t.update(row("ID", "1", "Name", "bla2"));
+    assertEquals("bla2", t.retrieveRows().get(0).getString("Name"));
   }
 
   @Test
