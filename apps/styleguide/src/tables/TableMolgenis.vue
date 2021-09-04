@@ -164,8 +164,7 @@ export default {
       if (row[col.name] === undefined) {
         return [];
       }
-      if (["REF_ARRAY","REFBBACK","ONTOLOGY_ARRAY"].indexOf(col.columnType)
-      ) {
+      if (col.columnType == "REF_ARRAY" || col.columnType == "REFBACK" || col.columnType == "ONTOLOGY_ARRAY") {
         return row[col.name].map((v) => {
           if (col.refLabel) {
             return this.applyJsTemplate(col.refLabel, v);
@@ -173,7 +172,7 @@ export default {
             return this.flattenObject(v);
           }
         });
-      } else if (col.columnType == "REF") {
+      } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
           return [this.applyJsTemplate(col.refLabel, row[col.name])];
         } else {
