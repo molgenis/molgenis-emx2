@@ -129,7 +129,7 @@ const router = new VueRouter({
     },
     {
       name: "cohort",
-      path: "/cohorts/:acronym",
+      path: "/cohorts/:pid",
       component: CohortView,
       props: true,
     },
