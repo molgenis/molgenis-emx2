@@ -371,10 +371,12 @@ public class GraphqlTableFieldFactory {
         subFilters.add(f(Operator.TRIGRAM_SEARCH, entry.getValue()));
       } else if (entry.getKey().equals(FILTER_EQUALS)) {
         //  complex filter, should be an list of maps per graphql contract
-        subFilters.add(
-            or(
-                ((List<Map<String, Object>>) entry.getValue())
-                    .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+        if (entry.getValue() != null) {
+          subFilters.add(
+              or(
+                  ((List<Map<String, Object>>) entry.getValue())
+                      .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+        }
       } else {
         Column c = table.getMetadata().getColumn(entry.getKey());
         if (c == null)
