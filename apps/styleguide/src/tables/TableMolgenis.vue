@@ -164,10 +164,7 @@ export default {
       if (row[col.name] === undefined) {
         return [];
       }
-      if (
-        col.columnType == "REF_ARRAY" ||
-        col.columnType == "MREF" ||
-        col.columnType == "REFBACK"
+      if (["REF_ARRAY","REFBBACK","ONTOLOGY_ARRAY"].indexOf(col.columnType)
       ) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
