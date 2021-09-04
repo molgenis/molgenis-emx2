@@ -19,7 +19,7 @@ export default {
       if (this.task) {
         if (this.task.status == "COMPLETED") return "text-success";
         if (this.task.status == "ERROR") return "text-danger";
-        if (this.task.status == "WARNING") return "text-danger";
+        if (this.task.status == "WARNING") return "text-warning";
         if (this.task.status == "SKIPPED") return "text-muted";
         return "text-primary";
       }

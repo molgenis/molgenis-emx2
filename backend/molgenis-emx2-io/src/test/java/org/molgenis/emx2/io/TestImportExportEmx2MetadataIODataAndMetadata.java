@@ -44,7 +44,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       StopWatch.print("export to directory complete");
       Schema schema2 = database.dropCreateSchema(getClass().getSimpleName() + "2");
       StopWatch.print("schema2 created, ready to reload the exported data");
-      MolgenisIO.fromDirectory(directory, schema2);
+      MolgenisIO.fromDirectory(directory, schema2, true);
       StopWatch.print("import from directory complete");
       CompareTools.assertEquals(schema1.getMetadata(), schema2.getMetadata());
 
@@ -53,7 +53,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       StopWatch.print("export to excel complete");
       Schema schema3 = database.dropCreateSchema(getClass().getSimpleName() + "3");
       StopWatch.print("schema3 created, ready to reload the exported data");
-      MolgenisIO.importFromExcelFile(excelFile, schema3);
+      MolgenisIO.importFromExcelFile(excelFile, schema3, true);
       StopWatch.print("import from excel complete");
       CompareTools.assertEquals(schema1.getMetadata(), schema3.getMetadata());
 
@@ -62,7 +62,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       StopWatch.print("export to zipfile complete");
       Schema schema4 = database.dropCreateSchema(getClass().getSimpleName() + "4");
       StopWatch.print("schema4 created, ready to reload the exported data");
-      MolgenisIO.fromZipFile(zipFile, schema4);
+      MolgenisIO.fromZipFile(zipFile, schema4, true);
       StopWatch.print("import from zipfile complete");
       CompareTools.assertEquals(schema1.getMetadata(), schema4.getMetadata());
 

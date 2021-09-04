@@ -43,13 +43,15 @@ public class TestCohortCatalogue {
 
     ImportDirectoryTask task2 =
         new ImportDirectoryTask(
-            new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema);
+            new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema, false);
     task2.run();
 
     ImportExcelTask task3 =
         new ImportExcelTask(
             new File("../../data/datacatalogue/Cohorts_CoreVariables.xlsx").toPath(),
-            cohortsSchema);
+            cohortsSchema,
+            // todo fix data so we can put strict=true
+            false);
     task3.run();
 
     assertEquals(68, TestCohortCatalogue.cohortsSchema.getTableNames().size());
@@ -68,7 +70,7 @@ public class TestCohortCatalogue {
 
     ImportDirectoryTask task2 =
         new ImportDirectoryTask(
-            new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema);
+            new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
     task2.run();
 
     assertEquals(68, TestCohortCatalogue.rweSchema.getTableNames().size());
@@ -81,12 +83,15 @@ public class TestCohortCatalogue {
     // import ontologies
     Schema ontologiesSchema = database.dropCreateSchema("CatalogueOntologies");
     new ImportDirectoryTask(
-            new File("../../data/datacatalogue/CatalogueOntologies").toPath(), ontologiesSchema)
+            new File("../../data/datacatalogue/CatalogueOntologies").toPath(),
+            ontologiesSchema,
+            true)
         .run();
 
     // import cdm that uses schemaRef to ontologies
     Schema cdmSchema = database.dropCreateSchema("Catalogue_cdm");
-    new ImportDirectoryTask(new File("../../data/datacatalogue/Catalogue_cdm").toPath(), cdmSchema)
+    new ImportDirectoryTask(
+            new File("../../data/datacatalogue/Catalogue_cdm").toPath(), cdmSchema, true)
         .run();
 
     // export cdm and then import again, to validate it works

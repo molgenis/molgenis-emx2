@@ -173,21 +173,23 @@ public class TableStoreForXlsxFile implements TableStore {
     Row row = new Row();
     for (Cell cell : excelRow) {
       String colName = columnNames.get(cell.getColumnIndex());
-      if (colName == null && !BLANK.equals(cell.getCellType())) {
-        throw new IOException(
-            "Read of table '"
-                + name
-                + "' failed: column index "
-                + cell.getColumnIndex()
-                + " has no column name and contains value '"
-                + cell.getStringCellValue()
-                + "'");
-      }
+      if (!cell.getStringCellValue().trim().equals("")) {
+        if (colName == null) {
+          throw new IOException(
+              "Read of table '"
+                  + name
+                  + "' failed: column index "
+                  + cell.getColumnIndex()
+                  + " has no column name and contains value '"
+                  + cell.getStringCellValue()
+                  + "'");
+        }
 
-      if (cell.getCellType().equals(FORMULA)) {
-        convertCellToRowValue(row, cell, cell.getCachedFormulaResultType(), colName);
-      } else {
-        convertCellToRowValue(row, cell, cell.getCellType(), colName);
+        if (cell.getCellType().equals(FORMULA)) {
+          convertCellToRowValue(row, cell, cell.getCachedFormulaResultType(), colName);
+        } else {
+          convertCellToRowValue(row, cell, cell.getCellType(), colName);
+        }
       }
     }
     return row;

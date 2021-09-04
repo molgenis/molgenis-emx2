@@ -5,6 +5,7 @@
       :showFilters="defaultFilters"
       :table="tableName"
       :showCards="defaultCards"
+      :searchTerms="searchTerm"
       @click="openDetailView"
     />
   </div>
@@ -36,6 +37,7 @@ export default {
   },
   props: {
     tableName: String,
+    searchTerm: String,
   },
   computed: {
     headerCss() {
