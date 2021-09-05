@@ -107,7 +107,7 @@ export default {
       const firstItem = findFirst(this.permittedItems);
 
       //default: go home
-      return this.addBaseUrl(firstItem);
+      return firstItem ? this.addBaseUrl(firstItem.href) : this.baseURL;
     },
   },
   methods: {
