@@ -1,7 +1,13 @@
 <template>
   <div>
     <h5 class="card-title">Manage menu</h5>
-    <p>Customize menu structure and labels below:</p>
+    <p>
+      Customize menu structure and labels below. You can use name of an apps to
+      link to it within this schema (e.g. 'tables' links to tables app). You can
+      also make cross-links to other schema using a fully qualified path like
+      '/otherschema/tables'. And you can link to other servers using
+      http://otherserver.com/.
+    </p>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <Spinner v-if="loading" />
