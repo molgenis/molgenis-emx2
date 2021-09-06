@@ -1,6 +1,12 @@
 <template>
   <div class="row">
-    <div v-if="loaded" :class="editMode ? 'col-6' : 'col-12'">
+    <div v-if="warning" class="col12">
+      <MessageWarning
+        ><strong>Warning,</strong> No home page has been setup, please contact
+        the adminitrator</MessageWarning
+      >
+    </div>
+    <div v-else-if="loaded" :class="editMode ? 'col-6' : 'col-12'">
       <button
         v-show="canEdit && !editMode"
         class="btn btn-outline-secondary float-right"
@@ -63,6 +69,7 @@
 </template>
 
 <script>
+import { MessageWarning } from "@mswertz/emx2-styleguide";
 import { request, gql } from "graphql-request";
 
 const loadWidget = (widget) => {
@@ -74,7 +81,7 @@ const loadWidget = (widget) => {
 const WIGETS_DEFAULTS = [
   {
     name: "HeadingWiget",
-    active: false,
+    active: true,
     props: { title: "Your Title", subTitle: "Your sub title can go here " },
   },
   { name: "SearchComp", active: true, props: { resourceType: "cohorts" } },
@@ -82,11 +89,14 @@ const WIGETS_DEFAULTS = [
 
 export default {
   name: "HomeView",
+  components: { MessageWarning },
+  props: ["session"],
   data() {
     return {
       loaded: false,
       saving: false,
       editMode: false,
+      warning: false,
       componentStore: {},
       wigets: [],
     };
@@ -96,10 +106,12 @@ export default {
       return this.wigets.filter((w) => w.active);
     },
     canEdit() {
-      return !!(
-        // todo: wireup session via prop or store
-        (this.$parent.session && this.$parent.session.roles.includes("Editor"))
-      );
+      return this.session.roles.includes("Editor");
+    },
+    canInitialize() {
+      const isOwner = this.session.roles.includes("Owner");
+      const isManger = this.session.roles.includes("Manager");
+      return isOwner || isManger;
     },
   },
   methods: {
@@ -166,6 +178,12 @@ export default {
           }
           return accum;
         }, loadedWigets);
+      } else if (this.canInitialize) {
+        // if user had the right initilize the settings
+        this.wigets = WIGETS_DEFAULTS;
+        this.saveSetting();
+      } else {
+        this.warning = true;
       }
 
       this.activeWigets.forEach((aw) => {

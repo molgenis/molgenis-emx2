@@ -24,8 +24,8 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    { name: "Home", path: "/", component: HomeView },
-    { name: "Catalogue", path: "/catalogue", component: CatalogueView },
+    { name: "Catalogue", path: "/", component: CatalogueView },
+    { name: "Home", path: "/home", component: HomeView, props: true },
     { name: "Cohorts", path: "/alt", component: NetworkView },
     {
       name: "databanks",

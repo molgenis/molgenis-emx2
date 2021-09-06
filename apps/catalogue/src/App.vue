@@ -6,7 +6,7 @@
         <h1 class="text-centered">You have to login to view the data.</h1>
       </div>
       <div v-else class="container-fluid">
-        <RouterView />
+        <RouterView :session="session" />
       </div>
     </Molgenis>
   </div>
