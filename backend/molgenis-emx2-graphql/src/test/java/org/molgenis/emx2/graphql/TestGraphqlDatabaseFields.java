@@ -1,7 +1,9 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +17,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
@@ -57,11 +60,15 @@ public class TestGraphqlDatabaseFields {
     assertNull(database.getActiveUser());
 
     // read admin password from environment if necessary
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
     execute(
         "mutation { signin(email: \""
             + database.getAdminUserName()
             + "\",password:\""
-            + database.getAdminPasswordDefault()
+            + adminPass
             + "\") {message}}");
     Assert.assertTrue(database.isAdmin());
 

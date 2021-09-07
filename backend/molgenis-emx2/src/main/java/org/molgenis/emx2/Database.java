@@ -54,9 +54,6 @@ public interface Database {
   /** for testing purposes */
   String getAdminUserName();
 
-  /** for testing purposes, normally you change password externally */
-  String getAdminPasswordDefault();
-
   /**
    * check if the user that is logged in is admin
    *

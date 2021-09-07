@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlDatabase implements Database {
   static final String ADMIN_USER = "admin";
-  private static final String ADMIN_PW_DEFAULT = "admin";
+  public static final String ADMIN_PW_DEFAULT = "admin";
 
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
@@ -38,8 +38,7 @@ public class SqlDatabase implements Database {
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String INITIAL_ADMIN_PW =
       (String)
-          EnvironmentProperty.getParameter(
-              Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
 
   private DatabaseListener listener =
       new DatabaseListener() {
@@ -452,13 +451,6 @@ public class SqlDatabase implements Database {
   @Override
   public String getAdminUserName() {
     return ADMIN_USER;
-  }
-
-  @Override
-  public String getAdminPasswordDefault() {
-    return (String)
-        EnvironmentProperty.getParameter(
-            Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
   }
 
   @Override
