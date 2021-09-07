@@ -131,8 +131,7 @@ The *CollectionEvents* sheet is optional, and is most often used by cohorts. The
 | --- | --- | --- |
 | name \* | Name of the collection event. | e.g. y9 |
 | description | Event description. | e.g. Between 9 and 10 years. |
-| ageMin | The minimum age for this collection event. | Find list to choose from in CatalogueOntologies  (AgeCategories) |
-| ageMax | The maximum age for this collection event. | Find list to choose from in CatalogueOntologies (AgeCategories) |
+| ageGroups | The age groups that were sampled within this collection event. | Find list to choose from in CatalogueOntologies  (AgeGroups) |
 | subcohorts | (sub)populations that are targeted with this collection event | e.g. women or children |
 
 <sup>*Table 5. Description of the columns that can be filled out for SourceCollectionEvents. \* = mandatory*</sup>
