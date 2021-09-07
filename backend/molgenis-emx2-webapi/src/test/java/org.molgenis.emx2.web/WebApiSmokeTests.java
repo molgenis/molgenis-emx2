@@ -241,21 +241,19 @@ public class WebApiSmokeTests {
 
     String path = "/pet store/api/csv/Tag";
 
-    String exp1 = "name\r\nred\r\ngreen\r\n";
     String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertEquals(exp1, result);
+    assertTrue(result.contains("colors,green"));
 
-    String update = "name\r\nyellow\r\n";
+    String update = "name,parent\r\nyellow,colors\r\n";
     given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
 
-    String exp2 = "name\r\nred\r\ngreen\r\nyellow\r\n";
     result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertEquals(exp2, result);
+    assertTrue(result.contains("yellow"));
 
     given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
 
     result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertEquals(exp1, result);
+    assertTrue(result.contains("colors,green"));
   }
 
   @Test

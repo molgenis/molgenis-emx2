@@ -348,16 +348,8 @@ public class TestGraphqSchemaFields {
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
 
     execute(
-        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", columnFormat:\"Hyperlink\", visible:\"blaat\"}){message}}");
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", visible:\"blaat\"}){message}}");
     database.clearCache(); // cannot know here, server clears caches
-    assertEquals(
-        "Hyperlink",
-        database
-            .getSchema(schemaName)
-            .getTable("Pet")
-            .getMetadata()
-            .getColumn("test2")
-            .getColumnFormat());
     assertEquals(
         "blaat",
         database

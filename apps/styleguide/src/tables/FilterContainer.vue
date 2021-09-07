@@ -1,7 +1,7 @@
 <template>
-  <div class="filter-header mb-2 pt-2 border-top bg-white" v-if="visible">
+  <div class="mb-2 pt-2 border-top bg-white" v-if="visible">
     <div
-      class="d-flex flex-row justify-content-between"
+      class="filter-header d-flex flex-row justify-content-between"
       @click="
         expanded
           ? $emit('update:expanded', false)

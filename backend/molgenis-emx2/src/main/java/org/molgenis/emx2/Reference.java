@@ -107,4 +107,8 @@ public class Reference {
   public boolean isArray() {
     return isArray;
   }
+
+  public boolean isOverlappingRef() {
+    return isOverlapping() && getOverlapping().getColumnType().getBaseType().equals(ColumnType.REF);
+  }
 }

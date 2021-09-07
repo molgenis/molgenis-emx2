@@ -1,6 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
@@ -302,7 +301,7 @@ public class SqlSchema implements Schema {
           if (oldColumn == null
               && !(oldTable.getInherit() != null
                   && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
-              && !newColumn.getColumnType().equals(REFBACK)) {
+              && !newColumn.isRefback()) {
             oldTable.add(newColumn);
             created.add(newColumn.getTableName() + "." + newColumn.getName());
           } else
@@ -331,7 +330,7 @@ public class SqlSchema implements Schema {
             }
           } else
           // don't forget to add the refbacks
-          if (oldColumn == null && newColumn.getColumnType().equals(REFBACK)) {
+          if (oldColumn == null && newColumn.isRefback()) {
             targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
           }
         }

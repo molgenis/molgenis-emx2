@@ -102,7 +102,8 @@ pipeline {
                 container('rancher') {
                     script {
                         sh 'rancher context switch dev-molgenis'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --force molgenis-emx2 ${CHART_VERSION}"
+                        env.REPOSITORY = env.TAG_NAME.toString().contains('-SNAPSHOT') ? 'molgenis/molgenis-emx2-snapshot' : 'molgenis/molgenis-emx2'
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} --force molgenis-emx2 ${CHART_VERSION}"
                     }
                 }
             }

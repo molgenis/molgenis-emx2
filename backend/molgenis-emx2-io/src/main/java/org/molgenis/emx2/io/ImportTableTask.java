@@ -3,27 +3,27 @@ package org.molgenis.emx2.io;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.Field;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
 import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.tasks.StepStatus;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportTableTask extends Task {
   private Table table;
   private TableStore source;
 
-  public ImportTableTask(TableStore source, Table table) {
-    super("Import table " + table.getName());
+  public ImportTableTask(TableStore source, Table table, boolean strict) {
+    super("Import table " + table.getName(), strict);
     this.table = table;
     this.source = source;
   }
 
   public void run() {
     this.start();
-
-    // validate column names, provide warning if some columns will be ignored
 
     // validate uniqueness of the keys in the set
     this.setDescription(
@@ -49,6 +49,7 @@ public class ImportTableTask extends Task {
     Set<String> keys = new HashSet<>();
     TableMetadata metadata;
     Task task;
+    Set<String> warningColumns = new HashSet<>();
 
     public ValidatePkeyProcessor(TableMetadata metadata, Task task) {
       this.metadata = metadata;
@@ -59,9 +60,37 @@ public class ImportTableTask extends Task {
     public void process(Iterator<Row> iterator) {
 
       task.setIndex(0);
+      int index = 0;
 
       while (iterator.hasNext()) {
         Row row = iterator.next();
+
+        // column warning
+        if (task.getIndex() == 0) {
+          List<String> columnNames = metadata.getColumnNames();
+          warningColumns =
+              row.getColumnNames().stream()
+                  .filter(name -> !columnNames.contains(name))
+                  .collect(Collectors.toSet());
+          if (warningColumns.size() > 0) {
+            if (task.isStrict()) {
+              throw new MolgenisException(
+                  "Found unknown columns "
+                      + warningColumns
+                      + " in sheet "
+                      + metadata.getTableName());
+            } else {
+              task.step(
+                  "Found unknown columns "
+                      + warningColumns
+                      + " in sheet "
+                      + metadata.getTableName(),
+                  StepStatus.WARNING);
+            }
+          }
+        }
+
+        // primary key
         String keyValue = "";
         for (Field f : metadata.getPrimaryKeyFields()) {
           keyValue += row.getString(f.getName()) + ",";
@@ -77,7 +106,7 @@ public class ImportTableTask extends Task {
         } else {
           keys.add(keyValue);
         }
-        task.setIndex(task.getIndex());
+        task.setIndex(++index);
       }
       if (duplicates.size() > 0) {
         task.completeWithError(

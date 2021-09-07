@@ -139,8 +139,7 @@ The *CollectionEvents* sheet is optional. The timing of data collection in event
 | resource \* | Name of the network that contains this collection event. | e.g LifeCycle, LONGITOOLS or ATHLETE |
 | name \* | Name of the collection event. | e.g. y9 |
 | description | Event description. | e.g. Between 9 and 10 years. |
-| ageMin \*\* | The minimum age for this collection event. | Find list to choose from in CatalogueOntologies (AgeCategories) |
-| ageMax \*\* | The maximum age for this collection event. | Find list to choose from in CatalogueOntologies  (AgeCategories) |
+| ageGroups | The age groups that were sampled within this collection event. | Find list to choose from in CatalogueOntologies  (AgeGroups) |
 | subcohorts | Subcohorts or subpopulations that are targeted with this variable. | Subcohorts need to be predefined in the _Subcohorts_ sheet. |
 
 <sup>*Table 6. Description of the columns that can be filled out for CollectionEvents. \* = mandatory;* *\*\** *contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add AgeCategories*</sup>

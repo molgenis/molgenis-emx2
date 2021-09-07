@@ -19,6 +19,7 @@ import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
+import SearchResourceView from "./views/SearchResourceView";
 
 Vue.config.productionTip = false;
 
@@ -35,45 +36,69 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
+      name: "search",
+      path: "/search",
+      props: (route) => ({ resourceType: route.query.type }),
+      component: SearchResourceView,
+    },
+    {
       name: "cohorts",
       path: "/cohorts",
-      props: { tableName: "Cohorts" },
+      props: (route) => ({ searchTerm: route.query.q, tableName: "Cohorts" }),
       component: ResourceListView,
     },
     {
       name: "institutions",
       path: "/institutions",
-      props: { tableName: "Institutions" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Institutions",
+      }),
       component: ResourceListView,
     },
     {
       name: "datasources",
       path: "/datasources",
-      props: { tableName: "Datasources" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Datasources",
+      }),
       component: ResourceListView,
     },
     {
       name: "networks",
       path: "/networks",
-      props: { tableName: "Networks" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Networks",
+      }),
       component: ResourceListView,
     },
     {
       name: "models",
       path: "/models",
-      props: { tableName: "Models" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Models",
+      }),
       component: ResourceListView,
     },
     {
       name: "studies",
       path: "/studies",
-      props: { tableName: "Studies" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Studies",
+      }),
       component: ResourceListView,
     },
     {
       name: "releases",
       path: "/releases",
-      props: { tableName: "Releases" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Release",
+      }),
       component: ResourceListView,
     },
     {
@@ -83,25 +108,37 @@ const router = new VueRouter({
     {
       name: "variables",
       path: "/variables",
-      props: { tableName: "Variables" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Variables",
+      }),
       component: ResourceListView,
     },
     {
       name: "tables",
       path: "/tables",
-      props: { tableName: "Tables" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Tables",
+      }),
       component: ResourceListView,
     },
     {
       name: "tablemappings",
       path: "/tablemappings",
-      props: { tableName: "TableMappings" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Tablemappings",
+      }),
       component: ResourceListView,
     },
     {
       name: "variablemappings",
       path: "/variablesmappings",
-      props: { tableName: "VariableMappings" },
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Variablemappings",
+      }),
       component: ResourceListView,
     },
     {

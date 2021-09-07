@@ -1,6 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
@@ -93,7 +92,7 @@ public class GraphqlTableFieldFactory {
   private GraphQLObjectType createTableObjectType(Table table) {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
     for (Column col : table.getMetadata().getColumnsWithoutConstant())
-      switch (col.getColumnType()) {
+      switch (col.getColumnType().getBaseType()) {
         case FILE:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition().name(col.getName()).type(fileDownload));
@@ -291,8 +290,7 @@ public class GraphqlTableFieldFactory {
     GraphQLInputObjectType.Builder orderByBuilder =
         GraphQLInputObjectType.newInputObject().name(table.getName() + GraphqlConstants.ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
-      ColumnType type = col.getColumnType();
-      if (!ColumnType.REF_ARRAY.equals(type) && !ColumnType.REFBACK.equals(type)) {
+      if (!(col.isRefArray() || col.isRefback())) {
         orderByBuilder.field(
             GraphQLInputObjectField.newInputObjectField().name(col.getName()).type(orderByEnum));
       }
@@ -323,7 +321,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLScalarType graphQLTypeOf(Column col) {
-    switch (col.getColumnType()) {
+    switch (col.getColumnType().getBaseType()) {
       case BOOL:
       case BOOL_ARRAY:
         return Scalars.GraphQLBoolean;
@@ -347,7 +345,6 @@ public class GraphqlTableFieldFactory {
       case REF_ARRAY:
       case REF:
       case REFBACK:
-        // case MREF:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
     }
@@ -383,10 +380,7 @@ public class GraphqlTableFieldFactory {
                   + entry.getKey()
                   + " unknown in table "
                   + table.getName());
-        ColumnType type = c.getColumnType();
-        if (ColumnType.REF.equals(type)
-            || ColumnType.REF_ARRAY.equals(type)
-            || ColumnType.REFBACK.equals(type)) {
+        if (c.isReference()) {
           subFilters.add(
               f(
                   c.getName(),
@@ -600,7 +594,7 @@ public class GraphqlTableFieldFactory {
       for (Column col : table.getMetadata().getColumnsWithoutConstant()) {
         GraphQLInputType type;
         if (col.isReference()) {
-          if (REF.equals(col.getColumnType())) {
+          if (col.isRef()) {
             type = getPrimaryKeyInput(col.getRefTable());
           } else {
             type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
@@ -641,7 +635,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLInputType getGraphQLInputType(ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case FILE:
         return GraphqlCustomTypes.GraphQLFileUpload;
       case BOOL:

@@ -37,14 +37,18 @@ public enum ColumnType {
   // RELATIONSHIP
   REF(Object.class, "xsd:anySimpleType"),
   REF_ARRAY(Object[].class, "xsd:anySimpleType"),
-  // @Deprecated
-  // MREF(Object[].class),
   REFBACK(Object[].class, "xsd:anySimpleType"),
 
   // LAYOUT and other constants
-  CONSTANT(String.class, null); // use for layout elements or constant values
+  CONSTANT(String.class, null), // use for layout elements or constant values
+
+  // format flavors that extend a baseType
+  ONTOLOGY(REF),
+  ONTOLOGY_ARRAY(REF_ARRAY),
+  H2(CONSTANT);
 
   private Class javaType;
+  private ColumnType baseType;
   private Operator[] operators;
   private String xsdType;
 
@@ -54,15 +58,67 @@ public enum ColumnType {
     this.operators = operators;
   }
 
+  ColumnType(ColumnType baseType) {
+    if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
+    this.baseType = baseType; // use to extend a base type
+  }
+
+  public ColumnType getBaseType() {
+    if (baseType != null) {
+      return baseType;
+    } else {
+      return this;
+    }
+  }
+
   public Class<?> getType() {
-    return this.javaType;
+    if (baseType != null) {
+      return baseType.getType();
+    } else {
+      return this.javaType;
+    }
   }
 
   public Operator[] getOperators() {
-    return this.operators;
+    if (baseType != null) {
+      return this.baseType.getOperators();
+    } else {
+      return this.operators;
+    }
   }
 
+  /** Check if value will be an array */
   public boolean isArray() {
-    return this.name().endsWith("ARRAY");
+    return this.getBaseType().name().endsWith("ARRAY") || this.isRefback();
+  }
+
+  /** Check basetype is REF, REF_ARRAY, REF_BACK */
+  public boolean isReference() {
+    return isRef() || isRefArray() || isRefback();
+  }
+
+  /** Check basetype is REF */
+  public boolean isRef() {
+    return REF.equals(getBaseType());
+  }
+
+  /** Check basetype is REF_ARRAY */
+  public boolean isRefArray() {
+    return REF_ARRAY.equals(getBaseType());
+  }
+
+  /** Check base type is REFBACK */
+  public boolean isRefback() {
+    return REFBACK.equals(getBaseType());
+  }
+
+  /** Check base type is FILE */
+  public boolean isFile() {
+    return FILE.equals(getBaseType());
+  }
+
+  /** Check base type is CONSTANT */
+  public boolean isConstant() {
+    return CONSTANT.equals(getBaseType());
   }
 }
