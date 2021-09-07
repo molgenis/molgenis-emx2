@@ -91,7 +91,7 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLObjectType createTableObjectType(Table table) {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
-    for (Column col : table.getMetadata().getColumnsWithoutConstant())
+    for (Column col : table.getMetadata().getColumnsWithoutHeadings())
       switch (col.getColumnType().getBaseType()) {
         case HEADING:
           // nothing to do
@@ -503,7 +503,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
-      if (table.getColumnsWithoutConstant().size() > 0) {
+      if (table.getColumnsWithoutHeadings().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getTableName())
@@ -596,7 +596,7 @@ public class GraphqlTableFieldFactory {
     if (rowInputTypes.get(table.getName()) == null) {
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(table.getName() + INPUT);
-      for (Column col : table.getMetadata().getColumnsWithoutConstant()) {
+      for (Column col : table.getMetadata().getColumnsWithoutHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {
