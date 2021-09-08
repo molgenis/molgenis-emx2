@@ -106,8 +106,10 @@ public class TypeUtils {
   public static Boolean toBool(Object v) {
     if (v == null) return null; // NOSONAR
     if (v instanceof String) {
-      if ("true".equalsIgnoreCase((String) v)) return true;
-      if ("false".equalsIgnoreCase((String) v)) return false;
+      if ("true".equalsIgnoreCase(((String) v).trim())
+          || "yes".equalsIgnoreCase(((String) v).trim())) return true;
+      if ("false".equalsIgnoreCase(((String) v).trim())
+          || "no".equalsIgnoreCase(((String) v).trim())) return false;
     }
     try {
       return (Boolean) v;

@@ -135,15 +135,12 @@ export default {
     reloadMetadata() {
       //we only load if not options provided
       if (!this.options) {
-        console.log("not options");
-
         TableMetadataMixin.methods.reloadMetadata.call(this);
       }
     },
     reload() {
       //we only load if not options provided
       if (!this.options) {
-        console.log("not options");
         TableMixin.methods.reload.call(this);
       }
     },

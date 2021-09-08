@@ -70,7 +70,6 @@ export default {
     loadSettings() {
       if (this.session.settings.cssURL) {
         this.logoURL = this.session.settings.logoURL;
-        console.log("load url " + this.session.settings.cssURL);
         const urlParams = new URL(
           this.session.settings.cssURL,
           document.baseURI
@@ -102,7 +101,6 @@ export default {
         settingsDrop.push({ key: "logoURL" });
       }
       this.$emit("reload");
-      console.log(JSON.stringify(settingsAlter));
       this.loading = true;
       this.loading = true;
       this.graphqlError = null;

@@ -10,7 +10,7 @@
           v-for="(column, index) in filters"
           :expanded.sync="filters[index].expanded"
           :title="column.name"
-          :visible="column.showFilter && column.columnType != 'CONSTANT'"
+          :visible="column.showFilter && column.columnType != 'HEADING'"
           :conditions="column.conditions"
           :key="column.name"
           :style="column.showFilter ? '' : 'display: none'"

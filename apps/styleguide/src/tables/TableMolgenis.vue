@@ -137,7 +137,7 @@ export default {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns.filter((c) => c.columnType != "CONSTANT");
+      return this.columns.filter((c) => c.columnType != "HEADING");
     },
   },
   created() {
@@ -165,9 +165,7 @@ export default {
         return [];
       }
       if (
-        col.columnType == "REF_ARRAY" ||
-        col.columnType == "MREF" ||
-        col.columnType == "REFBACK"
+        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].indexOf(col.columnType) > 0
       ) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
@@ -176,13 +174,13 @@ export default {
             return this.flattenObject(v);
           }
         });
-      } else if (col.columnType == "REF") {
+      } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
           return [this.applyJsTemplate(col.refLabel, row[col.name])];
         } else {
           return [this.flattenObject(row[col.name])];
         }
-      } else if (col.columnType.includes("ARRAY")) {
+      } else if (col.columnType.includes("ARRAY") > 0) {
         return row[col.name];
       } else {
         return [row[col.name]];

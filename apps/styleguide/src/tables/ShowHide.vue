@@ -23,11 +23,10 @@
           <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
           )
         </b>
-        <div class="form-check">
+        <div class="form-check" v-if="col.columnType != 'HEADING'">
           <input
             class="form-check-input"
             type="checkbox"
-            v-if="col.columnType != 'CONSTANT'"
             :checked="
               col[checkAttribute] == undefined
                 ? defaultValue

@@ -37,7 +37,7 @@ export default {
       }
       let search =
         this.searchTerms != null && this.searchTerms !== ""
-          ? ',search:"' + this.searchTerms + '"'
+          ? ',search:"' + this.searchTerms.trim() + '"'
           : "";
       return `query ${this.table}($filter:${this.table}Filter, $orderby:${this.table}orderby){
               ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search},orderby:$orderby){${this.columnNames}}
@@ -59,12 +59,18 @@ export default {
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(col.columnType) > 0
           ) {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
             result = result + " " + col.name + "{id,size,extension,url}";
-          } else if (col.columnType != "CONSTANT") {
+          } else if (col.columnType != "HEADING") {
             result = result + " " + col.name;
           }
         });
@@ -101,7 +107,15 @@ export default {
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
           graphqlString += c.name + " ";
-          if (["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(c.columnType)) {
+          if (
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(c.columnType) > 0
+          ) {
             graphqlString += "{" + this.refGraphql(c) + "}";
           }
         }

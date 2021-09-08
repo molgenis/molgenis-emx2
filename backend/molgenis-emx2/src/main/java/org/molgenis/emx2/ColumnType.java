@@ -40,12 +40,11 @@ public enum ColumnType {
   REFBACK(Object[].class, "xsd:anySimpleType"),
 
   // LAYOUT and other constants
-  CONSTANT(String.class, null), // use for layout elements or constant values
+  HEADING(String.class, null), // use for layout elements or constant values
 
   // format flavors that extend a baseType
   ONTOLOGY(REF),
-  ONTOLOGY_ARRAY(REF_ARRAY),
-  H2(CONSTANT);
+  ONTOLOGY_ARRAY(REF_ARRAY);
 
   private Class javaType;
   private ColumnType baseType;
@@ -117,8 +116,8 @@ public enum ColumnType {
     return FILE.equals(getBaseType());
   }
 
-  /** Check base type is CONSTANT */
-  public boolean isConstant() {
-    return CONSTANT.equals(getBaseType());
+  /** Check base type is HEADING */
+  public boolean isHeading() {
+    return HEADING.equals(getBaseType());
   }
 }
