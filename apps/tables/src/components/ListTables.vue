@@ -28,7 +28,6 @@
         <tr
           v-for="table in tablesFiltered"
           :key="table.name"
-          @click="router.push({ path: table.name })"
         >
           <td>
             <router-link :to="table.name"> {{ table.name }}</router-link>

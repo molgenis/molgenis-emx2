@@ -117,7 +117,6 @@ export default {
       if (this.tableName !== undefined) {
         filter.targetVariable.table.name = { equals: this.tableName };
       }
-      console.log(JSON.stringify(filter));
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)

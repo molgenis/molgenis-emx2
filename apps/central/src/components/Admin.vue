@@ -95,13 +95,11 @@ export default {
                 "Success. Created/altered user: " + this.username;
               this.getUserList();
             } else {
-              console.log("Alter data " + JSON.stringify(data));
               this.alterError =
                 "Create/alter user failed: " + data.changePassword.message;
             }
           })
           .catch((error) => {
-            console.log("Alter error " + JSON.stringify(error));
             this.alterError =
               "Create/alter user failed: " + error.response.message;
           });

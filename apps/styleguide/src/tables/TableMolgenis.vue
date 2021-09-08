@@ -164,7 +164,9 @@ export default {
       if (row[col.name] === undefined) {
         return [];
       }
-      if (["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].indexOf(col.columnType) > 0) {
+      if (
+        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].indexOf(col.columnType) > 0
+      ) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
             return this.applyJsTemplate(col.refLabel, v);

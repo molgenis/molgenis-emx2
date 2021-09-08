@@ -365,10 +365,8 @@ export default {
   },
   watch: {
     tableAdd() {
-      console.log("tableadd changed " + JSON.stringify(this.tableAdd));
     },
     tableAlter() {
-      console.log("tableAlter changed " + JSON.stringify(this.tableAlter));
     },
     session: {
       deep: true,
