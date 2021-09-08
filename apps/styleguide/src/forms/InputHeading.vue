@@ -5,23 +5,23 @@
       <p>{{ description }}</p>
     </span>
     <textarea
-        v-else
-        v-focus="inplace || editMeta"
-        :value="description"
-        :class="{
+      v-else
+      v-focus="inplace || editMeta"
+      :value="description"
+      :class="{
         'form-control': true,
       }"
-        :aria-describedby="id + 'Help'"
-        @input="$emit('update:description', $event.target.value)"
-        @blur="toggleFocus"
+      :aria-describedby="id + 'Help'"
+      @input="$emit('update:description', $event.target.value)"
+      @blur="toggleFocus"
     />
     <div>
-        <IconAction
-            v-if="(inplace || editMeta) && !focus"
-            class="hoverIcon align-top"
-            icon="pencil-alt"
-            @click="toggleFocus"
-        />
+      <IconAction
+        v-if="(inplace || editMeta) && !focus"
+        class="hoverIcon align-top"
+        icon="pencil-alt"
+        @click="toggleFocus"
+      />
     </div>
   </div>
 </template>

@@ -56,7 +56,14 @@ export default {
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF","ONTOLOGY","ONTOLOGY_ARRAY"].includes(col.columnType)
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "MREF",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(col.columnType)
           ) {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
