@@ -1,6 +1,6 @@
 <template>
   <span v-if="row[col.name] && Array.isArray(row[col.name])">
-    <span v-for="val in row[col.name]" :key="val">
+    <span v-for="(val, idx) in row[col.name]" :key="idx">
       {{ col.refLabel ? applyJsTemplate(col.refLabel, val) : val }}
     </span>
   </span>

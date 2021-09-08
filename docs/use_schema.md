@@ -69,6 +69,9 @@ Arrays (i.e. list of values)
 * uuid_array
 * text_array
 
+Layout (static content, not an input): 
+* heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
+
 ### key
 
 Will indicate that a column is part of a key. Ignored if columnName is empty. Key means values in this column should be

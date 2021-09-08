@@ -37,7 +37,9 @@
         v-if="
           column.columnType == 'REF' ||
           column.columnType == 'REF_ARRAY' ||
-          column.columnType == 'REFBACK'
+          column.columnType == 'REFBACK' ||
+          column.columnType == 'ONTOLOGY' ||
+          column.columnType == 'ONTOLOGY_ARRAY'
         "
       >
         <InputSelect

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <InputConstant
-      v-if="columnType === 'CONSTANT'"
+    <InputHeading
+      v-if="columnType === 'HEADING'"
       v-bind="$props"
       v-on="$listeners"
     />
@@ -117,7 +117,7 @@ import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
-import InputConstant from "../forms/InputConstant";
+import InputHeading from "../forms/InputHeading";
 import InputOntology from "../forms/InputOntology";
 
 export default {
@@ -155,7 +155,7 @@ export default {
     InputDateTime,
     InputFile,
     InputText,
-    InputConstant,
+    InputHeading,
     InputOntology,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
     InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
@@ -178,6 +178,7 @@ export default {
 Example:
 ```
 <div>
+  <RowFormInput columnType="HEADING" label="my header" description="my description"/>
   <RowFormInput columnType="STRING" label="Test String"/>
   <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
   <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/Pet store/graphql"/>

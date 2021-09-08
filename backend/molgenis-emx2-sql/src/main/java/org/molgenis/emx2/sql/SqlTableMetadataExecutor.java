@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 
 import java.util.ArrayList;
@@ -49,14 +50,15 @@ class SqlTableMetadataExecutor {
     }
 
     // then create columns
-    for (Column column : table.getStoredColumns()) {
-
-      // check if column adheres to all rules
-      validateColumn(column);
-
-      if (table.getInherit() == null
-          || table.getInheritedTable().getColumn(column.getName()) == null) {
-        executeCreateColumn(jooq, column);
+    for (Column column : table.getNonInheritedColumns()) {
+      if (!column.isHeading()) {
+        validateColumn(column);
+        if (table.getInherit() == null
+            || table.getInheritedTable().getColumn(column.getName()) == null) {
+          executeCreateColumn(jooq, column);
+        }
+      } else {
+        saveColumnMetadata(jooq, column);
       }
     }
 
