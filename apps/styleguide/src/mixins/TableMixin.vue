@@ -37,7 +37,7 @@ export default {
       }
       let search =
         this.searchTerms != null && this.searchTerms !== ""
-          ? ',search:"' + this.searchTerms + '"'
+          ? ',search:"' + this.searchTerms.trim() + '"'
           : "";
       return `query ${this.table}($filter:${this.table}Filter, $orderby:${this.table}orderby){
               ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search},orderby:$orderby){${this.columnNames}}
