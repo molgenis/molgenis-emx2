@@ -48,13 +48,13 @@
 </template>
 
 <style :scoped>
-.showonhover {
-  display: none;
-}
+/*.showonhover {*/
+/*  display: none;*/
+/*}*/
 
-.showcontainer:hover > .showonhover {
-  display: block;
-}
+/*.showcontainer:hover > .showonhover {*/
+/*  display: block;*/
+/*}*/
 </style>
 
 <script>
