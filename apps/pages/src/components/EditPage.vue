@@ -122,7 +122,6 @@ export default {
           this.session.settings["page." + this.page] = this.draft;
         })
         .catch((graphqlError) => {
-          console.log(JSON.stringify(graphqlError));
           this.graphqlError = graphqlError.response.errors[0].message;
         })
         .finally((this.loading = false));

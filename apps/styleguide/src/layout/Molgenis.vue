@@ -134,21 +134,17 @@ export default {
     session: {
       deep: true,
       handler() {
-        console.log("loading session");
         if (this.session != undefined && this.session.settings) {
           if (this.session.settings.cssURL) {
-            console.log("changed url " + this.session.settings.cssURL);
             this.cssURL = this.session.settings.cssURL;
           }
           if (this.session.settings.logoURL) {
-            console.log("changed url " + this.session.settings.logoURL);
             this.logoURL = this.session.settings.logoURL;
           }
         }
         //load themeCss
         fetch(this.css).then(() => {
           this.cssLoaded = true;
-          console.log("loaded");
         });
         this.$emit("input", this.session);
       },

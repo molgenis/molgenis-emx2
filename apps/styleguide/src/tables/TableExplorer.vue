@@ -292,7 +292,6 @@ export default {
       this.$emit("update:showColumns", columns);
     },
     emitFilters() {
-      console.log("emitFilters");
       this.$emit(
         "update:showFilters",
         this.columns

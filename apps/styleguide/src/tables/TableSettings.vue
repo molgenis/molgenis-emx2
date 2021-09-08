@@ -73,11 +73,9 @@ export default {
   },
   methods: {
     emitCardTemplate(value) {
-      console.log("emit");
       this.$emit("update:cardTemplate", value);
     },
     emitRecordTemplate(value) {
-      console.log("emit");
       this.$emit("update:recordTemplate", value);
     },
     saveSettings() {

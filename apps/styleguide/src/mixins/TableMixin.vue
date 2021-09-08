@@ -58,7 +58,6 @@ export default {
       let result = "";
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
-          console.log("col = "+JSON.stringify(col));
           if (
             [
               "REF",
@@ -108,7 +107,15 @@ export default {
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
           graphqlString += c.name + " ";
-          if (["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(c.columnType) > 0) {
+          if (
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(c.columnType) > 0
+          ) {
             graphqlString += "{" + this.refGraphql(c) + "}";
           }
         }
