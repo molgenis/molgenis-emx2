@@ -21,7 +21,7 @@ spec:
     tty: true
     resources:
       requests:
-        cpu: 1
+        cpu: 2
         memory: 2Gi
     env:
       - name: POSTGRES_USER
