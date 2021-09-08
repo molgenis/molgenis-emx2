@@ -101,13 +101,11 @@ export default {
           });
         });
       }
-      console.log(JSON.stringify(result));
       return result;
     },
   },
   methods: {
     openTable(row) {
-      console.log(JSON.stringify(row));
       this.$router.push({
         name: "table",
         params: {
@@ -118,7 +116,6 @@ export default {
       });
     },
     reload() {
-      console.log(this.version + " " + this.resourceAcronym);
       request(
         "graphql",
         `query Releases($acronym:String,$version:String){

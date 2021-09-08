@@ -181,7 +181,7 @@ public class SqlQuery extends QueryBean {
         } else {
           fields.add(field(name(tableAlias, column.getName()), ref.getJooqType()).as(columnAlias));
         }
-      } else {
+      } else if (!column.isHeading()) {
         fields.add(field(name(tableAlias, column.getName()), column.getJooqType()).as(columnAlias));
       }
     }

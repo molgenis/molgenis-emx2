@@ -156,10 +156,8 @@ public class TableMetadata implements Comparable {
     return finalResult;
   }
 
-  public List<Column> getColumnsWithoutConstant() {
-    return this.getColumns().stream()
-        .filter(c -> !CONSTANT.equals(c.getColumnType()))
-        .collect(Collectors.toList());
+  public List<Column> getColumnsWithoutHeadings() {
+    return this.getColumns().stream().filter(c -> !c.isHeading()).toList();
   }
 
   public List<String> getPrimaryKeys() {
@@ -228,7 +226,7 @@ public class TableMetadata implements Comparable {
 
   public List<Column> getStoredColumns() {
     return getLocalColumns().stream()
-        .filter(c -> !CONSTANT.equals(c.getColumnType()))
+        .filter(c -> !HEADING.equals(c.getColumnType()))
         .collect(Collectors.toList());
   }
 
