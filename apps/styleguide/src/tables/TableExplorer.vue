@@ -256,7 +256,7 @@ export default {
     },
     conditions: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
   },
   data() {
