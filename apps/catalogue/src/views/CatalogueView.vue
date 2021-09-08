@@ -99,7 +99,7 @@
           those in common data models.
         </p>
       </RouterLink>
-      <RouterLink to="/explorer" class="btn btn-outline-dark col-2">
+      <RouterLink to="/variable-explorer" class="btn btn-outline-dark col-2">
         <span class="badge badge-light">{{ variableMappings }}</span>
         <h3>Variable Mappings</h3>
         <p class="text-left">

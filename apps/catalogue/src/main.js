@@ -93,7 +93,7 @@ const router = new VueRouter({
       path: "/releases",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Release",
+        tableName: "Releases",
       }),
       component: ResourceListView,
     },
@@ -124,7 +124,7 @@ const router = new VueRouter({
       path: "/tablemappings",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Tablemappings",
+        tableName: "TableMappings",
       }),
       component: ResourceListView,
     },
