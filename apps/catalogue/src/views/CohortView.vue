@@ -20,8 +20,10 @@
           {{ cohort.startYear ? cohort.startYear : "N/A" }} -
           {{ cohort.endYear ? cohort.endYear : "N/A" }}
         </p>
-        <h6>Population</h6>
-        <OntologyTerms :terms="cohort.population" color="primary" />
+        <h6>Countries</h6>
+        <OntologyTerms :terms="cohort.countries" color="primary"/>
+        <h6>Regions</h6>
+        <OntologyTerms :terms="cohort.countries" color="primary" />
         <h6 v-if="cohort.noParticipants">Number of participants:</h6>
         <p v-if="cohort.noParticipants">{{ cohort.noParticipants }}</p>
         <h6>Linkage options</h6>
@@ -131,7 +133,7 @@ export default {
     Spinner,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -148,8 +150,8 @@ export default {
       request(
         "graphql",
         `
-          query Cohorts($acronym: String) {
-            Cohorts(filter: { acronym: { equals: [$acronym] } }) {
+          query Cohorts($pid: String) {
+            Cohorts(filter: { pid: { equals: [$pid] } }) {
               name
               logo {
                 url
@@ -180,13 +182,13 @@ export default {
                 name
                 email
               }
-              population {
+              countries {
                 name
               }
               linkageOptions
               noParticipants
-              conditionsDescription
-              conditions {
+              dataAccessConditionsDescription
+              dataAccessConditions {
                 name
                 ontologyTermURI
                 code
@@ -205,12 +207,6 @@ export default {
               }
               description
               homepage
-              releases {
-                resource {
-                  acronym
-                }
-                version
-              }
               documentation {
                 name
                 file {
@@ -226,16 +222,16 @@ export default {
               fundingStatement
               publication
               collectionEvents {
-                name, startYear, endYear, ageCategories{name},noParticipants,dataCategories{name},sampleCategories{name},areasOfInformation{name},subcohorts{name}
+                name, startYear, endYear,noParticipants, ageGroups{name}, dataCategories{name},sampleCategories{name},areasOfInformation{name},subcohorts{name}
               }
               subcohorts {
-                name,noParticipants,ageCategories{name},disease{name},geographicRegion{name},inclusionCriteria,supplementaryInformation
+                name,noParticipants,ageGroups{name},disease{name},countries{name},regions{name},inclusionCriteria,supplementaryInformation
               }
             }
           }
         `,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -247,7 +243,7 @@ export default {
         })
         .catch((error) => {
           console.log(error);
-          this.graphqlError = error.response.errors[0].message;
+          this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;
@@ -258,7 +254,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

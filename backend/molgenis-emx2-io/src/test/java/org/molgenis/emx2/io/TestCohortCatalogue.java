@@ -22,12 +22,14 @@ public class TestCohortCatalogue {
   static Database database;
   static Schema cohortsSchema;
   static Schema conceptionSchema;
+  static Schema rweSchema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     conceptionSchema = database.dropCreateSchema("Conception");
     cohortsSchema = database.dropCreateSchema("CohortNetwork");
+    rweSchema = database.dropCreateSchema("RWENetwork");
   }
 
   @Test
@@ -39,12 +41,9 @@ public class TestCohortCatalogue {
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     cohortsSchema.migrate(schema);
 
-    ImportExcelTask task2 =
-        new ImportExcelTask(
-            new File("../../data/datacatalogue/Cohorts.xlsx").toPath(),
-            cohortsSchema,
-            // todo fix data so we can put strict=true
-            false);
+    ImportDirectoryTask task2 =
+        new ImportDirectoryTask(
+            new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema, false);
     task2.run();
 
     ImportExcelTask task3 =
@@ -55,7 +54,26 @@ public class TestCohortCatalogue {
             false);
     task3.run();
 
-    assertEquals(52, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    assertEquals(68, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+
+    // export import schema to compare
+  }
+
+  @Test
+  public void importTestRWE() throws IOException {
+    StopWatch.print("begin");
+
+    // load data model
+    SchemaMetadata schema =
+        Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
+    rweSchema.migrate(schema);
+
+    ImportDirectoryTask task2 =
+        new ImportDirectoryTask(
+            new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
+    task2.run();
+
+    assertEquals(68, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }

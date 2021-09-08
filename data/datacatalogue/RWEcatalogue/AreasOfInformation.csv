@@ -1,0 +1,72 @@
+name,description,parent
+Geographic regions,Are data on geographic region available?,
+Family linkage,Is any linkage available in the data bank between any of the following persons?,
+Family linkage routinely,Is familial linkage created routinely?
+Family linkage ad-hoc,Can familial linkage can linkage be performed on an ad-hoc basis?
+Household linkage,,Family linkage
+Mother-child linkage,,Family linkage
+Father-child linkage,,Family linkage
+Sibling linkage,,Family linkage
+Sociodemographics,"Which of the following sociodemographic information is included? Select all that apply"
+Age,,Sociodemographics
+Sex,,Sociodemographics
+Gender,,Sociodemographics
+Ethnicity,,Sociodemographics
+Country of origin,,Sociodemographics
+Socioeconomic status,,Sociodemographics
+Marital status,,Sociodemographics
+Education level,,Sociodemographics
+Type of residency,,Sociodemographics
+Living in rural area,,Sociodemographics
+Health area,,Sociodemographics
+Deprivation index,,Sociodemographics
+Pharmaceutical copayment,,Sociodemographics
+Other,,Sociodemographics
+Lifestyle,,
+Tobacco use,,Lifestyle
+Alcohol use,,Lifestyle
+Frequency of exercise,,Lifestyle
+Lifestyle other,,Lifestyle
+Clinical data,,
+Diagnoses codes included,Are diagnostic codes included?,Clinical data
+Hospital admission,Is information on hospital admission available?,Clinical data
+Hospital discharge,Is information on hospital discharge available?,Clinical data
+ICU admission,Is information on intensive care unit admission available?,Clinical data
+Cause of death,Is cause of death available?,Clinical data
+Rare diseases,Are rare diseases (<1 in 2000 people) captured?,Clinical data
+Prescriptions included,Is information on prescription of medications included?,Clinical data
+Dispensings included,Is information on dispensing of medications included?,Clinical data
+Product information,Is product information available? Select all items that apply,Clinical data
+Brand name,,Product information
+Batch number,,Product information
+Formulation,,Product information
+Strength,,Product information
+Package size,,Product information
+ATMP,Is information on advanced therapy medicinal products included?,
+Contraception,Is information on contraceptives included?,
+Indication for use,"If medicines information is captured,is the indication for use recorded?",
+Administration vaccines,Administration vaccines included,
+Administration other injectable medicines,Is information on the administration of other injectable medicines included?,
+Medical devices,Is information on medical devices included?,
+Procedures,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",
+Clinical measures,"Is information on clinical measures included (e.g., BMI, blood pressure)?",
+Healthcare centre,"Is information on the healthcare centre (e.g., pharmacy, general practice, hospital) available?",
+Healthcare provider,"Is information on the person providing healthcare (e.g., physician, pharmacist, specialist) available?",
+Genetic data,Is genotyping information available?,
+Biomarker data,Is biomarker information available?,
+Patient-generated data,"Is patient-generated information (e.g.,from wearable devices) available?",
+Quality of life,Are quality of life measures available? Select all that apply,
+AQoL-8D,,Quality of life
+QOLS,,Quality of life
+MQOL,,Quality of life
+MQOL-E,,Quality of life
+HRQOL,,Quality of life
+WHOQOL,,Quality of life
+EQ5D,,Quality of life
+15D,,Quality of life
+SF-36,,Quality of life
+SF-6D,,Quality of life
+HUI,,Quality of life
+QoL other,,Quality of life
+Health care costs,Is information on costs of healthcare available?,
+Free text,Is free text information available?,
