@@ -1,0 +1,8 @@
+release.resource,release.version,name,unitOfObservation,topics,label,description,completeness,populations,timeline,supplementaryInformation
+LifeCycle,1.0.0,core,Patient,,,,,,,
+LifeCycle,1.0.0,outcomes,,,,,,,,
+ALSPAC,1.0.0,core,,,,,,,,
+ALSPAC,1.0.0,followup1,,,,,,,,
+BIB,1.0.0,baseline,,,,,,,,
+EUChildNetworkCDM,1.0.0,core,,,,,,,,
+LongITools,1.0.0,c_exposures,,,,,,,,

@@ -1,9 +1,10 @@
 <template>
   <div>
     <h6>Access conditions</h6>
-    <OntologyTerms :terms="resource.conditions" :color="color" />
-    <p v-if="resource.conditionsDescription">
-      {{ resource.conditionsDescription }}
+    <OntologyTerms :terms="resource.dataAccessConditions" :color="color" />
+    <h6>Access conditions description</h6>
+    <p v-if="resource.dataAccessConditionsDescription">
+      {{ resource.dataAccessConditionsDescription }}
     </p>
     <h6>Funding statement</h6>
     <p>

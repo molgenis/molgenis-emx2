@@ -71,7 +71,7 @@ public class Emx2 {
 
           Column column = column(r.getString(COLUMN_NAME));
           if (r.notNull(COLUMN_TYPE))
-            column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase()));
+            column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase().trim()));
           if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
           if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
           if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));

@@ -1,0 +1,23 @@
+resource,name,url
+TestCohort,documentation,http://molgenis.org 
+BIB,Guidance for Collaborators,https://borninbradford.nhs.uk/research/guidance-for-collaborators/
+BIB,Data documentation,https://borninbradford.nhs.uk/research/documents-data/
+BIB,Access to BIB data,https://borninbradford.nhs.uk/research/how-to-access-data/
+ALSPAC,Data request,https://proposals.epi.bristol.ac.uk/
+ALSPAC,Data documentation,http://www.bristol.ac.uk/alspac/researchers/our-data/
+NFBC86,Access to NFBC86 data,https://www.oulu.fi/nfbc/nfbc1966_1986
+MoBa,Access to MoBa data,https://www.fhi.no/en/studies/moba/for-forskere-artikler/research-and-data-access/
+ELFE,Access to ELFE data,https://elfe-france.fr/en/the-research/access-to-data-and-questionnaires/
+NFBC66,Access to NFBC66 data,https://www.oulu.fi/nfbc/nfbc1966_1986
+DNBC,Acces to DNBC data,https://www.dnbc.dk/data-available
+SWS,Access to SWS data,sws@mrc.soton.ac.uk
+RAINE,Access to RAINE data,https://rainestudy.org.au/information-for-researchers/available-data/
+RHEA,Access to RHEA data,http://www.rhea.gr/en/research/data-access/
+INMA,Access to INMA data,https://www.proyectoinma.org/en/inma-project/inma-collaboration-policy/
+EUChildNetworkCDM,Quality checks and protocol for harmonization of core variables,https://lifecycle-project.eu/wp-content/uploads/2020/05/WP1-harmonisation-manual_Quality-check-instructions.pdf
+EUChildNetworkCDM,Quality checks and protocol for harmonization of WP3.1.2: Ethnicity,https://lifecycle-project.eu/wp-content/uploads/2020/05/WP3.1.2-Protocole-Quality-Control-Merged-20Apr20.pdf
+EUChildNetworkCDM,Quality checks and protocol for harmonization of WP3.1.4: Lifestyle,https://lifecycle-project.eu/wp-content/uploads/2020/05/LifeCycle_Subtask_3.1.4_Harmonisation_Protocol_QControl.pdf
+EUChildNetworkCDM,Quality Checks and protocol for harmonisation of WP3.3.3: Urban Environment Stressors,https://lifecycle-project.eu/wp-content/uploads/2020/11/Protocol-v3_2020_10_27.pdf
+EUChildNetworkCDM,Quality checks and protocol for harmonization of cardio-metabolic health variables,https://lifecycle-project.eu/wp-content/uploads/2020/04/WP4_harmonisation_manual_final_updated.pdf
+EUChildNetworkCDM,Quality checks and protocol for harmonization of respiratory health variables,https://lifecycle-project.eu/wp-content/uploads/2020/04/WP5_harmonisation_manual_final_V2.1_14042020quality-checks-1.pdf
+EUChildNetworkCDM,Quality checks and protocol for harmonization of mental health variables (WP 6),https://lifecycle-project.eu/wp-content/uploads/2020/04/harmonisation_protocol_WP6_19July19_QC_merged-1.pdf

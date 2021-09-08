@@ -1,0 +1,6 @@
+resource,version,models.resource,models.version,databanks,cohorts
+LifeCycle,1.0.0,,,,
+ALSPAC,1.0.0,,,,
+BIB,1.0.0,,,,
+LongITools,1.0.0,EUChildNetworkCDM,1.0.0,,"ALSPAC,Gen R,ELFE,EDEN,NFBC66,Borealis,CONSTANCES,DFBC,ELIPA,FEF,FinnGeDi,FMC,FR,NOMA,OULU1935,OULU1945,PANIC,RCGP RSC,ERGO,SYSDIMET,UK Biobank,NFBC66 G0"
+EUChildNetworkCDM,1.0.0,,,,
