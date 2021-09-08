@@ -133,5 +133,5 @@ export {
   TableMolgenis,
   TableExplorer,
   TableSimple,
-  TableSearch
+  TableSearch,
 };

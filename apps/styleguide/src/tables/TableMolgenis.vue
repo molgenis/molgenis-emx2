@@ -164,7 +164,7 @@ export default {
       if (row[col.name] === undefined) {
         return [];
       }
-      if (col.columnType == "REF_ARRAY" || col.columnType == "REFBACK" || col.columnType == "ONTOLOGY_ARRAY") {
+      if (["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].indexOf(col.columnType) > 0) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
             return this.applyJsTemplate(col.refLabel, v);
@@ -178,7 +178,7 @@ export default {
         } else {
           return [this.flattenObject(row[col.name])];
         }
-      } else if (col.columnType.includes("ARRAY")) {
+      } else if (col.columnType.includes("ARRAY") > 0) {
         return row[col.name];
       } else {
         return [row[col.name]];

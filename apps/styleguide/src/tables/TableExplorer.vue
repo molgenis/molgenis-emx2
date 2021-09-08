@@ -287,7 +287,7 @@ export default {
     },
     emitColumns() {
       let columns = this.columns
-        .filter((c) => c.showColumn && c.columnType != "CONSTANT")
+        .filter((c) => c.showColumn && c.columnType != "HEADING")
         .map((c) => c.name);
       this.$emit("update:showColumns", columns);
     },
@@ -296,7 +296,7 @@ export default {
       this.$emit(
         "update:showFilters",
         this.columns
-          .filter((c) => c.showFilter && c.columnType != "CONSTANT")
+          .filter((c) => c.showFilter && c.columnType != "HEADING")
           .map((c) => c.name)
       );
     },

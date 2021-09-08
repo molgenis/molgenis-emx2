@@ -58,8 +58,15 @@ export default {
       let result = "";
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
+          console.log("col = "+JSON.stringify(col));
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF","ONTOLOGY","ONTOLOGY_ARRAY"].includes(col.columnType)
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(col.columnType) > 0
           ) {
             result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
@@ -101,7 +108,7 @@ export default {
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
           graphqlString += c.name + " ";
-          if (["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(c.columnType)) {
+          if (["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(c.columnType) > 0) {
             graphqlString += "{" + this.refGraphql(c) + "}";
           }
         }
