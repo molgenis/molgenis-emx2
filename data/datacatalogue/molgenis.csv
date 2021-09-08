@@ -65,6 +65,7 @@ Partners,,roleDescription,text,,,,,,,,Description of the role in this resource
 Contributions,,,,,,,,,,,Persons that contributed to the creation of this resource
 Contributions,,resource,ref,1,TRUE,Resources,,,,,Resource person has contributed to
 Contributions,,contact,ref,1,TRUE,Contacts,,,,,Person who contributed to this resource
+Contributions,,institution,ref,1,TRUE,Institutions,,,,,Institution who participated in this contribution
 Contributions,,contributionType,ref_array,,,ContributionTypes,,,,,Type of contribution
 Contributions,,contributionDescription,text,,,,,,,,Contribution description
 Contacts,,name,,1,TRUE,,,,,,Name of the contact person
@@ -74,7 +75,7 @@ Contacts,,orcid,,3,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,Link to contact's homepage
 Contacts,,email,,2,,,,,,,Contact's email address
 Contacts,,photo,file,,,,,,,,Contact's photograph
-Contacts,,expertise,,,,,,,,,Description of contact's expertise
+Contacts,,expertise,text,,,,,,,,Description of contact's expertise
 Documentation,,,,,,,,,,,Documentation attached to a resource
 Documentation,,resource,ref,1,TRUE,Resources,,,,,The resource this documentation is for
 Documentation,,name,,1,TRUE,,,,,,Document name

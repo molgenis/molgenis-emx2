@@ -1,7 +1,5 @@
 package org.molgenis.emx2.tasks;
 
-import static org.molgenis.emx2.tasks.StepStatus.*;
-
 import java.util.*;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
@@ -10,9 +8,11 @@ import org.slf4j.LoggerFactory;
 public class Task extends Step implements Runnable, Iterable<Task> {
   private Logger logger = LoggerFactory.getLogger(getClass().getName());
   private List<Step> steps = new ArrayList<>();
+  private boolean strict = false;
 
-  public Task(String message) {
+  public Task(String message, boolean strict) {
     super(message);
+    this.strict = strict;
   }
 
   public Step step(String message) {
@@ -51,5 +51,9 @@ public class Task extends Step implements Runnable, Iterable<Task> {
   @Override
   public Spliterator spliterator() {
     return this.steps.spliterator();
+  }
+
+  public boolean isStrict() {
+    return strict;
   }
 }

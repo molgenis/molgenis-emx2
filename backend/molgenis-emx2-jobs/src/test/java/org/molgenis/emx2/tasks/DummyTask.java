@@ -7,9 +7,9 @@ public class DummyTask extends Task {
   private final int noTasks = 5;
 
   public DummyTask() {
-    super("dummy");
+    super("dummy", false);
     for (int i = 1; i <= noTasks; i++) {
-      super.add(new Task("task" + i));
+      super.add(new Task("task" + i, false));
     }
   }
 

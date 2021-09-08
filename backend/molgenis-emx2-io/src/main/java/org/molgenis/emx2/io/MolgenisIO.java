@@ -69,19 +69,19 @@ public class MolgenisIO {
     outputTable(new TableStoreForCsvFile(csvFile), table);
   }
 
-  public static void fromDirectory(Path directory, Schema schema) {
-    new ImportDirectoryTask(directory, schema).run();
+  public static void fromDirectory(Path directory, Schema schema, boolean strict) {
+    new ImportDirectoryTask(directory, schema, strict).run();
   }
 
-  public static void fromZipFile(Path zipFile, Schema schema) {
-    new ImportCsvZipTask(zipFile, schema).run();
+  public static void fromZipFile(Path zipFile, Schema schema, boolean strict) {
+    new ImportCsvZipTask(zipFile, schema, strict).run();
   }
 
-  public static void importFromExcelFile(Path excelFile, Schema schema) {
-    new ImportExcelTask(excelFile, schema).run();
+  public static void importFromExcelFile(Path excelFile, Schema schema, boolean strict) {
+    new ImportExcelTask(excelFile, schema, strict).run();
   }
 
-  public static void fromStore(TableStore store, Schema schema) {
-    new ImportSchemaTask(store, schema).run();
+  public static void fromStore(TableStore store, Schema schema, boolean strict) {
+    new ImportSchemaTask(store, schema, strict).run();
   }
 }

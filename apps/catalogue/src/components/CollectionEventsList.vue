@@ -11,6 +11,7 @@
         <th>Data sources</th>
         <th>Sample sources</th>
         <th>Areas of information</th>
+        <th>Age Categories</th>
       </thead>
       <tbody>
         <tr v-for="e in collectionEvents" :key="e.name">
@@ -30,6 +31,9 @@
           </td>
           <td>
             <OntologyTerms :terms="e.areasOfInformation" />
+          </td>
+          <td>
+            <OntologyTerms :terms="e.ageCategories" />
           </td>
         </tr>
       </tbody>

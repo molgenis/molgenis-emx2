@@ -33,7 +33,7 @@ public class LinkedDataServiceTest {
   public void testOntologyLinks() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path file = new File(classLoader.getResource("hpo_patients.xlsx").getFile()).toPath();
-    MolgenisIO.importFromExcelFile(file, patientSchema);
+    MolgenisIO.importFromExcelFile(file, patientSchema, true);
 
     StringWriter sw = new StringWriter();
     LinkedDataService.getJsonLdForSchema(patientSchema, new PrintWriter(sw));
@@ -50,7 +50,7 @@ public class LinkedDataServiceTest {
 
     ClassLoader classLoader = getClass().getClassLoader();
     Path file = new File(classLoader.getResource("fdp.xlsx").getFile()).toPath();
-    MolgenisIO.importFromExcelFile(file, fdpSchema);
+    MolgenisIO.importFromExcelFile(file, fdpSchema, true);
 
     LinkedDataServiceTest.fdpSchema = database.getSchema("fdpTest");
 

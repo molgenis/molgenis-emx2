@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "5.14.3" apply false
+    id "com.diffplug.spotless" version "5.15.0" apply false
 }
 
 repositories {
@@ -43,7 +43,7 @@ subprojects {
         implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.5'
         implementation 'com.graphql-java:graphql-java:16.2'
         implementation 'com.sparkjava:spark-core:2.9.3'
-        implementation 'org.javers:javers-core:6.2.4'
+        implementation 'org.javers:javers-core:6.2.5'
 
         //also used outside test
         implementation 'junit:junit:4.13.2'
