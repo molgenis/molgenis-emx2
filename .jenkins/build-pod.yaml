@@ -31,5 +31,3 @@ spec:
       - name: POSTGRES_DB
         value: molgenis  
   restartPolicy: Never
-nodeSelector:
-  deployPod: "true"
