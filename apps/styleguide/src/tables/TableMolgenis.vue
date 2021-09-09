@@ -165,7 +165,9 @@ export default {
         return [];
       }
       if (
-          col.columnType == "REF_ARRAY" || col.columnType ==  "REFBACK" || col.columnType == "ONTOLOGY_ARRAY"
+        col.columnType == "REF_ARRAY" ||
+        col.columnType == "REFBACK" ||
+        col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
