@@ -5,7 +5,7 @@
       :showFilters="defaultFilters"
       :table="tableName"
       :showCards="defaultCards"
-      :searchTerms="searchTerm"
+      :initialSearchTerms="searchTerm"
       @click="openDetailView"
     />
   </div>
