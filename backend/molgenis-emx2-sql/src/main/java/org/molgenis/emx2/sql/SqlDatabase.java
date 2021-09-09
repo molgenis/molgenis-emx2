@@ -8,7 +8,6 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
-import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
