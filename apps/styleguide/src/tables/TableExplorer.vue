@@ -256,7 +256,7 @@ export default {
     },
     conditions: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
   },
   data() {
@@ -287,16 +287,15 @@ export default {
     },
     emitColumns() {
       let columns = this.columns
-        .filter((c) => c.showColumn && c.columnType != "CONSTANT")
+        .filter((c) => c.showColumn && c.columnType != "HEADING")
         .map((c) => c.name);
       this.$emit("update:showColumns", columns);
     },
     emitFilters() {
-      console.log("emitFilters");
       this.$emit(
         "update:showFilters",
         this.columns
-          .filter((c) => c.showFilter && c.columnType != "CONSTANT")
+          .filter((c) => c.showFilter && c.columnType != "HEADING")
           .map((c) => c.name)
       );
     },

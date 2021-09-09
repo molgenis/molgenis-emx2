@@ -615,8 +615,8 @@ public class Column implements Comparable<Column> {
     return getColumnType().isFile();
   }
 
-  public boolean isConstant() {
-    return this.getColumnType().isConstant();
+  public boolean isHeading() {
+    return this.getColumnType().isHeading();
   }
 
   @Override

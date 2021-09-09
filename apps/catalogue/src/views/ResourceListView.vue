@@ -164,10 +164,10 @@ export default {
           name: this.detailRouteName,
           params: { acronym: row.resource.acronym, version: row.version },
         });
-      } else if (row.acronym) {
+      } else if (row.pid) {
         this.$router.push({
           name: this.detailRouteName,
-          params: { acronym: row.acronym },
+          params: { pid: row.pid },
         });
       } else {
         this.$router.push({

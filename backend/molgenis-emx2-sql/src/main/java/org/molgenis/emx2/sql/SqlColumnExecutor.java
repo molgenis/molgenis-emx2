@@ -112,13 +112,20 @@ public class SqlColumnExecutor {
     }
 
     // change the type
-    alterField(
-        jooq,
-        table,
-        oldColumn.getName(),
-        oldColumn.getJooqField().getDataType(),
-        newColumn.getJooqField().getDataType(),
-        getPsqlType(newColumn));
+    if (newColumn.isHeading() && !oldColumn.isHeading()) {
+      // if changed to heading, drop
+      executeRemoveColumn(jooq, oldColumn);
+    } else if (oldColumn.isHeading() && !newColumn.isHeading()) {
+      executeCreateColumn(jooq, newColumn);
+    } else if (!newColumn.isHeading()) {
+      alterField(
+          jooq,
+          table,
+          oldColumn.getName(),
+          oldColumn.getJooqField().getDataType(),
+          newColumn.getJooqField().getDataType(),
+          getPsqlType(newColumn));
+    }
 
     // post changes
     if (newColumn.isRefArray()) {
@@ -199,7 +206,7 @@ public class SqlColumnExecutor {
         for (Field f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
         }
-      } else {
+      } else if (!column.isHeading()) {
         jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
         executeSetDefaultValue(jooq, column);
 

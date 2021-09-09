@@ -67,7 +67,6 @@ export default {
       this.query = Object.assign({}, this.$route.query);
       this.activeTable.columns.forEach((c) => {
         if (conditions[c.name]) {
-          console.log(c.columnType + " " + JSON.stringify(conditions[c.name]));
           if (["REF", "REF_ARRAY", "REFBACK"].includes(c.columnType)) {
             //todo try to make this human readible too
             this.query[c.name] = JSON.stringify(conditions[c.name]);
@@ -150,7 +149,6 @@ export default {
     $route(to, from) {
       //this is to prevent updates if changes come from outside vs inside
       if (JSON.stringify(to.query) != JSON.stringify(this.query)) {
-        console.log("not equal");
         this.timestamp = Date.now();
         this.query = to.query;
       }

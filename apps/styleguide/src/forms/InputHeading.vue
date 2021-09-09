@@ -1,9 +1,9 @@
 <template>
-  <div class="d-flex">
-    <div v-if="description && !focus" v-html="stripHtml(description)" />
-    <div v-else-if="!focus">
-      CONSTANT type is empty. Please set text or html in 'description'.
-    </div>
+  <div class="d-flex form-group bg-white rounded p-2">
+    <span v-if="!focus">
+      <h1>{{ label }}</h1>
+      <p>{{ description }}</p>
+    </span>
     <textarea
       v-else
       v-focus="inplace || editMeta"
@@ -29,10 +29,16 @@
 <script>
 import IconAction from "./IconAction";
 
+/**
+ * This is an component that does not have an input field but instead shows an header.
+ * Otherwise it uses same mechanism as other input hence name 'InputHeader'
+ */
 export default {
   components: { IconAction },
   props: {
     inplace: Boolean,
+    label: String,
+    columnType: String,
     description: String,
     editMeta: Boolean,
   },
@@ -58,15 +64,15 @@ export default {
 </script>
 
 <docs>
-simple
+structured, using format as parameter
 ```
-<InputConstant description="<h2>hello world</h2>"/>
+<InputHeading label="About" description="My about section" />
 ```
 editable
 ```
 <template>
   <div>
-    <InputConstant :description.sync="description" :inplace="true"/>
+    <InputHeading :description.sync="description" :label.sync="label" :inplace="true"/>
     {{ description }}
   </div>
 </template>
@@ -74,7 +80,8 @@ editable
   export default {
     data() {
       return {
-        description: "<h2>hello world</h2>"
+        label: "About",
+        description: "This is my about section"
       }
     }
   }

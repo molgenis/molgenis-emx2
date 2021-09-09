@@ -91,8 +91,11 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLObjectType createTableObjectType(Table table) {
     GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(table.getName());
-    for (Column col : table.getMetadata().getColumnsWithoutConstant())
+    for (Column col : table.getMetadata().getColumnsWithoutHeadings())
       switch (col.getColumnType().getBaseType()) {
+        case HEADING:
+          // nothing to do
+          break;
         case FILE:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition().name(col.getName()).type(fileDownload));
@@ -368,10 +371,12 @@ public class GraphqlTableFieldFactory {
         subFilters.add(f(Operator.TRIGRAM_SEARCH, entry.getValue()));
       } else if (entry.getKey().equals(FILTER_EQUALS)) {
         //  complex filter, should be an list of maps per graphql contract
-        subFilters.add(
-            or(
-                ((List<Map<String, Object>>) entry.getValue())
-                    .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+        if (entry.getValue() != null) {
+          subFilters.add(
+              or(
+                  ((List<Map<String, Object>>) entry.getValue())
+                      .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+        }
       } else {
         Column c = table.getMetadata().getColumn(entry.getKey());
         if (c == null)
@@ -498,7 +503,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
-      if (table.getColumnsWithoutConstant().size() > 0) {
+      if (table.getColumnsWithoutHeadings().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getTableName())
@@ -591,7 +596,7 @@ public class GraphqlTableFieldFactory {
     if (rowInputTypes.get(table.getName()) == null) {
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(table.getName() + INPUT);
-      for (Column col : table.getMetadata().getColumnsWithoutConstant()) {
+      for (Column col : table.getMetadata().getColumnsWithoutHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {

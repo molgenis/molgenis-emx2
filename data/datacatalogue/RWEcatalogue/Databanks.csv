@@ -1,0 +1,2 @@
+pid,name,type,underlyingPopulation,countries,reasonSustained,ageGroups,populationEntry,populationEntryOther,populationExit,populationPregnancy,populationDisease
+ecr,Estonian Cancer Registry,Registry,Estonian legal residents,Estonia,"Surveillance, clinical, research purposes",All ages,"Birth,Other","Persons with Estonian ID number, persons don't need to have Estonian passport","Death,Emigration",,Cancer

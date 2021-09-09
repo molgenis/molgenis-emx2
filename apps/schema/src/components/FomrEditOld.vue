@@ -158,7 +158,6 @@ export default {
   },
   methods: {
     changed() {
-      console.log("changed");
       this.changetime = Date.now();
     },
     eval(expression) {
