@@ -73,7 +73,8 @@ public class GraphqlApi {
 
     // todo, really check permissions
     if (getSchema(request) == null) {
-      throw new GraphqlException("Schema '" + schemaName + "' unknown. Might you need to sign in?");
+      throw new GraphqlException(
+          "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);
