@@ -101,15 +101,6 @@ public class SqlDatabase implements Database {
       logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
       logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
 
-      if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
-        logger.error(
-            "Error: invalid "
-                + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI
-                + " string. Found :"
-                + url);
-        return;
-      }
-
       // create data source
       HikariDataSource dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
