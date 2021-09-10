@@ -27,6 +27,7 @@ export default {
         {
           label: "Help",
           href: "docs",
+          role: "Viewer",
         },
       ];
     },
