@@ -116,6 +116,7 @@ export default {
       if (
         href &&
         (href.startsWith("http://") ||
+          href.startsWith("https://") ||
           href.startsWith("/") ||
           href.startsWith(".."))
       ) {
