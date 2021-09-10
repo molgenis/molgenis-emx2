@@ -28,6 +28,7 @@
               :columns.sync="columns"
               @update:columns="emitFilters"
               checkAttribute="showFilter"
+              :exclude="['HEADING', 'FILE']"
               label="filters"
               icon="filter"
             />

@@ -17,28 +17,30 @@
         )
       </b>
       <div v-for="(col, key) in columns" :key="key">
-        <b class="ml-0" v-if="col.name == 'mg_draft'">
-          metadata (
-          <ButtonAlt class="pl-0" @click="showAll(false)">all</ButtonAlt>
-          <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
-          )
-        </b>
-        <div class="form-check" v-if="col.columnType != 'HEADING'">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            :checked="
-              col[checkAttribute] == undefined
-                ? defaultValue
-                : col[checkAttribute]
-            "
-            @input.prevent="change(key, !col[checkAttribute])"
-            :id="col.name"
-          />
-          <label class="form-check-label" :for="col.name">
-            {{ col.name }}
-          </label>
-        </div>
+        <span v-if="exclude.length == 0 || !exclude.includes(col.columnType)">
+          <b class="ml-0" v-if="col.name == 'mg_draft'">
+            metadata (
+            <ButtonAlt class="pl-0" @click="showAll(false)">all</ButtonAlt>
+            <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
+            )
+          </b>
+          <div class="form-check" v-if="col.columnType != 'HEADING'">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              :checked="
+                col[checkAttribute] == undefined
+                  ? defaultValue
+                  : col[checkAttribute]
+              "
+              @input.prevent="change(key, !col[checkAttribute])"
+              :id="col.name"
+            />
+            <label class="form-check-label" :for="col.name">
+              {{ col.name }}
+            </label>
+          </div>
+        </span>
       </div>
     </div>
   </ButtonDropdown>
@@ -55,6 +57,7 @@ export default {
     columns: Array,
     label: String,
     icon: String,
+    exclude: { type: Array, default: () => [] },
     checkAttribute: String,
     defaultValue: { type: Boolean, default: false },
   },
