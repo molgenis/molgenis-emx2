@@ -11,7 +11,7 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a v-if="logo" class="navbar-brand" :href="homeUrl">
+    <a v-if="logo" class="navbar-brand">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <div class="collapse navbar-collapse" id="navbarNav">
