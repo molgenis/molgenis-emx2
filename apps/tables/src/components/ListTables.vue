@@ -1,9 +1,6 @@
 <template>
   <div v-if="schema" class="container">
     <h1>Tables in '{{ schema.name }}'</h1>
-    <MessageWarning v-if="!schema">
-      No tables found. Might you need to sign in or ask permission?
-    </MessageWarning>
     <MessageWarning v-if="!schema.tables">
       No tables found. You might want to go to design
       <a href="../schema/">design</a> or
@@ -60,7 +57,6 @@ export default {
   props: {
     session: Object,
     schema: Object,
-    error: String
   },
   data() {
     return {
