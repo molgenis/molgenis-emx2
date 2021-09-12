@@ -45,7 +45,7 @@ export default {
     },
     detailRouteName() {
       //detailRoute is name of table minus trailing 's'
-      return this.tableName.toLowerCase().slice(0, -1);
+      return this.tableName + "-details";
     },
     defaultCards() {
       if (this.tableName == "Institutions") {
@@ -129,7 +129,7 @@ export default {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            acronym: row.release.resource.acronym,
+            pid: row.release.resource.pid,
             version: row.release.version,
             name: row.name,
           },
@@ -141,10 +141,10 @@ export default {
         this.$router.push({
           name: "tablemapping",
           params: {
-            fromAcronym: row.fromRelease.resource.acronym,
+            fromPid: row.fromRelease.resource.pid,
             fromVersion: row.fromRelease.version,
             fromTable: row.fromTable.name,
-            toAcronym: row.toRelease.resource.acronym,
+            toPid: row.toRelease.resource.pid,
             toVersion: row.toRelease.version,
             toTable: row.toTable.name,
           },
@@ -153,7 +153,7 @@ export default {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            acronym: row.release.resource.acronym,
+            pid: row.release.resource.pid,
             version: row.release.version,
             table: row.table.name,
             name: row.name,
@@ -162,7 +162,7 @@ export default {
       } else if (row.version) {
         this.$router.push({
           name: this.detailRouteName,
-          params: { acronym: row.resource.acronym, version: row.version },
+          params: { pid: row.resource.pid, version: row.version },
         });
       } else if (row.pid) {
         this.$router.push({

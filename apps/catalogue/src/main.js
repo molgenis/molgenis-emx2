@@ -8,7 +8,6 @@ import TableView from "./views/TableView";
 import NetworkView from "./views/NetworkView";
 import ReleasesView from "./views/ReleasesView";
 import ResourceListView from "./views/ResourceListView";
-import ContactView from "./views/ContactView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
@@ -138,7 +137,7 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      name: "institution",
+      name: "Institutions-details",
       path: "/institutions/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
@@ -149,13 +148,13 @@ const router = new VueRouter({
     },
 
     {
-      name: "release",
-      path: "/releases/:acronym/:version",
+      name: "Releases-details",
+      path: "/releases/:pid/:version",
       component: ReleasesView,
       props: true,
     },
     {
-      name: "databank",
+      name: "Databanks-details",
       path: "/databanks/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
@@ -165,13 +164,13 @@ const router = new VueRouter({
       }),
     },
     {
-      name: "cohort",
+      name: "Cohorts-details",
       path: "/cohorts/:pid",
       component: CohortView,
       props: true,
     },
     {
-      name: "datasource",
+      name: "Datasources-details",
       path: "/datasources/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
@@ -181,8 +180,8 @@ const router = new VueRouter({
       }),
     },
     {
-      name: "model",
-      path: "/models/:acronym",
+      name: "Models-details",
+      path: "/models/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Models",
@@ -201,10 +200,14 @@ const router = new VueRouter({
       }),
     },
     {
-      name: "contact",
+      name: "Contacts-details",
       path: "/contacts/:name",
-      props: true,
-      component: ContactView,
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Contacts",
+        color: "dark",
+        filter: { name: { equals: route.params.name } },
+      }),
     },
     {
       name: "studie",
@@ -217,26 +220,26 @@ const router = new VueRouter({
       }),
     },
     {
-      name: "variable",
-      path: "/variables/:acronym/:version/:table/:name",
+      name: "Variables-details",
+      path: "/variables/:pid/:version/:table/:name",
       props: true,
       component: VariableView,
     },
     {
-      name: "table",
-      path: "/tables/:acronym/:version/:name",
+      name: "Tables-details",
+      path: "/tables/:pid/:version/:name",
       component: TableView,
       props: true,
     },
     {
       name: "variablemapping",
-      path: "/variablemappings/:acronym/:version/:name",
+      path: "/variablemappings/:pid/:version/:name",
       props: true,
       component: VariableMappingsView,
     },
     {
       name: "tablemapping",
-      path: "/tablemappings/:fromAcronym/:fromVersion/:fromTable/:toAcronym/:toVersion/:toTable",
+      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },

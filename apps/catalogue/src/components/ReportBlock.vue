@@ -1,6 +1,7 @@
 <template>
   <div class="row p-2">
     <div :class="'border border-' + color" class="col-10 p-0">
+      {{table}}
       <div v-for="col in columns" :key="col.name" class="p-0">
         <div v-if="col.columnType == 'HEADING'" class="mt-0">
           <a href="#_top" class="float-right text-white">back to top</a>
@@ -12,13 +13,11 @@
           </h3>
           <p class="p-2 bg-light mt-0">{{ col.description }}</p>
         </div>
-        <div class="m-2 showcontainer">
-          <h6>{{ toSentence(col.name) }}</h6>
-          <small
-              v-if="col.description"
-              class="form-text text-muted showonhover"
-          >{{ col.description }}</small
-          >
+        <div v-else class="m-2 showcontainer row">
+          <div class="col-3 text-right">
+          <label class="mb-0 font-weight-bold">{{ toSentence(col.name) }}:</label>
+          </div>
+          <div class="col">
           <p v-if="row[col.name] == undefined">N/A</p>
           <p
               v-else-if="
@@ -27,13 +26,14 @@
           >
             {{ row[col.name] }}
           </p>
-          <p v-else-if="col.columnType == 'REF'">
+          <p v-else-if="col.columnType == 'REF' || col.columnType == 'ONTOLOGY'">
             <OntologyTerms :terms="row[col.name]" :color="color" />
           </p>
-          <p v-else-if="col.columnType == 'REF_ARRAY'">
+          <p v-else-if="col.columnType == 'REF_ARRAY' || col.columnType == 'ONTOLOGY_ARRAY'">
             <OntologyTerms :terms="row[col.name]" :color="color" />
           </p>
           <p v-else>{{ renderValue(row, col) }}</p>
+          </div>
         </div>
       </div>
     </div>
