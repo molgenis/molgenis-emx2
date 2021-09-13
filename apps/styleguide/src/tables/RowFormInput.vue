@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{columnType}}
     <InputHeading
       v-if="columnType === 'HEADING'"
       v-bind="$props"
